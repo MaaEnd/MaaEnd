@@ -902,8 +902,7 @@
         },
         "next": [
             "ProtocolSpaceRewardAddItemData",
-            "ProtocolSpaceRewardClaimSuccessContinue",
-            "ProtocolSpaceRewardClaimSuccessFinish"
+            "ProtocolSpaceRewardClaimSuccessNext"
         ]
     },
     "ProtocolSpaceRewardAddItemData": {
@@ -926,6 +925,15 @@
         "custom_action_param": {},
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceRewardClaimSuccessNext"
+        ]
+    },
+    "ProtocolSpaceRewardClaimSuccessNext": {
+        "desc": "协议空间奖励界面：继续或结束",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "ProtocolSpaceRewardClaimSuccessContinue",
             "ProtocolSpaceRewardClaimSuccessFinish"
@@ -1016,7 +1024,7 @@
         "pre_delay": 0,
         "anchor": {
             "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "ProtocolSpaceRewardClaimSuccessSanityLowFinish",
-            "AutoUseSpMedicationInPrepareFinishUseAnchor": "ProtocolSpaceRewardClaimSuccessContinue"
+            "AutoUseSpMedicationInPrepareFinishUseAnchor": "ProtocolSpaceRewardClaimSuccessNext"
         },
         "post_delay": 0,
         "next": [

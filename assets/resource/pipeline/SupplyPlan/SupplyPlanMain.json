@@ -121,8 +121,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_PROTOSET",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -229,8 +228,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_PROTODISK",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -325,8 +323,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -421,8 +418,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -517,8 +513,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -613,8 +608,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -709,8 +703,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -817,8 +810,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_PROTOHEDRON",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -925,8 +917,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_PROTOPRISM",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -1025,8 +1016,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_T_CREDS",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -1136,8 +1126,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_HEAVY_CAST_DIE",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -1247,8 +1236,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_CAST_DIE",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -1668,8 +1656,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_COGNITIVE_CARRIER_EXP",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -1798,8 +1785,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_COMBAT_RECORD_EXP",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
@@ -1923,8 +1909,7 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_WEAPON_EXP",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
                         "ProtocolSpaceSanityLowExitToWorld": {
