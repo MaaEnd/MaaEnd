@@ -134,8 +134,10 @@ func readDailyStorageFile(path string) (dailyStorageFile, error) {
 	return storage, nil
 }
 
+// retainRecentDailyStorageDates 仅保留最近 maxDateCount 个服务器日期的记录。
+// maxDateCount 由唯一调用方固定传入 maxDailyStorageDateCount（> 0）。
 func retainRecentDailyStorageDates(records []dailyStorageRecord, maxDateCount int) []dailyStorageRecord {
-	if maxDateCount <= 0 || len(records) == 0 {
+	if len(records) == 0 {
 		return nil
 	}
 
