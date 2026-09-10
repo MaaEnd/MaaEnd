@@ -27,18 +27,23 @@
                         141.39
                     ]
                 },
-                [
-                    185.9,
-                    129.5,
-                    true
-                ]
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        185.9,
+                        131.5
+                    ],
+                    "interact_text": [
+                        "物资调度终端",
+                        "物資調度終端"
+                    ]
+                }
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellEnterStockRedistribution",
-            "AutoSellSearchStockRedistribution"
+            "AutoSellEnterStockRedistributionSuccess"
         ],
         "focus": {
             "Node.Action.Starting": "正在走向物资调度终端",
@@ -46,49 +51,6 @@
                 "trace": true
             },
             "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoSellSearchStockRedistribution": {
-        "desc": "导航结束后未找到物资调度终端时，环绕微调站位并持续查找终端",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "CharacterSearchAction",
-        "custom_action_param": {
-            "wait_nodes": [
-                "AutoSellEnterStockRedistribution"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterStockRedistribution"
-        ]
-    },
-    "AutoSellEnterStockRedistribution": {
-        "desc": "进入物资调度页面",
-        "recognition": "TemplateMatch",
-        "roi": [
-            -600,
-            -350,
-            600,
-            350
-        ],
-        "template": "AutoSell/StockRedistributionButton.png",
-        "threshold": 0.9,
-        "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoAltClickAction",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoSellEnterStockRedistributionSuccess"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": {
                 "trace": true
             }
         }
