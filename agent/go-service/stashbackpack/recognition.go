@@ -297,6 +297,15 @@ func (r *RetrievedItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 			Msg("failed to parse retrieved item recognition")
 		return nil, false
 	}
+	if parsed.Error != nil {
+		if parsed.Error.Code == iconrecognition.ErrorCodeNoMatch {
+			return nil, false
+		}
+		log.Error().Str("component", componentName).Str("item_id", target.ItemID).
+			Str("error_code", string(parsed.Error.Code)).Str("error_message", parsed.Error.Message).
+			Msg("retrieved item recognition returned an error")
+		return nil, false
+	}
 	baselineCount, matched, err := globalState.recordRetrievedItemCount(target.ItemID, len(parsed.Matches))
 	if err != nil {
 		log.Error().Err(err).Str("component", componentName).Str("item_id", target.ItemID).

@@ -200,7 +200,10 @@ func prepareSnapshotImage(
 	if err := runSnapshotStep(ctx, snapshotPrepareRecognitionNode); err != nil {
 		return nil, nil, err
 	}
-	controller.PostScreencap().Wait()
+	screencap := controller.PostScreencap().Wait()
+	if screencap == nil || !screencap.Success() {
+		return nil, nil, fmt.Errorf("capture screenshot")
+	}
 	img, err := controller.CacheImage()
 	if err != nil {
 		return nil, nil, fmt.Errorf("cache screenshot: %w", err)
