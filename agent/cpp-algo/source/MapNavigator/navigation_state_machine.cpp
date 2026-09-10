@@ -31,6 +31,7 @@
 #include "steering_controller.h"
 #include "zipline_action.h"
 
+#include "../Common/notice.h"
 #include "../utils.h"
 
 namespace mapnavigator
@@ -2072,6 +2073,12 @@ void NavigationStateMachine::RunPreAlign(double target_heading)
     const bool aligned = std::abs(last_error) <= kPreAlignAcceptToleranceDeg;
     if (!aligned) {
         runtime_state_.pre_align_retry_after = std::chrono::steady_clock::now() + std::chrono::milliseconds(kPreAlignRetryCooldownMs);
+        // 临时调试：预对齐失败直接向客户端 UI Focus 播报，文案暂硬编码；若长期保留需迁到 locales/cpp-algo 的 key。
+        const int64_t residual_deg = static_cast<int64_t>(std::lround(std::abs(last_error)));
+        common::notice::Publish(
+            maa_context_,
+            "<span style=\"font-weight: bold;\">寻路预对齐失败：镜头未能转到目标方向，剩余偏差约 " + std::to_string(residual_deg)
+            + "°。</span>已退回走中转向，可能会走弧线，稍后会自动重试。此提示不会中断任务。");
     }
 
     // 恢复前进，等角色朝向追进死区再交回走中操舵：这段里发转向会把相机推过目标。
