@@ -26,9 +26,5 @@
             5,
             326
         ]
-    },
-    "StashBackpackMouseMoveReset": {
-        "action": "DoNothing",
-        "post_delay": 0
     }
 }
