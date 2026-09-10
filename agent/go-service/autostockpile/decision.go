@@ -15,11 +15,9 @@ func computeDecision(data RecognitionData, cfg SelectionConfig, bypassThresholdF
 	return selection, decision, nil
 }
 
+// mapComputeDecisionErrorToAbortReason 将 computeDecision 的失败原因映射为 abort 原因。
+// 调用方保证 err 非 nil（两个调用点都在 if err != nil 内）。
 func mapComputeDecisionErrorToAbortReason(err error) AbortReason {
-	if err == nil {
-		return AbortReasonNone
-	}
-
 	var thresholdErr *thresholdConfigError
 	if errors.As(err, &thresholdErr) {
 		return AbortReasonThresholdConfigInvalidFatal
