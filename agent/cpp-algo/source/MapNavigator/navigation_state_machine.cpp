@@ -2046,6 +2046,7 @@ void NavigationStateMachine::RunPreAlign(double target_heading)
     const double units_per_degree = action_wrapper_->DefaultTurnUnitsPerDegree();
 
     motion_controller_->SetForwardState(false);
+    const auto standstill_started_at = std::chrono::steady_clock::now();
     double last_cam = start_cam;
     for (int attempt = 0; attempt < kPreAlignMaxAttempts; ++attempt) {
         const double error = NaviMath::NormalizeAngle(target_heading - last_cam);
@@ -2083,6 +2084,13 @@ void NavigationStateMachine::RunPreAlign(double target_heading)
 
     // 恢复前进，等角色朝向追进死区再交回走中操舵：这段里发转向会把相机推过目标。
     motion_controller_->SetForwardState(true);
+    // 停步转向是刻意安排的，卡死检测不能把它读成停滞，否则一次长预对齐就能自己触发恢复；
+    // 恢复前进后的追齐段人已经在走，照常参与检测。
+    const auto standstill_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - standstill_started_at);
+    session_->DeferProgressClocks(standstill_ms);
+    nav_run_controller_.DeferProgressClock(standstill_ms);
+    runtime_state_.offroute.DeferProgress(standstill_ms);
     const auto quiet_started_at = std::chrono::steady_clock::now();
     double end_heading = start_heading;
     for (;;) {
@@ -2101,7 +2109,7 @@ void NavigationStateMachine::RunPreAlign(double target_heading)
         utils::SleepFor(kHeadingStableReadIntervalMs);
     }
     LogInfo << "PreAlign done." << VAR(target_heading) << VAR(aligned) << VAR(start_cam) << VAR(last_cam) << VAR(last_error)
-            << VAR(start_heading) << VAR(end_heading);
+            << VAR(start_heading) << VAR(end_heading) << VAR(standstill_ms.count());
 }
 
 void NavigationStateMachine::StopMotion()

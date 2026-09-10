@@ -93,6 +93,9 @@ public:
 
     void invalidate();
 
+    // 预对齐的停步是刻意安排的，不是走廊走不动；不计入无进展，长预对齐就不会误触发重规划。
+    void DeferProgressClock(std::chrono::milliseconds duration);
+
     const NavRunPlan& plan() const { return plan_; }
 
 private:

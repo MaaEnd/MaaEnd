@@ -395,6 +395,14 @@ void NavRunController::invalidate()
     last_remaining_to_anchor_ = std::numeric_limits<double>::infinity();
 }
 
+void NavRunController::DeferProgressClock(std::chrono::milliseconds duration)
+{
+    if (duration <= std::chrono::milliseconds::zero() || last_progress_seen_.time_since_epoch().count() == 0) {
+        return;
+    }
+    last_progress_seen_ += duration;
+}
+
 bool NavRunController::buildPlan(
     const NaviParam& param,
     const NavigationSession& session,

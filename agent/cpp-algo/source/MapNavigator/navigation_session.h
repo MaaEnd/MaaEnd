@@ -70,6 +70,8 @@ struct NavigationSession
     void ObserveHardProgress(size_t target_key, double actual_distance, const std::chrono::steady_clock::time_point& now);
     int64_t HardStalledMs(const std::chrono::steady_clock::time_point& now) const;
     void ResetHardProgress();
+    // 预对齐的停步是刻意安排的，不是卡死；不计入无进展，长预对齐就不会自己触发恢复。
+    void DeferProgressClocks(std::chrono::milliseconds duration);
 
     void ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos);
     // 整条换路：旧的展开路径连同 canonical 索引一起作废，终点判定按新路线尾部重算。

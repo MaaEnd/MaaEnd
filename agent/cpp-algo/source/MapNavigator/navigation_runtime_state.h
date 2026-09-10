@@ -240,6 +240,14 @@ struct OffRouteWedgeState
         best_distance = std::numeric_limits<double>::max();
         active = false;
     }
+
+    // 预对齐的停步是刻意安排的，不是路外无进展；否则长预对齐会误触发重规划甚至判失败。
+    void DeferProgress(std::chrono::milliseconds duration)
+    {
+        if (active && duration > std::chrono::milliseconds::zero()) {
+            since += duration;
+        }
+    }
 };
 
 // Cross-tier escape. The agent fell onto a wrong FLOORED tier (one the route never planned for); we plan ONE
