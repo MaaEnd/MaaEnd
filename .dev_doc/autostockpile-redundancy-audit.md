@@ -7,6 +7,17 @@
 - **审计范围证据**：`assets/resource/pipeline/AutoStockpile/*.json`、`assets/tasks/AutoStockpile.json`、`assets/locales/go-service/*.json`、`tools/schema/custom.*.schema.json`、`assets/` 与 `install/`、`docs/`，以及 `agent/go-service/vendor/github.com/MaaXYZ/maa-framework-go/v4`
 - **性质**：**只读审计，未修改任何生产代码**（本文件是唯一新增产物）
 
+> ## ⚠️ 事后核验更正（2026-09-10）
+>
+> 本报告全部 High / Medium 条目已按 [`autostockpile-redundancy-fix-plan.md`](./autostockpile-redundancy-fix-plan.md) 执行修复。执行后复核发现 **M5 的修复方案不安全**，已回退重修：
+>
+> - **M5 现象成立，但「删除 `result.Data != nil` 兜底」的等价性论证错误**。该兜底对 `QuotaZeroSkip`（额度用尽的日常路径，`Data == nil` 为设计使然且能通过 `Validate()`）**严格可达**；删除后解引用发生在两条 abort 路由**之前**，导致**必然 panic**。
+> - **根因**：本条与修复计划只检查了「到达 `selector.go:78` 时 `Data` 非 nil」，**未检查解引用位置早于路由**，也未检查 `Data == nil` 是否出现在正常产物中。此外原文「`Validate()` 保证 `⇔`」的表述有误，`Validate()` 只给出单向蕴含 `Data != nil ⇒ AbortReason == None`。
+> - **现状**：已改为把解引用移到两条路由之后（保留 M5 原始意图，不恢复判空）。
+> - **连带升级**：本条暴露 **L2 的后缀命名约定是「非 None 原因必被路由接住」的唯一防线**，其修复优先级应高于原定的「风格收敛」。
+>
+> 详情见下方 M5 条目内的核验结论。**报告结论摘要表与「建议处理顺序」未随之改写**，阅读时请以 M5 / L2 条目的更正内容为准。
+
 ## 结论摘要
 
 | 等级 | 数量 | 成因归类 |
@@ -137,9 +148,18 @@
 
 ### M5. `Validate()` 建立的不变式在 selector 里被判了两次，且前后不一致
 
+> **事后核验结论（2026-09-10 补充）**：本条**现象判定成立**（`:60` 的兜底在该处确实不可达、且与 `:78` 语义分叉），但**「建议删之」的修复被证明不安全，已回退重修**。
+>
+> - **措辞更正**：本条原文称 `Validate()` 保证 `AbortReason == None ⇔ Data != nil`，该 `⇔` 不成立。`Validate()`（`types.go:101-118`）只强制**单向蕴含** `Data != nil ⇒ AbortReason == None`；反向「非 None 必被路由接住」由 `shouldStopTask`/`shouldRouteSkip` 的**字符串后缀约定**（`types.go:39-49`）保证，与 `Validate()` 无关。双向配对实为「生产端写入约定（`recognition.go:108/144` 两个构造点显式配对）+ `Validate()`」合力结果。
+> - **漏检的关键点**：本条与修复计划都只论证了「到达 `:78` 时 `Data` 必非 nil」，**未检查 `:60` 的解引用位置早于 `:71/:74` 的两条路由**，也未检查 `Data == nil` 是否可能出现在**正常运行产物**中。
+> - **实际后果**：`QuotaZeroSkip`（`quota.go:95-98`，`current == 0`，即额度用尽的日常路径）的 `Data == nil` 是设计使然，且能通过 `Validate()`。删除兜底后 `goodsCount := len(result.Data.Goods)` 在路由之前解引用 nil ⇒ **必然 panic**，条件满足即 100% 复现。基线 `:60` 的兜底对该原因恰好判假，故该行**严格可达，原判「删除零行为变化」错误**。
+> - **重修处置**：不恢复判空，改为把 `data := result.Data` / `goodsCount := len(data.Goods)` 移到两条路由**之后**，使不变式在解引用点已由路由确立；已落地于 `agent/go-service/autostockpile/selector.go` 并附注释。M5 的原始意图（消除 `:60`/`:78` 语义分叉）得以保留。
+> - **归属**：本条的**现象**是真实冗余，但**修复方案的等价性论证**是错误判定；该错误由本条与 L2 的后缀约定共同导致。
+
 - **位置**：`selector.go:59-62`（`if result.Data != nil` 兜底）与 `selector.go:78`（直接解引用 `result.Data`）
 - **依据**：`types.go:127-144` 的 `Validate()` 已保证 `AbortReason == None ⇔ Data != nil`，且 `selector.go:51-57` 已调用它。于是第 60 行的检查冗余，而第 78 行又完全信任该不变式。
 - **建议**：统一语义 —— 要么信任不变式（删 59-62 的兜底），要么两处都判。
+- **修正后的建议**：**不要**单纯删除兜底；必须同时确认解引用点晚于 abort 路由。（见上方核验结论）
 
 ### M6. `resolveOverflow` 的 `overflowDetected` 与 `overflowAmount > 0` 等价，只喂了一行日志
 
@@ -177,7 +197,7 @@
 | # | 位置 | 结论 |
 | --- | --- | --- |
 | L1 | `shelf_swipe.go:16-20` | `if err != nil { return err }; return nil` ⇒ 直接 `return err` |
-| L2 | `types.go:23-50` | 后缀判定过度泛化：`abortReasonSkipSuffix` + `isSkip` 实际只对应 `QuotaZeroSkip` 一个值；漏写后缀会静默变成「继续执行」，建议改为显式分类表 |
+| L2 | `types.go:23-50` | 后缀判定过度泛化：`abortReasonSkipSuffix` + `isSkip` 实际只对应 `QuotaZeroSkip` 一个值；漏写后缀会静默变成「继续执行」，建议改为显式分类表。**（事后核验加重：该后缀约定是「非 None 原因必被路由接住」的唯一防线，M5 的 panic 回归即由它与解引用顺序共同导致；`QuotaZeroSkip` 是唯一「非 None + nil `Data` 且不走 Fatal/Warn」的原因，完全押在 `strings.HasSuffix(..., "Skip")` 上。改显式分类表并让 `Validate()` 校验分类存在的价值高于本条原定的「风格收敛」。）** |
 | L3 | `recognition_results.go:67-78, 119-124` | `sources [][]*RecognitionResult` + `resultsFromBest` 包装：每种 policy 只有一个来源，单层切片足够 |
 | L4 | `recognition_results.go:37-65` | `filteredOCRCandidates` 与 `ocrTextCandidates` 近重复（一个返回 `[]*OCRResult`、一个返回 `[]string`），可合并为一次提取 + 一次投影 |
 | L5 | `selector.go:120-126` | 块内重复调用 `result.hasOverflow()`，直接用 `bypassThresholdFilter` |

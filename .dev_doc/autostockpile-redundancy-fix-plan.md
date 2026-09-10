@@ -82,7 +82,7 @@ pnpm check && pnpm test
 | M2 | `recognitionParamROI` 类型 switch 收窄为 TemplateMatch | 已完成 | B3 | `a111add6` | `（本次提交）` |
 | M3 | 删除不可达的 `threshold <= 0` 检查 | 已完成 | B3 | `a111add6` | `（本次提交）` |
 | M4 | `validateItemMap` 由 3 次收敛为入口 1 次 | 已完成 | B4 | `de52d8e1` | `（本次提交）` |
-| M5 | 统一 `result.Data` 判空语义（信不变式） | 已完成 | B4 | `de52d8e1` | `（本次提交）` |
+| M5 | 统一 `result.Data` 判空语义（信不变式） | 失败（`de52d8e1` 引入 QuotaZeroSkip panic 回归，已回退重修） | B4 | 原修复 `de52d8e1` / 重修 `8c45ca46` | `5952a3c1` / 重修同步 `（本次提交）` |
 | M6 | `resolveOverflow` 删除布尔返回值 | 已完成 | B4 | `de52d8e1` | `（本次提交）` |
 | M7 | 删除 `reconcile` 的重复深拷贝 | 已完成 | B4 | `de52d8e1` | `（本次提交）` |
 | M8 | `writeFileAtomic` 提取到公共包复用 | 已完成 | B4 | `de52d8e1` | `（本次提交）` |
@@ -252,11 +252,19 @@ return []int{rect[0], rect[1], rect[2], rect[3]}, nil
 - **附带**：删除后 `itemmap.go:164` 的 `itemMapCounts` 失去唯一调用者。它不属于 H/M 列表，本次**保留**；在提交信息里注明「`itemMapCounts` 暂无调用者，待 Low 批次或后续独立提交处理」，是否连带删除按 6.4 询问。
 - **验证**：`go vet -mod=mod ./autostockpile/` 通过；`grep -rn "validateItemMap" agent/go-service/autostockpile/` 仅剩定义与 `params.go:69`。
 
-#### M5. 统一 `result.Data` 判空语义
+#### M5. 统一 `result.Data` 判空语义 —— **失败，已回退重修**
 
-- **方案**：采用「信任不变式」：删除 `selector.go:59-62` 的 `if result.Data != nil` 兜底，`goodsCount` 直接由 `len(result.Data.Goods)` 计算，与 `selector.go:78` 的 `data := result.Data` 保持一致。
-- **依据**：`types.go:127-144` 的 `Validate()` 已保证 `AbortReason == None ⇔ Data != nil`，且 `selector.go:51-57` 已调用它。
-- **行为差异**：契约被破坏时由「记录 0 商品并继续」变为 panic。按 6.1 向用户确认；若用户选择「两处都判」，则改为在 `selector.go:78` 补同样的判空并返回 `false`，本项仍算完成。
+- **原方案**：采用「信任不变式」：删除 `selector.go:59-62` 的 `if result.Data != nil` 兜底，`goodsCount` 直接由 `len(result.Data.Goods)` 计算，与 `selector.go:78` 的 `data := result.Data` 保持一致。
+- **原依据（有缺陷）**：`types.go:127-144` 的 `Validate()` 已保证 `AbortReason == None ⇔ Data != nil`，且 `selector.go:51-57` 已调用它。
+- **失败原因（2026-09-10 事后核验发现）**：该依据的 `⇔` 不成立，`Validate()` 只强制单向蕴含 `Data != nil ⇒ AbortReason == None`；反向「非 None ⇒ 一定被路由接住」并不由 `Validate()` 保证，而依赖 `shouldStopTask`/`shouldRouteSkip` 的**字符串后缀约定**。更关键的是原方案**只检查了到达 `selector.go:78` 时 `Data` 非 nil，从未检查 `selector.go:59`（`goodsCount := len(result.Data.Goods)`）的解引用位置早于 :71/:74 的两条路由判断**。
+    - 实测：`QuotaZeroSkip` + `Data == nil` 通过 `Validate()`（`shouldStopTask=false`、`shouldRouteSkip=true`，路由本身正确），但解引用在路由之前执行 ⇒ **必然空指针 panic**。
+    - `QuotaZeroSkip` 由 `quota.go:95-98` 的 `current == 0` 产生，即玩家当日额度用尽后重跑任务——**日常高频路径，非边界情况**，条件满足即 100% 复现。
+    - 基线行为对比：基线 `selector.go:60` 的 `if result.Data != nil` 对该原因恰好判假 ⇒ 安全跳过、`goodsCount=0`、被 `:74` 路由接住并正常 `return true`。**故该「冗余兜底」对 `QuotaZeroSkip` 严格可达，原判定「删之无行为变化」错误。**
+- **重修方案（已落地，`agent/go-service/autostockpile/selector.go`）**：**不恢复判空**，改为把解引用放到不变式已被路由确立之后——将 `data := result.Data` 与 `goodsCount := len(data.Goods)` 整体移到 `shouldStopTask` / `shouldRouteSkip` 两条路由**之后**，并在该处加注释说明「解引用必须留在两条路由之后，否则 `QuotaZeroSkip` 会 panic」。
+    - 保留 M5 的原始意图（不重新引入两处语义分叉）；abort 分支的 `goods_count=0` 日志本就无信息量（`abort_reason` 已由 `routeSkipWithAbortReason`/`stopTaskWithFocus` 输出）。
+    - **重修提交**：`8c45ca46`（`fix(autostockpile): 修复 QuotaZeroSkip 路径的 nil 解引用 panic`）。
+- **验证**：`go build -mod=mod ./autostockpile/`、`go vet -mod=mod ./autostockpile/` 通过；临时测试确认 `QuotaZeroSkip` + nil `Data` 被 `shouldRouteSkip` 接住且未触碰 `result.Data`，`None` 路径 `goodsCount` 正常（按仓库约定，验证用临时测试已删除）。
+- **未覆盖的残留风险（属 L2，本计划范围外）**：新增既不以 `Fatal` 也不以 `Warn`/`Skip` 结尾的 `AbortReason` 时仍会穿透两条路由。建议后续把后缀判定改为显式分类表，并让 `Validate()` 校验分类存在，使该约定从「命名约定」升级为受保护的不变式。
 
 #### M6. `resolveOverflow` 删除布尔返回值
 
@@ -361,6 +369,15 @@ return []int{rect[0], rect[1], rect[2], rect[3]}, nil
 因此第 6 节不再构成断点；执行中出现**新的**设计取舍时仍按 1.3 硬性约束停下来提问，并把新结论追加到本小节。
 
 **2026-09-10（B3 执行中追加）：H7 方案初稿与现有行为不等价，经用户确认改为真正等价的二分支。** 冲突点：初稿 `if data.Quota.Overflow > 0` 优先，而原 `switch` 以 `selection.CurrentPrice < selection.Threshold` 为第一判据；当 `Overflow > 0` 且选中商品低于阈值时，原实现返回 `SwipeMax`（低价买满），初稿返回「按防溢出数量购买」。用户选择「改成真正等价的二分支（价格优先）」，即仅删除不可达的 `default`、保留价格判据（§3 H7 已同步修正）；H7 仍属等价重构，§4.1 表述继续成立。
+
+**2026-09-10（B4 之后追加）：6.1 的前提不成立，M5 判定为失败并已回退重修。** 用户复核时指出 `QuotaZeroSkip` + `Data == nil` 同样能通过 `Validate()`，经复查确认：
+
+- 6.1 的两个选项 (a)/(b) 都建立在「删兜底后仅在**契约被破坏**时才会 panic」这一前提上，但该前提错误 —— `QuotaZeroSkip` 是**正常运行产物**（`quota.go:96-98`，额度用尽的日常路径），其 `Data == nil` 是设计使然，而 `selector.go:59` 的解引用早于两条 abort 路由，故 panic 在日常路径上必然发生。
+- 根因不是「判空该不该删」，而是**解引用位置早于路由**。审计与 6.1 均未检查该顺序。
+- **用户裁决（本次）**：执行「2 + 3」——(2) 只修代码，**不**新增包内回归测试（维持 `autostockpile` 零测试现状）；(3) 回写本文件与 `autostockpile-redundancy-audit.md` 两份文档。
+- **实现取舍**：仍不恢复判空（维持 6.1 原本认可的「不引入两处语义分叉」），改为把解引用移到路由之后，使不变式在解引用点已由路由确立。
+- **重修提交**：`8c45ca46`（`fix(autostockpile)`）；本文档状态回写为同步提交 `（本次提交）`。
+- 6.1 表格保持原文以留痕，其结论作废，以本条为准。
 
 ### 6.10 已产生的文档提交
 
