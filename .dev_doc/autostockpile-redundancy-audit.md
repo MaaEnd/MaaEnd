@@ -15,8 +15,9 @@
 > - **根因**：本条与修复计划只检查了「到达 `selector.go:78` 时 `Data` 非 nil」，**未检查解引用位置早于路由**，也未检查 `Data == nil` 是否出现在正常产物中。此外原文「`Validate()` 保证 `⇔`」的表述有误，`Validate()` 只给出单向蕴含 `Data != nil ⇒ AbortReason == None`。
 > - **现状**：已改为把解引用移到两条路由之后（保留 M5 原始意图，不恢复判空）。
 > - **连带升级**：本条暴露 **L2 的后缀命名约定是「非 None 原因必被路由接住」的唯一防线**，其修复优先级应高于原定的「风格收敛」。
+> - **L12 前提有误**：Low 表 L12 称 `normalizeCustomActionParam` 的 string 分支不可达，实为该分支正是动作回调路径的必经分支（SDK 以 Go `string` 回传 `custom_action_param` 原文）；已按「保留 + 注释」处置，并新增「L12 前提更正」小节。
 >
-> 详情见下方 M5 条目内的核验结论。**报告结论摘要表与「建议处理顺序」未随之改写**，阅读时请以 M5 / L2 条目的更正内容为准。
+> 详情见下方 M5 条目内的核验结论与 Low 表的 L12 前提更正小节。**报告结论摘要表与「建议处理顺序」未随之改写**，阅读时请以 M5 / L2 / L12 条目的更正内容为准。
 
 ## 结论摘要
 
@@ -194,20 +195,29 @@
 
 ## 🟨 Low —— 风格 / 防御式冗余，可保留但建议收敛
 
-| # | 位置 | 结论 |
-| --- | --- | --- |
-| L1 | `shelf_swipe.go:16-20` | `if err != nil { return err }; return nil` ⇒ 直接 `return err` |
-| L2 | `types.go:23-50` | 后缀判定过度泛化：`abortReasonSkipSuffix` + `isSkip` 实际只对应 `QuotaZeroSkip` 一个值；漏写后缀会静默变成「继续执行」，建议改为显式分类表。**（事后核验加重：该后缀约定是「非 None 原因必被路由接住」的唯一防线，M5 的 panic 回归即由它与解引用顺序共同导致；`QuotaZeroSkip` 是唯一「非 None + nil `Data` 且不走 Fatal/Warn」的原因，完全押在 `strings.HasSuffix(..., "Skip")` 上。改显式分类表并让 `Validate()` 校验分类存在的价值高于本条原定的「风格收敛」。）** |
-| L3 | `recognition_results.go:67-78, 119-124` | `sources [][]*RecognitionResult` + `resultsFromBest` 包装：每种 policy 只有一个来源，单层切片足够 |
-| L4 | `recognition_results.go:37-65` | `filteredOCRCandidates` 与 `ocrTextCandidates` 近重复（一个返回 `[]*OCRResult`、一个返回 `[]string`），可合并为一次提取 + 一次投影 |
-| L5 | `selector.go:120-126` | 块内重复调用 `result.hasOverflow()`，直接用 `bypassThresholdFilter` |
-| L6 | `selector.go:410-416` | `formatSelectionMode` 第 1 与第 3 个 return 返回同一文案（第 3 个经 min-buy 降级可达，非死码，但语义易误读） |
-| L7 | `decision.go:19-21` | `mapComputeDecisionErrorToAbortReason` 的 `err == nil` 分支不可达（两个调用点都在 `if err != nil` 内） |
-| L8 | `server_day.go:29-31` | `loc == nil` 兜底不可达（`locationFromUTCOffset` 永不返回 nil） |
-| L9 | `daily_storage.go:175-177` | `maxDateCount <= 0` 分支不可达（唯一调用点固定 120） |
-| L10 | `selector.go:105` + `daily_storage.go:46-48` | 调用方直接传 `attach.AllowDataUpload` 当开关，被调方再判一次 `enabled` |
-| L11 | `merge.go:10-12, 21-23` | `item.ID == ""` 过滤为防御式（两个来源均保证 ID 非空，ID 即 itemMap key） |
-| L12 | `params.go:85-90` | `normalizeCustomActionParam` 的 string 分支：当前所有 pipeline 的 `custom_action_param` 都是对象 |
+| # | 位置 | 结论 | 本次修复 |
+| --- | --- | --- | --- |
+| L1 | `shelf_swipe.go:16-20` | `if err != nil { return err }; return nil` ⇒ 直接 `return err` | 已修复 `fae99c9e` |
+| L2 | `types.go:23-50` | 后缀判定过度泛化：`abortReasonSkipSuffix` + `isSkip` 实际只对应 `QuotaZeroSkip` 一个值；漏写后缀会静默变成「继续执行」，建议改为显式分类表。**（事后核验加重：该后缀约定是「非 None 原因必被路由接住」的唯一防线，M5 的 panic 回归即由它与解引用顺序共同导致；`QuotaZeroSkip` 是唯一「非 None + nil `Data` 且不走 Fatal/Warn」的原因，完全押在 `strings.HasSuffix(..., "Skip")` 上。改显式分类表并让 `Validate()` 校验分类存在的价值高于本条原定的「风格收敛」。）** | 排除（用户指令） |
+| L3 | `recognition_results.go:67-78, 119-124` | `sources [][]*RecognitionResult` + `resultsFromBest` 包装：每种 policy 只有一个来源，单层切片足够 | 已修复 `9c74cc72` |
+| L4 | `recognition_results.go:37-65` | `filteredOCRCandidates` 与 `ocrTextCandidates` 近重复（一个返回 `[]*OCRResult`、一个返回 `[]string`），可合并为一次提取 + 一次投影 | 已修复 `ba6791d8` |
+| L5 | `selector.go:120-126` | 块内重复调用 `result.hasOverflow()`，直接用 `bypassThresholdFilter` | 已修复 `cd41877b` |
+| L6 | `selector.go:410-416` | `formatSelectionMode` 第 1 与第 3 个 return 返回同一文案（第 3 个经 min-buy 降级可达，非死码，但语义易误读） | 已修复 `366f31db` |
+| L7 | `decision.go:19-21` | `mapComputeDecisionErrorToAbortReason` 的 `err == nil` 分支不可达（两个调用点都在 `if err != nil` 内） | 已修复 `5b42e35b` |
+| L8 | `server_day.go:29-31` | `loc == nil` 兜底不可达（`locationFromUTCOffset` 永不返回 nil） | 已修复 `d49d7cd5` |
+| L9 | `daily_storage.go:175-177` | `maxDateCount <= 0` 分支不可达（唯一调用点固定 120） | 已修复 `a1939def` |
+| L10 | `selector.go:105` + `daily_storage.go:46-48` | 调用方直接传 `attach.AllowDataUpload` 当开关，被调方再判一次 `enabled` | 已修复 `9c5da30e` |
+| L11 | `merge.go:10-12, 21-23` | `item.ID == ""` 过滤为防御式（两个来源均保证 ID 非空，ID 即 itemMap key） | 已修复 `55da0321` |
+| L12 | `params.go:85-90` | `normalizeCustomActionParam` 的 string 分支：当前所有 pipeline 的 `custom_action_param` 都是对象 | 已修复（前提更正，见下） `fd61d081` |
+
+### L12 前提更正（2026-09-10）
+
+本表 L12 条目的「string 分支不可达」判定**不成立**，按原结论删除会让 AutoStockpile 动作路径直接失败：
+
+- **实际类型**：SDK 的 `CustomActionArg.CustomActionParam` 是 Go `string`（`agent/go-service/vendor/github.com/MaaXYZ/maa-framework-go/v4/custom_action.go:41,100`：`CustomActionParam string` + `cStringToString(customActionParam)`），即 MaaFramework 以**原始 JSON 文本**回传 `custom_action_param`。
+- **必经分支**：`selector.go` 的 `resolveGoodsRegionFromActionArg` → `resolveGoodsRegionFromCustomActionParam` → `normalizeCustomActionParam`，命中的正是 `case string:`；删除它会让地区解析失败并触发 `RegionResolveFailedFatal`。
+- **另一条来源**：任务节点路径（`recognition.go` → `resolveGoodsRegionFromTaskNode`）取的是 SDK 已解析的 `any`，其 `map[string]any` 分支同样必需。两条分支各自对应一条真实来源，均不可删。
+- **处置**：保留实现，仅在 `normalizeCustomActionParam` 上方补注释说明两条来源的类型差异（提交 `fd61d081`）。审计原文的「当前所有 pipeline 的 custom_action_param 都是对象」描述的是 **JSON 文本形态**，与 Go 侧动态类型是两件事，这正是原判定出错的原因。
 
 ---
 

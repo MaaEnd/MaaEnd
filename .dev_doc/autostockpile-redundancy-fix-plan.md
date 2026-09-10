@@ -89,6 +89,25 @@ pnpm check && pnpm test
 | M9 | 收敛导出面（小写化 + 内联薄封装） | 已完成 | B4 | `de52d8e1` | `（本次提交）` |
 | M10 | 删除 `screencapShelf` 无效的 `img == nil` 检查 | 已完成 | B4 | `de52d8e1` | `（本次提交）` |
 
+### 2.3 Low（12 项，2026-09-10 追加）
+
+用户指令：修复 Low，**排除 L2**；每修复一个问题点产生 1 个提交；末尾 1 个台账提交。逐项方案与验证见本文件 §3 同名条目与 §5，设计取舍确认见 §6.11。
+
+| # | 修复主题 | 状态 | 修复提交 | 备注 |
+| --- | --- | --- | --- | --- |
+| L1 | 简化 `runShelfSwipe` 的冗余错误返回 | 已完成 | `fae99c9e` | |
+| L2 | 后缀判定改为显式分类表 | 排除 | — | 用户指令排除，本次零改动 |
+| L3 | `ocrTextCandidates` 去掉多来源包装 | 已完成 | `9c74cc72` | 删除 `resultsFromBest` |
+| L4 | 合并 OCR 候选提取与文本投影 | 已完成 | `ba6791d8` | 新增 `ocrCandidates` 单一提取入口 |
+| L5 | 复用 `bypassThresholdFilter` 变量 | 已完成 | `cd41877b` | |
+| L6 | 保底购买使用独立的模式文案 | 已完成 | `366f31db` | 新增 `autostockpile.mode_min_buy`（5 语言），唯一用户可见变化 |
+| L7 | 删除 `err == nil` 不可达分支 | 已完成 | `5b42e35b` | 函数注释写明 `err` 非 nil 前置条件 |
+| L8 | 删除 `adjustedServerTime` 的 `loc == nil` 兜底 | 已完成 | `d49d7cd5` | nil `loc` 将 panic（契约破坏时），已在注释写明 |
+| L9 | 删除 `maxDateCount <= 0` 不可达分支 | 已完成 | `a1939def` | |
+| L10 | 落盘开关下移到调用方 | 已完成 | `9c5da30e` | `storeDailyGoodsPrices` 去掉 `enabled` 形参 |
+| L11 | 删除 `mergeGoodsByID` 空 ID 过滤 | 已完成 | `55da0321` | ID 由 itemMap 保证非空 |
+| L12 | `normalizeCustomActionParam` 补来源注释 | 已完成 | `fd61d081` | 审计前提有误，保留分支（见 §6.11） |
+
 批次与提交的对应关系（每个批次两个提交）：
 
 | 批次 | 内容 | 提交一（修复） | 提交二（状态同步） |
@@ -385,8 +404,25 @@ return []int{rect[0], rect[1], rect[2], rect[3]}, nil
 | --- | --- | --- |
 | 基线文档提交 | 本计划 + `autostockpile-redundancy-audit.md`（6.7 确认纳入版本控制） | `a2652c0c` |
 | 状态同步提交 | 本文件回填上述 hash 与 §6.9 确认记录 | `（本次提交）` |
+| Low 台账提交 | §2.3 Low 台账 + 审计报告 Low 状态列与「L12 前提更正」小节（§6.11） | `（本次提交）` |
 
-**本次会话范围**：按用户指令，仅写入并提交文档，**未对任何生产代码做改动**（`git diff --stat` 为空）。B1–B4 的代码修复尚未开始，状态总览保持 `未进行`。
+**本次会话范围（首轮）**：按用户指令，仅写入并提交文档，**未对任何生产代码做改动**（`git diff --stat` 为空）。B1–B4 的代码修复尚未开始，状态总览保持 `未进行`。
+
+### 6.11 Low 批次确认记录（2026-09-10）
+
+用户指令：修复 Low 项，**排除 L2**；每修复一个问题点产生 1 个提交；末尾 1 个台账提交。执行中遇到无法从代码推断的设计取舍时均先提问并获答复：
+
+| 问题 | 已确认结论 |
+| --- | --- |
+| L6 文案 | 新增 `autostockpile.mode_min_buy` 并补齐 5 语言（zh_cn 每日保底购买 / zh_tw 每日保底購買 / en_us Daily Minimum Buy / ja_jp デイリー最低購入 / ko_kr 일일 최저가 구매）；`formatSelectionMode` 第 3 个分支改返回该键 |
+| L10 闸门层 | 落盘判断下移到唯一调用方（`if attach.AllowDataUpload { ... }`），`storeDailyGoodsPrices` 去掉 `enabled` 形参 |
+| L12 处置 | 保留 string 分支 + 补注释；并在审计报告新增「L12 前提更正」小节 |
+| 提交结构 | 11 个修复提交 + 1 个台账提交（本文件与审计报告），不沿用「每批次两个提交」 |
+| 工作区未提交改动 | 审计报告 L12 行的错别字「当 前」改回「当前」，随台账提交一并处理 |
+
+**L12 前提更正**：审计称 `normalizeCustomActionParam` 的 string 分支不可达，实为错误。SDK 的 `CustomActionArg.CustomActionParam` 是 Go `string`（`vendor/github.com/MaaXYZ/maa-framework-go/v4/custom_action.go:41,100`），动作回调路径（`selector.go` → `resolveGoodsRegionFromActionArg`）必走该分支，删除会让地区解析直接失败；任务节点路径的 `map[string]any` 分支同样必需。故按「保留 + 注释」处置（提交 `fd61d081`）。
+
+**验证结果**：每个 Low 提交前均通过 `cd agent/go-service && go build -mod=mod ./... && go vet -mod=mod ./autostockpile/`，并在 `pnpm format:go` 后确认无残留改动；L6（locale 改动）额外通过 `pnpm exec prettier --check assets/locales/go-service/*.json`、`pnpm check`、`pnpm test`。
 
 ---
 
