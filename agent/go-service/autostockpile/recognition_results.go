@@ -44,39 +44,35 @@ func filteredOCRCandidates(detail *maa.RecognitionDetail) []*maa.OCRResult {
 }
 
 func ocrTextCandidates(detail *maa.RecognitionDetail, policy ocrTextPolicy) []string {
-	var sources [][]*maa.RecognitionResult
+	var results []*maa.RecognitionResult
 	switch policy {
 	case ocrTextPolicyFilteredOnly:
-		sources = [][]*maa.RecognitionResult{filteredRecognitionResults(detail)}
+		results = filteredRecognitionResults(detail)
 	case ocrTextPolicyBestOnly:
-		if detail != nil && detail.Results != nil {
-			sources = [][]*maa.RecognitionResult{
-				resultsFromBest(detail.Results.Best),
-			}
+		if detail != nil && detail.Results != nil && detail.Results.Best != nil {
+			results = []*maa.RecognitionResult{detail.Results.Best}
 		}
 	}
 
 	texts := make([]string, 0)
 	seen := make(map[string]struct{})
-	for _, source := range sources {
-		for _, result := range source {
-			if result == nil {
-				continue
-			}
-			ocrResult, ok := result.AsOCR()
-			if !ok {
-				continue
-			}
-			text := strings.TrimSpace(ocrResult.Text)
-			if text == "" {
-				continue
-			}
-			if _, exists := seen[text]; exists {
-				continue
-			}
-			seen[text] = struct{}{}
-			texts = append(texts, text)
+	for _, result := range results {
+		if result == nil {
+			continue
 		}
+		ocrResult, ok := result.AsOCR()
+		if !ok {
+			continue
+		}
+		text := strings.TrimSpace(ocrResult.Text)
+		if text == "" {
+			continue
+		}
+		if _, exists := seen[text]; exists {
+			continue
+		}
+		seen[text] = struct{}{}
+		texts = append(texts, text)
 	}
 
 	return texts
@@ -93,11 +89,4 @@ func bestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
 	}
 
 	return tm.Box, true
-}
-
-func resultsFromBest(best *maa.RecognitionResult) []*maa.RecognitionResult {
-	if best == nil {
-		return nil
-	}
-	return []*maa.RecognitionResult{best}
 }
