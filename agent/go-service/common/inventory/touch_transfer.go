@@ -21,6 +21,8 @@ const (
 	menuWaitTimeout = 5 * time.Second
 	// 未命中后的截图轮询节流，菜单一旦识别到就立即点击。
 	menuPollInterval = 100 * time.Millisecond
+	// 第二触点抬起后继续保持源物品，避免同一帧内关闭菜单并将点击穿透到下层物品。
+	sourceReleaseDelay = 100 * time.Millisecond
 )
 
 type touchTransferParam struct {
@@ -74,6 +76,7 @@ type touchTransferRunner interface {
 	screenshot() (image.Image, error)
 	stopping() bool
 	release(contact int32) bool
+	wait(duration time.Duration) bool
 }
 
 type touchTransferRuntime struct {
@@ -97,6 +100,14 @@ func (r *touchTransferRuntime) release(contact int32) bool {
 	return r.controller.PostTouchUp(contact).Wait().Success()
 }
 
+func (r *touchTransferRuntime) wait(duration time.Duration) bool {
+	if r.stopping() {
+		return false
+	}
+	time.Sleep(duration)
+	return !r.stopping()
+}
+
 func runTouchTransfer(runner touchTransferRunner, buttonPrefix string, source maa.Rect, timeout time.Duration) (success bool) {
 	if runner.stopping() || source[2] <= 0 || source[3] <= 0 {
 		return false
@@ -104,8 +115,13 @@ func runTouchTransfer(runner touchTransferRunner, buttonPrefix string, source ma
 	buttonAttempted := false
 	// 动作失败不代表输入没有生效，因此在尝试按下之前就建立清理责任。
 	defer func() {
-		if buttonAttempted && !releaseTransferContact(runner, buttonContact) {
-			success = false
+		if buttonAttempted {
+			if !releaseTransferContact(runner, buttonContact) {
+				success = false
+			}
+			if !runner.wait(sourceReleaseDelay) {
+				success = false
+			}
 		}
 		if !releaseTransferContact(runner, sourceContact) {
 			success = false
