@@ -39,6 +39,22 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Str("region", region).
 		Msg("goods region resolved")
 
+	// ItemMap 的可用性在此处校验：runOverflowDetailOCR 与后续扫描都强依赖它，
+	// 放在 OCR 之前可让配置错误立即暴露，也避免白跑一次 overflow 识别。
+	// 校验通过后 getItemMap() 必然返回非空映射，下游无需再判空。
+	itemMap := getItemMap()
+	if err := validateItemMap(itemMap); err != nil {
+		nameCount, idCount := itemMapCounts(itemMap)
+		log.Error().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("step", "load_item_map").
+			Int("name_count", nameCount).
+			Int("id_count", idCount).
+			Msg("item_map is unavailable")
+		return nil, false
+	}
+
 	overflowAmount := 0
 	overflowCurrent := 0
 	overflowAbortReason := AbortReasonNone
@@ -74,8 +90,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 
 		return buildAbortedRecognitionResult(arg, overflowAbortReason)
 	}
-
-	itemMap := getItemMap()
 
 	resultGoods, secondPageOnlyIDs, goodsAbortReason, scanErr := scanGoodsWithOptionalSecondPage(ctx, arg.Img, region, itemMap)
 	if goodsAbortReason != AbortReasonNone {
