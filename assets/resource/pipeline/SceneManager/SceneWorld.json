@@ -12,6 +12,7 @@
             "SceneManager/WorldSpaceExit.png",
             "SceneManager/WorldSpaceExit1.png"
         ],
+        "threshold": 0.8,
         "pre_wait_freezes": 200,
         "pre_delay": 0,
         "action": {
