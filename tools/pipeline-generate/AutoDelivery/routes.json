@@ -104,48 +104,12 @@
         {
             "source_id": "deliver_target_map02_lv002_01",
             "name": "苏白易",
-            "depot_id": "domain_2_lv002_depot_1",
-            "description": "技术生产办公室（左上）",
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        724.98,
-                        1596.8
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        562.69,
-                        1419.46
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        543.49,
-                        1283.93
-                    ]
-                },
-                [
-                    543.38,
-                    1270.17
-                ],
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        538.031,
-                        1250.27
-                    ]
-                }
-            ]
+            "depot_id": "domain_2_lv002_depot_1"
         },
         {
             "source_id": "deliver_target_map02_lv002_02",
             "name": "普里莫·林德",
             "depot_id": "domain_2_lv002_depot_1",
-            "description": "材料研究所（左下）",
             "path": [
                 {
                     "action": "NAVMESH",
@@ -174,49 +138,13 @@
         {
             "source_id": "deliver_target_map02_lv002_03",
             "name": "于施",
-            "depot_id": "domain_2_lv002_depot_1",
-            "description": "观测站（右上）",
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        840.79,
-                        1475.83
-                    ]
-                },
-                [
-                    852.39,
-                    1471.77
-                ],
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        894.615,
-                        1408.425
-                    ]
-                }
-            ]
+            "depot_id": "domain_2_lv002_depot_1"
         },
         {
             "source_id": "deliver_target_map02_lv002_recycle_01",
             "name": "火锅探店达人",
             "depot_id": "domain_2_lv002_depot_1",
-            "description": "猫头鹰（资源回收站）",
             "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        918.85,
-                        1580.1
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        664.27,
-                        1601.29
-                    ]
-                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -230,8 +158,7 @@
         {
             "source_id": "deliver_target_map02_lv005_01",
             "name": "赵昭",
-            "depot_id": "domain_2_lv005_depot_1",
-            "description": "经纬田区（右）"
+            "depot_id": "domain_2_lv005_depot_1"
         },
         {
             "source_id": "deliver_target_map02_lv005_02",
@@ -241,25 +168,7 @@
         {
             "source_id": "deliver_target_map02_lv005_03",
             "name": "阿禾",
-            "depot_id": "domain_2_lv005_depot_1",
-            "description": "三号丙型辅桩区（右上）",
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1204.85,
-                        1621.16
-                    ],
-                    "required": true
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1369.87,
-                        1533.92
-                    ]
-                }
-            ]
+            "depot_id": "domain_2_lv005_depot_1"
         }
     ],
     "depots": [
@@ -469,56 +378,7 @@
         },
         {
             "source_id": "domain_2_lv002_depot_1",
-            "name": "武陵城",
-            "description": "武陵城区；仓储节点与传送落点之间的桥面未铺入网格",
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        954.6,
-                        1777.18
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        965.81,
-                        1800.4
-                    ]
-                },
-                [
-                    963.66,
-                    1824.46
-                ],
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        952.2,
-                        1832.68
-                    ]
-                }
-            ],
-            "departure_path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        963.66,
-                        1824.46
-                    ]
-                },
-                [
-                    965.5,
-                    1803.38
-                ]
-            ]
+            "name": "武陵城"
         },
         {
             "source_id": "domain_2_lv005_depot_1",
