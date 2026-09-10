@@ -399,5 +399,6 @@ func formatSelectionMode(selection SelectionResult, data RecognitionData) string
 	if data.Quota.Overflow > 0 {
 		return i18n.T("autostockpile.mode_overflow")
 	}
-	return i18n.T("autostockpile.mode_low_price")
+	// 价格不低于阈值且无溢出：只可能来自「至少购买一个」的最低价格兜底。
+	return i18n.T("autostockpile.mode_min_buy")
 }
