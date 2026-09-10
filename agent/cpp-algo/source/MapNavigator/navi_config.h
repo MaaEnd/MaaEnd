@@ -141,7 +141,7 @@ constexpr int32_t kPreAlignSettleMs = 150;
 // 每次只发剩余角度的这个比例，留出响应延迟的余量，防过冲。
 constexpr double kPreAlignTurnGain = 0.618;
 // 最多发几批；按增益收缩，4 批能把 180° 收到容差内。
-constexpr int32_t kPreAlignMaxAttempts = 4;
+constexpr int32_t kPreAlignMaxAttempts = 10;
 // 对齐后恢复前进，等角色朝向追进这个死区才交回移动中操舵
 constexpr double kPreAlignCharacterConvergeDeg = 6.6;
 constexpr int32_t kPreAlignQuietMaxMs = 800;
