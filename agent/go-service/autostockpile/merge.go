@@ -7,9 +7,6 @@ func mergeGoodsByID(page0, page1 []GoodsItem) (goods []GoodsItem, secondPageOnly
 	secondPageOnlyIDs = make([]string, 0)
 
 	for _, item := range page0 {
-		if item.ID == "" {
-			continue
-		}
 		if _, ok := seen[item.ID]; ok {
 			continue
 		}
@@ -18,9 +15,6 @@ func mergeGoodsByID(page0, page1 []GoodsItem) (goods []GoodsItem, secondPageOnly
 	}
 
 	for _, item := range page1 {
-		if item.ID == "" {
-			continue
-		}
 		if _, ok := seen[item.ID]; ok {
 			continue
 		}
