@@ -23,10 +23,16 @@ func filteredRecognitionResults(detail *maa.RecognitionDetail) []*maa.Recognitio
 	return detail.Results.Filtered
 }
 
-func filteredOCRCandidates(detail *maa.RecognitionDetail) []*maa.OCRResult {
-	results := filteredRecognitionResults(detail)
-	if len(results) == 0 {
-		return nil
+// ocrCandidates 按 policy 提取当前识别详情中的 OCR 结果，是唯一的提取入口。
+func ocrCandidates(detail *maa.RecognitionDetail, policy ocrTextPolicy) []*maa.OCRResult {
+	var results []*maa.RecognitionResult
+	switch policy {
+	case ocrTextPolicyFilteredOnly:
+		results = filteredRecognitionResults(detail)
+	case ocrTextPolicyBestOnly:
+		if detail != nil && detail.Results != nil && detail.Results.Best != nil {
+			results = []*maa.RecognitionResult{detail.Results.Best}
+		}
 	}
 
 	candidates := make([]*maa.OCRResult, 0, len(results))
@@ -43,27 +49,14 @@ func filteredOCRCandidates(detail *maa.RecognitionDetail) []*maa.OCRResult {
 	return candidates
 }
 
-func ocrTextCandidates(detail *maa.RecognitionDetail, policy ocrTextPolicy) []string {
-	var results []*maa.RecognitionResult
-	switch policy {
-	case ocrTextPolicyFilteredOnly:
-		results = filteredRecognitionResults(detail)
-	case ocrTextPolicyBestOnly:
-		if detail != nil && detail.Results != nil && detail.Results.Best != nil {
-			results = []*maa.RecognitionResult{detail.Results.Best}
-		}
-	}
+func filteredOCRCandidates(detail *maa.RecognitionDetail) []*maa.OCRResult {
+	return ocrCandidates(detail, ocrTextPolicyFilteredOnly)
+}
 
+func ocrTextCandidates(detail *maa.RecognitionDetail, policy ocrTextPolicy) []string {
 	texts := make([]string, 0)
 	seen := make(map[string]struct{})
-	for _, result := range results {
-		if result == nil {
-			continue
-		}
-		ocrResult, ok := result.AsOCR()
-		if !ok {
-			continue
-		}
+	for _, ocrResult := range ocrCandidates(detail, policy) {
 		text := strings.TrimSpace(ocrResult.Text)
 		if text == "" {
 			continue
