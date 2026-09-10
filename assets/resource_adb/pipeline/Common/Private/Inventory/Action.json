@@ -61,11 +61,11 @@
         "post_delay": 0
     },
     "__InventoryTransferButtonTouchDown": {
-        "desc": "源物品触点保持期间，用第二触点按下菜单按钮",
+        "desc": "源物品触点保持期间，用第二触点按住菜单按钮，避免短触摸被游戏忽略",
         "pre_delay": 0,
         "action": "TouchDown",
         "contact": 1,
         "pressure": 1,
-        "post_delay": 0
+        "post_delay": 100
     }
 }

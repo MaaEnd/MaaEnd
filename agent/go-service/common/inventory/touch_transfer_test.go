@@ -12,6 +12,7 @@ import (
 
 type fakeTouchRunner struct {
 	events        []string
+	waits         []time.Duration
 	boxes         []maa.Rect
 	images        []image.Image
 	frame         image.Image
@@ -71,6 +72,12 @@ func (r *fakeTouchRunner) release(contact int32) bool {
 	return contact != r.failRelease
 }
 
+func (r *fakeTouchRunner) wait(duration time.Duration) bool {
+	r.record("wait_before_release_source")
+	r.waits = append(r.waits, duration)
+	return !r.stopped
+}
+
 func TestTouchTransferLifecycle(t *testing.T) {
 	prefix := "__InventoryTransferStackButton"
 	left, right := prefix+"Left", prefix+"Right"
@@ -83,11 +90,11 @@ func TestTouchTransferLifecycle(t *testing.T) {
 		want    []string
 	}{
 		{"left_hit", func(r *fakeTouchRunner) { r.hitNode = left }, time.Second, true,
-			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "release_source"}},
+			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "wait_before_release_source", "release_source"}},
 		{"right_hit", func(r *fakeTouchRunner) { r.hitNode = right }, time.Second, true,
-			[]string{sourceTouchDownNode, "screenshot", left, right, buttonTouchDownNode, "release_button", "release_source"}},
+			[]string{sourceTouchDownNode, "screenshot", left, right, buttonTouchDownNode, "release_button", "wait_before_release_source", "release_source"}},
 		{"menu_appears_next_frame", func(r *fakeTouchRunner) { r.hitNode = left; r.missFrames = 1 }, time.Second, true,
-			[]string{sourceTouchDownNode, "screenshot", left, right, "screenshot", left, buttonTouchDownNode, "release_button", "release_source"}},
+			[]string{sourceTouchDownNode, "screenshot", left, right, "screenshot", left, buttonTouchDownNode, "release_button", "wait_before_release_source", "release_source"}},
 		{"timeout", func(r *fakeTouchRunner) {}, 0, false,
 			[]string{sourceTouchDownNode, "release_source"}},
 		{"stop_before_input", func(r *fakeTouchRunner) { r.stopped = true }, time.Second, false, nil},
@@ -110,15 +117,15 @@ func TestTouchTransferLifecycle(t *testing.T) {
 		{"stop_after_hit", func(r *fakeTouchRunner) { r.hitNode = left; r.stopAfter = left }, time.Second, false,
 			[]string{sourceTouchDownNode, "screenshot", left, "release_source"}},
 		{"button_down_failed", func(r *fakeTouchRunner) { r.hitNode = left; r.failNode = buttonTouchDownNode }, time.Second, false,
-			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "release_source"}},
+			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "wait_before_release_source", "release_source"}},
 		{"stop_after_button_down", func(r *fakeTouchRunner) { r.hitNode = left; r.stopAfter = buttonTouchDownNode }, time.Second, false,
-			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "release_source"}},
+			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "wait_before_release_source", "release_source"}},
 		{"stop_during_release", func(r *fakeTouchRunner) { r.hitNode = left; r.stopAfter = "release_button" }, time.Second, false,
-			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "release_source"}},
+			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "wait_before_release_source", "release_source"}},
 		{"button_release_failed", func(r *fakeTouchRunner) { r.hitNode = left; r.failRelease = buttonContact }, time.Second, false,
-			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "release_source"}},
+			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "wait_before_release_source", "release_source"}},
 		{"source_release_failed", func(r *fakeTouchRunner) { r.hitNode = left; r.failRelease = sourceContact }, time.Second, false,
-			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "release_source"}},
+			[]string{sourceTouchDownNode, "screenshot", left, buttonTouchDownNode, "release_button", "wait_before_release_source", "release_source"}},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			runner := &fakeTouchRunner{frame: image.NewRGBA(image.Rect(0, 0, 1280, 720)), failRelease: -1}
@@ -128,6 +135,9 @@ func TestTouchTransferLifecycle(t *testing.T) {
 			}
 			if !reflect.DeepEqual(runner.events, test.want) {
 				t.Fatalf("events = %v, want %v", runner.events, test.want)
+			}
+			if len(runner.waits) > 0 && !reflect.DeepEqual(runner.waits, []time.Duration{sourceReleaseDelay}) {
+				t.Fatalf("waits = %v, want [%v]", runner.waits, sourceReleaseDelay)
 			}
 			if len(runner.boxes) > 0 && runner.boxes[0] != source {
 				t.Fatal("source target was changed")
