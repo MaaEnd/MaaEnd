@@ -308,15 +308,15 @@ constexpr double kZiplineSettleMoveWu = 1.5;
 constexpr int32_t kZiplineSettleFixes = 4;
 // 下索是一次右键。站在架子上时移动指令会被架子的选点状态吃掉, 所以走路之前必须先下来
 constexpr int32_t kZiplineDismountHoldMs = 80;
-// 索没通电、两端根本没挂索时起滑是空响, 人还站在架子上。滑一趟是大位移, 所以「过了确认时间
-// 还在原地」与「滑起来了但没到落点」分得开, 不必耗满整个滑行超时。两个值待实机核准
-constexpr int32_t kZiplineLaunchConfirmMs = 5000;
+// 索没通电、两端根本没挂索时起滑是空响, 人还站在架子上。真滑起来小地图随即读不回坐标, 空响时坐标
+// 一直有效且位移为零, 两种结局分得开, 确认时间只要盖住失定位到判出滑行那几拍
+constexpr int32_t kZiplineLaunchConfirmMs = 1500;
 constexpr double kZiplineMountMinMoveWu = 3.0;
 // 上索确认要求两个信号同时成立: 右上角按钮在架上收起, 底部操作引导出现「离开滑索架」。两侧各需连续
-// 若干帧一致, 架上一侧多要一帧。按键到按钮收起的延迟未经实测, settle 为其预留时间, 其间的地面读数
-// 不予采信。误判为已上架会使后续整条链建立在错误前提上, 故取偏保守的阈值。五个值待实机核准
+// 若干帧一致, 架上一侧多要一帧。按键到按钮收起的延迟里地面读数不予采信, settle 为其预留时间。窗口
+// 要盖住引导文字出现的滞后再加上攒够连续帧的那几拍, 余量不足会把已经上架的人按下索键弄下来
 constexpr int32_t kZiplineMountSettleMs = 600;
-constexpr int32_t kZiplineMountWindowMs = 2000;
+constexpr int32_t kZiplineMountWindowMs = 4000;
 constexpr int32_t kZiplineMountOnTowerFixes = 3;
 constexpr int32_t kZiplineMountOnGroundFixes = 2;
 constexpr int32_t kZiplineMountPressBudget = 2;
