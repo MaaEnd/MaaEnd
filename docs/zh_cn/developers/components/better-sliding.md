@@ -53,15 +53,19 @@
 
 #### 可在 `attach` 中传入的参数
 
-以下 5 个字段推荐通过调用节点的 `attach` 传入，`attach` 优先级高于 `custom_action_param` 中的同名字段。
+以下 6 个字段推荐通过调用节点的 `attach` 传入，`attach` 优先级高于 `custom_action_param` 中的同名字段。
 
 | 字段 | 类型 | 必填 | 说明 |
 | ------------------------- | --------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TargetQuantity` | `int`（正整数） | 是 | 目标数量。最终希望滑到的档位值，必须大于 0。 |
 | `TargetQuantityType` | `string` | 否 | 如何解释 `TargetQuantity`。`"Value"`（默认）：绝对离散计数；`"Percentage"`：`availableQuantity` 的百分比（1–100），四舍五入后钳制到 `[1, availableQuantity]`。 |
 | `ReverseTarget` | `bool` | 否 | 为 `true` 时从可用总量反向计算目标：Value 模式为 `availableQuantity - TargetQuantity`；Percentage 模式按剩余百分比计算。默认 `false`。 |
-| `FinishAfterPreciseClick` | `bool` | 否 | 为 `true` 时精确点击后直接返回成功，不再进入数量校验与微调流程。默认 `false`。 |
+| `FineTuneQuantity` | `bool` 或 `int` | 否 | 精确点击后是否继续用 Increase/Decrease 微调。`true`（默认）：始终微调；`false`：一律不微调；整数 `N`（须 `>= 1`）：仅当 `abs(当前数量 − 目标数量) <= N` 时微调。 |
+| `FineTuneFallback` | `string` | 否 | 仅在本次判定为「不微调」时生效，控制此时的行为。`"none"`（默认）：复检后直接收尾；`"more"` / `"less"`：按单轴 1px 累加偏移后复查，详见[不微调语义](#不微调语义)。 |
 | `ResetBeforeFindStart` | `bool` | 否 | 为 `true` 时，在匹配滑条起始位置前先向最小方向滑动复位，保证后续记录到的起始位置为最小值。默认 `false`。 |
+
+> [!warning]
+> 旧参数 `FinishAfterPreciseClick` 已被移除，请改用 `FineTuneQuantity: false` + `FineTuneFallback: "none"` 表达「精确点击后不再微调」。仍传入 `FinishAfterPreciseClick` 时会被静默忽略（不告警、不校验），行为回落为默认的 `FineTuneQuantity: true`，即**继续微调**。
 
 > [!note]
 > `TargetQuantityType` 与 `ReverseTarget` 的组合计算逻辑：
@@ -75,7 +79,7 @@
 
 #### 仅能通过 `custom_action_param` 传入的参数
 
-除上述 5 个字段外，其余参数都只能从 `custom_action_param` 读取：
+除上述 6 个字段外，其余参数都只能从 `custom_action_param` 读取：
 
 | 字段 | 类型 | 必填 | 说明 |
 | ------------------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------- |
@@ -97,6 +101,34 @@
 > [!note]
 > `SwipeButton`、`IncreaseButton`、`DecreaseButton` 使用模板路径匹配时，Custom 内部固定开启绿色掩码（`green_mask: true`），无需也无法通过参数关闭。请按默认模板的涂绿方式处理模板图片（不参与匹配的部分涂绿 RGB: (0, 255, 0)）。
 
+### 不微调语义
+
+`FineTuneFallback` 只在**本次判定为不微调**时生效。判定发生在 `BetterSlidingCheckQuantity` 读到当前数量之后：`FineTuneQuantity: false` 时始终判定为不微调；为整数 `N` 时，仅当 `abs(当前数量 − 目标数量) <= N` 才微调，否则判定为不微调。
+
+判定为不微调后：
+
+1. 读当前数量与目标数量比较，据此决定偏移方向。`current == target` 时一律直接收尾，不做任何偏移。
+2. `FineTuneFallback: "none"`：不做偏移，经 `BetterSlidingCheckQuantity` 复检后路由 `BetterSlidingDone`。
+3. `FineTuneFallback: "more"`：当 `current < target` 时，把精确点击坐标朝 **Start → End** 方向移动 1px；`current > target` 时不偏移，直接收尾。
+4. `FineTuneFallback: "less"`：当 `current > target` 时，把精确点击坐标朝 **End → Start** 方向移动 1px；`current < target` 时不偏移，直接收尾。
+5. 偏移后重新执行精确点击并复查，未命中则继续按 1px 累加（第 k 次为基准坐标 `±k` px）。
+
+方向与轴选择规则：
+
+- 轴由起点与终点的中心点差值决定：`dx = endX - startX`、`dy = endY - startY`，`abs(dx) > abs(dy)` 取 x 轴，否则取 y 轴（**平局取 y**）。`dx == dy == 0` 时取 y 轴并打印告警。
+- 正方向即 **Start → End**（`sign(dx)` 或 `sign(dy)`）；方向分量为 0 时取 `+1` 并打印告警。
+- 与点击比例语义自洽：`click = start + (end - start) * numerator / denominator`，朝 End 靠近即增大数量，因此 `more` 用于修正「当前 < 目标」。
+- 偏移只作用于选定轴的单个分量，另一轴分量保持精确点击基准值不变。
+
+> [!note]
+> 偏移复查循环由 `BetterSlidingCheckQuantity` 的 `max_hit`（当前为 4）在框架层限制。该计数是「识别心跳数」而非「偏移次数」，因此最后一次偏移的结果不会被复查，用尽后会落到 `BetterSlidingFail`。该已知问题的详细分析见 `.dev_doc/better-sliding-nudge-loop-bound.md`。
+
+> [!note]
+> 只设置 `FineTuneFallback` 而不关闭微调（`FineTuneQuantity` 保持默认 `true`，或整数阈值判定为需要微调）时，`FineTuneFallback` **不生效**，流程仍走 Increase/Decrease 微调。
+
+> [!note]
+> `FineTuneQuantity` 为整数阈值时允许混合行为：偏移使差值进入阈值后，后续心跳会切回 Increase/Decrease 微调。例如 `FineTuneQuantity: 3` + `FineTuneFallback: "more"`，差值从 10 逐步被 1px 偏移压到 3 以内后，剩余差值由 Increase/Decrease 一次点击完成。
+
 ### 结果节点契约
 
 `OutOfRangeOverrideEnable` 与 `TargetReachableOverrideEnable` 用于把本次 BetterSliding 的判定传回调用方。两个参数必须引用不同节点，且结果节点建议默认设置 `enabled: false`。
@@ -110,7 +142,7 @@
 `sliderMaxQuantity == 0` 只表示当前没有可选的正数目标，BetterSliding 不推断余额不足、库存不足或控件不可用等业务原因。调用方如需区分具体状态，应在 Pipeline 中识别对应界面。
 
 > [!important]
-> `TargetReachableOverrideEnable` 只表示调用方的下一步操作可以达到目标，不表示该操作已经成功。例如售卖、购买等流程仍须在外层 Pipeline 确认交易成功后，才能记录业务目标已完成。
+> `TargetReachableOverrideEnable` 只表示**解析后的目标可达**，与最终调整结果无关：该判定在读取目标数量与滑条上限时即已确定，之后无论微调、偏移复查是否命中目标，都不会改变它。它只表示调用方的下一步操作可以达到目标，不表示该操作已经成功。例如售卖、购买等流程仍须在外层 Pipeline 确认交易成功后，才能记录业务目标已完成。
 
 ### 示例
 

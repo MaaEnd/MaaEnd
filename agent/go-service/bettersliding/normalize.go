@@ -225,6 +225,80 @@ func resolveTargetQuantity(
 	}
 }
 
+// normalizeFineTuneQuantity 归一化 FineTuneQuantity：
+//
+//	未提供（present=false）-> 默认 enabled（始终微调）；
+//	bool                   -> 布尔语义；
+//	整数值                 -> 阈值语义，阈值必须 >= 1。
+//
+// null、非整数、其他类型与小于 1 的值均返回错误（显式 null 视为已提供，
+// 不做静默默认）。超大阈值允许，不做上界钳制。
+func normalizeFineTuneQuantity(raw any, present bool) (fineTuneQuantity, error) {
+	if !present {
+		return defaultFineTuneQuantity, nil
+	}
+
+	if raw == nil {
+		return fineTuneQuantity{}, fmt.Errorf("FineTuneQuantity must be a bool or an integer >= 1, got null")
+	}
+
+	switch v := raw.(type) {
+	case bool:
+		return fineTuneQuantity{enabled: v}, nil
+	case float64:
+		if v != math.Trunc(v) {
+			return fineTuneQuantity{}, fmt.Errorf("FineTuneQuantity must be a bool or an integer, got %v", v)
+		}
+
+		return newThresholdFineTuneQuantity(v)
+	default:
+		return fineTuneQuantity{}, fmt.Errorf(
+			"FineTuneQuantity must be a bool or an integer >= 1, got %T",
+			raw,
+		)
+	}
+}
+
+func newThresholdFineTuneQuantity(v float64) (fineTuneQuantity, error) {
+	if v < 1 {
+		return fineTuneQuantity{}, fmt.Errorf("FineTuneQuantity threshold must be >= 1, got %v", v)
+	}
+
+	// 超大阈值按设计不钳制，语义等价于「总是微调」；这里只把超出 int 范围的
+	// 浮点值收敛到 math.MaxInt，避免 float64 -> int 越界转换的未定义行为。
+	if v > float64(math.MaxInt) {
+		v = float64(math.MaxInt)
+	}
+
+	return fineTuneQuantity{thresholdMode: true, threshold: int(v)}, nil
+}
+
+// normalizeFineTuneFallback 归一化 FineTuneFallback：空串或 null（JSON null 解析为空串）
+// 归一为 none；大小写不敏感地接受 none / more / less 并返回小写规范值；其他值返回错误。
+func normalizeFineTuneFallback(raw string) (string, error) {
+	s := strings.TrimSpace(raw)
+	if s == "" {
+		return FineTuneFallbackNone, nil
+	}
+
+	switch strings.ToLower(s) {
+	case FineTuneFallbackNone:
+		return FineTuneFallbackNone, nil
+	case FineTuneFallbackMore:
+		return FineTuneFallbackMore, nil
+	case FineTuneFallbackLess:
+		return FineTuneFallbackLess, nil
+	default:
+		return "", fmt.Errorf(
+			"invalid FineTuneFallback %q, expected %q, %q or %q",
+			raw,
+			FineTuneFallbackNone,
+			FineTuneFallbackMore,
+			FineTuneFallbackLess,
+		)
+	}
+}
+
 func isSwipeOnlyMode(params betterSlidingParam) bool {
 	return !params.presence.TargetQuantity &&
 		!params.presence.SliderQuantity &&
@@ -236,5 +310,9 @@ func isSwipeOnlyMode(params betterSlidingParam) bool {
 		!params.presence.TargetQuantityType &&
 		!params.presence.ReverseTarget &&
 		!params.presence.CenterPointOffset &&
-		!params.presence.ClampTargetToSliderMax
+		!params.presence.ClampTargetToSliderMax &&
+		// FineTuneQuantity / FineTuneFallback 只属于指定数量模式，显式传入即视为
+		// 非 swipe-only，避免只传这两个参数时被误判为仅滑动模式。
+		!params.presence.FineTuneQuantity &&
+		!params.presence.FineTuneFallback
 }

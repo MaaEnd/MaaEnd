@@ -76,7 +76,10 @@
             "__BS-3",
             "__BS-4",
             "__BS-5",
-            "__BS-6"
+            "__BS-6",
+            "__BS-7",
+            "__BS-8",
+            "__BS-9"
         ],
         "on_error": [
             "__BS-T-3"
@@ -280,7 +283,8 @@
                         10
                     ],
                     "Direction": "right",
-                    "FinishAfterPreciseClick": true,
+                    "FineTuneFallback": "none",
+                    "FineTuneQuantity": false,
                     "IncreaseButton": [
                         1225,
                         570,
@@ -304,7 +308,136 @@
             "__BS-T-2"
         ],
         "focus": {
-            "Node.Action.Starting": "325（非精确模式）"
+            "Node.Action.Starting": "325（不微调，直接收尾）"
+        }
+    },
+    "__BS-7": {
+        "enabled": true,
+        "max_hit": 1,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "DecreaseButton": [
+                        965,
+                        570,
+                        20,
+                        10
+                    ],
+                    "Direction": "right",
+                    "FineTuneFallback": "more",
+                    "FineTuneQuantity": false,
+                    "IncreaseButton": [
+                        1225,
+                        570,
+                        20,
+                        10
+                    ],
+                    "SliderQuantity": {
+                        "Box": [
+                            1090,
+                            535,
+                            100,
+                            30
+                        ]
+                    },
+                    "TargetQuantity": 325
+                }
+            }
+        },
+        "post_delay": 2000,
+        "next": [
+            "__BS-T-2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "325（不微调，朝End偏移）"
+        }
+    },
+    "__BS-8": {
+        "enabled": true,
+        "max_hit": 1,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "DecreaseButton": [
+                        965,
+                        570,
+                        20,
+                        10
+                    ],
+                    "Direction": "right",
+                    "FineTuneFallback": "less",
+                    "FineTuneQuantity": false,
+                    "IncreaseButton": [
+                        1225,
+                        570,
+                        20,
+                        10
+                    ],
+                    "SliderQuantity": {
+                        "Box": [
+                            1090,
+                            535,
+                            100,
+                            30
+                        ]
+                    },
+                    "TargetQuantity": 325
+                }
+            }
+        },
+        "post_delay": 2000,
+        "next": [
+            "__BS-T-2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "325（不微调，朝Start偏移）"
+        }
+    },
+    "__BS-9": {
+        "enabled": true,
+        "max_hit": 1,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BetterSliding",
+                "custom_action_param": {
+                    "DecreaseButton": [
+                        965,
+                        570,
+                        20,
+                        10
+                    ],
+                    "Direction": "right",
+                    "FineTuneFallback": "more",
+                    "FineTuneQuantity": 3,
+                    "IncreaseButton": [
+                        1225,
+                        570,
+                        20,
+                        10
+                    ],
+                    "SliderQuantity": {
+                        "Box": [
+                            1090,
+                            535,
+                            100,
+                            30
+                        ]
+                    },
+                    "TargetQuantity": 325
+                }
+            }
+        },
+        "post_delay": 2000,
+        "next": [
+            "__BS-T-2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "325（阈值3，混合微调）"
         }
     },
     "__BS-T-5": {

@@ -426,6 +426,9 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 	clickX := startX + (endX-startX)*numerator/denominator
 	clickY := startY + (endY-startY)*numerator/denominator
 
+	a.preciseClickBase = [2]int{clickX, clickY}
+	a.preciseClickNudges = 0
+
 	if err := ctx.OverridePipeline(map[string]any{
 		nodeBetterSlidingPreciseClick: map[string]any{
 			"action": map[string]any{
@@ -448,18 +451,9 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 		Int("click_y", clickY).
 		Msg("precise click calculated")
 
-	if a.FinishAfterPreciseClick {
-		if err := ctx.OverrideNext(nodeBetterSlidingPreciseClick, []maa.NextItem{}); err != nil {
-			a.logger.Error().Err(err).Msg("failed to clear precise click next for finish-after-precise-click")
-			return false
-		}
-
-		a.logger.Info().Msg("finish-after-precise-click enabled, skipping quantity check")
-	} else {
-		if err := ctx.OverrideNext(nodeBetterSlidingPreciseClick, []maa.NextItem{{Name: nodeBetterSlidingJumpBackNode}}); err != nil {
-			a.logger.Error().Err(err).Msg("failed to restore precise click next")
-			return false
-		}
+	if err := ctx.OverrideNext(nodeBetterSlidingPreciseClick, []maa.NextItem{{Name: nodeBetterSlidingJumpBackNode}}); err != nil {
+		a.logger.Error().Err(err).Msg("failed to restore precise click next")
+		return false
 	}
 
 	if shouldResetBeforePreciseClick(a.TargetQuantity, a.sliderMaxQuantity) {
@@ -512,6 +506,10 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse current quantity from ocr")
 		return false
+	}
+
+	if !shouldFineTuneQuantity(a.FineTuneQuantity, currentQuantity, a.TargetQuantity) {
+		return a.handleNoFineTune(ctx, arg, currentQuantity)
 	}
 
 	switch {
@@ -599,6 +597,214 @@ func (a *BetterSlidingAction) handleDone(_ *maa.Context, _ *maa.CustomActionArg)
 		Int("target_quantity", a.TargetQuantity).
 		Msg("quantity adjustment completed")
 	return true
+}
+
+// handleNoFineTune 处理「本次判定为不微调」的出口：
+// 依据 FineTuneFallback 解析出步进方向；stepSign 为 0 时（none，或 more/less 但方向
+// 条件不成立）经复检后直接收尾到 Done，否则按 1px 单轴累加偏移回到精确点击再复查。
+func (a *BetterSlidingAction) handleNoFineTune(
+	ctx *maa.Context,
+	arg *maa.CustomActionArg,
+	currentQuantity int,
+) bool {
+	axis, endSign := resolveNudgeAxis(a.startBox, a.endBox, a.CenterPointOffset)
+
+	stepSign := 0
+	switch a.FineTuneFallback {
+	case FineTuneFallbackMore:
+		if currentQuantity < a.TargetQuantity {
+			stepSign = 1
+		}
+	case FineTuneFallbackLess:
+		if currentQuantity > a.TargetQuantity {
+			stepSign = -1
+		}
+	case FineTuneFallbackNone:
+		stepSign = 0
+	}
+
+	if stepSign != 0 {
+		return a.nudgePreciseClick(ctx, arg, axis, endSign, stepSign, currentQuantity)
+	}
+
+	logEvent := a.logger.Info().
+		Str("fine_tune_fallback", a.FineTuneFallback).
+		Str("axis", axis.String()).
+		Int("end_sign", endSign).
+		Int("step_sign", stepSign).
+		Int("current_quantity", currentQuantity).
+		Int("target_quantity", a.TargetQuantity)
+
+	if err := overrideCheckQuantityBranch(
+		ctx,
+		arg.CurrentTaskName,
+		nodeBetterSlidingDone,
+		buttonTarget{},
+		0,
+	); err != nil {
+		if errors.Is(err, errCheckQuantityBranchNextOverride) {
+			logEvent.Err(err).Msg("failed to override next to done without fine-tuning")
+		} else {
+			logEvent.Err(err).Msg("failed to override done node without fine-tuning")
+		}
+		return false
+	}
+
+	logEvent.
+		Str("next", nodeBetterSlidingDone).
+		Msg("fine-tuning skipped, finish after quantity re-check")
+	return true
+}
+
+// nudgePreciseClick 用「精确点击基准坐标 + 单轴 1px 累加偏移」重写
+// BetterSlidingPreciseClick 的点击目标，并把它接回 BetterSlidingPreciseClick 再复查一次。
+// stepSign 为 +1 时朝 End 方向偏移（more），-1 时朝 Start 方向偏移（less）。
+//
+// 循环上界由 BetterSlidingCheckQuantity 的 max_hit 在框架层强制，Go 侧不另建计数上限，
+// preciseClickNudges 仅作为日志索引；详见 .dev_doc/better-sliding-nudge-loop-bound.md。
+func (a *BetterSlidingAction) nudgePreciseClick(
+	ctx *maa.Context,
+	arg *maa.CustomActionArg,
+	axis nudgeAxis,
+	endSign int,
+	stepSign int,
+	currentQuantity int,
+) bool {
+	a.preciseClickNudges++
+	nudged := nudgedClickTarget(a.preciseClickBase, axis, endSign, stepSign, a.preciseClickNudges)
+
+	if err := ctx.OverridePipeline(map[string]any{
+		nodeBetterSlidingPreciseClick: map[string]any{
+			"action": map[string]any{
+				"param": map[string]any{
+					"target": []int{nudged[0], nudged[1]},
+				},
+			},
+		},
+	}); err != nil {
+		a.logger.Error().
+			Err(err).
+			Ints("nudged_target", []int{nudged[0], nudged[1]}).
+			Msg("failed to override nudged precise click target")
+		return false
+	}
+
+	// 只回精确点击节点，不挂 [JumpBack]BetterSlidingMoveMouse：
+	// 防遮挡仅服务 IncreaseButton / DecreaseButton，PreciseClick 不需要。
+	if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingPreciseClick}}); err != nil {
+		a.logger.Error().
+			Err(err).
+			Ints("nudged_target", []int{nudged[0], nudged[1]}).
+			Msg("failed to override next to nudged precise click")
+		return false
+	}
+
+	a.logger.Info().
+		Str("fine_tune_fallback", a.FineTuneFallback).
+		Str("axis", axis.String()).
+		Int("end_sign", endSign).
+		Int("step_sign", stepSign).
+		Int("nudge_index", a.preciseClickNudges).
+		Int("current_quantity", currentQuantity).
+		Int("target_quantity", a.TargetQuantity).
+		Ints("base_target", []int{a.preciseClickBase[0], a.preciseClickBase[1]}).
+		Ints("nudged_target", []int{nudged[0], nudged[1]}).
+		Msg("fine-tuning skipped, nudge precise click and re-check")
+	return true
+}
+
+// shouldFineTuneQuantity 判断本次读数是否进入 Increase/Decrease 微调：
+// 阈值语义下要求 abs(current-target) <= threshold，布尔语义下直接取 enabled。
+func shouldFineTuneQuantity(q fineTuneQuantity, current int, target int) bool {
+	if q.thresholdMode {
+		return absInt(current-target) <= q.threshold
+	}
+
+	return q.enabled
+}
+
+// resolveNudgeAxis 按 Start → End 的方向确定偏移轴与正方向：
+// abs(dx) > abs(dy) 取 x 轴，否则取 y 轴（平局取 y）；dx == dy == 0 取 y 轴并告警。
+// 返回值 endSign 为 Start → End 的正方向符号，为 0 时取 +1 并告警。
+func resolveNudgeAxis(startBox []int, endBox []int, offset [2]int) (nudgeAxis, int) {
+	startX, startY := centerPoint(startBox, offset)
+	endX, endY := centerPoint(endBox, offset)
+
+	dx := endX - startX
+	dy := endY - startY
+
+	axis := nudgeAxisY
+	if absInt(dx) > absInt(dy) {
+		axis = nudgeAxisX
+	}
+
+	var endSign int
+	if axis == nudgeAxisX {
+		endSign = signInt(dx)
+	} else {
+		endSign = signInt(dy)
+	}
+
+	if dx == 0 && dy == 0 {
+		log.Warn().
+			Str("component", betterSlidingActionName).
+			Ints("start_box", startBox).
+			Ints("end_box", endBox).
+			Msg("start and end centers coincide, nudge falls back to y axis")
+	}
+
+	if endSign == 0 {
+		log.Warn().
+			Str("component", betterSlidingActionName).
+			Str("axis", axis.String()).
+			Int("delta", axisDelta(axis, dx, dy)).
+			Msg("nudge axis delta is zero, nudge falls back to positive direction")
+		endSign = 1
+	}
+
+	return axis, endSign
+}
+
+// nudgedClickTarget 返回第 k 次偏移后的精确点击坐标：
+// 在选定轴分量上累加 endSign*stepSign*k，另一轴分量保持基准值不变。
+func nudgedClickTarget(base [2]int, axis nudgeAxis, endSign int, stepSign int, k int) [2]int {
+	target := base
+	delta := endSign * stepSign * k
+
+	if axis == nudgeAxisX {
+		target[0] += delta
+	} else {
+		target[1] += delta
+	}
+
+	return target
+}
+
+func axisDelta(axis nudgeAxis, dx int, dy int) int {
+	if axis == nudgeAxisX {
+		return dx
+	}
+
+	return dy
+}
+
+func absInt(value int) int {
+	if value < 0 {
+		return -value
+	}
+
+	return value
+}
+
+func signInt(value int) int {
+	switch {
+	case value > 0:
+		return 1
+	case value < 0:
+		return -1
+	default:
+		return 0
+	}
 }
 
 func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -731,6 +937,8 @@ func isBetterSlidingActionNode(taskName string) bool {
 func (a *BetterSlidingAction) resetState() {
 	a.startBox = nil
 	a.endBox = nil
+	a.preciseClickBase = [2]int{}
+	a.preciseClickNudges = 0
 	a.sliderMaxQuantity = 0
 	a.availableQuantity = 0
 	a.availableQuantityResolved = false

@@ -56,7 +56,7 @@ if !detail.Status.Success() {
 
 ### 2.3 与结果节点契约的关系
 
-`applyOutcomeOverrides`（`handlers.go:685-719`）只看**解析期**的两个布尔量：
+`applyOutcomeOverrides`（`handlers.go:889-925`）只看**解析期**的两个布尔量：
 
 - `a.outOfRange`：目标 < 1 / 滑条上限为 0 / 未钳制时超上限；
 - `a.targetReachable`：目标位于 `[1, sliderMaxQuantity]`。
