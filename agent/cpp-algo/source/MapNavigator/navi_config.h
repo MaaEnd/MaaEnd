@@ -312,12 +312,12 @@ constexpr int32_t kZiplineDismountHoldMs = 80;
 // 一直有效且位移为零, 两种结局分得开, 确认时间只要盖住失定位到判出滑行那几拍
 constexpr int32_t kZiplineLaunchConfirmMs = 1500;
 constexpr double kZiplineMountMinMoveWu = 3.0;
-// 上索确认要求两个信号同时成立: 右上角按钮在架上收起, 底部操作引导出现「离开滑索架」。两侧各需连续
-// 若干帧一致, 架上一侧多要一帧。按键到按钮收起的延迟里地面读数不予采信, settle 为其预留时间。窗口
-// 要盖住引导文字出现的滞后再加上攒够连续帧的那几拍, 余量不足会把已经上架的人按下索键弄下来
+// 上索判定读两个信号: 右上角按钮在架上收起, 底部操作引导出现架上那几条提示。底部提示的逐帧可读性
+// 随机位起落, 所以架上一侧读到一帧即认; 地面一侧要连续若干帧, 避免在上架过程中重按。按键到按钮
+// 收起的延迟里地面读数不予采信, settle 为其预留时间。窗口要盖住提示从按键到第一帧读得出的滞后,
+// 余量不足会把已经上架的人按下索键弄下来
 constexpr int32_t kZiplineMountSettleMs = 600;
 constexpr int32_t kZiplineMountWindowMs = 4000;
-constexpr int32_t kZiplineMountOnTowerFixes = 3;
 constexpr int32_t kZiplineMountOnGroundFixes = 2;
 constexpr int32_t kZiplineMountPressBudget = 2;
 // 同一个上索点最多让重规划试这么多次, 再要重规划就当这根架子够不着, 退索改走路。楔死看门狗
