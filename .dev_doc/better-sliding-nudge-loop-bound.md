@@ -38,11 +38,13 @@ BetterSlidingFindEnd                --next--> BetterSlidingPreciseClick         
 BetterSlidingPreciseClick           --next--> BetterSlidingJumpBackNode          (Main.json:77-79，由 Go 恢复)
 BetterSlidingJumpBackNode           --next--> [CheckQuantity, BetterSlidingFail]  (Main.json:132-135)
 BetterSlidingCheckQuantity          --next--> (每个分支由 Go OverrideNext 决定)     (Main.json:222-228)
+BetterSlidingCheckQuantity(nudge)   --next--> BetterSlidingReset2  --next--> BetterSlidingPreciseClick  (由 Go OverrideNext + Reset2 静态 next)
 ```
 
 - `max_hit: 4` **只挂在 `CheckQuantity` 上**（`Main.json:202-204`）。
 - `JumpBackNode`、`PreciseClick`、`Fail` 都**没有 `max_hit`**，因此不会被拦截，可以无限次经过。
 - 所以「4」= 本次运行中 `CheckQuantity` 最多被识别成功 4 次 = 最多 4 次「数量读数心跳」。
+- nudge 分支额外插入的 `BetterSlidingReset2` 同样**没有 `max_hit`**，只做一次复位滑动，**不消耗**这 4 次心跳预算，因此不影响下文的 off-by-one 结论。
 
 注意一个易误读点：`CheckQuantity` 的识别是 `And(BetterSlidingGetSliderQuantity)`（`Main.json:205-212`）。计数加在 `CheckQuantity` 本身，子节点 `BetterSlidingGetSliderQuantity` 不计数、不限次。
 
@@ -53,10 +55,10 @@ BetterSlidingCheckQuantity          --next--> (每个分支由 Go OverrideNext �
 | 拍 | 触发链路 | CheckQuantity 计数 | 判定与动作 |
 | --- | --- | --- | --- |
 | — | FindEnd 算出 `base`，并 OverridePipeline 写入 `PreciseClick.target = base` | 0 | — |
-| 1 | PreciseClick(base) → JumpBackNode → CheckQuantity | 记第 1 次 | 不微调 → 第 1 次 nudge：`target = base+1` → 回 PreciseClick |
-| 2 | PreciseClick(base+1) → JumpBackNode → CheckQuantity | 记第 2 次 | 复查不匹配 → 第 2 次 nudge：`base+2` |
-| 3 | PreciseClick(base+2) → JumpBackNode → CheckQuantity | 记第 3 次 | 复查不匹配 → 第 3 次 nudge：`base+3` |
-| 4 | PreciseClick(base+3) → JumpBackNode → CheckQuantity | 记第 4 次 | 复查不匹配 → 第 4 次 nudge：`base+4`（点击照常执行） |
+| 1 | PreciseClick(base) → JumpBackNode → CheckQuantity | 记第 1 次 | 不微调 → 第 1 次 nudge：`target = base+1`，Reset2 复位 → PreciseClick |
+| 2 | PreciseClick(base+1) → JumpBackNode → CheckQuantity | 记第 2 次 | 复查不匹配 → 第 2 次 nudge：`base+2`，Reset2 复位 → PreciseClick |
+| 3 | PreciseClick(base+2) → JumpBackNode → CheckQuantity | 记第 3 次 | 复查不匹配 → 第 3 次 nudge：`base+3`，Reset2 复位 → PreciseClick |
+| 4 | PreciseClick(base+3) → JumpBackNode → CheckQuantity | 记第 4 次 | 复查不匹配 → 第 4 次 nudge：`base+4`（复位与点击照常执行） |
 | 5 | JumpBackNode → next 第一项 CheckQuantity | 已达 4 | 该节点被跳过（不识别、不执行） |
 | 5b | 于是落到 next 第二项 BetterSlidingFail | — | 空叶节点，链路结束 |
 
@@ -130,10 +132,10 @@ hit#5  被跳过 → Fail
 
 ## 8. 可观测性影响
 
-nudge 路径会打 `nudge_index` / `nudged_target`，但**不会有第 4 次 nudge 之后的复查日志**。日志表现为：
+nudge 路径会打 `nudge_index` / `nudged_target` / `reset_side` / `reset_end`（后两者为 `BetterSlidingReset2` 的复位方向与终点），但**不会有第 4 次 nudge 之后的复查日志**。日志表现为：
 
 ```text
-... nudge_index=4 nudged_target=[x,y]     <- 最后一次点击，之后直接断流
+... nudge_index=4 nudged_target=[x,y] reset_side=start reset_end=[a,b,c,d]   <- 最后一次复位与点击，之后直接断流
 （没有对应的 quantity matched / quantity below target 日志）
 BetterSlidingFail 被命中（无任何子日志）
 ```

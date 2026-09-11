@@ -657,8 +657,12 @@ func (a *BetterSlidingAction) handleNoFineTune(
 }
 
 // nudgePreciseClick 用「精确点击基准坐标 + 单轴 1px 累加偏移」重写
-// BetterSlidingPreciseClick 的点击目标，并把它接回 BetterSlidingPreciseClick 再复查一次。
-// stepSign 为 +1 时朝 End 方向偏移（more），-1 时朝 Start 方向偏移（less）。
+// BetterSlidingPreciseClick 的点击目标，并把它经 BetterSlidingReset2 接回复查一次：
+// 先把滑块向另一侧滑动复位（避免上一次精确点击落在滑块本体上影响本次点击），
+// 再由 BetterSlidingReset2.next 静态路由回 BetterSlidingPreciseClick。
+// stepSign 为 +1 时朝 End 方向偏移（more），-1 时朝 Start 方向偏移（less）；
+// 复位方向按精确点击基准坐标在 Start → End 轴上的位置决定（靠近 Start 向 End 滑，
+// 靠近 End 向 Start 滑），终点坐标由 Direction 推导后整字段覆盖 pipeline 中的占位值。
 //
 // 循环上界由 BetterSlidingCheckQuantity 的 max_hit 在框架层强制，Go 侧不另建计数上限，
 // preciseClickNudges 仅作为日志索引；详见 .dev_doc/better-sliding-nudge-loop-bound.md。
@@ -673,6 +677,17 @@ func (a *BetterSlidingAction) nudgePreciseClick(
 	a.preciseClickNudges++
 	nudged := nudgedClickTarget(a.preciseClickBase, axis, endSign, stepSign, a.preciseClickNudges)
 
+	side := resolveReset2Side(axis, a.startBox, a.endBox, a.CenterPointOffset, a.preciseClickBase)
+	resetEnd, err := buildReset2SwipeEnd(a.Direction, side)
+	if err != nil {
+		a.logger.Error().
+			Err(err).
+			Str("direction", a.Direction).
+			Str("reset_side", side.String()).
+			Msg("failed to build reset2 swipe end")
+		return false
+	}
+
 	if err := ctx.OverridePipeline(map[string]any{
 		nodeBetterSlidingPreciseClick: map[string]any{
 			"action": map[string]any{
@@ -681,21 +696,29 @@ func (a *BetterSlidingAction) nudgePreciseClick(
 				},
 			},
 		},
+		nodeBetterSlidingReset2: map[string]any{
+			"action": map[string]any{
+				"param": map[string]any{
+					"end": resetEnd,
+				},
+			},
+		},
 	}); err != nil {
 		a.logger.Error().
 			Err(err).
 			Ints("nudged_target", []int{nudged[0], nudged[1]}).
-			Msg("failed to override nudged precise click target")
+			Ints("reset_end", resetEnd).
+			Msg("failed to override nudged precise click target and reset2 end")
 		return false
 	}
 
-	// 只回精确点击节点，不挂 [JumpBack]BetterSlidingMoveMouse：
+	// 先回 Reset2 复位再点击；不挂 [JumpBack]BetterSlidingMoveMouse：
 	// 防遮挡仅服务 IncreaseButton / DecreaseButton，PreciseClick 不需要。
-	if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingPreciseClick}}); err != nil {
+	if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingReset2}}); err != nil {
 		a.logger.Error().
 			Err(err).
 			Ints("nudged_target", []int{nudged[0], nudged[1]}).
-			Msg("failed to override next to nudged precise click")
+			Msg("failed to override next to reset2")
 		return false
 	}
 
@@ -709,7 +732,9 @@ func (a *BetterSlidingAction) nudgePreciseClick(
 		Int("target_quantity", a.TargetQuantity).
 		Ints("base_target", []int{a.preciseClickBase[0], a.preciseClickBase[1]}).
 		Ints("nudged_target", []int{nudged[0], nudged[1]}).
-		Msg("fine-tuning skipped, nudge precise click and re-check")
+		Str("reset_side", side.String()).
+		Ints("reset_end", resetEnd).
+		Msg("fine-tuning skipped, reset2 and nudge precise click, then re-check")
 	return true
 }
 
@@ -763,6 +788,49 @@ func resolveNudgeAxis(startBox []int, endBox []int, offset [2]int) (nudgeAxis, i
 	}
 
 	return axis, endSign
+}
+
+// resolveReset2Side 依据点击基准坐标在 Start → End 轴上的相对位置选择复位方向：
+// 投影比例 < 0.5（靠近 Start）返回 reset2SideTowardEnd（向最大侧滑动），
+// 否则返回 reset2SideTowardStart（向最小侧滑动）。
+//
+// axis 由调用方从 resolveNudgeAxis 取得，避免重复解析与重复告警；
+// 轴跨度为 0（Start 与 End 中心重合）或投影恰好落在中线时取 reset2SideTowardStart。
+func resolveReset2Side(axis nudgeAxis, startBox []int, endBox []int, offset [2]int, base [2]int) reset2Side {
+	startX, startY := centerPoint(startBox, offset)
+	endX, endY := centerPoint(endBox, offset)
+
+	startCoord, endCoord := startX, endX
+	baseCoord := base[0]
+	if axis == nudgeAxisY {
+		startCoord, endCoord = startY, endY
+		baseCoord = base[1]
+	}
+
+	span := endCoord - startCoord
+	if span == 0 {
+		log.Warn().
+			Str("component", betterSlidingActionName).
+			Str("axis", axis.String()).
+			Ints("start_box", startBox).
+			Ints("end_box", endBox).
+			Ints("base_target", []int{base[0], base[1]}).
+			Msg("start and end centers coincide on the reset axis, reset2 falls back to the start side")
+		return reset2SideTowardStart
+	}
+
+	// 判定投影比例 (base-start)/span 是否 < 0.5。为避开浮点，用整数比较，
+	// 并按 span 的符号决定不等号方向（span < 0 时乘法取反）。
+	closerToStart := (baseCoord-startCoord)*2 < span
+	if span < 0 {
+		closerToStart = (baseCoord-startCoord)*2 > span
+	}
+
+	if closerToStart {
+		return reset2SideTowardEnd
+	}
+
+	return reset2SideTowardStart
 }
 
 // nudgedClickTarget 返回第 k 次偏移后的精确点击坐标：

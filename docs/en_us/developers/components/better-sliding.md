@@ -111,7 +111,7 @@ Once "no fine-tune" is decided:
 2. `FineTuneFallback: "none"`: no nudge; finishes via `BetterSlidingDone` after the `BetterSlidingCheckQuantity` re-check.
 3. `FineTuneFallback: "more"`: when `current < target`, moves the precise click coordinate 1px toward **Start → End**; when `current > target`, no nudge and it finishes directly.
 4. `FineTuneFallback: "less"`: when `current > target`, moves the precise click coordinate 1px toward **End → Start**; when `current < target`, no nudge and it finishes directly.
-5. After a nudge the precise click runs again and the quantity is re-checked; if it still does not match, the offset accumulates by another 1px (the k-th nudge is the base coordinate `±k` px).
+5. After a nudge, the slider is first reset to the opposite side via `BetterSlidingReset2` (so the previous precise click, which lands on the slider handle itself, does not affect the next click), then the precise click runs again and the quantity is re-checked; if it still does not match, the offset accumulates by another 1px (the k-th nudge is the base coordinate `±k` px).
 
 Direction and axis selection rules:
 
@@ -119,6 +119,13 @@ Direction and axis selection rules:
 - The positive direction is **Start → End** (`sign(dx)` or `sign(dy)`); when that component is 0, `+1` is used and a warning is logged.
 - This is consistent with the click-ratio semantics: `click = start + (end - start) * numerator / denominator`, so moving toward End increases the quantity; hence `more` corrects "current < target".
 - A nudge only changes one component of the selected axis; the other component keeps the precise-click base value.
+
+`BetterSlidingReset2` reset rules:
+
+- The reset direction is decided by the projection of the **precise-click base coordinate** onto the Start → End axis: a projection ratio `< 0.5` (closer to Start) swipes toward **End** (the maximum side), otherwise it swipes toward **Start** (the minimum side); an exact midpoint falls back to the Start side.
+- The swipe end coordinate is derived from `Direction` and directly overrides `BetterSlidingReset2`'s `end` (for `right` / `up` the maximum side is `[1260, 10, 10, 10]` and the minimum side is `[10, 700, 10, 10]`; `left` / `down` are the opposite), so the placeholder `end` in the Pipeline is not used.
+- When the axis span is 0 (the Start and End centers coincide), a warning is logged and the reset falls back to swiping toward Start.
+- `BetterSlidingReset2` has no `max_hit` of its own and does **not** consume `BetterSlidingCheckQuantity`'s heartbeat budget; after the reset its static `next` routes back to `BetterSlidingPreciseClick`.
 
 > [!note]
 > The nudge/re-check loop is bounded at the framework level by `max_hit` on `BetterSlidingCheckQuantity` (currently 4). That counter counts **recognition heartbeats**, not nudges, so the result of the last nudge is never re-checked and the flow falls through to `BetterSlidingFail` once the budget is exhausted. See `.dev_doc/better-sliding-nudge-loop-bound.md` for the full analysis of this known issue.

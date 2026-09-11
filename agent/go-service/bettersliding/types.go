@@ -185,6 +185,26 @@ func (a nudgeAxis) String() string {
 	return "y"
 }
 
+// reset2Side 表示 BetterSlidingReset2 的复位方向，由精确点击基准坐标在
+// Start → End 轴上的相对位置决定：靠近 Start 时朝 End 滑动，靠近 End 时朝 Start 滑动。
+type reset2Side uint8
+
+const (
+	// reset2SideTowardStart 表示向最小侧（Start）滑动复位，终点取 buildResetSwipeEnd。
+	reset2SideTowardStart reset2Side = iota
+	// reset2SideTowardEnd 表示向最大侧（End）滑动复位，终点取 buildSwipeEnd。
+	reset2SideTowardEnd
+)
+
+// String 返回复位方向的日志标签（"start" / "end"）。
+func (s reset2Side) String() string {
+	if s == reset2SideTowardEnd {
+		return "end"
+	}
+
+	return "start"
+}
+
 // modeLabel 返回 fineTuneQuantity 语义标签，仅用于日志。
 func (q fineTuneQuantity) modeLabel() string {
 	if q.thresholdMode {

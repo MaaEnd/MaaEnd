@@ -111,7 +111,7 @@
 2. `FineTuneFallback: "none"`：不做偏移，经 `BetterSlidingCheckQuantity` 复检后路由 `BetterSlidingDone`。
 3. `FineTuneFallback: "more"`：当 `current < target` 时，把精确点击坐标朝 **Start → End** 方向移动 1px；`current > target` 时不偏移，直接收尾。
 4. `FineTuneFallback: "less"`：当 `current > target` 时，把精确点击坐标朝 **End → Start** 方向移动 1px；`current < target` 时不偏移，直接收尾。
-5. 偏移后重新执行精确点击并复查，未命中则继续按 1px 累加（第 k 次为基准坐标 `±k` px）。
+5. 偏移后先经 `BetterSlidingReset2` 把滑块向另一侧滑动复位（避免上一次精确点击落在滑块本体上影响本次点击），再执行精确点击并复查；未命中则继续按 1px 累加（第 k 次为基准坐标 `±k` px）。
 
 方向与轴选择规则：
 
@@ -119,6 +119,13 @@
 - 正方向即 **Start → End**（`sign(dx)` 或 `sign(dy)`）；方向分量为 0 时取 `+1` 并打印告警。
 - 与点击比例语义自洽：`click = start + (end - start) * numerator / denominator`，朝 End 靠近即增大数量，因此 `more` 用于修正「当前 < 目标」。
 - 偏移只作用于选定轴的单个分量，另一轴分量保持精确点击基准值不变。
+
+`BetterSlidingReset2` 复位规则：
+
+- 复位方向按**精确点击基准坐标**在 Start → End 轴上的投影位置决定：投影比例 `< 0.5`（靠近 Start）时向 **End**（最大值侧）滑动，否则向 **Start**（最小值侧）滑动；恰好落在中线时取向 Start。
+- 滑动终点坐标由 `Direction` 推导并直接覆盖 `BetterSlidingReset2` 的 `end`（`right` / `up` 的最大值侧为 `[1260, 10, 10, 10]`、最小值侧为 `[10, 700, 10, 10]`，`left` / `down` 相反），不使用 pipeline 中的占位 `end`。
+- 轴跨度为 0（Start 与 End 中心重合）时打印告警并回退为向 Start 滑动。
+- `BetterSlidingReset2` 自身没有 `max_hit`，**不消耗** `BetterSlidingCheckQuantity` 的心跳预算；复位后由该节点的静态 `next` 路由回 `BetterSlidingPreciseClick`。
 
 > [!note]
 > 偏移复查循环由 `BetterSlidingCheckQuantity` 的 `max_hit`（当前为 4）在框架层限制。该计数是「识别心跳数」而非「偏移次数」，因此最后一次偏移的结果不会被复查，用尽后会落到 `BetterSlidingFail`。该已知问题的详细分析见 `.dev_doc/better-sliding-nudge-loop-bound.md`。

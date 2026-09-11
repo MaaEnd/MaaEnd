@@ -1,21 +1,36 @@
 {
+    "BetterSlidingReset2": {
+        "desc": "以中间为界，向另一侧滑动，避免影响精确点击",
+        "recognition": "And",
+        "all_of": [
+            "BetterSlidingSwipeButton"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
+        "end": [
+            "BetterSlidingReset2"
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingPreciseClick"
+        ]
+    },
     "BetterSlidingFindStart": {
         "desc": "识别滑动起点，存入go",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "BetterSlidingSwipeButton"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "BetterSlidingSwipeButton"
+        ],
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding"
-            }
-        },
+        "action": "Custom",
+        "custom_action": "BetterSliding",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -25,12 +40,8 @@
     "BetterSlidingMain": {
         "desc": "在这里清除状态，保证不被之前的任务影响",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding"
-            }
-        },
+        "action": "Custom",
+        "custom_action": "BetterSliding",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -39,21 +50,13 @@
     },
     "BetterSlidingFindEnd": {
         "desc": "识别滑动终点，交由go计算出精确点击位置",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "BetterSlidingSwipeButton"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "BetterSlidingSwipeButton"
+        ],
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding"
-            }
-        },
+        "action": "Custom",
+        "custom_action": "BetterSliding",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -63,15 +66,11 @@
     "BetterSlidingPreciseClick": {
         "desc": "x, y精确点击",
         "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    0,
-                    0
-                ]
-            }
-        },
+        "action": "Click",
+        "target": [
+            0,
+            0
+        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -81,17 +80,13 @@
     "BetterSlidingClearMaxHit": {
         "desc": "清空节点MaxHit",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ClearHitCount",
-                "custom_action_param": {
-                    "nodes": [
-                        "BetterSlidingCheckQuantity",
-                        "BetterSlidingMoveMouse"
-                    ]
-                }
-            }
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "BetterSlidingCheckQuantity",
+                "BetterSlidingMoveMouse"
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -103,21 +98,17 @@
     "BetterSlidingReset": {
         "desc": "向最小方向滑动复位",
         "pre_delay": 0,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": "BetterSlidingFindSwipeForReset",
-                "begin_offset": [
-                    5,
-                    5,
-                    -10,
-                    -10
-                ],
-                "end": [
-                    "BetterSlidingFindSwipeForReset"
-                ]
-            }
-        },
+        "action": "Swipe",
+        "begin": "BetterSlidingFindSwipeForReset",
+        "begin_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
+        "end": [
+            "BetterSlidingFindSwipeForReset"
+        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -143,17 +134,13 @@
     "BetterSlidingDecreaseQuantity": {
         "desc": "减少数量",
         "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            }
-        },
+        "action": "Click",
+        "target": [
+            0,
+            0,
+            0,
+            0
+        ],
         "repeat": 1,
         "repeat_delay": 100,
         "post_delay": 0,
@@ -165,33 +152,25 @@
     "BetterSlidingDone": {
         "desc": "数量与Target一致，成功咯~",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding"
-            }
-        },
+        "action": "Custom",
+        "custom_action": "BetterSliding",
         "post_delay": 0,
         "rate_limit": 0
     },
     "BetterSlidingSwipeToMax": {
         "desc": "滑动到最大",
         "pre_delay": 0,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": "BetterSlidingFindStart",
-                "begin_offset": [
-                    5,
-                    5,
-                    -10,
-                    -10
-                ],
-                "end": [
-                    "BetterSlidingFindStart"
-                ]
-            }
-        },
+        "action": "Swipe",
+        "begin": "BetterSlidingFindStart",
+        "begin_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
+        "end": [
+            "BetterSlidingFindStart"
+        ],
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -202,21 +181,13 @@
     "BetterSlidingCheckQuantity": {
         "desc": "识别当前数量，交由go选择分支",
         "max_hit": 4,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "BetterSlidingGetSliderQuantity"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "BetterSlidingGetSliderQuantity"
+        ],
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding"
-            }
-        },
+        "action": "Custom",
+        "custom_action": "BetterSliding",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -224,23 +195,19 @@
             "BetterSlidingIncreaseQuantity",
             "BetterSlidingDecreaseQuantity",
             "[JumpBack]BetterSlidingMoveMouse",
-            "BetterSlidingPreciseClick"
+            "BetterSlidingReset2"
         ]
     },
     "BetterSlidingIncreaseQuantity": {
         "desc": "增加数量",
         "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            }
-        },
+        "action": "Click",
+        "target": [
+            0,
+            0,
+            0,
+            0
+        ],
         "repeat": 1,
         "repeat_delay": 100,
         "post_delay": 0,
@@ -253,37 +220,25 @@
         "desc": "避免遮挡",
         "max_hit": 4,
         "pre_delay": 0,
-        "action": {
-            "type": "TouchMove",
-            "param": {
-                "target": [
-                    1250,
-                    690,
-                    10,
-                    10
-                ]
-            }
-        },
+        "action": "TouchMove",
+        "target": [
+            1250,
+            690,
+            10,
+            10
+        ],
         "post_wait_freezes": 200,
         "post_delay": 0
     },
     "BetterSlidingGetSliderMaxQuantity": {
         "desc": "识别滑条最大可选数量并存入 Go",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "BetterSlidingGetSliderQuantity"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "BetterSlidingGetSliderQuantity"
+        ],
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding"
-            }
-        },
+        "action": "Custom",
+        "custom_action": "BetterSliding",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -293,29 +248,21 @@
     "BetterSlidingGetAvailableQuantity": {
         "desc": "在滑动到最大值后识别可用总量并存入 Go，仅在显式指定 AvailableQuantity 时启用",
         "enabled": false,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                "expected": [
-                    "\\d+"
-                ],
-                "only_rec": false,
-                "order_by": "Length"
-            }
-        },
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "expected": [
+            "\\d+"
+        ],
+        "only_rec": false,
+        "order_by": "Length",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding"
-            }
-        },
+        "action": "Custom",
+        "custom_action": "BetterSliding",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -325,14 +272,10 @@
     "BetterSlidingFindSwipeForReset": {
         "desc": "识别滑块，用于复位",
         "enabled": false,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "BetterSlidingSwipeButton"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "BetterSlidingSwipeButton"
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
