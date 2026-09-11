@@ -1,18 +1,26 @@
-import {candidatesRows, endpointEntries} from "./endpoint-filter-data.mjs";
+import {commissionMaps} from "./commission-data.mjs";
+import {candidatesRows, commissionSourceOrder, endpointEntries} from "./endpoint-filter-data.mjs";
 import {syncSeizeDeliveryJobsLocales} from "./sync-locales.mjs";
 
-function buildSourceCase(areaId, expected, mapId, filterName) {
-    // 当前仅有两个大地区，若之后新增需要对下面 mapId 判定进行修改
-    // map01 == ValleyIV
-    // map02 == Wuling
-    const mapName = mapId === "map01" ? "ValleyIV" : "Wuling";
-    const filter = filterName ?? mapName;
+const mapNameOf = new Map(
+    commissionMaps.map(({MapId, MapName}) => [
+        MapId,
+        MapName,
+    ]),
+);
+
+function buildSourceCase({CaseId, MapId, Expected, FilterName}) {
+    const mapName = mapNameOf.get(MapId);
+    if (!mapName) {
+        throw new Error(`[SeizeDeliveryJobs] 委托来源 ${CaseId} 引用了未登记的地区 ${MapId}`);
+    }
+    const filter = FilterName ?? mapName;
     return {
-        name: areaId,
-        label: `$task.SeizeDeliveryJobsCommissionSource.cases.${areaId}.label`,
-        option: [`SeizeDeliveryJobsSpecifyDeliveryPoint${areaId}`],
+        name: CaseId,
+        label: `$task.SeizeDeliveryJobsCommissionSource.cases.${CaseId}.label`,
+        option: [`SeizeDeliveryJobsSpecifyDeliveryPoint${CaseId}`],
         pipeline_override: {
-            __SeizeDeliveryJobsRecoOrigin: {expected},
+            __SeizeDeliveryJobsRecoOrigin: {expected: Expected},
             // override 是字段级替换，不是追加：被覆盖的 next 必须把原本要保留的节点一起写全，
             // 否则风险知悉拦截（Guard）和已有委托 / 今日上限检查都会失效。
             SeizeDeliveryJobsMain: {
@@ -33,54 +41,15 @@ function buildSourceCase(areaId, expected, mapId, filterName) {
     };
 }
 
-const areaSourceCases = candidatesRows.map(({AreaId, Expected}) => {
-    const mapId = endpointEntries.find((entry) => entry.AreaId === AreaId).MapId;
-    return {MapId: mapId, Case: buildSourceCase(AreaId, Expected, mapId)};
-});
-// 旧区域名只用于保持既有选项顺序，新区域按数据源顺序排在旧区域之后。
-// 因此新增区域无需手工登记，来源 case 会随所属地图自动生成。
-const LEGACY_AREA_ORDER = [
-    "WulingCity",
-    "TestArea",
-    "OriginiumSciencePark",
-    "OriginLodespring",
-    "PowerPlateau",
-];
-const areaCasesOfMap = (mapId) =>
-    areaSourceCases
-        .filter((entry) => entry.MapId === mapId)
-        .map(({Case}) => Case)
-        .sort((left, right) => {
-            const leftIndex = LEGACY_AREA_ORDER.indexOf(left.name);
-            const rightIndex = LEGACY_AREA_ORDER.indexOf(right.name);
-            if (leftIndex === -1 && rightIndex === -1) return 0;
-            if (leftIndex === -1) return 1;
-            if (rightIndex === -1) return -1;
-            return leftIndex - rightIndex;
-        });
-// 为避免原用户配置丢失，Unlimited 视作 WulingUnlimited
-// 后续若出现新地区应按 地区名+Unlimited 命名
-const expectedOfMap = (mapId) => [
-    ...new Set(
-        candidatesRows
-            .filter(({AreaId}) => endpointEntries.some((entry) => entry.AreaId === AreaId && entry.MapId === mapId))
-            .flatMap(({Expected}) => Expected),
-    ),
-];
-const commissionSourceCases = [
-    buildSourceCase("AllUnlimited", [...new Set(candidatesRows.flatMap(({Expected}) => Expected))], "map02", "All"),
-    buildSourceCase("Unlimited", expectedOfMap("map02"), "map02"),
-    ...areaCasesOfMap("map02"),
-    buildSourceCase("ValleyIVUnlimited", expectedOfMap("map01"), "map01"),
-    ...areaCasesOfMap("map01"),
-];
+// 委托来源顺序（全部地区 → 新地区的全部 → 该地区各区域 → 旧地区…）由数据源推导，见 endpoint-filter-data.mjs。
+// 旧区域顺序、新地区的位置都无需手工登记，新增地区 / 区域会随数据源自动排好。
+const commissionSourceCases = commissionSourceOrder.map((descriptor) => buildSourceCase(descriptor));
 const allDeliveryPointOptions = candidatesRows.map(({AreaId}) => `SeizeDeliveryJobsDeliveryPoint${AreaId}`);
-const wulingDeliveryPointOptions = candidatesRows
-    .filter(({AreaId}) => endpointEntries.some((entry) => entry.AreaId === AreaId && entry.MapId === "map02"))
-    .map(({AreaId}) => `SeizeDeliveryJobsDeliveryPoint${AreaId}`);
-const valleyIVDeliveryPointOptions = candidatesRows
-    .filter(({AreaId}) => endpointEntries.some((entry) => entry.AreaId === AreaId && entry.MapId === "map01"))
-    .map(({AreaId}) => `SeizeDeliveryJobsDeliveryPoint${AreaId}`);
+// 以下是 task-template.jsonc 地区级选项块引用的占位符；新增地区除了照抄模板块，还要在这里补一行 <地区名>DeliveryPointOptions。
+const deliveryPointOptionsOfMap = (MapId) =>
+    candidatesRows.filter((row) => row.MapId === MapId).map(({AreaId}) => `SeizeDeliveryJobsDeliveryPoint${AreaId}`);
+const wulingDeliveryPointOptions = deliveryPointOptionsOfMap("map02");
+const valleyIVDeliveryPointOptions = deliveryPointOptionsOfMap("map01");
 
 export const taskRows = candidatesRows.map(({AreaId}) => {
     const entries = endpointEntries.filter((entry) => entry.AreaId === AreaId);

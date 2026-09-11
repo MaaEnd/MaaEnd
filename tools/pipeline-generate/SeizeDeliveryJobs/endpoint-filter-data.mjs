@@ -1,4 +1,5 @@
 import {buildNodeId, destinations} from "../AutoDelivery/model.mjs";
+import {commissionMapsNewestFirst, mapWideCaseId} from "./commission-data.mjs";
 import {resolveEndpointNames, syncEndpointLabels} from "./endpoint-labels.mjs";
 
 const endpointLabels = syncEndpointLabels(destinations);
@@ -11,7 +12,8 @@ const ENDPOINT_ICON = "DeliveryPoint";
 
 // 保留 PR 中已有终点的节点 / task case ID 和候选顺序，兼容已保存的用户选项。
 // 此表仅用于兼容命名，不限制终点范围；其余终点从 AutoDelivery 源 ID 自动派生 PascalCase ID。
-// 展示名称由 endpoint-labels.json 维护，留空时使用目录中的收货人名称。
+// 展示名称优先取 endpoint-labels.json 登记的地点名（终点 NPC 所在的地点），其次用目录中的收货人名称；
+// 方位同样登记在 endpoint-labels.json，由人工维护。
 const LEGACY_ENDPOINTS = [
     {
         endpoint: "Owl",
@@ -98,15 +100,47 @@ export const endpointNodeNames = endpointEntries.map((row) => `SeizeDeliveryJobs
 // 按区域分组：每个区域生成一个 candidates 节点，节点名 SeizeDeliveryJobsEndpointCandidates{AreaId}。
 // 终点区域 == 委托出发地（取货仓储）区域（AutoDelivery 目录强制校验区域↔仓储 1:1），且点「查看位置」后
 // 地图以终点为中心打开——所以运行时按出发地只路由到对应区域节点，本区域候选基本落在屏内，无需跨区域来回拖动。
-// 分组保持 endpointEntries 的顺序（区域内候选顺序、区域间先后顺序）。
-const areaOrder = [];
-const entriesByArea = new Map();
+// 区域顺序：新地区优先，同一地区内保持数据源顺序；该顺序同时决定 task 的 cases 与文案键序，
+// 新增区域自动落在所属地区末尾，无需再维护手工顺序表。
+const areaSourceIndex = new Map();
+for (const [
+    index,
+    destination,
+] of destinations.entries()) {
+    if (areaSourceIndex.has(destination.areaId)) continue;
+    areaSourceIndex.set(destination.areaId, {
+        AreaId: destination.areaId,
+        MapId: destination.map,
+        Index: index,
+    });
+}
+const mapOrder = new Map(
+    commissionMapsNewestFirst.map(({MapId}, index) => [
+        MapId,
+        index,
+    ]),
+);
+const areaOrder = [
+    ...areaSourceIndex.values(),
+]
+    .sort(
+        (left, right) =>
+            (mapOrder.get(left.MapId) ?? mapOrder.size) - (mapOrder.get(right.MapId) ?? mapOrder.size) ||
+            left.Index - right.Index,
+    )
+    .map(({AreaId}) => AreaId);
+const entriesByArea = new Map(
+    areaOrder.map((areaId) => [
+        areaId,
+        [],
+    ]),
+);
 for (const entry of endpointEntries) {
-    if (!entriesByArea.has(entry.AreaId)) {
-        entriesByArea.set(entry.AreaId, []);
-        areaOrder.push(entry.AreaId);
+    const entries = entriesByArea.get(entry.AreaId);
+    if (!entries) {
+        throw new Error(`[SeizeDeliveryJobs] 终点 ${entry.EndpointId} 的区域 ${entry.AreaId} 不在数据源区域顺序中`);
     }
-    entriesByArea.get(entry.AreaId).push(entry);
+    entries.push(entry);
 }
 
 // 每个区域一个 candidates 节点（多行）：区域内候选共享一次缩放与视口求解。
@@ -123,7 +157,9 @@ export const candidatesRows = areaOrder.map((areaId) => {
     }
     return {
         AreaId: areaId,
+        MapId: entries[0].MapId,
         AreaName: entries[0].AreaName,
+        AreaTexts: entries[0].AreaTexts,
         Zone: zones[0],
         Icon: ENDPOINT_ICON,
         Candidates: entries.map((entry) => ({
@@ -135,6 +171,39 @@ export const candidatesRows = areaOrder.map((areaId) => {
         ],
     };
 });
+
+// 委托来源候选（task 的 cases）顺序：全部地区 → 每个地区（新地区优先）的「该地区全部」→ 该地区的各区域。
+// task 选项、locale 文案键序都取自这里，避免两处顺序各自漂移。
+// 「全部地区」用新地区的仓储列表进入、用 All 筛选覆盖所有地区。
+export const commissionSourceOrder = [
+    {
+        CaseId: "AllUnlimited",
+        MapId: commissionMapsNewestFirst[0].MapId,
+        FilterName: "All",
+        Expected: [
+            ...new Set(candidatesRows.flatMap(({Expected}) => Expected)),
+        ],
+    },
+    ...commissionMapsNewestFirst.flatMap(({MapId, MapName}) => {
+        const rows = candidatesRows.filter((row) => row.MapId === MapId);
+        return [
+            {
+                CaseId: mapWideCaseId(MapName),
+                MapId,
+                FilterName: undefined,
+                Expected: [
+                    ...new Set(rows.flatMap(({Expected}) => Expected)),
+                ],
+            },
+            ...rows.map(({AreaId, Expected}) => ({
+                CaseId: AreaId,
+                MapId,
+                FilterName: undefined,
+                Expected,
+            })),
+        ];
+    }),
+];
 
 // 守卫节点数据（单行）：next 只列出全部区域门控节点。
 // 框架对 next 逐轮识别、首个命中胜出：标题未加载完整时继续识别，匹配的门控 hit 进对应 candidates。

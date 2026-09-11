@@ -1,6 +1,6 @@
 {
     "SeizeDeliveryJobsEndpointFilterOwl": {
-        "desc": "「猫头鹰」送货终点（deliver_target_map02_lv002_recycle_01）：candidates 候选开关，命中后前往接取",
+        "desc": "「猫头鹰（右下）」送货终点（deliver_target_map02_lv002_recycle_01）：candidates 候选开关，命中后前往接取",
         "enabled": false,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"

@@ -1,63 +1,4 @@
 {
-    // 武陵
-    // 武陵城
-    // 火锅探店达人
-    "deliver_target_map02_lv002_recycle_01": {
-        "zh_cn": "猫头鹰",
-        "zh_tw": "貓頭鷹",
-        "en_us": "Owl",
-        "ja_jp": "フクロウ",
-        "ko_kr": "올빼미"
-    },
-    // 普里莫·林德
-    "deliver_target_map02_lv002_02": {
-        "zh_cn": "材料研究所（左下）",
-        "zh_tw": "材料研究所（左下）",
-        "en_us": "Material Research Institute (Bottom Left)",
-        "ja_jp": "材料研究所（左下）",
-        "ko_kr": "재료 연구소（좌하）"
-    },
-    // 于施
-    "deliver_target_map02_lv002_03": {
-        "zh_cn": "观测站（右上）",
-        "zh_tw": "觀測站（右上）",
-        "en_us": "Observatory (Top Right)",
-        "ja_jp": "観測所（右上）",
-        "ko_kr": "관측소（우상）"
-    },
-    // 苏白易
-    "deliver_target_map02_lv002_01": {
-        "zh_cn": "技术生产办公室（左上）",
-        "zh_tw": "技術生產辦公室（左上）",
-        "en_us": "Tech Production Office (Top Left)",
-        "ja_jp": "技術生産室（左上）",
-        "ko_kr": "기술 생산실（좌상）"
-    },
-    // 试验园区
-    // 裴令容
-    "deliver_target_map02_lv005_02": {
-        "zh_cn": "一号丙型辅桩区（左上）",
-        "zh_tw": "一號丙型輔樁區（左上）",
-        "en_us": "No.1 Type-C Anchor Area (Top Left)",
-        "ja_jp": "一号丙型アンカー区（左上）",
-        "ko_kr": "1호 C형 앵커 구역（좌상）"
-    },
-    // 阿禾
-    "deliver_target_map02_lv005_03": {
-        "zh_cn": "三号丙型辅桩区（右上）",
-        "zh_tw": "三號丙型輔樁區（右上）",
-        "en_us": "No.3 Type-C Anchor Area (Top Right)",
-        "ja_jp": "三号丙型アンカー区（右上）",
-        "ko_kr": "3호 C형 앵커 구역（우상）"
-    },
-    // 赵昭
-    "deliver_target_map02_lv005_01": {
-        "zh_cn": "经纬田区（右）",
-        "zh_tw": "經緯田區（右）",
-        "en_us": "Jingwei Field Area (Right)",
-        "ja_jp": "経緯田区（右）",
-        "ko_kr": "경위전 구역（우）"
-    },
     // 四号谷地
     // 源石研究园
     // 英格
@@ -66,7 +7,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 基特
     "deliver_target_map01_lv005_02": {
@@ -74,7 +16,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 嘉娜
     "deliver_target_map01_lv005_03": {
@@ -82,7 +25,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 学术复读羽兽
     "deliver_target_map01_lv005_recycle_02": {
@@ -90,7 +34,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 采购-醇化合物工厂模组
     "deliver_target_map01_lv005_recycle_03": {
@@ -98,7 +43,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 矿脉源区
     // 马泰奥
@@ -107,7 +53,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 陆言
     "deliver_target_map01_lv006_02": {
@@ -115,7 +62,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 莫莉
     "deliver_target_map01_lv006_03": {
@@ -123,7 +71,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // “不是废品佬”
     "deliver_target_map01_lv006_recycle_01": {
@@ -131,7 +80,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 采购-矿区医疗站模组
     "deliver_target_map01_lv006_recycle_03": {
@@ -139,7 +89,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 供能高地
     // 库济米尼奇娜
@@ -148,7 +99,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 里斯卡
     "deliver_target_map01_lv007_02": {
@@ -156,7 +108,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 戈里昂
     "deliver_target_map01_lv007_03": {
@@ -164,7 +117,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 无畏的工团成员
     "deliver_target_map01_lv007_recycle_02": {
@@ -172,7 +126,8 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     },
     // 采购-超域试验场物资模组
     "deliver_target_map01_lv007_recycle_03": {
@@ -180,6 +135,73 @@
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
+    },
+    // 武陵
+    // 武陵城
+    // 苏白易
+    "deliver_target_map02_lv002_01": {
+        "zh_cn": "技术生产办公室",
+        "zh_tw": "技術生產辦公室",
+        "en_us": "Technological Production Office",
+        "ja_jp": "技術生産室",
+        "ko_kr": "기술 생산 사무소",
+        "direction": 5
+    },
+    // 普里莫·林德
+    "deliver_target_map02_lv002_02": {
+        "zh_cn": "材料研究所",
+        "zh_tw": "材料研究所",
+        "en_us": "Institute of Materials Science",
+        "ja_jp": "材料研究所",
+        "ko_kr": "재료 연구소",
+        "direction": 6
+    },
+    // 于施
+    "deliver_target_map02_lv002_03": {
+        "zh_cn": "观测站",
+        "zh_tw": "觀測站",
+        "en_us": "Monitoring Center",
+        "ja_jp": "観測所",
+        "ko_kr": "관측소",
+        "direction": 7
+    },
+    // 火锅探店达人
+    "deliver_target_map02_lv002_recycle_01": {
+        "zh_cn": "猫头鹰",
+        "zh_tw": "貓頭鷹",
+        "en_us": "Owl",
+        "ja_jp": "フクロウ",
+        "ko_kr": "올빼미",
+        "direction": 8
+    },
+    // 试验园区
+    // 赵昭
+    "deliver_target_map02_lv005_01": {
+        "zh_cn": "经纬田区",
+        "zh_tw": "經緯田區",
+        "en_us": "Meridian Grid Area",
+        "ja_jp": "格子田エリア",
+        "ko_kr": "경위 논밭 구역",
+        "direction": 4
+    },
+    // 裴令容
+    "deliver_target_map02_lv005_02": {
+        "zh_cn": "一号丙型辅桩区",
+        "zh_tw": "一號丙型輔樁區",
+        "en_us": "Type-C Auxiliary Pillar Area 1",
+        "ja_jp": "丙型補杭エリア1",
+        "ko_kr": "1번 C형 보조 기둥 구역",
+        "direction": 5
+    },
+    // 阿禾
+    "deliver_target_map02_lv005_03": {
+        "zh_cn": "三号丙型辅桩区",
+        "zh_tw": "三號丙型輔樁區",
+        "en_us": "Type-C Auxiliary Pillar Area 3",
+        "ja_jp": "丙型補杭エリア3",
+        "ko_kr": "3번 C형 보조 기둥 구역",
+        "direction": 7
     }
 }

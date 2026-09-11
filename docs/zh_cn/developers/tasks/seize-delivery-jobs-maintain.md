@@ -13,7 +13,7 @@
 >
 > `assets/tasks/SeizeDeliveryJobs.json`、`assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsCommission.json`、`SeizeDeliveryJobsEndpointCandidates.json`、`SeizeDeliveryJobsEndpointDispatcher.json`、`SeizeDeliveryJobsDestinations.json` 都是生成产物。不要直接编辑这些文件；下次运行生成器时，手改内容会被覆盖。
 >
-> `assets/locales/interface/*.json` 中的区域、终点和命中提示也由生成器维护。终点文案应编辑 `endpoint-labels.json`，不要直接改生成后的 locale 键。
+> `assets/locales/interface/*.json` 中的区域、终点和命中提示也由生成器维护：终点展示名与方位登记在 `endpoint-labels.json`（未登记时用数据源收货人名称），不要直接改生成后的 locale 键。
 
 ## 要点速览
 
@@ -28,7 +28,7 @@
 | 终点调度器（生成） | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointDispatcher.json` | 确认地图已打开，并按左上角子区域名路由到对应候选组 |
 | 终点筛选循环（手工） | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilter.json` | 缓存委托、打开查看位置、判断终点、关闭地图、接单和刷新 |
 | 自动送货接续（手工） | `assets/resource/pipeline/SeizeDeliveryJobs/AutoDeliveryAdapter.json` | 通过 continuation anchor 调用公共 `AutoDelivery`，不复制送货流程 |
-| 终点展示名（手工） | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | 人工覆盖终点 ID 对应的五种语言展示名；留空时回退到游戏数据中的收货人名称 |
+| 终点展示名与方位（手工） | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | 按终点 ID 登记五语言地点名（该终点 NPC 所在的地点）与 `direction` 方位代码（1-8） |
 | Go Service | `agent/go-service/seizedeliveryjobs/` | 委托卡片链式 OCR、奖励解析、动态点击坐标和一次扫描的会话状态 |
 | 共享送货目录 | `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap 发布的仓储、终点、地图坐标、区域和五语言源数据；由 `AutoDelivery` 生成器读取 |
 
@@ -40,18 +40,18 @@
 
 `SeizeDeliveryJobsMain` 先执行风险知悉拦截，再进入对应地图的仓储管理页面。进入委托列表后，`SeizeDeliveryJobsReadyToSeize` 依次检查已有委托、今日接单次数是否耗尽，以及当前地区筛选是否正确。
 
-当前来源与地图的关系如下：
+当前来源与地图的关系如下（顺序即任务选项顺序）：
 
 | 任务选项 ID | 委托来源 | 仓储入口地图 | 委托列表筛选 | 终点选项 |
 | ------------------------ | ----------------------------------------- | -------------------------- | ---------------------------- | ----------------------------------------------- |
+| `AllUnlimited` | 目录中的全部区域 | `Wuling` | 全部区域 | 目录中的全部终点 |
+| `Unlimited` | 武陵城 + 试验园区 | `Wuling` | 武陵 | 武陵城与试验园区终点；保留旧选项名 |
 | `WulingCity` | 武陵城 | `Wuling` | 武陵 | 武陵城终点 |
 | `TestArea` | 试验园区 | `Wuling` | 武陵 | 试验园区终点 |
+| `ValleyIVUnlimited` | 四号谷地三个区域 | `ValleyIV` | 四号谷地 | 四号谷地三个区域终点 |
 | `OriginiumSciencePark` | 源石研究园 | `ValleyIV` | 四号谷地 | 源石研究园终点 |
 | `OriginLodespring` | 矿脉源区 | `ValleyIV` | 四号谷地 | 矿脉源区终点 |
 | `PowerPlateau` | 供能高地 | `ValleyIV` | 四号谷地 | 供能高地终点 |
-| `Unlimited` | 武陵城 + 试验园区 | `Wuling` | 武陵 | 武陵城与试验园区终点；保留旧选项名 |
-| `ValleyIVUnlimited` | 四号谷地三个区域 | `ValleyIV` | 四号谷地 | 四号谷地三个区域终点 |
-| `AllUnlimited` | 目录中的全部区域 | `Wuling` | 全部区域 | 目录中的全部终点 |
 
 `Unlimited` 是历史兼容项，不能随意改名或删除：用户保存的配置可能仍引用这个选项 case。`AllUnlimited` 才是覆盖全部区域的聚合选项。来源选项的 `pipeline_override` 会同时覆盖 `__SeizeDeliveryJobsRecoOrigin`、仓储入口和地区筛选节点，所以新增区域不能只补一条 locale 文案。
 
@@ -98,7 +98,7 @@ SeizeDeliveryJobsScanTarget
                       └─ 缓存委托全部检查完 → 清空状态 → 刷新委托列表
 ```
 
-区域门控节点用 ROI `[16, 14, 214, 41]` 读取地图左上角的子区域名，以避免在不限来源时误用另一张地图的终点候选。每个区域的 `MapFind` 节点只使用一个 `zone`，其 `candidates` 的 `at` 坐标来自送货目录中的地图坐标；这些是地图世界坐标，不是 1280×720 屏幕坐标。
+区域门控节点用 ROI `[16, 14, 214, 41]` 读取地图左上角的子区域名，以避免在不限来源时误用另一张地图的终点候选。每个区域的 `MapFind` 节点只使用一个 `zone`，其 `candidates` 的 `at` 坐标来自送货目录中的地图坐标（地图世界坐标）。
 
 筛选循环节点 `SeizeDeliveryJobsEndpointFilter` 用 `__SeizeDeliveryJobsRecoAnyDepotNode`（任一地图仓储管理页面的特征标志，`InLocalDepotNode` 的封装）反向判断地图视图已经打开：仍停在仓储管理页面时该标志存在，节点不命中。它不绑定具体地图，新增区域时只需在它的 `next` 里追加新的区域门控节点。
 
@@ -129,7 +129,7 @@ zmdmap
        └─ AutoDelivery/model.mjs
             ├─ destinations（地图、区域、MapFind zone、终点 u/v 坐标和收货人名称）
             │    └─ endpoint-filter-data.mjs → 终点行、区域 candidates 行和调度器行
-            │         ├─ endpoint-labels.mjs → 维护 endpoint-labels.json 中的人工五语言名称
+            │         ├─ endpoint-labels.mjs → 校验 endpoint-labels.json 的地点名与方位
             │         ├─ endpoint-candidates-data.mjs / endpoint-dispatcher-data.mjs → 再导出上述行
             │         └─ task-data.mjs → 任务 case 与终点开关，并调用 sync-locales.mjs 同步五语言文案
             └─ depots（仓储及其所属地图）
@@ -150,7 +150,7 @@ zmdmap
 | `endpoint-filter-config.json` | `endpoint-filter-template.json` | `SeizeDeliveryJobsDestinations.json` | 否 |
 | `task-config.json` | `task-template.jsonc` | `assets/tasks/SeizeDeliveryJobs.json` | 否 |
 
-生成时 `task-data.mjs` 会调用 `syncSeizeDeliveryJobsLocales()`，向五个 `assets/locales/interface/*.json` 写入区域标签、终点标签和命中提示。区域标签只补缺失值，已有非空区域文案会保留；终点标签和终点命中提示则每次生成都按 `endpoint-labels.json` 同步，以保证人工名称变化立即生效。
+生成时 `task-data.mjs` 调用 `syncSeizeDeliveryJobsLocales()`，向五个 `assets/locales/interface/*.json` 写入区域标签、终点标签和命中提示。区域标签只补缺失值；终点标签与命中提示每次生成都按 `endpoint-labels.json`（地点名或数据源收货人名称 + 方位）重写。
 
 `run-all.mjs` 在渲染 task 或 `merged` 配置前会删除对应的旧单文件产物，防止已删除的区域、终点或选项残留。因此生成前应确认当前数据和配置没有未保存的手工内容。
 
@@ -175,14 +175,31 @@ pnpm generate:SeizeDeliveryJobs
 
 `generate:SeizeDeliveryJobs` 本身不会生成 `assets/resource/pipeline/AutoDelivery/` 或 `assets/data/AutoDelivery/catalog.json`。只改已有终点的展示名时，不需要重新生成 AutoDelivery。
 
-## 终点展示名称维护
+## 终点展示名称与方位维护
+
+`endpoint-labels.json` 是终点展示名唯一的人工维护入口。登记的是**该终点 NPC 所在地点的名字**（收货人常常只是个人名，地点名更容易在地图上找到）；没登记的终点用数据源里的收货人名称。展示名按以下顺序生成：
+
+1. 登记了地点名的终点用登记的名字（；
+2. 其余终点用 `delivery_destinations.json` 中的收货人名称；
+3. 最后按 `direction` 追加对应语言的方位后缀。
 
 ### `endpoint-labels.json` 的规则
 
-文件键是 `delivery_destinations.json` 中的原始终点 ID，值必须包含以下五种语言字段：
+键是 `delivery_destinations.json` 中的原始终点 ID。生成器为每个终点保留一条条目，补齐五种语言字段和 `direction`：登记过的写地点名，未登记的留空字符串（该语言回退到收货人名称），要方位就把 `direction` 从 `0` 改成方位代码：
 
 ```jsonc
 {
+    // 武陵
+    // 武陵城
+    // 苏白易
+    "deliver_target_map02_lv002_01": {
+        "zh_cn": "技术生产办公室",
+        "zh_tw": "技術生產辦公室",
+        "en_us": "Technological Production Office",
+        "ja_jp": "技術生産室",
+        "ko_kr": "기술 생산 사무소",
+        "direction": 5
+    },
     // 矿脉源区
     // 莫莉
     "deliver_target_map01_lv006_03": {
@@ -190,22 +207,29 @@ pnpm generate:SeizeDeliveryJobs
         "zh_tw": "",
         "en_us": "",
         "ja_jp": "",
-        "ko_kr": ""
+        "ko_kr": "",
+        "direction": 0
     }
 }
 ```
 
 规则如下：
 
-- 非空字符串是人工维护的地标名，便于用户在任务选项和日志中定位终点。
-- 空字符串或仅含空白字符时，该语言的显示名回退为 `delivery_destinations.json` 中该终点的收货人名称。
-- 人工名称和数据源名称都为空时，生成器直接报错，不生成空白任务选项或空白命中提示。
-- 生成器只会补缺少的终点和语言字段，不会用回退名称覆盖人工文件；每次生成会重建上面示例中的地图、区域和收货人注释。
-- 注释不是程序输入，不要依赖手工修改注释来改变名称；数据源更新后重新生成即可刷新注释。
+- 五种语言字段是该地点在游戏里的官方名字，逐字抄自官方 i18n 表；需同时完成 5 种语言键。
+- 官方表查不到时沿用既有称呼，如猫头鹰。
+- `direction` 是**方位代码**，只写一个数字，`0` 表示不加方位：
+
+  | 代码 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+  | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+  | 方位 | 上 | 下 | 左 | 右 | 左上 | 左下 | 右上 | 右下 |
+
+  五种语言的方位措辞集中在 `endpoint-labels.mjs` 的 `DIRECTION_TEXTS`，不在每个终点重复填写。
+- 展示名全空（登记文案与收货人名称都为空）时生成器直接报错。
+- 条目上方的 `// 地图 / 区域 / 收货人名` 注释每次重建，但不会清空已填写的文案或方位；注释不是程序输入，不要靠改注释改展示名。
 
 ### ID 兼容和排序
 
-已有终点的内部 `EndpointId` 通过 `endpoint-filter-data.mjs` 中的 `LEGACY_ENDPOINTS` 保留。当前兼容 ID 包括 `Owl`、`MaterialResearchInstitute`、`Observatory`、`TechProductionOffice`、`No1TypeCAnchorArea`、`No3TypeCAnchorArea` 和 `JingweiFieldArea`。不要为了让 ID 更符合新地标名而重命名它们，否则会同时影响：
+已有终点的内部 `EndpointId` 通过 `endpoint-filter-data.mjs` 中的 `LEGACY_ENDPOINTS` 保留。当前兼容 ID 包括 `Owl`、`MaterialResearchInstitute`、`Observatory`、`TechProductionOffice`、`No1TypeCAnchorArea`、`No3TypeCAnchorArea` 和 `JingweiFieldArea`。不要为了让 ID 更符合新的展示名而重命名它们，否则会同时影响：
 
 - 已保存用户配置中的选项 case；
 - `SeizeDeliveryJobsEndpointFilter<EndpointId>` 节点名；
@@ -224,13 +248,19 @@ deliver_target_map01_lv006_03
 
 区域 ID 不走兼容表，而是从数据自动派生：`area.en_us` 去掉非字母数字字符（`Origin Lodespring` → `OriginLodespring`，`Test District` → `TestDistrict`）。它同时决定「委托接收点」的来源 case 名、`SeizeDeliveryJobsDeliveryPoint<AreaId>` 选项名和区域门控节点名，因此改动数据源中的英文区域名会一并改名。
 
-### 只修改已有终点名称
+### 只修改已有终点方位
 
-1. 在 `endpoint-labels.json` 中按原始终点 ID 填写或清空对应语言字段。
+1. 在 `endpoint-labels.json` 中按原始终点 ID 改 `direction`（0-8，`0` 不加方位）。
 2. 执行 `pnpm generate:SeizeDeliveryJobs`，或在数据已更新的情况下执行 `node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs`。
 3. 检查 `assets/tasks/SeizeDeliveryJobs.json` 的终点 case、`SeizeDeliveryJobsDestinations.json` 的 `desc`，以及五个 locale 文件中对应的选项／命中提示文案。
 
 不要直接修改生成后的 `assets/tasks`、Pipeline 或 locale。下一次生成会以 `endpoint-labels.json` 和 zmdmap 数据为准。
+
+### 登记或修改地点名
+
+1. 用编辑器的全局搜索在官方 i18n 表里搜该地点的简中名字，拿到词条 ID，再用这个 ID 搜出其余四种语言。
+2. 在 `endpoint-labels.json` 中给该终点补上五种语言字段，逐字抄官方名字；确实查不到官方词条时沿用既有约定称呼。
+3. 运行 `pnpm generate:SeizeDeliveryJobs`，确认五个 locale 文件里的该终点文案与该地点的官方名字一致。
 
 ## 新增终点、区域或地图
 
@@ -240,7 +270,7 @@ deliver_target_map01_lv006_03
 
 1. 运行 `pnpm fetch:zmdmap`，确认 `delivery_destinations.json` 中出现新终点及其 `u`/`v` 坐标。
 2. 运行 `pnpm generate:AutoDelivery`，让 AutoDelivery 同步 `routes.json` metadata、生成导航节点和 `catalog.json`。
-3. 在 `endpoint-labels.json` 中检查新 ID；生成器会自动补出五个空字段。需要地标名时填写字段，否则保留空值使用收货人名称回退。
+3. 新 ID 的空条目（五语言 + `direction: 0`）由生成器自动补出；要方位就改 `direction`，要地点名就按「登记或修改地点名」填文案，否则留空用收货人名称。
 4. 运行 `pnpm generate:SeizeDeliveryJobs`。
 5. 检查新终点是否同时出现在：对应区域的 task checkbox、`SeizeDeliveryJobsDestinations.json`、该区域 `MapFind` 的 `candidates`，以及五个 locale 文件。
 6. 在节点测试或实机上确认地图缩放后 `DeliveryPoint.png` 能在新 `at` 坐标命中，并确认命中后能返回委托列表继续接单。
@@ -255,13 +285,13 @@ deliver_target_map01_lv006_03
 
 除上游数据外不需要任何手工改动。若新区域同时带来新终点，先执行 `pnpm generate:AutoDelivery`，再执行 `pnpm generate:SeizeDeliveryJobs`（见「运行命令」）。以下内容会自动生成：
 
-- 「委托接收点」的来源 case：按所属地图归组，排在旧区域之后；`LEGACY_AREA_ORDER` 只用于保持旧区域的既有顺序；
+- 「委托接收点」的来源 case：顺序由数据源推导（新地区优先，同地区内按数据源顺序），locale 键序与 task 选项同源；
 - 区域送货点选项、该区域每个终点的 case 和「指定送货点」开关；
-- 区域门控 OCR 的 `expected`（五语言区域名）和 `MapFind` 的 `at` 坐标；
+- 区域门控 OCR 的 `expected`（完整区域名）和 `MapFind` 的 `at` 坐标；
 - 「武陵-全部」「四号谷地-全部」「全部地区」三个聚合选项的 `expected` 自动包含新区域；
 - 五个 `assets/locales/interface/*.json` 中的区域标签（只补缺失值）。
 
-**不需要新增图片**：区域门控用 OCR，终点共用 `DeliveryPoint.png`，筛选按钮按地图（`Filter${MapName}.png`）。仍需人工判断的只有 `endpoint-labels.json`：自动回退的收货人名有歧义时填写区分名，见「终点展示名称维护」。
+**不需要新增图片**：区域门控用 OCR，终点共用 `DeliveryPoint.png`，筛选按钮按地图（`Filter${MapName}.png`）。仍需人工判断的只有 `endpoint-labels.json` 里的方位，以及查不到官方词条时的既有称呼，见「终点展示名称与方位维护」。
 
 **B. 属于一张新地图**
 
@@ -269,7 +299,7 @@ deliver_target_map01_lv006_03
 
 1. 确认 zmdmap 数据提供区域名称、所属仓储、地图 `u`/`v` 坐标和五种语言文本。
 2. 在 `tools/pipeline-generate/SeizeDeliveryJobs/commission-data.mjs` 的 `mapNames`、`mapLabels` 和 `depotTextNodes` 中补充新地图映射；每行会导出 `MapId`、`MapName`、`AreaName`、`DepotTextNode` 和 `Labels`。
-3. 在 `tools/pipeline-generate/SeizeDeliveryJobs/task-data.mjs` 的 `mapId → mapName` 逻辑中补充新地图；当前代码只区分 `map01 → ValleyIV`，其他值回退为 `Wuling`，这套映射逻辑不能直接复用到第三张地图。
+3. 在 `task-template.jsonc` 中按现有地区级选项补一个新地图的「指定送货点」选项块（命名 `<地区名>Unlimited`，如 `ValleyIVUnlimited`），再在 `task-data.mjs` 的 `taskRows` 中补上该块引用的占位符 `<地区名>DeliveryPointOptions: deliveryPointOptionsOfMap("<MapId>")`——没人提供的占位符会以字面量留在产物里。来源 case、地区级 case 顺序和 locale 键序都会由数据源自动带上新地图，地区名从 `commission-data.mjs` 读取。该 case 的文案 `task.SeizeDeliveryJobsCommissionSource.cases.<地区名>Unlimited.label` **不会自动生成**，要手工补进五个 locale 文件。
 4. 确认 `Filter${MapName}.png` 存在，并**为新地图单独截一张调度券图**，放到 `assets/resource/image/SeizeDeliveryJobs/DepotNodePage/${MapName}Token.png`（并按第 5 步追加到 `template`）。尺寸与现有两张对齐（47×33，从 720p 截图原样裁剪），另外：
    - **锚点与现有模板一致**：Go 以调度券 box 为锚点、按固定偏移推导后续 roi，所以新模板的匹配 y 必须落在相同的行内相对位置。可用调度券卡片底边那条黄色横线的中心标定——现有两张图在各自匹配行的偏移都是 41.5~42.5px，裁偏几像素该行的奖励 roi 就会跟着偏。
    - **不包含奖励数字和底部黄线**
@@ -280,7 +310,7 @@ deliver_target_map01_lv006_03
 6. 执行 `pnpm generate:AutoDelivery`，再执行 `pnpm generate:SeizeDeliveryJobs`。
 7. 检查生成的区域门控、`MapFind zone` 和候选节点。如果同一区域的终点跨多个 `MapFind zone`，当前生成器会主动报错；需要先扩展区域分组模型和模板，不能把不同 zone 强行放进同一个候选（`candidates`）节点。
 
-区域门控 `expected` 应使用完整的五语言区域名，并保持与地图左上角 OCR 的实际文本一致。区域名只用于门控路由，不能用终点收货人名称代替。
+区域门控 `expected` 应使用完整的区域名，并保持与地图左上角 OCR 的实际文本一致。区域名只用于门控路由，不能用终点收货人名称代替。
 
 ### 新增或修改路线
 
@@ -289,8 +319,6 @@ deliver_target_map01_lv006_03
 - 使用 `tools/pipeline-generate/AutoDelivery/routes.json` 保存实测路线覆盖，不要把完整导航路径写入 SeizeDeliveryJobs 的 `MapFind` candidates。
 - 运行 `pnpm generate:AutoDelivery`，确认对应 `AutoDeliveryRoute...`、重试路线和 `assets/data/AutoDelivery/catalog.json` 已更新。
 - 再运行 SeizeDeliveryJobs 生成器，确保终点 task 选项和地图候选仍引用相同的源 ID。
-
-送货路线中 `NAVMESH` 的地图坐标不是屏幕坐标；只有 Pipeline 的 `roi`、固定 `target` 和模板图裁剪区域遵循 1280×720 基准。导航、MapFind 与界面识别中的坐标不要混用。
 
 ## Go Service 维护
 
@@ -339,7 +367,7 @@ Go 从 `__SeizeDeliveryJobsMinReward.expected[0]` 读取任务输入，并把奖
 | 现象 | 优先检查 |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 生成器提示找不到数据文件 | 运行 `pnpm fetch:zmdmap`；不要创建一个不完整的本地 `delivery_destinations.json` 冒充数据源 |
-| 终点选项为空或生成失败 | 检查终点 ID 是否存在、五个语言字段是否为字符串；至少保证人工名称或数据源收货人名称非空 |
+| 终点选项为空或生成失败 | 检查终点 ID 是否存在、该终点的五语言地点名或数据源收货人名称是否非空、`direction` 是否为 0-8 的整数（生成器会补 `direction: 0`） |
 | 新终点有选项但 `MapFind` 不命中 | 检查 `mapAt`/`u`/`v`、`MapFind zone`、`DeliveryPoint` 图标登记和地图缩放后的实际位置；`at` 不是屏幕 ROI |
 | 终点筛选总是走错区域 | 检查区域门控 OCR ROI `[16, 14, 214, 41]`、五语言 `expected`，以及该区域的终点是否都归入同一个 `MapFind zone` |
 | 指定终点模式没有检查下一张委托 | 检查未命中后的 ESC → `SeizeDeliveryJobsScanTarget` 链路，以及扫描耗尽后的 reset → refresh 链路 |
@@ -347,22 +375,24 @@ Go 从 `__SeizeDeliveryJobsMinReward.expected[0]` 读取任务输入，并把奖
 | 新加的调度券图分数偏低 | 给该节点加 `threshold` 数组按模板分别设阈值（长度与 `template` 一致，如 `[0.7, 0.6]`）；阈值调低后两图可能互相误匹配，同一行拿到两个 box，需要在 Go 侧按 y 去重 |
 | 委托识别到了但奖励读不到/接取失败 | 多半是该地图调度券图的锚点裁偏：按偏移推导出的奖励/出发地/接取/查看位置 roi 会整体平移，按「新增地图」第 4 步用行底黄线重新标定 |
 | 接单后自动送货找不到路线 | 先运行 `pnpm generate:AutoDelivery`，检查对应 `AutoDelivery/catalog.json` 和生成路线；`SeizeDeliveryJobs` 生成器不会代替 `AutoDelivery` 生成这些文件 |
-| 修改名称后旧配置失效 | 检查是否改动了 `LEGACY_ENDPOINTS` 对应的内部 ID；展示名称应改 `endpoint-labels.json`，不要改 case/node ID |
+| 改了展示文案后旧配置失效 | 检查是否改动了 `LEGACY_ENDPOINTS` 对应的内部 ID；方位和展示名都改 `endpoint-labels.json`，两者都不该改动 case/node ID |
 
 定位问题时先看 `maafw.log`、`go-service.log` 和节点 focus 文案，确认失败发生在列表入口、委托 OCR、终点地图路由还是接单后的 AutoDelivery，再修改对应层。不要通过增加重试或固定延迟掩盖识别链路问题。
 
 ## 提交前检查
 
-只修改已有终点名称时，至少运行：
+只修改已有终点方位时，至少运行：
 
 ```bash
 node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs
-node --test tools/pipeline-generate/DeliveryJobs/data.test.mjs
+node --test tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs tools/pipeline-generate/DeliveryJobs/data.test.mjs
 pnpm check
 pnpm test
 pnpm format:md:check
 git diff --check
 ```
+
+`SeizeDeliveryJobs/task-data.test.mjs` 校验顺序同源、locale 键序、登记条目结构与展示名取值；`DeliveryJobs/data.test.mjs` 的 `DeliveryJobs packing item options inject IconRecognition item ids` 是既有失败，与本任务无关。
 
 新增终点、区域或路线时，再确认：
 
