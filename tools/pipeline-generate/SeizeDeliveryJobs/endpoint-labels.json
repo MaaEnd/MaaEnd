@@ -1,0 +1,185 @@
+{
+    // 武陵
+    // 武陵城
+    // 火锅探店达人
+    "deliver_target_map02_lv002_recycle_01": {
+        "zh_cn": "猫头鹰",
+        "zh_tw": "貓頭鷹",
+        "en_us": "Owl",
+        "ja_jp": "フクロウ",
+        "ko_kr": "올빼미"
+    },
+    // 普里莫·林德
+    "deliver_target_map02_lv002_02": {
+        "zh_cn": "材料研究所（左下）",
+        "zh_tw": "材料研究所（左下）",
+        "en_us": "Material Research Institute (Bottom Left)",
+        "ja_jp": "材料研究所（左下）",
+        "ko_kr": "재료 연구소（좌하）"
+    },
+    // 于施
+    "deliver_target_map02_lv002_03": {
+        "zh_cn": "观测站（右上）",
+        "zh_tw": "觀測站（右上）",
+        "en_us": "Observatory (Top Right)",
+        "ja_jp": "観測所（右上）",
+        "ko_kr": "관측소（우상）"
+    },
+    // 苏白易
+    "deliver_target_map02_lv002_01": {
+        "zh_cn": "技术生产办公室（左上）",
+        "zh_tw": "技術生產辦公室（左上）",
+        "en_us": "Tech Production Office (Top Left)",
+        "ja_jp": "技術生産室（左上）",
+        "ko_kr": "기술 생산실（좌상）"
+    },
+    // 试验园区
+    // 裴令容
+    "deliver_target_map02_lv005_02": {
+        "zh_cn": "一号丙型辅桩区（左上）",
+        "zh_tw": "一號丙型輔樁區（左上）",
+        "en_us": "No.1 Type-C Anchor Area (Top Left)",
+        "ja_jp": "一号丙型アンカー区（左上）",
+        "ko_kr": "1호 C형 앵커 구역（좌상）"
+    },
+    // 阿禾
+    "deliver_target_map02_lv005_03": {
+        "zh_cn": "三号丙型辅桩区（右上）",
+        "zh_tw": "三號丙型輔樁區（右上）",
+        "en_us": "No.3 Type-C Anchor Area (Top Right)",
+        "ja_jp": "三号丙型アンカー区（右上）",
+        "ko_kr": "3호 C형 앵커 구역（우상）"
+    },
+    // 赵昭
+    "deliver_target_map02_lv005_01": {
+        "zh_cn": "经纬田区（右）",
+        "zh_tw": "經緯田區（右）",
+        "en_us": "Jingwei Field Area (Right)",
+        "ja_jp": "経緯田区（右）",
+        "ko_kr": "경위전 구역（우）"
+    },
+    // 四号谷地
+    // 源石研究园
+    // 英格
+    "deliver_target_map01_lv005_01": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 基特
+    "deliver_target_map01_lv005_02": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 嘉娜
+    "deliver_target_map01_lv005_03": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 学术复读羽兽
+    "deliver_target_map01_lv005_recycle_02": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 采购-醇化合物工厂模组
+    "deliver_target_map01_lv005_recycle_03": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 矿脉源区
+    // 马泰奥
+    "deliver_target_map01_lv006_01": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 陆言
+    "deliver_target_map01_lv006_02": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 莫莉
+    "deliver_target_map01_lv006_03": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // “不是废品佬”
+    "deliver_target_map01_lv006_recycle_01": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 采购-矿区医疗站模组
+    "deliver_target_map01_lv006_recycle_03": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 供能高地
+    // 库济米尼奇娜
+    "deliver_target_map01_lv007_01": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 里斯卡
+    "deliver_target_map01_lv007_02": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 戈里昂
+    "deliver_target_map01_lv007_03": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 无畏的工团成员
+    "deliver_target_map01_lv007_recycle_02": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    },
+    // 采购-超域试验场物资模组
+    "deliver_target_map01_lv007_recycle_03": {
+        "zh_cn": "",
+        "zh_tw": "",
+        "en_us": "",
+        "ja_jp": "",
+        "ko_kr": ""
+    }
+}

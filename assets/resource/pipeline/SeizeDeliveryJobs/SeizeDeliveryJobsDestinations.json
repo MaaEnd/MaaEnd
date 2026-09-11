@@ -10,7 +10,7 @@
         }
     },
     "SeizeDeliveryJobsEndpointFilterMaterialResearchInstitute": {
-        "desc": "「材料研究所」送货终点（deliver_target_map02_lv002_02）：candidates 候选开关，命中后前往接取",
+        "desc": "「材料研究所（左下）」送货终点（deliver_target_map02_lv002_02）：candidates 候选开关，命中后前往接取",
         "enabled": false,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
@@ -20,7 +20,7 @@
         }
     },
     "SeizeDeliveryJobsEndpointFilterObservatory": {
-        "desc": "「观测站」送货终点（deliver_target_map02_lv002_03）：candidates 候选开关，命中后前往接取",
+        "desc": "「观测站（右上）」送货终点（deliver_target_map02_lv002_03）：candidates 候选开关，命中后前往接取",
         "enabled": false,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
@@ -30,7 +30,7 @@
         }
     },
     "SeizeDeliveryJobsEndpointFilterTechProductionOffice": {
-        "desc": "「技术生产办公室」送货终点（deliver_target_map02_lv002_01）：candidates 候选开关，命中后前往接取",
+        "desc": "「技术生产办公室（左上）」送货终点（deliver_target_map02_lv002_01）：candidates 候选开关，命中后前往接取",
         "enabled": false,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
@@ -40,7 +40,7 @@
         }
     },
     "SeizeDeliveryJobsEndpointFilterNo1TypeCAnchorArea": {
-        "desc": "「一号丙型辅桩区」送货终点（deliver_target_map02_lv005_02）：candidates 候选开关，命中后前往接取",
+        "desc": "「一号丙型辅桩区（左上）」送货终点（deliver_target_map02_lv005_02）：candidates 候选开关，命中后前往接取",
         "enabled": false,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
@@ -50,7 +50,7 @@
         }
     },
     "SeizeDeliveryJobsEndpointFilterNo3TypeCAnchorArea": {
-        "desc": "「三号丙型辅桩区」送货终点（deliver_target_map02_lv005_03）：candidates 候选开关，命中后前往接取",
+        "desc": "「三号丙型辅桩区（右上）」送货终点（deliver_target_map02_lv005_03）：candidates 候选开关，命中后前往接取",
         "enabled": false,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
@@ -60,13 +60,163 @@
         }
     },
     "SeizeDeliveryJobsEndpointFilterJingweiFieldArea": {
-        "desc": "「经纬田区」送货终点（deliver_target_map02_lv005_01）：candidates 候选开关，命中后前往接取",
+        "desc": "「经纬田区（右）」送货终点（deliver_target_map02_lv005_01）：candidates 候选开关，命中后前往接取",
         "enabled": false,
         "next": [
             "SeizeDeliveryJobsEndpointMatched"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointJingweiFieldArea"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00501": {
+        "desc": "「英格」送货终点（deliver_target_map01_lv005_01）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00501"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00502": {
+        "desc": "「基特」送货终点（deliver_target_map01_lv005_02）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00502"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00503": {
+        "desc": "「嘉娜」送货终点（deliver_target_map01_lv005_03）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00503"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv005Recycle02": {
+        "desc": "「学术复读羽兽」送货终点（deliver_target_map01_lv005_recycle_02）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv005Recycle02"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv005Recycle03": {
+        "desc": "「采购-醇化合物工厂模组」送货终点（deliver_target_map01_lv005_recycle_03）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv005Recycle03"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00601": {
+        "desc": "「马泰奥」送货终点（deliver_target_map01_lv006_01）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00601"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00602": {
+        "desc": "「陆言」送货终点（deliver_target_map01_lv006_02）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00602"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00603": {
+        "desc": "「莫莉」送货终点（deliver_target_map01_lv006_03）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00603"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv006Recycle01": {
+        "desc": "「“不是废品佬”」送货终点（deliver_target_map01_lv006_recycle_01）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv006Recycle01"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv006Recycle03": {
+        "desc": "「采购-矿区医疗站模组」送货终点（deliver_target_map01_lv006_recycle_03）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv006Recycle03"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00701": {
+        "desc": "「库济米尼奇娜」送货终点（deliver_target_map01_lv007_01）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00701"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00702": {
+        "desc": "「里斯卡」送货终点（deliver_target_map01_lv007_02）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00702"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00703": {
+        "desc": "「戈里昂」送货终点（deliver_target_map01_lv007_03）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00703"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv007Recycle02": {
+        "desc": "「无畏的工团成员」送货终点（deliver_target_map01_lv007_recycle_02）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv007Recycle02"
+        }
+    },
+    "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv007Recycle03": {
+        "desc": "「采购-超域试验场物资模组」送货终点（deliver_target_map01_lv007_recycle_03）：candidates 候选开关，命中后前往接取",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv007Recycle03"
         }
     }
 }
