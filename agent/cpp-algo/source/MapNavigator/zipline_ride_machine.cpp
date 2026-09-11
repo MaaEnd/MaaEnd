@@ -241,7 +241,6 @@ void ZiplineRideMachine::Reset()
     returning_ = false;
     hop_retry_count_ = 0;
     mount_presses_ = 0;
-    on_tower_hits_ = 0;
     on_ground_hits_ = 0;
     discovered_towers_.clear();
     parked_on_.reset();
@@ -342,10 +341,10 @@ StageResult ZiplineRideMachine::TickMounting(const ZiplineObservation& obs, IZip
     // settle 之内的地面读数不予采信: 按钮尚未收起时, 角色可能正在上架过程中。故这段时间内的读数
     // 一律不计入连续帧数, 重按所依据的若干帧全部取自窗口之后
     const bool settled = elapsed_ms >= kZiplineMountSettleMs;
-    on_tower_hits_ = verdict == MountVerdict::OnTower ? on_tower_hits_ + 1 : 0;
     on_ground_hits_ = verdict == MountVerdict::OnGround && settled ? on_ground_hits_ + 1 : 0;
 
-    if (on_tower_hits_ >= kZiplineMountOnTowerFixes) {
+    // 架上那几条操作引导只在人已经站上架子之后才出现, 而它逐帧能不能读出来随机位起落, 故读到一帧即认
+    if (verdict == MountVerdict::OnTower) {
         LogInfo << "zipline/mount/confirmed" << VAR(elapsed_ms) << VAR(mount_presses_);
         EnterStage(ZiplineStage::OnTower, now);
         return {};
@@ -368,10 +367,6 @@ StageResult ZiplineRideMachine::TickMounting(const ZiplineObservation& obs, IZip
     if (elapsed_ms <= kZiplineMountWindowMs) {
         return {};
     }
-    // 窗口耗满时架上一侧的连续读数仍在累计: 等它满足或中断, 避免在上架完成的瞬间重按上索键
-    if (verdict == MountVerdict::OnTower) {
-        return {};
-    }
     // 窗口耗满、两个信号都未命中且无位移: 按「已被架子锁住而提示漏读」处理, 先发下索键回到可判定的地面态
     // 再重规划, 避免在位置未定的状态下继续瞄准和发射
     if (verdict == MountVerdict::Unclear) {
@@ -390,7 +385,6 @@ StageResult ZiplineRideMachine::Remount(IZiplineActuator& actuator, const char* 
     const int64_t elapsed_ms = StageElapsedMs(now);
     if (mount_presses_ < kZiplineMountPressBudget && actuator.PressMount()) {
         ++mount_presses_;
-        on_tower_hits_ = 0;
         on_ground_hits_ = 0;
         LogWarn << "zipline/mount/repress" << VAR(reason) << VAR(elapsed_ms) << VAR(mount_presses_);
         EnterStage(ZiplineStage::Mounting, now);

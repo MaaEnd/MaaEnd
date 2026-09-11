@@ -109,9 +109,8 @@ private:
     int pitch_tier_ = 0;
     bool returning_ = false;
     int hop_retry_count_ = 0;
-    // 上索确认: 本次站位已发出的上索按键次数, 两个判定各自的连续成立帧数
+    // 上索确认: 本次站位已发出的上索按键次数, 以及地面态判定的连续成立帧数
     int mount_presses_ = 0;
-    int on_tower_hits_ = 0;
     int on_ground_hits_ = 0;
     std::vector<ZiplineNodeRef> discovered_towers_;
     // 交回导航后人还站着的架子
