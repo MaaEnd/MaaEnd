@@ -15,8 +15,8 @@ namespace mapnavigator
 namespace
 {
 
-// 一跳里第几次按左键该把镜头抬到多少度。俯仰读不回来, dy 的正负也没实机核过, 所以第二次直接
-// 反着来, 第三次干脆不动俯仰——三次里必有一次踩在对的那一侧
+// 一跳里第几次按左键该把镜头抬到多少度。俯仰读不回来, 下降索按规划仰角朝下瞄已经能发出去, 上升索
+// 的正仰角还没核过, 所以第二次反着来, 第三次干脆不动俯仰——三次里必有一次踩在对的那一侧
 double PitchTargetForAttempt(double elevation_deg, int attempt)
 {
     if (std::abs(elevation_deg) < kZiplinePitchDeadbandDeg) {
