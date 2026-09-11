@@ -89,7 +89,7 @@ Overriding parameters (e.g., forcing a global search after a long-distance telep
 
 Checks whether the character is currently inside a specified rectangle within a given `zone_id`.
 
-Unlike the single-frame check of `MapLocateRecognition`, this node performs a **settled determination**: it resets the tracking state, forces a global search, then polls at 250ms intervals (up to 60 frames, about 15 seconds). It requires 3 consecutive frames with successful localization, a matching zone, and positions stable within a 12px radius, and finally checks the centroid coordinate against the rectangle. A call may therefore block for several seconds — it is not instantaneous.
+This node performs a **waiting determination**: it resets the tracking state, forces a global search, then polls at 250ms intervals (up to 60 frames, about 15 seconds) until a frame localizes successfully with coordinates falling inside the rectangle. The zone banner shown after a teleport covers the minimap, and this budget exists to wait it out. A call may therefore block for several seconds — it is not instantaneous.
 
 ### Node Parameters
 
@@ -100,14 +100,7 @@ Required parameters (`custom_recognition_param`):
 | `zone_id` | Target zone name; must exactly match the localized zone name |
 | `target` | Array of 4 numbers `[x, y, w, h]`: rectangle top-left corner and size |
 
-Optional parameters (`custom_recognition_param`):
-
-| Parameter | Default | Description |
-| ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `loc_threshold` | `0.70` | Lower bound of the template matching score, same meaning as above; note the default is higher than for single-frame localization |
-| `yolo_threshold` | `0.70` | Same meaning as above |
-
-The assertion always forces a global search and only accepts localization results inside `zone_id`; no search-scope configuration is needed.
+There are no optional parameters. The assertion always forces a global search and only accepts localization results inside `zone_id`; the match score and YOLO confidence use the locator defaults, matching how `MapNavigator` captures positions.
 
 ### Return Value (out_detail)
 
@@ -118,7 +111,7 @@ The assertion always forces a global search and only accepts localization result
 | `inTarget` | Equivalent to `matched` |
 | `message` | Localization log or failure reason |
 | `zoneId` | The target zone name required by this assertion |
-| `x` / `y` | (On success) Centroid coordinates of the stable window |
+| `x` / `y` | (On success) Global pixel coordinates returned by the locator |
 | `rot` | (On success) Orientation yaw angle |
 | `locConf` | Confidence score of this hit |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
