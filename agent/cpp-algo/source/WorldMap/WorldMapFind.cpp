@@ -666,9 +666,10 @@ MaaBool MAA_CALL MapFindRun(
         return true;
     }
 
-    // 认不出图标又没有角色标记佐证时就不给坐标：宁可让上层走失败分支，也不交一个算出来的空位置
-    LogError << "WorldMap: gave up without a confirmed icon" << VAR(param.zone) << VAR(targets.size()) << VAR(param.icon)
-             << VAR(param.max_attempts);
+    // 认不出图标又没有角色标记佐证时就不给坐标：宁可让上层走失败分支，也不交一个算出来的空位置。
+    // 认不到是上层预期的分支（候选筛选逐个试过来，全不中是常态），故为 WARN——ERR 会直接刷到用户界面
+    LogWarn << "WorldMap: gave up without a confirmed icon" << VAR(param.zone) << VAR(targets.size()) << VAR(param.icon)
+            << VAR(param.max_attempts);
     return false;
 }
 
