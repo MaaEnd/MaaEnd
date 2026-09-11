@@ -1071,7 +1071,13 @@ void TestTransferGridKeepsTwoRowCandidate()
     }
 }
 
-void CheckSparseColumnSpan(iconrecognition::GridType type, int columns, int missing_column, const cv::Rect& roi, cv::Point origin)
+void CheckSparseColumnSpan(
+    iconrecognition::GridType type,
+    int columns,
+    int missing_column,
+    const cv::Rect& roi,
+    cv::Point origin,
+    bool preserve_missing_column)
 {
     constexpr int kCellSize = 64;
     constexpr int kPitch = 69;
@@ -1097,12 +1103,16 @@ void CheckSparseColumnSpan(iconrecognition::GridType type, int columns, int miss
     const auto grid = iconrecognition::detail::DetectGrid(image, type, roi, 1.0);
     Check(grid.grids.size() == 1, "sparse column fixture must form one panel");
     const auto& layout = grid.grids.front();
+    const int expected_columns = preserve_missing_column || missing_column < 0 ? columns : columns - 1;
     Check(
-        layout.columns == columns && layout.rows == kRows,
-        "sparse observations must preserve the complete column span; expected=" + std::to_string(columns)
+        layout.columns == expected_columns && layout.rows == kRows,
+        "sparse observations must preserve the expected visible columns; expected=" + std::to_string(expected_columns)
             + " columns=" + std::to_string(layout.columns) + " rows=" + std::to_string(layout.rows));
     for (int row = 0; row < kRows; ++row) {
         for (int column = 0; column < columns; ++column) {
+            if (!preserve_missing_column && column == missing_column) {
+                continue;
+            }
             Check(
                 std::ranges::any_of(
                     layout.cells,
@@ -1120,15 +1130,16 @@ void CheckSparseColumnSpan(iconrecognition::GridType type, int columns, int miss
 
 void TestTransferGridKeepsSparseColumnSpan()
 {
-    CheckSparseColumnSpan(iconrecognition::GridType::Transfer, 8, 3, cv::Rect(154, 202, 585, 291), cv::Point(162, 217));
+    // Transfer 左侧没有物品的列不是可补出的空格，应从正式 cell 中过滤。
+    CheckSparseColumnSpan(iconrecognition::GridType::Transfer, 8, 3, cv::Rect(154, 202, 585, 291), cv::Point(162, 217), false);
 }
 
 void TestPortStoragerGridKeepsSparseColumnSpan()
 {
     // 存取站左右两侧容量不同，但都必须保留缺失观测前后的完整列跨度。
-    CheckSparseColumnSpan(iconrecognition::GridType::PortStorager, 7, -1, cv::Rect(570, 250, 500, 350), cv::Point(580, 267));
-    CheckSparseColumnSpan(iconrecognition::GridType::PortStorager, 4, 1, cv::Rect(190, 250, 318, 350), cv::Point(202, 267));
-    CheckSparseColumnSpan(iconrecognition::GridType::PortStorager, 7, 3, cv::Rect(570, 250, 500, 350), cv::Point(580, 267));
+    CheckSparseColumnSpan(iconrecognition::GridType::PortStorager, 7, -1, cv::Rect(570, 250, 500, 350), cv::Point(580, 267), true);
+    CheckSparseColumnSpan(iconrecognition::GridType::PortStorager, 4, 1, cv::Rect(190, 250, 318, 350), cv::Point(202, 267), true);
+    CheckSparseColumnSpan(iconrecognition::GridType::PortStorager, 7, 3, cv::Rect(570, 250, 500, 350), cv::Point(580, 267), true);
 }
 
 void TestTransferGridRejectsBroadOvercapacityPhase()
