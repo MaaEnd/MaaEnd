@@ -1178,6 +1178,14 @@ void TestTransferGridRejectsBroadOvercapacityPhase()
     Check(std::abs(hints.front().x_starts.front() - kFormalPhaseX) <= 1, "transfer hint must preserve the five-column formal phase");
 }
 
+void TestTransferGridRejectsBlankFallbackWithoutStructure()
+{
+    const cv::Rect roi(770, 209, 341, 277);
+    const cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(24, 24, 24));
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi, 1.0);
+    Check(grid.grids.empty() && grid.cells.empty(), "blank transfer fallback must not synthesize a regular grid");
+}
+
 void TestTransferRarityGridKeepsVisibleTopRow()
 {
     constexpr int kCellSize = 64;
@@ -2284,6 +2292,7 @@ int main()
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
         TestTransferGridDetectsSparseVisiblePhase();
         TestTransferGridRejectsBroadOvercapacityPhase();
+        TestTransferGridRejectsBlankFallbackWithoutStructure();
         TestTransferGridKeepsTwoRowCandidate();
         TestTransferGridKeepsSparseColumnSpan();
         TestPortStoragerGridKeepsSparseColumnSpan();
