@@ -664,8 +664,9 @@ func (a *BetterSlidingAction) handleNoFineTune(
 // 复位方向按精确点击基准坐标在 Start → End 轴上的位置决定（靠近 Start 向 End 滑，
 // 靠近 End 向 Start 滑），终点坐标由 Direction 推导后整字段覆盖 pipeline 中的占位值。
 //
-// 循环上界由 BetterSlidingCheckQuantity 的 max_hit 在框架层强制，Go 侧不另建计数上限，
-// preciseClickNudges 仅作为日志索引；详见 .dev_doc/better-sliding-nudge-loop-bound.md。
+// 循环上界由动作节点的 max_hit 在框架层强制，Go 侧不另建计数上限，
+// preciseClickNudges 仅作为日志索引（其实际取值上界即 BetterSlidingReset2 的 max_hit）；
+// 详见 .dev_doc/better-sliding-nudge-loop-bound.md。
 func (a *BetterSlidingAction) nudgePreciseClick(
 	ctx *maa.Context,
 	arg *maa.CustomActionArg,

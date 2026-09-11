@@ -111,7 +111,7 @@ Once "no fine-tune" is decided:
 2. `FineTuneFallback: "none"`: no nudge; finishes via `BetterSlidingDone` after the `BetterSlidingCheckQuantity` re-check.
 3. `FineTuneFallback: "more"`: when `current < target`, moves the precise click coordinate 1px toward **Start → End**; when `current > target`, no nudge and it finishes directly.
 4. `FineTuneFallback: "less"`: when `current > target`, moves the precise click coordinate 1px toward **End → Start**; when `current < target`, no nudge and it finishes directly.
-5. After a nudge, the slider is first reset to the opposite side via `BetterSlidingReset2` (so the previous precise click, which lands on the slider handle itself, does not affect the next click), then the precise click runs again and the quantity is re-checked; if it still does not match, the offset accumulates by another 1px (the k-th nudge is the base coordinate `±k` px).
+5. After a nudge, the slider is first reset to the opposite side via `BetterSlidingReset2` (so the previous precise click, which lands on the slider handle itself, does not affect the next click), then the precise click runs again and the quantity is re-checked; if it still does not match, the offset accumulates by another 1px (the k-th nudge is the base coordinate `±k` px, up to 4 nudges).
 
 Direction and axis selection rules:
 
@@ -125,16 +125,22 @@ Direction and axis selection rules:
 - The reset direction is decided by the projection of the **precise-click base coordinate** onto the Start → End axis: a projection ratio `< 0.5` (closer to Start) swipes toward **End** (the maximum side), otherwise it swipes toward **Start** (the minimum side); an exact midpoint falls back to the Start side.
 - The swipe end coordinate is derived from `Direction` and directly overrides `BetterSlidingReset2`'s `end` (for `right` / `up` the maximum side is `[1260, 10, 10, 10]` and the minimum side is `[10, 700, 10, 10]`; `left` / `down` are the opposite), so the placeholder `end` in the Pipeline is not used.
 - When the axis span is 0 (the Start and End centers coincide), a warning is logged and the reset falls back to swiping toward Start.
-- `BetterSlidingReset2` has no `max_hit` of its own and does **not** consume `BetterSlidingCheckQuantity`'s heartbeat budget; after the reset its static `next` routes back to `BetterSlidingPreciseClick`.
+- `BetterSlidingReset2` has its own `max_hit: 4`, i.e. **at most 4 resets per run** (matching the Increase/Decrease fine-tuning budget); after the reset its static `next` routes back to `BetterSlidingPreciseClick`.
 
 > [!note]
-> The nudge/re-check loop is bounded at the framework level by `max_hit` on `BetterSlidingCheckQuantity` (currently 4). That counter counts **recognition heartbeats**, not nudges, so the result of the last nudge is never re-checked and the flow falls through to `BetterSlidingFail` once the budget is exhausted. See `.dev_doc/better-sliding-nudge-loop-bound.md` for the full analysis of this known issue.
+> The offset and fine-tuning loops are bounded at the framework level by the **`max_hit: 4` on each action node** (`BetterSlidingIncreaseQuantity`, `BetterSlidingDecreaseQuantity`, `BetterSlidingReset2`, and `BetterSlidingMoveMouse` used for occlusion avoidance). `BetterSlidingCheckQuantity` itself has **no `max_hit`**, so the outcome of every offset or click is seen by the next quantity re-check — there is no "the last action's result is never re-checked" problem.
+>
+> Once all of those action nodes have exhausted their budgets, no candidate in `BetterSlidingCheckQuantity`'s `next` list can run, so the framework ends the internal pipeline with `Node.NextList.Failed` and **marks it as a failure**: the Go side logs `internal BetterSliding pipeline failed` and returns `false`, and it does **not** write the outcome nodes (`TargetReachableOverrideEnable` is left untouched). Callers must handle it as a failure.
+>
+> Note that this failure requires the framework `timeout` (20 seconds by default) to expire, so there is a noticeable pause between budget exhaustion and the error.
+>
+> Each action node's hit count is **cleared at the start of every run by `BetterSlidingClearMaxHit`**; when adding a new action node with `max_hit`, it must also be added to that node's `nodes` list, otherwise later calls within the same outer task will skip it outright.
 
 > [!note]
 > If `FineTuneFallback` is set without disabling fine-tuning (`FineTuneQuantity` left at its default `true`, or an integer threshold that still requires fine-tuning), `FineTuneFallback` has **no effect** and the Increase/Decrease fine-tuning path is used.
 
 > [!note]
-> An integer `FineTuneQuantity` threshold allows mixed behavior: once the offset brings the difference within the threshold, subsequent heartbeats switch back to Increase/Decrease fine-tuning. For example, with `FineTuneQuantity: 3` + `FineTuneFallback: "more"`, a difference of 10 is reduced by 1px nudges until it is within 3, and the remainder is closed by a single Increase/Decrease click.
+> An integer `FineTuneQuantity` threshold allows mixed behavior: once the offset brings the difference within the threshold, subsequent rounds switch back to Increase/Decrease fine-tuning. For example, with `FineTuneQuantity: 3` + `FineTuneFallback: "more"`, a difference of 10 is reduced by 1px nudges until it is within 3, and the remainder is closed by a single Increase/Decrease click. Note that nudges and fine-tuning **share** the 4-action budget of the action nodes.
 
 ### Outcome Node Contract
 

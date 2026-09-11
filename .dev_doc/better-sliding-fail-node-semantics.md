@@ -1,9 +1,14 @@
 # BetterSlidingFail 判负性未确认问题（P3-5）
 
-> 状态：**已知问题，暂不修复**（BetterSliding 参数重构 v2 只文档化，不改行为）。
+> 状态：**已修复（方案：删除 `BetterSlidingFail` 节点）**。
 > 来源：审核报告 P3-5。
 > 关联：`FineTuneFallback` 不微调循环用尽后必然经由 `BetterSlidingJumpBackNode` 落到本节点；P1-1 / P2-4（nudge 循环上界，见 `.dev_doc/better-sliding-nudge-loop-bound.md`）。
 > 实现计划见 `.dev_doc/better-sliding-param-plan-v2.md`。
+>
+> **修复结论**：第 2 节的推断被实测证实——空叶节点**不会**判负，会把「重试耗尽」静默上报为成功。最终不采用第 6 节的任何方案，而是**直接删除该节点**：删掉之后 next 候选耗尽会走框架原生失败路径。第 1～8 节保留为修复前的分析记录，修复结果见第 9 节。
+
+> [!warning]
+> 本文档第 1～8 节描述的是**修复前**的旧结构，其中的行号与「节点定义」均已随节点删除而失效，请勿据此排查现状；现状以第 9 节为准。
 
 ## 1. 问题摘要
 
@@ -121,8 +126,64 @@ if !detail.Status.Success() {
 | `tools/schema/pipeline.schema.json` | 4188-4192 | `on_error` 触发条件（识别超时 / 动作失败） |
 | `agent/go-service/common/subtask/action.go` | 108-132 | 其他组件对子任务状态的对照处理 |
 
-## 8. 当前结论
+## 8. 当时的结论（修复前）
 
-- 本问题**本次不修复**，仅在本文档记录。
+- 本问题当时**不修复**，仅记录。
 - 实现 v2 计划时不要顺手给 `BetterSlidingFail` 加动作或改判负逻辑；保持既有结构。
 - 建议优先完成第 5 节的实测确认，再决定是否按方案 B / C 修复。
+
+## 9. 修复结果（当前生效机制）
+
+### 9.1 实测证实：空叶节点不判负
+
+第 2 节的推断成立。决定性证据来自 issue 日志包中的 `maafw.bak.2026.05.08-09.21.44.644.log`（`BetterSlidingCheckQuantity` 的 next 候选被 `max_hit` 全部耗尽的场景）：
+
+```text
+09:18:02.979  msg=Node.NextList.Failed
+              name=BetterSlidingCheckQuantity
+              list=[{name:BetterSlidingDecreaseQuantity},{jump_back:true,name:BetterSlidingMoveMouse}]
+...（框架按 timeout 持续重试）...
+09:18:22.862  msg=Node.NextList.Failed   ← 最后一轮
+```
+
+随后 go-service 侧：
+
+```json
+{"level":"error","component":"BetterSliding","task":"BetterSlidingCheckQuantity",
+ "subtask_status":"failure","message":"internal BetterSliding pipeline failed"}
+```
+
+关键区别在于：**候选耗尽**（next 列表里没有任何节点可命中）会被框架判为节点失败；而**命中一个空叶节点**则被判为链路正常结束。`BetterSlidingFail` 属后者，因此它一旦被路由到，就把失败「吃掉」了。
+
+### 9.2 采用的修复：删除该节点
+
+最终删除 `BetterSlidingFail`（节点定义 + `BetterSlidingJumpBackNode.next` / `BetterSlidingCheckQuantity.next` 中的全部引用 + `agent/go-service/bettersliding/nodes.go` 的 `nodeBetterSlidingFail` 常量），让耗尽路径回到框架原生判负。
+
+为什么不采用第 6 节的方案：
+
+| 方案 | 未采用的原因 |
+| --- | --- |
+| B. 给 `BetterSlidingFail` 加显式失败动作（如 `StopTask` / `FalseAction`） | 需要为一个「本可以不存在」的节点维护判负动作；`StopTask` 还会中断整条任务链，语义比单纯判负更重 |
+| C. Go 侧不依赖 Fail 节点判负 | 实测证明框架已能正确判负，Go 侧额外收口属重复实现；本次 `overrides.go` / `handlers.go` 的路由逻辑**零改动** |
+| D. 引入必然失败的识别节点 | 引入额外 `timeout`，与仓库「少用 timeout」的规范相悖 |
+
+### 9.3 影响面
+
+| 场景 | 修复后表现 |
+| --- | --- |
+| 新增 nudge 循环用尽 `max_hit` | next 候选耗尽 → 框架判负 → `runInternalPipeline` 记录 `internal BetterSliding pipeline failed` 并返回 `false` |
+| 既有 Increase/Decrease 微调超次数 | 同上，失败不再被静默上报为成功 |
+| 调用方业务 | `applyOutcomeOverrides` **不再执行**，`TargetReachableOverrideEnable` 不会被误置为 true；调用方（如 `AutoStockpileSwipeSpecificQuantity`）按失败分支处理，其 `focus` 文案（如「定量滑动失败，取消购买」）会正常触发 |
+| 日志排查 | `maafw.log` 可见 `Node.NextList.Failed`，go-service 可见失败原因与 `subtask_status: failure` |
+
+### 9.4 相关文件
+
+| 文件 | 说明 |
+| --- | --- |
+| `assets/resource/pipeline/BetterSliding/Main.json` | `BetterSlidingFail` 节点定义已删除；`BetterSlidingJumpBackNode.next` 与 `BetterSlidingCheckQuantity.next` 中的引用已移除 |
+| `assets/resource/pipeline/BetterSliding/Main.json` | `BetterSlidingClearMaxHit` 的 `nodes` 已补入三个新预算节点 |
+| `agent/go-service/bettersliding/nodes.go` | 已删除 `nodeBetterSlidingFail` 常量 |
+| `tools/schema/pipeline.schema.json` | 4188-4192：`on_error` 触发条件（识别超时 / 动作失败）——本次未改动，仅作为判负机制的依据 |
+| `agent/go-service/bettersliding/handlers.go` | `runInternalPipeline` 的 `detail.Status.Success()` 检查（未改动，修复后才能真正生效） |
+
+剩余代价：耗尽后需等框架 `timeout`（默认 20s）才判负（上例约 20 秒）。如需更快失败，可另行在 `BetterSlidingCheckQuantity` 上显式设 `timeout`。

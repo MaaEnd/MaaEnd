@@ -1,6 +1,7 @@
 {
     "BetterSlidingReset2": {
         "desc": "以中间为界，向另一侧滑动，避免影响精确点击",
+        "max_hit": 4,
         "recognition": "And",
         "all_of": [
             "BetterSlidingSwipeButton"
@@ -85,7 +86,10 @@
         "custom_action_param": {
             "nodes": [
                 "BetterSlidingCheckQuantity",
-                "BetterSlidingMoveMouse"
+                "BetterSlidingMoveMouse",
+                "BetterSlidingIncreaseQuantity",
+                "BetterSlidingDecreaseQuantity",
+                "BetterSlidingReset2"
             ]
         },
         "post_delay": 0,
@@ -121,18 +125,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "BetterSlidingCheckQuantity",
-            "BetterSlidingFail"
+            "BetterSlidingCheckQuantity"
         ]
-    },
-    "BetterSlidingFail": {
-        "desc": "如果路由至此，则说明微调失败（超过次数）",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "BetterSlidingDecreaseQuantity": {
         "desc": "减少数量",
+        "max_hit": 4,
         "pre_delay": 0,
         "action": "Click",
         "target": [
@@ -180,7 +178,6 @@
     },
     "BetterSlidingCheckQuantity": {
         "desc": "识别当前数量，交由go选择分支",
-        "max_hit": 4,
         "recognition": "And",
         "all_of": [
             "BetterSlidingGetSliderQuantity"
@@ -200,6 +197,7 @@
     },
     "BetterSlidingIncreaseQuantity": {
         "desc": "增加数量",
+        "max_hit": 4,
         "pre_delay": 0,
         "action": "Click",
         "target": [

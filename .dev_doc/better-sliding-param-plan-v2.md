@@ -1,6 +1,8 @@
 # BetterSliding 参数重构 v2 —— FineTuneQuantity / FineTuneFallback（实现计划·迭代版）
 
 > 本计划是 `.dev_doc/better-sliding-param-plan.md` 的**迭代版（v2）**，取代原计划作为本次实现的唯一依据。
+>
+> ⚠️ **后续变更**：本计划落笔时把 P1-1 / P2-4 / P3-5 列为「已知问题、暂不修复」。这三项**已在本计划之后修复**：预算从 `BetterSlidingCheckQuantity` 的心跳数改挂 Increase/Decrease/Reset2 动作节点，`BetterSlidingFail` 节点已删除。正文中描述旧机制的段落（含设计决定表、边界与假设）保留为当时的记录，现状请以 `.dev_doc/better-sliding-nudge-loop-bound.md` 第 13 节与 `.dev_doc/better-sliding-fail-node-semantics.md` 第 9 节为准。
 > 需求原文见 `.dev_doc/better-sliding-param.md`（不改动）。
 > 已知问题记录见 `.dev_doc/better-sliding-nudge-loop-bound.md`（P1-1 / P2-4）与 `.dev_doc/better-sliding-fail-node-semantics.md`（P3-5）。
 > 本计划已逐条吸收审核报告与用户裁决（P1 / P2 / P3）。落笔前已核对实现：`agent/go-service/bettersliding/` 下 `types.go` / `normalize.go` / `params.go` / `handlers.go` / `overrides.go`，以及 `assets/resource/pipeline/BetterSliding/Main.json`、`Test.json`、两份 `docs/**/better-sliding.md`、`tools/schema/custom.action.schema.json`。基线 `go build ./...` 与 `go vet ./bettersliding/` 已实测通过。
@@ -21,7 +23,7 @@
 
 | 编号 | 项 | 决定 |
 | --- | --- | --- |
-| P1-1 | nudge 循环最后一次偏移不被复查（off-by-one） | **本次不修复**，与 P2-4 合并记录于 `.dev_doc/better-sliding-nudge-loop-bound.md` |
+| P1-1 | nudge 循环最后一次偏移不被复查（off-by-one） | **后续已修复**：预算改挂动作节点、`CheckQuantity` 去掉 `max_hit`，见 `.dev_doc/better-sliding-nudge-loop-bound.md` 第 13 节 |
 | P1-2 | `handleNoFineTune` 必须重写 `BetterSlidingPreciseClick` 的 target | **批准**，写入实现规格 |
 | P1-3 | 旧参数告警 | **改为**硬移除、不保留检测位、**不加任何告警**；多余入参由 `encoding/json` 静默忽略 |
 | P1-4 | 过冲与 `TargetReachable` 语义 | **保持源代码判断**：`TargetReachableOverrideEnable` 只表示解析后的目标可达，与最终调整结果无关 |
@@ -30,7 +32,7 @@
 | P2-1 | int 语义 | 阈值必须 `>= 1`；允许「偏移进入阈值后切回 Increase/Decrease」的混合行为，文档补充说明 |
 | P2-2 | `null` 与类型校验 | `null` 视为**已提供**并按正整数校验（因此报错）；非整数与非法类型报错；**超大值允许**，不做上界钳制 |
 | P2-3 | 告警标志位生命周期 | **随 P1-3 一并移除**，不再存在 `warnedFinishAfterPreciseClick` |
-| P2-4 | 循环上界与复查时机的详细分析 | **已并入** `.dev_doc/better-sliding-nudge-loop-bound.md`，**暂不修复** |
+| P2-4 | 循环上界与复查时机的详细分析 | **已并入** `.dev_doc/better-sliding-nudge-loop-bound.md`，**后续已修复**（第 13 节） |
 | P2-5 | 轴选择平局取 y | **批准**，规则与文档均显式写明 |
 | P2-6 | 「只设 B 不生效」提醒 | **批准**，写入两份文档 |
 | P2-7 | `isSwipeOnlyMode` 判定 | **传入这两个参数即视为非 swipe-only** |
@@ -38,7 +40,7 @@
 | P3-2 | 与源需求的快速路径偏差 | **批准**：不做快速路径，`none` 仍经 `BetterSlidingCheckQuantity` 复检后路由 `Done` |
 | P3-3 | 验收命令与 CI 不匹配 | **批准**，在验收章节显式标注 |
 | P3-4 | `Test.json` 迁移范围 | 仅把 `__BS-5` 的 `FinishAfterPreciseClick: true` 改写为 `FineTuneQuantity: false` + `FineTuneFallback: none` |
-| P3-5 | `BetterSlidingFail` 空叶节点判负性 | **本次不修复**，记录于 `.dev_doc/better-sliding-fail-node-semantics.md` |
+| P3-5 | `BetterSlidingFail` 空叶节点判负性 | **后续已修复**：实测确认空叶节点不判负，节点已删除，见 `.dev_doc/better-sliding-fail-node-semantics.md` 第 9 节 |
 
 ## 参数命名与语义
 
@@ -80,7 +82,7 @@ return a.nudgePreciseClick(ctx, arg, stepSign)
 3. `more` 步进方向为 `+endSign`（朝 End 靠近）；`less` 步进方向为 `-endSign`（朝 Start 靠近）。
 4. 第 k 次偏移坐标 = `preciseClickBase` 在选定轴分量上 `+= endSign * stepSign * k`（`stepSign`：`more` 为 `+1`，`less` 为 `-1`），`k` 从 1 递增；另一轴分量保持不变。
 5. 与既有方向语义自洽：`click = start + (end - start) * numerator / denominator`，朝 End 靠近即增大数量，故 `more` 用于修正「当前 < 目标」。
-6. 循环上界由 `BetterSlidingCheckQuantity` 的 `max_hit: 4` 在框架层强制：用尽后该识别被跳过，`BetterSlidingJumpBackNode.next` 落到既有 `BetterSlidingFail`；Go 侧**不自建计数上限**，仅递增日志用索引（原因与影响见 `.dev_doc/better-sliding-nudge-loop-bound.md`）。
+6. 循环上界由**动作节点**的 `max_hit: 4` 在框架层强制（`CheckQuantity` 本身不限次）；用尽后 next 候选全部不可用，框架以 `Node.NextList.Failed` 结束并让内部流水线判负；Go 侧**不自建计数上限**，仅递增日志用索引（原因与影响见 `.dev_doc/better-sliding-nudge-loop-bound.md` 第 13 节）。
 
 ## 实现改动
 
@@ -180,14 +182,16 @@ func normalizeFineTuneFallback(raw string) (string, error)
 - 新建 `.dev_doc/better-sliding-fail-node-semantics.md`（P3-5）：记录 `BetterSlidingFail` 为空叶节点、判负性未实测确认（可能使 `runInternalPipeline` 把失败当成功并触发 `applyOutcomeOverrides`）；明确**本次不修复**。
 - 在 `.dev_doc/better-sliding-param-plan.md` 顶部加一行指向本 v2 计划，避免两份计划并存时误用旧版。
 
-## 已知问题（本次不修复，仅记录）
+## 已知问题（当时不修复，仅记录；后续均已修复）
 
-| 编号 | 问题 | 记录位置 |
-| --- | --- | --- |
-| P1-1 / P2-4 | nudge 循环最后一次偏移不被复查（`max_hit` 是心跳数不是重试次数），有效可验证偏移仅 3 次；第 4 次点击结果不可见且必然走 `BetterSlidingFail` | `.dev_doc/better-sliding-nudge-loop-bound.md` |
-| P3-5 | `BetterSlidingFail` 为空叶节点，判负性未实测确认，可能把 nudge 失败上报为成功 | `.dev_doc/better-sliding-fail-node-semantics.md` |
+> 下表为 v2 落笔时的状态。P1-1 / P2-4 / P3-5 已在本计划之后修复：预算改挂动作节点、`BetterSlidingFail` 已删除。
 
-本计划在实现 `nudgePreciseClick` 时**不自建计数上限**（仅递增日志索引），保持与裁决一致；若后续决定修复，只需在 `handleNoFineTune` 增加一次上界判断，不影响其余设计。
+| 编号 | 问题 | 记录位置 | 后续状态 |
+| --- | --- | --- | --- |
+| P1-1 / P2-4 | nudge 循环最后一次偏移不被复查（`max_hit` 是心跳数不是重试次数），有效可验证偏移仅 3 次；第 4 次点击结果不可见且必然走 `BetterSlidingFail` | `.dev_doc/better-sliding-nudge-loop-bound.md` | **已修复**，见该文档第 13 节 |
+| P3-5 | `BetterSlidingFail` 为空叶节点，判负性未实测确认，可能把 nudge 失败上报为成功 | `.dev_doc/better-sliding-fail-node-semantics.md` | **已修复**（删除该节点），见该文档第 9 节 |
+
+本计划在实现 `nudgePreciseClick` 时**未自建计数上限**（仅递增日志索引）；后续修复也沿用了这一约定——预算仍由框架层的 `max_hit` 承担，只是从识别节点移到了动作节点。
 
 ## 边界与失败模式
 
@@ -197,7 +201,7 @@ func normalizeFineTuneFallback(raw string) (string, error)
 - 只传 `FineTuneQuantity` / `FineTuneFallback` 之一或全部 → 按 P2-7 不进入 swipe-only 模式，会继续要求 `TargetQuantity` / `SliderQuantity` / `Direction` 等必需参数，缺失时按既有校验失败。
 - 不微调且 `current == target`（`none` / `more` / `less` 任一）→ 一律路由 `BetterSlidingDone`。
 - `dx == dy == 0` → 取 y 轴并 `Warn`；`endSign == 0` → 取 `+1` 并 `Warn`。
-- 偏移循环用尽 `max_hit` 后走既有 `BetterSlidingJumpBackNode` → `BetterSlidingFail`（既有行为，本次不改，详见问题记录文档）。
+- 偏移循环用尽 `max_hit` 后框架以 `Node.NextList.Failed` 结束并判负（`BetterSlidingFail` 已删除；详见问题记录文档第 13 节）。
 - 既有行为不变：`ClampTargetToSliderMax` / `ReverseTarget` / `TargetQuantityType` / `AvailableQuantity` / `ResetBeforeFindStart` 的 80% 复位 / 结果节点契约。
 - 旧参数硬移除的语义变化：原 `FinishAfterPreciseClick: true` 现在会被忽略并回落为默认 `FineTuneQuantity: true`（**继续微调**）。已确认真实业务代码无调用，仅 `Test.json` 一处，因此判定影响面可接受；两份文档与 `.dev_doc` 记录该破坏性变更。
 

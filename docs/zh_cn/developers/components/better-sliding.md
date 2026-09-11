@@ -111,7 +111,7 @@
 2. `FineTuneFallback: "none"`：不做偏移，经 `BetterSlidingCheckQuantity` 复检后路由 `BetterSlidingDone`。
 3. `FineTuneFallback: "more"`：当 `current < target` 时，把精确点击坐标朝 **Start → End** 方向移动 1px；`current > target` 时不偏移，直接收尾。
 4. `FineTuneFallback: "less"`：当 `current > target` 时，把精确点击坐标朝 **End → Start** 方向移动 1px；`current < target` 时不偏移，直接收尾。
-5. 偏移后先经 `BetterSlidingReset2` 把滑块向另一侧滑动复位（避免上一次精确点击落在滑块本体上影响本次点击），再执行精确点击并复查；未命中则继续按 1px 累加（第 k 次为基准坐标 `±k` px）。
+5. 偏移后先经 `BetterSlidingReset2` 把滑块向另一侧滑动复位（避免上一次精确点击落在滑块本体上影响本次点击），再执行精确点击并复查；未命中则继续按 1px 累加（第 k 次为基准坐标 `±k` px，最多 4 次）。
 
 方向与轴选择规则：
 
@@ -125,16 +125,22 @@
 - 复位方向按**精确点击基准坐标**在 Start → End 轴上的投影位置决定：投影比例 `< 0.5`（靠近 Start）时向 **End**（最大值侧）滑动，否则向 **Start**（最小值侧）滑动；恰好落在中线时取向 Start。
 - 滑动终点坐标由 `Direction` 推导并直接覆盖 `BetterSlidingReset2` 的 `end`（`right` / `up` 的最大值侧为 `[1260, 10, 10, 10]`、最小值侧为 `[10, 700, 10, 10]`，`left` / `down` 相反），不使用 pipeline 中的占位 `end`。
 - 轴跨度为 0（Start 与 End 中心重合）时打印告警并回退为向 Start 滑动。
-- `BetterSlidingReset2` 自身没有 `max_hit`，**不消耗** `BetterSlidingCheckQuantity` 的心跳预算；复位后由该节点的静态 `next` 路由回 `BetterSlidingPreciseClick`。
+- `BetterSlidingReset2` 自身有 `max_hit: 4`，即**每次运行最多复位 4 次**（与 Increase/Decrease 的微调预算一致）；复位后由该节点的静态 `next` 路由回 `BetterSlidingPreciseClick`。
 
 > [!note]
-> 偏移复查循环由 `BetterSlidingCheckQuantity` 的 `max_hit`（当前为 4）在框架层限制。该计数是「识别心跳数」而非「偏移次数」，因此最后一次偏移的结果不会被复查，用尽后会落到 `BetterSlidingFail`。该已知问题的详细分析见 `.dev_doc/better-sliding-nudge-loop-bound.md`。
+> 偏移与微调的循环上界由**动作节点各自的 `max_hit: 4`** 在框架层限制（`BetterSlidingIncreaseQuantity`、`BetterSlidingDecreaseQuantity`、`BetterSlidingReset2`，以及用于防遮挡的 `BetterSlidingMoveMouse`）。`BetterSlidingCheckQuantity` 自身**不设 `max_hit`**，因此每一次偏移或点击的结果都会被下一次数量复查看到，不存在「最后一次动作的结果不被复查」的问题。
+>
+> 当上述动作节点的预算全部用尽时，`BetterSlidingCheckQuantity` 的 `next` 候选中已无可用节点，框架以 `Node.NextList.Failed` 结束该内部流水线并**判定为失败**：Go 侧会记录 `internal BetterSliding pipeline failed` 并返回 `false`，同时**不会**写入结果节点（`TargetReachableOverrideEnable` 不会被置为 `true`）。调用方应按失败分支处理。
+>
+> 注意该判负需要等待框架的 `timeout`（默认 20 秒）耗尽，因此从预算用尽到报错之间会有明显停顿。
+>
+> 各动作节点的命中计数**每次运行开头由 `BetterSlidingClearMaxHit` 清零**；若后续新增带 `max_hit` 的动作节点，必须同步加入该节点的 `nodes` 列表，否则同一次外层任务内的后续调用会直接跳过该节点。
 
 > [!note]
 > 只设置 `FineTuneFallback` 而不关闭微调（`FineTuneQuantity` 保持默认 `true`，或整数阈值判定为需要微调）时，`FineTuneFallback` **不生效**，流程仍走 Increase/Decrease 微调。
 
 > [!note]
-> `FineTuneQuantity` 为整数阈值时允许混合行为：偏移使差值进入阈值后，后续心跳会切回 Increase/Decrease 微调。例如 `FineTuneQuantity: 3` + `FineTuneFallback: "more"`，差值从 10 逐步被 1px 偏移压到 3 以内后，剩余差值由 Increase/Decrease 一次点击完成。
+> `FineTuneQuantity` 为整数阈值时允许混合行为：偏移使差值进入阈值后，后续轮次会切回 Increase/Decrease 微调。例如 `FineTuneQuantity: 3` + `FineTuneFallback: "more"`，差值从 10 逐步被 1px 偏移压到 3 以内后，剩余差值由 Increase/Decrease 一次点击完成。注意偏移与微调**共享**动作节点的 4 次预算。
 
 ### 结果节点契约
 

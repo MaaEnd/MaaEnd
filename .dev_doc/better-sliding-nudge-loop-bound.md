@@ -1,9 +1,14 @@
 # BetterSliding nudge 循环上界与复查时机问题（P1-1 / P2-4）
 
-> 状态：**已知问题，暂不修复**（BetterSliding 参数重构 v2 只文档化，不改行为）。
+> 状态：**已修复**。
 > 来源：审核报告 P1-1（off-by-one）与 P2-4（循环上界与复查时机详情）；两者合并记录于本文档。
 > 关联：`FineTuneFallback` 的 `more` / `less` 单轴 1px 累加偏移机制；P1-4（过冲语义，保持源代码判断）；P3-5（`BetterSlidingFail` 判负性，见 `.dev_doc/better-sliding-fail-node-semantics.md`）。
 > 实现计划见 `.dev_doc/better-sliding-param-plan-v2.md`。
+>
+> **修复方式**：把预算从「`BetterSlidingCheckQuantity` 的识别心跳数」改为「每个动作节点各 4 次」，并删除 `BetterSlidingFail`。第 1 节起的分析保留为修复前的历史记录（描述了旧结构的缺陷），当前生效机制见第 13 节。
+
+> [!warning]
+> 本文档第 1～12 节描述的是**修复前**的旧结构与当时的裁决过程。其中的行号、「第 4 次偏移必然进入 `BetterSlidingFail`」、「有效偏移仅 3 次」等结论均已不再成立，请勿据此排查现状；现状以第 13 节「修复结果（当前生效机制）」为准。
 
 ## 1. 问题摘要
 
@@ -175,8 +180,83 @@ BetterSlidingFail 被命中（无任何子日志）
 | `agent/go-service/bettersliding/overrides.go` | `buildCheckQuantityBranchOverride` | 既有 Increase/Decrease 的 repeat 机制 |
 | `agent/go-service/bettersliding/nodes.go` | 23-24 | `ClearMaxHit` / `JumpBackNode` 常量 |
 
-## 12. 当前结论
+## 12. 当时的结论（修复前）
 
-- 本问题**本次不修复**，仅在本文档记录；实现计划中保持「Go 侧不自建计数上限、仅递增日志索引」的约定。
+- 本问题当时**不修复**，仅记录；实现计划中保持「Go 侧不自建计数上限、仅递增日志索引」的约定。
 - 实现 `FineTuneFallback` 时不要顺手把 `max_hit` 调大，也不要隐式改变既有 Increase/Decrease 循环的预算。
 - 若后续选择方案 C，只需在 `handleNoFineTune` 增加一次上界判断，不影响 nudge 的其余设计。
+
+## 13. 修复结果（当前生效机制）
+
+### 13.1 实际采用的方案：预算改挂动作节点
+
+最终未采用第 9 节的 A / B / C，而是**改变预算的归属对象**：让「计数」从识别节点移到动作节点，从根上消除 off-by-one。
+
+| 节点 | 修复前 | 修复后 |
+| --- | --- | --- |
+| `BetterSlidingCheckQuantity` | `max_hit: 4`（4 次识别心跳） | **无 `max_hit`**（不限次识别） |
+| `BetterSlidingIncreaseQuantity` | 无 | **`max_hit: 4`** |
+| `BetterSlidingDecreaseQuantity` | 无 | **`max_hit: 4`** |
+| `BetterSlidingReset2`（nudge 复位） | 无 | **`max_hit: 4`** |
+| `BetterSlidingMoveMouse` | `max_hit: 4` | `max_hit: 4`（不变） |
+| `BetterSlidingFail` | 空叶节点，挂在 `JumpBackNode.next` | **已删除** |
+| `BetterSlidingClearMaxHit` | 清 2 个节点 | 清 5 个节点（补入 3 个新预算节点） |
+
+于是「4」的语义由**4 个心跳**变为**每个动作 4 次**，且每次动作的结果都必然被下一次 `BetterSlidingCheckQuantity` 复查——因为复查本身不再受限。
+
+### 13.2 逐拍推演（修复后，`more` + `current < target`，基准 `base`）
+
+| 拍 | 链路 | 判定与动作 |
+| --- | --- | --- |
+| 1 | PreciseClick(base) → JumpBackNode → CheckQuantity | 复查①：不匹配 → nudge#1：`base+1`，Reset2 复位（Reset2 第 1 次） |
+| 2 | PreciseClick(base+1) → JumpBackNode → CheckQuantity | 复查②：不匹配 → nudge#2：`base+2`（Reset2 第 2 次） |
+| 3 | PreciseClick(base+2) → JumpBackNode → CheckQuantity | 复查③：不匹配 → nudge#3：`base+3`（Reset2 第 3 次） |
+| 4 | PreciseClick(base+3) → JumpBackNode → CheckQuantity | 复查④：**结果可见** → 不匹配 → nudge#4：`base+4`（Reset2 第 4 次） |
+| 5 | PreciseClick(base+4) → JumpBackNode → CheckQuantity | 复查⑤：**结果可见** → 仍不匹配 → 还想 nudge#5，但 `Reset2` 已达 `max_hit: 4` 被跳过 |
+| — | CheckQuantity 的 next 候选全部不可用 | 框架判负（见 13.3） |
+
+对比修复前的第 4 节：第 4 次偏移的结果不再丢失，**每次偏移都可验证**，off-by-one 消失；有效偏移仍为 4 次，但 4 次全部可见。
+
+### 13.3 耗尽如何判负：删除 `BetterSlidingFail` 是关键
+
+修复前 `BetterSlidingFail` 作为**空叶节点**（无 `recognition`、无 `action`、无 `next`）被判为**链路正常结束**，因此「重试耗尽」会被 `runInternalPipeline` 的 `detail.Status.Success()` 当作成功，并继续执行 `applyOutcomeOverrides`——失败被包装成 `TargetReachableOverrideEnable = true`。
+
+修复后删除该节点，next 候选耗尽时不再有任何可命中的节点，框架走原生失败路径。实测取证（issue 日志 `maafw.bak.2026.05.08-09.21.44.644.log`，正是 `BetterSlidingCheckQuantity` 候选耗尽场景）：
+
+```text
+09:18:02.979  msg=Node.NextList.Failed
+              list=[{name:BetterSlidingDecreaseQuantity},{jump_back:true,name:BetterSlidingMoveMouse}]
+              name=BetterSlidingCheckQuantity
+...（持续重试，直到 timeout）...
+09:18:22.862  msg=Node.NextList.Failed   ← 最后一轮
+```
+
+随后 go-service 侧记录：
+
+```json
+{"level":"error","component":"BetterSliding","task":"BetterSlidingCheckQuantity",
+ "caller":"AutoStockpileSwipeSpecificQuantity","subtask_status":"failure",
+ "message":"internal BetterSliding pipeline failed"}
+```
+
+即 `max_hit` 全部耗尽**确实自带判负**，无需 Go 侧额外收口：`overrides.go` 的 next 覆盖逻辑与 `handlers.go` 的路由分支本次**未做任何改动**，仅删除了 `nodes.go` 中已无引用的 `nodeBetterSlidingFail` 常量。
+
+### 13.4 代价与注意事项
+
+- **判负耗时约 20 秒**：候选耗尽后框架会按 `timeout`（默认 20s）持续重试识别才判负（上例 09:18:02.979 → 09:18:22.862）。若日后需要更快失败，可在 `BetterSlidingCheckQuantity` 上显式设 `timeout`，或回到第 9 节方案 B（给失败节点挂显式判负动作）。本次保留框架默认值。
+- **计数必须每次运行开头清零**：命中计数存活于 Context、跨内部流水线运行存续（这正是 `BetterSlidingClearMaxHit` 存在的原因）。新增的三个预算节点已一并加入其 `nodes` 列表，否则同一次外层任务里第 2 次调用起微调/偏移会被直接跳过。
+- **新增动作节点时必须同时加 `max_hit`**：`CheckQuantity` 已无上限，收敛完全依赖各动作节点的 `max_hit`；若新增动作节点而漏配 `max_hit`，循环可能不收敛。此约束已写入 `handlers.go` 的 `nudgePreciseClick` 注释。
+- `preciseClickNudges` 仍只是**日志索引**，其实际取值上界由 `BetterSlidingReset2.max_hit` 决定。
+- `BetterSlidingMoveMouse`（防遮挡）同样吃 4 次预算；用尽后 Increase/Decrease 的模板识别若持续失败，会一并走到 next 耗尽判负（属预期行为）。
+
+### 13.5 相关文件（修复后）
+
+| 文件 | 位置 | 说明 |
+| --- | --- | --- |
+| `assets/resource/pipeline/BetterSliding/Main.json` | `BetterSlidingIncreaseQuantity` / `BetterSlidingDecreaseQuantity` | 各 `max_hit: 4` |
+| `assets/resource/pipeline/BetterSliding/Main.json` | `BetterSlidingReset2` | `max_hit: 4`（nudge 预算） |
+| `assets/resource/pipeline/BetterSliding/Main.json` | `BetterSlidingCheckQuantity` | 无 `max_hit`；`next` 不含 `BetterSlidingFail` |
+| `assets/resource/pipeline/BetterSliding/Main.json` | `BetterSlidingClearMaxHit` | `nodes` 清 5 个节点 |
+| `agent/go-service/bettersliding/handlers.go` | `nudgePreciseClick` 注释 | 说明预算改挂动作节点 |
+| `agent/go-service/bettersliding/nodes.go` | — | 已删除 `nodeBetterSlidingFail` |
+| `.dev_doc/better-sliding-fail-node-semantics.md` | — | 空叶节点判负性与删除决策的实证记录 |

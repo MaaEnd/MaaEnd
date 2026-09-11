@@ -1,6 +1,8 @@
 # BetterSliding 微调开关（FineTuneQuantity / FineTuneFallback）实现计划
 
 > ⚠️ 本文档为 v1 初版，已由 [`better-sliding-param-plan-v2.md`](./better-sliding-param-plan-v2.md)（迭代版）取代；请以 v2 为准。
+>
+> ⚠️ **后续变更**：本文档正文（以及 v2 的对应条目）中关于「循环用尽后走 `BetterSlidingFail`」的设计已被推翻——`BetterSlidingFail` 节点**已删除**，预算改挂 Increase/Decrease/Reset2 等动作节点。详见 [`better-sliding-nudge-loop-bound.md`](./better-sliding-nudge-loop-bound.md) 第 13 节与 [`better-sliding-fail-node-semantics.md`](./better-sliding-fail-node-semantics.md) 第 9 节。
 
 > 本文档是 [`better-sliding-param.md`](./better-sliding-param.md) 的执行版，记录已确定的实现细节；原文不改动。
 
