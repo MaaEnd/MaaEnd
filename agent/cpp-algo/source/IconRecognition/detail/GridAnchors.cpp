@@ -432,7 +432,9 @@ std::optional<RarityGridFit> FitRarityGrid(
                 continue;
             }
             const auto bands = DetectRarityBands(lab, candidate_x, profile);
-            const int minimum_rows = column_count == 1 ? 1 : 2;
+            // 稀疏仓库可能只有一行物品；行数不足不应让真实 rarity 锚点失效，
+            // 否则后续结构投影会把面板内部横线误当成首行边界。
+            const int minimum_rows = coarse_y_starts.size() == 1 ? 1 : 2;
             const auto vertical = FitVerticalBands(bands, coarse_y_starts, profile, minimum_rows);
             if (!vertical) {
                 continue;
