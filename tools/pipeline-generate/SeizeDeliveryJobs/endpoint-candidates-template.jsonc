@@ -15,7 +15,8 @@
         ],
         "expected": "${Expected}",
         "next": [
-            "SeizeDeliveryJobsEndpointCandidates${AreaId}"
+            "SeizeDeliveryJobsEndpointCandidates${AreaId}",
+            "SeizeDeliveryJobsEndpointNotMatched"
         ]
     },
     // ${AreaName}区域的送货终点候选：一次缩放 + 一次视口求解，判本区域全部已启用终点。
