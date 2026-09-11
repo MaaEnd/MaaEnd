@@ -77,6 +77,20 @@ type GoodsItem struct {
 	Price int    `json:"price"`
 }
 
+// selectionSource 标识一次选品的来源，决定展示的模式文案。
+// 禁止用「价格 / 阈值 / 溢出」等数值关系反推来源：那等于在展示层重新实现一遍
+// 选品分支，并与调用方是否启用「至少购买一个」隐式耦合。
+type selectionSource string
+
+const (
+	// selectionSourceThreshold：正常阈值选品，价格严格低于阈值。
+	selectionSourceThreshold selectionSource = "Threshold"
+	// selectionSourceOverflow：防溢出放行选品，价格不低于阈值但额度已溢出。
+	selectionSourceOverflow selectionSource = "Overflow"
+	// selectionSourceMinBuy：「至少购买一个」降级购买当前地区最低价商品。
+	selectionSourceMinBuy selectionSource = "MinBuy"
+)
+
 // SelectionResult 表示商品选择逻辑的决策结果。
 type SelectionResult struct {
 	Selected      bool
@@ -87,6 +101,9 @@ type SelectionResult struct {
 	CurrentPrice  int
 	Score         int
 	Reason        string
+	// Source 仅在 Selected 为 true 时有效，由 selectBestProduct /
+	// selectCheapestProduct 在构造时确定。
+	Source selectionSource
 }
 
 // SelectionConfig 表示 AutoStockpile 的商品选择配置。

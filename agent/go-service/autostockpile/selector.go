@@ -229,10 +229,11 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		},
 	})
 
-	selectionMode := formatSelectionMode(selection, *data)
+	selectionMode := formatSelectionMode(selection)
 	quantityLog := log.Info().
 		Str("component", "autostockpile").
 		Str("selection_mode", selectionMode).
+		Str("selection_source", string(selection.Source)).
 		Str("template", buildTemplatePath(selection.ProductID)).
 		Str("tier", selection.CanonicalName).
 		Int("threshold", selection.Threshold).
@@ -306,6 +307,13 @@ func selectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 	})
 
 	best := candidates[0]
+	// 价格不低于阈值仍能进入候选，只可能来自 bypass 放行。
+	// 这里用价格判据（而非 bypassThresholdFilter 变量）取来源，以与
+	// resolveQuantityDecision 的「价格低于阈值优先买满」判据保持完全一致。
+	source := selectionSourceThreshold
+	if best.goods.Price >= best.threshold {
+		source = selectionSourceOverflow
+	}
 	return SelectionResult{
 		Selected:      true,
 		ProductID:     best.goods.ID,
@@ -314,6 +322,7 @@ func selectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 		Threshold:     best.threshold,
 		CurrentPrice:  best.goods.Price,
 		Score:         best.score,
+		Source:        source,
 	}, nil
 }
 
@@ -394,13 +403,22 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 }
 
 // formatSelectionMode 返回当前选择模式的本地化描述。
-func formatSelectionMode(selection SelectionResult, data RecognitionData) string {
-	if selection.CurrentPrice < selection.Threshold {
+// 仅接受 Selected == true 的结果；Source 由选品函数在构造时写入。
+func formatSelectionMode(selection SelectionResult) string {
+	switch selection.Source {
+	case selectionSourceThreshold:
+		return i18n.T("autostockpile.mode_low_price")
+	case selectionSourceOverflow:
+		return i18n.T("autostockpile.mode_overflow")
+	case selectionSourceMinBuy:
+		return i18n.T("autostockpile.mode_min_buy")
+	default:
+		// 契约破坏：Selected 为 true 的结果必然带 Source。
+		log.Warn().
+			Str("component", autoStockpileComponent).
+			Str("product_id", selection.ProductID).
+			Str("selection_source", string(selection.Source)).
+			Msg("unknown selection source, fall back to low price label")
 		return i18n.T("autostockpile.mode_low_price")
 	}
-	if data.Quota.Overflow > 0 {
-		return i18n.T("autostockpile.mode_overflow")
-	}
-	// 价格不低于阈值且无溢出：只可能来自「至少购买一个」的最低价格兜底。
-	return i18n.T("autostockpile.mode_min_buy")
 }

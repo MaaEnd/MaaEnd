@@ -50,11 +50,13 @@ func selectCheapestProduct(data RecognitionData) (SelectionResult, error) {
 		}
 	}
 
+	// Threshold 刻意不填：来源已由 Source 显式表达，展示层不再依赖它。
 	return SelectionResult{
 		Selected:      true,
 		ProductID:     cheapest.ID,
 		ProductName:   cheapest.Name,
 		CanonicalName: cheapest.Tier,
 		CurrentPrice:  cheapest.Price,
+		Source:        selectionSourceMinBuy,
 	}, nil
 }

@@ -232,12 +232,13 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		},
 	})
 
-	maafocus.Print(ctx, i18n.T("autostockpile.product_selected", formatSelectionMode(newSelection, updatedData), newSelection.ProductName, newSelection.CurrentPrice))
+	maafocus.Print(ctx, i18n.T("autostockpile.product_selected", formatSelectionMode(newSelection), newSelection.ProductName, newSelection.CurrentPrice))
 
 	log.Info().
 		Str("component", "autostockpile").
 		Str("old_product_id", state.CurrentDecision.Selection.ProductID).
 		Str("new_product_id", newSelection.ProductID).
+		Str("selection_source", string(newSelection.Source)).
 		Str("new_quantity_mode", string(newQuantityDecision.Mode)).
 		Int("new_quantity_target", newQuantityDecision.Target).
 		Int("price", price).
