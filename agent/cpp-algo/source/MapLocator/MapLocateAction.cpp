@@ -54,11 +54,8 @@ struct MapLocateAssertLocationParam
 {
     std::string zone_id;
     std::vector<double> target;
-    double loc_threshold = MinMatchScore;
-    double yolo_threshold = 0.70;
-    bool force_global_search = false;
 
-    MEO_JSONIZATION(MEO_OPT zone_id, MEO_OPT target, MEO_OPT loc_threshold, MEO_OPT yolo_threshold, MEO_OPT force_global_search)
+    MEO_JSONIZATION(MEO_OPT zone_id, MEO_OPT target)
 };
 
 struct MapLocateAssertLocationOutput
@@ -176,16 +173,6 @@ MaaRect MakePointBox(const MapPosition& position)
     };
 }
 
-LocateOptions BuildAssertLocateOptions(const MapLocateAssertLocationParam& param)
-{
-    LocateOptions options;
-    options.loc_threshold = param.loc_threshold;
-    options.yolo_threshold = param.yolo_threshold;
-    options.force_global_search = param.force_global_search;
-    options.expected_zone_id = param.zone_id;
-    return options;
-}
-
 bool TryBuildAssertRect(const MapLocateAssertLocationParam& param, MaaRect* out_rect)
 {
     if (out_rect == nullptr || param.target.size() != 4) {
@@ -214,35 +201,9 @@ bool IsPositionInsideRect(const MapPosition& position, const MaaRect& rect)
     return position.x >= left && position.x < right && position.y >= top && position.y < bottom;
 }
 
-constexpr int kAssertSettleMaxFrames = 60;
-constexpr int kAssertStableWindow = kColdStartConsensusFrames;
-constexpr double kAssertStableRadius = kPositionConsensusRadius;
-constexpr auto kAssertSettlePollDelay = std::chrono::milliseconds(250);
-
-bool IsAssertWindowSettled(const std::vector<MapPosition>& window, MapPosition* out_centroid)
-{
-    if (static_cast<int>(window.size()) < kAssertStableWindow) {
-        return false;
-    }
-    MapPosition centroid = window.back();
-    double sx = 0.0;
-    double sy = 0.0;
-    for (const auto& p : window) {
-        sx += p.x;
-        sy += p.y;
-    }
-    centroid.x = sx / static_cast<double>(window.size());
-    centroid.y = sy / static_cast<double>(window.size());
-    for (const auto& p : window) {
-        if (std::hypot(p.x - centroid.x, p.y - centroid.y) > kAssertStableRadius) {
-            return false;
-        }
-    }
-    if (out_centroid != nullptr) {
-        *out_centroid = centroid;
-    }
-    return true;
-}
+// 传送落地后区域横幅会压住小地图，定位在横幅散掉之前拿不到可用结果，预算要覆盖这段等待。
+constexpr int kAssertLocateMaxFrames = 60;
+constexpr auto kAssertLocatePollDelay = std::chrono::milliseconds(250);
 
 std::string DetectControllerType(MaaContext* context)
 {
@@ -430,61 +391,36 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
     }
     locator->resetTrackingState();
 
-    LocateOptions options = BuildAssertLocateOptions(param);
+    LocateOptions options;
+    options.expected_zone_id = param.zone_id;
     options.force_global_search = true;
 
-    std::vector<MapPosition> window;
-    window.reserve(kAssertStableWindow);
-
     LocateResult result;
-    bool settled = false;
-    MapPosition stable_pos {};
+    bool matched = false;
 
-    for (int frame = 0; frame < kAssertSettleMaxFrames; ++frame) {
+    for (int frame = 0; frame < kAssertLocateMaxFrames; ++frame) {
         const MaaImageBuffer* frame_image = frame == 0 ? image : nullptr;
         if (!TryLocateOnMinimap(context, frame_image, options, &result)) {
             return MAA_FALSE;
         }
 
-        const bool usable = result.status == LocateStatus::Success && result.position.has_value()
-                            && result.position->zoneId == param.zone_id && !result.position->isHeld;
-        if (usable) {
-            window.push_back(result.position.value());
-            if (static_cast<int>(window.size()) > kAssertStableWindow) {
-                window.erase(window.begin());
-            }
-            if (IsAssertWindowSettled(window, &stable_pos)) {
-                settled = true;
-                break;
-            }
-        }
-        else {
-            window.clear();
+        const bool located = result.status == LocateStatus::Success && result.position.has_value();
+        if (located && IsPositionInsideRect(result.position.value(), target_rect)) {
+            matched = true;
+            break;
         }
 
-        LogInfo << "MapLocateAssertLocation settling" << VAR(frame) << VAR(param.zone_id) << VAR(usable) << VAR(window.size())
-                << VAR(result.debugMessage);
-        if (frame + 1 < kAssertSettleMaxFrames) {
-            std::this_thread::sleep_for(kAssertSettlePollDelay);
+        LogInfo << "MapLocateAssertLocation waiting" << VAR(frame) << VAR(param.zone_id) << VAR(located) << VAR(result.debugMessage);
+        if (frame + 1 < kAssertLocateMaxFrames) {
+            std::this_thread::sleep_for(kAssertLocatePollDelay);
         }
     }
 
-    const bool matched = settled && IsPositionInsideRect(stable_pos, target_rect);
-
-    if (settled && result.position.has_value()) {
-        result.position->x = stable_pos.x;
-        result.position->y = stable_pos.y;
-    }
     WriteJsonDetail(out_detail, BuildAssertLocationOutput(result, param, matched));
 
     if (!matched) {
-        if (settled) {
-            LogInfo << "MapLocateAssertLocation miss (settled outside target)" << VAR(param.zone_id) << VAR(stable_pos.x)
-                    << VAR(stable_pos.y) << VAR(target_rect.x) << VAR(target_rect.y) << VAR(target_rect.width) << VAR(target_rect.height);
-        }
-        else {
-            LogInfo << "MapLocateAssertLocation miss (not settled within budget)" << VAR(param.zone_id) << VAR(result.debugMessage);
-        }
+        LogInfo << "MapLocateAssertLocation miss" << VAR(param.zone_id) << VAR(target_rect.x) << VAR(target_rect.y)
+                << VAR(target_rect.width) << VAR(target_rect.height) << VAR(result.debugMessage);
         return MAA_FALSE;
     }
 
@@ -492,7 +428,7 @@ MaaBool MAA_CALL MapLocateAssertLocationRun(
         *out_box = target_rect;
     }
 
-    LogInfo << "MapLocateAssertLocation matched (settled)" << VAR(param.zone_id) << VAR(stable_pos.x) << VAR(stable_pos.y)
+    LogInfo << "MapLocateAssertLocation matched" << VAR(param.zone_id) << VAR(result.position->x) << VAR(result.position->y)
             << VAR(target_rect.x) << VAR(target_rect.y) << VAR(target_rect.width) << VAR(target_rect.height);
     return MAA_TRUE;
 }

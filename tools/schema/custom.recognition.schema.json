@@ -487,15 +487,6 @@
                                 },
                                 "minItems": 4,
                                 "maxItems": 4
-                            },
-                            "loc_threshold": {
-                                "type": "number"
-                            },
-                            "yolo_threshold": {
-                                "type": "number"
-                            },
-                            "force_global_search": {
-                                "type": "boolean"
                             }
                         }
                     }
