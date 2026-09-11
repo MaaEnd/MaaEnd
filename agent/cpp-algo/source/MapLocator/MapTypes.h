@@ -161,7 +161,6 @@ inline bool TryExtractMinimap(const cv::Mat& image, bool use_adb_minimap_roi, cv
 }
 
 constexpr int MaxLostTrackingCount = 3;
-constexpr double MinMatchScore = 0.7;
 constexpr double MobileSearchRadius = 50.0;
 
 // global 跨帧跳变保护 + 冷启动 burn-in
