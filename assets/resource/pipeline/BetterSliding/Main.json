@@ -223,7 +223,8 @@
             "BetterSlidingDone",
             "BetterSlidingIncreaseQuantity",
             "BetterSlidingDecreaseQuantity",
-            "[JumpBack]BetterSlidingMoveMouse"
+            "[JumpBack]BetterSlidingMoveMouse",
+            "BetterSlidingPreciseClick"
         ]
     },
     "BetterSlidingIncreaseQuantity": {
