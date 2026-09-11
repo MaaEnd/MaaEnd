@@ -451,10 +451,10 @@
                 ]
             }
         },
-        "post_wait_freezes": 100,
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
         },
+        "post_wait_freezes": 100,
         "next": [
             "[JumpBack][Anchor]MouseMoveResetAnchor",
             "LevelUpOperatorClearSwipeLeftHitCount"

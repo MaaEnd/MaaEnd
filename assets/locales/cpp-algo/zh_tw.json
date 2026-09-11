@@ -2,8 +2,9 @@
     "navigation.latency_slow": "<span style=\"color: red; font-weight: bold;\">尋路每拍耗時中位數 %d ms（正常約 110 ms）：截圖 %d ms、影像處理 %d ms、定位 %d ms、轉向下發 %d ms、其餘 %d ms。這麼慢會來不及轉彎，容易撞牆或掉水。建議降低遊戲畫質與解析度、關掉佔用高的背景程式，並檢查 GPU 佔用是否過高。此提示不會中斷任務。</span>",
     "navigation.sensitivity_corrected": "<span style=\"font-weight: bold;\">尋路轉向角度與指令持續不符：實測轉過的角度約為指令角度的 %d%%（正常應在 100%% 附近），該結果由 %d 拍轉向樣本擬合得出。已按該比例自動校正後續轉向量，本次執行期間持續生效，無需手動調整遊戲靈敏度或滑鼠 DPI；若之後改動了這些設定，請重新啟動程式以重新測量。此提示不會中斷任務。</span>",
     "zipline.already_signed_in": "偵測到已登入，本次無需再次登入；標記擷取完成後視窗會自動關閉。",
-    "zipline.account_unknown": "<span style=\"color: red; font-weight: bold;\">本次尋路未使用滑索：初始化時未能取得目前遊戲帳號 UID，無法安全選擇帳號對應的滑索座標。</span>本次將全程步行，不會嘗試其他帳號或舊版未區分帳號的資料。此提示不會中斷任務。",
-    "zipline.import_done": "<span style=\"font-weight: bold;\">滑索座標已更新，共 %d 筆。</span>如需尋路盡可能使用滑索，請在設定的「滑索」中將「尋路時使用滑索」設為「始終啟用」；維持「跟隨任務」時，僅在路線指定使用滑索的情況下啟用。",
-    "zipline.no_data": "<span style=\"color: red; font-weight: bold;\">本次尋路未使用滑索：目前帳號在此區域沒有可用的滑索座標。請登入該帳號對應的官方地圖站點並執行「🛝匯入/更新滑索座標」；舊版未區分帳號的資料也需要重新匯入。此提示不會中斷任務。</span>",
+    "zipline.account_unknown": "<span style=\"color: red; font-weight: bold;\">本次尋路未使用滑索：初始化時未能取得目前遊戲帳號 UID，無法安全選擇帳號對應的滑索座標。</span>本次將全程步行，不會嘗試其他帳號的資料。此提示不會中斷任務。",
+    "zipline.import_done": "<span style=\"font-weight: bold;\">滑索座標已更新，共 %d 筆。</span>設定的「滑索」預設是「跟隨任務」：開啟滑索尋路時，只有路線本身指定使用滑索的才會用滑索，任務裡的既有路線已經各自標好，一般無需額外設定。此提示不會中斷任務。",
+    "zipline.legacy_claimed": "<span style=\"font-weight: bold;\">已沿用舊版本匯入的滑索座標：本次共 %d 張地圖的座標歸屬到目前帳號。</span>之後無需重新匯入即可參與尋路。只有在目前帳號名下還沒有任何滑索記錄時才會這樣歸屬；目前帳號已經匯入過座標時，舊記錄不會被沿用。如需更新座標，請執行「🛝匯入/更新滑索座標」。此提示不會中斷任務。",
+    "zipline.no_data": "<span style=\"color: red; font-weight: bold;\">本次尋路未使用滑索：目前帳號在此區域沒有可用的滑索座標。請登入該帳號對應的官方地圖站點並執行「🛝匯入/更新滑索座標」；不帶帳號標識的舊版記錄只在目前帳號名下尚無任何記錄時才會被沿用。此提示不會中斷任務。</span>",
     "zipline.not_chosen": "<span style=\"font-weight: bold;\">本次尋路未使用滑索：目前區域的滑索均未通過效益判定。</span>常見原因為前往上索點的路程超過直接步行、上索點不在遊戲的 NPC 可行走區域內、下索點距目標過遠。此提示不會中斷任務。"
 }

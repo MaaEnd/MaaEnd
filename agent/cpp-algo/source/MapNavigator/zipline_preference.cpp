@@ -11,6 +11,7 @@
 #include <meojson/json.hpp>
 
 #include "../Common/notice.h"
+#include "../Zipline/ZiplineStore.h"
 #include "../utils.h"
 #include "zipline_leg_planner.h"
 
@@ -99,6 +100,32 @@ std::string ReadAccountIdentity(MaaContext* context)
     return account_id;
 }
 
+// 旧版本落盘的坐标不带账号字段，规划按账号筛选会把它们全部跳过。这里在寻路入口把它们认领给
+// 当前账号：升级后用户什么都没动，旧坐标仍能用。认领只在当前账号还没有任何记录时发生，
+// 详细理由见 ZiplineStore::claimLegacyRecords。
+size_t ClaimLegacyRecords(const std::string& account_id)
+{
+    const std::filesystem::path path = zipline::ZiplineStore::DefaultPath();
+
+    zipline::ZiplineStore store;
+    if (!store.load(path)) {
+        LogError << "ZiplineAccount: load zipline records failed, skip claiming legacy records" << VAR(path);
+        return 0;
+    }
+    return store.claimLegacyRecords(account_id, path);
+}
+
+void NoticeClaimedLegacyRecords(MaaContext* context, size_t claimed)
+{
+    if (context == nullptr || claimed == 0) {
+        return;
+    }
+
+    // 认领只发生一次，不必加闩：之后同一台机器上不会再有无账号的记录可认领。
+    LogInfo << "ZiplineAccount: claimed legacy zipline records for the current account" << VAR(claimed);
+    common::notice::Publish(context, common::notice::Text("zipline.legacy_claimed", { static_cast<int64_t>(claimed) }));
+}
+
 } // namespace
 
 bool ResolveZiplineEnabled(MaaContext* context, bool requested)
@@ -113,10 +140,11 @@ std::string ResolveZiplineAccountId(MaaContext* context)
     const std::string account_id = ReadAccountIdentity(context);
     if (account_id.empty()) {
         LogWarn << "ZiplineAccount: current game account is unavailable; zipline records will not be used";
+        return account_id;
     }
-    else {
-        LogInfo << "ZiplineAccount: current game account selected" << VAR(account_id);
-    }
+
+    LogInfo << "ZiplineAccount: current game account selected" << VAR(account_id);
+    NoticeClaimedLegacyRecords(context, ClaimLegacyRecords(account_id));
     return account_id;
 }
 
