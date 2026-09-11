@@ -19,7 +19,8 @@
             "무릉성"
         ],
         "next": [
-            "SeizeDeliveryJobsEndpointCandidatesWulingCity"
+            "SeizeDeliveryJobsEndpointCandidatesWulingCity",
+            "SeizeDeliveryJobsEndpointNotMatched"
         ]
     },
     // 武陵城区域的送货终点候选：一次缩放 + 一次视口求解，判本区域全部已启用终点。
@@ -87,7 +88,8 @@
             "실험 구역"
         ],
         "next": [
-            "SeizeDeliveryJobsEndpointCandidatesTestArea"
+            "SeizeDeliveryJobsEndpointCandidatesTestArea",
+            "SeizeDeliveryJobsEndpointNotMatched"
         ]
     },
     // 试验园区区域的送货终点候选：一次缩放 + 一次视口求解，判本区域全部已启用终点。
