@@ -1191,10 +1191,23 @@ void TestTransferGridRejectsBroadOvercapacityPhase()
 
 void TestTransferGridRejectsBlankFallbackWithoutStructure()
 {
-    const cv::Rect roi(770, 209, 341, 277);
     const cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(24, 24, 24));
-    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi, 1.0);
-    Check(grid.grids.empty() && grid.cells.empty(), "blank transfer fallback must not synthesize a regular grid");
+    for (const cv::Rect roi : { cv::Rect(160, 205, 547, 286), cv::Rect(770, 209, 341, 277) }) {
+        const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi, 1.0);
+        std::string diagnostics;
+        if (!grid.grids.empty()) {
+            const auto& layout = grid.grids.front();
+            diagnostics = " rows=" + std::to_string(layout.rows) + " columns=" + std::to_string(layout.columns);
+            if (layout.selection_diagnostics) {
+                diagnostics += " fallback=" + layout.selection_diagnostics->fallback_reason
+                               + " structure=" + std::to_string(layout.selection_diagnostics->structure_score)
+                               + " rarity=" + std::to_string(layout.selection_diagnostics->rarity_score);
+            }
+        }
+        Check(
+            grid.grids.empty() && grid.cells.empty(),
+            "blank transfer fallback must not synthesize a regular grid: x=" + std::to_string(roi.x) + diagnostics);
+    }
 }
 
 void TestTransferRarityGridKeepsVisibleTopRow()
@@ -1262,6 +1275,54 @@ void TestTransferBottomVisibilityIsGridSpecific()
         Check(grid.grids.size() == 1, "bottom visibility fixture must form one panel");
         Check(grid.grids.front().rows == (visible_height == 42 ? 4 : 3), "transfer bottom row must obey the 65% boundary");
     }
+}
+
+void CheckTransferLeftKeepsBottomItemsWithoutRarity(int first_row_y, int bottom_item_count)
+{
+    constexpr int kCellSize = 64;
+    constexpr int kPitch = 69;
+    constexpr int kColumns = 8;
+    constexpr int kEstablishedRows = 3;
+    const cv::Rect roi(154, 202, 983, 291);
+    const cv::Point origin(160, first_row_y);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    const auto draw_item = [&](int row, int column, bool draw_rarity) {
+        const cv::Rect cell(origin.x + column * kPitch, origin.y + row * kPitch, kCellSize, kCellSize);
+        image(cell).setTo(cv::Scalar(60, 60, 60));
+        cv::rectangle(image, cell, cv::Scalar(100, 100, 100), 1);
+        for (int y = 8; y < kCellSize - 8; y += 4) {
+            image(cv::Rect(cell.x + 8, cell.y + y, kCellSize - 16, 1)).setTo(cv::Scalar(180, 180, 180));
+        }
+        if (draw_rarity) {
+            image(cv::Rect(cell.x, cell.y + kCellSize - 3, kCellSize, 3)).setTo(RarityBgr(3));
+        }
+    };
+    for (int row = 0; row < kEstablishedRows; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            draw_item(row, column, true);
+        }
+    }
+    for (int column = 0; column < bottom_item_count; ++column) {
+        draw_item(kEstablishedRows, column, false);
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi, 1.0);
+    Check(grid.grids.size() == 1, "left transfer fixture must form one panel");
+    const auto& layout = grid.grids.front();
+    Check(layout.rows == 4 && layout.columns == kColumns, "left transfer must preserve its bottom item row without rarity");
+    const auto bottom_cells = std::ranges::count_if(layout.cells, [](const auto& cell) { return cell.row == kEstablishedRows; });
+    Check(
+        bottom_cells == bottom_item_count,
+        "left transfer must keep only textured bottom cells; expected=" + std::to_string(bottom_item_count)
+            + " actual=" + std::to_string(bottom_cells));
+}
+
+void TestTransferLeftKeepsBottomItemsWithoutRarity()
+{
+    // 末行下边界和 rarity 超出 ROI 时，完整一行物品仍应由前景证据保留。
+    CheckTransferLeftKeepsBottomItemsWithoutRarity(227, 8);
+    // 末行完整可见但只有一个物品时，连续格框和该格前景足以证明这一行存在。
+    CheckTransferLeftKeepsBottomItemsWithoutRarity(204, 1);
 }
 
 void CheckTransferEmptyGridLattice(int pitch, cv::Point origin, const cv::Rect& roi = cv::Rect(160, 205, 398, 286))
@@ -2283,6 +2344,7 @@ int main()
         TestGridScaleEstimateSelectsCalibratedProfiles();
         TestTransferRarityGridKeepsVisibleTopRow();
         TestTransferBottomVisibilityIsGridSpecific();
+        TestTransferLeftKeepsBottomItemsWithoutRarity();
         TestGridDetectorMapsNormalizedCellsBackToSourceImage();
         TestRewardsGridScaleSelectsCardProfileInsideCallerRoi();
         TestRewardsGridScaleIgnoresBrightBackgroundWithoutRarityBand();

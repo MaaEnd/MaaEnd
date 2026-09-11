@@ -2161,18 +2161,23 @@ GridLayout BuildTransferLayout(
                     int textured_cells = 0;
                     double next_structure_support = 0.0;
                     bool formal_row = true;
+                    bool bottom_clipped = false;
                     for (int x : local_x) {
                         const cv::Rect cell(roi.x + x, roi.y + next_y, profile.cell_size, profile.cell_size);
                         if (!IsFormal(cell, roi, profile.minimum_top_visibility, profile.minimum_bottom_visibility)) {
                             formal_row = false;
                             break;
                         }
+                        bottom_clipped = bottom_clipped || cell.y + cell.height > roi.y + roi.height;
                         const auto texture = ForegroundTextureScore(image, cell, GridType::Transfer);
                         textured_cells += texture && *texture >= kDefaultLowTextureThreshold;
                         next_structure_support += CellSupport(cell_score, x, next_y);
                     }
-                    if (!formal_row || textured_cells < kMinimumGrayRarityTextureCells
-                        || next_structure_support / local_x.size() < existing_structure_support * kRowCompletionSupportRatio) {
+                    const bool continuous_structure =
+                        next_structure_support / local_x.size() >= existing_structure_support * kRowCompletionSupportRatio;
+                    // 左侧只补紧邻的有物品行。末行被 ROI 截断时下边框和 rarity 本来就不可见，
+                    // 此时由前景证明该行存在；完整行仍必须有连续格框，避免背景纹理扩成仓库容量网格。
+                    if (!formal_row || textured_cells == 0 || (!bottom_clipped && !continuous_structure)) {
                         break;
                     }
                     local_y.push_back(next_y);
@@ -2305,6 +2310,15 @@ GridLayout BuildTransferLayout(
     // 右侧七列始终检查分类工具栏遮挡；左侧四列的末行空行启发式只用于缺少 rarity 证据的旧结构路径。
     if (!transfer && (column_count == 7 || (!reliable_rarity_fit && !trusted_selected))) {
         local_y = DropPortRows(image, roi, local_x, local_y, column_count, profile.cell_size);
+    }
+
+    if (transfer && left_side && !empty_grid_selected && !reliable_rarity_fit && !trusted_selected) {
+        double maximum_structure = 0.0;
+        cv::minMaxLoc(cell_score, nullptr, &maximum_structure);
+        // 左侧 legacy 候选也必须包含真实格框；零响应不能仅凭规则轴生成假网格。
+        if (maximum_structure <= kEpsilon) {
+            return {};
+        }
     }
 
     if (complete_transfer_panel) {
