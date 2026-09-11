@@ -31,6 +31,7 @@
 #include "steering_controller.h"
 #include "zipline_action.h"
 
+#include "../Common/notice.h"
 #include "../utils.h"
 
 namespace mapnavigator
@@ -1773,6 +1774,17 @@ bool NavigationStateMachine::TickNavigate()
 
     const double effective_route_heading = nav_run_result.has_corridor_heading ? nav_run_result.corridor_heading : route.route_heading;
 
+    // 角色箭头方向与下一步目标方向差出 30° 以上就停步预对齐：走中操舵拿角色朝向做反馈，
+    // 误差大时只能边走边画弧。拿不到相机朝向时不做，交给走中操舵。
+    const double heading_to_target = std::abs(NaviMath::NormalizeAngle(effective_route_heading - current_heading));
+    const bool pre_align_needed = position_->cam_angle.has_value() && position_->cam_conf >= kPreAlignMinConfidence
+                                  && heading_to_target >= kPreAlignTriggerTurnDeg;
+    if (pre_align_needed && now >= runtime_state_.pre_align_retry_after && !degraded_fix && !runtime_state_.recovery.active
+        && !runtime_state_.cross_tier_escape.active) {
+        RunPreAlign(effective_route_heading);
+        return true;
+    }
+
     // Heading observed to have moved since the last turn was sent, and how far that lands from the commanded
     // delta. It is the whole observed change, not the turn in isolation: forward motion and camera follow are in
     // there too. Only ticks that really send a turn stamp the reference below, so on a tick that sends nothing
@@ -2033,6 +2045,86 @@ double NavigationStateMachine::ObserveNavigationProgress(
         from_anchor && anchor_index ? *anchor_index : ProgressIdentityState::kSerialKeyBias + session_->current_node_idx();
     session_->ObserveHardProgress(hard_progress_key, effective_progress, now);
     return effective_progress;
+}
+
+// 停步把镜头转到 target_heading：相机响应直接，一次发完整残差，等一拍再核，最多 kPreAlignMaxAttempts 轮。
+// 拿不到相机朝向就判失败，恢复前进退回走中转向。对齐后恢复走路，等角色朝向追进死区再交回操舵。
+void NavigationStateMachine::RunPreAlign(double target_heading)
+{
+    if (!position_->cam_angle.has_value()) {
+        return;
+    }
+
+    target_heading = NaviMath::NormalizeAngle(target_heading);
+    const double start_cam = *position_->cam_angle;
+    const double start_heading = NaviMath::NormalizeAngle(position_->angle);
+    const double units_per_degree = action_wrapper_->DefaultTurnUnitsPerDegree();
+
+    motion_controller_->SetForwardState(false);
+    const auto standstill_started_at = std::chrono::steady_clock::now();
+    double last_cam = start_cam;
+    for (int attempt = 0; attempt < kPreAlignMaxAttempts; ++attempt) {
+        const double error = NaviMath::NormalizeAngle(target_heading - last_cam);
+        if (std::abs(error) <= kPreAlignAcceptToleranceDeg) {
+            break;
+        }
+        // 每次只发剩余角度的一部分，不等它全发完：响应有延迟，发满容易过冲。
+        const double send_deg = error * kPreAlignTurnGain;
+        int units = static_cast<int>(std::lround(send_deg * units_per_degree));
+        if (units == 0) {
+            units = send_deg > 0.0 ? 1 : -1;
+        }
+        if (!action_wrapper_->SendViewDeltaSync(units, 0)) {
+            break;
+        }
+        utils::SleepFor(kPreAlignSettleMs);
+        if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasHeld() || !position_->valid
+            || !position_->cam_angle.has_value()) {
+            break;
+        }
+        last_cam = *position_->cam_angle;
+    }
+
+    const double last_error = NaviMath::NormalizeAngle(target_heading - last_cam);
+    const bool aligned = std::abs(last_error) <= kPreAlignAcceptToleranceDeg;
+    if (!aligned) {
+        runtime_state_.pre_align_retry_after = std::chrono::steady_clock::now() + std::chrono::milliseconds(kPreAlignRetryCooldownMs);
+        // 临时调试：预对齐失败直接向客户端 UI Focus 播报，文案暂硬编码；若长期保留需迁到 locales/cpp-algo 的 key。
+        const int64_t residual_deg = static_cast<int64_t>(std::lround(std::abs(last_error)));
+        common::notice::Publish(
+            maa_context_,
+            "<span style=\"font-weight: bold;\">寻路预对齐失败：镜头未能转到目标方向，剩余偏差约 " + std::to_string(residual_deg)
+            + "°。</span>已退回走中转向，可能会走弧线，稍后会自动重试。此提示不会中断任务。");
+    }
+
+    // 恢复前进，等角色朝向追进死区再交回走中操舵：这段里发转向会把相机推过目标。
+    motion_controller_->SetForwardState(true);
+    // 停步转向是刻意安排的，卡死检测不能把它读成停滞，否则一次长预对齐就能自己触发恢复；
+    // 恢复前进后的追齐段人已经在走，照常参与检测。
+    const auto standstill_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - standstill_started_at);
+    session_->DeferProgressClocks(standstill_ms);
+    nav_run_controller_.DeferProgressClock(standstill_ms);
+    runtime_state_.offroute.DeferProgress(standstill_ms);
+    const auto quiet_started_at = std::chrono::steady_clock::now();
+    double end_heading = start_heading;
+    for (;;) {
+        const int64_t quiet_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - quiet_started_at).count();
+        if (quiet_ms >= kPreAlignQuietMaxMs) {
+            break;
+        }
+        if (!CaptureCurrentPosition(false) || !position_->valid) {
+            break;
+        }
+        end_heading = NaviMath::NormalizeAngle(position_->angle);
+        if (std::abs(NaviMath::NormalizeAngle(target_heading - end_heading)) <= kPreAlignCharacterConvergeDeg) {
+            break;
+        }
+        utils::SleepFor(kHeadingStableReadIntervalMs);
+    }
+    LogInfo << "PreAlign done." << VAR(target_heading) << VAR(aligned) << VAR(start_cam) << VAR(last_cam) << VAR(last_error)
+            << VAR(start_heading) << VAR(end_heading) << VAR(standstill_ms.count());
 }
 
 void NavigationStateMachine::StopMotion()

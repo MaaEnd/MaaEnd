@@ -130,6 +130,23 @@ constexpr int32_t kHeadingTurnStepIntervalMs = 100;     // step pacing floor; ra
 constexpr double kHeadingStableReadToleranceDeg = 15.0; // two fresh reads must agree this closely to count
 constexpr int32_t kHeadingStableReadIntervalMs = 120;
 constexpr int32_t kHeadingStableReadMaxFrames = 4;      // default HEADING read budget; the caller decides its fallback
+
+// --- 预对齐：角色朝向与下一步目标方向差出阈值时停步把镜头转正 ---
+constexpr double kPreAlignTriggerTurnDeg = 30.0;
+// 对齐判据：误差进容差、置信度达标。
+constexpr double kPreAlignAcceptToleranceDeg = 3.0;
+constexpr double kPreAlignMinConfidence = 0.8;
+// 发一批后等相机落地的时间；响应跨若干帧，发完立刻读会把在途角度当成没转。
+constexpr int32_t kPreAlignSettleMs = 150;
+// 每次只发剩余角度的这个比例，留出响应延迟的余量，防过冲。
+constexpr double kPreAlignTurnGain = 0.618;
+// 最多发几批；按增益收缩，4 批能把 180° 收到容差内。
+constexpr int32_t kPreAlignMaxAttempts = 10;
+// 对齐后恢复前进，等角色朝向追进这个死区才交回移动中操舵
+constexpr double kPreAlignCharacterConvergeDeg = 6.6;
+constexpr int32_t kPreAlignQuietMaxMs = 800;
+// 失败后的冷却：朝向仍偏出阈值，不冷却下一拍又停。
+constexpr int32_t kPreAlignRetryCooldownMs = 3000;
 constexpr int32_t kSerialRouteRetryDelayMs = 180;
 constexpr double kBootstrapOwnershipProjectionCorridor = 3.0;
 constexpr double kBootstrapOwnershipProjectionFrontThreshold = 0.35;

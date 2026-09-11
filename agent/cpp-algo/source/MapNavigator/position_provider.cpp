@@ -107,9 +107,11 @@ bool PositionProvider::Capture(
     const int status = static_cast<int>(locate_result.status);
     if (locate_result.position) {
         const auto& position = *locate_result.position;
+        const double cam_rot_log = locate_result.camRot ? locate_result.camRot->rot : -1.0;
+        const double cam_conf_log = locate_result.camRot ? locate_result.camRot->confidence : 0.0;
         LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << VAR(position.zoneId) << VAR(position.x)
-                << VAR(position.y) << VAR(position.score) << VAR(position.sliceIndex) << VAR(position.angle) << VAR(position.latencyMs)
-                << VAR(position.isHeld);
+                << VAR(position.y) << VAR(position.score) << VAR(position.sliceIndex) << VAR(position.angle) << VAR(cam_rot_log)
+                << VAR(cam_conf_log) << VAR(position.latencyMs) << VAR(position.isHeld);
     }
     else {
         LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << "position=null";
@@ -130,6 +132,14 @@ bool PositionProvider::Capture(
     out_pos->x = locate_result.position->x;
     out_pos->y = locate_result.position->y;
     out_pos->angle = locate_result.position->angle;
+    if (locate_result.camRot) {
+        out_pos->cam_angle = locate_result.camRot->rot;
+        out_pos->cam_conf = locate_result.camRot->confidence;
+    }
+    else {
+        out_pos->cam_angle.reset();
+        out_pos->cam_conf = 0.0;
+    }
     out_pos->score = locate_result.position->score;
     out_pos->zone_id = locate_result.position->zoneId;
     out_pos->valid = true;
