@@ -23,6 +23,11 @@
                 "AutoStockpile.CaptureUid",
                 "AutoStockpile.ReconcileDecision",
                 "AutoStockpile.SelectItem",
+                "InventoryDragTouchAction",
+                "InventoryTransferAllAction",
+                "InventoryTransferHalfAction",
+                "InventoryTransferStackAction",
+                "InventoryTransferTouchAction",
                 "BatchAddFriendsAction",
                 "BatchAddFriendsFriendListFullAction",
                 "BatchAddFriendsStrangersFinishAction",
@@ -79,6 +84,9 @@
                 "PuzzleAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
+                "StashBackpackSnapshotAction",
+                "StashBackpackStateAction",
+                "StashBackpackWarningAction",
                 "RealTimeTaskAction",
                 "RepeatUntilFoundAction",
                 "RepeatUntilNotFoundAction",
@@ -96,6 +104,48 @@
         }
     },
 	"allOf": [
+        {
+            "if": {
+                "properties": {"custom_action": {"const": "InventoryDragTouchAction"}},
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "end": {"type": "string", "minLength": 1, "description": "已识别目标格的节点名"},
+                            "end_offset": {
+                                "type": "array",
+                                "items": {"type": "integer"},
+                                "minItems": 4,
+                                "maxItems": 4
+                            }
+                        },
+                        "required": ["end"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
+        {
+            "if": {
+                "properties": {"custom_action": {"const": "InventoryTransferTouchAction"}},
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {"mode": {"enum": ["all", "stack", "half"]}},
+                        "required": ["mode"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
 		{
 			"if": {
 				"properties": {
@@ -301,6 +351,48 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/zipline.schema.json#/$defs/ImportParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "StashBackpackSnapshotAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/stash_backpack.schema.json#/$defs/SnapshotActionParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "StashBackpackStateAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/stash_backpack.schema.json#/$defs/StateActionParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "StashBackpackWarningAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/stash_backpack.schema.json#/$defs/WarningActionParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

@@ -218,5 +218,9 @@
     "ims.add_item_found": "%s を獲得 ×%d",
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
-    "ims.item_current": "現在 %s：%d"
+    "ims.item_current": "現在 %s：%d",
+    "stashbackpack.warning.duplicate_full": "<span style=\"color: red; font-weight: bold;\">このキューでは「倉庫に収納」が完了しています。後の取り出し用に元のアイテム記録を残し、重複する収納をスキップしました。</span>",
+    "stashbackpack.warning.missing_full_snapshot": "<span style=\"color: red; font-weight: bold;\">先頭の収納が未完了のため、新規獲得アイテムを判定できず自動収納をスキップしました。キューの先頭に「バックパックの収納・取り出し」を追加し、「倉庫に収納」を完了してください。</span>",
+    "stashbackpack.warning.missing_retrieve_snapshot": "<span style=\"color: red; font-weight: bold;\">今回の収納の完全なアイテム記録がないため、取り出しをスキップしました。同じキュー内で先に「バックパックの収納・取り出し → 倉庫に収納」を正常に完了してください。</span>",
+    "stashbackpack.warning.unsupported_platform": "<span style=\"color: red; font-weight: bold;\">現在のプラットフォームでは「新しく獲得したアイテムを収納」は未対応のため、自動的にスキップしました。現在のタスクはそのまま続行します。</span>"
 }

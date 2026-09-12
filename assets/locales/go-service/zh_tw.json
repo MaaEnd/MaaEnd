@@ -218,5 +218,9 @@
     "ims.add_item_found": "獲得 %s ×%d",
     "ims.expression_ok": "表達式成立：%s",
     "ims.expression_short": "表達式不成立：%s",
-    "ims.item_current": "目前 %s：%d"
+    "ims.item_current": "目前 %s：%d",
+    "stashbackpack.warning.duplicate_full": "<span style=\"color: red; font-weight: bold;\">本次任務佇列已完成「存放到倉庫」，已跳過重複存放，保留原有物品記錄供後續取回。</span>",
+    "stashbackpack.warning.missing_full_snapshot": "<span style=\"color: red; font-weight: bold;\">尚未完成前置存放，無法區分新獲得的物品，已跳過自動存放。請在任務佇列開頭新增「背包存取」，選擇「存放到倉庫」並完成執行。</span>",
+    "stashbackpack.warning.missing_retrieve_snapshot": "<span style=\"color: red; font-weight: bold;\">沒有本次存放的完整物品記錄，已跳過取回。請先在同一任務佇列中成功執行「背包存取 → 存放到倉庫」。</span>",
+    "stashbackpack.warning.unsupported_platform": "<span style=\"color: red; font-weight: bold;\">目前平台暫不支援「存放新獲得物品」，已自動跳過，不影響目前任務繼續執行。</span>"
 }

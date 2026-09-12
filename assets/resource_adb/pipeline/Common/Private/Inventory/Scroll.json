@@ -1,0 +1,79 @@
+{
+    // 1280x720 ADB：沿网格列间隙滑动 180px，保留相邻页重叠；末尾横移用于消除纵向惯性。
+    "InventoryBagScrollUpward": {
+        "action": "Swipe",
+        "begin": [
+            975,
+            280
+        ],
+        "end": [
+            [
+                975,
+                460
+            ],
+            [
+                1025,
+                460
+            ]
+        ],
+        "end_hold": 200,
+        "duration": 200
+    },
+    "InventoryBagScrollDownward": {
+        "action": "Swipe",
+        "begin": [
+            975,
+            460
+        ],
+        "end": [
+            [
+                975,
+                280
+            ],
+            [
+                1025,
+                280
+            ]
+        ],
+        "end_hold": 200,
+        "duration": 200
+    },
+    "InventoryRepoScrollUpward": {
+        "action": "Swipe",
+        "begin": [
+            639,
+            280
+        ],
+        "end": [
+            [
+                639,
+                460
+            ],
+            [
+                689,
+                460
+            ]
+        ],
+        "end_hold": 200,
+        "duration": 200
+    },
+    "InventoryRepoScrollDownward": {
+        "action": "Swipe",
+        "begin": [
+            639,
+            460
+        ],
+        "end": [
+            [
+                639,
+                280
+            ],
+            [
+                689,
+                280
+            ]
+        ],
+        "end_hold": 200,
+        "duration": 200
+    }
+}

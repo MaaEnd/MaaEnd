@@ -1,0 +1,58 @@
+{
+    "__StashBackpackSnapshotPrepareRecognitionStep": {
+        "desc": "识别背包前将鼠标移至左上角并等待物品网格稳定",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "MouseMoveReset"
+            ]
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__StashBackpackSnapshotItemRecognition": {
+        "desc": "由 Go 在当前截图上直接识别整页；平台通过 ROI 覆盖适配布局",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "transfer",
+            "item_filters": ["Normal:*"],
+            "debug": true
+        },
+        "roi": [
+            739,
+            202,
+            398,
+            291
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__StashBackpackSnapshotScrollbarRecognition": {
+        "desc": "由 Go 读取滑块位置，ROI 与平台布局一致",
+        "recognition": "Custom",
+        "custom_recognition": "ScrollbarRecognition",
+        "roi": [
+            1119,
+            220,
+            5,
+            255
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

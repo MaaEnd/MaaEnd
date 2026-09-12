@@ -1,0 +1,39 @@
+{
+    "StashBackpackStashQuick": {
+        "roi": [
+            840,
+            530,
+            190,
+            53
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuick": {
+        "roi": [
+            840,
+            530,
+            190,
+            53
+        ]
+    },
+    "StashBackpackReplenishDragItem": {
+        "desc": "ADB 长按仓库源格，识别操作菜单后保持触点拖至背包同物品格，所有退出路径均尝试释放",
+        "action": "Custom",
+        "custom_action": "InventoryDragTouchAction",
+        "target": "StashBackpackFindCurrentItemInRepo",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
+        "custom_action_param": {
+            "end": "StashBackpackFindCurrentItemInBag",
+            "end_offset": [
+                26,
+                25,
+                -52,
+                -50
+            ]
+        }
+    }
+}

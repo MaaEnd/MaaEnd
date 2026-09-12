@@ -5,7 +5,7 @@
 ## Go 组件
 
 - `ItemTransferSameItemRecognition`：比较去程和返程配置的物品 ID，避免双向选择相同物品；
-- `AutoCtrlClickAction`：执行跨平台 Ctrl+Click 转移动作，位于 `common/autoalt`。
+- `InventoryTransferAllAction`：调用公共的全部转移能力，接口与平台支持见 [Inventory 文档](../common/inventory/README.md)。
 
 `ItemTransferFallbackAction` 和 `ItemTransferOCRAction` 的兼容实现仍保留在包内，但当前 ItemTransfer Pipeline 不再引用这些旧 NND/OCR 流程。
 
@@ -31,7 +31,7 @@ ItemTransfer 的 IconRecognition 节点接收 Task 覆盖注入的唯一 `item_i
 1. 使用 `grid_type=transfer` 和目标 `item_id` 调用 `IconRecognition`，取得当前页全部候选格；
 2. 对每个候选格使用其 `cell_box` 作为 ROI；
 3. 使用 `grid_type=single_roi` 和 `item_recheck_filters` 重新识别该格，不传 `item_ids`；
-4. 反查得到的 `item_id` 与目标一致时返回该格，由 Pipeline 执行 Ctrl+Click；
+4. 反查得到的 `item_id` 与目标一致时返回该格，由 Pipeline 调用 `InventoryTransferAllAction`；
 5. 反查不一致时忽略该格并继续验证下一个候选；
 6. 当前页没有候选通过时返回未命中，由现有 Pipeline 继续翻页或进入未找到分支。
 

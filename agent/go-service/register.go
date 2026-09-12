@@ -25,6 +25,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/failurecollector"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/focusocr"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/inventory"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/listcomplete"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
@@ -43,6 +44,7 @@ import (
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/stashbackpack"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
@@ -77,6 +79,7 @@ func registerAll() {
 	expendable.Register()
 	attachregex.Register()
 	autoalt.Register()
+	inventory.Register()
 	camerascan.Register()
 	charactercontroller.Register()
 	falseaction.Register()
@@ -107,6 +110,7 @@ func registerAll() {
 	intelarchive.Register()
 	itemtransfer.Register()
 	outposttrading.Register()
+	stashbackpack.Register()
 	creditshopping.Register()
 	webevent202605.Register()
 	ziplineimport.Register()

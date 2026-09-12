@@ -2,13 +2,6 @@
     "GiftOperatorMain": {
         "desc": "赠送干员礼物 - 调用入口节点",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "StashBackpackSubTask"
-            ]
-        },
         "post_delay": 0,
         "next": [
             "GiftOperatorEntry"
@@ -115,7 +108,23 @@
         "action": {
             "type": "Click",
             "param": {}
-        }
+        },
+        "next": [
+            "GiftOperatorStoreNewItemsWithStashBackpack"
+        ]
+    },
+    "GiftOperatorStoreNewItemsWithStashBackpack": {
+        "desc": "赠礼完成后存放新获得物品",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StoreNewItemsWithStashBackpackSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GiftOperatorClearHitCount": {
         "desc": "清空节点MaxHit",

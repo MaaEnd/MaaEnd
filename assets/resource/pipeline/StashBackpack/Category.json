@@ -1,0 +1,114 @@
+{
+    "StashBackpackManualCategoryOre": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Ore"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
+        ]
+    },
+    "StashBackpackManualCategoryPlant": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Plant"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
+        ]
+    },
+    "StashBackpackManualCategoryProduct": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Product"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
+        ]
+    },
+    "StashBackpackManualCategoryDoodad": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Doodad"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
+        ]
+    },
+    "StashBackpackManualCategoryNurturance": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Nurturance"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
+        ]
+    },
+    "StashBackpackManualCategoryUsable": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Usable"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
+        ]
+    },
+    "StashBackpackManualCategoryProducer": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Producer"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
+        ]
+    },
+    "StashBackpackManualCategoryPortableDevice": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "PortableDevice"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
+        ]
+    }
+}

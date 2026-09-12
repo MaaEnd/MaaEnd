@@ -44,6 +44,17 @@
                 "ScreenshotStableRecognition",
                 "ScrollbarRecognition",
                 "ScrollbarCompleteRecognition",
+                "StashBackpackBagPageRecognition",
+                "StashBackpackBagPageFailedRecognition",
+                "StashBackpackBagTargetsExhaustedRecognition",
+                "StashBackpackDepotRecognition",
+                "StashBackpackFullCompleteRecognition",
+                "StashBackpackNextItemRecognition",
+                "StashBackpackPlatformSupportedRecognition",
+                "StashBackpackQuickStashEnabledRecognition",
+                "StashBackpackRetrievedItemRecognition",
+                "StashBackpackSnapshotChangedRecognition",
+                "StashBackpackTargetCategoryRecognition",
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
                 "TrialOfSwordmancy.RecognizeDeck",
@@ -534,6 +545,48 @@
                 "required": [ "custom_recognition_param" ],
                 "properties": {
                     "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam" }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "StashBackpackDepotRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/stash_backpack.schema.json#/$defs/DepotRecognitionParam" }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "StashBackpackNextItemRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/stash_backpack.schema.json#/$defs/NextItemParam" }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "StashBackpackTargetCategoryRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/stash_backpack.schema.json#/$defs/TargetCategoryParam" }
                 }
             }
         }
