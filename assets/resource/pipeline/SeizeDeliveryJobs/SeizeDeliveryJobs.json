@@ -24,12 +24,48 @@
         }
     },
     "SeizeDeliveryJobsReadyToSeize": {
-        "desc": "在运送委托列表，先检查不能抢单的几种情况，随后准备抢单",
+        "desc": "在运送委托列表，先检查不能抢单的几种情况，随后从帝江号准备抢单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsExistDueTask",
             "SeizeDeliveryJobsFailedChanceExhausted",
+            "SeizeDeliveryJobsPrepareAtDijiang",
+            "SeizeDeliveryJobsJobListIsWulingFilter",
+            "SeizeDeliveryJobsJobListSelectWulingFilterPre"
+        ]
+    },
+    "SeizeDeliveryJobsPrepareAtDijiang": {
+        "desc": "确认可以抢单后，传送到帝江号-舰桥，避免角色标识遮挡送货点",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldDijiang0"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterWulingJobList": "SeizeDeliveryJobsReadyAfterDijiangTeleport"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterWulingJobList"
+        ],
+        "focus": {
+            "Node.Action.Starting": "抢单前传送到帝江号舰桥"
+        }
+    },
+    "SeizeDeliveryJobsReadyAfterDijiangTeleport": {
+        "desc": "从帝江号传送后重新进入运送委托列表，准备抢单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "SeizeDeliveryJobsJobListIsWulingFilter",
             "SeizeDeliveryJobsJobListSelectWulingFilterPre"
         ]

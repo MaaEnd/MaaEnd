@@ -128,6 +128,9 @@
                         },
                         "SeizeDeliveryJobsEndpointFilter": {
                             "enabled": true
+                        },
+                        "SeizeDeliveryJobsPrepareAtDijiang": {
+                            "enabled": true
                         }
                     }
                 }
@@ -203,6 +206,9 @@
                         },
                         "SeizeDeliveryJobsEndpointFilter": {
                             "enabled": true
+                        },
+                        "SeizeDeliveryJobsPrepareAtDijiang": {
+                            "enabled": true
                         }
                     }
                 }
@@ -268,6 +274,9 @@
                             "enabled": true
                         },
                         "SeizeDeliveryJobsEndpointFilter": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsPrepareAtDijiang": {
                             "enabled": true
                         }
                     }
