@@ -1,0 +1,17 @@
+{
+    "configs": {
+        "name": "购买稳定物资：识别背包已满提示",
+        "resource": "官服",
+        "controller": [
+            "Win32"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设_物资调度_背包已满.png",
+            "hits": [
+                "AutoStockStapleBagFullDetect"
+            ]
+        }
+    ]
+}
