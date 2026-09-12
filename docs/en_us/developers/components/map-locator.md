@@ -39,7 +39,7 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 | `mapName` | (On success) The localized zone name, e.g., `map01_lv001` |
 | `x` / `y` | (On success) Global pixel coordinates |
 | `rot` | (On success) Orientation yaw angle, 0°–360°, north as zero |
-| `camRot` | (On success) Camera orientation, 0°–360°, north as zero. Output by a dedicated camera-orientation model, unrelated to `rot` (the character orientation) |
+| `camRot` | (On success) Camera orientation, 0°–360°, north as zero. Output by one of two camera-orientation models (see [How Localization Works](#how-localization-works)), unrelated to `rot` (the character orientation) |
 | `camRotConf` | (On success) Confidence of the camera orientation |
 | `locConf` | Confidence score of this hit, for reference when tuning parameters |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
@@ -115,7 +115,7 @@ There are no optional parameters. The assertion always forces a global search an
 | `zoneId` | The target zone name required by this assertion |
 | `x` / `y` | (On success) Global pixel coordinates returned by the locator |
 | `rot` | (On success) Orientation yaw angle |
-| `camRot` | (On success) Camera orientation |
+| `camRot` | (On success) Camera orientation, output by one of two camera-orientation models (see [How Localization Works](#how-localization-works)) |
 | `camRotConf` | (On success) Confidence of the camera orientation |
 | `locConf` | Confidence score of this hit |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
@@ -156,6 +156,7 @@ This section is for readers who want to understand the internals; it is not requ
 2. **YOLO pre-filtering**: judges by confidence whether a valid minimap area exists in the current frame, filtering out abnormal frames such as full-screen menus and effect occlusion.
 3. **Gradient-domain ZNCC matching**: gradient features are extracted for semi-transparent UI stacking scenarios, paired with ZNCC (Zero-mean Normalized Cross-Correlation) template matching. Matching relies mainly on edge and contour features, staying stable when skill effects flash or the UI changes.
 4. **MotionTracker motion prediction**: infers the search range for the current frame from historical movement speed instead of searching globally every frame, which improves speed and avoids matching distant areas that look similar but are not actually reachable.
+5. **Two-model camera-orientation dispatch**: `camRot` / `camRotConf` come from one of two models. The observation model `assets/resource/model/map/cameraorientation.onnx` sees only the polar-unwrapped observation strip; the reference-pair model `assets/resource/model/map/cao_ref.onnx` additionally sees a same-view reference cropped from the zone map at the localized position, together with the reference's raw alpha — 7 channels in total. Both share the same polar geometry and decoding. When localization succeeds in a zone other than `None`, the model is chosen by the reference gap fraction: the fraction of missing reference-alpha pixels (`< 255`) on the 42×360 unwrapped ring. A fraction **strictly greater than 30%** selects the observation model; otherwise the reference-pair model is used. When the reference map asset is missing or has the wrong size, or the reference model failed to load, the observation model is used instead. If the selected model is unavailable or inference fails, that frame carries no `camRot`; there is **no cross-model fallback**.
 
 > [!IMPORTANT]
 >
