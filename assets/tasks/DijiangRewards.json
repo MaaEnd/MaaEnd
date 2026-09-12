@@ -9,6 +9,7 @@
                 "AutoStartExchange",
                 "StageTaskSetting",
                 "ClueSetting",
+                "QuickGiveDuplicateClues",
                 "SelectToGrow"
             ],
             "controller": [
@@ -323,6 +324,30 @@
                     "name": "No",
                     "pipeline_override": {
                         "ReceptionRoomSendCluesDirect": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "QuickGiveDuplicateClues": {
+            "type": "switch",
+            "label": "$option.QuickGiveDuplicateClues.label",
+            "description": "$option.QuickGiveDuplicateClues.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesQuickGiveDuplicates": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesQuickGiveDuplicates": {
                             "enabled": false
                         }
                     }

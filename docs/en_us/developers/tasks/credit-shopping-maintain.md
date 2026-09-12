@@ -124,6 +124,7 @@ If a tier has "Auto Replenish Credit" enabled, and the [credit replenishment rec
 1. Return to the base reception room, and according to the configuration, gift clues or initiate clue exchange.
 2. The number of gifts is controlled by `CreditShoppingClueSend` (`0` = no gifts).
 3. The inventory lower limit for gift-able clues is controlled by `CreditShoppingClueStockLimit` (default is to keep 2, i.e., only gift if inventory ≥ 3).
+4. "Give Away All Duplicates" is controlled by `CreditShoppingQuickGiveDuplicateClues` (off by default; when on, prefer the one-click action after entering the Send Clues screen).
 
 Each tier has its own independent switch; insufficient refresh cost **will not** trigger credit replenishment (the old `RefreshGetCredits` has been removed).
 

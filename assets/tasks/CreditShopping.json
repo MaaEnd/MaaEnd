@@ -8,6 +8,7 @@
             "option": [
                 "CreditShoppingReserve",
                 "CreditShoppingClueSend",
+                "CreditShoppingQuickGiveDuplicateClues",
                 "CreditShoppingClueStockLimit",
                 "CreditShoppingPriority1",
                 "CreditShoppingPriority2",
@@ -68,6 +69,30 @@
                     "max_hit": "{MaxClueSendWhenInsufficient}"
                 }
             }
+        },
+        "CreditShoppingQuickGiveDuplicateClues": {
+            "type": "switch",
+            "label": "$option.CreditShoppingQuickGiveDuplicateClues.label",
+            "description": "$option.CreditShoppingQuickGiveDuplicateClues.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesQuickGiveDuplicates": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesQuickGiveDuplicates": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
         },
         "CreditShoppingClueStockLimit": {
             "type": "select",

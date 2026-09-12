@@ -1643,6 +1643,7 @@
     },
     "ReceptionRoomSendCluesQuickGiveDuplicates": {
         "desc": "[会客室·赠予] 识别并点击「快速赠予重复线索」",
+        "enabled": false,
         "max_hit": 1,
         "recognition": {
             "type": "And",

@@ -75,9 +75,11 @@
 实现位于 `ReceptionRoom.json`。线索溢出时进入赠予流程：识别线索种类与库存数量 → 选出达到阈值的线索 → 结合好友缺失颜色或发送按钮完成赠予。
 
 | 配置 | 行为 |
-| ------------------------ | ------------------------------------------------------ |
+| -------------------------------- | ------------------------------------------------------ |
 | `ClueSetting=No`（默认） | 单次最多赠 3 次；每种线索库存 ≥ 3 才送（保留 2 个） |
-| `ClueSetting=Yes` | 展开 `ClueSend`、`ClueStockLimit` 自定义次数与库存阈值 |
+| `ClueSetting=Yes` | 展开 `SendCluesDirect`、`ClueSend`、`ClueStockLimit` 自定义入口/次数/库存阈值 |
+| `QuickGiveDuplicateClues=No`（默认） | 不点击游戏内「快速赠予重复线索」，按库存阈值逐条赠送 |
+| `QuickGiveDuplicateClues=Yes` | 进入赠予界面后优先一键赠送重复线索 |
 
 次数限制改赠予循环的 `max_hit`；库存阈值改数量 OCR 正则。
 
@@ -126,6 +128,7 @@ DijiangRewards
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
 ├── ClueSetting                # 展开线索赠送次数 / 库存阈值
+├── QuickGiveDuplicateClues    # 快速赠予重复线索，默认关
 └── SelectToGrow               # 培养舱主模式
     ├── DoNothing
     ├── GrowAgain
