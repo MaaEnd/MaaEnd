@@ -78,12 +78,10 @@ type quantityFilterParam struct {
 //   - DecreaseButton: decrease button template path or coordinates
 //   - CenterPointOffset: click offset from slider handle center, default [-10, 0]
 //   - ClampTargetToSliderMax: clamp target to sliderMaxQuantity instead of failing (default false)
-//   - FineTuneQuantity: bool or int. true (default) always fine-tunes via Increase/Decrease after
-//     BetterSlidingCheckQuantity; false never fine-tunes; int N (>= 1) fine-tunes only when
-//     abs(current - target) <= N. See "不微调语义" in docs/**/better-sliding.md.
-//   - FineTuneFallback: none (default) / more / less. Only takes effect when this run decides not
-//     to fine-tune: none finishes via the quantity re-check; more/less nudges the precise click
-//     target by 1px steps along a single axis and re-checks. See "不微调语义" in the docs.
+//   - FineTuneQuantity: bool or int >= 1; true (default) always fine-tunes via
+//     Increase/Decrease, false never, int N only when abs(current - target) <= N.
+//   - FineTuneFallback: none (default) / more / less; only used when this run decides
+//     not to fine-tune, more/less nudges the precise click by 1px steps on one axis.
 //   - ResetBeforeFindStart: swipe toward the minimum before matching the slider start position,
 //     so the recorded start position is the minimum value (default false)
 //   - SwipeButton: custom slider template path overriding BetterSlidingSwipeButton
@@ -117,8 +115,9 @@ type BetterSlidingAction struct {
 	SwipeOnlyMode                 bool
 	OriginalTargetQuantity        int
 
-	startBox                  []int
-	endBox                    []int
+	startBox []int
+	endBox   []int
+	// preciseClickBase 精确点击基准坐标；preciseClickNudges 为已偏移次数，仅作日志索引。
 	preciseClickBase          [2]int
 	preciseClickNudges        int
 	sliderMaxQuantity         int
@@ -145,8 +144,7 @@ func (b buttonTarget) logValue() any {
 
 const maxClickRepeat = 30
 
-// fineTuneQuantity 是 FineTuneQuantity 归一化后的载体。
-// thresholdMode 为 true 时表示 int 阈值语义（threshold >= 1），否则为布尔语义（enabled）。
+// fineTuneQuantity 是 FineTuneQuantity 归一化后的载体（语义见 normalizeFineTuneQuantity）。
 type fineTuneQuantity struct {
 	thresholdMode bool
 	enabled       bool
@@ -158,11 +156,11 @@ var defaultFineTuneQuantity = fineTuneQuantity{enabled: true}
 
 // FineTuneFallback 的规范取值（大小写不敏感地接受，归一化后统一为小写）。
 const (
-	// FineTuneFallbackNone 表示不微调时不偏移，复检后直接收尾。
+	// FineTuneFallbackNone 不偏移，复检后收尾。
 	FineTuneFallbackNone = "none"
-	// FineTuneFallbackMore 表示不微调时朝 End 方向做单轴 1px 累加偏移后复查。
+	// FineTuneFallbackMore 朝 End 方向做单轴 1px 累加偏移后复查。
 	FineTuneFallbackMore = "more"
-	// FineTuneFallbackLess 表示不微调时朝 Start 方向做单轴 1px 累加偏移后复查。
+	// FineTuneFallbackLess 朝 Start 方向做单轴 1px 累加偏移后复查。
 	FineTuneFallbackLess = "less"
 )
 

@@ -426,6 +426,7 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 	clickX := startX + (endX-startX)*numerator/denominator
 	clickY := startY + (endY-startY)*numerator/denominator
 
+	// 重算基准坐标即重置偏移索引。
 	a.preciseClickBase = [2]int{clickX, clickY}
 	a.preciseClickNudges = 0
 
@@ -658,15 +659,11 @@ func (a *BetterSlidingAction) handleNoFineTune(
 
 // nudgePreciseClick 用「精确点击基准坐标 + 单轴 1px 累加偏移」重写
 // BetterSlidingPreciseClick 的点击目标，并把它经 BetterSlidingReset2 接回复查一次：
-// 先把滑块向另一侧滑动复位（避免上一次精确点击落在滑块本体上影响本次点击），
+// 先把滑块复位到精确点击点的另一侧（精确点击本身落在滑块手柄上，会影响下一次点击），
 // 再由 BetterSlidingReset2.next 静态路由回 BetterSlidingPreciseClick。
 // stepSign 为 +1 时朝 End 方向偏移（more），-1 时朝 Start 方向偏移（less）；
 // 复位方向按精确点击基准坐标在 Start → End 轴上的位置决定（靠近 Start 向 End 滑，
-// 靠近 End 向 Start 滑），终点坐标由 Direction 推导后整字段覆盖 pipeline 中的占位值。
-//
-// 循环上界由动作节点的 max_hit 在框架层强制，Go 侧不另建计数上限，
-// preciseClickNudges 仅作为日志索引（其实际取值上界即 BetterSlidingReset2 的 max_hit）；
-// 详见 .dev_doc/better-sliding-nudge-loop-bound.md。
+// 靠近 End 向 Start 滑），终点矩形由 buildReset2SwipeEnd 生成后整字段覆盖。
 func (a *BetterSlidingAction) nudgePreciseClick(
 	ctx *maa.Context,
 	arg *maa.CustomActionArg,
@@ -713,8 +710,7 @@ func (a *BetterSlidingAction) nudgePreciseClick(
 		return false
 	}
 
-	// 先回 Reset2 复位再点击；不挂 [JumpBack]BetterSlidingMoveMouse：
-	// 防遮挡仅服务 IncreaseButton / DecreaseButton，PreciseClick 不需要。
+	// 先回 Reset2 复位再点击；不挂 [JumpBack]BetterSlidingMoveMouse：防遮挡只服务 Increase/DecreaseButton。
 	if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingReset2}}); err != nil {
 		a.logger.Error().
 			Err(err).
@@ -739,8 +735,7 @@ func (a *BetterSlidingAction) nudgePreciseClick(
 	return true
 }
 
-// shouldFineTuneQuantity 判断本次读数是否进入 Increase/Decrease 微调：
-// 阈值语义下要求 abs(current-target) <= threshold，布尔语义下直接取 enabled。
+// shouldFineTuneQuantity 判断本次读数是否进入 Increase/Decrease 微调。
 func shouldFineTuneQuantity(q fineTuneQuantity, current int, target int) bool {
 	if q.thresholdMode {
 		return absInt(current-target) <= q.threshold
@@ -750,8 +745,8 @@ func shouldFineTuneQuantity(q fineTuneQuantity, current int, target int) bool {
 }
 
 // resolveNudgeAxis 按 Start → End 的方向确定偏移轴与正方向：
-// abs(dx) > abs(dy) 取 x 轴，否则取 y 轴（平局取 y）；dx == dy == 0 取 y 轴并告警。
-// 返回值 endSign 为 Start → End 的正方向符号，为 0 时取 +1 并告警。
+// abs(dx) > abs(dy) 取 x 轴，否则取 y 轴（平局取 y）。
+// Start 与 End 中心重合（dx == dy == 0）时取 y 轴与 +1 兜底并告警。
 func resolveNudgeAxis(startBox []int, endBox []int, offset [2]int) (nudgeAxis, int) {
 	startX, startY := centerPoint(startBox, offset)
 	endX, endY := centerPoint(endBox, offset)
@@ -764,31 +759,20 @@ func resolveNudgeAxis(startBox []int, endBox []int, offset [2]int) (nudgeAxis, i
 		axis = nudgeAxisX
 	}
 
-	var endSign int
-	if axis == nudgeAxisX {
-		endSign = signInt(dx)
-	} else {
-		endSign = signInt(dy)
-	}
-
 	if dx == 0 && dy == 0 {
 		log.Warn().
 			Str("component", betterSlidingActionName).
 			Ints("start_box", startBox).
 			Ints("end_box", endBox).
-			Msg("start and end centers coincide, nudge falls back to y axis")
+			Msg("start and end centers coincide, nudge falls back to y axis and positive direction")
+		return axis, 1
 	}
 
-	if endSign == 0 {
-		log.Warn().
-			Str("component", betterSlidingActionName).
-			Str("axis", axis.String()).
-			Int("delta", axisDelta(axis, dx, dy)).
-			Msg("nudge axis delta is zero, nudge falls back to positive direction")
-		endSign = 1
+	if axis == nudgeAxisX {
+		return axis, signInt(dx)
 	}
 
-	return axis, endSign
+	return axis, signInt(dy)
 }
 
 // resolveReset2Side 依据点击基准坐标在 Start → End 轴上的相对位置选择复位方向：
@@ -796,7 +780,7 @@ func resolveNudgeAxis(startBox []int, endBox []int, offset [2]int) (nudgeAxis, i
 // 否则返回 reset2SideTowardStart（向最小侧滑动）。
 //
 // axis 由调用方从 resolveNudgeAxis 取得，避免重复解析与重复告警；
-// 轴跨度为 0（Start 与 End 中心重合）或投影恰好落在中线时取 reset2SideTowardStart。
+// 轴跨度为 0（Start 与 End 中心重合）或投影落在边界（0.5）时取 reset2SideTowardStart。
 func resolveReset2Side(axis nudgeAxis, startBox []int, endBox []int, offset [2]int, base [2]int) reset2Side {
 	startX, startY := centerPoint(startBox, offset)
 	endX, endY := centerPoint(endBox, offset)
@@ -834,8 +818,6 @@ func resolveReset2Side(axis nudgeAxis, startBox []int, endBox []int, offset [2]i
 	return reset2SideTowardStart
 }
 
-// nudgedClickTarget 返回第 k 次偏移后的精确点击坐标：
-// 在选定轴分量上累加 endSign*stepSign*k，另一轴分量保持基准值不变。
 func nudgedClickTarget(base [2]int, axis nudgeAxis, endSign int, stepSign int, k int) [2]int {
 	target := base
 	delta := endSign * stepSign * k
@@ -847,14 +829,6 @@ func nudgedClickTarget(base [2]int, axis nudgeAxis, endSign int, stepSign int, k
 	}
 
 	return target
-}
-
-func axisDelta(axis nudgeAxis, dx int, dy int) int {
-	if axis == nudgeAxisX {
-		return dx
-	}
-
-	return dy
 }
 
 func absInt(value int) int {

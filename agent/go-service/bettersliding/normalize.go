@@ -231,8 +231,7 @@ func resolveTargetQuantity(
 //	bool                   -> 布尔语义；
 //	整数值                 -> 阈值语义，阈值必须 >= 1。
 //
-// null、非整数、其他类型与小于 1 的值均返回错误（显式 null 视为已提供，
-// 不做静默默认）。超大阈值允许，不做上界钳制。
+// null、非整数、其他类型与小于 1 的值均返回错误（显式 null 视为已提供，不做静默默认）。
 func normalizeFineTuneQuantity(raw any, present bool) (fineTuneQuantity, error) {
 	if !present {
 		return defaultFineTuneQuantity, nil
@@ -264,8 +263,7 @@ func newThresholdFineTuneQuantity(v float64) (fineTuneQuantity, error) {
 		return fineTuneQuantity{}, fmt.Errorf("FineTuneQuantity threshold must be >= 1, got %v", v)
 	}
 
-	// 超大阈值按设计不钳制，语义等价于「总是微调」；这里只把超出 int 范围的
-	// 浮点值收敛到 math.MaxInt，避免 float64 -> int 越界转换的未定义行为。
+	// 超大阈值不钳制；这里仅防 float64 -> int 溢出，收敛到 math.MaxInt。
 	if v > float64(math.MaxInt) {
 		v = float64(math.MaxInt)
 	}
@@ -311,8 +309,6 @@ func isSwipeOnlyMode(params betterSlidingParam) bool {
 		!params.presence.ReverseTarget &&
 		!params.presence.CenterPointOffset &&
 		!params.presence.ClampTargetToSliderMax &&
-		// FineTuneQuantity / FineTuneFallback 只属于指定数量模式，显式传入即视为
-		// 非 swipe-only，避免只传这两个参数时被误判为仅滑动模式。
 		!params.presence.FineTuneQuantity &&
 		!params.presence.FineTuneFallback
 }

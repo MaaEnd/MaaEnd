@@ -66,11 +66,9 @@ func hasNonNullRawKey(rawKeys map[string]json.RawMessage, key string) bool {
 	return ok && len(raw) > 0 && string(raw) != "null"
 }
 
-// hasRawKey 仅判断键是否存在，显式 null 也算「已提供」。
-// 与 hasNonNullRawKey 的区别在于是否把 null 视为已提供：
-// FineTuneQuantity / FineTuneFallback 需要把显式 null 当作提供值参与校验
-// （FineTuneQuantity 的 null 会报错，FineTuneFallback 的 null 归一为 none），
-// 同时也用于 isSwipeOnlyMode 的判定，因此这里单独保留一个只判断键存在性的函数。
+// hasRawKey 只判断键是否存在，显式 null 也算「已提供」（与 hasNonNullRawKey 的唯一区别）：
+// FineTuneQuantity 的 null 要报错、FineTuneFallback 的 null 归一为 none，
+// isSwipeOnlyMode 也依赖该语义。
 func hasRawKey(rawKeys map[string]json.RawMessage, key string) bool {
 	_, ok := rawKeys[key]
 	return ok
@@ -373,9 +371,8 @@ func (a *BetterSlidingAction) initLogger(taskName string) {
 		Logger()
 }
 
-// mergeAttachParams reads the attach block from the caller pipeline node and merges
-// TargetQuantity, TargetQuantityType, ReverseTarget, FineTuneQuantity, FineTuneFallback,
-// and ResetBeforeFindStart into the customActionParam JSON.
+// mergeAttachParams reads the attach block from the caller pipeline node and merges the
+// recognized fields into the customActionParam JSON.
 // On any error, the original customActionParam string is returned unchanged.
 func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionParam string) string {
 	if ctx == nil || callerNodeName == "" {
