@@ -1,5 +1,7 @@
 #include "GridDetector.h"
 
+#include <MaaUtils/Logger.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -2305,8 +2307,12 @@ GridLayout BuildTransferLayout(
         cv::minMaxLoc(cell_score, nullptr, &maximum_structure);
         // 左侧 legacy 候选也必须包含真实格框；零响应不能仅凭规则轴生成假网格。
         if (maximum_structure <= kEpsilon) {
+            LogDebug << "Transfer-left legacy candidate rejected: no structure response." << VAR(grid_index);
             return {};
         }
+        // 无稀有度证据的接受是幻影网格的唯一入口，必须留痕以便实机排查。
+        LogDebug << "Transfer-left legacy candidate accepted without rarity evidence." << VAR(grid_index)
+                 << VAR(local_x.size()) << VAR(local_y.size());
     }
 
     if (complete_transfer_panel) {
@@ -2328,6 +2334,8 @@ GridLayout BuildTransferLayout(
                 signed_y,
                 reliable_rarity_fit || trusted_selected);
             if (!final_phase) {
+                LogDebug << "Transfer-right phase search rejected all candidates." << VAR(grid_index)
+                         << VAR(local_x.size()) << VAR(local_y.size());
                 return {};
             }
             local_x = final_phase->x_starts;
