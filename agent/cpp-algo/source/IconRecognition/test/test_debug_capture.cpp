@@ -101,8 +101,10 @@ void TestDebugCaptureKeepsSynchronizedGroups()
         .column = 1,
     });
     // 保存机制使用真实截图验证，避免重新引入合成图片输入。
-    const cv::Mat image = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
-    Require(!image.empty(), "real debug screenshot must be readable");
+    const cv::Mat screenshot = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
+    Require(!screenshot.empty(), "real debug screenshot must be readable");
+    const cv::Rect capture_region = cv::Rect(0, 0, 128, 128) & cv::Rect(cv::Point(0, 0), screenshot.size());
+    const cv::Mat image = screenshot(capture_region).clone();
     for (std::uint64_t reco_id = 1; reco_id <= 21; ++reco_id) {
         Require(iconrecognition::detail::SaveDebugCapture(root, image, result, reco_id), "debug capture must report successful writes");
     }

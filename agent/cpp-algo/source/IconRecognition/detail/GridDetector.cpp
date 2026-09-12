@@ -36,6 +36,29 @@ struct TransferTextureContext
 
 cv::Rect ScaleRectToSource(const cv::Rect& rect, double scale, const cv::Size& bounds);
 
+std::optional<double> ScoreTransferForeground(
+    const cv::Mat& analysis_image,
+    const cv::Rect& analysis_cell,
+    const TransferTextureContext* texture_context)
+{
+    if (texture_context == nullptr || texture_context->source_grid_scale == kWin32ControllerGridScale) {
+        return ForegroundTextureScore(analysis_image, analysis_cell, GridType::Transfer);
+    }
+    const auto source_score = ForegroundTextureScore(
+        texture_context->source_image,
+        ScaleRectToSource(analysis_cell, texture_context->source_grid_scale, texture_context->source_image.size()),
+        GridType::Transfer,
+        texture_context->texture_roi);
+    const auto analysis_score = ForegroundTextureScore(analysis_image, analysis_cell, GridType::Transfer);
+    if (!source_score) {
+        return analysis_score;
+    }
+    if (!analysis_score) {
+        return source_score;
+    }
+    return std::max(*source_score, *analysis_score);
+}
+
 // 响应、分母和归一化的近零阈值，仅用于数值稳定性。
 constexpr double kEpsilon = 1e-8;
 // 信用交易界面允许的最大列数；Win32 为七列，ADB 为六列，实际列数由卡片证据决定。
@@ -1705,10 +1728,11 @@ double NormalizedStructureSupport(const cv::Mat& score, const std::vector<int>& 
 
 bool HasGrayRarityTextureSupport(
     const cv::Mat& image,
-    const cv::Rect& roi,
+    const cv::Rect& analysis_roi,
     const RarityGridFit& fit,
     const TransferGridProfile& profile,
-    const std::vector<int>& observed_y_starts)
+    const std::vector<int>& observed_y_starts,
+    const TransferTextureContext* texture_context)
 {
     if (fit.x_starts.empty() || observed_y_starts.empty()) {
         return false;
@@ -1716,8 +1740,8 @@ bool HasGrayRarityTextureSupport(
     int textured_cells = 0;
     for (int y : observed_y_starts) {
         for (int x : fit.x_starts) {
-            const cv::Rect cell(roi.x + x, roi.y + y, profile.cell_size, profile.cell_size);
-            const auto score = ForegroundTextureScore(image, cell, GridType::Transfer);
+            const cv::Rect cell(analysis_roi.x + x, analysis_roi.y + y, profile.cell_size, profile.cell_size);
+            const auto score = ScoreTransferForeground(image, cell, texture_context);
             if (score && *score >= kDefaultLowTextureThreshold) {
                 ++textured_cells;
             }
@@ -2088,7 +2112,7 @@ GridLayout BuildTransferLayout(
                                      && rarity_fit->supporting_strong_cells == 0
                                      && rarity_fit->supporting_chromatic_cells == 0
                                      && rarity_fit->supporting_cells >= kMinimumGrayRarityTextureCells
-                                     && HasGrayRarityTextureSupport(image(roi), hint.region, *rarity_fit, profile, hint.y_starts);
+                                     && HasGrayRarityTextureSupport(image, roi, *rarity_fit, profile, hint.y_starts, texture_context);
         reliable_rarity_fit = rarity_fit.has_value()
                               && (!transfer || rarity_fit->supporting_strong_cells >= kMinimumReliableRarityCells
                                   || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells || gray_rarity_fit);
@@ -2159,7 +2183,7 @@ GridLayout BuildTransferLayout(
                             break;
                         }
                         bottom_clipped = bottom_clipped || cell.y + cell.height > roi.y + roi.height;
-                        const auto texture = ForegroundTextureScore(image, cell, GridType::Transfer);
+                        const auto texture = ScoreTransferForeground(image, cell, texture_context);
                         textured_cells += texture && *texture >= kDefaultLowTextureThreshold;
                         next_structure_support += CellSupport(cell_score, x, next_y);
                     }
@@ -2314,7 +2338,7 @@ GridLayout BuildTransferLayout(
         const bool has_foreground_cell = std::ranges::any_of(local_y, [&](int y) {
             return std::ranges::any_of(local_x, [&](int x) {
                 const cv::Rect cell(roi.x + x, roi.y + y, profile.cell_size, profile.cell_size);
-                const auto texture = ForegroundTextureScore(image, cell, GridType::Transfer);
+                const auto texture = ScoreTransferForeground(image, cell, texture_context);
                 return texture && *texture >= kDefaultLowTextureThreshold;
             });
         });
@@ -2390,7 +2414,7 @@ GridLayout BuildTransferLayout(
             }
             if (transfer && left_side && (reliable_rarity_fit || trusted_selected)) {
                 // 只有已有 rarity/trusted 物品证据时才过滤低纹理格；无物品证据时保留已观测结构，避免缩放几何被误删。
-                const auto texture = ForegroundTextureScore(image, cell, GridType::Transfer);
+                const auto texture = ScoreTransferForeground(image, cell, texture_context);
                 if (!texture || *texture < kDefaultLowTextureThreshold) {
                     continue;
                 }

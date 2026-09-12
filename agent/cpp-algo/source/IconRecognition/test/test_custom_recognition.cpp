@@ -259,6 +259,65 @@ void TestRemovedGridScaleParameterIsRejected()
     }
 }
 
+void TestSuccessfulTransferRecognitionUsesPrimaryCellBox()
+{
+    ImageBuffer image;
+    const cv::Mat pixels = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
+    Require(!pixels.empty(), "real contract screenshot must be readable");
+    image.set(pixels);
+    const MaaRect roi { 154, 202, 983, 291 };
+    MaaRect out_box { 0, 0, 0, 0 };
+    StringBuffer detail;
+    const MaaBool matched = iconrecognition::IconRecognitionRun(
+        nullptr,
+        0,
+        "IconRecognitionTest",
+        "IconRecognition",
+        R"({"grid_type":"transfer"})",
+        image.get(),
+        &roi,
+        nullptr,
+        &out_box,
+        detail.get());
+    Require(matched, "representative transfer screenshot must match");
+    const auto object = detail.detail();
+    Require(object.contains("matched") && object.at("matched").as_boolean(), "successful detail must report matched=true");
+    Require(object.contains("matches") && !object.at("matches").as_array().empty(), "successful detail must contain matches");
+    const auto& cell_box = object.at("matches").as_array().at(0).as_object().at("cell_box").as_array();
+    Require(cell_box.size() == 4, "successful match cell_box must contain four components");
+    Require(out_box.x == cell_box.at(0).as_integer(), "out_box.x must equal the primary cell box");
+    Require(out_box.y == cell_box.at(1).as_integer(), "out_box.y must equal the primary cell box");
+    Require(out_box.width == cell_box.at(2).as_integer(), "out_box.width must equal the primary cell box");
+    Require(out_box.height == cell_box.at(3).as_integer(), "out_box.height must equal the primary cell box");
+}
+
+void TestSuccessfulSingleRoiRecognitionHonorsRecheckFilters()
+{
+    ImageBuffer image;
+    const cv::Mat pixels = cv::imread(ICON_RECOGNITION_TEST_SINGLE_ROI_IMAGE);
+    Require(!pixels.empty(), "real single ROI screenshot must be readable");
+    image.set(pixels);
+    const MaaRect roi { 1177, 450, 54, 54 };
+    MaaRect out_box { 0, 0, 0, 0 };
+    StringBuffer detail;
+    const MaaBool matched = iconrecognition::IconRecognitionRun(
+        nullptr,
+        0,
+        "IconRecognitionTest",
+        "IconRecognition",
+        R"({"grid_type":"single_roi","item_ids":["item_proc_battery_3"],"item_recheck_filters":["Normal:Product"]})",
+        image.get(),
+        &roi,
+        nullptr,
+        &out_box,
+        detail.get());
+    Require(matched, "single ROI screenshot must pass the candidate recheck");
+    const auto object = detail.detail();
+    Require(object.contains("matches") && object.at("matches").as_array().size() == 1, "single ROI must contain one match");
+    const auto& cell_box = object.at("matches").as_array().at(0).as_object().at("cell_box").as_array();
+    Require(out_box.x == cell_box.at(0).as_integer() && out_box.y == cell_box.at(1).as_integer(), "single ROI out_box must use the matched cell");
+}
+
 void TestGridDiagnosticsSerializeSelectionEvidence()
 {
     iconrecognition::detail::RecognitionDiagnostics diagnostics;
@@ -316,6 +375,8 @@ int main()
         TestMalformedCandidateListsAreRejected();
         TestMalformedScalarParametersAreRejected();
         TestRemovedGridScaleParameterIsRejected();
+        TestSuccessfulTransferRecognitionUsesPrimaryCellBox();
+        TestSuccessfulSingleRoiRecognitionHonorsRecheckFilters();
         TestGridDiagnosticsSerializeSelectionEvidence();
         TestRecognizerPreloadsEveryRequestedTemplateSize();
         std::cout << "IconRecognition custom recognition tests passed\n";
