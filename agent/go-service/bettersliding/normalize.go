@@ -262,10 +262,14 @@ func newThresholdFineTuneQuantity(v float64) (fineTuneQuantity, error) {
 	if v < 1 {
 		return fineTuneQuantity{}, fmt.Errorf("FineTuneQuantity threshold must be >= 1, got %v", v)
 	}
-
-	// 超大阈值不钳制；这里仅防 float64 -> int 溢出，收敛到 math.MaxInt。
-	if v > float64(math.MaxInt) {
-		v = float64(math.MaxInt)
+	// 阈值只在 [1, maxFineTuneThreshold] 内被接受：该区间可被 float64 精确表示，
+	// 转换到 int 不会溢出。超出上界直接报错，不做钳制（见 maxFineTuneThreshold 注释）。
+	if v > maxFineTuneThreshold {
+		return fineTuneQuantity{}, fmt.Errorf(
+			"FineTuneQuantity threshold must be <= %d, got %v",
+			maxFineTuneThreshold,
+			v,
+		)
 	}
 
 	return fineTuneQuantity{thresholdMode: true, threshold: int(v)}, nil
