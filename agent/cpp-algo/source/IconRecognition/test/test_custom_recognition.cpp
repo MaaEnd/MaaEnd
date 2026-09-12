@@ -315,7 +315,12 @@ void TestSuccessfulSingleRoiRecognitionHonorsRecheckFilters()
     const auto object = detail.detail();
     Require(object.contains("matches") && object.at("matches").as_array().size() == 1, "single ROI must contain one match");
     const auto& cell_box = object.at("matches").as_array().at(0).as_object().at("cell_box").as_array();
-    Require(out_box.x == cell_box.at(0).as_integer() && out_box.y == cell_box.at(1).as_integer(), "single ROI out_box must use the matched cell");
+    Require(
+        out_box.x == cell_box.at(0).as_integer()
+            && out_box.y == cell_box.at(1).as_integer()
+            && out_box.width == cell_box.at(2).as_integer()
+            && out_box.height == cell_box.at(3).as_integer(),
+        "single ROI out_box must use the matched cell");
 }
 
 void TestGridDiagnosticsSerializeSelectionEvidence()
