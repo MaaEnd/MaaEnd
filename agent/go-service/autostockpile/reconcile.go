@@ -134,7 +134,6 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 			Int("fallback_price", newSelection.CurrentPrice).
 			Int("quantity", newQuantityDecision.Target).
 			Msg("fallback purchase triggered during reconcile")
-		maafocus.Print(ctx, i18n.T("autostockpile.fallback_purchase", newSelection.ProductName, newSelection.CurrentPrice))
 	}
 
 	maafocus.Print(ctx, i18n.T("autostockpile.reconcile_price_corrected", oldPrice, price))

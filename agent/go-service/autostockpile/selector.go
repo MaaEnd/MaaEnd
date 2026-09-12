@@ -163,7 +163,6 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				Int("fallback_price", selection.CurrentPrice).
 				Int("quantity", quantityDecision.Target).
 				Msg("fallback purchase triggered")
-			maafocus.Print(ctx, i18n.T("autostockpile.fallback_purchase", selection.ProductName, selection.CurrentPrice))
 		}
 	}
 
