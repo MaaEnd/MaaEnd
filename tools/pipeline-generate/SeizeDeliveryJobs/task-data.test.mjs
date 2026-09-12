@@ -23,6 +23,9 @@ const readTask = () => readJsonc(new URL("../../../assets/tasks/SeizeDeliveryJob
 
 const readLocale = (locale) => readJsonc(new URL(`../../../assets/locales/interface/${locale}.json`, import.meta.url));
 
+const readPipeline = (file) =>
+    readJsonc(new URL(`../../../assets/resource/pipeline/SeizeDeliveryJobs/${file}`, import.meta.url));
+
 test("SeizeDeliveryJobs 委托来源顺序与 task 选项顺序同源", () => {
     const cases = readTask().option.SeizeDeliveryJobsCommissionSource.cases.map(({name}) => name);
     assert.deepEqual(
@@ -40,6 +43,28 @@ test("SeizeDeliveryJobs 文案键序与 task 选项顺序一致", () => {
             Object.keys(messages).filter((key) => key.startsWith("task.SeizeDeliveryJobsCommissionSource.cases.")),
             expected,
             `${locale} 委托来源键序与 task 选项不一致`,
+        );
+    }
+});
+
+// 区域门控命中后，框架的待识别列表就是该门控的 next，不会再回到守卫的同级兜底。候选节点先试、NotMatched 兜底在末尾：
+// 少了它，当前委托送到未勾选的终点时框架会一直重试候选节点直到任务结束，既扫不到下一份委托，也不符合「未勾选就跳过」。
+test("SeizeDeliveryJobs 区域门控保留未匹配兜底", () => {
+    const nodes = readPipeline("SeizeDeliveryJobsEndpointCandidates.json");
+    const regions = Object.entries(nodes).filter(([name]) => name.startsWith("SeizeDeliveryJobsEndpointRegion"));
+    assert.ok(regions.length > 0, "没有生成任何区域门控节点");
+    for (const [
+        name,
+        node,
+    ] of regions) {
+        const candidates = name.replace("SeizeDeliveryJobsEndpointRegion", "SeizeDeliveryJobsEndpointCandidates");
+        assert.deepEqual(
+            node.next,
+            [
+                candidates,
+                "SeizeDeliveryJobsEndpointNotMatched",
+            ],
+            `${name} 的 next 必须是「本区域候选 + 未匹配兜底」`,
         );
     }
 });

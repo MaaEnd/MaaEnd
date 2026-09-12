@@ -98,7 +98,7 @@ SeizeDeliveryJobsScanTarget
                       └─ all cached jobs checked → clear state → refresh the list
 ```
 
-The area-gate ROI `[16, 14, 214, 41]` reads the upper-left map-area name; it prevents an all-source run from testing the destination candidates for another map. Each area's `MapFind` node uses exactly one `zone`; the candidate set's `at` values come from the delivery catalog's map coordinates (world/map coordinates).
+The area-gate ROI `[16, 14, 214, 41]` reads the upper-left map-area name; it prevents an all-source run from testing the destination candidates for another map. Each area's `MapFind` node uses exactly one `zone`; the candidate set's `at` values come from the delivery catalog's map coordinates (world/map coordinates). Once the gate hits, that area's candidate node decides the destination; when nothing matches (for example the current commission goes to an unchecked destination), the trailing `SeizeDeliveryJobsEndpointNotMatched` in its `next` closes the map and scans the next commission.
 
 The dispatcher node `SeizeDeliveryJobsEndpointFilter` uses `__SeizeDeliveryJobsRecoAnyDepotNode` (a wrapper around `InLocalDepotNode`, the feature marker of any map's depot management page) in inverse mode to confirm that the map view is open: the marker is still present while the depot page is showing, so the node does not hit. It is not tied to a specific map, so adding an area only requires appending the new region gate to the dispatcher's `next` list.
 

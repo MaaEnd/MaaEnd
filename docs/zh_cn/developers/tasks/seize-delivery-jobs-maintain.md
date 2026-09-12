@@ -98,7 +98,7 @@ SeizeDeliveryJobsScanTarget
                       └─ 缓存委托全部检查完 → 清空状态 → 刷新委托列表
 ```
 
-区域门控节点用 ROI `[16, 14, 214, 41]` 读取地图左上角的子区域名，以避免在不限来源时误用另一张地图的终点候选。每个区域的 `MapFind` 节点只使用一个 `zone`，其 `candidates` 的 `at` 坐标来自送货目录中的地图坐标（地图世界坐标）。
+区域门控节点用 ROI `[16, 14, 214, 41]` 读取地图左上角的子区域名，以避免在不限来源时误用另一张地图的终点候选。每个区域的 `MapFind` 节点只使用一个 `zone`，其 `candidates` 的 `at` 坐标来自送货目录中的地图坐标（地图世界坐标）。门控命中后由该区域的候选节点判定终点，都未命中（例如当前委托送到未勾选的终点）时走 `next` 末尾的 `SeizeDeliveryJobsEndpointNotMatched`：关地图、扫描下一份委托。
 
 筛选循环节点 `SeizeDeliveryJobsEndpointFilter` 用 `__SeizeDeliveryJobsRecoAnyDepotNode`（任一地图仓储管理页面的特征标志，`InLocalDepotNode` 的封装）反向判断地图视图已经打开：仍停在仓储管理页面时该标志存在，节点不命中。它不绑定具体地图，新增区域时只需在它的 `next` 里追加新的区域门控节点。
 
