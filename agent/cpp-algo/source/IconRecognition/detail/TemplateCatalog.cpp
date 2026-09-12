@@ -7,6 +7,8 @@
 
 #include <meojson/json.hpp>
 
+#include <MaaUtils/ImageIo.h>
+
 #include "Common/JsoncFile.h"
 #include "CompositeIcon.h"
 #include "DisabledIcon.h"
@@ -27,17 +29,18 @@ constexpr int kRegionUnavailableMarkSourceHeight = 24;
 
 cv::Mat DecodeDisabledOverlay(const std::filesystem::path& path, const cv::Size& expected_size)
 {
+    // 同 DecodeBgra：安装路径可能含系统 ANSI 代码页无法表示的字符，禁止经 path.string() 读取或拼接。
     if (!std::filesystem::is_regular_file(path)) {
-        throw std::runtime_error("disabled overlay not found: " + path.string());
+        throw std::runtime_error("disabled overlay not found: " + MAA_NS::path_to_utf8_string(path));
     }
-    const cv::Mat overlay = cv::imread(path.string(), cv::IMREAD_UNCHANGED);
+    const cv::Mat overlay = MAA_NS::imread(path, cv::IMREAD_UNCHANGED);
     if (overlay.empty()) {
-        throw std::runtime_error("unable to decode disabled overlay: " + path.string());
+        throw std::runtime_error("unable to decode disabled overlay: " + MAA_NS::path_to_utf8_string(path));
     }
     if (overlay.type() != CV_8UC4 || overlay.size() != expected_size) {
         throw std::runtime_error(
             "disabled overlay must be a " + std::to_string(expected_size.width) + "x" + std::to_string(expected_size.height)
-            + " BGRA image: " + path.string());
+            + " BGRA image: " + MAA_NS::path_to_utf8_string(path));
     }
     return overlay;
 }

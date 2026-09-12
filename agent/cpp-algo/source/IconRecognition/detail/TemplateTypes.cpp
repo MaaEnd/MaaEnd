@@ -4,6 +4,7 @@
 #include <cmath>
 #include <stdexcept>
 
+#include <MaaUtils/ImageIo.h>
 #include <MaaUtils/NoWarningCV.hpp>
 
 #include "MaskPolicy.h"
@@ -74,17 +75,19 @@ cv::Mat AlphaMask(const cv::Mat& alpha, int threshold)
 
 cv::Mat DecodeBgra(const std::filesystem::path& path)
 {
-    const cv::Mat image = cv::imread(path.string(), cv::IMREAD_UNCHANGED);
+    // 必须经 MAA_NS::imread 读取：安装路径可能包含系统 ANSI 代码页无法表示的字符，
+    // path.string() 转换会抛出 system_error(1113)，导致物品识别整体不可用（issue #5687）。
+    const cv::Mat image = MAA_NS::imread(path, cv::IMREAD_UNCHANGED);
     if (image.empty()) {
-        throw std::runtime_error("unable to decode icon: " + path.string());
+        throw std::runtime_error("unable to decode icon: " + MAA_NS::path_to_utf8_string(path));
     }
     const int edge = image.cols;
     // 发布素材必须保持正方形二次幂尺寸，避免缩放时引入不可控的非等比基准。
     const bool is_power_of_two = edge > 0 && (edge & (edge - 1)) == 0;
     if (image.rows != edge || !is_power_of_two) {
         throw std::runtime_error(
-            "icon source must be a square power-of-two image: " + path.string() + " (" + std::to_string(image.cols) + "x"
-            + std::to_string(image.rows) + ")");
+            "icon source must be a square power-of-two image: " + MAA_NS::path_to_utf8_string(path) + " (" + std::to_string(image.cols)
+            + "x" + std::to_string(image.rows) + ")");
     }
     return image;
 }
