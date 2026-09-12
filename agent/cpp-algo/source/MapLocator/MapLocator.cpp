@@ -859,9 +859,11 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
         zoneClassifier = std::make_unique<YoloPredictor>(config.yoloModelPath, matchCfg.yoloConfThreshold, config.yoloThreads);
     }
 
-    // 摄像机朝向模型很小（推理亚毫秒级），单线程足够
-    if (!config.cameraOrientationModelPath.empty()) {
-        orientationPredictor = std::make_unique<CameraOrientationPredictor>(config.cameraOrientationModelPath, 1);
+    // 摄像机朝向模型很小（推理亚毫秒级），单线程足够；两个模型都是可选的，
+    // 至少配置一个才构造预测器。
+    if (!config.cameraOrientationModelPath.empty() || !config.cameraOrientationRefModelPath.empty()) {
+        orientationPredictor =
+            std::make_unique<CameraOrientationPredictor>(config.cameraOrientationModelPath, config.cameraOrientationRefModelPath, 1);
     }
 
     isInitialized = true;
@@ -1806,18 +1808,19 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     std::future<double> angleFuture = std::async(std::launch::async, [&minimap]() { return InferYellowArrowRotation(minimap); });
     std::optional<double> resolvedAngle;
 
-    // 摄像机朝向识别与定位流程无数据依赖，帧起点即发射，与主定位计算并行；
-    // 仅 Success 帧取结果，失败路径不等待（future 析构自然回收）。
-    std::future<std::optional<CameraOrientation>> orientationFuture;
-    if (orientationPredictor && orientationPredictor->isLoaded()) {
-        orientationFuture = std::async(std::launch::async, [this, &minimap]() { return orientationPredictor->predict(minimap); });
-    }
-
+    // 摄像机朝向在定位成功后同步运行：分派需要本帧参考裁剪的缺口占比，而参考
+    // 裁剪依赖定位结果 (x, y) 与 zone，无法在帧起点发射。仅 Success 帧付出这次
+    // 推理延迟（模型亚毫秒级），失败路径不受影响。
     auto attachCamRot = [&](LocateResult&& result) -> LocateResult {
         // None 帧的小地图被 UI 整体遮挡，条带无效，不输出摄像机朝向
-        if (orientationFuture.valid() && result.status == LocateStatus::Success && result.position.has_value()
-            && result.position->zoneId != "None") {
-            result.camRot = orientationFuture.get();
+        if (orientationPredictor && orientationPredictor->isLoaded() && result.status == LocateStatus::Success
+            && result.position.has_value() && result.position->zoneId != "None") {
+            const std::string& zoneId = result.position->zoneId;
+            const auto zoneIt = zones.find(zoneId);
+            const cv::Mat referenceAsset = zoneIt != zones.end() ? zoneIt->second : cv::Mat();
+            result.camRot =
+                orientationPredictor
+                    ->predict(minimap, referenceAsset, result.position->x, result.position->y, ZoneTemplateScale(zoneId), zoneId);
         }
         return result;
     };
