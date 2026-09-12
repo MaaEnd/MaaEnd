@@ -1,16 +1,13 @@
 {
     "__BS-T-2": {
         "desc": "归位",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "Direction": "left"
-                }
-            }
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "Direction": "left"
         },
-        "post_delay": 2000,
+        "post_delay": 0,
         "next": [
             "__BS-T-1"
         ],
@@ -31,35 +28,31 @@
     "__BS-1": {
         "enabled": true,
         "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "DecreaseButton": [
-                        965,
-                        570,
-                        20,
-                        10
-                    ],
-                    "Direction": "right",
-                    "IncreaseButton": [
-                        1225,
-                        570,
-                        20,
-                        10
-                    ],
-                    "SliderQuantity": {
-                        "Box": [
-                            1090,
-                            535,
-                            100,
-                            30
-                        ]
-                    },
-                    "TargetQuantity": 325
-                }
-            }
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "DecreaseButton": [
+                965,
+                570,
+                20,
+                10
+            ],
+            "Direction": "right",
+            "IncreaseButton": [
+                1225,
+                570,
+                20,
+                10
+            ],
+            "SliderQuantity": {
+                "Box": [
+                    1090,
+                    535,
+                    100,
+                    30
+                ]
+            },
+            "TargetQuantity": 325
         },
         "post_delay": 2000,
         "next": [
@@ -78,8 +71,7 @@
             "__BS-5",
             "__BS-6",
             "__BS-7",
-            "__BS-8",
-            "__BS-9"
+            "__BS-8"
         ],
         "on_error": [
             "__BS-T-3"
@@ -94,36 +86,32 @@
     "__BS-2": {
         "enabled": true,
         "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "DecreaseButton": [
-                        965,
-                        570,
-                        20,
-                        10
-                    ],
-                    "Direction": "right",
-                    "IncreaseButton": [
-                        1225,
-                        570,
-                        20,
-                        10
-                    ],
-                    "SliderQuantity": {
-                        "Box": [
-                            1090,
-                            535,
-                            100,
-                            30
-                        ]
-                    },
-                    "TargetQuantity": 325,
-                    "ReverseTarget": true
-                }
-            }
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "DecreaseButton": [
+                965,
+                570,
+                20,
+                10
+            ],
+            "Direction": "right",
+            "IncreaseButton": [
+                1225,
+                570,
+                20,
+                10
+            ],
+            "SliderQuantity": {
+                "Box": [
+                    1090,
+                    535,
+                    100,
+                    30
+                ]
+            },
+            "TargetQuantity": 325,
+            "ReverseTarget": true
         },
         "post_delay": 2000,
         "next": [
@@ -136,36 +124,32 @@
     "__BS-3": {
         "enabled": true,
         "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "DecreaseButton": [
-                        965,
-                        570,
-                        20,
-                        10
-                    ],
-                    "Direction": "right",
-                    "IncreaseButton": [
-                        1225,
-                        570,
-                        20,
-                        10
-                    ],
-                    "SliderQuantity": {
-                        "Box": [
-                            1090,
-                            535,
-                            100,
-                            30
-                        ]
-                    },
-                    "TargetQuantity": 10,
-                    "TargetQuantityType": "Percentage"
-                }
-            }
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "DecreaseButton": [
+                965,
+                570,
+                20,
+                10
+            ],
+            "Direction": "right",
+            "IncreaseButton": [
+                1225,
+                570,
+                20,
+                10
+            ],
+            "SliderQuantity": {
+                "Box": [
+                    1090,
+                    535,
+                    100,
+                    30
+                ]
+            },
+            "TargetQuantity": 10,
+            "TargetQuantityType": "Percentage"
         },
         "post_delay": 2000,
         "next": [
@@ -178,37 +162,33 @@
     "__BS-4": {
         "enabled": true,
         "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "DecreaseButton": [
-                        965,
-                        570,
-                        20,
-                        10
-                    ],
-                    "Direction": "right",
-                    "IncreaseButton": [
-                        1225,
-                        570,
-                        20,
-                        10
-                    ],
-                    "SliderQuantity": {
-                        "Box": [
-                            1090,
-                            535,
-                            100,
-                            30
-                        ]
-                    },
-                    "TargetQuantity": 10,
-                    "TargetQuantityType": "Percentage",
-                    "ReverseTarget": true
-                }
-            }
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "DecreaseButton": [
+                965,
+                570,
+                20,
+                10
+            ],
+            "Direction": "right",
+            "IncreaseButton": [
+                1225,
+                570,
+                20,
+                10
+            ],
+            "SliderQuantity": {
+                "Box": [
+                    1090,
+                    535,
+                    100,
+                    30
+                ]
+            },
+            "TargetQuantity": 10,
+            "TargetQuantityType": "Percentage",
+            "ReverseTarget": true
         },
         "post_delay": 2000,
         "next": [
@@ -221,37 +201,33 @@
     "__BS-6": {
         "enabled": true,
         "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "DecreaseButton": [
-                        965,
-                        570,
-                        20,
-                        10
-                    ],
-                    "Direction": "right",
-                    "IncreaseButton": [
-                        1225,
-                        570,
-                        20,
-                        10
-                    ],
-                    "SliderQuantity": {
-                        "Box": [
-                            1090,
-                            535,
-                            100,
-                            30
-                        ]
-                    },
-                    "TargetQuantity": 10000,
-                    "OutOfRangeOverrideEnable": "__BS-T-4",
-                    "ReverseTarget": true
-                }
-            }
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "DecreaseButton": [
+                965,
+                570,
+                20,
+                10
+            ],
+            "Direction": "right",
+            "IncreaseButton": [
+                1225,
+                570,
+                20,
+                10
+            ],
+            "SliderQuantity": {
+                "Box": [
+                    1090,
+                    535,
+                    100,
+                    30
+                ]
+            },
+            "TargetQuantity": 10000,
+            "OutOfRangeOverrideEnable": "__BS-T-4",
+            "ReverseTarget": true
         },
         "post_delay": 2000,
         "next": [
@@ -264,6 +240,9 @@
     },
     "__BS-T-4": {
         "enabled": false,
+        "next": [
+            "__BS-T-2"
+        ],
         "focus": {
             "Node.Action.Starting": "路由成功（预期行为无bug）"
         }
@@ -271,37 +250,33 @@
     "__BS-5": {
         "enabled": true,
         "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "DecreaseButton": [
-                        965,
-                        570,
-                        20,
-                        10
-                    ],
-                    "Direction": "right",
-                    "FineTuneFallback": "none",
-                    "FineTuneQuantity": false,
-                    "IncreaseButton": [
-                        1225,
-                        570,
-                        20,
-                        10
-                    ],
-                    "SliderQuantity": {
-                        "Box": [
-                            1090,
-                            535,
-                            100,
-                            30
-                        ]
-                    },
-                    "TargetQuantity": 325
-                }
-            }
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "DecreaseButton": [
+                965,
+                570,
+                20,
+                10
+            ],
+            "Direction": "right",
+            "FineTuneFallback": "none",
+            "FineTuneQuantity": false,
+            "IncreaseButton": [
+                1225,
+                570,
+                20,
+                10
+            ],
+            "SliderQuantity": {
+                "Box": [
+                    1090,
+                    535,
+                    100,
+                    30
+                ]
+            },
+            "TargetQuantity": 325
         },
         "post_delay": 2000,
         "next": [
@@ -311,138 +286,90 @@
             "Node.Action.Starting": "325（不微调，直接收尾）"
         }
     },
-    "__BS-7": {
-        "enabled": true,
-        "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "DecreaseButton": [
-                        965,
-                        570,
-                        20,
-                        10
-                    ],
-                    "Direction": "right",
-                    "FineTuneFallback": "more",
-                    "FineTuneQuantity": false,
-                    "IncreaseButton": [
-                        1225,
-                        570,
-                        20,
-                        10
-                    ],
-                    "SliderQuantity": {
-                        "Box": [
-                            1090,
-                            535,
-                            100,
-                            30
-                        ]
-                    },
-                    "TargetQuantity": 325
-                }
-            }
-        },
-        "post_delay": 2000,
+    "__BS-T-5": {
         "next": [
             "__BS-T-2"
         ],
         "focus": {
-            "Node.Action.Starting": "325（不微调，朝End偏移）"
+            "Node.Action.Starting": "路由失败（出bug了）"
         }
     },
     "__BS-8": {
         "enabled": true,
         "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "DecreaseButton": [
-                        965,
-                        570,
-                        20,
-                        10
-                    ],
-                    "Direction": "right",
-                    "FineTuneFallback": "less",
-                    "FineTuneQuantity": false,
-                    "IncreaseButton": [
-                        1225,
-                        570,
-                        20,
-                        10
-                    ],
-                    "SliderQuantity": {
-                        "Box": [
-                            1090,
-                            535,
-                            100,
-                            30
-                        ]
-                    },
-                    "TargetQuantity": 325
-                }
-            }
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "DecreaseButton": [
+                965,
+                570,
+                20,
+                10
+            ],
+            "Direction": "right",
+            "FineTuneFallback": "less",
+            "FineTuneQuantity": false,
+            "IncreaseButton": [
+                1225,
+                570,
+                20,
+                10
+            ],
+            "SliderQuantity": {
+                "Box": [
+                    1090,
+                    535,
+                    100,
+                    30
+                ]
+            },
+            "TargetQuantity": 325
         },
         "post_delay": 2000,
         "next": [
             "__BS-T-2"
         ],
         "focus": {
-            "Node.Action.Starting": "325（不微调，朝Start偏移）"
+            "Node.Action.Starting": "325（不微调，保证少于Target）"
         }
     },
-    "__BS-9": {
+    "__BS-7": {
         "enabled": true,
         "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "BetterSliding",
-                "custom_action_param": {
-                    "DecreaseButton": [
-                        965,
-                        570,
-                        20,
-                        10
-                    ],
-                    "Direction": "right",
-                    "FineTuneFallback": "more",
-                    "FineTuneQuantity": 3,
-                    "IncreaseButton": [
-                        1225,
-                        570,
-                        20,
-                        10
-                    ],
-                    "SliderQuantity": {
-                        "Box": [
-                            1090,
-                            535,
-                            100,
-                            30
-                        ]
-                    },
-                    "TargetQuantity": 325
-                }
-            }
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "DecreaseButton": [
+                965,
+                570,
+                20,
+                10
+            ],
+            "Direction": "right",
+            "FineTuneFallback": "more",
+            "FineTuneQuantity": false,
+            "IncreaseButton": [
+                1225,
+                570,
+                20,
+                10
+            ],
+            "SliderQuantity": {
+                "Box": [
+                    1090,
+                    535,
+                    100,
+                    30
+                ]
+            },
+            "TargetQuantity": 325
         },
         "post_delay": 2000,
         "next": [
             "__BS-T-2"
         ],
         "focus": {
-            "Node.Action.Starting": "325（阈值3，混合微调）"
-        }
-    },
-    "__BS-T-5": {
-        "focus": {
-            "Node.Action.Starting": "路由失败（出bug了）"
+            "Node.Action.Starting": "325（不微调，保证多于Target）"
         }
     }
 }
