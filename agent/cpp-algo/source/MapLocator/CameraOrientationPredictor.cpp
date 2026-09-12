@@ -2,7 +2,9 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <iterator>
 #include <numbers>
+#include <vector>
 
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
@@ -14,99 +16,32 @@ namespace maplocator
 
 namespace
 {
-// 以下几何与解码约定均与 cameraorientation.onnx / cao_ref.onnx 绑定；改动任何
-// 一项都必须与模型同步重新导出，不得单方面修改。
+// 三件套工件定死的输入/输出名；改动即契约变更。
+constexpr const char* kPreprocessInputNames[] = { "minimap", "asset", "x", "y", "scale" };
+constexpr const char* kPreprocessOutputNames[] = { "observed", "reference" };
+constexpr const char* kClassifierInputName = "strip";
+constexpr const char* kClassifierOutputName = "pmf";
 
-// 极坐标条带：每列 1°，列 0 = 正北，顺时针；行 0 = 内径，行 i 采样半径
-// 为 kInnerRadius + (i + 0.5) * step，step = (kOuterRadius - kInnerRadius) / kStripHeight。
-constexpr int kStripWidth = 360;
-constexpr int kStripHeight = 42;
-constexpr double kInnerRadius = 12.0;
-constexpr double kOuterRadius = 54.0;
-// argmax 定峰后 ±5° 窗口内按 pmf 加权圆均值，得到亚度级解码角。
+// 缺口占比分派阈值：参考条带 alpha（< 255）占比严格大于该值时用观测分类器，
+// 否则用参考配对分类器。与工件口径绑定，不可单方面修改。
+constexpr double kReferenceGapDispatchThreshold = 0.3;
+// PMF 解码的定峰窗口半径（bin）：argmax 后在该窗口内按概率加权求圆均值。
 constexpr int kRefineRadius = 5;
 
-// 参考裁剪的目标几何：与 720p 基准的观测小地图同视野、同尺度。
-constexpr int kReferenceRoiWidth = 118;
-constexpr int kReferenceRoiHeight = 120;
-// 展开列角度的 float32 步长 π/180，半径与角度全程 float32，与模型输入约定一致。
-constexpr float kDegreeToRadian = 0.017453292f;
-// 参考 alpha 展开环内缺失占比分派阈值：严格大于走 polar 观测模型，否则走 ref
-// 参考配对模型。0.3 与 cao_ref.onnx 的输入约定绑定，不可单方面修改。
-constexpr double kReferenceGapDispatchThreshold = 0.3;
-
-// 节点名是导出时定死的图属性；两个模型共用同一输入/输出名。
-constexpr const char* kInputName = "strip";
-constexpr const char* kOutputName = "pmf";
-
-// Python round() 与 OpenCV saturate_cast 均为半偶舍入；std::nearbyint 默认舍入模式
-// 也是 to-nearest-even。不要用 std::lround（半远离零）。
-int RoundHalfEven(double value)
-{
-    return static_cast<int>(std::nearbyint(value));
-}
-
-// 极坐标展开的精确双线性采样：模型输入约定为精确双线性——x0 = floor(x)、
-// y0 = floor(y)、fx = x - x0、fy = y - y0，v = p00*(1-fx)*(1-fy) + p01*fx*(1-fy)
-// + p10*(1-fx)*fy + p11*fx*fy，权重与累加全程 float32、按该顺序求值且禁止 FMA
-// 合并，最后半偶舍入回 uint8。OpenCV 4.x 的 cv::remap(INTER_LINEAR) 对 8U 走
-// 1/32 定点权重，同一坐标最多差 4/255，无法满足逐点对齐；这里按约定公式自行
-// 采样。采样点始终落在圆盘及其一圈邻居内，越界索引只做边界复制兜底。
-#if defined(__clang__)
-#pragma clang fp contract(off)
-#elif defined(_MSC_VER)
-#pragma fp_contract(off)
-#endif
-void RemapStrip(const cv::Mat& source, cv::Mat& dst, const cv::Mat& mapX, const cv::Mat& mapY)
-{
-    const int channels = source.channels();
-    dst.create(kStripHeight, kStripWidth, source.type());
-    const int maxX = source.cols - 1;
-    const int maxY = source.rows - 1;
-    for (int row = 0; row < kStripHeight; ++row) {
-        const float* mapXRow = mapX.ptr<float>(row);
-        const float* mapYRow = mapY.ptr<float>(row);
-        std::uint8_t* dstRow = dst.ptr<std::uint8_t>(row);
-        for (int col = 0; col < kStripWidth; ++col) {
-            const float x = mapXRow[col];
-            const float y = mapYRow[col];
-            const float floorX = std::floor(x);
-            const float floorY = std::floor(y);
-            const int x0 = std::clamp(static_cast<int>(floorX), 0, maxX);
-            const int y0 = std::clamp(static_cast<int>(floorY), 0, maxY);
-            const int x1 = std::min(x0 + 1, maxX);
-            const int y1 = std::min(y0 + 1, maxY);
-            const float fx = x - floorX;
-            const float fy = y - floorY;
-            const float weight00 = (1.0f - fx) * (1.0f - fy);
-            const float weight01 = fx * (1.0f - fy);
-            const float weight10 = (1.0f - fx) * fy;
-            const float weight11 = fx * fy;
-            const std::uint8_t* row0 = source.ptr<std::uint8_t>(y0);
-            const std::uint8_t* row1 = source.ptr<std::uint8_t>(y1);
-            const std::uint8_t* p00 = row0 + x0 * channels;
-            const std::uint8_t* p01 = row0 + x1 * channels;
-            const std::uint8_t* p10 = row1 + x0 * channels;
-            const std::uint8_t* p11 = row1 + x1 * channels;
-            for (int channel = 0; channel < channels; ++channel) {
-                const float value = static_cast<float>(p00[channel]) * weight00 + static_cast<float>(p01[channel]) * weight01
-                                    + static_cast<float>(p10[channel]) * weight10 + static_cast<float>(p11[channel]) * weight11;
-                dstRow[col * channels + channel] = cv::saturate_cast<std::uint8_t>(value);
-            }
-        }
-    }
-}
-#if defined(__clang__)
-#pragma clang fp contract(on)
-#elif defined(_MSC_VER)
-#pragma fp_contract(on)
-#endif
-
+// 参考资产不可用时的占位输入：1x1 全 0 BGRA。该路线只用于产出观测条带，参考
+// 条带不参与判断，分派走观测分类器。
+const cv::Mat kUnavailableAsset(1, 1, CV_8UC4, cv::Scalar::all(0));
 } // namespace
 
-CameraOrientationPredictor::CameraOrientationPredictor(const std::string& polarModelPath, const std::string& refModelPath, int threads)
+CameraOrientationPredictor::CameraOrientationPredictor(
+    const std::string& preprocessModelPath,
+    const std::string& polarModelPath,
+    const std::string& refModelPath,
+    int threads)
 {
-    if (polarModelPath.empty() && refModelPath.empty()) {
+    // 前处理图是观测条带的唯一来源；缺失时预测器不可用，无需加载分类器。
+    if (preprocessModelPath.empty()) {
+        LogError << "CameraOrientation: preprocess model path is empty; predictor disabled.";
         return;
     }
 
@@ -122,10 +57,13 @@ CameraOrientationPredictor::CameraOrientationPredictor(const std::string& polarM
     sessionOptions.SetIntraOpNumThreads(std::max(1, threads));
     sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
 
+    isPreprocessModelLoaded_ = loadSession(preprocessModelPath, "preprocess", sessionOptions, &preprocessSession);
     isPolarModelLoaded_ = loadSession(polarModelPath, "polar", sessionOptions, &polarSession);
-    isRefModelLoaded_ = loadSession(refModelPath, "ref", sessionOptions, &refSession);
+    isRefModelLoaded_ = loadSession(refModelPath, "polar_with_ref", sessionOptions, &refSession);
 
-    if (!isPolarModelLoaded_ && !isRefModelLoaded_) {
+    if (!isLoaded()) {
+        LogError << "CameraOrientation: predictor disabled" << VAR(isPreprocessModelLoaded_) << VAR(isPolarModelLoaded_)
+                 << VAR(isRefModelLoaded_);
         ortEnv.reset();
     }
 }
@@ -163,238 +101,167 @@ std::optional<CameraOrientation> CameraOrientationPredictor::predict(
 {
     std::lock_guard<std::mutex> lock(predictMutex);
 
-    if (!isLoaded()) {
+    if (!isLoaded() || !preprocessSession) {
         LogError << "CameraOrientation Error: Model is NOT loaded.";
         return std::nullopt;
     }
-    if (minimap.empty()) {
-        LogError << "CameraOrientation Error: Input minimap is empty.";
-        return std::nullopt;
-    }
-    if (!prepareRingGeometry(minimap)) {
+    if (minimap.empty() || !minimap.isContinuous() || (minimap.channels() != 3 && minimap.channels() != 4)) {
+        LogError << "CameraOrientation Error: invalid minimap input" << VAR(minimap.cols) << VAR(minimap.rows) << VAR(minimap.channels());
         return std::nullopt;
     }
 
-    // 模型输入契约是 BGR HWC uint8；BGRA 先转 3 通道再采样，避免 4 通道双线性
-    // 插值的无谓开销。
-    cv::Mat source = minimap;
+    // 模型输入契约是 BGR HWC uint8；BGRA 先转 3 通道（机械类型转换）。
+    cv::Mat minimapBgr = minimap;
     cv::Mat converted;
-    if (source.channels() == 4) {
-        cv::cvtColor(source, converted, cv::COLOR_BGRA2BGR);
-        source = converted;
+    if (minimapBgr.channels() == 4) {
+        cv::cvtColor(minimapBgr, converted, cv::COLOR_BGRA2BGR);
+        minimapBgr = converted;
     }
-    buildObservedStrip(source);
 
-    // 参考裁剪几何按 720p 基准的 118x120 观测 ROI 定义；minimap 尺寸不符时无法对齐参考。
-    const bool referenceUsable = isRefModelLoaded_ && !referenceAsset.empty() && referenceAsset.channels() == 4
-                                 && minimap.cols == kReferenceRoiWidth && minimap.rows == kReferenceRoiHeight;
-    // 参考模型未加载、参考资产缺失或尺寸不符时全部走 polar。
-    double gapFraction = -1.0; // < 0 表示参考不可用、未计算
-    if (referenceUsable) {
-        buildReferenceInput(referenceAsset, source, x, y, scale, &gapFraction);
-    }
-    const bool usePolar = !referenceUsable || gapFraction > kReferenceGapDispatchThreshold;
-    const char* modelSource = usePolar ? "polar" : "ref";
-    LogInfo << "CameraOrientation dispatch:" << VAR(zoneId) << VAR(x) << VAR(y) << VAR(scale) << VAR(gapFraction) << VAR(modelSource);
+    // 参考分类器未加载 / 资产缺失或非 BGRA 时参考不可用：缺口记 -1，走观测分类器。
+    const bool assetUsable =
+        isRefModelLoaded_ && !referenceAsset.empty() && referenceAsset.channels() == 4 && referenceAsset.isContinuous();
+    const cv::Mat& asset = assetUsable ? referenceAsset : kUnavailableAsset;
 
-    Ort::Session* session = nullptr;
-    cv::Mat* inputMat = nullptr;
-    int inputChannels = 0;
-    if (usePolar) {
-        if (!isPolarModelLoaded_ || !polarSession) {
-            LogError << "CameraOrientation: polar model unavailable for dispatch" << VAR(zoneId) << VAR(gapFraction);
+    try {
+        auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
+
+        // 前处理图：几何、参考采样与合成、取整约定全部在图内，这里只零拷贝喂入。
+        const std::array<int64_t, 4> minimapShape { 1, minimapBgr.rows, minimapBgr.cols, minimapBgr.channels() };
+        const std::array<int64_t, 4> assetShape { 1, asset.rows, asset.cols, asset.channels() };
+        float xValue = static_cast<float>(x);
+        float yValue = static_cast<float>(y);
+        float scaleValue = static_cast<float>(scale);
+        Ort::Value preprocessInputs[] = {
+            Ort::Value::CreateTensor<std::uint8_t>(
+                memoryInfo,
+                minimapBgr.data,
+                minimapBgr.total() * minimapBgr.channels(),
+                minimapShape.data(),
+                minimapShape.size()),
+            Ort::Value::CreateTensor<std::uint8_t>(
+                memoryInfo,
+                asset.data,
+                asset.total() * asset.channels(),
+                assetShape.data(),
+                assetShape.size()),
+            Ort::Value::CreateTensor<float>(memoryInfo, &xValue, 1, nullptr, 0),
+            Ort::Value::CreateTensor<float>(memoryInfo, &yValue, 1, nullptr, 0),
+            Ort::Value::CreateTensor<float>(memoryInfo, &scaleValue, 1, nullptr, 0),
+        };
+        auto strips = preprocessSession->Run(
+            Ort::RunOptions { nullptr },
+            kPreprocessInputNames,
+            preprocessInputs,
+            std::size(kPreprocessInputNames),
+            kPreprocessOutputNames,
+            std::size(kPreprocessOutputNames));
+        if (strips.size() != 2) {
+            LogError << "CameraOrientation: unexpected preprocess output count" << VAR(strips.size());
             return std::nullopt;
         }
-        session = polarSession.get();
-        inputMat = &stripScratch;
-        inputChannels = 3;
-    }
-    else {
-        if (!refSession) {
-            LogError << "CameraOrientation: ref model unavailable for dispatch" << VAR(zoneId) << VAR(gapFraction);
+
+        const auto observedInfo = strips[0].GetTensorTypeAndShapeInfo();
+        const auto referenceInfo = strips[1].GetTensorTypeAndShapeInfo();
+        const auto observedShape = observedInfo.GetShape();
+        const auto referenceShape = referenceInfo.GetShape();
+        if (observedShape.size() != 4 || referenceShape.size() != 4 || observedShape[1] != referenceShape[1]
+            || observedShape[2] != referenceShape[2] || observedShape[3] != 3 || referenceShape[3] != 4
+            || observedInfo.GetElementType() != ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8
+            || referenceInfo.GetElementType() != ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8) {
+            LogError << "CameraOrientation: unexpected preprocess output shape";
             return std::nullopt;
         }
-        assembleRefInput();
-        session = refSession.get();
-        inputMat = &refInputScratch;
-        inputChannels = 7;
+
+        std::uint8_t* observedData = strips[0].GetTensorMutableData<std::uint8_t>();
+        std::uint8_t* referenceData = strips[1].GetTensorMutableData<std::uint8_t>();
+        const int64_t stripHeight = observedShape[1];
+        const int64_t stripWidth = observedShape[2];
+        const size_t stripPixels = static_cast<size_t>(stripHeight * stripWidth);
+
+        // 缺口占比：参考条带 alpha（第 4 通道）< 255 的像素占比。
+        double gapFraction = -1.0;
+        if (assetUsable) {
+            int64_t gapPixels = 0;
+            for (size_t i = 0; i < stripPixels; ++i) {
+                if (referenceData[i * 4 + 3] < 255) {
+                    ++gapPixels;
+                }
+            }
+            gapFraction = static_cast<double>(gapPixels) / static_cast<double>(stripPixels);
+        }
+        const bool usePolar = !assetUsable || gapFraction > kReferenceGapDispatchThreshold;
+        const char* modelSource = usePolar ? "polar" : "polar_with_ref";
+        LogInfo << "CameraOrientation dispatch:" << VAR(zoneId) << VAR(x) << VAR(y) << VAR(scale) << VAR(gapFraction) << VAR(modelSource);
+
+        // 分类器输入：polar 直接零拷贝用观测条带；ref 拼接 [obs.BGR, ref.BGR, ref.A]。
+        std::uint8_t* classifierData = observedData;
+        int classifierChannels = 3;
+        if (!usePolar) {
+            refInputScratch.create(static_cast<int>(stripHeight), static_cast<int>(stripWidth), CV_MAKETYPE(CV_8U, 7));
+            cv::Mat observedMat(static_cast<int>(stripHeight), static_cast<int>(stripWidth), CV_8UC3, observedData);
+            cv::Mat referenceMat(static_cast<int>(stripHeight), static_cast<int>(stripWidth), CV_8UC4, referenceData);
+            cv::Mat sources[] = { observedMat, referenceMat };
+            // 源通道跨矩阵连续编号：[0,3) 观测 BGR、[3,7) 参考 BGR + alpha，因此恒等映射。
+            const int fromTo[] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6 };
+            cv::mixChannels(sources, std::size(sources), &refInputScratch, 1, fromTo, 7);
+            classifierData = refInputScratch.ptr<std::uint8_t>();
+            classifierChannels = 7;
+        }
+
+        Ort::Session* classifierSession = usePolar ? polarSession.get() : refSession.get();
+        if (!classifierSession) {
+            LogError << "CameraOrientation: classifier unavailable for dispatch" << VAR(zoneId) << VAR(gapFraction) << VAR(modelSource);
+            return std::nullopt;
+        }
+
+        const std::array<int64_t, 4> classifierShape { 1, stripHeight, stripWidth, classifierChannels };
+        Ort::Value classifierInput = Ort::Value::CreateTensor<std::uint8_t>(
+            memoryInfo,
+            classifierData,
+            stripPixels * classifierChannels,
+            classifierShape.data(),
+            classifierShape.size());
+        const char* classifierInputNames[] = { kClassifierInputName };
+        const char* classifierOutputNames[] = { kClassifierOutputName };
+        auto outputTensors =
+            classifierSession->Run(Ort::RunOptions { nullptr }, classifierInputNames, &classifierInput, 1, classifierOutputNames, 1);
+        if (outputTensors.empty()) {
+            LogError << "CameraOrientation: empty inference output.";
+            return std::nullopt;
+        }
+
+        const float* pmf = outputTensors.front().GetTensorData<float>();
+        const size_t count = outputTensors.front().GetTensorTypeAndShapeInfo().GetElementCount();
+        return decodePmf(pmf, count);
     }
-
-    // /255 已折入模型首层卷积权重，输入保持 0..255 数值域；展开输出总是连续内存。
-    const std::array<int64_t, 4> inputShape { 1, kStripHeight, kStripWidth, inputChannels };
-    auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-    Ort::Value inputTensor = Ort::Value::CreateTensor<std::uint8_t>(
-        memoryInfo,
-        inputMat->data,
-        static_cast<size_t>(kStripHeight) * kStripWidth * inputChannels,
-        inputShape.data(),
-        inputShape.size());
-
-    const char* inputNames[] = { kInputName };
-    const char* outputNames[] = { kOutputName };
-    auto outputTensors = session->Run(Ort::RunOptions { nullptr }, inputNames, &inputTensor, 1, outputNames, 1);
-    if (outputTensors.empty()) {
-        LogError << "CameraOrientation: empty inference output.";
+    catch (const Ort::Exception& e) {
+        LogError << "CameraOrientation: inference failed" << VAR(zoneId) << VAR(e.what());
         return std::nullopt;
     }
-
-    const float* pmf = outputTensors.front().GetTensorData<float>();
-    const size_t count = outputTensors.front().GetTensorTypeAndShapeInfo().GetElementCount();
-    return decodePmf(pmf, count);
-}
-
-bool CameraOrientationPredictor::prepareRingGeometry(const cv::Mat& minimap)
-{
-    // 极点为小地图几何中心（720p 基准下即全图坐标 (108, 111)）。
-    const double cx = minimap.cols / 2.0;
-    const double cy = minimap.rows / 2.0;
-    // 双线性插值需要在源图内取到邻居像素：要求整个圆盘加一圈邻居都在图内。
-    if (kOuterRadius + 1.0 > cx || kOuterRadius + 1.0 > cy || cx > minimap.cols - kOuterRadius - 1.0
-        || cy > minimap.rows - kOuterRadius - 1.0) {
-        LogError << "CameraOrientation: minimap too small for the orientation ring" << VAR(minimap.cols) << VAR(minimap.rows);
-        return false;
-    }
-
-    // 源坐标映射只依赖小地图尺寸，按尺寸缓存：
-    // src_x = cx + r * sin(theta)，src_y = cy - r * cos(theta)，theta = 列序号（度）。
-    // 半径与角度全程 float32，与模型输入约定的数值路径一致。
-    mapCenterX = static_cast<float>(cx);
-    mapCenterY = static_cast<float>(cy);
-    if (mapXScratch.size() != minimap.size()) {
-        mapXScratch.create(kStripHeight, kStripWidth, CV_32FC1);
-        mapYScratch.create(kStripHeight, kStripWidth, CV_32FC1);
-        const float step = static_cast<float>((kOuterRadius - kInnerRadius) / kStripHeight);
-        for (int i = 0; i < kStripHeight; ++i) {
-            const float radius = static_cast<float>(kInnerRadius) + step * (static_cast<float>(i) + 0.5f);
-            for (int j = 0; j < kStripWidth; ++j) {
-                const float theta = static_cast<float>(j) * kDegreeToRadian;
-                const float offsetX = radius * std::sin(theta);
-                const float offsetY = radius * std::cos(theta);
-                mapXScratch.at<float>(i, j) = mapCenterX + offsetX;
-                mapYScratch.at<float>(i, j) = mapCenterY - offsetY;
-            }
-        }
-    }
-    return true;
-}
-
-void CameraOrientationPredictor::buildObservedStrip(const cv::Mat& observedBgr)
-{
-    RemapStrip(observedBgr, stripScratch, mapXScratch, mapYScratch);
-}
-
-void CameraOrientationPredictor::buildReferenceInput(
-    const cv::Mat& referenceAsset,
-    const cv::Mat& observedBgr,
-    double x,
-    double y,
-    double scale,
-    double* out_gap)
-{
-    // zone 尺度比非 1 时（如 ValleyIV_Base 15/16）底图相对观测整体缩放：裁 ROI*scale
-    // 的资产窗口再缩回 ROI，与观测同视野。尺寸按半偶舍入取整（120*15/16=112.5 -> 112）。
-    const int cropWidth = std::max(1, RoundHalfEven(kReferenceRoiWidth * scale));
-    const int cropHeight = std::max(1, RoundHalfEven(kReferenceRoiHeight * scale));
-
-    // 以定位结果 (x, y) 为裁剪中心；越界外侧 BGR 与 alpha 同为 0（参考缺失）。
-    referenceCropScratch.create(cropHeight, cropWidth, CV_8UC3);
-    referenceCropScratch.setTo(0);
-    referenceAlphaScratch.create(cropHeight, cropWidth, CV_8UC1);
-    referenceAlphaScratch.setTo(0);
-
-    const int originX = RoundHalfEven(x) - cropWidth / 2;
-    const int originY = RoundHalfEven(y) - cropHeight / 2;
-    for (int row = 0; row < cropHeight; ++row) {
-        const int assetY = originY + row;
-        if (assetY < 0 || assetY >= referenceAsset.rows) {
-            continue;
-        }
-        cv::Vec3b* cropRow = referenceCropScratch.ptr<cv::Vec3b>(row);
-        std::uint8_t* alphaRow = referenceAlphaScratch.ptr<std::uint8_t>(row);
-        const cv::Vec4b* assetRow = referenceAsset.ptr<cv::Vec4b>(assetY);
-        for (int col = 0; col < cropWidth; ++col) {
-            const int assetX = originX + col;
-            if (assetX < 0 || assetX >= referenceAsset.cols) {
-                continue;
-            }
-            const cv::Vec4b& pixel = assetRow[assetX];
-            // 黑底合成：round(rgb * a/255)，alpha 保持原始连续值，不二值化。
-            const float alpha = static_cast<float>(pixel[3]) / 255.0f;
-            for (int channel = 0; channel < 3; ++channel) {
-                const float black = static_cast<float>(pixel[channel]) * alpha;
-                cropRow[col][channel] = cv::saturate_cast<std::uint8_t>(black);
-            }
-            alphaRow[col] = pixel[3];
-        }
-    }
-
-    if (scale != 1.0) {
-        cv::resize(referenceCropScratch, referenceCropScratch, cv::Size(kReferenceRoiWidth, kReferenceRoiHeight), 0, 0, cv::INTER_LINEAR);
-        cv::resize(referenceAlphaScratch, referenceAlphaScratch, cv::Size(kReferenceRoiWidth, kReferenceRoiHeight), 0, 0, cv::INTER_LINEAR);
-    }
-
-    // 观测背底合成：ref.BGR = black_ref + obs*(1 - alpha/255)，alpha==0 处逐像素
-    // 等于观测、alpha==255 处等于黑底合成。float32 计算 + 半偶舍入 + 饱和，不回绕。
-    for (int row = 0; row < kReferenceRoiHeight; ++row) {
-        cv::Vec3b* cropRow = referenceCropScratch.ptr<cv::Vec3b>(row);
-        const cv::Vec3b* observedRow = observedBgr.ptr<cv::Vec3b>(row);
-        const std::uint8_t* alphaRow = referenceAlphaScratch.ptr<std::uint8_t>(row);
-        for (int col = 0; col < kReferenceRoiWidth; ++col) {
-            const float weight = 1.0f - static_cast<float>(alphaRow[col]) / 255.0f;
-            for (int channel = 0; channel < 3; ++channel) {
-                const float blend = static_cast<float>(observedRow[col][channel]) * weight;
-                const float composed = static_cast<float>(cropRow[col][channel]) + blend;
-                cropRow[col][channel] = cv::saturate_cast<std::uint8_t>(composed);
-            }
-        }
-    }
-
-    // 展开与观测条带同一几何：极点 = ROI 中心。
-    RemapStrip(referenceCropScratch, referenceStripScratch, mapXScratch, mapYScratch);
-    RemapStrip(referenceAlphaScratch, referenceAlphaStripScratch, mapXScratch, mapYScratch);
-
-    // 缺口占比 = 展开 alpha 中 < 255 的像素占比（42x360 各半径等权）。
-    int gapPixels = 0;
-    for (int row = 0; row < kStripHeight; ++row) {
-        const std::uint8_t* alphaRow = referenceAlphaStripScratch.ptr<std::uint8_t>(row);
-        for (int col = 0; col < kStripWidth; ++col) {
-            if (alphaRow[col] < 255) {
-                ++gapPixels;
-            }
-        }
-    }
-    *out_gap = static_cast<double>(gapPixels) / (kStripHeight * kStripWidth);
-}
-
-void CameraOrientationPredictor::assembleRefInput()
-{
-    // 7 通道 NHWC `[obs.BGR, ref.BGR, ref.A]`，与模型输入契约一致。
-    // mixChannels 的源通道号跨所有源矩阵连续编号：[0,3) 观测、[3,6) 参考 BGR、
-    // [6,7) 参考 alpha，因此 fromTo 是全局恒等映射。
-    refInputScratch.create(kStripHeight, kStripWidth, CV_MAKETYPE(CV_8U, 7));
-    cv::Mat sources[] = { stripScratch, referenceStripScratch, referenceAlphaStripScratch };
-    const int fromTo[] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6 };
-    cv::mixChannels(sources, 3, &refInputScratch, 1, fromTo, 7);
 }
 
 std::optional<CameraOrientation> CameraOrientationPredictor::decodePmf(const float* pmf, size_t count) const
 {
-    if (pmf == nullptr || count != static_cast<size_t>(kStripWidth)) {
+    if (pmf == nullptr || count == 0) {
         LogError << "CameraOrientation: unexpected pmf size" << VAR(count);
         return std::nullopt;
     }
 
-    // 全 360 bin 方向向量（方向 = bin 方位角，长度 = 概率）合成，用于置信度。
+    // 分类器契约是均匀方位 bin（列 j = 方位角 j 度）；bin 数从输出张量读出，不复刻条带几何。
+    const double radianPerBin = 2.0 * std::numbers::pi / static_cast<double>(count);
+
+    // 全 bin 方向向量（方向 = bin 方位角，长度 = 概率）合成，用于置信度。
     double resultantSin = 0.0;
     double resultantCos = 0.0;
-    for (int j = 0; j < kStripWidth; ++j) {
-        const double theta = j * (std::numbers::pi / 180.0);
+    for (size_t j = 0; j < count; ++j) {
+        const double theta = static_cast<double>(j) * radianPerBin;
         resultantSin += pmf[j] * std::sin(theta);
         resultantCos += pmf[j] * std::cos(theta);
     }
 
-    int center = 0;
-    for (int j = 1; j < kStripWidth; ++j) {
+    size_t center = 0;
+    for (size_t j = 1; j < count; ++j) {
         if (pmf[j] > pmf[center]) {
             center = j;
         }
@@ -404,8 +271,8 @@ std::optional<CameraOrientation> CameraOrientationPredictor::decodePmf(const flo
     double windowSin = 0.0;
     double windowCos = 0.0;
     for (int offset = -kRefineRadius; offset <= kRefineRadius; ++offset) {
-        const int col = (center + offset + kStripWidth) % kStripWidth;
-        const double theta = col * (std::numbers::pi / 180.0);
+        const long long col = (static_cast<long long>(center) + offset + static_cast<long long>(count)) % static_cast<long long>(count);
+        const double theta = static_cast<double>(col) * radianPerBin;
         windowSin += pmf[col] * std::sin(theta);
         windowCos += pmf[col] * std::cos(theta);
     }
