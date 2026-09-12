@@ -1735,7 +1735,7 @@ std::optional<TransferPanelPhaseFit> FitTransferPanelPhase(
     const std::vector<int>& current_x,
     const std::vector<int>& current_y,
     const TransferGridProfile& profile,
-    const cv::Size& panel_size,
+    const cv::Rect& panel_region,
     const std::vector<float>& signed_x,
     const std::vector<float>& signed_y,
     bool preserve_observed_x_phase,
@@ -1744,28 +1744,25 @@ std::optional<TransferPanelPhaseFit> FitTransferPanelPhase(
     if (cell_score.empty() || current_x.empty() || current_y.empty()) {
         return std::nullopt;
     }
-    const int maximum_columns = std::max(1, (panel_size.width - profile.cell_size) / std::max(profile.pitch_min, 1) + 1);
+    const int maximum_columns =
+        std::max(1, (panel_region.width - profile.cell_size) / std::max(profile.pitch_min, 1) + 1);
     const int minimum_rows = ProfileFor(GridType::Transfer).min_rows;
-    const int minimum_y = -cvFloor((1.0 - profile.minimum_top_visibility) * profile.cell_size);
-    const int panel_x_end = panel_size.width + cvFloor((1.0 - kMinimumHorizontalVisibility) * profile.cell_size);
-    const int panel_y_end = panel_size.height + cvFloor((1.0 - profile.minimum_bottom_visibility) * profile.cell_size);
-    // 已观测列已经覆盖该面板按正式 pitch 能容纳的最大跨度时，物品纹理是唯一可靠的横向相位锚。
-    // 只有观测跨度不足面板容量时，才允许完整相位搜索去补回被漏检的外侧列。
-    const auto observed_phase_capacity = FormalAxisStarts(
-        current_x.front(),
-        profile.preferred_pitch,
-        0,
-        panel_x_end,
-        profile.cell_size,
-        maximum_columns);
-    preserve_observed_x_phase = preserve_observed_x_phase && observed_phase_capacity.size() >= static_cast<std::size_t>(maximum_columns);
+    // full ROI 时 hint.region 只覆盖单侧面板；候选与 signed 梯度都必须限制在 region 内，
+    // 否则另一侧面板的边界会把相位竞争带偏。
+    const int panel_x_begin = panel_region.x;
+    const int panel_x_end = panel_region.x + panel_region.width + cvFloor((1.0 - kMinimumHorizontalVisibility) * profile.cell_size);
+    const int minimum_y = panel_region.y - cvFloor((1.0 - profile.minimum_top_visibility) * profile.cell_size);
+    const int panel_y_end = panel_region.y + panel_region.height + cvFloor((1.0 - profile.minimum_bottom_visibility) * profile.cell_size);
+    // 已观测列数达到面板容量时，物品纹理覆盖了全部格子，观测相位自身就是可靠的横向锚，不再开放完整相位搜索；
+    // 观测不足容量（漏检外侧列，或粗定位只提供单点入口）时才枚举全部相位补齐。
+    preserve_observed_x_phase = preserve_observed_x_phase && current_x.size() >= static_cast<std::size_t>(maximum_columns);
 
     std::vector<std::vector<int>> x_candidates;
     for (int pitch = profile.pitch_min; pitch <= profile.pitch_max; ++pitch) {
-        const int phase_begin = preserve_observed_x_phase ? current_x.front() : 0;
-        const int phase_end = preserve_observed_x_phase ? phase_begin + 1 : pitch;
+        const int phase_begin = preserve_observed_x_phase ? current_x.front() : panel_x_begin;
+        const int phase_end = preserve_observed_x_phase ? phase_begin + 1 : panel_x_begin + pitch;
         for (int phase = phase_begin; phase < phase_end; ++phase) {
-            auto starts = FormalAxisStarts(phase, pitch, 0, panel_x_end, profile.cell_size, maximum_columns);
+            auto starts = FormalAxisStarts(phase, pitch, panel_x_begin, panel_x_end, profile.cell_size, maximum_columns);
             if (!starts.empty() && std::ranges::find(x_candidates, starts) == x_candidates.end()) {
                 x_candidates.push_back(std::move(starts));
             }
@@ -1891,8 +1888,8 @@ std::optional<TransferPanelPhaseFit> FitTransferPanelPhase(
             best->x_starts,
             signed_x,
             axis_pitch(best->x_starts),
-            0,
-            0,
+            panel_region.x,
+            panel_x_begin,
             panel_x_end,
             profile.cell_size,
             static_cast<int>(best->x_starts.size()));
@@ -1900,7 +1897,7 @@ std::optional<TransferPanelPhaseFit> FitTransferPanelPhase(
             best->y_starts,
             signed_y,
             axis_pitch(best->y_starts),
-            0,
+            panel_region.y,
             minimum_y,
             panel_y_end,
             profile.cell_size,
@@ -1985,7 +1982,8 @@ GridLayout BuildTransferLayout(
     const TransferGridHint& hint,
     int grid_index,
     GridType type,
-    const TransferTextureContext* texture_context)
+    const TransferTextureContext* texture_context,
+    bool synthetic_hint = false)
 {
     const bool transfer = type == GridType::Transfer;
     const int absolute_center = roi.x + hint.rect.x + hint.rect.width / 2;
@@ -2102,10 +2100,9 @@ GridLayout BuildTransferLayout(
                               && (!transfer || rarity_fit->supporting_strong_cells >= kMinimumReliableRarityCells
                                   || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells || gray_rarity_fit);
         if (reliable_rarity_fit) {
-            // 存取站左右两侧仍沿用原有 rarity 列坐标；只有背包右侧的后续相位搜索需要额外锚定完整容量网格。
-            if (!transfer || complete_transfer_panel || left_side) {
-                local_x = rarity_fit->x_starts;
-            }
+            // rarity 列坐标与结构观测同处 ROI 坐标系，直接作为所有变体的公共相位锚；
+            // 右侧背包随后以它为锚做容量相位搜索，左侧仓库与存取站沿用这些列坐标。
+            local_x = rarity_fit->x_starts;
             // Transfer 用支持行的实际范围补足粗网格；仅增加总行数会把顶部缺行错补到下面。
             // Port 保持原有从粗起点向下生成的策略。
             if (complete_transfer_panel) {
@@ -2335,16 +2332,20 @@ GridLayout BuildTransferLayout(
                 reliable_rarity_fit || trusted_selected ? local_x : observed_x_phase,
                 local_y,
                 profile,
-                roi.size(),
+                hint.region,
                 signed_x,
                 signed_y,
                 !reliable_rarity_fit && !trusted_selected,
                 reliable_rarity_fit || trusted_selected);
-            if (!final_phase) {
+            if (final_phase) {
+                local_x = final_phase->x_starts;
+                local_y = final_phase->y_starts;
+            }
+            else if (synthetic_hint) {
+                // 合成 hint 的单点观测只是搜索入口，没有可信结构；相位竞争验收失败时按无网格处理。
                 return {};
             }
-            local_x = final_phase->x_starts;
-            local_y = final_phase->y_starts;
+            // 真实 hint 的观测轴来自边界拟合；相位竞争没有更优候选时保留观测轴，避免丢弃已发现的面板。
         }
     }
 
@@ -2735,8 +2736,10 @@ GridDetection DetectGridNormalized(
     }
     else if (type == GridType::Transfer || type == GridType::PortStorager) {
         auto hints = DiscoverTransferGridHints(image(roi), type == GridType::Transfer);
+        bool synthetic_hint = false;
         if (type == GridType::Transfer && hints.empty()) {
             // 无 hint 只表示粗定位没有入口；完整单侧面板仍进入二维相位搜索，最终候选统一接受结构验收。
+            synthetic_hint = true;
             hints.push_back({
                 .region = cv::Rect(0, 0, roi.width, roi.height),
                 .rect = cv::Rect(0, 0, roi.width, roi.height),
@@ -2745,7 +2748,7 @@ GridDetection DetectGridNormalized(
             });
         }
         for (int index = 0; index < static_cast<int>(hints.size()); ++index) {
-            Append(result, BuildTransferLayout(image, roi, hints[index], index, type, texture_context));
+            Append(result, BuildTransferLayout(image, roi, hints[index], index, type, texture_context, synthetic_hint));
         }
     }
     else {
