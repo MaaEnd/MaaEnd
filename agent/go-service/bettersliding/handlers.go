@@ -628,14 +628,6 @@ func (a *BetterSlidingAction) handleNoFineTune(
 		return a.nudgePreciseClick(ctx, arg, axis, endSign, stepSign, currentQuantity)
 	}
 
-	logEvent := a.logger.Info().
-		Str("fine_tune_fallback", a.FineTuneFallback).
-		Str("axis", axis.String()).
-		Int("end_sign", endSign).
-		Int("step_sign", stepSign).
-		Int("current_quantity", currentQuantity).
-		Int("target_quantity", a.TargetQuantity)
-
 	if err := overrideCheckQuantityBranch(
 		ctx,
 		arg.CurrentTaskName,
@@ -643,15 +635,29 @@ func (a *BetterSlidingAction) handleNoFineTune(
 		buttonTarget{},
 		0,
 	); err != nil {
+		errEvent := a.logger.Error().
+			Err(err).
+			Str("fine_tune_fallback", a.FineTuneFallback).
+			Str("axis", axis.String()).
+			Int("end_sign", endSign).
+			Int("step_sign", stepSign).
+			Int("current_quantity", currentQuantity).
+			Int("target_quantity", a.TargetQuantity)
 		if errors.Is(err, errCheckQuantityBranchNextOverride) {
-			logEvent.Err(err).Msg("failed to override next to done without fine-tuning")
+			errEvent.Msg("failed to override next to done without fine-tuning")
 		} else {
-			logEvent.Err(err).Msg("failed to override done node without fine-tuning")
+			errEvent.Msg("failed to override done node without fine-tuning")
 		}
 		return false
 	}
 
-	logEvent.
+	a.logger.Info().
+		Str("fine_tune_fallback", a.FineTuneFallback).
+		Str("axis", axis.String()).
+		Int("end_sign", endSign).
+		Int("step_sign", stepSign).
+		Int("current_quantity", currentQuantity).
+		Int("target_quantity", a.TargetQuantity).
 		Str("next", nodeBetterSlidingDone).
 		Msg("fine-tuning skipped, finish after quantity re-check")
 	return true
