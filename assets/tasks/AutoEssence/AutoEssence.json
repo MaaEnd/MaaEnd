@@ -495,9 +495,6 @@
                         }
                     },
                     "option": [
-                        "EssenceFilterAfterBattleSelectWeaponRarity",
-                        "EssenceFilterAfterBattleSelectEssence",
-                        "EssenceFilterAfterBattleSelectExtraRules",
                         "AutoUseSpMedication"
                     ]
                 },
@@ -525,9 +522,6 @@
                         }
                     },
                     "option": [
-                        "EssenceFilterAfterBattleSelectWeaponRarity",
-                        "EssenceFilterAfterBattleSelectEssence",
-                        "EssenceFilterAfterBattleSelectExtraRules",
                         "AutoUseSpMedication"
                     ]
                 }

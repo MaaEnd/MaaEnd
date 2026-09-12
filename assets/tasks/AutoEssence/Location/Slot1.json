@@ -4,6 +4,8 @@
             "type": "checkbox",
             "label": "$option.AutoEssenceLocationSlot1.label",
             "description": "$option.AutoEssenceLocationSlot1.description",
+            "min_count": 3,
+            "max_count": 3,
             "default_case": [
                 "s1_2",
                 "s1_3",
