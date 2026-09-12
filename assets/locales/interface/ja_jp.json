@@ -365,7 +365,7 @@
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.label": "データ報告を許可",
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.description": "弾性物資の価格変動の法則を研究するため、匿名でデータをアップロードします。関連動画: [BV1zgRAByECH](https://www.bilibili.com/video/BV1zgRAByECH)",
     "task.AutoStockpile.option.AutoStockpileMinBuy.label": "最低1つ購入",
-    "task.AutoStockpile.option.AutoStockpileMinBuy.description": "すべての商品価格が心理価格帯を上回っている場合、デイリー任務を達成するため、最安の商品を1つ強制購入します",
+    "task.AutoStockpile.option.AutoStockpileMinBuy.description": "デイリー任務の達成に使用します",
     "task.CreditShopping.label": "🛍️ クレジットショッピング",
     "task.CreditShopping.description": "クレジット取引所でアイテムを購入します",
     "option.CreditShoppingPriority1.label": "購入アイテム設定1",

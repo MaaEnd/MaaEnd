@@ -369,7 +369,7 @@
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.label": "允许上报数据",
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.description": "匿名上传数据，用于研究弹性物资价格变动的规律，相关视频 [BV1zgRAByECH](https://www.bilibili.com/video/BV1zgRAByECH)",
     "task.AutoStockpile.option.AutoStockpileMinBuy.label": "至少购买一个",
-    "task.AutoStockpile.option.AutoStockpileMinBuy.description": "当所有商品价格均高于心理价位时，强制购买一个最便宜的商品，以完成每日任务",
+    "task.AutoStockpile.option.AutoStockpileMinBuy.description": "用于完成每日任务",
     "task.CreditShopping.label": "🛍️信用点购物",
     "task.CreditShopping.description": "在信用交易所购买物品",
     "option.CreditShoppingPriority1.label": "购买物品选项1",
