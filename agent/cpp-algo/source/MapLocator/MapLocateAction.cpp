@@ -325,26 +325,34 @@ std::shared_ptr<MapLocator> getOrInitLocator()
         fs::path exeDir = getExeDir();
         fs::path mapRoot = exeDir / ".." / "resource" / "image" / "MapLocator";
         fs::path yoloModel = exeDir / ".." / "resource" / "model" / "map" / "cls.onnx";
-        fs::path cameraOrientationModel = exeDir / ".." / "resource" / "model" / "map" / "cameraorientation.onnx";
-        fs::path cameraOrientationRefModel = exeDir / ".." / "resource" / "model" / "map" / "cao_ref.onnx";
+        fs::path cameraOrientationDir = exeDir / ".." / "resource" / "model" / "map" / "cameraorientation";
+        fs::path cameraOrientationPreprocessModel = cameraOrientationDir / "preprocess.onnx";
+        fs::path cameraOrientationPolarModel = cameraOrientationDir / "polar.onnx";
+        fs::path cameraOrientationRefModel = cameraOrientationDir / "polar_with_ref.onnx";
 
         std::string mapRootStr = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));
         std::string yoloModelStr = fs::exists(yoloModel) ? MAA_NS::path_to_utf8_string(fs::absolute(yoloModel)) : "";
-        std::string cameraOrientationModelStr =
-            fs::exists(cameraOrientationModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationModel)) : "";
+        std::string cameraOrientationPreprocessModelStr =
+            fs::exists(cameraOrientationPreprocessModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationPreprocessModel)) : "";
+        std::string cameraOrientationPolarModelStr =
+            fs::exists(cameraOrientationPolarModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationPolarModel)) : "";
         std::string cameraOrientationRefModelStr =
             fs::exists(cameraOrientationRefModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationRefModel)) : "";
 
         LogInfo << "Auto-init: mapRoot=" << mapRootStr;
         LogInfo << "Auto-init: yoloModel=" << (yoloModelStr.empty() ? "(not found)" : yoloModelStr);
-        LogInfo << "Auto-init: cameraOrientationModel=" << (cameraOrientationModelStr.empty() ? "(not found)" : cameraOrientationModelStr);
+        LogInfo << "Auto-init: cameraOrientationPreprocessModel="
+                << (cameraOrientationPreprocessModelStr.empty() ? "(not found)" : cameraOrientationPreprocessModelStr);
+        LogInfo << "Auto-init: cameraOrientationPolarModel="
+                << (cameraOrientationPolarModelStr.empty() ? "(not found)" : cameraOrientationPolarModelStr);
         LogInfo << "Auto-init: cameraOrientationRefModel="
                 << (cameraOrientationRefModelStr.empty() ? "(not found)" : cameraOrientationRefModelStr);
 
         MapLocatorConfig cfg;
         cfg.mapResourceDir = mapRootStr;
         cfg.yoloModelPath = yoloModelStr;
-        cfg.cameraOrientationModelPath = cameraOrientationModelStr;
+        cfg.cameraOrientationPreprocessModelPath = cameraOrientationPreprocessModelStr;
+        cfg.cameraOrientationPolarModelPath = cameraOrientationPolarModelStr;
         cfg.cameraOrientationRefModelPath = cameraOrientationRefModelStr;
         const unsigned hardwareThreads = std::thread::hardware_concurrency();
         cfg.yoloThreads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);

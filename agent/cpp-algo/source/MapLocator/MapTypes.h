@@ -26,7 +26,9 @@ struct MapLocatorConfig
 {
     std::string mapResourceDir;
     std::string yoloModelPath;
-    std::string cameraOrientationModelPath;
+    // 摄像机朝向三件套工件：前处理图 + 观测/参考分类器；路径为空表示未部署该图。
+    std::string cameraOrientationPreprocessModelPath;
+    std::string cameraOrientationPolarModelPath;
     std::string cameraOrientationRefModelPath;
     int yoloThreads = 1;
 };

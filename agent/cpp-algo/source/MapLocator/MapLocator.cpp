@@ -859,11 +859,15 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
         zoneClassifier = std::make_unique<YoloPredictor>(config.yoloModelPath, matchCfg.yoloConfThreshold, config.yoloThreads);
     }
 
-    // 摄像机朝向模型很小（推理亚毫秒级），单线程足够；两个模型都是可选的，
-    // 至少配置一个才构造预测器。
-    if (!config.cameraOrientationModelPath.empty() || !config.cameraOrientationRefModelPath.empty()) {
-        orientationPredictor =
-            std::make_unique<CameraOrientationPredictor>(config.cameraOrientationModelPath, config.cameraOrientationRefModelPath, 1);
+    // 摄像机朝向三件套工件很小（推理亚毫秒级），单线程足够；三张图都是可选的，
+    // 至少配置一张才构造预测器，可用性由预测器内部判断（前处理 + 至少一个分类器）。
+    if (!config.cameraOrientationPreprocessModelPath.empty() || !config.cameraOrientationPolarModelPath.empty()
+        || !config.cameraOrientationRefModelPath.empty()) {
+        orientationPredictor = std::make_unique<CameraOrientationPredictor>(
+            config.cameraOrientationPreprocessModelPath,
+            config.cameraOrientationPolarModelPath,
+            config.cameraOrientationRefModelPath,
+            1);
     }
 
     isInitialized = true;
