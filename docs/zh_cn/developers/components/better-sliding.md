@@ -61,11 +61,8 @@
 | `TargetQuantityType` | `string` | 否 | 如何解释 `TargetQuantity`。`"Value"`（默认）：绝对离散计数；`"Percentage"`：`availableQuantity` 的百分比（1–100），四舍五入后钳制到 `[1, availableQuantity]`。 |
 | `ReverseTarget` | `bool` | 否 | 为 `true` 时从可用总量反向计算目标：Value 模式为 `availableQuantity - TargetQuantity`；Percentage 模式按剩余百分比计算。默认 `false`。 |
 | `FineTuneQuantity` | `bool` 或 `int` | 否 | 精确点击后是否继续用 Increase/Decrease 微调。`true`（默认）：始终微调；`false`：一律不微调；整数 `N`（须 `>= 1`）：仅当 `abs(当前数量 − 目标数量) <= N` 时微调。 |
-| `FineTuneFallback` | `string` | 否 | 仅在本次判定为「不微调」时生效，控制此时的行为。`"none"`（默认）：复检后直接收尾；`"more"` / `"less"`：按单轴 1px 累加偏移后复查，详见[不微调语义](#不微调语义)。 |
+| `FineTuneFallback` | `string` | 否 | 仅在本次判定为「不微调」时生效，控制此时的行为。`"none"`（默认）：不做补偿，直接收尾；`"more"` / `"less"`：朝增大/减小数量的方向补偿并复查，详见[不微调语义](#不微调语义)。 |
 | `ResetBeforeFindStart` | `bool` | 否 | 为 `true` 时，在匹配滑条起始位置前先向最小方向滑动复位，保证后续记录到的起始位置为最小值。默认 `false`。 |
-
-> [!warning]
-> 旧参数 `FinishAfterPreciseClick` 已被移除，请改用 `FineTuneQuantity: false` + `FineTuneFallback: "none"` 表达「精确点击后不再微调」。仍传入 `FinishAfterPreciseClick` 时会被静默忽略（不告警、不校验），行为回落为默认的 `FineTuneQuantity: true`，即**继续微调**。
 
 > [!note]
 > `TargetQuantityType` 与 `ReverseTarget` 的组合计算逻辑：
@@ -103,44 +100,13 @@
 
 ### 不微调语义
 
-`FineTuneFallback` 只在**本次判定为不微调**时生效。判定发生在 `BetterSlidingCheckQuantity` 读到当前数量之后：`FineTuneQuantity: false` 时始终判定为不微调；为整数 `N` 时，仅当 `abs(当前数量 − 目标数量) <= N` 才微调，否则判定为不微调。
+`FineTuneFallback` 只在**本次判定为不微调**时生效：`FineTuneQuantity` 为 `false` 时始终不微调；为整数阈值 `N` 时，仅当当前数量与目标数量的差值不大于 `N` 才微调，否则不微调。此时 BetterSliding 不再逐步逼近目标，而是按 `FineTuneFallback` 决定如何收尾：
 
-判定为不微调后：
-
-1. 读当前数量与目标数量比较，据此决定偏移方向。`current == target` 时一律直接收尾，不做任何偏移。
-2. `FineTuneFallback: "none"`：不做偏移，经 `BetterSlidingCheckQuantity` 复检后路由 `BetterSlidingDone`。
-3. `FineTuneFallback: "more"`：当 `current < target` 时，把精确点击坐标朝 **Start → End** 方向移动 1px；`current > target` 时不偏移，直接收尾。
-4. `FineTuneFallback: "less"`：当 `current > target` 时，把精确点击坐标朝 **End → Start** 方向移动 1px；`current < target` 时不偏移，直接收尾。
-5. 偏移后先经 `BetterSlidingReset2` 把滑块向另一侧滑动复位（避免上一次精确点击落在滑块本体上影响本次点击），再执行精确点击并复查；未命中则继续按 1px 累加（第 k 次为基准坐标 `±k` px，最多 4 次）。
-
-方向与轴选择规则：
-
-- 轴由起点与终点的中心点差值决定：`dx = endX - startX`、`dy = endY - startY`，`abs(dx) > abs(dy)` 取 x 轴，否则取 y 轴（**平局取 y**）。`dx == dy == 0` 时取 y 轴并打印告警。
-- 正方向即 **Start → End**（`sign(dx)` 或 `sign(dy)`）；方向分量为 0 时取 `+1` 并打印告警。
-- 与点击比例语义自洽：`click = start + (end - start) * numerator / denominator`，朝 End 靠近即增大数量，因此 `more` 用于修正「当前 < 目标」。
-- 偏移只作用于选定轴的单个分量，另一轴分量保持精确点击基准值不变。
-
-`BetterSlidingReset2` 复位规则：
-
-- 复位方向按**精确点击基准坐标**在 Start → End 轴上的投影位置决定：投影比例 `< 0.5`（靠近 Start）时向 **End**（最大值侧）滑动，否则向 **Start**（最小值侧）滑动；恰好落在中线时取向 Start。
-- 滑动终点坐标由 `Direction` 推导并直接覆盖 `BetterSlidingReset2` 的 `end`（`right` / `up` 的最大值侧为 `[1260, 10, 10, 10]`、最小值侧为 `[10, 700, 10, 10]`，`left` / `down` 相反），不使用 pipeline 中的占位 `end`。
-- 轴跨度为 0（Start 与 End 中心重合）时打印告警并回退为向 Start 滑动。
-- `BetterSlidingReset2` 自身有 `max_hit: 4`，即**每次运行最多复位 4 次**（与 Increase/Decrease 的微调预算一致）；复位后由该节点的静态 `next` 路由回 `BetterSlidingPreciseClick`。
-
-> [!note]
-> 偏移与微调的循环上界由**动作节点各自的 `max_hit: 4`** 在框架层限制（`BetterSlidingIncreaseQuantity`、`BetterSlidingDecreaseQuantity`、`BetterSlidingReset2`，以及用于防遮挡的 `BetterSlidingMoveMouse`）。`BetterSlidingCheckQuantity` 自身**不设 `max_hit`**，因此每一次偏移或点击的结果都会被下一次数量复查看到，不存在「最后一次动作的结果不被复查」的问题。
->
-> 当上述动作节点的预算全部用尽时，`BetterSlidingCheckQuantity` 的 `next` 候选中已无可用节点，框架以 `Node.NextList.Failed` 结束该内部流水线并**判定为失败**：Go 侧会记录 `internal BetterSliding pipeline failed` 并返回 `false`，同时**不会**写入结果节点（`TargetReachableOverrideEnable` 不会被置为 `true`）。调用方应按失败分支处理。
->
-> 注意该判负需要等待框架的 `timeout`（默认 20 秒）耗尽，因此从预算用尽到报错之间会有明显停顿。
->
-> 各动作节点的命中计数**每次运行开头由 `BetterSlidingClearMaxHit` 清零**；若后续新增带 `max_hit` 的动作节点，必须同步加入该节点的 `nodes` 列表，否则同一次外层任务内的后续调用会直接跳过该节点。
-
-> [!note]
-> 只设置 `FineTuneFallback` 而不关闭微调（`FineTuneQuantity` 保持默认 `true`，或整数阈值判定为需要微调）时，`FineTuneFallback` **不生效**，流程仍走 Increase/Decrease 微调。
-
-> [!note]
-> `FineTuneQuantity` 为整数阈值时允许混合行为：偏移使差值进入阈值后，后续轮次会切回 Increase/Decrease 微调。例如 `FineTuneQuantity: 3` + `FineTuneFallback: "more"`，差值从 10 逐步被 1px 偏移压到 3 以内后，剩余差值由 Increase/Decrease 一次点击完成。注意偏移与微调**共享**动作节点的 4 次预算。
+| 取值 | 行为 |
+| --- | --- |
+| `"none"`（默认） | 不做任何补偿，本次调整到此结束。 |
+| `"more"` | 当前数量小于目标数量时，朝**增大数量**的方向补偿并复查；当前数量不小于目标数量时不做补偿，直接结束。 |
+| `"less"` | 当前数量大于目标数量时，朝**减小数量**的方向补偿并复查；当前数量不大于目标数量时不做补偿，直接结束。 |
 
 ### 结果节点契约
 

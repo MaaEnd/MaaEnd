@@ -61,11 +61,8 @@ The following 6 fields are recommended to be passed via the calling node's `atta
 | `TargetQuantityType` | `string` | No | How to interpret `TargetQuantity`. `"Value"` (default): absolute count; `"Percentage"`: percentage of `availableQuantity` (1–100), rounded and clamped. |
 | `ReverseTarget` | `bool` | No | When `true`, resolves the target from the available quantity: Value mode uses `availableQuantity - TargetQuantity`; Percentage mode uses the remaining percentage. Default `false`. |
 | `FineTuneQuantity` | `bool` or `int` | No | Whether to keep fine-tuning via Increase/Decrease after the precise click. `true` (default): always fine-tune; `false`: never fine-tune; integer `N` (must be `>= 1`): fine-tune only when `abs(current - target) <= N`. |
-| `FineTuneFallback` | `string` | No | Takes effect only when this run decides not to fine-tune. `"none"` (default): finish after the quantity re-check; `"more"` / `"less"`: nudge by 1px steps along a single axis and re-check. See [No-Fine-Tune Semantics](#no-fine-tune-semantics). |
+| `FineTuneFallback` | `string` | No | Takes effect only when this run decides not to fine-tune. `"none"` (default): no compensation, finish directly; `"more"` / `"less"`: compensate toward increasing/decreasing the quantity and re-check. See [No-Fine-Tune Semantics](#no-fine-tune-semantics). |
 | `ResetBeforeFindStart` | `bool` | No | When `true`, first swipes toward the minimum before matching the slider start position, so the recorded start position is the minimum value. Default `false`. |
-
-> [!warning]
-> The legacy `FinishAfterPreciseClick` parameter has been removed. Use `FineTuneQuantity: false` + `FineTuneFallback: "none"` to express "do not fine-tune after the precise click". If `FinishAfterPreciseClick` is still passed, it is silently ignored (no warning, no validation) and the behavior falls back to the default `FineTuneQuantity: true`, i.e. **fine-tuning continues**.
 
 > [!note]
 > Combination calculation logic for `TargetQuantityType` and `ReverseTarget`:
@@ -103,44 +100,13 @@ In addition to the 6 fields above, all other parameters can only be read from `c
 
 ### No-Fine-Tune Semantics
 
-`FineTuneFallback` only takes effect when **this run decides not to fine-tune**. The decision is made right after `BetterSlidingCheckQuantity` reads the current quantity: with `FineTuneQuantity: false` every read is considered "no fine-tune"; with an integer `N`, fine-tuning is used only when `abs(current - target) <= N`, otherwise the run is considered "no fine-tune".
+`FineTuneFallback` only takes effect when **this run decides not to fine-tune**: with `FineTuneQuantity: false` it is always "no fine-tune"; with an integer threshold `N`, fine-tuning is used only when the difference between the current quantity and the target quantity is not greater than `N`, otherwise the run is "no fine-tune". In that case BetterSliding no longer approaches the target step by step; instead `FineTuneFallback` decides how to finish:
 
-Once "no fine-tune" is decided:
-
-1. The current quantity is compared with the target to pick the nudge direction. When `current == target`, BetterSliding always finishes directly without any nudge.
-2. `FineTuneFallback: "none"`: no nudge; finishes via `BetterSlidingDone` after the `BetterSlidingCheckQuantity` re-check.
-3. `FineTuneFallback: "more"`: when `current < target`, moves the precise click coordinate 1px toward **Start → End**; when `current > target`, no nudge and it finishes directly.
-4. `FineTuneFallback: "less"`: when `current > target`, moves the precise click coordinate 1px toward **End → Start**; when `current < target`, no nudge and it finishes directly.
-5. After a nudge, the slider is first reset to the opposite side via `BetterSlidingReset2` (so the previous precise click, which lands on the slider handle itself, does not affect the next click), then the precise click runs again and the quantity is re-checked; if it still does not match, the offset accumulates by another 1px (the k-th nudge is the base coordinate `±k` px, up to 4 nudges).
-
-Direction and axis selection rules:
-
-- The axis is derived from the center-point delta between start and end: `dx = endX - startX`, `dy = endY - startY`; `abs(dx) > abs(dy)` selects the x axis, otherwise the y axis (**ties go to y**). When `dx == dy == 0`, the y axis is used and a warning is logged.
-- The positive direction is **Start → End** (`sign(dx)` or `sign(dy)`); when that component is 0, `+1` is used and a warning is logged.
-- This is consistent with the click-ratio semantics: `click = start + (end - start) * numerator / denominator`, so moving toward End increases the quantity; hence `more` corrects "current < target".
-- A nudge only changes one component of the selected axis; the other component keeps the precise-click base value.
-
-`BetterSlidingReset2` reset rules:
-
-- The reset direction is decided by the projection of the **precise-click base coordinate** onto the Start → End axis: a projection ratio `< 0.5` (closer to Start) swipes toward **End** (the maximum side), otherwise it swipes toward **Start** (the minimum side); an exact midpoint falls back to the Start side.
-- The swipe end coordinate is derived from `Direction` and directly overrides `BetterSlidingReset2`'s `end` (for `right` / `up` the maximum side is `[1260, 10, 10, 10]` and the minimum side is `[10, 700, 10, 10]`; `left` / `down` are the opposite), so the placeholder `end` in the Pipeline is not used.
-- When the axis span is 0 (the Start and End centers coincide), a warning is logged and the reset falls back to swiping toward Start.
-- `BetterSlidingReset2` has its own `max_hit: 4`, i.e. **at most 4 resets per run** (matching the Increase/Decrease fine-tuning budget); after the reset its static `next` routes back to `BetterSlidingPreciseClick`.
-
-> [!note]
-> The offset and fine-tuning loops are bounded at the framework level by the **`max_hit: 4` on each action node** (`BetterSlidingIncreaseQuantity`, `BetterSlidingDecreaseQuantity`, `BetterSlidingReset2`, and `BetterSlidingMoveMouse` used for occlusion avoidance). `BetterSlidingCheckQuantity` itself has **no `max_hit`**, so the outcome of every offset or click is seen by the next quantity re-check — there is no "the last action's result is never re-checked" problem.
->
-> Once all of those action nodes have exhausted their budgets, no candidate in `BetterSlidingCheckQuantity`'s `next` list can run, so the framework ends the internal pipeline with `Node.NextList.Failed` and **marks it as a failure**: the Go side logs `internal BetterSliding pipeline failed` and returns `false`, and it does **not** write the outcome nodes (`TargetReachableOverrideEnable` is left untouched). Callers must handle it as a failure.
->
-> Note that this failure requires the framework `timeout` (20 seconds by default) to expire, so there is a noticeable pause between budget exhaustion and the error.
->
-> Each action node's hit count is **cleared at the start of every run by `BetterSlidingClearMaxHit`**; when adding a new action node with `max_hit`, it must also be added to that node's `nodes` list, otherwise later calls within the same outer task will skip it outright.
-
-> [!note]
-> If `FineTuneFallback` is set without disabling fine-tuning (`FineTuneQuantity` left at its default `true`, or an integer threshold that still requires fine-tuning), `FineTuneFallback` has **no effect** and the Increase/Decrease fine-tuning path is used.
-
-> [!note]
-> An integer `FineTuneQuantity` threshold allows mixed behavior: once the offset brings the difference within the threshold, subsequent rounds switch back to Increase/Decrease fine-tuning. For example, with `FineTuneQuantity: 3` + `FineTuneFallback: "more"`, a difference of 10 is reduced by 1px nudges until it is within 3, and the remainder is closed by a single Increase/Decrease click. Note that nudges and fine-tuning **share** the 4-action budget of the action nodes.
+| Value | Behavior |
+| --- | --- |
+| `"none"` (default) | No compensation at all; this adjustment ends here. |
+| `"more"` | When the current quantity is less than the target quantity, compensates toward **increasing** the quantity and re-checks; when the current quantity is not less than the target quantity, no compensation and it finishes directly. |
+| `"less"` | When the current quantity is greater than the target quantity, compensates toward **decreasing** the quantity and re-checks; when the current quantity is not greater than the target quantity, no compensation and it finishes directly. |
 
 ### Outcome Node Contract
 
