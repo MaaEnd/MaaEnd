@@ -80,9 +80,9 @@ type quantityFilterParam struct {
 //   - DecreaseButton: decrease button template path or coordinates
 //   - CenterPointOffset: click offset from slider handle center, default [-10, 0]
 //   - ClampTargetToSliderMax: clamp target to sliderMaxQuantity instead of failing (default false)
-//   - FineTuneQuantity: bool or int in [1, maxFineTuneThreshold]; true (default) always
-//     fine-tunes via Increase/Decrease, false never, int N only when abs(current - target) <= N.
-//     Out-of-range integers are rejected instead of being clamped.
+//   - FineTuneQuantity: bool or int >= 1; true (default) always fine-tunes via
+//     Increase/Decrease, false never, int N only when abs(current - target) <= N.
+//     Integers above maxFineTuneThreshold saturate to "always fine-tune".
 //   - FineTuneFallback: none (default) / more / less; only used when this run decides
 //     not to fine-tune, more/less nudges the precise click by 1px steps on one axis.
 //   - ResetBeforeFindStart: swipe toward the minimum before matching the slider start position,
@@ -147,11 +147,11 @@ func (b buttonTarget) logValue() any {
 
 const maxClickRepeat = 30
 
-// maxFineTuneThreshold 是 FineTuneQuantity 整数阈值的上界。
+// maxFineTuneThreshold 是 FineTuneQuantity 整数阈值的饱和边界。
 //
-// 取 math.MaxInt32：远大于任何真实数量差值（等价于「始终微调」），且能被 float64
-// 精确表示，因此 int(v) 不会溢出。超出上界直接报错而非钳制——旧实现钳到
-// float64(math.MaxInt)（= 2^63）再转换会回绕成 math.MinInt，把「超大阈值」
+// 取 math.MaxInt32：远大于任何真实数量差值，且能被 float64 精确表示。阈值超过该值时
+// 不再执行 int(v)，而是饱和为「始终微调」（见 newThresholdFineTuneQuantity）——旧实现
+// 钳到 float64(math.MaxInt)（= 2^63）再转换会回绕成 math.MinInt，把「超大阈值」
 // 反转成「从不微调」。
 const maxFineTuneThreshold = math.MaxInt32
 

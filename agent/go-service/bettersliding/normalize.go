@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 func clampClickRepeat(repeat int) int {
@@ -229,9 +231,10 @@ func resolveTargetQuantity(
 //
 //	未提供（present=false，含显式 null）-> 默认 enabled（始终微调）；
 //	bool                               -> 布尔语义；
-//	整数值                             -> 阈值语义，阈值必须在 [1, maxFineTuneThreshold]。
+//	整数值                             -> 阈值语义，阈值须 >= 1；超过 maxFineTuneThreshold
+//	                                      时饱和为 enabled（始终微调）。
 //
-// 非整数、其他类型与超界值均返回错误。
+// 非整数、其他类型与 < 1 的值均返回错误。
 //
 // present 由调用方（hasNonNullRawKey）判定：显式 null 与键缺失一样视为「未提供」，
 // 因此这里不再单独区分 null。
@@ -261,14 +264,15 @@ func newThresholdFineTuneQuantity(v float64) (fineTuneQuantity, error) {
 	if v < 1 {
 		return fineTuneQuantity{}, fmt.Errorf("FineTuneQuantity threshold must be >= 1, got %v", v)
 	}
-	// 阈值只在 [1, maxFineTuneThreshold] 内被接受：该区间可被 float64 精确表示，
-	// 转换到 int 不会溢出。超出上界直接报错，不做钳制（见 maxFineTuneThreshold 注释）。
+	// 阈值超过 maxFineTuneThreshold 时已超出 int 可表示范围，且远大于任何真实数量差值，
+	// 语义上等价于「始终微调」：饱和为 enabled，不截断、不报错（文档只约束 N >= 1）。
 	if v > maxFineTuneThreshold {
-		return fineTuneQuantity{}, fmt.Errorf(
-			"FineTuneQuantity threshold must be <= %d, got %v",
-			maxFineTuneThreshold,
-			v,
-		)
+		log.Warn().
+			Float64("fine_tune_quantity", v).
+			Int("max_fine_tune_threshold", maxFineTuneThreshold).
+			Msg("FineTuneQuantity threshold above max, treated as always fine-tune")
+
+		return fineTuneQuantity{enabled: true}, nil
 	}
 
 	return fineTuneQuantity{thresholdMode: true, threshold: int(v)}, nil
