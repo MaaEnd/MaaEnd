@@ -30,6 +30,50 @@ target_compile_definitions(
 )
 configure_icon_recognition_test(icon-recognition-manual-cli-tests)
 
+# 保留历史算法测试目标供单独维护；其中输入均为程序构造的合成画面，不作为真实截图门禁。
+add_executable(icon-recognition-small-tests test_small_algorithms.cpp)
+target_link_libraries(icon-recognition-small-tests PRIVATE icon-recognition-core)
+target_compile_definitions(icon-recognition-small-tests PRIVATE ICON_RECOGNITION_TEST_MAIN)
+configure_icon_recognition_test(icon-recognition-small-tests)
+
+add_executable(
+    icon-recognition-custom-tests
+    test_custom_recognition.cpp
+    ../IconRecognitionRecognition.cpp
+)
+target_link_libraries(
+    icon-recognition-custom-tests
+    PRIVATE
+        icon-recognition-core
+        MaaFramework::MaaFramework
+)
+set(ICON_RECOGNITION_TEST_RUNTIME "${CMAKE_CURRENT_BINARY_DIR}/runtime")
+set_target_properties(
+    icon-recognition-custom-tests
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${ICON_RECOGNITION_TEST_RUNTIME}/agent"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${ICON_RECOGNITION_TEST_RUNTIME}/agent"
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${ICON_RECOGNITION_TEST_RUNTIME}/agent"
+        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${ICON_RECOGNITION_TEST_RUNTIME}/agent"
+)
+add_custom_command(
+    TARGET icon-recognition-custom-tests
+    POST_BUILD
+    COMMAND
+        ${CMAKE_COMMAND} -E make_directory
+        "${ICON_RECOGNITION_TEST_RUNTIME}/data/IconRecognition"
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_LIST_DIR}/../../../../../assets/data/IconRecognition/recognition_items.json"
+        "${ICON_RECOGNITION_TEST_RUNTIME}/data/IconRecognition/recognition_items.json"
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_LIST_DIR}/../../../../../assets/resource/image/IconRecognition"
+        "${ICON_RECOGNITION_TEST_RUNTIME}/resource/image/IconRecognition"
+    VERBATIM
+)
+configure_icon_recognition_test(icon-recognition-custom-tests)
+
 add_executable(icon-recognition-debug-tests test_debug_capture.cpp)
 target_link_libraries(icon-recognition-debug-tests PRIVATE icon-recognition-core)
 configure_icon_recognition_test(icon-recognition-debug-tests)
@@ -65,6 +109,8 @@ add_custom_target(
     DEPENDS
         icon-recognition-types-tests
         icon-recognition-manual-cli-tests
+        icon-recognition-small-tests
+        icon-recognition-custom-tests
         icon-recognition-debug-tests
         icon-recognition-expected-tests
         icon-recognition-manual-runner

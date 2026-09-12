@@ -404,6 +404,8 @@ switch ($Task) {
         foreach ($name in @(
             "icon-recognition-types-tests",
             "icon-recognition-manual-cli-tests",
+            "icon-recognition-small-tests",
+            "icon-recognition-custom-tests",
             "icon-recognition-debug-tests",
             "icon-recognition-expected-tests"
         )) {

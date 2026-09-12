@@ -1,7 +1,5 @@
 #include "GridDetector.h"
 
-#include <MaaUtils/Logger.h>
-
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -14,6 +12,8 @@
 #include <stdexcept>
 #include <tuple>
 #include <vector>
+
+#include <MaaUtils/Logger.h>
 
 #include "ForegroundTexture.h"
 #include "GridAnchors.h"
@@ -2310,7 +2310,19 @@ GridLayout BuildTransferLayout(
             LogDebug << "Transfer-left legacy candidate rejected: no structure response." << VAR(grid_index);
             return {};
         }
-        // 无稀有度证据的接受是幻影网格的唯一入口，必须留痕以便实机排查。
+        // 背景模糊纹理也可能产生少量格框响应；至少一格必须有物品级前景，才能确认这是实际仓库内容。
+        const bool has_foreground_cell = std::ranges::any_of(local_y, [&](int y) {
+            return std::ranges::any_of(local_x, [&](int x) {
+                const cv::Rect cell(roi.x + x, roi.y + y, profile.cell_size, profile.cell_size);
+                const auto texture = ForegroundTextureScore(image, cell, GridType::Transfer);
+                return texture && *texture >= kDefaultLowTextureThreshold;
+            });
+        });
+        if (!has_foreground_cell) {
+            LogDebug << "Transfer-left legacy candidate rejected: no foreground cell." << VAR(grid_index);
+            return {};
+        }
+        // 当前观测到的无稀有度接受路径必须留痕，便于实机排查潜在的幻影网格。
         LogDebug << "Transfer-left legacy candidate accepted without rarity evidence." << VAR(grid_index)
                  << VAR(local_x.size()) << VAR(local_y.size());
     }
