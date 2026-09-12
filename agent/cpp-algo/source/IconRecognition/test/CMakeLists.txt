@@ -30,7 +30,7 @@ target_compile_definitions(
 )
 configure_icon_recognition_test(icon-recognition-manual-cli-tests)
 
-# 保留历史算法测试目标供单独维护；其中输入均为程序构造的合成画面，不作为真实截图门禁。
+# 保留非合成算法单元测试，以及使用测试集真实截图的接口与调试契约测试。
 add_executable(icon-recognition-small-tests test_small_algorithms.cpp)
 target_link_libraries(icon-recognition-small-tests PRIVATE icon-recognition-core)
 target_compile_definitions(icon-recognition-small-tests PRIVATE ICON_RECOGNITION_TEST_MAIN)
@@ -40,6 +40,11 @@ add_executable(
     icon-recognition-custom-tests
     test_custom_recognition.cpp
     ../IconRecognitionRecognition.cpp
+)
+target_compile_definitions(
+    icon-recognition-custom-tests
+    PRIVATE
+        ICON_RECOGNITION_TEST_FIXTURE_IMAGE="${CMAKE_CURRENT_LIST_DIR}/../../../../../tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png"
 )
 target_link_libraries(
     icon-recognition-custom-tests
@@ -76,6 +81,11 @@ configure_icon_recognition_test(icon-recognition-custom-tests)
 
 add_executable(icon-recognition-debug-tests test_debug_capture.cpp)
 target_link_libraries(icon-recognition-debug-tests PRIVATE icon-recognition-core)
+target_compile_definitions(
+    icon-recognition-debug-tests
+    PRIVATE
+        ICON_RECOGNITION_TEST_FIXTURE_IMAGE="${CMAKE_CURRENT_LIST_DIR}/../../../../../tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png"
+)
 configure_icon_recognition_test(icon-recognition-debug-tests)
 
 add_executable(icon-recognition-expected-tests test_expected_results.cpp expected_results.cpp)

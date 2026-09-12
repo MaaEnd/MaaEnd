@@ -101,7 +101,7 @@ void TestDebugCaptureKeepsSynchronizedGroups()
         .column = 1,
     });
     // 保存机制使用真实截图验证，避免重新引入合成图片输入。
-    const cv::Mat image = cv::imread("tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png");
+    const cv::Mat image = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
     Require(!image.empty(), "real debug screenshot must be readable");
     for (std::uint64_t reco_id = 1; reco_id <= 21; ++reco_id) {
         Require(iconrecognition::detail::SaveDebugCapture(root, image, result, reco_id), "debug capture must report successful writes");
@@ -161,7 +161,7 @@ void TestDebugCaptureFailureIsBestEffort()
     }
 
     // 失败路径同样使用真实截图，避免用合成画面触发调试落盘。
-    const cv::Mat image = cv::imread("tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png");
+    const cv::Mat image = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
     Require(!image.empty(), "real debug screenshot must be readable");
     const iconrecognition::RecognitionResult result;
     bool saved = true;

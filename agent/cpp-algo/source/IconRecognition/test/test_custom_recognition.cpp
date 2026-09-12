@@ -134,7 +134,7 @@ void RequireUntouched(const MaaRect& box)
     Require(box.x == 101 && box.y == 202 && box.width == 303 && box.height == 404, "failed recognition must not write out_box");
 }
 
-// 参数校验只需要有效图像，直接读取真实截图；不再生成纯色画布。
+// 参数校验只需要有效图像，直接读取测试集真实截图；路径由 CMake 注入，不依赖当前工作目录。
 void TestEmptyImageWritesInvalidImageDetail()
 {
     ImageBuffer image;
@@ -148,7 +148,7 @@ void TestEmptyImageWritesInvalidImageDetail()
 void TestUnknownGridTypeIsRejected()
 {
     ImageBuffer image;
-    const cv::Mat pixels = cv::imread("tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png");
+    const cv::Mat pixels = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
     Require(!pixels.empty(), "real contract screenshot must be readable");
     image.set(pixels);
     MaaRect out_box { 101, 202, 303, 404 };
@@ -160,7 +160,7 @@ void TestUnknownGridTypeIsRejected()
 void TestRequiredParametersAreRejected()
 {
     ImageBuffer image;
-    const cv::Mat pixels = cv::imread("tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png");
+    const cv::Mat pixels = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
     Require(!pixels.empty(), "real contract screenshot must be readable");
     image.set(pixels);
     for (const auto& [param, field] : {
@@ -176,7 +176,7 @@ void TestRequiredParametersAreRejected()
 void TestInvalidNativeRoiIsRejected()
 {
     ImageBuffer image;
-    const cv::Mat pixels = cv::imread("tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png");
+    const cv::Mat pixels = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
     Require(!pixels.empty(), "real contract screenshot must be readable");
     image.set(pixels);
     const MaaRect zero_width { 0, 0, 0, 54 };
@@ -199,7 +199,7 @@ void TestInvalidNativeRoiIsRejected()
 void TestMalformedCandidateListsAreRejected()
 {
     ImageBuffer image;
-    const cv::Mat pixels = cv::imread("tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png");
+    const cv::Mat pixels = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
     Require(!pixels.empty(), "real contract screenshot must be readable");
     image.set(pixels);
     for (const auto& [param, field] : {
@@ -222,7 +222,7 @@ void TestMalformedCandidateListsAreRejected()
 void TestMalformedScalarParametersAreRejected()
 {
     ImageBuffer image;
-    const cv::Mat pixels = cv::imread("tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png");
+    const cv::Mat pixels = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
     Require(!pixels.empty(), "real contract screenshot must be readable");
     image.set(pixels);
     for (const auto& [param, field] : {
@@ -243,7 +243,7 @@ void TestMalformedScalarParametersAreRejected()
 void TestRemovedGridScaleParameterIsRejected()
 {
     ImageBuffer image;
-    const cv::Mat pixels = cv::imread("tests/MaaEndTestset/Win32/Official_CN/IconRecognition/transfer/25.png");
+    const cv::Mat pixels = cv::imread(ICON_RECOGNITION_TEST_FIXTURE_IMAGE);
     Require(!pixels.empty(), "real contract screenshot must be readable");
     image.set(pixels);
     MaaRect out_box { 101, 202, 303, 404 };
