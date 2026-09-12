@@ -22,6 +22,7 @@
 #include <boost/regex.hpp>
 #include <meojson/json.hpp>
 
+#include "CameraOrientationPredictor.h"
 #include "MapAlgorithm.h"
 #include "MapLocator.h"
 #include "MatchStrategy.h"
@@ -800,6 +801,7 @@ private:
 
     std::unique_ptr<MotionTracker> motionTracker;
     std::unique_ptr<YoloPredictor> zoneClassifier;
+    std::unique_ptr<CameraOrientationPredictor> orientationPredictor;
     std::unique_ptr<MapLocatorScaleExecutor> scaleExecutor;
     std::mutex taskMutex;
     std::optional<AsyncYoloState> asyncYoloState;
@@ -855,6 +857,17 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
 
     if (!config.yoloModelPath.empty()) {
         zoneClassifier = std::make_unique<YoloPredictor>(config.yoloModelPath, matchCfg.yoloConfThreshold, config.yoloThreads);
+    }
+
+    // 摄像机朝向三件套工件很小（推理亚毫秒级），单线程足够；三张图都是可选的，
+    // 至少配置一张才构造预测器，可用性由预测器内部判断（前处理 + 至少一个分类器）。
+    if (!config.cameraOrientationPreprocessModelPath.empty() || !config.cameraOrientationPolarModelPath.empty()
+        || !config.cameraOrientationRefModelPath.empty()) {
+        orientationPredictor = std::make_unique<CameraOrientationPredictor>(
+            config.cameraOrientationPreprocessModelPath,
+            config.cameraOrientationPolarModelPath,
+            config.cameraOrientationRefModelPath,
+            1);
     }
 
     isInitialized = true;
@@ -1798,6 +1811,23 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     std::future<double> angleFuture = std::async(std::launch::async, [&minimap]() { return InferYellowArrowRotation(minimap); });
     std::optional<double> resolvedAngle;
+
+    // 摄像机朝向在定位成功后同步运行：分派需要本帧参考裁剪的缺口占比，而参考
+    // 裁剪依赖定位结果 (x, y) 与 zone，无法在帧起点发射。仅 Success 帧付出这次
+    // 推理延迟（模型亚毫秒级），失败路径不受影响。
+    auto attachCamRot = [&](LocateResult&& result) -> LocateResult {
+        // None 帧的小地图被 UI 整体遮挡，条带无效，不输出摄像机朝向
+        if (orientationPredictor && orientationPredictor->isLoaded() && result.status == LocateStatus::Success
+            && result.position.has_value() && result.position->zoneId != "None") {
+            const std::string& zoneId = result.position->zoneId;
+            const auto zoneIt = zones.find(zoneId);
+            const cv::Mat referenceAsset = zoneIt != zones.end() ? zoneIt->second : cv::Mat();
+            result.camRot =
+                orientationPredictor
+                    ->predict(minimap, referenceAsset, result.position->x, result.position->y, ZoneTemplateScale(zoneId), zoneId);
+        }
+        return result;
+    };
     auto resolveAngle = [&]() -> double {
         if (!resolvedAngle.has_value()) {
             resolvedAngle = angleFuture.get();
@@ -1935,7 +1965,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         if (trackingResult->position.has_value()) {
             trackingResult->position->angle = resolveAngle();
         }
-        return *trackingResult;
+        return attachCamRot(std::move(*trackingResult));
     }
 
     const double inferredAngle = resolveAngle();
@@ -2101,7 +2131,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     currentZoneId = globalResult->zoneId;
     globalResult->angle = inferredAngle;
     MapPosition accepted = acceptPosition(*globalResult, now);
-    return LocateResult { .status = LocateStatus::Success, .position = accepted, .debugMessage = "Global Search Success" };
+    return attachCamRot(LocateResult { .status = LocateStatus::Success, .position = accepted, .debugMessage = "Global Search Success" });
 }
 
 void MapLocator::Impl::resetTrackingState()

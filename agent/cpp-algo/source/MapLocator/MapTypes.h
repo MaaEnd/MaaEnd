@@ -26,6 +26,10 @@ struct MapLocatorConfig
 {
     std::string mapResourceDir;
     std::string yoloModelPath;
+    // 摄像机朝向三件套工件：前处理图 + 观测/参考分类器；路径为空表示未部署该图。
+    std::string cameraOrientationPreprocessModelPath;
+    std::string cameraOrientationPolarModelPath;
+    std::string cameraOrientationRefModelPath;
     int yoloThreads = 1;
 };
 
@@ -70,11 +74,21 @@ enum class LocateStatus
     NotInitialized
 };
 
+// 摄像机朝向识别结果：rot ∈ [0,360)，confidence ∈ [0,1]。与角色箭头朝向
+// （MapPosition.angle）识别目标无关，独立输出，不参与定位内部逻辑。
+struct CameraOrientation
+{
+    double rot = 0.0;
+    double confidence = 0.0;
+};
+
 struct LocateResult
 {
     LocateStatus status;
     std::optional<MapPosition> position;
     std::string debugMessage; // 用于向 Pipeline 输出日志
+    // 仅 Success 帧携带；缺失表示模型不可用或本帧输入无效（如 UI 遮挡）
+    std::optional<CameraOrientation> camRot;
 };
 
 enum class GlobalSearchMode
