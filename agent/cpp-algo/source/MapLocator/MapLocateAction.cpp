@@ -326,21 +326,26 @@ std::shared_ptr<MapLocator> getOrInitLocator()
         fs::path mapRoot = exeDir / ".." / "resource" / "image" / "MapLocator";
         fs::path yoloModel = exeDir / ".." / "resource" / "model" / "map" / "cls.onnx";
         fs::path cameraOrientationModel = exeDir / ".." / "resource" / "model" / "map" / "cameraorientation.onnx";
+        fs::path cameraOrientationRefModel = exeDir / ".." / "resource" / "model" / "map" / "cao_ref.onnx";
 
         std::string mapRootStr = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));
         std::string yoloModelStr = fs::exists(yoloModel) ? MAA_NS::path_to_utf8_string(fs::absolute(yoloModel)) : "";
         std::string cameraOrientationModelStr =
             fs::exists(cameraOrientationModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationModel)) : "";
+        std::string cameraOrientationRefModelStr =
+            fs::exists(cameraOrientationRefModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationRefModel)) : "";
 
         LogInfo << "Auto-init: mapRoot=" << mapRootStr;
         LogInfo << "Auto-init: yoloModel=" << (yoloModelStr.empty() ? "(not found)" : yoloModelStr);
-        LogInfo << "Auto-init: cameraOrientationModel="
-                << (cameraOrientationModelStr.empty() ? "(not found)" : cameraOrientationModelStr);
+        LogInfo << "Auto-init: cameraOrientationModel=" << (cameraOrientationModelStr.empty() ? "(not found)" : cameraOrientationModelStr);
+        LogInfo << "Auto-init: cameraOrientationRefModel="
+                << (cameraOrientationRefModelStr.empty() ? "(not found)" : cameraOrientationRefModelStr);
 
         MapLocatorConfig cfg;
         cfg.mapResourceDir = mapRootStr;
         cfg.yoloModelPath = yoloModelStr;
         cfg.cameraOrientationModelPath = cameraOrientationModelStr;
+        cfg.cameraOrientationRefModelPath = cameraOrientationRefModelStr;
         const unsigned hardwareThreads = std::thread::hardware_concurrency();
         cfg.yoloThreads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);
 

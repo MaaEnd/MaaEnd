@@ -27,6 +27,7 @@ struct MapLocatorConfig
     std::string mapResourceDir;
     std::string yoloModelPath;
     std::string cameraOrientationModelPath;
+    std::string cameraOrientationRefModelPath;
     int yoloThreads = 1;
 };
 
