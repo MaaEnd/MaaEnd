@@ -227,18 +227,17 @@ func resolveTargetQuantity(
 
 // normalizeFineTuneQuantity 归一化 FineTuneQuantity：
 //
-//	未提供（present=false）-> 默认 enabled（始终微调）；
-//	bool                   -> 布尔语义；
-//	整数值                 -> 阈值语义，阈值必须 >= 1。
+//	未提供（present=false，含显式 null）-> 默认 enabled（始终微调）；
+//	bool                               -> 布尔语义；
+//	整数值                             -> 阈值语义，阈值必须在 [1, maxFineTuneThreshold]。
 //
-// null、非整数、其他类型与小于 1 的值均返回错误（显式 null 视为已提供，不做静默默认）。
+// 非整数、其他类型与超界值均返回错误。
+//
+// present 由调用方（hasNonNullRawKey）判定：显式 null 与键缺失一样视为「未提供」，
+// 因此这里不再单独区分 null。
 func normalizeFineTuneQuantity(raw any, present bool) (fineTuneQuantity, error) {
 	if !present {
 		return defaultFineTuneQuantity, nil
-	}
-
-	if raw == nil {
-		return fineTuneQuantity{}, fmt.Errorf("FineTuneQuantity must be a bool or an integer >= 1, got null")
 	}
 
 	switch v := raw.(type) {

@@ -55,8 +55,8 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 		ReverseTarget:                 hasNonNullRawKey(rawKeys, "ReverseTarget"),
 		CenterPointOffset:             hasNonNullRawKey(rawKeys, "CenterPointOffset"),
 		ClampTargetToSliderMax:        hasNonNullRawKey(rawKeys, "ClampTargetToSliderMax"),
-		FineTuneQuantity:              hasRawKey(rawKeys, "FineTuneQuantity"),
-		FineTuneFallback:              hasRawKey(rawKeys, "FineTuneFallback"),
+		FineTuneQuantity:              hasNonNullRawKey(rawKeys, "FineTuneQuantity"),
+		FineTuneFallback:              hasNonNullRawKey(rawKeys, "FineTuneFallback"),
 		ResetBeforeFindStart:          hasNonNullRawKey(rawKeys, "ResetBeforeFindStart"),
 	}, nil
 }
@@ -64,14 +64,6 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 func hasNonNullRawKey(rawKeys map[string]json.RawMessage, key string) bool {
 	raw, ok := rawKeys[key]
 	return ok && len(raw) > 0 && string(raw) != "null"
-}
-
-// hasRawKey 只判断键是否存在，显式 null 也算「已提供」（与 hasNonNullRawKey 的唯一区别）：
-// FineTuneQuantity 的 null 要报错、FineTuneFallback 的 null 归一为 none，
-// isSwipeOnlyMode 也依赖该语义。
-func hasRawKey(rawKeys map[string]json.RawMessage, key string) bool {
-	_, ok := rawKeys[key]
-	return ok
 }
 
 func (a *BetterSlidingAction) validateOutcomeOverrideNodes(nodes ...string) bool {
