@@ -5,19 +5,48 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackSnapshotsReady",
+            "RetrieveBackpackNothingStoredGate",
+            "RetrieveBackpackRecordsOrSnapshotsReady",
             "RetrieveBackpackMissingSnapshots"
         ]
     },
-    "RetrieveBackpackSnapshotsReady": {
-        "recognition": "Custom",
-        "custom_recognition": "StashBackpackFullCompleteRecognition",
+    "RetrieveBackpackRecordsOrSnapshotsReady": {
+        "desc": "有存放记录即可取回（即使上次存放中断未生成 S1）；否则要求快照完整以支持存放新物品",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "Custom",
+                "custom_recognition": "StashBackpackHasStoredRecognition"
+            },
+            {
+                "recognition": "Custom",
+                "custom_recognition": "StashBackpackFullCompleteRecognition"
+            }
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "RetrieveBackpackEnterDepot"
         ]
+    },
+    "RetrieveBackpackNothingStoredGate": {
+        "desc": "未开启存放新物品且没有待取回的存放记录时，直接结束取回",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackNothingStoredRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSkipped"
+        ]
+    },
+    "RetrieveBackpackSkipped": {
+        "desc": "本次没有需要取回的存放记录",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "RetrieveBackpackMissingSnapshots": {
         "desc": "当前任务批次没有完整 S0/S1，警告后成功跳过",
@@ -76,7 +105,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackCaptureStart"
+            "RetrieveBackpackStoreNewSubTask"
         ]
     },
     "RetrieveBackpackEnterWulingSuccess": {
@@ -88,10 +117,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackCaptureStart"
+            "RetrieveBackpackStoreNewSubTask"
         ]
     },
     "RetrieveBackpackCaptureStart": {
+        "desc": "仅当需要存放新增物品时才扫描背包，作为新增物品差集的当前基准",
+        "enabled": false,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "StashBackpackSnapshotAction",
@@ -101,7 +132,33 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackStoreNewSubTask"
+            "RetrieveBackpackNewItemsSnapshotReady",
+            "RetrieveBackpackNewItemsMissingSnapshot"
+        ]
+    },
+    "RetrieveBackpackNewItemsSnapshotReady": {
+        "desc": "存放新物品依赖完整 S1 差集基准",
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackFullCompleteRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackPrepareNewItems"
+        ]
+    },
+    "RetrieveBackpackNewItemsMissingSnapshot": {
+        "desc": "S1 不完整时跳过存放新物品（含中断场景），继续取回已有记录",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackWarningAction",
+        "custom_action_param": {
+            "reason": "missing_full_snapshot"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackPrepareStoredTargets"
         ]
     },
     "RetrieveBackpackStoreNewSubTask": {
@@ -109,9 +166,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackPrepareNewItems",
-            "RetrieveBackpackCaptureCurrent",
-            "RetrieveBackpackReuseTemporary"
+            "RetrieveBackpackCaptureStart",
+            "RetrieveBackpackPrepareStoredTargets"
         ]
     },
     "RetrieveBackpackPrepareNewItems": {
@@ -150,18 +206,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackCaptureCurrent",
-            "RetrieveBackpackReuseTemporary"
-        ]
-    },
-    "RetrieveBackpackStoreNewLoop": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RetrieveBackpackStoreNewNextItem",
-            "RetrieveBackpackCaptureCurrent",
-            "RetrieveBackpackReuseTemporary"
+            "RetrieveBackpackPrepareStoredTargets"
         ]
     },
     "RetrieveBackpackStoreNewNextItem": {
@@ -236,8 +281,7 @@
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
             "operation": "mark_bag_item_clicked",
-            "reason": "retrieve_new_item_stored",
-            "changes_snapshot": true
+            "reason": "retrieve_new_item_stored"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -259,70 +303,18 @@
             "RetrieveBackpackStoreNewFinished"
         ]
     },
-    "RetrieveBackpackCaptureCurrent": {
-        "desc": "存放新增物品后重新生成真实快照",
-        "recognition": "Custom",
-        "custom_recognition": "StashBackpackSnapshotChangedRecognition",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "StashBackpackSnapshotAction",
-        "custom_action_param": {
-            "snapshot": "retrieve_current"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RetrieveBackpackPrepareMissingItems"
-        ]
-    },
-    "RetrieveBackpackReuseTemporary": {
-        "desc": "背包未发生变更时复用取回开始快照",
+    "RetrieveBackpackPrepareStoredTargets": {
+        "desc": "将本存取对确认存入的物品记录转为顺序取回目标队列",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "operation": "copy_snapshot",
-            "source_snapshot": "temporary",
-            "snapshot": "retrieve_current"
+            "operation": "prepare_stored_targets"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackPrepareMissingItems"
-        ]
-    },
-    "RetrieveBackpackPrepareMissingItems": {
-        "desc": "准备从仓库取回的缺少物品",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "StashBackpackStateAction",
-        "custom_action_param": {
-            "operation": "prepare_difference",
-            "minuend_snapshot": "s0",
-            "subtrahend_snapshot": "retrieve_current"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RetrieveBackpackPrepareRestoreSearch"
-        ]
-    },
-    "RetrieveBackpackPrepareRestoreSearch": {
-        "desc": "复用当前背包快照并在取回开始前回顶一次",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "StashBackpackStateAction",
-        "custom_action_param": {
-            "operation": "prepare_restore",
-            "snapshot": "retrieve_current"
-        },
-        "anchor": {
-            "StashBackpackAfterRestoreSearchPrepared": "RetrieveBackpackRestoreLoop"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackPrepareRestoreSearch"
+            "RetrieveBackpackRestoreLoop"
         ]
     },
     "RetrieveBackpackRestoreLoop": {
@@ -368,13 +360,40 @@
     "RetrieveBackpackSetupRepoSearch": {
         "pre_delay": 0,
         "anchor": {
-            "StashBackpackAfterRepoFound": "RetrieveBackpackMoveItemToBag",
+            "StashBackpackAfterRepoFound": "RetrieveBackpackNoteRepoItemCount",
             "StashBackpackAfterRepoNotFound": "RetrieveBackpackConsumeRepoMissing"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "StashBackpackPrepareRepoSearch"
+        ]
+    },
+    "RetrieveBackpackNoteRepoItemCount": {
+        "desc": "转移前记录仓库当前页该物品的格子数基线",
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackRepoItemCountRecognition",
+        "roi": [
+            154,
+            202,
+            585,
+            291
+        ],
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackMoveItemToBag"
         ]
     },
     "RetrieveBackpackMoveItemToBag": {
@@ -393,19 +412,22 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackVerifyInBag"
+            "RetrieveBackpackVerifyRetrieved"
+        ],
+        "on_error": [
+            "RetrieveBackpackRestoreVerificationFailed"
         ]
     },
-    "RetrieveBackpackVerifyInBag": {
-        "pre_delay": 0,
+    "RetrieveBackpackVerifyRetrieved": {
+        "desc": "确认仓库源物品已移入背包（源格不再识别到该物品）",
         "anchor": {
-            "StashBackpackAfterRetrievedItemFound": "RetrieveBackpackConsumeRestored",
-            "StashBackpackAfterRetrievedItemNotFound": "RetrieveBackpackRestoreVerificationFailed"
+            "StashBackpackAfterRepoItemMoved": "RetrieveBackpackConsumeRestored",
+            "StashBackpackAfterRepoItemStillPresent": "RetrieveBackpackRestoreVerificationFailed"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackPrepareRetrievedItemSearch"
+            "StashBackpackVerifyRepoItemMoved"
         ]
     },
     "RetrieveBackpackConsumeRestored": {
@@ -423,12 +445,19 @@
         ]
     },
     "RetrieveBackpackRestoreVerificationFailed": {
-        "desc": "Shift+Click 后物品未出现在背包，禁止消费目标",
+        "desc": "物品未能完成取回：提示后保留剩余记录，等待下次取回",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FalseAction",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "abort_restore",
+            "reason": "restore_verification_failed"
+        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackFinished"
+        ]
     },
     "RetrieveBackpackConsumeRepoMissing": {
         "pre_delay": 0,

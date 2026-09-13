@@ -304,6 +304,9 @@
                     "pipeline_override": {
                         "RetrieveBackpackPrepareNewItems": {
                             "enabled": true
+                        },
+                        "RetrieveBackpackCaptureStart": {
+                            "enabled": true
                         }
                     }
                 },
@@ -312,6 +315,12 @@
                     "pipeline_override": {
                         "RetrieveBackpackPrepareNewItems": {
                             "enabled": false
+                        },
+                        "RetrieveBackpackCaptureStart": {
+                            "enabled": false
+                        },
+                        "RetrieveBackpackNothingStoredGate": {
+                            "enabled": true
                         }
                     }
                 }
