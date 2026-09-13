@@ -47,9 +47,9 @@
                         "complete_full",
                         "prepare_snapshot",
                         "prepare_difference",
-                        "prepare_restore",
+                        "prepare_stored_targets",
+                        "abort_restore",
                         "advance_bag_page",
-                        "advance_restore_page",
                         "mark_bag_item_clicked",
                         "discard_bag_targets",
                         "consume_target",
@@ -83,9 +83,6 @@
                     "type": "string",
                     "minLength": 1
                 },
-                "changes_snapshot": {
-                    "type": "boolean"
-                },
                 "depot": {
                     "$ref": "#/$defs/Depot"
                 }
@@ -110,10 +107,7 @@
                     "if": {
                         "properties": {
                             "operation": {
-                                "enum": [
-                                    "prepare_snapshot",
-                                    "prepare_restore"
-                                ]
+                                "const": "prepare_snapshot"
                             }
                         }
                     },

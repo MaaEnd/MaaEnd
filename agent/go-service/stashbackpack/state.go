@@ -9,16 +9,27 @@ import (
 )
 
 const (
-	componentName = "stashbackpack"
-	snapshotS0    = "s0"
-	snapshotS1    = "s1"
-	snapshotT     = "temporary"
-	depotValleyIV = "ValleyIV"
-	depotWuling   = "Wuling"
+	componentName   = "stashbackpack"
+	snapshotS0      = "s0"
+	snapshotS1      = "s1"
+	snapshotT       = "temporary"
+	snapshotWorking = "working"
+	depotValleyIV   = "ValleyIV"
+	depotWuling     = "Wuling"
+
+	// storeReasonManualStored 与流水线手动存放确认节点的 reason 保持一致；
+	// 仅该 reason 的确认点击会计入取回记录，存放新物品等其余流程不参与取回。
+	storeReasonManualStored = "manual_item_stored"
 
 	// bagStoreMaxAttempts 包含首次点击；每个快照目标尝试耗尽后跳过，避免无进展循环。
 	bagStoreMaxAttempts = 3
 )
+
+// storedItem 记录一次已确认存入仓库的物品堆叠，供取回任务按存放顺序回放。
+type storedItem struct {
+	ItemID       string `json:"item_id"`
+	CategoryType string `json:"category_type"`
+}
 
 type snapshotItem struct {
 	ItemID       string `json:"item_id"`
@@ -33,12 +44,6 @@ type snapshotData struct {
 	Pages       [][]snapshotItemWithPosition
 }
 
-type restoreState struct {
-	Pages     []map[string]int
-	PageIndex int
-	Ready     bool
-}
-
 type bagPageMatch struct {
 	ItemID       string   `json:"item_id"`
 	CategoryType string   `json:"category_type"`
@@ -48,10 +53,9 @@ type bagPageMatch struct {
 }
 
 type bagClickedTarget struct {
-	Item            snapshotItem
-	Reason          string
-	ChangesSnapshot bool
-	Attempts        int
+	Item     snapshotItem
+	Reason   string
+	Attempts int
 }
 
 type bagPageState struct {
@@ -66,14 +70,20 @@ type bagPageState struct {
 }
 
 type sessionState struct {
-	Snapshots       map[string]snapshotData
-	Targets         []snapshotItem
-	BagPage         bagPageState
-	Restore         restoreState
-	SnapshotChanged bool
-	FullComplete    bool
-	Depot           string
-	QuickStash      bool
+	Snapshots map[string]snapshotData
+	Targets   []snapshotItem
+	// Stored 是本存取对中已确认存入仓库的物品记录，取回任务按此顺序回放；
+	// 取回中止时剩余目标会写回这里（仅本批次内有效，Agent 重启后失效）。
+	Stored []storedItem
+	// repoBaseline 记录转移前仓库当前页的物品格子数，取回验证以“少一格”判定成功，
+	// 从而正确处理仓库中存在多个同物品堆叠的情况。
+	repoBaselineCount int
+	repoBaselineItem  storedItem
+	repoBaselineValid bool
+	BagPage           bagPageState
+	FullComplete      bool
+	Depot             string
+	QuickStash        bool
 }
 
 type stateStore struct {
@@ -116,7 +126,6 @@ func (s *stateStore) beginSnapshot(name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.session.Snapshots[name] = snapshotData{}
-	s.session.SnapshotChanged = false
 	return nil
 }
 
@@ -143,18 +152,6 @@ func (s *stateStore) copySnapshot(sourceName, targetName string) error {
 	}
 	s.session.Snapshots[targetName] = copied
 	return nil
-}
-
-func (s *stateStore) markSnapshotChanged() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.session.SnapshotChanged = true
-}
-
-func (s *stateStore) snapshotChanged() bool {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.session.SnapshotChanged
 }
 
 func (s *stateStore) appendSnapshotPage(name string, page []snapshotItemWithPosition) (int, error) {
@@ -199,66 +196,92 @@ func (s *stateStore) replaceSnapshotPages(name string, pages [][]snapshotItemWit
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.session.Snapshots[name] = replacement
-	s.session.SnapshotChanged = false
+	// 初始快照落盘时同步建立 working 副本（不含分页明细，取回已改为记录驱动，
+	// 分页数据没有消费方），后续由手动存放确认增量扣减，
+	// 因此存放完成后不再需要任何扫描或派生步骤。
+	if name == snapshotS0 {
+		s.session.Snapshots[snapshotWorking] = snapshotData{
+			Items:       append([]snapshotItem(nil), replacement.Items...),
+			ColumnCount: replacement.ColumnCount,
+		}
+	}
 	return len(replacement.Items), nil
 }
 
-func (s *stateStore) prepareRestore(snapshotName string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	snapshot, ok := s.session.Snapshots[snapshotName]
+// recordStoredItem 在手动存放确认成功时调用：记入取回记录，并从 working 快照中
+// 实时扣掉对应物品。调用方必须已持有状态锁。
+func (s *stateStore) recordStoredItem(item storedItem) {
+	s.session.Stored = append(s.session.Stored, item)
+	working, ok := s.session.Snapshots[snapshotWorking]
 	if !ok {
-		return fmt.Errorf("snapshot %q does not exist", snapshotName)
+		return
 	}
-	pages := make([]map[string]int, len(snapshot.Pages))
-	for index, page := range snapshot.Pages {
-		counts := make(map[string]int)
-		for _, item := range page {
-			if item.ItemID != "" {
-				counts[item.ItemID]++
-			}
+	for index, candidate := range working.Items {
+		if candidate.ItemID != item.ItemID {
+			continue
 		}
-		pages[index] = counts
+		working.Items = append(working.Items[:index], working.Items[index+1:]...)
+		working.Items = reindexSnapshot(working.Items, working.ColumnCount)
+		s.session.Snapshots[snapshotWorking] = working
+		break
 	}
-	s.session.Restore = restoreState{Pages: pages, Ready: true}
-	return nil
 }
 
-func (s *stateStore) advanceRestorePage() error {
+// noteRepoItemCount 记录转移前仓库当前页的物品格子数基线。
+func (s *stateStore) noteRepoItemCount(item storedItem, count int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if !s.session.Restore.Ready {
-		return fmt.Errorf("restore search has not been prepared")
-	}
-	s.session.Restore.PageIndex++
-	return nil
+	s.session.repoBaselineItem = item
+	s.session.repoBaselineCount = count
+	s.session.repoBaselineValid = true
 }
 
-func (s *stateStore) recordRetrievedItemCount(itemID string, currentCount int) (int, bool, error) {
+// repoItemMoved 以“格子数比转移前至少少一”判定转移成功，
+// 仓库中存在多个同物品堆叠时依然成立。基线缺失时按未移动处理（走安全中止路径）。
+func (s *stateStore) repoItemMoved(item storedItem, count int) (bool, int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if !s.session.Restore.Ready {
-		return 0, false, fmt.Errorf("restore search has not been prepared")
+	if !s.session.repoBaselineValid ||
+		s.session.repoBaselineItem.ItemID != item.ItemID ||
+		s.session.repoBaselineItem.CategoryType != item.CategoryType {
+		return false, 0
 	}
-	if itemID == "" {
-		return 0, false, fmt.Errorf("restore item ID is empty")
+	return count < s.session.repoBaselineCount, s.session.repoBaselineCount
+}
+
+// prepareStoredTargets 将存放记录整体转为取回目标队列，记录随即清空；
+// 取回中止时由 abortRestore 把剩余目标写回记录。
+func (s *stateStore) prepareStoredTargets() (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	targets := make([]snapshotItem, 0, len(s.session.Stored))
+	for _, item := range s.session.Stored {
+		targets = append(targets, snapshotItem{ItemID: item.ItemID, CategoryType: item.CategoryType})
 	}
-	pageIndex := s.session.Restore.PageIndex
-	for len(s.session.Restore.Pages) <= pageIndex {
-		s.session.Restore.Pages = append(s.session.Restore.Pages, make(map[string]int))
+	s.session.Stored = nil
+	s.session.Targets = targets
+	s.session.BagPage = bagPageState{}
+	return len(targets), nil
+}
+
+// abortRestore 在取回无法继续（如背包已满）时保留剩余目标并结束本次取回。
+func (s *stateStore) abortRestore() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	remaining := append([]storedItem(nil), s.session.Stored...)
+	for _, item := range s.session.Targets {
+		remaining = append(remaining, storedItem{ItemID: item.ItemID, CategoryType: item.CategoryType})
 	}
-	counts := s.session.Restore.Pages[pageIndex]
-	if counts == nil {
-		counts = make(map[string]int)
-		s.session.Restore.Pages[pageIndex] = counts
-	}
-	baselineCount := counts[itemID]
-	if currentCount <= baselineCount {
-		return baselineCount, false, nil
-	}
-	// 同一页后续恢复同 ID 时，以更新后的数量为基线，避免把已恢复物品重复计为成功。
-	counts[itemID] = currentCount
-	return baselineCount, true, nil
+	s.session.Stored = remaining
+	s.session.Targets = nil
+	s.session.BagPage = bagPageState{}
+	return len(remaining)
+}
+
+func (s *stateStore) storedCount() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return len(s.session.Stored)
 }
 
 func clonePositionedItems(items []snapshotItemWithPosition) []snapshotItemWithPosition {
@@ -433,8 +456,13 @@ func (s *stateStore) updateBagPageMatches(matches []bagPageMatch) (confirmed, fa
 				movedCounts[clicked.Item.ItemID]--
 				confirmed = append(confirmed, clicked)
 				delete(s.session.BagPage.ClickAttempts, clicked.Item)
-				if clicked.ChangesSnapshot {
-					s.session.SnapshotChanged = true
+				// 只有独立存放任务的手动存放计入取回记录；
+				// 存放新物品（嵌入流程与取回任务选项）存入的物品按设计留在仓库，不参与取回。
+				if clicked.Reason == storeReasonManualStored {
+					s.recordStoredItem(storedItem{
+						ItemID:       clicked.Item.ItemID,
+						CategoryType: clicked.Item.CategoryType,
+					})
 				}
 				continue
 			}
@@ -484,7 +512,7 @@ func (s *stateStore) bagPageRecognitionFailed() bool {
 	return s.session.BagPage.RecognitionFailed
 }
 
-func (s *stateStore) markSelectedBagTargetClicked(reason string, changesSnapshot bool) (snapshotItem, bool) {
+func (s *stateStore) markSelectedBagTargetClicked(reason string) (snapshotItem, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.session.BagPage.Selected == nil {
@@ -502,10 +530,9 @@ func (s *stateStore) markSelectedBagTargetClicked(reason string, changesSnapshot
 		}
 		s.session.BagPage.ClickAttempts[target]++
 		s.session.BagPage.Clicked = append(s.session.BagPage.Clicked, bagClickedTarget{
-			Item:            target,
-			Reason:          reason,
-			ChangesSnapshot: changesSnapshot,
-			Attempts:        s.session.BagPage.ClickAttempts[target],
+			Item:     target,
+			Reason:   reason,
+			Attempts: s.session.BagPage.ClickAttempts[target],
 		})
 		return target, true
 	}

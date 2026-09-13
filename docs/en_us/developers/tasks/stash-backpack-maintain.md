@@ -1,14 +1,14 @@
 # Development Manual - Stash and Retrieve Backpack Maintenance
 
 This document describes the state lifecycle and maintenance boundaries of `StashBackpack`, `RetrieveBackpack`, and embedded stashing.
-This documentation was last updated on September 9, 2026.
+This documentation was last updated on September 13, 2026.
 
 ## Supported Scope
 
 - Stashing and retrieval are options of one task, available for `Win32-Front`, `ADB`, and `CloudADB`. Embedded stashing shares the same operations and allows Win32 / Adb controllers as well.
 - Both use `InventoryTransferStackAction`. ADB overrides cover item and scrollbar ROIs, the quick-stash region, and preparation before recognition; navigation and categories reuse existing SceneManager support. Four common nodes define upward and downward scrolling for the repository and backpack. Replenishment holds the source item before dragging it onto the matching backpack stack. See the [Inventory contract](../../../../agent/go-service/common/inventory/README.md).
 - ADB is open for testing and has not passed device acceptance. Validate inertia and page overlap, hold-to-drag replenishment, recognition after menu closure, consecutive transfers, and cancellation cleanup. CloudADB also needs multitouch validation. Static screenshot checks do not establish workflow stability.
-- Pipeline owns business flow, navigation, category switching, and item movement. Go Service encapsulates complete snapshot scans and maintains difference queues and page verification state.
+- Pipeline owns business flow, navigation, category switching, and item movement. Go Service encapsulates complete snapshot scans, the stored-items record, derived snapshots, and target queues.
 
 ## File Layout
 
@@ -26,26 +26,25 @@ This documentation was last updated on September 9, 2026.
 
 ## Snapshot Lifecycle
 
-A snapshot stores a merged list of `item_id`, `category_type`, and reindexed logical `row` / `column` values, together with per-page recognition results for retrieval count baselines. Logical rows and columns preserve ordering; they must not infer empty slots or click coordinates. Input targets come from current-page recognition boxes. Counts represent occupied cells, not stack quantities. Capture real snapshots when the workflow needs actual backpack state; retrieval verification reuses the initial snapshot and updates counts in memory after success.
+A snapshot stores a merged list of `item_id`, `category_type`, and reindexed logical `row` / `column` values, together with per-page recognition results. Logical rows and columns preserve ordering; they must not infer empty slots or click coordinates. Input targets come from current-page recognition boxes. Counts represent occupied cells, not stack quantities. Capture real snapshots when the workflow needs actual backpack state. Manual stashing keeps the books by deducting the `working` snapshot at every confirmed store, so no second scan or derivation step exists after stashing.
 
 | Design name | Implementation name | Meaning |
 | ----------- | ------------------- | --------------------------------------------- |
 | `S0` | `s0` | Backpack after quick stash and before manual stash; quick-stashed items are excluded from retrieval |
-| Intermediate | `working` | Backpack after base stashing and before usable-item replenishment |
-| `S1` | `s1` | Backpack after the stash task is fully complete |
+| Intermediate | `working` | Established as a copy of `S0` when it is captured and deducted as each store is confirmed; backpack before usable-item replenishment |
+| `S1` | `s1` | Backpack after the stash task is fully complete; copied from `working` (replenishment changes counts only, not cells) |
 | `T` | `temporary` | Temporary real snapshot for a host or retrieve task |
-| `R1` | `retrieve_current` | Backpack after new-item stashing; reuses `T` if unchanged |
 
-The full stash task publishes usable state only after both `s0` and `s1` have been captured and `complete_full` succeeds. Partial snapshots left by an interrupted run must not be used by retrieve or host tasks. A duplicate full stash task in the same queue prints a red warning and exits successfully to preserve snapshots needed by later tasks.
+The full stash task publishes usable state only after `working` and `s1` exist and `complete_full` succeeds. Partial snapshots left by an interrupted run must not be used by retrieve or host tasks. A duplicate full stash task in the same queue prints a red warning and exits successfully to preserve snapshots and the stored-items record needed by later tasks.
 
-Retrieval always follows this order:
+Retrieval is based on the **stored-items record**, not snapshot differences:
 
-1. Capture temporary snapshot `T`.
-2. Optionally stash `T - S1`, which represents items acquired after the stash task finished.
-3. Capture `R1` if the backpack changed; otherwise copy `T`.
-4. Retrieve `S0 - R1` from the Depot, gated by the categories selected by the user.
+1. Every confirmed manual stash (recognized by the `manual_item_stored` reason) appends to the record. Quick stash, new-item stashing, and replenishment never do.
+2. When the retrieve task starts and new-item stashing is disabled while the record is empty, it finishes immediately without entering the Depot or scanning the backpack.
+3. Only when new-item stashing is enabled is temporary snapshot `T` captured, optionally stashing `T - S1`. Newly stashed items stay in the Depot and never take part in retrieval.
+4. The stored record becomes the retrieval target queue. Items are retrieved from the Depot in record order, gated by the categories selected by the user.
 
-The difference is multiset subtraction that preserves the `S0` grid order. Repeated occurrences of the same `item_id` must not be deduplicated first.
+The record lives exactly as long as the stash/retrieve pair: the entry guard rejects duplicate stashes, and an aborted retrieval writes remaining targets back into the record. The record is batch-scoped and disappears with the Agent state when the batch ends. The retrieve entry admits a non-empty record even when the previous stash was interrupted without complete snapshots; complete snapshots are only the prerequisite of new-item stashing, which is skipped with a warning when they are missing.
 
 ## Stashing Newly Acquired Items
 
@@ -54,19 +53,19 @@ The difference is multiset subtraction that preserves the `S0` grid order. Repea
 1. Confirm that the controller is Win32 or Adb and that the current batch has a complete `S0/S1` pair. Otherwise, print a red warning and exit successfully without affecting the host task.
 2. Enter the batch's selected Depot, optionally quick-stash using the original setting, then capture `T` and prepare `T - S1`. Never overwrite `S0/S1`.
 3. Return to the top once before batch stashing. Recognize all remaining target IDs on the current page and transfer them in grid order. After processing the cached page results, recognize again and confirm success by decreased cell counts. Each target gets at most three total attempts, including the first; skip exhausted targets. Finish immediately when the queue is empty, otherwise continue downward.
-4. MXU stops the Agent process after all top-level tasks in a batch finish. Process-local Go state is therefore batch-scoped, and top-level tasks in the same batch share the complete snapshots.
+4. Items confirmed by new-item stashing are never appended to the stored-items record; by design they stay in the Depot.
 
 The full stash task also records the selected Depot. Retrieval and embedded stash operations in the same batch reuse it instead of asking for another selection.
 
-The Depot source cell may remain after retrieval, so stash verification cannot be reused. Return the backpack to the top once before retrieval and initialize per-page item-ID cell counts from `R1`. After each transfer, recognize the target ID on the current page and require an increase over its baseline. Update the baseline in memory after success so later transfers of the same ID cannot reuse that success. If verification fails on the current page, continue downward; subsequent items start from the page already reached. Do not infer empty cells from row/column continuity or rescan snapshots before every transfer.
+Retrieval verification uses a cell-count re-check: before each transfer, the number of cells of the current item on the current Depot page is recorded as a baseline. After the transfer the grid is recognized again; success requires the count to drop by at least one, which stays correct when several stacks of the same item exist. If the count did not drop, or the transfer action itself fails (routed through `on_error` into the same path), retrieval stops, a red focus message reports the remaining count, and remaining targets are written back into the stored-items record.
 
 ## Recognition and Search Constraints
 
 - Snapshot scans use `IconRecognition` with `item_filters: ["Normal:*"]`.
 - Backpack batch recognition uses remaining target IDs and `item_recheck_filters: ["Normal:*"]`, preserving multiple cells of the same ID.
 - Depot reverse lookup uses the current `item_id` and a concrete `Normal:<Category>` filter.
-- Batch stashing and retrieval verification return to the top once at the start, then proceed downward without repeatedly scanning the backpack in both directions for each item.
-- Stashing requires decreased target cell counts on the current page; retrieval requires increased cell counts for the target ID. The current retrieval implementation uses the target's `Normal:<Category>` for both candidate and reverse-lookup filters. Neither uses a single-cell ROI for verification.
+- Batch stashing returns to the top once at the start, then proceeds downward without repeatedly scanning the backpack in both directions for each item.
+- Stashing requires decreased target cell counts on the current page. Retrieval records a per-page cell-count baseline before each transfer and requires the count to drop after it; it does not rely on backpack page scans.
 - Paged scans merge the largest exact overlap between the existing suffix and new-page prefix. This removes adjacent-page overlap while preserving real duplicate items.
 
 ## Extending Categories

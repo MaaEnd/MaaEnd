@@ -1,0 +1,18 @@
+{
+    "RetrieveBackpackNoteRepoItemCount": {
+        "roi": [
+            30,
+            160,
+            710,
+            370
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    }
+}

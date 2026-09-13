@@ -515,63 +515,7 @@
             "[Anchor]StashBackpackAfterSourceItemStillPresent"
         ]
     },
-    "StashBackpackPrepareRestoreSearch": {
-        "desc": "取回开始前仅将背包回顶一次",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
-        "custom_action_param": {
-            "patch": {
-                "StashBackpackRestoreTopReached": {
-                    "attach": {
-                        "ready": false
-                    }
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackResetRestoreTopHitCount"
-        ]
-    },
-    "StashBackpackResetRestoreTopHitCount": {
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "StashBackpackRestoreScrollUpward"
-            ],
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackRestoreScrollToTop"
-        ]
-    },
-    "StashBackpackRestoreScrollToTop": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackRestoreTopReached",
-            "[JumpBack]StashBackpackRestoreScrollUpward"
-        ]
-    },
-    "StashBackpackRestoreTopReached": {
-        "recognition": "Custom",
-        "custom_recognition": "ScrollbarCompleteRecognition",
-        "custom_recognition_param": {
-            "position_tolerance": 2
-        },
-        "roi": [
-            1119,
-            220,
-            5,
-            255
-        ],
+    "StashBackpackVerifyRepoItemMoved": {
         "pre_delay": 0,
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
@@ -580,104 +524,27 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "[Anchor]StashBackpackAfterRestoreSearchPrepared"
-        ],
-        "attach": {
-            "ready": false
-        }
-    },
-    "StashBackpackRestoreScrollUpward": {
-        "max_hit": 20,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "InventoryBagScrollUpward"
-            ]
-        },
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000,
-            "target": [
-                739,
-                202,
-                398,
-                291
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "StashBackpackPrepareRetrievedItemSearch": {
-        "desc": "从当前背包页开始查找相对内存快照新增的目标物品",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
-        "custom_action_param": {
-            "patch": {
-                "StashBackpackRetrievedItemBottomReached": {
-                    "attach": {
-                        "ready": false
-                    }
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackResetRetrievedItemSearchHitCount"
+            "StashBackpackVerifyRepoItem",
+            "[Anchor]StashBackpackAfterRepoItemStillPresent"
         ]
     },
-    "StashBackpackResetRetrievedItemSearchHitCount": {
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "StashBackpackRetrievedItemScrollDownward"
-            ],
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackRetrievedItemSearch"
-        ]
-    },
-    "StashBackpackRetrievedItemSearch": {
-        "pre_delay": 0,
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "StashBackpackRetrievedItemFound",
-            "StashBackpackRetrievedItemBottomReached",
-            "[JumpBack]StashBackpackRetrievedItemScrollDownward"
-        ]
-    },
-    "StashBackpackRetrievedItemFound": {
+    "StashBackpackVerifyRepoItem": {
+        "desc": "当前页该物品格子数少于转移前基线时判定已移入背包",
         "recognition": "Custom",
-        "custom_recognition": "StashBackpackRetrievedItemRecognition",
+        "custom_recognition": "StashBackpackRepoItemMovedRecognition",
         "roi": [
-            739,
+            154,
             202,
-            398,
+            585,
             291
         ],
         "pre_wait_freezes": {
             "time": 400,
             "timeout": 3000,
             "target": [
-                739,
+                154,
                 202,
-                398,
+                585,
                 291
             ]
         },
@@ -685,69 +552,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]StashBackpackAfterRetrievedItemFound"
+            "[Anchor]StashBackpackAfterRepoItemMoved"
         ]
-    },
-    "StashBackpackRetrievedItemBottomReached": {
-        "recognition": "Custom",
-        "custom_recognition": "ScrollbarCompleteRecognition",
-        "custom_recognition_param": {
-            "position_tolerance": 2
-        },
-        "roi": [
-            1119,
-            220,
-            5,
-            255
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]StashBackpackAfterRetrievedItemNotFound"
-        ],
-        "attach": {
-            "ready": false
-        }
-    },
-    "StashBackpackRetrievedItemScrollDownward": {
-        "max_hit": 20,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "InventoryBagScrollDownward"
-            ]
-        },
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000,
-            "target": [
-                739,
-                202,
-                398,
-                291
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackAdvanceRestorePage"
-        ]
-    },
-    "StashBackpackAdvanceRestorePage": {
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "StashBackpackStateAction",
-        "custom_action_param": {
-            "operation": "advance_restore_page"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "StashBackpackPrepareBagBatch": {
         "desc": "页级批量存放开始前仅将背包回顶一次",
