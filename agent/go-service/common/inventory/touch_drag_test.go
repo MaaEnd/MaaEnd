@@ -118,16 +118,15 @@ func TestRectCenter(t *testing.T) {
 }
 
 func TestFindCombinedRecognitionBox(t *testing.T) {
+	// 夹具与绑定层 parseCombinedResult 的真实输出一致：And 子项没有 Hit 字段。
 	detail := &maa.RecognitionDetail{
 		CombinedResult: []*maa.RecognitionDetail{
 			{
 				Name: "StashBackpackFindCurrentItemInRepo",
-				Hit:  true,
 				Box:  maa.Rect{100, 200, 86, 86},
 			},
 			{
 				Name: "StashBackpackFindCurrentItemInBag",
-				Hit:  true,
 				Box:  maa.Rect{804, 191, 86, 86},
 			},
 		},
