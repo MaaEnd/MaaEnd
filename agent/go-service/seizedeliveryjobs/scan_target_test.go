@@ -6,7 +6,7 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
-// TestReadMaxAttemptRounds verifies numeric and string parameter parsing with fallback behavior.
+// TestReadMaxAttemptRounds 验证数字和字符串参数解析，以及非法值回退行为。
 func TestReadMaxAttemptRounds(t *testing.T) {
 	cases := []struct {
 		name string
@@ -31,7 +31,7 @@ func TestReadMaxAttemptRounds(t *testing.T) {
 	}
 }
 
-// TestParseFilteredReportsDetailErrors verifies malformed recognition details are errors.
+// TestParseFilteredReportsDetailErrors 验证异常识别详情会返回错误。
 func TestParseFilteredReportsDetailErrors(t *testing.T) {
 	if _, err := parseFiltered(nil); err == nil {
 		t.Fatal("parseFiltered(nil) returned nil error")

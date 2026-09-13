@@ -120,7 +120,7 @@ func roiOverride(node string, rect maa.Rect) map[string]any {
 	}
 }
 
-// parseFiltered parses the JSON detail returned by a hit recognition.
+// parseFiltered 解析识别命中后返回的 JSON 详情。
 func parseFiltered(detail *maa.RecognitionDetail) (filteredDetail, error) {
 	if detail == nil {
 		return filteredDetail{}, fmt.Errorf("recognition detail is nil")
@@ -132,9 +132,9 @@ func parseFiltered(detail *maa.RecognitionDetail) (filteredDetail, error) {
 	return fd, nil
 }
 
-// ocrFirst runs an OCR node in the given ROI and returns the first filtered item.
-// A recognition miss is reported by ok=false and err=nil; execution or detail
-// parsing failures are returned as errors so callers do not mistake them for a miss.
+// ocrFirst 在指定 ROI 上运行 OCR，并返回第一个筛选结果。
+// 正常未命中时返回 ok=false、err=nil；执行或详情解析失败时返回 error，
+// 避免调用方将内部错误误判为正常未命中。
 func ocrFirst(ctx *maa.Context, img image.Image, node string, rect maa.Rect) (string, []int, bool, error) {
 	d, err := ctx.RunRecognition(node, img, roiOverride(node, rect))
 	if err != nil {
@@ -156,10 +156,8 @@ func ocrFirst(ctx *maa.Context, img image.Image, node string, rect maa.Rect) (st
 	return fd.Filtered[0].Text, fd.Filtered[0].Box, true, nil
 }
 
-// scanJobs scans all delivery jobs whose reward is at least minReward.
-// It returns an empty slice with nil error when the current list has no
-// qualifying jobs. Recognition execution and detail parsing failures are
-// returned as errors.
+// scanJobs 扫描报酬不低于 minReward 的全部委托。
+// 当前列表没有符合条件的委托时返回空列表和 nil error；识别执行或详情解析失败时返回 error。
 func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJobItem, error) {
 	wulingDetail, err := ctx.RunRecognition(recoWulingTokenNode, img)
 	if err != nil {
@@ -232,11 +230,11 @@ func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJ
 	return items, nil
 }
 
-// SeizeDeliveryJobsFindTargetRecognition is the grab-path recognition.
-// It scans all qualifying jobs and returns the first (topmost) accept-button box.
+// SeizeDeliveryJobsFindTargetRecognition 是直接抢单路径的识别器。
+// 它扫描所有符合条件的委托，并返回列表最上方委托的接取按钮框。
 type SeizeDeliveryJobsFindTargetRecognition struct{}
 
-// Run scans the current commission list and returns the first qualifying target.
+// Run 扫描当前委托列表，并返回第一个符合条件的目标。
 func (r *SeizeDeliveryJobsFindTargetRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if ctx == nil || arg == nil || arg.Img == nil {
 		return nil, false

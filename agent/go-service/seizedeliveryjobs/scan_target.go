@@ -17,8 +17,8 @@ type deliveryJobItem struct {
 	ViewLocationBox []int  `json:"view_location_box"`
 }
 
-// filteredDetail holds the parsed OCR sub-recognition result.
-// The Text field is only populated for origin (index 1); others leave it zero.
+// filteredDetail 保存解析后的 OCR 子识别结果。
+// 只有 origin（索引 1）会填充 Text 字段，其余结果保持零值。
 type filteredDetail struct {
 	Filtered []struct {
 		Box   []int   `json:"box"`
@@ -56,7 +56,7 @@ func resetScanState() {
 	attemptRounds = 0
 }
 
-// boxToRect converts a [x, y, w, h] box slice to maa.Rect.
+// boxToRect 将 [x, y, w, h] 格式的 box 切片转换为 maa.Rect。
 func boxToRect(box []int) maa.Rect {
 	return maa.Rect{box[0], box[1], box[2], box[3]}
 }
@@ -67,7 +67,7 @@ func boxToRect(box []int) maa.Rect {
 // 因此无需在接单成功处另行归零。
 type SeizeDeliveryJobsResetScanStateAction struct{}
 
-// Run clears the cached list and resets the cross-round attempt counter.
+// Run 清空缓存列表，并重置跨轮尝试计数。
 func (a *SeizeDeliveryJobsResetScanStateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	resetScanState()
 	log.Info().
@@ -77,13 +77,13 @@ func (a *SeizeDeliveryJobsResetScanStateAction) Run(ctx *maa.Context, arg *maa.C
 	return true
 }
 
-// SeizeDeliveryJobsScanTargetRecognition scans the delivery job list once and caches
-// all reward-qualified jobs for subsequent ScanTarget iterations.
+// SeizeDeliveryJobsScanTargetRecognition 单次扫描委托列表，并缓存后续 ScanTarget 迭代所需的
+// 全部报酬达标委托。
 type SeizeDeliveryJobsScanTargetRecognition struct{}
 
-// Run scans the commission list once and caches all qualifying jobs.
+// Run 单次扫描委托列表，并缓存全部符合条件的委托。
 func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	// Subsequent calls: already have scanned data, just hit
+	// 后续调用：已有扫描数据，直接命中。
 	if scannedJobItems != nil {
 		log.Debug().
 			Str("component", "SeizeDeliveryJobs").
@@ -144,12 +144,12 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 	}, true
 }
 
-// SeizeDeliveryJobsScanTargetAction overrides the pipeline click targets for the current item.
+// SeizeDeliveryJobsScanTargetAction 为当前委托覆写 Pipeline 点击目标。
 type SeizeDeliveryJobsScanTargetAction struct{}
 
-// Run overrides the current item's targets and advances the scan index.
+// Run 覆写当前委托的点击目标，并推进扫描索引。
 func (a *SeizeDeliveryJobsScanTargetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	// All items exhausted → on_error: NoProgress → Refresh
+	// 全部委托扫描完毕 → on_error：NoProgress → Refresh
 	if scannedJobItems == nil || currentIndex >= len(scannedJobItems) {
 		log.Info().
 			Str("component", "SeizeDeliveryJobs").
@@ -255,7 +255,7 @@ func readMaxAttemptRounds(raw string) int {
 // 达到上限：返回 false，由 on_error 终止任务并提示人工介入，不再无限刷新。
 type SeizeDeliveryJobsNoProgressAction struct{}
 
-// Run increments the no-progress counter and either refreshes or fails the task.
+// Run 增加无进展计数，并根据上限刷新列表或使任务失败。
 func (a *SeizeDeliveryJobsNoProgressAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	raw := ""
 	if arg != nil {
@@ -285,7 +285,7 @@ func (a *SeizeDeliveryJobsNoProgressAction) Run(ctx *maa.Context, arg *maa.Custo
 	return true
 }
 
-// Compile-time interface checks
+// 编译期接口实现检查。
 var (
 	_ maa.CustomActionRunner      = &SeizeDeliveryJobsResetScanStateAction{}
 	_ maa.CustomRecognitionRunner = &SeizeDeliveryJobsScanTargetRecognition{}
