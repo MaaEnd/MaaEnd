@@ -67,6 +67,7 @@ func boxToRect(box []int) maa.Rect {
 // 因此无需在接单成功处另行归零。
 type SeizeDeliveryJobsResetScanStateAction struct{}
 
+// Run clears the cached list and resets the cross-round attempt counter.
 func (a *SeizeDeliveryJobsResetScanStateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	resetScanState()
 	log.Info().
@@ -80,6 +81,7 @@ func (a *SeizeDeliveryJobsResetScanStateAction) Run(ctx *maa.Context, arg *maa.C
 // all reward-qualified jobs for subsequent ScanTarget iterations.
 type SeizeDeliveryJobsScanTargetRecognition struct{}
 
+// Run scans the commission list once and caches all qualifying jobs.
 func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	// Subsequent calls: already have scanned data, just hit
 	if scannedJobItems != nil {
@@ -102,17 +104,21 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 		return nil, false
 	}
 
-	items, ok := scanJobs(ctx, arg.Img, minReward)
-	if !ok || len(items) == 0 {
-		// 本轮没有任何价格达标的委托。此处仍返回命中，让 ScanTargetAction 走
-		// 「全部扫完」分支进入 ScanExhausted，从而与「扫完但终点不匹配」共用同一套
-		// 跨轮计数与终止判据。若按识别失败返回，框架只会视作本节点未命中、
-		// 直接落到 Loop 的 Refresh 兜底，该路径将永远不计数、无法收敛。
+	items, err := scanJobs(ctx, arg.Img, minReward)
+	if err != nil {
+		log.Error().Err(err).
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "scan_target").
+			Msg("scan jobs")
+		return nil, false
+	}
+	if len(items) == 0 {
+		// 本轮没有任何价格达标的委托。返回命中，让 ScanTargetAction 走
+		// 「全部扫完」分支进入 NoProgress，与终点不匹配共用同一套计数。
 		log.Warn().
 			Str("component", "SeizeDeliveryJobs").
 			Str("step", "scan_target").
 			Float64("min_reward", minReward).
-			Bool("scan_ok", ok).
 			Msg("no reward-qualified job in list")
 		clearRoundState()
 		return &maa.CustomRecognitionResult{
@@ -138,11 +144,12 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 	}, true
 }
 
-// SeizeDeliveryJobsScanTargetAction overrides pipeline click targets for the current scanned job item and advances the scan index.
+// SeizeDeliveryJobsScanTargetAction overrides the pipeline click targets for the current item.
 type SeizeDeliveryJobsScanTargetAction struct{}
 
+// Run overrides the current item's targets and advances the scan index.
 func (a *SeizeDeliveryJobsScanTargetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	// All items exhausted → on_error: ScanExhausted → Refresh
+	// All items exhausted → on_error: NoProgress → Refresh
 	if scannedJobItems == nil || currentIndex >= len(scannedJobItems) {
 		log.Info().
 			Str("component", "SeizeDeliveryJobs").
@@ -248,6 +255,7 @@ func readMaxAttemptRounds(raw string) int {
 // 达到上限：返回 false，由 on_error 终止任务并提示人工介入，不再无限刷新。
 type SeizeDeliveryJobsNoProgressAction struct{}
 
+// Run increments the no-progress counter and either refreshes or fails the task.
 func (a *SeizeDeliveryJobsNoProgressAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	raw := ""
 	if arg != nil {

@@ -6,6 +6,7 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
+// TestReadMaxAttemptRounds verifies numeric and string parameter parsing with fallback behavior.
 func TestReadMaxAttemptRounds(t *testing.T) {
 	cases := []struct {
 		name string
@@ -27,6 +28,19 @@ func TestReadMaxAttemptRounds(t *testing.T) {
 				t.Fatalf("readMaxAttemptRounds(%q) = %d, want %d", c.raw, got, c.want)
 			}
 		})
+	}
+}
+
+// TestParseFilteredReportsDetailErrors verifies malformed recognition details are errors.
+func TestParseFilteredReportsDetailErrors(t *testing.T) {
+	if _, err := parseFiltered(nil); err == nil {
+		t.Fatal("parseFiltered(nil) returned nil error")
+	}
+	if _, err := parseFiltered(&maa.RecognitionDetail{Hit: true, DetailJson: "{"}); err == nil {
+		t.Fatal("parseFiltered malformed JSON returned nil error")
+	}
+	if _, err := parseFiltered(&maa.RecognitionDetail{Hit: true, DetailJson: `{"filtered": []}`}); err != nil {
+		t.Fatalf("parseFiltered valid JSON returned error: %v", err)
 	}
 }
 

@@ -120,43 +120,60 @@ func roiOverride(node string, rect maa.Rect) map[string]any {
 	}
 }
 
-// parseFiltered 把 detail.DetailJson 解析成 filteredDetail。
-func parseFiltered(detail *maa.RecognitionDetail) (filteredDetail, bool) {
+// parseFiltered parses the JSON detail returned by a hit recognition.
+func parseFiltered(detail *maa.RecognitionDetail) (filteredDetail, error) {
 	if detail == nil {
-		return filteredDetail{}, false
+		return filteredDetail{}, fmt.Errorf("recognition detail is nil")
 	}
 	var fd filteredDetail
 	if err := json.Unmarshal([]byte(detail.DetailJson), &fd); err != nil {
-		return filteredDetail{}, false
+		return filteredDetail{}, fmt.Errorf("parse recognition detail: %w", err)
 	}
-	return fd, true
+	return fd, nil
 }
 
-// ocrFirst 在指定 roi 上运行 OCR 节点，返回第一个 filtered 项。
-func ocrFirst(ctx *maa.Context, img image.Image, node string, rect maa.Rect) (string, []int, bool) {
+// ocrFirst runs an OCR node in the given ROI and returns the first filtered item.
+// A recognition miss is reported by ok=false and err=nil; execution or detail
+// parsing failures are returned as errors so callers do not mistake them for a miss.
+func ocrFirst(ctx *maa.Context, img image.Image, node string, rect maa.Rect) (string, []int, bool, error) {
 	d, err := ctx.RunRecognition(node, img, roiOverride(node, rect))
-	if err != nil || d == nil || !d.Hit {
-		return "", nil, false
+	if err != nil {
+		return "", nil, false, fmt.Errorf("run recognition %s: %w", node, err)
 	}
-	fd, ok := parseFiltered(d)
-	if !ok || len(fd.Filtered) == 0 {
-		return "", nil, false
+	if d == nil {
+		return "", nil, false, fmt.Errorf("run recognition %s returned nil detail", node)
 	}
-	return fd.Filtered[0].Text, fd.Filtered[0].Box, true
+	if !d.Hit {
+		return "", nil, false, nil
+	}
+	fd, err := parseFiltered(d)
+	if err != nil {
+		return "", nil, false, fmt.Errorf("parse recognition %s: %w", node, err)
+	}
+	if len(fd.Filtered) == 0 {
+		return "", nil, false, nil
+	}
+	return fd.Filtered[0].Text, fd.Filtered[0].Box, true, nil
 }
 
-// scanJobs 链式扫描所有「价格 >= minReward」的委托。
-// 流程：WulingToken 多 box → 每个 box 链式 OCR 价格/出发地/接取/查看位置，价格达标则组装。
-// 返回的 items 顺序与 WulingToken 的 filtered 顺序一致（自上而下）。
-func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJobItem, bool) {
+// scanJobs scans all delivery jobs whose reward is at least minReward.
+// It returns an empty slice with nil error when the current list has no
+// qualifying jobs. Recognition execution and detail parsing failures are
+// returned as errors.
+func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJobItem, error) {
 	wulingDetail, err := ctx.RunRecognition(recoWulingTokenNode, img)
-	if err != nil || wulingDetail == nil || !wulingDetail.Hit {
-		log.Debug().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_jobs").Msg("WulingToken miss")
-		return nil, false
+	if err != nil {
+		return nil, fmt.Errorf("run recognition %s: %w", recoWulingTokenNode, err)
 	}
-	wulingFD, ok := parseFiltered(wulingDetail)
-	if !ok {
-		return nil, false
+	if wulingDetail == nil {
+		return nil, fmt.Errorf("run recognition %s returned nil detail", recoWulingTokenNode)
+	}
+	if !wulingDetail.Hit {
+		return nil, nil
+	}
+	wulingFD, err := parseFiltered(wulingDetail)
+	if err != nil {
+		return nil, fmt.Errorf("parse recognition %s: %w", recoWulingTokenNode, err)
 	}
 
 	var items []deliveryJobItem
@@ -165,7 +182,10 @@ func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJ
 			continue
 		}
 		// 价格（基于 WulingToken box 偏移）
-		rewardText, rewardBox, ok := ocrFirst(ctx, img, recoRewardNode, offsetBox(wf.Box, offsetWulingToReward))
+		rewardText, rewardBox, ok, err := ocrFirst(ctx, img, recoRewardNode, offsetBox(wf.Box, offsetWulingToReward))
+		if err != nil {
+			return nil, fmt.Errorf("scan reward: %w", err)
+		}
 		if !ok || len(rewardBox) < 4 {
 			continue
 		}
@@ -178,9 +198,18 @@ func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJ
 			continue
 		}
 		// 出发地 / 接取 / 查看位置（基于 RewardOcr box 偏移）；任一 OCR 未命中即跳过，避免下游拿到空 box
-		originText, _, originOk := ocrFirst(ctx, img, recoOriginNode, offsetBox(rewardBox, offsetRewardToOrigin))
-		_, acceptBox, acceptOk := ocrFirst(ctx, img, recoAcceptNode, offsetBox(rewardBox, offsetRewardToAccept))
-		_, viewBox, viewOk := ocrFirst(ctx, img, recoViewLocationNode, offsetBox(rewardBox, offsetRewardToView))
+		originText, _, originOk, err := ocrFirst(ctx, img, recoOriginNode, offsetBox(rewardBox, offsetRewardToOrigin))
+		if err != nil {
+			return nil, fmt.Errorf("scan origin: %w", err)
+		}
+		_, acceptBox, acceptOk, err := ocrFirst(ctx, img, recoAcceptNode, offsetBox(rewardBox, offsetRewardToAccept))
+		if err != nil {
+			return nil, fmt.Errorf("scan accept button: %w", err)
+		}
+		_, viewBox, viewOk, err := ocrFirst(ctx, img, recoViewLocationNode, offsetBox(rewardBox, offsetRewardToView))
+		if err != nil {
+			return nil, fmt.Errorf("scan view-location button: %w", err)
+		}
 		if !originOk || !acceptOk || !viewOk {
 			log.Debug().
 				Str("component", "SeizeDeliveryJobs").
@@ -200,13 +229,14 @@ func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJ
 			ViewLocationBox: viewBox,
 		})
 	}
-	return items, true
+	return items, nil
 }
 
-// SeizeDeliveryJobsFindTargetRecognition 是 grab 路径的识别：
-// 扫描所有价格达标的委托，返回首个（列表最上）的接取按钮 box 供 action Click 接单。
+// SeizeDeliveryJobsFindTargetRecognition is the grab-path recognition.
+// It scans all qualifying jobs and returns the first (topmost) accept-button box.
 type SeizeDeliveryJobsFindTargetRecognition struct{}
 
+// Run scans the current commission list and returns the first qualifying target.
 func (r *SeizeDeliveryJobsFindTargetRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if ctx == nil || arg == nil || arg.Img == nil {
 		return nil, false
@@ -216,8 +246,12 @@ func (r *SeizeDeliveryJobsFindTargetRecognition) Run(ctx *maa.Context, arg *maa.
 		log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "find_target").Msg("read min reward")
 		return nil, false
 	}
-	items, ok := scanJobs(ctx, arg.Img, minReward)
-	if !ok || len(items) == 0 {
+	items, err := scanJobs(ctx, arg.Img, minReward)
+	if err != nil {
+		log.Error().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "find_target").Msg("scan jobs")
+		return nil, false
+	}
+	if len(items) == 0 {
 		return nil, false
 	}
 	item := items[0]
