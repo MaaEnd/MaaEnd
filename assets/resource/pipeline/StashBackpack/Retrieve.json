@@ -243,10 +243,10 @@
         "custom_action": "InventoryTransferStackAction",
         "target": "StashBackpackBagPageItem",
         "target_offset": [
-            26,
-            25,
-            -52,
-            -50
+            16,
+            16,
+            -32,
+            -32
         ],
         "post_wait_freezes": 200,
         "post_delay": 0,
@@ -403,10 +403,10 @@
         "custom_action": "InventoryTransferStackAction",
         "target": "StashBackpackFindCurrentItemInRepo",
         "target_offset": [
-            26,
-            25,
-            -52,
-            -50
+            16,
+            16,
+            -32,
+            -32
         ],
         "post_wait_freezes": 200,
         "post_delay": 0,

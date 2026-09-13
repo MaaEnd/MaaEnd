@@ -29,7 +29,13 @@ func (a *MoveRepoItemToBagAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	if ctx == nil || arg == nil {
 		return false
 	}
-	source, ok := findCombinedRecognitionBox(arg.RecognitionDetail, moveRepoToBagSource)
+	// box_index=0 绑定仓库源格；优先使用 Pipeline 应用 target_offset 后传入的 arg.Box，
+	// 这样 Win32/ADB 可以分别收缩点击区域。旧调用方未提供有效 arg.Box 时再回退到组合子框。
+	source := arg.Box
+	ok := validRect(source)
+	if !ok {
+		source, ok = findCombinedRecognitionBox(arg.RecognitionDetail, moveRepoToBagSource)
+	}
 	if !ok {
 		log.Error().Str("component", moveRepoToBagComponent).Str("node", moveRepoToBagSource).
 			Msg("repository source was not provided by combined recognition")
