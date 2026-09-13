@@ -219,6 +219,33 @@ func TestInitialSnapshotMirrorsWorkingAndDeductsOnConfirm(t *testing.T) {
 	}
 }
 
+func TestConsumeStoredTargetRecordsItemAndDeductsWorking(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	if _, err := store.replaceSnapshotPages(snapshotS0, [][]snapshotItemWithPosition{{
+		testPositionedItem("usable", "Usable", 0, 0),
+		testPositionedItem("ore", "Ore", 0, 1),
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	store.session.Targets = []snapshotItem{
+		testItem("usable", "Usable"),
+		testItem("ore", "Ore"),
+	}
+
+	item, ok := store.consumeStoredTarget()
+	if !ok || item.ItemID != "usable" {
+		t.Fatalf("consumed item = %#v, ok = %v, want usable", item, ok)
+	}
+	if len(store.session.Stored) != 1 || store.session.Stored[0].ItemID != "usable" {
+		t.Fatalf("stored records = %#v, want usable", store.session.Stored)
+	}
+	working, ok := store.snapshot(snapshotWorking)
+	if !ok || len(working) != 1 || working[0].ItemID != "ore" {
+		t.Fatalf("working snapshot = %#v, want only ore", working)
+	}
+}
+
 func TestPrepareStoredTargetsAndAbortRestoreRoundTrip(t *testing.T) {
 	t.Parallel()
 	store := newStateStore()
