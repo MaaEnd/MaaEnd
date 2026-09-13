@@ -2,7 +2,7 @@
 
 This CustomAction supports sliding a slider, allowing sliding to a specified value.
 
-![BetterSliding Example](https://github.com/user-attachments/assets/27365f2c-b1a5-43cb-8ff6-d75d506716e2)
+![BetterSliding Example](https://github.com/user-attachments/assets/cad74409-911e-43aa-81ba-3d540e2bf6d9)
 
 As shown in the image above, sliding can be performed using `SwipeButton`, and precise adjustments can be made using `DecreaseButton` and `IncreaseButton`.
 
