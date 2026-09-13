@@ -627,7 +627,7 @@
     "option.ClientVersionCloudLocked.label": "客戶端版本",
     "option.ClientVersionCloudLocked.description": "雲終末地(ADB) 控制器下鎖定為雲終末地客戶端，不可更改",
     "task.SeizeDeliveryJobs.label": "🏍️搶委託與送貨",
-    "task.SeizeDeliveryJobs.description": "自動搶武陵城倉儲節點送貨委託",
+    "task.SeizeDeliveryJobs.description": "自動搶武陵、四號谷地倉儲節點的送貨委託",
     "task.SeizeDeliveryJobsCommissionSource.label": "委託接收點",
     "task.SeizeDeliveryJobsCommissionSource.cases.AllUnlimited.label": "全部地區",
     "task.SeizeDeliveryJobsCommissionSource.cases.Unlimited.label": "武陵-全部",

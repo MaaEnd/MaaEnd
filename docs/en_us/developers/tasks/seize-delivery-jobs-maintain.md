@@ -28,7 +28,7 @@ Both paths share the depot entry, job-list loading, reward OCR, and post-accept 
 | Destination dispatcher (generated) | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointDispatcher.json` | Confirms that the map is open and routes by the upper-left sub-area name |
 | Destination loop (hand-maintained) | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilter.json` | Caching jobs, opening `Check Location`, destination matching, closing the map, accepting, and refreshing |
 | Auto-delivery adapter (hand-maintained) | `assets/resource/pipeline/SeizeDeliveryJobs/AutoDeliveryAdapter.json` | Calls the shared `AutoDelivery` through continuation anchors instead of copying its flow |
-| Destination names and directions (manual) | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | Per-destination five-language location name (where that destination's NPC stands) plus a `direction` code (1-8); an established nickname is kept when no official entry exists |
+| Destination names and directions (manual) | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | Per-destination five-language location name (where that destination's NPC stands) plus a `direction` code (0-8; 0 means no direction suffix); an established nickname is kept when no official entry exists |
 | Go Service | `agent/go-service/seizedeliveryjobs/` | Chained job-card OCR, reward parsing, dynamic click boxes, and per-scan session state |
 | Shared delivery catalog | `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap depot/destination data, map coordinates, areas, and source-language names read by `AutoDelivery` |
 
@@ -179,7 +179,7 @@ pnpm generate:SeizeDeliveryJobs
 
 `endpoint-labels.json` is the only manual entry point for destination display names. What is registered is the **name of the location where that destination's NPC stands** (a recipient name is often just a person, while a location name is easier to find on the map); an unregistered destination uses the source recipient name. Display names are resolved in this order:
 
-1. a destination with a registered location name uses those five strings ;
+1. a destination with a registered location name uses those five strings;
 2. every other destination uses the recipient name from `delivery_destinations.json`;
 3. the direction suffix for that `direction` code is appended last.
 

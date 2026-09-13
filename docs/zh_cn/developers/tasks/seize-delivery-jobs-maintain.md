@@ -28,7 +28,7 @@
 | 终点调度器（生成） | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointDispatcher.json` | 确认地图已打开，并按左上角子区域名路由到对应候选组 |
 | 终点筛选循环（手工） | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilter.json` | 缓存委托、打开查看位置、判断终点、关闭地图、接单和刷新 |
 | 自动送货接续（手工） | `assets/resource/pipeline/SeizeDeliveryJobs/AutoDeliveryAdapter.json` | 通过 continuation anchor 调用公共 `AutoDelivery`，不复制送货流程 |
-| 终点展示名与方位（手工） | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | 按终点 ID 登记五语言地点名（该终点 NPC 所在的地点）与 `direction` 方位代码（1-8） |
+| 终点展示名与方位（手工） | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | 按终点 ID 登记五语言地点名（该终点 NPC 所在的地点）与 `direction` 方位代码（0-8，0 表示不加方位后缀） |
 | Go Service | `agent/go-service/seizedeliveryjobs/` | 委托卡片链式 OCR、奖励解析、动态点击坐标和一次扫描的会话状态 |
 | 共享送货目录 | `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap 发布的仓储、终点、地图坐标、区域和五语言源数据；由 `AutoDelivery` 生成器读取 |
 
@@ -179,7 +179,7 @@ pnpm generate:SeizeDeliveryJobs
 
 `endpoint-labels.json` 是终点展示名唯一的人工维护入口。登记的是**该终点 NPC 所在地点的名字**（收货人常常只是个人名，地点名更容易在地图上找到）；没登记的终点用数据源里的收货人名称。展示名按以下顺序生成：
 
-1. 登记了地点名的终点用登记的名字（；
+1. 登记了地点名的终点用登记的名字；
 2. 其余终点用 `delivery_destinations.json` 中的收货人名称；
 3. 最后按 `direction` 追加对应语言的方位后缀。
 

@@ -623,7 +623,7 @@
     "option.ClientVersionCloudLocked.label": "クライアントバージョン",
     "option.ClientVersionCloudLocked.description": "クラウド終末地(ADB) コントローラーではクラウド終末地クライアントに固定され、変更できません。",
     "task.SeizeDeliveryJobs.label": "🏍️依頼受注と配送",
-    "task.SeizeDeliveryJobs.description": "武陵城倉庫ノードの配送依頼を自動で受注します",
+    "task.SeizeDeliveryJobs.description": "武陵・四号谷地の倉庫ノードの配送依頼を自動で受注します",
     "task.SeizeDeliveryJobsCommissionSource.label": "依頼荷受場所",
     "task.SeizeDeliveryJobsCommissionSource.cases.AllUnlimited.label": "全地域",
     "task.SeizeDeliveryJobsCommissionSource.cases.Unlimited.label": "武陵 - 全て",
