@@ -338,7 +338,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualSetupBagBatch"
+            "StashBackpackManualLoop"
         ]
     },
     "StashBackpackManualSetupBagBatch": {
@@ -413,7 +413,7 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "InventoryTransferStackAction",
-        "target": "StashBackpackBagPageItem",
+        "target": "StashBackpackFindCurrentItemInBag",
         "target_offset": [
             16,
             16,
@@ -424,7 +424,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualConsumeStored"
+            "StashBackpackManualVerifyStored"
         ]
     },
     "StashBackpackManualVerifyStored": {
@@ -452,13 +452,13 @@
         "action": "Custom",
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "operation": "mark_bag_item_clicked",
+            "operation": "consume_stored_target",
             "reason": "manual_item_stored"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackBagBatchLoop"
+            "StashBackpackManualLoop"
         ]
     },
     "StashBackpackManualConsumeMissing": {
@@ -466,13 +466,13 @@
         "action": "Custom",
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "operation": "discard_bag_targets",
+            "operation": "consume_target",
             "reason": "item_not_found"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EmptyNode"
+            "StashBackpackManualLoop"
         ]
     },
     "StashBackpackManualConsumeFiltered": {
@@ -486,7 +486,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackBagBatchLoop"
+            "StashBackpackManualLoop"
         ]
     },
     "StashBackpackReplenishSubTask": {

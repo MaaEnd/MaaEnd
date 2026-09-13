@@ -20,6 +20,7 @@ const (
 	operationAbortRestore      = "abort_restore"
 	operationAdvanceBagPage    = "advance_bag_page"
 	operationMarkBagClicked    = "mark_bag_item_clicked"
+	operationConsumeStored     = "consume_stored_target"
 	operationDiscardBagTargets = "discard_bag_targets"
 	operationConsumeTarget     = "consume_target"
 	operationSetDepot          = "set_depot"
@@ -133,6 +134,14 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if err == nil {
 			log.Info().Str("component", componentName).Str("item_id", item.ItemID).
 				Str("category_type", item.CategoryType).Msg("queued clicked backpack item for page-level verification")
+		}
+	case operationConsumeStored:
+		item, ok := globalState.consumeStoredTarget()
+		if !ok {
+			err = fmt.Errorf("no current stored target")
+		} else {
+			log.Info().Str("component", componentName).Str("item_id", item.ItemID).
+				Str("category_type", item.CategoryType).Msg("recorded manually stored item")
 		}
 	case operationDiscardBagTargets:
 		discarded := globalState.discardRemainingBagTargets()
