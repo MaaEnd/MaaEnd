@@ -79,7 +79,7 @@
     "pullcount.resource_read_success": "%s读取成功：%d",
     "pullcount.error.invalid_params": "抽数计算参数无效",
     "ziplineimport.captured_done": "UID %s：滑索导入完成：已捕获 %d 张地图、共 %d 处滑索架",
-    "ziplineimport.sign_in_hint": "请在弹出的浏览器窗口中，点击森空岛地图右上角「登录」，然后登录需要导入/更新滑索的游戏账号。",
+    "ziplineimport.sign_in_hint": "请在弹出的浏览器窗口中，点击地图页面右上角「登录」，然后登录需要导入/更新滑索的游戏账号。",
     "ziplineimport.login_ok": "登录成功，正在导入/更新滑索",
     "ziplineimport.region_unsupported": "Linux 端滑索导入暂不支持国际服（SKPORT），请把区服切回 CN 后重试",
     "pullcount.error.recognition_failed": "抽数计算识别失败：%s。请确认当前处于干员寻访界面且顶部资源栏无遮挡。",

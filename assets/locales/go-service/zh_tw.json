@@ -78,7 +78,7 @@
     "pullcount.resource_read_success": "%s讀取成功：%d",
     "pullcount.error.invalid_params": "抽數計算參數無效",
     "ziplineimport.captured_done": "UID %s：滑索匯入完成：已擷取 %d 張地圖、共 %d 處滑索架",
-    "ziplineimport.sign_in_hint": "請在彈出的瀏覽器視窗中，點擊森空島地圖右上角「登入」，然後登入需要匯入/更新滑索的遊戲帳號。",
+    "ziplineimport.sign_in_hint": "請在彈出的瀏覽器視窗中，點擊地圖頁面右上角「登入」，然後登入需要匯入/更新滑索的遊戲帳號。",
     "ziplineimport.login_ok": "登入成功，正在匯入/更新滑索",
     "ziplineimport.region_unsupported": "Linux 端滑索匯入暫不支援國際服（SKPORT），請把區服切回 CN 後重試",
     "pullcount.error.recognition_failed": "抽數計算識別失敗：%s。請確認目前處於幹員尋訪介面且頂部資源欄未被遮擋。",

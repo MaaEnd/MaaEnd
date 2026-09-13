@@ -78,7 +78,7 @@
     "pullcount.resource_read_success": "%s 읽기 성공: %d",
     "pullcount.error.invalid_params": "모집 횟수 계산 파라미터가 올바르지 않습니다",
     "ziplineimport.captured_done": "UID %s: 짚라인 가져오기 완료: %d개 맵, %d개 짚라인 랙 캡처",
-    "ziplineimport.sign_in_hint": "방금 열린 브라우저 창에서 스카이랜드 지도 오른쪽 상단의 「로그인」을 누른 뒤, 짚라인을 가져오거나 갱신할 게임 계정으로 로그인하십시오.",
+    "ziplineimport.sign_in_hint": "방금 열린 브라우저 창에서 지도 페이지 오른쪽 상단의 「로그인」을 누른 뒤, 짚라인을 가져오거나 갱신할 게임 계정으로 로그인하십시오.",
     "ziplineimport.login_ok": "로그인 성공, 짚라인을 가져오는 중/갱신 중",
     "ziplineimport.region_unsupported": "Linux 짚라인 가져오기는 아직 글로벌 서버(SKPORT)를 지원하지 않습니다. 지역을 CN으로 되돌린 후 다시 시도해 주세요.",
     "pullcount.error.recognition_failed": "모집 횟수 인식 실패: %s. 오퍼레이터 모집 화면이 열려 있고 상단 자원 바가 가려지지 않았는지 확인해 주세요.",

@@ -79,7 +79,7 @@
     "pullcount.resource_read_success": "%s read successfully: %d",
     "pullcount.error.invalid_params": "Invalid pull count calculation parameters",
     "ziplineimport.captured_done": "UID %s: Zipline import done: captured %d map(s), %d zipline rack(s)",
-    "ziplineimport.sign_in_hint": "In the browser window that just opened, click \"Sign in\" at the top-right of the Skland map, then sign in with the in-game account whose ziplines you want to import or update.",
+    "ziplineimport.sign_in_hint": "In the browser window that just opened, click \"Sign in\" at the top-right of the map page, then sign in with the in-game account whose ziplines you want to import or update.",
     "ziplineimport.login_ok": "Signed in successfully. Importing / updating ziplines…",
     "ziplineimport.region_unsupported": "Zipline import on Linux does not support the global server (SKPORT) yet. Switch the region back to CN and try again.",
     "pullcount.error.recognition_failed": "Pull count recognition failed: %s. Make sure the Operator Recruitment screen is open and the top resource bar is visible.",
