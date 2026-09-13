@@ -151,4 +151,3 @@ func validRect(rect maa.Rect) bool {
 func rectCenter(rect maa.Rect) (int32, int32) {
 	return int32(rect[0] + rect[2]/2), int32(rect[1] + rect[3]/2)
 }
-}
