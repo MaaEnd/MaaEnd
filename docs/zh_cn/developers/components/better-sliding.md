@@ -81,17 +81,17 @@
 | 字段 | 类型 | 必填 | 说明 |
 | ------------------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------- |
 | `Direction` | `string` | 是 | 滑动方向。指定"最大值所在方向"，支持 `left` / `right` / `up` / `down`。 |
-| `SliderQuantity.Box` | `int[4]` | 是 | 当前滑条数量 OCR 区域，格式 `[x, y, w, h]`。 |
 | `IncreaseButton` | `string` 或 `int[2\|4]` | 是 | "增加数量"按钮。推荐传模板路径（阈值固定 `0.8`），也可传坐标 `[x, y]` 或 `[x, y, w, h]`。 |
+| `SwipeButton` | `string` | 否 | 自定义滑块模板路径，覆盖 `BetterSlidingSwipeButton` 节点的默认模板。默认 `""`（使用共享默认模板）。 |
 | `DecreaseButton` | `string` 或 `int[2\|4]` | 是 | "减少数量"按钮。格式同 `IncreaseButton`。 |
-| `AvailableQuantity.Box` | `int[4]` | 否 | OCR 区域，用于读取物品可购买/可出售的总量。缺失时使用滑条终点值作为计算基准。 |
+| `SliderQuantity.Box` | `int[4]` | 是 | 当前滑条数量 OCR 区域，格式 `[x, y, w, h]`。 |
 | `SliderQuantity.Filter` | `object` | 否 | 当前滑条数量 OCR 的颜色过滤参数。 |
-| `AvailableQuantity.Filter` | `object` | 否 | 可用总量 OCR 的颜色过滤参数。仅在显式提供 `AvailableQuantity` 时使用。 |
 | `SliderQuantity.OnlyRec` | `bool` | 否 | 是否为滑条数量 OCR 节点启用 `only_rec`。默认 `false`。 |
+| `AvailableQuantity.Box` | `int[4]` | 否 | OCR 区域，用于读取物品可购买/可出售的总量。缺失时使用滑条终点值作为计算基准。 |
+| `AvailableQuantity.Filter` | `object` | 否 | 可用总量 OCR 的颜色过滤参数。仅在显式提供 `AvailableQuantity` 时使用。 |
 | `AvailableQuantity.OnlyRec` | `bool` | 否 | 是否为 `BetterSlidingGetAvailableQuantity` 启用 `only_rec`。 |
 | `CenterPointOffset` | `int[2]` | 否 | 相对滑块识别框中心点的点击偏移 `[x, y]`，负数向左/上，正数向右/下。默认 `[-10, 0]`。 |
 | `ClampTargetToSliderMax` | `bool` | 否 | 为 `true` 时，若目标超过 `sliderMaxQuantity`，则钳制为滑条最大可选数量继续执行。默认 `false`。 |
-| `SwipeButton` | `string` | 否 | 自定义滑块模板路径，覆盖 `BetterSlidingSwipeButton` 节点的默认模板。默认 `""`（使用共享默认模板）。 |
 | `OutOfRangeOverrideEnable` | `string` | 否 | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true`，然后返回成功。默认 `""`。 |
 | `TargetReachableOverrideEnable` | `string` | 否 | 当解析后的目标无需钳制且位于 `[1, sliderMaxQuantity]` 时，将指定 Pipeline 节点的 `enabled` 设为 `true`。默认 `""`。 |
 

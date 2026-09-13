@@ -81,17 +81,17 @@ In addition to the 6 fields above, all other parameters can only be read from `c
 | Field | Type | Required | Description |
 | ------------------------------- | ----------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Direction` | `string` | Yes | Swipe direction. Specifies "the direction of the maximum value", supports `left` / `right` / `up` / `down`. |
-| `SliderQuantity.Box` | `int[4]` | Yes | OCR region for the current slider quantity, format `[x, y, w, h]`. |
 | `IncreaseButton` | `string` or `int[2\|4]` | Yes | "Increase quantity" button. Template path is recommended (threshold fixed at `0.8`), or coordinates `[x, y]` or `[x, y, w, h]`. |
+| `SwipeButton` | `string` | No | Custom slider template path, overrides the default template of the `BetterSlidingSwipeButton` node. Default `""` (uses the shared default template). |
 | `DecreaseButton` | `string` or `int[2\|4]` | Yes | "Decrease quantity" button. Format same as `IncreaseButton`. |
-| `AvailableQuantity.Box` | `int[4]` | No | OCR region for reading the total available quantity. When missing, the slider endpoint value is used as the calculation reference. |
+| `SliderQuantity.Box` | `int[4]` | Yes | OCR region for the current slider quantity, format `[x, y, w, h]`. |
 | `SliderQuantity.Filter` | `object` | No | Color filter parameters for the current slider quantity OCR. |
-| `AvailableQuantity.Filter` | `object` | No | Color filter parameters for available-quantity OCR. Used only when `AvailableQuantity` is explicitly provided. |
 | `SliderQuantity.OnlyRec` | `bool` | No | Whether to enable `only_rec` for slider-quantity OCR. Default `false`. |
+| `AvailableQuantity.Box` | `int[4]` | No | OCR region for reading the total available quantity. When missing, the slider endpoint value is used as the calculation reference. |
+| `AvailableQuantity.Filter` | `object` | No | Color filter parameters for available-quantity OCR. Used only when `AvailableQuantity` is explicitly provided. |
 | `AvailableQuantity.OnlyRec` | `bool` | No | Whether to enable `only_rec` for `BetterSlidingGetAvailableQuantity`. |
 | `CenterPointOffset` | `int[2]` | No | Click offset relative to the center point of the slider's recognition box `[x, y]`, negative values left/up, positive right/down. Default `[-10, 0]`. |
 | `ClampTargetToSliderMax` | `bool` | No | When `true`, a target above `sliderMaxQuantity` is clamped to the maximum selectable slider quantity. Default `false`. |
-| `SwipeButton` | `string` | No | Custom slider template path, overrides the default template of the `BetterSlidingSwipeButton` node. Default `""` (uses the shared default template). |
 | `OutOfRangeOverrideEnable` | `string` | No | When the resolved target is outside the slidable range, enables the specified Pipeline node and returns success. Default `""`. |
 | `TargetReachableOverrideEnable` | `string` | No | When the resolved target needs no clamping and falls within `[1, sliderMaxQuantity]`, enables the specified Pipeline node. Default `""`. |
 
