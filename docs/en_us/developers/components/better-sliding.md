@@ -11,7 +11,7 @@ As shown in the image above, sliding can be performed using `SwipeButton`, and p
 
 ## Swipe-Only Mode
 
-Suitable for scenarios where you want to slide to the maximum/minimum. Parameters are as follows. For precise quantity control, please jump to the [Specified Quantity Mode](#specified-quantity-mode) section below.
+Suitable for scenarios where you want to slide to the maximum/minimum. Parameters are as follows. Swipe-only mode is inferred from the parameters: do not pass any specified-quantity-mode field alongside it, or the call is validated as specified-quantity mode. For precise quantity control, please jump to the [Specified Quantity Mode](#specified-quantity-mode) section below.
 
 ### Parameter Description
 
@@ -58,7 +58,7 @@ The following 6 fields are recommended to be passed via the calling node's `atta
 | Field | Type | Required | Description |
 | ------------------------- | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TargetQuantity` | `int` (positive integer) | Yes | Target quantity. The desired final slider value, which must be greater than 0. |
-| `TargetQuantityType` | `string` | No | How to interpret `TargetQuantity`. `"Value"` (default): absolute count; `"Percentage"`: percentage of `availableQuantity` (1–100), rounded and clamped. |
+| `TargetQuantityType` | `string` | No | How to interpret `TargetQuantity`. `"Value"` (default): absolute count; `"Percentage"`: percentage of `availableQuantity` (1–100), rounded and clamped to `[1, availableQuantity]`. |
 | `ReverseTarget` | `bool` | No | When `true`, resolves the target from the available quantity: Value mode uses `availableQuantity - TargetQuantity`; Percentage mode uses the remaining percentage. Default `false`. |
 | `FineTuneQuantity` | `bool` or `int` | No | Whether to keep fine-tuning via Increase/Decrease after the precise click. `true` (default): always fine-tune; `false`: never fine-tune; integer `N` (must be `>= 1`): fine-tune only when `abs(current - target) <= N`. |
 | `FineTuneFallback` | `string` | No | Takes effect only when this run decides not to fine-tune. `"none"` (default): no compensation, finish directly; `"more"` / `"less"`: compensate toward increasing/decreasing the quantity and re-check. See [No-Fine-Tune Semantics](#no-fine-tune-semantics). |
@@ -87,12 +87,12 @@ In addition to the 6 fields above, all other parameters can only be read from `c
 | `SliderQuantity.Box` | `int[4]` | Yes | OCR region for the current slider quantity, format `[x, y, w, h]`. |
 | `SliderQuantity.Filter` | `object` | No | Color filter parameters for the current slider quantity OCR. |
 | `SliderQuantity.OnlyRec` | `bool` | No | Whether to enable `only_rec` for slider-quantity OCR. Default `false`. |
-| `AvailableQuantity.Box` | `int[4]` | No | OCR region for reading the total available quantity. When missing, the slider endpoint value is used as the calculation reference. |
+| `AvailableQuantity.Box` | `int[4]` | No | OCR region for reading the total available quantity. The slider endpoint value is used as the calculation reference only when `AvailableQuantity` is not provided at all (or is `null`); once `AvailableQuantity` is provided, this field must contain 4 integers. |
 | `AvailableQuantity.Filter` | `object` | No | Color filter parameters for available-quantity OCR. Used only when `AvailableQuantity` is explicitly provided. |
 | `AvailableQuantity.OnlyRec` | `bool` | No | Whether to enable `only_rec` for `BetterSlidingGetAvailableQuantity`. |
 | `CenterPointOffset` | `int[2]` | No | Click offset relative to the center point of the slider's recognition box `[x, y]`, negative values left/up, positive right/down. Default `[-10, 0]`. |
 | `ClampTargetToSliderMax` | `bool` | No | When `true`, a target above `sliderMaxQuantity` is clamped to the maximum selectable slider quantity. Default `false`. |
-| `OutOfRangeOverrideEnable` | `string` | No | When the resolved target is outside the slidable range, enables the specified Pipeline node and returns success. Default `""`. |
+| `OutOfRangeOverrideEnable` | `string` | No | When the resolved target is outside the slidable range, enables the specified Pipeline node and returns success; when the field is unset (default `""`), the action fails directly. |
 | `TargetReachableOverrideEnable` | `string` | No | When the resolved target needs no clamping and falls within `[1, sliderMaxQuantity]`, enables the specified Pipeline node. Default `""`. |
 
 > [!note]
@@ -110,13 +110,13 @@ In addition to the 6 fields above, all other parameters can only be read from `c
 
 ### Outcome Node Contract
 
-`OutOfRangeOverrideEnable` and `TargetReachableOverrideEnable` report the current BetterSliding outcome to the caller. They must reference different nodes, and each outcome node should default to `enabled: false`.
+`OutOfRangeOverrideEnable` and `TargetReachableOverrideEnable` report the current BetterSliding outcome to the caller: at most one node is enabled per outcome (the other, when configured, is set to `enabled: false`). They must reference different nodes, and each outcome node should default to `enabled: false`.
 
-| Resolved target | `OutOfRangeOverrideEnable` | `TargetReachableOverrideEnable` | BetterSliding behavior |
-| -------------------------------------------------------------------------------- | -------------------------- | ------------------------------- | -------------------------------------------------------------------- |
-| Below 1, zero `sliderMaxQuantity`, or above `sliderMaxQuantity` without clamping | `true` | `false` | Returns success without adjustment; the caller handles the outcome |
-| Within `[1, sliderMaxQuantity]` | `false` | `true` | Adjusts to the target quantity |
-| Above `sliderMaxQuantity` with clamping enabled | `false` | `false` | Adjusts to `sliderMaxQuantity`; original target is not yet reachable |
+| Resolved target | Override node | BetterSliding behavior |
+| --- | --- | --- |
+| Below 1, zero `sliderMaxQuantity`, or above `sliderMaxQuantity` without clamping | `OutOfRangeOverrideEnable` | No adjustment and returns success; fails directly when the field is unset |
+| Within `[1, sliderMaxQuantity]` | `TargetReachableOverrideEnable` | Adjusts to the target quantity |
+| Above `sliderMaxQuantity` with clamping enabled | None | Adjusts to `sliderMaxQuantity`; original target is not yet reachable |
 
 `sliderMaxQuantity == 0` only means that no positive target is currently selectable. BetterSliding does not infer business causes such as insufficient balance, insufficient stock, or a disabled control. Callers that need to distinguish those states should recognize the corresponding UI in Pipeline.
 
