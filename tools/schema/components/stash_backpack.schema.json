@@ -44,6 +44,7 @@
                     "enum": [
                         "reset",
                         "copy_snapshot",
+                        "consume_stored_target",
                         "complete_full",
                         "prepare_snapshot",
                         "prepare_difference",
