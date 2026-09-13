@@ -54,9 +54,9 @@ public:
     // 设置初始要打开的 URL。仅在 Open() 之前调用有效；之后调用会被忽略。
     void SetURL(std::string url);
 
-    // 在首次导航前清除 cpp-algo 专属 WebView2 Profile 的全部 Cookie 与站点存储。
+    // 在首次导航前清空网页数据（Cookie 与站点存储）。
     // 仅在 Open() 之前调用有效；清理失败时 Open() 返回 false，避免继续使用旧登录态。
-    void setClearSiteDataBeforeNavigation(bool enabled);
+    void SetClearWebData(bool enabled);
 
     // 启用 Chromium 触屏仿真（通过 CDP 的 Emulation.setTouchEmulationEnabled）。
     // 启用后 navigator/document 会上报具备触屏，document.createEvent("TouchEvent") 不再抛异常。
@@ -134,7 +134,7 @@ private:
     // 配置字段：仅在 Open() 之前由业务线程写入，UI 线程在 onControllerCreated 中读取一次。
     std::string initial_url_;
     std::string user_agent_;
-    bool clear_site_data_before_navigation_ = false;
+    bool clear_web_data_ = false;
     bool touch_emulation_ = false;
     bool context_menu_enabled_ = true;
 
@@ -170,7 +170,7 @@ public:
     bool Open() override;
 
     void SetURL(std::string url);
-    void setClearSiteDataBeforeNavigation(bool enabled);
+    void SetClearWebData(bool enabled);
     void SetTouchEmulation(bool enabled);
     void SetContextMenuEnabled(bool enabled);
     void SetUserAgent(std::string user_agent);

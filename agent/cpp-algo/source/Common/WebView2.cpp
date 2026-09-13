@@ -134,13 +134,13 @@ void WebView2::SetURL(std::string url)
     initial_url_ = std::move(url);
 }
 
-void WebView2::setClearSiteDataBeforeNavigation(bool enabled)
+void WebView2::SetClearWebData(bool enabled)
 {
     if (isOpened()) {
-        LogWarn << "WebView2::setClearSiteDataBeforeNavigation: ignored, must be called before Open()" << VAR(enabled);
+        LogWarn << "WebView2::SetClearWebData: ignored, must be called before Open()" << VAR(enabled);
         return;
     }
-    clear_site_data_before_navigation_ = enabled;
+    clear_web_data_ = enabled;
 }
 
 void WebView2::SetTouchEmulation(bool enabled)
@@ -363,10 +363,10 @@ void WebView2::onControllerCreated(HRESULT result, ICoreWebView2Controller* cont
         }
     }
 
-    if (clear_site_data_before_navigation_) {
+    if (clear_web_data_) {
         clearSiteData([this](bool ok) {
             if (!ok) {
-                LogError << "WebView2: failed to clear site data before navigation";
+                LogError << "WebView2: failed to clear web data before navigation";
                 signalInitDone(false);
                 return;
             }
@@ -671,10 +671,10 @@ void WebView2::SetURL(std::string url)
     }
 }
 
-void WebView2::setClearSiteDataBeforeNavigation(bool enabled)
+void WebView2::SetClearWebData(bool enabled)
 {
     if (isOpened()) {
-        LogWarn << "WebView2::setClearSiteDataBeforeNavigation: ignored, must be called before Open()" << VAR(enabled);
+        LogWarn << "WebView2::SetClearWebData: ignored, must be called before Open()" << VAR(enabled);
     }
 }
 

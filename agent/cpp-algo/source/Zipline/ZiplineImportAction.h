@@ -9,8 +9,8 @@ namespace zipline
 // debug/record/Ziplines.json。开哪个站由 param 里的 url 决定。
 //
 // 取数是被动的：不构造请求、不复刻签名、不读取也不保存任何凭据，只订阅 CDP 的
-// Network 事件，等页面把标记列表取回来之后复制一份响应体。登录态由 WebView2 自己的
-// 专属用户数据目录持有；clear_login 清除该 Profile 的 Cookie 与站点存储，本模块不读取 token。
+// Network 事件，等页面把标记列表取回来之后复制一份响应体。每次导入都会清除 WebView2
+// 专属 Profile 的 Cookie 与站点存储，本模块不读取 token。
 //
 // 因此覆盖范围取决于用户在页面上浏览过哪些地图：浏览到哪张，就得到哪张的滑索。
 MaaBool MAA_CALL ZiplineImportActionRun(

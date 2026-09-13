@@ -40,8 +40,8 @@ constexpr int kPollIntervalMs = 200;
 constexpr int kSettleMs = 1200;
 // 抓到了一些但凑不齐标定过的地图时的兜底：静默这么久也收工，不干等满超时。
 constexpr int kIdleCloseMs = 20000;
-constexpr int kDefaultWindowWidth = 960;
-constexpr int kDefaultWindowHeight = 640;
+constexpr int kDefaultWindowWidth = 1280;
+constexpr int kDefaultWindowHeight = 720;
 
 struct ImportParam
 {
@@ -50,7 +50,6 @@ struct ImportParam
     int64_t timeout = kDefaultTimeoutMs;
     int width = kDefaultWindowWidth;
     int height = kDefaultWindowHeight;
-    bool clear_login = false;
     std::vector<std::string> template_ids;
 };
 
@@ -95,11 +94,6 @@ bool ParseParam(const char* raw, ImportParam& out)
         LogError << "ZiplineImport: mark_list_path must not be empty";
         return false;
     }
-    out.timeout = obj.get("timeout", out.timeout);
-    out.width = obj.get("width", out.width);
-    out.height = obj.get("height", out.height);
-    out.clear_login = obj.get("clear_login", out.clear_login);
-
     if (obj.contains("template_ids") && obj.at("template_ids").is_array()) {
         for (const auto& item : obj.at("template_ids").as_array()) {
             if (item.is_string()) {
@@ -422,7 +416,8 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     webview->SetTouchEmulation(true);
     webview->SetSize(param.width, param.height);
     webview->SetURL(param.url);
-    webview->setClearSiteDataBeforeNavigation(param.clear_login);
+    // 每次导入强制清空网页数据，避免沿用上次网页角色。
+    webview->SetClearWebData(true);
     if (!webview->Open()) {
         LogError << "ZiplineImport: webview open failed" << VAR(param.url);
         return false;
