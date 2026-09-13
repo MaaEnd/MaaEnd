@@ -368,6 +368,10 @@ func (s *stateStore) currentTarget() (snapshotItem, bool) {
 func (s *stateStore) consumeTarget() (snapshotItem, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.consumeTargetLocked()
+}
+
+func (s *stateStore) consumeTargetLocked() (snapshotItem, bool) {
 	if s.session.BagPage.Selected != nil {
 		selected := *s.session.BagPage.Selected
 		s.session.BagPage.Selected = nil
@@ -385,6 +389,18 @@ func (s *stateStore) consumeTarget() (snapshotItem, bool) {
 	}
 	item := s.session.Targets[0]
 	s.session.Targets = s.session.Targets[1:]
+	return item, true
+}
+
+// consumeStoredTarget 消费当前手动存放目标，并原子地写入后续取回记录。
+func (s *stateStore) consumeStoredTarget() (snapshotItem, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	item, ok := s.consumeTargetLocked()
+	if !ok {
+		return snapshotItem{}, false
+	}
+	s.recordStoredItem(storedItem{ItemID: item.ItemID, CategoryType: item.CategoryType})
 	return item, true
 }
 
