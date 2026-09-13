@@ -80,10 +80,15 @@ type sessionState struct {
 	repoBaselineCount int
 	repoBaselineItem  storedItem
 	repoBaselineValid bool
-	BagPage           bagPageState
-	FullComplete      bool
-	Depot             string
-	QuickStash        bool
+	// bagBaseline 与 repoBaseline 同理，用于手动存放时验证背包源物品已移入仓库；
+	// 背包存在多个同物品堆叠时，存在性判定会误判，必须按数量差判定。
+	bagBaselineCount int
+	bagBaselineItem  storedItem
+	bagBaselineValid bool
+	BagPage          bagPageState
+	FullComplete     bool
+	Depot            string
+	QuickStash       bool
 }
 
 type stateStore struct {
@@ -247,6 +252,28 @@ func (s *stateStore) repoItemMoved(item storedItem, count int) (bool, int) {
 		return false, 0
 	}
 	return count < s.session.repoBaselineCount, s.session.repoBaselineCount
+}
+
+// noteBagItemCount 记录转移前背包当前页的物品格子数基线（手动存放验证用）。
+func (s *stateStore) noteBagItemCount(item storedItem, count int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.session.bagBaselineItem = item
+	s.session.bagBaselineCount = count
+	s.session.bagBaselineValid = true
+}
+
+// bagItemMoved 以“格子数比转移前至少少一”判定手动存放成功，
+// 背包中存在多个同物品堆叠时依然成立。基线缺失时按未移动处理（走失败路径）。
+func (s *stateStore) bagItemMoved(item storedItem, count int) (bool, int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if !s.session.bagBaselineValid ||
+		s.session.bagBaselineItem.ItemID != item.ItemID ||
+		s.session.bagBaselineItem.CategoryType != item.CategoryType {
+		return false, 0
+	}
+	return count < s.session.bagBaselineCount, s.session.bagBaselineCount
 }
 
 // prepareStoredTargets 将存放记录整体转为取回目标队列，记录随即清空；

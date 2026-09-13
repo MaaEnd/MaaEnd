@@ -133,17 +133,13 @@
             ]
         }
     },
-    "StashBackpackVerifySourceItem": {
-        "recognition": {
-            "param": {
-                "roi": [
-                    780,
-                    160,
-                    470,
-                    370
-                ]
-            }
-        },
+    "StashBackpackVerifyBagItem": {
+        "roi": [
+            780,
+            160,
+            470,
+            370
+        ],
         "pre_wait_freezes": {
             "target": [
                 780,

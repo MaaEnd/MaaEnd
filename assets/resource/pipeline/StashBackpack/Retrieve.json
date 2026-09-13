@@ -214,8 +214,7 @@
         "custom_recognition": "StashBackpackNextItemRecognition",
         "custom_recognition_param": {
             "bag_nodes": [
-                "StashBackpackFindCurrentItemInBag",
-                "StashBackpackVerifySourceItem"
+                "StashBackpackFindCurrentItemInBag"
             ]
         },
         "pre_delay": 0,
@@ -254,26 +253,6 @@
         "next": [
             "RetrieveBackpackStoreNewConsumeStored"
         ]
-    },
-    "RetrieveBackpackStoreNewVerifyStored": {
-        "pre_delay": 0,
-        "anchor": {
-            "StashBackpackAfterSourceItemStillPresent": "RetrieveBackpackStoreNewVerificationFailed",
-            "StashBackpackAfterSourceItemMoved": "RetrieveBackpackStoreNewConsumeStored"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackVerifySourceItemMoved"
-        ]
-    },
-    "RetrieveBackpackStoreNewVerificationFailed": {
-        "desc": "Shift+Click 后物品仍在背包，禁止消费目标",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FalseAction",
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "RetrieveBackpackStoreNewConsumeStored": {
         "pre_delay": 0,

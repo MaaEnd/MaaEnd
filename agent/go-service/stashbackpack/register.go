@@ -14,6 +14,8 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition("StashBackpackNextItemRecognition", &NextItemRecognition{})
 	maa.AgentServerRegisterCustomRecognition("StashBackpackNothingStoredRecognition", &NothingStoredRecognition{})
 	maa.AgentServerRegisterCustomRecognition("StashBackpackHasStoredRecognition", &HasStoredRecognition{})
+	maa.AgentServerRegisterCustomRecognition("StashBackpackBagItemCountRecognition", &BagItemCountRecognition{})
+	maa.AgentServerRegisterCustomRecognition("StashBackpackBagItemMovedRecognition", &BagItemMovedRecognition{})
 	maa.AgentServerRegisterCustomRecognition("StashBackpackRepoItemCountRecognition", &RepoItemCountRecognition{})
 	maa.AgentServerRegisterCustomRecognition("StashBackpackRepoItemMovedRecognition", &RepoItemMovedRecognition{})
 	maa.AgentServerRegisterCustomRecognition("StashBackpackTargetCategoryRecognition", &TargetCategoryRecognition{})
