@@ -164,7 +164,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackCaptureWorking"
+            "StashBackpackReplenishSubTask"
         ]
     },
     "StashBackpackStashQuickSubTask": {
@@ -489,20 +489,6 @@
             "StashBackpackBagBatchLoop"
         ]
     },
-    "StashBackpackCaptureWorking": {
-        "desc": "建立基础存放完成后的完整背包快照",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "StashBackpackSnapshotAction",
-        "custom_action_param": {
-            "snapshot": "working"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackReplenishSubTask"
-        ]
-    },
     "StashBackpackReplenishSubTask": {
         "pre_delay": 0,
         "post_delay": 0,
@@ -598,13 +584,13 @@
     },
     "StashBackpackReplenishDragItem": {
         "desc": "将仓库物品移动到背包中的对应物品格",
-        "pre_delay": 0,
         "recognition": "And",
         "all_of": [
             "StashBackpackFindCurrentItemInRepo",
             "StashBackpackFindCurrentItemInBag"
         ],
         "box_index": 0,
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "InventoryMoveRepoItemToBagAction",
         "post_wait_freezes": 200,

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -14,9 +16,9 @@ const (
 	operationCompleteFull      = "complete_full"
 	operationPrepareSnapshot   = "prepare_snapshot"
 	operationPrepareDifference = "prepare_difference"
-	operationPrepareRestore    = "prepare_restore"
+	operationPrepareStored     = "prepare_stored_targets"
+	operationAbortRestore      = "abort_restore"
 	operationAdvanceBagPage    = "advance_bag_page"
-	operationAdvanceRestore    = "advance_restore_page"
 	operationMarkBagClicked    = "mark_bag_item_clicked"
 	operationDiscardBagTargets = "discard_bag_targets"
 	operationConsumeTarget     = "consume_target"
@@ -31,7 +33,6 @@ type stateActionParam struct {
 	Subtrahend      string   `json:"subtrahend_snapshot,omitempty"`
 	Categories      []string `json:"categories,omitempty"`
 	Reason          string   `json:"reason,omitempty"`
-	ChangesSnapshot bool     `json:"changes_snapshot,omitempty"`
 	Depot           string   `json:"depot,omitempty"`
 }
 
@@ -103,16 +104,29 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				Str("minuend_snapshot", param.MinuendSnapshot).Str("subtrahend_snapshot", param.Subtrahend).
 				Int("target_count", len(targets)).Msg("prepared snapshot difference targets")
 		}
-	case operationPrepareRestore:
-		err = globalState.prepareRestore(param.Snapshot)
+	case operationPrepareStored:
+		count, storedErr := globalState.prepareStoredTargets()
+		if storedErr != nil {
+			err = storedErr
+			break
+		}
+		log.Info().Str("component", componentName).
+			Int("stored_count", count).
+			Msg("prepared stored records as retrieval targets")
+	case operationAbortRestore:
+		remaining := globalState.abortRestore()
+		if ctx != nil {
+			maafocus.Print(ctx, i18n.T("stashbackpack.restore.bag_full_remain", remaining))
+		}
+		log.Warn().Str("component", componentName).
+			Int("remaining_count", remaining).Str("reason", param.Reason).
+			Msg("restore aborted; remaining stored records kept for the next retrieval")
 	case operationAdvanceBagPage:
 		err = globalState.advanceBagPage()
-	case operationAdvanceRestore:
-		err = globalState.advanceRestorePage()
 	case operationMarkBagClicked:
 		var item snapshotItem
 		var ok bool
-		item, ok = globalState.markSelectedBagTargetClicked(param.Reason, param.ChangesSnapshot)
+		item, ok = globalState.markSelectedBagTargetClicked(param.Reason)
 		if !ok {
 			err = fmt.Errorf("no selected bag target")
 		}
@@ -138,17 +152,17 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			err = fmt.Errorf("no current target")
 		}
 		if err == nil {
-			if param.ChangesSnapshot {
-				globalState.markSnapshotChanged()
-			}
 			event := log.Info().Str("component", componentName).
 				Str("item_id", item.ItemID).Str("category_type", item.CategoryType)
 			if param.Reason != "" {
 				event = event.Str("reason", param.Reason)
 			}
-			if param.Reason == "replenish_repo_not_found" {
+			switch param.Reason {
+			case "replenish_repo_not_found":
 				event.Msg("item was not found in Depot and cannot be replenished")
-			} else {
+			case "restore_repo_not_found":
+				event.Msg("item was not found in Depot; skipped by user's category choice or recognition")
+			default:
 				event.Msg("consumed current item target")
 			}
 		}

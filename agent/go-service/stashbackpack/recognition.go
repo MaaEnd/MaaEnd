@@ -254,22 +254,84 @@ func (r *DepotRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*
 	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
 }
 
-// RetrievedItemRecognition verifies that the current page contains one more target item than its in-memory baseline.
-type RetrievedItemRecognition struct{}
+// NothingStoredRecognition matches when no stored record is waiting for retrieval.
+type NothingStoredRecognition struct{}
 
-var _ maa.CustomRecognitionRunner = &RetrievedItemRecognition{}
+var _ maa.CustomRecognitionRunner = &NothingStoredRecognition{}
 
-// Run scans only the current item ID and its exact category, then updates the current page count after an increase.
-func (r *RetrievedItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if ctx == nil || arg == nil || arg.Img == nil {
-		log.Error().Str("component", componentName).Msg("retrieved item recognition received nil context, arg, or image")
+// Run lets the retrieval task finish immediately when nothing was manually stored.
+func (r *NothingStoredRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || globalState.storedCount() != 0 {
 		return nil, false
 	}
-	target, ok := globalState.currentTarget()
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+}
+
+// HasStoredRecognition matches when at least one stored record waits for retrieval;
+// it lets retrieval bypass the complete-snapshot gate.
+type HasStoredRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &HasStoredRecognition{}
+
+func (r *HasStoredRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || globalState.storedCount() == 0 {
+		return nil, false
+	}
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+}
+
+// RepoItemCountRecognition records how many cells of the current item exist on the
+// current Depot page before its stack is transferred back to the backpack.
+type RepoItemCountRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &RepoItemCountRecognition{}
+
+func (r *RepoItemCountRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	count, ok := scanRepoItemCells(ctx, arg)
 	if !ok {
 		return nil, false
 	}
-	filter := iconrecognition.ItemFilter("Normal:" + target.CategoryType)
+	item, _ := globalState.currentTarget()
+	globalState.noteRepoItemCount(storedItem{ItemID: item.ItemID, CategoryType: item.CategoryType}, count)
+	log.Info().Str("component", componentName).Str("item_id", item.ItemID).
+		Int("baseline_count", count).Msg("recorded depot cell count before retrieval transfer")
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+}
+
+// RepoItemMovedRecognition judges the transfer by requiring the current Depot page
+// to hold one fewer cell of the item than before the transfer; this stays correct
+// when several stacks of the same item exist.
+type RepoItemMovedRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &RepoItemMovedRecognition{}
+
+func (r *RepoItemMovedRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	count, ok := scanRepoItemCells(ctx, arg)
+	if !ok {
+		return nil, false
+	}
+	item, _ := globalState.currentTarget()
+	moved, baseline := globalState.repoItemMoved(storedItem{ItemID: item.ItemID, CategoryType: item.CategoryType}, count)
+	log.Info().Str("component", componentName).Str("item_id", item.ItemID).
+		Int("baseline_count", baseline).Int("current_count", count).Bool("moved", moved).
+		Msg("compared depot cell count after retrieval transfer")
+	if !moved {
+		return nil, false
+	}
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+}
+
+// scanRepoItemCells counts the current item's cells on the Depot page image.
+func scanRepoItemCells(ctx *maa.Context, arg *maa.CustomRecognitionArg) (int, bool) {
+	if ctx == nil || arg == nil || arg.Img == nil {
+		log.Error().Str("component", componentName).Msg("repo cell scan received nil context, arg, or image")
+		return 0, false
+	}
+	item, ok := globalState.currentTarget()
+	if !ok {
+		return 0, false
+	}
+	filter := iconrecognition.ItemFilter("Normal:" + item.CategoryType)
 	detail, err := ctx.RunRecognitionDirect(
 		maa.RecognitionTypeCustom,
 		&maa.CustomRecognitionParam{
@@ -277,7 +339,7 @@ func (r *RetrievedItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 			CustomRecognition: iconrecognition.CustomRecognitionName,
 			CustomRecognitionParam: iconrecognition.NewParams(
 				iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
-				iconrecognition.WithItemIDs(target.ItemID),
+				iconrecognition.WithItemIDs(item.ItemID),
 				iconrecognition.WithItemFilters(filter),
 				iconrecognition.WithItemRecheckFilters(filter),
 				iconrecognition.WithDeduplicate(false),
@@ -287,38 +349,23 @@ func (r *RetrievedItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		arg.Img,
 	)
 	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Str("item_id", target.ItemID).
-			Msg("failed to scan backpack for retrieved item")
-		return nil, false
+		log.Error().Err(err).Str("component", componentName).Str("item_id", item.ItemID).
+			Msg("failed to scan depot grid for the current item")
+		return 0, false
 	}
-	parsed, rawDetail, err := iconrecognition.ParseRecognitionDetail(detail)
+	parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
 	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Str("item_id", target.ItemID).
-			Msg("failed to parse retrieved item recognition")
-		return nil, false
+		log.Error().Err(err).Str("component", componentName).Str("item_id", item.ItemID).
+			Msg("failed to parse depot grid recognition")
+		return 0, false
 	}
-	if parsed.Error != nil {
-		if parsed.Error.Code == iconrecognition.ErrorCodeNoMatch {
-			return nil, false
-		}
-		log.Error().Str("component", componentName).Str("item_id", target.ItemID).
+	if parsed.Error != nil && parsed.Error.Code != iconrecognition.ErrorCodeNoMatch {
+		log.Error().Str("component", componentName).Str("item_id", item.ItemID).
 			Str("error_code", string(parsed.Error.Code)).Str("error_message", parsed.Error.Message).
-			Msg("retrieved item recognition returned an error")
-		return nil, false
+			Msg("depot grid recognition returned an error")
+		return 0, false
 	}
-	baselineCount, matched, err := globalState.recordRetrievedItemCount(target.ItemID, len(parsed.Matches))
-	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Str("item_id", target.ItemID).
-			Msg("failed to compare retrieved item with restore baseline")
-		return nil, false
-	}
-	if !matched {
-		return nil, false
-	}
-	log.Info().Str("component", componentName).Str("item_id", target.ItemID).
-		Int("baseline_count", baselineCount).Int("current_count", len(parsed.Matches)).
-		Msg("retrieved item count increased on current backpack page")
-	return &maa.CustomRecognitionResult{Box: parsed.Matches[0].CellBox, Detail: rawDetail}, true
+	return len(parsed.Matches), true
 }
 
 // TargetCategoryRecognition matches when the current queue item belongs to the requested Depot category.
@@ -379,17 +426,4 @@ func isSupportedControllerType(controllerType string) bool {
 	default:
 		return false
 	}
-}
-
-// SnapshotChangedRecognition matches after the current physical snapshot has been changed by a successful item move.
-type SnapshotChangedRecognition struct{}
-
-var _ maa.CustomRecognitionRunner = &SnapshotChangedRecognition{}
-
-// Run lets Pipeline skip a second full scan when no new item was stored.
-func (r *SnapshotChangedRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if arg == nil || !globalState.snapshotChanged() {
-		return nil, false
-	}
-	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
 }
