@@ -831,7 +831,7 @@
     "option.BatchAddFriends.inputs.MaxCount.label": "최대 추가 수",
     "option.BatchAddFriends.inputs.MaxCount.description": "지정 수에 도달하면 자동 중지",
     "task.BatchDeleteFriends.label": "🗑️친구 일괄 삭제",
-    "task.BatchDeleteFriends.description": "마지막 접속 시간 내림차순으로 오래 미접속한 친구를 삭제하며, 메모가 있는 친구는 자동으로 건너뜁니다",
+    "task.BatchDeleteFriends.description": "마지막 접속 시간 오름차순으로 오래 미접속한 친구를 삭제하며, 메모가 있는 친구는 자동으로 건너뜁니다",
     "option.BatchDeleteFriendsInactiveDays.label": "미접속 일수",
     "option.BatchDeleteFriendsInactiveDays.cases.Days1.label": "1일",
     "option.BatchDeleteFriendsInactiveDays.cases.Days3.label": "3일",
