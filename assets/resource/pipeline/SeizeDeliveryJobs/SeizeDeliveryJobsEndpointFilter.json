@@ -10,7 +10,7 @@
             "SeizeDeliveryJobsFoundTargetViewLocationClick"
         ],
         "on_error": [
-            "SeizeDeliveryJobsScanExhausted"
+            "SeizeDeliveryJobsNoProgress"
         ]
     },
     "SeizeDeliveryJobsFoundTargetViewLocationClick": {
@@ -29,11 +29,13 @@
     // 均由 tools/pipeline-generate/SeizeDeliveryJobs 生成（分别输出到同目录的
     // SeizeDeliveryJobsEndpointDispatcher.json 与 SeizeDeliveryJobsDestinations.json），此处不再手写。
     // ===== 下面是结果处理的流程节点 =====
+    // 终点匹配成功：此处**不再**清理 Go 扫描状态。
+    // 接取成功时任务结束、或经 AutoDelivery 跳回 SeizeDeliveryJobsMain（入口会整体重置）；
+    // 接取失败时由 SeizeDeliveryJobsNoProgress 清理单轮状态。
+    // 若在这里清理，会顺带把跨轮计数归零，使「匹配成功但接取失败」的循环永远达不到上限。
     "SeizeDeliveryJobsEndpointMatched": {
-        "desc": "终点匹配成功，重置 Go 扫描状态",
+        "desc": "终点匹配成功，转交接取流程",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SeizeDeliveryJobsResetScanStateAction",
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsPressEscAfterMatch"
@@ -69,7 +71,7 @@
             "SeizeDeliveryJobsIsSeizeSuccess"
         ],
         "on_error": [
-            "SeizeDeliveryJobsRefresh"
+            "SeizeDeliveryJobsNoProgress"
         ]
     },
     "SeizeDeliveryJobsEndpointNotMatched": {
@@ -90,12 +92,23 @@
             "SeizeDeliveryJobsScanTarget"
         ]
     },
-    "SeizeDeliveryJobsScanExhausted": {
-        "desc": "扫描完毕未找到目标委托，重置 Go 扫描状态",
+    // 「本轮没有接到委托」的统一收口节点，三个入口：
+    //   ① SeizeDeliveryJobsLoop 的兜底（FindTarget 未命中，列表无价格达标委托）；
+    //   ② SeizeDeliveryJobsScanTarget 的 on_error（全部扫完仍未匹配到终点）；
+    //   ③ SeizeDeliveryJobsAcceptClick 的 on_error（匹配到终点但接取失败）。
+    // Go 侧计数：未达尝试上限则清空单轮状态并放行到 Refresh，达上限则失败终止任务。
+    "SeizeDeliveryJobsNoProgress": {
+        "desc": "本轮没有接到委托：未达尝试上限则刷新重试，达上限则终止任务",
         "action": "Custom",
-        "custom_action": "SeizeDeliveryJobsResetScanStateAction",
+        "custom_action": "SeizeDeliveryJobsNoProgressAction",
+        "custom_action_param": {
+            "max_attempt_rounds": 100
+        },
         "next": [
             "SeizeDeliveryJobsRefresh"
+        ],
+        "on_error": [
+            "FailedNode"
         ]
     }
 }

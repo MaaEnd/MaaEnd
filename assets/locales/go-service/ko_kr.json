@@ -197,6 +197,7 @@
     "autodelivery.destination.recycle_bin": "%s 자원 재활용 스테이션 #%d",
     "seizedeliveryjobs.scanning": "배달 의뢰 스캔 중...",
     "seizedeliveryjobs.checking_job": "의뢰 확인 중 %d/%d",
+    "seizedeliveryjobs.give_up": "%d회 연속으로 의뢰를 받지 못해 포기했습니다 (최대 %d회)",
     "seizedeliveryjobs.endpoint_matched": "배달지 일치, 의뢰 수락",
     "seizedeliveryjobs.endpoint_not_matched": "배달지 불일치, 건너뛰기",
     "seizedeliveryjobs.no_more_targets": "일치하는 의뢰 없음, 새로고침",

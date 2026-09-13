@@ -1,6 +1,9 @@
 package seizedeliveryjobs
 
 import (
+	"encoding/json"
+	"strconv"
+
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -24,23 +27,48 @@ type filteredDetail struct {
 	} `json:"filtered"`
 }
 
+// defaultMaxAttemptRounds 是「尝试轮次上限」的兜底值，任务选项未覆盖时使用。
+const defaultMaxAttemptRounds = 100
+
 var (
 	scannedJobItems []deliveryJobItem
 	currentIndex    int
+	// attemptRounds 记录「自本次进入抢单入口以来，尚未成功接到委托的轮次」。
+	// 它跨轮累计，不会被单轮扫描状态的清理影响；只在任务入口
+	// （SeizeDeliveryJobsMain，即每次抢单尝试重新计时）归零。
+	//
+	// 一轮的定义是「一次列表刷新到下一次列表刷新」，以下三种情况都算一轮未接到：
+	// ① 列表里没有价格达标的委托；② 有达标委托但终点均不匹配；③ 匹配到终点但接取失败。
+	// 三条路径都汇入 SeizeDeliveryJobsNoProgress 节点统一计数，达到上限后终止任务，
+	// 避免任一情况退化成无限刷新重扫。
+	attemptRounds int
 )
+
+// clearRoundState 只清「单轮扫描状态」，保留跨轮计数。
+func clearRoundState() {
+	scannedJobItems = nil
+	currentIndex = 0
+}
+
+// resetScanState 清空单轮扫描状态与跨轮计数。
+func resetScanState() {
+	clearRoundState()
+	attemptRounds = 0
+}
 
 // boxToRect converts a [x, y, w, h] box slice to maa.Rect.
 func boxToRect(box []int) maa.Rect {
 	return maa.Rect{box[0], box[1], box[2], box[3]}
 }
 
-// SeizeDeliveryJobsResetScanStateAction resets scan state (items + index).
-// Used by both EndpointMatched and ScanExhausted nodes.
+// SeizeDeliveryJobsResetScanStateAction 清空单轮扫描状态与跨轮计数。
+// 只挂在任务入口 SeizeDeliveryJobsMain：每次进入抢单入口视为一次新的抢单尝试，
+// 重新获得完整的尝试轮次预算。中途的成功接单路径会经 AutoDelivery 跳回入口，
+// 因此无需在接单成功处另行归零。
 type SeizeDeliveryJobsResetScanStateAction struct{}
 
 func (a *SeizeDeliveryJobsResetScanStateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	scannedJobItems = nil
-	currentIndex = 0
+	resetScanState()
 	log.Info().
 		Str("component", "SeizeDeliveryJobs").
 		Str("step", "reset_scan_state").
@@ -76,12 +104,20 @@ func (r *SeizeDeliveryJobsScanTargetRecognition) Run(ctx *maa.Context, arg *maa.
 
 	items, ok := scanJobs(ctx, arg.Img, minReward)
 	if !ok || len(items) == 0 {
+		// 本轮没有任何价格达标的委托。此处仍返回命中，让 ScanTargetAction 走
+		// 「全部扫完」分支进入 ScanExhausted，从而与「扫完但终点不匹配」共用同一套
+		// 跨轮计数与终止判据。若按识别失败返回，框架只会视作本节点未命中、
+		// 直接落到 Loop 的 Refresh 兜底，该路径将永远不计数、无法收敛。
 		log.Warn().
 			Str("component", "SeizeDeliveryJobs").
 			Str("step", "scan_target").
 			Float64("min_reward", minReward).
-			Msg("recognition miss")
-		return nil, false
+			Bool("scan_ok", ok).
+			Msg("no reward-qualified job in list")
+		clearRoundState()
+		return &maa.CustomRecognitionResult{
+			Box: arg.Roi,
+		}, true
 	}
 	scannedJobItems = items
 
@@ -167,9 +203,84 @@ func (a *SeizeDeliveryJobsScanTargetAction) Run(ctx *maa.Context, arg *maa.Custo
 	return true
 }
 
+// readMaxAttemptRounds 解析尝试轮次上限，缺失或非法时回落到默认值。
+// 参数来自 JSON 反序列化，数字可能是 float64；pipeline 替换后也可能落到 string，
+// 因此与 batchaddfriends.parseMaxCount 一样做类型兜底。
+func readMaxAttemptRounds(raw string) int {
+	fallback := func(reason string) int {
+		log.Warn().
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "no_progress").
+			Str("param", raw).
+			Str("reason", reason).
+			Int("fallback", defaultMaxAttemptRounds).
+			Msg("invalid max_attempt_rounds, fallback to default")
+		return defaultMaxAttemptRounds
+	}
+
+	if raw == "" {
+		return defaultMaxAttemptRounds
+	}
+	var p struct {
+		MaxAttemptRounds any `json:"max_attempt_rounds"`
+	}
+	if err := json.Unmarshal([]byte(raw), &p); err != nil {
+		return fallback(err.Error())
+	}
+	switch v := p.MaxAttemptRounds.(type) {
+	case float64:
+		if n := int(v); n > 0 {
+			return n
+		}
+	case string:
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			return n
+		}
+	}
+	return fallback("not a positive integer")
+}
+
+// SeizeDeliveryJobsNoProgressAction 处理「本轮没有接到委托」，是三条失败路径的统一收口：
+// ① Loop 的 FindTarget 未命中（列表无价格达标委托）；
+// ② ScanTarget 全部扫完仍未匹配到终点（含 0 个合格委托）；
+// ③ AcceptClick 接取失败。
+// 未达上限：清空单轮扫描状态并返回 true，由 next 走 Refresh 重新拉列表；
+// 达到上限：返回 false，由 on_error 终止任务并提示人工介入，不再无限刷新。
+type SeizeDeliveryJobsNoProgressAction struct{}
+
+func (a *SeizeDeliveryJobsNoProgressAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	raw := ""
+	if arg != nil {
+		raw = arg.CustomActionParam
+	}
+	maxAttemptRounds := readMaxAttemptRounds(raw)
+	clearRoundState()
+	attemptRounds++
+
+	if attemptRounds >= maxAttemptRounds {
+		log.Error().
+			Str("component", "SeizeDeliveryJobs").
+			Str("step", "no_progress").
+			Int("attempt_rounds", attemptRounds).
+			Int("max_attempt_rounds", maxAttemptRounds).
+			Msg("no seize after repeated rounds, abort task")
+		maafocus.Print(ctx, i18n.T("seizedeliveryjobs.give_up", attemptRounds, maxAttemptRounds))
+		return false
+	}
+
+	log.Warn().
+		Str("component", "SeizeDeliveryJobs").
+		Str("step", "no_progress").
+		Int("attempt_rounds", attemptRounds).
+		Int("max_attempt_rounds", maxAttemptRounds).
+		Msg("no seize this round, refresh and retry")
+	return true
+}
+
 // Compile-time interface checks
 var (
 	_ maa.CustomActionRunner      = &SeizeDeliveryJobsResetScanStateAction{}
 	_ maa.CustomRecognitionRunner = &SeizeDeliveryJobsScanTargetRecognition{}
 	_ maa.CustomActionRunner      = &SeizeDeliveryJobsScanTargetAction{}
+	_ maa.CustomActionRunner      = &SeizeDeliveryJobsNoProgressAction{}
 )

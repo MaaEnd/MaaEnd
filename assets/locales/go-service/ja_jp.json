@@ -197,6 +197,7 @@
     "autodelivery.destination.recycle_bin": "%s・資源回収ステーション #%d",
     "seizedeliveryjobs.scanning": "配達依頼をスキャン中...",
     "seizedeliveryjobs.checking_job": "依頼を確認中 %d/%d",
+    "seizedeliveryjobs.give_up": "%d 回連続で委託を受注できず、断念しました（上限 %d 回）",
     "seizedeliveryjobs.endpoint_matched": "配達先が一致、依頼を受注",
     "seizedeliveryjobs.endpoint_not_matched": "配達先が不一致、スキップ",
     "seizedeliveryjobs.no_more_targets": "一致する依頼なし、更新",

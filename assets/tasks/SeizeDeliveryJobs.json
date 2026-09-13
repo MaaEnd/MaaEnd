@@ -8,7 +8,8 @@
             "option": [
                 "SeizeDeliveryJobsReward",
                 "SeizeDeliveryJobsCommissionSource",
-                "SeizeDeliveryJobsPostProcessing"
+                "SeizeDeliveryJobsPostProcessing",
+                "SeizeDeliveryJobsMaxAttemptRounds"
             ],
             "controller": [
                 "Linux-Gamescope",
@@ -421,6 +422,28 @@
                     }
                 }
             ]
+        },
+        "SeizeDeliveryJobsMaxAttemptRounds": {
+            "type": "input",
+            "label": "$task.SeizeDeliveryJobsMaxAttemptRounds.label",
+            "description": "$task.SeizeDeliveryJobsMaxAttemptRounds.description",
+            "inputs": [
+                {
+                    "name": "MaxAttemptRounds",
+                    "label": "$task.SeizeDeliveryJobsMaxAttemptRounds.inputs.MaxAttemptRounds.label",
+                    "default": "100",
+                    "pipeline_type": "int",
+                    "pattern_msg": "$task.SeizeDeliveryJobsMaxAttemptRounds.inputs.MaxAttemptRounds.pattern_msg",
+                    "verify": "^[1-9]\\d*$"
+                }
+            ],
+            "pipeline_override": {
+                "SeizeDeliveryJobsNoProgress": {
+                    "custom_action_param": {
+                        "max_attempt_rounds": "{MaxAttemptRounds}"
+                    }
+                }
+            }
         }
     }
 }

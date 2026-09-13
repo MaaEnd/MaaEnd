@@ -198,6 +198,7 @@
     "autodelivery.destination.recycle_bin": "%s Resource Recycle Station #%d",
     "seizedeliveryjobs.scanning": "Scanning delivery jobs...",
     "seizedeliveryjobs.checking_job": "Checking job %d/%d",
+    "seizedeliveryjobs.give_up": "Failed to seize any commission in %d consecutive rounds, giving up (limit %d rounds)",
     "seizedeliveryjobs.endpoint_matched": "Delivery point matched, accepting job",
     "seizedeliveryjobs.endpoint_not_matched": "Delivery point not matched, skipping",
     "seizedeliveryjobs.no_more_targets": "No matching jobs found, refreshing",

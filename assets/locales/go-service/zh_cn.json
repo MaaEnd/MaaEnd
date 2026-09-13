@@ -198,6 +198,7 @@
     "autodelivery.destination.recycle_bin": "%s资源回收站 #%d",
     "seizedeliveryjobs.scanning": "正在扫描委托列表...",
     "seizedeliveryjobs.checking_job": "检查委托 %d/%d",
+    "seizedeliveryjobs.give_up": "连续 %d 轮没有成功接到委托，已放弃抢单（上限 %d 轮）",
     "seizedeliveryjobs.endpoint_matched": "送货点匹配成功，接取委托",
     "seizedeliveryjobs.endpoint_not_matched": "送货点不匹配，跳过",
     "seizedeliveryjobs.no_more_targets": "当前列表无匹配委托，刷新",
