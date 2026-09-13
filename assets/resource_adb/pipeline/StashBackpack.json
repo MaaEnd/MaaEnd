@@ -15,6 +15,46 @@
             53
         ]
     },
+    "StashBackpackManualStoreItem": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
+    "StoreNewItemsWithStashBackpackStoreItem": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
+    "RetrieveBackpackStoreNewItem": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
+    "RetrieveBackpackMoveItemToBag": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
+    "StashBackpackReplenishDragItem": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
     "StashBackpackEnterSuccess": {
         "recognition": "And",
         "all_of": [
