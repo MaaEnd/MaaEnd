@@ -1051,9 +1051,6 @@ func resolveSliderMaxQuantityNext(sliderMaxQuantity int, targetQuantity int) (st
 			targetQuantity,
 		)
 	}
-	if sliderMaxQuantity == 1 && targetQuantity == 1 {
-		return nodeBetterSlidingDone, nil
-	}
 
 	return "", nil
 }
