@@ -149,7 +149,8 @@ bool ZiplineStore::save(const std::filesystem::path& path) const
     root["maps"] = std::move(maps);
 
     // 先写临时文件再原子改名：导入中途崩掉不会把已有记录截成半截。
-    const std::filesystem::path tmp = path.parent_path() / (path.filename().string() + ".tmp");
+    std::filesystem::path tmp = path;
+    tmp += ".tmp";
     {
         std::ofstream ofs(tmp, std::ios::binary | std::ios::trunc);
         if (!ofs) {

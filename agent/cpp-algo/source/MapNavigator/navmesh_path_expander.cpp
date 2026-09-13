@@ -235,7 +235,7 @@ std::filesystem::path ResolveNavmeshFile(const std::string& configured_path)
     const std::filesystem::path navmesh_dir = exe_dir / ".." / "resource" / "model" / "map" / "navmesh";
 
     if (!configured_path.empty()) {
-        const std::filesystem::path configured(configured_path);
+        const std::filesystem::path configured = MAA_NS::path(configured_path);
         if (configured.is_absolute()) {
             return configured;
         }
@@ -271,7 +271,7 @@ std::filesystem::path ResolveNavmeshFile(const std::string& configured_path)
 
 std::string BuildNavmeshCacheKey(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
 {
-    return std::filesystem::absolute(navmesh_path).lexically_normal().string() + "#" + navmesh_zone;
+    return MAA_NS::path_to_utf8_string(std::filesystem::absolute(navmesh_path).lexically_normal()) + "#" + navmesh_zone;
 }
 
 std::shared_ptr<CachedNavmesh> LoadNavmeshPack(const std::filesystem::path& navmesh_path, const std::string& navmesh_zone)
@@ -1445,7 +1445,7 @@ bool ExpandNavmeshWaypoints(
         }
         RecordExpansionFailure(
             "navmesh_load_failed",
-            std::format("无法加载区域 {} 的 navmesh 数据（{}）", state->navmesh_zone, navmesh_path.string()),
+            std::format("无法加载区域 {} 的 navmesh 数据（{}）", state->navmesh_zone, MAA_NS::path_to_utf8_string(navmesh_path)),
             &*state);
         return false;
     }

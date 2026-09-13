@@ -47,7 +47,7 @@ std::string TrimLeadingZeros(std::string value)
 bool IsSupportedMapImage(const fs::path& path)
 {
     static constexpr std::array<std::string_view, 5> kMapImageExtensions { ".png", ".jpg", ".jpeg", ".webp", ".bmp" };
-    std::string ext = path.extension().string();
+    std::string ext = MAA_NS::path_to_utf8_string(path.extension());
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
     return std::ranges::any_of(kMapImageExtensions, [&ext](std::string_view candidate) { return candidate == ext; });
 }
@@ -880,7 +880,7 @@ void MapLocator::Impl::loadAvailableZones(const std::string& root)
         const std::string parentName = MAA_NS::path_to_utf8_string(entryPath.parent_path().filename());
 
         std::string key;
-        std::string filenameLower = entryPath.filename().string();
+        std::string filenameLower = MAA_NS::path_to_utf8_string(entryPath.filename());
         std::transform(filenameLower.begin(), filenameLower.end(), filenameLower.begin(), ::tolower);
 
         if (filenameLower == "base.png") {

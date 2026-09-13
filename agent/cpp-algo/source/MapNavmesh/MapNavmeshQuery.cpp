@@ -18,6 +18,7 @@
 
 #include <MaaFramework/Utility/MaaBuffer.h>
 #include <MaaUtils/Logger.h>
+#include <MaaUtils/Platform.h>
 
 #include "../MapNavigator/navi_param_parser.h"
 #include "../MapNavigator/navmesh_path_expander.h"
@@ -109,7 +110,8 @@ QueryContext* AcquireContext(const std::string& configured_path, std::string& er
     if (ec) {
         absolute = resolved;
     }
-    const std::string key = absolute.lexically_normal().string();
+    const std::filesystem::path normalized = absolute.lexically_normal();
+    const std::string key = MAA_NS::path_to_utf8_string(normalized);
 
     const std::lock_guard<std::mutex> lock(g_contexts_mutex);
     const auto found = g_contexts.find(key);
@@ -117,7 +119,7 @@ QueryContext* AcquireContext(const std::string& configured_path, std::string& er
         return found->second.get();
     }
 
-    auto loaded = navmesh::LoadBaseNavPack(key, {});
+    auto loaded = navmesh::LoadBaseNavPack(normalized, {});
     if (!loaded.ok()) {
         error = loaded.message.empty() ? navmesh::ToString(loaded.status) : loaded.message;
         LogError << "load navmesh failed" << VAR(key) << VAR(error);
@@ -217,7 +219,7 @@ json::object BuildMesh(const QueryContext& context, uint16_t zone_id, const std:
         cursor += 4;
     }
 
-    std::ofstream out(out_file, std::ios::binary);
+    std::ofstream out(MAA_NS::path(out_file), std::ios::binary);
     if (!out.is_open()) {
         return Fail("写不开 " + out_file);
     }

@@ -170,12 +170,33 @@ LogTrace << "YOLO all scores:" << scores;
 | ----------------- | ------------------------------------------------- |
 | `std::optional`   | 返回可能失败的结果                                |
 | 指定初始化器      | `LocateResult { .status = ..., .position = ... }` |
-| `std::filesystem` | 路径操作                                          |
+| `std::filesystem` | 路径操作（转字符串必须走 MaaUtils，见下）          |
 | `std::format`     | 字符串格式化（替代 `std::stringstream`）          |
 | `std::ranges`     | 容器算法链（`controller_type_utils.h` 中已用）    |
 | `constexpr`       | 编译期常量                                        |
 | 结构化绑定        | `auto [x, y] = getPosition();`                    |
 | smart pointers    | `std::unique_ptr` / `std::shared_ptr` 管理资源    |
+
+### 路径与编码（禁止 `path::string()`）
+
+`std::filesystem::path` 与窄字符串之间的转换一律走 MaaUtils，头文件 `<MaaUtils/Platform.h>`、`<MaaUtils/ImageIo.h>`。
+
+两个方向都禁止用标准库的默认转换：
+
+- `path.string()` 在 MSVC 上把原生宽字符路径转成系统 ANSI 码页，用户名含非 ASCII 字符（中文、俄文、emoji）时抛 `std::system_error`，Windows 错误码 1113 "No mapping for the Unicode character exists in the target multi-byte code page"。抛点常在错误消息拼接里，于是真实故障被这个异常盖掉。
+- `std::filesystem::path p(utf8_string)` 反过来把 UTF-8 字节按 ANSI 解读，路径静默指向错误位置。窄字符串隐式转 `path` 的地方同样中招（`dir / (name + ".png")`、`std::ofstream(narrow_string)`、把 `std::string` 传给收 `const path&` 的函数）。
+
+| 场景                              | 写法                                                   |
+| --------------------------------- | ------------------------------------------------------ |
+| path → 文本（日志、错误消息、键） | `MAA_NS::path_to_utf8_string(p)`                       |
+| UTF-8 文本 → path                 | `MAA_NS::path(s)`                                      |
+| 读写图片                          | `MAA_NS::imread(p, flags)` / `MAA_NS::imwrite(p, img)` |
+| 同名文件换后缀                    | `auto q = p; q += ".tmp";`（后缀是 ASCII，码页无关）   |
+| gzip 打开                         | Windows 走 `gzopen_w(p.c_str())`                       |
+
+`std::ifstream` / `std::ofstream` 直接收 `path`，别先转成字符串。`#ifdef _WIN32` 的 POSIX 分支里 `path::string()` 只是取原生字节、不做码页转换，可以保留。
+
+同一条路径既要当 map 键又要传给下游时，留住 `path` 对象传下游，`path_to_utf8_string` 只用来生成键。
 
 ### X-Macro 的使用
 
@@ -247,6 +268,7 @@ target_sources(cpp-algo PRIVATE
 - [ ] 命名风格是否符合上表
 - [ ] 是否引入了重复代码（检查是否已有公共工具）
 - [ ] OpenCV 是否通过 `NoWarningCV.hpp` 引入
+- [ ] 路径转换是否走 `MAA_NS::path` / `path_to_utf8_string` / `imread` / `imwrite`，有没有裸 `path::string()` 或窄字符串构造 `path`
 - [ ] 日志级别是否合理，是否避免了高频大量输出
 - [ ] 新常量是否有 `k` 前缀和注释
 - [ ] 错误路径是否有日志和合理返回值

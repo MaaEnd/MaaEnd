@@ -8,6 +8,8 @@
 
 #include <meojson/json.hpp>
 
+#include <MaaUtils/Platform.h>
+
 namespace navmesh::recast
 {
 
@@ -57,7 +59,7 @@ bool NoGoTable::load(const std::filesystem::path& path, const BaseNavPack& pack,
     std::error_code ec;
     const bool present = std::filesystem::exists(path, ec);
     if (ec) {
-        err = "虚拟禁区表读不到 (" + path.string() + "): " + ec.message();
+        err = "虚拟禁区表读不到 (" + MAA_NS::path_to_utf8_string(path) + "): " + ec.message();
         return false;
     }
     if (!present) {
@@ -65,12 +67,12 @@ bool NoGoTable::load(const std::filesystem::path& path, const BaseNavPack& pack,
     }
     const auto doc = json::open(path, true, true);
     if (!doc.has_value() || !doc->is<FileJson>()) {
-        err = "虚拟禁区表解不开 (" + path.string() + ")";
+        err = "虚拟禁区表解不开 (" + MAA_NS::path_to_utf8_string(path) + ")";
         return false;
     }
     const auto file = doc->as<FileJson>();
     if (file.version != 1) {
-        err = "虚拟禁区表版本不认识 (" + path.string() + ")";
+        err = "虚拟禁区表版本不认识 (" + MAA_NS::path_to_utf8_string(path) + ")";
         return false;
     }
     for (const auto& [name, list] : file.zones) {

@@ -796,7 +796,7 @@ const WorldMapSolver::IconTemplate* WorldMapSolver::LoadIconTemplate(const std::
     }
 
     IconTemplate& slot = _icons[name];
-    const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kIconDir) / name);
+    const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kIconDir) / MAA_NS::path(name));
     const cv::Mat image = file ? MAA_NS::imread(*file, cv::IMREAD_UNCHANGED) : cv::Mat();
     if (image.empty()) {
         LogError << "WorldMap: icon template not found" << VAR(name) << VAR(mapnavigator::DescribeRoots(_imageRoots));

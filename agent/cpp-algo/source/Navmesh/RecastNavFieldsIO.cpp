@@ -5,6 +5,8 @@
 #include <tuple>
 #include <unordered_map>
 
+#include <MaaUtils/Platform.h>
+
 #include "BaseNavReader.h"
 #include "RecastNavGrid.h"
 #include "RecastNavZone.h"
@@ -297,7 +299,7 @@ int64_t unzig(uint64_t u)
 
 std::filesystem::path FieldsSidecarPath(const std::filesystem::path& main_pack)
 {
-    std::string name = main_pack.filename().string();
+    std::string name = MAA_NS::path_to_utf8_string(main_pack.filename());
     const auto endsWith = [&](const char* suffix) {
         const size_t n = std::strlen(suffix);
         return name.size() >= n && name.compare(name.size() - n, n, suffix) == 0;
@@ -311,7 +313,7 @@ std::filesystem::path FieldsSidecarPath(const std::filesystem::path& main_pack)
     else {
         name += ".fields";
     }
-    return main_pack.parent_path() / name;
+    return main_pack.parent_path() / MAA_NS::path(name);
 }
 
 std::vector<uint8_t> FieldsZone::reachFrom(uint32_t rid, uint32_t s0) const
@@ -361,7 +363,7 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
     bytes_.clear();
     const BaseNavLoadResult read = ReadNavFileBytes(path, &bytes_);
     if (read.status != BaseNavLoadStatus::Success) {
-        err = "旁包读不到 (" + path.string() + "): " + read.message;
+        err = "旁包读不到 (" + MAA_NS::path_to_utf8_string(path) + "): " + read.message;
         return false;
     }
     const size_t size = bytes_.size();
