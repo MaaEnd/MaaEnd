@@ -98,6 +98,18 @@ In addition to the 6 fields above, all other parameters can only be read from `c
 > [!note]
 > When matching `SwipeButton`, `IncreaseButton`, or `DecreaseButton` via a template path, the CustomAction always enables the green mask (`green_mask: true`); this cannot be turned off via any parameter. Please prepare your template images following the default template's green masking method (paint non-matching regions green, RGB: (0, 255, 0)).
 
+### Minimum-Value Short Circuit
+
+When `TargetQuantityType` is `"Value"` (case-insensitive), `TargetQuantity` is `1`, and `ReverseTarget` is `false`, the target is the slider's minimum value and BetterSliding takes a short-circuit path that skips the slider-maximum OCR, end-point recognition, and precise click:
+
+| `ResetBeforeFindStart` | Behavior |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `true` | Performs a single swipe toward the minimum (`BetterSlidingFindSwipeForReset` → `BetterSlidingReset`) and finishes right after the reset. |
+| `false` (default) | Performs no recognition, swipe, or click and returns success directly. **The caller must ensure the slider is already at its initial value 1.** |
+
+> [!note]
+> `Percentage` mode and `ReverseTarget: true` do not short-circuit: their effective target depends on the `availableQuantity` read at runtime, so it cannot be decided before entering the flow.
+
 ### No-Fine-Tune Semantics
 
 `FineTuneFallback` only takes effect when **this run decides not to fine-tune**: with `FineTuneQuantity: false` it is always "no fine-tune"; with an integer threshold `N`, fine-tuning is used only when the difference between the current quantity and the target quantity is not greater than `N`, otherwise the run is "no fine-tune". In that case BetterSliding no longer approaches the target step by step; instead `FineTuneFallback` decides how to finish:
@@ -119,6 +131,9 @@ In addition to the 6 fields above, all other parameters can only be read from `c
 | Above `sliderMaxQuantity` with clamping enabled | `false` | `false` | Adjusts to `sliderMaxQuantity`; original target is not yet reachable |
 
 `sliderMaxQuantity == 0` only means that no positive target is currently selectable. BetterSliding does not infer business causes such as insufficient balance, insufficient stock, or a disabled control. Callers that need to distinguish those states should recognize the corresponding UI in Pipeline.
+
+> [!note]
+> On a minimum-value short circuit, BetterSliding does not read `sliderMaxQuantity`, but it still enables the node referenced by `TargetReachableOverrideEnable` (the target is the slider minimum and therefore always reachable), while `OutOfRangeOverrideEnable` stays `false`.
 
 > [!important]
 > `TargetReachableOverrideEnable` only means that the **resolved target is reachable**; it is unrelated to the final adjustment result. The decision is made when the target quantity and slider maximum are read, and is not changed afterwards regardless of whether fine-tuning or nudging actually hits the target. It only means that the caller's next operation can reach the target; it does not mean that operation has succeeded. Selling, purchasing, and similar flows must still confirm the outer transaction in Pipeline before recording the business target as completed.

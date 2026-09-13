@@ -60,6 +60,17 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		return false
 	}
 
+	// 目标即最小值时短路：不做滑条端点识别与精确点击，直接收尾。
+	// 短路命中时目标必然可达（滑条最小值），据此启用调用方的结果节点。
+	a.minimumTargetShortCircuit = !a.SwipeOnlyMode && isMinimumTargetShortCircuit(
+		a.OriginalTargetQuantity,
+		a.TargetQuantityType,
+		a.ReverseTarget,
+	)
+	if a.minimumTargetShortCircuit {
+		a.targetReachable = true
+	}
+
 	if !a.SwipeOnlyMode && len(a.SliderQuantityBox) != 4 {
 		a.logger.Error().
 			Ints("slider_quantity_box", a.SliderQuantityBox).
@@ -119,6 +130,31 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		}
 	}
 
+	// Minimum-target short circuit: route the entry node straight to Done so no slider
+	// recognition or precise click runs. With ResetBeforeFindStart the reset swipe is
+	// kept and only its tail is redirected; otherwise the flow finishes after
+	// BetterSlidingClearMaxHit, relying on the caller having left the slider at 1.
+	if a.minimumTargetShortCircuit {
+		fromNode := minimumTargetShortCircuitNext(a.ResetBeforeFindStart)
+		if err := ctx.OverrideNext(fromNode, []maa.NextItem{{Name: nodeBetterSlidingDone}}); err != nil {
+			a.logger.Error().
+				Err(err).
+				Str("from_node", fromNode).
+				Bool("reset_before_find_start", a.ResetBeforeFindStart).
+				Msg("failed to override next for minimum target short circuit")
+			return false
+		}
+
+		a.logger.Info().
+			Str("short_circuit", "minimum-target").
+			Int("target_quantity", a.TargetQuantity).
+			Str("target_quantity_type", a.TargetQuantityType).
+			Bool("reset_before_find_start", a.ResetBeforeFindStart).
+			Str("from_node", fromNode).
+			Str("next", nodeBetterSlidingDone).
+			Msg("minimum target short circuit, skip slider recognition")
+	}
+
 	initializationLog := a.logger.Info().
 		Str("direction", a.Direction).
 		Ints("end", end).
@@ -130,7 +166,8 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		Bool("slider_quantity_only_rec", a.SliderQuantityOnlyRec).
 		Bool("available_quantity_only_rec", a.AvailableQuantityOnlyRec).
 		Bool("reset_before_find_start", a.ResetBeforeFindStart).
-		Bool("swipe_only_mode", a.SwipeOnlyMode)
+		Bool("swipe_only_mode", a.SwipeOnlyMode).
+		Bool("minimum_target_short_circuit", a.minimumTargetShortCircuit)
 
 	if a.SliderQuantityFilter != nil {
 		initializationLog = initializationLog.
@@ -993,6 +1030,7 @@ func (a *BetterSlidingAction) resetState() {
 	a.availableQuantityResolved = false
 	a.outOfRange = false
 	a.targetReachable = false
+	a.minimumTargetShortCircuit = false
 	a.runtimeTargetResolved = false
 }
 

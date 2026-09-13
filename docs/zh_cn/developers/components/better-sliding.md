@@ -98,6 +98,18 @@
 > [!note]
 > `SwipeButton`、`IncreaseButton`、`DecreaseButton` 使用模板路径匹配时，Custom 内部固定开启绿色掩码（`green_mask: true`），无需也无法通过参数关闭。请按默认模板的涂绿方式处理模板图片（不参与匹配的部分涂绿 RGB: (0, 255, 0)）。
 
+### 最小值短路
+
+当 `TargetQuantityType` 为 `"Value"`（大小写不敏感）、`TargetQuantity` 为 `1` 且 `ReverseTarget` 为 `false` 时，目标即滑条最小值，BetterSliding 会走短路路径，跳过滑条最大数量 OCR、终点识别与精确点击：
+
+| `ResetBeforeFindStart` | 行为 |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `true` | 只执行一次向最小方向的复位滑动（`BetterSlidingFindSwipeForReset` → `BetterSlidingReset`），复位完成后直接结束。 |
+| `false`（默认） | 不执行任何识别、滑动与点击，直接成功返回。**调用方必须保证滑条当前已位于初始值 1**。 |
+
+> [!note]
+> `Percentage` 模式与 `ReverseTarget: true` 不参与短路：它们的有效目标取决于运行时读到的 `availableQuantity`，无法在进入流程前判定，因此仍走完整流程。
+
 ### 不微调语义
 
 `FineTuneFallback` 只在**本次判定为不微调**时生效：`FineTuneQuantity` 为 `false` 时始终不微调；为整数阈值 `N` 时，仅当当前数量与目标数量的差值不大于 `N` 才微调，否则不微调。此时 BetterSliding 不再逐步逼近目标，而是按 `FineTuneFallback` 决定如何收尾：
@@ -119,6 +131,9 @@
 | 大于 `sliderMaxQuantity` 且启用钳制 | `false` | `false` | 调整到 `sliderMaxQuantity`，尚不能达到原始目标 |
 
 `sliderMaxQuantity == 0` 只表示当前没有可选的正数目标，BetterSliding 不推断余额不足、库存不足或控件不可用等业务原因。调用方如需区分具体状态，应在 Pipeline 中识别对应界面。
+
+> [!note]
+> 最小值短路命中时，BetterSliding 未读取 `sliderMaxQuantity`，但仍把 `TargetReachableOverrideEnable` 指向的节点置为 `true`（目标即滑条最小值，必然可达），`OutOfRangeOverrideEnable` 保持 `false`。
 
 > [!important]
 > `TargetReachableOverrideEnable` 只表示**解析后的目标可达**，与最终调整结果无关：该判定在读取目标数量与滑条上限时即已确定，之后无论微调、偏移复查是否命中目标，都不会改变它。它只表示调用方的下一步操作可以达到目标，不表示该操作已经成功。例如售卖、购买等流程仍须在外层 Pipeline 确认交易成功后，才能记录业务目标已完成。

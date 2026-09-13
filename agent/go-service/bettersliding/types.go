@@ -128,6 +128,9 @@ type BetterSlidingAction struct {
 	availableQuantityResolved bool
 	outOfRange                bool
 	targetReachable           bool
+	// minimumTargetShortCircuit 表示本次走「目标即最小值 1」的短路路径：
+	// 跳过滑条端点识别与精确点击，ResetBeforeFindStart 时仅执行复位滑动后直接收尾。
+	minimumTargetShortCircuit bool
 	runtimeTargetResolved     bool
 	logger                    zerolog.Logger
 }

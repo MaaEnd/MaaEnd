@@ -227,6 +227,26 @@ func resolveTargetQuantity(
 	}
 }
 
+// isMinimumTargetShortCircuit 判断本次是否走「目标即滑条最小值 1」的短路路径。
+// 仅在 TargetQuantityType 为 Value、原始目标为 1 且未启用 ReverseTarget 时成立：
+// Percentage 模式与 ReverseTarget 的有效目标依赖运行时 availableQuantity，无法在进入流程前判定。
+func isMinimumTargetShortCircuit(targetQuantity int, targetQuantityType string, reverseTarget bool) bool {
+	return targetQuantity == 1 &&
+		targetQuantityType == TargetQuantityTypeValue &&
+		!reverseTarget
+}
+
+// minimumTargetShortCircuitNext 返回短路时被覆写 next 的节点：
+// ResetBeforeFindStart 时在复位滑动完成后收尾（覆写 BetterSlidingReset.next），
+// 否则在清空命中计数后直接收尾（覆写 BetterSlidingClearMaxHit.next）。
+func minimumTargetShortCircuitNext(resetBeforeFindStart bool) string {
+	if resetBeforeFindStart {
+		return nodeBetterSlidingReset
+	}
+
+	return nodeBetterSlidingClearMaxHit
+}
+
 // normalizeFineTuneQuantity 归一化 FineTuneQuantity：
 //
 //	未提供（present=false，含显式 null）-> 默认 enabled（始终微调）；
