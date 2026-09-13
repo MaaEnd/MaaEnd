@@ -1,0 +1,92 @@
+{
+    "BatchDeleteFriendsInactive": {
+        "desc": "以无备注选中框为锚，偏移到登录时间文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "BatchDeleteFriendsSelectNoRemark",
+                "roi_offset": [
+                    0,
+                    35,
+                    120,
+                    30
+                ],
+                "expected": [
+                    // 文案仅有：在线 / X小时X分钟前在线 / X天X小时前在线；默认 ≥30 天
+                    // 「在线」「X小时X分钟前在线」不匹配；仅「N天…前在线」且 N≥30
+                    // @i18n-skip
+                    "(?:[3-9]\\d|\\d{3,})天.*前在线"
+                ]
+            }
+        }
+    },
+    "BatchDeleteFriendsPropertyDeleteConfirmOCR": {
+        "desc": "确认弹窗标题文案 OCR，供 Confirm 流程与好友名 And 复用",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    400,
+                    250,
+                    500,
+                    195
+                ],
+                "expected": [
+                    "是否确认移除该好友",
+                    "是否確定移除該好友"
+                ]
+            }
+        }
+    },
+    "BatchDeleteFriendsPropertyFriendNameColor": {
+        "desc": "确认弹窗内好友名文字颜色；ROI 相对确认文案向下，颜色近白占位，待截图校准",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "BatchDeleteFriendsPropertyDeleteConfirmOCR",
+                "roi_offset": [
+                    0,
+                    30,
+                    0,
+                    40
+                ],
+                "lower": [
+                    100,
+                    100,
+                    100
+                ],
+                "upper": [
+                    230,
+                    230,
+                    230
+                ],
+                "count": 200
+            }
+        }
+    },
+    "BatchDeleteFriendsPropertyFriendNameOCR": {
+        "desc": "在名字色块内 only_rec 读出好友名全文",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "BatchDeleteFriendsPropertyFriendNameColor",
+                "expected": [
+                    // 确认弹窗好友名任意文本
+                    // @i18n-skip
+                    ".+"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "BatchDeleteFriendsPropertyFriendName": {
+        "desc": "确认文案 ∧ 名字颜色 ∧ 名字 OCR",
+        "recognition": "And",
+        "all_of": [
+            "BatchDeleteFriendsPropertyDeleteConfirmOCR",
+            "BatchDeleteFriendsPropertyFriendNameColor",
+            "BatchDeleteFriendsPropertyFriendNameOCR"
+        ],
+        "box_index": 2
+    }
+}

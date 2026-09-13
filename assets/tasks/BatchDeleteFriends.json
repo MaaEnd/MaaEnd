@@ -1,0 +1,106 @@
+{
+    "task": [
+        {
+            "name": "BatchDeleteFriends",
+            "label": "$task.BatchDeleteFriends.label",
+            "description": "$task.BatchDeleteFriends.description",
+            "entry": "BatchDeleteFriendsMain",
+            "option": [
+                "BatchDeleteFriendsInactiveDays"
+            ],
+            "controller": [
+                "Win32-Front"
+            ],
+            "group": [
+                "dijiang_ship"
+            ]
+        }
+    ],
+    "option": {
+        "BatchDeleteFriendsInactiveDays": {
+            "type": "select",
+            "label": "$option.BatchDeleteFriendsInactiveDays.label",
+            "default_case": "Days30",
+            "cases": [
+                {
+                    "name": "Days1",
+                    "label": "$option.BatchDeleteFriendsInactiveDays.cases.Days1.label",
+                    "pipeline_override": {
+                        "BatchDeleteFriendsInactive": {
+                            "expected": [
+                                // 文案：在线 / X小时X分钟前在线 / X天X小时前在线；≥1 天
+                                // @i18n-skip
+                                "[1-9]\\d*天.*前在线"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days3",
+                    "label": "$option.BatchDeleteFriendsInactiveDays.cases.Days3.label",
+                    "pipeline_override": {
+                        "BatchDeleteFriendsInactive": {
+                            "expected": [
+                                // ≥3 天：匹配「N天…前在线」且 N≥3
+                                // @i18n-skip
+                                "(?:[3-9]|[1-9]\\d+)天.*前在线"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days7",
+                    "label": "$option.BatchDeleteFriendsInactiveDays.cases.Days7.label",
+                    "pipeline_override": {
+                        "BatchDeleteFriendsInactive": {
+                            "expected": [
+                                // ≥7 天
+                                // @i18n-skip
+                                "(?:[7-9]|[1-9]\\d+)天.*前在线"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days14",
+                    "label": "$option.BatchDeleteFriendsInactiveDays.cases.Days14.label",
+                    "pipeline_override": {
+                        "BatchDeleteFriendsInactive": {
+                            "expected": [
+                                // ≥14 天
+                                // @i18n-skip
+                                "(?:1[4-9]|[2-9]\\d+)天.*前在线"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days30",
+                    "label": "$option.BatchDeleteFriendsInactiveDays.cases.Days30.label",
+                    "pipeline_override": {
+                        "BatchDeleteFriendsInactive": {
+                            "expected": [
+                                // ≥30 天
+                                // @i18n-skip
+                                "(?:[3-9]\\d|\\d{3,})天.*前在线"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days60",
+                    "label": "$option.BatchDeleteFriendsInactiveDays.cases.Days60.label",
+                    "pipeline_override": {
+                        "BatchDeleteFriendsInactive": {
+                            "expected": [
+                                // ≥60 天
+                                // @i18n-skip
+                                "(?:[6-9]\\d|\\d{3,})天.*前在线"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

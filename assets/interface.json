@@ -267,6 +267,7 @@
         "tasks/VisitFriends.json",
         "tasks/GiftOperator.json",
         "tasks/BatchAddFriends.json",
+        "tasks/BatchDeleteFriends.json",
         // group: other_menu
         "tasks/PullCountCalculator.json",
         "tasks/BakerEntry.json",

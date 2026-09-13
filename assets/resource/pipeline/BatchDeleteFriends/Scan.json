@@ -1,0 +1,136 @@
+{
+    "BatchDeleteFriendsScan": {
+        "desc": "好友列表扫描：有备注跳过 → 未登录达标则删除占位 → 否则跳过 → 到底结束 → 否则下滑",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]BatchDeleteFriendsSkipRemark",
+            "[JumpBack]BatchDeleteFriendsProcessInactive",
+            "[JumpBack]BatchDeleteFriendsSkipActive",
+            "BatchDeleteFriendsScrollFinish",
+            "[JumpBack]BatchDeleteFriendsScrollList"
+        ]
+    },
+    "BatchDeleteFriendsVisited": {
+        "desc": "选友共享黑名单 attach.visited",
+        "recognition": "DirectHit",
+        "attach": {
+            "visited": []
+        }
+    },
+    "BatchDeleteFriendsSelectRemark": {
+        "desc": "消费性选中带备注好友",
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "BatchDeleteFriendsRecognitionNameRemark",
+            "visited_node": "BatchDeleteFriendsVisited",
+            // 备注形如 小明(Alice#1001)
+            "key_regex": ".*?[)）]"
+        }
+    },
+    "BatchDeleteFriendsSelectNoRemark": {
+        "desc": "消费性选中无备注好友",
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "BatchDeleteFriendsRecognitionNameNoRemark",
+            "visited_node": "BatchDeleteFriendsVisited",
+            "key_regex": ".*?\\#\\d+"
+        }
+    },
+    "BatchDeleteFriendsSkipRemark": {
+        "desc": "有备注：记入 visited 后跳过，不删除",
+        "recognition": "And",
+        "all_of": [
+            "BatchDeleteFriendsSelectRemark"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": "跳过有备注的好友"
+        }
+    },
+    "BatchDeleteFriendsProcessInactive": {
+        "desc": "无备注且未登录天数达标：进入删除占位链（当前 Inactive 桩恒不命中）",
+        "recognition": "And",
+        "all_of": [
+            "BatchDeleteFriendsSelectNoRemark",
+            "BatchDeleteFriendsInactive"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchDeleteFriendsDeleteClick"
+        ]
+    },
+    "BatchDeleteFriendsSkipActive": {
+        "desc": "无备注但未达删除天数：记入 visited 后继续扫描",
+        "recognition": "And",
+        "all_of": [
+            "BatchDeleteFriendsSelectNoRemark"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": "未达删除天数，跳过该好友"
+        }
+    },
+    "BatchDeleteFriendsScrollFinish": {
+        "desc": "列表已到底：ListComplete 命中后结束。roi 暂抄 VisitFriends，可按实机再调",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            46,
+            114,
+            1052,
+            498
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchDeleteFriendsScrollFinishDone"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "BatchDeleteFriendsScrollFinishDone": {
+        "desc": "好友列表已滚动到底部，批量删除扫描结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "好友列表已到底，批量删除结束"
+        }
+    },
+    "BatchDeleteFriendsScrollList": {
+        "desc": "列表未到底时向下滚动；滑动后 post_wait_freezes 再回扫描",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            650,
+            470
+        ],
+        "end": [
+            650,
+            150
+        ],
+        "end_hold": 600,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
