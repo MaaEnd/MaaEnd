@@ -597,24 +597,16 @@
         ]
     },
     "StashBackpackReplenishDragItem": {
-        "desc": "将仓库物品拖到背包同物品格补充堆叠；ADB 覆盖为先长按再拖动",
+        "desc": "将仓库物品移动到背包中的对应物品格",
         "pre_delay": 0,
-        "action": "Swipe",
-        "begin": "StashBackpackFindCurrentItemInRepo",
-        "begin_offset": [
-            26,
-            25,
-            -52,
-            -50
+        "recognition": "And",
+        "all_of": [
+            "StashBackpackFindCurrentItemInRepo",
+            "StashBackpackFindCurrentItemInBag"
         ],
-        "end": "StashBackpackFindCurrentItemInBag",
-        "end_offset": [
-            26,
-            25,
-            -52,
-            -50
-        ],
-        "duration": 400,
+        "box_index": 0,
+        "action": "Custom",
+        "custom_action": "InventoryMoveRepoItemToBagAction",
         "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
