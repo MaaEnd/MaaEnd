@@ -55,6 +55,22 @@
             -40
         ]
     },
+    "StashBackpackNoteBagItemCount": {
+        "roi": [
+            780,
+            160,
+            470,
+            370
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
     "StashBackpackEnterSuccess": {
         "recognition": "And",
         "all_of": [

@@ -47,6 +47,8 @@
                 "StashBackpackBagPageRecognition",
                 "StashBackpackBagPageFailedRecognition",
                 "StashBackpackBagTargetsExhaustedRecognition",
+                "StashBackpackBagItemCountRecognition",
+                "StashBackpackBagItemMovedRecognition",
                 "StashBackpackDepotRecognition",
                 "StashBackpackFullCompleteRecognition",
                 "StashBackpackHasStoredRecognition",

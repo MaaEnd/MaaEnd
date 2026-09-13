@@ -325,6 +325,26 @@ func TestRepoBaselineRequiresCountDropAndItemMatch(t *testing.T) {
 	}
 }
 
+func TestBagBaselineRequiresCountDropAndItemMatch(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	item := storedItem{ItemID: "ore", CategoryType: "Ore"}
+	store.noteBagItemCount(item, 2)
+	// 同物品但格子数未减少：判定未移动（如背包还有另一堆同名物品）。
+	if moved, _ := store.bagItemMoved(item, 2); moved {
+		t.Fatal("unchanged count was judged as moved")
+	}
+	// 格子数少一：判定已移动。
+	if moved, baseline := store.bagItemMoved(item, 1); !moved || baseline != 2 {
+		t.Fatalf("moved = %v, baseline = %d, want true and 2", moved, baseline)
+	}
+	// 物品不匹配的基线不可用：按未移动处理，走失败路径。
+	other := storedItem{ItemID: "tool", CategoryType: "Producer"}
+	if moved, _ := store.bagItemMoved(other, 0); moved {
+		t.Fatal("mismatched baseline was judged as moved")
+	}
+}
+
 func testItem(id, category string) snapshotItem {
 	return snapshotItem{ItemID: id, CategoryType: category}
 }

@@ -469,7 +469,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "StashBackpackVerifySourceItemMoved": {
+    "StashBackpackVerifyBagItemMoved": {
         "pre_delay": 0,
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
@@ -478,26 +478,20 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "StashBackpackVerifySourceItem",
-            "[Anchor]StashBackpackAfterSourceItemMoved"
+            "StashBackpackVerifyBagItem",
+            "[Anchor]StashBackpackAfterSourceItemStillPresent"
         ]
     },
-    "StashBackpackVerifySourceItem": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "IconRecognition",
-                "custom_recognition_param": {
-                    "grid_type": "transfer"
-                },
-                "roi": [
-                    739,
-                    202,
-                    398,
-                    291
-                ]
-            }
-        },
+    "StashBackpackVerifyBagItem": {
+        "desc": "当前背包页该物品格子数少于转移前基线时判定已移入仓库",
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackBagItemMovedRecognition",
+        "roi": [
+            739,
+            202,
+            398,
+            291
+        ],
         "pre_wait_freezes": {
             "time": 400,
             "timeout": 3000,
@@ -512,7 +506,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]StashBackpackAfterSourceItemStillPresent"
+            "[Anchor]StashBackpackAfterSourceItemMoved"
         ]
     },
     "StashBackpackVerifyRepoItemMoved": {
