@@ -716,7 +716,6 @@ func (a *BetterSlidingAction) nudgePreciseClick(
 		return false
 	}
 
-	// 先回 Reset2 复位再点击；不挂 [JumpBack]BetterSlidingMoveMouse：防遮挡只服务 Increase/DecreaseButton。
 	if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingReset2}}); err != nil {
 		a.logger.Error().
 			Err(err).

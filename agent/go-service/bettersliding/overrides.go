@@ -203,20 +203,11 @@ func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode 
 			return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
 		}
 	}
-	if err := ctx.OverrideNext(currentNode, buildCheckQuantityBranchNextItems(nextNode)); err != nil {
+	if err := ctx.OverrideNext(currentNode, []maa.NextItem{{Name: nextNode}}); err != nil {
 		return fmt.Errorf("%w: %w", errCheckQuantityBranchNextOverride, err)
 	}
 
 	return nil
-}
-
-func buildCheckQuantityBranchNextItems(nextNode string) []maa.NextItem {
-	nextItems := []maa.NextItem{{Name: nextNode}}
-	if nextNode != nodeBetterSlidingIncreaseQuantity && nextNode != nodeBetterSlidingDecreaseQuantity {
-		return nextItems
-	}
-
-	return append(nextItems, maa.NextItem{Name: nodeBetterSlidingJumpBackMoveMouse})
 }
 
 func resolveButtonHelperNode(nextNode string) string {

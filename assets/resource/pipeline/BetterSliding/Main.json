@@ -125,7 +125,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "BetterSlidingCheckQuantity"
+            "BetterSlidingMoveMouse"
         ]
     },
     "BetterSlidingDecreaseQuantity": {
@@ -191,7 +191,6 @@
             "BetterSlidingDone",
             "BetterSlidingIncreaseQuantity",
             "BetterSlidingDecreaseQuantity",
-            "[JumpBack]BetterSlidingMoveMouse",
             "BetterSlidingReset2"
         ]
     },
@@ -215,8 +214,7 @@
         ]
     },
     "BetterSlidingMoveMouse": {
-        "desc": "避免遮挡",
-        "max_hit": 4,
+        "desc": "避免遮挡 Increase/Decrease Button",
         "pre_delay": 0,
         "action": "TouchMove",
         "target": [
@@ -225,8 +223,11 @@
             10,
             10
         ],
-        "post_wait_freezes": 200,
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BetterSlidingCheckQuantity"
+        ]
     },
     "BetterSlidingGetSliderMaxQuantity": {
         "desc": "识别滑条最大可选数量并存入 Go",

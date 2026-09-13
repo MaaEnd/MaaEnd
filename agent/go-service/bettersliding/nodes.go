@@ -22,7 +22,6 @@ const (
 	nodeBetterSlidingPreciseClick            = "BetterSlidingPreciseClick"
 	nodeBetterSlidingClearMaxHit             = "BetterSlidingClearMaxHit"
 	nodeBetterSlidingJumpBackNode            = "BetterSlidingJumpBackNode"
-	nodeBetterSlidingJumpBackMoveMouse       = "[JumpBack]BetterSlidingMoveMouse"
 	nodeBetterSlidingIncreaseQuantity        = "BetterSlidingIncreaseQuantity"
 	nodeBetterSlidingDecreaseQuantity        = "BetterSlidingDecreaseQuantity"
 	nodeBetterSlidingReset                   = "BetterSlidingReset"
