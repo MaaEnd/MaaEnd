@@ -108,6 +108,8 @@ test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目�
             source.u,
             source.v,
         ]);
+        assert.equal(defaultPath[1].target_deck_y, source.y);
+        assert.equal(defaultPath[0].target_deck_y, undefined);
         const map = catalogSource.maps[source.map];
         assert.ok(
             Math.abs(
@@ -156,6 +158,7 @@ test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目�
             source.u,
             source.v,
         ]);
+        assert.equal(defaultPath.at(-1).target_deck_y, source.y);
     }
 });
 

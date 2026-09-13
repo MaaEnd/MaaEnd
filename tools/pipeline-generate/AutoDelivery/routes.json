@@ -109,31 +109,7 @@
         {
             "source_id": "deliver_target_map02_lv002_02",
             "name": "普里莫·林德",
-            "depot_id": "domain_2_lv002_depot_1",
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        918.85,
-                        1580.1
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        664.27,
-                        1601.29
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        461.92,
-                        1712.8
-                    ],
-                    "target_deck_y": 315.37
-                }
-            ]
+            "depot_id": "domain_2_lv002_depot_1"
         },
         {
             "source_id": "deliver_target_map02_lv002_03",
@@ -143,17 +119,7 @@
         {
             "source_id": "deliver_target_map02_lv002_recycle_01",
             "name": "火锅探店达人",
-            "depot_id": "domain_2_lv002_depot_1",
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        512.92,
-                        1652.04
-                    ],
-                    "target_deck_y": 325.79
-                }
-            ]
+            "depot_id": "domain_2_lv002_depot_1"
         },
         {
             "source_id": "deliver_target_map02_lv005_01",

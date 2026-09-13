@@ -19,7 +19,8 @@
                     "target": [
                         950.498,
                         1832.767
-                    ]
+                    ],
+                    "target_deck_y": 278.757
                 }
             ],
             "zip": false
@@ -55,7 +56,8 @@
                     "target": [
                         950.498,
                         1832.767
-                    ]
+                    ],
+                    "target_deck_y": 278.757
                 }
             ],
             "zip": true
@@ -91,7 +93,8 @@
                     "target": [
                         950.498,
                         1832.767
-                    ]
+                    ],
+                    "target_deck_y": 278.757
                 }
             ]
         },
@@ -118,7 +121,8 @@
                     "target": [
                         538.031,
                         1250.27
-                    ]
+                    ],
+                    "target_deck_y": 275.148
                 }
             ],
             "zip": false
@@ -146,7 +150,8 @@
                     "target": [
                         538.031,
                         1250.27
-                    ]
+                    ],
+                    "target_deck_y": 275.148
                 }
             ],
             "zip": true
@@ -182,7 +187,8 @@
                     "target": [
                         538.031,
                         1250.27
-                    ]
+                    ],
+                    "target_deck_y": 275.148
                 }
             ]
         },
@@ -207,22 +213,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        918.85,
-                        1580.1
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        664.27,
-                        1601.29
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
                         461.92,
-                        1712.8
+                        1712.802
                     ],
                     "target_deck_y": 315.37
                 }
@@ -250,22 +242,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        918.85,
-                        1580.1
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        664.27,
-                        1601.29
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
                         461.92,
-                        1712.8
+                        1712.802
                     ],
                     "target_deck_y": 315.37
                 }
@@ -303,7 +281,8 @@
                     "target": [
                         461.92,
                         1712.802
-                    ]
+                    ],
+                    "target_deck_y": 315.37
                 }
             ]
         },
@@ -330,7 +309,8 @@
                     "target": [
                         894.615,
                         1408.425
-                    ]
+                    ],
+                    "target_deck_y": 265.279
                 }
             ],
             "zip": false
@@ -358,7 +338,8 @@
                     "target": [
                         894.615,
                         1408.425
-                    ]
+                    ],
+                    "target_deck_y": 265.279
                 }
             ],
             "zip": true
@@ -394,7 +375,8 @@
                     "target": [
                         894.615,
                         1408.425
-                    ]
+                    ],
+                    "target_deck_y": 265.279
                 }
             ]
         },
@@ -419,10 +401,18 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        512.92,
-                        1652.04
+                        513.135,
+                        1656.773
                     ],
-                    "target_deck_y": 325.79
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        513.135,
+                        1650.773
+                    ],
+                    "target_deck_y": 325.819
                 }
             ],
             "zip": false
@@ -448,10 +438,18 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        512.92,
-                        1652.04
+                        513.135,
+                        1656.773
                     ],
-                    "target_deck_y": 325.79
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        513.135,
+                        1650.773
+                    ],
+                    "target_deck_y": 325.819
                 }
             ],
             "zip": true
@@ -487,7 +485,8 @@
                     "target": [
                         513.135,
                         1650.773
-                    ]
+                    ],
+                    "target_deck_y": 325.819
                 }
             ]
         },
