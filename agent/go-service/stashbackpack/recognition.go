@@ -287,7 +287,7 @@ type RepoItemCountRecognition struct{}
 var _ maa.CustomRecognitionRunner = &RepoItemCountRecognition{}
 
 func (r *RepoItemCountRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	count, ok := scanRepoItemCells(ctx, arg)
+	count, ok := scanCurrentItemCellCount(ctx, arg)
 	if !ok {
 		return nil, false
 	}
@@ -306,7 +306,7 @@ type RepoItemMovedRecognition struct{}
 var _ maa.CustomRecognitionRunner = &RepoItemMovedRecognition{}
 
 func (r *RepoItemMovedRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	count, ok := scanRepoItemCells(ctx, arg)
+	count, ok := scanCurrentItemCellCount(ctx, arg)
 	if !ok {
 		return nil, false
 	}
@@ -321,8 +321,50 @@ func (r *RepoItemMovedRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
 }
 
-// scanRepoItemCells counts the current item's cells on the Depot page image.
-func scanRepoItemCells(ctx *maa.Context, arg *maa.CustomRecognitionArg) (int, bool) {
+// BagItemCountRecognition records how many cells of the current item exist on the
+// current backpack page before the manual store transfers it to the Depot.
+type BagItemCountRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &BagItemCountRecognition{}
+
+func (r *BagItemCountRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	count, ok := scanCurrentItemCellCount(ctx, arg)
+	if !ok {
+		return nil, false
+	}
+	item, _ := globalState.currentTarget()
+	globalState.noteBagItemCount(storedItem{ItemID: item.ItemID, CategoryType: item.CategoryType}, count)
+	log.Info().Str("component", componentName).Str("item_id", item.ItemID).
+		Int("baseline_count", count).Msg("recorded backpack cell count before manual store transfer")
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+}
+
+// BagItemMovedRecognition judges the manual store by requiring the current backpack
+// page to hold one fewer cell of the item than before the transfer; this stays
+// correct when several stacks of the same item exist.
+type BagItemMovedRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &BagItemMovedRecognition{}
+
+func (r *BagItemMovedRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	count, ok := scanCurrentItemCellCount(ctx, arg)
+	if !ok {
+		return nil, false
+	}
+	item, _ := globalState.currentTarget()
+	moved, baseline := globalState.bagItemMoved(storedItem{ItemID: item.ItemID, CategoryType: item.CategoryType}, count)
+	log.Info().Str("component", componentName).Str("item_id", item.ItemID).
+		Int("baseline_count", baseline).Int("current_count", count).Bool("moved", moved).
+		Msg("compared backpack cell count after manual store transfer")
+	if !moved {
+		return nil, false
+	}
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+}
+
+// scanCurrentItemCellCount counts the current item's cells on the page image
+// (Depot or backpack grid depending on the caller's ROI).
+func scanCurrentItemCellCount(ctx *maa.Context, arg *maa.CustomRecognitionArg) (int, bool) {
 	if ctx == nil || arg == nil || arg.Img == nil {
 		log.Error().Str("component", componentName).Msg("repo cell scan received nil context, arg, or image")
 		return 0, false

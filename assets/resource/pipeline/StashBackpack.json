@@ -234,20 +234,6 @@
             "StashBackpackManualLoop"
         ]
     },
-    "StashBackpackManualSetupBagBatch": {
-        "desc": "按快照目标一次回顶并逐页批量存放",
-        "pre_delay": 0,
-        "anchor": {
-            "StashBackpackAfterBagBatchItemFound": "StashBackpackManualDispatchCategory",
-            "StashBackpackAfterBagBatchFinished": "EmptyNode",
-            "StashBackpackAfterBagBatchBottomReached": "StashBackpackManualConsumeMissing"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackPrepareBagBatch"
-        ]
-    },
     "StashBackpackManualLoop": {
         "pre_delay": 0,
         "post_delay": 0,
@@ -262,8 +248,7 @@
         "custom_recognition": "StashBackpackNextItemRecognition",
         "custom_recognition_param": {
             "bag_nodes": [
-                "StashBackpackFindCurrentItemInBag",
-                "StashBackpackVerifySourceItem"
+                "StashBackpackFindCurrentItemInBag"
             ]
         },
         "pre_delay": 0,
@@ -292,13 +277,40 @@
     "StashBackpackManualSetupBagSearch": {
         "pre_delay": 0,
         "anchor": {
-            "StashBackpackAfterBagFound": "StashBackpackManualStoreItem",
+            "StashBackpackAfterBagFound": "StashBackpackNoteBagItemCount",
             "StashBackpackAfterBagNotFound": "StashBackpackManualConsumeMissing"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "StashBackpackPrepareBagSearch"
+        ]
+    },
+    "StashBackpackNoteBagItemCount": {
+        "desc": "转移前记录背包当前页该物品的格子数基线",
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackBagItemCountRecognition",
+        "roi": [
+            739,
+            202,
+            398,
+            291
+        ],
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
         ]
     },
     "StashBackpackManualStoreItem": {
@@ -329,7 +341,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackVerifySourceItemMoved"
+            "StashBackpackVerifyBagItemMoved"
         ]
     },
     "StashBackpackManualStoreVerificationFailed": {
@@ -806,8 +818,7 @@
         "custom_recognition": "StashBackpackNextItemRecognition",
         "custom_recognition_param": {
             "bag_nodes": [
-                "StashBackpackFindCurrentItemInBag",
-                "StashBackpackVerifySourceItem"
+                "StashBackpackFindCurrentItemInBag"
             ]
         },
         "pre_delay": 0,
@@ -846,26 +857,6 @@
         "next": [
             "StoreNewItemsWithStashBackpackConsumeStored"
         ]
-    },
-    "StoreNewItemsWithStashBackpackVerifyStored": {
-        "pre_delay": 0,
-        "anchor": {
-            "StashBackpackAfterSourceItemStillPresent": "StoreNewItemsWithStashBackpackVerificationFailed",
-            "StashBackpackAfterSourceItemMoved": "StoreNewItemsWithStashBackpackConsumeStored"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackVerifySourceItemMoved"
-        ]
-    },
-    "StoreNewItemsWithStashBackpackVerificationFailed": {
-        "desc": "Shift+Click 后物品仍在背包，禁止消费目标",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FalseAction",
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "StoreNewItemsWithStashBackpackConsumeStored": {
         "pre_delay": 0,
