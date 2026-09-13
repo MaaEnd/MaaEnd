@@ -110,6 +110,7 @@ func marksByMap(body []byte, templateIDs []string, fallbackMapID string) map[str
 }
 
 // accountScopedMarks 把本次抓到的响应归集为「唯一账号 + 按地图分组的标记」。
+// 返回值 accountID 为伪匿名哈希；roleID 为原始网页 roleId（仅供提示，调用方不得落盘）。
 //
 // 与 cpp PersistCaptured 一致：只有带回非空 saveMarks 的响应才参与账号判定；roleId 缺失
 // 或格式非法的响应一律忽略，既不推进 covered 也不落盘。一次导入必须恰好对应一个 roleId，
@@ -117,8 +118,8 @@ func marksByMap(body []byte, templateIDs []string, fallbackMapID string) map[str
 // 一个账号归属。
 //
 // templateIDs 为空表示不过滤，全量保留（供电结构必须随滑索架一并入库）。
-func accountScopedMarks(responses []capturedResponse, templateIDs []string) (string, map[string][]ziplineMark, error) {
-	byMap := make(map[string][]ziplineMark)
+func accountScopedMarks(responses []capturedResponse, templateIDs []string) (accountID string, roleID string, byMap map[string][]ziplineMark, err error) {
+	byMap = make(map[string][]ziplineMark)
 	roleIDs := make([]string, 0, 1)
 	seenRoleIDs := make(map[string]bool)
 	for _, r := range responses {
@@ -129,15 +130,15 @@ func accountScopedMarks(responses []capturedResponse, templateIDs []string) (str
 			continue
 		}
 
-		roleID := queryValue(r.url, "roleId")
-		if !captureuid.IsValidRawUID(roleID) {
-			log.Debug().Str("component", componentName).Int("role_id_len", len(roleID)).
+		rawRoleID := queryValue(r.url, "roleId")
+		if !captureuid.IsValidRawUID(rawRoleID) {
+			log.Debug().Str("component", componentName).Int("role_id_len", len(rawRoleID)).
 				Msg("zipline import: ignore mark response without valid roleId")
 			continue
 		}
-		if !seenRoleIDs[roleID] {
-			seenRoleIDs[roleID] = true
-			roleIDs = append(roleIDs, roleID)
+		if !seenRoleIDs[rawRoleID] {
+			seenRoleIDs[rawRoleID] = true
+			roleIDs = append(roleIDs, rawRoleID)
 		}
 
 		for mapID, marks := range marksByMap(r.body, templateIDs, fallbackMapID) {
@@ -146,13 +147,13 @@ func accountScopedMarks(responses []capturedResponse, templateIDs []string) (str
 	}
 
 	if len(roleIDs) != 1 {
-		return "", nil, fmt.Errorf("one import must contain exactly one roleId, got %d", len(roleIDs))
+		return "", "", nil, fmt.Errorf("one import must contain exactly one roleId, got %d", len(roleIDs))
 	}
-	accountID, err := captureuid.AccountIDFromRawUID(roleIDs[0])
+	accountID, err = captureuid.AccountIDFromRawUID(roleIDs[0])
 	if err != nil {
-		return "", nil, fmt.Errorf("derive account identity: %w", err)
+		return "", "", nil, fmt.Errorf("derive account identity: %w", err)
 	}
-	return accountID, byMap, nil
+	return accountID, roleIDs[0], byMap, nil
 }
 
 // dedupMarks 去掉完全重合（template_id/level_id/x/y/z 完全相同）的重复标记，并按该键

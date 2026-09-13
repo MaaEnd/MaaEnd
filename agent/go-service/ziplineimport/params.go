@@ -5,47 +5,63 @@ package ziplineimport
 import (
 	"encoding/json"
 	"strings"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
-// actionParam 是本自定义动作的入参。字段与 pipeline 的 custom_action_param 对应。
+// actionParam 全部从节点 attach 读取；缺省用下方常量。
 //
-// url / timeout / template_ids 与 cpp-algo 的 WebView2 版共享（cpp 也读这几个键）；
-// firefox / proxy_port 是 Linux 特有（firefox 可执行路径、本机受限 MITM 代理端口）。
+// option 目前只会写 url。timeout / template_ids / firefox / proxy_port 仍可从
+// attach 透传（便于本地调试），但任务界面不暴露。
 //
-// cpp 版的 mark_list_path / width / height / clear_login 在 Linux 被接受但有意忽略：接口
-// 路径固定为 /map/mark/list，窗口由独立 Firefox 进程自己管理，每次导入都用一次性临时
-// profile（等价于永远清除登录态），所以这三个键没有可生效的语义。json.Unmarshal 默认忽略
-// 未知字段，不必为它们建结构体字段。
+// clear_login 在 Linux 无语义：每次导入都用一次性临时 profile。
 type actionParam struct {
-	// 登录窗口打开的页面地址（沿用 cpp 版的 url 语义）。
-	URL string `json:"url"`
-	// 抓取窗口最长等待毫秒（沿用 cpp 的 timeout 语义；默认 10 分钟）。
-	Timeout int64 `json:"timeout"`
-	// 只保留这些 template_id 的标记（滑索架 id）；为空表示不过滤。
+	URL         string   `json:"url"`
+	Timeout     int64    `json:"timeout"`
 	TemplateIDs []string `json:"template_ids"`
-	// firefox 可执行文件路径；为空用默认值 "firefox"。
-	Firefox string `json:"firefox"`
-	// 本地 MITM 代理监听端口；为空用随机空闲端口。
-	ProxyPort int `json:"proxy_port"`
+	Firefox     string   `json:"firefox"`
+	ProxyPort   int      `json:"proxy_port"`
 }
 
 const (
 	defaultMapURL  = "https://game.skland.com/map/endfield"
 	defaultFirefox = "firefox"
-	// 与 cpp 的 kDefaultTimeoutMs 一致：10 分钟。
-	defaultTimeout = 10 * 60 * 1000
+	defaultTimeout = 3 * 60 * 1000 // 与 cpp kDefaultTimeoutMs 一致
 )
 
-func parseParam(raw string) (actionParam, error) {
+func loadParam(ctx *maa.Context, nodeName string) actionParam {
 	p := actionParam{
 		URL:     defaultMapURL,
 		Firefox: defaultFirefox,
 		Timeout: defaultTimeout,
 	}
-	if strings.TrimSpace(raw) != "" {
-		if err := json.Unmarshal([]byte(raw), &p); err != nil {
-			return actionParam{}, err
-		}
+	if ctx == nil || nodeName == "" {
+		return p
+	}
+
+	raw, err := ctx.GetNodeJSON(nodeName)
+	if err != nil || raw == "" {
+		return p
+	}
+
+	var node struct {
+		Attach json.RawMessage `json:"attach"`
+	}
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		log.Warn().Err(err).Str("component", componentName).Str("node", nodeName).
+			Msg("zipline import: failed to unmarshal node json")
+		return p
+	}
+	if len(node.Attach) == 0 || string(node.Attach) == "null" {
+		return p
+	}
+
+	// 缺省字段保持不变；仅覆盖 attach 里出现的键。
+	if err := json.Unmarshal(node.Attach, &p); err != nil {
+		log.Warn().Err(err).Str("component", componentName).Str("node", nodeName).
+			Msg("zipline import: failed to unmarshal attach")
+		return p
 	}
 	if p.URL == "" {
 		p.URL = defaultMapURL
@@ -56,7 +72,7 @@ func parseParam(raw string) (actionParam, error) {
 	if p.Timeout <= 0 {
 		p.Timeout = defaultTimeout
 	}
-	return p, nil
+	return p
 }
 
 // isGlobalRegionHost 判断页面主机是否属于国际服 SKPORT（skport.com 及其子域）。

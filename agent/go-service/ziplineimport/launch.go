@@ -11,6 +11,9 @@ import (
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 )
 
 const (
@@ -41,13 +44,15 @@ func runCapture(ctx *maa.Context, p actionParam, profileDir string, proxy *mitmP
 	}
 	defer killProcessGroup(cmd)
 
+	maafocus.Print(ctx, i18n.T("ziplineimport.sign_in_hint"))
 	log.Info().Str("component", componentName).Str("url", p.URL).
-		Msg("zipline import: 请在窗口中登录并浏览带滑索的地图，关窗即结束")
+		Msg("zipline import: waiting for sign-in and mark capture")
 
 	waitDone := make(chan error, 1)
 	go func() { waitDone <- cmd.Wait() }()
 	windowClosed := false
 	signinHintLogged := false
+	loginOkNoticed := false
 
 	deadline := time.Now().Add(time.Duration(p.Timeout) * time.Millisecond)
 	for {
@@ -57,6 +62,11 @@ func runCapture(ctx *maa.Context, p actionParam, profileDir string, proxy *mitmP
 		lastEvent := proxy.lastEventAt()
 
 		if len(covered) > 0 {
+			if !loginOkNoticed {
+				loginOkNoticed = true
+				maafocus.Print(ctx, i18n.T("ziplineimport.login_ok"))
+				log.Info().Str("component", componentName).Msg("zipline import: login detected, importing")
+			}
 			quiet := time.Since(lastEvent)
 			if allCovered(expected, covered) && quiet >= time.Duration(kSettleMs)*time.Millisecond {
 				log.Info().Str("component", componentName).

@@ -28,13 +28,7 @@ import (
 type Action struct{}
 
 func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	p, err := parseParam(arg.CustomActionParam)
-	if err != nil {
-		log.Error().Err(err).Str("component", componentName).
-			Str("custom_action_param", arg.CustomActionParam).
-			Msg("zipline import: invalid param")
-		return false
-	}
+	p := loadParam(ctx, arg.CurrentTaskName)
 
 	if u, err := url.Parse(p.URL); err == nil && isGlobalRegionHost(u.Hostname()) {
 		log.Error().Str("component", componentName).Str("url", p.URL).
@@ -83,7 +77,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// 所有出现过的图都落，空图不动，已抓到的按部分成功处理）。一次导入必须恰好对应一个
 	// roleId，否则整批拒绝；不按 template 过滤：供电结构必须随滑索架一并入库。
 	responses := proxy.responsesSnapshot()
-	accountID, byMap, err := accountScopedMarks(responses, p.TemplateIDs)
+	accountID, roleID, byMap, err := accountScopedMarks(responses, p.TemplateIDs)
 	if err != nil {
 		log.Error().Err(err).Str("component", componentName).Int("responses", len(responses)).
 			Msg("zipline import: cannot attribute captured marks to a single account, refuse to persist")
@@ -150,7 +144,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("component", componentName).Str("account_id", accountID).
 		Int("ok_maps", okMaps).Int("total_racks", totalRacks).
 		Msg("zipline import: done")
-	// 抓到数据后给用户一条焦点提示。
-	maafocus.Print(ctx, i18n.T("ziplineimport.captured_done", okMaps, totalRacks))
+	// 抓到数据后给用户一条焦点提示（原始 UID 仅临时展示，不落盘）。
+	maafocus.Print(ctx, i18n.T("ziplineimport.captured_done", roleID, okMaps, totalRacks))
 	return true
 }
