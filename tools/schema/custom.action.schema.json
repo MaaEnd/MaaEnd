@@ -120,7 +120,7 @@
                 },
                 "required": ["custom_action_param"]
             }
-        },
+		},
 		{
 			"if": {
 				"properties": {
@@ -315,6 +315,7 @@
 				},
 				"required": [ "custom_action_param" ]
 			}
+		},
 		{
 			"if": {
 				"properties": {
