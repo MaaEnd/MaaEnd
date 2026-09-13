@@ -133,7 +133,9 @@ func findCombinedRecognitionBox(detail *maa.RecognitionDetail, node string) (maa
 	if detail == nil {
 		return maa.Rect{}, false
 	}
-	if detail.Name == node && detail.Hit && validRect(detail.Box) {
+	// 不检查 Hit：绑定层 parseCombinedResult 从不为 And/Or 子项填充 Hit（恒为 false），
+	// 且动作能在命中后的 And 节点上执行，本身就说明各子识别已命中，比对 Name 加有效框即可。
+	if detail.Name == node && validRect(detail.Box) {
 		return detail.Box, true
 	}
 	for _, child := range detail.CombinedResult {
