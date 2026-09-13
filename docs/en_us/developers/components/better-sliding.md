@@ -11,7 +11,7 @@ As shown in the image above, sliding can be performed using `SwipeButton`, and p
 
 ## Swipe-Only Mode
 
-Suitable for scenarios where you want to slide to the maximum/minimum. Parameters are as follows. Swipe-only mode is inferred from the parameters: do not pass any specified-quantity-mode field alongside it, or the call is validated as specified-quantity mode. For precise quantity control, please jump to the [Specified Quantity Mode](#specified-quantity-mode) section below.
+Suitable for scenarios where you want to slide to the maximum/minimum. Only the parameters below can be passed. Swipe-only mode is inferred from the parameters: once any specified-quantity-mode field is passed, the call is validated as specified-quantity mode. For precise quantity control, please jump to the [Specified Quantity Mode](#specified-quantity-mode) section below.
 
 ### Parameter Description
 
