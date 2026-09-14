@@ -28,8 +28,9 @@
         "custom_recognition": "IconRecognition",
         "custom_recognition_param": {
             "grid_type": "transfer",
-            "item_filters": ["Normal:*"],
-            "debug": true
+            "item_filters": [
+                "Normal:*"
+            ]
         },
         "roi": [
             739,
