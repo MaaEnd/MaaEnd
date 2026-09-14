@@ -482,6 +482,12 @@
                         },
                         "AutoEssenceChooseOverrideOn": {
                             "enabled": true
+                        },
+                        "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
+                            "enabled": true
+                        },
+                        "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
+                            "enabled": false
                         }
                     },
                     "option": [
@@ -509,6 +515,12 @@
                         },
                         "AutoEssenceChooseOverrideOn": {
                             "enabled": true
+                        },
+                        "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
+                            "enabled": true
+                        },
+                        "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
+                            "enabled": false
                         }
                     },
                     "option": [
@@ -643,6 +655,12 @@
                         },
                         "AutoEssenceChooseOverrideOn": {
                             "enabled": true
+                        },
+                        "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
+                            "enabled": true
+                        },
+                        "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
+                            "enabled": false
                         }
                     }
                 },
@@ -654,6 +672,12 @@
                         },
                         "AutoEssenceChooseOverrideOn": {
                             "enabled": false
+                        },
+                        "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
+                            "enabled": false
+                        },
+                        "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
+                            "enabled": true
                         }
                     }
                 }

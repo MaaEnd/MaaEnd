@@ -133,6 +133,27 @@
             }
         }
     },
+    "__AutoEssenceRecoEngravePermitInsufficient": {
+        "desc": "识别刻写券不足弹窗文案（仅识别）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    250,
+                    1280,
+                    200
+                ],
+                "expected": [
+                    "对应地区刻写券不足，本次挑战奖励预刻写将不生效，确认直接开启挑战吗？",
+                    "對應地區刻寫券不足，本次挑戰獎勵預刻寫將不生效，確定直接開啟挑戰嗎？",
+                    "(?i)Insufficient\\s*regional\\s*engraving\\s*permits\\s*to\\s*validate\\s*pre-engrave\\s*rewards\\s*from\\s*this\\s*challenge\\.\\s*Start\\s*the\\s*challenge\\s*anyway\\?",
+                    "該当地域の刻印券が不足しているため、刻印指定は適用されませんが、続行しますか？",
+                    "해당 지역 각인권이 부족하여 이번 도전에서는 사전 각인이 적용되지 않습니다. 정말 이대로 도전을 시작하시겠습니까?"
+                ]
+            }
+        }
+    },
     "__AutoEssenceLowSpDialog": {
         "desc": "识别体力不足弹窗的图标（仅识别）",
         "recognition": {

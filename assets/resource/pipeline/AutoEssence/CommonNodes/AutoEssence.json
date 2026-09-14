@@ -805,6 +805,8 @@
         },
         "post_delay": 1000,
         "next": [
+            "[JumpBack]AutoEssenceDismissWarningEngravePermitInsufficientContinue",
+            "AutoEssenceDismissWarningEngravePermitInsufficientCancel",
             "[JumpBack]AutoEssenceDismissWarningPreEngrave",
             "AutoEssenceDismissWarningSanityLowContinue",
             "AutoEssenceDismissWarningSanityLowStop",
@@ -813,6 +815,62 @@
         ],
         "focus": {
             "Node.Action.Starting": "👆点击开启挑战按钮"
+        }
+    },
+    "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
+        "desc": "刻写开启时：识别刻写券不足弹窗，点击确定后 JumpBack 继续挑战",
+        "enabled": true,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "__AutoEssenceRecoEngravePermitInsufficient"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.AutoEssence.focus.engrave_permit_insufficient"
+        }
+    },
+    "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
+        "desc": "刻写关闭时：识别刻写券不足弹窗，点击取消后停止任务",
+        "enabled": false,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CancelButton",
+                    "__AutoEssenceRecoEngravePermitInsufficient"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceEngravePermitInsufficientStop"
+        ]
+    },
+    "AutoEssenceEngravePermitInsufficientStop": {
+        "desc": "刻写券不足，停止任务",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.AutoEssence.focus.engrave_permit_insufficient"
         }
     },
     "AutoEssenceDismissWarningPreEngrave": {
