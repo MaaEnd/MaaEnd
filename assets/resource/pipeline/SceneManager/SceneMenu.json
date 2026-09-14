@@ -1753,7 +1753,10 @@
             200,
             120
         ],
-        "template": "BatchAddFriends/addFriend.png",
+        "template": [
+            "BatchAddFriends/addFriend.png",
+            "BatchAddFriends/addFriend2.png"
+        ],
         "threshold": 0.8,
         "action": "Click",
         "next": [
