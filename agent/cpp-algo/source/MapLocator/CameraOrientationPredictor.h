@@ -34,7 +34,7 @@ public:
         const std::string& preprocessModelPath,
         const std::string& polarModelPath,
         const std::string& refModelPath,
-        int threads = 1);
+        int threads = 2);
     ~CameraOrientationPredictor() = default;
 
     // 输入 minimap 应为 TryExtractMinimap 产物（720p 基准下 118x120 的小地图）。
