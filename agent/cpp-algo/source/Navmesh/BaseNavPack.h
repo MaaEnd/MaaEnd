@@ -102,6 +102,12 @@ struct BaseNavSurface
 inline constexpr uint8_t kBaseNavOffMeshRegular = 0;
 inline constexpr uint8_t kBaseNavOffMeshExtended = 1;
 
+// 两沿三角的哨兵值:v1 记录与未落上的锚点。
+inline constexpr uint32_t kBaseNavOffMeshTriangleNone = 0xFFFFFFFFU;
+// bit0 = 起→终可走,bit1 = 终→起可走。
+inline constexpr uint8_t kBaseNavDirOkStartEnd = 0x01U;
+inline constexpr uint8_t kBaseNavDirOkEndStart = 0x02U;
+
 struct BaseNavOffMeshLink
 {
     uint16_t zone_id = 0;
@@ -114,6 +120,17 @@ struct BaseNavOffMeshLink
     float radius = 0.0F;
     float cost_modifier = 0.0F;
     std::array<BaseNavVertex, 4> points;
+    // v2 新增;v1 记录保持默认值。
+    uint8_t dir_ok = 0;
+    uint32_t start_triangle = kBaseNavOffMeshTriangleNone;
+    uint32_t end_triangle = kBaseNavOffMeshTriangleNone;
+
+    // 两沿三角齐备且不同,才算带方向信息。
+    bool anchored() const
+    {
+        return start_triangle != kBaseNavOffMeshTriangleNone && end_triangle != kBaseNavOffMeshTriangleNone
+               && start_triangle != end_triangle;
+    }
 };
 
 // v4 起包尾可以挂若干独立数据段,靠头里的段目录定位。四段原有数据一个字节不动,
