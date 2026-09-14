@@ -66,7 +66,7 @@ Retrieval verification uses a backpack-side count check: one `retrieve_current` 
 - Backpack batch recognition uses remaining target IDs and `item_recheck_filters: ["Normal:*"]`, preserving multiple cells of the same ID.
 - Depot reverse lookup uses the current `item_id` and a concrete `Normal:<Category>` filter.
 - Batch stashing returns to the top once at the start, then proceeds downward without repeatedly scanning the backpack in both directions for each item.
-- Stashing requires decreased target cell counts on the current page. Retrieval records a per-page cell-count baseline before each transfer and requires the count to drop after it; it does not rely on backpack page scans.
+- Stashing requires decreased target cell counts on the current page. Retrieval records a per-page backpack cell-count baseline before each transfer and requires the target count to increase after it; it searches the backpack pages as needed.
 - Paged scans merge the largest exact overlap between the existing suffix and new-page prefix. This removes adjacent-page overlap while preserving real duplicate items.
 
 ## Extending Categories
