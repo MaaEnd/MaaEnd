@@ -1,0 +1,311 @@
+// 自动生成任务：每行展开一个区域，共用选项由 task 模式按名称合并。
+{
+    "task": [
+        {
+            "name": "SeizeDeliveryJobs",
+            "description": "$task.SeizeDeliveryJobs.description",
+            "label": "$task.SeizeDeliveryJobs.label",
+            "entry": "SeizeDeliveryJobsMain",
+            "option": [
+                "SeizeDeliveryJobsReward",
+                "SeizeDeliveryJobsCommissionSource",
+                "SeizeDeliveryJobsPostProcessing"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
+            ],
+            "group": [
+                "regional_development"
+            ]
+        }
+    ],
+    "option": {
+        "SeizeDeliveryJobsReward": {
+            "type": "input",
+            "label": "$task.SeizeDeliveryJobsReward.label",
+            "description": "$task.SeizeDeliveryJobsReward.description",
+            "inputs": [
+                {
+                    "name": "Reward",
+                    "label": "$task.SeizeDeliveryJobsReward.inputs.Reward.label",
+                    "default": "15.9",
+                    "pipeline_type": "string",
+                    "pattern_msg": "$task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg",
+                    "verify": "^\\d+(\\.\\d+)?$"
+                }
+            ],
+            "pipeline_override": {
+                "__SeizeDeliveryJobsMinReward": {
+                    "expected": [
+                        "{Reward}"
+                    ]
+                }
+            }
+        },
+        "SeizeDeliveryJobsCommissionSource": {
+            "type": "select",
+            "default_case": "Unlimited",
+            "label": "$task.SeizeDeliveryJobsCommissionSource.label",
+            "cases": "${CommissionSourceCases}"
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPoint${AreaId}": {
+            "type": "switch",
+            "default_case": "No",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeDeliveryJobsDeliveryPoint${AreaId}"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilter": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsDeliveryPoint${AreaId}": {
+            "type": "checkbox",
+            "label": "$task.SeizeDeliveryJobsDeliveryPoint${AreaId}.label",
+            "default_case": "${EndpointIds}",
+            "cases": "${DeliveryPointCases}"
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPointUnlimited": {
+            "type": "switch",
+            "default_case": "No",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": "${WulingDeliveryPointOptions}",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilter": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPointAllUnlimited": {
+            "type": "switch",
+            "default_case": "No",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": "${AllDeliveryPointOptions}",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilter": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsSpecifyDeliveryPointValleyIVUnlimited": {
+            "type": "switch",
+            "default_case": "No",
+            "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "option": "${ValleyIVDeliveryPointOptions}",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsFindTarget": {
+                            "enabled": false
+                        },
+                        "SeizeDeliveryJobsScanTarget": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsEndpointFilter": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsPostProcessing": {
+            "type": "select",
+            "default_case": "Disable",
+            "label": "$task.SeizeDeliveryJobsPostProcessing.label",
+            "description": "$task.SeizeDeliveryJobsPostProcessing.description",
+            "cases": [
+                {
+                    "name": "Disable",
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Disable.label"
+                },
+                {
+                    "name": "Tele",
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Tele.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsTeleport"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TeleWalk",
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalk.label",
+                    "option": [
+                        "SeizeDeliveryJobsPostDeparturePreferZipline"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsTeleportAndWalk"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "TeleWalkFetchDeliver",
+                    "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label",
+                    "option": [
+                        "SeizeDeliveryJobsPostDepartureRiskAcknowledgement",
+                        "SeizeDeliveryJobsPostDeparturePreferZipline",
+                        "SeizeDeliveryJobsRepeatCount"
+                    ],
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsFullDelivery"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsPostDepartureRiskAcknowledgement": {
+            "type": "switch",
+            "label": "$task.AutoDeliveryRiskAcknowledgement.label",
+            "description": "$task.AutoDeliveryRiskAcknowledgement.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsGuard": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Yes"
+                }
+            ]
+        },
+        "SeizeDeliveryJobsPostDeparturePreferZipline": {
+            "type": "switch",
+            "label": "$task.AutoDeliveryPreferZipline.label",
+            "description": "$task.AutoDeliveryPreferZipline.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoDeliveryNavigateDepot": {
+                            "attach": {
+                                "zip": false
+                            }
+                        },
+                        "AutoDeliveryNavigateDestination": {
+                            "attach": {
+                                "zip": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoDeliveryNavigateDepot": {
+                            "attach": {
+                                "zip": true
+                            }
+                        },
+                        "AutoDeliveryNavigateDestination": {
+                            "attach": {
+                                "zip": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeDeliveryJobsRepeatCount": {
+            "type": "select",
+            "default_case": "3",
+            "label": "$task.SeizeDeliveryJobsRepeatCount.label",
+            "description": "$task.SeizeDeliveryJobsRepeatCount.description",
+            "cases": [
+                {
+                    "name": "1",
+                    "label": "$task.SeizeDeliveryJobsRepeatCount.cases.1.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsMain": {
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "label": "$task.SeizeDeliveryJobsRepeatCount.cases.2.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsMain": {
+                            "max_hit": 2
+                        }
+                    }
+                },
+                {
+                    "name": "3",
+                    "label": "$task.SeizeDeliveryJobsRepeatCount.cases.3.label",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsMain": {
+                            "max_hit": 3
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

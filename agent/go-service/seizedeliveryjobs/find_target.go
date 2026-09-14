@@ -13,12 +13,12 @@ import (
 
 // 抢单识别节点名（定义在 SeizeDeliveryJobsCommon.json）
 const (
-	recoWulingTokenNode  = "__SeizeDeliveryJobsRecoWulingToken"
-	recoRewardNode       = "__SeizeDeliveryJobsRecoReward"
-	recoOriginNode       = "__SeizeDeliveryJobsRecoOrigin"
-	recoAcceptNode       = "__SeizeDeliveryJobsRecoAccept"
-	recoViewLocationNode = "__SeizeDeliveryJobsRecoViewLocation"
-	minRewardNode        = "__SeizeDeliveryJobsMinReward"
+	recoCommissionTokenNode = "__SeizeDeliveryJobsRecoCommissionToken"
+	recoRewardNode          = "__SeizeDeliveryJobsRecoReward"
+	recoOriginNode          = "__SeizeDeliveryJobsRecoOrigin"
+	recoAcceptNode          = "__SeizeDeliveryJobsRecoAccept"
+	recoViewLocationNode    = "__SeizeDeliveryJobsRecoViewLocation"
+	minRewardNode           = "__SeizeDeliveryJobsMinReward"
 )
 
 // 链式 roi 偏移（照搬原档位 And 的 sub 间相对 offset）。
@@ -132,6 +132,26 @@ func parseFiltered(detail *maa.RecognitionDetail) (filteredDetail, bool) {
 	return fd, true
 }
 
+// parseCommissionFiltered 解析 __SeizeDeliveryJobsRecoCommissionToken 的识别结果。
+// 该节点是单个多模板 TemplateMatch（CombinedResult 为空），直接走 parseFiltered；
+// 下面的 Or 展开分支仅作兼容兜底——该节点历史上曾用 Or 组合每张地图的子节点。
+func parseCommissionFiltered(detail *maa.RecognitionDetail) (filteredDetail, bool) {
+	if detail == nil {
+		return filteredDetail{}, false
+	}
+	if len(detail.CombinedResult) == 0 {
+		fd, ok := parseFiltered(detail)
+		return fd, ok && len(fd.Filtered) > 0
+	}
+
+	for _, child := range detail.CombinedResult {
+		if fd, ok := parseCommissionFiltered(child); ok {
+			return fd, true
+		}
+	}
+	return filteredDetail{}, false
+}
+
 // ocrFirst 在指定 roi 上运行 OCR 节点，返回第一个 filtered 项。
 func ocrFirst(ctx *maa.Context, img image.Image, node string, rect maa.Rect) (string, []int, bool) {
 	d, err := ctx.RunRecognition(node, img, roiOverride(node, rect))
@@ -146,25 +166,25 @@ func ocrFirst(ctx *maa.Context, img image.Image, node string, rect maa.Rect) (st
 }
 
 // scanJobs 链式扫描所有「价格 >= minReward」的委托。
-// 流程：WulingToken 多 box → 每个 box 链式 OCR 价格/出发地/接取/查看位置，价格达标则组装。
-// 返回的 items 顺序与 WulingToken 的 filtered 顺序一致（自上而下）。
+// 流程：CommissionToken 多 box → 每个 box 链式 OCR 价格/出发地/接取/查看位置，价格达标则组装。
+// 返回的 items 顺序与 CommissionToken 的 filtered 顺序一致（自上而下）。
 func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJobItem, bool) {
-	wulingDetail, err := ctx.RunRecognition(recoWulingTokenNode, img)
-	if err != nil || wulingDetail == nil || !wulingDetail.Hit {
-		log.Debug().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_jobs").Msg("WulingToken miss")
+	commissionDetail, err := ctx.RunRecognition(recoCommissionTokenNode, img)
+	if err != nil || commissionDetail == nil || !commissionDetail.Hit {
+		log.Debug().Err(err).Str("component", "SeizeDeliveryJobs").Str("step", "scan_jobs").Msg("CommissionToken miss")
 		return nil, false
 	}
-	wulingFD, ok := parseFiltered(wulingDetail)
+	commissionFD, ok := parseCommissionFiltered(commissionDetail)
 	if !ok {
 		return nil, false
 	}
 
 	var items []deliveryJobItem
-	for _, wf := range wulingFD.Filtered {
+	for _, wf := range commissionFD.Filtered {
 		if len(wf.Box) < 4 {
 			continue
 		}
-		// 价格（基于 WulingToken box 偏移）
+		// 价格（基于 CommissionToken box 偏移）
 		rewardText, rewardBox, ok := ocrFirst(ctx, img, recoRewardNode, offsetBox(wf.Box, offsetWulingToReward))
 		if !ok || len(rewardBox) < 4 {
 			continue

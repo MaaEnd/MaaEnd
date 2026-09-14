@@ -1,0 +1,8 @@
+{
+    "template": "commission-template.jsonc",
+    "data": "commission-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/SeizeDeliveryJobs",
+    "outputFile": "SeizeDeliveryJobsCommission.json",
+    "format": true,
+    "merged": true
+}

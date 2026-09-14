@@ -5,6 +5,7 @@ import test from "node:test";
 import {fileURLToPath} from "node:url";
 
 import {parseJsonc, readJsonc} from "../jsonc.mjs";
+import {destinations} from "../AutoDelivery/model.mjs";
 import {DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT, deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
 
 const AUTO_DELIVERY_NAVIGATE_NODES = [
@@ -1184,7 +1185,7 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         strict: true,
     });
     assert.deepEqual(common.AutoDeliverySelectDeliveryMissionFromList.next, [
-        "AutoDeliveryCheckDeliveryMissionSelected",
+        "AutoDeliveryInDeliveryMissionDetail",
         "AutoDeliverySelectDeliveryMission",
         "AutoDeliveryCheckDeliveryMissionListComplete",
         "[JumpBack]AutoDeliveryScrollMissionList",
@@ -1240,7 +1241,7 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
     ]);
     assert.equal(common.AutoDeliverySelectDeliveryMission.action, "Click");
     assert.deepEqual(common.AutoDeliverySelectDeliveryMission.next, [
-        "AutoDeliveryCheckDeliveryMissionSelected",
+        "AutoDeliveryInDeliveryMissionDetail",
     ]);
     assert.equal(common.AutoDeliveryScrollMissionList.max_hit, undefined);
     assert.deepEqual(common.AutoDeliveryScrollMissionList.all_of, [
@@ -1457,12 +1458,15 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         "AutoDeliverySkipChat",
     ]);
     assert.equal(delivery.AutoDeliverySkipChat.action, "TouchMove");
-    assert.deepEqual(delivery.AutoDeliverySkipChat.target, [
-        0,
-        0,
-        1,
-        1,
-    ]);
+    assert.deepEqual(
+        delivery.AutoDeliverySkipChat.target,
+        [
+            0,
+            0,
+            1,
+            1,
+        ],
+    );
     assert.deepEqual(delivery.AutoDeliverySkipChat.next, [
         "AutoDeliveryCheckSkipChatAfterMoveAway",
     ]);
@@ -1474,10 +1478,7 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         "AutoDeliverySkipChatMoveToButton",
     ]);
     assert.equal(delivery.AutoDeliverySkipChatMoveToButton.action, "TouchMove");
-    assert.equal(
-        delivery.AutoDeliverySkipChatMoveToButton.target,
-        "AutoDeliveryCheckSkipChatAfterMoveAway",
-    );
+    assert.equal(delivery.AutoDeliverySkipChatMoveToButton.target, "AutoDeliveryCheckSkipChatAfterMoveAway");
     assert.deepEqual(delivery.AutoDeliverySkipChatMoveToButton.next, [
         "AutoDeliverySkipChatClick",
     ]);
@@ -1575,4 +1576,41 @@ test("DeliveryJobs generated directories exactly match the current model", () =>
         .map((entry) => relative(depotRootPath, join(entry.parentPath, entry.name)).replaceAll("\\", "/"))
         .sort();
     assert.deepEqual(actualDepotFiles, deliveryJobDepots.map((depot) => `${depot.RegionId}/${depot.Id}.json`).sort());
+});
+
+test("SeizeDeliveryJobs generates a selectable source case for every area in the catalog", () => {
+    const task = readSeizeDeliveryJobsTask();
+    const sourceCases = task.option.SeizeDeliveryJobsCommissionSource.cases;
+    const caseNames = new Set(sourceCases.map((sourceCase) => sourceCase.name));
+
+    for (const areaId of new Set(destinations.map((destination) => destination.areaId))) {
+        assert.ok(caseNames.has(areaId), `缺少区域 ${areaId} 的来源 case，新增区域必须自动出现在委托接收点中`);
+        const sourceCase = sourceCases.find((item) => item.name === areaId);
+        assert.deepEqual(sourceCase.option, [`SeizeDeliveryJobsSpecifyDeliveryPoint${areaId}`]);
+        assert.equal(
+            sourceCase.label,
+            `$task.SeizeDeliveryJobsCommissionSource.cases.${areaId}.label`,
+            `${areaId} 的 label 键不符合约定`,
+        );
+    }
+});
+
+test("SeizeDeliveryJobs source overrides keep the guard and the pre-seize checks", () => {
+    const task = readSeizeDeliveryJobsTask();
+    for (const sourceCase of task.option.SeizeDeliveryJobsCommissionSource.cases) {
+        const mainNext = sourceCase.pipeline_override?.SeizeDeliveryJobsMain?.next;
+        const readyNext = sourceCase.pipeline_override?.SeizeDeliveryJobsReadyToSeize?.next;
+        assert.ok(Array.isArray(mainNext), `${sourceCase.name} 缺少 SeizeDeliveryJobsMain.next`);
+        assert.ok(Array.isArray(readyNext), `${sourceCase.name} 缺少 SeizeDeliveryJobsReadyToSeize.next`);
+        assert.ok(
+            mainNext.includes("SeizeDeliveryJobsGuard"),
+            `${sourceCase.name} 覆盖 Main.next 时丢失了风险知悉拦截`,
+        );
+        for (const node of [
+            "SeizeDeliveryJobsExistDueTask",
+            "SeizeDeliveryJobsFailedChanceExhausted",
+        ]) {
+            assert.ok(readyNext.includes(node), `${sourceCase.name} 覆盖 ReadyToSeize.next 时丢失了 ${node}`);
+        }
+    }
 });

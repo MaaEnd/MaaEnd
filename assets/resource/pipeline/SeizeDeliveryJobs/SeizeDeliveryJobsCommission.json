@@ -1,0 +1,150 @@
+{
+    "SeizeDeliveryJobsEnterValleyIVJobList": {
+        "desc": "进入四号谷地仓储的运送委托列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__SeizeDeliveryJobsInValleyIVDepotNode",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+        ]
+    },
+    "__SeizeDeliveryJobsInValleyIVDepotNode": {
+        "desc": "已经在四号谷地仓储管理页面",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "__SeizeDeliveryJobsInJobList",
+            "__SeizeDeliveryJobsEnterJobList"
+        ]
+    },
+    "__SeizeDeliveryJobsRecoFilterValleyIV": {
+        "desc": "寻找四号谷地筛选标志（仅识别）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            440,
+            140,
+            260
+        ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/FilterValleyIV.png",
+        "order_by": "Score"
+    },
+    "SeizeDeliveryJobsJobListIsValleyIVFilter": {
+        "desc": "在运送委托列表检查到四号谷地筛选",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterValleyIV"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsLoop"
+        ]
+    },
+    "SeizeDeliveryJobsJobListSelectValleyIVFilterPre": {
+        "desc": "展开地区筛选以选择四号谷地",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterOther"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsJobListSelectValleyIVFilter"
+        ]
+    },
+    "SeizeDeliveryJobsJobListSelectValleyIVFilter": {
+        "desc": "在筛选列表中选择四号谷地",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterValleyIV"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsLoop"
+        ]
+    },
+    "SeizeDeliveryJobsEnterWulingJobList": {
+        "desc": "进入武陵仓储的运送委托列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__SeizeDeliveryJobsInWulingDepotNode",
+            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+        ]
+    },
+    "__SeizeDeliveryJobsInWulingDepotNode": {
+        "desc": "已经在武陵仓储管理页面",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "DeliveryJobsCheckLocalDepotNodeWulingCityText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "__SeizeDeliveryJobsInJobList",
+            "__SeizeDeliveryJobsEnterJobList"
+        ]
+    },
+    "__SeizeDeliveryJobsRecoFilterWuling": {
+        "desc": "寻找武陵筛选标志（仅识别）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            440,
+            140,
+            260
+        ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/FilterWuling.png",
+        "order_by": "Score"
+    },
+    "SeizeDeliveryJobsJobListIsWulingFilter": {
+        "desc": "在运送委托列表检查到武陵筛选",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterWuling"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsLoop"
+        ]
+    },
+    "SeizeDeliveryJobsJobListSelectWulingFilterPre": {
+        "desc": "展开地区筛选以选择武陵",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterOther"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsJobListSelectWulingFilter"
+        ]
+    },
+    "SeizeDeliveryJobsJobListSelectWulingFilter": {
+        "desc": "在筛选列表中选择武陵",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterWuling"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsLoop"
+        ]
+    }
+}

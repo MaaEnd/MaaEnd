@@ -1,25 +1,9 @@
 {
-    // ===== 从任意位置进入武陵仓储管理页面的公用节点 =====
-    "SeizeDeliveryJobsEnterWulingJobList": {
-        "desc": "从任意位置进入武陵仓储管理页面的运送委托列表（需覆写锚点 SeizeDeliveryAfterEnterWulingJobList 来控制下一步）",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__SeizeDeliveryJobsInWulingDepotNode",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-        ]
-    },
-    "__SeizeDeliveryJobsRecoWulingDepotNode": {
-        "desc": "寻找武陵仓储管理页面的特征标志（仅识别）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            970,
-            10,
-            270,
-            180
-        ],
-        "template": "SeizeDeliveryJobs/DepotNodePage/InWulingDepotNode.png",
-        "order_by": "Score"
+    // ===== 从任意位置进入区域仓储管理页面的公用节点 =====
+    "__SeizeDeliveryJobsRecoAnyDepotNode": {
+        "desc": "寻找任意区域仓储管理页面的特征标志（仅识别）",
+        "recognition": "And",
+        "all_of": ["InLocalDepotNode"]
     },
     "__SeizeDeliveryJobsRecoJobListActive": {
         "desc": "寻找已激活的运送委托列表标签页（仅识别）",
@@ -57,23 +41,6 @@
         "template": "SeizeDeliveryJobs/DepotNodePage/JobListLoaded.png",
         "order_by": "Score"
     },
-    "__SeizeDeliveryJobsInWulingDepotNode": {
-        "desc": "已经在武陵仓储管理页面",
-        "recognition": "And",
-        "all_of": [
-            "__SeizeDeliveryJobsRecoWulingDepotNode"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 500, // 加速等待运送委托列表加载完成
-        "next": [
-            "__SeizeDeliveryJobsInJobList",
-            "__SeizeDeliveryJobsEnterJobList"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "已位于武陵仓储管理"
-        }
-    },
     "__SeizeDeliveryJobsEnterJobList": {
         "desc": "在任意地区仓储管理页面，进入运送委托列表",
         "recognition": "And",
@@ -99,7 +66,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[Anchor]SeizeDeliveryJobsAfterEnterWulingJobList" // 外部调用者需要覆写此锚点的所指
+            "[Anchor]SeizeDeliveryJobsAfterEnterJobList" // 外部调用者需要覆写此锚点的所指
         ],
         "focus": {
             "Node.Recognition.Succeeded": "已位于运送委托列表"
@@ -119,8 +86,11 @@
         "order_by": "Score"
     },
     // ===== 抢单核心识别（go 链式调用 + 价格下限过滤）=====
-    "__SeizeDeliveryJobsRecoWulingToken": {
-        "desc": "武陵城委托标记（仅识别，go 扫描整列拿多 box）",
+    // 这一列是每行的「调度券」图标（武陵调度券 / 四号谷地调度券），也是整行锚点：go 以它的 box 为锚点，按固定偏移推导奖励数字、出发地、接取、查看位置。
+    // 必须是「单节点 + 多模板」：Or 只返回首个命中子节点的结果，「全部地区」混排时会漏掉另一张地图的整列委托。
+    // 新增地图时把它的调度券图追加进 template；裁剪要让匹配位置与现有图一致（到调度券卡片底边黄线约 42px），偏了后续 roi 会整体平移。
+    "__SeizeDeliveryJobsRecoCommissionToken": {
+        "desc": "识别所有地图的送货委托行锚点（调度券图标，仅识别；go 扫描整列取多 box）",
         "recognition": "TemplateMatch",
         "roi": [
             840,
@@ -129,9 +99,10 @@
             430
         ],
         "template": [
+            "SeizeDeliveryJobs/DepotNodePage/ValleyIVToken.png",
             "SeizeDeliveryJobs/DepotNodePage/WulingToken.png"
         ],
-        "order_by": "Score"
+        "order_by": "Vertical"
     },
     "__SeizeDeliveryJobsRecoReward": {
         "desc": "委托奖励金额（go per-box 覆写 roi）",

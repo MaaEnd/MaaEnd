@@ -127,5 +127,232 @@
                 }
             ]
         }
+    },
+    // 源石研究园区域门控：OCR 地图左上角「大区域 /子区域」里的子区域名，确认当前地图聚焦在本区域。
+    // 门控在 candidates（MapFind 进来会 zoom out 钉死缩放）之前执行，此时地图还是游戏默认打开状态、左上角子区域名有效。
+    // 命中才 next 到本区域的 candidates 节点；未命中则框架继续试守卫 next 里的下一个门控。
+    // 子区域名互不为子串，expected 子串匹配即可区分，且不会误匹配大区域名（如「武陵」）。
+    // roi 为左上角区域名文本框（720p 基准），需游戏内微调。
+    "SeizeDeliveryJobsEndpointRegionOriginiumSciencePark": {
+        "desc": "OCR 地图左上角确认当前聚焦源石研究园区域，命中才判定本区域送货终点",
+        "recognition": "OCR",
+        "roi": [
+            16,
+            14,
+            214,
+            41
+        ],
+        "expected": [
+            "源石研究园",
+            "源石研究園",
+            "Originium Science Park",
+            "源石研究パーク",
+            "오리지늄 연구 구역"
+        ],
+        "next": [
+            "SeizeDeliveryJobsEndpointCandidatesOriginiumSciencePark",
+            "SeizeDeliveryJobsEndpointNotMatched"
+        ]
+    },
+    // 源石研究园区域的送货终点候选：一次缩放 + 一次视口求解，判本区域全部已启用终点。
+    // 命中的候选把自己的 next 交回框架（顶掉本节点 next），前往对应落点叶子；全部未中则本节点识别失败。
+    // 候选开关 = 它 next 那个落点叶子的 enabled（task 选项逐个打开），关掉的候选直接跳过、连认都不认。
+    // 守卫经门控只路由到对应区域节点，地图本就以终点为中心打开，故本区域候选基本在屏内、无需跨区域拖动。
+    "SeizeDeliveryJobsEndpointCandidatesOriginiumSciencePark": {
+        "desc": "一次判定源石研究园区域全部已启用的送货终点，命中即前往接取（共享一次缩放与视口求解）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "DeliveryPoint",
+            "candidates": [
+                {
+                    "at": [
+                        1132.831,
+                        900.497
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00501"
+                },
+                {
+                    "at": [
+                        1161.842,
+                        826.062
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00502"
+                },
+                {
+                    "at": [
+                        968.209,
+                        824.369
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00503"
+                },
+                {
+                    "at": [
+                        905.299,
+                        764.145
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv005Recycle02"
+                },
+                {
+                    "at": [
+                        1183.458,
+                        817.116
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv005Recycle03"
+                }
+            ]
+        }
+    },
+    // 矿脉源区区域门控：OCR 地图左上角「大区域 /子区域」里的子区域名，确认当前地图聚焦在本区域。
+    // 门控在 candidates（MapFind 进来会 zoom out 钉死缩放）之前执行，此时地图还是游戏默认打开状态、左上角子区域名有效。
+    // 命中才 next 到本区域的 candidates 节点；未命中则框架继续试守卫 next 里的下一个门控。
+    // 子区域名互不为子串，expected 子串匹配即可区分，且不会误匹配大区域名（如「武陵」）。
+    // roi 为左上角区域名文本框（720p 基准），需游戏内微调。
+    "SeizeDeliveryJobsEndpointRegionOriginLodespring": {
+        "desc": "OCR 地图左上角确认当前聚焦矿脉源区区域，命中才判定本区域送货终点",
+        "recognition": "OCR",
+        "roi": [
+            16,
+            14,
+            214,
+            41
+        ],
+        "expected": [
+            "矿脉源区",
+            "礦脈源區",
+            "Origin Lodespring",
+            "鉱山エリア",
+            "광맥 구역"
+        ],
+        "next": [
+            "SeizeDeliveryJobsEndpointCandidatesOriginLodespring",
+            "SeizeDeliveryJobsEndpointNotMatched"
+        ]
+    },
+    // 矿脉源区区域的送货终点候选：一次缩放 + 一次视口求解，判本区域全部已启用终点。
+    // 命中的候选把自己的 next 交回框架（顶掉本节点 next），前往对应落点叶子；全部未中则本节点识别失败。
+    // 候选开关 = 它 next 那个落点叶子的 enabled（task 选项逐个打开），关掉的候选直接跳过、连认都不认。
+    // 守卫经门控只路由到对应区域节点，地图本就以终点为中心打开，故本区域候选基本在屏内、无需跨区域拖动。
+    "SeizeDeliveryJobsEndpointCandidatesOriginLodespring": {
+        "desc": "一次判定矿脉源区区域全部已启用的送货终点，命中即前往接取（共享一次缩放与视口求解）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "DeliveryPoint",
+            "candidates": [
+                {
+                    "at": [
+                        1132.593,
+                        471.222
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00601"
+                },
+                {
+                    "at": [
+                        1192.373,
+                        433.958
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00602"
+                },
+                {
+                    "at": [
+                        1172.391,
+                        443.451
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00603"
+                },
+                {
+                    "at": [
+                        1048.016,
+                        429.484
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv006Recycle01"
+                },
+                {
+                    "at": [
+                        1078.905,
+                        504.33
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv006Recycle03"
+                }
+            ]
+        }
+    },
+    // 供能高地区域门控：OCR 地图左上角「大区域 /子区域」里的子区域名，确认当前地图聚焦在本区域。
+    // 门控在 candidates（MapFind 进来会 zoom out 钉死缩放）之前执行，此时地图还是游戏默认打开状态、左上角子区域名有效。
+    // 命中才 next 到本区域的 candidates 节点；未命中则框架继续试守卫 next 里的下一个门控。
+    // 子区域名互不为子串，expected 子串匹配即可区分，且不会误匹配大区域名（如「武陵」）。
+    // roi 为左上角区域名文本框（720p 基准），需游戏内微调。
+    "SeizeDeliveryJobsEndpointRegionPowerPlateau": {
+        "desc": "OCR 地图左上角确认当前聚焦供能高地区域，命中才判定本区域送货终点",
+        "recognition": "OCR",
+        "roi": [
+            16,
+            14,
+            214,
+            41
+        ],
+        "expected": [
+            "供能高地",
+            "Power Plateau",
+            "エネルギー高地",
+            "에너지 공급 고지"
+        ],
+        "next": [
+            "SeizeDeliveryJobsEndpointCandidatesPowerPlateau",
+            "SeizeDeliveryJobsEndpointNotMatched"
+        ]
+    },
+    // 供能高地区域的送货终点候选：一次缩放 + 一次视口求解，判本区域全部已启用终点。
+    // 命中的候选把自己的 next 交回框架（顶掉本节点 next），前往对应落点叶子；全部未中则本节点识别失败。
+    // 候选开关 = 它 next 那个落点叶子的 enabled（task 选项逐个打开），关掉的候选直接跳过、连认都不认。
+    // 守卫经门控只路由到对应区域节点，地图本就以终点为中心打开，故本区域候选基本在屏内、无需跨区域拖动。
+    "SeizeDeliveryJobsEndpointCandidatesPowerPlateau": {
+        "desc": "一次判定供能高地区域全部已启用的送货终点，命中即前往接取（共享一次缩放与视口求解）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "DeliveryPoint",
+            "candidates": [
+                {
+                    "at": [
+                        616.693,
+                        130.125
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00701"
+                },
+                {
+                    "at": [
+                        527.836,
+                        241.566
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00702"
+                },
+                {
+                    "at": [
+                        681.185,
+                        390.687
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv00703"
+                },
+                {
+                    "at": [
+                        502.664,
+                        251.902
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv007Recycle02"
+                },
+                {
+                    "at": [
+                        615.071,
+                        397.166
+                    ],
+                    "next": "SeizeDeliveryJobsEndpointFilterDeliverTargetMap01Lv007Recycle03"
+                }
+            ]
+        }
     }
 }

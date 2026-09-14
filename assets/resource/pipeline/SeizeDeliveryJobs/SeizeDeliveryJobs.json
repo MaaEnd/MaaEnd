@@ -3,12 +3,13 @@
         "desc": "抢委托送货任务的主入口",
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsAfterEnterWulingJobList": "SeizeDeliveryJobsReadyToSeize"
+            "SeizeDeliveryJobsAfterEnterJobList": "SeizeDeliveryJobsReadyToSeize"
         },
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsGuard",
-            "SeizeDeliveryJobsEnterWulingJobList"
+            "SeizeDeliveryJobsEnterWulingJobList",
+            "SeizeDeliveryJobsEnterValleyIVJobList"
         ]
     },
     "SeizeDeliveryJobsGuard": {
@@ -67,7 +68,9 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsJobListIsWulingFilter",
-            "SeizeDeliveryJobsJobListSelectWulingFilterPre"
+            "SeizeDeliveryJobsJobListSelectWulingFilterPre",
+            "SeizeDeliveryJobsJobListIsValleyIVFilter",
+            "SeizeDeliveryJobsJobListSelectValleyIVFilterPre"
         ]
     },
     "SeizeDeliveryJobsExistDueTask": {
@@ -120,20 +123,8 @@
         }
     },
     // ===== 下面是运送委托列表中的流程节点 =====
-    "__SeizeDeliveryJobsRecoFilterWuling": {
-        "desc": "寻找武陵筛选标志（仅识别）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            20,
-            440,
-            140,
-            260
-        ],
-        "template": "SeizeDeliveryJobs/DepotNodePage/FilterWuling.png",
-        "order_by": "Score"
-    },
-    "__SeizeDeliveryJobsRecoFilterNonWuling": {
-        "desc": "寻找非武陵筛选标志（仅识别）",
+    "__SeizeDeliveryJobsRecoFilterOther": {
+        "desc": "寻找非目标地图筛选标志（仅识别）",
         "recognition": "TemplateMatch",
         "roi": [
             20,
@@ -143,52 +134,48 @@
         ],
         "template": [
             "SeizeDeliveryJobs/DepotNodePage/FilterAll.png",
-            "SeizeDeliveryJobs/DepotNodePage/FilterValleyIV.png"
+            "SeizeDeliveryJobs/DepotNodePage/FilterValleyIV.png",
+            "SeizeDeliveryJobs/DepotNodePage/FilterWuling.png"
         ],
         "order_by": "Score"
     },
-    "SeizeDeliveryJobsJobListIsWulingFilter": {
-        "desc": "在运送委托列表，检查到武陵筛选，直接进入调度",
-        "recognition": "And",
-        "all_of": [
-            "__SeizeDeliveryJobsRecoFilterWuling"
+    "__SeizeDeliveryJobsRecoFilterAll": {
+        "desc": "寻找全部区域筛选标志（仅识别）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            440,
+            140,
+            260
         ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/FilterAll.png",
+        "order_by": "Score"
+    },
+    "SeizeDeliveryJobsJobListIsAllFilter": {
+        "desc": "在运送委托列表检查到全部区域筛选",
+        "recognition": "And",
+        "all_of": ["__SeizeDeliveryJobsRecoFilterAll"],
         "pre_delay": 0,
         "post_delay": 0,
-        "next": [
-            "SeizeDeliveryJobsLoop"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "当前已是武陵筛选，直接进入抢单"
-        }
+        "next": ["SeizeDeliveryJobsLoop"]
     },
-    "SeizeDeliveryJobsJobListSelectWulingFilterPre": {
-        "desc": "在运送委托列表，检查到不是武陵筛选，则点击展开地区筛选",
+    "SeizeDeliveryJobsJobListSelectAllFilterPre": {
+        "desc": "展开地区筛选以选择全部区域",
         "recognition": "And",
-        "all_of": [
-            "__SeizeDeliveryJobsRecoFilterNonWuling"
-        ],
+        "all_of": ["__SeizeDeliveryJobsRecoFilterOther"],
+        "pre_delay": 0,
         "action": "Click",
-        "next": [
-            "SeizeDeliveryJobsJobListSelectWulingFilter"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "展开地区筛选"
-        }
+        "post_delay": 0,
+        "next": ["SeizeDeliveryJobsJobListSelectAllFilter"]
     },
-    "SeizeDeliveryJobsJobListSelectWulingFilter": {
-        "desc": "在筛选列表中选择武陵，随后进入调度",
+    "SeizeDeliveryJobsJobListSelectAllFilter": {
+        "desc": "在筛选列表中选择全部区域",
         "recognition": "And",
-        "all_of": [
-            "__SeizeDeliveryJobsRecoFilterWuling"
-        ],
+        "all_of": ["__SeizeDeliveryJobsRecoFilterAll"],
+        "pre_delay": 0,
         "action": "Click",
-        "next": [
-            "SeizeDeliveryJobsLoop"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "切换到武陵筛选"
-        }
+        "post_delay": 0,
+        "next": ["SeizeDeliveryJobsLoop"]
     },
     "SeizeDeliveryJobsLoop": {
         "desc": "等待委托列表静止，随后开始抢单",

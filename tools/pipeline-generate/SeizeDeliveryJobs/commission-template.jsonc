@@ -1,0 +1,76 @@
+{
+    "SeizeDeliveryJobsEnter${MapName}JobList": {
+        "desc": "进入${AreaName}仓储的运送委托列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__SeizeDeliveryJobsIn${MapName}DepotNode",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment${MapName}DepotNode"
+        ]
+    },
+    "__SeizeDeliveryJobsIn${MapName}DepotNode": {
+        "desc": "已经在${AreaName}仓储管理页面",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "DeliveryJobsCheckLocalDepotNode${DepotTextNode}"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "__SeizeDeliveryJobsInJobList",
+            "__SeizeDeliveryJobsEnterJobList"
+        ]
+    },
+    "__SeizeDeliveryJobsRecoFilter${MapName}": {
+        "desc": "寻找${AreaName}筛选标志（仅识别）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            440,
+            140,
+            260
+        ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/Filter${MapName}.png",
+        "order_by": "Score"
+    },
+    "SeizeDeliveryJobsJobListIs${MapName}Filter": {
+        "desc": "在运送委托列表检查到${AreaName}筛选",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilter${MapName}"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsLoop"
+        ]
+    },
+    "SeizeDeliveryJobsJobListSelect${MapName}FilterPre": {
+        "desc": "展开地区筛选以选择${AreaName}",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilterOther"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsJobListSelect${MapName}Filter"
+        ]
+    },
+    "SeizeDeliveryJobsJobListSelect${MapName}Filter": {
+        "desc": "在筛选列表中选择${AreaName}",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoFilter${MapName}"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsLoop"
+        ]
+    }
+}

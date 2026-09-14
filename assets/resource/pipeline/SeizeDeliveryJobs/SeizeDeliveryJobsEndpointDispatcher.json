@@ -8,7 +8,7 @@
         "enabled": false,
         "recognition": "Or",
         "any_of": [
-            "__SeizeDeliveryJobsRecoWulingDepotNode"
+            "__SeizeDeliveryJobsRecoAnyDepotNode"
         ],
         "inverse": true, // 如果*不在*仓储管理页面时，视为地图已经打开
         "pre_delay": 0,
@@ -17,6 +17,9 @@
         "next": [
             "SeizeDeliveryJobsEndpointRegionWulingCity",
             "SeizeDeliveryJobsEndpointRegionTestArea",
+            "SeizeDeliveryJobsEndpointRegionOriginiumSciencePark",
+            "SeizeDeliveryJobsEndpointRegionOriginLodespring",
+            "SeizeDeliveryJobsEndpointRegionPowerPlateau",
             "SeizeDeliveryJobsEndpointNotMatched"
         ]
     }
