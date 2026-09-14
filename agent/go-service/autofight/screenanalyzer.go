@@ -380,6 +380,22 @@ func (sa *ScreenAnalyzer) GetCharacterSelect() int {
 	return 0
 }
 
+func (sa *ScreenAnalyzer) GetCharacterSelectBox() (maa.Rect, bool) {
+	idx := sa.GetCharacterSelect()
+	if idx == 0 {
+		return maa.Rect{}, false
+	}
+	region := characterRegions[idx-1]
+	for fi := len(sa.frames) - 1; fi >= 0; fi-- {
+		for _, det := range sa.frames[fi].Detections {
+			if det.Label == LabelCharacterSelect && boxIntersects(det.Box, region) {
+				return det.Box, true
+			}
+		}
+	}
+	return maa.Rect{}, false
+}
+
 func (sa *ScreenAnalyzer) GetCharacterDied() []int {
 	result := make([]int, 0, 4)
 	for idx := 1; idx <= 4; idx++ {

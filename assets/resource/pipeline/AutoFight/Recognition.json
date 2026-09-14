@@ -124,7 +124,7 @@
         "count": 30 //自测50x1~50x3波动
     },
     "__AutoFightRecognitionCharactorLevelShow": {
-        "desc": "识别角色是否显示等级",
+        "desc": "选中干员框下方等级 OCR；实际 roi/roi_offset 由 Go 按 CharacterSelect 框 Override",
         "recognition": "OCR",
         "roi": [
             20,
