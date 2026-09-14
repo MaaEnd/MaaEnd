@@ -17,7 +17,9 @@ const (
 	operationPrepareSnapshot   = "prepare_snapshot"
 	operationPrepareDifference = "prepare_difference"
 	operationPrepareStored     = "prepare_stored_targets"
+	operationPrepareRestore    = "prepare_restore"
 	operationAbortRestore      = "abort_restore"
+	operationAdvanceRestore    = "advance_restore_page"
 	operationAdvanceBagPage    = "advance_bag_page"
 	operationMarkBagClicked    = "mark_bag_item_clicked"
 	operationConsumeStored     = "consume_stored_target"
@@ -114,6 +116,8 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Info().Str("component", componentName).
 			Int("stored_count", count).
 			Msg("prepared stored records as retrieval targets")
+	case operationPrepareRestore:
+		err = globalState.prepareRestore(param.Snapshot)
 	case operationAbortRestore:
 		remaining := globalState.abortRestore()
 		if ctx != nil {
@@ -122,6 +126,8 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Warn().Str("component", componentName).
 			Int("remaining_count", remaining).Str("reason", param.Reason).
 			Msg("restore aborted; remaining stored records kept for the next retrieval")
+	case operationAdvanceRestore:
+		err = globalState.advanceRestorePage()
 	case operationAdvanceBagPage:
 		err = globalState.advanceBagPage()
 	case operationMarkBagClicked:
@@ -169,6 +175,8 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			switch param.Reason {
 			case "replenish_repo_not_found":
 				event.Msg("item was not found in Depot and cannot be replenished")
+			case "replenish_stack_full":
+				event.Msg("backpack stack is full; skipped replenishment target")
 			case "restore_repo_not_found":
 				event.Msg("item was not found in Depot; skipped by user's category choice or recognition")
 			default:

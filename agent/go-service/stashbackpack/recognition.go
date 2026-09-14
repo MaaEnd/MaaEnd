@@ -280,45 +280,65 @@ func (r *HasStoredRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitionArg
 	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
 }
 
-// RepoItemCountRecognition records how many cells of the current item exist on the
-// current Depot page before its stack is transferred back to the backpack.
-type RepoItemCountRecognition struct{}
+// RetrievedItemRecognition 通过取回前后当前背包页的格子数变化确认转移成功。
+type RetrievedItemRecognition struct{}
 
-var _ maa.CustomRecognitionRunner = &RepoItemCountRecognition{}
+var _ maa.CustomRecognitionRunner = &RetrievedItemRecognition{}
 
-func (r *RepoItemCountRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	count, ok := scanCurrentItemCellCount(ctx, arg)
+func (r *RetrievedItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if ctx == nil || arg == nil || arg.Img == nil {
+		log.Error().Str("component", componentName).Msg("retrieved item recognition received nil context, arg, or image")
+		return nil, false
+	}
+	target, ok := globalState.currentTarget()
 	if !ok {
 		return nil, false
 	}
-	item, _ := globalState.currentTarget()
-	globalState.noteRepoItemCount(storedItem{ItemID: item.ItemID, CategoryType: item.CategoryType}, count)
-	log.Info().Str("component", componentName).Str("item_id", item.ItemID).
-		Int("baseline_count", count).Msg("recorded depot cell count before retrieval transfer")
-	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
-}
-
-// RepoItemMovedRecognition judges the transfer by requiring the current Depot page
-// to hold one fewer cell of the item than before the transfer; this stays correct
-// when several stacks of the same item exist.
-type RepoItemMovedRecognition struct{}
-
-var _ maa.CustomRecognitionRunner = &RepoItemMovedRecognition{}
-
-func (r *RepoItemMovedRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	count, ok := scanCurrentItemCellCount(ctx, arg)
-	if !ok {
+	detail, err := ctx.RunRecognitionDirect(
+		maa.RecognitionTypeCustom,
+		&maa.CustomRecognitionParam{
+			ROI:               maa.NewTargetRect(arg.Roi),
+			CustomRecognition: iconrecognition.CustomRecognitionName,
+			CustomRecognitionParam: iconrecognition.NewParams(
+				iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
+				iconrecognition.WithItemIDs(target.ItemID),
+				iconrecognition.WithItemRecheckFilters(iconrecognition.ItemFilter("Normal:*")),
+				iconrecognition.WithDeduplicate(false),
+				iconrecognition.WithDebug(true),
+			),
+		},
+		arg.Img,
+	)
+	if err != nil {
+		log.Error().Err(err).Str("component", componentName).Str("item_id", target.ItemID).
+			Msg("failed to scan backpack for retrieved item")
 		return nil, false
 	}
-	item, _ := globalState.currentTarget()
-	moved, baseline := globalState.repoItemMoved(storedItem{ItemID: item.ItemID, CategoryType: item.CategoryType}, count)
-	log.Info().Str("component", componentName).Str("item_id", item.ItemID).
-		Int("baseline_count", baseline).Int("current_count", count).Bool("moved", moved).
-		Msg("compared depot cell count after retrieval transfer")
-	if !moved {
+	parsed, rawDetail, err := iconrecognition.ParseRecognitionDetail(detail)
+	if err != nil {
+		log.Error().Err(err).Str("component", componentName).Str("item_id", target.ItemID).
+			Msg("failed to parse retrieved item recognition")
 		return nil, false
 	}
-	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+	if parsed.Error != nil && parsed.Error.Code != iconrecognition.ErrorCodeNoMatch {
+		log.Error().Str("component", componentName).Str("item_id", target.ItemID).
+			Str("error_code", string(parsed.Error.Code)).Str("error_message", parsed.Error.Message).
+			Msg("retrieved item recognition returned an error")
+		return nil, false
+	}
+	baselineCount, matched, err := globalState.recordRetrievedItemCount(target.ItemID, len(parsed.Matches))
+	if err != nil {
+		log.Error().Err(err).Str("component", componentName).Str("item_id", target.ItemID).
+			Msg("failed to compare retrieved item with restore baseline")
+		return nil, false
+	}
+	if !matched {
+		return nil, false
+	}
+	log.Info().Str("component", componentName).Str("item_id", target.ItemID).
+		Int("baseline_count", baselineCount).Int("current_count", len(parsed.Matches)).
+		Msg("retrieved item count increased on current backpack page")
+	return &maa.CustomRecognitionResult{Box: parsed.Matches[0].CellBox, Detail: rawDetail}, true
 }
 
 // BagItemCountRecognition records how many cells of the current item exist on the

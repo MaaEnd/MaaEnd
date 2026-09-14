@@ -158,7 +158,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackPrepareStoredTargets"
+            "RetrieveBackpackAfterStoreNew"
         ]
     },
     "RetrieveBackpackStoreNewSubTask": {
@@ -167,7 +167,7 @@
         "rate_limit": 0,
         "next": [
             "RetrieveBackpackCaptureStart",
-            "RetrieveBackpackPrepareStoredTargets"
+            "RetrieveBackpackAfterStoreNew"
         ]
     },
     "RetrieveBackpackPrepareNewItems": {
@@ -206,7 +206,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackPrepareStoredTargets"
+            "RetrieveBackpackAfterStoreNew"
         ]
     },
     "RetrieveBackpackStoreNewNextItem": {
@@ -293,7 +293,51 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackRestoreLoop"
+            "RetrieveBackpackPrepareRestoreSearch"
+        ]
+    },
+    "RetrieveBackpackAfterStoreNew": {
+        "desc": "可选的新物品存放完成后，准备取回已记录的物品",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCaptureRestoreBase",
+            "RetrieveBackpackFinished"
+        ]
+    },
+    "RetrieveBackpackCaptureRestoreBase": {
+        "desc": "取回前扫描一次背包，记录当前页物品数量作为验证基线",
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackHasStoredRecognition",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackSnapshotAction",
+        "custom_action_param": {
+            "snapshot": "retrieve_current"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackPrepareStoredTargets"
+        ]
+    },
+    "RetrieveBackpackPrepareRestoreSearch": {
+        "desc": "根据取回前快照建立逐页计数基线，并在取回开始前回顶一次",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "prepare_restore",
+            "snapshot": "retrieve_current"
+        },
+        "anchor": {
+            "StashBackpackAfterRestoreSearchPrepared": "RetrieveBackpackRestoreLoop"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareRestoreSearch"
         ]
     },
     "RetrieveBackpackRestoreLoop": {
@@ -339,40 +383,13 @@
     "RetrieveBackpackSetupRepoSearch": {
         "pre_delay": 0,
         "anchor": {
-            "StashBackpackAfterRepoFound": "RetrieveBackpackNoteRepoItemCount",
+            "StashBackpackAfterRepoFound": "RetrieveBackpackMoveItemToBag",
             "StashBackpackAfterRepoNotFound": "RetrieveBackpackConsumeRepoMissing"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "StashBackpackPrepareRepoSearch"
-        ]
-    },
-    "RetrieveBackpackNoteRepoItemCount": {
-        "desc": "转移前记录仓库当前页该物品的格子数基线",
-        "recognition": "Custom",
-        "custom_recognition": "StashBackpackRepoItemCountRecognition",
-        "roi": [
-            154,
-            202,
-            585,
-            291
-        ],
-        "pre_wait_freezes": {
-            "time": 400,
-            "timeout": 3000,
-            "target": [
-                154,
-                202,
-                585,
-                291
-            ]
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RetrieveBackpackMoveItemToBag"
         ]
     },
     "RetrieveBackpackMoveItemToBag": {
@@ -391,22 +408,22 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackVerifyRetrieved"
+            "RetrieveBackpackVerifyInBag"
         ],
         "on_error": [
             "RetrieveBackpackRestoreVerificationFailed"
         ]
     },
-    "RetrieveBackpackVerifyRetrieved": {
-        "desc": "确认仓库源物品已移入背包（源格不再识别到该物品）",
+    "RetrieveBackpackVerifyInBag": {
+        "desc": "确认当前背包页的目标物品格子数较取回前增加",
         "anchor": {
-            "StashBackpackAfterRepoItemMoved": "RetrieveBackpackConsumeRestored",
-            "StashBackpackAfterRepoItemStillPresent": "RetrieveBackpackRestoreVerificationFailed"
+            "StashBackpackAfterRetrievedItemFound": "RetrieveBackpackConsumeRestored",
+            "StashBackpackAfterRetrievedItemNotFound": "RetrieveBackpackRestoreVerificationFailed"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackVerifyRepoItemMoved"
+            "StashBackpackPrepareRetrievedItemSearch"
         ]
     },
     "RetrieveBackpackConsumeRestored": {

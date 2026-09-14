@@ -44,6 +44,13 @@ type snapshotData struct {
 	Pages       [][]snapshotItemWithPosition
 }
 
+// restoreState 保存取回前快照中的逐页物品格子数，供取回后的增量验证使用。
+type restoreState struct {
+	Pages     []map[string]int
+	PageIndex int
+	Ready     bool
+}
+
 type bagPageMatch struct {
 	ItemID       string   `json:"item_id"`
 	CategoryType string   `json:"category_type"`
@@ -75,16 +82,12 @@ type sessionState struct {
 	// Stored 是本存取对中已确认存入仓库的物品记录，取回任务按此顺序回放；
 	// 取回中止时剩余目标会写回这里（仅本批次内有效，Agent 重启后失效）。
 	Stored []storedItem
-	// repoBaseline 记录转移前仓库当前页的物品格子数，取回验证以“少一格”判定成功，
-	// 从而正确处理仓库中存在多个同物品堆叠的情况。
-	repoBaselineCount int
-	repoBaselineItem  storedItem
-	repoBaselineValid bool
 	// bagBaseline 与 repoBaseline 同理，用于手动存放时验证背包源物品已移入仓库；
 	// 背包存在多个同物品堆叠时，存在性判定会误判，必须按数量差判定。
 	bagBaselineCount int
 	bagBaselineItem  storedItem
 	bagBaselineValid bool
+	Restore          restoreState
 	BagPage          bagPageState
 	FullComplete     bool
 	Depot            string
@@ -232,28 +235,6 @@ func (s *stateStore) recordStoredItem(item storedItem) {
 	}
 }
 
-// noteRepoItemCount 记录转移前仓库当前页的物品格子数基线。
-func (s *stateStore) noteRepoItemCount(item storedItem, count int) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.session.repoBaselineItem = item
-	s.session.repoBaselineCount = count
-	s.session.repoBaselineValid = true
-}
-
-// repoItemMoved 以“格子数比转移前至少少一”判定转移成功，
-// 仓库中存在多个同物品堆叠时依然成立。基线缺失时按未移动处理（走安全中止路径）。
-func (s *stateStore) repoItemMoved(item storedItem, count int) (bool, int) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if !s.session.repoBaselineValid ||
-		s.session.repoBaselineItem.ItemID != item.ItemID ||
-		s.session.repoBaselineItem.CategoryType != item.CategoryType {
-		return false, 0
-	}
-	return count < s.session.repoBaselineCount, s.session.repoBaselineCount
-}
-
 // noteBagItemCount 记录转移前背包当前页的物品格子数基线（手动存放验证用）。
 func (s *stateStore) noteBagItemCount(item storedItem, count int) {
 	s.mu.Lock()
@@ -287,8 +268,70 @@ func (s *stateStore) prepareStoredTargets() (int, error) {
 	}
 	s.session.Stored = nil
 	s.session.Targets = targets
+	s.session.Restore = restoreState{}
 	s.session.BagPage = bagPageState{}
 	return len(targets), nil
+}
+
+// prepareRestore 根据取回前的背包快照建立逐页计数基线，并将页游标重置到第一页。
+func (s *stateStore) prepareRestore(snapshotName string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	snapshot, ok := s.session.Snapshots[snapshotName]
+	if !ok {
+		return fmt.Errorf("snapshot %q does not exist", snapshotName)
+	}
+	pages := make([]map[string]int, len(snapshot.Pages))
+	for index, page := range snapshot.Pages {
+		counts := make(map[string]int)
+		for _, item := range page {
+			if item.ItemID != "" {
+				counts[item.ItemID]++
+			}
+		}
+		pages[index] = counts
+	}
+	s.session.Restore = restoreState{Pages: pages, Ready: true}
+	return nil
+}
+
+// advanceRestorePage 前进到下一张实际滚动后的背包页。
+func (s *stateStore) advanceRestorePage() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if !s.session.Restore.Ready {
+		return fmt.Errorf("restore search has not been prepared")
+	}
+	s.session.Restore.PageIndex++
+	return nil
+}
+
+// recordRetrievedItemCount 只有当前页同名格子数相对取回前基线增加时才判定成功。
+// 成功后更新当前页基线，避免多个同名目标被第一次取回重复确认。
+func (s *stateStore) recordRetrievedItemCount(itemID string, currentCount int) (int, bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if !s.session.Restore.Ready {
+		return 0, false, fmt.Errorf("restore search has not been prepared")
+	}
+	if itemID == "" {
+		return 0, false, fmt.Errorf("restore item ID is empty")
+	}
+	pageIndex := s.session.Restore.PageIndex
+	if pageIndex < 0 {
+		return 0, false, fmt.Errorf("restore page index %d is invalid", pageIndex)
+	}
+	// 取回后背包可能比快照多出新页；新页在取回前不存在物品，基线应为 0。
+	for len(s.session.Restore.Pages) <= pageIndex {
+		s.session.Restore.Pages = append(s.session.Restore.Pages, make(map[string]int))
+	}
+	counts := s.session.Restore.Pages[pageIndex]
+	baselineCount := counts[itemID]
+	if currentCount <= baselineCount {
+		return baselineCount, false, nil
+	}
+	counts[itemID] = currentCount
+	return baselineCount, true, nil
 }
 
 // abortRestore 在取回无法继续（如背包已满）时保留剩余目标并结束本次取回。
@@ -301,6 +344,7 @@ func (s *stateStore) abortRestore() int {
 	}
 	s.session.Stored = remaining
 	s.session.Targets = nil
+	s.session.Restore = restoreState{}
 	s.session.BagPage = bagPageState{}
 	return len(remaining)
 }
