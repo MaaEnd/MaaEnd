@@ -640,6 +640,9 @@
         "rate_limit": 0,
         "next": [
             "_AutoEcoFarmPhotoSettingsPanelClosed"
+        ],
+        "on_error": [
+            "_AutoEcoFarmRecoverExitCameraMode"
         ]
     },
     "_AutoEcoFarmPhotoSettingsPanelClosed": {
