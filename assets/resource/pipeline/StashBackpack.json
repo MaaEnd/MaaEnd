@@ -452,7 +452,7 @@
     "StashBackpackReplenishSelectUsable": {
         "pre_delay": 0,
         "anchor": {
-            "StashBackpackAfterRepoFound": "StashBackpackReplenishSetupBagSearch",
+            "StashBackpackAfterRepoFound": "StashBackpackReplenishDragItem",
             "StashBackpackAfterRepoNotFound": "StashBackpackReplenishConsumeRepoMissing"
         },
         "post_delay": 0,
@@ -472,19 +472,68 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackPrepareRepoSearch"
+            "StashBackpackReplenishSetupBagSearch"
         ]
     },
     "StashBackpackReplenishSetupBagSearch": {
         "pre_delay": 0,
         "anchor": {
-            "StashBackpackAfterBagFound": "StashBackpackReplenishDragItem",
+            "StashBackpackAfterBagFound": "StashBackpackReplenishBagFoundDispatch",
             "StashBackpackAfterBagNotFound": "StashBackpackReplenishConsumeBagMissing"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "StashBackpackPrepareBagSearch"
+        ]
+    },
+    "StashBackpackReplenishBagFoundDispatch": {
+        "desc": "找到背包中的可用道具后检查堆叠数量，再决定跳过或搜索仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishCheckStackFull",
+            "StashBackpackPrepareRepoSearch"
+        ]
+    },
+    "StashBackpackReplenishCheckStackFull": {
+        "desc": "识别背包物品堆叠数量是否已达到 50",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "StashBackpackFindCurrentItemInBag",
+                "roi_offset": [
+                    20,
+                    35,
+                    -24,
+                    -34
+                ],
+                "expected": [
+                    "50"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishConsumeStackFull"
+        ]
+    },
+    "StashBackpackReplenishConsumeStackFull": {
+        "desc": "背包堆叠已满，跳过补充该可用道具",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "replenish_stack_full"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishLoop"
         ]
     },
     "StashBackpackReplenishDragItem": {
