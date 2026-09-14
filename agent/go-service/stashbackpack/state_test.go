@@ -305,23 +305,43 @@ func TestAbortRestoreKeepsUnconsumedTargetsAndResetsPageState(t *testing.T) {
 	}
 }
 
-func TestRepoBaselineRequiresCountDropAndItemMatch(t *testing.T) {
+func TestRestoreBaselineRequiresCountIncreaseAndUpdatesAfterSuccess(t *testing.T) {
 	t.Parallel()
 	store := newStateStore()
-	item := storedItem{ItemID: "tool", CategoryType: "Producer"}
-	store.noteRepoItemCount(item, 2)
-	// 同物品但格子数未减少：判定未移动（如仓库还有另一堆同名物品）。
-	if moved, _ := store.repoItemMoved(item, 2); moved {
-		t.Fatal("unchanged count was judged as moved")
+	store.session.Snapshots["before"] = snapshotData{Pages: [][]snapshotItemWithPosition{{
+		testPositionedItem("tool", "Producer", 0, 0),
+	}}}
+	if err := store.prepareRestore("before"); err != nil {
+		t.Fatal(err)
 	}
-	// 格子数少一：判定已移动。
-	if moved, baseline := store.repoItemMoved(item, 1); !moved || baseline != 2 {
-		t.Fatalf("moved = %v, baseline = %d, want true and 2", moved, baseline)
+	if baseline, moved, err := store.recordRetrievedItemCount("tool", 1); err != nil || moved || baseline != 1 {
+		t.Fatalf("unchanged count = (%d, %v, %v), want (1, false, nil)", baseline, moved, err)
 	}
-	// 物品不匹配的基线不可用：按未移动处理，走安全中止路径。
-	other := storedItem{ItemID: "ore", CategoryType: "Ore"}
-	if moved, _ := store.repoItemMoved(other, 0); moved {
-		t.Fatal("mismatched baseline was judged as moved")
+	if baseline, moved, err := store.recordRetrievedItemCount("tool", 2); err != nil || !moved || baseline != 1 {
+		t.Fatalf("increased count = (%d, %v, %v), want (1, true, nil)", baseline, moved, err)
+	}
+	if _, moved, err := store.recordRetrievedItemCount("tool", 2); err != nil || moved {
+		t.Fatalf("repeated count = (%v, %v), want false, nil", moved, err)
+	}
+}
+
+func TestAdvanceRestorePageCreatesZeroBaselineForNewPage(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	store.session.Snapshots["before"] = snapshotData{Pages: [][]snapshotItemWithPosition{{
+		testPositionedItem("tool", "Producer", 0, 0),
+	}}}
+	if err := store.prepareRestore("before"); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.advanceRestorePage(); err != nil {
+		t.Fatalf("advance past the final snapshot page failed: %v", err)
+	}
+	if baseline, moved, err := store.recordRetrievedItemCount("tool", 1); err != nil || !moved || baseline != 0 {
+		t.Fatalf("new-page count = (%d, %v, %v), want (0, true, nil)", baseline, moved, err)
+	}
+	if len(store.session.Restore.Pages) != 2 {
+		t.Fatalf("restore page count = %d, want 2", len(store.session.Restore.Pages))
 	}
 }
 

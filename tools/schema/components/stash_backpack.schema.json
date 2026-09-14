@@ -49,7 +49,9 @@
                         "prepare_snapshot",
                         "prepare_difference",
                         "prepare_stored_targets",
+                        "prepare_restore",
                         "abort_restore",
+                        "advance_restore_page",
                         "advance_bag_page",
                         "mark_bag_item_clicked",
                         "discard_bag_targets",
@@ -109,6 +111,20 @@
                         "properties": {
                             "operation": {
                                 "const": "prepare_snapshot"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "snapshot"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "operation": {
+                                "const": "prepare_restore"
                             }
                         }
                     },

@@ -149,34 +149,60 @@
             ]
         }
     },
-    "StashBackpackNoteRepoItemCount": {
+    "StashBackpackRestoreTopReached": {
+        "custom_recognition_param": {
+            "position_tolerance": 2
+        },
         "roi": [
-            30,
-            160,
-            710,
-            370
-        ],
-        "pre_wait_freezes": {
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackRestoreScrollUpward": {
+        "post_wait_freezes": {
             "target": [
-                30,
+                780,
                 160,
-                710,
+                470,
                 370
             ]
         }
     },
-    "StashBackpackVerifyRepoItem": {
+    "StashBackpackRetrievedItemFound": {
         "roi": [
-            30,
+            780,
             160,
-            710,
+            470,
             370
         ],
         "pre_wait_freezes": {
             "target": [
-                30,
+                780,
                 160,
-                710,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackRetrievedItemBottomReached": {
+        "custom_recognition_param": {
+            "position_tolerance": 2
+        },
+        "roi": [
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackRetrievedItemScrollDownward": {
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
                 370
             ]
         }

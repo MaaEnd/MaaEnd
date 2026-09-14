@@ -7,6 +7,7 @@ This documentation was last updated on September 13, 2026.
 
 - Stashing and retrieval are options of one task, available for `Win32-Front`, `ADB`, and `CloudADB`. Embedded stashing shares the same operations and allows Win32 / Adb controllers as well.
 - Both use `InventoryTransferStackAction`. ADB overrides cover item and scrollbar ROIs, the quick-stash region, and preparation before recognition; navigation and categories reuse existing SceneManager support. Four common nodes define upward and downward scrolling for the repository and backpack. Replenishment holds the source item before dragging it onto the matching backpack stack. See the [Inventory contract](../../../../agent/go-service/common/inventory/README.md).
+- Replenishment searches the backpack first. A stack-count OCR match of `50` skips that target; otherwise the flow searches the repository and drags the matching item into the backpack stack.
 - ADB is open for testing and has not passed device acceptance. Validate inertia and page overlap, hold-to-drag replenishment, recognition after menu closure, consecutive transfers, and cancellation cleanup. CloudADB also needs multitouch validation. Static screenshot checks do not establish workflow stability.
 - Pipeline owns business flow, navigation, category switching, and item movement. Go Service encapsulates complete snapshot scans, the stored-items record, derived snapshots, and target queues.
 
@@ -57,7 +58,7 @@ The record lives exactly as long as the stash/retrieve pair: the entry guard rej
 
 The full stash task also records the selected Depot. Retrieval and embedded stash operations in the same batch reuse it instead of asking for another selection.
 
-Retrieval verification uses a cell-count re-check: before each transfer, the number of cells of the current item on the current Depot page is recorded as a baseline. After the transfer the grid is recognized again; success requires the count to drop by at least one, which stays correct when several stacks of the same item exist. If the count did not drop, or the transfer action itself fails (routed through `on_error` into the same path), retrieval stops, a red focus message reports the remaining count, and remaining targets are written back into the stored-items record.
+Retrieval verification uses a backpack-side count check: one `retrieve_current` snapshot is captured before retrieval, then the bag is returned to the top and searched downward. Retrieval succeeds only when the current page contains more cells of the target item than its pre-retrieval baseline; the page baseline is updated after success so repeated same-item targets cannot be confirmed by the first transfer. A failed transfer or reaching the bottom keeps the remaining records for a later run.
 
 ## Recognition and Search Constraints
 
