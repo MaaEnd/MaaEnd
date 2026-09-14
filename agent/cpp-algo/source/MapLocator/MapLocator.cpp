@@ -859,7 +859,8 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
         zoneClassifier = std::make_unique<YoloPredictor>(config.yoloModelPath, matchCfg.yoloConfThreshold, config.yoloThreads);
     }
 
-    // 摄像机朝向三件套工件很小（推理亚毫秒级），单线程足够；三张图都是可选的，
+    // 摄像机朝向三件套工件：前处理图 + 观测/参考分类器。分类器推理是本阶段的主要开销，
+    // 故用 2 个 intra-op 线程并行，缩短同步帧追加的定位延迟。三张图都是可选的，
     // 至少配置一张才构造预测器，可用性由预测器内部判断（前处理 + 至少一个分类器）。
     if (!config.cameraOrientationPreprocessModelPath.empty() || !config.cameraOrientationPolarModelPath.empty()
         || !config.cameraOrientationRefModelPath.empty()) {
@@ -867,7 +868,7 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
             config.cameraOrientationPreprocessModelPath,
             config.cameraOrientationPolarModelPath,
             config.cameraOrientationRefModelPath,
-            1);
+            2);
     }
 
     isInitialized = true;
@@ -1814,7 +1815,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     // 摄像机朝向在定位成功后同步运行：分派需要本帧参考裁剪的缺口占比，而参考
     // 裁剪依赖定位结果 (x, y) 与 zone，无法在帧起点发射。仅 Success 帧付出这次
-    // 推理延迟（模型亚毫秒级），失败路径不受影响。
+    // 推理延迟（分类器推理为主导开销），失败路径不受影响。
     auto attachCamRot = [&](LocateResult&& result) -> LocateResult {
         // None 帧的小地图被 UI 整体遮挡，条带无效，不输出摄像机朝向
         if (orientationPredictor && orientationPredictor->isLoaded() && result.status == LocateStatus::Success
