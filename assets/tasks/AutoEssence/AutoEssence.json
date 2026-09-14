@@ -422,15 +422,10 @@
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
-                        },
-                        "AutoEssenceChooseOverrideOff": {
-                            "enabled": false
-                        },
-                        "AutoEssenceChooseOverrideOn": {
-                            "enabled": true
                         }
                     },
                     "option": [
+                        "AutoEssenceDoOverride",
                         "EssenceFilterAfterBattle",
                         "AutoUseSpMedication"
                     ]
@@ -450,15 +445,10 @@
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
-                        },
-                        "AutoEssenceChooseOverrideOff": {
-                            "enabled": false
-                        },
-                        "AutoEssenceChooseOverrideOn": {
-                            "enabled": true
                         }
                     },
                     "option": [
+                        "AutoEssenceDoOverride",
                         "EssenceFilterAfterBattle",
                         "AutoUseSpMedication"
                     ]
