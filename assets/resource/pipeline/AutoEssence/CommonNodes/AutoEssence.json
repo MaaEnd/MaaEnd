@@ -818,8 +818,8 @@
         }
     },
     "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
-        "desc": "刻写开启时：识别刻写券不足弹窗，点击确定后 JumpBack 继续挑战",
-        "enabled": true,
+        "desc": "刻写关闭时：识别刻写券不足弹窗，点击确定后 JumpBack 继续挑战",
+        "enabled": false,
         "recognition": {
             "type": "And",
             "param": {
@@ -841,8 +841,8 @@
         }
     },
     "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
-        "desc": "刻写关闭时：识别刻写券不足弹窗，点击取消后停止任务",
-        "enabled": false,
+        "desc": "刻写开启时：识别刻写券不足弹窗，点击取消后停止任务",
+        "enabled": true,
         "recognition": {
             "type": "And",
             "param": {

@@ -210,7 +210,7 @@
     "option.ExportCalculatorScript.description": "フィルタ後、未育成ニーズの多い順にプランを列挙しログに出力し、作業ディレクトリに EssencePlan.html として保存します。",
     "task.AutoEssence.label": "🎱基質周回",
     "option.AutoEssenceDoOverride.label": "刻印券を使用する",
-    "option.AutoEssenceDoOverride.description": "オンにすると受取時に刻印券を使用します。不足時は刻印指定なしで挑戦を続行し、オフの場合は不足すると挑戦をキャンセルしてタスクを終了します。",
+    "option.AutoEssenceDoOverride.description": "オンにすると受取時に刻印券を使用します。不足時は挑戦をキャンセルしてタスクを終了し、オフの場合は不足すると刻印指定なしで挑戦を続行します。",
     "option.AutoEssenceChooseLocation.label": "ランダム地域",
     "option.AutoEssenceChooseLocation.description": "- 選択した地域の中からランダムに1つを選んで挑戦します（何も選択しない場合はタスクを終了します）。\n- 地形の影響により、現在成功率が最も高い地域は蔵剣谷と清波寨、最も低い地域は実験区域です。",
     "option.AutoEssenceChooseLocationMode.label": "ループ実行方式",

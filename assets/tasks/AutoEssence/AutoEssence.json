@@ -484,10 +484,10 @@
                             "enabled": true
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
-                            "enabled": true
+                            "enabled": false
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
-                            "enabled": false
+                            "enabled": true
                         }
                     },
                     "option": [
@@ -517,10 +517,10 @@
                             "enabled": true
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
-                            "enabled": true
+                            "enabled": false
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
-                            "enabled": false
+                            "enabled": true
                         }
                     },
                     "option": [
@@ -657,10 +657,10 @@
                             "enabled": true
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
-                            "enabled": true
+                            "enabled": false
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
-                            "enabled": false
+                            "enabled": true
                         }
                     }
                 },
@@ -674,10 +674,10 @@
                             "enabled": false
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientContinue": {
-                            "enabled": false
+                            "enabled": true
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
-                            "enabled": true
+                            "enabled": false
                         }
                     }
                 }

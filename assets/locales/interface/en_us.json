@@ -214,7 +214,7 @@
     "option.ExportCalculatorScript.description": "After filtering, lists pre-inscription plans by ungraduated needs, logs recommendations, and saves EssencePlan.html in the working directory.",
     "task.AutoEssence.label": "🎱Essence Farm",
     "option.AutoEssenceDoOverride.label": "Use Inscription Vouchers",
-    "option.AutoEssenceDoOverride.description": "When enabled, inscription vouchers are used on claim. If vouchers run out, the challenge continues without pre-engrave; if disabled, insufficient vouchers cancel the challenge and stop the task.",
+    "option.AutoEssenceDoOverride.description": "When enabled, inscription vouchers are used on claim. If vouchers run out, the challenge is cancelled and the task stops; if disabled, insufficient vouchers confirm the challenge and continue without pre-engrave.",
     "option.AutoEssenceChooseLocation.label": "Random regions",
     "option.AutoEssenceChooseLocation.description": "- Randomly picks one region from those selected to challenge (the task stops if none is selected).\n- Due to terrain, the regions with the highest success rate are currently Sword Vault Dale and Qingbo Stockade, while the lowest success rate is in Test Area.",
     "option.AutoEssenceChooseLocationMode.label": "Loop Execution Mode",

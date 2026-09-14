@@ -210,7 +210,7 @@
     "option.ExportCalculatorScript.description": "필터 후 미졸업 수요 많은 순으로 방안을 나열해 로그에 출력하고, 작업 폴더에 EssencePlan.html로 저장합니다",
     "task.AutoEssence.label": "🎱기질 파밍",
     "option.AutoEssenceDoOverride.label": "각인권 사용",
-    "option.AutoEssenceDoOverride.description": "켜면 수령 시 각인권을 사용합니다. 부족하면 사전 각인 없이 도전을 계속하며, 끄면 부족 시 도전을 취소하고 작업을 종료합니다.",
+    "option.AutoEssenceDoOverride.description": "켜면 수령 시 각인권을 사용합니다. 부족하면 도전을 취소하고 작업을 종료하며, 끄면 부족 시 사전 각인 없이 도전을 계속합니다.",
     "option.AutoEssenceChooseLocation.label": "무작위 지역",
     "option.AutoEssenceChooseLocation.description": "- 선택한 지역 중에서 무작위로 하나를 골라 도전합니다 (아무것도 선택하지 않으면 작업이 종료됩니다).\n- 지형의 영향으로 현재 성공률이 가장 높은 지역은 검고리 골짜기와 청파채이며, 성공률이 가장 낮은 지역은 실험 구역입니다.",
     "option.AutoEssenceChooseLocationMode.label": "반복 실행 방식",
