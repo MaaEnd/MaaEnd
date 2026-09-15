@@ -3,6 +3,7 @@ package bettersliding
 import (
 	"errors"
 	"fmt"
+	"math"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -460,8 +461,8 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 		return false
 	}
 
-	clickX := startX + (endX-startX)*numerator/denominator
-	clickY := startY + (endY-startY)*numerator/denominator
+	clickX := startX + int(math.Round(float64(endX-startX)*float64(numerator)/float64(denominator)))
+	clickY := startY + int(math.Round(float64(endY-startY)*float64(numerator)/float64(denominator)))
 
 	// 重算基准坐标即重置偏移索引。
 	a.preciseClickBase = [2]int{clickX, clickY}
