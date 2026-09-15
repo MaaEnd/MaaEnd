@@ -1,0 +1,86 @@
+{
+    "StashBackpackStashQuick": {
+        "roi": [
+            840,
+            530,
+            190,
+            53
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuick": {
+        "roi": [
+            840,
+            530,
+            190,
+            53
+        ]
+    },
+    "StashBackpackManualStoreItem": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
+    "StoreNewItemsWithStashBackpackStoreItem": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
+    "RetrieveBackpackStoreNewItem": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
+    "RetrieveBackpackMoveItemToBag": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
+    "StashBackpackReplenishDragItem": {
+        "target_offset": [
+            20,
+            20,
+            -40,
+            -40
+        ]
+    },
+    "StashBackpackReplenishCheckStackFull": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    30,
+                    50,
+                    -40,
+                    -55
+                ]
+            }
+        }
+    },
+    "StashBackpackNoteBagItemCount": {
+        "roi": [
+            780,
+            160,
+            470,
+            370
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    }
+}

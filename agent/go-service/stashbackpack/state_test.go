@@ -1,0 +1,523 @@
+package stashbackpack
+
+import (
+	"fmt"
+	"reflect"
+	"testing"
+)
+
+func TestBagStoreAttemptsStopAfterThreeClicks(t *testing.T) {
+	for successAttempt := 0; successAttempt <= 3; successAttempt++ {
+		t.Run(fmt.Sprintf("success_attempt_%d", successAttempt), func(t *testing.T) {
+			t.Parallel()
+			store := newStateStore()
+			store.session.Targets = []snapshotItem{testItem("tool", "Producer")}
+			page := []bagPageMatch{{ItemID: "tool", CategoryType: "Producer"}}
+			store.updateBagPageMatches(page)
+			for attempt := 1; attempt <= 3; attempt++ {
+				if _, ok := store.nextBagPageMatch(); !ok {
+					t.Fatalf("attempt %d has no target", attempt)
+				}
+				if _, ok := store.markSelectedBagTargetClicked("test"); !ok {
+					t.Fatalf("attempt %d did not record click", attempt)
+				}
+				observed := page
+				if attempt == successAttempt {
+					observed = nil
+				}
+				confirmed, retry, skipped := store.updateBagPageMatches(observed)
+				switch {
+				case attempt == successAttempt:
+					if len(confirmed) != 1 || len(retry) != 0 || len(skipped) != 0 ||
+						confirmed[0].Attempts != attempt {
+						t.Fatalf("successful attempt %d was not confirmed: %v / %v / %v", attempt, confirmed, retry, skipped)
+					}
+				case attempt < 3:
+					if len(confirmed) != 0 || len(retry) != 1 || len(skipped) != 0 ||
+						retry[0].Attempts != attempt || store.bagTargetsExhausted() {
+						t.Fatalf("failed attempt %d was not queued for retry: %v / %v / %v", attempt, confirmed, retry, skipped)
+					}
+					continue
+				default:
+					if len(confirmed) != 0 || len(retry) != 0 || len(skipped) != 1 ||
+						skipped[0].Attempts != 3 {
+						t.Fatalf("third failed attempt was not skipped: %v / %v / %v", confirmed, retry, skipped)
+					}
+				}
+				if !store.bagTargetsExhausted() || len(store.bagRecognitionItemIDs()) != 0 ||
+					len(store.session.BagPage.ClickAttempts) != 0 {
+					t.Fatal("completed target retained pending work")
+				}
+				if _, ok := store.nextBagPageMatch(); ok {
+					t.Fatal("completed target can still be clicked")
+				}
+				return
+			}
+		})
+	}
+}
+
+func TestBagStoreAttemptsArePerTargetAndContinueAfterSkipping(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	store.session.Targets = []snapshotItem{
+		{ItemID: "tool", CategoryType: "Producer", Row: 0, Column: 0},
+		{ItemID: "tool", CategoryType: "Producer", Row: 0, Column: 1},
+		{ItemID: "ore", CategoryType: "Ore", Row: 1, Column: 0},
+	}
+	page := []bagPageMatch{
+		{ItemID: "tool", CategoryType: "Producer", Row: 0, Column: 0},
+		{ItemID: "tool", CategoryType: "Producer", Row: 0, Column: 1},
+	}
+	store.updateBagPageMatches(page)
+	for attempt := 1; attempt <= 3; attempt++ {
+		for targetIndex := 0; targetIndex < 2; targetIndex++ {
+			if _, ok := store.nextBagPageMatch(); !ok {
+				t.Fatalf("attempt %d, target %d is missing", attempt, targetIndex)
+			}
+			if _, ok := store.markSelectedBagTargetClicked("test"); !ok {
+				t.Fatal("failed to record click")
+			}
+		}
+		confirmed, retry, skipped := store.updateBagPageMatches(page)
+		if len(confirmed) != 0 {
+			t.Fatal("unchanged items were confirmed")
+		}
+		if attempt < 3 {
+			if len(retry) != 2 || len(skipped) != 0 || retry[0].Attempts != attempt || retry[1].Attempts != attempt {
+				t.Fatalf("same-ID targets shared attempt counts: %v / %v", retry, skipped)
+			}
+		} else if len(retry) != 0 || len(skipped) != 2 || skipped[0].Attempts != 3 || skipped[1].Attempts != 3 {
+			t.Fatalf("targets were not skipped after three clicks each: %v / %v", retry, skipped)
+		}
+	}
+	if store.bagTargetsExhausted() || store.bagPageRecognitionFailed() {
+		t.Fatal("skipped items exhausted later targets, or failed the page")
+	}
+	if err := store.advanceBagPage(); err != nil {
+		t.Fatal(err)
+	}
+	store.updateBagPageMatches([]bagPageMatch{{ItemID: "ore", CategoryType: "Ore"}})
+	if match, ok := store.nextBagPageMatch(); !ok || match.ItemID != "ore" {
+		t.Fatal("later target cannot continue after skipping")
+	}
+	if _, ok := store.markSelectedBagTargetClicked("test"); !ok {
+		t.Fatal("failed to record later target click")
+	}
+	confirmed, retry, skipped := store.updateBagPageMatches(nil)
+	if len(confirmed) != 1 || confirmed[0].Attempts != 1 || len(retry) != 0 || len(skipped) != 0 ||
+		!store.bagTargetsExhausted() {
+		t.Fatal("later target did not complete independently")
+	}
+}
+
+func TestBagStoreAttemptsResetWhenPreparingTargets(t *testing.T) {
+	for _, difference := range []bool{false, true} {
+		t.Run(fmt.Sprintf("difference_%t", difference), func(t *testing.T) {
+			t.Parallel()
+			store := newStateStore()
+			item := testItem("tool", "Producer")
+			store.session.Snapshots["items"] = snapshotData{Items: []snapshotItem{item}}
+			store.session.Snapshots["empty"] = snapshotData{}
+			for batch := 0; batch < 2; batch++ {
+				var err error
+				if difference {
+					_, err = store.prepareDifferenceTargets("items", "empty", nil)
+				} else {
+					_, err = store.prepareSnapshotTargets("items", nil)
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
+				page := []bagPageMatch{{ItemID: "tool", CategoryType: "Producer"}}
+				store.updateBagPageMatches(page)
+				if _, ok := store.nextBagPageMatch(); !ok {
+					t.Fatal("new batch has no target")
+				}
+				if _, ok := store.markSelectedBagTargetClicked("test"); !ok {
+					t.Fatal("failed to record click")
+				}
+				confirmed, retry, skipped := store.updateBagPageMatches(page)
+				if len(confirmed) != 0 || len(retry) != 1 || len(skipped) != 0 || retry[0].Attempts != 1 {
+					t.Fatalf("batch %d inherited previous attempt counts", batch)
+				}
+			}
+		})
+	}
+}
+
+func TestRecordStoresAppendsOnlyManualReason(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	store.session.Targets = []snapshotItem{
+		testItem("tool", "Producer"),
+		testItem("ore", "Ore"),
+	}
+	page := []bagPageMatch{
+		{ItemID: "tool", CategoryType: "Producer"},
+		{ItemID: "ore", CategoryType: "Ore"},
+	}
+	store.updateBagPageMatches(page)
+	reasons := []string{storeReasonManualStored, "new_item_stored"}
+	for _, reason := range reasons {
+		if _, ok := store.nextBagPageMatch(); !ok {
+			t.Fatalf("target for %s is missing", reason)
+		}
+		if _, ok := store.markSelectedBagTargetClicked(reason); !ok {
+			t.Fatalf("failed to record click for %s", reason)
+		}
+	}
+	// 物品全部消失（已移入仓库）时，两个点击都应被确认。
+	confirmed, _, _ := store.updateBagPageMatches(nil)
+	if len(confirmed) != 2 {
+		t.Fatalf("confirmed = %d, want 2", len(confirmed))
+	}
+	if len(store.session.Stored) != 1 || store.session.Stored[0].ItemID != "tool" {
+		t.Fatalf("stored records = %#v, want only the manual item", store.session.Stored)
+	}
+}
+
+func TestInitialSnapshotMirrorsWorkingAndDeductsOnConfirm(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	first := []snapshotItemWithPosition{
+		testPositionedItem("a", "Ore", 0, 0),
+		testPositionedItem("b", "Plant", 0, 1),
+		testPositionedItem("b", "Plant", 0, 2),
+	}
+	if _, err := store.replaceSnapshotPages(snapshotS0, [][]snapshotItemWithPosition{first}); err != nil {
+		t.Fatal(err)
+	}
+	working, ok := store.snapshot(snapshotWorking)
+	if !ok || len(working) != 3 {
+		t.Fatalf("initial working snapshot = %#v, want a copy of s0", working)
+	}
+
+	store.session.Targets = []snapshotItem{testItem("b", "Plant")}
+	page := []bagPageMatch{{ItemID: "b", CategoryType: "Plant"}}
+	store.updateBagPageMatches(page)
+	if _, ok := store.nextBagPageMatch(); !ok {
+		t.Fatal("store target is missing")
+	}
+	if _, ok := store.markSelectedBagTargetClicked(storeReasonManualStored); !ok {
+		t.Fatal("failed to record manual store click")
+	}
+	confirmed, _, _ := store.updateBagPageMatches(nil)
+	if len(confirmed) != 1 || len(store.session.Stored) != 1 {
+		t.Fatalf("confirmed = %d, records = %d, want 1 and 1", len(confirmed), len(store.session.Stored))
+	}
+	working, ok = store.snapshot(snapshotWorking)
+	if !ok {
+		t.Fatal("working snapshot does not exist")
+	}
+	want := []snapshotItem{
+		{ItemID: "a", CategoryType: "Ore", Row: 0, Column: 0},
+		{ItemID: "b", CategoryType: "Plant", Row: 0, Column: 1},
+	}
+	if !reflect.DeepEqual(working, want) {
+		t.Fatalf("working = %#v, want %#v", working, want)
+	}
+}
+
+func TestConsumeStoredTargetRecordsItemAndDeductsWorking(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	if _, err := store.replaceSnapshotPages(snapshotS0, [][]snapshotItemWithPosition{{
+		testPositionedItem("usable", "Usable", 0, 0),
+		testPositionedItem("ore", "Ore", 0, 1),
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	store.session.Targets = []snapshotItem{
+		testItem("usable", "Usable"),
+		testItem("ore", "Ore"),
+	}
+
+	item, ok := store.consumeStoredTarget()
+	if !ok || item.ItemID != "usable" {
+		t.Fatalf("consumed item = %#v, ok = %v, want usable", item, ok)
+	}
+	if len(store.session.Stored) != 1 || store.session.Stored[0].ItemID != "usable" {
+		t.Fatalf("stored records = %#v, want usable", store.session.Stored)
+	}
+	working, ok := store.snapshot(snapshotWorking)
+	if !ok || len(working) != 1 || working[0].ItemID != "ore" {
+		t.Fatalf("working snapshot = %#v, want only ore", working)
+	}
+}
+
+func TestPrepareStoredTargetsAndAbortRestoreRoundTrip(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	store.session.Stored = []storedItem{
+		{ItemID: "a", CategoryType: "Ore"},
+		{ItemID: "b", CategoryType: "Plant"},
+	}
+	count, err := store.prepareStoredTargets()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 || len(store.session.Stored) != 0 {
+		t.Fatalf("prepare returned %d with %d records left, want 2 and 0", count, len(store.session.Stored))
+	}
+	if _, ok := store.consumeTarget(); !ok {
+		t.Fatal("failed to consume the first retrieval target")
+	}
+	if remaining := store.abortRestore(); remaining != 1 {
+		t.Fatalf("abort kept %d records, want 1", remaining)
+	}
+	if len(store.session.Stored) != 1 || store.session.Stored[0].ItemID != "b" {
+		t.Fatalf("remaining records = %#v, want only item b", store.session.Stored)
+	}
+	if !store.bagTargetsExhausted() {
+		t.Fatal("aborted restore left pending bag targets")
+	}
+}
+
+func TestAbortRestoreKeepsUnconsumedTargetsAndResetsPageState(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	store.session.Stored = []storedItem{{ItemID: "already_pending", CategoryType: "Ore"}}
+	store.session.Targets = []snapshotItem{
+		{ItemID: "current", CategoryType: "Plant"},
+		{ItemID: "remaining", CategoryType: "Product"},
+	}
+	store.session.BagPage = bagPageState{
+		PageIndex: 2,
+		Matches:   []bagPageMatch{{ItemID: "remaining", CategoryType: "Product"}},
+		Selected:  &snapshotItem{ItemID: "current", CategoryType: "Plant"},
+	}
+
+	if remaining := store.abortRestore(); remaining != 3 {
+		t.Fatalf("abort kept %d records, want 3", remaining)
+	}
+	want := []storedItem{
+		{ItemID: "already_pending", CategoryType: "Ore"},
+		{ItemID: "current", CategoryType: "Plant"},
+		{ItemID: "remaining", CategoryType: "Product"},
+	}
+	if !reflect.DeepEqual(store.session.Stored, want) {
+		t.Fatalf("remaining records = %#v, want %#v", store.session.Stored, want)
+	}
+	if len(store.session.Targets) != 0 || store.session.BagPage.PageIndex != 0 ||
+		len(store.session.BagPage.Matches) != 0 || store.session.BagPage.Selected != nil {
+		t.Fatalf("abort left pending restore state: targets=%#v, bag_page=%#v", store.session.Targets, store.session.BagPage)
+	}
+}
+
+func TestRestoreBaselineRequiresCountIncreaseAndUpdatesAfterSuccess(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	store.session.Snapshots["before"] = snapshotData{Pages: [][]snapshotItemWithPosition{{
+		testPositionedItem("tool", "Producer", 0, 0),
+	}}}
+	if err := store.prepareRestore("before"); err != nil {
+		t.Fatal(err)
+	}
+	if baseline, moved, err := store.recordRetrievedItemCount("tool", 1); err != nil || moved || baseline != 1 {
+		t.Fatalf("unchanged count = (%d, %v, %v), want (1, false, nil)", baseline, moved, err)
+	}
+	if baseline, moved, err := store.recordRetrievedItemCount("tool", 2); err != nil || !moved || baseline != 1 {
+		t.Fatalf("increased count = (%d, %v, %v), want (1, true, nil)", baseline, moved, err)
+	}
+	if _, moved, err := store.recordRetrievedItemCount("tool", 2); err != nil || moved {
+		t.Fatalf("repeated count = (%v, %v), want false, nil", moved, err)
+	}
+}
+
+func TestAdvanceRestorePageCreatesZeroBaselineForNewPage(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	store.session.Snapshots["before"] = snapshotData{Pages: [][]snapshotItemWithPosition{{
+		testPositionedItem("tool", "Producer", 0, 0),
+	}}}
+	if err := store.prepareRestore("before"); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.advanceRestorePage(); err != nil {
+		t.Fatalf("advance past the final snapshot page failed: %v", err)
+	}
+	if baseline, moved, err := store.recordRetrievedItemCount("tool", 1); err != nil || !moved || baseline != 0 {
+		t.Fatalf("new-page count = (%d, %v, %v), want (0, true, nil)", baseline, moved, err)
+	}
+	if len(store.session.Restore.Pages) != 2 {
+		t.Fatalf("restore page count = %d, want 2", len(store.session.Restore.Pages))
+	}
+}
+
+func TestBagBaselineRequiresCountDropAndItemMatch(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	item := storedItem{ItemID: "ore", CategoryType: "Ore"}
+	store.noteBagItemCount(item, 2)
+	// 同物品但格子数未减少：判定未移动（如背包还有另一堆同名物品）。
+	if moved, _ := store.bagItemMoved(item, 2); moved {
+		t.Fatal("unchanged count was judged as moved")
+	}
+	// 格子数少一：判定已移动。
+	if moved, baseline := store.bagItemMoved(item, 1); !moved || baseline != 2 {
+		t.Fatalf("moved = %v, baseline = %d, want true and 2", moved, baseline)
+	}
+	// 物品不匹配的基线不可用：按未移动处理，走失败路径。
+	other := storedItem{ItemID: "tool", CategoryType: "Producer"}
+	if moved, _ := store.bagItemMoved(other, 0); moved {
+		t.Fatal("mismatched baseline was judged as moved")
+	}
+}
+
+func testItem(id, category string) snapshotItem {
+	return snapshotItem{ItemID: id, CategoryType: category}
+}
+
+func testPositionedItem(id, category string, row, column int) snapshotItemWithPosition {
+	return snapshotItemWithPosition{ItemID: id, CategoryType: category, Row: row, Column: column}
+}
+
+func TestMergeOrderedPagesUsesLargestOverlap(t *testing.T) {
+	t.Parallel()
+	existing := []snapshotItem{testItem("a", "Ore"), testItem("b", "Plant"), testItem("b", "Plant"), testItem("c", "Product")}
+	page := []snapshotItem{testItem("b", "Plant"), testItem("b", "Plant"), testItem("c", "Product"), testItem("d", "Doodad")}
+	want := []snapshotItem{testItem("a", "Ore"), testItem("b", "Plant"), testItem("b", "Plant"), testItem("c", "Product"), testItem("d", "Doodad")}
+	if got := mergeOrderedPages(existing, page); !reflect.DeepEqual(got, want) {
+		t.Fatalf("mergeOrderedPages() = %#v, want %#v", got, want)
+	}
+}
+
+func TestOrderedDifferencePreservesOrderAndMultiplicity(t *testing.T) {
+	t.Parallel()
+	minuend := []snapshotItem{testItem("a", "Ore"), testItem("b", "Plant"), testItem("a", "Ore"), testItem("c", "Usable")}
+	subtrahend := []snapshotItem{testItem("a", "Ore"), testItem("c", "Usable")}
+	want := []snapshotItem{testItem("b", "Plant"), testItem("a", "Ore")}
+	if got := orderedDifference(minuend, subtrahend); !reflect.DeepEqual(got, want) {
+		t.Fatalf("orderedDifference() = %#v, want %#v", got, want)
+	}
+}
+
+func TestStateStoreMarksOnlyCompleteFullSnapshotPairs(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	if err := store.beginSnapshot(snapshotS0); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.completeFull(); err == nil {
+		t.Fatal("completeFull() accepted a missing S1 snapshot")
+	}
+	if store.fullComplete() {
+		t.Fatal("partial snapshot pair was marked complete")
+	}
+	if err := store.beginSnapshot(snapshotS1); err != nil {
+		t.Fatal(err)
+	}
+	if store.fullComplete() {
+		t.Fatal("snapshot pair was marked complete before completeFull()")
+	}
+	if err := store.completeFull(); err != nil {
+		t.Fatal(err)
+	}
+	if !store.fullComplete() {
+		t.Fatal("complete snapshot pair was not marked complete")
+	}
+	store.reset()
+	if store.fullComplete() {
+		t.Fatal("reset() retained the completion marker")
+	}
+}
+
+func TestAppendSnapshotPagesReindexesLogicalGrid(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	if err := store.beginSnapshot(snapshotT); err != nil {
+		t.Fatal(err)
+	}
+	first := []snapshotItemWithPosition{
+		testPositionedItem("a", "Ore", 0, 0),
+		testPositionedItem("b", "Plant", 0, 1),
+		testPositionedItem("c", "Product", 1, 0),
+		testPositionedItem("d", "Doodad", 1, 1),
+	}
+	second := []snapshotItemWithPosition{
+		testPositionedItem("c", "Product", 0, 0),
+		testPositionedItem("d", "Doodad", 0, 1),
+		testPositionedItem("e", "Usable", 1, 0),
+		testPositionedItem("f", "Producer", 1, 1),
+	}
+	if _, err := store.appendSnapshotPage(snapshotT, first); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.appendSnapshotPage(snapshotT, second); err != nil {
+		t.Fatal(err)
+	}
+	got, ok := store.snapshot(snapshotT)
+	if !ok {
+		t.Fatal("temporary snapshot does not exist")
+	}
+	want := []snapshotItem{
+		{ItemID: "a", CategoryType: "Ore", Row: 0, Column: 0},
+		{ItemID: "b", CategoryType: "Plant", Row: 0, Column: 1},
+		{ItemID: "c", CategoryType: "Product", Row: 1, Column: 0},
+		{ItemID: "d", CategoryType: "Doodad", Row: 1, Column: 1},
+		{ItemID: "e", CategoryType: "Usable", Row: 2, Column: 0},
+		{ItemID: "f", CategoryType: "Producer", Row: 2, Column: 1},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("snapshot = %#v, want %#v", got, want)
+	}
+}
+
+func TestPrepareDifferenceTargetsFiltersCategories(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	if err := store.beginSnapshot("before"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.appendSnapshotPage("before", []snapshotItemWithPosition{
+		testPositionedItem("ore", "Ore", 0, 0),
+		testPositionedItem("tool", "Producer", 0, 1),
+		testPositionedItem("device", "PortableDevice", 0, 2),
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.beginSnapshot("after"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.appendSnapshotPage("after", []snapshotItemWithPosition{
+		testPositionedItem("ore", "Ore", 0, 0),
+	}); err != nil {
+		t.Fatal(err)
+	}
+	targets, err := store.prepareDifferenceTargets("before", "after", []string{"Producer"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []snapshotItem{{ItemID: "tool", CategoryType: "Producer", Row: 0, Column: 1}}
+	if !reflect.DeepEqual(targets, want) {
+		t.Fatalf("targets = %#v, want %#v", targets, want)
+	}
+}
+
+func TestCopySnapshotIsIndependent(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	if err := store.beginSnapshot("source"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.appendSnapshotPage("source", []snapshotItemWithPosition{
+		testPositionedItem("ore", "Ore", 0, 0),
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.copySnapshot("source", "copied"); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.beginSnapshot("source"); err != nil {
+		t.Fatal(err)
+	}
+	got, ok := store.snapshot("copied")
+	if !ok {
+		t.Fatal("copied snapshot does not exist")
+	}
+	want := []snapshotItem{{ItemID: "ore", CategoryType: "Ore", Row: 0, Column: 0}}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("copied snapshot = %#v, want %#v", got, want)
+	}
+}

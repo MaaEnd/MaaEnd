@@ -1,0 +1,712 @@
+{
+    "RetrieveBackpackMain": {
+        "desc": "取回背包独立任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackNothingStoredGate",
+            "RetrieveBackpackRecordsOrSnapshotsReady",
+            "RetrieveBackpackMissingSnapshots"
+        ]
+    },
+    "RetrieveBackpackRecordsOrSnapshotsReady": {
+        "desc": "有存放记录即可取回（即使上次存放中断未生成 S1）；否则要求快照完整以支持存放新物品",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "Custom",
+                "custom_recognition": "StashBackpackHasStoredRecognition"
+            },
+            {
+                "recognition": "Custom",
+                "custom_recognition": "StashBackpackFullCompleteRecognition"
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackEnterDepot"
+        ]
+    },
+    "RetrieveBackpackNothingStoredGate": {
+        "desc": "未开启存放新物品且没有待取回的存放记录时，直接结束取回",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackNothingStoredRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSkipped"
+        ]
+    },
+    "RetrieveBackpackSkipped": {
+        "desc": "本次没有需要取回的存放记录",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "RetrieveBackpackMissingSnapshots": {
+        "desc": "当前任务批次没有完整 S0/S1，警告后成功跳过",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackWarningAction",
+        "custom_action_param": {
+            "reason": "missing_retrieve_snapshot"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "RetrieveBackpackEnterDepot": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackEnterDepotValleyIV",
+            "RetrieveBackpackEnterDepotWuling"
+        ]
+    },
+    "RetrieveBackpackEnterDepotValleyIV": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackDepotRecognition",
+        "custom_recognition_param": {
+            "depot": "ValleyIV"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackEnterValleyIVSuccess",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIV"
+        ]
+    },
+    "RetrieveBackpackEnterDepotWuling": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackDepotRecognition",
+        "custom_recognition_param": {
+            "depot": "Wuling"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackEnterWulingSuccess",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotWuling"
+        ]
+    },
+    "RetrieveBackpackEnterValleyIVSuccess": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotValleyIV"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackStoreNewSubTask"
+        ]
+    },
+    "RetrieveBackpackEnterWulingSuccess": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotWuling"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackStoreNewSubTask"
+        ]
+    },
+    "RetrieveBackpackCaptureStart": {
+        "desc": "仅当需要存放新增物品时才扫描背包，作为新增物品差集的当前基准",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackSnapshotAction",
+        "custom_action_param": {
+            "snapshot": "temporary"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackNewItemsSnapshotReady",
+            "RetrieveBackpackNewItemsMissingSnapshot"
+        ]
+    },
+    "RetrieveBackpackNewItemsSnapshotReady": {
+        "desc": "存放新物品依赖完整 S1 差集基准",
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackFullCompleteRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackPrepareNewItems"
+        ]
+    },
+    "RetrieveBackpackNewItemsMissingSnapshot": {
+        "desc": "S1 不完整时跳过存放新物品（含中断场景），继续取回已有记录",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackWarningAction",
+        "custom_action_param": {
+            "reason": "missing_full_snapshot"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackAfterStoreNew"
+        ]
+    },
+    "RetrieveBackpackStoreNewSubTask": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCaptureStart",
+            "RetrieveBackpackAfterStoreNew"
+        ]
+    },
+    "RetrieveBackpackPrepareNewItems": {
+        "desc": "准备存放任务期间新增的物品",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "prepare_difference",
+            "minuend_snapshot": "temporary",
+            "subtrahend_snapshot": "s1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackStoreNewSetupBagBatch"
+        ]
+    },
+    "RetrieveBackpackStoreNewSetupBagBatch": {
+        "desc": "逐页批量存放取回前检测到的新物品",
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterBagBatchItemFound": "RetrieveBackpackStoreNewItem",
+            "StashBackpackAfterBagBatchFinished": "RetrieveBackpackStoreNewFinished",
+            "StashBackpackAfterBagBatchBottomReached": "RetrieveBackpackStoreNewConsumeMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareBagBatch"
+        ]
+    },
+    "RetrieveBackpackStoreNewFinished": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackAfterStoreNew"
+        ]
+    },
+    "RetrieveBackpackStoreNewNextItem": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackNextItemRecognition",
+        "custom_recognition_param": {
+            "bag_nodes": [
+                "StashBackpackFindCurrentItemInBag"
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackStoreNewSetupBagSearch"
+        ]
+    },
+    "RetrieveBackpackStoreNewSetupBagSearch": {
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterBagFound": "RetrieveBackpackStoreNewItem",
+            "StashBackpackAfterBagNotFound": "RetrieveBackpackStoreNewConsumeMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareBagSearch"
+        ]
+    },
+    "RetrieveBackpackStoreNewItem": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "InventoryTransferStackAction",
+        "target": "StashBackpackBagPageItem",
+        "target_offset": [
+            16,
+            16,
+            -32,
+            -32
+        ],
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackStoreNewConsumeStored"
+        ]
+    },
+    "RetrieveBackpackStoreNewConsumeStored": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "mark_bag_item_clicked",
+            "reason": "retrieve_new_item_stored"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackBagBatchLoop"
+        ]
+    },
+    "RetrieveBackpackStoreNewConsumeMissing": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "discard_bag_targets",
+            "reason": "retrieve_new_item_not_found"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackStoreNewFinished"
+        ]
+    },
+    "RetrieveBackpackPrepareStoredTargets": {
+        "desc": "将本存取对确认存入的物品记录转为顺序取回目标队列",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "prepare_stored_targets"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackPrepareRestoreSearch"
+        ]
+    },
+    "RetrieveBackpackAfterStoreNew": {
+        "desc": "可选的新物品存放完成后，准备取回已记录的物品",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCaptureRestoreBase",
+            "RetrieveBackpackFinished"
+        ]
+    },
+    "RetrieveBackpackCaptureRestoreBase": {
+        "desc": "取回前扫描一次背包，记录当前页物品数量作为验证基线",
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackHasStoredRecognition",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackSnapshotAction",
+        "custom_action_param": {
+            "snapshot": "retrieve_current"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackPrepareStoredTargets"
+        ]
+    },
+    "RetrieveBackpackPrepareRestoreSearch": {
+        "desc": "根据取回前快照建立逐页计数基线，并在取回开始前回顶一次",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "prepare_restore",
+            "snapshot": "retrieve_current"
+        },
+        "anchor": {
+            "StashBackpackAfterRestoreSearchPrepared": "RetrieveBackpackRestoreLoop"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareRestoreSearch"
+        ]
+    },
+    "RetrieveBackpackRestoreLoop": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackRestoreNextItem",
+            "RetrieveBackpackFinished"
+        ]
+    },
+    "RetrieveBackpackRestoreNextItem": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackNextItemRecognition",
+        "custom_recognition_param": {
+            "repo_nodes": [
+                "StashBackpackFindCurrentItemInRepo"
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackDispatchCategory"
+        ]
+    },
+    "RetrieveBackpackDispatchCategory": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCategoryOre",
+            "RetrieveBackpackCategoryPlant",
+            "RetrieveBackpackCategoryProduct",
+            "RetrieveBackpackCategoryDoodad",
+            "RetrieveBackpackCategoryNurturance",
+            "RetrieveBackpackCategoryUsable",
+            "RetrieveBackpackCategoryProducer",
+            "RetrieveBackpackCategoryPortableDevice",
+            "RetrieveBackpackConsumeFiltered"
+        ]
+    },
+    "RetrieveBackpackSetupRepoSearch": {
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterRepoFound": "RetrieveBackpackMoveItemToBag",
+            "StashBackpackAfterRepoNotFound": "RetrieveBackpackConsumeRepoMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareRepoSearch"
+        ]
+    },
+    "RetrieveBackpackMoveItemToBag": {
+        "desc": "从仓库取回当前缺少物品",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "InventoryTransferStackAction",
+        "target": "StashBackpackFindCurrentItemInRepo",
+        "target_offset": [
+            16,
+            16,
+            -32,
+            -32
+        ],
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackVerifyInBag"
+        ],
+        "on_error": [
+            "RetrieveBackpackRestoreVerificationFailed"
+        ]
+    },
+    "RetrieveBackpackVerifyInBag": {
+        "desc": "确认当前背包页的目标物品格子数较取回前增加",
+        "anchor": {
+            "StashBackpackAfterRetrievedItemFound": "RetrieveBackpackConsumeRestored",
+            "StashBackpackAfterRetrievedItemNotFound": "RetrieveBackpackRestoreVerificationFailed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareRetrievedItemSearch"
+        ]
+    },
+    "RetrieveBackpackConsumeRestored": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "restored"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackRestoreLoop"
+        ]
+    },
+    "RetrieveBackpackRestoreVerificationFailed": {
+        "desc": "物品未能完成取回：提示后保留剩余记录，等待下次取回",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "abort_restore",
+            "reason": "restore_verification_failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackFinished"
+        ]
+    },
+    "RetrieveBackpackConsumeRepoMissing": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "restore_repo_not_found"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackRestoreLoop"
+        ]
+    },
+    "RetrieveBackpackConsumeFiltered": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "restore_category_not_selected"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackRestoreLoop"
+        ]
+    },
+    "RetrieveBackpackFinished": {
+        "desc": "保留批次级 S0/S1 状态",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepot"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "RetrieveBackpackCategoryOre": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Ore"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCategoryOreReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotOre"
+        ]
+    },
+    "RetrieveBackpackCategoryPlant": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Plant"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCategoryPlantReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotPlant"
+        ]
+    },
+    "RetrieveBackpackCategoryProduct": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Product"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCategoryProductReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotProduct"
+        ]
+    },
+    "RetrieveBackpackCategoryDoodad": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Doodad"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCategoryDoodadReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotDoodad"
+        ]
+    },
+    "RetrieveBackpackCategoryNurturance": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Nurturance"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCategoryNurturanceReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotNurturance"
+        ]
+    },
+    "RetrieveBackpackCategoryUsable": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Usable"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCategoryUsableReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotUsable"
+        ]
+    },
+    "RetrieveBackpackCategoryProducer": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "Producer"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCategoryProducerReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotProducer"
+        ]
+    },
+    "RetrieveBackpackCategoryPortableDevice": {
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackTargetCategoryRecognition",
+        "custom_recognition_param": {
+            "category": "PortableDevice"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCategoryPortableDeviceReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotPortableDevice"
+        ]
+    },
+    "RetrieveBackpackCategoryOreReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotOre"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSetupRepoSearch"
+        ]
+    },
+    "RetrieveBackpackCategoryPlantReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotPlant"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSetupRepoSearch"
+        ]
+    },
+    "RetrieveBackpackCategoryProductReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotProduct"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSetupRepoSearch"
+        ]
+    },
+    "RetrieveBackpackCategoryDoodadReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotDoodad"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSetupRepoSearch"
+        ]
+    },
+    "RetrieveBackpackCategoryNurturanceReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotNurturance"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSetupRepoSearch"
+        ]
+    },
+    "RetrieveBackpackCategoryUsableReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotUsable"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSetupRepoSearch"
+        ]
+    },
+    "RetrieveBackpackCategoryProducerReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotProducer"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSetupRepoSearch"
+        ]
+    },
+    "RetrieveBackpackCategoryPortableDeviceReady": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotPortableDevice"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackSetupRepoSearch"
+        ]
+    }
+}
