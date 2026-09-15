@@ -1,0 +1,86 @@
+{
+    // ADB 端 AutoFight 动作覆盖（前期骨架）
+    //
+    // 目标：将 PC 端（assets/resource/pipeline/AutoFight/Action.json）中依赖
+    // 键盘按键（ClickKey / KeyDown / KeyUp / LongPressKey）的战斗动作，
+    // 通过同名节点覆盖为 ADB 触摸操作（TouchDown / TouchUp / Click 等）。
+    //
+    // 当前阶段（前期工作）：
+    //   1. 已映射：移动（WASD）→ 虚拟摇杆，坐标与 ADBControlAdaptor 摇杆对齐
+    //      （中心 195,551，四方向偏移 15，见 agent/go-service/pkg/control/adaptor_adb.go
+    //       与 resource_adb/pipeline/Common/__Private/CharacterController/Action.json）。
+    //   2. TODO：连携 / 闪避 / 技能 1-4 / 终结技 / 切换干员 / 普攻锚点等
+    //      需在 ADB 分辨率下截图实测虚拟按钮坐标后再补充。
+
+    // ---- 移动：KeyDown / KeyUp → 虚拟摇杆 TouchDown / TouchUp ----
+    "__AutoFightActionMoveForwardKeyDown": {
+        "desc": "ADB 摇杆向前",
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "target": [195, 536, 1, 1],
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveForwardKeyUp": {
+        "desc": "ADB 摇杆松开",
+        "pre_delay": 0,
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveBackKeyDown": {
+        "desc": "ADB 摇杆向后",
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "target": [195, 566, 1, 1],
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveBackKeyUp": {
+        "desc": "ADB 摇杆松开",
+        "pre_delay": 0,
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveLeftKeyDown": {
+        "desc": "ADB 摇杆向左",
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "target": [180, 551, 1, 1],
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveLeftKeyUp": {
+        "desc": "ADB 摇杆松开",
+        "pre_delay": 0,
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveRightKeyDown": {
+        "desc": "ADB 摇杆向右",
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "target": [210, 551, 1, 1],
+        "contact": 0,
+        "post_delay": 0
+    },
+    "__AutoFightActionMoveRightKeyUp": {
+        "desc": "ADB 摇杆松开",
+        "pre_delay": 0,
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 0
+    }
+
+    // ---- TODO（待截图校准坐标后补充）----
+    // __AutoFightActionComboClick          连携（PC: ClickKey E）
+    // __AutoFightActionDodge               闪避（PC: ClickKey Shift）
+    // __AutoFightActionSkillOperators1-4   普通技能（PC: ClickKey 1-4）
+    // __AutoFightActionEndSkillOperators1-4 终结技长按（PC: LongPressKey 1500ms）
+    // __AutoFightActionEndSkillAltKeyDown/Up 终结技 Alt（PC: KeyDown/KeyUp）
+    // __AutoFightActionSwitchCharacterOperators1-4 切换干员（PC: ClickKey F1-F4）
+    // __AutoFightActionAttackClick / AttackKeyPress / AttackTouchDown/Up 普攻锚点
+    // __AutoFightActionLockTarget         锁定目标
+}
