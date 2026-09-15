@@ -1243,6 +1243,8 @@
         "custom_action_param": {
             "TargetQuantity": 999999,
             "ClampTargetToSliderMax": true,
+            "FineTuneQuantity": 100,
+            "FineTuneFallback": "less",
             "AvailableQuantity": {
                 "Box": [
                     1073,
