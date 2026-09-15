@@ -92,6 +92,7 @@ private:
         const std::optional<size_t>& anchor_index,
         const std::chrono::steady_clock::time_point& now);
     void StopMotion();
+    void RunPreAlign(double target_heading);
     bool FailNavigation(const char* reason, const char* log_message, double current_distance, double yaw_error, int64_t stalled_ms);
 
     std::array<AsyncPromptAction*, 2> PromptActions();

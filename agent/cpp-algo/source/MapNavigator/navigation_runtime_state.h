@@ -240,6 +240,14 @@ struct OffRouteWedgeState
         best_distance = std::numeric_limits<double>::max();
         active = false;
     }
+
+    // 预对齐的停步是刻意安排的，不是路外无进展；否则长预对齐会误触发重规划甚至判失败。
+    void DeferProgress(std::chrono::milliseconds duration)
+    {
+        if (active && duration > std::chrono::milliseconds::zero()) {
+            since += duration;
+        }
+    }
 };
 
 // Cross-tier escape. The agent fell onto a wrong FLOORED tier (one the route never planned for); we plan ONE
@@ -355,6 +363,8 @@ struct NavigationRuntimeState
     RiverFallRecoveryState river_fall;
     LateralBypassState bypass;
     SteeringRateState steering_rate;
+    // 预对齐失败后的重试冷却
+    std::chrono::steady_clock::time_point pre_align_retry_after {};
     OffRouteWedgeState offroute;
     CrossTierEscapeState cross_tier_escape;
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
@@ -397,6 +407,7 @@ struct NavigationRuntimeState
         river_fall.Reset();
         bypass.Reset();
         steering_rate.Reset();
+        pre_align_retry_after = {};
         offroute.Reset();
         cross_tier_escape.Reset();
         zipline_approach.Reset();

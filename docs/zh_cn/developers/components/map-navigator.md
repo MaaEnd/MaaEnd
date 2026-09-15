@@ -428,6 +428,8 @@ uv run map-navigator --port 9000 --no-browser
 }
 ```
 
+`RUN` 导航中角色朝向与下一步目标方向差出 30° 以上时，导航器会自动停步做一次**预对齐**：把镜头转到下一步目标方向，用相机朝向判定对齐后再恢复前进，不需要在 `path` 里额外声明。预对齐拿不到相机朝向或发不出去时按失败处理，退回原来的走中转向，不影响导航成败。
+
 > [!NOTE]
 >
 > 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护。

@@ -366,6 +366,20 @@ void NavigationSession::ResetHardProgress()
     hard_progress_initialized_ = false;
 }
 
+void NavigationSession::DeferProgressClocks(std::chrono::milliseconds duration)
+{
+    if (duration <= std::chrono::milliseconds::zero()) {
+        return;
+    }
+    if (progress_initialized_) {
+        last_progress_time_ += duration;
+    }
+    // 预对齐不会与卡死恢复同时发生，这段时长不会掩盖恢复要兜底的持续无进展。
+    if (hard_progress_initialized_) {
+        hard_last_progress_time_ += duration;
+    }
+}
+
 void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos)
 {
     // An out-of-range index would hand the insert below a reversed range, which wraps into a huge allocation.

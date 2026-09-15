@@ -218,7 +218,7 @@ Or:
 }
 ```
 
-Non-coordinate node. During execution, after adjusting the camera orientation, lightly press `W` once to advance and make the orientation take effect. `angle` specifies the orientation angle directly; `target` calculates the orientation based on "current position -> target coordinates" and then reuses the same `HEADING` action flow.
+Non-coordinate node. During execution, after adjusting the camera orientation, lightly press `W` once to advance and make the orientation take effect. `angle` specifies the orientation angle directly; `target` calculates the orientation based on "current position -> target coordinates" and then reuses the same `HEADING` action flow. Separately, during `RUN` navigation the navigator pre-aligns on its own whenever the character heading is 30° or more away from the next target direction: it stops, rotates the camera to that direction, and resumes once the camera orientation settles. A pre-align that cannot read the camera orientation or cannot send the turn is abandoned and the original in-motion steering continues.
 
 ##### **6. BaseNav Semantic Node `NAVMESH`**
 
