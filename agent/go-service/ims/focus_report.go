@@ -1,7 +1,6 @@
 package ims
 
 import (
-	"encoding/base64"
 	"fmt"
 	"path/filepath"
 	"sort"
@@ -10,7 +9,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
@@ -47,7 +45,7 @@ func reportItemFocusSummary(ctx *maa.Context, templateKey string, items map[stri
 			ItemID:   itemID,
 			Name:     iconqty.ItemDisplayName(itemID),
 			Quantity: quantity,
-			IconSrc:  itemIconDataURL(itemID),
+			IconSrc:  itemIconSrc(itemID),
 		})
 	}
 	sort.Slice(rows, func(i, j int) bool {
@@ -64,9 +62,10 @@ func reportItemFocusSummary(ctx *maa.Context, templateKey string, items map[stri
 	return len(rows)
 }
 
-// itemIconDataURL reads the catalog PNG and returns a data:image/png;base64,... URL
-// for <img src>. Empty when the item or file is missing.
-func itemIconDataURL(itemID string) string {
+// itemIconSrc returns an install-root-relative path for MXU Focus <img src>.
+// Runtime layout is install/{mxu, resource}/… — never prefix with assets/.
+// MXU resolves the path against basePath and inlines the image.
+func itemIconSrc(itemID string) string {
 	itemID = strings.TrimSpace(itemID)
 	if itemID == "" {
 		return ""
@@ -83,15 +82,11 @@ func itemIconDataURL(itemID string) string {
 	if iconID == "" || meta.Rarity <= 0 {
 		return ""
 	}
-	rel := filepath.ToSlash(filepath.Join(
+	return filepath.ToSlash(filepath.Join(
+		"resource",
 		"image",
 		"IconRecognition",
 		fmt.Sprintf("%d", meta.Rarity),
 		iconID+".png",
 	))
-	raw, err := resource.ReadResource(rel)
-	if err != nil || len(raw) == 0 {
-		return ""
-	}
-	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(raw)
 }
