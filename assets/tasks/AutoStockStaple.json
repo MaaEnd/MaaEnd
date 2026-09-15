@@ -135,13 +135,10 @@
                     "option": [
                         "AutoStockReserveValleyIV",
                         "AutoStockBuyDailyGoodsValleyIV",
-                        "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit",
-                        "AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit",
                         "AutoStockBuyStockFactoryGoodsValleyIV",
-                        "AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit",
                         "AutoStockBuyCulturalGoodsValleyIV",
-                        "AutoStockBuyCulturalGoodsValleyIVGiftLimit",
-                        "AutoStockUseDiscountsValleyIV"
+                        "AutoStockMinDiscountValleyIV",
+                        "AutoStockIncludeNoDiscountValleyIV"
                     ]
                 },
                 {
@@ -177,9 +174,28 @@
             }
         },
         "AutoStockBuyDailyGoodsValleyIV": {
-            "type": "checkbox",
+            "type": "switch",
             "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIV.label",
             "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIV.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyDailyGoodsValleyIVItems",
+                        "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit",
+                        "AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockBuyDailyGoodsValleyIVItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVItems.description",
             "cases": [
                 {
                     "name": "ValleyEngravingPermit",
@@ -465,9 +481,27 @@
             }
         },
         "AutoStockBuyStockFactoryGoodsValleyIV": {
-            "type": "checkbox",
+            "type": "switch",
             "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIV.label",
             "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIV.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyStockFactoryGoodsValleyIVItems",
+                        "AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockBuyStockFactoryGoodsValleyIVItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVItems.description",
             "default_case": [
                 "KeenValleyDetector",
                 "KeenValleyCompass"
@@ -564,9 +598,27 @@
             }
         },
         "AutoStockBuyCulturalGoodsValleyIV": {
-            "type": "checkbox",
+            "type": "switch",
             "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIV.label",
             "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIV.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyCulturalGoodsValleyIVItems",
+                        "AutoStockBuyCulturalGoodsValleyIVGiftLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockBuyCulturalGoodsValleyIVItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVItems.description",
             "cases": [
                 {
                     "name": "BreezeOfKjersch",
@@ -833,15 +885,41 @@
                 }
             }
         },
-        "AutoStockUseDiscountsValleyIV": {
-            "type": "select",
-            "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.label",
-            "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.description",
-            "default_case": "50",
+        "AutoStockMinDiscountValleyIV": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockMinDiscountValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockMinDiscountValleyIV.description",
+            "inputs": [
+                {
+                    "name": "MinDiscountValleyIV",
+                    "label": "$task.AutoStockStaple.option.AutoStockMinDiscountValleyIV.inputs.MinDiscountValleyIV.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockMinDiscountValleyIV.inputs.MinDiscountValleyIV.description",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[0-9]|[1-9][0-9])$",
+                    "default": "50",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockMinDiscountValleyIV.inputs.MinDiscountValleyIV.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockDiscountCompareValleyIV": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -{MinDiscountValleyIV}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "AutoStockIncludeNoDiscountValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockIncludeNoDiscountValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockIncludeNoDiscountValleyIV.description",
+            "default_case": "No",
             "cases": [
                 {
-                    "name": "Any",
-                    "label": "$option.DiscountValue.cases.Any.label",
+                    "name": "Yes",
                     "pipeline_override": {
                         "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
@@ -870,162 +948,7 @@
                     }
                 },
                 {
-                    "name": "95",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.95.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsValleyIV": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "90",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.90.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsValleyIV": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "85",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.85.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsValleyIV": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "80",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.80.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsValleyIV": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "75",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.75.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsValleyIV": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80",
-                                        "-75"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "70",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.70.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsValleyIV": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80",
-                                        "-75",
-                                        "-70"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "65",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.65.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsValleyIV": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80",
-                                        "-75",
-                                        "-70",
-                                        "-65"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "50",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.50.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsValleyIV": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80",
-                                        "-75",
-                                        "-70",
-                                        "-65",
-                                        "-60",
-                                        "-55",
-                                        "-50"
-                                    ]
-                                }
-                            }
-                        }
-                    }
+                    "name": "No"
                 }
             ]
         },
@@ -1045,14 +968,10 @@
                     "option": [
                         "AutoStockReserveWuling",
                         "AutoStockBuyDailyGoodsWuling",
-                        "AutoStockBuyDailyGoodsWulingEngravingPermitLimit",
-                        "AutoStockBuyDailyGoodsWulingFoodAndBuffLimit",
                         "AutoStockBuyStockFactoryGoodsWuling",
-                        "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit",
-                        "AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit",
                         "AutoStockBuyCulturalGoodsWuling",
-                        "AutoStockBuyCulturalGoodsWulingGiftLimit",
-                        "AutoStockUseDiscountsWuling"
+                        "AutoStockMinDiscountWuling",
+                        "AutoStockIncludeNoDiscountWuling"
                     ]
                 },
                 {
@@ -1088,9 +1007,28 @@
             }
         },
         "AutoStockBuyDailyGoodsWuling": {
-            "type": "checkbox",
+            "type": "switch",
             "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWuling.label",
             "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWuling.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyDailyGoodsWulingItems",
+                        "AutoStockBuyDailyGoodsWulingEngravingPermitLimit",
+                        "AutoStockBuyDailyGoodsWulingFoodAndBuffLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockBuyDailyGoodsWulingItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingItems.description",
             "cases": [
                 {
                     "name": "WulingEngravingPermit",
@@ -1446,9 +1384,28 @@
             }
         },
         "AutoStockBuyStockFactoryGoodsWuling": {
-            "type": "checkbox",
+            "type": "switch",
             "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWuling.label",
             "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWuling.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyStockFactoryGoodsWulingItems",
+                        "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit",
+                        "AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockBuyStockFactoryGoodsWulingItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingItems.description",
             "default_case": [
                 "WulingArtificingCatalyst",
                 "KeenWulingDetector",
@@ -1634,9 +1591,27 @@
             }
         },
         "AutoStockBuyCulturalGoodsWuling": {
-            "type": "checkbox",
+            "type": "switch",
             "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.label",
             "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyCulturalGoodsWulingItems",
+                        "AutoStockBuyCulturalGoodsWulingGiftLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockBuyCulturalGoodsWulingItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingItems.description",
             "cases": [
                 {
                     "name": "EurekaTeabox",
@@ -2051,15 +2026,41 @@
                 }
             }
         },
-        "AutoStockUseDiscountsWuling": {
-            "type": "select",
-            "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label",
-            "description": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description",
-            "default_case": "50",
+        "AutoStockMinDiscountWuling": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockMinDiscountWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockMinDiscountWuling.description",
+            "inputs": [
+                {
+                    "name": "MinDiscountWuling",
+                    "label": "$task.AutoStockStaple.option.AutoStockMinDiscountWuling.inputs.MinDiscountWuling.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockMinDiscountWuling.inputs.MinDiscountWuling.description",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[0-9]|[1-9][0-9])$",
+                    "default": "50",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockMinDiscountWuling.inputs.MinDiscountWuling.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockDiscountCompareWuling": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoStockInStapleItemDiscountsWuling} <= -{MinDiscountWuling}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "AutoStockIncludeNoDiscountWuling": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockIncludeNoDiscountWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockIncludeNoDiscountWuling.description",
+            "default_case": "No",
             "cases": [
                 {
-                    "name": "Any",
-                    "label": "$option.DiscountValue.cases.Any.label",
+                    "name": "Yes",
                     "pipeline_override": {
                         "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
@@ -2090,162 +2091,7 @@
                     }
                 },
                 {
-                    "name": "95",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.95.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsWuling": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "90",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.90.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsWuling": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "85",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.85.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsWuling": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "80",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.80.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsWuling": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "75",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.75.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsWuling": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80",
-                                        "-75"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "70",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.70.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsWuling": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80",
-                                        "-75",
-                                        "-70"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "65",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.65.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsWuling": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80",
-                                        "-75",
-                                        "-70",
-                                        "-65"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "50",
-                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.50.label",
-                    "pipeline_override": {
-                        "AutoStockInStapleItemDiscountsWuling": {
-                            "recognition": {
-                                "param": {
-                                    "expected": [
-                                        "-99",
-                                        "-95",
-                                        "-90",
-                                        "-85",
-                                        "-80",
-                                        "-75",
-                                        "-70",
-                                        "-65",
-                                        "-60",
-                                        "-55",
-                                        "-50"
-                                    ]
-                                }
-                            }
-                        }
-                    }
+                    "name": "No"
                 }
             ]
         }
