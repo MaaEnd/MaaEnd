@@ -50,7 +50,7 @@ Implemented in `Main.json`. The days of the week selected by the user are writte
 
 This task does not rely on runtime concatenation of user input strings, but rather:
 
-1. User selects items in the interface → `assets/tasks/AutoStockStaple.json` writes the multilingual item names into `attach.{slug}`.
+1. User selects items in the interface (after the category switch is on, the item checkboxes are nested under it) → `assets/tasks/AutoStockStaple.json` writes the multilingual item names into `attach.{slug}`.
 2. The task entry executes `AttachToExpectedRegexAction`, reads all attach keywords, and merges them into a `^(alias1|alias2|...)$` regex, which overrides the item name OCR node on the list page.
 3. Keys where `attach` is `false` are excluded and no longer enter the whitelist.
 
@@ -71,14 +71,15 @@ The list scan phase does **not** judge whether the unit price is affordable; aff
 Implemented in `General/Item.json` + the discount node within the regional JSON. The approach is similar to the [Credit Store](./credit-shopping-maintain.md): **first find the anchor, then offset to recognize subsequent fields**, but the anchor is the **remaining refresh time frame** in the top-left corner of the item card (cyan ColorMatch), not the credit icon.
 
 ```text
-Remaining Time Anchor -> Item Name (Color + OCR Whitelist) -> Discount (OCR or ColorMatch)
+Remaining Time Anchor -> Item Name (Color + OCR Whitelist) -> Discount (OCR Extraction) -> Discount Threshold Comparison (ExpressionRecognition)
 ```
 
 1. **Anchor**: Locates the time region of each item card in the list, serving as the basis for subsequent offsets.
 2. **Item Name**: Anchor -> Name label color -> Text background color -> OCR; only matches items selected by the user in the whitelist.
-3. **Discount**: Offsets from the name region to the discount position; by default, OCR recognizes specific discount values (95/90/85/...), which can be changed by an option to "any discount" (pass if a discount color block exists) or to specify a minimum discount tier.
+3. **Discount**: Offsets from the name region to the discount position; OCR extracts the discount badge value with the regex `-?\d{1,2}` (falls back to a positive number when the minus sign is missed; the comparison node fails safe — missed purchase instead of wrong purchase).
+4. **Discount Comparison**: `AutoStockDiscountCompare{Region}` (`ExpressionRecognition`) checks whether the discount is not lower than the "Minimum discount" threshold; items without a discount badge produce no OCR text, never match, and are never bought at any threshold.
 
-Only when all three match is the item clicked, entering quantity control.
+Only when all four match is the item clicked, entering quantity control.
 
 ### Quantity Control Three-Branches
 
@@ -169,12 +170,12 @@ Unselected items do not enter the whitelist; OCR will not match them.
 
 ### 3. Offset Recognition of Discount
 
-`AutoStockInStapleItemDiscountsValleyIV` uses the box of `AutoStockInStapleItemName` as the basis, with `roi_offset` offset to the discount area. By default, OCR recognizes discount values like `95/90/85/...`.
+`AutoStockInStapleItemDiscountsValleyIV` uses the box of `AutoStockInStapleItemName` as the basis, with `roi_offset` offset to the discount area. OCR extracts any discount badge value (e.g., `-50`) with the regex `-?\d{1,2}`.
 
-The `AutoStockUseDiscountsValleyIV` option can rewrite this node:
+The discount threshold is controlled by two options:
 
-- Select **Any Discount**: Changes the recognition type to `ColorMatch`; passes as long as the discount area has content.
-- Select a specific discount tier: Rewrites the `expected` list to only allow discounts not lower than that tier (including handling of placeholders like `-99`).
+- **Minimum discount** (`AutoStockMinDiscountValleyIV`, input, 0-99): Rewrites the expression of `AutoStockDiscountCompareValleyIV` (`ExpressionRecognition`) to `{AutoStockInStapleItemDiscountsValleyIV} <= -{MinDiscountValleyIV}`; the discount OCR value is compared against the threshold and only matching items are hit. Set 0 to buy all items with a discount badge.
+- **Include non-discounted items** (`AutoStockIncludeNoDiscountValleyIV`, switch, off by default): When enabled, the discount OCR node is replaced entirely by `ColorMatch` (passes as long as a discount color block exists), and the `all_of` of `AutoStockBuyItemValleyIVTask` reverts to 3 members — equivalent to buying all selected items; the "Minimum discount" setting is ignored.
 
 ### 4. Judgment of "Affordability"
 
@@ -190,8 +191,9 @@ Therefore, the `And` conditions for `AutoStockBuyItemValleyIVTask` are:
 - `AutoStockInStapleItem`
 - `AutoStockInStapleItemName_Expected`
 - `AutoStockInStapleItemDiscountsValleyIV`
+- `AutoStockDiscountCompareValleyIV` (discount threshold comparison; `box_index: 2` still points to the discount OCR node)
 
-After all three match, click the item card (`target_offset: [-50, 95, 0, 0]`), and `next` enters `AutoStockStapleQuantityControl`.
+After all four match, click the item card (`target_offset: [-45, 85, -30, 0]`), and `next` enters `AutoStockStapleQuantityControl`.
 
 > [!IMPORTANT] > `AutoStockBuyItemValleyIVTask` only means "a candidate item was recognized and entered purchase judgment," **it does not** mean the purchase is completed. Whether an order is actually placed depends on if the quantity control branch reaches `AutoStockStapleQuantityControlConfirmBuy`.
 

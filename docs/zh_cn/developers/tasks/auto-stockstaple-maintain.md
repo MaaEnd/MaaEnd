@@ -50,7 +50,7 @@
 
 本任务不靠运行时拼用户输入字符串，而是：
 
-1. 用户在界面勾选物品 → `assets/tasks/AutoStockStaple.json` 把各语言商品名写入 `attach.{slug}`。
+1. 用户在界面勾选物品（类目 switch 开启后，物资多选框嵌套其下）→ `assets/tasks/AutoStockStaple.json` 把各语言商品名写入 `attach.{slug}`。
 2. 任务入口执行 `AttachToExpectedRegexAction`，读取所有 attach 关键词，合并为 `^(别名1|别名2|...)$` 正则，覆盖到列表页商品名 OCR 节点。
 3. `attach` 为 `false` 的键会被排除，不再进入白名单。
 
@@ -71,14 +71,15 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 实现位于 `General/Item.json` + 地区 JSON 中的折扣节点。思路与[信用点商店](./credit-shopping-maintain.md)类似：**先找锚点，再偏移识别后续字段**，但锚点是商品卡片左上角的**剩余刷新时间框**（青绿色 ColorMatch），不是信用点图标。
 
 ```text
-剩余时间锚点 → 商品名（颜色 + OCR 白名单） → 折扣（OCR 或 ColorMatch）
+剩余时间锚点 → 商品名（颜色 + OCR 白名单） → 折扣（OCR 提取） → 折扣阈值比较（ExpressionRecognition）
 ```
 
 1. **锚点**：定位列表中每个商品卡片的时间区域，作为后续偏移基准。
 2. **商品名**：锚点 → 名称标签色 → 文字底色 → OCR；仅命中用户勾选的白名单商品。
-3. **折扣**：从名称区域偏移到折扣位；默认 OCR 识别具体折扣数值，也可被选项改为「任意折扣」（有折扣色块即通过）或指定最低折扣档。
+3. **折扣**：从名称区域偏移到折扣位，OCR 以正则 `-?\d{1,2}` 提取折扣徽标数值（负号缺失时回退为正数，由比较节点 fail-safe，漏买而非错买）。
+4. **折扣比较**：`AutoStockDiscountCompare{Region}`（`ExpressionRecognition`）判断折扣是否不低于「最低折扣」阈值；无折扣徽标的物资 OCR 无文本、不命中，任何阈值下都不会购买。
 
-三者同时命中才点击商品，进入数量控制。
+四者同时命中才点击商品，进入数量控制。
 
 ### 数量控制三分支
 
@@ -116,6 +117,7 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 | 时机 | 动作 | 作用 |
 | ------------ | ------------------------------------------------------------- | ---------------------------------------- |
 | 任务入口 | `AttachToExpectedRegexAction` | 合并 attach → 商品名 OCR 正则 |
+| 任务入口 | 类目 switch / 最低折扣 input / 包含无折扣 switch 的 `pipeline_override` | 类目关闭时不收集该类 override；注入折扣比较表达式；无折扣开关替换折扣识别节点 |
 | 物品被排除后 | `PipelineOverrideAction` + 再次 `AttachToExpectedRegexAction` | 剔除 attach 键并刷新白名单 |
 | 确认购买前 | `AutoStockStapleQuantityControlAction` | 算差值并 override BetterSliding 目标数量 |
 
@@ -169,12 +171,12 @@ pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple
 
 ### 3. 偏移识别折扣
 
-`AutoStockInStapleItemDiscountsValleyIV` 以 `AutoStockInStapleItemName` 的 box 为基准，`roi_offset` 偏移到折扣区域，默认用 OCR 识别 `95/90/85/...` 等折扣数值。
+`AutoStockInStapleItemDiscountsValleyIV` 以 `AutoStockInStapleItemName` 的 box 为基准，`roi_offset` 偏移到折扣区域，OCR 用正则 `-?\d{1,2}` 提取任意折扣徽标数值（如 `-50`）。
 
-`AutoStockUseDiscountsValleyIV` 选项可改写该节点：
+折扣阈值由两个选项控制：
 
-- 选 **任意折扣**：将识别类型改为 `ColorMatch`，只要折扣区域有内容即通过。
-- 选具体折扣档：改写 `expected` 列表，仅允许不低于该档的折扣（含 `-99` 等占位符处理）。
+- **最低折扣**（`AutoStockMinDiscountValleyIV`，input，0-99）：改写 `AutoStockDiscountCompareValleyIV`（`ExpressionRecognition`）的 expression 为 `{AutoStockInStapleItemDiscountsValleyIV} <= -{MinDiscountValleyIV}`，折扣 OCR 数值与阈值比较，满足才命中；填 0 时购买所有有折扣徽标的物资。
+- **包含无折扣物资**（`AutoStockIncludeNoDiscountValleyIV`，switch，默认关）：开启后将折扣 OCR 节点整体替换为 `ColorMatch`（有折扣色块即通过），并把 `AutoStockBuyItemValleyIVTask` 的 `all_of` 回退为 3 成员——行为等同于购买所有勾选物资，「最低折扣」被忽略。
 
 ### 4. “能否买得起”的判断
 
@@ -301,7 +303,7 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**：新增 `AutoStockStapleGoods{Item}` OCR 节点及多语言 `expected`。
 2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**：新增 `{Item}Validate` / `{Item}ExcludeValidate` 表达式节点。
 3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**：在 `AutoStockStapleQuantityControl.next` 中追加 `{Item}` 控制节点，并补齐 Buy / Exclude / StockBillInsufficient / RemoveFilter 等子节点（可参考同地区已有物品的写法）。
-4. **`assets/tasks/AutoStockStaple.json`**：在对应地区 checkbox 中增加 case，写入 `AutoStockInStapleItemName.attach.{slug}` 与数量上限 override。
+4. **`assets/tasks/AutoStockStaple.json`**：在对应地区类目 switch 下的 `{类目}Items` 多选框中增加 case，写入 `AutoStockInStapleItemName.attach.{slug}` 与数量上限 override。
 5. **`assets/locales/interface/*.json`**：补充 `option.CreditShoppingItems.cases.{Item}.label` 与 focus 文案（如 `quantity_control.buy.*`）。
 
 维护时请直接编辑上述 Pipeline 与任务配置，**不要**依赖代码生成器覆盖产物。
