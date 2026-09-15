@@ -203,6 +203,7 @@
     "seizedeliveryjobs.endpoint_not_matched": "配達先が不一致、スキップ",
     "seizedeliveryjobs.no_more_targets": "一致する依頼なし、更新",
     "seizedeliveryjobs.accepting": "配達依頼を受注中",
+    "seizedeliveryjobs.give_up": "%d 回連続で委託を受注できず、断念しました（上限 %d 回）",
     "trialofswordmancy.focus": "剣術演武\n手札 %s\n山札 %s\n演算%d ダブル%d 放棄%s %s\nドロー判断 → %s",
     "trialofswordmancy.action.drawcard": "ドロー",
     "trialofswordmancy.action.abandon": "放棄",

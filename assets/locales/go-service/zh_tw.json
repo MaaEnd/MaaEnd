@@ -203,6 +203,7 @@
     "seizedeliveryjobs.endpoint_not_matched": "送貨點不匹配，跳過",
     "seizedeliveryjobs.no_more_targets": "當前列表無匹配委託，刷新",
     "seizedeliveryjobs.accepting": "接取運送委託",
+    "seizedeliveryjobs.give_up": "連續 %d 輪沒有成功接到委託，已放棄搶單（上限 %d 輪）",
     "trialofswordmancy.focus": "選劍演武\n手牌 %s\n牌庫 %s\n演算%d 翻倍%d 放棄%s %s\n抽牌決策 → %s",
     "trialofswordmancy.action.drawcard": "抽牌",
     "trialofswordmancy.action.abandon": "放棄本局",

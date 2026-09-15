@@ -204,6 +204,7 @@
     "seizedeliveryjobs.endpoint_not_matched": "Delivery point not matched, skipping",
     "seizedeliveryjobs.no_more_targets": "No matching jobs found, refreshing",
     "seizedeliveryjobs.accepting": "Accepting delivery job",
+    "seizedeliveryjobs.give_up": "Failed to seize any commission in %d consecutive rounds, giving up (limit %d rounds)",
     "trialofswordmancy.focus": "Trial of Swordmancy\nHand %s\nDeck %s\nCalc %d Double %d Aband %s %s\nDraw decision → %s",
     "trialofswordmancy.action.drawcard": "Draw",
     "trialofswordmancy.action.abandon": "Abandon round",

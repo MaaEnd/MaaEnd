@@ -1,7 +1,9 @@
 {
     "SeizeDeliveryJobsMain": {
-        "desc": "抢委托送货任务的主入口",
+        "desc": "抢委托送货任务的主入口，进入时重置 Go 侧扫描状态与轮次计数",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsResetScanStateAction",
         "anchor": {
             "SeizeDeliveryJobsAfterEnterWulingJobList": "SeizeDeliveryJobsReadyToSeize"
         },
@@ -202,7 +204,9 @@
         "next": [
             "SeizeDeliveryJobsFindTarget",
             "SeizeDeliveryJobsScanTarget",
-            "SeizeDeliveryJobsRefresh"
+            // FindTarget / ScanTarget 都未命中时（列表里没有价格达标的委托），
+            // 由 NoProgress 计数并决定刷新重试或终止，不再直接跳 Refresh
+            "SeizeDeliveryJobsNoProgress"
         ]
     },
     // ===== 抢委托的核心流程节点 =====
@@ -217,8 +221,8 @@
             "SeizeDeliveryJobsIsSeizeSuccess"
         ],
         "on_error": [
-            // 没弹出接取动画，意味着该委托已失效，需重新抢单
-            "SeizeDeliveryJobsRefresh"
+            // 没弹出接取动画，意味着该委托已失效：计入「本轮未接到」后重新抢单
+            "SeizeDeliveryJobsNoProgress"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.orderFound"
