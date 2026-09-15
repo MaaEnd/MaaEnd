@@ -67,7 +67,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | `merge_mode` | 写入模式；默认 `replace`。`sum` 用于把第二个绝对库存区域合并到首个区域基准，不是奖励增量 |
 | `page_dedup` | 配合 `merge_mode` 区分首页面与后续页面，见下表 |
 | `transaction_mode` | 可选的 TaskID 级暂存：`begin` 开始并扫描、`continue` 继续扫描、`commit` 不识别画面而只提交完整 staging；省略时保持扫描后立即落盘 |
-| `notify_ui` | 是否播报命中物品；默认 `true`。事务扫描阶段按页播报，`commit` 阶段则只播报本事务实际命中物品的最终去重数量 |
+| `notify_ui` | 是否播报命中物品；默认 `true`。扫描结束后输出一条带图标的 HTML 汇总；事务扫描阶段按页汇总，`commit` 则汇总本事务实际命中物品的最终去重数量 |
 
 提供 `grid_type`（IconRecognition 扫库）与 `items` 至少其一。采购中心等可只传 `items`（如 `item_originium_recharge` / `item_diamond`）。`items` 里的键在 `page_dedup=false` 时一律参与地区重建（未命中则从缓存删除）。
 
@@ -93,7 +93,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 4. **未命中**：本轮不记录该 ID（见下方「地区重建 / 覆写」）。
 5. 非事务调用在本次扫描后写入内存与 `./debug/record/IMS.json` 并更新 `updated_at`；事务调用的 `begin` / `continue` 只更新 staging，只有 `commit` 才更新正式缓存和时间戳。
 
-命中时默认会通过 UI Focus 打出本地化物品名与数量（`ims.sync_item_found`）。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。事务模式可让 `begin` / `continue` 保持静默，并在 `commit` 设置 `notify_ui: true`；此时仅在持久化成功后，播报本事务实际命中物品的最终去重数量，不包含其他 IMS 缓存区域。
+命中时默认会在本次扫描结束后通过 UI Focus 输出一条 HTML 汇总（含 32px 物品图标与数量，模板 `ims.sync_item_summary`），不再逐件刷屏。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。事务模式可让 `begin` / `continue` 保持静默，并在 `commit` 设置 `notify_ui: true`；此时仅在持久化成功后，汇总播报本事务实际命中物品的最终去重数量，不包含其他 IMS 缓存区域。若 `begin` / `continue` 也开启 `notify_ui`，则按页各输出一次当页汇总。
 
 ### 写入模式与分页（`merge_mode` + `page_dedup`）
 
@@ -114,7 +114,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 完整成功终点：transaction_mode = commit
 ```
 
-`begin` 会替换同 runner 上一次未完成的 staging；`continue` / `commit` 必须与 staging 的 TaskID 一致。`commit` 不要求 `grid_type` 或 `items`，也不会再次截图；当 `notify_ui: true` 时，会在提交成功后按本地化物品名排序并播报最终去重结果。省略 `transaction_mode` 时，兼容原有每次 A2 调用立即持久化的行为。
+`begin` 会替换同 runner 上一次未完成的 staging；`continue` / `commit` 必须与 staging 的 TaskID 一致。`commit` 不要求 `grid_type` 或 `items`，也不会再次截图；当 `notify_ui: true` 时，会在提交成功后按本地化物品名排序并输出一条带图标的 HTML 汇总。省略 `transaction_mode` 时，兼容原有每次 A2 调用立即持久化的行为。
 
 ```text
 初次：SyncItemDataRunFull（page_dedup = false，地区重建）
@@ -178,9 +178,9 @@ A3 在**奖励播报界面**用与 A2 相同的路径：一次 IconRecognition�
 
 A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
-若从未成功做过 A2（`hasData=false`），A3 仍会识别奖励，但**不写入缓存**，且动作仍返回成功，避免卡住关奖励等后续流程。空奖励（IconRecognition `no_match` / `grid_detection_failed`）以及磁盘 hydrate 失败同样视为成功。命中物品时按件播报（如「获得 xxx ×n」），不提示「未初始化 / 不写入缓存」等 IMS 头尾信息，也不再播汇总。
+若从未成功做过 A2（`hasData=false`），A3 仍会识别奖励，但**不写入缓存**，且动作仍返回成功，避免卡住关奖励等后续流程。空奖励（IconRecognition `no_match` / `grid_detection_failed`）以及磁盘 hydrate 失败同样视为成功。命中物品时在识别结束后输出一条 HTML 汇总（同 ID 多堆数量先合并，模板 `ims.add_item_summary`，含图标），不提示「未初始化 / 不写入缓存」等 IMS 头尾信息。
 
-有缓存时同样按件播报；不叠 Pipeline Starting/Succeeded focus，也不播汇总句。
+有缓存时同样输出一条汇总；不叠 Pipeline Starting/Succeeded focus。
 
 > 奖励弹出入场动画期间，调用前应对物品区域使用 `pre_wait_freezes`（协议空间见 `ProtocolSpaceRewardAddItemData`）。
 >
