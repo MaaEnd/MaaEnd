@@ -39,6 +39,8 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 | `mapName` | (On success) The localized zone name, e.g., `map01_lv001` |
 | `x` / `y` | (On success) Global pixel coordinates |
 | `rot` | (On success) Orientation yaw angle, 0°–360°, north as zero |
+| `camRot` | Camera orientation, 0°–360°, north as zero. On successful localization it is output by the reference-pair artifact, and falls back to the observation model when coordinate localization fails (see [How Localization Works](#how-localization-works)); frames with the minimap occluded (`None`) carry none. Unrelated to `rot` (the character orientation) |
+| `camRotConf` | Confidence of the camera orientation |
 | `locConf` | Confidence score of this hit, for reference when tuning parameters |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 
@@ -113,6 +115,8 @@ There are no optional parameters. The assertion always forces a global search an
 | `zoneId` | The target zone name required by this assertion |
 | `x` / `y` | (On success) Global pixel coordinates returned by the locator |
 | `rot` | (On success) Orientation yaw angle |
+| `camRot` | Camera orientation, same value and source as `camRot` in `MapLocateRecognition` |
+| `camRotConf` | Confidence of the camera orientation |
 | `locConf` | Confidence score of this hit |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 | `target` | Echoes the `[x, y, w, h]` rectangle used for this assertion |
@@ -152,6 +156,7 @@ This section is for readers who want to understand the internals; it is not requ
 2. **YOLO pre-filtering**: judges by confidence whether a valid minimap area exists in the current frame, filtering out abnormal frames such as full-screen menus and effect occlusion.
 3. **Gradient-domain ZNCC matching**: gradient features are extracted for semi-transparent UI stacking scenarios, paired with ZNCC (Zero-mean Normalized Cross-Correlation) template matching. Matching relies mainly on edge and contour features, staying stable when skill effects flash or the UI changes.
 4. **MotionTracker motion prediction**: infers the search range for the current frame from historical movement speed instead of searching globally every frame, which improves speed and avoids matching distant areas that look similar but are not actually reachable.
+5. **Camera-orientation artifact**: `camRot` / `camRotConf` are produced by the three-graph artifact delivered together under `assets/resource/model/map/cameraorientation/`. `preprocess.onnx` is the single implementation of preprocessing: it takes the 118×120 observation ROI (BGR), the zone map asset (BGRA, dynamic size) and the localized `(x, y, scale)`, and outputs the observation strip and the reference strip (including raw reference alpha); polar geometry, reference sampling and strip-domain composition, and the sampling and rounding conventions are all encapsulated in the graph. `polar.onnx` consumes the 3-channel observation strip; `polar_with_ref.onnx` consumes the 7-channel `[obs.BGR, ref.BGR, ref.A]` reference pair; both output the same 360-bin azimuth probability distribution. MapLocator keeps only three decisions: the reference-alpha gap fraction, threshold dispatch (**strictly greater than 30%** selects `polar.onnx`, otherwise `polar_with_ref.onnx`), and PMF decoding (angle + confidence). When the reference classifier failed to load or the reference map asset is missing/not BGRA, `polar.onnx` is used; if the selected classifier is unavailable or inference fails, that frame carries no `camRot`, with no cross-model fallback. Frames whose coordinate localization failed have no `(x, y, zone)`, so reference sampling is out of the question; but the observation strip from `preprocess.onnx` depends only on `minimap`, so producing that strip alone and always using `polar.onnx` still yields a coordinate-free orientation (occluded frames have an invalid strip and carry none).
 
 > [!IMPORTANT]
 >
