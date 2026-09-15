@@ -1709,6 +1709,7 @@
             "SceneManager/FriendsList2.png"
         ],
         "action": "Click",
+        "pre_wait_freezes": 100,
         "next": [
             "__ScenePrivateMenuFriendsEnterMenuFriendsListSuccess"
         ]
@@ -1759,6 +1760,7 @@
         ],
         "threshold": 0.8,
         "action": "Click",
+        "pre_wait_freezes": 100,
         "next": [
             "__ScenePrivateMenuFriendsEnterMenuFriendsAddSuccess"
         ]
