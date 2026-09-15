@@ -111,13 +111,21 @@ export function buildNavmeshPath(source, label, withApproachPoint = false) {
     if (!Number.isFinite(source.u) || !Number.isFinite(source.v) || source.u < 0 || source.v < 0) {
         throw new TypeError(`[AutoDelivery] ${label} 的 u/v 坐标无效`);
     }
+    if (!Number.isFinite(source.y)) {
+        throw new TypeError(`[AutoDelivery] ${label} 的 y 世界高度无效`);
+    }
 
+    // 底图是二维的，同一格可能压着上下多张可走面；自动生成的点都要声明自己落在哪张面上，
+    // 否则寻路会在重叠面里任选一张停下，且二维到达判定照样通过，属于静默走错层。
+    // 接近点与终点同层，共用实体自身的世界高度。
+    const deckY = roundCoordinate(source.y);
     const destination = {
         action: "NAVMESH",
         target: [
             source.u,
             source.v,
         ],
+        target_deck_y: deckY,
     };
     if (!withApproachPoint) {
         return [destination];
@@ -132,6 +140,7 @@ export function buildNavmeshPath(source, label, withApproachPoint = false) {
         {
             action: "NAVMESH",
             target: buildYawApproachTarget(source, map, label),
+            target_deck_y: deckY,
             required: true,
         },
         destination,
