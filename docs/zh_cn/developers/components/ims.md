@@ -93,7 +93,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 4. **未命中**：本轮不记录该 ID（见下方「地区重建 / 覆写」）。
 5. 非事务调用在本次扫描后写入内存与 `./debug/record/IMS.json` 并更新 `updated_at`；事务调用的 `begin` / `continue` 只更新 staging，只有 `commit` 才更新正式缓存和时间戳。
 
-命中时默认会在本次扫描结束后通过 UI Focus 输出一条 HTML 汇总（含 32px 物品图标与数量，模板 `ims.sync_item_summary`），不再逐件刷屏。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。事务模式可让 `begin` / `continue` 保持静默，并在 `commit` 设置 `notify_ui: true`；此时仅在持久化成功后，汇总播报本事务实际命中物品的最终去重数量，不包含其他 IMS 缓存区域。若 `begin` / `continue` 也开启 `notify_ui`，则按页各输出一次当页汇总。
+命中时默认会在本次扫描结束后通过 UI Focus 输出一条 HTML 汇总（含 16px 物品图标与数量，模板 `ims.sync_item_summary`），不再逐件刷屏。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。事务模式可让 `begin` / `continue` 保持静默，并在 `commit` 设置 `notify_ui: true`；此时仅在持久化成功后，汇总播报本事务实际命中物品的最终去重数量，不包含其他 IMS 缓存区域。若 `begin` / `continue` 也开启 `notify_ui`，则按页各输出一次当页汇总。
 
 ### 写入模式与分页（`merge_mode` + `page_dedup`）
 

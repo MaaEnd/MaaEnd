@@ -9,13 +9,12 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
 const (
-	// focusItemIconSizePx is the Focus HTML icon display size (16 or 32).
-	focusItemIconSizePx = 32
+	// focusItemIconSizePx is the Focus HTML <img> width/height in px.
+	focusItemIconSizePx = 16
 )
 
 type focusItemRow struct {
@@ -46,7 +45,7 @@ func reportItemFocusSummary(ctx *maa.Context, templateKey string, items map[stri
 			ItemID:   itemID,
 			Name:     iconqty.ItemDisplayName(itemID),
 			Quantity: quantity,
-			IconSrc:  resolveItemIconRelPath(itemID),
+			IconSrc:  itemIconSrc(itemID),
 		})
 	}
 	sort.Slice(rows, func(i, j int) bool {
@@ -63,9 +62,9 @@ func reportItemFocusSummary(ctx *maa.Context, templateKey string, items map[stri
 	return len(rows)
 }
 
-// resolveItemIconRelPath returns a resource-relative PNG path for Focus HTML
-// (MXU loads relative img src to data URL). Empty when catalog/icon missing.
-func resolveItemIconRelPath(itemID string) string {
+// itemIconSrc returns the resource-relative PNG path for <img src>.
+// No load / resize / encode — the client displays the file as-is.
+func itemIconSrc(itemID string) string {
 	itemID = strings.TrimSpace(itemID)
 	if itemID == "" {
 		return ""
@@ -82,14 +81,10 @@ func resolveItemIconRelPath(itemID string) string {
 	if iconID == "" || meta.Rarity <= 0 {
 		return ""
 	}
-	rel := filepath.ToSlash(filepath.Join(
+	return filepath.ToSlash(filepath.Join(
 		"image",
 		"IconRecognition",
 		fmt.Sprintf("%d", meta.Rarity),
 		iconID+".png",
 	))
-	if resource.FindResource(rel) == "" {
-		return ""
-	}
-	return rel
 }

@@ -91,7 +91,7 @@ Example (Progression tab):
 4. **Miss:** do not record that ID this round (see region rebuild / overwrite below).
 5. A non-transactional call persists memory and `./debug/record/IMS.json` and updates `updated_at`. Transactional `begin` / `continue` only update staging; `commit` updates the formal cache and timestamp.
 
-Hits emit one HTML Focus summary after the scan finishes by default (32px item icons + quantities, template `ims.sync_item_summary`), instead of one line per item. Pass `notify_ui: false` to silence (omit defaults to `true`). Transactional `begin` / `continue` calls may stay silent and set `notify_ui: true` only on `commit`; after persistence succeeds, that prints one summary for items actually hit by the transaction and excludes unrelated IMS cache regions. If `notify_ui` is also enabled on `begin` / `continue`, each page prints its own page summary.
+Hits emit one HTML Focus summary after the scan finishes by default (16px item icons + quantities, template `ims.sync_item_summary`), instead of one line per item. Pass `notify_ui: false` to silence (omit defaults to `true`). Transactional `begin` / `continue` calls may stay silent and set `notify_ui: true` only on `commit`; after persistence succeeds, that prints one summary for items actually hit by the transaction and excludes unrelated IMS cache regions. If `notify_ui` is also enabled on `begin` / `continue`, each page prints its own page summary.
 
 ### Write mode and paging (`merge_mode` + `page_dedup`)
 

@@ -3,7 +3,7 @@
 {{- range .Items -}}
 <span style="display:inline-flex;align-items:center;gap:4px;line-height:1.2;">
 {{- if .IconSrc -}}
-<img src="{{.IconSrc}}" alt="" width="{{$.IconSize}}" height="{{$.IconSize}}" style="width:{{$.IconSize}}px;height:{{$.IconSize}}px;object-fit:contain;margin:0;border-radius:4px;vertical-align:middle;" />
+<img src="{{.IconSrc}}" alt="" width="{{$.IconSize}}" height="{{$.IconSize}}" style="margin:0;" />
 {{- end -}}
 <span>{{escapeHTML .Name}} ×{{.Quantity}}</span>
 </span>
