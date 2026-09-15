@@ -202,7 +202,10 @@
         "next": [
             "SeizeDeliveryJobsFindTarget",
             "SeizeDeliveryJobsScanTarget",
-            "SeizeDeliveryJobsRefresh"
+            "SeizeDeliveryJobsRefresh",
+            // 兜底：上面三个都不命中，说明 Refresh 的 100 次额度已用尽
+            //（列表里始终没有终点匹配的委托），收尾到专门的结束节点并给出提示
+            "SeizeDeliveryJobsFailedRefreshExhausted"
         ]
     },
     // ===== 抢委托的核心流程节点 =====
@@ -239,12 +242,39 @@
         "action": "Click",
         "post_delay": 500, // 点击后，等待界面回到大世界
         "next": [
+            "SeizeDeliveryJobsSeizeSucceededClearRefreshHit"
+        ]
+    },
+    // 抢单成功：把刷新节点的命中计数清零，使下一轮抢单重新获得完整的刷新预算。
+    // 与 Refresh 的 max_hit 配套使用：若不清零，多轮抢单（RepeatCount）会共用同一个
+    // 100 次刷新预算，第二轮起额度已被上一轮消耗，会提前结束。
+    // 复用项目现成 action ClearHitCount，写法与 AccountSwitch 的 __AccountSwitchClickDropdown 一致。
+    "SeizeDeliveryJobsSeizeSucceededClearRefreshHit": {
+        "desc": "抢单成功，重置刷新次数计数",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "SeizeDeliveryJobsRefresh"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
             "SeizeDeliveryJobsPostProcessingEntry",
             "SeizeDeliveryJobsSuccessFetchOnly"
         ]
     },
+    // 抢单循环的刷新节点。本流程原本没有终止条件：当列表中始终没有「终点匹配」的委托时，
+    // Refresh → Loop → Refresh 会无限循环，任务卡死（issue #5707）。
+    // 这里用节点级 max_hit 给刷新次数设上限：次数用尽后本节点不再被 next 选中，流程自然结束。
+    // 需要区分的是：MapFind 识别不到终点是**另一个独立的识别问题**，本次只解决
+    // 「流程缺少终止条件」这一缺陷，并非用重试掩盖识别问题。
     "SeizeDeliveryJobsRefresh": {
         "desc": "对委托列表执行刷新操作",
+        // 连续刷新 100 次仍未接到委托即停止刷新，让流程自然结束
+        "max_hit": 100,
         "recognition": "TemplateMatch",
         "roi": [
             1160,
@@ -262,6 +292,18 @@
         "next": [
             "SeizeDeliveryJobsLoop"
         ]
+    },
+    // 刷新次数用尽的收尾节点：Refresh 的 max_hit 用尽后，Loop 的 next 会落到这里，
+    // 提示用户并结束本次抢单，避免任务无限刷新下去。
+    "SeizeDeliveryJobsFailedRefreshExhausted": {
+        "desc": "刷新次数用尽（连续 100 轮没有识别到终点），跳过本次抢单",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.SeizeDeliveryJobs.focus.refreshExhausted"
+        }
     },
     "SeizeDeliveryJobsSuccessFetchOnly": {
         "desc": "任务成功，触发早停，已抢单（此节点默认开启）",

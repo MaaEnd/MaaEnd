@@ -662,6 +662,7 @@
     "task.SeizeDeliveryJobsRepeatCount.cases.3.label": "최대 3회",
     "task.SeizeDeliveryJobs.focus.orderFound": "조건에 맞는 주문을 찾았습니다",
     "task.SeizeDeliveryJobs.focus.taskEnd": "**이번 배송 사이클이 종료되었습니다**",
+    "task.SeizeDeliveryJobs.focus.refreshExhausted": "**100회가 넘도록 인식하지 못해 작업을 건너뜁니다**",
     "task.SeizeDeliveryJobs.focus.endpointOwl": "적중 올빼미（우하）",
     "task.SeizeDeliveryJobs.focus.endpointMaterialResearchInstitute": "적중 재료연구소（좌하）",
     "task.SeizeDeliveryJobs.focus.endpointObservatory": "적중 관측소（우상）",
