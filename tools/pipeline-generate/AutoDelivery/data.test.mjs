@@ -102,6 +102,10 @@ test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目�
         const expectedRetryPath = override?.retry_path?.length ? override.retry_path : defaultPath;
         assert.deepEqual(depot.retryPath, expectedRetryPath);
         assert.match(depot.retryRouteNode, /^AutoDeliveryRouteDepotRetry/);
+        if (!override?.retry_path?.length) {
+            assert.equal(depot.retryPath.at(-1).target_deck_y, source.y);
+            assert.equal(depot.retryPath[0].target_deck_y, source.y);
+        }
         assert.equal(defaultPath.length, 2);
         assert.equal(defaultPath[0].required, true);
         assert.deepEqual(defaultPath[1].target, [
@@ -109,7 +113,7 @@ test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目�
             source.v,
         ]);
         assert.equal(defaultPath[1].target_deck_y, source.y);
-        assert.equal(defaultPath[0].target_deck_y, undefined);
+        assert.equal(defaultPath[0].target_deck_y, source.y);
         const map = catalogSource.maps[source.map];
         assert.ok(
             Math.abs(
@@ -138,6 +142,10 @@ test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目�
         const expectedRetryPath = override?.retry_path?.length ? override.retry_path : defaultRetryPath;
         assert.deepEqual(destination.retryPath, expectedRetryPath);
         assert.match(destination.retryRouteNode, /^AutoDeliveryRouteDestinationRetry/);
+        if (!override?.retry_path?.length) {
+            assert.equal(destination.retryPath.at(-1).target_deck_y, source.y);
+            assert.equal(destination.retryPath[0].target_deck_y, source.y);
+        }
 
         if (!withApproachPoint) {
             assert.equal(defaultPath.length, 1);
