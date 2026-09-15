@@ -212,7 +212,8 @@
             "substring": true
         },
         "next": [
-            "__AccountSwitchOCRSelectAccount"
+            "__AccountSwitchOCRSelectAccount",
+            "__AccountSwitchClickDropdown"
         ]
     },
     "__AccountSwitchOCRSelectAccount": {
