@@ -87,7 +87,7 @@ struct LocateResult
     LocateStatus status;
     std::optional<MapPosition> position;
     std::string debugMessage; // 用于向 Pipeline 输出日志
-    // 仅 Success 帧携带；缺失表示模型不可用或本帧输入无效（如 UI 遮挡）
+    // 定位成功用参考配对，失败回退到不依赖坐标的观测模型；被遮挡（None）时不携带
     std::optional<CameraOrientation> camRot;
 };
 

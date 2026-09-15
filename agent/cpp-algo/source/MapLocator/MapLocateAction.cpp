@@ -143,6 +143,11 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     LocateOutput output;
     output.status = static_cast<int>(result.status);
     output.message = result.debugMessage;
+    // camRot 与位置相互独立，失败帧也要输出，故先于位置写入
+    if (result.camRot.has_value()) {
+        output.camRot = result.camRot->rot;
+        output.camRotConf = result.camRot->confidence;
+    }
     if (!result.position.has_value()) {
         return output;
     }
@@ -154,10 +159,6 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
-    if (result.camRot.has_value()) {
-        output.camRot = result.camRot->rot;
-        output.camRotConf = result.camRot->confidence;
-    }
     return output;
 }
 
@@ -170,6 +171,10 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.message = result.debugMessage;
     output.zoneId = param.zone_id;
     output.target = param.target;
+    if (result.camRot.has_value()) {
+        output.camRot = result.camRot->rot;
+        output.camRotConf = result.camRot->confidence;
+    }
     if (!result.position.has_value()) {
         return output;
     }
@@ -180,10 +185,6 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
-    if (result.camRot.has_value()) {
-        output.camRot = result.camRot->rot;
-        output.camRotConf = result.camRot->confidence;
-    }
     return output;
 }
 

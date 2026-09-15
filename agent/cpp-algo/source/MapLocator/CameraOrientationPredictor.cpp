@@ -99,6 +99,32 @@ std::optional<CameraOrientation> CameraOrientationPredictor::predict(
     double scale,
     const std::string& zoneId)
 {
+    // 参考分类器未加载 / 资产缺失或非 BGRA 时参考不可用：缺口记 -1，走观测分类器。
+    const bool assetUsable =
+        isRefModelLoaded_ && !referenceAsset.empty() && referenceAsset.channels() == 4 && referenceAsset.isContinuous();
+    const cv::Mat& asset = assetUsable ? referenceAsset : kUnavailableAsset;
+    return infer(minimap, asset, assetUsable, x, y, scale, zoneId);
+}
+
+std::optional<CameraOrientation> CameraOrientationPredictor::predictObservationOnly(const cv::Mat& minimap)
+{
+    // 喂占位资产、坐标填零即可：观测条带与它们无关。polar 未加载时静默返回，
+    // 不在失败帧上刷错误日志。
+    if (!isPreprocessModelLoaded_ || !isPolarModelLoaded_) {
+        return std::nullopt;
+    }
+    return infer(minimap, kUnavailableAsset, false, 0.0, 0.0, 1.0, "observation-only");
+}
+
+std::optional<CameraOrientation> CameraOrientationPredictor::infer(
+    const cv::Mat& minimap,
+    const cv::Mat& asset,
+    bool assetUsable,
+    double x,
+    double y,
+    double scale,
+    const std::string& zoneId)
+{
     std::lock_guard<std::mutex> lock(predictMutex);
 
     if (!isLoaded() || !preprocessSession) {
@@ -117,11 +143,6 @@ std::optional<CameraOrientation> CameraOrientationPredictor::predict(
         cv::cvtColor(minimapBgr, converted, cv::COLOR_BGRA2BGR);
         minimapBgr = converted;
     }
-
-    // 参考分类器未加载 / 资产缺失或非 BGRA 时参考不可用：缺口记 -1，走观测分类器。
-    const bool assetUsable =
-        isRefModelLoaded_ && !referenceAsset.empty() && referenceAsset.channels() == 4 && referenceAsset.isContinuous();
-    const cv::Mat& asset = assetUsable ? referenceAsset : kUnavailableAsset;
 
     try {
         auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);

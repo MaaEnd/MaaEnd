@@ -25,6 +25,9 @@ namespace maplocator
 // 底图不可用时走 polar.onnx；分派后所选分类器不可用或推理失败返回 std::nullopt
 // （上层该帧无 camRot），不做跨模型回退。
 //
+// 定位失败帧没有 (x, y, zone)，但观测条带只由 minimap 决定，predictObservationOnly
+// 便不采样参考、只走 polar.onnx，作为不依赖坐标的兜底。
+//
 // 识别目标与角色箭头（InferYellowArrowRotation）完全无关，结果仅供上层参考，
 // 不参与定位匹配与遮挡判定。
 class CameraOrientationPredictor
@@ -43,10 +46,15 @@ public:
     std::optional<CameraOrientation>
         predict(const cv::Mat& minimap, const cv::Mat& referenceAsset, double x, double y, double scale, const std::string& zoneId);
 
+    // 兜底入口：不采样参考、只由 minimap 产出观测条带并走 polar.onnx；不可用时返回 std::nullopt。
+    std::optional<CameraOrientation> predictObservationOnly(const cv::Mat& minimap);
+
     // 前处理图与至少一个分类器同时可用才允许推理。
     bool isLoaded() const { return isPreprocessModelLoaded_ && (isPolarModelLoaded_ || isRefModelLoaded_); }
 
 private:
+    std::optional<CameraOrientation>
+        infer(const cv::Mat& minimap, const cv::Mat& asset, bool assetUsable, double x, double y, double scale, const std::string& zoneId);
     bool loadSession(
         const std::string& modelPath,
         const char* tag,
