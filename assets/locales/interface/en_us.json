@@ -146,6 +146,7 @@
     "option.ZiplineImportRegion.cases.Global.label": "Global Server",
     "option.ZiplineImportClearLogin.label": "Import another account",
     "option.AutoFightAxis.label": "Use timeline combat",
+    "option.AutoFightAxisFullSetting.description": "- **“Use timeline combat” off**: Automatically use combo skills, battle skills, and ultimates according to the switches below.\n- **“Use timeline combat” on**: Use battle skills and ultimates according to the imported timeline data.",
     "option.AutoFightAxisData.label": "Timeline data",
     "option.AutoFightAxisData.description": "- Open www.end-axis.com to create a timeline, or browse www.end-axis.com/shares (sharing plaza) for timelines shared by others.\n- Add operators, skills, and ultimate skill release timing in the timeline; extra elements are not read.\n- On the site, click + in the top-left corner and add at least one plan without ultimate skills to ensure looping.\n- Internally selects one timeline plan automatically based on ultimate skill charge state.",
     "option.AutoFightAxisCodeString.label": "Data code",
