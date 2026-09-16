@@ -84,8 +84,5 @@
             "source.organizeImports": "explicit"
         }
     },
-    "cmake.ignoreCMakeListsMissing": true,
-    "[jsonc]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
-    }
+    "cmake.ignoreCMakeListsMissing": true
 }
