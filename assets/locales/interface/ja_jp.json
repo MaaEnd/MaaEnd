@@ -662,6 +662,7 @@
     "task.SeizeDeliveryJobsRepeatCount.cases.3.label": "最大 3 回",
     "task.SeizeDeliveryJobs.focus.orderFound": "条件を満たすオーダーを見つけました",
     "task.SeizeDeliveryJobs.focus.taskEnd": "**今回の配送サイクルが終了しました**",
+    "task.SeizeDeliveryJobs.focus.refreshExhausted": "**100 回更新しても依頼を受注できず、今回の受注をスキップします**",
     "task.SeizeDeliveryJobs.focus.endpointOwl": "命中フクロウ（右下）",
     "task.SeizeDeliveryJobs.focus.endpointMaterialResearchInstitute": "命中材料研究所（左下）",
     "task.SeizeDeliveryJobs.focus.endpointObservatory": "命中観測所（右上）",

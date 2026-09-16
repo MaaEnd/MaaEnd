@@ -1015,6 +1015,7 @@
     "task.SeizeDeliveryJobsRepeatCount.cases.3.label": "Max 3",
     "task.SeizeDeliveryJobs.focus.orderFound": "Found an order that meets the requirements",
     "task.SeizeDeliveryJobs.focus.taskEnd": "**Current delivery cycle has ended**",
+    "task.SeizeDeliveryJobs.focus.refreshExhausted": "**No commission accepted after 100 refreshes, skipping this seize attempt**",
     "task.SeizeDeliveryJobs.focus.endpointOwl": "Matched Owl (bottom-right)",
     "task.SeizeDeliveryJobs.focus.endpointMaterialResearchInstitute": "Matched Material Research Institute (bottom-left)",
     "task.SeizeDeliveryJobs.focus.endpointObservatory": "Matched Observatory (top-right)",
