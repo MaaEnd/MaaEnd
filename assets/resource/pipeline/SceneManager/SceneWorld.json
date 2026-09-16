@@ -84,11 +84,19 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateWorldSpaceExitConfirm"
+                    ]
+                }
+            }
         },
         "next": [
-            "__ScenePrivateWorldSpaceExitConfirm",
-            "__ScenePrivateEndVisit"
+            "__ScenePrivateWorldSpaceExitConfirm"
         ]
     },
     "__ScenePrivateWorldSpaceExitConfirm": {

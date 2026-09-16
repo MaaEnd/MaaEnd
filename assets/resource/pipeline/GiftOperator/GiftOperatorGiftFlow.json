@@ -11,11 +11,19 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "GiftOperatorGiftUI"
+                    ]
+                }
+            }
         },
         "next": [
-            "GiftOperatorGiftUI",
-            "GiftOperatorBranchGift"
+            "GiftOperatorGiftUI"
         ]
     },
     "GiftOperatorBranchGiftTemplate": {
