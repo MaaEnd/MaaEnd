@@ -944,6 +944,17 @@
                                     ]
                                 }
                             }
+                        },
+                        "AutoStockBuyItemValleyIVTask": {
+                            "recognition": {
+                                "param": {
+                                    "all_of": [
+                                        "AutoStockInStapleItem",
+                                        "AutoStockInStapleItemName_Expected",
+                                        "AutoStockInStapleItemDiscountsValleyIV"
+                                    ]
+                                }
+                            }
                         }
                     }
                 },
@@ -2085,6 +2096,17 @@
                                         255
                                     ],
                                     "order_by": "Vertical"
+                                }
+                            }
+                        },
+                        "AutoStockBuyItemWulingTask": {
+                            "recognition": {
+                                "param": {
+                                    "all_of": [
+                                        "AutoStockInStapleItem",
+                                        "AutoStockInStapleItemName_Expected",
+                                        "AutoStockInStapleItemDiscountsWuling"
+                                    ]
                                 }
                             }
                         }
