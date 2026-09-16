@@ -103,8 +103,46 @@
         "post_wait_freezes": 200,
         "next": [
             "GiftOperatorReceiveDialog",
-            "GiftOperatorBagFull"
+            "GiftOperatorBagFull",
+            "[JumpBack]GiftOperatorBranchReceiveClickFailed"
         ]
+    },
+    "GiftOperatorBranchReceiveClickFailed": {
+        "desc": "收下礼物按钮点击失败，重试",
+        "max_hit": 5,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    334,
+                    350,
+                    318
+                ],
+                "expected": [
+                    "收下礼物",
+                    "收下禮物",
+                    "(?i)Accept\\s*gift",
+                    "プレゼントを受け取る",
+                    "收下"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                1008,
+                474,
+                84,
+                38
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200
     },
     "GiftOperatorClickGift": {
         "desc": "选择礼物",
