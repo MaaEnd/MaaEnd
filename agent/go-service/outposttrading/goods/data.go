@@ -21,6 +21,8 @@ type itemPriorityGroup struct {
 	Candidates []string
 	Rarity     int
 	UnitPrice  int
+	// ActivityID 非空表示活动限时可兑换物品，售卖数量需受调度券余量限制。
+	ActivityID string
 }
 
 func loadItemPriorityGroups() (map[string][]itemPriorityGroup, error) {
@@ -85,5 +87,6 @@ func itemPriorityGroupFromData(
 		Candidates: candidates,
 		Rarity:     locationItem.Rarity,
 		UnitPrice:  locationItem.UnitPrice,
+		ActivityID: locationItem.ActivityID,
 	}, nil
 }

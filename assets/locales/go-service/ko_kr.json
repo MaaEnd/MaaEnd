@@ -112,6 +112,7 @@
     "outposttrading.runtime.item_switched": "📦 상품 전환: %s (%s)",
     "outposttrading.runtime.item_adopted": "📦 현재 상품 유지: %s (%s)",
     "outposttrading.runtime.item_out_of_stock": "🚫 매진을 확인하여 제외: %s (%s)",
+    "outposttrading.runtime.aid_quota_limited": "🎫 거점 관리권 잔량 %d, %s 단가 %d, 이번 거래에서는 최대 %d개까지 판매",
     "outposttrading.runtime.usage.target": "판매 접선 오퍼레이터",
     "outposttrading.runtime.usage.restore": "판매 후 생산 접선 오퍼레이터",
     "dijiangrewards.wait_exchange_countdown.message": "정보 교류 종료를 기다리는 중",

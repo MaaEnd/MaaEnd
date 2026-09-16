@@ -568,6 +568,7 @@
     "task.OutpostTrading.vouchers_exhausted": "🎫 この拠点の取引券が不足しているため、ここでの販売を終了します",
     "task.OutpostTrading.trade_completed": "✅ 取引が完了しました",
     "task.OutpostTrading.reserve_skip": "⏭️ 現在庫が確保数を超えていないため、この取引をスキップします",
+    "task.OutpostTrading.aid_quota_exhausted": "🎫 取引券がこの商品1個分にも足りないため、この取引をスキップします",
     "task.OutpostTrading.ValleyIVRefugeeCamp": "仮設居住地",
     "task.OutpostTrading.ValleyIVInfraStation": "建設基地",
     "task.OutpostTrading.ValleyIVReconstructionHQ": "再建管理本部",

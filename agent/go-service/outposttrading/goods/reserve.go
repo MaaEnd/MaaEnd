@@ -22,6 +22,7 @@ const (
 	reserveOperationSelect   = "select"
 	reserveOperationApply    = "apply"
 	reserveOperationSatisfy  = "satisfy"
+	reserveOperationSkip     = "skip"
 )
 
 var (
@@ -109,19 +110,36 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 				Msg("blacklisted item reached reserve rule application")
 			return false
 		}
-		if err := ctx.OverridePipeline(buildReserveSlidingOverride(param.SlidingNode, quantity, configured)); err != nil {
+		aidQuota := resolveAidQuotaLimit(ctx, itemID, quantity)
+		if err := ctx.OverridePipeline(buildReserveSlidingOverride(param.SlidingNode, quantity, configured, aidQuota)); err != nil {
 			log.Error().Err(err).
 				Str("component", reserveSessionActionName).
 				Str("sliding_node", param.SlidingNode).
 				Msg("failed to apply reserve rule")
 			return false
 		}
+		// 调度券不足以兑换一件活动物品时，当前物品本次任务跳过，直接回到售卖循环换下一个。
+		if aidQuota.Applied && aidQuota.Target < 1 {
+			if err := ctx.OverrideNext(param.SlidingNode, []maa.NextItem{{Name: "OutpostTradingAidQuotaExhausted"}}); err != nil {
+				log.Error().Err(err).
+					Str("component", reserveSessionActionName).
+					Str("sliding_node", param.SlidingNode).
+					Msg("failed to override next for aid quota exhausted")
+				return false
+			}
+		}
 		log.Info().Str("component", reserveSessionActionName).
 			Str("item_id", itemID).
 			Int("quantity", quantity).
 			Bool("configured", configured).
+			Bool("aid_quota_applied", aidQuota.Applied).
+			Int("aid_quota_balance", aidQuota.Balance).
+			Int("aid_quota_limit", aidQuota.Limit).
 			Str("sliding_node", param.SlidingNode).
 			Msg("reserve rule applied")
+		if aidQuota.Applied && aidQuota.Target > 0 {
+			printRuntimeAidQuotaLimited(ctx, aidQuota)
+		}
 		return true
 	case reserveOperationSatisfy:
 		itemID, quantity, marked, ok := markSelectedReserveSatisfied()
@@ -141,6 +159,20 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			printRuntimeReserveSatisfied(ctx, itemID, quantity)
 		}
 		return true
+	case reserveOperationSkip:
+		// 调度券不足以兑换一件当前物品时，无条件把该物品标记为本次任务跳过。
+		// 与 satisfy 不同，它不要求该物品配置过保留规则。
+		itemID, marked := markSelectedReserveSkipped()
+		if itemID == "" {
+			log.Error().Str("component", reserveSessionActionName).
+				Msg("skip has no selected item")
+			return false
+		}
+		log.Info().Str("component", reserveSessionActionName).
+			Str("item_id", itemID).
+			Bool("marked", marked).
+			Msg("item skipped for current task due to insufficient aid quota")
+		return true
 	default:
 		return false
 	}
@@ -155,7 +187,7 @@ func parseReserveSessionActionParam(raw string) (*reserveSessionActionParam, err
 	param.ItemID = strings.TrimSpace(param.ItemID)
 	param.SlidingNode = strings.TrimSpace(param.SlidingNode)
 	switch param.Operation {
-	case reserveOperationReset, reserveOperationSatisfy:
+	case reserveOperationReset, reserveOperationSatisfy, reserveOperationSkip:
 	case reserveOperationRegister:
 		if param.Quantity < reserveBlacklistQuantity {
 			return nil, fmt.Errorf("quantity must be -1 or greater")
@@ -209,6 +241,21 @@ func resetReserveSession() {
 	reserveSelected = ""
 	reserveSessionMu.Unlock()
 	resetPrioritySelectionSession()
+}
+
+// markSelectedReserveSkipped 无条件把当前选中物品标记为本次任务跳过（加入已达保留量集合，
+// 选品阶段会直接排除）。返回 marked=false 表示该物品此前已标记。与 satisfy 的区别是
+// 它不要求该物品配置过保留规则，用于调度券不足以兑换一件时的主动跳过。
+func markSelectedReserveSkipped() (itemID string, marked bool) {
+	reserveSessionMu.Lock()
+	defer reserveSessionMu.Unlock()
+	itemID = reserveSelected
+	if itemID == "" {
+		return "", false
+	}
+	_, exists := reserveSatisfiedItems[itemID]
+	reserveSatisfiedItems[itemID] = struct{}{}
+	return itemID, !exists
 }
 
 // markSelectedReserveSatisfied 在 BetterSliding 确认无需交易，或可达目标的交易成功确认后，
@@ -287,26 +334,51 @@ func selectedReserveRule() (itemID string, quantity int, configured bool) {
 	return itemID, quantity, configured
 }
 
-func buildReserveSlidingOverride(slidingNode string, quantity int, configured bool) map[string]any {
-	if configured {
+// buildReserveSlidingOverride 组装覆盖 BetterSliding 滑动节点的参数。
+//
+// configured 为 true 时按保留规则只卖超出保留量的部分；否则默认全部售出。
+// aidQuota.Applied 为 true 时（活动物品），目标数量改为调度券余量可兑换的上限：
+// 有保留规则时还需读取库存，卖出「超出保留量且不超调度券上限」的部分；
+// 调度券不足以兑换一件时目标为 0，BetterSliding 判定 OutOfRange 后启用
+// OutpostTradingAidQuotaExhausted 跳过该物品。
+func buildReserveSlidingOverride(slidingNode string, quantity int, configured bool, aidQuota aidQuotaDecision) map[string]any {
+	if !aidQuota.Applied {
+		if configured {
+			return map[string]any{
+				slidingNode: map[string]any{
+					"next": []string{
+						"OutpostTradingReserveAlreadySatisfied",
+						"OutpostTradingSellThenLoop",
+					},
+					"attach": map[string]any{
+						"TargetQuantity": quantity,
+						"ReverseTarget":  true,
+					},
+				},
+			}
+		}
 		return map[string]any{
 			slidingNode: map[string]any{
-				"next": []string{
-					"OutpostTradingReserveAlreadySatisfied",
-					"OutpostTradingSellThenLoop",
-				},
+				"next": []string{"OutpostTradingSell"},
 				"attach": map[string]any{
-					"TargetQuantity": quantity,
-					"ReverseTarget":  true,
+					"TargetQuantity": 999999,
+					"ReverseTarget":  false,
 				},
 			},
 		}
 	}
+
+	// 活动物品：目标已在 Go 侧算好，直接关闭 ReverseTarget。
+	// Target < 1 的情况已由调用方改写 sliding 节点的 next 跳到 AidQuotaExhausted，
+	// 不会进入 BetterSliding；其余情况 ClampTargetToSliderMax 保证目标不超过库存。
 	return map[string]any{
 		slidingNode: map[string]any{
-			"next": []string{"OutpostTradingSell"},
+			"next": []string{
+				"OutpostTradingAidQuotaExhausted",
+				"OutpostTradingSellThenLoop",
+			},
 			"attach": map[string]any{
-				"TargetQuantity": 999999,
+				"TargetQuantity": aidQuota.Target,
 				"ReverseTarget":  false,
 			},
 		},

@@ -692,6 +692,7 @@
     "task.OutpostTrading.vouchers_exhausted": "🎫 当前据点调度券不足，结束本据点售卖",
     "task.OutpostTrading.trade_completed": "✅ 已完成交易",
     "task.OutpostTrading.reserve_skip": "⏭️ 当前库存未超过保留数量，跳过本次交易",
+    "task.OutpostTrading.aid_quota_exhausted": "🎫 调度券不足以兑换一件该物品，跳过本次交易",
     "task.OutpostTrading.OperatorAutoSwitch": "启用干员自动切换",
     "task.OutpostTrading.OperatorAutoSwitchDescription": "切换至最佳售卖联络干员；售卖后统一规划所有启用据点的生产派驻。",
     "task.OutpostTrading.ForceRefreshOperatorCache": "强制刷新干员缓存",

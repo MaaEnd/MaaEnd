@@ -128,9 +128,9 @@ test("OutpostTrading generated location items merge prosperity levels without ap
     };
     const result = buildSelectionItems(data, [{SettlementId: "test", LocationId: "Test"}]);
     assert.deepEqual(result.locationItems.Test, [
-        {item_id: "low", rarity: 2, unit_price: 110},
-        {item_id: "high_cheap", rarity: 3, unit_price: 80},
-        {item_id: "high_expensive", rarity: 3, unit_price: 120},
+        {item_id: "low", rarity: 2, unit_price: 110, activity_id: ""},
+        {item_id: "high_cheap", rarity: 3, unit_price: 80, activity_id: ""},
+        {item_id: "high_expensive", rarity: 3, unit_price: 120, activity_id: ""},
     ]);
     assert.deepEqual(result.items.low.names, {
         zh_cn: "低级",

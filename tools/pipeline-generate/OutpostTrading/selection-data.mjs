@@ -194,6 +194,7 @@ export function buildSelectionItems(data = settlementData, sourceLocations = out
                         itemID,
                         rarity: item.rarity,
                         unitPrice: tradeItem.unit_price,
+                        activityID: tradeItem.activity_id || "",
                         excluded,
                     });
                 } else if (tradeItem.unit_price > previous.unitPrice) {
@@ -205,11 +206,19 @@ export function buildSelectionItems(data = settlementData, sourceLocations = out
 
         locations[location.LocationId] = [...locationItems.values()]
             .filter((item) => !item.excluded)
-            .map((item) => ({
-                item_id: item.itemID,
-                rarity: item.rarity,
-                unit_price: item.unitPrice,
-            }));
+            .map((item) => {
+                const entry = {
+                    item_id: item.itemID,
+                    rarity: item.rarity,
+                    unit_price: item.unitPrice,
+                };
+                // activity_id 非空表示活动限时可兑换物品：售卖时需按调度券余量限制数量，
+                // 避免提交后超出据点可兑换调度券上限。常驻物品不携带该字段。
+                if (item.activityID) {
+                    entry.activity_id = item.activityID;
+                }
+                return entry;
+            });
     }
 
     return {

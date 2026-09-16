@@ -526,6 +526,7 @@
     "task.OutpostTrading.vouchers_exhausted": "🎫 이 거점의 관리권이 부족하여 여기서 판매를 종료합니다",
     "task.OutpostTrading.trade_completed": "✅ 거래 완료",
     "task.OutpostTrading.reserve_skip": "⏭️ 현재 재고가 보유 수량을 초과하지 않아 이번 거래를 건너뜁니다",
+    "task.OutpostTrading.aid_quota_exhausted": "🎫 관리권이 이 상품 1개분에도 부족하여 이번 거래를 건너뜁니다",
     "task.OutpostTrading.OperatorAutoSwitch": "오퍼레이터 자동 전환 활성화",
     "task.OutpostTrading.OperatorAutoSwitchDescription": "최적의 판매 접선 오퍼레이터로 전환하고, 판매 후에는 활성화된 모든 거점의 생산 배치를 다시 계획합니다.",
     "task.OutpostTrading.ForceRefreshOperatorCache": "오퍼레이터 캐시 강제 새로고침",

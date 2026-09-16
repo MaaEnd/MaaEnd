@@ -112,6 +112,7 @@
     "outposttrading.runtime.item_switched": "📦 商品を切り替えました：%s（%s）",
     "outposttrading.runtime.item_adopted": "📦 現在の商品をそのまま使用：%s（%s）",
     "outposttrading.runtime.item_out_of_stock": "🚫 完売を確認して除外：%s（%s）",
+    "outposttrading.runtime.aid_quota_limited": "🎫 拠点の取引券残量 %d、%s単価 %d、今回の取引は最大 %d 個まで",
     "outposttrading.runtime.usage.target": "販売用派遣オペレーター",
     "outposttrading.runtime.usage.restore": "販売後の生産用派遣オペレーター",
     "dijiangrewards.wait_exchange_countdown.message": "情報交流の終了を待機中",

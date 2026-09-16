@@ -120,12 +120,16 @@ def build_sell_product_data(tables: dict[str, Any]) -> dict[str, Any]:
                         f"据点 {settlement_id} 引用了 ItemTable 中不存在的物品 {item_id}"
                     )
                 used_item_ids.add(item_id)
-                trade_items.append(
-                    {
-                        "item_id": item_id,
-                        "unit_price": trade_item.get("rewardMoneyCount"),
-                    }
-                )
+                # activityId 非空表示该货品为活动限时可兑换物品，MaaEnd 据此
+                # 在售卖时主动限制数量，避免超出据点调度券上限。
+                activity_id = trade_item.get("activityId") or ""
+                trade_item_entry = {
+                    "item_id": item_id,
+                    "unit_price": trade_item.get("rewardMoneyCount"),
+                }
+                if activity_id:
+                    trade_item_entry["activity_id"] = activity_id
+                trade_items.append(trade_item_entry)
             trade_items.sort(key=lambda item: item["unit_price"], reverse=True)
             prosperity_levels.append(
                 {

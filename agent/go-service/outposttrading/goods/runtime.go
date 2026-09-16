@@ -177,3 +177,17 @@ func runtimeReserveSatisfiedMessage(itemID string, quantity int) string {
 		quantity,
 	)
 }
+
+func printRuntimeAidQuotaLimited(ctx *maa.Context, decision aidQuotaDecision) {
+	maafocus.Print(ctx, runtimeAidQuotaLimitedMessage(decision))
+}
+
+func runtimeAidQuotaLimitedMessage(decision aidQuotaDecision) string {
+	return i18n.T(
+		"outposttrading.runtime.aid_quota_limited",
+		selectiondata.ItemName(decision.ItemID),
+		decision.Balance,
+		decision.UnitPrice,
+		decision.Target,
+	)
+}

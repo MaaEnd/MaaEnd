@@ -207,6 +207,42 @@
             "OutpostTradingSellLoopEnd"
         ]
     },
+    "OutpostTradingAidQuotaBalance": {
+        "desc": "读取据点当前可兑换调度券余量，用于限制活动物品售卖数量",
+        "recognition": "OCR",
+        "roi": [
+            865,
+            193,
+            122,
+            21
+        ],
+        "expected": [
+            // @i18n-skip
+            "^[0-9]+$"
+        ],
+        "only_rec": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingAidQuotaStock": {
+        "desc": "读取当前货品库存，配合调度券余量计算活动物品可售数量",
+        "recognition": "OCR",
+        "roi": [
+            1073,
+            327,
+            119,
+            25
+        ],
+        "expected": [
+            // @i18n-skip
+            "^[0-9]+$"
+        ],
+        "only_rec": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "OutpostTradingZeroMoneyWithTip": {
         "desc": "调度券不足（仅未成交时提示）",
         "recognition": "And",
@@ -440,6 +476,25 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.OutpostTrading.reserve_skip"
+        }
+    },
+    "OutpostTradingAidQuotaExhausted": {
+        "desc": "调度券不足以兑换一件当前活动物品，本次任务跳过该物品",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "skip"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingSellLoop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.OutpostTrading.aid_quota_exhausted"
         }
     },
     "OutpostTradingSellLoopEnd": {

@@ -48,7 +48,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
        └─ [Anchor]PriorityItemsExhausted → CloseGoodsAfterExhausted → SellLoopEnd
 ```
 
-整任务级终止：据点管理未解锁时 SceneManager 进不去，任务终止；超出据点可兑换调度券上限的弹窗由 `OutpostTradingAidQuotaExceededStop` 直接 StopTask，不自动确认。
+整任务级终止：据点管理未解锁时 SceneManager 进不去，任务终止；超出据点可兑换调度券上限的弹窗由 `OutpostTradingAidQuotaExceededStop` 直接 StopTask，不自动确认。活动物品售卖前会先按调度券余量限制数量（见下文「活动物品调度券上限」），正常情况下不再触发该弹窗；它作为兜底保留。
 
 > [!IMPORTANT]
 >
@@ -95,6 +95,17 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 ### 缺货
 
 换货后确认当前物品缺货 → `[Anchor]MarkOutOfStock` 按最后提交的 `itemId` 写入任务级缺货集合，后续据点选品直接跳过；不落盘，下次任务初始化时清空。
+
+### 活动物品调度券上限（`aidquota`）
+
+- 活动物品（`selection_data.json` 的 `activity_id` 非空，如龙泡泡）单价高、库存多，BetterSliding 默认 `TargetQuantity=999999` 全部提交后易超出据点可兑换调度券上限，触发 `OutpostTradingAidQuotaExceededStop` 终止整个任务。
+- `OutpostTrading{LocationId}ApplyReserve`（`ReserveSession` 的 `apply` 操作）在 override 滑动节点前，先 OCR 读取据点右上角调度券余量（`OutpostTradingAidQuotaBalance`），按 `可售数量 = 余量 / 单价` 计算上限：
+  - 无保留规则：目标 = 调度券上限，BetterSliding 的 `ClampTargetToSliderMax` 负责压到库存。
+  - 有保留规则：再读当前库存（`OutpostTradingAidQuotaStock`），目标 = `clamp(库存 - 保留量, 0, 上限)`，并关闭 `ReverseTarget`（有效目标已在 Go 侧算好，避免依赖运行时库存）。
+  - 上限为 0（连一件都兑换不起）：改写滑动节点 next 跳 `OutpostTradingAidQuotaExhausted`，`skip` 操作把该物品加入本次任务跳过集合，选品阶段排除，售卖循环继续尝试更便宜的物品。
+- 常驻物品（`activity_id` 为空）不受此限制，行为不变；OCR 识别失败时回退到原保留规则，不中断任务。
+- 调度券余量与库存的 ROI 在 Win32（`resource/`）与 ADB（`resource_adb/`）两套 `SellCore.json` 中分别维护。
+- 数据来源：`activity_id` 由 `sell_product_data.py` 从 `SettlementBasicDataTable.settlementTradeItemMap[].activityId` 裁剪，经 `selection-data.mjs` 传播到 `selection_data.json` 的 location items。
 
 ## 自动选择干员规则（Go `operator/`）
 

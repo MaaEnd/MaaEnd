@@ -43,6 +43,10 @@ type LocationItem struct {
 	ItemID    string `json:"item_id"`
 	Rarity    int    `json:"rarity"`
 	UnitPrice int    `json:"unit_price"`
+	// ActivityID 非空表示该货品为活动限时可兑换物品。
+	// 活动物品单价高、库存多，提交后易超出据点可兑换调度券上限，
+	// 售卖时需按调度券余量限制数量；常驻物品不需要。
+	ActivityID string `json:"activity_id,omitempty"`
 }
 
 // Operator 描述一名干员及其本地化名称。

@@ -14,5 +14,21 @@
             109,
             26
         ]
+    },
+    "OutpostTradingAidQuotaBalance": {
+        "roi": [
+            761,
+            240,
+            160,
+            28
+        ]
+    },
+    "OutpostTradingAidQuotaStock": {
+        "roi": [
+            1041,
+            239,
+            131,
+            32
+        ]
     }
 }

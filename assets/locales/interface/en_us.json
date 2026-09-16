@@ -879,6 +879,7 @@
     "task.OutpostTrading.vouchers_exhausted": "🎫 This outpost has insufficient stock bills; ending sales here",
     "task.OutpostTrading.trade_completed": "✅ Trade completed",
     "task.OutpostTrading.reserve_skip": "⏭️ Current stock does not exceed the reserve quantity; skipping this trade",
+    "task.OutpostTrading.aid_quota_exhausted": "🎫 Stock bills cannot cover even one of this item; skipping this trade",
     "task.OutpostTrading.OperatorAutoSwitch": "Enable Operator Auto-Switch",
     "task.OutpostTrading.OperatorAutoSwitchDescription": "Switches to the best selling operator liaison, then plans production assignments across all enabled outposts after selling.",
     "task.OutpostTrading.ForceRefreshOperatorCache": "Force Refresh Operator Cache",

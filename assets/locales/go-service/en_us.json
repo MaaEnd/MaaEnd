@@ -113,6 +113,7 @@
     "outposttrading.runtime.item_switched": "📦 Switched goods: %s (%s)",
     "outposttrading.runtime.item_adopted": "📦 Keeping current goods: %s (%s)",
     "outposttrading.runtime.item_out_of_stock": "🚫 Confirmed sold out and excluded: %s (%s)",
+    "outposttrading.runtime.aid_quota_limited": "🎫 Outpost stock bill reserve: %d; %s unit price %d, selling at most %d this trade",
     "outposttrading.runtime.usage.target": "selling operator liaison",
     "outposttrading.runtime.usage.restore": "post-sale production operator liaison",
     "dijiangrewards.wait_exchange_countdown.message": "Waiting for clue exchange to end",

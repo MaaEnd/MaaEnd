@@ -112,6 +112,7 @@
     "outposttrading.runtime.item_switched": "📦 已切換貨品：%s（%s）",
     "outposttrading.runtime.item_adopted": "📦 沿用目前貨品：%s（%s）",
     "outposttrading.runtime.item_out_of_stock": "🚫 已確認售完並排除：%s（%s）",
+    "outposttrading.runtime.aid_quota_limited": "🎫 目前據點可兌換調度券餘量 %d，%s單價 %d，本次最多售賣 %d 件",
     "outposttrading.runtime.usage.target": "販售聯絡幹員",
     "outposttrading.runtime.usage.restore": "售後生產聯絡幹員",
     "dijiangrewards.wait_exchange_countdown.message": "正在等待情報交流結束",
