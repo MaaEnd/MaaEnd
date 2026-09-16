@@ -176,7 +176,7 @@ Unselected items do not enter the whitelist; OCR will not match them.
 The discount threshold is controlled by two options:
 
 - **Minimum discount** (`AutoStockMinDiscountValleyIV`, input, 0-99): Rewrites the expression of `AutoStockDiscountCompareValleyIV` (`ExpressionRecognition`) to `{AutoStockInStapleItemDiscountsValleyIV} <= -{MinDiscountValleyIV}`; the discount OCR value is compared against the threshold and only matching items are hit. Set 0 to buy all items with a discount badge.
-- **Include non-discounted items** (`AutoStockIncludeNoDiscountValleyIV`, switch, off by default): When enabled, the discount OCR node is replaced entirely by `ColorMatch` (passes as long as a discount color block exists), and the `all_of` of `AutoStockBuyItemValleyIVTask` reverts to 3 members — equivalent to buying all selected items; the "Minimum discount" setting is ignored.
+- **Include non-discounted items** (`AutoStockIncludeNoDiscountValleyIV`, switch, off by default): When enabled, the discount OCR node is replaced entirely by `ColorMatch` (full-range threshold `[0,0,0]`–`[255,255,255]` with `count` defaulting to 1, so any non-empty ROI passes and the presence of a discount color block does not affect the result), and the `all_of` of `AutoStockBuyItemValleyIVTask` reverts to 3 members — equivalent to buying all selected items; the "Minimum discount" setting is ignored.
 
 ### 4. Judgment of "Affordability"
 

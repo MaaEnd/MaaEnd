@@ -176,7 +176,7 @@ pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple
 折扣阈值由两个选项控制：
 
 - **最低折扣**（`AutoStockMinDiscountValleyIV`，input，0-99）：改写 `AutoStockDiscountCompareValleyIV`（`ExpressionRecognition`）的 expression 为 `{AutoStockInStapleItemDiscountsValleyIV} <= -{MinDiscountValleyIV}`，折扣 OCR 数值与阈值比较，满足才命中；填 0 时购买所有有折扣徽标的物资。
-- **包含无折扣物资**（`AutoStockIncludeNoDiscountValleyIV`，switch，默认关）：开启后将折扣 OCR 节点整体替换为 `ColorMatch`（有折扣色块即通过），并把 `AutoStockBuyItemValleyIVTask` 的 `all_of` 回退为 3 成员——行为等同于购买所有勾选物资，「最低折扣」被忽略。
+- **包含无折扣物资**（`AutoStockIncludeNoDiscountValleyIV`，switch，默认关）：开启后将折扣 OCR 节点整体替换为 `ColorMatch`（全范围阈值 `[0,0,0]`–`[255,255,255]` 且 `count` 默认 1，非空 ROI 恒定通过，折扣色块是否存在不影响结果），并把 `AutoStockBuyItemValleyIVTask` 的 `all_of` 回退为 3 成员——行为等同于购买所有勾选物资，「最低折扣」被忽略。
 
 ### 4. “能否买得起”的判断
 
