@@ -859,14 +859,11 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
         zoneClassifier = std::make_unique<YoloPredictor>(config.yoloModelPath, matchCfg.yoloConfThreshold, config.yoloThreads);
     }
 
-    // 摄像机朝向三件套工件：前处理图 + 观测/参考分类器。分类器推理是本阶段的主要开销，
-    // 故用 2 个 intra-op 线程并行，缩短同步帧追加的定位延迟。三张图都是可选的，
-    // 至少配置一张才构造预测器，可用性由预测器内部判断（前处理 + 至少一个分类器）。
-    if (!config.cameraOrientationPreprocessModelPath.empty() || !config.cameraOrientationPolarModelPath.empty()
-        || !config.cameraOrientationRefModelPath.empty()) {
+    // 摄像机朝向两图工件：前处理图 + 参考配对分类器。推理是本阶段的主要开销，故用 2 个
+    // intra-op 线程并行，缩短同步帧追加的定位延迟；两图齐备时预测器才可用。
+    if (!config.cameraOrientationPreprocessModelPath.empty() || !config.cameraOrientationRefModelPath.empty()) {
         orientationPredictor = std::make_unique<CameraOrientationPredictor>(
             config.cameraOrientationPreprocessModelPath,
-            config.cameraOrientationPolarModelPath,
             config.cameraOrientationRefModelPath,
             2);
     }
@@ -1813,20 +1810,16 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     std::future<double> angleFuture = std::async(std::launch::async, [&minimap]() { return InferYellowArrowRotation(minimap); });
     std::optional<double> resolvedAngle;
 
-    // 定位成功 → 参考配对分派（依赖 (x, y, zone)，只能在拿到结果后同步推理）；
-    // 定位失败 → 交给不依赖坐标的观测兜底。小地图被遮挡的帧条带无效，调用方不要走这里。
+    // camRot 由参考配对模型同步推理；它需要 (x, y, zone)，定位失败帧没有参考可采。
     auto attachCamRot = [&](LocateResult&& result) -> LocateResult {
-        if (!orientationPredictor || !orientationPredictor->isLoaded()) {
-            return result;
-        }
-        if (result.position.has_value() && result.position->zoneId == "None") {
-            return result;
-        }
-        if (!result.position.has_value()) {
-            result.camRot = orientationPredictor->predictObservationOnly(minimap);
+        if (!orientationPredictor || !orientationPredictor->isLoaded() || !result.position.has_value()) {
             return result;
         }
         const std::string& zoneId = result.position->zoneId;
+        if (zoneId == "None") {
+            // None 是遮挡占位，没有对应的底图资产。
+            return result;
+        }
         const auto zoneIt = zones.find(zoneId);
         const cv::Mat referenceAsset = zoneIt != zones.end() ? zoneIt->second : cv::Mat();
         result.camRot = orientationPredictor
@@ -2025,14 +2018,13 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     const SearchConstraint constraint = buildSearchConstraint(expectedZoneSelector, targetZoneId, coarse);
     if (coarse.valid && !coarse.is_none && !constraint.yolo_validated) {
-        return attachCamRot(LocateResult { .status = LocateStatus::YoloFailed,
-                                           .debugMessage = "YOLO is confident but zone validation failed. Aborting before broad search." });
+        return LocateResult { .status = LocateStatus::YoloFailed,
+                              .debugMessage = "YOLO is confident but zone validation failed. Aborting before broad search." };
     }
     const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
     if (coarse.valid && !coarse.is_none && coarse.has_roi && !isPathHeatmapZone && constraint.mode != GlobalSearchMode::RoiFine) {
-        return attachCamRot(
-            LocateResult { .status = LocateStatus::YoloFailed,
-                           .debugMessage = "YOLO is confident but ROI constraint validation failed. Aborting to avoid broad search." });
+        return LocateResult { .status = LocateStatus::YoloFailed,
+                              .debugMessage = "YOLO is confident but ROI constraint validation failed. Aborting to avoid broad search." };
     }
 
     int maxAllowedLost = IsPathHeatmapZone(targetZoneId) ? 10 : options.max_lost_frames;
@@ -2090,7 +2082,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
                 motionTracker->forceLost();
                 stablePosition.reset();
             }
-            return attachCamRot(LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." });
+            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Global search failed." };
         }
     }
 
@@ -2109,7 +2101,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
             coldStartBuffer.clear();
             stablePosition.reset();
         }
-        return attachCamRot(LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Far-jump rejected." });
+        return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Far-jump rejected." };
     }
 
     if (!hasLast && !highConf) {
@@ -2120,7 +2112,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         if (!IsTightCluster(coldStartBuffer, kPositionConsensusRadius)) {
             LogInfo << "Cold-start: collecting." << VAR(coldStartBuffer.size()) << VAR(globalResult->x) << VAR(globalResult->y)
                     << VAR(globalResult->score);
-            return attachCamRot(LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = kColdStartCollectingMessage });
+            return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = kColdStartCollectingMessage };
         }
         LogInfo << "Cold-start: consensus." << VAR(globalResult->x) << VAR(globalResult->y) << VAR(globalResult->score);
     }

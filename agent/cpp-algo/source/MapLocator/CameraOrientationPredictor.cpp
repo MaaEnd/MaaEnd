@@ -16,28 +16,21 @@ namespace maplocator
 
 namespace
 {
-// 三件套工件定死的输入/输出名；改动即契约变更。
+// 交付工件定死的输入/输出名；改动即契约变更。
 constexpr const char* kPreprocessInputNames[] = { "minimap", "asset", "x", "y", "scale" };
 constexpr const char* kPreprocessOutputNames[] = { "observed", "reference" };
 constexpr const char* kClassifierInputName = "strip";
 constexpr const char* kClassifierOutputName = "pmf";
 
-// 缺口占比分派阈值：参考条带 alpha（< 255）占比严格大于该值时用观测分类器，
-// 否则用参考配对分类器。与工件口径绑定，不可单方面修改。
-constexpr double kReferenceGapDispatchThreshold = 0.3;
 // PMF 解码的定峰窗口半径（bin）：argmax 后在该窗口内按概率加权求圆均值。
 constexpr int kRefineRadius = 5;
 
-// 参考资产不可用时的占位输入：1x1 全 0 BGRA。该路线只用于产出观测条带，参考
-// 条带不参与判断，分派走观测分类器。
+// 参考资产缺失或非 BGRA 时的占位输入：1x1 全 0 BGRA。采样窗不可能落在这块资产里，
+// 参考条带据此全为「参考缺失」。
 const cv::Mat kUnavailableAsset(1, 1, CV_8UC4, cv::Scalar::all(0));
 } // namespace
 
-CameraOrientationPredictor::CameraOrientationPredictor(
-    const std::string& preprocessModelPath,
-    const std::string& polarModelPath,
-    const std::string& refModelPath,
-    int threads)
+CameraOrientationPredictor::CameraOrientationPredictor(const std::string& preprocessModelPath, const std::string& refModelPath, int threads)
 {
     // 前处理图是观测条带的唯一来源；缺失时预测器不可用，无需加载分类器。
     if (preprocessModelPath.empty()) {
@@ -58,12 +51,10 @@ CameraOrientationPredictor::CameraOrientationPredictor(
     sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
 
     isPreprocessModelLoaded_ = loadSession(preprocessModelPath, "preprocess", sessionOptions, &preprocessSession);
-    isPolarModelLoaded_ = loadSession(polarModelPath, "polar", sessionOptions, &polarSession);
     isRefModelLoaded_ = loadSession(refModelPath, "polar_with_ref", sessionOptions, &refSession);
 
     if (!isLoaded()) {
-        LogError << "CameraOrientation: predictor disabled" << VAR(isPreprocessModelLoaded_) << VAR(isPolarModelLoaded_)
-                 << VAR(isRefModelLoaded_);
+        LogError << "CameraOrientation: predictor disabled" << VAR(isPreprocessModelLoaded_) << VAR(isRefModelLoaded_);
         ortEnv.reset();
     }
 }
@@ -99,27 +90,14 @@ std::optional<CameraOrientation> CameraOrientationPredictor::predict(
     double scale,
     const std::string& zoneId)
 {
-    // 参考分类器未加载 / 资产缺失或非 BGRA 时参考不可用：缺口记 -1，走观测分类器。
-    const bool assetUsable =
-        isRefModelLoaded_ && !referenceAsset.empty() && referenceAsset.channels() == 4 && referenceAsset.isContinuous();
+    const bool assetUsable = !referenceAsset.empty() && referenceAsset.channels() == 4 && referenceAsset.isContinuous();
     const cv::Mat& asset = assetUsable ? referenceAsset : kUnavailableAsset;
-    return infer(minimap, asset, assetUsable, x, y, scale, zoneId);
-}
-
-std::optional<CameraOrientation> CameraOrientationPredictor::predictObservationOnly(const cv::Mat& minimap)
-{
-    // 喂占位资产、坐标填零即可：观测条带与它们无关。polar 未加载时静默返回，
-    // 不在失败帧上刷错误日志。
-    if (!isPreprocessModelLoaded_ || !isPolarModelLoaded_) {
-        return std::nullopt;
-    }
-    return infer(minimap, kUnavailableAsset, false, 0.0, 0.0, 1.0, "observation-only");
+    return infer(minimap, asset, x, y, scale, zoneId);
 }
 
 std::optional<CameraOrientation> CameraOrientationPredictor::infer(
     const cv::Mat& minimap,
     const cv::Mat& asset,
-    bool assetUsable,
     double x,
     double y,
     double scale,
@@ -200,39 +178,30 @@ std::optional<CameraOrientation> CameraOrientationPredictor::infer(
         const int64_t stripWidth = observedShape[2];
         const size_t stripPixels = static_cast<size_t>(stripHeight * stripWidth);
 
-        // 缺口占比：参考条带 alpha（第 4 通道）< 255 的像素占比。
-        double gapFraction = -1.0;
-        if (assetUsable) {
-            int64_t gapPixels = 0;
-            for (size_t i = 0; i < stripPixels; ++i) {
-                if (referenceData[i * 4 + 3] < 255) {
-                    ++gapPixels;
-                }
+        // 缺口占比：参考条带 alpha（第 4 通道）< 255 的像素占比，仅作诊断日志。
+        int64_t gapPixels = 0;
+        for (size_t i = 0; i < stripPixels; ++i) {
+            if (referenceData[i * 4 + 3] < 255) {
+                ++gapPixels;
             }
-            gapFraction = static_cast<double>(gapPixels) / static_cast<double>(stripPixels);
         }
-        const bool usePolar = !assetUsable || gapFraction > kReferenceGapDispatchThreshold;
-        const char* modelSource = usePolar ? "polar" : "polar_with_ref";
-        LogInfo << "CameraOrientation dispatch:" << VAR(zoneId) << VAR(x) << VAR(y) << VAR(scale) << VAR(gapFraction) << VAR(modelSource);
+        const double gapFraction = static_cast<double>(gapPixels) / static_cast<double>(stripPixels);
+        LogInfo << "CameraOrientation ref:" << VAR(zoneId) << VAR(x) << VAR(y) << VAR(scale) << VAR(gapFraction);
 
-        // 分类器输入：polar 直接零拷贝用观测条带；ref 拼接 [obs.BGR, ref.BGR, ref.A]。
-        std::uint8_t* classifierData = observedData;
-        int classifierChannels = 3;
-        if (!usePolar) {
-            refInputScratch.create(static_cast<int>(stripHeight), static_cast<int>(stripWidth), CV_MAKETYPE(CV_8U, 7));
-            cv::Mat observedMat(static_cast<int>(stripHeight), static_cast<int>(stripWidth), CV_8UC3, observedData);
-            cv::Mat referenceMat(static_cast<int>(stripHeight), static_cast<int>(stripWidth), CV_8UC4, referenceData);
-            cv::Mat sources[] = { observedMat, referenceMat };
-            // 源通道跨矩阵连续编号：[0,3) 观测 BGR、[3,7) 参考 BGR + alpha，因此恒等映射。
-            const int fromTo[] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6 };
-            cv::mixChannels(sources, std::size(sources), &refInputScratch, 1, fromTo, 7);
-            classifierData = refInputScratch.ptr<std::uint8_t>();
-            classifierChannels = 7;
-        }
+        // 分类器输入固定为 7 通道参考配对 [obs.BGR, ref.BGR, ref.A]。
+        refInputScratch.create(static_cast<int>(stripHeight), static_cast<int>(stripWidth), CV_MAKETYPE(CV_8U, 7));
+        cv::Mat observedMat(static_cast<int>(stripHeight), static_cast<int>(stripWidth), CV_8UC3, observedData);
+        cv::Mat referenceMat(static_cast<int>(stripHeight), static_cast<int>(stripWidth), CV_8UC4, referenceData);
+        cv::Mat sources[] = { observedMat, referenceMat };
+        // 源通道跨矩阵连续编号：[0,3) 观测 BGR、[3,7) 参考 BGR + alpha，因此恒等映射。
+        const int fromTo[] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6 };
+        cv::mixChannels(sources, std::size(sources), &refInputScratch, 1, fromTo, 7);
+        std::uint8_t* classifierData = refInputScratch.ptr<std::uint8_t>();
+        const int classifierChannels = 7;
 
-        Ort::Session* classifierSession = usePolar ? polarSession.get() : refSession.get();
+        Ort::Session* classifierSession = refSession.get();
         if (!classifierSession) {
-            LogError << "CameraOrientation: classifier unavailable for dispatch" << VAR(zoneId) << VAR(gapFraction) << VAR(modelSource);
+            LogError << "CameraOrientation: reference classifier unavailable" << VAR(zoneId);
             return std::nullopt;
         }
 

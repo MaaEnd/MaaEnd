@@ -26,9 +26,8 @@ struct MapLocatorConfig
 {
     std::string mapResourceDir;
     std::string yoloModelPath;
-    // 摄像机朝向三件套工件：前处理图 + 观测/参考分类器；路径为空表示未部署该图。
+    // 摄像机朝向两图工件：前处理图 + 参考配对分类器；路径为空表示未部署该图。
     std::string cameraOrientationPreprocessModelPath;
-    std::string cameraOrientationPolarModelPath;
     std::string cameraOrientationRefModelPath;
     int yoloThreads = 1;
 };
@@ -87,7 +86,6 @@ struct LocateResult
     LocateStatus status;
     std::optional<MapPosition> position;
     std::string debugMessage; // 用于向 Pipeline 输出日志
-    // 定位成功用参考配对，失败回退到不依赖坐标的观测模型；被遮挡（None）时不携带
     std::optional<CameraOrientation> camRot;
 };
 

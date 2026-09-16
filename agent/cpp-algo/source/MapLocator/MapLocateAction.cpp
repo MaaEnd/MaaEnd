@@ -143,11 +143,6 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     LocateOutput output;
     output.status = static_cast<int>(result.status);
     output.message = result.debugMessage;
-    // camRot 与位置相互独立，失败帧也要输出，故先于位置写入
-    if (result.camRot.has_value()) {
-        output.camRot = result.camRot->rot;
-        output.camRotConf = result.camRot->confidence;
-    }
     if (!result.position.has_value()) {
         return output;
     }
@@ -159,6 +154,10 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
+    if (result.camRot.has_value()) {
+        output.camRot = result.camRot->rot;
+        output.camRotConf = result.camRot->confidence;
+    }
     return output;
 }
 
@@ -171,10 +170,6 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.message = result.debugMessage;
     output.zoneId = param.zone_id;
     output.target = param.target;
-    if (result.camRot.has_value()) {
-        output.camRot = result.camRot->rot;
-        output.camRotConf = result.camRot->confidence;
-    }
     if (!result.position.has_value()) {
         return output;
     }
@@ -185,6 +180,10 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
+    if (result.camRot.has_value()) {
+        output.camRot = result.camRot->rot;
+        output.camRotConf = result.camRot->confidence;
+    }
     return output;
 }
 
@@ -328,15 +327,12 @@ std::shared_ptr<MapLocator> getOrInitLocator()
         fs::path yoloModel = exeDir / ".." / "resource" / "model" / "map" / "cls.onnx";
         fs::path cameraOrientationDir = exeDir / ".." / "resource" / "model" / "map" / "cameraorientation";
         fs::path cameraOrientationPreprocessModel = cameraOrientationDir / "preprocess.onnx";
-        fs::path cameraOrientationPolarModel = cameraOrientationDir / "polar.onnx";
         fs::path cameraOrientationRefModel = cameraOrientationDir / "polar_with_ref.onnx";
 
         std::string mapRootStr = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));
         std::string yoloModelStr = fs::exists(yoloModel) ? MAA_NS::path_to_utf8_string(fs::absolute(yoloModel)) : "";
         std::string cameraOrientationPreprocessModelStr =
             fs::exists(cameraOrientationPreprocessModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationPreprocessModel)) : "";
-        std::string cameraOrientationPolarModelStr =
-            fs::exists(cameraOrientationPolarModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationPolarModel)) : "";
         std::string cameraOrientationRefModelStr =
             fs::exists(cameraOrientationRefModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationRefModel)) : "";
 
@@ -344,8 +340,6 @@ std::shared_ptr<MapLocator> getOrInitLocator()
         LogInfo << "Auto-init: yoloModel=" << (yoloModelStr.empty() ? "(not found)" : yoloModelStr);
         LogInfo << "Auto-init: cameraOrientationPreprocessModel="
                 << (cameraOrientationPreprocessModelStr.empty() ? "(not found)" : cameraOrientationPreprocessModelStr);
-        LogInfo << "Auto-init: cameraOrientationPolarModel="
-                << (cameraOrientationPolarModelStr.empty() ? "(not found)" : cameraOrientationPolarModelStr);
         LogInfo << "Auto-init: cameraOrientationRefModel="
                 << (cameraOrientationRefModelStr.empty() ? "(not found)" : cameraOrientationRefModelStr);
 
@@ -353,7 +347,6 @@ std::shared_ptr<MapLocator> getOrInitLocator()
         cfg.mapResourceDir = mapRootStr;
         cfg.yoloModelPath = yoloModelStr;
         cfg.cameraOrientationPreprocessModelPath = cameraOrientationPreprocessModelStr;
-        cfg.cameraOrientationPolarModelPath = cameraOrientationPolarModelStr;
         cfg.cameraOrientationRefModelPath = cameraOrientationRefModelStr;
         const unsigned hardwareThreads = std::thread::hardware_concurrency();
         cfg.yoloThreads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);
