@@ -50,6 +50,8 @@ const (
 	valuePrefixVideoResolutionHeight               = `video_resolution_height_h`
 	valuePrefixVideoResolutionWidth                = `video_resolution_width_h`
 	valuePrefixVideoTextureQuality1                = `video_texture_quality_1_h`
+	// PLDK_cachedRoleId 是游戏角色 UID；不要与 u8sdk_cached_uid 混淆。
+	valuePrefixPLDKCachedRoleId = `PLDK_cachedRoleId`
 )
 
 func GetScreenmanagerFullscreenMode() (uint32, error) {
@@ -231,6 +233,51 @@ func SetVideoTextureQuality1(value uint32) error {
 	return setDWord(valuePrefixVideoTextureQuality1, value)
 }
 
+// GetCachedUID 读取 Unity PlayerPrefs 中的 PLDK_cachedRoleId（游戏角色 UID）。
+// 不是 u8sdk_cached_uid。返回 8–12 位纯数字字符串。
+// 区服由 ResolveRegion 决定；不修改包级 registryPath。
+func GetCachedUID() (string, error) {
+	region, err := ResolveRegion()
+	if err != nil {
+		return "", err
+	}
+
+	path := registryPathCN
+	if region == regionGlobal {
+		path = registryPathGlobal
+	}
+
+	k, err := registry.OpenKey(registry.CURRENT_USER, path, registry.QUERY_VALUE)
+	if err != nil {
+		return "", fmt.Errorf("gamesetting: open %q failed: %w", path, err)
+	}
+	defer k.Close()
+
+	name, err := findValueNameByPrefixUnder(k, path, valuePrefixPLDKCachedRoleId)
+	if err != nil {
+		return "", err
+	}
+
+	val, _, err := k.GetBinaryValue(name)
+	if err != nil {
+		return "", fmt.Errorf("gamesetting: read binary value %q failed: %w", name, err)
+	}
+
+	uid := strings.TrimSpace(strings.TrimRight(string(val), "\x00"))
+	if uid == "" {
+		return "", fmt.Errorf("gamesetting: PLDK_cachedRoleId is empty under HKCU\\%s", path)
+	}
+	if len(uid) < 8 || len(uid) > 12 {
+		return "", fmt.Errorf("gamesetting: PLDK_cachedRoleId %q is not a valid 8-12 digit uid", uid)
+	}
+	for i := 0; i < len(uid); i++ {
+		if uid[i] < '0' || uid[i] > '9' {
+			return "", fmt.Errorf("gamesetting: PLDK_cachedRoleId %q is not a valid 8-12 digit uid", uid)
+		}
+	}
+	return uid, nil
+}
+
 func getDWord(prefix string) (uint32, error) {
 	k, err := registry.OpenKey(registry.CURRENT_USER, registryPath, registry.QUERY_VALUE)
 	if err != nil {
@@ -269,9 +316,13 @@ func setDWord(prefix string, value uint32) error {
 }
 
 func findValueNameByPrefix(k registry.Key, prefix string) (string, error) {
+	return findValueNameByPrefixUnder(k, registryPath, prefix)
+}
+
+func findValueNameByPrefixUnder(k registry.Key, path, prefix string) (string, error) {
 	names, err := k.ReadValueNames(-1)
 	if err != nil {
-		return "", fmt.Errorf("gamesetting: enumerate values under %q failed: %w", registryPath, err)
+		return "", fmt.Errorf("gamesetting: enumerate values under %q failed: %w", path, err)
 	}
 
 	var matches []string
@@ -283,11 +334,11 @@ func findValueNameByPrefix(k registry.Key, prefix string) (string, error) {
 
 	switch len(matches) {
 	case 0:
-		return "", fmt.Errorf("gamesetting: no value with prefix %q under HKCU\\%s", prefix, registryPath)
+		return "", fmt.Errorf("gamesetting: no value with prefix %q under HKCU\\%s", prefix, path)
 	case 1:
 		return matches[0], nil
 	default:
-		return "", fmt.Errorf("gamesetting: ambiguous prefix %q under HKCU\\%s, matched %v", prefix, registryPath, matches)
+		return "", fmt.Errorf("gamesetting: ambiguous prefix %q under HKCU\\%s, matched %v", prefix, path, matches)
 	}
 }
 
@@ -312,8 +363,17 @@ func setRegistryPath(region string) error {
 	return nil
 }
 
-// Apply 按 pretask 选项写入游戏显示相关注册表项。
-func Apply(region, displayType, resolution string) bool {
+// Apply 按 ResolveRegion 选定注册表路径，并写入游戏显示相关项。
+// 调用前若游戏未运行，须先 SetRegion；否则无法自动判区。
+func Apply(displayType, resolution string) bool {
+	region, err := ResolveRegion()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Msg("failed to resolve game region")
+		return false
+	}
 	if err := setRegistryPath(region); err != nil {
 		log.Error().
 			Err(err).

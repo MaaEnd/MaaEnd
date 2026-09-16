@@ -162,7 +162,15 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return true
 	}
 
-	if ok := gamesetting.Apply(params.GameSettingRegion, params.GameSettingDisplayType, resolution); !ok {
+	if err := gamesetting.SetRegion(params.GameSettingRegion); err != nil {
+		log.Error().
+			Err(err).
+			Str("region", params.GameSettingRegion).
+			Msg("CloseGameAction: invalid game region")
+		return false
+	}
+
+	if ok := gamesetting.Apply(params.GameSettingDisplayType, resolution); !ok {
 		log.Error().
 			Str("region", params.GameSettingRegion).
 			Str("display_type", params.GameSettingDisplayType).

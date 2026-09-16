@@ -19,6 +19,7 @@
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 
+#include "../Common/GameRegion.h"
 #include "../Common/WebView2.h"
 #include "../Common/notice.h"
 #include "../utils.h"
@@ -32,9 +33,10 @@ namespace zipline
 namespace
 {
 
-constexpr const char* kDefaultMapUrl = "https://game.skland.com/map/endfield";
 // 标记列表接口的路径片段。只匹配路径，避免被 query 里的参数顺序影响。
 constexpr const char* kMarkListPathFragment = "/map/mark/list";
+constexpr const char* kMapUrlCN = "https://game.skland.com/map/endfield";
+constexpr const char* kMapUrlGlobal = "https://game.skport.com/map/endfield";
 // 窗口的存活上限，留给用户登录：登录后抓齐只要几秒，正常路径根本用不到这个数。
 constexpr int64_t kDefaultTimeoutMs = 180000;
 constexpr int kPollIntervalMs = 200;
@@ -47,7 +49,8 @@ constexpr int kDefaultWindowHeight = 720;
 
 struct ImportParam
 {
-    std::string url = kDefaultMapUrl;
+    // 空表示按运行中的 Endfield.exe DLL 自动选森空岛 / SKPORT。
+    std::string url;
     std::string mark_list_path = kMarkListPathFragment;
     int64_t timeout = kDefaultTimeoutMs;
     int width = kDefaultWindowWidth;
@@ -435,6 +438,19 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     }
 
     ImportParam param = LoadParam(context, node_name);
+    if (param.url.empty()) {
+        switch (gamesetting::DetectGameRegion()) {
+        case gamesetting::Region::CN:
+            param.url = kMapUrlCN;
+            break;
+        case gamesetting::Region::Global:
+            param.url = kMapUrlGlobal;
+            break;
+        case gamesetting::Region::Unknown:
+            LogError << "ZiplineImport: failed to resolve map URL from game region";
+            return false;
+        }
+    }
 
     auto webview = std::make_shared<WebView2>();
     webview->SetContextMenuEnabled(false);

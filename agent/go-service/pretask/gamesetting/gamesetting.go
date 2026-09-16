@@ -3,6 +3,8 @@ package gamesetting
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -18,8 +20,14 @@ const (
 	regionCN     = "CN"
 	regionGlobal = "Global"
 
+	sdkDLLCN     = "hgsdk.dll"
+	sdkDLLGlobal = "gfsdk.dll"
+
 	optionUnchanged = "Unchanged"
 )
+
+// configuredRegion 为 SetRegion 显式值，或 detectRegionFromProcess 成功后的缓存；空表示尚未判定。
+var configuredRegion string
 
 type gameSettingOptions struct {
 	Region          string `json:"GameSettingRegion"`
@@ -60,6 +68,15 @@ func Run(args []string) bool {
 		return false
 	}
 
+	if err := SetRegion(opts.Region); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Str("region", opts.Region).
+			Msg("invalid game region")
+		return false
+	}
+
 	log.Info().
 		Str("component", "gamesetting").
 		Str("region", opts.Region).
@@ -71,7 +88,7 @@ func Run(args []string) bool {
 		Str("auto_hdr", opts.AutoHDR).
 		Msg("applying game settings")
 
-	if !Apply(opts.Region, opts.DisplayType, opts.Resolution) {
+	if !Apply(opts.DisplayType, opts.Resolution) {
 		return false
 	}
 
@@ -279,6 +296,95 @@ func mapFrameRate(name string) (uint32, bool, error) {
 	default:
 		return 0, false, fmt.Errorf("gamesetting: unknown frame rate %q", name)
 	}
+}
+
+// SetRegion 显式设置区服。"CN" / "Global" 有效；"" 清空后改由进程 DLL 自动判区。
+func SetRegion(region string) error {
+	region = strings.TrimSpace(region)
+	switch region {
+	case "", regionCN, regionGlobal:
+		configuredRegion = region
+		return nil
+	default:
+		return fmt.Errorf("gamesetting: unknown region %q", region)
+	}
+}
+
+// ResolveRegion 返回当前区服：优先已缓存/已设置的值；否则根据运行中的 Endfield.exe 目录 DLL 判定并缓存。
+func ResolveRegion() (string, error) {
+	if configuredRegion != "" {
+		return configuredRegion, nil
+	}
+	region, err := detectRegionFromProcess()
+	if err != nil {
+		return "", err
+	}
+	configuredRegion = region
+	return region, nil
+}
+
+// detectRegionFromProcess 查找 Endfield.exe，按其目录下仅有的 hgsdk.dll / gfsdk.dll 判区。
+func detectRegionFromProcess() (string, error) {
+	procs, err := process.Processes()
+	if err != nil {
+		return "", fmt.Errorf("gamesetting: enumerate processes failed: %w", err)
+	}
+
+	var dirs []string
+	seen := make(map[string]struct{})
+	for _, p := range procs {
+		name, err := p.Name()
+		if err != nil || !strings.EqualFold(name, endfieldProcessName) {
+			continue
+		}
+		exe, err := p.Exe()
+		if err != nil || strings.TrimSpace(exe) == "" {
+			continue
+		}
+		dir := filepath.Clean(filepath.Dir(exe))
+		if _, ok := seen[dir]; ok {
+			continue
+		}
+		seen[dir] = struct{}{}
+		dirs = append(dirs, dir)
+	}
+	if len(dirs) == 0 {
+		return "", fmt.Errorf("gamesetting: Endfield.exe not running; cannot auto-detect region")
+	}
+	if len(dirs) > 1 {
+		return "", fmt.Errorf("gamesetting: multiple Endfield.exe directories found, cannot auto-detect region: %v", dirs)
+	}
+
+	dir := dirs[0]
+	hasCN, err := fileExists(filepath.Join(dir, sdkDLLCN))
+	if err != nil {
+		return "", err
+	}
+	hasGlobal, err := fileExists(filepath.Join(dir, sdkDLLGlobal))
+	if err != nil {
+		return "", err
+	}
+	switch {
+	case hasCN && !hasGlobal:
+		return regionCN, nil
+	case hasGlobal && !hasCN:
+		return regionGlobal, nil
+	case hasCN && hasGlobal:
+		return "", fmt.Errorf("gamesetting: both %s and %s exist under %s", sdkDLLCN, sdkDLLGlobal, dir)
+	default:
+		return "", fmt.Errorf("gamesetting: neither %s nor %s found under %s", sdkDLLCN, sdkDLLGlobal, dir)
+	}
+}
+
+func fileExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("gamesetting: stat %q failed: %w", path, err)
 }
 
 // isGameRunning 检测 Endfield.exe 是否正在运行；进程枚举失败时视为正在运行。

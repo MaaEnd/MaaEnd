@@ -12,8 +12,8 @@ import (
 
 // actionParam 全部从节点 attach 读取；缺省用下方常量。
 //
-// option 目前只会写 url。timeout / template_ids / firefox / proxy_port 仍可从
-// attach 透传（便于本地调试），但任务界面不暴露。
+// Linux 默认写死国服森空岛地图；国际服 MITM 不支持。timeout / template_ids /
+// firefox / proxy_port 仍可从 attach 透传（便于本地调试），但任务界面不暴露。
 //
 // clear_login 在 Linux 无语义：每次导入都用一次性临时 profile。
 type actionParam struct {
@@ -25,9 +25,9 @@ type actionParam struct {
 }
 
 const (
-	defaultMapURL  = "https://game.skland.com/map/endfield"
 	defaultFirefox = "firefox"
 	defaultTimeout = 3 * 60 * 1000 // 与 cpp kDefaultTimeoutMs 一致
+	defaultMapURL  = "https://game.skland.com/map/endfield"
 )
 
 func loadParam(ctx *maa.Context, nodeName string) actionParam {
@@ -77,7 +77,7 @@ func loadParam(ctx *maa.Context, nodeName string) actionParam {
 
 // isGlobalRegionHost 判断页面主机是否属于国际服 SKPORT（skport.com 及其子域）。
 // Linux 的 MITM 解密白名单只含国服 API 域名，国际服流量经 PAC 直连、代理全程不可见，
-// 与其让用户干等满超时，不如在入口处快速失败并提示切回 CN。
+// 与其让用户干等满超时，不如在入口处快速失败。
 func isGlobalRegionHost(host string) bool {
 	host = strings.ToLower(host)
 	return host == "skport.com" || strings.HasSuffix(host, ".skport.com")

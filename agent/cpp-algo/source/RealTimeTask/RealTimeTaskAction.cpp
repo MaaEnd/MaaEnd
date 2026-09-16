@@ -10,6 +10,7 @@
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
+#include "Common/GameRegion.h"
 #include "Common/WebView2.h"
 
 namespace realtimetask
@@ -19,11 +20,14 @@ namespace
 {
 
 constexpr const char* kHolderNodeName = "__RealTimeTaskAction_Holder";
+constexpr const char* kMapUrlCN = "https://game.skland.com/map/endfield";
+constexpr const char* kMapUrlGlobal = "https://game.skport.com/map/endfield";
 
 struct AttachConfig
 {
     bool skland_map_enable = false;
-    std::string skland_map_url = "https://game.skland.com/map/endfield";
+    // 空表示启用地图时按 gamesetting::DetectGameRegion 自动选 URL。
+    std::string skland_map_url;
     int skland_map_opacity = 100;
     bool video_browser_enable = false;
     int video_browser_opacity = 100;
@@ -193,6 +197,23 @@ MaaBool MAA_CALL RealTimeTaskActionRun(
 
         const AttachConfig attach = ReadAttach(context, node_name);
         if (attach.skland_map_enable) {
+            std::string map_url = attach.skland_map_url;
+            if (map_url.empty()) {
+                switch (gamesetting::DetectGameRegion()) {
+                case gamesetting::Region::CN:
+                    map_url = kMapUrlCN;
+                    break;
+                case gamesetting::Region::Global:
+                    map_url = kMapUrlGlobal;
+                    break;
+                case gamesetting::Region::Unknown:
+                    LogError << "RealTimeTaskAction: failed to resolve skland map URL from game region";
+                    break;
+                }
+                if (map_url.empty()) {
+                    break;
+                }
+            }
             skmap_webview = std::make_shared<WebView2>();
             skmap_webview->SetContextMenuEnabled(false);
             skmap_webview->SetExcludeFromCapture(true);
@@ -200,12 +221,13 @@ MaaBool MAA_CALL RealTimeTaskActionRun(
             skmap_webview->SetTopMost(true);
             skmap_webview->SetTouchEmulation(true);
             skmap_webview->SetOpacity(static_cast<double>(attach.skland_map_opacity) / 100.0);
-            skmap_webview->SetURL(attach.skland_map_url);
+            skmap_webview->SetURL(map_url);
             skmap_webview->SetSize(640, 360);
             if (!skmap_webview->Open()) {
                 LogError << "RealTimeTaskAction: skmap_webview open failed";
                 break;
             }
+            LogInfo << "RealTimeTaskAction: skland map opened" << VAR(map_url) << VAR(attach.skland_map_opacity);
         }
         if (attach.video_browser_enable) {
             video_browser_webview = std::make_shared<WebView2>();
@@ -222,7 +244,7 @@ MaaBool MAA_CALL RealTimeTaskActionRun(
         }
         const std::string pipeline_override = BuildPipelineOverride(nodes);
         LogInfo << "RealTimeTaskAction: start polling realtime nodes" << VAR(nodes.size()) << VAR(attach.skland_map_enable)
-                << VAR(attach.skland_map_url) << VAR(attach.skland_map_opacity) << VAR(attach.video_browser_enable)
+                << VAR(attach.skland_map_opacity) << VAR(attach.video_browser_enable)
                 << VAR(attach.video_browser_opacity) << VAR(attach.video_browser_url);
 
         MaaTasker* tasker = MaaContextGetTasker(context);
