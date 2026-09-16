@@ -26,8 +26,6 @@ constexpr const char* kMapUrlGlobal = "https://game.skport.com/map/endfield";
 struct AttachConfig
 {
     bool skland_map_enable = false;
-    // 空表示启用地图时按 gamesetting::DetectGameRegion 自动选 URL。
-    std::string skland_map_url;
     int skland_map_opacity = 100;
     bool video_browser_enable = false;
     int video_browser_opacity = 100;
@@ -107,7 +105,6 @@ AttachConfig ReadAttach(MaaContext* context, const char* node_name)
 
         const auto& attach = obj.at("attach").as_object();
         ReadField(attach, "skland_map_enable", cfg.skland_map_enable);
-        ReadField(attach, "skland_map_url", cfg.skland_map_url);
         ReadField(attach, "skland_map_opacity", cfg.skland_map_opacity);
         ReadField(attach, "video_browser_enable", cfg.video_browser_enable);
         ReadField(attach, "video_browser_opacity", cfg.video_browser_opacity);
@@ -197,22 +194,20 @@ MaaBool MAA_CALL RealTimeTaskActionRun(
 
         const AttachConfig attach = ReadAttach(context, node_name);
         if (attach.skland_map_enable) {
-            std::string map_url = attach.skland_map_url;
+            std::string map_url;
+            switch (gamesetting::DetectGameRegion()) {
+            case gamesetting::Region::CN:
+                map_url = kMapUrlCN;
+                break;
+            case gamesetting::Region::Global:
+                map_url = kMapUrlGlobal;
+                break;
+            case gamesetting::Region::Unknown:
+                LogError << "RealTimeTaskAction: failed to resolve skland map URL from game region";
+                break;
+            }
             if (map_url.empty()) {
-                switch (gamesetting::DetectGameRegion()) {
-                case gamesetting::Region::CN:
-                    map_url = kMapUrlCN;
-                    break;
-                case gamesetting::Region::Global:
-                    map_url = kMapUrlGlobal;
-                    break;
-                case gamesetting::Region::Unknown:
-                    LogError << "RealTimeTaskAction: failed to resolve skland map URL from game region";
-                    break;
-                }
-                if (map_url.empty()) {
-                    break;
-                }
+                break;
             }
             skmap_webview = std::make_shared<WebView2>();
             skmap_webview->SetContextMenuEnabled(false);

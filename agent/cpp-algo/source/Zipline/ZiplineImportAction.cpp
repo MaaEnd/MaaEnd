@@ -49,7 +49,7 @@ constexpr int kDefaultWindowHeight = 720;
 
 struct ImportParam
 {
-    // 空表示按运行中的 Endfield.exe DLL 自动选森空岛 / SKPORT。
+    // 由 gamesetting::DetectGameRegion 填入，不接受 attach 覆盖。
     std::string url;
     std::string mark_list_path = kMarkListPathFragment;
     int64_t timeout = kDefaultTimeoutMs;
@@ -80,7 +80,7 @@ struct SniffState
     std::vector<CapturedResponse> captured;
 };
 
-// 只从 attach 读 option 会写的字段；其余用 ImportParam 默认值。
+// 只从 attach 读 option 会写的字段（目前仅 clear_login）；其余用 ImportParam 默认值。
 ImportParam LoadParam(MaaContext* context, const char* node_name)
 {
     ImportParam out;
@@ -110,7 +110,6 @@ ImportParam LoadParam(MaaContext* context, const char* node_name)
     }
 
     const auto& attach = obj.at("attach").as_object();
-    out.url = attach.get("url", out.url);
     out.clear_login = attach.get("clear_login", out.clear_login);
     return out;
 }
@@ -438,18 +437,16 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     }
 
     ImportParam param = LoadParam(context, node_name);
-    if (param.url.empty()) {
-        switch (gamesetting::DetectGameRegion()) {
-        case gamesetting::Region::CN:
-            param.url = kMapUrlCN;
-            break;
-        case gamesetting::Region::Global:
-            param.url = kMapUrlGlobal;
-            break;
-        case gamesetting::Region::Unknown:
-            LogError << "ZiplineImport: failed to resolve map URL from game region";
-            return false;
-        }
+    switch (gamesetting::DetectGameRegion()) {
+    case gamesetting::Region::CN:
+        param.url = kMapUrlCN;
+        break;
+    case gamesetting::Region::Global:
+        param.url = kMapUrlGlobal;
+        break;
+    case gamesetting::Region::Unknown:
+        LogError << "ZiplineImport: failed to resolve map URL from game region";
+        return false;
     }
 
     auto webview = std::make_shared<WebView2>();

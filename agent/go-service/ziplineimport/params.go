@@ -10,14 +10,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// actionParam 全部从节点 attach 读取；缺省用下方常量。
-//
-// Linux 默认写死国服森空岛地图；国际服 MITM 不支持。timeout / template_ids /
-// firefox / proxy_port 仍可从 attach 透传（便于本地调试），但任务界面不暴露。
+// actionParam 中 timeout / template_ids / firefox / proxy_port 可从 attach 透传（便于本地调试），
+// 但任务界面不暴露。地图 URL 写死国服森空岛；国际服 MITM 不支持，也不接受 attach.url。
 //
 // clear_login 在 Linux 无语义：每次导入都用一次性临时 profile。
 type actionParam struct {
-	URL         string   `json:"url"`
+	URL         string
 	Timeout     int64    `json:"timeout"`
 	TemplateIDs []string `json:"template_ids"`
 	Firefox     string   `json:"firefox"`
@@ -57,21 +55,31 @@ func loadParam(ctx *maa.Context, nodeName string) actionParam {
 		return p
 	}
 
-	// 缺省字段保持不变；仅覆盖 attach 里出现的键。
-	if err := json.Unmarshal(node.Attach, &p); err != nil {
+	// 缺省字段保持不变；仅覆盖 attach 里出现的调试字段。忽略 attach.url。
+	var attach struct {
+		Timeout     int64    `json:"timeout"`
+		TemplateIDs []string `json:"template_ids"`
+		Firefox     string   `json:"firefox"`
+		ProxyPort   int      `json:"proxy_port"`
+	}
+	if err := json.Unmarshal(node.Attach, &attach); err != nil {
 		log.Warn().Err(err).Str("component", componentName).Str("node", nodeName).
 			Msg("zipline import: failed to unmarshal attach")
 		return p
 	}
-	if p.URL == "" {
-		p.URL = defaultMapURL
+	if attach.Timeout > 0 {
+		p.Timeout = attach.Timeout
 	}
-	if p.Firefox == "" {
-		p.Firefox = defaultFirefox
+	if len(attach.TemplateIDs) > 0 {
+		p.TemplateIDs = attach.TemplateIDs
 	}
-	if p.Timeout <= 0 {
-		p.Timeout = defaultTimeout
+	if attach.Firefox != "" {
+		p.Firefox = attach.Firefox
 	}
+	if attach.ProxyPort != 0 {
+		p.ProxyPort = attach.ProxyPort
+	}
+	p.URL = defaultMapURL
 	return p
 }
 
