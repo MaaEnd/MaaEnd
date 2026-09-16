@@ -115,6 +115,7 @@ captureuid.ClearCache()
 | AutoStockpile selector | `agent/go-service/autostockpile/selector.go` | Go API（`Capture`） | 上传物价时关联伪匿名身份 |
 | CreditShopping | `agent/go-service/creditshopping/action_record.go` | Go API（`Capture`） | 记录货架快照时关联 UID |
 | AccountSwitch | `assets/resource/pipeline/AccountSwitch.json`（`__AccountSwitchClearUidCache` 节点） | Pipeline（`clear_cache`） | 切换账号后清空缓存 |
+| SceneImageCheck | `assets/resource/pipeline/SceneManager/SceneImageCheck.json`（`__SceneImageCaptureUid`） | Pipeline（空参 `CaptureUid`） | 场景画面检查时发布 `CurrentAccountIdentity` |
 | MapNavigator | `assets/resource/pipeline/Common/AccountIdentity.json` | Resource 通用状态节点 | 运行时自动选择当前账号的滑索记录 |
 | ZiplineImport（Linux） | `agent/go-service/ziplineimport/parse.go` | Go API（`AccountIDFromRawUID`） | 从网页 `roleId` 生成同一账号标识，按账号落盘滑索记录 |
 

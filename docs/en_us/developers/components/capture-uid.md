@@ -116,6 +116,7 @@ The action executes in the following order:
 | AutoStockpile | `agent/go-service/autostockpile/selector.go` | Go API (`Capture`) | Correlate price upload with pseudonymous identity |
 | CreditShopping | `agent/go-service/creditshopping/action_record.go` | Go API (`Capture`) | Correlate UID when recording shelf snapshots |
 | AccountSwitch | `assets/resource/pipeline/AccountSwitch.json` (`__AccountSwitchClearUidCache` node) | Pipeline (`clear_cache`) | Clear cache after switching accounts |
+| SceneImageCheck | `assets/resource/pipeline/SceneManager/SceneImageCheck.json` (`__SceneImageCaptureUid`) | Pipeline (empty-param `CaptureUid`) | Publish `CurrentAccountIdentity` during scene screen check |
 | MapNavigator | `assets/resource/pipeline/Common/AccountIdentity.json` | Resource shared state node | Automatically select zipline records for the current account |
 | ZiplineImport (Linux) | `agent/go-service/ziplineimport/parse.go` | Go API (`AccountIDFromRawUID`) | Derive the same account identity from the web `roleId` and store zipline records per account |
 
