@@ -185,8 +185,8 @@ func printRuntimeAidQuotaLimited(ctx *maa.Context, decision aidQuotaDecision) {
 func runtimeAidQuotaLimitedMessage(decision aidQuotaDecision) string {
 	return i18n.T(
 		"outposttrading.runtime.aid_quota_limited",
-		selectiondata.ItemName(decision.ItemID),
 		decision.Balance,
+		selectiondata.ItemName(decision.ItemID),
 		decision.UnitPrice,
 		decision.Target,
 	)

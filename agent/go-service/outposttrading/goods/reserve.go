@@ -26,10 +26,11 @@ const (
 )
 
 var (
-	reserveSessionMu      sync.Mutex
-	reserveRules          = map[string]int{}
-	reserveSatisfiedItems = map[string]struct{}{}
-	reserveSelected       string
+	reserveSessionMu        sync.Mutex
+	reserveRules            = map[string]int{}
+	reserveSatisfiedItems   = map[string]struct{}{}
+	reserveSelected         string
+	reserveSelectedLocation string
 )
 
 type reserveSessionActionParam struct {
@@ -37,6 +38,7 @@ type reserveSessionActionParam struct {
 	ItemID      string `json:"item_id,omitempty"`
 	Quantity    int    `json:"quantity,omitempty"`
 	SlidingNode string `json:"sliding_node,omitempty"`
+	Location    string `json:"location,omitempty"`
 }
 
 // ReserveSessionAction 只维护任务级保留规则，并在执行数量滑块前覆盖对应节点参数。
@@ -91,9 +93,10 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Msg("reserve rule registered")
 		return true
 	case reserveOperationSelect:
-		setSelectedReserveItem(param.ItemID)
+		setSelectedReserveItem(param.ItemID, param.Location)
 		log.Debug().Str("component", reserveSessionActionName).
 			Str("item_id", param.ItemID).
+			Str("location", param.Location).
 			Msg("selected item recorded")
 		return true
 	case reserveOperationApply:
@@ -152,11 +155,9 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 					Msg("satisfy has no selected item")
 				return false
 			}
-			skipID, skipMarked := markSelectedReserveSkipped()
 			log.Info().Str("component", reserveSessionActionName).
-				Str("item_id", skipID).
-				Bool("marked", skipMarked).
-				Msg("no reserve rule configured, mark item skipped for current task")
+				Str("item_id", itemID).
+				Msg("no reserve rule configured, item sale already completed")
 			return true
 		}
 		log.Info().Str("component", reserveSessionActionName).
@@ -169,18 +170,19 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		}
 		return true
 	case reserveOperationSkip:
-		// 调度券不足以兑换一件当前物品时，无条件把该物品标记为本次任务跳过。
-		// 与 satisfy 不同，它不要求该物品配置过保留规则。
-		itemID, marked := markSelectedReserveSkipped()
+		// 调度券不足以兑换一件当前物品时跳过它。调度券余量按据点独立结算，
+		// 因此只标记「当前据点已尝试过该物品」，后续据点券充足时仍会正常售卖。
+		itemID, location := selectedReserveContext()
 		if itemID == "" {
 			log.Error().Str("component", reserveSessionActionName).
 				Msg("skip has no selected item")
 			return false
 		}
+		prioritySelectionMarkAttempted(location, itemID)
 		log.Info().Str("component", reserveSessionActionName).
 			Str("item_id", itemID).
-			Bool("marked", marked).
-			Msg("item skipped for current task due to insufficient aid quota")
+			Str("location", location).
+			Msg("item skipped at this location due to insufficient aid quota")
 		return true
 	default:
 		return false
@@ -248,23 +250,16 @@ func resetReserveSession() {
 	reserveRules = map[string]int{}
 	reserveSatisfiedItems = map[string]struct{}{}
 	reserveSelected = ""
+	reserveSelectedLocation = ""
 	reserveSessionMu.Unlock()
 	resetPrioritySelectionSession()
 }
 
-// markSelectedReserveSkipped 无条件把当前选中物品标记为本次任务跳过（加入已达保留量集合，
-// 选品阶段会直接排除）。返回 marked=false 表示该物品此前已标记。与 satisfy 的区别是
-// 它不要求该物品配置过保留规则，用于调度券不足以兑换一件时的主动跳过。
-func markSelectedReserveSkipped() (itemID string, marked bool) {
+// selectedReserveContext 返回当前选中物品与其所属据点。
+func selectedReserveContext() (itemID string, location string) {
 	reserveSessionMu.Lock()
 	defer reserveSessionMu.Unlock()
-	itemID = reserveSelected
-	if itemID == "" {
-		return "", false
-	}
-	_, exists := reserveSatisfiedItems[itemID]
-	reserveSatisfiedItems[itemID] = struct{}{}
-	return itemID, !exists
+	return reserveSelected, reserveSelectedLocation
 }
 
 // markSelectedReserveSatisfied 在 BetterSliding 确认无需交易，或可达目标的交易成功确认后，
@@ -327,10 +322,11 @@ func reserveBlacklistedItemsSnapshot() map[string]struct{} {
 	return blacklisted
 }
 
-func setSelectedReserveItem(itemID string) {
+func setSelectedReserveItem(itemID, location string) {
 	reserveSessionMu.Lock()
 	defer reserveSessionMu.Unlock()
 	reserveSelected = strings.TrimSpace(itemID)
+	reserveSelectedLocation = strings.TrimSpace(location)
 }
 
 func selectedReserveRule() (itemID string, quantity int, configured bool) {

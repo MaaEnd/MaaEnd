@@ -128,9 +128,9 @@ test("OutpostTrading generated location items merge prosperity levels without ap
     };
     const result = buildSelectionItems(data, [{SettlementId: "test", LocationId: "Test"}]);
     assert.deepEqual(result.locationItems.Test, [
-        {item_id: "low", rarity: 2, unit_price: 110, activity_id: ""},
-        {item_id: "high_cheap", rarity: 3, unit_price: 80, activity_id: ""},
-        {item_id: "high_expensive", rarity: 3, unit_price: 120, activity_id: ""},
+        {item_id: "low", rarity: 2, unit_price: 110},
+        {item_id: "high_cheap", rarity: 3, unit_price: 80},
+        {item_id: "high_expensive", rarity: 3, unit_price: 120},
     ]);
     assert.deepEqual(result.items.low.names, {
         zh_cn: "低级",
@@ -140,6 +140,33 @@ test("OutpostTrading generated location items merge prosperity levels without ap
         ko_kr: "낮음",
     });
     assert.ok(result.items.event);
+});
+
+test("OutpostTrading generated location items carry activity_id only for limited activity items", () => {
+    const data = {
+        items: {
+            staple: {rarity: 2, names: {zh_cn: "常驻"}},
+            limited: {rarity: 5, names: {zh_cn: "活动限定"}},
+        },
+        settlements: {
+            test: {
+                prosperity_levels: [
+                    {
+                        level: 1,
+                        trade_items: [
+                            {item_id: "staple", unit_price: 100},
+                            {item_id: "limited", unit_price: 200, activity_id: "activity_limited_formula_2"},
+                        ],
+                    },
+                ],
+            },
+        },
+    };
+    const result = buildSelectionItems(data, [{SettlementId: "test", LocationId: "Test"}]);
+    assert.deepEqual(result.locationItems.Test, [
+        {item_id: "staple", rarity: 2, unit_price: 100},
+        {item_id: "limited", rarity: 5, unit_price: 200, activity_id: "activity_limited_formula_2"},
+    ]);
 });
 
 test("OutpostTrading generated target operators prioritize prosperity before trade profit", () => {

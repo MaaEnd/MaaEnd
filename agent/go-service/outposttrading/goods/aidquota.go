@@ -112,7 +112,10 @@ func captureAidQuotaImage(ctx *maa.Context) (image.Image, error) {
 	if controller == nil {
 		return nil, fmt.Errorf("controller is nil")
 	}
-	controller.PostScreencap().Wait()
+	job := controller.PostScreencap().Wait()
+	if job == nil || !job.Success() {
+		return nil, fmt.Errorf("screencap job failed")
+	}
 	img, err := controller.CacheImage()
 	if err != nil {
 		return nil, fmt.Errorf("cache image: %w", err)

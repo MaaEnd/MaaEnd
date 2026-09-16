@@ -133,7 +133,7 @@ func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 				Msg("priority selection commit has no pending item")
 			return false
 		}
-		setSelectedReserveItem(itemID)
+		setSelectedReserveItem(itemID, param.Location)
 		printRuntimeItemSwitched(ctx, param.Location, itemID)
 		return true
 	case priorityOperationAdopt:
@@ -148,7 +148,7 @@ func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 			return false
 		}
 		prioritySelectionAdopt(param.Location, itemID)
-		setSelectedReserveItem(itemID)
+		setSelectedReserveItem(itemID, param.Location)
 		log.Info().Str("component", prioritySessionActionName).
 			Str("location", param.Location).
 			Str("item_id", itemID).
@@ -377,6 +377,20 @@ func prioritySelectionAdopt(location, itemID string) {
 	prioritySelection.Current[location] = itemID
 	delete(prioritySelection.Pending, location)
 	delete(prioritySelection.Exhaustion, location)
+}
+
+// prioritySelectionMarkAttempted 把物品登记为当前据点已尝试，选品阶段会跳过它。
+// 用于调度券不足以兑换一件时的主动跳过：调度券余量按据点独立结算，只排除当前据点。
+func prioritySelectionMarkAttempted(location, itemID string) {
+	if location == "" || itemID == "" {
+		return
+	}
+	prioritySelectionMu.Lock()
+	defer prioritySelectionMu.Unlock()
+	if prioritySelection.Attempted[location] == nil {
+		prioritySelection.Attempted[location] = map[string]struct{}{}
+	}
+	prioritySelection.Attempted[location][itemID] = struct{}{}
 }
 
 func prioritySelectionMarkOutOfStock(location string) (string, bool, bool) {
