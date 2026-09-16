@@ -110,7 +110,15 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	serverNow := time.Now()
 	serverDate, serverWeekday := serverDateInfo(serverNow, serverLocation)
 	if attach.AllowDataUpload {
-		if err := storeDailyGoodsPrices(serverNow, serverLocation, region, captureuid.GetCachedUID(captureuid.OutputTypeHashed), *data); err != nil {
+		uid, err := captureuid.Capture(true, true, captureuid.OutputTypeHashed)
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Str("component", "autostockpile").
+				Msg("uid capture failed before storing daily goods prices")
+			uid = "unknown"
+		}
+		if err := storeDailyGoodsPrices(serverNow, serverLocation, region, uid, *data); err != nil {
 			log.Warn().
 				Err(err).
 				Str("component", "autostockpile").

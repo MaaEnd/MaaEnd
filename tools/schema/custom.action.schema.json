@@ -20,7 +20,6 @@
                 "AutoEssenceTargetPlanAction",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",
-                "AutoStockpile.CaptureUid",
                 "AutoStockpile.ReconcileDecision",
                 "AutoStockpile.SelectItem",
                 "BatchAddFriendsAction",
