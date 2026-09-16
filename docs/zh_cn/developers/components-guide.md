@@ -11,7 +11,7 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 1. `assets/interface.json` — 定义项目入口、控制器、资源、任务导入列表、Agent 启动项。
 2. `assets/tasks/**/*.json` — 定义任务在 UI 里的展示、入口节点、可选项。
 3. `assets/resource/pipeline/**/*.json` — 定义"识别什么、点哪里、下一步去哪"。**日常开发最常改的一层。**
-4. `agent/go-service/**` — 仅放 Pipeline 难以表达的复杂逻辑（复杂识别、计算、遍历、特殊交互）。
+4. `agent/go-service/**` — 仅放 Pipeline 难以表达的复杂逻辑（复杂识别、计算、遍历、特殊交互）。跨业务复用的工具在 `agent/go-service/pkg/`，见 [Go Service `pkg/` 公共包](./go-service-pkg.md)。
 
 一条任务的执行路径：
 
@@ -27,6 +27,7 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 | 任务编排、入口节点、UI 选项 | `assets/tasks/**/*.json` |
 | 识别、点击、跳转、等待、流程细节 | `assets/resource/pipeline/**/*.json` |
 | 复杂逻辑（算法、遍历、计算） | `agent/go-service/**` |
+| 跨业务通用工具（And 解包、表达式、OCR 数值、i18n…） | `agent/go-service/pkg/**`（[文档](./go-service-pkg.md)） |
 
 ## Pipeline 可复用节点
 

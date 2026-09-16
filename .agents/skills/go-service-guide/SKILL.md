@@ -18,7 +18,9 @@ agent/go-service/
 ├── main.go                     # 入口：初始化、registerAll、启动 AgentServer
 ├── register.go                 # registerAll() 聚合各子包 Register()
 ├── logger.go                   # zerolog 初始化
-├── pkg/                        # 公共工具包（pienv、resource、minicv、i18n、control）
+├── pkg/                        # 公共工具包（详见 docs/zh_cn/developers/go-service-pkg.md）
+│                               # recogtarget / boolexpr / ocrnum / jsonclean / pienv /
+│                               # i18n / maafocus / resource / control / minicv / …
 ├── common/                     # 通用 Custom 组件（subtask、clearhitcount 等）
 ├── taskersink/                 # TaskerEventSink / ContextEventSink 实现
 └── <business>/                 # 业务子包（resell、essencefilter、autofight 等）
@@ -246,5 +248,6 @@ func (s *MySink) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, detail 
 - 项目整体规范：根目录 `AGENTS.md`
 - 注册示例：`agent/go-service/register.go` + 各子包 `register.go`
 - Custom 节点文档：`docs/zh_cn/developers/custom.md`
+- 公共工具包：`docs/zh_cn/developers/go-service-pkg.md`（`pkg/recogtarget`、`boolexpr`、`ocrnum`、`i18n` 等）
 - Pipeline 协议：[MaaFramework PipelineProtocol](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/en_us/3.1-PipelineProtocol.md)
 - Go binding：`vendor/github.com/MaaXYZ/maa-framework-go/v4/`

@@ -268,7 +268,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 ### ExpressionRecognition
 
-`ExpressionRecognition` 实现位于 `agent/go-service/common/expressionrecognition`，用于计算由数字识别节点组成的布尔表达式。
+`ExpressionRecognition` 实现位于 `agent/go-service/common/expressionrecognition`，用于计算由数字识别节点组成的布尔表达式。底层复用 `pkg/recogtarget`（And 解包）、`pkg/ocrnum`（OCR→整数）、`pkg/boolexpr`（占位符与求值），详见 [Go Service `pkg/` 公共包](./go-service-pkg.md)。
 
 参数：
 
