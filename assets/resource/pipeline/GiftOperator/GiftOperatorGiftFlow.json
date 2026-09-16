@@ -14,7 +14,8 @@
             "type": "Click"
         },
         "next": [
-            "GiftOperatorGiftUI"
+            "GiftOperatorGiftUI",
+            "GiftOperatorBranchGift"
         ]
     },
     "GiftOperatorBranchGiftTemplate": {
