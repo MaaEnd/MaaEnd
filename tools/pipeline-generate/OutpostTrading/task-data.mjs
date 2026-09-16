@@ -48,6 +48,7 @@ for (const item of outpostTradingSelectableItems) {
         id: item.id,
         name: item.name,
         label: localeKey ? `$item.${localeKey}` : null,
+        activity: item.activity,
     };
 }
 
@@ -94,6 +95,7 @@ const TASK_OPTIONS = [
 ];
 
 // 独立保留规则使用所有据点货品的并集，不提供 Auto，并按游戏货架单价顺序展示。
+// 活动物品受调度券余量限制，不参与保留规则，两者互斥。
 // 具体货品 case 只通过 attach 注入 itemId；子 input 独占 custom_action_param，
 // 避免 MaaFramework 依次应用选项覆盖时完整替换同名字段。
 function buildReserveItemCases(slot) {
@@ -103,6 +105,7 @@ function buildReserveItemCases(slot) {
             label: "$task.OutpostTrading.ReserveNone",
         },
         ...Object.values(ITEMS)
+            .filter((item) => !item.activity)
             .sort(compareItemsByUnitPrice(ITEM_PRICE_BY_ID))
             .map((item) => ({
                 name: item.name,

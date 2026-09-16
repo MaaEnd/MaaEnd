@@ -100,13 +100,12 @@ When an item is confirmed out of stock after switching, `[Anchor]MarkOutOfStock`
 ### Activity Item Aid Quota Limit (`aidquota`)
 
 - Activity items (non-empty `activity_id` in `selection_data.json`, e.g. Dragon Bubbles) have a high unit price and large stacks; BetterSliding's default `TargetQuantity=999999` submits the whole stock, which can exceed the outpost's exchangeable stock bill reserve and trigger `OutpostTradingAidQuotaExceededStop`, aborting the entire task.
-- Before overriding the sliding node, `OutpostTrading{LocationId}ApplyReserve` (`ReserveSession` `apply`) OCRs the stock bill reserve in the top-right corner (`OutpostTradingAidQuotaBalance`) and computes `sellable = reserve / unit_price`:
-  - No reserve rule: target = aid quota limit; BetterSliding's `ClampTargetToSliderMax` clamps it to stock.
-  - With a reserve rule: also OCR current stock (`OutpostTradingAidQuotaStock`); target = `clamp(stock - reserve, 0, limit)` with `ReverseTarget` disabled (the effective target is already resolved in Go, avoiding reliance on runtime stock).
-  - Limit 0 (cannot afford even one): the sliding node's next is overridden to `OutpostTradingAidQuotaExhausted`, whose `skip` operation adds the item to the task-scoped skip set (excluded during selection), and the sell loop tries cheaper items.
+- Before overriding the sliding node, `OutpostTrading{LocationId}ApplyReserve` (`ReserveSession` `apply`) OCRs the stock bill reserve in the top-right corner (`OutpostTradingAidQuotaBalance`) and computes `sellable = reserve / unit_price` as BetterSliding's `TargetQuantity`; `ClampTargetToSliderMax` clamps it to stock, no stock OCR needed in Go.
+- Limit 0 (cannot afford even one): the sliding node's next is overridden to `OutpostTradingAidQuotaExhausted`, whose `skip` operation adds the item to the task-scoped skip set (excluded during selection), and the sell loop tries cheaper items.
+- Activity items are excluded from reserve rules (reserve slots in task options filter them out); the aid quota limit and reserve rules are mutually exclusive.
 - Permanent items (empty `activity_id`) are unaffected; OCR failure falls back to the original reserve rule without aborting the task.
-- ROIs for the reserve and stock OCR are maintained separately in Win32 (`resource/`) and ADB (`resource_adb/`) `SellCore.json`.
-- Data source: `activity_id` is extracted by `sell_product_data.py` from `SettlementBasicDataTable.settlementTradeItemMap[].activityId` and propagated to `selection_data.json` location items by `selection-data.mjs`.
+- The reserve ROI is maintained separately in Win32 (`resource/`) and ADB (`resource_adb/`) `SellCore.json`.
+- Data source: `activity_id` is extracted by `sell_product_data.py` from `SettlementBasicDataTable.settlementTradeItemMap[].activityId` and propagated to `selection_data.json` location items and the task option filter.
 
 ## Operator Rules (Go `operator/`)
 

@@ -289,6 +289,7 @@ function buildSelectableItems() {
                 items.push({
                     id: itemID,
                     name: item.names.zh_cn,
+                    activity: Boolean(tradeItem.activity_id),
                 });
             }
         }

@@ -110,7 +110,7 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 				Msg("blacklisted item reached reserve rule application")
 			return false
 		}
-		aidQuota := resolveAidQuotaLimit(ctx, itemID, quantity)
+		aidQuota := resolveAidQuotaLimit(ctx, itemID)
 		if err := ctx.OverridePipeline(buildReserveSlidingOverride(param.SlidingNode, quantity, configured, aidQuota)); err != nil {
 			log.Error().Err(err).
 				Str("component", reserveSessionActionName).
@@ -337,48 +337,45 @@ func selectedReserveRule() (itemID string, quantity int, configured bool) {
 // buildReserveSlidingOverride 组装覆盖 BetterSliding 滑动节点的参数。
 //
 // configured 为 true 时按保留规则只卖超出保留量的部分；否则默认全部售出。
-// aidQuota.Applied 为 true 时（活动物品），目标数量改为调度券余量可兑换的上限：
-// 有保留规则时还需读取库存，卖出「超出保留量且不超调度券上限」的部分；
-// 调度券不足以兑换一件时目标为 0，BetterSliding 判定 OutOfRange 后启用
-// OutpostTradingAidQuotaExhausted 跳过该物品。
+// aidQuota.Applied 为 true 时（活动物品），目标数量改为调度券余量可兑换的上限；
+// 调度券不足以兑换一件时目标为 0，BetterSliding 判定 OutOfRange，
+// 由调用方改写 sliding 节点 next 跳 OutpostTradingAidQuotaExhausted 跳过该物品。
+// 活动物品不参与保留规则，两者互斥。
 func buildReserveSlidingOverride(slidingNode string, quantity int, configured bool, aidQuota aidQuotaDecision) map[string]any {
-	if !aidQuota.Applied {
-		if configured {
-			return map[string]any{
-				slidingNode: map[string]any{
-					"next": []string{
-						"OutpostTradingReserveAlreadySatisfied",
-						"OutpostTradingSellThenLoop",
-					},
-					"attach": map[string]any{
-						"TargetQuantity": quantity,
-						"ReverseTarget":  true,
-					},
-				},
-			}
-		}
+	if aidQuota.Applied {
 		return map[string]any{
 			slidingNode: map[string]any{
-				"next": []string{"OutpostTradingSell"},
+				"next": []string{
+					"OutpostTradingAidQuotaExhausted",
+					"OutpostTradingSellThenLoop",
+				},
 				"attach": map[string]any{
-					"TargetQuantity": 999999,
+					"TargetQuantity": aidQuota.Target,
 					"ReverseTarget":  false,
 				},
 			},
 		}
 	}
 
-	// 活动物品：目标已在 Go 侧算好，直接关闭 ReverseTarget。
-	// Target < 1 的情况已由调用方改写 sliding 节点的 next 跳到 AidQuotaExhausted，
-	// 不会进入 BetterSliding；其余情况 ClampTargetToSliderMax 保证目标不超过库存。
+	if configured {
+		return map[string]any{
+			slidingNode: map[string]any{
+				"next": []string{
+					"OutpostTradingReserveAlreadySatisfied",
+					"OutpostTradingSellThenLoop",
+				},
+				"attach": map[string]any{
+					"TargetQuantity": quantity,
+					"ReverseTarget":  true,
+				},
+			},
+		}
+	}
 	return map[string]any{
 		slidingNode: map[string]any{
-			"next": []string{
-				"OutpostTradingAidQuotaExhausted",
-				"OutpostTradingSellThenLoop",
-			},
+			"next": []string{"OutpostTradingSell"},
 			"attach": map[string]any{
-				"TargetQuantity": aidQuota.Target,
+				"TargetQuantity": 999999,
 				"ReverseTarget":  false,
 			},
 		},

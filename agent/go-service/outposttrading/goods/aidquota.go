@@ -23,8 +23,6 @@ type aidQuotaDecision struct {
 	Balance int
 	// Limit 是按调度券余量与单价算出的可兑换数量上限。
 	Limit int
-	// Stock 是当前货品的库存数量（仅在需要时读取）。
-	Stock int
 	// Target 是本次实际应该售卖的数量。
 	Target int
 	// ItemID 是被限制的当前售卖物品。
@@ -37,11 +35,9 @@ type aidQuotaDecision struct {
 // 常驻物品不受调度券余量限制（ActivityID 为空），直接返回未应用的决策。
 // 识别失败时返回未应用的决策并记录警告，售卖流程回退到保留规则。
 //
-// 活动物品统一在 Go 侧算出确定的目标数量并关闭 ReverseTarget：
-//   - reserveQuantity > 0（保留规则）：目标为「卖出超出保留量的部分，且不超过调度券上限」。
-//   - reserveQuantity == 0：目标为「全部售出，但不超过调度券上限」，
-//     BetterSliding 的 ClampTargetToSliderMax 会把目标压到库存。
-func resolveAidQuotaLimit(ctx *maa.Context, itemID string, reserveQuantity int) aidQuotaDecision {
+// 活动物品的目标数量就是调度券可兑换上限，统一关闭 ReverseTarget；
+// BetterSliding 的 ClampTargetToSliderMax 会把目标压到库存，无需在此读库存。
+func resolveAidQuotaLimit(ctx *maa.Context, itemID string) aidQuotaDecision {
 	decision := aidQuotaDecision{ItemID: itemID}
 	if ctx == nil || itemID == "" {
 		return decision
@@ -78,37 +74,8 @@ func resolveAidQuotaLimit(ctx *maa.Context, itemID string, reserveQuantity int) 
 	decision.Balance = balance
 	decision.Limit = balance / unitPrice
 	decision.Applied = true
-
-	if reserveQuantity <= 0 {
-		// 无保留规则时由 BetterSliding 的 ClampTargetToSliderMax 负责把目标压到库存。
-		decision.Target = decision.Limit
-		return decision
-	}
-
-	stock, err := runAidQuotaOCR(ctx, img, aidQuotaStockNodeName)
-	if err != nil {
-		log.Warn().
-			Err(err).
-			Str("component", reserveSessionActionName).
-			Str("item_id", itemID).
-			Msg("failed to read current stock, fall back to reserve rule only")
-		decision.Applied = false
-		return decision
-	}
-	decision.Stock = stock
-	// 卖出超出保留量的部分，且不超过调度券可兑换数量。
-	decision.Target = clampInt(stock-reserveQuantity, 0, decision.Limit)
+	decision.Target = decision.Limit
 	return decision
-}
-
-func clampInt(value, low, high int) int {
-	if value < low {
-		return low
-	}
-	if value > high {
-		return high
-	}
-	return value
 }
 
 // currentItemValueAttrs 返回当前物品的单价与活动标记。
@@ -235,6 +202,3 @@ func ocrTextFromResults(results *maa.RecognitionResults) (string, bool) {
 	}
 	return "", false
 }
-
-// aidQuotaStockNodeName 读取当前货品库存的 OCR 节点名。
-const aidQuotaStockNodeName = "OutpostTradingAidQuotaStock"
