@@ -1,0 +1,76 @@
+{
+    "GiftOperatorApproachTestMain": {
+        "desc": "测试：在当前界面 OCR 寻找干员名字，朝向并前进直到交互按钮出现",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ApproachOCRTargetAction",
+                "custom_action_param": {
+                    "target_nodes": [
+                        "GiftOperatorApproachTestName"
+                    ],
+                    "stop_nodes": [
+                        "GiftOperatorApproachTestStop"
+                    ],
+                    "align_threshold": 80,
+                    "pulse_forward_ms": 250,
+                    "pulse_backward_ms": 200,
+                    "search_yaw_deg": 30,
+                    "max_steps": 48,
+                    "movement": "walk"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorApproachTestName": {
+        // ROI 需按实机微调：大范围搜索头顶名牌文字
+        "desc": "测试：搜寻干员名字 OCR（由任务下拉框覆盖 expected）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    100,
+                    80,
+                    1080,
+                    520
+                ],
+                "expected": [
+                    // @i18n-skip
+                    ".*"
+                ]
+            }
+        }
+    },
+    "GiftOperatorApproachTestStop": {
+        "desc": "测试：干员交互按钮（对话气泡）+ 目标名字同时出现，视为接近成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorApproachTestChat",
+                    "GiftOperatorApproachTestName"
+                ]
+            }
+        }
+    },
+    "GiftOperatorApproachTestChat": {
+        "desc": "测试：干员对话气泡",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    641,
+                    274,
+                    538,
+                    415
+                ],
+                "template": [
+                    "GiftOperator/OperatorChat.png"
+                ]
+            }
+        }
+    }
+}

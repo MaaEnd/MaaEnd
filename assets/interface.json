@@ -266,6 +266,7 @@
         "tasks/DijiangRewards.json",
         "tasks/VisitFriends.json",
         "tasks/GiftOperator.json",
+        "tasks/GiftOperatorApproachTest.json",
         "tasks/BatchAddFriends.json",
         "tasks/BatchDeleteFriends.json",
         // group: other_menu

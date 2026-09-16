@@ -14,6 +14,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/bettersliding"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/approachocr"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/attachregex"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoalt"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/camerascan"
@@ -77,6 +78,7 @@ func registerAll() {
 	expendable.Register()
 	attachregex.Register()
 	autoalt.Register()
+	approachocr.Register()
 	camerascan.Register()
 	charactercontroller.Register()
 	falseaction.Register()

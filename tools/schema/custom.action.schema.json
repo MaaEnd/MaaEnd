@@ -9,6 +9,7 @@
                 "AccountSwitchWindowAction",
                 "AddItemData",
                 "AeroSalvageConfigureSwipeAction",
+                "ApproachOCRTargetAction",
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
                 "AutoAltSwipeAction",
@@ -245,6 +246,20 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PrioritySessionParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "ApproachOCRTargetAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/approachocr.schema.json#/$defs/ApproachOCRParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

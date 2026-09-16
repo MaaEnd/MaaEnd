@@ -1,0 +1,636 @@
+{
+    "task": [
+        {
+            "name": "GiftOperatorApproachTest",
+            "label": "$task.GiftOperatorApproachTest.label",
+            "entry": "GiftOperatorApproachTestMain",
+            "description": "$task.GiftOperatorApproachTest.description",
+            "option": [
+                "SelectApproachOperator"
+            ],
+            "group": [
+                "dijiang_ship"
+            ],
+            "controller": [
+                "ADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "PlayCover",
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {
+        "SelectApproachOperator": {
+            "type": "select",
+            "label": "$option.SelectApproachOperator.label",
+            "default_case": "Any",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$task.GiftOperator.select.any_three",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카",
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본",
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아",
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타",
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우",
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드",
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈",
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히",
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍",
+                                "卡契尔",
+                                "卡契爾",
+                                "Catcher",
+                                "キャッチャー",
+                                "카치르",
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트",
+                                "艾维文娜",
+                                "艾維文娜",
+                                "Avywenna",
+                                "アイビーエナ",
+                                "아비웨나",
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인",
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬",
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크",
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트",
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버",
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인",
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판",
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트",
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리",
+                                "埃特拉",
+                                "Estella",
+                                "エステーラ",
+                                "에스텔라",
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시",
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕",
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸",
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤",
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결",
+                                "梨诺",
+                                "梨諾",
+                                "Liino",
+                                "リーノ",
+                                "리노",
+                                "提弗洛斯",
+                                "Typhoeus",
+                                "ティフォロス",
+                                "티프로스"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Perlica",
+                    "label": "$operator.Perlica",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Gilberta",
+                    "label": "$operator.Gilberta",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Antal",
+                    "label": "$operator.Antal",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Xaihi",
+                    "label": "$operator.Xaihi",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Lifeng",
+                    "label": "$operator.Lifeng",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Catcher",
+                    "label": "$operator.Catcher",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "卡契尔",
+                                "卡契爾",
+                                "Catcher",
+                                "キャッチャー",
+                                "카치르"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arclight",
+                    "label": "$operator.Arclight",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "弧光",
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Avywenna",
+                    "label": "$operator.Avywenna",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "艾维文娜",
+                                "艾維文娜",
+                                "Avywenna",
+                                "アイビーエナ",
+                                "아비웨나"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Laevatain",
+                    "label": "$operator.Laevatain",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Alesh",
+                    "label": "$operator.Alesh",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "阿列什",
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Pogranichnik",
+                    "label": "$operator.Pogranichnik",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "LastRite",
+                    "label": "$operator.LastRite",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Ember",
+                    "label": "$operator.Ember",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Snowshine",
+                    "label": "$operator.Snowshine",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DaPan",
+                    "label": "$operator.DaPan",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "大潘",
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Akekuri",
+                    "label": "$operator.Akekuri",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "秋栗",
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Estella",
+                    "label": "$operator.Estella",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "埃特拉",
+                                "埃特拉",
+                                "Estella",
+                                "エステーラ",
+                                "에스텔라"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Rossi",
+                    "label": "$operator.Rossi",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Tangtang",
+                    "label": "$operator.Tangtang",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ZhuangFangyi",
+                    "label": "$operator.ZhuangFangyi",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "MiFu",
+                    "label": "$operator.MiFu",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Camille",
+                    "label": "$operator.Camille",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Arcane",
+                    "label": "$operator.Arcane",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Liino",
+                    "label": "$operator.Liino",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "梨诺",
+                                "梨諾",
+                                "Liino",
+                                "リーノ",
+                                "리노"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Typhoeus",
+                    "label": "$operator.Typhoeus",
+                    "pipeline_override": {
+                        "GiftOperatorApproachTestName": {
+                            "expected": [
+                                "提弗洛斯",
+                                "提弗洛斯",
+                                "Typhoeus",
+                                "ティフォロス",
+                                "티프로스"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
