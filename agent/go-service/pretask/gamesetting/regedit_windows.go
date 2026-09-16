@@ -268,11 +268,12 @@ func GetCachedUID() (string, error) {
 		return "", fmt.Errorf("gamesetting: PLDK_cachedRoleId is empty under HKCU\\%s", path)
 	}
 	if len(uid) < 8 || len(uid) > 12 {
-		return "", fmt.Errorf("gamesetting: PLDK_cachedRoleId %q is not a valid 8-12 digit uid", uid)
+		// 不记录原值：非法长度的 PLDK_cachedRoleId 仍可能含可识别的角色 ID 片段。
+		return "", fmt.Errorf("gamesetting: PLDK_cachedRoleId length %d is not in 8-12", len(uid))
 	}
 	for i := 0; i < len(uid); i++ {
 		if uid[i] < '0' || uid[i] > '9' {
-			return "", fmt.Errorf("gamesetting: PLDK_cachedRoleId %q is not a valid 8-12 digit uid", uid)
+			return "", fmt.Errorf("gamesetting: PLDK_cachedRoleId contains non-digit characters (len=%d)", len(uid))
 		}
 	}
 	return uid, nil

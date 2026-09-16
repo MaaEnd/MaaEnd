@@ -55,7 +55,8 @@ func Capture(useCache, allowUnknown bool, outputType OutputType) (string, error)
 		return captureErr(allowUnknown, "gamesetting GetCachedUID failed: %w", err)
 	}
 	if !IsValidRawUID(raw) {
-		return captureErr(allowUnknown, "uid %q is not a valid 8-12 digit uid", raw)
+		// 不写入原值；gamesetting 侧已做同类校验，此处仅作防御性兜底。
+		return captureErr(allowUnknown, "uid is not a valid 8-12 digit uid (len=%d)", len(raw))
 	}
 
 	capturedUidMu.Lock()
