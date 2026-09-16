@@ -117,7 +117,7 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 | 时机 | 动作 | 作用 |
 | ------------ | ------------------------------------------------------------- | ---------------------------------------- |
 | 任务入口 | `AttachToExpectedRegexAction` | 合并 attach → 商品名 OCR 正则 |
-| 任务入口 | 类目 switch / 最低折扣 input / 包含无折扣 switch 的 `pipeline_override` | 类目关闭时不收集该类 override；注入折扣比较表达式；无折扣开关替换折扣识别节点 |
+| 任务入口 | 类目 switch / 最低折扣 input / 包含无折扣 switch 的 `pipeline_override` | 类目关闭时不收集该类 override；注入折扣比较表达式；无折扣开关替换折扣识别节点并回退 `all_of` |
 | 物品被排除后 | `PipelineOverrideAction` + 再次 `AttachToExpectedRegexAction` | 剔除 attach 键并刷新白名单 |
 | 确认购买前 | `AutoStockStapleQuantityControlAction` | 算差值并 override BetterSliding 目标数量 |
 
@@ -192,8 +192,9 @@ pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple
 - `AutoStockInStapleItem`
 - `AutoStockInStapleItemName_Expected`
 - `AutoStockInStapleItemDiscountsValleyIV`
+- `AutoStockDiscountCompareValleyIV`（折扣阈值比较；`box_index: 2` 仍指向折扣 OCR 节点）
 
-三者同时命中后，点击商品卡片（`target_offset: [-50, 95, 0, 0]`），`next` 进入 `AutoStockStapleQuantityControl`。
+四者同时命中后，点击商品卡片（`target_offset: [-45, 85, -30, 0]`），`next` 进入 `AutoStockStapleQuantityControl`。
 
 > [!IMPORTANT] > `AutoStockBuyItemValleyIVTask` 只表示“识别到候选商品并进入购买判定”，**不等于** 已完成购买。是否真正下单，要看数量控制分支是否走到 `AutoStockStapleQuantityControlConfirmBuy`。
 
@@ -282,10 +283,11 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 
 ## 初始化与 Override 机制小结
 
-本任务有两类运行时 override，维护时不要混淆：
+本任务存在多类运行时 override，维护时不要混淆：
 
 | 动作 | 触发位置 | 作用 |
 | -------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+| 选项的 `pipeline_override`（`interface.json` 声明） | 任务选项收集（MXU 渲染阶段） | 类目关闭时不收集该类 override；注入折扣比较表达式；无折扣开关替换折扣识别节点并回退 `all_of` |
 | `AttachToExpectedRegexAction` | `AutoStockStapleMain` 入口；Exclude 后 Reset 节点 | 合并 attach 关键词 → OCR 白名单正则 |
 | `PipelineOverrideAction` | 各物品 `{Item}RemoveFilter` | 将指定 attach 键设为 `false`，排除该物品 |
 | `AutoStockStapleQuantityControlAction` | 各物品 `{Item}Buy` | 计算差值并 override BetterSliding 的 `TargetQuantity` / `enabled` |

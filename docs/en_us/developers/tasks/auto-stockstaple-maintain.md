@@ -116,6 +116,7 @@ Matched when `limit <= current_held_quantity`:
 
 | Timing | Action | Purpose |
 | -------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
+| Task Entry | Option `pipeline_override` (declared in `interface.json`) | When a category is off, its overrides are not collected; injects the discount comparison expression; the no-discount switch replaces the discount recognition node and reverts `all_of` |
 | Task Entry | `AttachToExpectedRegexAction` | Merge attach → item name OCR regex |
 | After Item Exclusion | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove attach key and refresh whitelist |
 | Before Confirming Purchase | `AutoStockStapleQuantityControlAction` | Calculate difference and override BetterSliding target quantity |
@@ -282,10 +283,11 @@ The Exclude branch **does not** purchase; it only removes "reached target" items
 
 ## Summary of Initialization and Override Mechanism
 
-This task has two types of runtime overrides; do not confuse them during maintenance:
+This task involves several types of runtime overrides; do not confuse them during maintenance:
 
 | Action | Trigger Location | Purpose |
 | -------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Option `pipeline_override` (declared in `interface.json`) | Task option collection (MXU render stage) | When a category is off, its overrides are not collected; injects the discount comparison expression; the no-discount switch replaces the discount recognition node and reverts `all_of` |
 | `AttachToExpectedRegexAction` | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords → OCR whitelist regex |
 | `PipelineOverrideAction` | Each item's `{Item}RemoveFilter` | Set specified attach key to `false`, excluding the item |
 | `AutoStockStapleQuantityControlAction` | Each item's `{Item}Buy` | Calculate difference and override BetterSliding's `TargetQuantity` / `enabled` |
@@ -303,7 +305,7 @@ When adding a new stable demand supply item, the following typically need to be 
 1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**: Add `AutoStockStapleGoods{Item}` OCR node and multilingual `expected`.
 2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**: Add `{Item}Validate` / `{Item}ExcludeValidate` expression nodes.
 3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**: Append `{Item}` control node in `AutoStockStapleQuantityControl.next`, and complete sub-nodes like Buy / Exclude / StockBillInsufficient / RemoveFilter (refer to existing items in the same region for examples).
-4. **`assets/tasks/AutoStockStaple.json`**: Add a case in the corresponding region checkbox, writing `AutoStockInStapleItemName.attach.{slug}` and the quantity limit override.
+4. **`assets/tasks/AutoStockStaple.json`**: Add a case in the `{Category}Items` multiple-choice box nested under the corresponding region's category switch, writing `AutoStockInStapleItemName.attach.{slug}` and the quantity limit override.
 5. **`assets/locales/interface/*.json`**: Add `option.CreditShoppingItems.cases.{Item}.label` and focus text (e.g., `quantity_control.buy.*`).
 
 During maintenance, directly edit the above Pipeline and task configuration; **do not** rely on code generators to overwrite outputs.
