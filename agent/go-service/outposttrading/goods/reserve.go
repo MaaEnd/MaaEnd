@@ -142,13 +142,22 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		}
 		return true
 	case reserveOperationSatisfy:
+		// 活动物品不参与保留规则（没有 reserveRules 条目），但 BetterSliding
+		// 的 TargetReachableOverrideEnable 仍会启用本节点。此时没有需要满足的
+		// 保留量，直接把该物品标记为本次任务跳过，保证幂等成功而非报错失败。
 		itemID, quantity, marked, ok := markSelectedReserveSatisfied()
 		if !ok {
-			log.Error().Str("component", reserveSessionActionName).
-				Str("item_id", itemID).
-				Int("quantity", quantity).
-				Msg("cannot satisfy unconfigured reserve rule")
-			return false
+			if itemID == "" {
+				log.Error().Str("component", reserveSessionActionName).
+					Msg("satisfy has no selected item")
+				return false
+			}
+			skipID, skipMarked := markSelectedReserveSkipped()
+			log.Info().Str("component", reserveSessionActionName).
+				Str("item_id", skipID).
+				Bool("marked", skipMarked).
+				Msg("no reserve rule configured, mark item skipped for current task")
+			return true
 		}
 		log.Info().Str("component", reserveSessionActionName).
 			Str("item_id", itemID).
