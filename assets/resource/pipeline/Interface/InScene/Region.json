@@ -348,7 +348,8 @@
                 ],
                 "template": [
                     "SceneManager/MenuBackpack.png"
-                ]
+                ],
+                "threshold": 0.8
             }
         }
     },
