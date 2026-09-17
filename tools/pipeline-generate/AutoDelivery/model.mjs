@@ -68,33 +68,30 @@ function buildRouteFileId(name, label) {
     return id;
 }
 
-function buildMapZone(map, label) {
+function readMapLocatorEntry(map, label) {
     const baseNavZone = assertNonEmptyString(catalogSource.maps?.[map]?.zone, `${label}.maps.${map}.zone`);
     const [
         resourceType,
         zone,
+        imageFile,
     ] = BASE_NAV_ZONE_IMAGE_PARTS[baseNavZone] ?? [];
-    if (resourceType !== "MapLocator" || !zone) {
+    if (resourceType !== "MapLocator" || !zone || !imageFile) {
         throw new Error(`[AutoDelivery] ${label} 的 BaseNav 地区 ${baseNavZone} 无法对应 MapLocator 地区`);
     }
-    return zone;
+    return {zone, imageFile};
 }
 
-// 路线首点必须用 ZONE 明写 MapLocator 的规范区域名（ValleyIV_Base / Wuling_Base）
+function buildMapZone(map, label) {
+    return readMapLocatorEntry(map, label).zone;
+}
+
+// 路线首点由生成器统一声明 MapLocator 区域名，routes.json 只维护路点。
 // 定位器在起步冷启动时会把首点的 zone_id 当作期望区域，只接受落在该区域内的 YOLO 结果。
-// 该声明由生成器统一写入，routes.json 只维护路点。
-const LOCATOR_BASE_ZONE_IDS = {
-    map01base: "ValleyIV_Base",
-    map02base: "Wuling_Base",
-};
 
 export function buildLocatorZoneId(map, label) {
-    const baseNavZone = assertNonEmptyString(catalogSource.maps?.[map]?.zone, `${label}.maps.${map}.zone`);
-    const zoneId = LOCATOR_BASE_ZONE_IDS[baseNavZone];
-    if (!zoneId) {
-        throw new Error(`[AutoDelivery] ${label} 的 BaseNav 地区 ${baseNavZone} 缺少 MapLocator 区域名`);
-    }
-    return zoneId;
+    const {zone, imageFile} = readMapLocatorEntry(map, label);
+    const stem = imageFile.replace(/\.png$/i, "");
+    return stem === "Base" ? `${zone}_Base` : stem;
 }
 
 function withZoneDeclaration(path, zoneId, label) {
