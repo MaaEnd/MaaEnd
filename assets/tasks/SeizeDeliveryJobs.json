@@ -7,6 +7,7 @@
             "entry": "SeizeDeliveryJobsMain",
             "option": [
                 "SeizeDeliveryJobsReward",
+                "SeizeDeliveryJobsRefreshLimit",
                 "SeizeDeliveryJobsCommissionSource",
                 "SeizeDeliveryJobsPostProcessing"
             ],
@@ -395,6 +396,26 @@
                     }
                 }
             ]
+        },
+        "SeizeDeliveryJobsRefreshLimit": {
+            "type": "input",
+            "label": "$task.SeizeDeliveryJobsRefreshLimit.label",
+            "description": "$task.SeizeDeliveryJobsRefreshLimit.description",
+            "inputs": [
+                {
+                    "name": "Limit",
+                    "label": "$task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.label",
+                    "default": "100",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d*$",
+                    "pattern_msg": "$task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "SeizeDeliveryJobsRefreshHit": {
+                    "max_hit": "{Limit}"
+                }
+            }
         },
         "SeizeDeliveryJobsRepeatCount": {
             "type": "select",
