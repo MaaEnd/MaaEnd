@@ -90,6 +90,7 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 ### Reserve Rules (6 independent slots)
 
 - Two modes: keep a quantity / never sell (internally quantity `-1`); quantity `0` means keep nothing; for duplicated items the later slot wins.
+- Activity items are sold in one batch against the activity quota, so reserve rules never apply to them and the slots list no activity items; priority selling options are unaffected.
 - "Keep a quantity" uses BetterSliding `ReverseTarget` to sell only the excess; reaching the reserve in one trade, or stock already at/below the reserve, both `satisfy` the item for this task so later outposts skip it during selection.
 - "Never sell" excludes the item during selection recognition — no goods switching, never marked out of stock.
 

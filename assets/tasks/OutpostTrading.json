@@ -1381,34 +1381,6 @@
                     "label": "$task.OutpostTrading.ReserveNone"
                 },
                 {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "option": [
-                        "SellProductReserveItem1Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule1": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "option": [
-                        "SellProductReserveItem1Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule1": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "灼铜零件",
                     "label": "$item.CopperEnr2Cmpt",
                     "option": [
@@ -1830,34 +1802,6 @@
                 {
                     "name": "None",
                     "label": "$task.OutpostTrading.ReserveNone"
-                },
-                {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "option": [
-                        "SellProductReserveItem2Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule2": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "option": [
-                        "SellProductReserveItem2Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule2": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -2283,34 +2227,6 @@
                     "label": "$task.OutpostTrading.ReserveNone"
                 },
                 {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "option": [
-                        "SellProductReserveItem3Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule3": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "option": [
-                        "SellProductReserveItem3Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule3": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "灼铜零件",
                     "label": "$item.CopperEnr2Cmpt",
                     "option": [
@@ -2732,34 +2648,6 @@
                 {
                     "name": "None",
                     "label": "$task.OutpostTrading.ReserveNone"
-                },
-                {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "option": [
-                        "SellProductReserveItem4Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule4": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "option": [
-                        "SellProductReserveItem4Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule4": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -3185,34 +3073,6 @@
                     "label": "$task.OutpostTrading.ReserveNone"
                 },
                 {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "option": [
-                        "SellProductReserveItem5Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule5": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "option": [
-                        "SellProductReserveItem5Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule5": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "灼铜零件",
                     "label": "$item.CopperEnr2Cmpt",
                     "option": [
@@ -3634,34 +3494,6 @@
                 {
                     "name": "None",
                     "label": "$task.OutpostTrading.ReserveNone"
-                },
-                {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "option": [
-                        "SellProductReserveItem6Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule6": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "option": [
-                        "SellProductReserveItem6Mode"
-                    ],
-                    "pipeline_override": {
-                        "OutpostTradingRegisterReserveRule6": {
-                            "attach": {
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
                 },
                 {
                     "name": "灼铜零件",

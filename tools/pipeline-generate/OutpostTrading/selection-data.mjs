@@ -293,6 +293,13 @@ function buildSelectableItems() {
 
 export const outpostTradingSelectableItems = buildSelectableItems();
 
+// 收集任一据点带活动标识的物品，保留选项据此排除活动物品。
+export const outpostTradingActivityItemIDs = new Set(
+    Object.values(outpostTradingSelectionData.locations).flatMap((location) =>
+        location.items.filter((item) => item.activity_id).map((item) => item.item_id),
+    ),
+);
+
 // 国际化同步器消费的物品视图。命名规则与 task-data.mjs 的反查兜底保持一致，
 // 同步后的 item.* 键能被 Task 生成的 `$item.xxx` label 直接引用。
 export const outpostTradingItemLocaleEntries = outpostTradingSelectableItems.map(({id}) => ({

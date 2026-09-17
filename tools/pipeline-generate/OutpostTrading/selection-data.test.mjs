@@ -7,6 +7,7 @@ import {
     buildLocationOperatorOrder,
     buildSelectionItems,
     buildOutpostTradingSelectionData,
+    outpostTradingActivityItemIDs,
     outpostTradingSelectableItems,
     outpostTradingSelectionData,
 } from "./selection-data.mjs";
@@ -85,6 +86,20 @@ test("OutpostTrading temporary activity items stay recognizable but are not sele
             );
         }
     }
+});
+
+test("OutpostTrading activity item ids cover every activity flagged location item", () => {
+    const expected = new Set();
+    for (const location of Object.values(outpostTradingSelectionData.locations)) {
+        for (const item of location.items) {
+            if (item.activity_id) expected.add(item.item_id);
+        }
+    }
+    assert.deepEqual([...outpostTradingActivityItemIDs].sort(), [...expected].sort());
+    assert.deepEqual([...outpostTradingActivityItemIDs].sort(), [
+        "item_activity_xiranite_enr_lung",
+        "item_activity_xiranite_lung",
+    ]);
 });
 
 test("OutpostTrading generated location items merge prosperity levels without applying a strategy order", () => {

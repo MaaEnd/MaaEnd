@@ -12,7 +12,7 @@ import {
     toPascalCase,
 } from "./model.mjs";
 import outpostTradingSellRows from "./sell-data.mjs";
-import {outpostTradingSelectionData} from "./selection-data.mjs";
+import {outpostTradingActivityItemIDs, outpostTradingSelectionData} from "./selection-data.mjs";
 import {outpostTradingTaskRows} from "./task-data.mjs";
 
 const root = outpostTradingTaskRows[0];
@@ -366,6 +366,26 @@ test("OutpostTrading 保留物品按游戏货架单价降序排列", () => {
             itemIDs.filter((itemID) => expectedItems.has(itemID)),
             expectedOrder,
         );
+    }
+});
+
+test("OutpostTrading 保留选项排除活动物品", () => {
+    const activityItemIDs = new Set(outpostTradingActivityItemIDs);
+    assert.ok(activityItemIDs.size > 0);
+    for (const slot of [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+    ]) {
+        const itemIDs = root[`ReserveItemCases${slot}`]
+            .filter((entry) => entry.name !== "None")
+            .map((entry) => entry.pipeline_override[`OutpostTradingRegisterReserveRule${slot}`].attach.item_id);
+        for (const itemID of itemIDs) {
+            assert.equal(activityItemIDs.has(itemID), false, `reserve slot ${slot} keeps activity item ${itemID}`);
+        }
     }
 });
 
@@ -807,7 +827,8 @@ test("OutpostTrading 持续售卖到保留量后再进入下一轮选货", () =>
             ),
         );
         assert.equal(
-            outpost[`OutpostTrading${location.LocationId}BetterSliding`].custom_action_param.TargetReachableOverrideEnable,
+            outpost[`OutpostTrading${location.LocationId}BetterSliding`].custom_action_param
+                .TargetReachableOverrideEnable,
             "OutpostTradingReserveQuantityReached",
         );
     }
