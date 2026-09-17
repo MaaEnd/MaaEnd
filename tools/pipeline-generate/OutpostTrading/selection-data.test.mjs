@@ -142,6 +142,33 @@ test("OutpostTrading generated location items merge prosperity levels without ap
     assert.ok(result.items.event);
 });
 
+test("OutpostTrading generated location items carry the source activity id only for activity items", () => {
+    const data = {
+        items: {
+            event: {rarity: 5, names: {zh_cn: "活动物品"}},
+            normal: {rarity: 2, names: {zh_cn: "常驻物品"}},
+        },
+        settlements: {
+            test: {
+                prosperity_levels: [
+                    {
+                        level: 1,
+                        trade_items: [
+                            {item_id: "event", unit_price: 200, activity_id: "activity_limited_formula_2"},
+                            {item_id: "normal", unit_price: 10, activity_id: ""},
+                        ],
+                    },
+                ],
+            },
+        },
+    };
+    const result = buildSelectionItems(data, [{SettlementId: "test", LocationId: "Test"}]);
+    assert.deepEqual(result.locationItems.Test, [
+        {item_id: "event", rarity: 5, unit_price: 200, activity_id: "activity_limited_formula_2"},
+        {item_id: "normal", rarity: 2, unit_price: 10},
+    ]);
+});
+
 test("OutpostTrading generated target operators prioritize prosperity before trade profit", () => {
     const catalog = {
         chr_0003_both: {id: "chr_0003_both", names: {zh_cn: "双加成", en_us: "Both"}},

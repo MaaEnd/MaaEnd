@@ -187,6 +187,7 @@ export function buildSelectionItems(data = settlementData, sourceLocations = out
                 };
 
                 const excluded = TEMP_EXCLUDED_ITEM_CN_NAMES.has(item.names?.zh_cn);
+                const activityID = tradeItem.activity_id?.trim() || "";
 
                 const previous = locationItems.get(itemID);
                 if (!previous) {
@@ -194,11 +195,13 @@ export function buildSelectionItems(data = settlementData, sourceLocations = out
                         itemID,
                         rarity: item.rarity,
                         unitPrice: tradeItem.unit_price,
+                        activityID,
                         excluded,
                     });
                 } else if (tradeItem.unit_price > previous.unitPrice) {
                     previous.rarity = item.rarity;
                     previous.unitPrice = tradeItem.unit_price;
+                    previous.activityID = activityID;
                 }
             }
         }
@@ -209,6 +212,7 @@ export function buildSelectionItems(data = settlementData, sourceLocations = out
                 item_id: item.itemID,
                 rarity: item.rarity,
                 unit_price: item.unitPrice,
+                ...(item.activityID ? {activity_id: item.activityID} : {}),
             }));
     }
 

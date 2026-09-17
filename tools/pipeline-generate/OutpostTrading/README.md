@@ -24,7 +24,7 @@ MaaEnd：fetch-data.mjs → data/sell_product.json
 | `session-data.mjs` | `OperatorSession.json` 的据点注册链 |
 | `task-data.mjs` | `assets/tasks/OutpostTrading.json` 的任务选项 |
 
-- `selection-data.mjs`：把据点交易精简游戏数据预计算为 `assets/data/OutpostTrading/selection_data.json`（Go 运行时数据）；活动物品临时排除项集中在这里，原始数据移除活动物品后应清理并重新生成。
+- `selection-data.mjs`：把据点交易精简游戏数据预计算为 `assets/data/OutpostTrading/selection_data.json`（Go 运行时数据）；物品是否属于活动由精简游戏数据的 `activity_id` 判定（非空即活动物品），活动物品临时排除项也集中在这里，原始数据移除活动物品后应清理并重新生成。
 - `sync-locales.mjs`：同步五语言 locale——按游戏据点顺序重排据点键、据点名始终覆盖为当前官方译文、补齐缺失的据点/干员/物品键（中文名与既有键相同的货品复用旧键）。
 
 ## 命令
