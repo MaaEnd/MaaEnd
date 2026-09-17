@@ -134,18 +134,6 @@ func printRuntimeItemSwitched(ctx *maa.Context, location string, itemID string) 
 	maafocus.Print(ctx, runtimeItemSwitchedMessage(location, itemID))
 }
 
-// printRuntimeSaleQuantity 将本次默认售卖数量的计算过程显示在任务日志中。
-func printRuntimeSaleQuantity(ctx *maa.Context, location, itemID string, stockBills, unitPrice, quantity int) {
-	maafocus.Print(ctx, i18n.T(
-		"outposttrading.runtime.sale_quantity",
-		selectiondata.LocationName(location),
-		itemID,
-		stockBills,
-		unitPrice,
-		quantity,
-	))
-}
-
 func runtimeItemSwitchedMessage(location string, itemID string) string {
 	return i18n.T(
 		"outposttrading.runtime.item_switched",

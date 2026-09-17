@@ -112,7 +112,7 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 				Msg("blacklisted item reached reserve rule application")
 			return false
 		}
-		activityQuantity, ok := getActivityQuota(ctx, arg, param.Location, itemID)
+		activityQuantity, ok := getActivityQuantity(ctx, arg, param.Location, itemID)
 		if !ok {
 			return false
 		}
@@ -161,7 +161,7 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	}
 }
 
-func getActivityQuota(ctx *maa.Context, arg *maa.CustomActionArg, location, itemID string) (int, bool) {
+func getActivityQuantity(ctx *maa.Context, arg *maa.CustomActionArg, location, itemID string) (int, bool) {
 	unitPrice, activityID, err := itemUnitPrice(location, itemID)
 	if err != nil {
 		log.Error().Err(err).Str("component", reserveSessionActionName).
@@ -173,7 +173,7 @@ func getActivityQuota(ctx *maa.Context, arg *maa.CustomActionArg, location, item
 		log.Error().Err(err).Str("component", reserveSessionActionName).Msg("failed to select reserve recognition detail")
 		return 0, false
 	}
-	if activityID == "" {
+	if activityID == "" || unitPrice <= 0 {
 		return 0, true
 	}
 	var activityQuantity = 0
@@ -192,7 +192,6 @@ func getActivityQuota(ctx *maa.Context, arg *maa.CustomActionArg, location, item
 			Int("unit_price", unitPrice).
 			Int("quantity", activityQuantity).
 			Msg("default sale quantity calculated")
-		printRuntimeSaleQuantity(ctx, location, itemID, stockBills, unitPrice, activityQuantity)
 
 	}
 	return activityQuantity, true
@@ -338,19 +337,19 @@ func selectedReserveRule() (itemID string, quantity int, configured bool) {
 	defer reserveSessionMu.Unlock()
 	itemID = reserveSelected
 	quantity, configured = reserveRules[itemID]
-	// 保留 0 等价于不启用保留，使用默认售卖数量。
+	// 保留 0 等价于不启用保留，继续使用默认“全部售出”路径。
 	configured = configured && quantity > 0
 	return itemID, quantity, configured
 }
 
-func buildReserveSlidingOverride(slidingNode string, quantity int, configured bool, targetQuantity int) map[string]any {
+func buildReserveSlidingOverride(slidingNode string, quantity int, configured bool, activityQuantity int) map[string]any {
 	// 活动额度按可售数量直接设置，优先于库存保留规则。
-	if targetQuantity != 0 {
+	if activityQuantity > 0 {
 		return map[string]any{
 			slidingNode: map[string]any{
 				"next": []string{"OutpostTradingSell"},
 				"attach": map[string]any{
-					"TargetQuantity": targetQuantity,
+					"TargetQuantity": activityQuantity,
 					"ReverseTarget":  false,
 				},
 			},

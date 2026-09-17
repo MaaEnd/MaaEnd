@@ -939,7 +939,8 @@
                 {
                     "item_id": "item_activity_xiranite_enr_lung",
                     "rarity": 5,
-                    "unit_price": 200
+                    "unit_price": 200,
+                    "activity_id": "aid_quota_activity_2"
                 },
                 {
                     "item_id": "item_activity_xiranite_lung",
@@ -1076,7 +1077,8 @@
                 {
                     "item_id": "item_activity_xiranite_enr_lung",
                     "rarity": 5,
-                    "unit_price": 200
+                    "unit_price": 200,
+                    "activity_id": "aid_quota_activity_2"
                 },
                 {
                     "item_id": "item_activity_xiranite_lung",
@@ -1197,7 +1199,8 @@
                 {
                     "item_id": "item_activity_xiranite_enr_lung",
                     "rarity": 5,
-                    "unit_price": 200
+                    "unit_price": 200,
+                    "activity_id": "aid_quota_activity_2"
                 },
                 {
                     "item_id": "item_activity_xiranite_lung",
