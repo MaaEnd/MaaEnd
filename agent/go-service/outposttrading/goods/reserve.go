@@ -7,12 +7,15 @@ import (
 	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const reserveSessionActionName = "OutpostTradingReserveSession"
+
+// stockBillsQuantityNodeName 是售卖界面右上角据点调度券数量的 OCR 节点。
+// 该识别由本包按需触发，只服务活动物品的可售数量换算。
+const stockBillsQuantityNodeName = "OutpostTradingStockBillsQuantity"
 
 // reserveBlacklistQuantity 是任务配置中“永不售卖”的唯一哨兵值。
 // 仅接受 -1，避免把其他负数静默解释为有效规则。
@@ -112,14 +115,15 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 				Msg("blacklisted item reached reserve rule application")
 			return false
 		}
-		activityQuantity, ok := getActivityQuantity(ctx, arg, param.Location, itemID)
+		activityQuantity, activityID, ok := getActivityQuantity(ctx, param.Location, itemID)
 		if !ok {
 			return false
 		}
 		override := buildReserveSlidingOverride(param.SlidingNode, quantity, configured, activityQuantity)
 		next := param.SlidingNode
-		if !configured && quantity == 0 && activityQuantity == 0 {
-			// BetterSliding 不接受零目标，余额不足一件时由 Pipeline 结束据点售卖。
+		// BetterSliding 不接受零目标：活动物品额度不足一件时由 Pipeline 结束据点售卖。
+		// 非活动物品没有活动标识，额度恒为 0，不能据此结束循环，否则整轮都不会售卖。
+		if activityID != "" && !configured && quantity == 0 && activityQuantity == 0 {
 			next = "OutpostTradingSellLoopEnd"
 			override = map[string]any{}
 		}
@@ -161,40 +165,50 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	}
 }
 
-func getActivityQuantity(ctx *maa.Context, arg *maa.CustomActionArg, location, itemID string) (int, bool) {
+// getActivityQuantity 返回活动物品在当前界面可兑换的默认售卖数量，以及该物品的活动标识。
+// 非活动物品的 activityID 为空、数量为 0，且不消耗 OCR。
+func getActivityQuantity(ctx *maa.Context, location, itemID string) (int, string, bool) {
 	unitPrice, activityID, err := itemUnitPrice(location, itemID)
 	if err != nil {
 		log.Error().Err(err).Str("component", reserveSessionActionName).
 			Str("location", location).Str("item_id", itemID).Msg("failed to get item unit price")
-		return 0, false
-	}
-	stockBillsQuantity, err := recogtarget.SelectDetail(ctx, arg.CurrentTaskName, arg.RecognitionDetail)
-	if err != nil {
-		log.Error().Err(err).Str("component", reserveSessionActionName).Msg("failed to select reserve recognition detail")
-		return 0, false
+		return 0, "", false
 	}
 	if activityID == "" || unitPrice <= 0 {
-		return 0, true
+		return 0, activityID, true
 	}
-	var activityQuantity = 0
-	if stockBillsQuantity.Name == "OutpostTradingStockBillsQuantity" {
-		stockBills, err := ocrnum.Extract(stockBillsQuantity)
-		if err != nil || stockBills < 0 {
-			log.Error().Err(err).Str("component", reserveSessionActionName).Msg("invalid stock bills quantity")
-			return 0, false
-		}
-		log.Debug().Str("component", reserveSessionActionName).Int("stock_bills", stockBills).Msg("stock bills quantity recognized")
-		activityQuantity = stockBills / unitPrice
-		log.Info().Str("component", reserveSessionActionName).
-			Str("location", location).
-			Str("item_id", itemID).
-			Int("stock_bills", stockBills).
-			Int("unit_price", unitPrice).
-			Int("quantity", activityQuantity).
-			Msg("default sale quantity calculated")
-
+	// 每轮流水线只截图一次，识别与动作共享同一帧，自定义动作经控制器缓存取回它。
+	tasker := ctx.GetTasker()
+	if tasker == nil || tasker.GetController() == nil {
+		log.Error().Str("component", reserveSessionActionName).Msg("tasker or controller is nil")
+		return 0, activityID, false
 	}
-	return activityQuantity, true
+	img, err := tasker.GetController().CacheImage()
+	if err != nil || img == nil {
+		log.Error().Err(err).Str("component", reserveSessionActionName).Msg("failed to cache image")
+		return 0, activityID, false
+	}
+	stockBillsQuantity, err := ctx.RunRecognition(stockBillsQuantityNodeName, img)
+	if err != nil {
+		log.Error().Err(err).Str("component", reserveSessionActionName).
+			Str("node", stockBillsQuantityNodeName).Msg("failed to recognize stock bills quantity")
+		return 0, activityID, false
+	}
+	stockBills, err := ocrnum.Extract(stockBillsQuantity)
+	if err != nil || stockBills < 0 {
+		log.Error().Err(err).Str("component", reserveSessionActionName).Msg("invalid stock bills quantity")
+		return 0, activityID, false
+	}
+	log.Debug().Str("component", reserveSessionActionName).Int("stock_bills", stockBills).Msg("stock bills quantity recognized")
+	activityQuantity := stockBills / unitPrice
+	log.Info().Str("component", reserveSessionActionName).
+		Str("location", location).
+		Str("item_id", itemID).
+		Int("stock_bills", stockBills).
+		Int("unit_price", unitPrice).
+		Int("quantity", activityQuantity).
+		Msg("default sale quantity calculated")
+	return activityQuantity, activityID, true
 }
 
 func parseReserveSessionActionParam(raw string) (*reserveSessionActionParam, error) {

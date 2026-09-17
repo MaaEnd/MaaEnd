@@ -1278,12 +1278,7 @@
     },
     "OutpostTradingCardiacRemediationStationApplyReserve": {
         "desc": "心脏修缮站应用当前货品的独立保留规则",
-        "recognition": "And",
-        "all_of": [
-            "OutpostTradingInOutpost",
-            "OutpostTradingStockBillsQuantity"
-        ],
-        "box_index": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "OutpostTradingReserveSession",

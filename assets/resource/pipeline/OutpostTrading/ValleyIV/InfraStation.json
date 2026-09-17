@@ -1282,6 +1282,7 @@
         "custom_action": "OutpostTradingReserveSession",
         "custom_action_param": {
             "operation": "apply",
+            "location": "InfraStation",
             "sliding_node": "OutpostTradingInfraStationBetterSliding"
         },
         "post_delay": 0,

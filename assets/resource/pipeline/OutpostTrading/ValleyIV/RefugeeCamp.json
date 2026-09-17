@@ -1284,6 +1284,7 @@
         "custom_action": "OutpostTradingReserveSession",
         "custom_action_param": {
             "operation": "apply",
+            "location": "RefugeeCamp",
             "sliding_node": "OutpostTradingRefugeeCampBetterSliding"
         },
         "post_delay": 0,

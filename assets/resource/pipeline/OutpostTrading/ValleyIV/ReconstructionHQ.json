@@ -1286,6 +1286,7 @@
         "custom_action": "OutpostTradingReserveSession",
         "custom_action_param": {
             "operation": "apply",
+            "location": "ReconstructionHQ",
             "sliding_node": "OutpostTradingReconstructionHQBetterSliding"
         },
         "post_delay": 0,
