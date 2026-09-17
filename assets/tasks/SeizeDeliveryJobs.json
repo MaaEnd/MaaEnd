@@ -407,7 +407,7 @@
                     "label": "$task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.label",
                     "default": "100",
                     "pipeline_type": "int",
-                    "verify": "^[1-9]\\d*$",
+                    "verify": "^([1-9]\\d{0,2}|1\\d{3}|2000)$",
                     "pattern_msg": "$task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.pattern_msg"
                 }
             ],
