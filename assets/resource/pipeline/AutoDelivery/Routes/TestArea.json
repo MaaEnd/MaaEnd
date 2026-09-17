@@ -209,6 +209,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.425,
@@ -243,6 +247,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -280,6 +288,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.24,
@@ -316,6 +328,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1377.809,
@@ -350,6 +366,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -387,6 +407,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.24,
@@ -423,6 +447,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1080.082,
@@ -457,6 +485,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -502,6 +534,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.24,
@@ -545,6 +581,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [

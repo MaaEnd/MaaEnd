@@ -7,6 +7,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
@@ -42,6 +46,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -79,6 +87,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
@@ -114,6 +126,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1132.831,
@@ -142,6 +158,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1132.831,
@@ -169,6 +189,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -204,6 +228,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -250,6 +278,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1144.79,
@@ -295,6 +327,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1163.183,
@@ -330,6 +366,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         968.209,
@@ -358,6 +398,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         968.209,
@@ -385,6 +429,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -420,6 +468,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -457,6 +509,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         910.924,
@@ -493,6 +549,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         910.924,
@@ -527,6 +587,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -564,6 +628,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1179.481,
@@ -599,6 +667,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [

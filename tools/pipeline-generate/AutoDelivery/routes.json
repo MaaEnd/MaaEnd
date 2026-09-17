@@ -353,10 +353,6 @@
             "description": "供能高地；需要绕过敌人",
             "walk_only": true,
             "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "ValleyIV_Base"
-                },
                 [
                     673.74,
                     226.46
@@ -473,10 +469,6 @@
             "description": "武陵城区；仓储节点与传送落点之间的桥面未铺入网格",
             "path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
                     "action": "NAVMESH",
                     "target": [
                         954.6,
@@ -504,10 +496,6 @@
             ],
             "departure_path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
                     "action": "NAVMESH",
                     "target": [
                         963.66,
@@ -526,10 +514,6 @@
             "description": "试验园区；出发时避免直接穿过仓储中心",
             "walk_only": true,
             "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
                 [
                     1291.48,
                     1752.61

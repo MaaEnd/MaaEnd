@@ -4,7 +4,14 @@ import test from "node:test";
 
 import {parseJsonc, readJsonc} from "../jsonc.mjs";
 import routeRows, {buildRows} from "./routes-data.mjs";
-import {buildNavmeshPath, buildYawApproachTarget, depots, destinations, runtimeCatalog} from "./model.mjs";
+import {
+    buildLocatorZoneId,
+    buildNavmeshPath,
+    buildYawApproachTarget,
+    depots,
+    destinations,
+    runtimeCatalog,
+} from "./model.mjs";
 import {
     ambiguousRecycleBinGroups,
     ambiguousRecycleBins,
@@ -89,18 +96,17 @@ test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目�
         ]),
     );
 
+    // 生成器会给每条路线首点注入 ZONE 区域声明（另有专门用例断言该声明），这里比较声明之后的路点本体。
+    const pathBody = (path) => (path[0] && !Array.isArray(path[0]) && path[0].action === "ZONE" ? path.slice(1) : path);
+
     for (const depot of depots) {
         const source = sourceByDepotId.get(depot.id);
         const defaultPath = buildNavmeshPath(source, `仓储 ${depot.id}`, true);
         const override = depotOverrides.get(depot.id);
-        if (override?.path?.length) {
-            assert.deepEqual(depot.path, override.path);
-        } else {
-            assert.deepEqual(depot.path, defaultPath);
-        }
+        assert.deepEqual(pathBody(depot.path), pathBody(override?.path?.length ? override.path : defaultPath));
 
-        const expectedRetryPath = override?.retry_path?.length ? override.retry_path : defaultPath;
-        assert.deepEqual(depot.retryPath, expectedRetryPath);
+        const expectedRetryPath = pathBody(override?.retry_path?.length ? override.retry_path : defaultPath);
+        assert.deepEqual(pathBody(depot.retryPath), expectedRetryPath);
         assert.match(depot.retryRouteNode, /^AutoDeliveryRouteDepotRetry/);
         assert.equal(defaultPath.length, 2);
         assert.equal(defaultPath[0].required, true);
@@ -123,18 +129,17 @@ test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目�
         const source = sourceByDestinationId.get(destination.id);
         const override = destinationOverrides.get(destination.id);
         const depot = depots.find((item) => item.id === destination.depotId);
-        const ownPath = destination.path.slice(depot.departurePath.length);
         const withApproachPoint = source.kind === "recycle_bin";
         const defaultPath = buildNavmeshPath(source, `终点 ${destination.id}`, withApproachPoint);
-        if (override?.path?.length) {
-            assert.deepEqual(ownPath, override.path);
-        } else {
-            assert.deepEqual(ownPath, defaultPath);
-        }
+        const expectedOwnPath = pathBody(override?.path?.length ? override.path : defaultPath);
+        assert.deepEqual(pathBody(destination.path), [
+            ...pathBody(depot.departurePath),
+            ...expectedOwnPath,
+        ]);
 
         const defaultRetryPath = buildNavmeshPath(source, `终点重试 ${destination.id}`, true);
-        const expectedRetryPath = override?.retry_path?.length ? override.retry_path : defaultRetryPath;
-        assert.deepEqual(destination.retryPath, expectedRetryPath);
+        const expectedRetryPath = pathBody(override?.retry_path?.length ? override.retry_path : defaultRetryPath);
+        assert.deepEqual(pathBody(destination.retryPath), expectedRetryPath);
         assert.match(destination.retryRouteNode, /^AutoDeliveryRouteDestinationRetry/);
 
         if (!withApproachPoint) {
@@ -505,6 +510,69 @@ test("AutoDelivery 将 BaseNav 地区映射到 MapLocator 资源区", () => {
             "map02:Wuling",
         ],
     );
+});
+
+test("AutoDelivery 路线首点声明仓储/终点所在区域", () => {
+    // 首点 ZONE 是定位器起步时的期望区域；缺失或写错区域会让冷启动定位落到别的区域图上，
+    // WithZipline 节点与普通节点共用同一份 path，此处覆盖即覆盖两者。
+    for (const depot of depots) {
+        const zoneId = buildLocatorZoneId(depot.map, `仓储 ${depot.id}`);
+        for (const [
+            label,
+            path,
+        ] of [
+            [
+                "主路线",
+                depot.path,
+            ],
+            [
+                "重试路线",
+                depot.retryPath,
+            ],
+        ]) {
+            assert.deepEqual(path[0], {action: "ZONE", zone_id: zoneId}, `仓储 ${depot.id} 的${label}首点区域不符`);
+        }
+    }
+
+    for (const destination of destinations) {
+        const zoneId = buildLocatorZoneId(destination.map, `终点 ${destination.id}`);
+        for (const [
+            label,
+            path,
+        ] of [
+            [
+                "主路线",
+                destination.path,
+            ],
+            [
+                "重试路线",
+                destination.retryPath,
+            ],
+        ]) {
+            assert.deepEqual(
+                path[0],
+                {action: "ZONE", zone_id: zoneId},
+                `终点 ${destination.id} 的${label}首点区域不符`,
+            );
+        }
+    }
+});
+
+test("AutoDelivery routes.json 不维护首点区域声明", () => {
+    // 首点 ZONE 统一由生成器按仓储 map 推导，人工路径写了会在生成时被归一化或报错，数据侧不允许出现。
+    for (const item of [
+        ...routeSource.depots,
+        ...routeSource.destinations,
+    ]) {
+        for (const key of [
+            "path",
+            "retry_path",
+            "departure_path",
+        ]) {
+            const [first] = item[key] ?? [];
+            assert.notEqual(first?.action, "ZONE", `${item.source_id}.${key} 的首点不需要书写 ZONE`);
+        }
+    }
 });
 
 test("AutoDelivery 为同地图同区域的多个资源回收站生成地图图标候选", () => {
