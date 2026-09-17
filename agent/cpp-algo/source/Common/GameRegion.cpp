@@ -3,12 +3,19 @@
 #include <algorithm>
 #include <cctype>
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <string_view>
 #include <vector>
 
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
+
+#ifdef _WIN32
+#include <MaaUtils/SafeWindows.hpp>
+
+#include <Psapi.h>
+#endif
 
 namespace gamesetting
 {
@@ -37,10 +44,62 @@ bool EqualsIgnoreCase(std::string_view a, std::string_view b)
     return true;
 }
 
-Region DetectGameRegionUncached()
+void AppendUniqueDir(std::vector<std::filesystem::path>& dirs, const std::filesystem::path& dir)
 {
-    const auto processes = MAA_NS::list_processes();
+    if (std::find(dirs.begin(), dirs.end(), dir) != dirs.end()) {
+        return;
+    }
+    dirs.push_back(dir);
+}
+
+// Windows 使用 QUERY_LIMITED_INFORMATION，避免 MaaUtils list_processes 所需的 VM_READ 被拒。
+std::vector<std::filesystem::path> CollectEndfieldInstallDirs()
+{
     std::vector<std::filesystem::path> dirs;
+
+#ifdef _WIN32
+    constexpr size_t kMaxProcesses = 16 * 1024;
+    constexpr DWORD kMaxPathChars = 32768;
+
+    auto all_pids = std::make_unique<DWORD[]>(kMaxProcesses);
+    DWORD bytes_needed = 0;
+    if (!EnumProcesses(all_pids.get(), static_cast<DWORD>(sizeof(DWORD) * kMaxProcesses), &bytes_needed)) {
+        const auto error = GetLastError();
+        LogError << "GameRegion: EnumProcesses failed" << VAR(error);
+        return dirs;
+    }
+
+    const DWORD count = bytes_needed / sizeof(DWORD);
+    auto path_buff = std::make_unique<WCHAR[]>(kMaxPathChars);
+
+    for (DWORD i = 0; i < count; ++i) {
+        const DWORD pid = all_pids[i];
+        if (pid == 0) {
+            continue;
+        }
+
+        HANDLE process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+        if (!process) {
+            continue;
+        }
+
+        DWORD size = kMaxPathChars;
+        const BOOL ok = QueryFullProcessImageNameW(process, 0, path_buff.get(), &size);
+        CloseHandle(process);
+        if (!ok) {
+            continue;
+        }
+
+        const std::filesystem::path exe_path(path_buff.get());
+        const auto name = MAA_NS::from_osstring(exe_path.filename().native());
+        if (!EqualsIgnoreCase(name, kEndfieldProcessName)) {
+            continue;
+        }
+
+        AppendUniqueDir(dirs, exe_path.parent_path().lexically_normal());
+    }
+#else
+    const auto processes = MAA_NS::list_processes();
     for (const auto& info : processes) {
         if (!EqualsIgnoreCase(info.name, kEndfieldProcessName)) {
             continue;
@@ -49,12 +108,16 @@ Region DetectGameRegionUncached()
         if (!path_opt || path_opt->empty()) {
             continue;
         }
-        const auto dir = path_opt->parent_path().lexically_normal();
-        if (std::find(dirs.begin(), dirs.end(), dir) != dirs.end()) {
-            continue;
-        }
-        dirs.push_back(dir);
+        AppendUniqueDir(dirs, path_opt->parent_path().lexically_normal());
     }
+#endif
+
+    return dirs;
+}
+
+Region DetectGameRegionUncached()
+{
+    const auto dirs = CollectEndfieldInstallDirs();
 
     if (dirs.empty()) {
         LogError << "GameRegion: Endfield.exe not running; cannot auto-detect region";
