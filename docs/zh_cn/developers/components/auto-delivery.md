@@ -107,6 +107,10 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 运行 `pnpm generate:AutoDelivery` 后，每条主路线会生成普通与允许滑索两个 `AutoDeliveryRoute...` 节点。所有仓储和送货目标还会用同一条两点接近路线生成一个不启用滑索的 retry 节点；显式 `retry_path` 可以覆盖该路线。固定的 `AutoDeliveryNavigateDepot`、`AutoDeliveryRetryNavigateDepot`、`AutoDeliveryNavigateDestination` 和 `AutoDeliveryRetryNavigateDestination` 是 `SubTask` 分发器：Go Service 只根据 OCR 结果选择生成节点名，不再把坐标或完整 `path` 注入 Pipeline。生成节点是公开的单路线测试入口，`desc` 会注明路线对应的仓储节点；它们不替代完整送货业务的唯一入口 `AutoDelivery`。
 
+生成路线的首点由生成器统一插入 `ZONE` 区域声明（`ValleyIV_Base` / `Wuling_Base`，取自仓储 `map` 的 BaseNav 地区），作为定位器起步时的期望区域；因此 `path` / `retry_path` / `departure_path` 都不需要书写首点区域声明，路径中段为跨区路线保留的 `ZONE` 照常保留。
+
+当前只支持**起点位于 base 图**：`delivery_destinations.json` 的 `maps[map].zone` 仅有 `map01base` / `map02base`。若将来出现位于层内或室内的仓储，需要先支持层级起点区域与层级坐标（`target_tier`）才能生成可用路线；否则按 base 地区生成的首点声明会让定位器在层内因区域不符直接失败。
+
 覆盖文件只有顶层 `depots` 和 `destinations`：
 
 | 数组 | 字段 | 含义 |
@@ -121,7 +125,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 ### `retry_path`
 
-`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从主路线结束后的实际站位开始执行，应包含独立运行所需的区域声明和路径点。所有仓储和送货目标未配置时都使用自动生成的“8 米必经接近点 → 原始终点”路线，无需手工复制坐标；这不改变 NPC 主路线仍为单个终点的规则。
+`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从主路线结束后的实际站位开始执行，只需维护路径点；首点区域声明由生成器按仓储所在 `map` 统一注入，同区声明会被归一化后重新生成，跨区声明直接报错。所有仓储和送货目标未配置时都使用自动生成的“8 米必经接近点 → 原始终点”路线，无需手工复制坐标；这不改变 NPC 主路线仍为单个终点的规则。
 
 只在已经确认自动两点修正不适用时配置 `retry_path`，例如断网格、分层或目标附近需要绕行。不要用它掩盖模板不稳定、页面未加载或主路线错误。
 
