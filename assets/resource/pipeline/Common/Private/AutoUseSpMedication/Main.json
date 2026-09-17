@@ -24,8 +24,6 @@
             0,
             0
         ],
-        "repeat": 2, // 用两次一般是40体力
-        "repeat_delay": 500,
         "post_wait_freezes": 300,
         "next": [
             "__AutoUseSpMedicationUseEmergencySpBooster"
