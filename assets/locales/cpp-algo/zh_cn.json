@@ -6,7 +6,7 @@
     "zipline.import_timeout": "<span style=\"color: red; font-weight: bold;\">导入滑索超时</span>",
     "zipline.account_unknown": "<span style=\"color: red; font-weight: bold;\">本次寻路未使用滑索：初始化时未能获取当前游戏账号 UID，无法安全选择账号对应的滑索坐标。</span>本次将全程步行，不会尝试其他账号的数据。此提示不会中断任务。",
     "zipline.import_done": "UID %d：滑索坐标已更新，共 %d 条。共保存 %d 个账号的滑索坐标。",
-    "zipline.legacy_claimed": "<span style=\"font-weight: bold;\">已沿用旧版本导入的滑索坐标：本次共 %d 张地图的坐标归属到当前账号。</span>之后无需重新导入即可参与寻路。只有当前账号名下还没有任何滑索记录时才会这样归属；当前账号已经导入过坐标时，旧记录不会被沿用。如需更新坐标，请执行「🛝导入/更新滑索坐标」。此提示不会中断任务。",
-    "zipline.no_data": "<span style=\"color: red; font-weight: bold;\">本次寻路未使用滑索。</span>如需使用，请先单独执行一次「🛝导入/更新滑索坐标」任务。",
+    "zipline.legacy_claimed": "<span style=\"font-weight: bold;\">已沿用旧版本导入的滑索坐标：本次共 %d 张地图的坐标归属到当前账号。</span>之后无需重新导入即可参与寻路。只有当前账号名下还没有任何滑索记录时才会这样归属；当前账号已经导入过坐标时，旧记录不会被沿用。如需更新坐标，请执行「🚡导入/更新滑索坐标」。此提示不会中断任务。",
+    "zipline.no_data": "<span style=\"color: red; font-weight: bold;\">本次寻路未使用滑索。</span>如需使用，请先单独执行一次「🚡导入/更新滑索坐标」任务。",
     "zipline.not_chosen": "<span style=\"font-weight: bold;\">本次寻路未使用滑索：当前区域的滑索均未通过收益判定。</span>常见原因为前往上索点的路程超过直接步行、上索点不在游戏的 NPC 可行走区域内、下索点距目标过远。此提示不会中断任务。"
 }
