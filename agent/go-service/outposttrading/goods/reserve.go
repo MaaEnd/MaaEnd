@@ -121,16 +121,6 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 				Msg("failed to apply reserve rule")
 			return false
 		}
-		// 调度券不足以兑换一件活动物品时，当前物品本次任务跳过，直接回到售卖循环换下一个。
-		if aidQuota.Applied && aidQuota.Target < 1 {
-			if err := ctx.OverrideNext(param.SlidingNode, []maa.NextItem{{Name: "OutpostTradingAidQuotaExhausted"}}); err != nil {
-				log.Error().Err(err).
-					Str("component", reserveSessionActionName).
-					Str("sliding_node", param.SlidingNode).
-					Msg("failed to override next for aid quota exhausted")
-				return false
-			}
-		}
 		log.Info().Str("component", reserveSessionActionName).
 			Str("item_id", itemID).
 			Int("quantity", quantity).
@@ -342,9 +332,9 @@ func selectedReserveRule() (itemID string, quantity int, configured bool) {
 // buildReserveSlidingOverride 组装覆盖 BetterSliding 滑动节点的参数。
 //
 // configured 为 true 时按保留规则只卖超出保留量的部分；否则默认全部售出。
-// aidQuota.Applied 为 true 时（活动物品），目标数量改为调度券余量可兑换的上限；
-// 调度券不足以兑换一件时目标为 0，BetterSliding 判定 OutOfRange，
-// 由调用方改写 sliding 节点 next 跳 OutpostTradingAidQuotaExhausted 跳过该物品。
+// aidQuota.Applied 为 true 时（活动物品），目标数量改为调度券余量可兑换的上限，
+// 并把 OutOfRange 出口改写成 OutpostTradingAidQuotaExhausted：目标不可达
+// （券不足一件，或滑条最大值为 0）时跳过该物品，与 next 列表保持一致。
 // 活动物品不参与保留规则，两者互斥。
 func buildReserveSlidingOverride(slidingNode string, quantity int, configured bool, aidQuota aidQuotaDecision) map[string]any {
 	if aidQuota.Applied {
@@ -353,6 +343,9 @@ func buildReserveSlidingOverride(slidingNode string, quantity int, configured bo
 				"next": []string{
 					"OutpostTradingAidQuotaExhausted",
 					"OutpostTradingSellThenLoop",
+				},
+				"custom_action_param": map[string]any{
+					"OutOfRangeOverrideEnable": "OutpostTradingAidQuotaExhausted",
 				},
 				"attach": map[string]any{
 					"TargetQuantity": aidQuota.Target,
