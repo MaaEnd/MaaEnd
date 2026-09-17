@@ -6,6 +6,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -36,6 +38,7 @@ type reserveSessionActionParam struct {
 	ItemID      string `json:"item_id,omitempty"`
 	Quantity    int    `json:"quantity,omitempty"`
 	SlidingNode string `json:"sliding_node,omitempty"`
+	Location    string `json:"location,omitempty"`
 }
 
 // ReserveSessionAction 只维护任务级保留规则，并在执行数量滑块前覆盖对应节点参数。
@@ -109,7 +112,46 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 				Msg("blacklisted item reached reserve rule application")
 			return false
 		}
-		if err := ctx.OverridePipeline(buildReserveSlidingOverride(param.SlidingNode, quantity, configured)); err != nil {
+		unitPrice, err := itemUnitPrice(param.Location, itemID)
+		if err != nil {
+			log.Error().Err(err).Str("component", reserveSessionActionName).
+				Str("location", param.Location).Str("item_id", itemID).Msg("failed to get item unit price")
+			return false
+		}
+		stockBillsQuantity, err := recogtarget.SelectDetail(ctx, arg.CurrentTaskName, arg.RecognitionDetail)
+		if err != nil {
+			log.Error().Err(err).Str("component", reserveSessionActionName).Msg("failed to select reserve recognition detail")
+			return false
+		}
+		var TargetQuantity = 0
+		if stockBillsQuantity.Name == "OutpostTradingStockBillsQuantity" {
+			// 使用本次 OCR 结果，不再截图或执行识别。stockBills 是调度券数量。
+			stockBills, err := ocrnum.Extract(stockBillsQuantity)
+			if err != nil || stockBills < 0 {
+				log.Error().Err(err).Str("component", reserveSessionActionName).Msg("invalid stock bills quantity")
+				return false
+			}
+			log.Debug().Str("component", reserveSessionActionName).Int("stock_bills", stockBills).Msg("stock bills quantity recognized")
+			TargetQuantity = stockBills / unitPrice
+			log.Info().Str("component", reserveSessionActionName).
+				Str("location", param.Location).
+				Str("item_id", itemID).
+				Int("stock_bills", stockBills).
+				Int("unit_price", unitPrice).
+				Int("quantity", TargetQuantity).
+				Msg("default sale quantity calculated")
+			printRuntimeSaleQuantity(ctx, param.Location, itemID, stockBills, unitPrice, TargetQuantity)
+
+		}
+		override := buildReserveSlidingOverride(param.SlidingNode, quantity, configured, TargetQuantity)
+		next := param.SlidingNode
+		if !configured && quantity == 0 && TargetQuantity == 0 {
+			// BetterSliding 不接受零目标，余额不足一件时由 Pipeline 结束据点售卖。
+			next = "OutpostTradingSellLoopEnd"
+			override = map[string]any{}
+		}
+		override[arg.CurrentTaskName] = map[string]any{"next": []string{next}}
+		if err := ctx.OverridePipeline(override); err != nil {
 			log.Error().Err(err).
 				Str("component", reserveSessionActionName).
 				Str("sliding_node", param.SlidingNode).
@@ -120,6 +162,7 @@ func (a *ReserveSessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Str("item_id", itemID).
 			Int("quantity", quantity).
 			Bool("configured", configured).
+			Int("unit_price", unitPrice).
 			Str("sliding_node", param.SlidingNode).
 			Msg("reserve rule applied")
 		return true
@@ -154,6 +197,7 @@ func parseReserveSessionActionParam(raw string) (*reserveSessionActionParam, err
 	param.Operation = strings.TrimSpace(param.Operation)
 	param.ItemID = strings.TrimSpace(param.ItemID)
 	param.SlidingNode = strings.TrimSpace(param.SlidingNode)
+	param.Location = strings.TrimSpace(param.Location)
 	switch param.Operation {
 	case reserveOperationReset, reserveOperationSatisfy:
 	case reserveOperationRegister:
@@ -165,6 +209,9 @@ func parseReserveSessionActionParam(raw string) (*reserveSessionActionParam, err
 			return nil, fmt.Errorf("item_id is empty")
 		}
 	case reserveOperationApply:
+		if param.Location == "" {
+			return nil, fmt.Errorf("location is empty")
+		}
 		if param.SlidingNode == "" {
 			return nil, fmt.Errorf("sliding_node is empty")
 		}
@@ -282,13 +329,16 @@ func selectedReserveRule() (itemID string, quantity int, configured bool) {
 	defer reserveSessionMu.Unlock()
 	itemID = reserveSelected
 	quantity, configured = reserveRules[itemID]
-	// 保留 0 等价于不启用保留，继续使用默认“全部售出”路径。
+	// 保留 0 等价于不启用保留，使用默认售卖数量。
 	configured = configured && quantity > 0
 	return itemID, quantity, configured
 }
 
-func buildReserveSlidingOverride(slidingNode string, quantity int, configured bool) map[string]any {
-	if configured {
+func buildReserveSlidingOverride(slidingNode string, quantity int, configured bool, targetQuantity int) map[string]any {
+	if configured || targetQuantity != 0 {
+		if targetQuantity != 0 {
+			quantity = targetQuantity
+		}
 		return map[string]any{
 			slidingNode: map[string]any{
 				"next": []string{
@@ -297,7 +347,7 @@ func buildReserveSlidingOverride(slidingNode string, quantity int, configured bo
 				},
 				"attach": map[string]any{
 					"TargetQuantity": quantity,
-					"ReverseTarget":  true,
+					"ReverseTarget":  targetQuantity == 0,
 				},
 			},
 		}

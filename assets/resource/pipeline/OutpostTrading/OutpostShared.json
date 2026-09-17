@@ -74,5 +74,23 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "OutpostTradingStockBillsQuantity": {
+        "desc": "获取地区建设页面中据点调度券数量",
+        "recognition": "OCR",
+        "roi": [
+            862,
+            191,
+            105,
+            25
+        ],
+        "expected": [
+            // @i18n-skip
+            "^[0-9]+$"
+        ],
+        "only_rec": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

@@ -95,6 +95,22 @@
         }
     },
 	"allOf": [
+        {
+            "if": {
+                "properties": {"custom_action": {"const": "OutpostTradingReserveSession"}},
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {"location": {"type": "string", "minLength": 1}},
+                        "if": {"properties": {"operation": {"const": "apply"}}, "required": ["operation"]},
+                        "then": {"required": ["location"]}
+                    }
+                }
+            }
+        },
 		{
 			"if": {
 				"properties": {

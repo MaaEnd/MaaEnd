@@ -1242,6 +1242,7 @@
         "custom_action": "OutpostTradingReserveSession",
         "custom_action_param": {
             "operation": "apply",
+            "location": "${LocationId}",
             "sliding_node": "OutpostTrading${LocationId}BetterSliding"
         },
         "post_delay": 0,

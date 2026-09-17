@@ -98,6 +98,7 @@
     "outposttrading.runtime.plan.stock_priority": "按库存优先售卖（扫描库存后决定）",
     "outposttrading.runtime.plan.no_reserve": "无（全部售卖）",
     "outposttrading.runtime.plan.none": "无",
+    "outposttrading.runtime.sale_quantity":"%s|物品ID:%s|调度券%d单价%d→默认售卖数量%d（向下取整）",
     "outposttrading.runtime.operator_kept": "👤 %s沿用：%s（%s）",
     "outposttrading.runtime.operator_switched": "👤 %s已切换：%s（%s）",
     "outposttrading.runtime.operator_conflict": "⚠️ %s已在其他据点派驻，已从%s方案中排除并重新规划（%s）",

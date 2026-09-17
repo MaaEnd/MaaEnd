@@ -38,6 +38,33 @@ func loadItemPriorityGroupsCached() (map[string][]itemPriorityGroup, error) {
 	return itemPriorityGroupsCache, itemPriorityGroupsErr
 }
 
+// itemUnitPrice 仅在指定据点的货品列表中按物品 ID 查询基础单价。
+func itemUnitPrice(location, itemID string) (int, error) {
+	if location == "" {
+		return 0, fmt.Errorf("location is empty")
+	}
+	if itemID == "" {
+		return 0, fmt.Errorf("item ID is empty")
+	}
+	groups, err := loadItemPriorityGroupsFunc()
+	if err != nil {
+		return 0, err
+	}
+	locationGroups, ok := groups[location]
+	if !ok {
+		return 0, fmt.Errorf("location %q not found", location)
+	}
+	for _, group := range locationGroups {
+		if group.ItemID == itemID {
+			if group.UnitPrice <= 0 {
+				return 0, fmt.Errorf("invalid unit price for item %q at %q", itemID, location)
+			}
+			return group.UnitPrice, nil
+		}
+	}
+	return 0, fmt.Errorf("item %q not found at location %q", itemID, location)
+}
+
 func buildItemPriorityGroups(data *selectiondata.File) (map[string][]itemPriorityGroup, error) {
 	if err := selectiondata.ValidateGoods(data); err != nil {
 		return nil, err

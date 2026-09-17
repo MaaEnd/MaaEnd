@@ -1288,12 +1288,18 @@
     },
     "OutpostTradingSkyKingFlatsConstructionSiteApplyReserve": {
         "desc": "天王坪援建点应用当前货品的独立保留规则",
-        "recognition": "DirectHit",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingInOutpost",
+            "OutpostTradingStockBillsQuantity"
+        ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "OutpostTradingReserveSession",
         "custom_action_param": {
             "operation": "apply",
+            "location": "SkyKingFlatsConstructionSite",
             "sliding_node": "OutpostTradingSkyKingFlatsConstructionSiteBetterSliding"
         },
         "post_delay": 0,
