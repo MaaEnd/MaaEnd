@@ -400,7 +400,6 @@
         "SeizeDeliveryJobsRefreshLimit": {
             "type": "input",
             "label": "$task.SeizeDeliveryJobsRefreshLimit.label",
-            "description": "$task.SeizeDeliveryJobsRefreshLimit.description",
             "inputs": [
                 {
                     "name": "Limit",

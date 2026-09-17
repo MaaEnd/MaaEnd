@@ -659,7 +659,6 @@
     "task.SeizeDeliveryJobsRepeatCount.cases.2.label": "最多 2 次",
     "task.SeizeDeliveryJobsRepeatCount.cases.3.label": "最多 3 次",
     "task.SeizeDeliveryJobsRefreshLimit.label": "搶單重新整理次數上限",
-    "task.SeizeDeliveryJobsRefreshLimit.description": "連續重新整理達到該次數仍未接到委託時，跳過本次搶單（上限 2000）",
     "task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.label": "次數",
     "task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.pattern_msg": "請輸入 1-2000 的整數",
     "task.SeizeDeliveryJobs.focus.orderFound": "找到符合要求的訂單",

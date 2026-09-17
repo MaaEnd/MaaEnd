@@ -821,7 +821,6 @@
     "task.SeizeDeliveryJobsRepeatCount.cases.2.label": "最多 2 次",
     "task.SeizeDeliveryJobsRepeatCount.cases.3.label": "最多 3 次",
     "task.SeizeDeliveryJobsRefreshLimit.label": "抢单刷新次数上限",
-    "task.SeizeDeliveryJobsRefreshLimit.description": "连续刷新达到该次数仍未接到委托时，跳过本次抢单（上限 2000）",
     "task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.label": "次数",
     "task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.pattern_msg": "请输入 1-2000 的整数",
     "task.SeizeDeliveryJobs.focus.orderFound": "找到符合要求的订单",
