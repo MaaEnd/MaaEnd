@@ -2433,5 +2433,6 @@
     "option.AutoCollectValleyIVCommonRoutes.label": "一般采集物",
     "option.AutoCollectWuling.label": "武陵",
     "option.AutoCollectWulingRareRoutes.label": "稀有采集物",
-    "option.AutoCollectWulingCommonRoutes.label": "一般采集物"
+    "option.AutoCollectWulingCommonRoutes.label": "一般采集物",
+    "option.AutoEssenceStartSanityCheck.description": "开战前至少需要 80 理智；不足时按设置使用药剂，无法补足则结束。放弃奖励模式不受此限制。"
 }

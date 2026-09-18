@@ -2433,5 +2433,6 @@
     "option.AutoCollectValleyIVCommonRoutes.label": "일반 채집물",
     "option.AutoCollectWuling.label": "무릉",
     "option.AutoCollectWulingRareRoutes.label": "희귀 채집물",
-    "option.AutoCollectWulingCommonRoutes.label": "일반 채집물"
+    "option.AutoCollectWulingCommonRoutes.label": "일반 채집물",
+    "option.AutoEssenceStartSanityCheck.description": "전투 시작 전 이성이 80 이상 필요합니다. 부족하면 설정에 따라 회복제를 사용하며, 필요한 만큼 회복할 수 없으면 종료합니다. 보상 포기 모드에서는 이 확인을 건너뜁니다."
 }

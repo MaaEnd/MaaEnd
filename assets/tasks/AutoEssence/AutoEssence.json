@@ -350,6 +350,9 @@
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": true
+                        },
+                        "AutoEssenceStartWithoutClaim": {
+                            "enabled": true
                         }
                     }
                 },
@@ -367,6 +370,9 @@
                             "enabled": false
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
+                            "enabled": false
+                        },
+                        "AutoEssenceStartWithoutClaim": {
                             "enabled": false
                         }
                     },
@@ -390,6 +396,9 @@
                             "enabled": true
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
+                            "enabled": false
+                        },
+                        "AutoEssenceStartWithoutClaim": {
                             "enabled": false
                         }
                     },
@@ -422,6 +431,9 @@
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
+                        },
+                        "AutoEssenceStartWithoutClaim": {
+                            "enabled": false
                         }
                     },
                     "option": [
@@ -444,6 +456,9 @@
                             "enabled": true
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
+                            "enabled": false
+                        },
+                        "AutoEssenceStartWithoutClaim": {
                             "enabled": false
                         }
                     },
@@ -488,6 +503,9 @@
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
                             "enabled": true
+                        },
+                        "AutoEssenceStartWithoutClaim": {
+                            "enabled": false
                         }
                     },
                     "option": [
@@ -521,6 +539,9 @@
                         },
                         "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
                             "enabled": true
+                        },
+                        "AutoEssenceStartWithoutClaim": {
+                            "enabled": false
                         }
                     },
                     "option": [
@@ -546,6 +567,9 @@
                         },
                         "AutoEssenceLowSpUseMedication": {
                             "enabled": false
+                        },
+                        "AutoEssenceUseMedicationBeforeStart": {
+                            "enabled": false
                         }
                     }
                 },
@@ -561,13 +585,17 @@
                         },
                         "AutoEssenceLowSpUseMedication": {
                             "enabled": true
+                        },
+                        "AutoEssenceUseMedicationBeforeStart": {
+                            "enabled": true
                         }
                     },
                     "option": [
                         "AutoEssenceSpMedicationExpireWithinDays"
                     ]
                 }
-            ]
+            ],
+            "description": "$option.AutoEssenceStartSanityCheck.description"
         },
         "AutoEssenceSpMedicationExpireWithinDays": {
             "label": "$option.AutoUseSpMedicationExpireWithinDays.label",

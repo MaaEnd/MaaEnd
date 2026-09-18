@@ -788,6 +788,84 @@
         ]
     },
     "AutoEssenceClickEssenceStartButton": {
+        "desc": "识别开始挑战界面，在点击开战前检查能否领取单倍奖励",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1",
+            "AutoEssenceClickEssenceStartButtonText"
+        ],
+        "next": [
+            "AutoEssenceStartWithoutClaim",
+            "AutoEssenceStartSanityEnough",
+            "AutoEssenceStartSanityLow"
+        ]
+    },
+    "AutoEssenceStartWithoutClaim": {
+        "desc": "放弃奖励模式无需检查领奖体力",
+        "enabled": false,
+        "next": [
+            "AutoEssenceDoClickEssenceStartButton"
+        ]
+    },
+    "AutoEssenceStartSanityEnough": {
+        "desc": "当前理智至少为 80，可以领取单倍奖励",
+        "recognition": "And",
+        "all_of": [
+            "CommonSanityText",
+            {
+                "recognition": "OCR",
+                "roi": "CommonSanityText",
+                "expected": [
+                    // 当前理智/理智上限（如 80/360）
+                    // @i18n-skip
+                    "^(?:[89]\\d|\\d{3,})\\s*/\\s*\\d+$"
+                ],
+                "only_rec": true
+            }
+        ],
+        "next": [
+            "AutoEssenceDoClickEssenceStartButton"
+        ]
+    },
+    "AutoEssenceStartSanityLow": {
+        "desc": "当前理智不足 80，先按配置补充；无法补足时结束",
+        "recognition": "And",
+        "all_of": [
+            "CommonSanityText",
+            {
+                "recognition": "OCR",
+                "roi": "CommonSanityText",
+                "expected": [
+                    // 当前理智/理智上限（如 45/360）
+                    // @i18n-skip
+                    "^(?:\\d|[1-7]\\d)\\s*/\\s*\\d+$"
+                ],
+                "only_rec": true
+            }
+        ],
+        "next": [
+            "AutoEssenceUseMedicationBeforeStart",
+            "AutoEssenceStartSanityLowStop"
+        ]
+    },
+    "AutoEssenceUseMedicationBeforeStart": {
+        "desc": "开战前按现有药剂筛选设置补充理智，使用后重新检查",
+        "anchor": {
+            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceStartSanityLowStop",
+            "AutoUseSpMedicationInPrepareFinishUseAnchor": "AutoEssenceClickEssenceStartButton"
+        },
+        "next": [
+            "AutoUseSpMedicationInPrepareWithAnchor"
+        ]
+    },
+    "AutoEssenceStartSanityLowStop": {
+        "desc": "开战前无法补足单倍领奖理智，输出筛选汇总并结束",
+        "next": [
+            "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
+            "AutoEssenceLowSpStop"
+        ]
+    },
+    "AutoEssenceDoClickEssenceStartButton": {
         "desc": "识别并点击开始界面中的开始挑战按钮",
         "recognition": {
             "type": "And",

@@ -2433,5 +2433,6 @@
     "option.AutoCollectValleyIVCommonRoutes.label": "一般採集物",
     "option.AutoCollectWuling.label": "武陵",
     "option.AutoCollectWulingRareRoutes.label": "レア採集物",
-    "option.AutoCollectWulingCommonRoutes.label": "一般採集物"
+    "option.AutoCollectWulingCommonRoutes.label": "一般採集物",
+    "option.AutoEssenceStartSanityCheck.description": "戦闘開始前に理性が80以上必要です。不足時は設定に従って回復剤を使用し、補充できなければ終了します。報酬を放棄するモードでは、この確認を行いません。"
 }
