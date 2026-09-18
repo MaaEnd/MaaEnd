@@ -16,6 +16,9 @@
         "rate_limit": 0,
         "next": [
             "[Anchor]DeliveryJobsAfterAutoDelivery"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.DeliveryJobs.AutoDeliveryFailed"
+        }
     }
 }

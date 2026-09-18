@@ -554,7 +554,10 @@
         "rate_limit": 0,
         "next": [
             "DeliveryJobsEnsureOngoingDeliveryMission"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryDetected"
+        }
     },
     "DeliveryJobsEnsureOngoingDeliveryMission": {
         "desc": "进入任务界面并选中残留的送货任务，供后续解析它所属的仓储节点",
@@ -601,15 +604,18 @@
         ]
     },
     "DeliveryJobsSkipOngoingDelivery": {
-        "desc": "已有待运送货物且当前仓储节点不处理它时，退出任务界面并回到本仓储节点继续遍历",
+        "desc": "已有待运送货物且当前仓储节点不处理它时，退出任务界面并回到本地区仓储节点继续遍历",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            // 此时停在任务详情界面，落点由发起方声明为本仓储节点的场景节点
+            // 此时停在任务详情界面，落点由发起遍历的地区循环声明为本地区仓储节点的场景节点
             "[Anchor]DeliveryJobsReturnToDepotNode"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliverySkipped"
+        }
     },
     "DeliveryJobsBackToDepot": {
         "desc": "回到本地仓储界面",

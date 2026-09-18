@@ -198,6 +198,8 @@
     "autodelivery.focus.depot_resolved": "🚛 Depot identified: %s",
     "autodelivery.focus.destination_resolved": "🚛 Delivery destination identified: %s",
     "autodelivery.destination.recycle_bin": "%s Resource Recycle Station #%d",
+    "deliveryjobs.focus.ongoing_depot_resolved": "🚚 The delivery job belongs to %s",
+    "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 Could not determine which depot node the unfinished delivery job belongs to. See the run log for details.",
     "seizedeliveryjobs.scanning": "Scanning delivery jobs...",
     "seizedeliveryjobs.checking_job": "Checking job %d/%d",
     "seizedeliveryjobs.endpoint_matched": "Delivery point matched, accepting job",

@@ -198,6 +198,8 @@
     "autodelivery.focus.depot_resolved": "🚛 已识别仓储节点：%s",
     "autodelivery.focus.destination_resolved": "🚛 已识别送货目标：%s",
     "autodelivery.destination.recycle_bin": "%s资源回收站 #%d",
+    "deliveryjobs.focus.ongoing_depot_resolved": "🚚 该送货任务属于（%s）",
+    "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 未能确定未完成的送货任务属于哪个仓储节点，详见运行日志",
     "seizedeliveryjobs.scanning": "正在扫描委托列表...",
     "seizedeliveryjobs.checking_job": "检查委托 %d/%d",
     "seizedeliveryjobs.endpoint_matched": "送货点匹配成功，接取委托",

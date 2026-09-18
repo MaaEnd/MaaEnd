@@ -225,13 +225,30 @@ flowchart TD
 
 `DeliveryJobsSkipOngoingDelivery` 走的是 `[Anchor]DeliveryJobsReturnToDepotNode`：此时停在任务详情界面，锚点由发起遍历的地区循环（`DeliveryJobs{Region}Loop` 经 `DeliveryJobsEnter{Depot}Cargo`）声明为本地区仓储节点场景，正好是从菜单列表回到仓储节点的路径。
 
+这条链路会改动正常流程，因此每一步都向用户输出 Focus 提示，说明原因与采取的行为：
+
+| 节点 | 提示内容 | 文案来源 |
+| ------------------------------------------ | ------------------------------------------------------ | ------------------------------------------ |
+| `DeliveryJobsOngoingDelivery` | 🚚 检测到未完成的送货任务，将打开送货任务查看详情 | `task.DeliveryJobs.OngoingDeliveryDetected`（interface locale） |
+| `DeliveryJobsResolveOngoingDepotAction`（Go） | 🚚 该送货任务属于〈仓储节点名〉 | `deliveryjobs.focus.ongoing_depot_resolved`（go-service locale） |
+| 同上，解析失败 | 🚚 未能确定未完成的送货任务属于哪个仓储节点，详见运行日志 | `deliveryjobs.focus.ongoing_depot_unresolved`（go-service locale） |
+| `DeliveryJobsSkipOngoingDelivery` | 🚚 当前仓储节点不处理它，已跳过并回到仓储节点继续遍历 | `task.DeliveryJobs.OngoingDeliverySkipped`（interface locale） |
+| `DeliveryJobsDeliverByAutoDelivery`（动作失败） | 🚚 自动送货未能送达 | `task.DeliveryJobs.AutoDeliveryFailed`（interface locale） |
+| `DeliveryJobsTransferOngoingJob` | 🚚 按当前仓储节点的设置转交它 | `task.DeliveryJobs.OngoingDeliveryTransferred`（interface locale） |
+
+本任务的提示都以 🚚 开头，与其他模块的提示（如全自动送货阶段的 🚛）在运行日志里区分开。
+
+Go 侧仓储节点名取自 `global.region.{DepotId}`，与节点名后缀同源，不另建映射。
+
+检测由 `DeliveryJobsOngoingDelivery` 在识别到提示文案时输出，归属由 Go 侧在解析出区域后输出，两个出口各自说明自己采取的行为；每条只说该步骤新增的信息。自动送货的失败原因挂在公共调用节点的动作失败上，开关开或关都会提示，开关只决定失败后是否转交。
+
 ## 全自动送货
 
 ```mermaid
 flowchart TD
     EJob{{"DeliveryJobsEnter{Depot}DeliveryJob\n该模式把 next 覆盖为 DeliveryJobsAutoDelivery{Depot}"}} --> AutoD
     GoTo{{"[Anchor]DeliveryJobsGoToDepot\n= DeliveryJobsAutoDelivery{Depot}（装箱接取后的入口）"}} --> AutoD
-    AutoD{{"DeliveryJobsAutoDelivery{Depot}\n设 AfterAutoDelivery = 本地区循环\n设 ReturnToDepotNode = 本地区仓储节点场景"}} --> ByAuto["DeliveryJobsDeliverByAutoDelivery\nSubTask AutoDelivery（strict）"]
+    AutoD{{"DeliveryJobsAutoDelivery{Depot}\n设 AfterAutoDelivery = 本地区循环\n设 ReturnToDepotNode = 本地区仓储节点场景"}} --> ByAuto["DeliveryJobsDeliverByAutoDelivery\nSubTask AutoDelivery（strict）\n失败时输出「自动送货未能送达」"]
     ByAuto -->|成功| Done{"[Anchor]DeliveryJobsAfterAutoDelivery\n回到本地区循环节点"}
     ByAuto -->|"失败：开关关闭（默认）"| Stop["停止整个任务"]
     ByAuto -->|"失败：开关开启（on_error）"| TOng["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode"]
@@ -242,7 +259,7 @@ flowchart TD
 - DeliveryJobs 不直接把 `AutoDelivery` 放进 `next`。各仓储节点的 `DeliveryJobsAutoDelivery{Depot}` 只负责声明回跳锚点（`DeliveryJobsAfterAutoDelivery`、`DeliveryJobsReturnToDepotNode`），再交给公共调用节点 `DeliveryJobsDeliverByAutoDelivery`。
 - `DeliveryJobsDeliverByAutoDelivery` 用 strict `SubTask` 包裹 `AutoDelivery`，组件内部任意环节失败都会浮现在自身动作上，`on_error` 只需在这一处配置。当前处于取货还是送货阶段由组件根据任务详情自行判断，调用方无需为详情切换配置额外入口或 anchor。
 - 「送货时优先使用滑索」开关通过 `AutoDeliveryNavigateDepot` / `AutoDeliveryNavigateDestination` 的 `attach.zip` 传给 AutoDelivery。它只允许导航在预计更快且滑索已供电、可正常上下索时使用滑索，不保证每条路线都会选择滑索。
-- 「送货失败后自动转交任务」开关把 `DeliveryJobsDeliverByAutoDelivery.on_error` 设为 `DeliveryJobsTransferOngoingJob`。关闭时全自动送货失败即停止整个任务；开启时改为自动转交当前任务并继续地区循环。该功能仍处于测试阶段。
+- 「送货失败后自动转交任务」开关把 `DeliveryJobsDeliverByAutoDelivery.on_error` 设为 `DeliveryJobsTransferOngoingJob`。关闭（默认）时全自动送货失败即停止整个任务，只输出失败原因；开启时由转交节点接管，自动转交当前任务并继续地区循环。该功能仍处于测试阶段。
 
 ## 装箱货物优先级
 

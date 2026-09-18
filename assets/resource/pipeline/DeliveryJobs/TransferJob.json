@@ -1,10 +1,11 @@
 {
     // 转交任务的流程
-    // “进入送货任务”步骤已拆分到各地区 pipeline 的 DeliveryJobsEnter*DeliveryJob 节点中
-    // 本文件仅负责：点击转交任务 -> 确认转交任务 -> 按 DeliveryJobsReturnToDepotNode 跳转
-    // DeliveryJobsTransferOngoingJob 是自动送货失败时的兜底入口：从任务界面进入送货任务详情后复用下面的转交步骤
+    // 打开送货任务详情由 DeliveryJobsTransferOngoingJob 完成，进入它的入口有两个：
+    // 装箱时发现残留委托（DeliveryJobsOngoingDeliveryFor* 分派而来）、
+    // 自动送货失败（DeliveryJobsDeliverByAutoDelivery 的 on_error）。
+    // 本文件负责：点击转交任务 -> 确认转交任务 -> 按 DeliveryJobsReturnToDepotNode 跳转
     "DeliveryJobsTransferOngoingJob": {
-        "desc": "自动送货无法继续时，进入任务界面选中送货任务，再转交残留的送货任务",
+        "desc": "进入任务界面选中送货任务，再转交它",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -19,7 +20,10 @@
         "rate_limit": 0,
         "next": [
             "DeliveryJobsClickTransferJob"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryTransferred"
+        }
     },
     "DeliveryJobsClickTransferJob": {
         "desc": "单击转交任务",

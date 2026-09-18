@@ -2,6 +2,8 @@ package deliveryjobs
 
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autodelivery"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -21,7 +23,14 @@ type DeliveryJobsResolveOngoingDepotAction struct{}
 var _ maa.CustomActionRunner = &DeliveryJobsResolveOngoingDepotAction{}
 
 // Run 用区域 OCR 匹配仓储节点，并覆盖当前节点的 next 指向该节点的分派节点。
-func (a *DeliveryJobsResolveOngoingDepotAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *DeliveryJobsResolveOngoingDepotAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) (resolved bool) {
+	// 解析失败会让后续流程走偏，需要让用户看到原因。
+	defer func() {
+		if !resolved {
+			maafocus.Print(ctx, i18n.T("deliveryjobs.focus.ongoing_depot_unresolved"))
+		}
+	}()
+
 	if ctx == nil || arg == nil || arg.RecognitionDetail == nil {
 		log.Error().
 			Str("component", resolveOngoingDepotActionName).
@@ -71,6 +80,13 @@ func (a *DeliveryJobsResolveOngoingDepotAction) Run(ctx *maa.Context, arg *maa.C
 			Msg("failed to dispatch the ongoing delivery job to its depot")
 		return false
 	}
+
+	// 区域名与仓储节点名在五种语言下逐字一致（见 model.mjs 的生成期断言），
+	// 所以直接用仓储节点 ID 取它自己的本地化名。
+	maafocus.Print(ctx, i18n.T(
+		"deliveryjobs.focus.ongoing_depot_resolved",
+		i18n.T("global.region."+resolution.ID),
+	))
 
 	log.Info().
 		Str("component", resolveOngoingDepotActionName).

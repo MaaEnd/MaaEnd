@@ -197,6 +197,8 @@
     "autodelivery.focus.depot_resolved": "🚛 已識別倉儲節點：%s",
     "autodelivery.focus.destination_resolved": "🚛 已識別送貨目標：%s",
     "autodelivery.destination.recycle_bin": "%s資源回收站 #%d",
+    "deliveryjobs.focus.ongoing_depot_resolved": "🚚 該送貨任務屬於（%s）",
+    "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 未能確定未完成的送貨任務屬於哪個倉儲節點，詳見執行日誌",
     "seizedeliveryjobs.scanning": "正在掃描委託列表...",
     "seizedeliveryjobs.checking_job": "檢查委託 %d/%d",
     "seizedeliveryjobs.endpoint_matched": "送貨點匹配成功，接取委託",

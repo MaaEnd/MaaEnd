@@ -197,6 +197,8 @@
     "autodelivery.focus.depot_resolved": "🚛 倉庫拠点を確認しました：%s",
     "autodelivery.focus.destination_resolved": "🚛 配送先を確認しました：%s",
     "autodelivery.destination.recycle_bin": "%s・資源回収ステーション #%d",
+    "deliveryjobs.focus.ongoing_depot_resolved": "🚚 この配達任務の所属は（%s）",
+    "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 未完了の配達任務がどの倉庫拠点に属するか判定できませんでした。詳細は実行ログをご確認ください。",
     "seizedeliveryjobs.scanning": "配達依頼をスキャン中...",
     "seizedeliveryjobs.checking_job": "依頼を確認中 %d/%d",
     "seizedeliveryjobs.endpoint_matched": "配達先が一致、依頼を受注",
