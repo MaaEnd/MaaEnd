@@ -60,6 +60,7 @@
         "template": "ProtocolSpace/TeamChooseIcon.png",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyConfirmTeam"
         ]
@@ -80,6 +81,7 @@
             "wait_node": "TrialOfSwordmancyConfirmTeam"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]SceneWaitBlackScreenLoadingExit",
             "TrialOfSwordmancyLoadingExit"
@@ -94,6 +96,7 @@
         "pre_delay": 0,
         "post_wait_freezes": 200,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyChallengeTarget",
             "TrialOfSwordmancyOutOfBounds"
@@ -117,6 +120,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "on_error": [
             // 本次寻路必定失败
             "TrialOfSwordmancyChallengeTarget"
@@ -138,6 +142,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCloseChallengeTarget"
         ]
@@ -160,6 +165,7 @@
             "wait_node": "TrialOfSwordmancyChallengeBackground"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyFight"
         ]
@@ -173,6 +179,7 @@
         "inverse": true,
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyFightSuccess",
             "[JumpBack]AutoFight"
@@ -226,6 +233,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyRewardExhaustedPopUp",
             "TrialOfSwordmancyReEnterTrialMenuSuccess"
@@ -240,6 +248,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDailyFinish"
         ]
@@ -252,6 +261,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDailyAutoFightRearmResetState",
             "TrialOfSwordmancyMain"
@@ -270,6 +280,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDailyMain"
         ]
@@ -287,6 +298,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyMain"
         ]

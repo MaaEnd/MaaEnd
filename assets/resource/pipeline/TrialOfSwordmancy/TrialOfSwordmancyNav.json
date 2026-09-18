@@ -18,6 +18,7 @@
             "wait_node": "InWorld"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyEnterTrialMenuSuccess"
         ]
@@ -29,7 +30,8 @@
             "TrialOfSwordmancyInTrialMenu"
         ],
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     // ===========================================================================
     // 不在大世界演算台旁，通过事务总览传送至悬谷台
@@ -45,6 +47,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyOverviewViewPosition"
         ]
@@ -65,6 +68,7 @@
             "wait_node": "InRegionalOverviewWuling"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyQuickTeleportSelect"
         ]
@@ -83,6 +87,7 @@
             "wait_node": "EnvironmentMonitoringQuickTeleportSelectButton"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyQuickTeleport"
         ]
@@ -101,6 +106,7 @@
             "wait_node": "WhiteConfirmButtonType1"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyQuickTeleportDone",
             "[JumpBack]SceneWaitLoadingExit"
@@ -118,6 +124,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyGotoTrialArenaCpp"
         ]
@@ -238,6 +245,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyEnterTrialMenu"
         ],

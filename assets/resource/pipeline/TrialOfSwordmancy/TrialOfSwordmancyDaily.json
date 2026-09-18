@@ -3,6 +3,7 @@
         "desc": "日常选剑演武入口",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDailyCheckRewardMode",
             "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
@@ -20,6 +21,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDailyRewardMode",
             "TrialOfSwordmancyRetryRewardMode",
@@ -35,6 +37,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingAbandon"
         ]
@@ -47,7 +50,8 @@
             "TrialOfSwordmancyInTrialMenu"
         ],
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "TrialOfSwordmancyDailyRewardMode": {
         "desc": "处于奖励演算模式",
@@ -57,6 +61,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDailyRecognizeDeck"
         ]
@@ -70,6 +75,7 @@
         "custom_recognition": "TrialOfSwordmancy.RecognizeDeck",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyEnsureFirstCard",
             "TrialOfSwordmancyProbeAbandon",
@@ -97,6 +103,7 @@
         },
         "target": "TrialOfSwordmancyDrawCardButton",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDrawFirstCardSuccess"
         ]
@@ -109,6 +116,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyProbeAbandon",
             "TrialOfSwordmancyDecide"
@@ -132,6 +140,7 @@
             "wait_node": "TrialOfSwordmancyAbandonButton"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyAbandonPopupRecognize"
         ]
@@ -149,6 +158,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyAbandonPopupCancel"
         ]
@@ -169,6 +179,7 @@
             ]
         },
         "post_delay": 200, // 过渡动画在命中 EnemeyCard1 后仍持续约 6 帧（帧率 60）
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDecide"
         ]
@@ -187,6 +198,7 @@
             "overflowMode": "OverflowTwice"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         // next 由 go 运行时 override，按决策分派到：
         //   抽牌 → DrawCard ｜ 翻倍 → DoDoubleReward ｜ 放弃 → DailyAbandon ｜ 开始演算 → PreStartTrial（Fight.json）
         "next": []
@@ -210,6 +222,7 @@
             "wait_node": "TrialOfSwordmancyBattlePts0" // Decide 动作覆盖为抽牌前的战力点
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDrawCardConfirm",
             "TrialOfSwordmancyDrawCardSuccess"
@@ -231,6 +244,7 @@
             ]
         },
         "post_delay": 600, // 无法识别战力点消失，只能用延迟确保右侧牌库已刷新
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDrawCardSuccess"
         ]
@@ -243,6 +257,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDecide"
         ]
@@ -266,6 +281,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDecide"
         ]
@@ -287,6 +303,7 @@
             "wait_node": "TrialOfSwordmancyAbandonButton"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyAbandonPopupConfirm"
         ]
@@ -301,6 +318,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyDailyResetNavigator"
         ]
@@ -320,6 +338,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyMain"
         ]

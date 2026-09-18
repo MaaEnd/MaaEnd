@@ -3,6 +3,7 @@
         "desc": "自动刷镀层主入口",
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheckRewardMode",
             "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
@@ -17,6 +18,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingRewardMode",
             "TrialOfSwordmancyCoating1"
@@ -30,6 +32,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [],
         "focus": {
             "Node.Action.Succeeded": "今日还有奖励次数未用尽，请先完成奖励演算"
@@ -52,6 +55,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating1Success"
         ]
@@ -64,6 +68,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck1",
             "TrialOfSwordmancyCoatingAbandon"
@@ -81,6 +86,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating2"
         ]
@@ -102,6 +108,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating2Success"
         ]
@@ -114,6 +121,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck2",
             "TrialOfSwordmancyCoatingAbandon"
@@ -131,6 +139,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating3"
         ]
@@ -152,6 +161,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating3Success"
         ]
@@ -164,6 +174,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck3",
             "TrialOfSwordmancyCoatingAbandon"
@@ -181,6 +192,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating4"
         ]
@@ -202,6 +214,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating4Success"
         ]
@@ -214,6 +227,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck4",
             "TrialOfSwordmancyCoatingAbandon"
@@ -231,6 +245,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating5"
         ]
@@ -252,6 +267,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating5Success"
         ]
@@ -264,6 +280,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck5",
             "TrialOfSwordmancyCoatingAbandon"
@@ -277,6 +294,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SceneAnyEnterWorld"
         ],
@@ -299,6 +317,7 @@
             "wait_node": "TrialOfSwordmancyAbandonButton"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingResetNavigator"
         ]
@@ -318,6 +337,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyMain"
         ]
