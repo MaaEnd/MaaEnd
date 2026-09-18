@@ -135,6 +135,49 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 },
             )
 
+    def test_ui_icon_exclude_rules_validate_without_matching_catalog_items(self) -> None:
+        invalid_configs = (
+            (
+                "只能包含 in 或 not_in",
+                {
+                    "exclude_rules": [
+                        {
+                            "item_filter": "ValuableDepot:Weapon",
+                            "sub_rules": [
+                                {"rarity": {"in": [5], "not_in": [6]}}
+                            ],
+                        }
+                    ]
+                },
+            ),
+            (
+                "非法 UI 图标集筛选条件",
+                {
+                    "exclude_rules": [
+                        {
+                            "item_filter": "ValuableDepot",
+                            "sub_rules": [{"rarity": {"in": [5]}}],
+                        }
+                    ]
+                },
+            ),
+            (
+                "必须是整数数组",
+                {
+                    "exclude_rules": [
+                        {
+                            "item_filter": "ValuableDepot:Weapon",
+                            "sub_rules": [{"rarity": {"in": "5"}}],
+                        }
+                    ]
+                },
+            ),
+        )
+        for message, config in invalid_configs:
+            with self.subTest(message=message):
+                with self.assertRaisesRegex(ValueError, message):
+                    select_items({}, config)
+
     def test_relocate_rarity_changed_icon_preserves_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             image_root = Path(directory) / "images"

@@ -72,16 +72,54 @@ def _parse_exclude_rules(config: Mapping[str, Any]) -> tuple[Mapping[str, Any], 
     rules = config.get("exclude_rules", [])
     if not isinstance(rules, list) or not all(isinstance(rule, Mapping) for rule in rules):
         raise ValueError("UI 图标集配置的 exclude_rules 必须是对象数组")
-    return tuple(rules)
+
+    normalized_rules: list[Mapping[str, Any]] = []
+    for rule in rules:
+        item_filter = rule.get("item_filter")
+        sub_rules = rule.get("sub_rules")
+        if not isinstance(item_filter, str) or not isinstance(sub_rules, list):
+            raise ValueError("UI 图标集排除规则必须包含 item_filter 和 sub_rules")
+        _parse_filter(item_filter)
+
+        normalized_sub_rules: list[Mapping[str, Any]] = []
+        for sub_rule in sub_rules:
+            if not isinstance(sub_rule, Mapping):
+                raise ValueError("UI 图标集排除规则的 sub_rules 必须是对象数组")
+            rarity_rule = sub_rule.get("rarity")
+            if not isinstance(rarity_rule, Mapping):
+                raise ValueError("UI 图标集排除规则的子规则必须包含 rarity")
+            normalized_sub_rules.append({"rarity": _parse_rarity_rule(rarity_rule)})
+        normalized_rules.append(
+            {"item_filter": item_filter, "sub_rules": normalized_sub_rules}
+        )
+    return tuple(normalized_rules)
 
 
-def _matches_filter(record: Mapping[str, Any], item_filter: str) -> bool:
+def _parse_filter(item_filter: str) -> tuple[str, str]:
     try:
         storage_kind, category_type = item_filter.split(":", 1)
     except ValueError as exc:
         raise ValueError(f"非法 UI 图标集筛选条件: {item_filter}") from exc
     if not storage_kind or not category_type:
         raise ValueError(f"非法 UI 图标集筛选条件: {item_filter}")
+    return storage_kind, category_type
+
+
+def _parse_rarity_rule(rarity_rule: Mapping[str, Any]) -> Mapping[str, list[int]]:
+    operators = [operator for operator in ("in", "not_in") if operator in rarity_rule]
+    if len(operators) != 1:
+        raise ValueError("UI 图标集排除规则的 rarity 必须且只能包含 in 或 not_in")
+    operator = operators[0]
+    values = rarity_rule[operator]
+    if not isinstance(values, list) or not all(
+        isinstance(value, int) and not isinstance(value, bool) for value in values
+    ):
+        raise ValueError(f"UI 图标集排除规则的 rarity.{operator} 必须是整数数组")
+    return {operator: list(values)}
+
+
+def _matches_filter(record: Mapping[str, Any], item_filter: str) -> bool:
+    storage_kind, category_type = _parse_filter(item_filter)
     return (
         record.get("storageKind") == storage_kind
         and (category_type == "*" or record.get("categoryType") == category_type)
@@ -89,13 +127,8 @@ def _matches_filter(record: Mapping[str, Any], item_filter: str) -> bool:
 
 
 def _matches_rarity_rule(record: Mapping[str, Any], rarity_rule: Mapping[str, Any]) -> bool:
-    operators = [operator for operator in ("in", "not_in") if operator in rarity_rule]
-    if len(operators) != 1:
-        raise ValueError("UI 图标集排除规则的 rarity 必须且只能包含 in 或 not_in")
-    operator = operators[0]
-    values = rarity_rule[operator]
-    if not isinstance(values, list) or not all(isinstance(value, int) for value in values):
-        raise ValueError(f"UI 图标集排除规则的 rarity.{operator} 必须是整数数组")
+    parsed_rule = _parse_rarity_rule(rarity_rule)
+    operator, values = next(iter(parsed_rule.items()))
     if operator == "in":
         return record.get("rarity") in values
     return record.get("rarity") not in values
