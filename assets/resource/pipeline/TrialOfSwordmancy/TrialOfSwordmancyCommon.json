@@ -67,6 +67,7 @@
         "desc": "确认已在演算界面",
         "recognition": "And",
         "all_of": [
+            "CheckTrialOfSwordmancyText",
             "TrialOfSwordmancyDrawCardButton"
         ]
     },
