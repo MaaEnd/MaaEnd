@@ -532,7 +532,7 @@
         ]
     },
     "DeliveryJobsOngoingDelivery": {
-        "desc": "识别已有待运送的货物，并按当前仓储节点模式处理",
+        "desc": "识别已有待运送的货物，转去任务详情解析它属于哪个仓储节点",
         "recognition": "OCR",
         "roi": [
             882,
@@ -553,28 +553,62 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsOngoingDeliveryAction"
+            "DeliveryJobsEnsureOngoingDeliveryMission"
         ]
     },
-    "DeliveryJobsStopForOngoingDelivery": {
-        "desc": "有待运送的货物，无法继续当前处理流程，退出任务",
-        "recognition": "DirectHit",
+    "DeliveryJobsEnsureOngoingDeliveryMission": {
+        "desc": "进入任务界面并选中残留的送货任务，供后续解析它所属的仓储节点",
         "pre_delay": 0,
-        "action": "StopTask",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
+        },
         "post_delay": 0,
         "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDelivery"
-        }
+        "next": [
+            "DeliveryJobsResolveOngoingDepot"
+        ]
+    },
+    "DeliveryJobsResolveOngoingDepot": {
+        "desc": "从送货任务详情识别它所属的仓储节点，并把后续交给该仓储节点的处理方式",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckAreaText"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                455,
+                88,
+                250,
+                28
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "DeliveryJobsResolveOngoingDepotAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsSkipOngoingDelivery"
+        ]
     },
     "DeliveryJobsSkipOngoingDelivery": {
-        "desc": "仅装箱模式已有待运送货物时，关闭当前页面并继续下一个仓储节点",
+        "desc": "已有待运送货物且当前仓储节点不处理它时，退出任务界面并回到本仓储节点继续遍历",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsBackToDepotFromBid"
+            // 此时停在任务详情界面，落点由发起方声明为本仓储节点的场景节点
+            "[Anchor]DeliveryJobsReturnToDepotNode"
         ]
     },
     "DeliveryJobsBackToDepot": {

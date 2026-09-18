@@ -1,14 +1,21 @@
 {
-    "DeliveryJobsAutoDeliveryGuard": {
-        "desc": "未确认全自动送货风险时停止任务（由任务选项控制）",
-        "enabled": true,
+    "DeliveryJobsDeliverByAutoDelivery": {
+        "desc": "调用全自动送货组件处理当前委托；失败时由任务开关决定是否转交任务",
         "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": "StopTask",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDelivery"
+            ],
+            "continue": false,
+            "strict": true
+        },
         "post_delay": 0,
         "rate_limit": 0,
-        "focus": {
-            "Node.Action.Starting": "$task.DeliveryJobs.AutoDeliveryGuard"
-        }
+        "next": [
+            "[Anchor]DeliveryJobsAfterAutoDelivery"
+        ]
     }
 }

@@ -29,16 +29,15 @@ const AUTO_DELIVERY_NAVIGATE_NODES = [
 function buildCargoAnchor(
     depot,
     bidAction,
-    ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery",
     goToDepot = depot.DepotScene,
     afterAcceptJob = "DeliveryJobsDeliverQuickly",
 ) {
     return {
         DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
         DeliveryJobsRedistributionBidAction: bidAction,
-        DeliveryJobsOngoingDeliveryAction: ongoingDeliveryAction,
         DeliveryJobsAfterAcceptJob: afterAcceptJob,
         DeliveryJobsGoToDepot: goToDepot,
+        DeliveryJobsReturnToDepotNode: depot.DepotScene,
     };
 }
 
@@ -56,9 +55,14 @@ function buildModeOverride(depot, {deliveryEnabled, cargoEnabled, cargoExpected,
     };
 
     if (cargoEnabled) {
-        pipelineOverride[cargoNode].anchor = buildCargoAnchor(depot, bidAction, ongoingDeliveryAction);
+        pipelineOverride[cargoNode].anchor = buildCargoAnchor(depot, bidAction);
         pipelineOverride[cargoCheckNode] = {
             expected: cargoExpected,
+        };
+        pipelineOverride[`DeliveryJobsOngoingDeliveryFor${depot.Id}`] = {
+            next: [
+                ongoingDeliveryAction,
+            ],
         };
     }
 
@@ -78,6 +82,7 @@ function buildDepotOption(depot) {
                     cargoEnabled: true,
                     cargoExpected: ALL_CARGO_EXPECTED,
                     bidAction: "DeliveryJobsRedistributionBidNextStep",
+                    ongoingDeliveryAction: "DeliveryJobsTransferOngoingJob",
                 }),
             },
             ...(depot.AutoDeliverySupported
@@ -104,6 +109,7 @@ function buildDepotOption(depot) {
                     cargoEnabled: true,
                     cargoExpected: ALL_CARGO_EXPECTED,
                     bidAction: `DeliveryJobsDecide${depot.Id}Quote`,
+                    ongoingDeliveryAction: "DeliveryJobsSkipOngoingDelivery",
                 }),
             },
             {
@@ -114,6 +120,7 @@ function buildDepotOption(depot) {
                     cargoEnabled: true,
                     cargoExpected: ALL_CARGO_EXPECTED,
                     bidAction: "DeliveryJobsRedistributionBidNextStep",
+                    ongoingDeliveryAction: "DeliveryJobsSkipOngoingDelivery",
                 }),
             },
             {
@@ -255,7 +262,6 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
 function buildAutoDeliveryOverride(depot, {bidAction}) {
     const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
     const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
-    const openOngoingAutoDelivery = `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`;
     const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
     return {
         [deliveryNode]: {
@@ -264,31 +270,35 @@ function buildAutoDeliveryOverride(depot, {bidAction}) {
         },
         [cargoNode]: {
             enabled: true,
-            anchor: buildCargoAnchor(depot, bidAction, openOngoingAutoDelivery, autoDelivery),
+            anchor: buildCargoAnchor(depot, bidAction, autoDelivery),
+        },
+        [`DeliveryJobsOngoingDeliveryFor${depot.Id}`]: {
+            next: [
+                autoDelivery,
+            ],
         },
     };
 }
 
-function buildAutoDeliveryRiskAcknowledgementOption() {
+function buildOngoingDeliveryFallbackOption() {
+    // 自动送货失败统一在公共调用节点 DeliveryJobsDeliverByAutoDelivery 上处理，
+    // 因此开关只需要覆盖一次 on_error，无需为每个仓储节点重复。
     return {
         type: "switch",
-        label: "$task.AutoDeliveryRiskAcknowledgement.label",
-        description: "$task.AutoDeliveryRiskAcknowledgement.description",
+        label: "$task.DeliveryJobs.OngoingDeliveryFallback.label",
+        description: "$task.DeliveryJobs.OngoingDeliveryFallback.description",
         default_case: "No",
         cases: [
             {
                 name: "No",
-                pipeline_override: {
-                    DeliveryJobsAutoDeliveryGuard: {
-                        enabled: true,
-                    },
-                },
             },
             {
                 name: "Yes",
                 pipeline_override: {
-                    DeliveryJobsAutoDeliveryGuard: {
-                        enabled: false,
+                    DeliveryJobsDeliverByAutoDelivery: {
+                        on_error: [
+                            "DeliveryJobsTransferOngoingJob",
+                        ],
                     },
                 },
             },
@@ -440,8 +450,8 @@ function buildTaskOptions() {
         }
     }
 
-    options.DeliveryJobsAutoDeliveryRiskAcknowledgement = buildAutoDeliveryRiskAcknowledgementOption();
     options.DeliveryJobsAutoDeliveryPreferZipline = buildAutoDeliveryPreferZiplineOption();
+    options.DeliveryJobsOngoingDeliveryFallback = buildOngoingDeliveryFallbackOption();
     options.PackCargoSelectItem = {
         type: "switch",
         label: "$task.DeliveryJobs.PackCargoSelectItem.label",
@@ -490,8 +500,8 @@ export default function buildDeliveryJobsTask() {
                 option: [
                     ...deliveryJobRegions.map((region) => region.Id),
                     "PackCargoSelectItem",
-                    "DeliveryJobsAutoDeliveryRiskAcknowledgement",
                     "DeliveryJobsAutoDeliveryPreferZipline",
+                    "DeliveryJobsOngoingDeliveryFallback",
                 ],
                 controller: [
                     "ADB",
