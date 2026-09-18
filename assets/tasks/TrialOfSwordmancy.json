@@ -190,8 +190,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "TrialOfSwordmancyDailyMain": {
-                            "next": []
+                        "TrialOfSwordmancyFightSuccess": {
+                            "next": [
+                                "TrialOfSwordmancyFightSuccessLeave"
+                            ]
                         }
                     }
                 }

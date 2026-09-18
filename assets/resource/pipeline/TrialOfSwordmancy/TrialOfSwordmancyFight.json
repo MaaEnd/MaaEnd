@@ -186,10 +186,11 @@
         ]
     },
     "TrialOfSwordmancyFightSuccess": {
-        "desc": "战斗胜利：IMS A3 只累加武陵调度券后再点继续",
+        "desc": "战斗胜利：IMS A3 识别武陵调度券后再继续",
         "recognition": "And",
         "all_of": [
-            "WhiteConfirmButtonType1"
+            "WhiteConfirmButtonType1",
+            "CancelButton"
         ],
         "pre_wait_freezes": {
             "target": [
@@ -217,21 +218,13 @@
         ]
     },
     "TrialOfSwordmancyFightSuccessContinue": {
-        "desc": "点击再次演算",
+        "desc": "战斗胜利后，点击再次演算",
         "recognition": "And",
         "all_of": [
             "WhiteConfirmButtonType1"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "RepeatUntilFoundAction",
-        "custom_action_param": {
-            "action": "Click",
-            "wait_nodes": [
-                "TrialOfSwordmancyRewardExhaustedPopUp",
-                "TrialOfSwordmancyReEnterTrialMenuSuccess"
-            ]
-        },
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -250,7 +243,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyDailyFinish"
+            "TrialOfSwordmancyReEnterTrialMenuSuccess"
         ]
     },
     "TrialOfSwordmancyReEnterTrialMenuSuccess": {
@@ -260,6 +253,40 @@
             "TrialOfSwordmancyInTrialMenu"
         ],
         "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrialOfSwordmancyMain"
+        ]
+    },
+    "TrialOfSwordmancyFightSuccessLeave": {
+        "desc": "战斗胜利后，点击离开",
+        "recognition": "And",
+        "all_of": [
+            "CancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrialOfSwordmancyLeaveSuccess"
+        ]
+    },
+    "TrialOfSwordmancyLeaveSuccess": {
+        "desc": "战斗胜利后，点击离开成功",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "TrialOfSwordmancyQuickTeleportStart"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
