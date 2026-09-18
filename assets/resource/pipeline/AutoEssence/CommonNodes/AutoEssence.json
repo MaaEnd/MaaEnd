@@ -1152,6 +1152,10 @@
         "desc": "准备选择领取倍数的守卫节点",
         "pre_wait_freezes": 1000,
         "pre_delay": 0,
+        "anchor": {
+            "AutoEssenceLowSpNoMedicationNext": "AutoEssenceLowSpCancelObtain",
+            "AutoEssenceAfterObtainNext": "AutoEssenceOnSuccess"
+        },
         "post_delay": 0,
         "next": [
             // 考虑到双倍领取的许可券可能不足，不论是单倍还是双倍领取，都需要点击一次单倍领取的选项
@@ -1206,6 +1210,9 @@
         },
         "action": {
             "type": "Click"
+        },
+        "anchor": {
+            "AutoEssenceLowSpNoMedicationNext": "AutoEssenceFallbackScaling1"
         },
         "next": [
             "AutoEssenceAfterChooseScaling"
@@ -1299,7 +1306,7 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceLowSp",
-            //基质筛选开启时进入基质筛选线，完成后自己退出战利品界面并next到"AutoEssenceOnSuccess"
+            //基质筛选开启时进入基质筛选线，完成后自己退出战利品界面并next到"AutoEssenceAfterObtain"
             "EssenceFilterAfterBattleStart",
             //基质筛选未开启或进入失败时直接关闭战利品界面
             "AutoEssenceCloseObtainDialog"
@@ -1364,19 +1371,40 @@
         "inverse": true,
         "next": [
             "AutoEssenceLowSpUseMedication",
-            "AutoEssenceLowSpCancelObtain"
+            "AutoEssenceLowSpNoMedication"
         ]
     },
     "AutoEssenceLowSpUseMedication": {
         "desc": "尝试使用理智消耗许可",
         "pre_delay": 0,
         "anchor": {
-            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceLowSpCancelObtain",
+            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceLowSpNoMedication",
             "AutoUseSpMedicationInPrepareFinishUseAnchor": "AutoEssenceConfirmObtain"
         },
         "post_delay": 0,
         "next": [
             "AutoUseSpMedicationInPrepareWithAnchor"
+        ]
+    },
+    "AutoEssenceLowSpNoMedication": {
+        "desc": "无法继续补充体力时，仅已选择双倍领取的本次奖励尝试回退单倍",
+        "next": [
+            "[Anchor]AutoEssenceLowSpNoMedicationNext"
+        ]
+    },
+    "AutoEssenceFallbackScaling1": {
+        "desc": "复用单倍选项识别并点击；回退后若体力仍不足则取消领奖，不再切回双倍",
+        "recognition": "And",
+        "all_of": [
+            "AutoEssenceChooseScaling1"
+        ],
+        "action": "Click",
+        "anchor": {
+            "AutoEssenceLowSpNoMedicationNext": "AutoEssenceLowSpCancelObtain",
+            "AutoEssenceAfterObtainNext": "AutoEssenceAfterFallbackObtainStop"
+        },
+        "next": [
+            "AutoEssenceAfterChooseScaling"
         ]
     },
     "AutoEssenceLowSpCancelObtain": {
@@ -1431,11 +1459,24 @@
         },
         "post_delay": 1000,
         "next": [
-            "AutoEssenceOnSuccess"
+            "AutoEssenceAfterObtain"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击离开按钮"
         }
+    },
+    "AutoEssenceAfterObtain": {
+        "desc": "领奖及战后筛选完成后，根据本次是否因体力不足回退单倍决定继续或结束",
+        "next": [
+            "[Anchor]AutoEssenceAfterObtainNext"
+        ]
+    },
+    "AutoEssenceAfterFallbackObtainStop": {
+        "desc": "双倍体力不足且无法继续吃药时回退单倍，领取后已不足下一次单倍；输出筛选汇总并结束",
+        "next": [
+            "[JumpBack]AutoEssenceAfterBattleRunEndLootReport",
+            "AutoEssenceLowSpStop"
+        ]
     },
     "AutoEssenceOnSuccess": {
         "desc": "成功完成一次基质刷取后的守卫节点",

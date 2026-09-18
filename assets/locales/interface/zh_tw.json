@@ -216,7 +216,7 @@
     "option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label": "全程固定單個地區",
     "option.AutoEssenceChooseLocationMode.cases.ChooseEveryTime.label": "每輪循環都隨機改換地區",
     "option.AutoEssenceObtainMode.label": "領取方式",
-    "option.AutoEssenceObtainMode.description": "每輪挑戰結束後的獎勵處理方式",
+    "option.AutoEssenceObtainMode.description": "雙倍領取時優先依設定使用藥劑；仍不足雙倍但足夠單倍時，自動改領單倍並結束任務。",
     "option.AutoEssenceObtainMode.cases.Discard.label": "不領取（僅刷素材）",
     "option.AutoEssenceObtainMode.cases.ObtainScaling1.label": "單倍領取",
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "雙倍領取",
