@@ -24,7 +24,6 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyClickTrialTrigger",
-            "TrialOfSwordmancyGotoTrialArena",
             "TrialOfSwordmancyQuickTeleportStart"
         ]
     },
