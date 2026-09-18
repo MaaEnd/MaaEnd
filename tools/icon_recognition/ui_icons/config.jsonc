@@ -1,0 +1,19 @@
+{
+    // 与 IconRecognition 的候选筛选参数保持一致；多个条件取并集。
+    "item_filters": [
+        "ValuableDepot:SpecialItem",
+        "ValuableDepot:CommercialItem",
+        "Isolate:*",
+        "Normal:Ore",
+        "Normal:Plant",
+        "Normal:Product",
+        "Normal:Usable",
+        "Normal:Nurturance"
+    ],
+    // 非空时先与 item_filters 取交集；留空表示不额外限定物品 ID。
+    "item_ids": [],
+    // 这些分类会在基础筛选结果之外追加。
+    "additional_item_filters": [],
+    // 最后排除指定物品 ID；适合处理不希望生成 UI 图标的个别物品。
+    "excluded_item_ids": []
+}
