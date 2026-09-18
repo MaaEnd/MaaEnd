@@ -48,6 +48,10 @@
                     "enable_bootstrap_navmesh": false,
                     "path": [
                         {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_L5_322"
+                        },
+                        {
                             "action": "RUN",
                             "target": [
                                 225.66,
