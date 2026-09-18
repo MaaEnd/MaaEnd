@@ -2,8 +2,9 @@
 
 使用 `MAA-pipeline-generate` 从地区、仓储节点与可装箱物品模型生成转交委托的 Pipeline 和任务配置。
 
-`tools/pipeline-generate/data/delivery_jobs.json` 是 zmdmap 数据 CI 从 TableCfg 裁剪并发布的精简游戏数据，MaaEnd 通过
-`fetch-data.mjs` 下载。文件包含全部仓储节点及其可装箱物品；统一的数据流与来源边界见[生成数据总览](../README.md)。
+本文只覆盖生成侧。任务的流程结构、六种仓储节点处理方式的语义、anchor 规则与各选项的作用，见[转交委托任务维护文档](../../../docs/zh_cn/developers/tasks/delivery-jobs-maintain.md)。
+
+`tools/pipeline-generate/data/delivery_jobs.json` 是 zmdmap 数据 CI 从 TableCfg 裁剪并发布的精简游戏数据，MaaEnd 通过 `fetch-data.mjs` 下载。文件包含全部仓储节点及其可装箱物品；统一的数据流与来源边界见[生成数据总览](../README.md)。
 
 ## 运行方式
 
@@ -16,48 +17,95 @@ pnpm generate:DeliveryJobs
 pnpm fetch:zmdmap
 ```
 
+`pnpm generate:DeliveryJobs` 会先执行 `pnpm generate:AutoDelivery`（内含 `fetch:zmdmap`、`sync-routes.mjs`、`sync-catalog.mjs`），再依次执行本目录的 `sync-locales.mjs`、`prepare.mjs`，最后 `run-all.mjs DeliveryJobs`。数据版本未变、只需重新生成 Pipeline 时，可以跳过网络直接跑本目录三步：
+
+```bash
+node tools/pipeline-generate/DeliveryJobs/sync-locales.mjs
+node tools/pipeline-generate/DeliveryJobs/prepare.mjs
+node tools/pipeline-generate/run-all.mjs DeliveryJobs
+```
+
 生成内容：
 
 - `assets/resource/pipeline/DeliveryJobs.json`：通用任务入口与地区调度；
 - `assets/resource/pipeline/DeliveryJobs/Region/*.json`：各地区入口、循环与界面判定；
 - `assets/resource/pipeline/DeliveryJobs/Depot/**/*.json`：每个仓储节点的任务、货物识别和进入节点；
 - `assets/resource/pipeline/DeliveryJobs/PriorityItems.json`：各地区四级装箱货物选择与回退入口；
+- `assets/resource_adb/pipeline/DeliveryJobs/PriorityItems.json`：同名节点的 ADB 坐标变体；
 - `assets/tasks/DeliveryJobs.json`：地区、仓储节点处理方式和装箱物品选项。
 
-生成前会先运行 `sync-locales.mjs`：地区、仓储节点及物品的五语言名称分别来自
-`delivery_jobs.json`，物品是否生成则由 `recognition_items.json` 决定。同步器只补齐缺失或空白的
-`global.region.*` / `iconRecognition.name.*`，已有的人工消歧文案会保留。
+`sync-locales.mjs` 在生成前运行：地区、仓储节点及物品的五语言名称分别来自 `delivery_jobs.json`，物品是否生成则由 `recognition_items.json` 决定。它只补齐缺失或空白的 `global.region.*` / `iconRecognition.name.*` / `task.DeliveryJobs.WhatToFill*`，已有的人工消歧文案会保留；同时按 `^task\.DeliveryJobs\.WhatToFill[A-Za-z0-9]+Priority\d+$` 清理数据源里已不存在的装箱优先级键。同步结束后会再校验一遍全部键，仍缺失即报错。
 
-每个仓储节点默认提供五种处理方式；支持全自动送货的仓储节点额外提供一种：
+`prepare.mjs` 在生成前删除 `assets/resource/pipeline/DeliveryJobs/` 下的 `Depot/` 与 `Region/` 两个目录，模板里删掉的仓储节点或地区不会留下孤儿文件；其余产物由生成器整体覆盖写入。
 
-- **接取并转交**：装箱、接取任务，并在返回仓储节点后转交；
-- **全自动送货**：装箱、接取任务，随后自动取货、寻路并提交货物；
-- **按报价处理**：识别当前选中的报价，并分别按“达到或高于阈值时”和“低于阈值时”的配置执行；
-- **仅接取委托**：完成装箱并接取任务，不转交，返回仓储节点后继续处理其他委托；
-- **仅装箱货物**：完成装箱后从调度申请界面返回，不接取任务；
-- **不处理**：跳过该仓储节点已有的送货任务和装箱入口。
+## 生成器结构
 
-按报价处理默认以整数 `119000`（即 11.9 万）为阈值。“达到或高于阈值时”默认接取并转交，“低于阈值时”默认仅接取委托；两侧均可改为“接取并转交”“全自动送货”“仅接取委托”或“不处理”。“仅接取委托”会在接取后返回仓储节点继续遍历，“不处理”会关闭报价页并继续遍历。报价 OCR 失败时会停在报价页并提示用户，不会自动接取。
+生成器是「模板 + 数据装配」成对出现的，由 `*-config.json` 登记：
 
-全自动送货只使用 [AutoDelivery](../../../docs/zh_cn/developers/components/auto-delivery.md) 的唯一公共入口 `AutoDelivery`，支持四号谷地和武陵的全部仓储节点。DeliveryJobs 负责打开对应本地仓储节点的“查看任务”入口，并为提交完成配置 anchor；识别、传送、寻路、取货与提交均由 AutoDelivery 完成，不把完整链路装入一个 `SubTask`。
+| 配置 | 模板 | 数据 | 产物 |
+| --------------------------- | ------------------------- | ---------------- | -------------------------------------------------------- |
+| `core-config.json` | `core-template.jsonc` | `core-data.mjs` | `pipeline/DeliveryJobs.json` |
+| `region-config.json` | `region-template.jsonc` | `region-data.mjs` | `pipeline/DeliveryJobs/Region/{RegionId}.json` |
+| `depot-config.json` | `depot-template.jsonc` | `depot-data.mjs` | `pipeline/DeliveryJobs/Depot/{RegionId}/{DepotId}.json` |
+| `priority-config.json` | `priority-template.jsonc` | `priority-data.mjs` | `pipeline/DeliveryJobs/PriorityItems.json`（merged） |
+| `priority-adb-config.json` | `priority-adb-template.jsonc` | `priority-data.mjs` | `resource_adb/pipeline/DeliveryJobs/PriorityItems.json`（merged） |
+| `task-config.json` | `task-template.mjs` | `task-data.mjs` | `assets/tasks/DeliveryJobs.json` |
 
-确认接取任务后会直接利用首次出现的“查看任务”详情判断下一步，不会先回到大世界再重新打开详情。只有检测到此前已有送货任务、当前不在详情页时，才会回到对应仓储节点打开详情恢复流程；单击“查看任务”后会先识别区域和追踪按钮，确认任务详情已经加载，再开始识别仓储或终点。取货后则通过 `SceneEnterMenuMission` 直接进入任务界面，在左侧任务列表中识别并点击“送货任务”；当前页未找到时最多向下滑动三次，确认右侧详情标题已经切换后再识别送货目的地，不再返回地区建设的运送委托列表。
+`model.mjs` 是唯一的数据模型：读取 `delivery_jobs.json`、`delivery_destinations.json` 与 `assets/data/IconRecognition/recognition_items.json`，在导入时完成全部校验与断言，并导出三个消费入口：
 
-每次打开任务详情时，DeliveryJobs 都把 `AutoDelivery` 放入 `next`，当前取货或送货阶段由组件根据任务详情自行判断。已进入送货阶段时，组件取消任务追踪并从大世界前往终点；需要取货时，组件快速传送到仓储附近，通过 `SubTask` 进入任务界面并确认选中“送货任务”，取消追踪后前往仓储取货，再以同样方式重新打开送货任务详情并继续终点流程。所有追踪状态节点都会同时确认任务界面和送货任务详情，避免在其他界面误判通用按钮。
+- `deliveryJobRegions`：地区（`Id` / `RegionScene` / `DepotScene` / `Depots` / `FillItems` / `DefaultFillItem`）；
+- `deliveryJobDepots`：仓储节点（`Id` / `GameId` / `RegionId` / `Expected` / `AutoDeliverySupported` / `DepotScene`）；
+- `deliveryJobLocaleEntries`：待同步的多语言条目，供 `sync-locales.mjs` 使用。
 
-仓储坐标与全部送货终点均由 `delivery_destinations_data.py` 从游戏数据和 BaseNav 变换生成，普通点只需一个 `NAVMESH` 目标；断网格、分层或需要重新靠近取货点的路线才在 `tools/pipeline-generate/AutoDelivery/routes.json` 中保留覆盖。AutoDelivery 生成器将每条路线渲染为可独立试跑的 Pipeline 节点，并生成不含坐标的运行时匹配目录；Go Service 识别目标后动态选择对应节点。终点覆盖的 `path` 是包含最终航点的完整路线；仓储 `departure_path` 作为所有归属终点的公共离开路线前缀。`retry_path` 的用途、执行边界与维护要求见 AutoDelivery 文档，DeliveryJobs 不直接调用该内部路线。
+地区与仓储节点按数据源 gameId 排序，装箱物品按「分类 → 中文名 → ID」排序，保证不同环境下生成结果一致。`data.test.mjs` 与 `sync-locales.test.mjs` 断言生成产物与模型的一致性。
 
-风险确认与滑索偏好仅对 `Win32-Front` / `Linux` 控制器开放；受项目接口能力限制，其他控制器仍可能显示“全自动送货”处理方式，但无法关闭默认安全守卫，选择后会直接停止任务。滑索偏好只允许 MapNavigator 在预计更快且满足供电、上下索条件时规划滑索，不保证每条路线都会使用。送货成功后返回 DeliveryJobs 仓储节点循环，送货失败则停止整个任务，避免继续装箱。该功能仍处于测试阶段，使用前必须确认风险提示。
+## 任务选项的生成
 
-阈值输入虽然只允许数字，但 `pipeline_type` 必须保持为 `string`，因为它会被插入完整的 `ExpressionRecognition.expression` 字符串；设为 `int` 会尝试把整个表达式转换为整数，最终得到 `null`。
+`task-template.mjs` 的 `buildTaskOptions()` 按模型展开整棵选项树：
 
-“仅装箱货物”遇到已有待运送货物时会关闭当前页面并继续遍历下一个仓储节点；“全自动送货”会恢复已有任务；其他需要接取或转交的模式仍会停止任务并提示先完成送货。
+```text
+{RegionId}                                             switch  启停地区，Yes 时展开该地区全部仓储节点
+  └─ {DepotId}                                         select  该仓储节点的处理方式（六选一）
+       ├─ DeliveryJobsQuoteThreshold{DepotId}                input   仅「按报价处理」
+       ├─ DeliveryJobsAtLeastMinimumQuoteAction{DepotId}     select  仅「按报价处理」
+       └─ DeliveryJobsBelowMinimumQuoteAction{DepotId}       select  仅「按报价处理」
+PackCargoSelectItem                                    switch  启用后展开每地区的装箱优先级槽位
+  └─ FillItemPriorities{RegionId}                      switch  逐地区启停
+       └─ WhatToFill{RegionId}Priority1..4             select  每地区 4 个槽位
+DeliveryJobsAutoDeliveryPreferZipline                  switch  覆盖 AutoDeliveryNavigate* 的 attach.zip
+DeliveryJobsOngoingDeliveryFallback                    switch  覆盖 DeliveryJobsDeliverByAutoDelivery.on_error
+```
 
-启用“填入指定货物”后，先按地区展开配置，再为每个地区设置优先级 1 至 4。优先级 1 默认使用砂叶粉末，
-优先级 2 至 4 默认“不指定”。流程会从列表顶部完整查找当前货物，将可用数量填到最大；货箱未满时再尝试下一个
-已配置货物。所有已配置货物均无法装满时，任务会停在装箱界面并明确报错。该功能使用全新的优先级配置，旧版单货物配置不会迁移。
+仓储节点的六个 case 分两类生成，覆盖内容全部落在少数几个参数上：
 
-旧版的全局“仅接取任务”和“仅装箱货物”开关已由逐仓储节点选项取代，升级后的已有配置需要重新选择各节点的处理方式。
+| case | 生成函数 | 覆盖内容 |
+| ---------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `Transfer` | `buildModeOverride` | 两个入口启用；`cargoExpected=ALL_CARGO_EXPECTED`；`bidAction=DeliveryJobsRedistributionBidNextStep`；`ongoingDeliveryAction=DeliveryJobsTransferOngoingJob` |
+| `AutoDelivery` | `buildAutoDeliveryOverride` | 两个入口启用；`DeliveryJobsEnter{DepotId}DeliveryJob.next` 改指 `DeliveryJobsAutoDelivery{DepotId}`；cargo anchor 的 `DeliveryJobsGoToDepot` 改指该节点；分派节点 `next` 改指该节点 |
+| `ByQuote` | `buildModeOverride` | 只启用货物入口；`bidAction=DeliveryJobsDecide{DepotId}Quote`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
+| `AcceptJobOnly` | `buildModeOverride` | 只启用货物入口；`bidAction=DeliveryJobsRedistributionBidNextStep`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
+| `PackCargoOnly` | `buildModeOverride` | 只启用货物入口；`cargoExpected=PACK_CARGO_EXPECTED`（不含「查看报价」）；`bidAction=DeliveryJobsBackToDepotFromBid`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
+| `Disabled` | `buildModeOverride` | 两个入口 `enabled: false`，不覆盖其余节点 |
+
+`buildModeOverride()` 的 `deliveryEnabled` / `cargoEnabled` 落到 `DeliveryJobsEnter{DepotId}DeliveryJob` / `DeliveryJobsEnter{DepotId}Cargo` 的 `enabled`；`cargoEnabled` 为真时还会覆盖 `DeliveryJobsCheck{DepotId}Cargo.expected` 与分派节点 `DeliveryJobsOngoingDeliveryFor{DepotId}.next`。
+
+> [!IMPORTANT]
+>
+> **`pipeline_override` 对 `DeliveryJobsEnter{DepotId}Cargo` 的 `anchor` 提供的是整个对象**（`buildCargoAnchor()` 的返回值），模板中该节点的 `anchor` 会被整体替换；`DeliveryJobsCheck{DepotId}Cargo.expected` 同理。改模板的 anchor 键或货物识别文本时，必须同步改 `buildCargoAnchor()` / `cargoExpected`，否则改动会被静默覆盖。
+
+没有送货终点的仓储节点不生成 `AutoDelivery` case：`model.mjs` 用 `delivery_destinations.json` 的 `destinations[].depot_id` 归并终点，`AutoDeliverySupported` 为假的仓储节点在仓储节点模式与两个报价分支里都不出现「全自动送货」。终点坐标与路线的生成属于 AutoDelivery 生成器，见 [AutoDelivery README](../AutoDelivery/README.md)。
+
+`buildQuoteThresholdOption()` 把阈值注入 `ExpressionRecognition.expression`（`{DeliveryJobsSelectedBidPrice}>=<阈值>` 与 `{DeliveryJobsSelectedBidPrice}<{阈值}`）。输入的 `pipeline_type` **必须保持 `"string"`**：输入值会被插入表达式字符串，设为 `int` 会把整个表达式当整数解析，最终得到 `null`。
+
+## 数据约束与生成期断言
+
+`model.mjs` 在导入时完成以下校验，任一不满足即中断生成：
+
+- **五语言名称完整**：地区、仓储节点、物品的 `zh_cn` / `zh_tw` / `en_us` / `ja_jp` / `ko_kr` 缺一即报错。识别用的 `expected` 由 `buildLocalizedExpected()` 生成：`en_us` 转成带 `(?i)` 前缀、词间空格放宽为 `\s*` 的弹性正则，其余语言原样。
+- **区域名恒等**：`delivery_destinations.json` 的 `destinations[].area` 必须与所属仓储节点 `depots[].names` 在五种语言下逐字一致（`assertDepotAreaNames()`）。Go 侧 `DeliveryJobsResolveOngoingDepotAction` 用区域 ID 直接拼出分派节点名，这条恒等关系是跨语言免映射表的前提。
+- **MaaEnd 标识可生成**：`Id` 由英文名移除非字母数字字符得到，必须匹配 `^[A-Za-z][A-Za-z0-9]*$`；地区 ID、仓储节点 ID，以及两者的合集都不得重复。
+- **归属一致**：仓储节点的 `region_id` 必须等于它被挂到的地区；地区至少要有一个仓储节点。
+- **可装箱物品**：取该地区各仓储节点 `fillable_items` 的**交集**，再过滤 `recognition_items.json` 未收录的物品（跳过时告警），最后排序。每个地区都必须能装箱默认物品 `item_plant_moss_powder_3`（砂叶粉末），否则报错。
 
 ## 新增地区或仓储节点
 
@@ -74,4 +122,6 @@ pnpm fetch:zmdmap
 4. 运行 `pnpm generate:DeliveryJobs`，并检查 `git diff` 只包含预期的生成产物；`pnpm check` / `pnpm test`
    按需执行，改动未包含 `tests/**` 时交给 PR 的 CI 校验即可。
 
-生成的 Pipeline 和 Task 文件不应手工修改；流程级公共节点仍在 `PackCargo.json` 和 `TransferJob.json` 中维护。
+## 维护边界
+
+生成的 Pipeline 和 Task 文件不应手工修改；流程级公共节点仍在 `PackCargo.json`、`TransferJob.json` 和 `AutoDelivery.json` 中维护，改动时的检查清单见[转交委托任务维护文档](../../../docs/zh_cn/developers/tasks/delivery-jobs-maintain.md)。
