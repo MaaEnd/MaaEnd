@@ -94,7 +94,6 @@
             "InWorld"
         ],
         "pre_delay": 0,
-        "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -103,7 +102,11 @@
         ]
     },
     "TrialOfSwordmancyOutOfBounds": {
-        "desc": "加载完但未出现挑战目标界面，说明开始演算时角色在演算区域外",
+        "desc": "开始演算时角色在演算区域外",
+        "recognition": "And",
+        "all_of": [
+            "EndChallengeButton"
+        ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -122,7 +125,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "on_error": [
-            // 本次寻路必定失败
+            // 本次寻路必定失败：进入演算区域会强制传送并出现挑战目标弹窗
             "TrialOfSwordmancyChallengeTarget"
         ],
         "focus": {
