@@ -68,6 +68,13 @@ def _parse_config(config: Mapping[str, Any]) -> dict[str, tuple[str, ...]]:
     }
 
 
+def _parse_exclude_rules(config: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
+    rules = config.get("exclude_rules", [])
+    if not isinstance(rules, list) or not all(isinstance(rule, Mapping) for rule in rules):
+        raise ValueError("UI 图标集配置的 exclude_rules 必须是对象数组")
+    return tuple(rules)
+
+
 def _matches_filter(record: Mapping[str, Any], item_filter: str) -> bool:
     try:
         storage_kind, category_type = item_filter.split(":", 1)
@@ -81,10 +88,42 @@ def _matches_filter(record: Mapping[str, Any], item_filter: str) -> bool:
     )
 
 
+def _matches_rarity_rule(record: Mapping[str, Any], rarity_rule: Mapping[str, Any]) -> bool:
+    operators = [operator for operator in ("in", "not_in") if operator in rarity_rule]
+    if len(operators) != 1:
+        raise ValueError("UI 图标集排除规则的 rarity 必须且只能包含 in 或 not_in")
+    operator = operators[0]
+    values = rarity_rule[operator]
+    if not isinstance(values, list) or not all(isinstance(value, int) for value in values):
+        raise ValueError(f"UI 图标集排除规则的 rarity.{operator} 必须是整数数组")
+    if operator == "in":
+        return record.get("rarity") in values
+    return record.get("rarity") not in values
+
+
+def _matches_exclude_rule(record: Mapping[str, Any], rule: Mapping[str, Any]) -> bool:
+    item_filter = rule.get("item_filter")
+    sub_rules = rule.get("sub_rules")
+    if not isinstance(item_filter, str) or not isinstance(sub_rules, list):
+        raise ValueError("UI 图标集排除规则必须包含 item_filter 和 sub_rules")
+    if not _matches_filter(record, item_filter):
+        return False
+    for sub_rule in sub_rules:
+        if not isinstance(sub_rule, Mapping):
+            raise ValueError("UI 图标集排除规则的 sub_rules 必须是对象数组")
+        rarity_rule = sub_rule.get("rarity")
+        if not isinstance(rarity_rule, Mapping):
+            raise ValueError("UI 图标集排除规则的子规则必须包含 rarity")
+        if _matches_rarity_rule(record, rarity_rule):
+            return True
+    return False
+
+
 def select_items(
     catalog: Mapping[str, Mapping[str, Any]], config: Mapping[str, Any]
 ) -> list[tuple[str, Mapping[str, Any]]]:
     parsed = _parse_config(config)
+    exclude_rules = _parse_exclude_rules(config)
     item_ids = set(parsed["item_ids"])
     excluded = set(parsed["excluded_item_ids"])
     base_filters = parsed["item_filters"]
@@ -96,6 +135,8 @@ def select_items(
     selected = []
     for item_id, record in catalog.items():
         if item_id in excluded:
+            continue
+        if any(_matches_exclude_rule(record, rule) for rule in exclude_rules):
             continue
         base_match = (
             any(_matches_filter(record, value) for value in base_filters)

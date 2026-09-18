@@ -38,6 +38,7 @@ from publish import (
 )
 from expected import merge_expected_results
 from text import clean_text, validate_identifier
+from ui_icons.generate import select_items
 
 
 class IconRecognitionToolsTest(unittest.TestCase):
@@ -67,6 +68,72 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(paths.catalog_output, Path("repo/assets/data/IconRecognition/recognition_items.json"))
         self.assertEqual(paths.asset_image_root, Path("repo/assets/resource/image/IconRecognition"))
         self.assertEqual(paths.locale_root, Path("repo/assets/locales/interface"))
+
+    def test_ui_icon_exclude_rules_filter_weapon_rarity(self) -> None:
+        catalog = {
+            "weapon_4": {
+                "storageKind": "ValuableDepot",
+                "categoryType": "Weapon",
+                "rarity": 4,
+            },
+            "weapon_5": {
+                "storageKind": "ValuableDepot",
+                "categoryType": "Weapon",
+                "rarity": 5,
+            },
+            "weapon_6": {
+                "storageKind": "ValuableDepot",
+                "categoryType": "Weapon",
+                "rarity": 6,
+            },
+            "special_4": {
+                "storageKind": "ValuableDepot",
+                "categoryType": "SpecialItem",
+                "rarity": 4,
+            },
+        }
+        config = {
+            "item_filters": ["ValuableDepot:Weapon", "ValuableDepot:SpecialItem"],
+            "exclude_rules": [
+                {
+                    "item_filter": "ValuableDepot:Weapon",
+                    "sub_rules": [{"rarity": {"not_in": [5, 6]}}],
+                }
+            ],
+        }
+
+        selected = select_items(catalog, config)
+
+        self.assertEqual([item_id for item_id, _ in selected], ["weapon_5", "weapon_6", "special_4"])
+
+        in_config = {
+            **config,
+            "item_filters": ["ValuableDepot:Weapon"],
+            "exclude_rules": [
+                {
+                    "item_filter": "ValuableDepot:Weapon",
+                    "sub_rules": [{"rarity": {"in": [4]}}],
+                }
+            ],
+        }
+        selected = select_items(catalog, in_config)
+        self.assertEqual([item_id for item_id, _ in selected], ["weapon_5", "weapon_6"])
+
+        with self.assertRaisesRegex(ValueError, "只能包含 in 或 not_in"):
+            select_items(
+                catalog,
+                {
+                    **config,
+                    "exclude_rules": [
+                        {
+                            "item_filter": "ValuableDepot:Weapon",
+                            "sub_rules": [
+                                {"rarity": {"in": [5], "not_in": [6]}}
+                            ],
+                        }
+                    ],
+                },
+            )
 
     def test_relocate_rarity_changed_icon_preserves_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

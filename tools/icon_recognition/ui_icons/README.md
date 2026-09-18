@@ -20,5 +20,25 @@ uv run --group images python -m tools.icon_recognition.ui_icons.generate
 - `item_ids`：可选的 ID 交集；
 - `additional_item_filters`：额外并入的分类；
 - `excluded_item_ids`：最后排除的 ID。
+- `exclude_rules`：按物品分类和嵌套子规则排除物品。例如贵重品库武器只保留 5、6 星：
+
+```jsonc
+{
+    "item_filter": "ValuableDepot:Weapon",
+    "sub_rules": [
+        {
+            "rarity": {
+                "not_in": [
+                    5,
+                    6
+                ]
+            }
+        }
+    ]
+}
+```
+
+`rarity` 子规则也支持 `in`，表示稀有度命中数组时排除。每个 `rarity` 子规则必须且只能配置 `in` 或 `not_in`。
+命中排除规则的物品会被忽略；脚本不会自动删除之前已经生成的同名图片。
 
 完整 publish 流程会在 catalog 和普通识别图标发布完成后自动调用该生成器。
