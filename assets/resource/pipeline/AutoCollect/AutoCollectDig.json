@@ -10,7 +10,12 @@
         "action": {
             "type": "Click",
             "param": {
-                "target": true
+                "target": [
+                    640,
+                    360,
+                    1,
+                    1
+                ]
             }
         },
         "repeat": 2,
