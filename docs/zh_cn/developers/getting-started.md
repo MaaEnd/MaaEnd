@@ -343,12 +343,12 @@ Pipeline 跑通后，补齐配套：
 
 ```json
 {
-    "icon": "resource/image/IconRecognition/UI/item_lbmob_1_lbshamman_1_sp_1_1.png",
-    "description": "![](resource/image/IconRecognition/UI/item_char_break_stage_3_4.png)"
+    "icon": "resource/image/UI/Item/item_lbmob_1_lbshamman_1_sp_1_1.png",
+    "description": "![](resource/image/UI/Item/item_char_break_stage_3_4.png)"
 }
 ```
 
-图片路径相对于 `assets/` 目录，因此不要包含 `assets/` 前缀，统一从 `resource/` 开始。需要显示物品识别生成的图标时，按 `resource/image/IconRecognition/UI/<物品 ID>.png` 拼接路径，其中 `<物品 ID>` 使用 `assets/data/IconRecognition/recognition_items.json` 的顶层键。
+图片路径相对于 `assets/` 目录，因此不要包含 `assets/` 前缀，统一从 `resource/` 开始。需要显示物品识别生成的 UI 图标时，按 `resource/image/UI/Item/<物品 ID>.png` 拼接路径，其中 `<物品 ID>` 使用 `assets/data/IconRecognition/recognition_items.json` 的顶层键。
 
 ### i18n 文案
 

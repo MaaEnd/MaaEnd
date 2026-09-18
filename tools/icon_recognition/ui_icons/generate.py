@@ -35,7 +35,7 @@ def default_paths(repo_root: str | Path | None = None) -> dict[str, Path]:
     return {
         "catalog": root / "assets" / "data" / "IconRecognition" / "recognition_items.json",
         "image_root": root / "assets" / "resource" / "image" / "IconRecognition",
-        "output_root": root / "assets" / "resource" / "image" / "IconRecognition" / "UI",
+        "output_root": root / "assets" / "resource" / "image" / "UI" / "Item",
         "config": tool_root / "config.jsonc",
         "mask_root": tool_root / "assets",
     }

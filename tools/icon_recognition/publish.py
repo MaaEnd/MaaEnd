@@ -6,7 +6,7 @@ import argparse
 import json
 import shutil
 from collections import OrderedDict
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -23,17 +23,6 @@ from localization import (
 )
 from text import validate_identifier
 from ui_icons.generate import generate_ui_icons
-
-
-def _collect_rarities(*record_groups: Iterable[object]) -> tuple[str, ...]:
-    """从物品记录中收集实际出现的稀有度目录名。"""
-    rarities = {
-        str(record["rarity"])
-        for records in record_groups
-        for record in records
-        if isinstance(record, Mapping) and "rarity" in record
-    }
-    return tuple(sorted(rarities))
 
 
 @dataclass(frozen=True)
@@ -98,9 +87,6 @@ def sync_published_images(
     asset_image_root.mkdir(parents=True, exist_ok=True)
 
     # 黑名单物品可能与正常物品共用图标;只有当前 catalog 完全不再引用时才能删除。
-    rarity_values = _collect_rarities(
-        catalog.values(), item_source.values(), removed_items
-    )
     for removal in removed_items:
         icon_id = removal.get("iconId")
         if not isinstance(icon_id, str) or not icon_id:
@@ -108,8 +94,7 @@ def sync_published_images(
         icon_id = validate_identifier(icon_id, field="黑名单移除项.iconId")
         if icon_id in referenced_icon_ids:
             continue
-        for rarity in rarity_values:
-            rarity_directory = asset_image_root / rarity
+        for rarity_directory in asset_image_root.iterdir():
             if not rarity_directory.is_dir():
                 continue
             stale = rarity_directory / f"{icon_id}.png"
@@ -118,11 +103,11 @@ def sync_published_images(
 
     for relative_path in expected_images:
         destination = asset_image_root / relative_path
-        stale_paths = []
-        for rarity in rarity_values:
-            candidate = asset_image_root / rarity / relative_path.name
-            if candidate.is_file() and candidate != destination:
-                stale_paths.append(candidate)
+        stale_paths = [
+            path
+            for path in asset_image_root.glob(f"*/{relative_path.name}")
+            if path.is_file() and path != destination
+        ]
         if destination.exists():
             for stale in stale_paths:
                 stale.unlink()
@@ -139,13 +124,10 @@ def sync_published_images(
 
 
 def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
-    raw_source = json.loads(
-        paths.item_source.read_text(encoding="utf-8-sig"),
-        object_pairs_hook=OrderedDict,
-    )
-    if not isinstance(raw_source, dict):
+    source = json.loads(paths.item_source.read_text(encoding="utf-8-sig"), object_pairs_hook=OrderedDict)
+    if not isinstance(source, dict):
         raise ValueError(f"JSON 顶层必须是对象: {paths.item_source}")
-    source, removals = apply_item_blacklist(raw_source)
+    source, removals = apply_item_blacklist(source)
     catalog = build_catalog(source, paths.image_root)
     localization_source = build_source_index(
         load_json_object(paths.localization_item_source),
@@ -163,7 +145,7 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
         paths.image_root,
         paths.asset_image_root,
         catalog,
-        raw_source,
+        source,
         removals,
     )
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
@@ -192,12 +174,11 @@ def publish_fixed_items(paths: PublishPaths) -> int:
         }
         for item_id, payload in FIXED_ITEMS.items()
     }
-    catalog = load_json_object(paths.catalog_output)
-    rarity_directories = [
-        paths.asset_image_root / rarity
-        for rarity in _collect_rarities(catalog.values(), fixed_source.values())
-        if (paths.asset_image_root / rarity).is_dir()
-    ]
+    rarity_directories = (
+        [path for path in paths.asset_image_root.iterdir() if path.is_dir()]
+        if paths.asset_image_root.is_dir()
+        else []
+    )
     for payload in FIXED_ITEMS.values():
         source = paths.image_root / str(payload["rarity"]) / f"{payload['iconId']}.png"
         validate_icon_png_bytes(source.read_bytes())
@@ -227,6 +208,7 @@ def publish_fixed_items(paths: PublishPaths) -> int:
 
     for item_id, record in fixed_catalog.items():
         record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
+    catalog = load_json_object(paths.catalog_output)
     catalog.update(fixed_catalog)
     write_catalog(OrderedDict(sorted(catalog.items())), paths.catalog_output)
     return len(fixed_catalog)

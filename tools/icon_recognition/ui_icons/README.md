@@ -10,7 +10,7 @@ uv run --group images python -m tools.icon_recognition.ui_icons.generate
 
 默认读取 `assets/data/IconRecognition/recognition_items.json` 和
 `assets/resource/image/IconRecognition/`，将 32x32 图标输出到
-`assets/resource/image/IconRecognition/UI/`。输出文件名使用 catalog 顶层
+`assets/resource/image/UI/Item/`。输出文件名使用 catalog 顶层
 `item_id`。已有同名文件会先检查尺寸，尺寸为 32x32 或尺寸异常时都跳过，避免覆盖
 发布后的图片优化结果。
 
