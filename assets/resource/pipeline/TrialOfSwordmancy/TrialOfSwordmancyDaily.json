@@ -91,8 +91,8 @@
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 600,
-            "repeat_count": 6,
+            "interval_ms": 200,
+            "repeat_count": 20,
             "wait_node": "TrialOfSwordmancyBattlePts0"
         },
         "target": "TrialOfSwordmancyDrawCardButton",
@@ -129,7 +129,6 @@
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 1500,
             "wait_node": "TrialOfSwordmancyAbandonButton"
         },
         "post_delay": 0,
@@ -206,8 +205,8 @@
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 600,
-            "repeat_count": 6,
+            "interval_ms": 200,
+            "repeat_count": 20,
             "wait_node": "TrialOfSwordmancyBattlePts0" // Decide 动作覆盖为抽牌前的战力点
         },
         "post_delay": 0,
@@ -227,7 +226,6 @@
         "custom_action": "RepeatUntilFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 1500,
             "wait_nodes": [
                 "TrialOfSwordmancyEnemyCard3" // 只会在抽第三张牌时触发此弹窗
             ]
@@ -263,7 +261,6 @@
         "custom_action": "RepeatUntilFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 1500,
             "wait_nodes": [
                 "TrialOfSwordmancyIsDoubled"
             ]
@@ -287,7 +284,6 @@
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "interval_ms": 1500,
             "wait_node": "TrialOfSwordmancyAbandonButton"
         },
         "post_delay": 0,

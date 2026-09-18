@@ -244,8 +244,8 @@ func overrideDrawCardNodes(ctx *maa.Context, hand [5]int) error {
 		nodeDrawCard: map[string]any{
 			"custom_action_param": map[string]any{
 				"action":       "Click",
-				"interval_ms":  600,
-				"repeat_count": 6,
+				"interval_ms":  200,
+				"repeat_count": 20,
 				"wait_node":    waitNode,
 			},
 		},

@@ -75,6 +75,8 @@
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
+            "interval_ms": 200,
+            "repeat_count": 20,
             "wait_node": "TrialOfSwordmancyConfirmTeam"
         },
         "post_delay": 0,
