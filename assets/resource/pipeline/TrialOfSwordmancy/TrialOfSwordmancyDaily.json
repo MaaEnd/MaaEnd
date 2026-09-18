@@ -5,24 +5,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyDailyCheckRewardMode",
-            "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
-            "[JumpBack]TrialOfSwordmancyQuickTeleportStart"
-        ]
-    },
-    // ===========================================================================
-    // 识别奖励模式
-    // ===========================================================================
-    "TrialOfSwordmancyDailyCheckRewardMode": {
-        "desc": "检查是否处于奖励演算模式",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyInTrialMenu"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "TrialOfSwordmancyDailyRewardMode",
             "TrialOfSwordmancyRetryRewardMode",
             "TrialOfSwordmancyDailyFinish"
@@ -320,23 +302,16 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyDailyResetNavigator"
+            "TrialOfSwordmancyAbandonSuccess"
         ]
     },
-    "TrialOfSwordmancyDailyResetNavigator": {
-        "desc": "重置寻路maxhit",
+    "TrialOfSwordmancyAbandonSuccess": {
+        "desc": "确认放弃后已返回大世界",
         "recognition": "And",
         "all_of": [
             "InWorld"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "TrialOfSwordmancyGotoTrialArenaCpp"
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

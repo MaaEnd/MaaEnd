@@ -12,9 +12,14 @@
     "TrialOfSwordmancyDaily": {
         "desc": "自动每日选剑演武",
         "enabled": false,
-        "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "TrialOfSwordmancyEnterTrialMenu"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -25,6 +30,13 @@
         "desc": "自动刷镀层/刷25点",
         "enabled": false,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "TrialOfSwordmancyEnterTrialMenu"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

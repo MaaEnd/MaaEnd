@@ -5,21 +5,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyCoatingCheckRewardMode",
-            "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
-            "[JumpBack]TrialOfSwordmancyQuickTeleportStart"
-        ]
-    },
-    "TrialOfSwordmancyCoatingCheckRewardMode": {
-        "desc": "检查是否处于奖励演算模式",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyInTrialMenu"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "TrialOfSwordmancyCoatingRewardMode",
             "TrialOfSwordmancyCoating1"
         ]
@@ -319,27 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyCoatingResetNavigator"
-        ]
-    },
-    "TrialOfSwordmancyCoatingResetNavigator": {
-        "desc": "重置寻路maxhit",
-        "recognition": "And",
-        "all_of": [
-            "InWorld"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "TrialOfSwordmancyGotoTrialArenaCpp"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "TrialOfSwordmancyMain"
+            "TrialOfSwordmancyAbandonSuccess"
         ]
     }
 }

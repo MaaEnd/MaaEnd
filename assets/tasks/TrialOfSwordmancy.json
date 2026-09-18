@@ -190,19 +190,8 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "TrialOfSwordmancyDailyAutoFightResetState": {
-                            "enabled": true
-                        },
-                        "TrialOfSwordmancyDailyAutoFightRearmResetState": {
-                            "enabled": true
-                        },
                         "TrialOfSwordmancyDailyMain": {
-                            "next": [
-                                "TrialOfSwordmancyDailyAutoFightResetState",
-                                "TrialOfSwordmancyDailyCheckRewardMode",
-                                "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
-                                "[JumpBack]TrialOfSwordmancyQuickTeleportStart"
-                            ]
+                            "next": []
                         }
                     }
                 }

@@ -1,15 +1,42 @@
 {
+    "TrialOfSwordmancyEnterTrialMenu": {
+        "desc": "进入选剑演武演算界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            // 内部实现：先判断是否已在演算界面，不在则先返回大世界
+            "TrialOfSwordmancyEnterTrialMenuSuccess",
+            "TrialOfSwordmancyEnterTrialMenu2"
+        ]
+    },
+    "TrialOfSwordmancyEnterTrialMenu2": {
+        "desc": "先返回大世界，再判断后续",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrialOfSwordmancyClickTrialTrigger",
+            "TrialOfSwordmancyGotoTrialArena",
+            "TrialOfSwordmancyQuickTeleportStart"
+        ]
+    },
     // ===========================================================================
     // 已在大世界演武台旁，直接点击交互
     // ===========================================================================
-    "TrialOfSwordmancyEnterTrialMenu": {
+    "TrialOfSwordmancyClickTrialTrigger": {
         "desc": "在大世界演武台旁，点击进入演算",
         "recognition": "And",
         "all_of": [
-            "InWorld",
             "TrialOfSwordmancyTrialTrigger"
         ],
-        "box_index": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
@@ -24,7 +51,7 @@
         ]
     },
     "TrialOfSwordmancyEnterTrialMenuSuccess": {
-        "desc": "成功进入演算菜单",
+        "desc": "成功进入演算界面",
         "recognition": "And",
         "all_of": [
             "TrialOfSwordmancyInTrialMenu"
@@ -34,7 +61,49 @@
         "rate_limit": 0
     },
     // ===========================================================================
-    // 不在大世界演算台旁，通过事务总览传送至悬谷台
+    // 已在悬谷台传送点，直接开始导航
+    // ===========================================================================
+    "TrialOfSwordmancyGotoTrialArena": {
+        "desc": "在悬谷台传送点，使用MapNavigator导航前往目标地点",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyInSwordVaultDale"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "arrival_timeout": 45000,
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1863.23,
+                        2847.51
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrialOfSwordmancyClickTrialTrigger"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    // ===========================================================================
+    // 不在大世界演武台旁，通过事务总览传送至悬谷台
     // ===========================================================================
     "TrialOfSwordmancyQuickTeleportStart": {
         "desc": "通过快速传送前往悬谷台",
@@ -112,150 +181,17 @@
             "[JumpBack]SceneWaitLoadingExit"
         ]
     },
-    // ===========================================================================
-    // 传送落地后，导航前往演武台
-    // ===========================================================================
     "TrialOfSwordmancyQuickTeleportDone": {
         "desc": "传送完成",
         "recognition": "And",
         "all_of": [
-            "InWorld",
-            "TrialOfSwordmancyInSwordVaultDale"
+            "InWorld"
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyGotoTrialArenaCpp"
+            "TrialOfSwordmancyGotoTrialArena"
         ]
-    },
-    "TrialOfSwordmancyGotoTrialArenaCpp": {
-        "desc": "使用MapNavigator导航前往目标地点",
-        "max_hit": 1,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "arrival_timeout": 45000,
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                [
-                    1834.41,
-                    2872.32
-                ],
-                [
-                    1836.64,
-                    2871.99
-                ],
-                [
-                    1838.54,
-                    2871.66
-                ],
-                [
-                    1840.43,
-                    2870.98
-                ],
-                [
-                    1841,
-                    2869.11
-                ],
-                [
-                    1840.83,
-                    2867.23
-                ],
-                [
-                    1840.52,
-                    2865.28
-                ],
-                [
-                    1840.53,
-                    2863.13
-                ],
-                [
-                    1841.85,
-                    2862.03
-                ],
-                [
-                    1843.56,
-                    2861.87
-                ],
-                [
-                    1845.16,
-                    2861.76
-                ],
-                [
-                    1847.05,
-                    2862.03
-                ],
-                [
-                    1849.15,
-                    2862.05
-                ],
-                [
-                    1850.95,
-                    2862.23
-                ],
-                [
-                    1852.54,
-                    2861.93
-                ],
-                [
-                    1854.63,
-                    2861.61
-                ],
-                [
-                    1856.42,
-                    2861.54
-                ],
-                [
-                    1857.87,
-                    2860.06
-                ],
-                [
-                    1858.56,
-                    2858.2
-                ],
-                [
-                    1859.14,
-                    2856.37
-                ],
-                [
-                    1859.84,
-                    2854.7
-                ],
-                [
-                    1860.54,
-                    2852.97
-                ],
-                [
-                    1861.33,
-                    2851.29
-                ],
-                [
-                    1862.18,
-                    2849.76
-                ],
-                [
-                    1863.24,
-                    2845.55
-                ]
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "TrialOfSwordmancyEnterTrialMenu"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
     }
 }
