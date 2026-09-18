@@ -47,6 +47,10 @@
                 "custom_action_param": {
                     "path": [
                         {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
                             "action": "NAVMESH",
                             "target": [
                                 979.39,
@@ -85,6 +89,10 @@
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_L6_109"
+                        },
                         {
                             "action": "RUN",
                             "target": [
