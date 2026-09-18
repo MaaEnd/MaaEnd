@@ -201,7 +201,7 @@
                                 "TrialOfSwordmancyDailyAutoFightResetState",
                                 "TrialOfSwordmancyDailyCheckRewardMode",
                                 "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
-                                "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
+                                "[JumpBack]TrialOfSwordmancyQuickTeleportStart"
                             ]
                         }
                     }

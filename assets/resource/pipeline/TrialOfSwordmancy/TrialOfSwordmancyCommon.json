@@ -1,65 +1,204 @@
+// 选剑演武公共识别节点
 {
-    // 选剑演武公共识别节点。
-    // 上半部分：pipeline 流程（Daily/Coating/Fight/Nav 等）直接引用的节点。
     // ===========================================================================
-    // 下半部分（见分隔线后）：仅 go-service（recognition.go）运行时通过 ctx.RunRecognition
-    // 调用、pipeline 流程不直接引用的节点（[go] 前缀标注）。节点名仍全文件共享同一命名空间。
-    // 第1-5张卡牌 Lv（在场判定）。EnsureFirstCard 用 EnemyCard1 判是否已抽牌；Coating 用 1-5 全部。
-    "TrialOfSwordmancyEnemyCard1": {
-        "desc": "第1张卡牌 Lv",
+    // 大世界
+    // ===========================================================================
+    "TrialOfSwordmancyInSwordVaultDale": {
+        "desc": "确认在悬谷台传送点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                1829.69,
+                2861.39,
+                20.01,
+                18.34
+            ]
+        }
+    },
+    "TrialOfSwordmancyTrialTrigger": {
+        "desc": "大世界演武台交互按钮",
         "recognition": "TemplateMatch",
         "roi": [
-            119,
-            318,
-            125,
-            118
+            840,
+            448,
+            30,
+            30
         ],
-        "template": "TrialOfSwordmancy/EnemyCard.png"
+        "template": "TrialOfSwordmancy/TrialTrigger.png",
+        "threshold": 0.8
     },
-    "TrialOfSwordmancyEnemyCard2": {
-        "desc": "第2张卡牌 Lv",
+    "TrialOfSwordmancyChallengeBackground": {
+        "desc": "正式进入演算后的初始界面：确认挑战目标",
         "recognition": "TemplateMatch",
         "roi": [
-            318,
-            318,
-            125,
-            118
+            365,
+            201,
+            553,
+            79
         ],
-        "template": "TrialOfSwordmancy/EnemyCard.png"
+        "template": "TrialOfSwordmancy/ChallengeBackground.png",
+        "green_mask": true
     },
-    "TrialOfSwordmancyEnemyCard3": {
-        "desc": "第3张卡牌 Lv",
+    // ===========================================================================
+    // 地区建设-事务总览
+    // ===========================================================================
+    "TrialOfSwordmancyViewPositionButton": {
+        "desc": "在武陵事务总览界面，找到演武平台的查看位置按钮",
+        "recognition": "TemplateMatch",
+        "roi": "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+        "roi_offset": [
+            767,
+            85,
+            -14,
+            -12
+        ],
+        "template": [
+            "SceneManager/RegionalOverview/ViewPositionButton.png",
+            "SceneManager/RegionalOverview/ViewPositionButtonHover.png"
+        ],
+        "threshold": 0.85
+    },
+    // ===========================================================================
+    // 演算界面-UI
+    // ===========================================================================
+    "TrialOfSwordmancyInTrialMenu": {
+        "desc": "确认已在演算界面",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyDrawCardButton"
+        ]
+    },
+    "TrialOfSwordmancyDrawCardButton": {
+        "desc": "识别抽取铭牌按钮（模板匹配）",
         "recognition": "TemplateMatch",
         "roi": [
-            517,
-            318,
-            125,
-            118
+            1071,
+            500,
+            88,
+            80
         ],
-        "template": "TrialOfSwordmancy/EnemyCard.png"
+        "template": "TrialOfSwordmancy/DrawCardButton.png"
     },
-    "TrialOfSwordmancyEnemyCard4": {
-        "desc": "第4张卡牌 Lv",
+    "TrialOfSwordmancyInRewardMode": {
+        "desc": "确认当前是奖励演算模式",
         "recognition": "TemplateMatch",
         "roi": [
-            716,
-            318,
-            125,
-            118
+            160,
+            531,
+            80,
+            41
         ],
-        "template": "TrialOfSwordmancy/EnemyCard.png"
+        "template": [
+            "TrialOfSwordmancy/RewardMode1.png",
+            "TrialOfSwordmancy/RewardMode2.png"
+        ]
     },
-    "TrialOfSwordmancyEnemyCard5": {
-        "desc": "第5张卡牌 Lv（Nav 的 EnterTrialMenuSuccess 引用）",
+    "TrialOfSwordmancyRemainCalcText": {
+        "desc": "本日剩余奖励演算次数（OCR，值 3/2/1/0）",
+        "recognition": "OCR",
+        "roi": [
+            547,
+            49,
+            187,
+            25
+        ]
+    },
+    "TrialOfSwordmancyRemainDoubleText": {
+        "desc": "剩余翻倍次数（OCR，值 2/1/0）",
+        "recognition": "OCR",
+        "roi": [
+            669,
+            603,
+            111,
+            71
+        ]
+    },
+    "TrialOfSwordmancyDoubleRewardButton": {
+        "desc": "识别双倍演算按钮（模板匹配）",
         "recognition": "TemplateMatch",
         "roi": [
-            915,
-            318,
-            125,
-            118
+            857,
+            602,
+            64,
+            71
         ],
-        "template": "TrialOfSwordmancy/EnemyCard.png"
+        "template": "TrialOfSwordmancy/DoubleRewardButton.png"
     },
+    "TrialOfSwordmancyIsDoubled": {
+        "desc": "已翻倍指示",
+        "recognition": "TemplateMatch",
+        "roi": [
+            857,
+            602,
+            64,
+            71
+        ],
+        "template": "TrialOfSwordmancy/DoubleRewardSelected.png"
+    },
+    "TrialOfSwordmancyAbandonButton": {
+        "desc": "放弃按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            31,
+            611,
+            58,
+            53
+        ],
+        "template": [
+            "TrialOfSwordmancy/AbandonButtonHover.png",
+            "TrialOfSwordmancy/AbandonButtonNormal.png"
+        ]
+    },
+    "TrialOfSwordmancyStartTrialButton": {
+        "desc": "开始演算按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            986,
+            628,
+            17,
+            25
+        ],
+        "template": "TrialOfSwordmancy/StartTrialButton.png"
+    },
+    // ===========================================================================
+    // 演算界面-放弃演算弹窗
+    // ===========================================================================
+    "TrialOfSwordmancyAbandonPopupText": {
+        "desc": "放弃确认弹窗文本（OCR：『剩余放弃次数x次』）",
+        "recognition": "OCR",
+        "roi": [
+            276,
+            325,
+            784,
+            58
+        ]
+    },
+    "TrialOfSwordmancyAbandonPopupExhausted": {
+        "desc": "放弃次数耗尽时的红色文本",
+        "recognition": "ColorMatch",
+        "roi": [
+            303,
+            344,
+            674,
+            18
+        ],
+        "lower": [
+            235,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            80,
+            80
+        ],
+        "count": 400
+    },
+    // ===========================================================================
+    // 演算界面-战力点滑块
+    // ===========================================================================
     "TrialOfSwordmancyBattlePts0": {
         "desc": "战力点0",
         "recognition": "TemplateMatch",
@@ -181,145 +320,11 @@
         ],
         "template": "TrialOfSwordmancy/BattlePts.png"
     },
-    "TrialOfSwordmancyDrawCard": {
-        "desc": "识别抽取铭牌按钮（模板匹配）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1071,
-            500,
-            88,
-            80
-        ],
-        "template": "TrialOfSwordmancy/DrawCard.png"
-    },
-    "TrialOfSwordmancyRewardMode": {
-        "desc": "识别奖励演算模式",
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    160,
-                    531,
-                    80,
-                    41
-                ],
-                "template": "TrialOfSwordmancy/RewardMode1.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    160,
-                    531,
-                    80,
-                    41
-                ],
-                "template": "TrialOfSwordmancy/RewardMode2.png"
-            }
-        ]
-    },
-    "TrialOfSwordmancyDoubleReward": {
-        "desc": "识别双倍演算按钮（模板匹配）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            857,
-            602,
-            64,
-            71
-        ],
-        "template": "TrialOfSwordmancy/DoubleReward.png"
-    },
-    "TrialOfSwordmancyIsDoubled": {
-        "desc": "已翻倍指示",
-        "recognition": "TemplateMatch",
-        "roi": [
-            857,
-            602,
-            64,
-            71
-        ],
-        "template": "TrialOfSwordmancy/DoubleRewardSelected.png"
-    },
-    "TrialOfSwordmancyGiveUp": {
-        "desc": "放弃按钮",
-        "recognition": "Or",
-        "any_of": [
-            "TrialOfSwordmancyGiveUpNormal",
-            "TrialOfSwordmancyGiveUpHover"
-        ]
-    },
-    "TrialOfSwordmancyGiveUpNormal": {
-        "desc": "识别常态放弃按钮（模板匹配）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            31,
-            611,
-            58,
-            53
-        ],
-        "template": "TrialOfSwordmancy/GiveUpNormal.png"
-    },
-    "TrialOfSwordmancyGiveUpHover": {
-        "desc": "识别放弃按钮悬停（模板匹配）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            31,
-            611,
-            58,
-            53
-        ],
-        "template": "TrialOfSwordmancy/GiveUpHover.png"
-    },
-    "TrialOfSwordmancyGiveUpGrey": {
-        "desc": "识别灰色放弃按钮（模板匹配）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            31,
-            611,
-            58,
-            53
-        ],
-        "template": "TrialOfSwordmancy/GiveUpGrey.png"
-    },
-    "TrialOfSwordmancyChallengeBackground": {
-        "desc": "识别挑战界面背景（模板匹配）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            365,
-            201,
-            553,
-            79
-        ],
-        "template": "TrialOfSwordmancy/ChallengeBackground.png",
-        "green_mask": true
-    },
     // ===========================================================================
-    // 以下节点仅供 go-service 经 ctx.RunRecognition 调用（pipeline 流程不直接引用）。
-    // ROI/模板均在此定义，Go 侧不硬编码坐标；Go 按名字调用并解析结果。
+    // 演算界面-右侧牌库
     // ===========================================================================
-    // —— 抽牌界面信息位 OCR（读文本，Go 侧 parseFirstInt 取数字）——
-    "TrialOfSwordmancyRemainCalc": {
-        "desc": "[go] 本日剩余奖励演算次数（OCR，值 2/1/0）",
-        "recognition": "OCR",
-        "roi": [
-            547,
-            49,
-            187,
-            25
-        ]
-    },
-    "TrialOfSwordmancyRemainDouble": {
-        "desc": "[go] 剩余翻倍次数（OCR，值 2/1/0）",
-        "recognition": "OCR",
-        "roi": [
-            669,
-            603,
-            111,
-            71
-        ]
-    },
     "TrialOfSwordmancyDeck": {
-        "desc": "[go] 牌库",
+        "desc": "牌库整体识别",
         "recognition": "OCR",
         "roi": [
             1220,
@@ -329,7 +334,7 @@
         ]
     },
     "TrialOfSwordmancyDeckCount1": {
-        "desc": "[go] 牌库点数1库存数",
+        "desc": "牌库点数 1 库存数",
         "roi": [
             1218,
             113,
@@ -338,7 +343,7 @@
         ]
     },
     "TrialOfSwordmancyDeckCount2": {
-        "desc": "[go] 牌库点数2库存数",
+        "desc": "牌库点数 2 库存数",
         "roi": [
             1218,
             162,
@@ -347,7 +352,7 @@
         ]
     },
     "TrialOfSwordmancyDeckCount3": {
-        "desc": "[go] 牌库点数3库存数",
+        "desc": "牌库点数 3 库存数",
         "roi": [
             1218,
             211,
@@ -356,7 +361,7 @@
         ]
     },
     "TrialOfSwordmancyDeckCount4": {
-        "desc": "[go] 牌库点数4库存数",
+        "desc": "牌库点数 4 库存数",
         "roi": [
             1218,
             260,
@@ -365,7 +370,7 @@
         ]
     },
     "TrialOfSwordmancyDeckCount5": {
-        "desc": "[go] 牌库点数5库存数",
+        "desc": "牌库点数 5 库存数",
         "roi": [
             1218,
             309,
@@ -373,95 +378,91 @@
             38
         ]
     },
-    "TrialOfSwordmancyAbandPopup": {
-        "desc": "[go] 放弃确认弹窗文本（OCR：『剩余放弃次数x次』）",
-        "recognition": "OCR",
-        "roi": [
-            276,
-            325,
-            784,
-            58
-        ]
-    },
-    "TrialOfSwordmancyAbandExhausted": {
-        "desc": "[go] 放弃次数耗尽时的红色文本",
-        "recognition": "ColorMatch",
-        "roi": [
-            303,
-            344,
-            674,
-            18
-        ],
-        "lower": [
-            235,
-            0,
-            0
-        ],
-        "upper": [
-            255,
-            80,
-            80
-        ],
-        "count": 400
-    },
-    // —— 手牌点数识别（模板匹配）——
-    "TrialOfSwordmancyHandPoint1": {
-        "desc": "[go] 手牌点数1",
+    // ===========================================================================
+    // 演算界面-手牌
+    // ===========================================================================
+    "TrialOfSwordmancyEnemyCard1": {
+        "desc": "第 1 张手牌在场",
         "recognition": "TemplateMatch",
         "roi": [
-            173,
-            123,
-            875,
-            80
+            119,
+            318,
+            125,
+            118
         ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard2": {
+        "desc": "第 2 张手牌在场",
+        "recognition": "TemplateMatch",
+        "roi": [
+            318,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard3": {
+        "desc": "第 3 张手牌在场",
+        "recognition": "TemplateMatch",
+        "roi": [
+            517,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard4": {
+        "desc": "第 4 张手牌在场",
+        "recognition": "TemplateMatch",
+        "roi": [
+            716,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyEnemyCard5": {
+        "desc": "第 5 张手牌在场",
+        "recognition": "TemplateMatch",
+        "roi": [
+            915,
+            318,
+            125,
+            118
+        ],
+        "template": "TrialOfSwordmancy/EnemyCard.png"
+    },
+    "TrialOfSwordmancyHandPoint1": {
+        "desc": "手牌点数 1 模板",
+        "recognition": "TemplateMatch",
         "template": "TrialOfSwordmancy/Point1.png"
     },
     "TrialOfSwordmancyHandPoint2": {
-        "desc": "[go] 手牌点数2",
+        "desc": "手牌点数 2 模板",
         "recognition": "TemplateMatch",
-        "roi": [
-            173,
-            123,
-            875,
-            80
-        ],
         "template": "TrialOfSwordmancy/Point2.png"
     },
     "TrialOfSwordmancyHandPoint3": {
-        "desc": "[go] 手牌点数3",
+        "desc": "手牌点数 3 模板",
         "recognition": "TemplateMatch",
-        "roi": [
-            173,
-            123,
-            875,
-            80
-        ],
         "template": "TrialOfSwordmancy/Point3.png"
     },
     "TrialOfSwordmancyHandPoint4": {
-        "desc": "[go] 手牌点数4",
+        "desc": "手牌点数 4 模板",
         "recognition": "TemplateMatch",
-        "roi": [
-            173,
-            123,
-            875,
-            80
-        ],
         "template": "TrialOfSwordmancy/Point4.png"
     },
     "TrialOfSwordmancyHandPoint5": {
-        "desc": "[go] 手牌点数5",
+        "desc": "手牌点数 5 模板",
         "recognition": "TemplateMatch",
-        "roi": [
-            173,
-            123,
-            875,
-            80
-        ],
         "template": "TrialOfSwordmancy/Point5.png"
     },
     "TrialOfSwordmancyHandPosition1": {
-        "desc": "[go] 手牌槽1位置",
+        "desc": "第 1 张手牌点数位置",
         "roi": [
             173,
             123,
@@ -470,7 +471,7 @@
         ]
     },
     "TrialOfSwordmancyHandPosition2": {
-        "desc": "[go] 手牌槽2位置",
+        "desc": "第 2 张手牌点数位置",
         "roi": [
             373,
             123,
@@ -479,7 +480,7 @@
         ]
     },
     "TrialOfSwordmancyHandPosition3": {
-        "desc": "[go] 手牌槽3位置",
+        "desc": "第 3 张手牌点数位置",
         "roi": [
             573,
             123,
@@ -488,7 +489,7 @@
         ]
     },
     "TrialOfSwordmancyHandPosition4": {
-        "desc": "[go] 手牌槽4位置",
+        "desc": "第 4 张手牌点数位置",
         "roi": [
             773,
             123,
@@ -497,24 +498,12 @@
         ]
     },
     "TrialOfSwordmancyHandPosition5": {
-        "desc": "[go] 手牌槽5位置",
+        "desc": "第 5 张手牌点数位置",
         "roi": [
             973,
             123,
             74,
             80
         ]
-    },
-    // —— 溢出叹号（爆表，观测字段）——
-    "TrialOfSwordmancyOverflowExclamation": {
-        "desc": "[go] 溢出叹号（爆表）",
-        "recognition": "TemplateMatch",
-        "roi": [
-            748,
-            561,
-            49,
-            47
-        ],
-        "template": "TrialOfSwordmancy/OverflowExclamation.png"
     }
 }

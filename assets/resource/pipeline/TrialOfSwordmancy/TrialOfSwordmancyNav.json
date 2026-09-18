@@ -1,37 +1,21 @@
 {
+    // ===========================================================================
+    // 已在大世界演武台旁，直接点击交互
+    // ===========================================================================
     "TrialOfSwordmancyEnterTrialMenu": {
-        "desc": "点击进入演算",
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    840,
-                    448,
-                    30,
-                    30
-                ],
-                "template": "TrialOfSwordmancy/TrialTrigger1.png"
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    840,
-                    448,
-                    30,
-                    30
-                ],
-                "template": "TrialOfSwordmancy/TrialTrigger2.png"
-            }
+        "desc": "在大世界演武台旁，点击进入演算",
+        "recognition": "And",
+        "all_of": [
+            "InWorld",
+            "TrialOfSwordmancyTrialTrigger"
         ],
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "RepeatUntilFoundAction",
+        "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "custom_action": "AutoAltClickAction",
-            "wait_nodes": [
-                "TrialOfSwordmancyEnterTrialMenuSuccess"
-            ]
+            "wait_node": "InWorld"
         },
         "post_delay": 0,
         "next": [
@@ -40,14 +24,16 @@
     },
     "TrialOfSwordmancyEnterTrialMenuSuccess": {
         "desc": "成功进入演算菜单",
-        "recognition": "Or",
-        "any_of": [
-            "TrialOfSwordmancyDrawCard",
-            "TrialOfSwordmancyEnemyCard5"
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyInTrialMenu"
         ],
         "pre_delay": 0,
         "post_delay": 0
     },
+    // ===========================================================================
+    // 不在大世界演算台旁，通过事务总览传送至悬谷台
+    // ===========================================================================
     "TrialOfSwordmancyQuickTeleportStart": {
         "desc": "通过快速传送前往悬谷台",
         "pre_delay": 0,
@@ -68,21 +54,7 @@
         "recognition": "And",
         "all_of": [
             "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
-            {
-                "recognition": "TemplateMatch",
-                "roi": "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
-                "roi_offset": [
-                    767,
-                    85,
-                    -14,
-                    -12
-                ],
-                "template": [
-                    "SceneManager/RegionalOverview/ViewPositionButton.png",
-                    "SceneManager/RegionalOverview/ViewPositionButtonHover.png"
-                ],
-                "threshold": 0.85
-            }
+            "TrialOfSwordmancyViewPositionButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -90,7 +62,7 @@
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "wait_node": "InRegionalOverview"
+            "wait_node": "InRegionalOverviewWuling"
         },
         "post_delay": 0,
         "next": [
@@ -134,53 +106,17 @@
             "[JumpBack]SceneWaitLoadingExit"
         ]
     },
+    // ===========================================================================
+    // 传送落地后，导航前往演武台
+    // ===========================================================================
     "TrialOfSwordmancyQuickTeleportDone": {
         "desc": "传送完成",
         "recognition": "And",
         "all_of": [
-            "InWorld"
+            "InWorld",
+            "TrialOfSwordmancyInSwordVaultDale"
         ],
         "pre_delay": 0,
-        "post_delay": 0
-    },
-    "TrialOfSwordmancyGotoTrialArenaStart": {
-        "desc": "前往演武入口（子任务入口）",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "TrialOfSwordmancyQuickTeleportStart"
-            ]
-        },
-        "post_delay": 0,
-        "next": [
-            "TrialOfSwordmancyInSwordVaultDale"
-        ]
-    },
-    "TrialOfSwordmancyGotoTrialArenaExit": {
-        "desc": "已到达演武入口，准备点击进入演算",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "TrialOfSwordmancyEnterTrialMenu"
-        ]
-    },
-    "TrialOfSwordmancyInSwordVaultDale": {
-        "desc": "确认在藏剑谷内",
-        "recognition": "Custom",
-        "custom_recognition": "MapLocateAssertLocation",
-        "custom_recognition_param": {
-            "zone_id": "Wuling_Base",
-            "target": [
-                1829.69,
-                2861.39,
-                20.01,
-                18.34
-            ]
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyGotoTrialArenaCpp"
@@ -189,7 +125,6 @@
     "TrialOfSwordmancyGotoTrialArenaCpp": {
         "desc": "使用MapNavigator导航前往目标地点",
         "max_hit": 1,
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -304,7 +239,7 @@
         },
         "post_delay": 0,
         "next": [
-            "TrialOfSwordmancyGotoTrialArenaExit"
+            "TrialOfSwordmancyEnterTrialMenu"
         ],
         "focus": {
             "Node.Action.Succeeded": {
