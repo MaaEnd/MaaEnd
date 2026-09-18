@@ -90,11 +90,8 @@
         ]
     },
     "DeliveryJobsOngoingDeliveryForTestArea": {
-        "desc": "按试验园区的处理方式处理已有的待运送货物；next 由该仓储节点的处理方式覆盖",
+        "desc": "按试验园区的处理方式处理已有的待运送货物；next 由该仓储节点的处理方式覆盖，不声明回跳落点",
         "pre_delay": 0,
-        "anchor": {
-            "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

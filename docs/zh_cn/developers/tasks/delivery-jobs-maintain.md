@@ -8,7 +8,7 @@
 - **两级配置**：先开关地区（四号谷地 / 武陵），再逐个仓储节点选处理方式（六选一）。处理方式决定该仓储节点走哪条流程。
 - **生成产物不要手改**：`pipeline/DeliveryJobs.json`、`pipeline/DeliveryJobs/{Region,Depot}/**`、`PriorityItems.json`、`assets/tasks/DeliveryJobs.json` 全部由 `tools/pipeline-generate/DeliveryJobs/` 生成。手写流程节点只在 `PackCargo.json`、`TransferJob.json`、`AutoDelivery.json` 三个文件里。
 - **anchor 是这套流程的骨架**：跨节点、跨仓储节点的「下一步去哪」几乎全靠 anchor 表达，因为同一个共享节点会被多个仓储节点、多个模式复用。改流程前先看本文的 [anchor 一览](#anchor-一览)。
-- **`DeliveryJobsReturnToDepotNode` 表示「本仓储节点的落点」**：凡是「从任务界面离开后要回到仓储节点」的流程，落点都由发起方声明。新增同类流程时必须先声明它，否则会落到上一个仓储节点留下的陈旧值。
+- **`DeliveryJobsReturnToDepotNode` 表示「发起遍历的那个地区的仓储节点落点」**：凡是「从任务界面离开后要回到仓储节点」的流程，落点都由发起遍历的地区循环声明。残留任务的分派节点 `DeliveryJobsOngoingDeliveryFor{DepotId}` 按委托归属地区选取，只覆盖 `next`，不参与落点决策。
 
 ## 流程总览
 
@@ -149,7 +149,7 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 
 | anchor | 声明者 | 消费者 | 读取时所处界面 |
 | ------------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------- |
-| `DeliveryJobsReturnToDepotNode` | `DeliveryJobsEnter{Depot}DeliveryJob`、`DeliveryJobsEnter{Depot}PriceDeliveryJob`、`DeliveryJobsEnter{Depot}Cargo`、`DeliveryJobsOngoingDeliveryFor{DepotId}`、`DeliveryJobsAutoDelivery{Depot}` | `DeliveryJobsConfirmTaskTransfer`、`DeliveryJobsSkipOngoingDelivery` | 任务界面（转交确认弹窗 / 任务详情） |
+| `DeliveryJobsReturnToDepotNode` | `DeliveryJobs{Region}Loop`、`DeliveryJobsEnter{Depot}DeliveryJob`、`DeliveryJobsEnter{Depot}PriceDeliveryJob`、`DeliveryJobsEnter{Depot}Cargo`、`DeliveryJobsAutoDelivery{Depot}` | `DeliveryJobsConfirmTaskTransfer`、`DeliveryJobsSkipOngoingDelivery` | 任务界面（转交确认弹窗 / 任务详情） |
 | `DeliveryJobsGoToDepot` | `DeliveryJobs{Region}Loop`、`DeliveryJobsEnter{Depot}Cargo`、`DeliveryJobs{Depot}QuoteAtLeastMinimum/BelowMinimum` | `DeliveryJobsBackToDepot` | 大世界 |
 | `DeliveryJobsSelectPriorityItems` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsSelectTypeOfGoodsToPackNextStep`（在任务 option 里） | 货物装箱界面 |
 | `DeliveryJobsRedistributionBidAction` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsInCargoRedistributionBid` | 调度申请界面 |
@@ -159,38 +159,39 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 | `DeliveryJobsNextPriority` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsFillCorrespondingGoods`、`DeliveryJobsItemListAtBottom` | 装箱物品列表 |
 | `DeliveryJobsAfterAutoDelivery` | `DeliveryJobsAutoDelivery{Depot}` | `DeliveryJobsDeliverByAutoDelivery` | 送货结束后的界面 |
 
-### `DeliveryJobsReturnToDepotNode`：本仓储节点的落点
+### `DeliveryJobsReturnToDepotNode`：本地区仓储节点的落点
 
 转交确认后要回到哪里，取决于这次转交是在哪个界面发起的：仓储节点界面发起的转交仍在仓储节点界面结束；任务界面发起的转交会落在菜单列表，需要重新进仓储节点。`DeliveryJobsConfirmTaskTransfer` 不判断界面，只按这个锚点跳转：
 
 ```mermaid
 flowchart LR
+    Loop{{"DeliveryJobs{Region}Loop\n设 = 本地区仓储节点场景"}} --> E
     A{{"DeliveryJobsEnter{Depot}DeliveryJob\n设 = InLocalDepotNode"}} --> C["DeliveryJobsClickTransferJob\n单击转交任务"]
     B{{"DeliveryJobsEnter{Depot}PriceDeliveryJob\n设 = InLocalDepotNode"}} --> C
-    Ong{{"DeliveryJobsOngoingDeliveryFor{DepotId}\n设 = 本仓储节点场景"}} --> TOng["DeliveryJobsTransferOngoingJob\nSubTask AutoDeliveryOpenDeliveryMission"]
-    AutoD{{"DeliveryJobsAutoDelivery{Depot}\n设 = 本仓储节点场景"}} --> TOng
+    Ong{{"DeliveryJobsOngoingDeliveryFor{DepotId}\n不声明落点"}} --> TOng["DeliveryJobsTransferOngoingJob\nSubTask AutoDeliveryOpenDeliveryMission"]
+    AutoD{{"DeliveryJobsAutoDelivery{Depot}\n设 = 本地区仓储节点场景"}} --> TOng
     TOng --> C
     C --> D["DeliveryJobsConfirmTaskTransfer\n确认转交任务"]
     D --> E{"[Anchor]DeliveryJobsReturnToDepotNode"}
     E -->|"= InLocalDepotNode"| F["仓储节点界面\n（节点自带 pre_wait_freezes，等界面加载完成）"]
-    E -->|"= 本仓储节点场景"| G["从菜单列表回到本仓储节点界面"]
+    E -->|"= 本地区仓储节点场景"| G["从菜单列表回到本地区仓储节点界面"]
 ```
 
-规则是**谁知道自己正在处理哪个仓储节点，谁就声明它**：
+规则是**回跳归发起遍历的那个地区循环，谁在遍历谁就声明它**：
 
 | 声明者 | 值 | 场景 |
 | ------------------------------------------ | ---------------- | ------------------------------------------------ |
+| `DeliveryJobs{Region}Loop` | 本地区仓储节点场景 | 循环入口：供本轮迭代中未经过更具体声明者的流程使用 |
 | `DeliveryJobsEnter{Depot}DeliveryJob` | `InLocalDepotNode` | 在仓储节点界面发起转交，转交后只需等界面加载 |
 | `DeliveryJobsEnter{Depot}PriceDeliveryJob` | `InLocalDepotNode` | 同上（报价达标路径） |
-| `DeliveryJobsEnter{Depot}Cargo` | 本仓储节点场景 | 兜底：残留任务解析失败时 `DeliveryJobsSkipOngoingDelivery` 也要有落点 |
-| `DeliveryJobsOngoingDeliveryFor{DepotId}` | 本仓储节点场景 | 残留送货任务：回到它归属的仓储节点 |
-| `DeliveryJobsAutoDelivery{Depot}` | 本仓储节点场景 | 全自动送货失败后转交，需要从任务界面退出 |
+| `DeliveryJobsEnter{Depot}Cargo` | 本地区仓储节点场景 | 从任务界面进入装箱；`DeliveryJobsSkipOngoingDelivery` 的落点由它给出 |
+| `DeliveryJobsAutoDelivery{Depot}` | 本地区仓储节点场景 | 全自动送货失败后转交，需要从任务界面退出 |
 
 消费者有两个，都是「离开任务界面后要回到仓储节点」：`DeliveryJobsConfirmTaskTransfer`（转交确认）与 `DeliveryJobsSkipOngoingDelivery`（跳过不处理的残留任务）。
 
 > [!IMPORTANT]
 >
-> **共享节点不得声明这个锚点。** `DeliveryJobsTransferOngoingJob`、`DeliveryJobsClickTransferJob`、`DeliveryJobsDeliverByAutoDelivery` 都排在声明者之后、消费者之前执行，一旦声明就会把发起方的值覆盖掉。`DeliveryJobsAutoDelivery{Depot}` 之所以必须声明，是因为「送货失败后自动转交任务」的 `on_error` 直接接到转交流程、绕过了 `DeliveryJobsOngoingDeliveryFor{DepotId}`，不声明就会拿到陈旧值。
+> **落点由发起遍历的地区循环决定，不由残留任务的归属地决定。** `DeliveryJobsOngoingDeliveryFor{DepotId}` 的 id 来自 `DeliveryJobsResolveOngoingDepot` 的区域 OCR，可以指向别的地区，因此它只覆盖 `next`（处理方式），不声明落点。同理，`DeliveryJobsTransferOngoingJob`、`DeliveryJobsClickTransferJob`、`DeliveryJobsDeliverByAutoDelivery` 都排在声明者之后、消费者之前执行，也不声明。`DeliveryJobsAutoDelivery{Depot}` 声明它，是因为「送货失败后自动转交任务」的 `on_error` 直接接到转交流程，不经过 `DeliveryJobsOngoingDeliveryFor{DepotId}`。
 
 排查同类问题的通用问法：**这个节点的落点是否取决于从哪个界面进入？** 如果是，落点就必须由发起方声明；写死或由共享节点兜底，都会在某个入口上失效。
 
@@ -203,7 +204,7 @@ flowchart TD
     Bid{"DeliveryJobsInCargoRedistributionBid\n调度申请界面"} -->|识别到已有待运送货物| Ong["DeliveryJobsOngoingDelivery"]
     Ong --> Ensure["DeliveryJobsEnsureOngoingDeliveryMission\nSubTask AutoDeliveryEnsureDeliveryMissionSelected\n进任务界面并选中那条送货任务"]
     Ensure --> Resolve["DeliveryJobsResolveOngoingDepot\nAnd(AutoDeliveryInDeliveryMissionDetail, AutoDeliveryCheckAreaText)\nGo: DeliveryJobsResolveOngoingDepotAction"]
-    Resolve -.->|"运行时把 next 覆盖为 DeliveryJobsOngoingDeliveryFor{DepotId}"| For{{"DeliveryJobsOngoingDeliveryFor{DepotId}\n设 DeliveryJobsReturnToDepotNode = 本仓储节点场景\nnext 由该仓储节点的处理方式覆盖"}}
+    Resolve -.->|"运行时把 next 覆盖为 DeliveryJobsOngoingDeliveryFor{DepotId}"| For{{"DeliveryJobsOngoingDeliveryFor{DepotId}\n只覆盖 next（处理方式），不声明回跳落点"}}
     For -->|接取并转交| T["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode"]
     For -->|全自动送货| A["DeliveryJobsAutoDelivery{DepotId} → DeliverByAutoDelivery → [Anchor]AfterAutoDelivery"]
     For -->|其余四种| S["DeliveryJobsSkipOngoingDelivery → [Anchor]ReturnToDepotNode"]
@@ -213,14 +214,16 @@ flowchart TD
 
 | 归属仓储节点的处理方式 | 去向 | 结果 |
 | ------------------------------- | ---------------------------------- | ------------------------------------------ |
-| 接取并转交 | `DeliveryJobsTransferOngoingJob` | 转交后回本仓储节点，继续地区循环 |
+| 接取并转交 | `DeliveryJobsTransferOngoingJob` | 转交后回本地区仓储节点，继续地区循环 |
 | 全自动送货 | `DeliveryJobsAutoDelivery{DepotId}` | 送掉后回地区循环 |
-| 按报价处理 / 仅接取委托 / 仅装箱货物 | `DeliveryJobsSkipOngoingDelivery` | 退出任务界面，回本仓储节点继续遍历 |
+| 按报价处理 / 仅接取委托 / 仅装箱货物 | `DeliveryJobsSkipOngoingDelivery` | 退出任务界面，回本地区仓储节点继续遍历 |
 | 不处理 | 同上（不覆盖分派节点，走模板默认） | 同上 |
 
 任务详情里的区域名与仓储节点名在五种语言下逐字一致，Go 侧 `DeliveryJobsResolveOngoingDepotAction` 才能用区域 ID 直接拼出 `DeliveryJobsOngoingDeliveryFor{ID}` 这个节点名；这条恒等关系由 `model.mjs` 在生成时断言，两边不各写一套映射。
 
-`DeliveryJobsSkipOngoingDelivery` 走的是 `[Anchor]DeliveryJobsReturnToDepotNode`：此时停在任务详情界面，锚点由发起方声明为本仓储节点场景，正好是从菜单列表回到仓储节点的路径。
+分派节点只覆盖 `next`（怎么处理这条残留委托），回跳落点由发起遍历的那次循环声明为本地区仓储节点。
+
+`DeliveryJobsSkipOngoingDelivery` 走的是 `[Anchor]DeliveryJobsReturnToDepotNode`：此时停在任务详情界面，锚点由发起遍历的地区循环（`DeliveryJobs{Region}Loop` 经 `DeliveryJobsEnter{Depot}Cargo`）声明为本地区仓储节点场景，正好是从菜单列表回到仓储节点的路径。
 
 ## 全自动送货
 
@@ -228,7 +231,7 @@ flowchart TD
 flowchart TD
     EJob{{"DeliveryJobsEnter{Depot}DeliveryJob\n该模式把 next 覆盖为 DeliveryJobsAutoDelivery{Depot}"}} --> AutoD
     GoTo{{"[Anchor]DeliveryJobsGoToDepot\n= DeliveryJobsAutoDelivery{Depot}（装箱接取后的入口）"}} --> AutoD
-    AutoD{{"DeliveryJobsAutoDelivery{Depot}\n设 AfterAutoDelivery = 本地区循环\n设 ReturnToDepotNode = 本仓储节点场景"}} --> ByAuto["DeliveryJobsDeliverByAutoDelivery\nSubTask AutoDelivery（strict）"]
+    AutoD{{"DeliveryJobsAutoDelivery{Depot}\n设 AfterAutoDelivery = 本地区循环\n设 ReturnToDepotNode = 本地区仓储节点场景"}} --> ByAuto["DeliveryJobsDeliverByAutoDelivery\nSubTask AutoDelivery（strict）"]
     ByAuto -->|成功| Done{"[Anchor]DeliveryJobsAfterAutoDelivery\n回到本地区循环节点"}
     ByAuto -->|"失败：开关关闭（默认）"| Stop["停止整个任务"]
     ByAuto -->|"失败：开关开启（on_error）"| TOng["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode"]
