@@ -14,6 +14,9 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -30,6 +33,9 @@
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
