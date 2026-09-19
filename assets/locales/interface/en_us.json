@@ -216,7 +216,7 @@
     "option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label": "Keep a single region throughout",
     "option.AutoEssenceChooseLocationMode.cases.ChooseEveryTime.label": "Randomly switch region each loop",
     "option.AutoEssenceObtainMode.label": "Reward Claim Mode",
-    "option.AutoEssenceObtainMode.description": "How to handle rewards after each challenge round.",
+    "option.AutoEssenceObtainMode.description": "Double rewards: first use boosters according to your settings. If Sanity is still insufficient for double rewards but sufficient for single rewards, claim single rewards and end the task.",
     "option.AutoEssenceObtainMode.cases.Discard.label": "Do Not Claim (Farm Materials Only)",
     "option.AutoEssenceObtainMode.cases.ObtainScaling1.label": "Single Claim",
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "Double Claim",

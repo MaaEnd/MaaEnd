@@ -212,7 +212,7 @@
     "option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label": "처음부터 끝까지 단일 지역 고정",
     "option.AutoEssenceChooseLocationMode.cases.ChooseEveryTime.label": "반복마다 무작위로 지역 변경",
     "option.AutoEssenceObtainMode.label": "수령 방식",
-    "option.AutoEssenceObtainMode.description": "각 도전 종료 후 보상 처리 방식",
+    "option.AutoEssenceObtainMode.description": "2배 수령 시 설정에 따라 먼저 이성 회복제를 사용합니다. 그래도 2배 수령에는 부족하지만 1배 수령에는 충분하면, 1배로 수령하고 작업을 종료합니다.",
     "option.AutoEssenceObtainMode.cases.Discard.label": "수령 안 함(재료 파밍만)",
     "option.AutoEssenceObtainMode.cases.ObtainScaling1.label": "1배 수령",
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "2배 수령",
