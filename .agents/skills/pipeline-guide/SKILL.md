@@ -208,17 +208,18 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
 
 ### 通用按钮（`Common/Button/`）
 
-| 节点                       | 说明                            |
-| -------------------------- | ------------------------------- |
-| `WhiteConfirmButtonType1`  | 白底圆环确认                    |
-| `WhiteConfirmButtonType2`  | 白底对号确认                    |
-| `YellowConfirmButtonType1` | 黄底圆环确认                    |
-| `YellowConfirmButtonType2` | 黄底对号确认                    |
-| `CancelButton`             | 白底 X 取消                     |
-| `CloseButtonType1`         | 右上角 X（不兼容 ESC 菜单）     |
-| `CloseButtonType2`         | 右上角 X（兼容 ESC 菜单，推荐） |
-| `TeleportButton`           | 右下角传送按钮                  |
-| `CloseRewardsButton`       | 奖励界面对号关闭                |
+| 节点 | 说明 |
+| --- | --- |
+| `WhiteConfirmButtonType1` | 白底圆环确认 |
+| `WhiteConfirmButtonType2` | 白底对号确认 |
+| `YellowConfirmButtonType1` | 黄底圆环确认 |
+| `YellowConfirmButtonType2` | 黄底对号确认 |
+| `CancelButton` | 白底 X 取消 |
+| `CloseButtonType1` | 右上角 X（不兼容 ESC 菜单） |
+| `CloseButtonType2` | 右上角 X（兼容 ESC 菜单，推荐） |
+| `TeleportButton` | 地图右下角传送 |
+| `QuickTeleportButton` | 地图「前往传送」 |
+| `CloseRewardsButton` | 奖励界面对号关闭 |
 
 ### SceneManager（万能跳转）
 
