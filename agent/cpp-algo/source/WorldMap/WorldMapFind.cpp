@@ -431,7 +431,19 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
         }
 
         if (!view.viewport) {
-            view.viewport = session.solver->SolveViewport(view.screen, param.zone, session.viewportCfg);
+            // 拖动只挪地图，缩放进图时压到底就不再动，上一趟解出来的尺度照旧成立。
+            // 钉住它只搜位置，整条尺度阶梯都省了；缩放真被动过则这一趟解不出来，下一趟按整条阶梯解
+            if (view.previous) {
+                ViewportConfig pinned = session.viewportCfg;
+                pinned.scaleHint = view.previous->scale;
+                view.viewport = session.solver->SolveViewport(view.screen, param.zone, pinned);
+                if (!view.viewport) {
+                    LogInfo << "WorldMap: pinned scale rejected, rescanning full ladder" << VAR(view.previous->scale);
+                }
+            }
+            if (!view.viewport) {
+                view.viewport = session.solver->SolveViewport(view.screen, param.zone, session.viewportCfg);
+            }
             if (!view.viewport) {
                 view.previous.reset();
                 view.screen.release();

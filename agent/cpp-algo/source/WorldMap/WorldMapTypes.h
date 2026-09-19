@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -31,6 +32,10 @@ struct ViewportConfig
     double scaleMax = 4.00;
     double coarseRatio = 1.10;
     int fineSteps = 15;
+
+    // 给了尺度就只在它附近解：粗解留它和相邻两档，细解钉死在它上面。
+    // 缩放没变时这是同一个解，省掉整条阶梯；变了则旁档分数压过来，由 minDelta 拒掉
+    std::optional<double> scaleHint;
 
     // 模板逼近搜索图尺寸时可落位置太少，归一化相关会给出虚高分。
     // 这里按全分辨率屏幕像素计，粗解阶段自行折算到降采样尺度
