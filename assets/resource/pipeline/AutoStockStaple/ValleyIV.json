@@ -33,6 +33,18 @@
             }
         }
     },
+    "AutoStockDiscountCompareValleyIV": {
+        "desc": "比较商品折扣与最低折扣阈值，四号谷地",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -50"
+                }
+            }
+        }
+    },
     "AutoStockTargetCanNotBuyValleyIV": {
         "desc": "识别目标调度券是否不可购买",
         "recognition": {
@@ -56,7 +68,8 @@
                 "all_of": [
                     "AutoStockInStapleItem",
                     "AutoStockInStapleItemName_Expected",
-                    "AutoStockInStapleItemDiscountsValleyIV"
+                    "AutoStockInStapleItemDiscountsValleyIV",
+                    "AutoStockDiscountCompareValleyIV"
                 ],
                 "box_index": 2
             }
