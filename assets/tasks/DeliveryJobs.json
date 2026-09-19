@@ -1770,6 +1770,7 @@
                 {
                     "name": "item_plant_tundra_insect_2",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_2.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority1": {
                             "enabled": true
@@ -1792,6 +1793,7 @@
                 {
                     "name": "item_plant_tundra_insect_1",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority1": {
                             "enabled": true
@@ -1814,6 +1816,7 @@
                 {
                     "name": "item_muck_feces_1",
                     "label": "$iconRecognition.name.item_muck_feces_1",
+                    "icon": "resource/image/UI/Item/item_muck_feces_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority1": {
                             "enabled": true
@@ -7344,6 +7347,7 @@
                 {
                     "name": "item_plant_tundra_insect_2",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_2.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority2": {
                             "enabled": true
@@ -7366,6 +7370,7 @@
                 {
                     "name": "item_plant_tundra_insect_1",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority2": {
                             "enabled": true
@@ -7388,6 +7393,7 @@
                 {
                     "name": "item_muck_feces_1",
                     "label": "$iconRecognition.name.item_muck_feces_1",
+                    "icon": "resource/image/UI/Item/item_muck_feces_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority2": {
                             "enabled": true
@@ -12918,6 +12924,7 @@
                 {
                     "name": "item_plant_tundra_insect_2",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_2.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority3": {
                             "enabled": true
@@ -12940,6 +12947,7 @@
                 {
                     "name": "item_plant_tundra_insect_1",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority3": {
                             "enabled": true
@@ -12962,6 +12970,7 @@
                 {
                     "name": "item_muck_feces_1",
                     "label": "$iconRecognition.name.item_muck_feces_1",
+                    "icon": "resource/image/UI/Item/item_muck_feces_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority3": {
                             "enabled": true
@@ -18492,6 +18501,7 @@
                 {
                     "name": "item_plant_tundra_insect_2",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_2.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority4": {
                             "enabled": true
@@ -18514,6 +18524,7 @@
                 {
                     "name": "item_plant_tundra_insect_1",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority4": {
                             "enabled": true
@@ -18536,6 +18547,7 @@
                 {
                     "name": "item_muck_feces_1",
                     "label": "$iconRecognition.name.item_muck_feces_1",
+                    "icon": "resource/image/UI/Item/item_muck_feces_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillValleyIVPriority4": {
                             "enabled": true
@@ -24089,6 +24101,7 @@
                 {
                     "name": "item_plant_tundra_insect_2",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_2.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority1": {
                             "enabled": true
@@ -24111,6 +24124,7 @@
                 {
                     "name": "item_plant_tundra_insect_1",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority1": {
                             "enabled": true
@@ -24133,6 +24147,7 @@
                 {
                     "name": "item_muck_feces_1",
                     "label": "$iconRecognition.name.item_muck_feces_1",
+                    "icon": "resource/image/UI/Item/item_muck_feces_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority1": {
                             "enabled": true
@@ -29663,6 +29678,7 @@
                 {
                     "name": "item_plant_tundra_insect_2",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_2.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority2": {
                             "enabled": true
@@ -29685,6 +29701,7 @@
                 {
                     "name": "item_plant_tundra_insect_1",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority2": {
                             "enabled": true
@@ -29707,6 +29724,7 @@
                 {
                     "name": "item_muck_feces_1",
                     "label": "$iconRecognition.name.item_muck_feces_1",
+                    "icon": "resource/image/UI/Item/item_muck_feces_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority2": {
                             "enabled": true
@@ -35237,6 +35255,7 @@
                 {
                     "name": "item_plant_tundra_insect_2",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_2.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority3": {
                             "enabled": true
@@ -35259,6 +35278,7 @@
                 {
                     "name": "item_plant_tundra_insect_1",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority3": {
                             "enabled": true
@@ -35281,6 +35301,7 @@
                 {
                     "name": "item_muck_feces_1",
                     "label": "$iconRecognition.name.item_muck_feces_1",
+                    "icon": "resource/image/UI/Item/item_muck_feces_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority3": {
                             "enabled": true
@@ -40811,6 +40832,7 @@
                 {
                     "name": "item_plant_tundra_insect_2",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_2.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority4": {
                             "enabled": true
@@ -40833,6 +40855,7 @@
                 {
                     "name": "item_plant_tundra_insect_1",
                     "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "icon": "resource/image/UI/Item/item_plant_tundra_insect_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority4": {
                             "enabled": true
@@ -40855,6 +40878,7 @@
                 {
                     "name": "item_muck_feces_1",
                     "label": "$iconRecognition.name.item_muck_feces_1",
+                    "icon": "resource/image/UI/Item/item_muck_feces_1.png",
                     "pipeline_override": {
                         "DeliveryJobsStartFillWulingPriority4": {
                             "enabled": true
