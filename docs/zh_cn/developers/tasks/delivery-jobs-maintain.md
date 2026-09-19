@@ -324,4 +324,4 @@ flowchart TD
 - 新增「离开任务界面后回仓储节点」的流程 → 先确认发起方声明了 `DeliveryJobsReturnToDepotNode`。
 - 给共享节点加 anchor → 确认它在所有声明者之后、消费者之前都不会覆盖发起方的值。
 - 改锚点取值 → 全仓库搜旧值，`assets/tasks/DeliveryJobs.json` 与测试里可能有硬编码的节点名。
-- 提交前至少运行 `node --test tools/pipeline-generate/DeliveryJobs/*.test.mjs`、`pnpm check`、`pnpm test`。
+- 提交前至少运行 `pnpm check`、`pnpm test`。
