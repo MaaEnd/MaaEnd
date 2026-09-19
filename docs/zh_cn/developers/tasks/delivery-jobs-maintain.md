@@ -171,9 +171,9 @@ flowchart TD
 | `DeliveryJobsOngoingDelivery` | 🚚 检测到未完成的送货任务，将打开送货任务查看详情 | `task.DeliveryJobs.OngoingDeliveryDetected`（interface locale） |
 | `DeliveryJobsResolveOngoingDepotAction`（Go） | 🚚 该送货任务属于〈仓储节点名〉 | `deliveryjobs.focus.ongoing_depot_resolved`（go-service locale） |
 | 同上，解析失败 | 🚚 未能确定未完成的送货任务属于哪个仓储节点，详见运行日志 | `deliveryjobs.focus.ongoing_depot_unresolved`（go-service locale） |
-| `DeliveryJobsSkipOngoingDelivery` | 🚚 当前仓储节点不处理它，已跳过并回到仓储节点继续遍历 | `task.DeliveryJobs.OngoingDeliverySkipped`（interface locale） |
+| `DeliveryJobsSkipOngoingDelivery` | 🚚 该送货任务所属的仓储节点不处理它，已跳过并回到仓储节点继续遍历 | `task.DeliveryJobs.OngoingDeliverySkipped`（interface locale） |
 | `DeliveryJobsDeliverByAutoDelivery`（动作失败） | 🚚 自动送货未能送达 | `task.DeliveryJobs.AutoDeliveryFailed`（interface locale） |
-| `DeliveryJobsTransferOngoingJob` | 🚚 按当前仓储节点的设置转交它 | `task.DeliveryJobs.OngoingDeliveryTransferred`（interface locale） |
+| `DeliveryJobsTransferOngoingJob` | 🚚 按该送货任务所属仓储节点的设置转交它 | `task.DeliveryJobs.OngoingDeliveryTransferred`（interface locale） |
 
 检测由 `DeliveryJobsOngoingDelivery` 在识别到提示文案时输出，归属由 Go 侧在解析出区域后输出，两个出口各自说明自己采取的行为；每条只说该步骤新增的信息。自动送货的失败原因挂在公共调用节点的动作失败上，开关开或关都会提示，开关只决定失败后是否转交。
 
