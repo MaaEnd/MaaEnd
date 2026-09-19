@@ -109,8 +109,8 @@ constexpr int kMaxNudges = 6;
 constexpr double kNudgeRatio = 0.35;
 
 // 缩放档位是视口求解的未知量，进来先压到最小钉死。按钮坐标各端不同，
-// 交给 pipeline 的 SceneMapZoomOut 处理，cpp 只触发一次子任务
-constexpr const char* kZoomOutNode = "SceneMapZoomOut";
+// 交给 pipeline 的 SceneMapZoomOutWithoutReco 处理，cpp 只触发一次子任务
+constexpr const char* kZoomOutNode = "SceneMapZoomOutWithoutReco";
 
 bool ParseParam(const char* raw, FindParam* out)
 {
