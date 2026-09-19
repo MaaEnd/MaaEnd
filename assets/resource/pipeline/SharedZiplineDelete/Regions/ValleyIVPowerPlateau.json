@@ -1,0 +1,91 @@
+{
+    // 供能高地 ValleyIV PowerPlateau MapFind 扫图（底图坐标，原点左上、y 向下）
+    // bbox [368,101]–[573,578]  size 205x477（用户标定）
+    // scale=0.47 (ZoomOut 实测约 0.466)  HitROI=1080x520  overlap=0.75
+    // tile=380.7x183.3  → grid 1x3=3
+    //
+    //   +-----+
+    //   |  0  |
+    //   |  470|
+    //   |  180|
+    //   +-----+
+    //   |  1  |
+    //   |  470|
+    //   |  340|
+    //   +-----+
+    //   |  2  |
+    //   |  470|
+    //   |  498|
+    //   +-----+
+    //      470
+    //
+    // 每格：MapFind(at) → 删滑索 → JumpBack 再 MapFind 同点恢复 → 认不到进下一格
+    "SharedZiplineDeletePrepareValleyIVPowerPlateau": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteScanValleyIVPowerPlateau0"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVPowerPlateau0": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                470,
+                180
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVPowerPlateau1"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVPowerPlateau1": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                470,
+                340
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVPowerPlateau2"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVPowerPlateau2": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                470,
+                498
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

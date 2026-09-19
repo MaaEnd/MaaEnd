@@ -1,0 +1,190 @@
+{
+    // 矿脉源区 ValleyIV OriginLodespring MapFind 扫图（底图坐标，原点左上、y 向下）
+    // bbox [715,63]–[1306,670]  size 591x607（用户标定）
+    // scale=0.47 (ZoomOut 实测约 0.466)  HitROI=1080x520  overlap=0.75
+    // tile=380.7x183.3  → grid 2x4=8
+    //
+    //   +-----+-----+
+    //   |  0  |  1  |
+    //   |  863| 1158|
+    //   |  139|  139|
+    //   +-----+-----+
+    //   |  2  |  3  |
+    //   |  863| 1158|
+    //   |  291|  291|
+    //   +-----+-----+
+    //   |  4  |  5  |
+    //   |  863| 1158|
+    //   |  442|  442|
+    //   +-----+-----+
+    //   |  6  |  7  |
+    //   |  863| 1158|
+    //   |  594|  594|
+    //   +-----+-----+
+    //      863  1158
+    //
+    // 每格：MapFind(at) → 删滑索 → JumpBack 再 MapFind 同点恢复 → 认不到进下一格
+    "SharedZiplineDeletePrepareValleyIVOriginLodespring": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteScanValleyIVOriginLodespring0"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginLodespring0": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                863,
+                139
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginLodespring1"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginLodespring1": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                1158,
+                139
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginLodespring2"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginLodespring2": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                863,
+                291
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginLodespring3"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginLodespring3": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                1158,
+                291
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginLodespring4"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginLodespring4": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                863,
+                442
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginLodespring5"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginLodespring5": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                1158,
+                442
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginLodespring6"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginLodespring6": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                863,
+                594
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginLodespring7"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginLodespring7": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                1158,
+                594
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

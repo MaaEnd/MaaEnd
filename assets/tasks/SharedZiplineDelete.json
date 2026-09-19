@@ -6,7 +6,8 @@
             "entry": "SharedZiplineDeleteMain",
             "description": "$task.SharedZiplineDelete.description",
             "option": [
-                "SharedZiplineDeleteRegions"
+                "SharedZiplineDeleteValleyIV",
+                "SharedZiplineDeleteWuling"
             ],
             "controller": [
                 "Win32-Front"
@@ -17,7 +18,23 @@
         }
     ],
     "option": {
-        "SharedZiplineDeleteRegions": {
+        "SharedZiplineDeleteValleyIV": {
+            "type": "switch",
+            "label": "$global.region.ValleyIV",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SharedZiplineDeleteValleyIVRegions"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "SharedZiplineDeleteValleyIVRegions": {
             "type": "checkbox",
             "label": "$option.SharedZiplineDeleteRegions.label",
             "default_case": [
@@ -26,16 +43,7 @@
                 "VFOriginiumSciencePark",
                 "VFAburreyQuarry",
                 "VFOriginLodespring",
-                "VFPowerPlateau",
-                "WLWulingCity",
-                "WLJingyuValley",
-                "WLQingboStockade",
-                "WLMarkerStone",
-                "WLTestArea",
-                "WLSwordVaultDale",
-                "WLYinglungPass",
-                "WLNorthWulingExclusionZone",
-                "WLSnowyForest"
+                "VFPowerPlateau"
             ],
             "cases": [
                 {
@@ -91,7 +99,40 @@
                             "enabled": true
                         }
                     }
+                }
+            ]
+        },
+        "SharedZiplineDeleteWuling": {
+            "type": "switch",
+            "label": "$global.region.Wuling",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SharedZiplineDeleteWulingRegions"
+                    ]
                 },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "SharedZiplineDeleteWulingRegions": {
+            "type": "checkbox",
+            "label": "$option.SharedZiplineDeleteRegions.label",
+            "default_case": [
+                "WLWulingCity",
+                "WLJingyuValley",
+                "WLQingboStockade",
+                "WLMarkerStone",
+                "WLTestArea",
+                "WLSwordVaultDale",
+                "WLYinglungPass",
+                "WLNorthWulingExclusionZone",
+                "WLSnowyForest"
+            ],
+            "cases": [
                 {
                     "name": "WLWulingCity",
                     "label": "$global.region.WulingCity",

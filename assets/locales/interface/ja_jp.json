@@ -489,6 +489,7 @@
     "task.ZiplineImport.description": "公式マップにログインし、現在のアカウントのジップライン座標を取り込んで経路探索に使用します。\n**一度取り込めば長期有効。初回利用時、またはアカウントのジップラインが変わったときだけ再実行してください。**",
     "task.SharedZiplineDelete.label": "🚡 共有ジップラインを削除",
     "task.SharedZiplineDelete.description": "選択したサブ区域のマップを最小ズームにし、3×3 九宮格で蛇行スキャンして共有ジップラインを見つけたらクリックします。\n現行版はマーカーをクリックするのみで、削除確認は後日追加予定です。",
+    "task.SharedZiplineDelete.focus.deleted_one": "共有ジップラインを 1 本削除しました",
     "task.ImportBluePrints.label": "📐 設計図を一括インポート",
     "task.ImportBluePrints.description": "設計図を一括でインポートします（スマート解析対応）。",
     "option.ImportBluePrints.label": "設計図インポート",

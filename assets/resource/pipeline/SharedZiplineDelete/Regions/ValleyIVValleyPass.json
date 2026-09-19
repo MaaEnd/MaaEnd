@@ -1,0 +1,148 @@
+{
+    // 谷地通道 ValleyIV ValleyPass MapFind 扫图（底图坐标，原点左上、y 向下）
+    // bbox [0,383]–[419,768]  size 419x385（用户标定）
+    // scale=0.47 (ZoomOut 实测约 0.466)  HitROI=1080x520  overlap=0.75
+    // tile=380.7x183.3  → grid 2x3=6
+    //
+    //   +-----+-----+
+    //   |  0  |  1  |
+    //   |  105|  314|
+    //   |  447|  447|
+    //   +-----+-----+
+    //   |  2  |  3  |
+    //   |  105|  314|
+    //   |  576|  576|
+    //   +-----+-----+
+    //   |  4  |  5  |
+    //   |  105|  314|
+    //   |  704|  704|
+    //   +-----+-----+
+    //      105   314
+    //
+    // 每格：MapFind(at) → 删滑索 → JumpBack 再 MapFind 同点恢复 → 认不到进下一格
+    "SharedZiplineDeletePrepareValleyIVValleyPass": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteScanValleyIVValleyPass0"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVValleyPass0": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                105,
+                447
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVValleyPass1"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVValleyPass1": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                314,
+                447
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVValleyPass2"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVValleyPass2": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                105,
+                576
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVValleyPass3"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVValleyPass3": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                314,
+                576
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVValleyPass4"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVValleyPass4": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                105,
+                704
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVValleyPass5"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVValleyPass5": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                314,
+                704
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

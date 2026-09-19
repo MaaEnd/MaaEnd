@@ -1,0 +1,106 @@
+{
+    // 阿伯莉采石场 ValleyIV AburreyQuarry MapFind 扫图（底图坐标，原点左上、y 向下）
+    // bbox [683,965]–[1092,1281]  size 409x316（用户标定）
+    // scale=0.47 (ZoomOut 实测约 0.466)  HitROI=1080x520  overlap=0.75
+    // tile=380.7x183.3  → grid 2x2=4
+    //
+    //   +-----+-----+
+    //   |  0  |  1  |
+    //   |  785|  990|
+    //   | 1044| 1044|
+    //   +-----+-----+
+    //   |  2  |  3  |
+    //   |  785|  990|
+    //   | 1202| 1202|
+    //   +-----+-----+
+    //      785   990
+    //
+    // 每格：MapFind(at) → 删滑索 → JumpBack 再 MapFind 同点恢复 → 认不到进下一格
+    "SharedZiplineDeletePrepareValleyIVAburreyQuarry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteScanValleyIVAburreyQuarry0"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVAburreyQuarry0": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                785,
+                1044
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVAburreyQuarry1"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVAburreyQuarry1": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                990,
+                1044
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVAburreyQuarry2"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVAburreyQuarry2": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                785,
+                1202
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVAburreyQuarry3"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVAburreyQuarry3": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                990,
+                1202
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

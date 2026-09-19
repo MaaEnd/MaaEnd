@@ -489,6 +489,7 @@
     "task.ZiplineImport.description": "공식 지도에 로그인한 뒤 현재 계정의 짚라인 좌표를 가져와 경로 탐색에 사용합니다.\n**한 번 가져오면 장기 유효합니다. 최초 사용 시, 또는 계정 짚라인이 바뀔 때만 다시 실행하세요.**",
     "task.SharedZiplineDelete.label": "🚡 공유 짚라인 삭제",
     "task.SharedZiplineDelete.description": "선택한 하위 구역 지도에서 축소 후 3×3 구궁격으로 지그재그 스캔하며, 공유 짚라인 마커를 찾아 클릭합니다.\n현재 버전은 마커 클릭만 하며, 삭제 확인 흐름은 추후 추가됩니다.",
+    "task.SharedZiplineDelete.focus.deleted_one": "공유 짚라인 1개를 삭제했습니다",
     "task.ImportBluePrints.label": "📐 청사진 일괄 가져오기",
     "task.ImportBluePrints.description": "청사진을 일괄로 가져옵니다(스마트 파싱 지원).",
     "option.ImportBluePrints.label": "청사진 가져오기",

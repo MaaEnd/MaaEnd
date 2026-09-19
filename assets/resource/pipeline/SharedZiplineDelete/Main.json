@@ -34,13 +34,10 @@
                 "SceneEnterMapValleyIVTheHub"
             ]
         },
-        "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeletePrepare"
+            "SharedZiplineDeletePrepareValleyIVTheHub"
         ]
     },
     "SharedZiplineDeleteEnterVFValleyPass": {
@@ -54,13 +51,10 @@
                 "SceneEnterMapValleyIVValleyPass"
             ]
         },
-        "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeletePrepare"
+            "SharedZiplineDeletePrepareValleyIVValleyPass"
         ]
     },
     "SharedZiplineDeleteEnterVFOriginiumSciencePark": {
@@ -74,13 +68,10 @@
                 "SceneEnterMapValleyIVOriginiumSciencePark"
             ]
         },
-        "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeletePrepare"
+            "SharedZiplineDeletePrepareValleyIVOriginiumSciencePark"
         ]
     },
     "SharedZiplineDeleteEnterVFAburreyQuarry": {
@@ -94,17 +85,14 @@
                 "SceneEnterMapValleyIVAburreyQuarry"
             ]
         },
-        "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeletePrepare"
+            "SharedZiplineDeletePrepareValleyIVAburreyQuarry"
         ]
     },
     "SharedZiplineDeleteEnterVFOriginLodespring": {
-        "enabled": true,
+        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -114,13 +102,10 @@
                 "SceneEnterMapValleyIVOriginLodespring"
             ]
         },
-        "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeletePrepare"
+            "SharedZiplineDeletePrepareValleyIVOriginLodespring"
         ]
     },
     "SharedZiplineDeleteEnterVFPowerPlateau": {
@@ -134,13 +119,10 @@
                 "SceneEnterMapValleyIVPowerPlateau"
             ]
         },
-        "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeletePrepare"
+            "SharedZiplineDeletePrepareValleyIVPowerPlateau"
         ]
     },
     "SharedZiplineDeleteEnterWLWulingCity": {

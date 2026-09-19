@@ -1,0 +1,148 @@
+{
+    // 源石研究园 ValleyIV OriginiumSciencePark MapFind 扫图（底图坐标，原点左上、y 向下）
+    // bbox 用户标定 [801,573]–[1403,1000]；顶行原 y=644 北向滚到头仍贴 safe 上沿（stallY），
+    // 故有效扫描从上沿内收至 y≈650 起算，三行整体南移。
+    // scale=0.47  HitROI=1080x520  overlap=0.75  tile≈381x183  → grid 2x3=6
+    //
+    //   +-----+-----+
+    //   |  0  |  1  |
+    //   |  952| 1252|
+    //   |  740|  740|
+    //   +-----+-----+
+    //   |  2  |  3  |
+    //   |  952| 1252|
+    //   |  860|  860|
+    //   +-----+-----+
+    //   |  4  |  5  |
+    //   |  952| 1252|
+    //   |  960|  960|
+    //   +-----+-----+
+    //      952  1252
+    //
+    // 每格：MapFind(at) → 删滑索 → JumpBack 再 MapFind 同点恢复 → 认不到进下一格
+    "SharedZiplineDeletePrepareValleyIVOriginiumSciencePark": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark0"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark0": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                952,
+                740
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark1"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark1": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                1252,
+                740
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark2"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark2": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                952,
+                860
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark3"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark3": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                1252,
+                860
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark4"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark4": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                952,
+                960
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark5"
+        ]
+    },
+    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark5": {
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "at": [
+                1252,
+                960
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

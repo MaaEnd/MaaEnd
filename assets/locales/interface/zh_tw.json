@@ -493,6 +493,7 @@
     "task.ZiplineImport.description": "從官方地圖登入並匯入目前帳號的滑索座標，供尋路使用。\n**匯入一次長期有效，僅初次使用，或帳號滑索有變化時再執行。**",
     "task.SharedZiplineDelete.label": "🚡刪除共享滑索",
     "task.SharedZiplineDelete.description": "在選定子區域的大地圖上縮小並九宮格掃描，識別共享滑索標記後點擊。\n目前版本僅點擊標記，刪除確認流程後續補充。",
+    "task.SharedZiplineDelete.focus.deleted_one": "已刪除一個共享滑索",
     "task.ImportBluePrints.label": "📐一鍵導入藍圖",
     "task.ImportBluePrints.description": "一鍵批量導入藍圖，支援智慧解析",
     "option.ImportBluePrints.label": "導入藍圖",

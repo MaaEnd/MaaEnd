@@ -136,9 +136,9 @@
             520
         ],
         "lower": [
-            18,
-            160,
-            215
+            14,
+            120,
+            150
         ],
         "upper": [
             30,
@@ -231,9 +231,9 @@
                     10
                 ],
                 "lower": [
-                    18,
-                    160,
-                    215
+                    14,
+                    120,
+                    150
                 ],
                 "upper": [
                     30,
@@ -277,7 +277,10 @@
         "post_wait_freezes": 100,
         "next": [
             "SharedZiplineDeleteConfirmSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.SharedZiplineDelete.focus.deleted_one"
+        }
     },
     "SharedZiplineDeleteConfirmSuccess": {
         "desc": "确认删除成功",
