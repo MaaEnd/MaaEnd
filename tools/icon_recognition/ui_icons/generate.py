@@ -63,6 +63,7 @@ def _parse_config(config: Mapping[str, Any]) -> dict[str, tuple[str, ...]]:
             "item_ids",
             "item_filters",
             "additional_item_filters",
+            "additional_item_ids",
             "excluded_item_ids",
         )
     }
@@ -158,10 +159,11 @@ def select_items(
     parsed = _parse_config(config)
     exclude_rules = _parse_exclude_rules(config)
     item_ids = set(parsed["item_ids"])
+    additional_item_ids = set(parsed["additional_item_ids"])
     excluded = set(parsed["excluded_item_ids"])
     base_filters = parsed["item_filters"]
     additional_filters = parsed["additional_item_filters"]
-    unknown_ids = (item_ids | excluded) - set(catalog)
+    unknown_ids = (item_ids | additional_item_ids | excluded) - set(catalog)
     if unknown_ids:
         raise ValueError(f"UI 图标集包含未知 item_id: {sorted(unknown_ids)}")
 
@@ -179,7 +181,7 @@ def select_items(
         additional_match = any(_matches_filter(record, value) for value in additional_filters)
         if item_ids:
             base_match = base_match and item_id in item_ids
-        if base_match or additional_match:
+        if base_match or additional_match or item_id in additional_item_ids:
             selected.append((item_id, record))
     return selected
 

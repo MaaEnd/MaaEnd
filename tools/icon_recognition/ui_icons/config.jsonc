@@ -15,6 +15,12 @@
     "item_ids": [],
     // 这些分类会在基础筛选结果之外追加。
     "additional_item_filters": [],
+    // 这些物品会在最终集合中追加；仍受排除规则和 excluded_item_ids 约束。
+    "additional_item_ids": [
+        "item_muck_feces_1",
+        "item_plant_tundra_insect_1",
+        "item_plant_tundra_insect_2"
+    ],
     // 最后排除指定物品 ID；适合处理不希望生成 UI 图标的个别物品。
     "excluded_item_ids": [],
     // 按分类和嵌套子规则排除物品；命中任意规则的物品不会生成 UI 图标。
