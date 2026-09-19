@@ -44,13 +44,63 @@ function readYawOverride(value, label) {
     return ((value % 360) + 360) % 360;
 }
 
-function assertYawOverrideUsed(override, label) {
-    if (override?.yaw === undefined) {
+// 数据源的 u/v 由游戏世界坐标投影得来，落点可能与实际可交互位置差几米（例如被高架步道
+// 挡住、终点压在另一张可走面上）。offset 用底图像素偏移微调落点，接近点跟着一起移动。
+function readOffset(value, label) {
+    if (value === undefined) {
+        return null;
+    }
+    if (!Array.isArray(value) || value.length !== 2 || !value.every((item) => Number.isFinite(item))) {
+        throw new TypeError(`[AutoDelivery] ${label}.offset 必须是 [du, dv] 两个有限数值`);
+    }
+    if (value[0] === 0 && value[1] === 0) {
+        throw new Error(`[AutoDelivery] ${label}.offset 是全零偏移，没有作用对象`);
+    }
+    return value;
+}
+
+function assertAutoGenerationOverrideUsed(override, label) {
+    const knobs = [
+        "yaw",
+        "offset",
+    ].filter((key) => override?.[key] !== undefined);
+    if (knobs.length === 0) {
         return;
     }
     if (override?.path?.length && override?.retry_path?.length) {
-        throw new Error(`[AutoDelivery] ${label} 同时覆盖了 path 与 retry_path，yaw 没有可作用的自动接近点`);
+        throw new Error(
+            `[AutoDelivery] ${label} 同时覆盖了 path 与 retry_path，${knobs.join(" / ")} 没有可作用的自动生成坐标`,
+        );
     }
+}
+
+function readMap(source, label) {
+    const mapId = assertNonEmptyString(source.map, `${label}.map`);
+    const map = catalogSource.maps?.[mapId];
+    if (!map) {
+        throw new Error(`[AutoDelivery] ${label} 引用了未知地图 ${mapId}`);
+    }
+    return map;
+}
+
+function shiftSource(source, offset, label) {
+    if (offset === null) {
+        return source;
+    }
+    const map = readMap(source, label);
+    const [width, height] = map.size ?? [];
+    const u = roundCoordinate(source.u + offset[0]);
+    const v = roundCoordinate(source.v + offset[1]);
+    if (!Number.isFinite(width) || !Number.isFinite(height) || u < 0 || u >= width || v < 0 || v >= height) {
+        throw new RangeError(
+            `[AutoDelivery] ${label} 的 offset ${JSON.stringify(offset)} 把落点移出底图：u=${u} v=${v}（图 ${width}x${height}）`,
+        );
+    }
+    return {
+        ...source,
+        u,
+        v,
+    };
 }
 
 function assertUnique(items, keyOf, label) {
@@ -163,7 +213,7 @@ export function buildYawApproachTarget(source, map, label, yawOverride = null) {
     ];
 }
 
-export function buildNavmeshPath(source, label, withApproachPoint = false, yawOverride = null) {
+export function buildNavmeshPath(source, label, {withApproachPoint = false, yaw = null, offset = null} = {}) {
     if (!Number.isFinite(source.u) || !Number.isFinite(source.v) || source.u < 0 || source.v < 0) {
         throw new TypeError(`[AutoDelivery] ${label} 的 u/v 坐标无效`);
     }
@@ -174,12 +224,13 @@ export function buildNavmeshPath(source, label, withApproachPoint = false, yawOv
     // 底图是二维的，同一格可能压着上下多张可走面；自动生成的点都要声明自己落在哪张面上，
     // 否则寻路会在重叠面里任选一张停下，且二维到达判定照样通过，属于静默走错层。
     // 接近点与终点同层，共用实体自身的世界高度。
-    const deckY = roundCoordinate(source.y);
+    const shifted = shiftSource(source, offset, label);
+    const deckY = roundCoordinate(shifted.y);
     const destination = {
         action: "NAVMESH",
         target: [
-            source.u,
-            source.v,
+            shifted.u,
+            shifted.v,
         ],
         target_deck_y: deckY,
     };
@@ -187,15 +238,11 @@ export function buildNavmeshPath(source, label, withApproachPoint = false, yawOv
         return [destination];
     }
 
-    const mapId = assertNonEmptyString(source.map, `${label}.map`);
-    const map = catalogSource.maps?.[mapId];
-    if (!map) {
-        throw new Error(`[AutoDelivery] ${label} 引用了未知地图 ${mapId}`);
-    }
+    const map = readMap(shifted, label);
     return [
         {
             action: "NAVMESH",
-            target: buildYawApproachTarget(source, map, label, yawOverride),
+            target: buildYawApproachTarget(shifted, map, label, yaw),
             target_deck_y: deckY,
             required: true,
         },
@@ -226,10 +273,13 @@ const destinationOverrides = new Map(destinationOverrideItems);
 export const depots = assertArray(catalogSource.depots, "delivery_destinations.depots").map((source, index) => {
     const id = assertNonEmptyString(source.id, `depots[${index}].id`);
     const override = depotOverrides.get(id);
+    assertAutoGenerationOverrideUsed(override, `仓储 ${id}`);
     const walkOnly = readWalkOnly(override?.walk_only, `仓储 ${id}`);
-    assertYawOverrideUsed(override, `仓储 ${id}`);
-    const yawOverride = readYawOverride(override?.yaw, `仓储 ${id}`);
-    const defaultPath = buildNavmeshPath(source, `仓储 ${id}`, true, yawOverride);
+    const defaultPath = buildNavmeshPath(source, `仓储 ${id}`, {
+        withApproachPoint: true,
+        yaw: readYawOverride(override?.yaw, `仓储 ${id}`),
+        offset: readOffset(override?.offset, `仓储 ${id}`),
+    });
     const zoneId = buildLocatorZoneId(source.map, `仓储 ${id}`);
     const path = withZoneDeclaration(override?.path?.length ? override.path : defaultPath, zoneId, `仓储 ${id}`);
     const retryPath = withZoneDeclaration(
@@ -281,13 +331,22 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             throw new Error(`[AutoDelivery] 终点 ${id} 引用了未知仓储 ${source.depot_id}`);
         }
         const override = destinationOverrides.get(id);
+        assertAutoGenerationOverrideUsed(override, `终点 ${id}`);
         const walkOnly = readWalkOnly(override?.walk_only, `终点 ${id}`);
-        assertYawOverrideUsed(override, `终点 ${id}`);
-        const yawOverride = readYawOverride(override?.yaw, `终点 ${id}`);
+        const yaw = readYawOverride(override?.yaw, `终点 ${id}`);
+        const offset = readOffset(override?.offset, `终点 ${id}`);
         const withApproachPoint = source.kind === "recycle_bin";
-        const defaultPath = buildNavmeshPath(source, `终点 ${id}`, withApproachPoint, yawOverride);
+        const defaultPath = buildNavmeshPath(source, `终点 ${id}`, {
+            withApproachPoint,
+            yaw,
+            offset,
+        });
         const ownPath = override?.path?.length ? override.path : defaultPath;
-        const defaultRetryPath = buildNavmeshPath(source, `终点重试 ${id}`, true, yawOverride);
+        const defaultRetryPath = buildNavmeshPath(source, `终点重试 ${id}`, {
+            withApproachPoint: true,
+            yaw,
+            offset,
+        });
         const retryPath = withZoneDeclaration(
             override?.retry_path?.length ? override.retry_path : defaultRetryPath,
             buildLocatorZoneId(depot.map, `终点 ${id}`),
