@@ -262,11 +262,11 @@
             "type": "OCR",
             "param": {
                 "roi": "DailyEventRecognitionRedDot",
-                // 避免截取到背景文本
+                // 避免截取到背景文本，只截取前四个字左右大小，没有背景干扰
                 "roi_offset": [
                     -175,
                     0,
-                    130,
+                    80,
                     44
                 ],
                 "expected": [
@@ -281,11 +281,11 @@
             "type": "OCR",
             "param": {
                 "roi": "DailyEventRecognitionNew",
-                // 避免截取到背景文本
+                // 避免截取到背景文本，只截取前四个字左右大小
                 "roi_offset": [
                     -175,
                     0,
-                    130,
+                    80,
                     44
                 ],
                 "expected": [

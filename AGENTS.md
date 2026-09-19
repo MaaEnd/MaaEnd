@@ -119,3 +119,4 @@
 - [MaaFramework Pipeline 协议规范](https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.1-PipelineProtocol.md)
 - [MaaFramework 项目接口 V2](https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.3-ProjectInterfaceV2.md)
 - [MaaEnd 开发者文档（中文索引）](docs/zh_cn/developers/README.md) · [English index](docs/en_us/developers/README.md)
+- [Go Service `pkg/` 公共包](docs/zh_cn/developers/go-service-pkg.md)（And 解包、条件计算等）

@@ -40,9 +40,10 @@ type Item struct {
 
 // LocationItem 描述某据点的一项可售货品及其价值属性。
 type LocationItem struct {
-	ItemID    string `json:"item_id"`
-	Rarity    int    `json:"rarity"`
-	UnitPrice int    `json:"unit_price"`
+	ItemID     string `json:"item_id"`
+	Rarity     int    `json:"rarity"`
+	UnitPrice  int    `json:"unit_price"`
+	ActivityID string `json:"activity_id,omitempty"`
 }
 
 // Operator 描述一名干员及其本地化名称。

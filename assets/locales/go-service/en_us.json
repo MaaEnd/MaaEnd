@@ -219,6 +219,8 @@
     "intelarchive.report_opened": "Opened Open Endfieldmap in your browser",
     "ims.sync_item_found": "Found %s: %d",
     "ims.add_item_found": "Gained %s ×%d",
+    "ims.sync_item_summary.title": "Found items:",
+    "ims.add_item_summary.title": "Gained items:",
     "ims.expression_ok": "expression matched: %s",
     "ims.expression_short": "expression not matched: %s",
     "ims.item_current": "Current %s: %d"

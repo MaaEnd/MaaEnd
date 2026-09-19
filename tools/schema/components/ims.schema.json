@@ -6,7 +6,7 @@
         "AddItemDataParam": {
             "type": "object",
             "title": "AddItemData Param",
-            "description": "Parameters for AddItemData action (A3). Same as SyncItemData recognition: one IconRecognition pass on the rewards grid (grid_type defaults to rewards, deduplicate=false), OCR quantity from each cell_box, then add positive deltas into the IMS cache. No multi-pass / green-mask rescan. Does not change readiness / last_sync. Best practice: use under CloseRewardsButton recognition, then next to click-close; custom_action_param may be {}.",
+            "description": "Parameters for AddItemData action (A3). Same as SyncItemData recognition: one IconRecognition pass on the rewards grid (grid_type defaults to rewards, deduplicate=false), OCR quantity from each cell_box, then add positive deltas into the IMS cache. After recognition, prints one HTML Focus summary with icons (ims.add_item_summary; same item_id stacks are merged). No multi-pass / green-mask rescan. Does not change readiness / last_sync. Best practice: use under CloseRewardsButton recognition, then next to click-close; custom_action_param may be {}.",
             "additionalProperties": false,
             "properties": {
                 "grid_type": {
@@ -206,7 +206,7 @@
                 },
                 "notify_ui": {
                     "title": "Notify UI",
-                    "description": "When true (default), print each hit item name and quantity to UI Focus (ims.sync_item_found). Set false for silent scans (e.g. scene-jump side-cache).",
+                    "description": "When true (default), print one HTML Focus summary with icons after the scan finishes (ims.sync_item_summary). Transaction begin/continue summaries cover the current page; commit summarizes items hit by the whole transaction. Set false for silent scans (e.g. scene-jump side-cache).",
                     "type": "boolean",
                     "default": true
                 }

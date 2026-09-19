@@ -335,22 +335,44 @@
             }
         ]
     },
+    "CheckBackpackTemplate": {
+        "desc": "检查背包界面标题图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            700,
+            50,
+            250,
+            210
+        ],
+        "template": [
+            "SceneManager/MenuBackpack.png"
+        ],
+        "threshold": 0.8
+    },
+    "CheckBackpackText": {
+        "desc": "检查背包界面标题文字",
+        "recognition": "OCR",
+        "roi": [
+            727,
+            103,
+            162,
+            83
+        ],
+        "expected": [
+            "背包",
+            "背包",
+            "Backpack",
+            "道具箱",
+            "가방"
+        ]
+    },
     "InBackpack": {
         "desc": "在背包界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    700,
-                    50,
-                    250,
-                    210
-                ],
-                "template": [
-                    "SceneManager/MenuBackpack.png"
-                ]
-            }
-        }
+        "recognition": "And",
+        "all_of": [
+            "CheckBackpackTemplate",
+            "CheckBackpackText"
+        ]
     },
     "CheckMenuListText": {
         "desc": "检查菜单列表界面 FIELD/ENDFIELD 文字",

@@ -50,7 +50,7 @@
         ]
     },
     "OutpostTradingEnterRegionalDevelopment": {
-        "desc": "进入地区建设界面并准备捕获 UID",
+        "desc": "进入地区建设界面",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -66,13 +66,12 @@
         ]
     },
     "OutpostTradingCaptureUid": {
-        "desc": "捕获当前账号 UID，用于隔离自动干员缓存",
+        "desc": "读取当前账号 UID，用于隔离自动干员缓存",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "CaptureUid",
         "custom_action_param": {
             "use_cache": true,
-            "stay_on_current_screen": true,
             "allow_unknown": true
         },
         "post_delay": 0,

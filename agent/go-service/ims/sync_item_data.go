@@ -9,9 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -167,6 +165,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	hitCount := 0
 	hitItemIDs := make([]string, 0)
+	pageReport := make(map[string]int)
 	if wantsIcon {
 		dedup := true
 		if params.Deduplicate != nil {
@@ -193,10 +192,8 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			merged[h.ItemID] = quantity
 			hitCount++
 			hitItemIDs = append(hitItemIDs, h.ItemID)
+			pageReport[h.ItemID] = quantity
 			displayName := iconqty.ItemDisplayName(h.ItemID)
-			if notifyUI {
-				maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, quantity))
-			}
 			log.Info().
 				Str("component", componentSyncItemData).
 				Str("item_id", h.ItemID).
@@ -245,10 +242,8 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		merged[itemID] = quantity
 		hitCount++
 		hitItemIDs = append(hitItemIDs, itemID)
+		pageReport[itemID] = quantity
 		displayName := iconqty.ItemDisplayName(itemID)
-		if notifyUI {
-			maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, quantity))
-		}
 		log.Info().
 			Str("component", componentSyncItemData).
 			Str("item_id", itemID).
@@ -285,6 +280,11 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	reportedItemCount := 0
+	if notifyUI {
+		reportedItemCount = reportSyncedItems(ctx, pageReport)
+	}
+
 	event := log.Info().
 		Str("component", componentSyncItemData).
 		Str("grid_type", params.GridType).
@@ -296,7 +296,9 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		Bool("page_dedup", params.PageDedup).
 		Str("merge_mode", params.MergeMode).
 		Str("transaction_mode", params.TransactionMode).
-		Bool("persisted", persisted)
+		Bool("persisted", persisted).
+		Bool("notify_ui", notifyUI).
+		Int("reported_item_count", reportedItemCount)
 	if persisted {
 		event = event.Time("updated_at", at.UTC())
 	}
@@ -385,7 +387,7 @@ func normalizeItemsMap(items map[string]string) (map[string]string, error) {
 	return out, nil
 }
 
-// resolveSyncNotifyUI defaults to true when omitted (announce each hit item).
+// resolveSyncNotifyUI defaults to true when omitted (one HTML summary after the scan).
 func resolveSyncNotifyUI(v *bool) bool {
 	if v == nil {
 		return true
@@ -602,33 +604,6 @@ func (a *SyncItemData) commitTransactionWithReport(ctx *maa.Context, taskID int6
 		Time("updated_at", at.UTC()).
 		Msg("staged item data committed")
 	return true
-}
-
-type syncedItemReport struct {
-	itemID   string
-	name     string
-	quantity int
-}
-
-func reportSyncedItems(ctx *maa.Context, items map[string]int) int {
-	reports := make([]syncedItemReport, 0, len(items))
-	for itemID, quantity := range items {
-		reports = append(reports, syncedItemReport{
-			itemID:   itemID,
-			name:     iconqty.ItemDisplayName(itemID),
-			quantity: quantity,
-		})
-	}
-	sort.Slice(reports, func(i, j int) bool {
-		if reports[i].name != reports[j].name {
-			return reports[i].name < reports[j].name
-		}
-		return reports[i].itemID < reports[j].itemID
-	})
-	for _, report := range reports {
-		maafocus.Print(ctx, i18n.T("ims.sync_item_found", report.name, report.quantity))
-	}
-	return len(reports)
 }
 
 func (a *SyncItemData) clearSumSession() {

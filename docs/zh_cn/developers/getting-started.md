@@ -337,6 +337,19 @@ Pipeline 跑通后，补齐配套：
 }
 ```
 
+### UI 图片资源路径
+
+客户端 UI 可以显示 `assets/resource/` 目录中的图片。`icon` 字段直接填写图片路径；在 `label`、`description` 等支持 Markdown 的字段中，可以使用 Markdown 图片语法插入图片：
+
+```json
+{
+    "icon": "resource/image/UI/Item/item_lbmob_1_lbshamman_1_sp_1_1.png",
+    "description": "![](resource/image/UI/Item/item_char_break_stage_3_4.png)"
+}
+```
+
+图片路径相对于 `assets/` 目录，因此不要包含 `assets/` 前缀，统一从 `resource/` 开始。需要显示物品识别生成的 UI 图标时，按 `resource/image/UI/Item/<物品 ID>.png` 拼接路径，其中 `<物品 ID>` 使用 `assets/data/IconRecognition/recognition_items.json` 的顶层键。
+
 ### i18n 文案
 
 在 `assets/locales/interface/` 中添加任务名称和描述的翻译键。例如：

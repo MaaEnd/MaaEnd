@@ -128,13 +128,12 @@ export const candidatesRows = areaOrder.map((areaId) => {
     };
 });
 
-// 守卫节点数据（单行）：next 列出全部区域门控节点 + NotMatched 兜底。
-// 框架对 next 逐个识别、首个命中胜出：当前子区域不匹配的门控 OCR miss，匹配的门控 hit 进对应 candidates。
+// 守卫节点数据（单行）：next 只列出全部区域门控节点。
+// 框架对 next 逐轮识别、首个命中胜出：标题未加载完整时继续识别，匹配的门控 hit 进对应 candidates。
 export const dispatcherRows = [
     {
         NextList: [
             ...areaOrder.map((areaId) => `SeizeDeliveryJobsEndpointRegion${areaId}`),
-            "SeizeDeliveryJobsEndpointNotMatched",
         ],
     },
 ];

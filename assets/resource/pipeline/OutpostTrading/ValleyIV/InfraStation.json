@@ -1241,6 +1241,8 @@
         "custom_action_param": {
             "TargetQuantity": 999999,
             "ClampTargetToSliderMax": true,
+            "FineTuneQuantity": 100,
+            "FineTuneFallback": "less",
             "AvailableQuantity": {
                 "Box": [
                     1073,
@@ -1280,6 +1282,7 @@
         "custom_action": "OutpostTradingReserveSession",
         "custom_action_param": {
             "operation": "apply",
+            "location": "InfraStation",
             "sliding_node": "OutpostTradingInfraStationBetterSliding"
         },
         "post_delay": 0,

@@ -7,11 +7,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 
-	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
 	"github.com/rs/zerolog/log"
 )
 
@@ -32,20 +31,17 @@ const (
 )
 
 var (
-	// capturedUid 缓存 OCR 得到的原始 UID 数字；未捕获或失败时为空字符串。
+	// capturedUid 缓存从 gamesetting 读到的原始 UID 数字；未捕获或失败时为空字符串。
 	capturedUid   string
 	capturedUidMu sync.Mutex
-
-	uidDigitRe = regexp.MustCompile(`\d+`)
 )
 
-// Capture 捕获玩家 UID，并按 outputType 返回格式化结果。
+// Capture 读取玩家 UID，并按 outputType 返回格式化结果。
 // 缓存恒存原始 UID 数字，输出时才进行转换，因此 use_cache 命中时也能按任意 outputType 返回。
 //   - useCache: if true and cache has a UID, return cached UID immediately
-//   - stayOnCurrentScreen: if false, navigate to SceneEnterMenuOperationalManual before OCR
-//   - allowUnknown: if true and OCR cannot extract UID, return "unknown" instead of error
+//   - allowUnknown: if true and registry read fails, return "unknown" instead of error
 //   - outputType: 输出格式，hashed / masked / raw
-func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
+func Capture(useCache, allowUnknown bool, outputType OutputType) (string, error) {
 	if useCache {
 		if uid := GetCachedUID(outputType); uid != "" {
 			log.Debug().Str("component", component).Str("uid", safeUIDForLog(uid, outputType)).
@@ -54,40 +50,20 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 		}
 	}
 
-	if !stayOnCurrentScreen {
-		if _, err := ctx.RunTask("SceneEnterMenuOperationalManual"); err != nil {
-			return captureErr(allowUnknown, "failed to navigate to SceneEnterMenuOperationalManual: %w", err)
-		}
+	raw, err := gamesetting.GetCachedUID()
+	if err != nil {
+		return captureErr(allowUnknown, "gamesetting GetCachedUID failed: %w", err)
 	}
-
-	ctrl.PostScreencap().Wait()
-	img, err := ctrl.CacheImage()
-	if err != nil || img == nil {
-		return captureErr(allowUnknown, "screenshot failed: %w", err)
-	}
-
-	param := maa.OCRParam{
-		ROI:      targetRect(maa.Rect{60, 690, 155, 25}),
-		Expected: []string{".*"},
-		OnlyRec:  true,
-		OrderBy:  maa.OCROrderByLength,
-	}
-	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, &param, img)
-	if err != nil || detail == nil || !detail.Hit {
-		return captureErr(allowUnknown, "uid OCR miss")
-	}
-
-	text := bestOCRText(detail)
-	digits := extractAllDigits(text)
-	if len(digits) < 8 || len(digits) > 12 {
-		return captureErr(allowUnknown, "uid digit count %d not in [8,12]", len(digits))
+	if !IsValidRawUID(raw) {
+		// 不写入原值；gamesetting 侧已做同类校验，此处仅作防御性兜底。
+		return captureErr(allowUnknown, "uid is not a valid 8-12 digit uid (len=%d)", len(raw))
 	}
 
 	capturedUidMu.Lock()
-	capturedUid = digits
+	capturedUid = raw
 	capturedUidMu.Unlock()
 
-	uid, err := formatUID(digits, outputType)
+	uid, err := formatUID(raw, outputType)
 	if err != nil {
 		return captureErr(allowUnknown, "format uid: %w", err)
 	}
@@ -197,39 +173,6 @@ func normalizeOutputType(s string) (OutputType, error) {
 	default:
 		return "", fmt.Errorf("unsupported output_type %q, want hashed|masked|raw", s)
 	}
-}
-
-func bestOCRText(detail *maa.RecognitionDetail) string {
-	if detail == nil || detail.Results == nil {
-		return ""
-	}
-	if detail.Results.Best != nil {
-		if o, ok := detail.Results.Best.AsOCR(); ok {
-			return strings.TrimSpace(o.Text)
-		}
-	}
-	for _, r := range detail.Results.Filtered {
-		if r == nil {
-			continue
-		}
-		if o, ok := r.AsOCR(); ok {
-			return strings.TrimSpace(o.Text)
-		}
-	}
-	return ""
-}
-
-func extractAllDigits(s string) string {
-	parts := uidDigitRe.FindAllString(s, -1)
-	var b strings.Builder
-	for _, p := range parts {
-		b.WriteString(p)
-	}
-	return b.String()
-}
-
-func targetRect(r maa.Rect) maa.Target {
-	return maa.NewTargetRect(r)
 }
 
 func loadOrCreateSalt() (string, error) {

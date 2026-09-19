@@ -6,7 +6,6 @@
             "entry": "ZiplineImportMain",
             "description": "$task.ZiplineImport.description",
             "option": [
-                "ZiplineImportRegion",
                 "ZiplineImportClearLogin"
             ],
             "controller": [
@@ -21,35 +20,6 @@
         }
     ],
     "option": {
-        "ZiplineImportRegion": {
-            "type": "select",
-            "label": "$option.ZiplineImportRegion.label",
-            "default_case": "CN",
-            "cases": [
-                {
-                    "name": "CN",
-                    "label": "$option.ZiplineImportRegion.cases.CN.label",
-                    "pipeline_override": {
-                        "ZiplineImportMain": {
-                            "attach": {
-                                "url": "https://game.skland.com/map/endfield"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "Global",
-                    "label": "$option.ZiplineImportRegion.cases.Global.label",
-                    "pipeline_override": {
-                        "ZiplineImportMain": {
-                            "attach": {
-                                "url": "https://game.skport.com/map/endfield"
-                            }
-                        }
-                    }
-                }
-            ]
-        },
         "ZiplineImportClearLogin": {
             "type": "switch",
             "controller": [

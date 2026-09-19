@@ -38,8 +38,8 @@
     },
     "ProtocolSpaceEnterSpace": {
         "desc": "进入协议空间",
-        "recognition": "Or",
-        "any_of": [
+        "recognition": "And",
+        "all_of": [
             "WhiteConfirmButtonType1",
             {
                 "recognition": "OCR",
@@ -56,6 +56,8 @@
                 ]
             }
         ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
         "action": "Click",
         "next": [
             "ProtocolSpaceEnterSpaceSelectClaimReward",
@@ -957,6 +959,34 @@
             "Node.Action.Succeeded": "$task.ProtocolSpace.focus.continue_operation"
         }
     },
+    "ProtocolSpaceRewardClaimSuccessAfterMedicationNext": {
+        "desc": "用药成功后回到奖励页：再继续或结束（不占用 Continue 的 max_hit）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceRewardClaimSuccessContinueAfterMedication",
+            "ProtocolSpaceRewardClaimSuccessFinish"
+        ]
+    },
+    "ProtocolSpaceRewardClaimSuccessContinueAfterMedication": {
+        "desc": "用药成功后继续下一轮（独立节点，不共享 Continue max_hit）",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "[JumpBack]SceneNoticeRewardsUpgrade",
+            "[JumpBack]SceneWaitBlackScreenLoadingExit",
+            "ProtocolSpaceEnterSpaceSuccess",
+            "ProtocolSpaceRewardClaimSuccessSanityLowUseSpMedicationPrepare",
+            "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.continue_operation"
+        }
+    },
     "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
         "desc": "理智不足对话框检测，关闭后结束任务",
         "enabled": true,
@@ -1024,7 +1054,7 @@
         "pre_delay": 0,
         "anchor": {
             "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "ProtocolSpaceRewardClaimSuccessSanityLowFinish",
-            "AutoUseSpMedicationInPrepareFinishUseAnchor": "ProtocolSpaceRewardClaimSuccessNext"
+            "AutoUseSpMedicationInPrepareFinishUseAnchor": "ProtocolSpaceRewardClaimSuccessAfterMedicationNext"
         },
         "post_delay": 0,
         "next": [

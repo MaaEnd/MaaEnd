@@ -209,11 +209,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.425,
                         1746.923
                     ],
+                    "target_deck_y": 267.26,
                     "required": true
                 },
                 {
@@ -221,7 +226,8 @@
                     "target": [
                         1252.425,
                         1752.923
-                    ]
+                    ],
+                    "target_deck_y": 267.26
                 }
             ]
         },
@@ -244,6 +250,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.24,
@@ -256,7 +266,8 @@
                     "target": [
                         1383.764,
                         1633.923
-                    ]
+                    ],
+                    "target_deck_y": 253.642
                 }
             ],
             "zip": false
@@ -280,6 +291,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.24,
@@ -292,7 +307,8 @@
                     "target": [
                         1383.764,
                         1633.923
-                    ]
+                    ],
+                    "target_deck_y": 253.642
                 }
             ],
             "zip": true
@@ -316,11 +332,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1377.809,
                         1634.659
                     ],
+                    "target_deck_y": 253.642,
                     "required": true
                 },
                 {
@@ -328,7 +349,8 @@
                     "target": [
                         1383.764,
                         1633.923
-                    ]
+                    ],
+                    "target_deck_y": 253.642
                 }
             ]
         },
@@ -351,6 +373,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.24,
@@ -363,7 +389,8 @@
                     "target": [
                         1083.307,
                         1455.27
-                    ]
+                    ],
+                    "target_deck_y": 244.758
                 }
             ],
             "zip": false
@@ -387,6 +414,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.24,
@@ -399,7 +430,8 @@
                     "target": [
                         1083.307,
                         1455.27
-                    ]
+                    ],
+                    "target_deck_y": 244.758
                 }
             ],
             "zip": true
@@ -423,11 +455,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1080.082,
                         1460.329
                     ],
+                    "target_deck_y": 244.758,
                     "required": true
                 },
                 {
@@ -435,7 +472,8 @@
                     "target": [
                         1083.307,
                         1455.27
-                    ]
+                    ],
+                    "target_deck_y": 244.758
                 }
             ]
         },
@@ -458,6 +496,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.24,
@@ -468,17 +510,10 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1204.85,
-                        1621.16
+                        1369.873,
+                        1533.922
                     ],
-                    "required": true
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1369.87,
-                        1533.92
-                    ]
+                    "target_deck_y": 259.142
                 }
             ],
             "zip": false
@@ -502,6 +537,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1252.24,
@@ -512,17 +551,10 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1204.85,
-                        1621.16
+                        1369.873,
+                        1533.922
                     ],
-                    "required": true
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1369.87,
-                        1533.92
-                    ]
+                    "target_deck_y": 259.142
                 }
             ],
             "zip": true
@@ -546,11 +578,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1364.039,
                         1532.519
                     ],
+                    "target_deck_y": 259.142,
                     "required": true
                 },
                 {
@@ -558,7 +595,8 @@
                     "target": [
                         1369.873,
                         1533.922
-                    ]
+                    ],
+                    "target_deck_y": 259.142
                 }
             ]
         },

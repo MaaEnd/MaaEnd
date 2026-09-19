@@ -22,6 +22,7 @@ from localization import (
     update_interface_locale,
 )
 from text import validate_identifier
+from ui_icons.generate import generate_ui_icons
 
 
 @dataclass(frozen=True)
@@ -149,6 +150,7 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     )
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
     write_catalog(catalog, paths.catalog_output)
+    generate_ui_icons()
     locale_counts = generate_locales(
         paths.catalog_output,
         paths.localization_item_source,

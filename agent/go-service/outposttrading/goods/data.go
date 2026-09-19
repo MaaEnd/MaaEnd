@@ -18,6 +18,7 @@ var (
 // itemPriorityGroup 是一个据点内的可售物品及其价值属性。
 type itemPriorityGroup struct {
 	ItemID     string
+	ActivityID string
 	Candidates []string
 	Rarity     int
 	UnitPrice  int
@@ -36,6 +37,34 @@ func loadItemPriorityGroupsCached() (map[string][]itemPriorityGroup, error) {
 		itemPriorityGroupsCache, itemPriorityGroupsErr = loadItemPriorityGroups()
 	})
 	return itemPriorityGroupsCache, itemPriorityGroupsErr
+}
+
+// itemUnitPrice 在指定据点的货品列表中按物品 ID 查询基础单价和活动 ID。
+// 未配置 activity_id 的物品返回空字符串。
+func itemUnitPrice(location, itemID string) (int, string, error) {
+	if location == "" {
+		return 0, "", fmt.Errorf("location is empty")
+	}
+	if itemID == "" {
+		return 0, "", fmt.Errorf("item ID is empty")
+	}
+	groups, err := loadItemPriorityGroupsFunc()
+	if err != nil {
+		return 0, "", err
+	}
+	locationGroups, ok := groups[location]
+	if !ok {
+		return 0, "", fmt.Errorf("location %q not found", location)
+	}
+	for _, group := range locationGroups {
+		if group.ItemID == itemID {
+			if group.UnitPrice <= 0 {
+				return 0, "", fmt.Errorf("invalid unit price for item %q at %q", itemID, location)
+			}
+			return group.UnitPrice, group.ActivityID, nil
+		}
+	}
+	return 0, "", fmt.Errorf("item %q not found at location %q", itemID, location)
 }
 
 func buildItemPriorityGroups(data *selectiondata.File) (map[string][]itemPriorityGroup, error) {
@@ -82,6 +111,7 @@ func itemPriorityGroupFromData(
 	}
 	return itemPriorityGroup{
 		ItemID:     itemID,
+		ActivityID: strings.TrimSpace(locationItem.ActivityID),
 		Candidates: candidates,
 		Rarity:     locationItem.Rarity,
 		UnitPrice:  locationItem.UnitPrice,

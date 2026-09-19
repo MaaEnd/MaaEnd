@@ -218,6 +218,8 @@
     "intelarchive.report_opened": "ブラウザで Open Endfieldmap を開きました",
     "ims.sync_item_found": "%s を認識：%d",
     "ims.add_item_found": "%s を獲得 ×%d",
+    "ims.sync_item_summary.title": "認識したアイテム：",
+    "ims.add_item_summary.title": "獲得したアイテム：",
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
     "ims.item_current": "現在 %s：%d"

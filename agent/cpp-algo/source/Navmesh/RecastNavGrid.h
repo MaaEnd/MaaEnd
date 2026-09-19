@@ -59,7 +59,7 @@ inline constexpr double kClrNarrow = 1.0;
 // 定, 宽走廊就把线推离墙, 窄缝里自动松到弦仍走得通; 换成常数则收紧走锯齿、放开贴角切。
 inline constexpr double kChordFrac = 0.8;
 // 中脊上的突变抬升每次记一笔, 单位是格步价。连续缓坡不计, 只有必须迈上去的那种算。
-inline constexpr double kStepTax = 6.0;
+inline constexpr double kStepTax = 0.0;
 // 离网连接端点接入舒适通道允许的最大格数。缝口紧邻实心区, 距离过远时该链本身已构成一段路线。
 inline constexpr int32_t kLinkChainCells = 64;
 // 终线取直的拐角余量 px: 挡线按 kClrPref 加这一笔算, 弦贴角切过去时的净空即是这个和。

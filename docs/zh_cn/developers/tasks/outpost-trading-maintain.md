@@ -89,6 +89,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 ### 保留规则（6 个独立槽位）
 
 - 两种模式：保留指定数量 / 永不售卖（内部为数量 `-1`）；数量 `0` 等价于不保留；同一物品重复配置时后面的槽位覆盖前面的。
+- 活动物品按活动额度整批卖出，保留规则对其无效，因此槽位选项只列非活动物品；优先售卖选项不受影响。
 - 「保留指定数量」用 BetterSliding `ReverseTarget` 只卖超出部分；单次交易达到保留量、或库存本就不高于保留量，都会 `satisfy` 标记本次任务已满足，后续据点选品直接跳过。
 - 「永不售卖」在选品识别阶段排除，不切货品、不记缺货。
 
@@ -139,7 +140,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 
 ## 生成器与维护
 
-生成器位于 `tools/pipeline-generate/OutpostTrading/`。zmdmap 数据 CI 通过 `data/scripts/sell_product_data.py` 从 TableCfg 裁剪并发布 `tools/pipeline-generate/data/sell_product.json`，这份精简游戏数据只保留据点、可售物品、据点特性与干员匹配关系；MaaEnd 通过 `fetch-data.mjs` 下载该文件。`model.mjs` 统一定义据点/地区/多语言键，各 `*-data.mjs` 是对应模板的最小数据投影。
+生成器位于 `tools/pipeline-generate/OutpostTrading/`。zmdmap 数据 CI 通过 `data/scripts/sell_product_data.py` 从 TableCfg 裁剪并发布 `tools/pipeline-generate/data/sell_product.json`，这份精简游戏数据只保留据点、可售物品及其活动标识、据点特性与干员匹配关系；MaaEnd 通过 `fetch-data.mjs` 下载该文件。`model.mjs` 统一定义据点/地区/多语言键，各 `*-data.mjs` 是对应模板的最小数据投影。
 
 | 维护入口 | 生成产物 |
 | ------------------------------- | --------------------------------------------------------------- |

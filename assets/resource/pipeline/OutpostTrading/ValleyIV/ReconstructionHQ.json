@@ -1245,6 +1245,8 @@
         "custom_action_param": {
             "TargetQuantity": 999999,
             "ClampTargetToSliderMax": true,
+            "FineTuneQuantity": 100,
+            "FineTuneFallback": "less",
             "AvailableQuantity": {
                 "Box": [
                     1073,
@@ -1284,6 +1286,7 @@
         "custom_action": "OutpostTradingReserveSession",
         "custom_action_param": {
             "operation": "apply",
+            "location": "ReconstructionHQ",
             "sliding_node": "OutpostTradingReconstructionHQBetterSliding"
         },
         "post_delay": 0,

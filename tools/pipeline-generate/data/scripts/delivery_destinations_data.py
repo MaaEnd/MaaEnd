@@ -278,15 +278,15 @@ def build_mark_index(level_map_mark: dict[str, Any]) -> dict[str, dict[str, Any]
     return index
 
 
-def read_xz(value: Any, label: str) -> tuple[float, float]:
+def read_xyz(value: Any, label: str) -> tuple[float, float, float]:
     record = assert_record(value, label)
     coords: list[float] = []
-    for axis in ("x", "z"):
+    for axis in ("x", "y", "z"):
         number = record.get(axis)
         if not isinstance(number, (int, float)) or isinstance(number, bool):
             raise TableCfgError(f"{label} 的 {axis} 不是数值")
         coords.append(float(number))
-    return coords[0], coords[1]
+    return coords[0], coords[1], coords[2]
 
 
 def locate_target(
@@ -295,16 +295,17 @@ def locate_target(
     npc_positions: dict[str, Any],
     mark_index: dict[str, dict[str, Any]],
     label: str,
-) -> tuple[float, float, float]:
+) -> tuple[float, float, float, float]:
     if entity_type == ENTITY_TYPE_NPC_PROXY:
         npc = assert_record(
             npc_positions.get(entity_key), f"{label} 在 NpcProxyTable 中的 {entity_key}"
         )
-        x, z = read_xz(npc.get("position"), f"NpcProxyTable[{entity_key}].position")
+        x, y, z = read_xyz(npc.get("position"), f"NpcProxyTable[{entity_key}].position")
         rotation = npc.get("rotation")
         rotation_record = rotation if isinstance(rotation, dict) else {}
         return (
             x,
+            y,
             z,
             read_yaw(
                 rotation_record.get("y"), f"NpcProxyTable[{entity_key}].rotation.y"
@@ -314,8 +315,8 @@ def locate_target(
     basic = mark_index.get(entity_key)
     if basic is None:
         raise TableCfgError(f"{label} 在 LevelMapMark 中没有 {entity_key}")
-    x, z = read_xz(basic.get("pos"), f"LevelMapMark[{entity_key}].pos")
-    return x, z, 0.0
+    x, y, z = read_xyz(basic.get("pos"), f"LevelMapMark[{entity_key}].pos")
+    return x, y, z, 0.0
 
 
 def strip_rich_text(names: dict[str, str], label: str) -> dict[str, str]:
@@ -501,7 +502,7 @@ def build_depots(
         basic = mark_index.get(depot_id)
         if basic is None:
             raise TableCfgError(f"仓储节点 {depot_id} 在 LevelMapMark 中没有同名标记")
-        x, z = read_xz(basic.get("pos"), f"LevelMapMark[{depot_id}].pos")
+        x, y, z = read_xyz(basic.get("pos"), f"LevelMapMark[{depot_id}].pos")
 
         zone = used_zones.get(map_id)
         if zone is None:
@@ -518,6 +519,7 @@ def build_depots(
                 "map": map_id,
                 "u": u,
                 "v": v,
+                "y": round(y, 3),
                 "yaw": entity_yaws.get((level_id, depot_id), 0.0),
             }
         )
@@ -579,7 +581,7 @@ def build_delivery_destinations_data(
             raise TableCfgError(f"{label} 缺少 targetId")
 
         entity_type = normalize_entity_type(entry.get("entityType"), label)
-        x, z, yaw = locate_target(
+        x, y, z, yaw = locate_target(
             entity_type, entity_key, npc_positions, mark_index, label
         )
 
@@ -643,6 +645,7 @@ def build_delivery_destinations_data(
             "map": map_id,
             "u": u,
             "v": v,
+            "y": round(y, 3),
             "yaw": yaw,
         }
         destinations.append(destination)
@@ -677,9 +680,12 @@ def build_delivery_destinations_data(
             "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
             "depots": (
                 "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId；"
+                "y 为世界高度，取自 LevelMapMark.pos.y，用作 NAVMESH 终点的 target_deck_y；"
                 "yaw 为朝向（绕 Y 轴欧拉角，度），取自 LevelData 交互实体 rotation.y，缺省为 0"
             ),
             "destinations": (
+                "普通收货 NPC 的 y 取自 NpcProxyTable.position.y，资源回收站的 y 取自 LevelMapMark.pos.y，"
+                "均用作 NAVMESH 终点的 target_deck_y；"
                 "普通收货 NPC 的 yaw 取自 NpcProxyTable.rotation.y；"
                 "资源回收站的 yaw 取自 LevelData 交互实体 rotation.y 并翻转 180 度，缺省为 0"
             ),
@@ -688,7 +694,8 @@ def build_delivery_destinations_data(
         "coord": (
             "u/v = MapLocator 底图像素，原点左上、y 向下；BaseNav 顶点也是这个平面（u, v, height），"
             "直接喂寻路即可。maps 里的 zone / sx / tx / sy / ty 原样取自 BaseNav pack 的 zone 表，"
-            "世界坐标转进来是 u = sx*x + tx, v = -sy*z + ty"
+            "世界坐标转进来是 u = sx*x + tx, v = -sy*z + ty；"
+            "y 是未换算的世界高度，直接作为 NAVMESH 终点的 target_deck_y 用来在重叠可走面中选中目标层"
         ),
         "ocr_key": "name",
         "depot_count": len(depots),

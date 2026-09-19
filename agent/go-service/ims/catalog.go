@@ -15,6 +15,8 @@ const recognitionItemsResourcePath = "data/IconRecognition/recognition_items.jso
 type recognitionItemMeta struct {
 	StorageKind  string `json:"storageKind"`
 	CategoryType string `json:"categoryType"`
+	Rarity       int    `json:"rarity"`
+	IconID       string `json:"iconId"`
 }
 
 var (

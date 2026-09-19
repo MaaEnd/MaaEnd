@@ -454,17 +454,22 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "custom_action_param": {
+                        "target_offset": [
+                            0,
+                            0,
+                            0,
+                            -15
+                        ]
+                    },
+                    "wait_nodes": [
+                        "GiftOperatorCheckContact"
+                    ]
+                }
             }
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                911,
-                312,
-                89,
-                121
-            ]
         },
         // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [

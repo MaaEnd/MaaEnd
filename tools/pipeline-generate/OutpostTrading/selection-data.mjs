@@ -187,6 +187,7 @@ export function buildSelectionItems(data = settlementData, sourceLocations = out
                 };
 
                 const excluded = TEMP_EXCLUDED_ITEM_CN_NAMES.has(item.names?.zh_cn);
+                const activityID = tradeItem.activity_id?.trim() || "";
 
                 const previous = locationItems.get(itemID);
                 if (!previous) {
@@ -194,11 +195,13 @@ export function buildSelectionItems(data = settlementData, sourceLocations = out
                         itemID,
                         rarity: item.rarity,
                         unitPrice: tradeItem.unit_price,
+                        activityID,
                         excluded,
                     });
                 } else if (tradeItem.unit_price > previous.unitPrice) {
                     previous.rarity = item.rarity;
                     previous.unitPrice = tradeItem.unit_price;
+                    previous.activityID = activityID;
                 }
             }
         }
@@ -209,6 +212,7 @@ export function buildSelectionItems(data = settlementData, sourceLocations = out
                 item_id: item.itemID,
                 rarity: item.rarity,
                 unit_price: item.unitPrice,
+                ...(item.activityID ? {activity_id: item.activityID} : {}),
             }));
     }
 
@@ -288,6 +292,13 @@ function buildSelectableItems() {
 }
 
 export const outpostTradingSelectableItems = buildSelectableItems();
+
+// 收集任一据点带活动标识的物品，保留选项据此排除活动物品。
+export const outpostTradingActivityItemIDs = new Set(
+    Object.values(outpostTradingSelectionData.locations).flatMap((location) =>
+        location.items.filter((item) => item.activity_id).map((item) => item.item_id),
+    ),
+);
 
 // 国际化同步器消费的物品视图。命名规则与 task-data.mjs 的反查兜底保持一致，
 // 同步后的 item.* 键能被 Task 生成的 `$item.xxx` label 直接引用。

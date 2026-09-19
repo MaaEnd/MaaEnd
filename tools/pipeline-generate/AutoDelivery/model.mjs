@@ -68,16 +68,50 @@ function buildRouteFileId(name, label) {
     return id;
 }
 
-function buildMapZone(map, label) {
+function readMapLocatorEntry(map, label) {
     const baseNavZone = assertNonEmptyString(catalogSource.maps?.[map]?.zone, `${label}.maps.${map}.zone`);
     const [
         resourceType,
         zone,
+        imageFile,
     ] = BASE_NAV_ZONE_IMAGE_PARTS[baseNavZone] ?? [];
-    if (resourceType !== "MapLocator" || !zone) {
+    if (resourceType !== "MapLocator" || !zone || !imageFile) {
         throw new Error(`[AutoDelivery] ${label} 的 BaseNav 地区 ${baseNavZone} 无法对应 MapLocator 地区`);
     }
-    return zone;
+    return {zone, imageFile};
+}
+
+function buildMapZone(map, label) {
+    return readMapLocatorEntry(map, label).zone;
+}
+
+// 路线首点由生成器统一声明 MapLocator 区域名，routes.json 只维护路点。
+// 定位器在起步冷启动时会把首点的 zone_id 当作期望区域，只接受落在该区域内的 YOLO 结果。
+
+export function buildLocatorZoneId(map, label) {
+    const {zone, imageFile} = readMapLocatorEntry(map, label);
+    const stem = imageFile.replace(/\.png$/i, "");
+    return stem === "Base" ? `${zone}_Base` : stem;
+}
+
+function withZoneDeclaration(path, zoneId, label) {
+    const [first] = path;
+    const declared = first && !Array.isArray(first) && first.action === "ZONE" ? first : null;
+    if (declared) {
+        const region = zoneId.split("_")[0];
+        if (typeof declared.zone_id !== "string" || !declared.zone_id.startsWith(`${region}_`)) {
+            throw new Error(
+                `[AutoDelivery] ${label} 的 ZONE 区域 ${declared.zone_id} 与预期的 ${zoneId} 不属于同一区域`,
+            );
+        }
+    }
+    return [
+        {
+            action: "ZONE",
+            zone_id: zoneId,
+        },
+        ...(declared ? path.slice(1) : path),
+    ];
 }
 
 function buildRouteNode(kind, sourceId, zip = false) {
@@ -111,13 +145,21 @@ export function buildNavmeshPath(source, label, withApproachPoint = false) {
     if (!Number.isFinite(source.u) || !Number.isFinite(source.v) || source.u < 0 || source.v < 0) {
         throw new TypeError(`[AutoDelivery] ${label} 的 u/v 坐标无效`);
     }
+    if (!Number.isFinite(source.y)) {
+        throw new TypeError(`[AutoDelivery] ${label} 的 y 世界高度无效`);
+    }
 
+    // 底图是二维的，同一格可能压着上下多张可走面；自动生成的点都要声明自己落在哪张面上，
+    // 否则寻路会在重叠面里任选一张停下，且二维到达判定照样通过，属于静默走错层。
+    // 接近点与终点同层，共用实体自身的世界高度。
+    const deckY = roundCoordinate(source.y);
     const destination = {
         action: "NAVMESH",
         target: [
             source.u,
             source.v,
         ],
+        target_deck_y: deckY,
     };
     if (!withApproachPoint) {
         return [destination];
@@ -132,6 +174,7 @@ export function buildNavmeshPath(source, label, withApproachPoint = false) {
         {
             action: "NAVMESH",
             target: buildYawApproachTarget(source, map, label),
+            target_deck_y: deckY,
             required: true,
         },
         destination,
@@ -163,8 +206,13 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
     const override = depotOverrides.get(id);
     const walkOnly = readWalkOnly(override?.walk_only, `仓储 ${id}`);
     const defaultPath = buildNavmeshPath(source, `仓储 ${id}`, true);
-    const path = override?.path?.length ? override.path : defaultPath;
-    const retryPath = override?.retry_path?.length ? override.retry_path : defaultPath;
+    const zoneId = buildLocatorZoneId(source.map, `仓储 ${id}`);
+    const path = withZoneDeclaration(override?.path?.length ? override.path : defaultPath, zoneId, `仓储 ${id}`);
+    const retryPath = withZoneDeclaration(
+        override?.retry_path?.length ? override.retry_path : defaultPath,
+        zoneId,
+        `仓储重试 ${id}`,
+    );
     return {
         id,
         name: assertNonEmptyString(source.name?.zh_cn, `depots[${index}].name.zh_cn`),
@@ -214,7 +262,20 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
         const defaultPath = buildNavmeshPath(source, `终点 ${id}`, withApproachPoint);
         const ownPath = override?.path?.length ? override.path : defaultPath;
         const defaultRetryPath = buildNavmeshPath(source, `终点重试 ${id}`, true);
-        const retryPath = override?.retry_path?.length ? override.retry_path : defaultRetryPath;
+        const retryPath = withZoneDeclaration(
+            override?.retry_path?.length ? override.retry_path : defaultRetryPath,
+            buildLocatorZoneId(depot.map, `终点 ${id}`),
+            `终点重试 ${id}`,
+        );
+        // departurePath 会拼接到终点主路线之前，首点 ZONE 由 withZoneDeclaration 统一归一化。
+        const path = withZoneDeclaration(
+            [
+                ...depot.departurePath,
+                ...ownPath,
+            ],
+            buildLocatorZoneId(depot.map, `终点 ${id}`),
+            `终点 ${id}`,
+        );
         return {
             id,
             kind: source.kind,
@@ -232,10 +293,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
                 source.u,
                 source.v,
             ],
-            path: [
-                ...depot.departurePath,
-                ...ownPath,
-            ],
+            path,
             retryPath,
             walkOnly,
             routeNode: buildRouteNode("Destination", id),

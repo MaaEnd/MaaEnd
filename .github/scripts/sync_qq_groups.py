@@ -84,13 +84,6 @@ def build_rules(user_num, user_link, dev_num, dev_link):
             yaml_entry("User QQ Group", user_num, user_link),
             yaml_entry("Dev QQ Group", dev_num, dev_link),
         ],
-        ".github/ISSUE_TEMPLATE/other_issue.yml": [
-            # [QQ 群 (<num>)](<link>)  -- only the user group is referenced here
-            (
-                re.compile(rf"(\[QQ 群 \()\d+(\)\]\(){LINK}(\))"),
-                lambda m: f"{m.group(1)}{user_num}{m.group(2)}{user_link}{m.group(3)}",
-            ),
-        ],
     }
 
 

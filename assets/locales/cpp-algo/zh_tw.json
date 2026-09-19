@@ -6,7 +6,7 @@
     "zipline.import_timeout": "<span style=\"color: red; font-weight: bold;\">匯入滑索逾時</span>",
     "zipline.account_unknown": "<span style=\"color: red; font-weight: bold;\">本次尋路未使用滑索：初始化時未能取得目前遊戲帳號 UID，無法安全選擇帳號對應的滑索座標。</span>本次將全程步行，不會嘗試其他帳號的資料。此提示不會中斷任務。",
     "zipline.import_done": "UID %d：滑索座標已更新，共 %d 筆。共儲存 %d 個帳號的滑索座標。",
-    "zipline.legacy_claimed": "<span style=\"font-weight: bold;\">已沿用舊版本匯入的滑索座標：本次共 %d 張地圖的座標歸屬到目前帳號。</span>之後無需重新匯入即可參與尋路。只有在目前帳號名下還沒有任何滑索記錄時才會這樣歸屬；目前帳號已經匯入過座標時，舊記錄不會被沿用。如需更新座標，請執行「🛝匯入/更新滑索座標」。此提示不會中斷任務。",
-    "zipline.no_data": "<span style=\"color: red; font-weight: bold;\">本次尋路未使用滑索：目前帳號在此區域沒有可用的滑索座標。請登入該帳號對應的官方地圖站點並執行「🛝匯入/更新滑索座標」；不帶帳號標識的舊版記錄只在目前帳號名下尚無任何記錄時才會被沿用。此提示不會中斷任務。</span>",
+    "zipline.legacy_claimed": "<span style=\"font-weight: bold;\">已沿用舊版本匯入的滑索座標：本次共 %d 張地圖的座標歸屬到目前帳號。</span>之後無需重新匯入即可參與尋路。只有在目前帳號名下還沒有任何滑索記錄時才會這樣歸屬；目前帳號已經匯入過座標時，舊記錄不會被沿用。如需更新座標，請執行「🚡匯入/更新滑索座標」。此提示不會中斷任務。",
+    "zipline.no_data": "<span style=\"color: red; font-weight: bold;\">本次尋路未使用滑索。</span>如需使用，請先單獨執行一次「🚡匯入/更新滑索座標」任務。",
     "zipline.not_chosen": "<span style=\"font-weight: bold;\">本次尋路未使用滑索：目前區域的滑索均未通過效益判定。</span>常見原因為前往上索點的路程超過直接步行、上索點不在遊戲的 NPC 可行走區域內、下索點距目標過遠。此提示不會中斷任務。"
 }

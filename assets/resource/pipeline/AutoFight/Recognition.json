@@ -124,7 +124,7 @@
         "count": 30 //自测50x1~50x3波动
     },
     "__AutoFightRecognitionCharactorLevelShow": {
-        "desc": "选中干员框下方等级 OCR；实际 roi/roi_offset 由 Go 按 CharacterSelect 框 Override",
+        "desc": "选中干员框下方等级OCR,在go内设置真实坐标",
         "recognition": "OCR",
         "roi": [
             20,
@@ -133,8 +133,13 @@
             18
         ],
         "expected": [
-            "\\d.*\\d"
-        ],
+            "LV",
+            "Lv",
+            "lV",
+            "lv",
+            "8",
+            "9"
+        ], // 在不显示时会误识别出2M
         "only_rec": true
     },
     "__AutoFightRecognitionComboCooldown1": {

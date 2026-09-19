@@ -90,6 +90,7 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 ### Reserve Rules (6 independent slots)
 
 - Two modes: keep a quantity / never sell (internally quantity `-1`); quantity `0` means keep nothing; for duplicated items the later slot wins.
+- Activity items are sold in one batch against the activity quota, so reserve rules never apply to them and the slots list no activity items; priority selling options are unaffected.
 - "Keep a quantity" uses BetterSliding `ReverseTarget` to sell only the excess; reaching the reserve in one trade, or stock already at/below the reserve, both `satisfy` the item for this task so later outposts skip it during selection.
 - "Never sell" excludes the item during selection recognition — no goods switching, never marked out of stock.
 
@@ -140,7 +141,7 @@ Selling operator not found / scan failure → stop the task (never trade with th
 
 ## Generator and Maintenance
 
-The generator lives in `tools/pipeline-generate/OutpostTrading/`. The zmdmap data CI uses `data/scripts/sell_product_data.py` to extract and publish `tools/pipeline-generate/data/sell_product.json` from TableCfg. This compact game data keeps only outposts, sellable items, outpost features, and operator matches; MaaEnd downloads it through `fetch-data.mjs`. `model.mjs` centrally defines outposts, regions, and i18n keys, and each `*-data.mjs` is the minimal data projection for its template.
+The generator lives in `tools/pipeline-generate/OutpostTrading/`. The zmdmap data CI uses `data/scripts/sell_product_data.py` to extract and publish `tools/pipeline-generate/data/sell_product.json` from TableCfg. This compact game data keeps only outposts, sellable items and their activity ids, outpost features, and operator matches; MaaEnd downloads it through `fetch-data.mjs`. `model.mjs` centrally defines outposts, regions, and i18n keys, and each `*-data.mjs` is the minimal data projection for its template.
 
 | Maintenance entry | Generated artifact |
 | ------------------------------- | ----------------------------------------------------------------- |

@@ -99,14 +99,14 @@ Readers can safely read `ElasticGoodsPrices.json` at any time and will never see
 
 ## UID Hash Algorithm
 
-UID acquisition is handled by `CaptureUid`: AutoStockpile invokes this custom action at the `AutoStockpileGetUid` node, reads the UID via screenshot OCR, and caches the raw digits; the hash result is used when writing records (see the [CaptureUid reference](../../developers/components/capture-uid.md)). For third parties needing to verify or compare UIDs, the algorithm is:
+UID acquisition is handled by `CaptureUid`: when data upload is enabled, AutoStockpile calls `captureuid.Capture` inside the selector, reads `PLDK_cachedRoleId` from the registry via `gamesetting.GetCachedUID`, and caches the raw digits; the hash result is used when writing records (see the [CaptureUid reference](../../developers/components/capture-uid.md)). For third parties needing to verify or compare UIDs, the algorithm is:
 
-1. `CaptureUid` captures a stable screen and runs OCR, extracting all consecutive digit segments from the result and concatenating them into a single string (e.g., `"123456789"`); the digit count is validated to be 8–12 before caching
+1. `CaptureUid` / `captureuid.Capture` reads `PLDK_cachedRoleId` for the current region and validates the digit count to be 8–12 before caching
 2. Read the user-locally-generated random salt: on first use, a 16-byte random salt (32 hex characters) is generated and written to `debug/record/random_salt.txt`, then reused; no fixed salt is used
 3. Compute `SHA256(digit_string + salt)`
 4. Take the first 16 characters of the hex digest as the final UID
 
-When no valid digits can be extracted (OCR failure or digit count outside the 8–12 range), the UID is `"unknown"`.
+When no valid UID can be read (missing registry value, region resolution failure, or digit count outside the 8–12 range), the UID is `"unknown"`.
 
 > This hash is an **irreversible salted digest** — the original in-game UID cannot be reversed from the UID in the file. The salt is generated locally per installation: it is stable across sessions within the same installation (usable to correlate the same player), but differs between installations, so the same player's hash cannot be compared across installations.
 

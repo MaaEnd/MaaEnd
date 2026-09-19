@@ -239,6 +239,24 @@
         "action": "Click",
         "post_delay": 500, // 点击后，等待界面回到大世界
         "next": [
+            "SeizeDeliveryJobsSeizeSucceededClearRefreshHit"
+        ]
+    },
+    // 抢单成功：把刷新计数清零，使下一轮抢单（RepeatCount）重新获得完整的 100 次预算。
+    // 复用项目现成 action ClearHitCount，写法与 AccountSwitch 的 __AccountSwitchClickDropdown 一致。
+    "SeizeDeliveryJobsSeizeSucceededClearRefreshHit": {
+        "desc": "抢单成功，重置刷新次数计数",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "SeizeDeliveryJobsRefreshHit"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
             "SeizeDeliveryJobsPostProcessingEntry",
             "SeizeDeliveryJobsSuccessFetchOnly"
         ]
@@ -259,9 +277,42 @@
         "order_by": "Score",
         "action": "Click",
         "post_delay": 1000, // 等待刷新响应
+        // 刷新成功后先经过计数节点：未达上限则回到 Loop 继续抢单；
+        // 达上限（计数节点被 max_hit 跳过）才轮到 RefreshExhausted 收尾并提示。
+        // 这两个节点必须放在本节点的 next 里，不能放到 Loop 的 next：
+        // 游戏对刷新有 5 秒冷却，冷却期间刷新按钮不可点击、模板匹配会失败（实测分数 0.998 → 0.35），
+        // 此时 Loop 的 next 会全部不命中，由框架反复重试到超时（默认 20s），冷却结束即自动恢复；
+        // 若把兜底节点放进 Loop 的 next，就会被这种瞬时失败误触发、任务提前结束。
+        "next": [
+            "SeizeDeliveryJobsRefreshHit",
+            "SeizeDeliveryJobsRefreshExhausted"
+        ]
+    },
+    // 刷新次数计数节点：每次成功刷新 +1。
+    // 用 DirectHit 是刻意的——它恒命中，不会因识别失败而落空，
+    // 因此「它没被选中」只可能有一个原因：max_hit 用尽。
+    // 同级的 RefreshExhausted 正是靠这一点才能只在用尽时触发。
+    "SeizeDeliveryJobsRefreshHit": {
+        "desc": "刷新次数计数（每次成功刷新 +1）",
+        "max_hit": 100,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsLoop"
         ]
+    },
+    // 刷新次数用尽：连续刷新 100 次仍未接到委托，提示用户并结束本次抢单。
+    "SeizeDeliveryJobsRefreshExhausted": {
+        "desc": "刷新次数用尽，跳过本次抢单",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.SeizeDeliveryJobs.focus.refreshExhausted"
+        }
     },
     "SeizeDeliveryJobsSuccessFetchOnly": {
         "desc": "任务成功，触发早停，已抢单（此节点默认开启）",

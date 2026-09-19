@@ -50,6 +50,8 @@ var htmlTemplates = map[string]string{
 	"autoecofarm.interruptible_sleep_done":    "HTML/interruptible-sleep-done.html",
 	"autoecofarm.interruptible_sleep_stopped": "HTML/interruptible-sleep-stopped.html",
 	"dijiangrewards.wait_exchange_countdown":  "HTML/dijiangrewards-wait-exchange-countdown.html",
+	"ims.sync_item_summary":                   "HTML/ims-sync-item-summary.html",
+	"ims.add_item_summary":                    "HTML/ims-add-item-summary.html",
 }
 
 var (
