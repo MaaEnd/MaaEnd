@@ -129,6 +129,8 @@ class NavTestService:
             data = json.loads(path.read_text(encoding="utf-8-sig"))
         except (OSError, ValueError):
             return ""
+        if not isinstance(data, dict):
+            return ""
         latest_id = ""
         latest_at = ""
         for record in data.get("maps") or []:

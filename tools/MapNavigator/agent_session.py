@@ -165,7 +165,11 @@ class AgentSession:
         for aux_process in self._aux_processes:
             aux_process.terminate()
         for aux_process in self._aux_processes:
-            aux_process.wait()
+            try:
+                aux_process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                aux_process.kill()
+                aux_process.wait()
         self._aux_processes = []
         self._aux_clients = []
         self.tasker = None
