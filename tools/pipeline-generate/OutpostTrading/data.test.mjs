@@ -272,6 +272,40 @@ test("OutpostTrading 优先总开关展开地区配置且不耦合地区售卖�
     }
 });
 
+test("OutpostTrading 优先与保留下拉选项附带预制 UI 图标", () => {
+    for (const regionRoot of outpostTradingTaskRows.filter((row) => row.RegionPrefix)) {
+        for (const slot of [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+        ]) {
+            for (const itemCase of regionRoot[`PriorityItemCases${slot}`].filter((entry) => entry.name !== "None")) {
+                const itemId =
+                    itemCase.pipeline_override[
+                        `OutpostTrading${regionRoot.RegionPrefix}RegisterPriorityItem${slot}`
+                    ].custom_action_param.item_id;
+                assert.equal(itemCase.icon, `resource/image/UI/Item/${itemId}.png`);
+            }
+        }
+    }
+    for (const slot of [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+    ]) {
+        for (const itemCase of root[`ReserveItemCases${slot}`].filter((entry) => entry.name !== "None")) {
+            const itemId = itemCase.pipeline_override[`OutpostTradingRegisterReserveRule${slot}`].attach.item_id;
+            assert.equal(itemCase.icon, `resource/image/UI/Item/${itemId}.png`);
+        }
+    }
+});
+
 test("OutpostTrading 武陵优先物品顺序与游戏货架一致", () => {
     const regionPrefix = "Wuling";
     const regionRoot = outpostTradingTaskRows.find((row) => row.RegionPrefix === regionPrefix);
