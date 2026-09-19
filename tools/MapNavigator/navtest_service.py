@@ -7,13 +7,14 @@
 
 from __future__ import annotations
 
+import json
 import re
 import threading
 import time
 from pathlib import Path
 from typing import Any, Callable
 
-from agent_session import AgentSession
+from agent_session import AgentSession, GO_SERVICE_EXE
 from connection_models import RecordingSessionConfig
 from connectors import build_recording_connector
 from json_import import export_assert_location_node, export_path_nodes
@@ -38,6 +39,10 @@ ASSERT_NODE_NAME = "MapNavigatorDebugAssertNode"
 
 HOTKEY_RUN = "f3"
 HOTKEY_ABORT = "f4"
+
+# 正式包 resource 目录 (经 install junction): 滑索挂索链 MapNavigatorZiplineMount*
+# 节点与挂索提示扫描要用的 OCR 模型都在里面。装上后 cpp 端到塔脚才点得了滑索。
+RESOURCE_PIPELINE_DIR = Path(__file__).resolve().parents[2] / "install" / "resource"
 
 
 class NavTestService:
@@ -85,6 +90,7 @@ class NavTestService:
         self._armed_path: list[Any] = []
         self._armed_kind = "route"
         self._armed_zip = False
+        self._armed_account = ""
         self._tasker: Any = None
         self._resource: Any = None
         self._position_thread: threading.Thread | None = None
@@ -113,6 +119,27 @@ class NavTestService:
             / "debug"
             / "maafw.log"
         )
+
+    @staticmethod
+    def _latest_zipline_account() -> str:
+        """Ziplines.json 里最近一次带账号的记录 —— 与 route_preview 的 latestAccountId
+        兜底同语义 (account_id 非空, fetched_at 最新)。页面没选账号时自动用上它。"""
+        path = Path(__file__).resolve().parents[2] / "install" / "debug" / "record" / "Ziplines.json"
+        try:
+            data = json.loads(path.read_text(encoding="utf-8-sig"))
+        except (OSError, ValueError):
+            return ""
+        latest_id = ""
+        latest_at = ""
+        for record in data.get("maps") or []:
+            if not isinstance(record, dict):
+                continue
+            account_id = str(record.get("account_id") or "")
+            fetched_at = str(record.get("fetched_at") or "")
+            if account_id and fetched_at > latest_at:
+                latest_id = account_id
+                latest_at = fetched_at
+        return latest_id
 
     def _start_position_observer(self) -> None:
         self._stop_position_observer()
@@ -210,12 +237,15 @@ class NavTestService:
         exported: bool = False,
         zip_enabled: bool = False,
         assert_target: dict | None = None,
+        zipline_account_id: str = "",
     ) -> None:
         """装载待跑的东西: 有断言框就装框, 否则装线。F3 跑的就是这一份。
 
         每次调用整份替换 (含 kind), 切页签重新装载时不会留下上一种形状的残留。
         编辑器路点在这里就地导出, 只有这一处口径, 进程内会话与提权子进程都经过它。
         A* 路线依赖 tier 变换与显示底图, 这些只有前端有, 故送来的已是 pipeline 节点。
+        滑索记录按游戏账号隔离, 勾了滑索就把页面选中的账号一并装上, 缺了它
+        cpp 端认不出身份, 整条线退化成步行。
         """
         if assert_target is not None:
             nodes = self._export_assert(assert_target)
@@ -235,6 +265,7 @@ class NavTestService:
             self._armed_path = nodes
             self._armed_kind = kind
             self._armed_zip = bool(zip_enabled and kind == "route")
+            self._armed_account = str(zipline_account_id or "")
         self._on_armed(len(nodes), kind)
 
     def _export_assert(self, assert_target: dict) -> list[Any] | None:
@@ -264,6 +295,7 @@ class NavTestService:
                     points,
                     exported=bool(msg.get("exported")),
                     zip_enabled=bool(msg.get("zip")),
+                    zipline_account_id=str(msg.get("zipline_account_id") or ""),
                 )
             if kind == "run":
                 self.trigger_run()
@@ -337,9 +369,16 @@ class NavTestService:
                 raise RuntimeError("试跑会话配置缺失。")
 
             self._on_phase("connecting", "正在启动导航服务并连接游戏…")
+            # 正式包 resource (pipeline + OCR 模型): 滑索挂索链 MapNavigatorZiplineMount*
+            # 在里面, cpp 端到塔脚后要读它的扫描配置、跑挂索任务。缺了它滑索腿只走到塔脚。
+            resource_dir = RESOURCE_PIPELINE_DIR
+            # go-service: AutoAltClickAction (按住 Alt 点击「登上滑索架」) 注册在这里。
+            aux = [GO_SERVICE_EXE] if GO_SERVICE_EXE.exists() else None
             self._session.open(
                 build_recording_connector(self._runtime, self._session_config),
                 agent_name="MapNavigateAgent",
+                resource_dirs=[resource_dir] if resource_dir.exists() else None,
+                aux_agents=aux,
             )
             tasker = self._session.tasker
             resource = self._session.resource
@@ -391,6 +430,7 @@ class NavTestService:
             path = list(self._armed_path)
             kind = self._armed_kind
             zip_enabled = self._armed_zip
+            account_id = self._armed_account
         if not path:
             return
         if tasker.stopping or tasker.running:
@@ -426,6 +466,16 @@ class NavTestService:
                     "post_delay": 0,
                 }
             }
+            if zip_enabled:
+                # 滑索记录按账号隔离。把账号写进这个只存值的节点 (从不执行, 不在任何 next
+                # 里), cpp 端规划前从它读身份 —— 与 go-service CaptureUid 写入的是同一处。
+                # 页面没选账号时兜底取 Ziplines.json 里最近的账号 (与 route_preview 一致)。
+                if not account_id:
+                    account_id = self._latest_zipline_account()
+                if account_id:
+                    override["CurrentAccountIdentity"] = {"attach": {"account_id": account_id}}
+                else:
+                    self._on_status("勾了滑索但没有账号身份: Ziplines.json 里没有带账号的记录, 将全程步行。", "#f59e0b")
 
         resource.override_pipeline(override)
 

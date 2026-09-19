@@ -78,6 +78,7 @@ def _build_navtest(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
         exported=bool(start.get("exported")),
         zip_enabled=bool(start.get("zip")),
         assert_target=start.get("assert_target"),
+        zipline_account_id=str(start.get("zipline_account_id") or ""),
     )
     service.start(session_config_from_payload(start.get("config") or {}))
     return service
