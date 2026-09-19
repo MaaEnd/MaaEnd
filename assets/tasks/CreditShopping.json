@@ -255,6 +255,7 @@
                 {
                     "name": "ArsenalTicket",
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
+                    "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -281,6 +282,7 @@
                 {
                     "name": "Oroberyl",
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -307,6 +309,7 @@
                 {
                     "name": "TCreds",
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
+                    "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -333,6 +336,7 @@
                 {
                     "name": "ElementaryCognitiveCarrier",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
+                    "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -359,6 +363,7 @@
                 {
                     "name": "ElementaryCombatRecord",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -385,6 +390,7 @@
                 {
                     "name": "IntermediateCombatRecord",
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -411,6 +417,7 @@
                 {
                     "name": "ArmsInspector",
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
+                    "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -437,6 +444,7 @@
                 {
                     "name": "ArmsINSPKit",
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -463,6 +471,7 @@
                 {
                     "name": "CastDie",
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -489,6 +498,7 @@
                 {
                     "name": "HeavyCastDie",
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -515,6 +525,7 @@
                 {
                     "name": "Protodisk",
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
+                    "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -541,6 +552,7 @@
                 {
                     "name": "Protoset",
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
+                    "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -567,6 +579,7 @@
                 {
                     "name": "Protoprism",
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -593,6 +606,7 @@
                 {
                     "name": "Protohedron",
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
+                    "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
                         "BuyFirstOCR": {
                             "attach": {
@@ -922,6 +936,7 @@
                 {
                     "name": "ArsenalTicket",
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
+                    "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -948,6 +963,7 @@
                 {
                     "name": "Oroberyl",
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -974,6 +990,7 @@
                 {
                     "name": "TCreds",
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
+                    "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1000,6 +1017,7 @@
                 {
                     "name": "ElementaryCognitiveCarrier",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
+                    "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1026,6 +1044,7 @@
                 {
                     "name": "ElementaryCombatRecord",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1052,6 +1071,7 @@
                 {
                     "name": "IntermediateCombatRecord",
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1078,6 +1098,7 @@
                 {
                     "name": "ArmsInspector",
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
+                    "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1104,6 +1125,7 @@
                 {
                     "name": "ArmsINSPKit",
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1130,6 +1152,7 @@
                 {
                     "name": "CastDie",
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1156,6 +1179,7 @@
                 {
                     "name": "HeavyCastDie",
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1182,6 +1206,7 @@
                 {
                     "name": "Protodisk",
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
+                    "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1208,6 +1233,7 @@
                 {
                     "name": "Protoset",
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
+                    "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1234,6 +1260,7 @@
                 {
                     "name": "Protoprism",
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1260,6 +1287,7 @@
                 {
                     "name": "Protohedron",
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
+                    "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
                         "Priority2OCR": {
                             "attach": {
@@ -1577,6 +1605,7 @@
                 {
                     "name": "ArsenalTicket",
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
+                    "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1603,6 +1632,7 @@
                 {
                     "name": "Oroberyl",
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1629,6 +1659,7 @@
                 {
                     "name": "TCreds",
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
+                    "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1655,6 +1686,7 @@
                 {
                     "name": "ElementaryCognitiveCarrier",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
+                    "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1681,6 +1713,7 @@
                 {
                     "name": "ElementaryCombatRecord",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1707,6 +1740,7 @@
                 {
                     "name": "IntermediateCombatRecord",
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1733,6 +1767,7 @@
                 {
                     "name": "ArmsInspector",
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
+                    "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1759,6 +1794,7 @@
                 {
                     "name": "ArmsINSPKit",
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1785,6 +1821,7 @@
                 {
                     "name": "CastDie",
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1811,6 +1848,7 @@
                 {
                     "name": "HeavyCastDie",
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1837,6 +1875,7 @@
                 {
                     "name": "Protodisk",
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
+                    "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1863,6 +1902,7 @@
                 {
                     "name": "Protoset",
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
+                    "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1889,6 +1929,7 @@
                 {
                     "name": "Protoprism",
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {
@@ -1915,6 +1956,7 @@
                 {
                     "name": "Protohedron",
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
+                    "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
                         "Priority3OCR": {
                             "attach": {

@@ -275,6 +275,27 @@ test("SeizeDeliveryJobs applies the shared zipline preference to AutoDelivery na
     }
 });
 
+test("DeliveryJobs fill item select options include UI icons when prefabs exist", () => {
+    const task = readGeneratedTask();
+    const uiItemDir = new URL("../../../assets/resource/image/UI/Item/", import.meta.url);
+
+    for (const region of deliveryJobRegions) {
+        for (let priority = 1; priority <= DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT; priority += 1) {
+            const option = task.option[`WhatToFill${region.Id}Priority${priority}`];
+            const itemCases = priority === 1 ? option.cases : option.cases.slice(1);
+            for (const item of region.FillItems) {
+                const optionCase = itemCases.find((entry) => entry.name === item.Id);
+                assert.ok(optionCase, `${region.Id} priority ${priority} missing case ${item.Id}`);
+                assert.ok(
+                    existsSync(new URL(`${item.ItemId}.png`, uiItemDir)),
+                    `${item.ItemId} should have UI prefab icon`,
+                );
+                assert.equal(optionCase.icon, `resource/image/UI/Item/${item.ItemId}.png`);
+            }
+        }
+    }
+});
+
 test("DeliveryJobs packing item options inject IconRecognition item ids", () => {
     const task = readGeneratedTask();
     const enabledCase = task.option.PackCargoSelectItem.cases.find((itemCase) => itemCase.name === "Yes");

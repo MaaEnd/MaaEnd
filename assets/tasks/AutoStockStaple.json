@@ -184,6 +184,7 @@
                 {
                     "name": "ValleyEngravingPermit",
                     "label": "$option.CreditShoppingItems.cases.ValleyEngravingPermit.label",
+                    "icon": "resource/image/UI/Item/item_gem_stable_energy_point_tundra.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -201,6 +202,7 @@
                 {
                     "name": "KunstTube",
                     "label": "$option.CreditShoppingItems.cases.KunstTube.label",
+                    "icon": "resource/image/UI/Item/item_bottled_insec2_2.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -218,6 +220,7 @@
                 {
                     "name": "JakubsLegacy",
                     "label": "$option.CreditShoppingItems.cases.JakubsLegacy.label",
+                    "icon": "resource/image/UI/Item/item_agrange_1_erhound_1_sp_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -235,6 +238,7 @@
                 {
                     "name": "PulledSlugMeat",
                     "label": "$option.CreditShoppingItems.cases.PulledSlugMeat.label",
+                    "icon": "resource/image/UI/Item/item_slimeml_1_erhound_1_agfly_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -252,6 +256,7 @@
                 {
                     "name": "HazefyreBlossom",
                     "label": "$option.CreditShoppingItems.cases.HazefyreBlossom.label",
+                    "icon": "resource/image/UI/Item/item_erhound_1_agmelee_1_moss_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -269,6 +274,7 @@
                 {
                     "name": "CartilageTack",
                     "label": "$option.CreditShoppingItems.cases.CartilageTack.label",
+                    "icon": "resource/image/UI/Item/item_lbmob_1_lbshamman_1_sp_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -286,6 +292,7 @@
                 {
                     "name": "CosmoMeltoJelly",
                     "label": "$option.CreditShoppingItems.cases.CosmoMeltoJelly.label",
+                    "icon": "resource/image/UI/Item/item_agfly_1_agmelee_1_moss_2_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -476,6 +483,7 @@
                 {
                     "name": "KeenValleyDetector",
                     "label": "$option.CreditShoppingItems.cases.KeenValleyDetector.label",
+                    "icon": "resource/image/UI/Item/item_tundra_detector_trchest_3.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -493,6 +501,7 @@
                 {
                     "name": "KeenValleyCompass",
                     "label": "$option.CreditShoppingItems.cases.KeenValleyCompass.label",
+                    "icon": "resource/image/UI/Item/item_tundra_detector_coin_3.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -571,6 +580,7 @@
                 {
                     "name": "BreezeOfKjersch",
                     "label": "$option.CreditShoppingItems.cases.BreezeOfKjersch.label",
+                    "icon": "resource/image/UI/Item/item_gift_tundra_4.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -588,6 +598,7 @@
                 {
                     "name": "TidestoneSpecimen",
                     "label": "$option.CreditShoppingItems.cases.TidestoneSpecimen.label",
+                    "icon": "resource/image/UI/Item/item_gift_tundra_5.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -605,6 +616,7 @@
                 {
                     "name": "SimonchShawl",
                     "label": "$option.CreditShoppingItems.cases.SimonchShawl.label",
+                    "icon": "resource/image/UI/Item/item_gift_tundra_6.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -622,6 +634,7 @@
                 {
                     "name": "FrontiersWatch",
                     "label": "$option.CreditShoppingItems.cases.FrontiersWatch.label",
+                    "icon": "resource/image/UI/Item/item_gift_tundra_7.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -639,6 +652,7 @@
                 {
                     "name": "AuryleneCamera",
                     "label": "$option.CreditShoppingItems.cases.AuryleneCamera.label",
+                    "icon": "resource/image/UI/Item/item_gift_tundra_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -656,6 +670,7 @@
                 {
                     "name": "CosmicGatePuzzle",
                     "label": "$option.CreditShoppingItems.cases.CosmicGatePuzzle.label",
+                    "icon": "resource/image/UI/Item/item_gift_tundra_2.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -673,6 +688,7 @@
                 {
                     "name": "SurfingFestivalTicket",
                     "label": "$option.CreditShoppingItems.cases.SurfingFestivalTicket.label",
+                    "icon": "resource/image/UI/Item/item_gift_tundra_3.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1095,6 +1111,7 @@
                 {
                     "name": "WulingEngravingPermit",
                     "label": "$option.CreditShoppingItems.cases.WulingEngravingPermit.label",
+                    "icon": "resource/image/UI/Item/item_gem_stable_energy_point_wuling.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1112,6 +1129,7 @@
                 {
                     "name": "FortifyingInfusion",
                     "label": "$option.CreditShoppingItems.cases.FortifyingInfusion.label",
+                    "icon": "resource/image/UI/Item/item_corp3_grass1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1129,6 +1147,7 @@
                 {
                     "name": "GardenFriedRice",
                     "label": "$option.CreditShoppingItems.cases.GardenFriedRice.label",
+                    "icon": "resource/image/UI/Item/item_corp4_grass2_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1146,6 +1165,7 @@
                 {
                     "name": "MasterPansEggPudding",
                     "label": "$option.CreditShoppingItems.cases.MasterPansEggPudding.label",
+                    "icon": "resource/image/UI/Item/item_hscrane_1_hsmob_1_grass_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1163,6 +1183,7 @@
                 {
                     "name": "EchoingRemedy",
                     "label": "$option.CreditShoppingItems.cases.EchoingRemedy.label",
+                    "icon": "resource/image/UI/Item/item_ethillu_1_wgslime_1_wgthorns_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1180,6 +1201,7 @@
                 {
                     "name": "RindFlavoredSprouts",
                     "label": "$option.CreditShoppingItems.cases.RindFlavoredSprouts.label",
+                    "icon": "resource/image/UI/Item/item_jzmonk_1_hsmob_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1197,6 +1219,7 @@
                 {
                     "name": "StoneholdRemedy",
                     "label": "$option.CreditShoppingItems.cases.StoneholdRemedy.label",
+                    "icon": "resource/image/UI/Item/item_klcreatures_1_wgthorns_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1214,6 +1237,7 @@
                 {
                     "name": "RuinPurgerRemedy",
                     "label": "$option.CreditShoppingItems.cases.RuinPurgerRemedy.label",
+                    "icon": "resource/image/UI/Item/item_klbuds_1_hsfly_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1231,6 +1255,7 @@
                 {
                     "name": "SearToastedLiver",
                     "label": "$option.CreditShoppingItems.cases.SearToastedLiver.label",
+                    "icon": "resource/image/UI/Item/item_slwood_1_hshog_1_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1458,6 +1483,7 @@
                 {
                     "name": "WulingArtificingCatalyst",
                     "label": "$option.CreditShoppingItems.cases.WulingArtificingCatalyst.label",
+                    "icon": "resource/image/UI/Item/item_equip_enhance_wuling.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1475,6 +1501,7 @@
                 {
                     "name": "KeenWulingDetector",
                     "label": "$option.CreditShoppingItems.cases.KeenWulingDetector.label",
+                    "icon": "resource/image/UI/Item/item_wuling_detector_trchest_3.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1492,6 +1519,7 @@
                 {
                     "name": "KeenWulingCompass",
                     "label": "$option.CreditShoppingItems.cases.KeenWulingCompass.label",
+                    "icon": "resource/image/UI/Item/item_wuling_detector_coin_3.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1509,6 +1537,7 @@
                 {
                     "name": "WulingTalositeProbe",
                     "label": "$option.CreditShoppingItems.cases.WulingTalositeProbe.label",
+                    "icon": "resource/image/UI/Item/item_wuling_detector_star.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1641,6 +1670,7 @@
                 {
                     "name": "EurekaTeabox",
                     "label": "$option.CreditShoppingItems.cases.EurekaTeabox.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_1.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1658,6 +1688,7 @@
                 {
                     "name": "YinglungDumbbells",
                     "label": "$option.CreditShoppingItems.cases.YinglungDumbbells.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_2.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1675,6 +1706,7 @@
                 {
                     "name": "WovenAggelos",
                     "label": "$option.CreditShoppingItems.cases.WovenAggelos.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_3.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1692,6 +1724,7 @@
                 {
                     "name": "ScrimshawOfThePack",
                     "label": "$option.CreditShoppingItems.cases.ScrimshawOfThePack.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_4.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1709,6 +1742,7 @@
                 {
                     "name": "FinNChips",
                     "label": "$option.CreditShoppingItems.cases.FinNChips.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_6.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1726,6 +1760,7 @@
                 {
                     "name": "BizarroCupcake",
                     "label": "$option.CreditShoppingItems.cases.BizarroCupcake.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_7.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1743,6 +1778,7 @@
                 {
                     "name": "ChubbyLungFangxingMemorabilia",
                     "label": "$option.CreditShoppingItems.cases.ChubbyLungFangxingMemorabilia.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_5.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1762,6 +1798,7 @@
                 {
                     "name": "FowlbeastPaperKite",
                     "label": "$option.CreditShoppingItems.cases.FowlbeastPaperKite.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_8.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1779,6 +1816,7 @@
                 {
                     "name": "SwingingGentlemanClassicalAlbum",
                     "label": "$option.CreditShoppingItems.cases.SwingingGentlemanClassicalAlbum.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_9.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1802,6 +1840,7 @@
                 {
                     "name": "MyrkwoodBerryPreserve",
                     "label": "$option.CreditShoppingItems.cases.MyrkwoodBerryPreserve.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_10.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {
@@ -1819,6 +1858,7 @@
                 {
                     "name": "MiracleCake",
                     "label": "$option.CreditShoppingItems.cases.MiracleCake.label",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_11.png",
                     "pipeline_override": {
                         "AutoStockInStapleItemName": {
                             "attach": {

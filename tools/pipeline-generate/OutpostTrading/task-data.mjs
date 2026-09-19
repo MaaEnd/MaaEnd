@@ -1,5 +1,7 @@
 // OutpostTrading Task 模板数据
 
+import {existsSync} from "node:fs";
+
 import {readJsonc} from "../jsonc.mjs";
 import {outpostTradingLocations, toPascalCase} from "./model.mjs";
 import {
@@ -9,6 +11,14 @@ import {
 } from "./selection-data.mjs";
 
 const zhCNLocale = readJsonc(new URL("../../../assets/locales/interface/zh_cn.json", import.meta.url));
+const UI_ITEM_DIR = new URL("../../../assets/resource/image/UI/Item/", import.meta.url);
+
+function buildItemIcon(itemId) {
+    if (!itemId || !existsSync(new URL(`${itemId}.png`, UI_ITEM_DIR))) {
+        return undefined;
+    }
+    return `resource/image/UI/Item/${itemId}.png`;
+}
 
 // 建立中文物品名到 interface locale key 的反查表。
 function buildItemLocaleKeyByCNName() {
@@ -110,18 +120,22 @@ function buildReserveItemCases(slot) {
         ...Object.values(ITEMS)
             .filter((item) => !outpostTradingActivityItemIDs.has(item.id))
             .sort(compareItemsByUnitPrice(ITEM_PRICE_BY_ID))
-            .map((item) => ({
-                name: item.name,
-                ...(item.label ? {label: item.label} : {}),
-                option: [`SellProductReserveItem${slot}Mode`],
-                pipeline_override: {
-                    [`OutpostTradingRegisterReserveRule${slot}`]: {
-                        attach: {
-                            item_id: item.id,
+            .map((item) => {
+                const icon = buildItemIcon(item.id);
+                return {
+                    name: item.name,
+                    ...(item.label ? {label: item.label} : {}),
+                    ...(icon ? {icon} : {}),
+                    option: [`SellProductReserveItem${slot}Mode`],
+                    pipeline_override: {
+                        [`OutpostTradingRegisterReserveRule${slot}`]: {
+                            attach: {
+                                item_id: item.id,
+                            },
                         },
                     },
-                },
-            })),
+                };
+            }),
     ];
 }
 
@@ -160,18 +174,22 @@ function buildPriorityItemCases(regionPrefix, slot) {
         ...Object.values(ITEMS)
             .filter((item) => priceByItemID.has(item.id))
             .sort(compareItemsByUnitPrice(priceByItemID))
-            .map((item) => ({
-                name: item.name,
-                ...(item.label ? {label: item.label} : {}),
-                pipeline_override: {
-                    [`OutpostTrading${regionPrefix}RegisterPriorityItem${slot}`]: {
-                        custom_action_param: {
-                            operation: "register",
-                            item_id: item.id,
+            .map((item) => {
+                const icon = buildItemIcon(item.id);
+                return {
+                    name: item.name,
+                    ...(item.label ? {label: item.label} : {}),
+                    ...(icon ? {icon} : {}),
+                    pipeline_override: {
+                        [`OutpostTrading${regionPrefix}RegisterPriorityItem${slot}`]: {
+                            custom_action_param: {
+                                operation: "register",
+                                item_id: item.id,
+                            },
                         },
                     },
-                },
-            })),
+                };
+            }),
     ];
 }
 

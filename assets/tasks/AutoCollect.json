@@ -412,7 +412,7 @@
             "inputs": [
                 {
                     "name": "AutoCollectLimit_Route1",
-                    "label": "$iconRecognition.name.item_plant_crylplant_2_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_2_1.label",
                     "pipeline_type": "int",
                     "default": "252",
                     "verify": "^\\d+$",
@@ -420,7 +420,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route2",
-                    "label": "$iconRecognition.name.item_plant_crylplant_2_2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_2_2.label",
                     "pipeline_type": "int",
                     "default": "252",
                     "verify": "^\\d+$",
@@ -428,7 +428,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route3",
-                    "label": "$iconRecognition.name.item_plant_crylplant_1_3",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_1_3.label",
                     "pipeline_type": "int",
                     "default": "64",
                     "verify": "^\\d+$",
@@ -436,7 +436,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route4",
-                    "label": "$iconRecognition.name.item_plant_crylplant_1_2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_1_2.label",
                     "pipeline_type": "int",
                     "default": "64",
                     "verify": "^\\d+$",
@@ -444,7 +444,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route5",
-                    "label": "$iconRecognition.name.item_plant_spcstone_1_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_1_1.label",
                     "pipeline_type": "int",
                     "default": "12",
                     "verify": "^\\d+$",
@@ -452,7 +452,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route6",
-                    "label": "$iconRecognition.name.item_plant_mushroom_1_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_1_1.label",
                     "pipeline_type": "int",
                     "default": "12",
                     "verify": "^\\d+$",
@@ -460,7 +460,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route7Bloodcap",
-                    "label": "$iconRecognition.name.item_plant_mushroom_2_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_2_1.label",
                     "pipeline_type": "int",
                     "default": "32",
                     "verify": "^\\d+$",
@@ -468,7 +468,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route7Wulingstone",
-                    "label": "$iconRecognition.name.item_plant_spcstone_2_2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_2_2.label",
                     "pipeline_type": "int",
                     "default": "32",
                     "verify": "^\\d+$",
@@ -476,7 +476,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route8",
-                    "label": "$iconRecognition.name.item_plant_mushroom_2_2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_2_2.label",
                     "pipeline_type": "int",
                     "default": "32",
                     "verify": "^\\d+$",
@@ -484,7 +484,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route9",
-                    "label": "$iconRecognition.name.item_plant_spcstone_2_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_2_1.label",
                     "pipeline_type": "int",
                     "default": "32",
                     "verify": "^\\d+$",
@@ -492,7 +492,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route10",
-                    "label": "$iconRecognition.name.item_plant_mushroom_1_3",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_1_3.label",
                     "pipeline_type": "int",
                     "default": "20",
                     "verify": "^\\d+$",
@@ -500,7 +500,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route11",
-                    "label": "$iconRecognition.name.item_plant_spcstone_1_3",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_1_3.label",
                     "pipeline_type": "int",
                     "default": "20",
                     "verify": "^\\d+$",
@@ -508,7 +508,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route12",
-                    "label": "$iconRecognition.name.item_plant_mushroom_1_2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_1_2.label",
                     "pipeline_type": "int",
                     "default": "20",
                     "verify": "^\\d+$",
@@ -516,7 +516,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route13",
-                    "label": "$iconRecognition.name.item_plant_spcstone_1_2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_1_2.label",
                     "pipeline_type": "int",
                     "default": "20",
                     "verify": "^\\d+$",
@@ -524,7 +524,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route14",
-                    "label": "$iconRecognition.name.item_plant_crylplant_1_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_1_1.label",
                     "pipeline_type": "int",
                     "default": "48",
                     "verify": "^\\d+$",
@@ -532,7 +532,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route15",
-                    "label": "$iconRecognition.name.item_plant_crylplant_2_3",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_2_3.label",
                     "pipeline_type": "int",
                     "default": "252",
                     "verify": "^\\d+$",
@@ -540,7 +540,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route16",
-                    "label": "$iconRecognition.name.item_plant_spcstone_2_3",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_2_3.label",
                     "pipeline_type": "int",
                     "default": "32",
                     "verify": "^\\d+$",
@@ -548,7 +548,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_Route17",
-                    "label": "$iconRecognition.name.item_plant_mushroom_2_3",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_2_3.label",
                     "pipeline_type": "int",
                     "default": "32",
                     "verify": "^\\d+$",
@@ -556,7 +556,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute1",
-                    "label": "$iconRecognition.name.item_plant_moss_spc_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_moss_spc_1.label",
                     "pipeline_type": "int",
                     "default": "0",
                     "verify": "^\\d+$",
@@ -564,7 +564,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute2",
-                    "label": "$iconRecognition.name.item_plant_moss_spc_2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_moss_spc_2.label",
                     "pipeline_type": "int",
                     "default": "0",
                     "verify": "^\\d+$",
@@ -572,7 +572,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute3",
-                    "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_tundra_insect_2.label",
                     "pipeline_type": "int",
                     "default": "0",
                     "verify": "^\\d+$",
@@ -580,7 +580,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute4",
-                    "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_tundra_insect_1.label",
                     "pipeline_type": "int",
                     "default": "0",
                     "verify": "^\\d+$",
@@ -588,7 +588,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute5",
-                    "label": "$iconRecognition.name.item_plant_grass_spc_1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_grass_spc_1.label",
                     "pipeline_type": "int",
                     "default": "0",
                     "verify": "^\\d+$",
@@ -596,7 +596,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute6",
-                    "label": "$iconRecognition.name.item_plant_sp_3",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_sp_3.label",
                     "pipeline_type": "int",
                     "default": "0",
                     "verify": "^\\d+$",
@@ -604,7 +604,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute7",
-                    "label": "$iconRecognition.name.item_plant_grass_spc_2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_grass_spc_2.label",
                     "pipeline_type": "int",
                     "default": "0",
                     "verify": "^\\d+$",
@@ -612,7 +612,7 @@
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute8",
-                    "label": "$iconRecognition.name.item_plant_sp_4",
+                    "label": "$option.AutoCollectTargetInventory.inputs.item_plant_sp_4.label",
                     "pipeline_type": "int",
                     "default": "0",
                     "verify": "^\\d+$",
