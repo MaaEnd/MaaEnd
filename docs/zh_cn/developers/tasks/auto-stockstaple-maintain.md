@@ -145,6 +145,7 @@ pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple
 锚点 AutoStockInStapleItem
   -> 商品名 AutoStockInStapleItemName_Expected
   -> 折扣 AutoStockInStapleItemDiscountsValleyIV
+  -> 折扣比较 AutoStockDiscountCompareValleyIV
   -> 点击并进入数量控制
 ```
 
@@ -289,7 +290,7 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 
 | 动作 | 触发位置 | 作用 |
 | -------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
-| 选项的 `pipeline_override`（`interface.json` 声明） | 任务选项收集（MXU 渲染阶段） | 类目关闭时不收集该类 override；注入折扣比较表达式；无折扣开关替换折扣识别节点并回退 `all_of` |
+| 选项的 `pipeline_override`（`interface.json` 声明） | 任务选项收集（MXU 渲染阶段） | 类目关闭时不收集该类 override；数值档注入折扣比较表达式；「任意」档替换折扣识别节点并回退 `all_of` |
 | `AttachToExpectedRegexAction` | `AutoStockStapleMain` 入口；Exclude 后 Reset 节点 | 合并 attach 关键词 → OCR 白名单正则 |
 | `PipelineOverrideAction` | 各物品 `{Item}RemoveFilter` | 将指定 attach 键设为 `false`，排除该物品 |
 | `AutoStockStapleQuantityControlAction` | 各物品 `{Item}Buy` | 计算差值并 override BetterSliding 的 `TargetQuantity` / `enabled` |

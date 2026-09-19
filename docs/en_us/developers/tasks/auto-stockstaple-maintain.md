@@ -145,6 +145,7 @@ Copy a set corresponding to Valley IV (Wuling is already an existing mirror):
 Anchor AutoStockInStapleItem
   -> Item Name AutoStockInStapleItemName_Expected
   -> Discount AutoStockInStapleItemDiscountsValleyIV
+  -> Discount Comparison AutoStockDiscountCompareValleyIV
   -> Click and Enter Quantity Control
 ```
 
@@ -289,7 +290,7 @@ This task involves several types of runtime overrides; do not confuse them durin
 
 | Action | Trigger Location | Purpose |
 | -------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Option `pipeline_override` (declared in `interface.json`) | Task option collection (MXU render stage) | When a category is off, its overrides are not collected; injects the discount comparison expression; the no-discount switch replaces the discount recognition node and reverts `all_of` |
+| Option `pipeline_override` (declared in `interface.json`) | Task option collection (MXU render stage) | When a category is off, its overrides are not collected; a numeric tier injects the discount comparison expression, and the "Any" tier replaces the discount recognition node and reverts `all_of` |
 | `AttachToExpectedRegexAction` | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords → OCR whitelist regex |
 | `PipelineOverrideAction` | Each item's `{Item}RemoveFilter` | Set specified attach key to `false`, excluding the item |
 | `AutoStockStapleQuantityControlAction` | Each item's `{Item}Buy` | Calculate difference and override BetterSliding's `TargetQuantity` / `enabled` |
