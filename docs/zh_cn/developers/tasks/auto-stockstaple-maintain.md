@@ -77,7 +77,7 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 1. **锚点**：定位列表中每个商品卡片的时间区域，作为后续偏移基准。
 2. **商品名**：锚点 → 名称标签色 → 文字底色 → OCR；仅命中用户勾选的白名单商品。
 3. **折扣**：从名称区域偏移到折扣位，OCR 以正则 `-?\d{1,2}` 提取折扣徽标数值（负号缺失时回退为正数，由比较节点 fail-safe，漏买而非错买）。
-4. **折扣比较**：`AutoStockDiscountCompare{Region}`（`ExpressionRecognition`）判断折扣是否不低于「最低折扣」阈值；无折扣徽标的物资 OCR 无文本、不命中，任何阈值下都不会购买。
+4. **折扣比较**：`AutoStockDiscountCompare{Region}`（`ExpressionRecognition`）判断折扣是否不低于所选档位阈值；无折扣徽标的物资 OCR 无文本、不命中，除「任意」档外都不会购买。
 
 四者同时命中才点击商品，进入数量控制。
 
@@ -117,7 +117,7 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 | 时机 | 动作 | 作用 |
 | ------------ | ------------------------------------------------------------- | ---------------------------------------- |
 | 任务入口 | `AttachToExpectedRegexAction` | 合并 attach → 商品名 OCR 正则 |
-| 任务入口 | 类目 switch / 最低折扣 input / 包含无折扣 switch 的 `pipeline_override` | 类目关闭时不收集该类 override；注入折扣比较表达式；无折扣开关替换折扣识别节点并回退 `all_of` |
+| 任务入口 | 类目 switch / 折扣比例 select 的 `pipeline_override` | 类目关闭时不收集该类 override；折扣档改写比较表达式，「任意」档替换折扣识别节点并回退 `all_of` |
 | 物品被排除后 | `PipelineOverrideAction` + 再次 `AttachToExpectedRegexAction` | 剔除 attach 键并刷新白名单 |
 | 确认购买前 | `AutoStockStapleQuantityControlAction` | 算差值并 override BetterSliding 目标数量 |
 
@@ -173,10 +173,12 @@ pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple
 
 `AutoStockInStapleItemDiscountsValleyIV` 以 `AutoStockInStapleItemName` 的 box 为基准，`roi_offset` 偏移到折扣区域，OCR 用正则 `-?\d{1,2}` 提取任意折扣徽标数值（如 `-50`）。
 
-折扣阈值由两个选项控制：
+折扣阈值由 `AutoStockMinDiscountValleyIV`（select）控制，与信用点商店共用 `option.DiscountValue.*` 文案键族：
 
-- **最低折扣**（`AutoStockMinDiscountValleyIV`，input，0-99）：改写 `AutoStockDiscountCompareValleyIV`（`ExpressionRecognition`）的 expression 为 `{AutoStockInStapleItemDiscountsValleyIV} <= -{MinDiscountValleyIV}`，折扣 OCR 数值与阈值比较，满足才命中；填 0 时购买所有有折扣徽标的物资。
-- **包含无折扣物资**（`AutoStockIncludeNoDiscountValleyIV`，switch，默认关）：开启后将折扣 OCR 节点整体替换为 `ColorMatch`（全范围阈值 `[0,0,0]`–`[255,255,255]` 且 `count` 默认 1，非空 ROI 恒定通过，折扣色块是否存在不影响结果），并把 `AutoStockBuyItemValleyIVTask` 的 `all_of` 回退为 3 成员——行为等同于购买所有勾选物资，「最低折扣」被忽略。
+- **数值档**（`-95%` … `-50%`）：改写 `AutoStockDiscountCompareValleyIV`（`ExpressionRecognition`）的 expression 为 `{AutoStockInStapleItemDiscountsValleyIV} <= -{档位数值}`，折扣 OCR 数值与阈值比较，满足才命中。
+- **任意**（`Any`）：将折扣 OCR 节点整体替换为 `ColorMatch`（全范围阈值 `[0,0,0]`–`[255,255,255]` 且 `count` 默认 1，非空 ROI 恒定通过，折扣色块是否存在不影响结果），并把 `AutoStockBuyItemValleyIVTask` 的 `all_of` 回退为 3 成员——行为等同于购买所有勾选物资，折扣比较被跳过。
+
+档位只列稳定物资实际出现的折扣（`-95/-90/-85/-80/-75/-70/-65/-50`），默认 `-50%`。无折扣徽标的物资在任何数值档下 OCR 都无文本、不命中，需选「任意」才会购买。
 
 ### 4. “能否买得起”的判断
 
