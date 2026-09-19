@@ -8,24 +8,7 @@
             "param": {
                 "all_of": [
                     "__TeleportMapAny",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    1160,
-                                    600,
-                                    120,
-                                    120
-                                ],
-                                "template": [
-                                    "Common/Button/WhiteConfirmButtonType1.png",
-                                    "Common/Button/WhiteConfirmButtonType1Hover.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
+                    "__TeleportButton"
                 ],
                 "box_index": 1
             }
@@ -41,24 +24,7 @@
             "param": {
                 "all_of": [
                     "__TeleportMapAny",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    1000,
-                                    600,
-                                    120,
-                                    120
-                                ],
-                                "template": [
-                                    "Common/Button/WhiteConfirmButtonType1.png",
-                                    "Common/Button/WhiteConfirmButtonType1Hover.png"
-                                ],
-                                "threshold": 0.87 // 快速传送按钮的匹配分数略低
-                            }
-                        }
-                    }
+                    "__QuickTeleportButton"
                 ],
                 "box_index": 1
             }
@@ -83,6 +49,50 @@
                     "SceneManager/MapMissionReminder.png"
                 ],
                 "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__TeleportButton": {
+        "desc": "传送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1160,
+                    600,
+                    120,
+                    120
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__QuickTeleportButton": {
+        "desc": "前往传送的按钮（快速传送）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1000,
+                    600,
+                    120,
+                    120
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                ],
+                "threshold": 0.87 // 快速传送按钮的匹配分数略低
             }
         },
         "pre_delay": 0,
