@@ -1,4 +1,9 @@
 {
+    "task.UmbralMonument.label": "影拓豐碑",
+    "task.UmbralMonument.description": "自動遍歷所有賽季，預設只打未通關普通關卡；可選普通＋苦難。本輪失敗難度不重試，普通失敗亦跳過對應苦難。使用目前隊伍。僅適配 PC 簡體中文、16:9。",
+    "option.UmbralMonumentDifficulty.label": "挑戰難度",
+    "option.UmbralMonumentDifficulty.cases.Normal.label": "僅普通",
+    "option.UmbralMonumentDifficulty.cases.NormalAndHard.label": "普通＋苦難",
     "option.ExportInventory.label": "輸出基質庫存",
     "option.ExportInventory.description": "開啟後盤點未標記棄置的無瑕基質，包括已鎖定的基質，並輸出 EssenceInventory.json。棄置項直接跳過，不呼叫 OCR。匹配全部四至六星武器，不修改標記；開啟時隱藏其他篩選選項；關閉後重新顯示原篩選選項。遊戲語言由介面自動辨識。",
     "global.region.ValleyIV": "四號谷地",
