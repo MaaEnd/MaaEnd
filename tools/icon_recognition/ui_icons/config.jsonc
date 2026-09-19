@@ -17,6 +17,7 @@
     "additional_item_filters": [],
     // 这些物品会在最终集合中追加；仍受排除规则和 excluded_item_ids 约束。
     "additional_item_ids": [
+        "item_muck_feces_1",
         "item_plant_tundra_insect_1",
         "item_plant_tundra_insect_2"
     ],
