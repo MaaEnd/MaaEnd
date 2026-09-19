@@ -239,18 +239,10 @@
     },
     "AutoDeliveryQuickTeleportClick": {
         "desc": "选中传送点后点击传送",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1110,
-            540,
-            150,
-            160
+        "recognition": "And",
+        "all_of": [
+            "TeleportButton"
         ],
-        "template": [
-            "Common/Button/WhiteConfirmButtonType1.png",
-            "Common/Button/WhiteConfirmButtonType1Hover.png"
-        ],
-        "order_by": "Score",
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -265,18 +257,10 @@
     },
     "AutoDeliveryQuickTeleportSelect": {
         "desc": "使用游戏自带的前往传送功能选中任务目标附近的传送点",
-        "recognition": "TemplateMatch",
-        "roi": [
-            950,
-            540,
-            210,
-            160
+        "recognition": "And",
+        "all_of": [
+            "QuickTeleportButton"
         ],
-        "template": [
-            "Common/Button/WhiteConfirmButtonType1.png",
-            "Common/Button/WhiteConfirmButtonType1Hover.png"
-        ],
-        "order_by": "Score",
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 500, // 等待地图视窗移动到传送点

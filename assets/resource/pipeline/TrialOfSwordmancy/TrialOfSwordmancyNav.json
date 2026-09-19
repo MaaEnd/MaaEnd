@@ -101,14 +101,14 @@
         "desc": "点击前往传送",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringQuickTeleportSelectButton"
+            "QuickTeleportButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "wait_node": "EnvironmentMonitoringQuickTeleportSelectButton"
+            "wait_node": "QuickTeleportButton"
         },
         "post_delay": 0,
         "next": [
@@ -119,14 +119,14 @@
         "desc": "点击传送",
         "recognition": "And",
         "all_of": [
-            "WhiteConfirmButtonType1"
+            "TeleportButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilNotFoundAction",
         "custom_action_param": {
             "action": "Click",
-            "wait_node": "WhiteConfirmButtonType1"
+            "wait_node": "TeleportButton"
         },
         "post_delay": 0,
         "next": [
