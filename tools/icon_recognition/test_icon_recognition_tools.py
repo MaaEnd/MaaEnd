@@ -119,6 +119,18 @@ class IconRecognitionToolsTest(unittest.TestCase):
         selected = select_items(catalog, in_config)
         self.assertEqual([item_id for item_id, _ in selected], ["weapon_5", "weapon_6"])
 
+        additional_id_config = {
+            "item_filters": ["ValuableDepot:Weapon"],
+            "additional_item_ids": ["special_4"],
+        }
+        selected = select_items(catalog, additional_id_config)
+        self.assertEqual(
+            [item_id for item_id, _ in selected], ["weapon_4", "weapon_5", "weapon_6", "special_4"]
+        )
+
+        with self.assertRaisesRegex(ValueError, "未知 item_id"):
+            select_items({}, {"additional_item_ids": ["missing"]})
+
         with self.assertRaisesRegex(ValueError, "只能包含 in 或 not_in"):
             select_items(
                 catalog,
