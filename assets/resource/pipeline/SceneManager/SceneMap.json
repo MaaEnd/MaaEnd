@@ -374,7 +374,7 @@
             "__ScenePrivateMapFilterClearAll"
         ]
     },
-    "__ScenePrivateMapLayerSwitchToMain": {
+        "__ScenePrivateMapLayerSwitchToMain": {
         "desc": "在分层地图，切换到主地图",
         "recognition": "And",
         "all_of": [

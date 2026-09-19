@@ -1,0 +1,326 @@
+{
+    "SharedZiplineDeleteMain": {
+        "desc": "删除共享滑索：按选项依次扫各子区域地图",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]SharedZiplineDeleteEnterVFTheHub",
+            "[JumpBack]SharedZiplineDeleteEnterVFValleyPass",
+            "[JumpBack]SharedZiplineDeleteEnterVFOriginiumSciencePark",
+            "[JumpBack]SharedZiplineDeleteEnterVFAburreyQuarry",
+            "[JumpBack]SharedZiplineDeleteEnterVFOriginLodespring",
+            "[JumpBack]SharedZiplineDeleteEnterVFPowerPlateau",
+            "[JumpBack]SharedZiplineDeleteEnterWLWulingCity",
+            "[JumpBack]SharedZiplineDeleteEnterWLJingyuValley",
+            "[JumpBack]SharedZiplineDeleteEnterWLQingboStockade",
+            "[JumpBack]SharedZiplineDeleteEnterWLMarkerStone",
+            "[JumpBack]SharedZiplineDeleteEnterWLTestArea",
+            "[JumpBack]SharedZiplineDeleteEnterWLSwordVaultDale",
+            "[JumpBack]SharedZiplineDeleteEnterWLYinglungPass",
+            "[JumpBack]SharedZiplineDeleteEnterWLNorthWulingExclusionZone",
+            "[JumpBack]SharedZiplineDeleteEnterWLSnowyForest",
+            "__ScenePrivateNextTrue"
+        ]
+    },
+    "SharedZiplineDeleteEnterVFTheHub": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVTheHub"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterVFValleyPass": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVValleyPass"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterVFOriginiumSciencePark": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVOriginiumSciencePark"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterVFAburreyQuarry": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVAburreyQuarry"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterVFOriginLodespring": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVOriginLodespring"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterVFPowerPlateau": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVPowerPlateau"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterWLWulingCity": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingWulingCity"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterWLJingyuValley": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingJingyuValley"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterWLQingboStockade": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingQingboStockade"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterWLMarkerStone": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingMarkerStone"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterWLTestArea": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingTestArea"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterWLSwordVaultDale": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingSwordVaultDale"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterWLYinglungPass": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingYinglungPass"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterWLNorthWulingExclusionZone": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingNorthWulingExclusionZone"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    },
+    "SharedZiplineDeleteEnterWLSnowyForest": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingSnowyForest"
+            ]
+        },
+        "anchor": {
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepare"
+        ]
+    }
+}

@@ -1,0 +1,4345 @@
+{
+    "SharedZiplineDeletePrepare": {
+        "desc": "清除共享滑索主节点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteResetPosition"
+        ]
+    },
+    "SharedZiplineDeleteFilterOpen": {
+        "desc": "打开标记显示管理",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            -120,
+            220,
+            120
+        ],
+        "template": "SceneManager/MapFilterNotChoose.png",
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "SharedZiplineDeleteFilterClearAll"
+        ]
+    },
+    "SharedZiplineDeleteFilterClearAll": {
+        "desc": "点击清空选中",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -120,
+            220,
+            120
+        ],
+        "expected": [
+            "清空选中",
+            "清除選取",
+            "(?i)Clear\\s*All",
+            "一括解除",
+            "クリア選択",
+            "Clear Selection",
+            "선택 해제"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "SharedZiplineDeleteFilterSwipeDown"
+        ]
+    },
+    "SharedZiplineDeleteFilterSwipeDown": {
+        "desc": "筛选列表下滑一段，露出滑索选项",
+        "recognition": "DirectHit",
+        "action": "Swipe",
+        "begin": [
+            110,
+            520
+        ],
+        "end": [
+            110,
+            280
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                50,
+                200,
+                150,
+                200
+            ],
+            "time": 200
+        },
+        "next": [
+            "SharedZiplineDeleteFilterSelectZipline"
+        ]
+    },
+    "SharedZiplineDeleteFilterSelectZipline": {
+        "desc": "OCR 识别「滑索」并点击",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -300,
+            400,
+            300
+        ],
+        "expected": [
+            "滑索",
+            "(?i)Zipline",
+            "ジップライン",
+            "집라인"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "SharedZiplineDeleteFilterClose"
+        ]
+    },
+    "SharedZiplineDeleteFilterClose": {
+        "desc": "关闭标记显示管理",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            80
+        ],
+        "expected": [
+            "标记显示管理",
+            "標記顯示管理",
+            "(?i)Marker\\s*Tags",
+            "ソート",
+            "표식 관리"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            500,
+            0,
+            0,
+            0
+        ],
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SharedZiplineDeleteHit": {
+        "desc": "识别共享滑索标记并点击（删除确认流程后补）；V1 未删除时靠 max_hit 防止死循环",
+        "max_hit": 200,
+        "recognition": "ColorMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "lower": [
+            18,
+            160,
+            215
+        ],
+        "upper": [
+            30,
+            210,
+            255
+        ],
+        "connected": true,
+        "count": 15,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "SharedZiplineDeleteResumeCell"
+        ]
+    },
+    "SharedZiplineDeleteResumeCell": {
+        "desc": "回到当前宫格继续识别（由 Cell 节点 anchor 覆写）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell0"
+        ]
+    },
+    "SharedZiplineDeleteResetPosition": {
+        "desc": "移动地图到左上角",
+        "recognition": "DirectHit",
+        "action": "Swipe",
+        "begin": [
+            330,
+            20
+        ],
+        "end": [
+            930,
+            620
+        ],
+        "end_hold": 200,
+        "repeat": 3,
+        "repeat_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "next": [
+            "[Anchor]SharedZiplineDeleteScanAnchor"
+        ]
+    },
+    "SharedZiplineDeleteRegionDone": {
+        "desc": "本区扫完，返回 Main 处理下一区",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SharedZiplineDeleteScan4x4Swipe0To1": {
+        "desc": "4x4 cell0->1 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            730,
+            320
+        ],
+        "end": [
+            530,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell1"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell0": {
+        "desc": "4x4 cell0 (r0c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell0"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe0To1"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe1To2": {
+        "desc": "4x4 cell1->2 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            730,
+            320
+        ],
+        "end": [
+            530,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell2"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell1": {
+        "desc": "4x4 cell1 (r0c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe1To2"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe2To3": {
+        "desc": "4x4 cell2->3 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            730,
+            320
+        ],
+        "end": [
+            530,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell3"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell2": {
+        "desc": "4x4 cell2 (r0c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe2To3"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe3To7": {
+        "desc": "4x4 cell3->7 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            420
+        ],
+        "end": [
+            630,
+            220
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell7"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell3": {
+        "desc": "4x4 cell3 (r0c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe3To7"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe7To6": {
+        "desc": "4x4 cell7->6 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            530,
+            320
+        ],
+        "end": [
+            730,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell6"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell7": {
+        "desc": "4x4 cell7 (r1c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell7"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe7To6"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe6To5": {
+        "desc": "4x4 cell6->5 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            530,
+            320
+        ],
+        "end": [
+            730,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell5"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell6": {
+        "desc": "4x4 cell6 (r1c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell6"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe6To5"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe5To4": {
+        "desc": "4x4 cell5->4 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            530,
+            320
+        ],
+        "end": [
+            730,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell4"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell5": {
+        "desc": "4x4 cell5 (r1c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell5"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe5To4"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe4To8": {
+        "desc": "4x4 cell4->8 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            420
+        ],
+        "end": [
+            630,
+            220
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell8"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell4": {
+        "desc": "4x4 cell4 (r1c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe4To8"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe8To9": {
+        "desc": "4x4 cell8->9 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            730,
+            320
+        ],
+        "end": [
+            530,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell9"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell8": {
+        "desc": "4x4 cell8 (r2c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell8"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe8To9"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe9To10": {
+        "desc": "4x4 cell9->10 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            730,
+            320
+        ],
+        "end": [
+            530,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell10"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell9": {
+        "desc": "4x4 cell9 (r2c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe9To10"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe10To11": {
+        "desc": "4x4 cell10->11 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            730,
+            320
+        ],
+        "end": [
+            530,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell11"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell10": {
+        "desc": "4x4 cell10 (r2c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell10"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe10To11"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe11To15": {
+        "desc": "4x4 cell11->15 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            420
+        ],
+        "end": [
+            630,
+            220
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell15"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell11": {
+        "desc": "4x4 cell11 (r2c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell11"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe11To15"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe15To14": {
+        "desc": "4x4 cell15->14 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            530,
+            320
+        ],
+        "end": [
+            730,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell14"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell15": {
+        "desc": "4x4 cell15 (r3c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell15"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe15To14"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe14To13": {
+        "desc": "4x4 cell14->13 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            530,
+            320
+        ],
+        "end": [
+            730,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell13"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell14": {
+        "desc": "4x4 cell14 (r3c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell14"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe14To13"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Swipe13To12": {
+        "desc": "4x4 cell13->12 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            530,
+            320
+        ],
+        "end": [
+            730,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan4x4Cell12"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell13": {
+        "desc": "4x4 cell13 (r3c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell13"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan4x4Swipe13To12"
+        ]
+    },
+    "SharedZiplineDeleteScan4x4Cell12": {
+        "desc": "4x4 cell12 (r3c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan4x4Cell12"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9": {
+        "desc": "9x9：拉左上角 repeat 3 后蛇形扫图",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            330,
+            20
+        ],
+        "end": [
+            930,
+            620
+        ],
+        "end_hold": 200,
+        "repeat": 3,
+        "repeat_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell0"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe0To1": {
+        "desc": "9x9 cell0->1 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell1"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell0": {
+        "desc": "9x9 cell0 (r0c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell0"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe0To1"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe1To2": {
+        "desc": "9x9 cell1->2 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell2"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell1": {
+        "desc": "9x9 cell1 (r0c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe1To2"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe2To3": {
+        "desc": "9x9 cell2->3 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell3"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell2": {
+        "desc": "9x9 cell2 (r0c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe2To3"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe3To4": {
+        "desc": "9x9 cell3->4 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell4"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell3": {
+        "desc": "9x9 cell3 (r0c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe3To4"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe4To5": {
+        "desc": "9x9 cell4->5 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell5"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell4": {
+        "desc": "9x9 cell4 (r0c4)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe4To5"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe5To6": {
+        "desc": "9x9 cell5->6 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell6"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell5": {
+        "desc": "9x9 cell5 (r0c5)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell5"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe5To6"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe6To7": {
+        "desc": "9x9 cell6->7 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell7"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell6": {
+        "desc": "9x9 cell6 (r0c6)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell6"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe6To7"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe7To8": {
+        "desc": "9x9 cell7->8 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell8"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell7": {
+        "desc": "9x9 cell7 (r0c7)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell7"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe7To8"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe8To17": {
+        "desc": "9x9 cell8->17 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            370
+        ],
+        "end": [
+            630,
+            270
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell17"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell8": {
+        "desc": "9x9 cell8 (r0c8)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell8"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe8To17"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe17To16": {
+        "desc": "9x9 cell17->16 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell16"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell17": {
+        "desc": "9x9 cell17 (r1c8)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell17"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe17To16"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe16To15": {
+        "desc": "9x9 cell16->15 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell15"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell16": {
+        "desc": "9x9 cell16 (r1c7)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell16"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe16To15"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe15To14": {
+        "desc": "9x9 cell15->14 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell14"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell15": {
+        "desc": "9x9 cell15 (r1c6)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell15"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe15To14"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe14To13": {
+        "desc": "9x9 cell14->13 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell13"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell14": {
+        "desc": "9x9 cell14 (r1c5)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell14"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe14To13"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe13To12": {
+        "desc": "9x9 cell13->12 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell12"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell13": {
+        "desc": "9x9 cell13 (r1c4)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell13"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe13To12"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe12To11": {
+        "desc": "9x9 cell12->11 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell11"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell12": {
+        "desc": "9x9 cell12 (r1c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell12"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe12To11"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe11To10": {
+        "desc": "9x9 cell11->10 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell10"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell11": {
+        "desc": "9x9 cell11 (r1c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell11"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe11To10"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe10To9": {
+        "desc": "9x9 cell10->9 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell9"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell10": {
+        "desc": "9x9 cell10 (r1c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell10"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe10To9"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe9To18": {
+        "desc": "9x9 cell9->18 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            370
+        ],
+        "end": [
+            630,
+            270
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell18"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell9": {
+        "desc": "9x9 cell9 (r1c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell9"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe9To18"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe18To19": {
+        "desc": "9x9 cell18->19 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell19"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell18": {
+        "desc": "9x9 cell18 (r2c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell18"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe18To19"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe19To20": {
+        "desc": "9x9 cell19->20 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell20"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell19": {
+        "desc": "9x9 cell19 (r2c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell19"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe19To20"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe20To21": {
+        "desc": "9x9 cell20->21 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell21"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell20": {
+        "desc": "9x9 cell20 (r2c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell20"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe20To21"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe21To22": {
+        "desc": "9x9 cell21->22 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell22"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell21": {
+        "desc": "9x9 cell21 (r2c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell21"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe21To22"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe22To23": {
+        "desc": "9x9 cell22->23 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell23"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell22": {
+        "desc": "9x9 cell22 (r2c4)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell22"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe22To23"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe23To24": {
+        "desc": "9x9 cell23->24 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell24"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell23": {
+        "desc": "9x9 cell23 (r2c5)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell23"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe23To24"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe24To25": {
+        "desc": "9x9 cell24->25 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell25"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell24": {
+        "desc": "9x9 cell24 (r2c6)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell24"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe24To25"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe25To26": {
+        "desc": "9x9 cell25->26 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell26"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell25": {
+        "desc": "9x9 cell25 (r2c7)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell25"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe25To26"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe26To35": {
+        "desc": "9x9 cell26->35 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            370
+        ],
+        "end": [
+            630,
+            270
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell35"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell26": {
+        "desc": "9x9 cell26 (r2c8)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell26"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe26To35"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe35To34": {
+        "desc": "9x9 cell35->34 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell34"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell35": {
+        "desc": "9x9 cell35 (r3c8)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell35"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe35To34"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe34To33": {
+        "desc": "9x9 cell34->33 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell33"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell34": {
+        "desc": "9x9 cell34 (r3c7)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell34"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe34To33"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe33To32": {
+        "desc": "9x9 cell33->32 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell32"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell33": {
+        "desc": "9x9 cell33 (r3c6)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell33"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe33To32"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe32To31": {
+        "desc": "9x9 cell32->31 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell31"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell32": {
+        "desc": "9x9 cell32 (r3c5)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell32"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe32To31"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe31To30": {
+        "desc": "9x9 cell31->30 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell30"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell31": {
+        "desc": "9x9 cell31 (r3c4)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell31"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe31To30"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe30To29": {
+        "desc": "9x9 cell30->29 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell29"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell30": {
+        "desc": "9x9 cell30 (r3c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell30"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe30To29"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe29To28": {
+        "desc": "9x9 cell29->28 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell28"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell29": {
+        "desc": "9x9 cell29 (r3c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell29"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe29To28"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe28To27": {
+        "desc": "9x9 cell28->27 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell27"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell28": {
+        "desc": "9x9 cell28 (r3c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell28"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe28To27"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe27To36": {
+        "desc": "9x9 cell27->36 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            370
+        ],
+        "end": [
+            630,
+            270
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell36"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell27": {
+        "desc": "9x9 cell27 (r3c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell27"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe27To36"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe36To37": {
+        "desc": "9x9 cell36->37 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell37"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell36": {
+        "desc": "9x9 cell36 (r4c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell36"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe36To37"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe37To38": {
+        "desc": "9x9 cell37->38 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell38"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell37": {
+        "desc": "9x9 cell37 (r4c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell37"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe37To38"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe38To39": {
+        "desc": "9x9 cell38->39 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell39"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell38": {
+        "desc": "9x9 cell38 (r4c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell38"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe38To39"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe39To40": {
+        "desc": "9x9 cell39->40 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell40"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell39": {
+        "desc": "9x9 cell39 (r4c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell39"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe39To40"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe40To41": {
+        "desc": "9x9 cell40->41 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell41"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell40": {
+        "desc": "9x9 cell40 (r4c4)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell40"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe40To41"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe41To42": {
+        "desc": "9x9 cell41->42 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell42"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell41": {
+        "desc": "9x9 cell41 (r4c5)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell41"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe41To42"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe42To43": {
+        "desc": "9x9 cell42->43 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell43"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell42": {
+        "desc": "9x9 cell42 (r4c6)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell42"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe42To43"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe43To44": {
+        "desc": "9x9 cell43->44 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell44"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell43": {
+        "desc": "9x9 cell43 (r4c7)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell43"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe43To44"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe44To53": {
+        "desc": "9x9 cell44->53 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            370
+        ],
+        "end": [
+            630,
+            270
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell53"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell44": {
+        "desc": "9x9 cell44 (r4c8)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell44"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe44To53"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe53To52": {
+        "desc": "9x9 cell53->52 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell52"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell53": {
+        "desc": "9x9 cell53 (r5c8)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell53"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe53To52"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe52To51": {
+        "desc": "9x9 cell52->51 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell51"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell52": {
+        "desc": "9x9 cell52 (r5c7)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell52"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe52To51"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe51To50": {
+        "desc": "9x9 cell51->50 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell50"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell51": {
+        "desc": "9x9 cell51 (r5c6)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell51"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe51To50"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe50To49": {
+        "desc": "9x9 cell50->49 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell49"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell50": {
+        "desc": "9x9 cell50 (r5c5)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell50"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe50To49"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe49To48": {
+        "desc": "9x9 cell49->48 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell48"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell49": {
+        "desc": "9x9 cell49 (r5c4)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell49"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe49To48"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe48To47": {
+        "desc": "9x9 cell48->47 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell47"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell48": {
+        "desc": "9x9 cell48 (r5c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell48"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe48To47"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe47To46": {
+        "desc": "9x9 cell47->46 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell46"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell47": {
+        "desc": "9x9 cell47 (r5c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell47"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe47To46"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe46To45": {
+        "desc": "9x9 cell46->45 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell45"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell46": {
+        "desc": "9x9 cell46 (r5c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell46"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe46To45"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe45To54": {
+        "desc": "9x9 cell45->54 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            370
+        ],
+        "end": [
+            630,
+            270
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell54"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell45": {
+        "desc": "9x9 cell45 (r5c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell45"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe45To54"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe54To55": {
+        "desc": "9x9 cell54->55 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell55"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell54": {
+        "desc": "9x9 cell54 (r6c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell54"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe54To55"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe55To56": {
+        "desc": "9x9 cell55->56 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell56"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell55": {
+        "desc": "9x9 cell55 (r6c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell55"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe55To56"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe56To57": {
+        "desc": "9x9 cell56->57 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell57"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell56": {
+        "desc": "9x9 cell56 (r6c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell56"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe56To57"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe57To58": {
+        "desc": "9x9 cell57->58 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell58"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell57": {
+        "desc": "9x9 cell57 (r6c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell57"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe57To58"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe58To59": {
+        "desc": "9x9 cell58->59 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell59"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell58": {
+        "desc": "9x9 cell58 (r6c4)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell58"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe58To59"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe59To60": {
+        "desc": "9x9 cell59->60 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell60"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell59": {
+        "desc": "9x9 cell59 (r6c5)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell59"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe59To60"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe60To61": {
+        "desc": "9x9 cell60->61 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell61"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell60": {
+        "desc": "9x9 cell60 (r6c6)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell60"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe60To61"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe61To62": {
+        "desc": "9x9 cell61->62 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell62"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell61": {
+        "desc": "9x9 cell61 (r6c7)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell61"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe61To62"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe62To71": {
+        "desc": "9x9 cell62->71 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            370
+        ],
+        "end": [
+            630,
+            270
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell71"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell62": {
+        "desc": "9x9 cell62 (r6c8)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell62"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe62To71"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe71To70": {
+        "desc": "9x9 cell71->70 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell70"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell71": {
+        "desc": "9x9 cell71 (r7c8)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell71"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe71To70"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe70To69": {
+        "desc": "9x9 cell70->69 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell69"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell70": {
+        "desc": "9x9 cell70 (r7c7)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell70"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe70To69"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe69To68": {
+        "desc": "9x9 cell69->68 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell68"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell69": {
+        "desc": "9x9 cell69 (r7c6)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell69"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe69To68"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe68To67": {
+        "desc": "9x9 cell68->67 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell67"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell68": {
+        "desc": "9x9 cell68 (r7c5)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell68"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe68To67"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe67To66": {
+        "desc": "9x9 cell67->66 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell66"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell67": {
+        "desc": "9x9 cell67 (r7c4)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell67"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe67To66"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe66To65": {
+        "desc": "9x9 cell66->65 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell65"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell66": {
+        "desc": "9x9 cell66 (r7c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell66"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe66To65"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe65To64": {
+        "desc": "9x9 cell65->64 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell64"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell65": {
+        "desc": "9x9 cell65 (r7c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell65"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe65To64"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe64To63": {
+        "desc": "9x9 cell64->63 视口left",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            580,
+            320
+        ],
+        "end": [
+            680,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell63"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell64": {
+        "desc": "9x9 cell64 (r7c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell64"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe64To63"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe63To72": {
+        "desc": "9x9 cell63->72 视口down",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            630,
+            370
+        ],
+        "end": [
+            630,
+            270
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell72"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell63": {
+        "desc": "9x9 cell63 (r7c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell63"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe63To72"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe72To73": {
+        "desc": "9x9 cell72->73 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell73"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell72": {
+        "desc": "9x9 cell72 (r8c0)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell72"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe72To73"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe73To74": {
+        "desc": "9x9 cell73->74 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell74"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell73": {
+        "desc": "9x9 cell73 (r8c1)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell73"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe73To74"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe74To75": {
+        "desc": "9x9 cell74->75 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell75"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell74": {
+        "desc": "9x9 cell74 (r8c2)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell74"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe74To75"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe75To76": {
+        "desc": "9x9 cell75->76 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell76"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell75": {
+        "desc": "9x9 cell75 (r8c3)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell75"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe75To76"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe76To77": {
+        "desc": "9x9 cell76->77 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell77"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell76": {
+        "desc": "9x9 cell76 (r8c4)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell76"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe76To77"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe77To78": {
+        "desc": "9x9 cell77->78 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell78"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell77": {
+        "desc": "9x9 cell77 (r8c5)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell77"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe77To78"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe78To79": {
+        "desc": "9x9 cell78->79 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell79"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell78": {
+        "desc": "9x9 cell78 (r8c6)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell78"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe78To79"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Swipe79To80": {
+        "desc": "9x9 cell79->80 视口right",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            680,
+            320
+        ],
+        "end": [
+            580,
+            320
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                600,
+                300,
+                100,
+                100
+            ],
+            "time": 200
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteScan9x9Cell80"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell79": {
+        "desc": "9x9 cell79 (r8c7)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell79"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteScan9x9Swipe79To80"
+        ]
+    },
+    "SharedZiplineDeleteScan9x9Cell80": {
+        "desc": "9x9 cell80 (r8c8)：找滑索或继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SharedZiplineDeleteResumeCell": "SharedZiplineDeleteScan9x9Cell80"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

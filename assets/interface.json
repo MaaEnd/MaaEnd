@@ -243,6 +243,7 @@
         "tasks/SwitchTeam.json",
         "tasks/ImportBluePrints.json",
         "tasks/ZiplineImport.json",
+        "tasks/SharedZiplineDelete.json",
         "tasks/AeroSalvage.json",
         // group: sanity_sink
         "tasks/AutoEssence/AutoEssence.json",
