@@ -1,4 +1,9 @@
 {
+    "task.UmbralMonument.label": "Umbral Monument",
+    "task.UmbralMonument.description": "Visit all seasons and clear unfinished normal stages, optionally including hard mode. Skip failed stages for this run; normal failure also skips hard. Uses the current team. PC, Simplified Chinese, 16:9 only.",
+    "option.UmbralMonumentDifficulty.label": "Difficulty",
+    "option.UmbralMonumentDifficulty.cases.Normal.label": "Normal only",
+    "option.UmbralMonumentDifficulty.cases.NormalAndHard.label": "Normal + hard",
     "option.ExportInventory.label": "Export essence inventory",
     "option.ExportInventory.description": "Scan flawless essences that are not marked as discarded, including locked ones, and export EssenceInventory.json. Discarded essences are skipped without OCR. Match all supported 4- to 6-star weapons without changing any marks. Other filter options are hidden while enabled. Turn this off to show the original filter options again. Game language is detected automatically from the UI.",
     "global.region.ValleyIV": "Valley IV",
