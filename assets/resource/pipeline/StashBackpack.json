@@ -1,44 +1,173 @@
 {
-    "StashBackpackSubTask": {
-        "desc": "被子任务调用的入口，用于设置 StashBackpackMain 的 enable",
+    "StashBackpackEntry": {
+        "desc": "背包存取共用 UI 入口，操作单选只切换本任务的执行入口",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackMain",
+            "StashBackpackMain"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackSubTask": {
+        "desc": "宿主任务入口：存放相对完整任务 S1 快照新增的物品",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackEnabled",
             "EmptyNode"
         ]
     },
     "StashBackpackMain": {
-        "desc": "任务入口",
+        "desc": "存放背包独立任务入口",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackEnterSuccess",
-            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+            "StashBackpackFullAlreadyComplete",
+            "StashBackpackResetState"
         ]
     },
-    "StashBackpackEnterSuccess": {
-        "desc": "进入背包界面",
+    "StashBackpackFullAlreadyComplete": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackFullCompleteRecognition",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackWarningAction",
+        "custom_action_param": {
+            "reason": "duplicate_full"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "StashBackpackResetState": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "reset"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackEnterDepot"
+        ]
+    },
+    "StashBackpackEnterDepot": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackEnterDepotValleyIV",
+            "StashBackpackEnterDepotWuling"
+        ]
+    },
+    "StashBackpackEnterDepotValleyIV": {
+        "desc": "进入四号谷地仓库",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "set_depot",
+            "depot": "ValleyIV"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackEnterValleyIVSuccess",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIV"
+        ]
+    },
+    "StashBackpackEnterDepotWuling": {
+        "desc": "进入武陵仓库",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "set_depot",
+            "depot": "Wuling"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackEnterWulingSuccess",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotWuling"
+        ]
+    },
+    "StashBackpackEnterValleyIVSuccess": {
+        "desc": "已进入四号谷地仓库",
         "recognition": "And",
         "all_of": [
-            "InBackpack"
+            "InDijiangDepotValleyIV"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackQuickBeforeSnapshot"
+        ]
+    },
+    "StashBackpackEnterWulingSuccess": {
+        "desc": "已进入武陵仓库",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotWuling"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackQuickBeforeSnapshot"
+        ]
+    },
+    "StashBackpackQuickBeforeSnapshot": {
+        "desc": "先执行一键存放，再建立手动存放所需的初始快照",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "StashBackpackStashQuickSubTask",
-                "StashBackpackUsableItemsLimitedSubTask"
+                "StashBackpackStashQuickSubTask"
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackCaptureInitial"
+        ]
+    },
+    "StashBackpackCaptureInitial": {
+        "desc": "建立一键存放后的完整背包快照",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackSnapshotAction",
+        "custom_action_param": {
+            "snapshot": "s0"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackWorkflow"
+        ]
+    },
+    "StashBackpackWorkflow": {
+        "desc": "按设置执行手动分类存放",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackManualSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishSubTask"
+        ]
     },
     "StashBackpackStashQuickSubTask": {
-        "desc": "一键存放背包任务入口",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -65,159 +194,745 @@
         "action": "Click",
         "post_wait_freezes": 200,
         "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackQuickVerified"
+        ]
+    },
+    "StashBackpackQuickVerified": {
+        "desc": "一键存放后仍位于仓库主界面",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepot"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0
     },
-    "StashBackpackUsableItemsLimitedSubTask": {
-        "desc": "少量可用物品存放背包任务入口",
+    "StashBackpackManualSubTask": {
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackUsableItemsLimited",
+            "StashBackpackPrepareManualTargets",
             "EmptyNode"
         ]
     },
-    "StashBackpackUsableItemsLimited": {
-        "desc": "少量可用物品存放",
+    "StashBackpackPrepareManualTargets": {
+        "desc": "按任务设置逐个手动存放初始快照中的物品",
         "enabled": false,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "SubTask",
+        "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "sub": [
-                "StashBackpackSort"
+            "operation": "prepare_snapshot",
+            "snapshot": "s0"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualLoop"
+        ]
+    },
+    "StashBackpackManualLoop": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualNextItem",
+            "EmptyNode"
+        ]
+    },
+    "StashBackpackManualNextItem": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackNextItemRecognition",
+        "custom_recognition_param": {
+            "bag_nodes": [
+                "StashBackpackFindCurrentItemInBag"
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualDispatchCategory"
+        ]
+    },
+    "StashBackpackManualDispatchCategory": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualCategoryOre",
+            "StashBackpackManualCategoryPlant",
+            "StashBackpackManualCategoryProduct",
+            "StashBackpackManualCategoryDoodad",
+            "StashBackpackManualCategoryNurturance",
+            "StashBackpackManualCategoryUsable",
+            "StashBackpackManualCategoryProducer",
+            "StashBackpackManualCategoryPortableDevice",
+            "StashBackpackManualConsumeFiltered"
+        ]
+    },
+    "StashBackpackManualSetupBagSearch": {
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterBagFound": "StashBackpackNoteBagItemCount",
+            "StashBackpackAfterBagNotFound": "StashBackpackManualConsumeMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareBagSearch"
+        ]
+    },
+    "StashBackpackNoteBagItemCount": {
+        "desc": "转移前记录背包当前页该物品的格子数基线",
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackBagItemCountRecognition",
+        "roi": [
+            739,
+            202,
+            398,
+            291
+        ],
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualStoreItem"
+        ]
+    },
+    "StashBackpackManualStoreItem": {
+        "desc": "调用公共一组转移动作，将当前背包物品移入仓库",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "InventoryTransferStackAction",
+        "target": "StashBackpackFindCurrentItemInBag",
+        "target_offset": [
+            16,
+            16,
+            -32,
+            -32
+        ],
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualVerifyStored"
+        ]
+    },
+    "StashBackpackManualVerifyStored": {
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterSourceItemStillPresent": "StashBackpackManualStoreVerificationFailed",
+            "StashBackpackAfterSourceItemMoved": "StashBackpackManualConsumeStored"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackVerifyBagItemMoved"
+        ]
+    },
+    "StashBackpackManualStoreVerificationFailed": {
+        "desc": "Shift+Click 后物品仍在背包，禁止消费目标",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "StashBackpackManualConsumeStored": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_stored_target",
+            "reason": "manual_item_stored"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualLoop"
+        ]
+    },
+    "StashBackpackManualConsumeMissing": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "item_not_found"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualLoop"
+        ]
+    },
+    "StashBackpackManualConsumeFiltered": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "category_not_selected"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackManualLoop"
+        ]
+    },
+    "StashBackpackReplenishSubTask": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareReplenishTargets",
+            "StashBackpackCaptureStored"
+        ]
+    },
+    "StashBackpackPrepareReplenishTargets": {
+        "desc": "准备需要从仓库补充的可用道具",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "prepare_snapshot",
+            "snapshot": "working",
+            "categories": [
+                "Usable"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackUsableItemsStoreFull",
-            "[JumpBack]StashBackpackUsableItemsLimitedDrag",
-            "StashBackpackSort"
+            "StashBackpackReplenishLoop"
         ]
     },
-    "StashBackpackSort": {
-        "desc": "点击排序",
+    "StashBackpackReplenishLoop": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishNextItem",
+            "StashBackpackCaptureStored"
+        ]
+    },
+    "StashBackpackReplenishNextItem": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackNextItemRecognition",
+        "custom_recognition_param": {
+            "bag_nodes": [
+                "StashBackpackFindCurrentItemInBag"
+            ],
+            "repo_nodes": [
+                "StashBackpackFindCurrentItemInRepo"
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishSelectUsable"
+        ]
+    },
+    "StashBackpackReplenishSelectUsable": {
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterRepoFound": "StashBackpackReplenishDragItem",
+            "StashBackpackAfterRepoNotFound": "StashBackpackReplenishConsumeRepoMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishUsableReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotUsable"
+        ]
+    },
+    "StashBackpackReplenishUsableReady": {
+        "desc": "已选择可用道具分类",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotUsable"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishSetupBagSearch"
+        ]
+    },
+    "StashBackpackReplenishSetupBagSearch": {
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterBagFound": "StashBackpackReplenishBagFoundDispatch",
+            "StashBackpackAfterBagNotFound": "StashBackpackReplenishConsumeBagMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareBagSearch"
+        ]
+    },
+    "StashBackpackReplenishBagFoundDispatch": {
+        "desc": "找到背包中的可用道具后检查堆叠数量，再决定跳过或搜索仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishCheckStackFull",
+            "StashBackpackPrepareRepoSearch"
+        ]
+    },
+    "StashBackpackReplenishCheckStackFull": {
+        "desc": "识别背包物品堆叠数量是否已达到 50",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "StashBackpackFindCurrentItemInBag",
+                "roi_offset": [
+                    20,
+                    35,
+                    -24,
+                    -34
+                ],
+                "expected": [
+                    "50"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishConsumeStackFull"
+        ]
+    },
+    "StashBackpackReplenishConsumeStackFull": {
+        "desc": "背包堆叠已满，跳过补充该可用道具",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "replenish_stack_full"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishLoop"
+        ]
+    },
+    "StashBackpackReplenishDragItem": {
+        "desc": "将仓库物品移动到背包中的对应物品格",
+        "recognition": "And",
+        "all_of": [
+            "StashBackpackFindCurrentItemInRepo",
+            "StashBackpackFindCurrentItemInBag"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "InventoryMoveRepoItemToBagAction",
+        "target_offset": [
+            16,
+            16,
+            -32,
+            -32
+        ],
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishConsumeCompleted"
+        ]
+    },
+    "StashBackpackReplenishConsumeCompleted": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "replenished"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishLoop"
+        ]
+    },
+    "StashBackpackReplenishConsumeRepoMissing": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "replenish_repo_not_found"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishLoop"
+        ]
+    },
+    "StashBackpackReplenishConsumeBagMissing": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "consume_target",
+            "reason": "replenish_bag_not_found"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackReplenishLoop"
+        ]
+    },
+    "StashBackpackCaptureStored": {
+        "desc": "补充只改变已有物品数量，直接复用基础存放后的格子快照",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "copy_snapshot",
+            "source_snapshot": "working",
+            "snapshot": "s1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackCompleteFull"
+        ]
+    },
+    "StashBackpackCompleteFull": {
+        "desc": "仅在 S0/S1 均完整采集后发布完整任务状态",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "complete_full"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackFinished"
+        ]
+    },
+    "StashBackpackFinished": {
+        "desc": "保留批次级 S0/S1 快照供后续任务使用",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepot"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "StoreNewItemsWithStashBackpackEnabled": {
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackPlatformSupported",
+            "StoreNewItemsWithStashBackpackUnsupportedPlatform"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackPlatformSupported": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackPlatformSupportedRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackFullSnapshotReady",
+            "StoreNewItemsWithStashBackpackMissingFullSnapshot"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackUnsupportedPlatform": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackWarningAction",
+        "custom_action_param": {
+            "reason": "unsupported_platform"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "StoreNewItemsWithStashBackpackFullSnapshotReady": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackFullCompleteRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackEnterDepot"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackMissingFullSnapshot": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackWarningAction",
+        "custom_action_param": {
+            "reason": "missing_full_snapshot"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "StoreNewItemsWithStashBackpackEnterDepot": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackEnterDepotValleyIV",
+            "StoreNewItemsWithStashBackpackEnterDepotWuling"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackEnterDepotValleyIV": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackDepotRecognition",
+        "custom_recognition_param": {
+            "depot": "ValleyIV"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackInValleyIV",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIV"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackEnterDepotWuling": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackDepotRecognition",
+        "custom_recognition_param": {
+            "depot": "Wuling"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackInWuling",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotWuling"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackInValleyIV": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotValleyIV"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackQuickBeforeSnapshot"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackInWuling": {
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepotWuling"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackQuickBeforeSnapshot"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuickBeforeSnapshot": {
+        "desc": "沿用本批次存放设置，一键存放后再识别仍在背包中的新增物品",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StoreNewItemsWithStashBackpackQuickSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackCaptureTemporary"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuickSubTask": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackQuickEnabled",
+            "EmptyNode"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuickEnabled": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackQuickStashEnabledRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackQuick"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuick": {
+        "desc": "嵌入任务在新增物品快照前执行一键存放",
         "recognition": "TemplateMatch",
         "roi": [
-            1023,
-            439,
-            237,
-            167
+            871,
+            472,
+            162,
+            125
         ],
         "template": [
-            "GiftOperator/SportBag.png"
+            "StashBackpack/QuickStash.png"
         ],
+        "order_by": "Score",
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "StashBackpackQuickVerified"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackCaptureTemporary": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackSnapshotAction",
+        "custom_action_param": {
+            "snapshot": "temporary"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackPrepareDifference"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackPrepareDifference": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "prepare_difference",
+            "minuend_snapshot": "temporary",
+            "subtrahend_snapshot": "s1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackSetupBagBatch"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackSetupBagBatch": {
+        "desc": "逐页批量存放相对 S1 新增的物品",
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterBagBatchItemFound": "StoreNewItemsWithStashBackpackStoreItem",
+            "StashBackpackAfterBagBatchFinished": "EmptyNode",
+            "StashBackpackAfterBagBatchBottomReached": "StoreNewItemsWithStashBackpackConsumeMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareBagBatch"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackLoop": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackNextItem",
             "EmptyNode"
         ]
     },
-    "StashBackpackUsableItemsStoreFull": {
-        "desc": "仓库已满",
-        "recognition": "OCR",
-        "roi": [
-            319,
-            0,
-            601,
-            122
-        ],
-        "expected": [
-            "目标空间已满，部分物品未能完全移动",
-            "目標空間已滿，部分物品未能完全移動",
-            "(?i)Target\\s*space\\s*is\\s*full\\. Not every item could be moved\\.",
-            "空きがないため、一部のアイテムは移動できません"
-        ],
+    "StoreNewItemsWithStashBackpackNextItem": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackNextItemRecognition",
+        "custom_recognition_param": {
+            "bag_nodes": [
+                "StashBackpackFindCurrentItemInBag"
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
-    },
-    "StashBackpackUsableItemsLimitedDrag": {
-        "desc": "按住 Shift 准备快速移动物品",
-        "max_hit": 5, //防止重复拖动物品导致卡住
-        "recognition": "And",
-        "all_of": [
-            {
-                "sub_name": "icon",
-                "recognition": "TemplateMatch",
-                "roi": [
-                    761,
-                    174,
-                    474,
-                    356
-                ],
-                "template": [
-                    "StashBackpack/UsableItems.png"
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "roi": "icon",
-                "roi_offset": [
-                    20,
-                    44,
-                    4,
-                    -2
-                ],
-                "expected": [
-                    "(?<!\\d)[0-4](?!\\d)"
-                ],
-                "only_rec": true
-            }
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 16
-            }
-        },
-        "post_delay": 50,
         "rate_limit": 0,
         "next": [
-            "StashBackpackUsableItemsLimitedQuickMoveClick"
+            "StoreNewItemsWithStashBackpackSetupBagSearch"
         ]
     },
-    "StashBackpackUsableItemsLimitedQuickMoveClick": {
-        "desc": "Shift + 单击目标物品进行快速移动",
+    "StoreNewItemsWithStashBackpackSetupBagSearch": {
         "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": "StashBackpackUsableItemsLimitedDrag",
-                "target_offset": [
-                    0,
-                    -24,
-                    0,
-                    0
-                ]
-            }
-        },
-        "post_delay": 50,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackUsableItemsLimitedQuickMoveKeyUp"
-        ]
-    },
-    "StashBackpackUsableItemsLimitedQuickMoveKeyUp": {
-        "desc": "释放 Shift 并等待物品移动完成",
-        "pre_delay": 0,
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 16
-            }
-        },
-        "post_wait_freezes": {
-            "target": "StashBackpackUsableItemsLimitedDrag",
-            "time": 200
+        "anchor": {
+            "StashBackpackAfterBagFound": "StoreNewItemsWithStashBackpackStoreItem",
+            "StashBackpackAfterBagNotFound": "StoreNewItemsWithStashBackpackConsumeMissing"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareBagSearch"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackStoreItem": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "InventoryTransferStackAction",
+        "target": "StashBackpackBagPageItem",
+        "target_offset": [
+            16,
+            16,
+            -32,
+            -32
+        ],
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackConsumeStored"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackConsumeStored": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "mark_bag_item_clicked",
+            "reason": "new_item_stored"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackBagBatchLoop"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackConsumeMissing": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "discard_bag_targets",
+            "reason": "new_item_not_found"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EmptyNode"
+        ]
     }
 }
