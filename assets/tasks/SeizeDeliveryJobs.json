@@ -4,7 +4,7 @@
             "name": "SeizeDeliveryJobs",
             "description": "$task.SeizeDeliveryJobs.description",
             "label": "$task.SeizeDeliveryJobs.label",
-            "entry": "SeizeDeliveryJobsMain",
+            "entry": "SeizeDeliveryJobsCheckOngoingJob",
             "option": [
                 "SeizeDeliveryJobsReward",
                 "SeizeDeliveryJobsRefreshLimit",
@@ -316,6 +316,7 @@
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true,
                             "next": [
+                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsTeleportAndWalk"
                             ]
                         }
@@ -333,6 +334,7 @@
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true,
                             "next": [
+                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsFullDelivery"
                             ]
                         }

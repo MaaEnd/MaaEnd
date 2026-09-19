@@ -7,7 +7,6 @@
         },
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsGuard",
             "SeizeDeliveryJobsEnterWulingJobList"
         ]
     },
@@ -23,12 +22,66 @@
             "Node.Recognition.Succeeded": "您需要同意知悉可能的后果才能使用自动走路送货功能"
         }
     },
+    "SeizeDeliveryJobsCheckOngoingJob": {
+        "desc": "任务入口门控：开始执行任务时确认身上是否已有送货委托，再决定抢单还是走后处理",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDeliveryAfterOngoingJobFound": "SeizeDeliveryJobsHandleOngoingJob",
+            "AutoDeliveryAfterOngoingJobAbsent": "SeizeDeliveryJobsNoOngoingJob"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCheckOngoingJob"
+        ]
+    },
+    "SeizeDeliveryJobsNoOngoingJob": {
+        "desc": "身上没有送货委托：进入抢单主流程",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsMain"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.noOngoingJob"
+        }
+    },
+    "SeizeDeliveryJobsHandleOngoingJob": {
+        "desc": "身上已有送货委托：能转交就先转交，不能转交再按后处理选项处理",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsClickTransferJob",
+            "SeizeDeliveryJobsOngoingJobFound"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.ongoingJobFound"
+        }
+    },
+    "SeizeDeliveryJobsOngoingJobFound": {
+        "desc": "身上已有送货委托：按后处理选项处理，未开启后处理则结束任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsPostProcessingEntry",
+            "SeizeDeliveryJobsFailedExistDueTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.transferUnavailable"
+        }
+    },
     "SeizeDeliveryJobsReadyToSeize": {
         "desc": "在运送委托列表，先检查不能抢单的几种情况，随后从帝江号准备抢单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsExistDueTask",
             "SeizeDeliveryJobsFailedChanceExhausted",
             "SeizeDeliveryJobsPrepareAtDijiang",
             "SeizeDeliveryJobsJobListIsWulingFilter",

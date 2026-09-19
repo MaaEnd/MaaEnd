@@ -18,7 +18,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 }
 ```
 
-`AutoDelivery` 是唯一公共执行入口。其余 `AutoDelivery...` 节点属于组件实现或配置契约，不应作为独立步骤写入调用方的 `next`。
+`AutoDelivery` 与 `AutoDeliveryCheckOngoingJob` 是两个公共入口。其余 `AutoDelivery...` 节点属于组件实现或配置契约，不应作为独立步骤写入调用方的 `next`。
 
 ### 默认流程
 
@@ -35,12 +35,16 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 页面信息无法识别、路线无法解析或操作失败时，组件不转发额外的 `on_error`，而是按 Pipeline 默认行为结束任务。调用方若需要在某个正常阶段返回自身流程，应使用下节的 anchor，不要直接引用内部节点。
 
+唯一例外是公共入口 `AutoDeliveryCheckOngoingJob`：它在任务界面中找不到送货任务时，通过 `on_error` 走到 `AutoDeliveryAfterOngoingJobAbsent`，把“无单”作为正常结果交回调用方。该入口只在任务进入主流程前执行一次。
+
 ## 阶段出口 anchor
 
-四个阶段出口均采用“anchor 优先、默认节点兜底”的形式。未设置时继续默认流程；调用方只在需要截断流程或在提交后继续自身任务时配置：
+各阶段出口均采用“anchor 优先、默认节点兜底”的形式。未设置时继续默认流程；调用方只在需要截断流程或在提交后继续自身任务时配置：
 
 | anchor | 触发位置 | 未设置时的默认行为 | 典型用途 |
 | --- | --- | --- | --- |
+| `AutoDeliveryAfterOngoingJobFound` | 判定身上已有送货委托后 | 进入 `AutoDelivery` 完成整单送货 | 有单时按任务选项走后处理 |
+| `AutoDeliveryAfterOngoingJobAbsent` | 判定身上没有送货委托后 | 按 Pipeline 默认行为结束任务 | 无单时回到任务自己的抢单/接取流程 |
 | `AutoDeliveryAfterRecognizeDestination` | 已识别到送货终点后 | 取消追踪并前往终点 | 已取货时禁止仅传送、仅走到仓储等模式继续移动 |
 | `AutoDeliveryAfterQuickTeleport` | 快速传送到仓储附近后 | 取消追踪并前往仓储 | 仅快速传送 |
 | `AutoDeliveryAfterNavigateDepot` | 到达仓储后 | 取货 | 仅走到仓储节点 |

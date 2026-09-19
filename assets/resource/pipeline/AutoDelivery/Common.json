@@ -139,6 +139,29 @@
         ],
         "count": 20
     },
+    "AutoDeliveryCheckOngoingJob": {
+        "desc": "进入任务界面确认是否存在进行中的送货委托；供调用方在进入组件前判定身上是否已有单",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoDeliveryAfterOngoingJobFound",
+            "AutoDelivery"
+        ],
+        "on_error": [
+            "[Anchor]AutoDeliveryAfterOngoingJobAbsent",
+            "AutoDeliveryDeliveryMissionNotFound"
+        ]
+    },
     "AutoDeliveryCheckStartTrackingButton": {
         "desc": "识别当前送货任务详情中的开始追踪按钮",
         "recognition": "TemplateMatch",

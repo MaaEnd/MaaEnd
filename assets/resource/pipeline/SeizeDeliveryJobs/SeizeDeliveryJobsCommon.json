@@ -1,7 +1,7 @@
 {
     // ===== 从任意位置进入武陵仓储管理页面的公用节点 =====
     "SeizeDeliveryJobsEnterWulingJobList": {
-        "desc": "从任意位置进入武陵仓储管理页面的运送委托列表（需覆写锚点 SeizeDeliveryAfterEnterWulingJobList 来控制下一步）",
+        "desc": "从任意位置进入武陵仓储管理页面的运送委托列表（需覆写锚点 SeizeDeliveryJobsAfterEnterWulingJobList 来控制下一步）",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
