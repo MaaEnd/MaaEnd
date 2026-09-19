@@ -1221,7 +1221,7 @@
     "option.StashBackpackQuick.label": "원클릭 보관",
     "option.StashBackpackDepot.label": "보관 위치",
     "option.StashBackpackDepot.cases.ValleyIV.label": "4호 계곡",
-    "option.StashBackpackDepot.cases.Wuling.label": "우링",
+    "option.StashBackpackDepot.cases.Wuling.label": "무릉",
     "option.StashBackpackManual.label": "개별 보관",
     "option.StashBackpackManual.description": "아래에서 선택한 분류의 아이템을 보관합니다. 끄면 이 단계를 건너뛰며, 다시 켜도 분류 선택은 유지됩니다.",
     "option.StashBackpackManualCategories.label": "개별 보관할 분류",
