@@ -4910,6 +4910,9 @@
             ]
         },
         "next": [
+            "AutoStockStapleBagFullHandlerValleyIV",
+            "AutoStockStapleBagFullHandlerWuling",
+            "AutoStockStapleBagFullGiveUp",
             "AutoStockStapleQuantityControlCloseRewards"
         ]
     },
