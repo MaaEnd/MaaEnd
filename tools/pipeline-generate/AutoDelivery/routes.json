@@ -34,7 +34,8 @@
                     ],
                     "target_deck_y": 87.27
                 }
-            ]
+            ],
+            "yaw": 300
         },
         {
             "source_id": "deliver_target_map01_lv005_03",
