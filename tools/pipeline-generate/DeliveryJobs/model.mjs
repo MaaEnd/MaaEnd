@@ -1,4 +1,5 @@
 import {readJsonc} from "../jsonc.mjs";
+import {compareItemDisplayOrder, itemIconPath} from "../utils/itemDisplayOrder.mjs";
 
 const INTERFACE_LOCALES = [
     "zh_cn",
@@ -72,30 +73,12 @@ function buildMaaEndId(names, label) {
     return id;
 }
 
-// 按分类分组、再按中文名排序，保证不同环境下生成结果一致
+// 装箱物品选项的显示顺序与图标统一走 itemDisplayOrder：物品大类 → 稀有度升序 → 游戏仓库顺序。
+// 保证不同环境下生成结果一致。
 function compareFillItemIds(a, b) {
-    const catalogA = assertRecord(iconRecognitionItems[a], `IconRecognition 物品目录 ${a}`);
-    const catalogB = assertRecord(iconRecognitionItems[b], `IconRecognition 物品目录 ${b}`);
-    const categoryA = `${catalogA.storageKind}:${catalogA.categoryType}`;
-    const categoryB = `${catalogB.storageKind}:${catalogB.categoryType}`;
-    if (categoryA !== categoryB) {
-        return categoryA < categoryB ? -1 : 1;
-    }
-    const nameA = getFillItemName(a);
-    const nameB = getFillItemName(b);
-    if (nameA !== nameB) {
-        return nameA < nameB ? -1 : 1;
-    }
-    if (a === b) {
-        return 0;
-    }
-    return a < b ? -1 : 1;
-}
-
-function getFillItemName(gameID) {
-    const item = assertRecord(deliveryJobsData.items[gameID], `delivery_jobs.json 物品 ${gameID}`);
-    validateLocalizedNames(item.names, `物品 ${gameID}`);
-    return item.names.zh_cn;
+    assertRecord(iconRecognitionItems[a], `IconRecognition 物品目录 ${a}`);
+    assertRecord(iconRecognitionItems[b], `IconRecognition 物品目录 ${b}`);
+    return compareItemDisplayOrder(a, b);
 }
 
 // 地区的可装箱物品取各仓储节点 fillable_items 的交集；
@@ -114,10 +97,15 @@ function buildFillItem(gameID) {
     const item = assertRecord(deliveryJobsData.items[gameID], `delivery_jobs.json 物品 ${gameID}`);
     validateLocalizedNames(item.names, `物品 ${gameID}`);
     const catalogEntry = assertRecord(iconRecognitionItems[gameID], `IconRecognition 物品目录 ${gameID}`);
+    const icon = itemIconPath(gameID);
+    if (!icon) {
+        throw new Error(`[DeliveryJobs] 物品 ${gameID} 缺少展示图标（IconRecognition 目录无 iconId）`);
+    }
     return {
         Id: gameID,
         Names: item.names,
         Label: `$iconRecognition.name.${gameID}`,
+        Icon: icon,
         ItemId: gameID,
         RecheckFilter: `${catalogEntry.storageKind}:${catalogEntry.categoryType}`,
     };

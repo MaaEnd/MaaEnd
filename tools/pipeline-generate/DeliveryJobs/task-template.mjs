@@ -389,6 +389,7 @@ function buildFillItemCases(region, priority) {
     const cases = region.FillItems.map((item) => ({
         name: item.Id,
         label: item.Label,
+        icon: item.Icon,
         pipeline_override: {
             [`DeliveryJobsStartFill${region.Id}Priority${priority}`]: {
                 enabled: true,

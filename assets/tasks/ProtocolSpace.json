@@ -902,6 +902,7 @@
                 {
                     "name": "AdvancedCombatRecord",
                     "label": "$option.OperatorEXPRewardsSetOption.cases.AdvancedCombatRecord.label",
+                    "icon": "resource/image/icon/item_expcard_2_3.png",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
@@ -930,6 +931,7 @@
                 {
                     "name": "Protodisk",
                     "label": "$option.PromotionsRewardsSetOption.cases.Protodisk.label",
+                    "icon": "resource/image/icon/item_char_break_stage_1_2.png",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
@@ -941,6 +943,7 @@
                 {
                     "name": "Protoset",
                     "label": "$option.PromotionsRewardsSetOption.cases.Protoset.label",
+                    "icon": "resource/image/icon/item_char_break_stage_3_4.png",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
@@ -958,6 +961,7 @@
                 {
                     "name": "Protoprism",
                     "label": "$option.SkillUpRewardsSetOption.cases.Protoprism.label",
+                    "icon": "resource/image/icon/item_char_skill_level_1_6.png",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
@@ -969,6 +973,7 @@
                 {
                     "name": "Protohedron",
                     "label": "$option.SkillUpRewardsSetOption.cases.Protohedron.label",
+                    "icon": "resource/image/icon/item_char_skill_level_7_12.png",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
@@ -986,6 +991,7 @@
                 {
                     "name": "CastDie",
                     "label": "$option.WeaponTuneRewardsSetOption.cases.CastDie.label",
+                    "icon": "resource/image/icon/item_weapon_break_low.png",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
@@ -997,6 +1003,7 @@
                 {
                     "name": "HeavyCastDie",
                     "label": "$option.WeaponTuneRewardsSetOption.cases.HeavyCastDie.label",
+                    "icon": "resource/image/icon/item_weapon_break_high.png",
                     "pipeline_override": {
                         "ProtocolSpaceNormalPrepareChooseRewardABText": {
                             "expected": [
@@ -1029,6 +1036,14 @@
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
+                    "name": "SupplyPlanLimit_PROTODISK",
+                    "label": "$option.SupplyPlanLimits.inputs.PROTODISK.label",
+                    "pipeline_type": "int",
+                    "default": "65",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
                     "name": "SupplyPlanLimit_PROTOSET",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOSET.label",
                     "pipeline_type": "int",
@@ -1037,10 +1052,18 @@
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
-                    "name": "SupplyPlanLimit_PROTODISK",
-                    "label": "$option.SupplyPlanLimits.inputs.PROTODISK.label",
+                    "name": "SupplyPlanLimit_PROTOPRISM",
+                    "label": "$option.SupplyPlanLimits.inputs.PROTOPRISM.label",
                     "pipeline_type": "int",
-                    "default": "65",
+                    "default": "920",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "SupplyPlanLimit_PROTOHEDRON",
+                    "label": "$option.SupplyPlanLimits.inputs.PROTOHEDRON.label",
+                    "pipeline_type": "int",
+                    "default": "1100",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -1085,34 +1108,18 @@
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
-                    "name": "SupplyPlanLimit_PROTOHEDRON",
-                    "label": "$option.SupplyPlanLimits.inputs.PROTOHEDRON.label",
-                    "pipeline_type": "int",
-                    "default": "1100",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_PROTOPRISM",
-                    "label": "$option.SupplyPlanLimits.inputs.PROTOPRISM.label",
-                    "pipeline_type": "int",
-                    "default": "920",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_T_CREDS",
-                    "label": "$option.SupplyPlanLimits.inputs.T_CREDS.label",
-                    "pipeline_type": "int",
-                    "default": "3580000",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
                     "name": "SupplyPlanLimit_WEAPON_EXP",
                     "label": "$option.SupplyPlanLimits.inputs.WEAPON_EXP.label",
                     "pipeline_type": "int",
                     "default": "5000000",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "SupplyPlanLimit_CAST_DIE",
+                    "label": "$option.SupplyPlanLimits.inputs.CAST_DIE.label",
+                    "pipeline_type": "int",
+                    "default": "45",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
@@ -1125,10 +1132,10 @@
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
-                    "name": "SupplyPlanLimit_CAST_DIE",
-                    "label": "$option.SupplyPlanLimits.inputs.CAST_DIE.label",
+                    "name": "SupplyPlanLimit_T_CREDS",
+                    "label": "$option.SupplyPlanLimits.inputs.T_CREDS.label",
                     "pipeline_type": "int",
-                    "default": "45",
+                    "default": "3580000",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 }

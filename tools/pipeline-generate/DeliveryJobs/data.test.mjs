@@ -5,6 +5,7 @@ import test from "node:test";
 import {fileURLToPath} from "node:url";
 
 import {parseJsonc, readJsonc} from "../jsonc.mjs";
+import {compareItemDisplayOrder} from "../utils/itemDisplayOrder.mjs";
 import {DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT, deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
 
 const AUTO_DELIVERY_NAVIGATE_NODES = [
@@ -87,7 +88,13 @@ test("DeliveryJobs model has unique regions and depots", () => {
             assert.ok(catalogEntry, `${region.Id} item ${item.ItemId} missing from IconRecognition catalog`);
             assert.equal(item.RecheckFilter, `${catalogEntry.storageKind}:${catalogEntry.categoryType}`);
             assert.equal(item.Label, `$iconRecognition.name.${item.ItemId}`);
+            assert.equal(item.Icon, `resource/image/icon/${catalogEntry.iconId}.png`);
         }
+        assert.deepEqual(
+            region.FillItems.map((item) => item.ItemId),
+            [...region.FillItems.map((item) => item.ItemId)].sort(compareItemDisplayOrder),
+            `${region.Id} fill items are not sorted by item category then rarity`,
+        );
     }
     assert.deepEqual(
         deliveryJobDepots.filter((depot) => depot.AutoDeliverySupported).map((depot) => depot.Id),
@@ -1457,12 +1464,15 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         "AutoDeliverySkipChat",
     ]);
     assert.equal(delivery.AutoDeliverySkipChat.action, "TouchMove");
-    assert.deepEqual(delivery.AutoDeliverySkipChat.target, [
-        0,
-        0,
-        1,
-        1,
-    ]);
+    assert.deepEqual(
+        delivery.AutoDeliverySkipChat.target,
+        [
+            0,
+            0,
+            1,
+            1,
+        ],
+    );
     assert.deepEqual(delivery.AutoDeliverySkipChat.next, [
         "AutoDeliveryCheckSkipChatAfterMoveAway",
     ]);
@@ -1474,10 +1484,7 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         "AutoDeliverySkipChatMoveToButton",
     ]);
     assert.equal(delivery.AutoDeliverySkipChatMoveToButton.action, "TouchMove");
-    assert.equal(
-        delivery.AutoDeliverySkipChatMoveToButton.target,
-        "AutoDeliveryCheckSkipChatAfterMoveAway",
-    );
+    assert.equal(delivery.AutoDeliverySkipChatMoveToButton.target, "AutoDeliveryCheckSkipChatAfterMoveAway");
     assert.deepEqual(delivery.AutoDeliverySkipChatMoveToButton.next, [
         "AutoDeliverySkipChatClick",
     ]);

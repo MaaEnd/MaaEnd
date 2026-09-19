@@ -83,6 +83,38 @@ python tools/icon_recognition/publish.py --fixed-only
 
 最终图标位于 `assets/resource/image/IconRecognition/<rarity>/<iconId>.png`。识别时从这里的 128 或 256 原图直接缩放到目标 cell 尺寸，不经过固定中间尺寸。
 
+## 任务前端展示图标
+
+任务里的物品选项用两种方式引用展示图标：
+
+- option case 的 `icon` 字段：`"icon": "resource/image/icon/<iconId>.png"`；
+- 输入项（`input`）的 label 富文本：`![](resource/image/icon/<iconId>.png) 协议圆盘 ★3`。
+  项目接口 V2 的 `inputItem` 没有 `icon` 字段，输入行只能把图标写进 label，
+  约定见[组件文档](../../docs/zh_cn/developers/components/icon-recognition.md#任务前端的展示图标)。
+
+展示图标是 16×16、带品质遮罩的 PNG，由识别素材加工得到：
+
+```powershell
+python tools/icon_recognition/display_icons.py           # 生成 / 更新被引用的展示图标
+python tools/icon_recognition/display_icons.py --check    # 只校验，不改文件
+```
+
+- 源图：`assets/resource/image/IconRecognition/<rarity>/<iconId>.png`，只读，不修改；
+- 遮罩：`tools/icon_recognition/rarity_masks/`，`Gray=1 / Green=2 / Blue=3 / Purple=4 / Gold=5 / Orange=6`；
+- 处理：遮罩先等比缩放到与源图同宽，底部对齐，再垂直向上拉伸到同高（形变是预期的），
+  与源图合成后整体缩放到 16×16；
+- 输出：`assets/resource/image/icon/<iconId>.png`。文件名固定为 `iconId`，与任务里的
+  引用路径一一对应；共享同一 `iconId` 的别名物品共用一张图；
+- 同一个 `iconId` 跨稀有度出现时脚本直接报错，需要维护者先确认识别目录数据。
+
+目录或原图更新后（例如刚执行过 `publish.py`）重新运行一次即可；新增物品时先在任务里
+引用图标，再运行脚本生成。
+
+物品选项的展示顺序由 [`tools/pipeline-generate/utils/itemDisplayOrder.mjs`](../pipeline-generate/utils/itemDisplayOrder.mjs)
+统一约定：物品大类（游戏仓库顺序）→ 稀有度从低到高 → 游戏仓库顺序；无道具条目置顶，
+独立资源（货币）排在最后。`DeliveryJobs` / `OutpostTrading` 的生成器复用同一比较器，
+重新生成时会自动带上顺序与图标。
+
 ## 校验与故障恢复
 
 ```powershell

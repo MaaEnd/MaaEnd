@@ -3,6 +3,7 @@ import {readFileSync} from "node:fs";
 import test from "node:test";
 
 import {readJsonc} from "../jsonc.mjs";
+import {compareItemDisplayOrder, itemIconPath} from "../utils/itemDisplayOrder.mjs";
 import {
     outpostTradingLocations,
     outpostTradingLocationsNewestFirst,
@@ -250,15 +251,15 @@ test("OutpostTrading 优先总开关展开地区配置且不耦合地区售卖�
 
             const itemCases = cases.filter((entry) => entry.name !== "None");
             assert.ok(itemCases.length > 0, `${regionPrefix} slot ${slot} has no selectable items`);
-            const itemPrices = itemCases.map((itemCase) => {
-                const registration =
-                    itemCase.pipeline_override[`OutpostTrading${regionPrefix}RegisterPriorityItem${slot}`];
-                return priceByItemID.get(registration.custom_action_param.item_id);
-            });
+            const itemIDs = itemCases.map(
+                (itemCase) =>
+                    itemCase.pipeline_override[`OutpostTrading${regionPrefix}RegisterPriorityItem${slot}`]
+                        .custom_action_param.item_id,
+            );
             assert.deepEqual(
-                itemPrices,
-                [...itemPrices].sort((left, right) => right - left),
-                `${regionPrefix} slot ${slot} items are not sorted by unit price descending`,
+                itemIDs,
+                [...itemIDs].sort(compareItemDisplayOrder),
+                `${regionPrefix} slot ${slot} items are not sorted by item category then rarity`,
             );
             for (const itemCase of itemCases) {
                 const registration =
@@ -267,59 +268,28 @@ test("OutpostTrading 优先总开关展开地区配置且不耦合地区售卖�
                 assert.equal(registration.custom_action_param.operation, "register");
                 assert.ok(registration.custom_action_param.item_id.startsWith("item_"));
                 assert.ok(regionItemIDs.has(registration.custom_action_param.item_id));
+                assert.equal(itemCase.icon, itemIconPath(registration.custom_action_param.item_id));
             }
         }
     }
 });
 
-test("OutpostTrading 武陵优先物品顺序与游戏货架一致", () => {
-    const regionPrefix = "Wuling";
-    const regionRoot = outpostTradingTaskRows.find((row) => row.RegionPrefix === regionPrefix);
-    const itemIDs = regionRoot.PriorityItemCases1.filter((entry) => entry.name !== "None").map(
-        (entry) => entry.pipeline_override.OutpostTradingWulingRegisterPriorityItem1.custom_action_param.item_id,
-    );
-    const observedSkyKingOrder = [
-        "item_proc_battery_5",
-        "item_copper_enr_cmpt",
-        "item_xiranite_enr_powder",
-        "item_proc_battery_4",
-        "item_bottled_rec_hp_5",
-        "item_bottled_food_5",
-        "item_bottled_food_4",
-    ];
-    const observedItems = new Set(observedSkyKingOrder);
-    assert.deepEqual(
-        itemIDs.filter((itemID) => observedItems.has(itemID)),
-        observedSkyKingOrder,
-    );
-});
-
-test("OutpostTrading 四号谷地同价优先物品保留游戏货架顺序", () => {
-    const regionRoot = outpostTradingTaskRows.find((row) => row.RegionPrefix === "ValleyIV");
-    const itemIDs = regionRoot.PriorityItemCases1.filter((entry) => entry.name !== "None").map(
-        (entry) => entry.pipeline_override.OutpostTradingValleyIVRegisterPriorityItem1.custom_action_param.item_id,
-    );
-    const expectedOrder = [
-        "item_bottled_rec_hp_1",
-        "item_bottled_food_1",
-        "item_crystal_shell",
-        "item_glass_cmpt",
-        "item_iron_cmpt",
-    ];
-    const expectedItems = new Set(expectedOrder);
-    assert.deepEqual(
-        itemIDs.filter((itemID) => expectedItems.has(itemID)),
-        expectedOrder,
-    );
-});
-
-test("OutpostTrading 保留物品按游戏货架单价降序排列", () => {
-    const priceByItemID = new Map();
-    for (const location of Object.values(outpostTradingSelectionData.locations)) {
-        for (const item of location.items) {
-            priceByItemID.set(item.item_id, Math.max(priceByItemID.get(item.item_id) ?? 0, item.unit_price));
-        }
+test("OutpostTrading 优先物品按物品大类与稀有度排序", () => {
+    for (const regionPrefix of [
+        "ValleyIV",
+        "Wuling",
+    ]) {
+        const regionRoot = outpostTradingTaskRows.find((row) => row.RegionPrefix === regionPrefix);
+        const itemIDs = regionRoot.PriorityItemCases1.filter((entry) => entry.name !== "None").map(
+            (entry) =>
+                entry.pipeline_override[`OutpostTrading${regionPrefix}RegisterPriorityItem1`].custom_action_param
+                    .item_id,
+        );
+        assert.deepEqual(itemIDs, [...itemIDs].sort(compareItemDisplayOrder));
     }
+});
+
+test("OutpostTrading 保留物品按物品大类与稀有度排序", () => {
     for (const slot of [
         1,
         2,
@@ -329,43 +299,18 @@ test("OutpostTrading 保留物品按游戏货架单价降序排列", () => {
         6,
     ]) {
         const itemCases = root[`ReserveItemCases${slot}`].filter((entry) => entry.name !== "None");
-        const itemPrices = itemCases.map((itemCase) => {
+        const itemIDs = itemCases.map(
+            (itemCase) => itemCase.pipeline_override[`OutpostTradingRegisterReserveRule${slot}`].attach.item_id,
+        );
+        assert.deepEqual(
+            itemIDs,
+            [...itemIDs].sort(compareItemDisplayOrder),
+            `reserve slot ${slot} items are not sorted by item category then rarity`,
+        );
+        for (const itemCase of itemCases) {
             const registration = itemCase.pipeline_override[`OutpostTradingRegisterReserveRule${slot}`];
-            return priceByItemID.get(registration.attach.item_id);
-        });
-        assert.deepEqual(
-            itemPrices,
-            [...itemPrices].sort((left, right) => right - left),
-            `reserve slot ${slot} items are not sorted by unit price descending`,
-        );
-    }
-
-    const itemIDs = root.ReserveItemCases1.filter((entry) => entry.name !== "None").map(
-        (entry) => entry.pipeline_override.OutpostTradingRegisterReserveRule1.attach.item_id,
-    );
-    for (const expectedOrder of [
-        [
-            "item_copper_enr2_cmpt",
-            "item_bottled_rec_hp_3",
-            "item_proc_battery_3",
-            "item_bottled_food_3",
-        ],
-        [
-            "item_bottled_rec_hp_1",
-            "item_bottled_food_1",
-        ],
-        [
-            "item_filter_core",
-            "item_crystal_shell",
-            "item_glass_cmpt",
-            "item_iron_cmpt",
-        ],
-    ]) {
-        const expectedItems = new Set(expectedOrder);
-        assert.deepEqual(
-            itemIDs.filter((itemID) => expectedItems.has(itemID)),
-            expectedOrder,
-        );
+            assert.equal(itemCase.icon, itemIconPath(registration.attach.item_id));
+        }
     }
 });
 
@@ -521,7 +466,9 @@ test("OutpostTrading operator locations form an always-enabled active-flag chain
 });
 
 test("OutpostTrading operator switching uses shared core dispatch nodes", () => {
-    const core = readPipeline(new URL("../../../assets/resource/pipeline/OutpostTrading/SellCore.json", import.meta.url));
+    const core = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/SellCore.json", import.meta.url),
+    );
     assert.deepEqual(core.OutpostTradingSellMain.next, ["OutpostTradingBeforeSellOperator"]);
     assert.deepEqual(core.OutpostTradingBeforeSellOperator.next, [
         "[Anchor]OutpostTradingBeforeSellOperatorTarget",
@@ -706,7 +653,10 @@ test("OutpostTrading 每轮选货及保留交易后优先检查调度券不足",
         "[Anchor]OutpostTradingZeroMoneyHandler",
         "OutpostTradingZeroProductAfterChangeStillEmpty",
     ]);
-    assert.equal(pipeline.OutpostTradingSellCheckThenLoop.anchor.OutpostTradingZeroMoneyHandler, "OutpostTradingZeroMoney");
+    assert.equal(
+        pipeline.OutpostTradingSellCheckThenLoop.anchor.OutpostTradingZeroMoneyHandler,
+        "OutpostTradingZeroMoney",
+    );
     assert.deepEqual(pipeline.OutpostTradingSellCheckThenLoop.next, [
         "[Anchor]OutpostTradingZeroMoneyHandler",
         "OutpostTradingReserveQuantityReached",

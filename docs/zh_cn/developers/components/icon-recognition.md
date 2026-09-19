@@ -398,6 +398,17 @@ const iconrecognition::RecognitionResult result = recognizer.recognize(image, re
 
 三个文件使用相同 stem，合称一组。组件会自动清理较旧的组。正常执行到结果汇总阶段时，核心 C++ 结果保留网格和格子诊断；提前返回的 `invalid_image` 或 `exception` 可能不包含诊断。`debug=true` 时还会附加性能诊断。Custom 回调的公开 detail 不包含这些内部字段，只有 debug 文件和人工测试输出会附加它们。
 
+## 任务前端的展示图标
+
+任务选项在客户端显示的图标不是识别素材本身，而是 `assets/resource/image/icon/<iconId>.png`：由 `IconRecognition/<稀有度>/<iconId>.png` 拷贝一份，叠上对应品质的遮罩后缩放到 16×16，识别素材保持原样。生成与校验命令、遮罩素材位置见 [IconRecognition 资源下载与发布](/tools/icon_recognition/README.md#任务前端展示图标)。
+
+任务里有两种引用方式：
+
+- option case 用 `icon` 字段：`"icon": "resource/image/icon/<iconId>.png"`；
+- option `input` 用 label 里的行内 Markdown，图片 + 名称 + 星级，例如 `` `![](resource/image/icon/item_gold.png) 折金票 ★4` ``。项目接口 V2 的 `inputItem` 没有 `icon` 字段（`additionalProperties: false`），输入行只能写在 label 里，因此客户端需要支持 label 的富文本渲染。
+
+物品选项的展示顺序由 [`tools/pipeline-generate/utils/itemDisplayOrder.mjs`](/tools/pipeline-generate/utils/itemDisplayOrder.mjs) 统一约定：物品大类（游戏仓库顺序）→ 稀有度从低到高 → 游戏仓库顺序；无道具条目置顶，独立资源（货币）排在最后。新增物品按同一规则插入，`DeliveryJobs` 与 `OutpostTrading` 的生成器会自动带上顺序与图标。
+
 ## 测试与内部实现
 
 - [测试截图、运行命令和人工审核图](/agent/cpp-algo/source/IconRecognition/docs/testing.md)
