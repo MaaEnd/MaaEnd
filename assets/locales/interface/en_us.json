@@ -2433,5 +2433,6 @@
     "option.AutoCollectValleyIVCommonRoutes.label": "Common collectibles",
     "option.AutoCollectWuling.label": "Wuling",
     "option.AutoCollectWulingRareRoutes.label": "Rare collectibles",
-    "option.AutoCollectWulingCommonRoutes.label": "Common collectibles"
+    "option.AutoCollectWulingCommonRoutes.label": "Common collectibles",
+    "option.AutoEssenceStartSanityCheck.description": "At least 80 Sanity is required before combat. If needed, use boosters according to your settings; stop if this amount cannot be reached. Abandon Rewards mode skips this check."
 }
