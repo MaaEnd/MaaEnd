@@ -182,13 +182,12 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
             "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransfer${DepotId}"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsQuoteAction"
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     },
     "DeliveryJobs${DepotId}QuoteBelowMinimum": {
@@ -200,13 +199,12 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
             "DeliveryJobsGoToDepot": "${DepotScene}"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsQuoteAction"
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     }
 }

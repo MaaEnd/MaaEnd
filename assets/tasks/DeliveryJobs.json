@@ -218,7 +218,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
@@ -294,9 +294,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginiumSciencePark"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -306,9 +308,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -318,9 +322,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -329,10 +335,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -350,9 +355,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginiumSciencePark"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -362,9 +369,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -374,9 +383,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -385,10 +396,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -556,7 +566,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
@@ -632,9 +642,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginLodespring"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -644,9 +656,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -656,9 +670,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -667,10 +683,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -688,9 +703,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginLodespring"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -700,9 +717,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -712,9 +731,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -723,10 +744,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -894,7 +914,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
@@ -970,9 +990,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -982,9 +1004,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -994,9 +1018,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1005,10 +1031,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -1026,9 +1051,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1038,9 +1065,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1050,9 +1079,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1061,10 +1092,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -1259,7 +1289,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
@@ -1335,9 +1365,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferWulingCity"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1347,9 +1379,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1359,9 +1393,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1370,10 +1406,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -1391,9 +1426,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferWulingCity"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1403,9 +1440,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1415,9 +1454,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1426,10 +1467,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -1597,7 +1637,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
@@ -1673,9 +1713,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferTestArea"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1685,9 +1727,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1697,9 +1741,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1708,10 +1754,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -1729,9 +1774,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferTestArea"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1741,9 +1788,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1753,9 +1802,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1764,10 +1815,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }

@@ -187,13 +187,12 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
             "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsQuoteAction"
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     },
     "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
@@ -205,13 +204,12 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsQuoteAction"
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     }
 }

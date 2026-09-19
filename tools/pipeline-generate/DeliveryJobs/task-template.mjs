@@ -130,7 +130,7 @@ function buildDepotOption(depot) {
                     deliveryEnabled: false,
                     cargoEnabled: true,
                     cargoExpected: PACK_CARGO_EXPECTED,
-                    bidAction: "DeliveryJobsBackToDepotFromBid",
+                    bidAction: "DeliveryJobsCloseRedistributionBid",
                     ongoingDeliveryAction: "DeliveryJobsSkipOngoingDelivery",
                 }),
             },
@@ -197,6 +197,18 @@ function buildQuoteThresholdOption(depot) {
 function buildQuoteActionOption(depot, {comparison, label, description, defaultCase}) {
     const comparisonNode = `DeliveryJobs${depot.Id}Quote${comparison}`;
     const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
+    // 是否接取由 next 表达，接取后的去向只由 DeliveryJobsGoToDepot 表达；
+    // 「不处理」直接关闭调度申请界面，不经过 DeliveryJobsBackToDepot。
+    const acceptThen = (goToDepot) => ({
+        [comparisonNode]: {
+            next: [
+                "DeliveryJobsRedistributionBidNextStep",
+            ],
+            anchor: {
+                DeliveryJobsGoToDepot: goToDepot,
+            },
+        },
+    });
     return {
         type: "select",
         label,
@@ -205,52 +217,30 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
             {
                 name: "Transfer",
                 label: "$task.DeliveryJobs.QuoteAction.Transfer",
-                pipeline_override: {
-                    [comparisonNode]: {
-                        anchor: {
-                            DeliveryJobsQuoteAction: "DeliveryJobsQuoteTransferJob",
-                            DeliveryJobsGoToDepot: `DeliveryJobsReturnAndTransfer${depot.Id}`,
-                        },
-                    },
-                },
+                pipeline_override: acceptThen(`DeliveryJobsReturnAndTransfer${depot.Id}`),
             },
             ...(depot.AutoDeliverySupported
                 ? [
                       {
                           name: "AutoDelivery",
                           label: "$task.DeliveryJobs.QuoteAction.AutoDelivery",
-                          pipeline_override: {
-                              [comparisonNode]: {
-                                  anchor: {
-                                      DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                                      DeliveryJobsGoToDepot: autoDelivery,
-                                  },
-                              },
-                          },
+                          pipeline_override: acceptThen(autoDelivery),
                       },
                   ]
                 : []),
             {
                 name: "AcceptJobOnly",
                 label: "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
-                pipeline_override: {
-                    [comparisonNode]: {
-                        anchor: {
-                            DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                            DeliveryJobsGoToDepot: depot.DepotScene,
-                        },
-                    },
-                },
+                pipeline_override: acceptThen(depot.DepotScene),
             },
             {
                 name: "DoNotAccept",
                 label: "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                 pipeline_override: {
                     [comparisonNode]: {
-                        anchor: {
-                            DeliveryJobsQuoteAction: "DeliveryJobsQuoteDoNotAccept",
-                            DeliveryJobsGoToDepot: depot.DepotScene,
-                        },
+                        next: [
+                            "DeliveryJobsCloseRedistributionBid",
+                        ],
                     },
                 },
             },
