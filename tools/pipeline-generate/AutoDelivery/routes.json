@@ -124,7 +124,8 @@
         {
             "source_id": "deliver_target_map02_lv002_recycle_01",
             "name": "火锅探店达人",
-            "depot_id": "domain_2_lv002_depot_1"
+            "depot_id": "domain_2_lv002_depot_1",
+            "yaw": 190
         },
         {
             "source_id": "deliver_target_map02_lv005_01",
