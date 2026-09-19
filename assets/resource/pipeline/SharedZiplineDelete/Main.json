@@ -35,7 +35,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -55,7 +55,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -75,7 +75,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -95,7 +95,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -104,7 +104,7 @@
         ]
     },
     "SharedZiplineDeleteEnterVFOriginLodespring": {
-        "enabled": false,
+        "enabled": true,
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -115,7 +115,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -135,7 +135,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -155,7 +155,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -175,7 +175,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -195,7 +195,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -215,7 +215,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -235,7 +235,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -255,7 +255,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -275,7 +275,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan4x4"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan2x2Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -295,7 +295,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -315,7 +315,7 @@
             ]
         },
         "anchor": {
-            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan9x9"
+            "SharedZiplineDeleteScanAnchor": "SharedZiplineDeleteScan3x3Setp0"
         },
         "post_delay": 0,
         "rate_limit": 0,

@@ -234,19 +234,8 @@
             "__ScenePrivateNoticeRewardsUpgradeConfirm"
         ]
     },
-    "SceneMapZoomOut": {
+    "SceneMapZoomOutWithoutReco": {
         "desc": "在地图界面缩小地图（供 MapFind 等子任务调用）,需确保在地图界面",
-        // "recognition": "TemplateMatch",
-        // "roi": [
-        //     -350,
-        //     0,
-        //     350,
-        //     60
-        // ],
-        // "template": [
-        //     "SceneManager/MapMind.png"
-        // ],
-        // "method": 10001, // 默认5时，当弹出右侧面板，此图片依然能匹配上
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -254,6 +243,37 @@
             "__ScenePrivateMapZoomOut",
             "__ScenePrivateNextTrue"
         ]
+    },
+    "SceneMapZoomOut": {
+        "desc": "在地图界面缩小地图",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -350,
+                    0,
+                    350,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MapMind.png"
+                ],
+                "method": 10001 // 默认5时，当弹出右侧面板，此图片依然能匹配上
+            },
+            "__ScenePrivateMapZoomOutWhite"
+        ],
+        "action": "LongPress",
+        "duration": 2000,
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ],
+            "time": 400
+        }
     },
     "SceneWaitLoadingExit": {
         "desc": "判断当前场景在加载界面，什么都不做，用于等待加载界面消失",

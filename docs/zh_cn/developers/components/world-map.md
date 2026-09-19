@@ -4,10 +4,17 @@ WorldMap 是基于原生 C++ 实现的大地图坐标识别系统。节点只需
 
 它与 [MapLocator](./map-locator.md) 共用同一套模板匹配内核和同一批区域底图。区别在于 MapLocator 看的是小地图、回答「角色在哪」，WorldMap 看的是全屏大地图、回答「这个坐标现在画在屏幕哪」。
 
-- [MapFind](#mapfind)
-- [图标表](#图标表)
-- [传送点接线](#传送点接线)
-- [识别原理](#识别原理)
+- [开发手册 - WorldMap 大地图识别](#开发手册---worldmap-大地图识别)
+    - [MapFind](#mapfind)
+        - [节点参数](#节点参数)
+        - [一次判一组候选](#一次判一组候选)
+            - [开关一个候选](#开关一个候选)
+        - [成功与失败](#成功与失败)
+        - [示例](#示例)
+    - [图标表](#图标表)
+    - [传送点接线](#传送点接线)
+    - [识别原理](#识别原理)
+        - [分块投票](#分块投票)
 
 WorldMap 属于识别层，只负责在已经打开的大地图上把坐标解成屏幕位置。打开地图、切图层由 [SceneManager](../scene-manager.md) 的万能跳转负责，点完之后的确认弹窗也由 Pipeline 接管；缩放是它自己调的，见下。
 
@@ -19,7 +26,7 @@ WorldMap 属于识别层，只负责在已经打开的大地图上把坐标解�
 
 节点执行时会先把地图缩到最小，再自行截图、求解视口、必要时拖动地图，直到目标进入可用区域为止。**给了 `icon` 时，确认不到图标就不给坐标**——算得出位置不等于那里有东西，宁可返回失败让上层重试或走别的候选，也不交一个算出来的空位置。不给 `icon` 时只把坐标解出来交回，不作这层担保。
 
-缩放档位是视口求解要在尺度带里扫出来的那个未知量，所以节点进来第一件事就是把它钉死：调用一次 pipeline 的 `SceneMapZoomOut`，子任务返回时地图应已缩到最小。按钮坐标各端不同，它跟着资源层走，节点自己不带坐标。因此 pipeline 里写不写 `[JumpBack]__ScenePrivateMapZoomOut` 都行：写了是提前缩好，不写 `MapFind` 也会调 `SceneMapZoomOut`。
+缩放档位是视口求解要在尺度带里扫出来的那个未知量，所以节点进来第一件事就是把它钉死：调用一次 pipeline 的 `SceneMapZoomOutWithoutReco`，子任务返回时地图应已缩到最小。按钮坐标各端不同，它跟着资源层走，节点自己不带坐标。因此 pipeline 里写不写 `[JumpBack]__ScenePrivateMapZoomOut` 都行：写了是提前缩好，不写 `MapFind` 也会调 `SceneMapZoomOutWithoutReco`。
 
 ### 节点参数
 
@@ -219,7 +226,7 @@ WorldMap 属于识别层，只负责在已经打开的大地图上把坐标解�
 
 传送点节点写在 `assets/resource/pipeline/SceneManager/SceneTeleport<区域>.json`，填进 `__ScenePrivateMapTeleportPickAnchor` 槽位；入口节点写在 `Interface/Scene<区域>.json`，绑定该槽位并经由 `__ScenePrivateMap<子区域>EnterWorldAnchorWithPick` 进入——后者负责把地图切到主图层，并用 `all_of` 确认当前确实在该子区域的地图界面，顺带先往最小缩一把。
 
-入口里那条 `[JumpBack]__ScenePrivateMapZoomOut` 是提前量、不是必需品：`MapFind` 自己会调 `SceneMapZoomOut`。新接的点照着现有入口抄一份就行，漏了也不会因此认不出来。
+入口里那条 `[JumpBack]__ScenePrivateMapZoomOut` 是提前量、不是必需品：`MapFind` 自己会调 `SceneMapZoomOutWithoutReco`。新接的点照着现有入口抄一份就行，漏了也不会因此认不出来。
 
 子区域的确认闸在 `...EnterWorldAnchorWithPick` 上，`MapFind` 节点自己不再重复一遍——`recognition` 槽位让给了 `MapFind`，而视口求解本身就是更强的「在不在这张图上」判据。
 

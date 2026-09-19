@@ -43,6 +43,7 @@ import (
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/sharedziplinedelete"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
@@ -110,6 +111,7 @@ func registerAll() {
 	creditshopping.Register()
 	webevent202605.Register()
 	ziplineimport.Register()
+	sharedziplinedelete.Register()
 	pullcount.Register()
 	trialofswordmancy.Register()
 	log.Info().
