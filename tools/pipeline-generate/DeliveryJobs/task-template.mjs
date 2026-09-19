@@ -1,4 +1,15 @@
+import {existsSync} from "node:fs";
+
 import {DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT, deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
+
+const UI_ITEM_DIR = new URL("../../../assets/resource/image/UI/Item/", import.meta.url);
+
+function buildItemIcon(itemId) {
+    if (!itemId || !existsSync(new URL(`${itemId}.png`, UI_ITEM_DIR))) {
+        return undefined;
+    }
+    return `resource/image/UI/Item/${itemId}.png`;
+}
 
 const ALL_CARGO_EXPECTED = [
     "查看报价",
@@ -386,28 +397,32 @@ function buildFillItemPriorityRegionOption(region) {
 }
 
 function buildFillItemCases(region, priority) {
-    const cases = region.FillItems.map((item) => ({
-        name: item.Id,
-        label: item.Label,
-        pipeline_override: {
-            [`DeliveryJobsStartFill${region.Id}Priority${priority}`]: {
-                enabled: true,
-            },
-            [`DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`]: {
-                enabled: true,
-                custom_recognition_param: {
-                    grid_type: "shipment",
-                    item_ids: [
-                        item.ItemId,
-                    ],
-                    item_recheck_filters: [
-                        item.RecheckFilter,
-                    ],
-                    deduplicate: true,
+    const cases = region.FillItems.map((item) => {
+        const icon = buildItemIcon(item.ItemId);
+        return {
+            name: item.Id,
+            label: item.Label,
+            ...(icon ? {icon} : {}),
+            pipeline_override: {
+                [`DeliveryJobsStartFill${region.Id}Priority${priority}`]: {
+                    enabled: true,
+                },
+                [`DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`]: {
+                    enabled: true,
+                    custom_recognition_param: {
+                        grid_type: "shipment",
+                        item_ids: [
+                            item.ItemId,
+                        ],
+                        item_recheck_filters: [
+                            item.RecheckFilter,
+                        ],
+                        deduplicate: true,
+                    },
                 },
             },
-        },
-    }));
+        };
+    });
     if (priority > 1) {
         cases.unshift({
             name: "None",
