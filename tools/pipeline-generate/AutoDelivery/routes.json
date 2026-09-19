@@ -70,7 +70,11 @@
         {
             "source_id": "deliver_target_map01_lv006_recycle_01",
             "name": "“不是废品佬”",
-            "depot_id": "domain_1_lv006_depot_1"
+            "depot_id": "domain_1_lv006_depot_1",
+            "offset": [
+                -0.6,
+                -0.6
+            ]
         },
         {
             "source_id": "deliver_target_map01_lv006_recycle_03",
