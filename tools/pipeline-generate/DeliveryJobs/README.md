@@ -81,7 +81,7 @@ DeliveryJobsOngoingDeliveryFallback                    switch  覆盖 DeliveryJo
 | case | 生成函数 | 覆盖内容 |
 | ---------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | `Transfer` | `buildModeOverride` | 两个入口启用；`cargoExpected=ALL_CARGO_EXPECTED`；`bidAction=DeliveryJobsRedistributionBidNextStep`；`ongoingDeliveryAction=DeliveryJobsTransferOngoingJob` |
-| `AutoDelivery` | `buildAutoDeliveryOverride` | 两个入口启用；`DeliveryJobsEnter{DepotId}DeliveryJob.next` 改指 `DeliveryJobsAutoDelivery{DepotId}`；cargo anchor 的 `DeliveryJobsGoToDepot` 改指该节点；分派节点 `next` 改指该节点 |
+| `AutoDelivery` | `buildAutoDeliveryOverride` | 两个入口启用；`DeliveryJobsEnter{DepotId}DeliveryJob.next` 改指 `DeliveryJobsWait{DepotId}DeliveryMissionDetail`（等任务详情界面稳定后再转 `DeliveryJobsAutoDelivery{DepotId}`）；cargo anchor 的 `DeliveryJobsGoToDepot` 改指该节点；分派节点 `next` 改指该节点 |
 | `ByQuote` | `buildModeOverride` | 只启用货物入口；`bidAction=DeliveryJobsDecide{DepotId}Quote`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
 | `AcceptJobOnly` | `buildModeOverride` | 只启用货物入口；`bidAction=DeliveryJobsRedistributionBidNextStep`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
 | `PackCargoOnly` | `buildModeOverride` | 只启用货物入口；`cargoExpected=PACK_CARGO_EXPECTED`（不含「查看报价」）；`bidAction=DeliveryJobsCloseRedistributionBid`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |

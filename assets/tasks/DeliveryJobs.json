@@ -106,7 +106,7 @@
                         "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryOriginiumSciencePark"
+                                "DeliveryJobsWaitOriginiumScienceParkDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterOriginiumScienceParkCargo": {
@@ -454,7 +454,7 @@
                         "DeliveryJobsEnterOriginLodespringDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryOriginLodespring"
+                                "DeliveryJobsWaitOriginLodespringDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterOriginLodespringCargo": {
@@ -802,7 +802,7 @@
                         "DeliveryJobsEnterPowerPlateauDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryPowerPlateau"
+                                "DeliveryJobsWaitPowerPlateauDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterPowerPlateauCargo": {
@@ -1177,7 +1177,7 @@
                         "DeliveryJobsEnterWulingCityDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryWulingCity"
+                                "DeliveryJobsWaitWulingCityDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterWulingCityCargo": {
@@ -1525,7 +1525,7 @@
                         "DeliveryJobsEnterTestAreaDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryTestArea"
+                                "DeliveryJobsWaitTestAreaDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterTestAreaCargo": {

@@ -253,10 +253,12 @@ function buildAutoDeliveryOverride(depot, {bidAction}) {
     const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
     const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
     const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
+    // 入口 A 点完「查看任务」后先经门节点等任务详情界面稳定，再交给全自动送货
+    const waitDetail = `DeliveryJobsWait${depot.Id}DeliveryMissionDetail`;
     return {
         [deliveryNode]: {
             enabled: true,
-            next: [autoDelivery],
+            next: [waitDetail],
         },
         [cargoNode]: {
             enabled: true,

@@ -76,6 +76,29 @@
             "DeliveryJobsClickTransferJob"
         ]
     },
+    "DeliveryJobsWaitOriginiumScienceParkDeliveryMissionDetail": {
+        "desc": "等待源石研究园的送货任务详情界面稳定后再开始全自动送货",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail"
+        ],
+        // 等待区域与组件里 AutoDeliveryInDeliveryMissionDetail 的等待区域相同
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                417,
+                51,
+                547,
+                279
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsAutoDeliveryOriginiumSciencePark"
+        ]
+    },
     "DeliveryJobsAutoDeliveryOriginiumSciencePark": {
         "desc": "为源石研究园当前送货任务设置回跳锚点，并交给公共调用节点处理",
         "pre_delay": 0,
