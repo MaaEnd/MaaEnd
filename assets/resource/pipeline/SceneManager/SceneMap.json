@@ -118,17 +118,10 @@
     "__ScenePrivateMapTeleportConfirm": {
         "desc": "点击确认传送",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -150,
-                    -150,
-                    150,
-                    150
-                ],
-                "template": [
-                    "Common/Button/TeleportButton.png",
-                    "Common/Button/TeleportButtonHover.png"
+                "all_of": [
+                    "TeleportButton"
                 ]
             }
         },
@@ -152,17 +145,10 @@
     "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear": {
         "desc": "点击确认传送，并且清除锚点",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -150,
-                    -150,
-                    150,
-                    150
-                ],
-                "template": [
-                    "Common/Button/TeleportButton.png",
-                    "Common/Button/TeleportButtonHover.png"
+                "all_of": [
+                    "TeleportButton"
                 ]
             }
         },
