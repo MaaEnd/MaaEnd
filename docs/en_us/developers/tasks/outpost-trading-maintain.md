@@ -181,11 +181,10 @@ Maintenance notes:
 - When adding a region, manually create its subfolder under `OutpostTrading/` in both resource packs before generating (the generator only creates `outputDir`).
 - Reserve rules: item cases pass `item_id` via `attach`; quantity inputs pass integers via `custom_action_param.quantity`.
 
-Before submitting, run at least:
+Before submitting, review the generated artifacts and `git diff` by hand:
 
 ```shell
-node --test tools/pipeline-generate/OutpostTrading/data.test.mjs tools/pipeline-generate/OutpostTrading/selection-data.test.mjs tools/pipeline-generate/OutpostTrading/sync-locales.test.mjs
-pnpm check
-pnpm test
 git diff --check
 ```
+
+Run `pnpm test` locally when the change includes `tests/**`; otherwise leave `pnpm check` / `pnpm test` to PR CI — see the [coding standards](../coding-standards.md#pre-submission-check).

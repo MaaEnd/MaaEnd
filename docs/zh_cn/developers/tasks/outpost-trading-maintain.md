@@ -180,11 +180,10 @@ node tools/pipeline-generate/run-all.mjs OutpostTrading
 - 新增地区时先在两套资源包的 `OutpostTrading/` 下手动创建地区子目录再运行生成（生成器只创建 `outputDir`）。
 - 保留规则的物品 case 通过 `attach` 提供 `item_id`，数量 input 通过 `custom_action_param.quantity` 提供整数值。
 
-提交前至少运行：
+提交前检查：
 
 ```shell
-node --test tools/pipeline-generate/OutpostTrading/data.test.mjs tools/pipeline-generate/OutpostTrading/selection-data.test.mjs tools/pipeline-generate/OutpostTrading/sync-locales.test.mjs
-pnpm check
-pnpm test
 git diff --check
 ```
+
+改动包含 `tests/**` 时本地跑 `pnpm test`；`pnpm check` / `pnpm test` 的其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。

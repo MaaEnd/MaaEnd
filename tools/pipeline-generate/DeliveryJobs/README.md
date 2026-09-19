@@ -71,7 +71,7 @@ pnpm fetch:zmdmap
    `transferDomainIds` 判断物品可运入的地区，生成器再取地区各仓储节点 `fillable_items` 的交集，过滤出
    `assets/data/IconRecognition/recognition_items.json` 已收录的物品，由 IconRecognition（`grid_type=shipment`）识别；
    物品显示名称复用 `iconRecognition.name.*` 多语言 key，配置值使用稳定 item ID；每个优先级槽位使用同一份地区物品列表。
-4. 运行 `pnpm generate:DeliveryJobs`，再运行 `node --test tools/pipeline-generate/DeliveryJobs/*.test.mjs`、
-   `pnpm check` 和 `pnpm test`。
+4. 运行 `pnpm generate:DeliveryJobs`，并检查 `git diff` 只包含预期的生成产物；`pnpm check` / `pnpm test`
+   按需执行，改动未包含 `tests/**` 时交给 PR 的 CI 校验即可。
 
 生成的 Pipeline 和 Task 文件不应手工修改；流程级公共节点仍在 `PackCargo.json` 和 `TransferJob.json` 中维护。

@@ -142,14 +142,12 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 
 ### 验证
 
-修改数据、识别或流程后，先重新生成路线与运行时目录，再按改动范围运行：
+修改数据、识别或流程后，重新生成路线与运行时目录：
 
 ```powershell
 pnpm generate:AutoDelivery
-
-node --test tools/pipeline-generate/AutoDelivery/*.test.mjs tools/pipeline-generate/DeliveryJobs/*.test.mjs
-pnpm check
-pnpm test
 ```
+
+`pnpm check` / `pnpm test` 按需执行：改动包含 `tests/**` 时本地跑 `pnpm test`，其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。
 
 静态检查和节点测试不能代替游戏内验证。新增地区或修改交互界面后，仍需分别验证未取货恢复、已取货恢复、取货站位修正、NPC 交货和非 NPC 交货链路。
