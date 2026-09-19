@@ -43,7 +43,8 @@
                                 "wpn_funnel_0008": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0008.png"
                 },
                 {
                     "name": "wpn_funnel_0013",
@@ -54,7 +55,8 @@
                                 "wpn_funnel_0013": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0013.png"
                 },
                 {
                     "name": "wpn_funnel_0015",
@@ -65,7 +67,8 @@
                                 "wpn_funnel_0015": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0015.png"
                 },
                 {
                     "name": "wpn_funnel_0018",
@@ -76,7 +79,8 @@
                                 "wpn_funnel_0018": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0018.png"
                 },
                 {
                     "name": "wpn_funnel_0010",
@@ -87,7 +91,8 @@
                                 "wpn_funnel_0010": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0010.png"
                 },
                 {
                     "name": "wpn_funnel_0011",
@@ -98,7 +103,8 @@
                                 "wpn_funnel_0011": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0011.png"
                 },
                 {
                     "name": "wpn_funnel_0016",
@@ -109,7 +115,8 @@
                                 "wpn_funnel_0016": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0016.png"
                 },
                 {
                     "name": "wpn_funnel_0017",
@@ -120,7 +127,8 @@
                                 "wpn_funnel_0017": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0017.png"
                 },
                 {
                     "name": "wpn_funnel_0009",
@@ -131,7 +139,8 @@
                                 "wpn_funnel_0009": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0009.png"
                 },
                 {
                     "name": "wpn_funnel_0006",
@@ -142,7 +151,8 @@
                                 "wpn_funnel_0006": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0006.png"
                 },
                 {
                     "name": "wpn_funnel_0019",
@@ -153,7 +163,8 @@
                                 "wpn_funnel_0019": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0019.png"
                 },
                 {
                     "name": "wpn_funnel_0020",
@@ -164,7 +175,8 @@
                                 "wpn_funnel_0020": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0020.png"
                 },
                 {
                     "name": "wpn_funnel_0012",
@@ -175,7 +187,8 @@
                                 "wpn_funnel_0012": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0012.png"
                 },
                 {
                     "name": "wpn_funnel_0005",
@@ -186,7 +199,8 @@
                                 "wpn_funnel_0005": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0005.png"
                 },
                 {
                     "name": "wpn_funnel_0004",
@@ -197,7 +211,8 @@
                                 "wpn_funnel_0004": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0004.png"
                 },
                 {
                     "name": "wpn_funnel_0007",
@@ -208,7 +223,8 @@
                                 "wpn_funnel_0007": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0007.png"
                 },
                 {
                     "name": "wpn_funnel_0014",
@@ -219,7 +235,8 @@
                                 "wpn_funnel_0014": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_funnel_0014.png"
                 }
             ]
         },
@@ -265,7 +282,8 @@
                                 "wpn_sword_0010": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0010.png"
                 },
                 {
                     "name": "wpn_sword_0014",
@@ -276,7 +294,8 @@
                                 "wpn_sword_0014": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0014.png"
                 },
                 {
                     "name": "wpn_sword_0016",
@@ -287,7 +306,8 @@
                                 "wpn_sword_0016": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0016.png"
                 },
                 {
                     "name": "wpn_sword_0011",
@@ -298,7 +318,8 @@
                                 "wpn_sword_0011": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0011.png"
                 },
                 {
                     "name": "wpn_sword_0017",
@@ -309,7 +330,8 @@
                                 "wpn_sword_0017": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0017.png"
                 },
                 {
                     "name": "wpn_sword_0021",
@@ -320,7 +342,8 @@
                                 "wpn_sword_0021": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0021.png"
                 },
                 {
                     "name": "wpn_sword_0022",
@@ -331,7 +354,8 @@
                                 "wpn_sword_0022": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0022.png"
                 },
                 {
                     "name": "wpn_sword_0012",
@@ -342,7 +366,8 @@
                                 "wpn_sword_0012": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0012.png"
                 },
                 {
                     "name": "wpn_sword_0006",
@@ -353,7 +378,8 @@
                                 "wpn_sword_0006": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0006.png"
                 },
                 {
                     "name": "wpn_sword_0013",
@@ -364,7 +390,8 @@
                                 "wpn_sword_0013": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0013.png"
                 },
                 {
                     "name": "wpn_sword_0026",
@@ -375,7 +402,8 @@
                                 "wpn_sword_0026": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0026.png"
                 },
                 {
                     "name": "wpn_sword_0005",
@@ -386,7 +414,8 @@
                                 "wpn_sword_0005": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0005.png"
                 },
                 {
                     "name": "wpn_sword_0007",
@@ -397,7 +426,8 @@
                                 "wpn_sword_0007": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0007.png"
                 },
                 {
                     "name": "wpn_sword_0018",
@@ -408,7 +438,8 @@
                                 "wpn_sword_0018": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0018.png"
                 },
                 {
                     "name": "wpn_sword_0015",
@@ -419,7 +450,8 @@
                                 "wpn_sword_0015": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0015.png"
                 },
                 {
                     "name": "wpn_sword_0020",
@@ -430,7 +462,8 @@
                                 "wpn_sword_0020": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0020.png"
                 },
                 {
                     "name": "wpn_sword_0019",
@@ -441,7 +474,8 @@
                                 "wpn_sword_0019": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_sword_0019.png"
                 }
             ]
         },
@@ -483,7 +517,8 @@
                                 "wpn_lance_0007": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0007.png"
                 },
                 {
                     "name": "wpn_lance_0015",
@@ -494,7 +529,8 @@
                                 "wpn_lance_0015": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0015.png"
                 },
                 {
                     "name": "wpn_lance_0012",
@@ -505,7 +541,8 @@
                                 "wpn_lance_0012": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0012.png"
                 },
                 {
                     "name": "wpn_lance_0016",
@@ -516,7 +553,8 @@
                                 "wpn_lance_0016": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0016.png"
                 },
                 {
                     "name": "wpn_lance_0010",
@@ -527,7 +565,8 @@
                                 "wpn_lance_0010": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0010.png"
                 },
                 {
                     "name": "wpn_lance_0011",
@@ -538,7 +577,8 @@
                                 "wpn_lance_0011": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0011.png"
                 },
                 {
                     "name": "wpn_lance_0014",
@@ -549,7 +589,8 @@
                                 "wpn_lance_0014": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0014.png"
                 },
                 {
                     "name": "wpn_lance_0004",
@@ -560,7 +601,8 @@
                                 "wpn_lance_0004": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0004.png"
                 },
                 {
                     "name": "wpn_lance_0006",
@@ -571,7 +613,8 @@
                                 "wpn_lance_0006": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0006.png"
                 },
                 {
                     "name": "wpn_lance_0013",
@@ -582,7 +625,8 @@
                                 "wpn_lance_0013": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_lance_0013.png"
                 }
             ]
         },
@@ -624,7 +668,8 @@
                                 "wpn_claym_0017": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0017.png"
                 },
                 {
                     "name": "wpn_claym_0007",
@@ -635,7 +680,8 @@
                                 "wpn_claym_0007": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0007.png"
                 },
                 {
                     "name": "wpn_claym_0004",
@@ -646,7 +692,8 @@
                                 "wpn_claym_0004": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0004.png"
                 },
                 {
                     "name": "wpn_claym_0013",
@@ -657,7 +704,8 @@
                                 "wpn_claym_0013": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0013.png"
                 },
                 {
                     "name": "wpn_claym_0016",
@@ -668,7 +716,8 @@
                                 "wpn_claym_0016": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0016.png"
                 },
                 {
                     "name": "wpn_claym_0008",
@@ -679,7 +728,8 @@
                                 "wpn_claym_0008": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0008.png"
                 },
                 {
                     "name": "wpn_claym_0006",
@@ -690,7 +740,8 @@
                                 "wpn_claym_0006": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0006.png"
                 },
                 {
                     "name": "wpn_claym_0014",
@@ -701,7 +752,8 @@
                                 "wpn_claym_0014": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0014.png"
                 },
                 {
                     "name": "wpn_claym_0011",
@@ -712,7 +764,8 @@
                                 "wpn_claym_0011": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0011.png"
                 },
                 {
                     "name": "wpn_claym_0012",
@@ -723,7 +776,8 @@
                                 "wpn_claym_0012": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0012.png"
                 },
                 {
                     "name": "wpn_claym_0015",
@@ -734,7 +788,8 @@
                                 "wpn_claym_0015": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_claym_0015.png"
                 }
             ]
         },
@@ -775,7 +830,8 @@
                                 "wpn_pistol_0005": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_pistol_0005.png"
                 },
                 {
                     "name": "wpn_pistol_0011",
@@ -786,7 +842,8 @@
                                 "wpn_pistol_0011": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_pistol_0011.png"
                 },
                 {
                     "name": "wpn_pistol_0009",
@@ -797,7 +854,8 @@
                                 "wpn_pistol_0009": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_pistol_0009.png"
                 },
                 {
                     "name": "wpn_pistol_0007",
@@ -808,7 +866,8 @@
                                 "wpn_pistol_0007": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_pistol_0007.png"
                 },
                 {
                     "name": "wpn_pistol_0008",
@@ -819,7 +878,8 @@
                                 "wpn_pistol_0008": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_pistol_0008.png"
                 },
                 {
                     "name": "wpn_pistol_0010",
@@ -830,7 +890,8 @@
                                 "wpn_pistol_0010": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_pistol_0010.png"
                 },
                 {
                     "name": "wpn_pistol_0004",
@@ -841,7 +902,8 @@
                                 "wpn_pistol_0004": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_pistol_0004.png"
                 },
                 {
                     "name": "wpn_pistol_0006",
@@ -852,7 +914,8 @@
                                 "wpn_pistol_0006": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_pistol_0006.png"
                 },
                 {
                     "name": "wpn_pistol_0012",
@@ -863,7 +926,8 @@
                                 "wpn_pistol_0012": true
                             }
                         }
-                    }
+                    },
+                    "icon": "resource/image/UI/Item/wpn_pistol_0012.png"
                 }
             ]
         }
