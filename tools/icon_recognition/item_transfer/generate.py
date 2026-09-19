@@ -47,6 +47,14 @@ RETURN_NODES = TransferNodes(
     repo_find_node="ItemTransferFindReturnItemInRepo",
     bag_find_node="ItemTransferFindReturnItemInBag",
 )
+UI_ITEM_DIR = Path(__file__).resolve().parents[3] / "assets" / "resource" / "image" / "UI" / "Item"
+
+
+def build_item_icon(item_id: str) -> str | None:
+    icon_path = UI_ITEM_DIR / f"{item_id}.png"
+    if not icon_path.is_file():
+        return None
+    return f"resource/image/UI/Item/{item_id}.png"
 
 
 def select_transfer_items(catalog: dict) -> list[dict]:
@@ -95,25 +103,27 @@ def build_transfer_cases(catalog: dict, zh_cn: dict, nodes: TransferNodes) -> li
         if not isinstance(name, str) or not name:
             raise ValueError(f"missing zh_cn locale: {locale_key}")
 
-        cases.append(
-            {
-                "name": name,
-                "label": f"${locale_key}",
-                "pipeline_override": {
-                    nodes.category_node: {
-                        "template": f"ItemTransfer/{item['categoryType']}.png",
-                    },
-                    nodes.repo_find_node: _item_id_override(
-                        item["id"],
-                        f"{item['storageKind']}:{item['categoryType']}",
-                    ),
-                    nodes.bag_find_node: _item_id_override(
-                        item["id"],
-                        f"{item['storageKind']}:{item['categoryType']}",
-                    ),
+        case = {
+            "name": name,
+            "label": f"${locale_key}",
+            "pipeline_override": {
+                nodes.category_node: {
+                    "template": f"ItemTransfer/{item['categoryType']}.png",
                 },
-            }
-        )
+                nodes.repo_find_node: _item_id_override(
+                    item["id"],
+                    f"{item['storageKind']}:{item['categoryType']}",
+                ),
+                nodes.bag_find_node: _item_id_override(
+                    item["id"],
+                    f"{item['storageKind']}:{item['categoryType']}",
+                ),
+            },
+        }
+        icon = build_item_icon(item["id"])
+        if icon is not None:
+            case["icon"] = icon
+        cases.append(case)
     return cases
 
 
