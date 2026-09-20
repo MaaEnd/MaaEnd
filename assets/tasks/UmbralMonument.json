@@ -41,10 +41,8 @@
                     "name": "NormalAndHard",
                     "label": "$option.UmbralMonumentDifficulty.cases.NormalAndHard.label",
                     "pipeline_override": {
-                        "UmbralMonumentMain": {
-                            "attach": {
-                                "include_hard": true
-                            }
+                        "UmbralMonumentHard": {
+                            "enabled": true
                         }
                     }
                 }

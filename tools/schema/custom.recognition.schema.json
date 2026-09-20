@@ -44,7 +44,6 @@
                 "ScreenshotStableRecognition",
                 "ScrollbarRecognition",
                 "ScrollbarCompleteRecognition",
-                "UmbralMonumentSelect",
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
                 "TrialOfSwordmancy.RecognizeDeck",
@@ -56,42 +55,6 @@
         }
     },
     "allOf": [
-        {
-            "if": {
-                "properties": {
-                    "custom_recognition": {
-                        "const": "UmbralMonumentSelect"
-                    }
-                },
-                "required": [
-                    "custom_recognition"
-                ]
-            },
-            "then": {
-                "properties": {
-                    "custom_recognition_param": {
-                        "type": "object",
-                        "required": [
-                            "phase"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "phase": {
-                                "enum": [
-                                    "season",
-                                    "stage",
-                                    "selected",
-                                    "ready"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "required": [
-                    "custom_recognition_param"
-                ]
-            }
-        },
         {
             "if": {
                 "type": "object",

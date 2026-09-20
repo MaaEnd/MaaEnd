@@ -84,7 +84,6 @@
                 "SceneManagerMenuListClickItemAction",
                 "SubTask",
                 "SyncItemData",
-                "UmbralMonumentState",
                 "TrialOfSwordmancy.Decide",
                 "UpdateItemQuantity",
                 "WebEvent202605Action",
@@ -96,41 +95,6 @@
         }
     },
 	"allOf": [
-		{
-			"if": {
-				"properties": {
-					"custom_action": {
-						"const": "UmbralMonumentState"
-					}
-				},
-				"required": [
-					"custom_action"
-				]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": {
-						"type": "object",
-						"required": [
-							"phase"
-						],
-						"additionalProperties": false,
-						"properties": {
-							"phase": {
-								"enum": [
-									"reset",
-									"success",
-									"failure"
-								]
-							}
-						}
-					}
-				},
-				"required": [
-					"custom_action_param"
-				]
-			}
-		},
 		{
 			"if": {
 				"properties": {
