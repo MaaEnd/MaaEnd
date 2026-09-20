@@ -154,8 +154,8 @@
             620
         ],
         "template": [
-            "SceneManager/MapSharedZipLine.png",
-            "SceneManager/MapSharedZipLine2.png"
+            "SharedZiplineDelete/MapSharedZipLine.png",
+            "SharedZiplineDelete/MapSharedZipLine2.png"
         ],
         "green_mask": true,
         "action": "Click",
