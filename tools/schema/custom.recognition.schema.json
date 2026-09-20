@@ -56,6 +56,7 @@
                 "StashBackpackNothingStoredRecognition",
                 "StashBackpackPlatformSupportedRecognition",
                 "StashBackpackQuickStashEnabledRecognition",
+                "StashBackpackReplenishableBagItemRecognition",
                 "StashBackpackRetrievedItemRecognition",
                 "StashBackpackTargetCategoryRecognition",
                 "TrialOfSwordmancy.Recognize",

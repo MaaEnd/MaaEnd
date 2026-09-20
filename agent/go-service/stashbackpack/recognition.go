@@ -5,10 +5,18 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
+)
+
+const (
+	// replenishBagItemRecognitionName 仅供补充流程使用，避免影响手动存放等共享搜索链路。
+	replenishBagItemRecognitionName = "StashBackpackReplenishableBagItemRecognition"
+	// usableItemStackLimit 是当前可用道具的单格堆叠上限。
+	usableItemStackLimit = 50
 )
 
 type nextItemParam struct {
@@ -55,6 +63,117 @@ func (r *NextItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionAr
 		return nil, false
 	}
 	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detail)}, true
+}
+
+// ReplenishableBagItemRecognition 从当前页全部同名格中选择首个未达到堆叠上限的格子。
+type ReplenishableBagItemRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &ReplenishableBagItemRecognition{}
+
+// Run 在当前页筛除满堆格子；全部满堆时返回未命中，使共享搜索链继续翻页。
+func (r *ReplenishableBagItemRecognition) Run(
+	ctx *maa.Context,
+	arg *maa.CustomRecognitionArg,
+) (*maa.CustomRecognitionResult, bool) {
+	if ctx == nil || arg == nil || arg.Img == nil {
+		log.Error().Str("component", componentName).
+			Msg("replenishable bag item recognition received nil context, arg, or image")
+		return nil, false
+	}
+	target, ok := globalState.currentTarget()
+	if !ok {
+		return nil, false
+	}
+	detail, err := ctx.RunRecognitionDirect(
+		maa.RecognitionTypeCustom,
+		&maa.CustomRecognitionParam{
+			ROI:               maa.NewTargetRect(arg.Roi),
+			CustomRecognition: iconrecognition.CustomRecognitionName,
+			CustomRecognitionParam: iconrecognition.NewParams(
+				iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
+				iconrecognition.WithItemIDs(target.ItemID),
+				iconrecognition.WithItemRecheckFilters(iconrecognition.ItemFilter("Normal:*")),
+				iconrecognition.WithDeduplicate(false),
+			),
+		},
+		arg.Img,
+	)
+	if err != nil {
+		log.Error().Err(err).Str("component", componentName).Str("item_id", target.ItemID).
+			Msg("failed to recognize replenishable backpack items")
+		return nil, false
+	}
+	parsed, rawDetail, err := iconrecognition.ParseRecognitionDetail(detail)
+	if err != nil {
+		log.Error().Err(err).Str("component", componentName).Str("item_id", target.ItemID).
+			Msg("failed to parse replenishable backpack item recognition")
+		return nil, false
+	}
+	if parsed.Error != nil && parsed.Error.Code != iconrecognition.ErrorCodeNoMatch {
+		log.Error().Str("component", componentName).Str("item_id", target.ItemID).
+			Str("error_code", string(parsed.Error.Code)).Str("error_message", parsed.Error.Message).
+			Msg("replenishable backpack item recognition returned an error")
+		return nil, false
+	}
+	if !parsed.Matched || len(parsed.Matches) == 0 {
+		return nil, false
+	}
+
+	targetKey := storedItem{ItemID: target.ItemID, CategoryType: target.CategoryType}
+	availableMatches := globalState.unprocessedReplenishMatches(targetKey, parsed.Matches)
+	match, matched := firstReplenishableMatch(availableMatches, func(match iconrecognition.Match) (int, bool, error) {
+		quantityROI, roiErr := iconqty.QuantityROIFromCellBox(iconqty.GridTransfer, match.CellBox)
+		if roiErr != nil {
+			log.Warn().Err(roiErr).Str("component", componentName).Str("item_id", target.ItemID).
+				Interface("cell_box", match.CellBox).
+				Msg("quantity ROI unavailable; keep backpack item eligible for replenishment")
+			return 0, false, roiErr
+		}
+		quantity, hit, quantityErr := iconqty.RecognizeQuantityInROI(ctx, arg.Img, quantityROI)
+		if quantityErr != nil {
+			log.Warn().Err(quantityErr).Str("component", componentName).Str("item_id", target.ItemID).
+				Interface("cell_box", match.CellBox).
+				Msg("quantity recognition failed; keep backpack item eligible for replenishment")
+			return 0, false, quantityErr
+		}
+		if !hit {
+			log.Info().Str("component", componentName).Str("item_id", target.ItemID).
+				Interface("cell_box", match.CellBox).
+				Msg("quantity was not recognized; keep backpack item eligible for replenishment")
+		}
+		return quantity, hit, nil
+	})
+	if !matched {
+		log.Info().Str("component", componentName).Str("item_id", target.ItemID).
+			Int("matched_stack_count", len(parsed.Matches)).
+			Int("unprocessed_stack_count", len(availableMatches)).
+			Msg("matching backpack stacks on current page are full or already attempted")
+		return nil, false
+	}
+	// 搜索命中和拖动前的 And 复核都会调用识别；仅保存最后一次复核的格框。
+	globalState.setReplenishPending(targetKey, match.CellBox)
+	return &maa.CustomRecognitionResult{Box: match.CellBox, Detail: rawDetail}, true
+}
+
+func firstReplenishableMatch(
+	matches []iconrecognition.Match,
+	recognizeQuantity func(iconrecognition.Match) (int, bool, error),
+) (iconrecognition.Match, bool) {
+	ordered := append([]iconrecognition.Match(nil), matches...)
+	sort.SliceStable(ordered, func(left, right int) bool {
+		if ordered[left].CellBox.Y() != ordered[right].CellBox.Y() {
+			return ordered[left].CellBox.Y() < ordered[right].CellBox.Y()
+		}
+		return ordered[left].CellBox.X() < ordered[right].CellBox.X()
+	})
+	for _, match := range ordered {
+		quantity, hit, err := recognizeQuantity(match)
+		// 数量识别失败时沿用旧流程的保守策略：尝试补充，而不是误判为满堆。
+		if err != nil || !hit || quantity < usableItemStackLimit {
+			return match, true
+		}
+	}
+	return iconrecognition.Match{}, false
 }
 
 // BagPageRecognition 一次识别当前页全部剩余目标，并按网格顺序逐个返回缓存结果。
@@ -207,7 +326,8 @@ func (r *BagPageFailedRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitio
 func buildFinderOverride(item snapshotItem, param nextItemParam) map[string]any {
 	override := make(map[string]any, len(param.BagNodes)+len(param.RepoNodes))
 	for _, node := range param.BagNodes {
-		override[node] = map[string]any{
+		bagOverride := map[string]any{
+			"custom_recognition": iconrecognition.CustomRecognitionName,
 			"custom_recognition_param": iconrecognition.NewParams(
 				iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
 				iconrecognition.WithItemIDs(item.ItemID),
@@ -215,10 +335,12 @@ func buildFinderOverride(item snapshotItem, param nextItemParam) map[string]any 
 				iconrecognition.WithDeduplicate(true),
 			),
 		}
+		override[node] = bagOverride
 	}
 	repoFilter := iconrecognition.ItemFilter("Normal:" + item.CategoryType)
 	for _, node := range param.RepoNodes {
 		override[node] = map[string]any{
+			"custom_recognition": iconrecognition.CustomRecognitionName,
 			"custom_recognition_param": iconrecognition.NewParams(
 				iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
 				iconrecognition.WithItemIDs(item.ItemID),

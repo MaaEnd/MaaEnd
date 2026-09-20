@@ -56,6 +56,7 @@
                         "mark_bag_item_clicked",
                         "discard_bag_targets",
                         "consume_target",
+                        "reset_replenish_page",
                         "set_depot"
                     ]
                 },
@@ -81,6 +82,10 @@
                         "$ref": "#/$defs/Category"
                     },
                     "uniqueItems": true
+                },
+                "merge_same_items": {
+                    "type": "boolean",
+                    "description": "Merge duplicate item targets by item ID and category when preparing a replenishment queue."
                 },
                 "reason": {
                     "type": "string",

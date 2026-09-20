@@ -1,13 +1,13 @@
 # Development Manual - Stash and Retrieve Backpack Maintenance
 
 This document describes the state lifecycle and maintenance boundaries of `StashBackpack`, `RetrieveBackpack`, and embedded stashing.
-This documentation was last updated on September 13, 2026.
+This documentation was last updated on September 20, 2026.
 
 ## Supported Scope
 
 - Stashing and retrieval are options of one task, available for `Win32-Front`, `ADB`, and `CloudADB`. Embedded stashing shares the same operations and allows Win32 / Adb controllers as well.
 - Both use `InventoryTransferStackAction`. ADB overrides cover item and scrollbar ROIs, the quick-stash region, and preparation before recognition; navigation and categories reuse existing SceneManager support. Four common nodes define upward and downward scrolling for the repository and backpack. Replenishment holds the source item before dragging it onto the matching backpack stack. See the [Inventory contract](../../../../agent/go-service/common/inventory/README.md).
-- Replenishment searches the backpack first. A stack-count OCR match of `50` skips that target; otherwise the flow searches the repository and drags the matching item into the backpack stack.
+- Replenishment groups targets by item while retaining the original stack count. Each drag consumes one attempt, then searching continues from the current page. Matching cells at `50` or already attempted on this screen page are skipped, even when quantity OCR fails. Recognition only saves a candidate; the cell is marked after the drag returns so the pre-drag recognition can still select it. Backpack scrolling clears the record; repository scrolling and restarting a search do not. If no candidate remains, searching continues on subsequent pages. An exhausted search or missing repository stock skips the remaining group. The original stack count bounds attempts across page changes.
 - ADB is open for testing and has not passed device acceptance. Validate inertia and page overlap, hold-to-drag replenishment, recognition after menu closure, consecutive transfers, and cancellation cleanup. CloudADB also needs multitouch validation. Static screenshot checks do not establish workflow stability.
 - Pipeline owns business flow, navigation, category switching, and item movement. Go Service encapsulates complete snapshot scans, the stored-items record, derived snapshots, and target queues.
 

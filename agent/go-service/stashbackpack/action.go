@@ -11,21 +11,22 @@ import (
 )
 
 const (
-	operationReset             = "reset"
-	operationCopySnapshot      = "copy_snapshot"
-	operationCompleteFull      = "complete_full"
-	operationPrepareSnapshot   = "prepare_snapshot"
-	operationPrepareDifference = "prepare_difference"
-	operationPrepareStored     = "prepare_stored_targets"
-	operationPrepareRestore    = "prepare_restore"
-	operationAbortRestore      = "abort_restore"
-	operationAdvanceRestore    = "advance_restore_page"
-	operationAdvanceBagPage    = "advance_bag_page"
-	operationMarkBagClicked    = "mark_bag_item_clicked"
-	operationConsumeStored     = "consume_stored_target"
-	operationDiscardBagTargets = "discard_bag_targets"
-	operationConsumeTarget     = "consume_target"
-	operationSetDepot          = "set_depot"
+	operationReset              = "reset"
+	operationCopySnapshot       = "copy_snapshot"
+	operationCompleteFull       = "complete_full"
+	operationPrepareSnapshot    = "prepare_snapshot"
+	operationPrepareDifference  = "prepare_difference"
+	operationPrepareStored      = "prepare_stored_targets"
+	operationPrepareRestore     = "prepare_restore"
+	operationAbortRestore       = "abort_restore"
+	operationAdvanceRestore     = "advance_restore_page"
+	operationAdvanceBagPage     = "advance_bag_page"
+	operationMarkBagClicked     = "mark_bag_item_clicked"
+	operationConsumeStored      = "consume_stored_target"
+	operationDiscardBagTargets  = "discard_bag_targets"
+	operationConsumeTarget      = "consume_target"
+	operationSetDepot           = "set_depot"
+	operationResetReplenishPage = "reset_replenish_page"
 )
 
 type stateActionParam struct {
@@ -35,6 +36,7 @@ type stateActionParam struct {
 	MinuendSnapshot string   `json:"minuend_snapshot,omitempty"`
 	Subtrahend      string   `json:"subtrahend_snapshot,omitempty"`
 	Categories      []string `json:"categories,omitempty"`
+	MergeSameItems  bool     `json:"merge_same_items,omitempty"`
 	Reason          string   `json:"reason,omitempty"`
 	Depot           string   `json:"depot,omitempty"`
 }
@@ -94,10 +96,11 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		err = globalState.completeFull()
 	case operationPrepareSnapshot:
 		var targets []snapshotItem
-		targets, err = globalState.prepareSnapshotTargets(param.Snapshot, param.Categories)
+		targets, err = globalState.prepareSnapshotTargetsWithMerge(param.Snapshot, param.Categories, param.MergeSameItems)
 		if err == nil {
 			log.Info().Str("component", componentName).Str("snapshot", param.Snapshot).
-				Int("target_count", len(targets)).Msg("prepared snapshot item targets")
+				Int("target_count", len(targets)).Bool("merge_same_items", param.MergeSameItems).
+				Msg("prepared snapshot item targets")
 		}
 	case operationPrepareDifference:
 		var targets []snapshotItem
@@ -162,7 +165,13 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	case operationConsumeTarget:
 		var item snapshotItem
 		var ok bool
-		item, ok = globalState.consumeTarget()
+		if param.Reason == "replenish_repo_not_found" || param.Reason == "replenish_bag_not_found" {
+			item, ok = globalState.consumeTargetGroup()
+		} else if param.Reason == "replenished" {
+			item, ok = globalState.consumeReplenishTarget()
+		} else {
+			item, ok = globalState.consumeTarget()
+		}
 		if !ok {
 			err = fmt.Errorf("no current target")
 		}
@@ -175,8 +184,8 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			switch param.Reason {
 			case "replenish_repo_not_found":
 				event.Msg("item was not found in Depot and cannot be replenished")
-			case "replenish_stack_full":
-				event.Msg("backpack stack is full; skipped replenishment target")
+			case "replenish_bag_not_found":
+				event.Msg("no eligible backpack stack was found; skipped replenishment target")
 			case "restore_repo_not_found":
 				event.Msg("item was not found in Depot; skipped by user's category choice or recognition")
 			default:
@@ -185,6 +194,8 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 	case operationSetDepot:
 		err = globalState.setDepot(param.Depot)
+	case operationResetReplenishPage:
+		globalState.resetReplenishPage()
 	default:
 		err = fmt.Errorf("unsupported operation %q", param.Operation)
 	}

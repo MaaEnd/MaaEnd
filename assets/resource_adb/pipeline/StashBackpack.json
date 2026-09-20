@@ -55,18 +55,6 @@
             -40
         ]
     },
-    "StashBackpackReplenishCheckStackFull": {
-        "recognition": {
-            "param": {
-                "roi_offset": [
-                    30,
-                    50,
-                    -40,
-                    -55
-                ]
-            }
-        }
-    },
     "StashBackpackNoteBagItemCount": {
         "roi": [
             780,

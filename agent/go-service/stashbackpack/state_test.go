@@ -495,6 +495,60 @@ func TestPrepareDifferenceTargetsFiltersCategories(t *testing.T) {
 	}
 }
 
+func TestMergeSameSnapshotTargetsKeepsFirstPosition(t *testing.T) {
+	items := []snapshotItem{
+		{ItemID: "tool", CategoryType: "Usable", Row: 0, Column: 1},
+		{ItemID: "tool", CategoryType: "Usable", Row: 2, Column: 0},
+		{ItemID: "tool", CategoryType: "Producer", Row: 2, Column: 1},
+		{ItemID: "ore", CategoryType: "Usable", Row: 3, Column: 0},
+	}
+	want := []snapshotItem{
+		{ItemID: "tool", CategoryType: "Usable", Row: 0, Column: 1, repeatCount: 2},
+		{ItemID: "tool", CategoryType: "Producer", Row: 2, Column: 1, repeatCount: 1},
+		{ItemID: "ore", CategoryType: "Usable", Row: 3, Column: 0, repeatCount: 1},
+	}
+	if got := mergeSameSnapshotTargets(items); !reflect.DeepEqual(got, want) {
+		t.Fatalf("mergeSameSnapshotTargets() = %#v, want %#v", got, want)
+	}
+}
+
+func TestConsumeMergedTargetKeepsRemainingStacks(t *testing.T) {
+	store := newStateStore()
+	store.session.Targets = mergeSameSnapshotTargets([]snapshotItem{
+		{ItemID: "tool", CategoryType: "Usable", Row: 0, Column: 0},
+		{ItemID: "tool", CategoryType: "Usable", Row: 0, Column: 1},
+	})
+
+	if _, ok := store.consumeTarget(); !ok {
+		t.Fatal("first merged target was not consumed")
+	}
+	if len(store.session.Targets) != 1 || store.session.Targets[0].repeatCount != 1 {
+		t.Fatalf("remaining merged target = %#v, want one repeat", store.session.Targets)
+	}
+	if _, ok := store.consumeTarget(); !ok {
+		t.Fatal("second merged target was not consumed")
+	}
+	if len(store.session.Targets) != 0 {
+		t.Fatalf("targets after consuming merged group = %#v, want empty", store.session.Targets)
+	}
+}
+
+func TestConsumeTargetGroupSkipsMergedStacks(t *testing.T) {
+	store := newStateStore()
+	store.session.Targets = mergeSameSnapshotTargets([]snapshotItem{
+		{ItemID: "tool", CategoryType: "Usable", Row: 0, Column: 0},
+		{ItemID: "tool", CategoryType: "Usable", Row: 0, Column: 1},
+		{ItemID: "other", CategoryType: "Usable", Row: 0, Column: 2},
+	})
+
+	if _, ok := store.consumeTargetGroup(); !ok {
+		t.Fatal("merged target group was not consumed")
+	}
+	if next, ok := store.currentTarget(); !ok || next.ItemID != "other" {
+		t.Fatalf("target after skipping merged group = %#v, want other", next)
+	}
+}
+
 func TestCopySnapshotIsIndependent(t *testing.T) {
 	t.Parallel()
 	store := newStateStore()

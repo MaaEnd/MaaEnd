@@ -2,9 +2,11 @@ package stashbackpack
 
 import (
 	"fmt"
+	"image"
 	"sort"
 	"sync"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
@@ -36,6 +38,8 @@ type snapshotItem struct {
 	CategoryType string `json:"category_type"`
 	Row          int    `json:"row"`
 	Column       int    `json:"column"`
+	// repeatCount 仅用于补充流程合并同名目标；一次成功转移只消费一个原始堆叠。
+	repeatCount int
 }
 
 type snapshotData struct {
@@ -76,6 +80,14 @@ type bagPageState struct {
 	RecognitionFailed bool
 }
 
+// replenishPageState 只记录当前屏幕页的补充尝试；识别候选不等于已执行拖动。
+type replenishPageState struct {
+	Target    storedItem
+	HasTarget bool
+	Processed []maa.Rect
+	Pending   maa.Rect
+}
+
 type sessionState struct {
 	Snapshots map[string]snapshotData
 	Targets   []snapshotItem
@@ -89,6 +101,7 @@ type sessionState struct {
 	bagBaselineValid bool
 	Restore          restoreState
 	BagPage          bagPageState
+	ReplenishPage    replenishPageState
 	FullComplete     bool
 	Depot            string
 	QuickStash       bool
@@ -395,6 +408,10 @@ func (s *stateStore) depotIs(depot string) bool {
 }
 
 func (s *stateStore) prepareSnapshotTargets(snapshotName string, categories []string) ([]snapshotItem, error) {
+	return s.prepareSnapshotTargetsWithMerge(snapshotName, categories, false)
+}
+
+func (s *stateStore) prepareSnapshotTargetsWithMerge(snapshotName string, categories []string, mergeSameItems bool) ([]snapshotItem, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	snapshot, ok := s.session.Snapshots[snapshotName]
@@ -402,9 +419,31 @@ func (s *stateStore) prepareSnapshotTargets(snapshotName string, categories []st
 		return nil, fmt.Errorf("snapshot %q does not exist", snapshotName)
 	}
 	targets := filterCategories(snapshot.Items, categories)
+	if mergeSameItems {
+		targets = mergeSameSnapshotTargets(targets)
+	}
 	s.session.Targets = append([]snapshotItem(nil), targets...)
 	s.session.BagPage = bagPageState{}
+	s.session.ReplenishPage = replenishPageState{}
 	return append([]snapshotItem(nil), targets...), nil
+}
+
+// mergeSameSnapshotTargets 合并同名补充目标，但保留原始堆叠数作为处理次数上限。
+// 一次拖动只针对一格；保留次数可避免漏补，也避免输入成功但画面无变化时无限循环。
+func mergeSameSnapshotTargets(items []snapshotItem) []snapshotItem {
+	indices := make(map[storedItem]int, len(items))
+	merged := make([]snapshotItem, 0, len(items))
+	for _, item := range items {
+		key := storedItem{ItemID: item.ItemID, CategoryType: item.CategoryType}
+		if index, exists := indices[key]; exists {
+			merged[index].repeatCount++
+			continue
+		}
+		indices[key] = len(merged)
+		item.repeatCount = 1
+		merged = append(merged, item)
+	}
+	return merged
 }
 
 func (s *stateStore) prepareDifferenceTargets(minuendName, subtrahendName string, categories []string) ([]snapshotItem, error) {
@@ -459,8 +498,90 @@ func (s *stateStore) consumeTargetLocked() (snapshotItem, bool) {
 		return snapshotItem{}, false
 	}
 	item := s.session.Targets[0]
+	if item.repeatCount > 1 {
+		s.session.Targets[0].repeatCount--
+	} else {
+		s.session.Targets = s.session.Targets[1:]
+	}
+	return item, true
+}
+
+// consumeTargetGroup 丢弃当前合并目标的全部原始堆叠，适用于仓库缺货或背包没有可用格。
+func (s *stateStore) consumeTargetGroup() (snapshotItem, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if len(s.session.Targets) == 0 {
+		return snapshotItem{}, false
+	}
+	item := s.session.Targets[0]
 	s.session.Targets = s.session.Targets[1:]
 	return item, true
+}
+
+// unprocessedReplenishMatches 在数量 OCR 前跳过已尝试格，避免 OCR 失败反复占用处理机会。
+func (s *stateStore) unprocessedReplenishMatches(target storedItem, matches []iconrecognition.Match) []iconrecognition.Match {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.ensureReplenishTargetLocked(target)
+	remaining := make([]iconrecognition.Match, 0, len(matches))
+	for _, match := range matches {
+		center := image.Pt(match.CellBox[0]+match.CellBox[2]/2, match.CellBox[1]+match.CellBox[3]/2)
+		processed := false
+		for _, box := range s.session.ReplenishPage.Processed {
+			// 用中心落入原格框判断同一格，容忍重复识别时格框的少量像素抖动。
+			if center.In(image.Rect(box[0], box[1], box[0]+box[2], box[1]+box[3])) {
+				processed = true
+				break
+			}
+		}
+		if !processed {
+			remaining = append(remaining, match)
+		}
+	}
+	return remaining
+}
+
+func (s *stateStore) setReplenishPending(target storedItem, box maa.Rect) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.ensureReplenishTargetLocked(target)
+	s.session.ReplenishPage.Pending = box
+}
+
+// consumeReplenishTarget 在拖动返回后标记实际目标格并消费一次机会，不代表物品已补满。
+func (s *stateStore) consumeReplenishTarget() (snapshotItem, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	box := s.session.ReplenishPage.Pending
+	if box[2] <= 0 || box[3] <= 0 {
+		return snapshotItem{}, false
+	}
+	if !s.session.ReplenishPage.HasTarget || len(s.session.Targets) == 0 ||
+		s.session.Targets[0].ItemID != s.session.ReplenishPage.Target.ItemID ||
+		s.session.Targets[0].CategoryType != s.session.ReplenishPage.Target.CategoryType {
+		return snapshotItem{}, false
+	}
+	item, ok := s.consumeTargetLocked()
+	if ok {
+		s.session.ReplenishPage.Processed = append(s.session.ReplenishPage.Processed, box)
+		s.session.ReplenishPage.Pending = maa.Rect{}
+	}
+	return item, ok
+}
+
+// resetReplenishPage 在背包滚动后清除记录；仓库滚动和开始下一次查找均不能清除。
+func (s *stateStore) resetReplenishPage() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.session.ReplenishPage.Processed = nil
+	s.session.ReplenishPage.Pending = maa.Rect{}
+}
+
+func (s *stateStore) ensureReplenishTargetLocked(target storedItem) {
+	if s.session.ReplenishPage.HasTarget && s.session.ReplenishPage.Target == target {
+		return
+	}
+	s.session.ReplenishPage = replenishPageState{Target: target, HasTarget: true}
 }
 
 // consumeStoredTarget 消费当前手动存放目标，并原子地写入后续取回记录。
