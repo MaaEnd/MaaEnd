@@ -36,16 +36,20 @@
             "FineTuneQuantity": 100,
             "FineTuneFallback": "less",
             "AvailableQuantity": {
-                "Box": "${AvailableQuantityBoxAdb}",
-                "OnlyRec": true
+                "roi": "${AvailableQuantityBoxAdb}",
+                "only_rec": true
             },
             "SliderQuantity": {
-                "Box": "${SliderQuantityBoxAdb}",
-                "OnlyRec": true
+                "roi": "${SliderQuantityBoxAdb}",
+                "only_rec": true
             },
             "Direction": "right",
-            "DecreaseButton": "OutpostTrading/DecreaseButton.png",
-            "IncreaseButton": "OutpostTrading/IncreaseButton.png",
+            "DecreaseButton": {
+                "template": "OutpostTrading/DecreaseButton.png"
+            },
+            "IncreaseButton": {
+                "template": "OutpostTrading/IncreaseButton.png"
+            },
             "OutOfRangeOverrideEnable": "OutpostTradingReserveAlreadySatisfied",
             "TargetReachableOverrideEnable": "OutpostTradingReserveQuantityReached"
         }
