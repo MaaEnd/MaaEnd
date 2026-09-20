@@ -536,7 +536,42 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
 
 bool NavigationStateMachine::CaptureCurrentPosition(bool force_global_search)
 {
-    return position_provider_->Capture(position_, force_global_search, session_->current_zone_id());
+    const bool captured = position_provider_->Capture(position_, force_global_search, session_->current_zone_id());
+    UpdateDwellWatchdog(captured);
+    return captured;
+}
+
+// Dwell watchdog clock. It hangs off the capture rather than off the tick loop because half a wedge's wall
+// time is burned inside single ticks — unstick pulses, replans — that never reach the bottom of TickNavigate
+// yet do keep capturing, and those fixes are exactly the evidence that the agent is not moving. Everything
+// below except the credit line can only delay a trip: pausing keeps the disc and the clock, never feeds them.
+void NavigationStateMachine::UpdateDwellWatchdog(bool captured)
+{
+    DwellWatchdogState& dwell = runtime_state_.dwell;
+    const bool usable = captured && position_->valid && !position_provider_->LastCaptureWasHeld()
+                        && !position_provider_->LastCaptureWasBlackScreen();
+    // Only walking counts: a transfer, a zipline ride or a scripted interaction stands still by design, and a
+    // blind fix says nothing about whether the agent moved.
+    if (!usable || session_->phase() != NaviPhase::Navigate) {
+        dwell.last_usable = {};
+        return;
+    }
+
+    const auto now = std::chrono::steady_clock::now();
+    const bool zone_changed =
+        !dwell.center_zone.empty() && !position_->zone_id.empty() && dwell.center_zone != position_->zone_id;
+    if (!dwell.latched || zone_changed
+        || std::hypot(position_->x - dwell.center_x, position_->y - dwell.center_y) > kDwellWatchdogRadius) {
+        dwell.latched = true;
+        dwell.center_x = position_->x;
+        dwell.center_y = position_->y;
+        dwell.center_zone = position_->zone_id;
+        dwell.dwell_ms = 0;
+    }
+    else if (dwell.last_usable.time_since_epoch().count() > 0) {
+        dwell.dwell_ms += std::chrono::duration_cast<std::chrono::milliseconds>(now - dwell.last_usable).count();
+    }
+    dwell.last_usable = now;
 }
 
 // A sustained run of unusable fixes (commonly: the agent was shoved across a zone boundary into a
@@ -1224,6 +1259,9 @@ bool NavigationStateMachine::TickNavigate()
         return HandleDynamicReplanRequest("dynamic_replan");
     }
     if (active_semantic_result.stay_in_current_tick) {
+        // A semantic node owns this tick and takes its own fixes; drop the bridge so the time it spends standing
+        // still by design lands nowhere. The disc and the clock survive, so pausing can only delay a trip.
+        runtime_state_.dwell.last_usable = {};
         return true;
     }
 
@@ -1252,6 +1290,41 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
+    // Dwell watchdog verdict, taken as early as a fix allows so no later branch of this tick can outrun it.
+    // The clock itself is kept by UpdateDwellWatchdog; here we only read it.
+    if (runtime_state_.dwell.dwell_ms >= kDwellWatchdogFailMs && session_->HasCurrentWaypoint()) {
+        const Waypoint& pinned_at = session_->CurrentWaypoint();
+        // 索边卡死跟自救超时同一个处置: 先退索走路, 别直接判导航失败。退链后给盘重新计时,
+        // 手上已经是走路点, 再攒满那一次才是真失败。
+        if (pinned_at.action == ActionType::ZIPLINE) {
+            LogWarn << "Dwell watchdog tripped at a zipline tower; dropping the chain and walking."
+                    << VAR(runtime_state_.dwell.dwell_ms) << VAR(position_->x) << VAR(position_->y);
+            semantic_nodes::AbandonZipline(
+                BuildSemanticContext(
+                    action_wrapper_,
+                    position_provider_,
+                    session_,
+                    motion_controller_,
+                    action_executor_,
+                    position_,
+                    &runtime_state_,
+                    maa_context_),
+                "zipline_dwell_watchdog",
+                "never left the tower's dwell radius");
+            runtime_state_.dwell.Reset();
+            return true;
+        }
+        LogError << "Dwell watchdog tripped; the agent never left its dwell radius." << VAR(runtime_state_.dwell.dwell_ms)
+                 << VAR(runtime_state_.dwell.center_x) << VAR(runtime_state_.dwell.center_y) << VAR(position_->x)
+                 << VAR(position_->y) << VAR(session_->current_node_idx());
+        return FailNavigation(
+            "dwell_watchdog",
+            "Agent stayed inside the dwell radius past the watchdog budget; terminating so the pipeline can retry.",
+            std::hypot(position_->x - pinned_at.x, position_->y - pinned_at.y),
+            0.0,
+            runtime_state_.dwell.dwell_ms);
+    }
+
     if (runtime_state_.cross_tier_escape.active) {
         const double distance_to_goal =
             std::hypot(position_->x - runtime_state_.cross_tier_escape.goal_x, position_->y - runtime_state_.cross_tier_escape.goal_y);
@@ -1274,6 +1347,8 @@ bool NavigationStateMachine::TickNavigate()
         return HandleDynamicReplanRequest("dynamic_replan");
     }
     if (inline_semantic_result.stay_in_current_tick) {
+        // Same as above: the node holds the tick, so its stationary time is skipped rather than credited.
+        runtime_state_.dwell.last_usable = {};
         return true;
     }
     if (!session_->HasCurrentWaypoint()) {

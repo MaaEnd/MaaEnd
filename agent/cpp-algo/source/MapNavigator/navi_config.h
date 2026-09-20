@@ -201,6 +201,14 @@ constexpr int32_t kOffRouteWedgeReplanMs = 6000;
 constexpr int32_t kOffRouteWedgeReplanCooldownMs = 4000;
 constexpr int32_t kOffRouteWedgeFailMs = 12000;
 
+// Last-resort dwell watchdog: the agent never left a disc this small for this long. Measured in world pixels
+// against a latched centre, so no clock keyed on a path index, an anchor or a replan can launder it away —
+// the only way to clear it is to actually go somewhere. Sized off logged navigations: the longest healthy
+// dwell is 23.5s and every self-recovery there escaped on its first ladder attempt, while a wedged one
+// passes 160s having burned dozens, so the budget sits four times over the ladder's own.
+constexpr double kDwellWatchdogRadius = 20.0;
+constexpr int32_t kDwellWatchdogFailMs = 120000;
+
 // Cross-tier escape (wrong-tier fall): plan ONE navmesh corridor from a walkable FLOORED-tier fix back to the
 // nearest reachable authored waypoint and follow it as a fixed corridor (riding the legitimate tier<->base
 // oscillation). Exit needs BOTH arrival distance AND a floor-blind (base) zone — a shaft's lower loops pass under

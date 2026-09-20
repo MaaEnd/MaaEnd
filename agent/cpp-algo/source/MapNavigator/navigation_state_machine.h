@@ -57,6 +57,7 @@ private:
     bool TickNavigate();
     bool TickPhase(NaviPhase phase);
     bool CaptureCurrentPosition(bool force_global_search = false);
+    void UpdateDwellWatchdog(bool captured);
     bool HandleLocalizationLoss();
     bool ArmRiverFallRecoveryIfBlackScreenLoss(const char* via);
     bool TryApplyDynamicOverlayToAnchor(

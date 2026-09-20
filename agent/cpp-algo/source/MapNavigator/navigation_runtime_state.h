@@ -242,6 +242,30 @@ struct OffRouteWedgeState
     }
 };
 
+// Dwell watchdog. A latched world-coordinate disc and the time spent inside it. Every other stall clock is
+// keyed on route bookkeeping — a waypoint index, a corridor anchor, a recovery episode — so anything that
+// renumbers the path zeroes it; this one answers only to where the agent physically is. Time is credited
+// between consecutive usable fixes, so blind stretches are skipped rather than counted or treated as progress.
+struct DwellWatchdogState
+{
+    double center_x = 0.0;
+    double center_y = 0.0;
+    std::string center_zone;
+    bool latched = false;
+    int64_t dwell_ms = 0;
+    std::chrono::steady_clock::time_point last_usable {};
+
+    void Reset()
+    {
+        center_x = 0.0;
+        center_y = 0.0;
+        center_zone.clear();
+        latched = false;
+        dwell_ms = 0;
+        last_usable = {};
+    }
+};
+
 // Cross-tier escape. The agent fell onto a wrong FLOORED tier (one the route never planned for); we plan ONE
 // navmesh corridor from that tier fix back to a reachable authored waypoint and follow it, tolerating the
 // open-air shaft's tier<->base oscillation as a live guard rather than re-planning on every flip. Everything is
@@ -356,6 +380,9 @@ struct NavigationRuntimeState
     LateralBypassState bypass;
     SteeringRateState steering_rate;
     OffRouteWedgeState offroute;
+    // 置于顶层且不进任何一个 Reset: 它要盖住的正是「重规划/换锚点把时钟清零」这件事, 跟着它们清就永远攒不满。
+    // 换区和走出盘由它自己按世界坐标清, 换了整趟导航由 BeginNavigation 清
+    DwellWatchdogState dwell;
     CrossTierEscapeState cross_tier_escape;
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
     // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
@@ -398,6 +425,7 @@ struct NavigationRuntimeState
         bypass.Reset();
         steering_rate.Reset();
         offroute.Reset();
+        dwell.Reset();
         cross_tier_escape.Reset();
         zipline_approach.Reset();
         zipline_recovery.Reset();
