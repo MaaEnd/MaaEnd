@@ -49,6 +49,9 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
+        "anchor": {
+            "SeizeDeliveryJobsAfterMissionListExhausted": "SeizeDeliveryJobsNoOngoingJob"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
