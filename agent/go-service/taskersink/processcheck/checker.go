@@ -11,15 +11,18 @@ import (
 )
 
 type blacklistEntry struct {
-	keyword     string
-	displayName string
+	keyword      string
+	displayName  string
+	recommendKey string // i18n suffix under tasker.process_warning
 }
 
 // Keywords matched against process names via exact (case-sensitive) equality.
+// Matches only warn (do not PostStop); session warns at most once.
 var blacklist = []blacklistEntry{
-	{"DNFAutoFire.exe", "DNFAutoFire.exe"}, // 会让alt按键事件失效
-	{"DAF连发工具.exe", "DAF连发工具.exe"},         // 会让alt按键事件失效
-	{"AltSnap.exe", "AltSnap.exe"},         // 会让alt按键事件失效
+	{"DNFAutoFire.exe", "DNFAutoFire.exe", "recommend_1"}, // 会让alt按键事件失效
+	{"DAF连发工具.exe", "DAF连发工具.exe", "recommend_1"},         // 会让alt按键事件失效
+	{"AltSnap.exe", "AltSnap.exe", "recommend_1"},         // 会让alt按键事件失效
+	{"RTSS.exe", "RTSS.exe", "recommend_rtss"},            // MSI Afterburner / RivaTuner OSD 可能遮挡识别
 }
 
 // ProcessChecker detects blacklisted processes before task execution
@@ -48,20 +51,37 @@ func (c *ProcessChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 		return
 	}
 
+	names := make([]string, 0, len(found))
+	recommendSeen := make(map[string]bool)
+	var recommendLines []string
+	for _, entry := range found {
+		names = append(names, entry.displayName)
+		key := entry.recommendKey
+		if key == "" {
+			key = "recommend_1"
+		}
+		if recommendSeen[key] {
+			continue
+		}
+		recommendSeen[key] = true
+		recommendLines = append(recommendLines, i18n.T("tasker.process_warning."+key))
+	}
+
 	log.Warn().
-		Strs("processes", found).
+		Strs("processes", names).
 		Msg("Blacklisted processes detected!")
 
-	names := strings.Join(found, ", ")
-
 	maafocus.PrintLargeContentTrimNewline(
-		i18n.RenderHTML("tasker.process_warning", map[string]any{"ProcessNames": names}),
+		i18n.RenderHTML("tasker.process_warning", map[string]any{
+			"ProcessNames":   strings.Join(names, ", "),
+			"RecommendLines": recommendLines,
+		}),
 	)
 
 	c.warned = true
 }
 
-func checkBlacklistedProcesses() []string {
+func checkBlacklistedProcesses() []blacklistEntry {
 	procs, err := process.Processes()
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to enumerate processes")
@@ -69,7 +89,7 @@ func checkBlacklistedProcesses() []string {
 	}
 
 	seen := make(map[string]bool)
-	var found []string
+	var found []blacklistEntry
 
 	for _, p := range procs {
 		name, err := p.Name()
@@ -79,7 +99,7 @@ func checkBlacklistedProcesses() []string {
 		for _, entry := range blacklist {
 			if name == entry.keyword && !seen[entry.displayName] {
 				seen[entry.displayName] = true
-				found = append(found, entry.displayName)
+				found = append(found, entry)
 			}
 		}
 	}

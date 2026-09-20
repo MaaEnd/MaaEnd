@@ -48,7 +48,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/processcheck"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/rtsscheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/taskfail"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy"
 	webevent202605 "github.com/MaaXYZ/MaaEnd/agent/go-service/webevent/202605"
@@ -64,7 +63,6 @@ func registerAll() {
 	aspectratio.Register()
 	hdrcheck.Register()
 	processcheck.Register()
-	rtsscheck.Register()
 	taskfail.Register()
 	cursormove.Register()
 
