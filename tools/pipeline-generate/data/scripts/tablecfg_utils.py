@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import urllib.request
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,7 @@ MAAEND_REPO_DIR = DATA_DIR.parents[2]
 ENDFIELD_WORKSPACE_DIR = MAAEND_REPO_DIR.parent
 DEFAULT_TABLE_CFG_DIR = ENDFIELD_WORKSPACE_DIR / "BeyondTableCfg" / "TableCfg"
 DEFAULT_JSON_DATA_DIR = ENDFIELD_WORKSPACE_DIR / "BeyondMemoryPack" / "JsonData"
+USER_AGENT = "MaaEnd-pipeline"
 
 LOCALE_TABLE_SUFFIXES = {
     "zh_cn": "CN",
@@ -122,6 +124,26 @@ def load_tables(table_paths: dict[str, Path]) -> dict[str, Any]:
                 f"{table_name} 不是有效 JSON（第 {error.lineno} 行，第 {error.colno} 列）"
             ) from error
     return tables
+
+
+def fetch_json(url: str) -> Any:
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request, timeout=120) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def load_json_group(
+    names: Sequence[str],
+    directory: Path | None,
+    base_url: str | None,
+    label: str,
+    option: str,
+) -> dict[str, Any]:
+    if directory is not None:
+        return load_tables(resolve_table_paths(directory, names))
+    if not base_url:
+        raise TableCfgError(f"{label} 暂无公开地址，请用 {option} 指定本地目录")
+    return {name: fetch_json(f"{base_url}/{name}") for name in names}
 
 
 def should_skip(output_path: Path, data: dict[str, Any], force: bool) -> bool:
