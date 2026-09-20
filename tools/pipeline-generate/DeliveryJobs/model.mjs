@@ -9,6 +9,7 @@ const INTERFACE_LOCALES = [
 ];
 
 const deliveryJobsData = readJsonc(new URL("../data/delivery_jobs.json", import.meta.url));
+const deliveryDestinationsData = readJsonc(new URL("../data/delivery_destinations.json", import.meta.url));
 const iconRecognitionItems = readJsonc(
     new URL("../../../assets/data/IconRecognition/recognition_items.json", import.meta.url),
 );
@@ -58,6 +59,10 @@ function validateData() {
     assertRecord(deliveryJobsData.regions, "delivery_jobs.json regions");
     assertRecord(deliveryJobsData.depots, "delivery_jobs.json depots");
     assertRecord(deliveryJobsData.items, "delivery_jobs.json items");
+    assertRecord(deliveryDestinationsData, "delivery_destinations.json");
+    if (!Array.isArray(deliveryDestinationsData.destinations)) {
+        throw new Error("[DeliveryJobs] delivery_destinations.json destinations 不是数组");
+    }
     assertRecord(iconRecognitionItems, "IconRecognition recognition_items.json");
 }
 
@@ -123,6 +128,41 @@ function buildFillItem(gameID) {
     };
 }
 
+// 按归属仓储节点归并送货终点：有终点才有可送达的目标，任务详情里的区域名也由终点携带。
+function listDestinationsByDepot() {
+    const byDepot = new Map();
+    for (const destination of deliveryDestinationsData.destinations) {
+        if (!destination.depot_id) {
+            continue;
+        }
+        const group = byDepot.get(destination.depot_id);
+        if (group === undefined) {
+            byDepot.set(destination.depot_id, [
+                destination,
+            ]);
+        } else {
+            group.push(destination);
+        }
+    }
+    return byDepot;
+}
+
+const destinationsByDepot = listDestinationsByDepot();
+
+// 送货任务详情显示的当前区域就是仓储节点名，Go 侧才能用区域 ID 拼出 DeliveryJobsOngoingDeliveryFor<ID>。
+function assertDepotAreaNames(depotGameId, depotNames, destinations) {
+    for (const destination of destinations) {
+        for (const locale of INTERFACE_LOCALES) {
+            if (destination.area?.[locale] !== depotNames[locale]) {
+                throw new Error(
+                    `[DeliveryJobs] 仓储节点 ${depotGameId} 的 ${locale} 区域名 ${destination.area?.[locale]} ` +
+                        `与仓储节点名 ${depotNames[locale]} 不一致`,
+                );
+            }
+        }
+    }
+}
+
 function buildDepot(regionGameId, regionId, depotGameId) {
     const depot = assertRecord(deliveryJobsData.depots[depotGameId], `仓储节点 ${depotGameId}`);
     if (depot.region_id !== regionGameId) {
@@ -131,6 +171,8 @@ function buildDepot(regionGameId, regionId, depotGameId) {
         );
     }
     const id = buildMaaEndId(depot.names, `仓储节点 ${depotGameId}`);
+    const destinations = destinationsByDepot.get(depotGameId) ?? [];
+    assertDepotAreaNames(depotGameId, depot.names, destinations);
     return {
         Id: id,
         GameId: depotGameId,
@@ -138,7 +180,7 @@ function buildDepot(regionGameId, regionId, depotGameId) {
         Names: depot.names,
         Expected: buildLocalizedExpected(depot.names, `仓储节点 ${depotGameId}`),
         RegionId: regionId,
-        AutoDeliverySupported: true,
+        AutoDeliverySupported: destinations.length > 0,
         RegionScene: `SceneEnterMenuRegionalDevelopment${regionId}`,
         DepotScene: `SceneEnterMenuRegionalDevelopment${regionId}DepotNode`,
     };

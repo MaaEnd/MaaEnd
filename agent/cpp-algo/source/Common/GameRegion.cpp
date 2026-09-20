@@ -25,6 +25,7 @@ namespace
 
 constexpr const char* kEndfieldProcessName = "Endfield.exe";
 constexpr const char* kSdkDllCN = "hgsdk.dll";
+constexpr const char* kSdkDllCNPCGame = "PCGameSDK.dll"; // Bilibili 服，仍归国服
 constexpr const char* kSdkDllGlobal = "gfsdk.dll";
 
 std::optional<Region> g_cached_region;
@@ -130,11 +131,18 @@ Region DetectGameRegionUncached()
 
     const auto& dir = dirs.front();
     std::error_code ec;
-    const bool has_cn = std::filesystem::exists(dir / kSdkDllCN, ec);
+    const bool has_hg = std::filesystem::exists(dir / kSdkDllCN, ec);
     if (ec) {
         LogError << "GameRegion: failed to stat hgsdk.dll" << VAR(dir) << VAR(ec.message());
         return Region::Unknown;
     }
+    ec.clear();
+    const bool has_pcgame = std::filesystem::exists(dir / kSdkDllCNPCGame, ec);
+    if (ec) {
+        LogError << "GameRegion: failed to stat PCGameSDK.dll" << VAR(dir) << VAR(ec.message());
+        return Region::Unknown;
+    }
+    const bool has_cn = has_hg || has_pcgame;
     ec.clear();
     const bool has_global = std::filesystem::exists(dir / kSdkDllGlobal, ec);
     if (ec) {
@@ -149,11 +157,11 @@ Region DetectGameRegionUncached()
         return Region::Global;
     }
     if (has_cn && has_global) {
-        LogError << "GameRegion: both hgsdk.dll and gfsdk.dll exist" << VAR(dir);
+        LogError << "GameRegion: both CN SDK (hgsdk.dll/PCGameSDK.dll) and gfsdk.dll exist" << VAR(dir);
         return Region::Unknown;
     }
 
-    LogError << "GameRegion: neither hgsdk.dll nor gfsdk.dll found" << VAR(dir);
+    LogError << "GameRegion: neither CN SDK (hgsdk.dll/PCGameSDK.dll) nor gfsdk.dll found" << VAR(dir);
     return Region::Unknown;
 }
 

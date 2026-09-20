@@ -5939,7 +5939,7 @@ class MapNavigatorApp {
   /**
    * What F3 runs: the editor's raw waypoints in EDIT, the assert frame in ASSERT (the
    * backend exports it into a MapLocateAssertLocation node), nothing in LOG.
-   * @returns {{path: Array, exported: boolean, zip: boolean, assert_target: ?Object}}
+   * @returns {{path: Array, exported: boolean, zip: boolean, zipline_account_id: string, assert_target: ?Object}}
    */
   _navtestRoute() {
     if (this.state.mode === Mode.ASSERT) {
@@ -5949,16 +5949,18 @@ class MapNavigatorApp {
         path: [],
         exported: false,
         zip: false,
+        zipline_account_id: "",
         assert_target: zoneId && target ? {zone_id: zoneId, target} : null,
       };
     }
     if (this.state.mode !== Mode.EDIT) {
-      return {path: [], exported: false, zip: false, assert_target: null};
+      return {path: [], exported: false, zip: false, zipline_account_id: "", assert_target: null};
     }
     return {
       path: this.state.points,
       exported: false,
       zip: this.els.chkEditZipline.checked,
+      zipline_account_id: this.els.chkEditZipline.checked ? this.ziplineAccountId : "",
     };
   }
 

@@ -121,14 +121,26 @@ Cpp Algo 支持原生 OpenCV 和 ONNX Runtime，但仅推荐用于实现单个�
 
 ## 提交前检查
 
+默认只需要格式化，不必在本地跑全量检查：
+
 ```bash
 pnpm format        # JSON/YAML 格式化
-pnpm format:go     # Go 格式化
+pnpm format:go     # Go 格式化（改了 agent/go-service/ 时）
+pnpm format:md     # Markdown 格式化（改了 md 文档时）
+```
+
+`pnpm check` 与 `pnpm test` **按需执行**：
+
+```bash
 pnpm check         # 资源和 schema 检查
 pnpm test          # 节点测试
 ```
 
-CI 也围绕这些做校验：`pnpm check`、`uv run tools/validate_schema.py`、`pnpm test`、`pnpm format:all`。
+- 改动包含 `tests/**` 内容（新增/修改用例、测试截图、`hits` / `box` 期望）→ **先在本地跑 `pnpm test`**；若同时改了 `assets/**` 或 `tools/schema/**`，一并跑 `pnpm check`。
+- 其他改动（Pipeline、Go、Cpp、文档等）→ 不必在本地跑这两条命令，提 PR 后由 CI 校验，跟进 CI 状态即可。
+- 需要本地自查时（例如调试某个识别节点的命中率、确认改动的影响范围），可随时单独执行。
+
+CI 与这些命令的对应关系：`pnpm check` + `uv run tools/validate_schema.py`（[`check.yml`](../../../.github/workflows/check.yml)）、`pnpm test`（[`test.yml`](../../../.github/workflows/test.yml)，改动 `assets/**` 或 `tests/**` 时触发）、`pnpm format:all`（[`format.yml`](../../../.github/workflows/format.yml)，定时全量格式化并自动提交）。
 
 ## 配套文件
 

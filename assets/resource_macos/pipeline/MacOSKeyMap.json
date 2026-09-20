@@ -234,6 +234,22 @@
             }
         }
     },
+    "StashBackpackUsableItemsLimitedDrag": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "StashBackpackUsableItemsLimitedQuickMoveKeyUp": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
     "_AutoEcoFarmAltDown": {
         "action": {
             "type": "KeyDown",

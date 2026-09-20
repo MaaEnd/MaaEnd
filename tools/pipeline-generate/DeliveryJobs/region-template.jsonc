@@ -42,7 +42,8 @@
             ]
         },
         "anchor": {
-            "DeliveryJobsGoToDepot": "${DepotScene}"
+            "DeliveryJobsGoToDepot": "${DepotScene}",
+            "DeliveryJobsReturnToDepotNode": "${DepotScene}"
         },
         "post_delay": 0,
         "rate_limit": 0,

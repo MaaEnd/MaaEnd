@@ -57,4 +57,3 @@ pnpm exec maa-pipeline-generate --config pipeline-adb-config.json
 - 新增货品通常只需更新据点交易数据，`sync-locales.mjs` 会自动补齐五语言 `item.*` 键。
 - 新增据点后检查生成的地区 `next`、SceneManager 入口及 Win/ADB 两套产物。
 - 新增地区时先在两套资源包的 `OutpostTrading/` 下手动创建地区子目录再运行生成（生成器只创建 `outputDir`）。
-- 提交前运行 `node --test` 本目录的三个 `*.test.mjs`。

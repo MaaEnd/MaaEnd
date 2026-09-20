@@ -9,8 +9,8 @@
                 "ValleyIV",
                 "Wuling",
                 "PackCargoSelectItem",
-                "DeliveryJobsAutoDeliveryRiskAcknowledgement",
-                "DeliveryJobsAutoDeliveryPreferZipline"
+                "DeliveryJobsAutoDeliveryPreferZipline",
+                "DeliveryJobsOngoingDeliveryFallback"
             ],
             "controller": [
                 "ADB",
@@ -73,9 +73,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckOriginiumScienceParkCargo": {
@@ -91,6 +91,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginiumSciencePark": {
+                            "next": [
+                                "DeliveryJobsTransferOngoingJob"
+                            ]
                         }
                     }
                 },
@@ -101,7 +106,7 @@
                         "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryOriginiumSciencePark"
+                                "DeliveryJobsWaitOriginiumScienceParkDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterOriginiumScienceParkCargo": {
@@ -109,10 +114,15 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginiumSciencePark": {
+                            "next": [
+                                "DeliveryJobsAutoDeliveryOriginiumSciencePark"
+                            ]
                         }
                     }
                 },
@@ -133,9 +143,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginiumScienceParkQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckOriginiumScienceParkCargo": {
@@ -150,6 +160,11 @@
                                 "パッキング",
                                 "화물 포장",
                                 "입찰 보기"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginiumSciencePark": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -166,9 +181,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckOriginiumScienceParkCargo": {
@@ -184,6 +199,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginiumSciencePark": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
+                            ]
                         }
                     }
                 },
@@ -198,10 +218,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckOriginiumScienceParkCargo": {
@@ -211,6 +231,11 @@
                                 "(?i)Pack\\s*Goods",
                                 "パッキング",
                                 "화물 포장"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginiumSciencePark": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -269,9 +294,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginiumSciencePark"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -281,9 +308,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -293,9 +322,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -304,10 +335,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -325,9 +355,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginiumSciencePark"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -337,9 +369,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -349,9 +383,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -360,10 +396,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -386,9 +421,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckOriginLodespringCargo": {
@@ -404,6 +439,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginLodespring": {
+                            "next": [
+                                "DeliveryJobsTransferOngoingJob"
+                            ]
                         }
                     }
                 },
@@ -414,7 +454,7 @@
                         "DeliveryJobsEnterOriginLodespringDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryOriginLodespring"
+                                "DeliveryJobsWaitOriginLodespringDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterOriginLodespringCargo": {
@@ -422,10 +462,15 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginLodespring": {
+                            "next": [
+                                "DeliveryJobsAutoDeliveryOriginLodespring"
+                            ]
                         }
                     }
                 },
@@ -446,9 +491,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginLodespringQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckOriginLodespringCargo": {
@@ -463,6 +508,11 @@
                                 "パッキング",
                                 "화물 포장",
                                 "입찰 보기"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginLodespring": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -479,9 +529,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckOriginLodespringCargo": {
@@ -497,6 +547,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginLodespring": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
+                            ]
                         }
                     }
                 },
@@ -511,10 +566,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckOriginLodespringCargo": {
@@ -524,6 +579,11 @@
                                 "(?i)Pack\\s*Goods",
                                 "パッキング",
                                 "화물 포장"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForOriginLodespring": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -582,9 +642,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginLodespring"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -594,9 +656,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -606,9 +670,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -617,10 +683,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -638,9 +703,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginLodespring"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -650,9 +717,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -662,9 +731,11 @@
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -673,10 +744,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -699,9 +769,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckPowerPlateauCargo": {
@@ -717,6 +787,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForPowerPlateau": {
+                            "next": [
+                                "DeliveryJobsTransferOngoingJob"
+                            ]
                         }
                     }
                 },
@@ -727,7 +802,7 @@
                         "DeliveryJobsEnterPowerPlateauDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryPowerPlateau"
+                                "DeliveryJobsWaitPowerPlateauDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterPowerPlateauCargo": {
@@ -735,10 +810,15 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
+                        },
+                        "DeliveryJobsOngoingDeliveryForPowerPlateau": {
+                            "next": [
+                                "DeliveryJobsAutoDeliveryPowerPlateau"
+                            ]
                         }
                     }
                 },
@@ -759,9 +839,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecidePowerPlateauQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckPowerPlateauCargo": {
@@ -776,6 +856,11 @@
                                 "パッキング",
                                 "화물 포장",
                                 "입찰 보기"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForPowerPlateau": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -792,9 +877,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckPowerPlateauCargo": {
@@ -810,6 +895,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForPowerPlateau": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
+                            ]
                         }
                     }
                 },
@@ -824,10 +914,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
                         "DeliveryJobsCheckPowerPlateauCargo": {
@@ -837,6 +927,11 @@
                                 "(?i)Pack\\s*Goods",
                                 "パッキング",
                                 "화물 포장"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForPowerPlateau": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -895,9 +990,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -907,9 +1004,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -919,9 +1018,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -930,10 +1031,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -951,9 +1051,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -963,9 +1065,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -975,9 +1079,11 @@
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -986,10 +1092,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -1039,9 +1144,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
                         "DeliveryJobsCheckWulingCityCargo": {
@@ -1057,6 +1162,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForWulingCity": {
+                            "next": [
+                                "DeliveryJobsTransferOngoingJob"
+                            ]
                         }
                     }
                 },
@@ -1067,7 +1177,7 @@
                         "DeliveryJobsEnterWulingCityDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryWulingCity"
+                                "DeliveryJobsWaitWulingCityDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterWulingCityCargo": {
@@ -1075,10 +1185,15 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
+                        },
+                        "DeliveryJobsOngoingDeliveryForWulingCity": {
+                            "next": [
+                                "DeliveryJobsAutoDeliveryWulingCity"
+                            ]
                         }
                     }
                 },
@@ -1099,9 +1214,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideWulingCityQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
                         "DeliveryJobsCheckWulingCityCargo": {
@@ -1116,6 +1231,11 @@
                                 "パッキング",
                                 "화물 포장",
                                 "입찰 보기"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForWulingCity": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -1132,9 +1252,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
                         "DeliveryJobsCheckWulingCityCargo": {
@@ -1150,6 +1270,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForWulingCity": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
+                            ]
                         }
                     }
                 },
@@ -1164,10 +1289,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
                         "DeliveryJobsCheckWulingCityCargo": {
@@ -1177,6 +1302,11 @@
                                 "(?i)Pack\\s*Goods",
                                 "パッキング",
                                 "화물 포장"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForWulingCity": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -1235,9 +1365,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferWulingCity"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1247,9 +1379,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1259,9 +1393,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1270,10 +1406,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -1291,9 +1426,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferWulingCity"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1303,9 +1440,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1315,9 +1454,11 @@
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1326,10 +1467,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -1352,9 +1492,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
                         "DeliveryJobsCheckTestAreaCargo": {
@@ -1370,6 +1510,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForTestArea": {
+                            "next": [
+                                "DeliveryJobsTransferOngoingJob"
+                            ]
                         }
                     }
                 },
@@ -1380,7 +1525,7 @@
                         "DeliveryJobsEnterTestAreaDeliveryJob": {
                             "enabled": true,
                             "next": [
-                                "DeliveryJobsAutoDeliveryTestArea"
+                                "DeliveryJobsWaitTestAreaDeliveryMissionDetail"
                             ]
                         },
                         "DeliveryJobsEnterTestAreaCargo": {
@@ -1388,10 +1533,15 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryTestArea",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
+                        },
+                        "DeliveryJobsOngoingDeliveryForTestArea": {
+                            "next": [
+                                "DeliveryJobsAutoDeliveryTestArea"
+                            ]
                         }
                     }
                 },
@@ -1412,9 +1562,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideTestAreaQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
                         "DeliveryJobsCheckTestAreaCargo": {
@@ -1429,6 +1579,11 @@
                                 "パッキング",
                                 "화물 포장",
                                 "입찰 보기"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForTestArea": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -1445,9 +1600,9 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
                         "DeliveryJobsCheckTestAreaCargo": {
@@ -1463,6 +1618,11 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForTestArea": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
+                            ]
                         }
                     }
                 },
@@ -1477,10 +1637,10 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsCloseRedistributionBid",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+                                "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
                         "DeliveryJobsCheckTestAreaCargo": {
@@ -1490,6 +1650,11 @@
                                 "(?i)Pack\\s*Goods",
                                 "パッキング",
                                 "화물 포장"
+                            ]
+                        },
+                        "DeliveryJobsOngoingDeliveryForTestArea": {
+                            "next": [
+                                "DeliveryJobsSkipOngoingDelivery"
                             ]
                         }
                     }
@@ -1548,9 +1713,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferTestArea"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1560,9 +1727,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1572,9 +1741,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1583,10 +1754,9 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
@@ -1604,9 +1774,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferTestArea"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1616,9 +1788,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1628,9 +1802,11 @@
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
                             "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            },
+                            "next": [
+                                "DeliveryJobsRedistributionBidNextStep"
+                            ]
                         }
                     }
                 },
@@ -1639,39 +1815,14 @@
                     "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                     "pipeline_override": {
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
-                            "anchor": {
-                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
-                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
-                            }
+                            "next": [
+                                "DeliveryJobsCloseRedistributionBid"
+                            ]
                         }
                     }
                 }
             ],
             "default_case": "AcceptJobOnly"
-        },
-        "DeliveryJobsAutoDeliveryRiskAcknowledgement": {
-            "type": "switch",
-            "label": "$task.AutoDeliveryRiskAcknowledgement.label",
-            "description": "$task.AutoDeliveryRiskAcknowledgement.description",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "DeliveryJobsAutoDeliveryGuard": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "DeliveryJobsAutoDeliveryGuard": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
         },
         "DeliveryJobsAutoDeliveryPreferZipline": {
             "type": "switch",
@@ -1706,6 +1857,27 @@
                             "attach": {
                                 "zip": true
                             }
+                        }
+                    }
+                }
+            ]
+        },
+        "DeliveryJobsOngoingDeliveryFallback": {
+            "type": "switch",
+            "label": "$task.DeliveryJobs.OngoingDeliveryFallback.label",
+            "description": "$task.DeliveryJobs.OngoingDeliveryFallback.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DeliveryJobsDeliverByAutoDelivery": {
+                            "on_error": [
+                                "DeliveryJobsTransferOngoingJob"
+                            ]
                         }
                     }
                 }
@@ -7048,6 +7220,28 @@
                     }
                 },
                 {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_wgslime_1_hsmob_1_grass_2_1",
                     "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1",
                     "pipeline_override": {
@@ -12351,6 +12545,28 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_erhound_1_agmelee_1_moss_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -17674,6 +17890,28 @@
                     }
                 },
                 {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_wgslime_1_hsmob_1_grass_2_1",
                     "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1",
                     "pipeline_override": {
@@ -22977,6 +23215,28 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_erhound_1_agmelee_1_moss_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -28323,6 +28583,28 @@
                     }
                 },
                 {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_wgslime_1_hsmob_1_grass_2_1",
                     "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1",
                     "pipeline_override": {
@@ -33626,6 +33908,28 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_erhound_1_agmelee_1_moss_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -38949,6 +39253,28 @@
                     }
                 },
                 {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_wgslime_1_hsmob_1_grass_2_1",
                     "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1",
                     "pipeline_override": {
@@ -44252,6 +44578,28 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_erhound_1_agmelee_1_moss_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"

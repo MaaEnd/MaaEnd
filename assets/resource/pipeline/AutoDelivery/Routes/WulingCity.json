@@ -459,8 +459,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        513.135,
-                        1656.773
+                        512.093,
+                        1656.682
                     ],
                     "target_deck_y": 325.819,
                     "required": true
@@ -501,8 +501,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        513.135,
-                        1656.773
+                        512.093,
+                        1656.682
                     ],
                     "target_deck_y": 325.819,
                     "required": true
@@ -543,8 +543,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        513.135,
-                        1656.773
+                        512.093,
+                        1656.682
                     ],
                     "target_deck_y": 325.819,
                     "required": true

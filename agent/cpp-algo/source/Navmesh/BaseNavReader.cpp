@@ -47,8 +47,10 @@ constexpr char kOffMeshSectionTag[5] = "BOML";
 constexpr char kSurfaceSectionTag[5] = "BSRF";
 constexpr char kGridSectionTag[5] = "BGRD";
 constexpr uint32_t kGeometrySectionVersion = 1;
-constexpr uint16_t kOffMeshSectionVersion = 1;
-constexpr uint16_t kOffMeshRecordSize = 80;
+// v1 = 80 B,尾部 4 B 补零;v2 = 88 B,补零处起写入方向位与两沿三角,前 76 B 不变。
+constexpr uint16_t kOffMeshSectionVersion = 2;
+constexpr uint16_t kOffMeshRecordSizeV1 = 80;
+constexpr uint16_t kOffMeshRecordSizeV2 = 88;
 constexpr size_t kOffMeshHeaderSize = 16;
 constexpr uint16_t kSurfaceSectionVersion = 1;
 constexpr uint16_t kSurfaceRecordSize = 8;
@@ -135,8 +137,9 @@ bool ParseOffMeshSection(const uint8_t* data, size_t size, std::vector<BaseNavOf
     const uint16_t record_size = ReadU16(cursor);
     const uint32_t count = ReadU32(cursor);
     (void)ReadU32(cursor);
-    if (version != kOffMeshSectionVersion || record_size != kOffMeshRecordSize || count != (size - kOffMeshHeaderSize) / kOffMeshRecordSize
-        || size != kOffMeshHeaderSize + static_cast<size_t>(count) * kOffMeshRecordSize) {
+    const uint16_t expect_record_size = version == 1 ? kOffMeshRecordSizeV1 : (version == 2 ? kOffMeshRecordSizeV2 : 0);
+    if (version > kOffMeshSectionVersion || expect_record_size == 0 || record_size != expect_record_size
+        || count != (size - kOffMeshHeaderSize) / record_size || size != kOffMeshHeaderSize + static_cast<size_t>(count) * record_size) {
         return false;
     }
     links->reserve(count);
@@ -158,7 +161,15 @@ bool ParseOffMeshSection(const uint8_t* data, size_t size, std::vector<BaseNavOf
             point.v = ReadF32(cursor);
             point.height = ReadF32(cursor);
         }
-        (void)ReadU32(cursor);
+        if (version >= 2) {
+            link.dir_ok = *cursor++;
+            cursor += 3; // 对齐填充
+            link.start_triangle = ReadU32(cursor);
+            link.end_triangle = ReadU32(cursor);
+        }
+        else {
+            (void)ReadU32(cursor);
+        }
         links->push_back(link);
     }
     return cursor == data + size;
@@ -1114,6 +1125,21 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
             return Fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh section is malformed");
         }
     }
+    // 两沿三角是整包下标,按区加载时与 LINK 同一套平移;区外锚点退回哨兵值。
+    if (zone_scoped) {
+        for (BaseNavOffMeshLink& link : off_mesh_links) {
+            const auto rebase = [&](uint32_t& triangle) {
+                if (triangle < selected_first_triangle || triangle >= selected_triangle_end) {
+                    triangle = kBaseNavOffMeshTriangleNone;
+                    return;
+                }
+                triangle -= selected_first_triangle;
+            };
+            rebase(link.start_triangle);
+            rebase(link.end_triangle);
+        }
+    }
+
     std::vector<BaseNavSurface> surfaces;
     for (size_t i = 0; i < sections.size(); ++i) {
         if (std::memcmp(sections[i].tag.data(), kSurfaceSectionTag, 4) == 0) {

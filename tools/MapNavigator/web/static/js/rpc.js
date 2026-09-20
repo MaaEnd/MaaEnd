@@ -517,7 +517,7 @@ export class NavTestSocket extends SessionSocket {
   /**
    * Open the session and walk `route` as soon as the game is connected.
    * @param {Object} sessionConfig `{kind:'win32'|'adb'|..., win32?, adb?}`
-   * @param {{path: Array, exported: boolean, zip?: boolean, assert_target: ?Object}} route see {@link NavTestSocket#arm}
+   * @param {{path: Array, exported: boolean, zip?: boolean, zipline_account_id?: string, assert_target: ?Object}} route see {@link NavTestSocket#arm}
    * @returns {void}
    */
   start(sessionConfig, route) {
@@ -528,7 +528,9 @@ export class NavTestSocket extends SessionSocket {
    * Load what F3 (and the next `run`) will run. `exported` false means editor waypoints
    * the backend still has to export, true means ready pipeline nodes. `assert_target`
    * `{zone_id, target:[x,y,w,h]}` runs the assert rect instead and wins over `path`.
-   * @param {{path: Array, exported: boolean, zip?: boolean, assert_target: ?Object}} route
+   * `zipline_account_id` travels with `zip` so the runtime can match account-scoped
+   * zipline records; without it the whole route degrades to walking.
+   * @param {{path: Array, exported: boolean, zip?: boolean, zipline_account_id?: string, assert_target: ?Object}} route
    * @returns {void}
    */
   arm(route) {
@@ -540,12 +542,13 @@ export class NavTestSocket extends SessionSocket {
     this._send({type: "run", ...this._route(route)});
   }
 
-  /** @returns {{path: Array, exported: boolean, zip: boolean, assert_target: ?Object}} */
+  /** @returns {{path: Array, exported: boolean, zip: boolean, zipline_account_id: string, assert_target: ?Object}} */
   _route(route) {
     return {
       path: (route && route.path) || [],
       exported: !!(route && route.exported),
       zip: !!(route && route.zip),
+      zipline_account_id: (route && route.zipline_account_id) || "",
       assert_target: (route && route.assert_target) || null,
     };
   }

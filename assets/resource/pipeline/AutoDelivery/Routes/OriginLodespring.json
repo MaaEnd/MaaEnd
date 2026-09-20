@@ -970,8 +970,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1044.373,
-                        425.198
+                        1043.773,
+                        424.598
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -979,8 +979,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1048.016,
-                        429.484
+                        1047.416,
+                        428.884
                     ],
                     "target_deck_y": 41.441
                 }
@@ -1085,8 +1085,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1044.373,
-                        425.198
+                        1043.773,
+                        424.598
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -1094,8 +1094,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1048.016,
-                        429.484
+                        1047.416,
+                        428.884
                     ],
                     "target_deck_y": 41.441
                 }
@@ -1127,8 +1127,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1044.373,
-                        425.198
+                        1043.773,
+                        424.598
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -1136,8 +1136,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1048.016,
-                        429.484
+                        1047.416,
+                        428.884
                     ],
                     "target_deck_y": 41.441
                 }

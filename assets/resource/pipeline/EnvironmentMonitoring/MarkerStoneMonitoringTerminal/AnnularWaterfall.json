@@ -253,7 +253,7 @@
         "desc": "已进入环形瀑布任务地图，准备快捷传送",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "QuickTeleportButton",
             "InAnnularWaterfallMission"
         ],
         "pre_delay": 0,
@@ -267,7 +267,7 @@
         "desc": "在环形瀑布任务地图中点击前往传送",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "QuickTeleportButton",
             "InAnnularWaterfallMission"
         ],
         "pre_delay": 0,
@@ -283,7 +283,7 @@
         "desc": "在环形瀑布任务地图中点击传送",
         "recognition": "And",
         "all_of": [
-            "WhiteConfirmButtonType1"
+            "TeleportButton"
         ],
         "pre_delay": 0,
         "action": "Click",
