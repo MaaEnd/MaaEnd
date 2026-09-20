@@ -27,6 +27,10 @@ struct PromptScanProfile
 // reads it. Authored in the base frame.
 bool TryReadNodeRoi(MaaContext* context, const std::string& node_name, cv::Rect* out);
 
+// Recognition type of one node (TemplateMatch / OCR / ...), empty when the node cannot be read. Quiet on
+// purpose: callers use it to decide whether a node can even back a template pre-filter before asking for one.
+std::string ReadNodeRecognitionType(MaaContext* context, const std::string& node_name);
+
 // Reads roi / template / threshold out of one TemplateMatch node and loads the template off disk; nothing else in
 // the node is read. Every precondition the matcher and the scanner have is checked here, so a mis-authored node
 // costs one error line and no pre-filter instead of misbehaving at walking speed.

@@ -11,10 +11,13 @@
 #include <meojson/json.hpp>
 
 #include "action_wrapper.h"
+#include "controller_type_utils.h"
 #include "motion_controller.h"
 #include "navi_config.h"
 #include "navi_math.h"
 #include "position_provider.h"
+#include "prompt_scan_profile.h"
+#include "roi_template_scanner.h"
 #include "semantic_helpers.h"
 
 #include "../utils.h"
@@ -100,6 +103,12 @@ bool CaptureFindFrame(MaaController* controller, ScopedImageBuffer* buffer)
     return MaaControllerCachedImage(controller, buffer->Get()) && !MaaImageBufferIsEmpty(buffer->Get());
 }
 
+// 只在调用内用, 不做拷贝: MaaImageBuffer 的像素在下一帧截图前都有效
+cv::Mat FrameAsMat(const MaaImageBuffer* buffer)
+{
+    return { MaaImageBufferHeight(buffer), MaaImageBufferWidth(buffer), MaaImageBufferType(buffer), MaaImageBufferGetRawData(buffer) };
+}
+
 int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::steady_clock::time_point now)
 {
     return std::chrono::duration_cast<std::chrono::milliseconds>(now - from).count();
@@ -150,6 +159,26 @@ Result FailFind(const Context& ctx, const char* reason, const char* message)
     return result;
 }
 
+// 停车判据能读成模板就备好预筛: 走路时用它密集盯提示, 命中才跑权威识别.
+// 读不成模板 (OCR 等) 就安静退回探测时的权威识别, 只是每次探测更贵
+void ArmStopProbe(const Context& ctx, const Waypoint& waypoint, FindState& find)
+{
+    find.stop_probe.reset();
+    if (waypoint.find_stop.empty() || ctx.maa_context == nullptr) {
+        return;
+    }
+    const std::string stop_type = ReadNodeRecognitionType(ctx.maa_context, waypoint.find_stop);
+    if (!EqualsIgnoreCase(stop_type, "TemplateMatch")) {
+        LogInfo << "FIND stop node has no template pre-filter; probes run it directly." << VAR(waypoint.find_stop) << VAR(stop_type);
+        return;
+    }
+    PromptScanProfile profile;
+    if (!TryLoadPromptScanProfile(ctx.maa_context, waypoint.find_stop, ctx.action_wrapper->controller_type(), &profile)) {
+        return; // 读不出来的原因里面已经报过
+    }
+    find.stop_probe = std::move(profile);
+}
+
 // 接手: 停车、切相位、预算从这一拍开始算
 Result BeginFind(const Context& ctx, const char* reason)
 {
@@ -162,6 +191,7 @@ Result BeginFind(const Context& ctx, const char* reason)
     ctx.session->UpdatePhase(NaviPhase::WaitFind, reason);
 
     const Waypoint& waypoint = ctx.session->CurrentWaypoint();
+    ArmStopProbe(ctx, waypoint, find);
     LogInfo << "Action: FIND started." << VAR(reason) << VAR(waypoint.find_target) << VAR(waypoint.find_text.size())
             << VAR(waypoint.find_stop);
 
@@ -222,6 +252,59 @@ bool ApproachSighting(const Context& ctx, FindState& find, const MaaRect& box, i
     LogDebug << "FIND: walking toward the target." << VAR(find.steps) << VAR(offset_px);
     ctx.motion_controller->SetForwardState(true);
     return true;
+}
+
+// 走路时的停车探测: 提示窗口可能就夹在两拍之间, 只靠每拍一查容易直接走过头.
+// 有预筛先跑毫秒级的模板匹配, 命中才跑权威识别; 没有预筛就每次探测都跑权威识别
+Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaController* controller)
+{
+    Result result;
+    FindState& find = ctx.runtime_state->find;
+    if (waypoint.find_stop.empty() || controller == nullptr || !ctx.motion_controller->IsMovingForward()) {
+        return result;
+    }
+
+    LogDebug << "FIND: probing the stop node while walking." << VAR(find.steps) << VAR(waypoint.find_stop)
+             << VAR(find.stop_probe.has_value());
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(kFindStopProbeWindowMs);
+    while (ctx.motion_controller->IsMovingForward() && std::chrono::steady_clock::now() < deadline) {
+        ScopedImageBuffer probe;
+        if (!CaptureFindFrame(controller, &probe)) {
+            break; // 抓不到就收手, 下一拍再盯
+        }
+        bool flagged = true;
+        if (find.stop_probe.has_value()) {
+            const PromptScanProfile& profile = *find.stop_probe;
+            flagged = MatchTemplateOnFrame(
+                FrameAsMat(probe.Get()),
+                profile.base_roi,
+                profile.templ,
+                profile.mask,
+                profile.threshold,
+                "find-stop");
+        }
+        if (!flagged) {
+            utils::SleepFor(kFindStopProbeIntervalMs);
+            continue;
+        }
+        // 命中先站住: 权威确认也要时间, 走着确认会多滑出去一段
+        ctx.motion_controller->SetForwardState(false);
+        utils::SleepFor(kStopWaitMs);
+        FindSighting sighting {};
+        if (!RunFindNode(ctx.maa_context, waypoint.find_stop, "{}", probe.Get(), &sighting)) {
+            return FailFind(ctx, "find_recognition_failed", "FIND stop node failed to recognize.");
+        }
+        if (sighting.hit) {
+            LogInfo << "FIND: stop node hit while walking, target reached." << VAR(waypoint.find_stop) << VAR(find.steps);
+            LeaveFindPhase(ctx);
+            return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), "find_target_reached");
+        }
+        // 预筛误报: 重新走起来, 探测继续
+        LogDebug << "FIND: stop probe did not confirm; resuming the walk." << VAR(find.steps);
+        ctx.motion_controller->SetForwardState(true);
+        utils::SleepFor(kFindStopProbeIntervalMs);
+    }
+    return result;
 }
 
 } // namespace
@@ -357,6 +440,12 @@ Result TickFindTarget(const Context& ctx)
 
     if (!ApproachSighting(ctx, find, target_sighting.box, frame_width, frame_height)) {
         return FailFind(ctx, "find_turn_failed", "FIND failed to issue a view turn.");
+    }
+
+    // 走路时把停车判据盯密一点: 提示窗口可能就夹在两拍之间, 一拍一查容易直接走过去
+    Result probe_result = ProbeStopWhileWalking(ctx, waypoint, controller);
+    if (probe_result.consumed) {
+        return probe_result;
     }
     utils::SleepFor(kFindStepSleepMs);
     return result;

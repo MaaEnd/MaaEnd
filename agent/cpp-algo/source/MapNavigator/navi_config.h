@@ -483,6 +483,9 @@ constexpr int32_t kFindMissGraceTicks = 3;
 constexpr int32_t kFindAlignTolerancePx = 80;
 // 偏出对准容差但没出这个窗口时边走边转; 再偏就先站定转正, 免得带着旧方向越走越偏
 constexpr int32_t kFindWalkWhileTurningPx = kFindAlignTolerancePx * 2;
+// 走路时停车判据的密集探测: 提示窗口很窄, 只靠每拍一查容易直接走过头; 窗口内按间隔抓快照重查
+constexpr int32_t kFindStopProbeWindowMs = 700;
+constexpr int32_t kFindStopProbeIntervalMs = 120;
 // 框中心掉到这条线以下算走过了, 退一步; 480/720 即画面下三分之一
 constexpr double kFindPassedCenterYRatio = 0.667;
 // 走过头退一步的时长, 只求把框拉回中线以下

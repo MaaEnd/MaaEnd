@@ -3,9 +3,11 @@
 #include <chrono>
 #include <cstddef>
 #include <limits>
+#include <optional>
 #include <string>
 
 #include "navi_domain_types.h"
+#include "prompt_scan_profile.h"
 #include "zipline_ride_machine.h"
 
 namespace mapnavigator
@@ -119,6 +121,8 @@ struct FindState
     int32_t search_sign = 1;
     // 上次看到目标时框中心在中线哪一侧 (+1 右 / -1 左 / 0 没见过), 搜索第一步朝这边转
     int32_t last_seen_side = 0;
+    // 停车判据的模板预筛 (从 find_stop 节点读出), 空 = 判据读不成模板, 探测时直接跑权威识别
+    std::optional<PromptScanProfile> stop_probe;
 
     void Reset()
     {
@@ -127,6 +131,7 @@ struct FindState
         miss_streak = 0;
         search_sign = 1;
         last_seen_side = 0;
+        stop_probe.reset();
     }
 };
 

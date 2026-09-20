@@ -135,6 +135,12 @@ bool ReadSingleNumber(const json::value& holder, double* out)
 
 } // namespace
 
+std::string ReadNodeRecognitionType(MaaContext* context, const std::string& node_name)
+{
+    const auto node = ReadNodeObject(context, node_name, nullptr);
+    return node ? ReadRecognitionType(*node) : std::string {};
+}
+
 bool TryReadNodeRoi(MaaContext* context, const std::string& node_name, cv::Rect* out)
 {
     const auto node = ReadNodeObject(context, node_name, "Pipeline ROI");
