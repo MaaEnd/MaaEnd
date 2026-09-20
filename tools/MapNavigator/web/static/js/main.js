@@ -2572,6 +2572,7 @@ class MapNavigatorApp {
               findFields.find_target ? `节点 ${findFields.find_target}` : "",
               findFields.find_text ? `文本 ${findFields.find_text.join(" / ")}` : "",
               findFields.find_stop ? `停止 ${findFields.find_stop}` : "",
+              findFields.find_arrive ? `到达 [${findFields.find_arrive.join(", ")}]` : "",
             ].filter(Boolean);
             details.push(["寻找", findBits.join(" · ")]);
           }

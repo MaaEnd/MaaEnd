@@ -86,10 +86,18 @@ std::string BuildInlineTextOverride(const std::vector<std::string>& texts)
     return json::value(std::move(root)).dumps();
 }
 
+// 截图发不出去或没等到结果就直接空手而归: 读缓存会拿到旧帧, FIND 会照着过期画面走
 bool CaptureFindFrame(MaaController* controller, ScopedImageBuffer* buffer)
 {
     const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller);
-    MaaControllerWait(controller, screencap_id);
+    if (screencap_id == MaaInvalidId) {
+        LogWarn << "FIND: screencap request was not posted.";
+        return false;
+    }
+    if (MaaControllerWait(controller, screencap_id) != MaaStatus_Succeeded) {
+        LogWarn << "FIND: screencap did not succeed." << VAR(screencap_id);
+        return false;
+    }
     return MaaControllerCachedImage(controller, buffer->Get()) && !MaaImageBufferIsEmpty(buffer->Get());
 }
 
@@ -236,7 +244,12 @@ Result TickFindTarget(const Context& ctx)
     result.stay_in_current_tick = true;
 
     if (ctx.maa_context == nullptr || ctx.session == nullptr || !ctx.session->HasCurrentWaypoint()) {
-        return FailFind(ctx, "find_context_missing", "FIND is running without a waypoint or a MaaContext.");
+        // 统一清理会解引用 session, 上下文不全时只能直接交还失败, 不走 FailFind
+        LogError << "FIND is running without a waypoint or a MaaContext." << VAR(ctx.maa_context == nullptr) << VAR(ctx.session == nullptr);
+        result.request_failure = true;
+        result.failure_reason = "find_context_missing";
+        result.failure_log_message = "FIND is running without a waypoint or a MaaContext.";
+        return result;
     }
 
     const Waypoint& waypoint = ctx.session->CurrentWaypoint();
