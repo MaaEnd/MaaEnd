@@ -5,6 +5,13 @@
             "description": "$task.SeizeDeliveryJobs.description",
             "label": "$task.SeizeDeliveryJobs.label",
             "entry": "SeizeDeliveryJobsCheckOngoingJob",
+            "pipeline_override": {
+                "AutoDeliveryDeliveryMissionNotFound": {
+                    "anchor": {
+                        "SeizeDeliveryJobsAfterMissionListExhausted": "SeizeDeliveryJobsNoOngoingJob"
+                    }
+                }
+            },
             "option": [
                 "SeizeDeliveryJobsReward",
                 "SeizeDeliveryJobsRefreshLimit",

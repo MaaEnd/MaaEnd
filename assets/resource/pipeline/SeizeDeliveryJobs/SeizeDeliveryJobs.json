@@ -25,14 +25,23 @@
     "SeizeDeliveryJobsCheckOngoingJob": {
         "desc": "任务入口门控：开始执行任务时确认身上是否已有送货委托，再决定抢单还是走后处理",
         "pre_delay": 0,
-        "anchor": {
-            "AutoDeliveryAfterOngoingJobFound": "SeizeDeliveryJobsHandleOngoingJob",
-            "AutoDeliveryAfterOngoingJobAbsent": "SeizeDeliveryJobsNoOngoingJob"
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckOngoingJob"
+            "SeizeDeliveryJobsHandleOngoingJob"
+        ],
+        "on_error": [
+            "[Anchor]SeizeDeliveryJobsAfterMissionListExhausted",
+            "SeizeDeliveryJobsOngoingJobUnknown"
         ]
     },
     "SeizeDeliveryJobsNoOngoingJob": {
@@ -75,6 +84,18 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.transferUnavailable"
+        }
+    },
+    "SeizeDeliveryJobsOngoingJobUnknown": {
+        "desc": "既没有确认到身上的送货委托、也没有确认列表中没有送货委托：停止任务，避免被误判为无单",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.ongoingJobUnknown"
         }
     },
     "SeizeDeliveryJobsReadyToSeize": {
