@@ -270,7 +270,6 @@ constexpr int32_t kNavRunPlanFailureCooldownMs = 3000;
 // --- Zone / Portal / Transfer Constants ---
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;
 constexpr int32_t kZoneConfirmTimeoutMs = 12000;
-constexpr int32_t kZoneConfirmStableFrames = 2;
 constexpr int32_t kRelocationRetryIntervalMs = 120;
 constexpr int32_t kRelocationWaitTimeoutMs = 15000;
 constexpr int32_t kRelocationStableFixes = 2;

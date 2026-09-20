@@ -731,7 +731,8 @@ private:
         TimePoint now,
         const LocateOptions& options,
         const std::function<void()>& slowPathSignal,
-        MapPosition* outRawPos = nullptr);
+        MapPosition* outRawPos = nullptr,
+        bool* outHoldPending = nullptr);
 
     GlobalSearchComputation startGlobalSearch(
         const MatchFeature& tmplFeat,
@@ -997,7 +998,8 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     TimePoint now,
     const LocateOptions& options,
     const std::function<void()>& slowPathSignal,
-    MapPosition* outRawPos)
+    MapPosition* outRawPos,
+    bool* outHoldPending)
 {
     if (!strategy) {
         return std::nullopt;
@@ -1141,14 +1143,19 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         }
     }
 
+    // 本帧不可信：交付上一帧坐标保持导航输入连续，同时记一次丢失。连续攒满 max_lost_frames
+    // 后 isTracking 失效，自然翻进全局重新观测，不会一直吃陈旧坐标。
     if (onlyAmbiguous && motionTracker->isTracking(maxAllowedLost) && !validation.isValid) {
         signalSlowPath();
         auto hold = *motionTracker->getLastPos();
         hold.score = trackResult->score;
-        hold.isHeld = true;
         motionTracker->hold(hold, now);
+        motionTracker->markLost();
+        if (outHoldPending) {
+            *outHoldPending = true;
+        }
         LogInfo << "Tracking ambiguous -> HOLD last pos." << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta);
-        return hold;
+        return std::nullopt;
     }
 
     if (!validation.isValid) {
@@ -1164,11 +1171,13 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
                 signalSlowPath();
                 auto held = *last;
                 held.score = trackResult->score;
-                held.isHeld = true;
                 motionTracker->hold(held, now);
                 motionTracker->markLost();
+                if (outHoldPending) {
+                    *outHoldPending = true;
+                }
                 LogInfo << "Tracking outlier rejected, holding last pos." << VAR(jumpDist) << VAR(trackResult->score);
-                return held;
+                return std::nullopt;
             }
         }
 
@@ -1177,7 +1186,6 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         pos.x = validation.absX;
         pos.y = validation.absY;
         pos.score = trackResult->score;
-        pos.isHeld = false;
         return acceptPosition(pos, now);
     }
 
@@ -1450,11 +1458,11 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
 
     const bool isPathHeatmapZone = IsPathHeatmapZone(currentZoneId);
     MapPosition rawPrimaryPos {};
+    bool holdPending = false;
     const MatchFeature& trackingTmpl = featureCache.get(minimap, primaryStrategy.get());
-    auto trackingResult = tryTracking(trackingTmpl, primaryStrategy.get(), now, options, slowPathSignal, &rawPrimaryPos);
-    const bool trackingHeld = trackingResult.has_value() && trackingResult->isHeld;
+    auto trackingResult = tryTracking(trackingTmpl, primaryStrategy.get(), now, options, slowPathSignal, &rawPrimaryPos, &holdPending);
 
-    if (trackingResult && !trackingHeld) {
+    if (trackingResult) {
         arbiterRejectedPrimaryStreak = 0;
         arbiterRejectedPrimary.reset();
         return LocateResult {
@@ -1464,7 +1472,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         };
     }
 
-    const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1 && (!trackingResult || trackingHeld);
+    const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1;
     if (shouldTryDualTracking) {
         auto fallbackStrategy =
             MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, MatchMode::ForcePathHeatmap);
@@ -1522,9 +1530,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
                         arbiterRejectedPrimary.reset();
                         // 先 markLost 让 update 跳过速度 EMA，否则这次几十像素的修正会被当成一次高速位移
                         motionTracker->markLost(1);
-                        MapPosition reclaimed = rawPrimaryPos;
-                        reclaimed.isHeld = false;
-                        reclaimed = acceptPosition(reclaimed, now);
+                        MapPosition reclaimed = acceptPosition(rawPrimaryPos, now);
                         motionTracker->clearVelocity();
                         return LocateResult {
                             .status = LocateStatus::Success,
@@ -1537,7 +1543,6 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
                     arbiterRejectedPrimaryStreak = 0;
                     arbiterRejectedPrimary.reset();
                 }
-                arbitrated.isHeld = false;
                 LogInfo << "Dual-Mode arbitrated by motion continuity" << VAR(distPrimaryToPred) << VAR(distFallbackToPred)
                         << VAR(arbitrated.x) << VAR(arbitrated.y) << VAR(arbitrated.score) << VAR(dist);
                 MapPosition accepted = acceptPosition(arbitrated, now);
@@ -1552,11 +1557,12 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
                 << VAR(rawFallbackPos.score) << VAR(rawFallbackPos.x) << VAR(rawFallbackPos.y) << VAR(dist);
     }
 
-    if (!trackingHeld) {
+    if (!holdPending) {
         return std::nullopt;
     }
 
-    return LocateResult { .status = LocateStatus::Success, .position = trackingResult, .debugMessage = "Tracking Hold" };
+    // 第二策略也没救回来，交付 tracker 里保留的上一帧坐标。丢失已在 tryTracking 里记账。
+    return LocateResult { .status = LocateStatus::Success, .position = motionTracker->getLastPos(), .debugMessage = "Tracking Hold" };
 }
 
 SearchConstraint MapLocator::Impl::buildSearchConstraint(
@@ -2071,9 +2077,8 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     }
     if (!globalResult) {
         if (bestRawGlobal.score > kSeamFallbackMinPeakScore) {
-            bestRawGlobal.isHeld = true;
             globalResult = bestRawGlobal;
-            LogInfo << "Global gate low-confidence: releasing best raw peak (held) to avoid cold-start deadlock." << VAR(bestRawGlobal.x)
+            LogInfo << "Global gate low-confidence: releasing best raw peak to avoid cold-start deadlock." << VAR(bestRawGlobal.x)
                     << VAR(bestRawGlobal.y) << VAR(bestRawGlobal.score);
         }
         else {
