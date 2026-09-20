@@ -1010,6 +1010,7 @@
     "task.AutoDelivery.focus.navigate_destination": "🚛 Heading to the delivery destination",
     "task.AutoDelivery.focus.submit_goods": "🚛 Delivering cargo",
     "task.AutoDelivery.focus.delivery_completed": "🚛 **Cargo delivered successfully**",
+    "task.AutoDelivery.focus.ongoing_job_unknown": "🚛 **Could not determine whether a delivery job is already carried; the task has stopped**",
     "task.SeizeDeliveryJobsRepeatCount.label": "Delivery Count",
     "task.SeizeDeliveryJobsRepeatCount.description": "Maximum number of deliveries performed in a single task run",
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "Max 1",

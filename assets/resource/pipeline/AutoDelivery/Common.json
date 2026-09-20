@@ -158,8 +158,8 @@
             "AutoDelivery"
         ],
         "on_error": [
-            "[Anchor]AutoDeliveryAfterOngoingJobAbsent",
-            "AutoDeliveryDeliveryMissionNotFound"
+            "[Anchor]AutoDeliveryMissionListExhausted",
+            "AutoDeliveryOngoingJobUnknownState"
         ]
     },
     "AutoDeliveryCheckStartTrackingButton": {
@@ -187,6 +187,9 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction",
+        "anchor": {
+            "AutoDeliveryMissionListExhausted": "AutoDeliveryOngoingJobAbsentExit"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -234,6 +237,30 @@
             140
         ],
         "template": "AutoDelivery/TrackTaskSuccess.png"
+    },
+    "AutoDeliveryOngoingJobAbsentExit": {
+        "desc": "组件已确认任务列表中没有送货任务：交回调用方声明的无单出口，调用方未声明时按组件原有行为失败结束",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoDeliveryAfterOngoingJobAbsent",
+            "AutoDeliveryDeliveryMissionNotFound"
+        ]
+    },
+    "AutoDeliveryOngoingJobUnknownState": {
+        "desc": "既没选中送货任务、也没能确认列表中没有送货任务：停止任务，避免被误判为无单",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDelivery.focus.ongoing_job_unknown"
+        }
     },
     "AutoDeliveryOpenDeliveryMission": {
         "desc": "进入任务界面并选中送货任务",

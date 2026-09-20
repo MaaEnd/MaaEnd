@@ -657,6 +657,7 @@
     "task.AutoDelivery.focus.navigate_destination": "🚛 배송 목표로 이동하는 중입니다",
     "task.AutoDelivery.focus.submit_goods": "🚛 화물을 전달하는 중입니다",
     "task.AutoDelivery.focus.delivery_completed": "🚛 **화물 배송을 완료했습니다**",
+    "task.AutoDelivery.focus.ongoing_job_unknown": "🚛 **배송 의뢰를 이미 보유 중인지 확인하지 못했습니다. 작업을 중지했습니다**",
     "task.SeizeDeliveryJobsRepeatCount.label": "배송 횟수",
     "task.SeizeDeliveryJobsRepeatCount.description": "완전 자동 배달의 최대 반복 횟수",
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "최대 1회",

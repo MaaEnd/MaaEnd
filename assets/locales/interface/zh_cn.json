@@ -823,6 +823,7 @@
     "task.AutoDelivery.focus.navigate_destination": "🚛 前往送货目标",
     "task.AutoDelivery.focus.submit_goods": "🚛 提交货物",
     "task.AutoDelivery.focus.delivery_completed": "🚛 **货物已成功送达**",
+    "task.AutoDelivery.focus.ongoing_job_unknown": "🚛 **无法确认身上是否已有送货委托，任务已停止**",
     "task.SeizeDeliveryJobsRepeatCount.label": "送货次数",
     "task.SeizeDeliveryJobsRepeatCount.description": "全自动送货的最大循环次数",
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "最多 1 次",
