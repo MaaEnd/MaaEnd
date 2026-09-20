@@ -830,13 +830,64 @@ The following files are maintained by cpp-algo developers; path authors do not n
 
 ## Finding and Approaching a Target `FIND`
 
-`FIND` handles targets that exist only as a recognition box with no coordinate of their own: an NPC nameplate, a prop label, anything a recognizer can box. The navigator takes that box and walks by looking at the world — turning the camera in place to search, keeping the walk going once aligned (a small offset is corrected while walking, and only a large one stops the walk for a turn), stepping back when the target drops below the character — **staying off the minimap by default**. A hit on the node named by `find_stop`, or the position reaching `find_arrive`, ends the point.
+`FIND` handles targets that exist **only as a recognition box and have no coordinate**, such as NPC nameplates and prop labels. At runtime, the navigator steers the character by the recognition box, rotates the camera to search when the target is off screen, and completes the node once the configured completion condition is met.
 
-Because its camera turns are open-loop, `FIND` is a break in localization: when it finishes, the character may stand off the walkable mesh facing anywhere, so the navigator voids its steering and corridor bookkeeping on the way out and lets the next leg start from a fresh fix. **Keep an ordinary movement point after a `FIND` point**; a `FIND` point at the very end of a route simply finishes the route when it is done.
+Each `FIND` point is configured with two parameter groups: a **target source** (`find_target` or `find_text`; exactly one) and a **completion condition** (`find_stop` or `find_arrive`; at least one).
 
-### Two Ways to Write It
+### Configuration
 
-With a coordinate, the navigator walks to that anchor as a normal point and starts looking there; without one, it is a control node that starts looking wherever it is reached. The only difference is where the search begins:
+| Field | Type | Description |
+| ---------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `find_target` | string | Node name of the target recognition. Any box-producing node may be used, e.g. `OCR`, `NeuralNetworkDetect`, `TemplateMatch`, or an `And` combo. Exactly one of `find_target` / `find_text`. |
+| `find_text` | string \| string[] \| object | Inline OCR text table: a string or an array of strings. `{ "node": "SomeOcrNode" }` is also accepted, and is equivalent to writing that node name into `find_target`. Exactly one of `find_target` / `find_text`. |
+| `find_stop` | string | Node name of the completion criterion; a hit completes the point. At least one of `find_stop` / `find_arrive`. |
+| `find_arrive` | [number, number] | Completion coordinate `[x, y]`; entering its 2-unit radius completes the point (the same radius as strict arrival, `kStrictArrivalLookaheadRadius`). At least one of `find_stop` / `find_arrive`. |
+
+Additional rules:
+
+- All four fields accept camel case (`findTarget`, `findText`, `findStop`, `findArrive`).
+- A field set on the point takes precedence over the route-level default; route-level fields only fill in points that do not configure them.
+- When both `find_stop` and `find_arrive` are configured, whichever is satisfied first completes the point.
+- The following configurations fail during parameter parsing and never reach runtime: both or neither of `find_target` / `find_text`; neither of `find_stop` / `find_arrive`; a `find_arrive` that is not an array of exactly two numbers.
+
+> **Note**: `find_stop` must be able to distinguish the target from the background. `FIND` completes on a recognition hit alone and does not verify what the box points at; an overly broad criterion (for example, "an interact prompt on any character") completes the point early when other interactables pass by.
+
+### Node Forms
+
+- **With a coordinate**: when `target` is configured, the node first walks to that coordinate (the anchor) as an ordinary movement point, then starts the search.
+- **Control node**: without `target`, the search starts as soon as the character reaches the point.
+- The two forms differ only in where the search starts.
+- The array form `[182.52, 173.4, "FIND"]` carries a coordinate only; the target source and completion condition must come from route-level defaults.
+- `FIND` is an intrinsic boundary node and is never skipped by zipline planning.
+
+### Runtime Behavior
+
+- **Target on screen**: corrects the heading by the box's horizontal offset and keeps walking. An offset within tolerance keeps the walk going; an offset beyond tolerance up to twice the tolerance is corrected while walking; an offset beyond twice the tolerance pauses the walk until the heading is aligned, after which the walk resumes.
+- **Target passed**: when the box center drops below roughly two thirds of the screen height, the character is considered past the target; one short backward pulse is issued, followed by re-alignment.
+- **Target off screen**: rotates the camera in fixed 30° steps. The search direction is the side on which the target was last seen and remains constant for the search; a target never seen uses a default side.
+- **Target briefly lost**: after the target has been seen, 1-2 consecutive misses hold position; the search starts after three consecutive misses. A target never seen is searched for immediately, without waiting.
+- **Completion checks while walking**: while the character is moving, `find_stop` is re-checked at fixed intervals within each walking cycle. When the criterion node resolves to a template (`TemplateMatch`; interact prompt icons usually do), a millisecond template pre-filter runs first, and a hit stops the walk for authoritative confirmation; a pre-filter false positive resumes the walk. When it does not (for example, an OCR node), the authoritative recognition runs directly at the same cadence.
+- These cadences and thresholds are controlled by cpp-algo constants (`kFindSearchStepDeg`, `kFindMissGraceTicks`, `kFindAlignTolerancePx`, `kFindStopProbe*`, etc., in `navi_config.h`); route authors do not configure them.
+
+### Completion and Failure
+
+- **Completion**: `find_stop` hits, or the position enters the `find_arrive` radius (whichever is satisfied first); the node then completes and the flow advances to the next point.
+- **Failure**:
+    - a named node that does not exist, a recognition call that errors, or a hit without a valid recognition box (for example, using a `DirectHit` node as the target) fails the node immediately; this is not treated as "not recognized";
+    - exhausting the budget (`kFindMaxSteps`, 48 ticks; or `kFindBudgetMs`, 60 seconds) without completion fails the node; `MapNavigateAction` returns false and the outer `on_error` or retry logic takes over.
+
+### Relation to Adjacent Legs
+
+The `FIND` search phase uses open-loop camera rotation and does not read the minimap (only the `find_arrive` distance test reads the locator). When the node ends, the character may stand outside the walkable mesh facing an arbitrary direction; the navigator resets this leg's steering and corridor bookkeeping on exit.
+
+- Adding an ordinary movement point after a `FIND` point is recommended so that the next leg can re-localize;
+- a `FIND` point as the final point of a route is also valid: the route finishes once it completes.
+
+### Example
+
+In the examples below, `GiftOperatorName` and `GiftOperatorApproachStop` are example node names; replace them with the recognition nodes of the business.
+
+With a coordinate (walk to the anchor first, then search):
 
 ```json
 {
@@ -850,6 +901,8 @@ With a coordinate, the navigator walks to that anchor as a normal point and star
 }
 ```
 
+Control node (search starts as soon as the point is reached):
+
 ```json
 {
     "action": "FIND",
@@ -858,41 +911,11 @@ With a coordinate, the navigator walks to that anchor as a normal point and star
 }
 ```
 
-The array form `[182.52, 173.4, "FIND"]` carries a coordinate only, so its target and completion criteria have to come from the route-wide defaults. `FIND` is an intrinsic route boundary and is never skipped by zipline planning.
-
-### What to Look For, and What Counts as Done
-
-| Field | Description |
-| -------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `find_target` | Node name of the target recognition. Any box-producing node works: OCR, `NeuralNetworkDetect`, `TemplateMatch`, `And` |
-| `find_text` | Inline OCR text table, written as a string or an array of strings. Mutually exclusive with `find_target` |
-| `find_stop` | The node whose hit stops the walk and completes the point — usually an interact prompt |
-| `find_arrive` | `[x, y]`. The position reaching within 2 units of it completes the point too |
-
-`find_stop` and `find_arrive` must carry **at least one**: the former is "saw the prompt, so we are there", the latter is "reached that coordinate, so we are there", and when both are given the first one to happen wins. `find_text` may also be written as `{ "node": "SomeOcrNode" }`, which means the same thing as `find_target`. These fields can sit at the route root as defaults.
-
-**`find_arrive` is an arrival confirmation only — it never drives the walk.** The box still steers; the field just turns "done" from a prompt hit into a position test. Use it when the target has no interact prompt, or when the prompt is unreliable: write the destination coordinate in, and the point finishes the moment the position enters the radius. A `FIND` point carrying it **reads the locator once per step** (x/y for the distance test only, never for steering, and it stays out of the steering bookkeeping), while points without it stay off the map the whole time — remember this, it is the one difference between the two modes.
-
-- **`find_target` together with `find_text` on one point, or neither `find_stop` nor `find_arrive` written, fails the whole parameter parse.** What is missing is a recognition node, not luck, so it is worth rejecting outright instead of spinning a full round first.
-- **A node that does not exist, a recognition that errors out, or a hit with no usable box** (naming a `DirectHit` node as the target, for instance) fails the point immediately rather than being treated as "not seen yet".
-- **Running out of budget without reaching either criterion** fails the point: `MapNavigateAction` returns false and the outer `on_error` / retry path takes over. The step and time budgets are `kFindMaxSteps` / `kFindBudgetMs` in `navi_config.h`, and the arrival radius reuses `kStrictArrivalLookaheadRadius` from strict arrival.
-
-### How It Searches and Approaches
-
-- **Target briefly lost**: the first two misses in a row just hold still and take another look — no turn, no step. Only after three misses (`kFindMissGraceTicks`) does it start searching. Losing the box for a frame or two while closing in is normal, and turning away at that moment throws away an already-aimed camera. A target that has never been seen gets no grace at all: it is simply not on screen yet, so the search starts right away.
-- **Target not on screen**: turn the camera in place by a fixed step, the first step toward the side the target was last seen on and every later step in that same direction. Choosing a direction per step by "which side is closer" would make a target sitting exactly behind the character swing back and forth forever.
-- **Target on screen**: a small offset is corrected while walking — no stop for every correction — and only an offset past twice the alignment tolerance stops the walk for a turn. Once aligned the character keeps walking, so the approach no longer stutters step by step.
-- **Box below the character**: the target has been walked past, so stop and step back a little, then line up again.
-- **Stop prompt watched denser while walking**: each walking tick keeps grabbing snapshots for `kFindStopProbeWindowMs` at `kFindStopProbeIntervalMs` and re-checks the stop criterion in between — the prompt window is narrow, and waiting for the next tick alone walks straight past it. A criterion that reads as a template (an interact prompt icon usually does) is pre-filtered in milliseconds: a hit stops the walk first and the authoritative recognition then confirms it (a false positive resumes walking); anything else (an OCR node, say) runs the authoritative recognition at that cadence directly.
-- The approach stays in the game's walking mode: movement is continuous and corrections only come with each frame's box, so the speed is kept low against overshooting. Every one of these parameters lives in cpp-algo constants; route authors do not fill them in.
-
 ### Files Path Authors Need to Care About
 
 | File | Responsibility | When Changes Are Needed |
 | -------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------ |
 | The business's own route JSON | The `MapNavigateAction` path, the `FIND` point and its `find_*` fields | Add a search point, change the target |
 | The business's own recognition nodes | The nodes named by `find_target` / `find_stop` | The ROI or the text of the target or prompt changes |
-| `assets/resource/pipeline/MapNavigator/Find.json` | The built-in OCR node `MapNavigatorFind` used for inline text; navigation calls it per frame and never dispatches it | The default ROI for inline text |
-| `agent/cpp-algo/source/MapNavigator/find_action.cpp` | The search and approach implementation and the bookkeeping it voids on the way out | Maintained by cpp-algo developers, tuned against a live client |
-
-**The `find_stop` node has to tell the target apart from the background.** `FIND` only honours the hit and never checks what the box points at: a condition as loose as "an interact prompt on anybody" ends the point early whenever another interactable walks past.
+| `assets/resource/pipeline/MapNavigator/Find.json` | The built-in OCR node `MapNavigatorFind` used for inline text; called per frame by the navigator and never dispatched on its own | The default ROI for inline text |
+| `agent/cpp-algo/source/MapNavigator/find_action.cpp` | The search and approach implementation and the bookkeeping it clears on the way out | Maintained by cpp-algo developers, tuned against a live client |
