@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <optional>
 
 #include "semantic_nodes.h"
 
@@ -12,6 +13,8 @@ namespace semantic_nodes
 
 void StopMotionAndCommitment(const Context& ctx);
 void SelectPhaseForCurrentWaypoint(const Context& ctx, const char* reason);
+// 到一个点之后的公共收尾：记账、推进、按下一个点选相位
+Result CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason);
 // 只转镜头，不带前进脉冲。指令发不出去时返回 false。
 bool TurnToHeadingOnce(const Context& ctx, double heading_delta);
 // 连着读到两帧一致的朝向才算数。读不出来返回 false，此时 out_heading 不可用。

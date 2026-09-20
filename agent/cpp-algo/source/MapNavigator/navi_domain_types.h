@@ -35,6 +35,9 @@ namespace mapnavigator
 //            （检测只受冷却限速，误报由 OCR 名称白名单挡下，最多白停一次）
 // DIG      - 触发 AutoCollectDigStart pipeline 子任务（无条件 Click target=true 两次），用于挖掘点。
 //            与 COLLECT 不同，DIG 仍是精确抵达后停车触发（挖掘是定点动作，非行进检测）
+// FIND     - 寻找并接近一个只有识别框、没有坐标的目标：拿点名节点给出的框直接对着世界走
+//            （转视角搜索 / 对准了前进 / 走过头退一步），全程不读小地图。命中 find_stop 即算到位，
+//            预算走完还没命中就判该点失败。带 target 先走到锚点再找，不带就是就地开找的控制节点
 // ZIPLINE  - 滑索上索点：精确抵达后停车，把镜头转向下索点再交互上索，然后等滑行自己结束。
 //            只由滑索规划生成，不手写：能不能滑取决于两端的落差与跨度，那是规划器算出来的
 #define NAVI_ACTION_TYPES(X) \
@@ -50,6 +53,7 @@ namespace mapnavigator
     X(ZONE)                  \
     X(COLLECT)               \
     X(DIG)                   \
+    X(FIND)                  \
     X(ZIPLINE)
 
 enum class ActionType
@@ -106,6 +110,9 @@ constexpr ActionTraits TraitsOf(ActionType action)
             .settle_walking = true,
             .route_boundary = true,
         };
+    // 不设 strict_arrival：锚点只是「站这儿开始找」，收尾由视觉伺服完成
+    case ActionType::FIND:
+        return { .walk_approach = true, .route_boundary = true };
     case ActionType::ZIPLINE:
         return { .strict_arrival = true, .walk_approach = true };
     }
@@ -161,6 +168,12 @@ struct Waypoint
     // INTERACT 专用: rec 模式, 只认提示不按键。判定圈、行进中提示停车都照旧, 按不按、按哪个留给业务侧决定。
     // 写在路线顶层是整条路线的默认, 点上只能开不能关
     bool interact_rec;
+    // FIND 专用：目标识别节点名，与 find_text 二选一
+    std::string find_target;
+    // FIND 专用：内联 OCR 文本表，执行时注入内置节点
+    std::vector<std::string> find_text;
+    // FIND 专用：命中它就算到位，必填
+    std::string find_stop;
     // ZIPLINE only: 这一跳的计划(两端架子、落点仰角、备用站位)。只由滑索规划写入; 缺这个字段的
     // ZIPLINE 点是配置写错了, 执行侧拒绝
     std::optional<ZiplineHopPlan> zipline_hop;
@@ -218,6 +231,8 @@ struct Waypoint
     bool HasPosition() const { return has_position; }
 
     bool IsHeadingOnly() const { return action == ActionType::HEADING; }
+
+    bool IsFindPoint() const { return action == ActionType::FIND; }
 
     bool IsIntrinsicRouteBoundary() const { return Traits().route_boundary; }
 

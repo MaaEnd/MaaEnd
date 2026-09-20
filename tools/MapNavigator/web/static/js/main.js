@@ -54,6 +54,7 @@ import {
   ACTION_MENU_NAMES,
   ACTION_COLORS,
   ACTION_MENU_TYPES,
+  findFieldsOf,
   getPointActions,
   matchTargetDeckHeight,
   normalizeZoneId,
@@ -2565,6 +2566,15 @@ class MapNavigatorApp {
             ["目标面", Number.isFinite(point.target_deck_y) ? point.target_deck_y.toFixed(2) : "自动"],
             ["标志", flags.join(" / ") || "无"],
           ];
+          const findFields = findFieldsOf(point);
+          if (Object.keys(findFields).length) {
+            const findBits = [
+              findFields.find_target ? `节点 ${findFields.find_target}` : "",
+              findFields.find_text ? `文本 ${findFields.find_text.join(" / ")}` : "",
+              findFields.find_stop ? `停止 ${findFields.find_stop}` : "",
+            ].filter(Boolean);
+            details.push(["寻找", findBits.join(" · ")]);
+          }
         }
       } else if (selectedIndices.length > 1) {
         title = `已选择 ${selectedIndices.length} 个作者路点`;

@@ -10,10 +10,11 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 录制地图路径并按区域切换浏览。
 - 导入已有 JSON/JSONC，递归搜索可识别的 `path` 数据并显示。
 - 在跨区域边界自动将前一区域的最后一个点和后一区域的第一个点标记为 `PORTAL`。
-- GUI 动作编辑主要面向坐标点动作：`NAVMESH / RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`。
+- GUI 动作编辑主要面向坐标点动作：`NAVMESH / RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND`。
+- `FIND` 是"只有识别框、没有坐标"的寻找语义点：地图上摆的是开始寻找的锚点，`find_target` / `find_text` / `find_stop` 要在导出的 `path` 里手写，工具只负责原样保留（同 `required` / `target_tier`）。
 - `COLLECT / DIG` 是采集/挖掘语义点：精确抵达后由 `MapNavigator` 同步触发 `AutoCollectClickStart` / `AutoCollectDigStart` pipeline 子任务，期间不退出 NaviController，避免每次采集都重建定位/重新 Bootstrap/吃掉起步宽限。
 - 支持为单个点标记 `strict`，用于要求该点必须精确抵达。
-- 支持为单个点标记 `required`。未启用滑索时按作者顺序执行全部节点；启用滑索后，中间的移动和兜底点可被全局规划跳过，`required` 用于标记必须抵达并执行的点。`ZONE`、`HEADING`、`COLLECT`、`DIG` 始终保留。
+- 支持为单个点标记 `required`。未启用滑索时按作者顺序执行全部节点；启用滑索后，中间的移动和兜底点可被全局规划跳过，`required` 用于标记必须抵达并执行的点。`ZONE`、`HEADING`、`COLLECT`、`DIG`、`FIND` 始终保留。
 - 支持为单个坐标点声明 `target_tier`；它只指定该点的坐标来源层级，不会改变 `ZONE` 或触发区域切换。
 - 默认复制 `MapNavigator` 可直接粘贴的 canonical `path`：有 zone 时写 `ZONE` 无坐标声明节点，没有 zone 时保留纯坐标点数组。
 - 路径编辑页显示当前底图的 navmesh 网格，可标出游戏内当前位置作为只读参考点，并按运行时语义规划当前区域片段；右上角统一的 `地图图层` 面板可控制底图、NAVMESH 网格和滑索架，状态与断言模式、日志分析共享。规划可选择是否启用桌面端滑索，还可逐阶段查看 A*、StringPull、Slim、WidenCorners 与最终路线，预览不会改写作者路点。

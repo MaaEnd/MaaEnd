@@ -108,6 +108,75 @@ class ExportPathNodesTest(unittest.TestCase):
 
         self.assertEqual(len(normalize_path_points([first, second])), 2)
 
+    def test_exports_find_point_as_object_with_its_fields(self) -> None:
+        point = make_point(ActionType.FIND)
+        point["find_target"] = "GiftOperatorName"
+        point["find_stop"] = "GiftOperatorApproachStop"
+
+        self.assertEqual(
+            export_path_nodes([point]),
+            [
+                {
+                    "action": "FIND",
+                    "target": [
+                        1242.04,
+                        773.41,
+                    ],
+                    "find_target": "GiftOperatorName",
+                    "find_stop": "GiftOperatorApproachStop",
+                }
+            ],
+        )
+
+    def test_preserves_find_fields_on_import_and_export(self) -> None:
+        routes = discover_path_routes(
+            {
+                "path": [
+                    {
+                        "action": "FIND",
+                        "target": [
+                            1242.04,
+                            773.41,
+                        ],
+                        "findText": [
+                            "佩丽卡",
+                            "Perlica",
+                        ],
+                        "findStop": "GiftOperatorApproachStop",
+                    }
+                ]
+            }
+        )
+
+        self.assertEqual(routes[0][0]["find_text"], ["佩丽卡", "Perlica"])
+        self.assertEqual(
+            export_path_nodes(routes[0]),
+            [
+                {
+                    "action": "FIND",
+                    "target": [
+                        1242.04,
+                        773.41,
+                    ],
+                    "find_text": [
+                        "佩丽卡",
+                        "Perlica",
+                    ],
+                    "find_stop": "GiftOperatorApproachStop",
+                }
+            ],
+        )
+
+    def test_does_not_merge_same_coordinate_with_different_find_specs(self) -> None:
+        first = make_point(ActionType.FIND)
+        first["find_target"] = "NodeA"
+        first["find_stop"] = "StopNode"
+        second = make_point(ActionType.FIND)
+        second["find_target"] = "NodeB"
+        second["find_stop"] = "StopNode"
+
+        self.assertEqual(len(normalize_path_points([first, second])), 2)
+
     def test_exports_required_recorded_action_as_object(self) -> None:
         nodes = export_path_nodes([make_point(ActionType.TRANSFER, required=True)])
 

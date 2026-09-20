@@ -108,6 +108,28 @@ struct DynamicRecoveryState
     }
 };
 
+// FIND 的进度。按点计: 推进点位或重开导航就清
+struct FindState
+{
+    std::chrono::steady_clock::time_point started_at {};
+    int32_t steps = 0;
+    // 连续漏认的拍数, 见 kFindMissGraceTicks
+    int32_t miss_streak = 0;
+    // 没见过目标时的搜索方向 (±1)
+    int32_t search_sign = 1;
+    // 上次看到目标时框中心在中线哪一侧 (+1 右 / -1 左 / 0 没见过), 搜索第一步朝这边转
+    int32_t last_seen_side = 0;
+
+    void Reset()
+    {
+        started_at = {};
+        steps = 0;
+        miss_streak = 0;
+        search_sign = 1;
+        last_seen_side = 0;
+    }
+};
+
 // Recovery ladder position (device removal -> jump -> navmesh detour -> physical unstick), keyed on the
 // corridor anchor the agent is stuck against. Top-level so a dynamic replan, which renumbers the path and
 // clears the DynamicRecoveryState episode, cannot rewind it; cleared only by a genuine escape, a waypoint
@@ -357,6 +379,8 @@ struct NavigationRuntimeState
     SteeringRateState steering_rate;
     OffRouteWedgeState offroute;
     CrossTierEscapeState cross_tier_escape;
+    // FIND 的进度。按点计: 推进点位或重开导航就清, 步数预算与开始时刻都只属于当前这个 FIND 点
+    FindState find;
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
     // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
     ZiplineApproachState zipline_approach;
@@ -401,6 +425,7 @@ struct NavigationRuntimeState
         cross_tier_escape.Reset();
         zipline_approach.Reset();
         zipline_recovery.Reset();
+        find.Reset();
         zipline_ride.ResetNavigation();
         virtual_no_go.clear();
         progress_identity.Reset();
@@ -421,6 +446,7 @@ struct NavigationRuntimeState
         bypass.Reset();
         offroute.Reset();
         zipline_recovery.Reset();
+        find.Reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;
         nav_run_dirty = true;

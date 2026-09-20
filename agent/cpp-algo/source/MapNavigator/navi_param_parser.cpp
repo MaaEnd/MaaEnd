@@ -312,6 +312,60 @@ bool read_interact_spec(const json::value& input, NaviInteractSpec& out_spec)
     return true;
 }
 
+// FIND 的目标来源与停止判据, 与 interact_* 同一套: 点上与路线顶层共用一次解析, 点上优先
+struct NaviFindInput
+{
+    std::string find_target_;
+    std::string findTarget_;
+    NaviTextListInput find_text_;
+    NaviTextListInput findText_;
+    std::string find_stop_;
+    std::string findStop_;
+
+    MEO_FROMJSON(
+        MEO_OPT MEO_KEY("find_target") find_target_,
+        MEO_OPT MEO_KEY("findTarget") findTarget_,
+        MEO_OPT MEO_KEY("find_text") find_text_,
+        MEO_OPT MEO_KEY("findText") findText_,
+        MEO_OPT MEO_KEY("find_stop") find_stop_,
+        MEO_OPT MEO_KEY("findStop") findStop_)
+
+    const std::string& target() const { return find_target_.empty() ? findTarget_ : find_target_; }
+
+    const NaviTextListInput& text() const { return find_text_.empty() ? findText_ : find_text_; }
+
+    const std::string& stop() const { return find_stop_.empty() ? findStop_ : find_stop_; }
+};
+
+struct NaviFindSpec
+{
+    // 目标识别节点; find_text 写 { "node": ... } 时与 find_target 同义
+    std::string target_node;
+    // 内联 OCR 文本表
+    std::vector<std::string> texts;
+    // 命中即算到位
+    std::string stop_node;
+    // find_target 与内联文字同时写了, 直接拒绝
+    bool conflicting_source = false;
+
+    bool hasTargetSource() const { return !target_node.empty() || !texts.empty(); }
+};
+
+bool read_find_spec(const json::value& input, NaviFindSpec& out_spec)
+{
+    NaviFindInput flat;
+    if (!flat.from_json(input)) {
+        return false;
+    }
+
+    const NaviTextListInput& text = flat.text();
+    out_spec.target_node = flat.target().empty() ? text.node_ : flat.target();
+    out_spec.texts = text.texts_;
+    out_spec.stop_node = flat.stop();
+    out_spec.conflicting_source = !flat.target().empty() && (!text.texts_.empty() || !text.node_.empty());
+    return true;
+}
+
 struct NaviWaypointInput
 {
     double x_ = 0.0;
@@ -323,6 +377,10 @@ struct NaviWaypointInput
     std::string interact_text_node_;
     std::string interact_scan_;
     bool interact_rec_ = false;
+    std::string find_target_;
+    std::vector<std::string> find_text_;
+    std::string find_stop_;
+    bool find_source_conflict_ = false;
     std::optional<double> target_deck_y_;
     bool strict_arrival_ = false;
     bool required_ = false;
@@ -370,7 +428,12 @@ struct NaviWaypointInput
             return false;
         }
 
-        fromObject(object_input, interact_spec);
+        NaviFindSpec find_spec;
+        if (!read_find_spec(input, find_spec)) {
+            return false;
+        }
+
+        fromObject(object_input, interact_spec, find_spec);
         return true;
     }
 
@@ -411,7 +474,10 @@ private:
         return true;
     }
 
-    void fromObject(const NaviWaypointObjectInput& object_input, const NaviInteractSpec& interact_spec)
+    void fromObject(
+        const NaviWaypointObjectInput& object_input,
+        const NaviInteractSpec& interact_spec,
+        const NaviFindSpec& find_spec)
     {
         appendActions(object_input.action_);
         appendActions(object_input.actions_);
@@ -422,6 +488,10 @@ private:
         interact_text_node_ = interact_spec.text_node;
         interact_scan_ = interact_spec.scan;
         interact_rec_ = interact_spec.rec;
+        find_target_ = find_spec.target_node;
+        find_text_ = find_spec.texts;
+        find_stop_ = find_spec.stop_node;
+        find_source_conflict_ = find_spec.conflicting_source;
         target_deck_y_ = resolveTargetDeckY(object_input);
         strict_arrival_ = resolveStrictArrival(object_input);
         required_ = object_input.required_;
@@ -753,6 +823,70 @@ void apply_interact_rec(bool interact_rec, std::vector<Waypoint>& waypoints, siz
     }
 }
 
+// Fill FIND points in [from_index, end) that carry no target source of their own: expanded points are built
+// from the coordinate, not from the object.
+void apply_find_fields(const NaviWaypointInput& input, std::vector<Waypoint>& waypoints, size_t from_index)
+{
+    if (input.find_target_.empty() && input.find_text_.empty() && input.find_stop_.empty()) {
+        return;
+    }
+    for (size_t index = from_index; index < waypoints.size(); ++index) {
+        Waypoint& waypoint = waypoints[index];
+        if (waypoint.action != ActionType::FIND) {
+            continue;
+        }
+        if (waypoint.find_target.empty() && waypoint.find_text.empty()) {
+            waypoint.find_target = input.find_target_;
+            waypoint.find_text = input.find_text_;
+        }
+        if (waypoint.find_stop.empty()) {
+            waypoint.find_stop = input.find_stop_;
+        }
+    }
+}
+
+// 路线级默认: 只补给自己没写的 FIND 点
+void apply_find_defaults(const NaviFindSpec& route_find, std::vector<Waypoint>& waypoints, size_t from_index)
+{
+    if (!route_find.hasTargetSource() && route_find.stop_node.empty()) {
+        return;
+    }
+    for (size_t index = from_index; index < waypoints.size(); ++index) {
+        Waypoint& waypoint = waypoints[index];
+        if (waypoint.action != ActionType::FIND) {
+            continue;
+        }
+        if (waypoint.find_target.empty() && waypoint.find_text.empty()) {
+            waypoint.find_target = route_find.target_node;
+            waypoint.find_text = route_find.texts;
+        }
+        if (waypoint.find_stop.empty()) {
+            waypoint.find_stop = route_find.stop_node;
+        }
+    }
+}
+
+// 缺目标或停止判据的 FIND 点执行不了, 在解析期拒掉整条路线; 跑在默认值落位之后, 所以只有真没人写才报
+bool validate_find_points(const std::vector<Waypoint>& waypoints)
+{
+    bool ok = true;
+    for (size_t index = 0; index < waypoints.size(); ++index) {
+        const Waypoint& waypoint = waypoints[index];
+        if (waypoint.action != ActionType::FIND) {
+            continue;
+        }
+        if (waypoint.find_target.empty() && waypoint.find_text.empty()) {
+            LogError << "FIND waypoint has neither find_target nor find_text; nothing to look for." << VAR(index);
+            ok = false;
+        }
+        if (waypoint.find_stop.empty()) {
+            LogError << "FIND waypoint has no find_stop; there is no way to tell it arrived." << VAR(index);
+            ok = false;
+        }
+    }
+    return ok;
+}
+
 // Runs after the route-wide defaults land, so a point holding only the scan node is not flagged. The pre-filter
 // only decides when to stop; with no text there is nothing to confirm, so the point falls back to plain INTERACT.
 void warn_scan_without_text(const std::vector<Waypoint>& waypoints)
@@ -785,9 +919,47 @@ void warn_unusable_interact_fields(const NaviWaypointInput& input)
             << VAR(input.interact_text_node_) << VAR(input.interact_scan_) << VAR(input.interact_rec_);
 }
 
+// 与 interact 那份同理: 缺的是动作本身, 说一句比丢掉好
+void warn_unusable_find_fields(const NaviWaypointInput& input)
+{
+    if (input.find_target_.empty() && input.find_text_.empty() && input.find_stop_.empty()) {
+        return;
+    }
+    if (std::find(input.actions_.begin(), input.actions_.end(), ActionType::FIND) != input.actions_.end()) {
+        return;
+    }
+    LogWarn << "Waypoint carries find fields without a FIND action; they do nothing here." << VAR(input.find_target_)
+            << VAR(input.find_text_.size()) << VAR(input.find_stop_);
+}
+
+// 只有它真是 FIND 点时冲突才值得拒掉整条路线, 写在别的动作上降级成告警
+bool reject_conflicting_find_fields(const NaviWaypointInput& input)
+{
+    if (!input.find_source_conflict_) {
+        return true;
+    }
+    if (std::find(input.actions_.begin(), input.actions_.end(), ActionType::FIND) == input.actions_.end()) {
+        LogWarn << "Waypoint carries both find_target and find_text without a FIND action; they do nothing here."
+                << VAR(input.find_target_) << VAR(input.find_text_.size());
+        return true;
+    }
+    LogError << "FIND waypoint sets both find_target and find_text; they are two ways to say what to look for."
+             << VAR(input.find_target_) << VAR(input.find_text_.size());
+    return false;
+}
+
+bool has_find_points(const std::vector<Waypoint>& waypoints)
+{
+    return std::any_of(waypoints.begin(), waypoints.end(), [](const Waypoint& waypoint) { return waypoint.action == ActionType::FIND; });
+}
+
 bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint>& out_waypoints, std::string& zone_context)
 {
     warn_unusable_interact_fields(input);
+    warn_unusable_find_fields(input);
+    if (!reject_conflicting_find_fields(input)) {
+        return false;
+    }
     const std::string zone_id = resolve_waypoint_zone_id(input, zone_context);
     const ActionType primary_action = input.actions_.empty() ? ActionType::RUN : input.actions_.front();
 
@@ -838,6 +1010,43 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         return true;
     }
 
+    // 单独一个 FIND 在这里分流 (不带坐标的控制节点通用展开写不出来), 一条坐标挂多个动作时仍走通用展开
+    if (primary_action == ActionType::FIND && input.actions_.size() <= 1) {
+        // 带坐标 = 先走到锚点再找; 不带坐标 = 走到该位置就地开找
+        const bool has_legacy_position = input.has_x_ && input.has_y_;
+        if (!input.has_target_ && !has_legacy_position) {
+            Waypoint find_waypoint;
+            find_waypoint.action = ActionType::FIND;
+            find_waypoint.has_position = false;
+            find_waypoint.strict_arrival = false;
+            find_waypoint.zone_id = zone_id;
+            find_waypoint.find_target = input.find_target_;
+            find_waypoint.find_text = input.find_text_;
+            find_waypoint.find_stop = input.find_stop_;
+            find_waypoint.route_required = input.required_;
+            out_waypoints.push_back(std::move(find_waypoint));
+            return true;
+        }
+
+        const double target_x = input.has_target_ ? input.target_.at(0) : input.x_;
+        const double target_y = input.has_target_ ? input.target_.at(1) : input.y_;
+        Waypoint find_waypoint(target_x, target_y, ActionType::FIND);
+        find_waypoint.zone_id = zone_id;
+        find_waypoint.target_tier = input.target_tier_;
+        find_waypoint.target_deck_y = input.target_deck_y_;
+        find_waypoint.strict_arrival = input.strict_arrival_;
+        find_waypoint.authored_strict_arrival = input.strict_arrival_;
+        find_waypoint.route_required = input.required_;
+        find_waypoint.find_target = input.find_target_;
+        find_waypoint.find_text = input.find_text_;
+        find_waypoint.find_stop = input.find_stop_;
+        out_waypoints.push_back(std::move(find_waypoint));
+        if (!zone_id.empty()) {
+            zone_context = zone_id;
+        }
+        return true;
+    }
+
     const bool has_legacy_position = input.has_x_ && input.has_y_;
     // No target_tier -> the target stays base-pixel (legacy), same as the bare-array form; see expander.
     if (has_legacy_position || input.has_target_) {
@@ -857,6 +1066,8 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         apply_interact_text(input.interact_text_, input.interact_text_node_, out_waypoints, first_expanded);
         apply_interact_scan(input.interact_scan_, out_waypoints, first_expanded);
         apply_interact_rec(input.interact_rec_, out_waypoints, first_expanded);
+        // 数组形 [x, y, "FIND"] 会走到这里: 坐标有了, 找什么仍要由点上或路线顶层的 find_* 补
+        apply_find_fields(input, out_waypoints, first_expanded);
         if (!zone_id.empty()) {
             zone_context = zone_id;
         }
@@ -912,6 +1123,12 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
         return false;
     }
 
+    NaviFindSpec route_find;
+    if (!read_find_spec(custom_action_param, route_find)) {
+        LogError << "Failed to deserialize " << caller_name_text << " find defaults." << VAR(custom_action_param);
+        return false;
+    }
+
     NaviParam param = build_navi_param(input);
     std::string zone_context = param.map_name;
 
@@ -932,6 +1149,20 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
     apply_interact_scan(route_interact.scan, param.path, 0);
     apply_interact_rec(route_interact.rec, param.path, 0);
     warn_scan_without_text(param.path);
+    apply_find_defaults(route_find, param.path, 0);
+    // 路线级冲突只有在真喂到某个 FIND 点上时才成立
+    if (route_find.conflicting_source) {
+        if (has_find_points(param.path)) {
+            LogError << "Route sets both find_target and find_text; they are two ways to say what to look for."
+                     << VAR(caller_name_text) << VAR(route_find.target_node) << VAR(route_find.texts.size());
+            return false;
+        }
+        LogWarn << "Route sets both find_target and find_text but carries no FIND point; they do nothing here."
+                << VAR(caller_name_text) << VAR(route_find.target_node) << VAR(route_find.texts.size());
+    }
+    if (!validate_find_points(param.path)) {
+        return false;
+    }
 
     out_param = std::move(param);
     return true;

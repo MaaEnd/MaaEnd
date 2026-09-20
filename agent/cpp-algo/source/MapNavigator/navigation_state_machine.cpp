@@ -510,7 +510,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     case NaviPhase::Navigate:
         return TickNavigate();
     case NaviPhase::WaitTransfer:
-    case NaviPhase::WaitZipline: {
+    case NaviPhase::WaitZipline:
+    case NaviPhase::WaitFind: {
         const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(
             BuildSemanticContext(
                 action_wrapper_,
@@ -531,6 +532,7 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     case NaviPhase::Failed:
         return true;
     }
+    LogError << "Unhandled navigation phase." << VAR(static_cast<int>(phase));
     return false;
 }
 
@@ -2195,6 +2197,12 @@ void NavigationStateMachine::UpdatePromptSprintSuppression()
 // motion is confirmed; its arrival gate still requires actual movement before digging.
 void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
 {
+    // FIND 的接近段一律走路: 脉冲长短是按框的高低估出来的, 跑起来一步就冲过去了
+    if (phase == NaviPhase::WaitFind) {
+        walk_mode_.Request(true);
+        return;
+    }
+
     PromptDistance nearest = NearestPromptDistance();
     const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
     const bool has_waypoint = session_->HasCurrentWaypoint();

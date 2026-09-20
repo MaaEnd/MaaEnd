@@ -37,6 +37,9 @@ class PathPoint(TypedDict):
     required: NotRequired[bool]
     target_tier: NotRequired[str]
     target_deck_y: NotRequired[float]
+    find_target: NotRequired[str]
+    find_text: NotRequired[list[str]]
+    find_stop: NotRequired[str]
     auto_portal: NotRequired[bool]
     suppress_auto_portal: NotRequired[bool]
 
@@ -55,6 +58,7 @@ class ActionType(IntEnum):
     COLLECT = 7
     DIG = 8
     NAVMESH = 9
+    FIND = 10
 
 
 ACTION_COLORS: dict[int, str] = {
@@ -69,6 +73,7 @@ ACTION_COLORS: dict[int, str] = {
     ActionType.COLLECT: "#22d3ee",
     ActionType.DIG: "#a16207",
     ActionType.NAVMESH: "#14b8a6",
+    ActionType.FIND: "#e11d48",
 }
 
 ACTION_NAMES: dict[int, str] = {
@@ -83,6 +88,7 @@ ACTION_NAMES: dict[int, str] = {
     ActionType.COLLECT: "Collect",
     ActionType.DIG: "Dig",
     ActionType.NAVMESH: "Navmesh",
+    ActionType.FIND: "Find",
 }
 
 ACTION_TOKENS: dict[int, str] = {
@@ -96,6 +102,7 @@ ACTION_TOKENS: dict[int, str] = {
     ActionType.COLLECT: "COLLECT",
     ActionType.DIG: "DIG",
     ActionType.NAVMESH: "NAVMESH",
+    ActionType.FIND: "FIND",
 }
 
 ACTION_NAME_LOOKUP: dict[str, int] = {
@@ -110,6 +117,7 @@ ACTION_NAME_LOOKUP: dict[str, int] = {
     "COLLECT": int(ActionType.COLLECT),
     "DIG": int(ActionType.DIG),
     "NAVMESH": int(ActionType.NAVMESH),
+    "FIND": int(ActionType.FIND),
 }
 ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.RUN,
@@ -122,6 +130,7 @@ ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.COLLECT,
     ActionType.DIG,
     ActionType.NAVMESH,
+    ActionType.FIND,
 )
 ACTION_MENU_NAMES: tuple[str, ...] = tuple(ACTION_NAMES[action_type] for action_type in ACTION_MENU_TYPES)
 INVALID_ZONE_IDS = {"NONE", "NULL", "N/A"}
@@ -240,6 +249,44 @@ def export_action_token(value: object) -> str:
     return ACTION_TOKENS.get(coerce_action_type(value), "RUN")
 
 
+def coerce_find_text(value: object) -> list[str]:
+    """find_text 只认非空字符串表：单个字符串按一项处理，其他形状一律当没写。"""
+    if isinstance(value, str):
+        text = value.strip()
+        return [text] if text else []
+    if not isinstance(value, list):
+        return []
+    texts: list[str] = []
+    for item in value:
+        if not isinstance(item, str):
+            return []
+        text = item.strip()
+        if not text:
+            return []
+        texts.append(text)
+    return texts
+
+
+def find_fields_of(point: "PathPoint") -> dict[str, object]:
+    """FIND 点要带出去的三个字段，任何一个没写就整个不出现在导出结果里。"""
+    fields: dict[str, object] = {}
+    target = str(point.get("find_target", "") or "").strip()
+    if target:
+        fields["find_target"] = target
+    texts = coerce_find_text(point.get("find_text"))
+    if texts:
+        fields["find_text"] = texts
+    stop = str(point.get("find_stop", "") or "").strip()
+    if stop:
+        fields["find_stop"] = stop
+    return fields
+
+
+def _apply_find_fields(point: PathPoint, normalized: PathPoint) -> None:
+    for key, value in find_fields_of(point).items():
+        normalized[key] = value  # type: ignore[literal-required]
+
+
 def _sync_portal_flags(point: PathPoint) -> None:
     if bool(point.get("auto_portal")) and get_point_actions(point) == [int(ActionType.PORTAL)]:
         point["auto_portal"] = True
@@ -286,6 +333,7 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
                     normalized_point["target_deck_y"] = normalized_deck_y
         if bool(point.get("required")):
             normalized_point["required"] = True
+        _apply_find_fields(point, normalized_point)
         if bool(point.get("auto_portal")):
             normalized_point["auto_portal"] = True
         if bool(point.get("suppress_auto_portal")):
@@ -333,6 +381,7 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
             and bool(merged[-1].get("required")) == bool(point.get("required"))
             and merged[-1].get("target_tier", "") == point.get("target_tier", "")
             and merged[-1].get("target_deck_y") == point.get("target_deck_y")
+            and find_fields_of(merged[-1]) == find_fields_of(point)
         ):
             merged_auto_portal = bool(merged[-1].get("auto_portal")) or bool(point.get("auto_portal"))
             merged_suppressed = bool(merged[-1].get("suppress_auto_portal")) or bool(point.get("suppress_auto_portal"))

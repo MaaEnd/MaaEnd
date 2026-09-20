@@ -10,6 +10,7 @@
 
 #include "action_wrapper.h"
 #include "async_prompt_action.h"
+#include "find_action.h"
 #include "motion_controller.h"
 #include "navi_config.h"
 #include "navi_math.h"
@@ -558,6 +559,9 @@ Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
     if (phase == NaviPhase::WaitZipline) {
         return TickZiplineRide(ctx);
     }
+    if (phase == NaviPhase::WaitFind) {
+        return TickFindTarget(ctx);
+    }
     if (ctx.runtime_state->semantic.portal_transit_active) {
         return TickPortalTransit(ctx);
     }
@@ -582,6 +586,12 @@ Result ConsumeInlineSemantics(const Context& ctx)
         return heading_result;
     }
 
+    // 无坐标的 FIND 在这里接手: 刹停、切相位, 剩下的每一拍交给 TickFindTarget
+    Result find_result = ConsumeFindNodes(ctx);
+    if (find_result.consumed) {
+        return find_result;
+    }
+
     if (ctx.session->HasCurrentWaypoint() && ctx.session->CurrentWaypoint().IsZoneDeclaration()) {
         ctx.motion_controller->SetForwardState(true);
         result.consumed = true;
@@ -592,9 +602,6 @@ Result ConsumeInlineSemantics(const Context& ctx)
     return result;
 }
 
-namespace
-{
-
 // 到点后的公共收尾: 记账、推进、按下一个点选相位
 Result CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason)
 {
@@ -604,6 +611,9 @@ Result CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::
     SelectPhaseForCurrentWaypoint(ctx, reason);
     return { .consumed = true, .stay_in_current_tick = true };
 }
+
+namespace
+{
 
 Result ArriveTransfer(const Context& ctx, const std::optional<size_t>& node_idx, double actual_distance)
 {
@@ -719,6 +729,8 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
         return StartZiplineHop(ctx, waypoint, actual_distance);
     case ActionType::DIG:
         return ArriveDig(ctx, waypoint, node_idx, actual_distance);
+    case ActionType::FIND:
+        return ArriveFind(ctx, waypoint, actual_distance);
     case ActionType::INTERACT:
         return ArriveInteract(ctx, waypoint, node_idx, actual_distance);
     case ActionType::SPRINT:

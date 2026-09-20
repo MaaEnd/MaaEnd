@@ -20,6 +20,8 @@ struct AdbTouchTurnProfile
     double default_units_per_degree = 5.0;
     int32_t swipe_duration_ms = 70;
     int32_t post_swipe_settle_ms = 0;
+    // 移动指令之后这段时间里的转向会被游戏吞掉: 摇杆状态刚变, 视角拖动还没被受理
+    int32_t action_quiet_period_ms = 60;
 };
 
 inline constexpr AdbTouchTurnProfile kAdbTouchTurnProfile {};
@@ -469,5 +471,31 @@ constexpr int32_t kRecoveryDeviceAttempts = 1;
 constexpr const char* kDefaultDigEntry = "AutoCollectDigStart";
 constexpr const char* kDigPipelineOverride = R"({"AutoCollectDigEnd":{"next":[]}})";
 constexpr int32_t kDigPostSleepMs = 80;
+
+// --- FIND: 按识别框接近目标 ---
+// 内联文本 (find_text) 走这个内置 OCR 节点: 每趟注入 expected 后按帧调用, 从不派发
+constexpr const char* kFindInlineOcrNode = "MapNavigatorFind";
+// 原地搜索每步转过的视角, 一圈 12 步
+constexpr double kFindSearchStepDeg = 30.0;
+// 连续漏认这么多拍才转去搜索: 遮挡一两帧就把刚对准的镜头甩走, 下一拍还要转回来
+constexpr int32_t kFindMissGraceTicks = 3;
+// 框中心离画面中线进这个容差就只前进不转视角 (1280 基准帧像素)
+constexpr int32_t kFindAlignTolerancePx = 80;
+// 框中心掉到这条线以下算走过了, 退一步; 480/720 即画面下三分之一
+constexpr double kFindPassedCenterYRatio = 0.667;
+// 前进脉冲基准时长; 框越靠上离得越远, 按 far factor 插值到下面这个倍率
+constexpr int32_t kFindForwardPulseMs = 250;
+constexpr double kFindFarPulseScaleMax = 1.3;
+// 走过头退一步的时长, 只求把框拉回中线以下
+constexpr int32_t kFindBackwardPulseMs = 200;
+// 转向增益: 偏移换算成角度是线性化的, 打满会转过头
+constexpr double kFindSteerGain = 0.33;
+// 每步末尾的节流, 同时充当下一步转向的静默期 (短于后端 quiet period 会被上一条移动指令吞掉)
+constexpr int32_t kFindStepSleepMs = 120;
+// 预算, 步数与时长任一用尽即判该点失败
+constexpr int32_t kFindMaxSteps = 48;
+constexpr int32_t kFindBudgetMs = 60000;
+static_assert(kFindStepSleepMs > kAdbTouchTurnProfile.action_quiet_period_ms, "find pacing must outlast the steering quiet period");
+static_assert(kFindFarPulseScaleMax >= 1.0, "find far pulse scale must stretch, not shrink");
 
 } // namespace mapnavigator
