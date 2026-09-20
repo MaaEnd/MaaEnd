@@ -75,16 +75,17 @@ func buildResetSwipeOverride(direction string, enabled bool) (map[string]any, er
 	}, nil
 }
 
+// buildMainInitializationOverride 把参数补丁落到各自 Helper 节点：
+// 补丁只写 recognition.param，不写 type，框架按「同类型继承」保留原节点类型与未提及字段。
+// 空补丁表示该参数未配置，不产生 override。
 func buildMainInitializationOverride(
 	end []int,
-	sliderQuantityBox []int,
-	availableQuantityBox []int,
+	swipeButtonPatch map[string]any,
+	sliderQuantityPatch map[string]any,
+	sliderQuantityFilterPatch map[string]any,
+	availableQuantityPatch map[string]any,
+	availableQuantityFilterPatch map[string]any,
 	availableQuantityExplicit bool,
-	sliderQuantityFilter *quantityFilterParam,
-	availableQuantityFilter *quantityFilterParam,
-	sliderQuantityOnlyRec bool,
-	availableQuantityOnlyRec bool,
-	swipeButton string,
 ) map[string]any {
 	override := map[string]any{
 		nodeBetterSlidingSwipeToMax: map[string]any{
@@ -99,66 +100,26 @@ func buildMainInitializationOverride(
 		},
 	}
 
-	if swipeButton != "" {
-		override[nodeBetterSlidingSwipeButton] = map[string]any{
-			"recognition": map[string]any{
-				"param": map[string]any{
-					"template":   []string{swipeButton},
-					"green_mask": defaultGreenMask,
-				},
-			},
-		}
+	if len(swipeButtonPatch) > 0 {
+		override[nodeBetterSlidingSwipeButton] = buildRecognitionParamOverride(swipeButtonPatch)
 	}
 
-	if len(sliderQuantityBox) == 0 {
-		return override
+	if len(sliderQuantityFilterPatch) > 0 {
+		override[nodeBetterSlidingSliderQuantityFilter] = buildRecognitionParamOverride(sliderQuantityFilterPatch)
 	}
 
-	sliderQuantityParam := map[string]any{
-		"roi":      append([]int(nil), sliderQuantityBox...),
-		"only_rec": sliderQuantityOnlyRec,
-	}
-	if sliderQuantityFilter != nil {
-		sliderQuantityParam["color_filter"] = nodeBetterSlidingSliderQuantityFilter
-		override[nodeBetterSlidingSliderQuantityFilter] = map[string]any{
-			"recognition": map[string]any{
-				"param": map[string]any{
-					"method": sliderQuantityFilter.Method,
-					"lower":  [][]int{append([]int(nil), sliderQuantityFilter.Lower...)},
-					"upper":  [][]int{append([]int(nil), sliderQuantityFilter.Upper...)},
-				},
-			},
-		}
+	if len(sliderQuantityPatch) > 0 {
+		override[nodeBetterSlidingGetSliderQuantity] = buildRecognitionParamOverride(sliderQuantityPatch)
 	}
 
-	override[nodeBetterSlidingGetSliderQuantity] = map[string]any{
-		"recognition": map[string]any{
-			"param": sliderQuantityParam,
-		},
+	if len(availableQuantityFilterPatch) > 0 {
+		override[nodeBetterSlidingAvailableQuantityFilter] = buildRecognitionParamOverride(availableQuantityFilterPatch)
 	}
 
 	if availableQuantityExplicit {
-		availableQuantityParam := map[string]any{
-			"roi":      append([]int(nil), availableQuantityBox...),
-			"only_rec": availableQuantityOnlyRec,
-		}
-		if availableQuantityFilter != nil {
-			availableQuantityParam["color_filter"] = nodeBetterSlidingAvailableQuantityFilter
-			override[nodeBetterSlidingAvailableQuantityFilter] = map[string]any{
-				"recognition": map[string]any{
-					"param": map[string]any{
-						"method": availableQuantityFilter.Method,
-						"lower":  [][]int{append([]int(nil), availableQuantityFilter.Lower...)},
-						"upper":  [][]int{append([]int(nil), availableQuantityFilter.Upper...)},
-					},
-				},
-			}
-		}
 		override[nodeBetterSlidingGetAvailableQuantity] = map[string]any{
-			"enabled": true,
-			"recognition": map[string]any{
-				"param": availableQuantityParam,
-			},
+			"enabled":     true,
+			"recognition": map[string]any{"param": availableQuantityPatch},
 		}
 	} else {
 		override[nodeBetterSlidingGetAvailableQuantity] = map[string]any{
@@ -167,6 +128,14 @@ func buildMainInitializationOverride(
 	}
 
 	return override
+}
+
+func buildRecognitionParamOverride(patch map[string]any) map[string]any {
+	return map[string]any{
+		"recognition": map[string]any{
+			"param": patch,
+		},
+	}
 }
 
 func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int) map[string]any {
@@ -178,9 +147,9 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 
 	repeat = clampClickRepeat(repeat)
 
-	if target.template != "" {
+	if len(target.patch) > 0 {
 		helperNode := resolveButtonHelperNode(nextNode)
-		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.template)
+		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.patch)
 		override[nextNode] = buildTemplateMatchButtonOverride(helperNode, repeat)
 		return override
 	}
@@ -229,13 +198,12 @@ func buildNodeEnableOverride(nodeName string, enabled bool) map[string]any {
 	}
 }
 
-func buildTemplateMatchButtonHelperOverride(template string) map[string]any {
+// buildTemplateMatchButtonHelperOverride 把按钮识别参数补丁落到 Helper 节点。
+// green_mask 由调用方在 normalize 阶段注入，这里只透传补丁本身。
+func buildTemplateMatchButtonHelperOverride(patch map[string]any) map[string]any {
 	return map[string]any{
 		"recognition": map[string]any{
-			"param": map[string]any{
-				"template":   []string{template},
-				"green_mask": defaultGreenMask,
-			},
+			"param": patch,
 		},
 	}
 }
