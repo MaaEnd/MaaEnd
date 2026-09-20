@@ -330,6 +330,7 @@
     },
     "__AccountSwitchClickLogin": {
         "desc": "点击登录按钮",
+        "timeout": 30000,
         "recognition": {
             "type": "OCR",
             "param": {
