@@ -9,6 +9,9 @@
                 "SharedZiplineDeleteWuling"
             ],
             "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
                 "Win32-Front"
             ],
             "group": [
