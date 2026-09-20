@@ -131,7 +131,7 @@ constexpr double kLegacyStructureWeight = 0.65;
 constexpr double kLegacyRarityWeight = 0.35;
 // transfer 的弱 rarity 拟合必须包含彩色证据才可接管结构相位；灰色背景不能单独改写网格。
 constexpr int kMinimumReliableRarityCells = 1;
-// 左侧灰色 rarity 条只有与同格前景纹理同时出现才可决定相位；至少需要两个物品避免单条背景线误触发。
+// 灰色 rarity 条只有与物品前景纹理同时出现才可决定相位；至少需要两个物品避免单条背景线误触发。
 constexpr int kMinimumGrayRarityTextureCells = 2;
 // 补行所需的最低结构支持相对已有行均值比例；调高减少补行，调低可能扩展到空白行。
 constexpr double kRowCompletionSupportRatio = 0.04;
@@ -2096,7 +2096,8 @@ GridLayout BuildTransferLayout(
     if (!empty_grid_selected) {
         trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
         rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
-        const bool gray_rarity_fit = transfer && left_side && rarity_fit.has_value() && rarity_fit->supporting_strong_cells == 0
+        // 满背包同类灰色物品的重复纹理可能比格框更强；有前景支持的灰条也应约束右侧相位。
+        const bool gray_rarity_fit = transfer && rarity_fit.has_value() && rarity_fit->supporting_strong_cells == 0
                                      && rarity_fit->supporting_chromatic_cells == 0
                                      && rarity_fit->supporting_cells >= kMinimumGrayRarityTextureCells
                                      && HasGrayRarityTextureSupport(image, roi, *rarity_fit, profile, hint.y_starts, texture_context);
