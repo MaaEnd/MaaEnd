@@ -120,7 +120,7 @@ bool ReachedArrivePoint(const Context& ctx, const Waypoint& waypoint)
     if (!waypoint.find_arrive.has_value()) {
         return false;
     }
-    if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id()) || ctx.position_provider->LastCaptureWasHeld()
+    if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
         || ctx.position_provider->LastCaptureWasBlackScreen()) {
         return false; // 读不到就这一拍不算数, 下一步再读
     }
