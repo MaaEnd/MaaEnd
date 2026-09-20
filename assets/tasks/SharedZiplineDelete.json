@@ -4,7 +4,6 @@
             "name": "SharedZiplineDelete",
             "label": "$task.SharedZiplineDelete.label",
             "entry": "SharedZiplineDeleteMain",
-            "description": "$task.SharedZiplineDelete.description",
             "option": [
                 "SharedZiplineDeleteValleyIV",
                 "SharedZiplineDeleteWuling"
@@ -27,7 +26,12 @@
                     "name": "Yes",
                     "option": [
                         "SharedZiplineDeleteValleyIVRegions"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "SharedZiplineDeleteBootstrapValleyIV": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No"
@@ -111,7 +115,12 @@
                     "name": "Yes",
                     "option": [
                         "SharedZiplineDeleteWulingRegions"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "SharedZiplineDeleteBootstrapWuling": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No"

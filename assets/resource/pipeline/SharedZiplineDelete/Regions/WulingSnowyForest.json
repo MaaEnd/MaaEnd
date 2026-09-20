@@ -1,31 +1,31 @@
 {
-    // 枢纽区 ValleyIV TheHub：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
-    // 锚点来自 LevelMapMark mark_sp_campfire，map01base 投影（原点左上、y 向下）
-    //   2100010282 → [591.1, 660.8]
-    //   2100000086 → [528.0, 695.1]  岩丘通道
-    //   2100000284 → [635.7, 900.1]
-    //   2100000031 → [452.4, 910.3]  旧供水设施东侧
-    //   2100000073 → [713.2, 965.6]
-    //   2100000322 → [612.8, 968.1]
-    //   2100000093 → [373.5, 984.6]
-    "SharedZiplineDeletePrepareValleyIVTheHub": {
+    // 雪松林 Wuling SnowyForest：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   36100010006 → [1366.2, 985.2]
+    //   36100010460 → [1413.8, 991.0]
+    //   36100010007 → [1510.7, 988.0]
+    //   36100010365 → [1594.2, 931.9]
+    //   36100010474 → [1599.6, 991.3]
+    //   36100010458 → [1597.0, 1073.1]
+    //   36100010467 → [1721.7, 992.5]
+    "SharedZiplineDeletePrepareWulingSnowyForest": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]SharedZiplineDeleteFilterOpen",
             "[JumpBack]SceneMapZoomOut",
-            "SharedZiplineDeleteVisitValleyIVTheHub0"
+            "SharedZiplineDeleteVisitWulingSnowyForest0"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub0": {
-        "desc": "枢纽区锚点 markInstId=2100010282",
+    "SharedZiplineDeleteVisitWulingSnowyForest0": {
+        "desc": "雪松林锚点 markInstId=36100010006",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                591.1,
-                660.8
+                1366.2,
+                985.2
             ]
         },
         "action": "Click",
@@ -41,19 +41,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub1"
+            "SharedZiplineDeleteVisitWulingSnowyForest1"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub1": {
-        "desc": "枢纽区锚点 markInstId=2100000086",
+    "SharedZiplineDeleteVisitWulingSnowyForest1": {
+        "desc": "雪松林锚点 markInstId=36100010460",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                528.0,
-                695.1
+                1413.8,
+                991.0
             ]
         },
         "action": "Click",
@@ -69,19 +69,20 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub2"
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteVisitWulingSnowyForest2"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub2": {
-        "desc": "枢纽区锚点 markInstId=2100000284",
+    "SharedZiplineDeleteVisitWulingSnowyForest2": {
+        "desc": "雪松林锚点 markInstId=36100010007",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                635.7,
-                900.1
+                1510.7,
+                988.0
             ]
         },
         "action": "Click",
@@ -97,19 +98,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub3"
+            "SharedZiplineDeleteVisitWulingSnowyForest3"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub3": {
-        "desc": "枢纽区锚点 markInstId=2100000031",
+    "SharedZiplineDeleteVisitWulingSnowyForest3": {
+        "desc": "雪松林锚点 markInstId=36100010365",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                452.4,
-                910.3
+                1594.2,
+                931.9
             ]
         },
         "action": "Click",
@@ -125,19 +126,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub4"
+            "SharedZiplineDeleteVisitWulingSnowyForest4"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub4": {
-        "desc": "枢纽区锚点 markInstId=2100000073",
+    "SharedZiplineDeleteVisitWulingSnowyForest4": {
+        "desc": "雪松林锚点 markInstId=36100010474",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                713.2,
-                965.6
+                1599.6,
+                991.3
             ]
         },
         "action": "Click",
@@ -153,19 +154,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub5"
+            "SharedZiplineDeleteVisitWulingSnowyForest5"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub5": {
-        "desc": "枢纽区锚点 markInstId=2100000322",
+    "SharedZiplineDeleteVisitWulingSnowyForest5": {
+        "desc": "雪松林锚点 markInstId=36100010458",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                612.8,
-                968.1
+                1597.0,
+                1073.1
             ]
         },
         "action": "Click",
@@ -181,19 +182,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub6"
+            "SharedZiplineDeleteVisitWulingSnowyForest6"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub6": {
-        "desc": "枢纽区锚点 markInstId=2100000093",
+    "SharedZiplineDeleteVisitWulingSnowyForest6": {
+        "desc": "雪松林锚点 markInstId=36100010467",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                373.5,
-                984.6
+                1721.7,
+                992.5
             ]
         },
         "action": "Click",

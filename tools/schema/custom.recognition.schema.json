@@ -49,7 +49,6 @@
                 "TrialOfSwordmancy.RecognizeDeck",
                 "SeizeDeliveryJobsFindTargetRecognition",
                 "SeizeDeliveryJobsScanTargetRecognition",
-                "SharedZiplineDeleteHitRecognition",
                 "autoEcoFarmCalculateSwipeTarget",
                 "autoEcoFarmFindNearestRecognitionResult"
             ]

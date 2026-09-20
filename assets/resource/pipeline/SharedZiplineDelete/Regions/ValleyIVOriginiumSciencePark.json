@@ -1,146 +1,155 @@
 {
-    // 源石研究园 ValleyIV OriginiumSciencePark MapFind 扫图（底图坐标，原点左上、y 向下）
-    // bbox 用户标定 [801,573]–[1403,1000]；顶行原 y=644 北向滚到头仍贴 safe 上沿（stallY），
-    // 故有效扫描从上沿内收至 y≈650 起算，三行整体南移。
-    // scale=0.47  HitROI=1080x520  overlap=0.75  tile≈381x183  → grid 2x3=6
-    //
-    //   +-----+-----+
-    //   |  0  |  1  |
-    //   |  952| 1252|
-    //   |  740|  740|
-    //   +-----+-----+
-    //   |  2  |  3  |
-    //   |  952| 1252|
-    //   |  860|  860|
-    //   +-----+-----+
-    //   |  4  |  5  |
-    //   |  952| 1252|
-    //   |  960|  960|
-    //   +-----+-----+
-    //      952  1252
-    //
-    // 每格：MapFind(at) → 删滑索 → JumpBack 再 MapFind 同点恢复 → 认不到进下一格
+    // 源石研究园 ValleyIV OriginiumSciencePark：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map01base 投影（原点左上、y 向下）
+    //   3400010189 → [1223.3, 667.2]
+    //   3400020747 → [1147.8, 737.7]
+    //   3400020743 → [1296.4, 764.7]
+    //   3400020746 → [959.1, 830.3]
+    //   3400021048 → [1156.6, 869.3]
     "SharedZiplineDeletePrepareValleyIVOriginiumSciencePark": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]SharedZiplineDeleteFilterOpen",
             "[JumpBack]SceneMapZoomOut",
-            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark0"
+            "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark0"
         ]
     },
-    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark0": {
+    "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark0": {
+        "desc": "源石研究园锚点 markInstId=3400010189",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
             "at": [
-                952,
-                740
+                1223.3,
+                667.2
             ]
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
         "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark1"
+            "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark1"
         ]
     },
-    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark1": {
+    "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark1": {
+        "desc": "源石研究园锚点 markInstId=3400020747",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
             "at": [
-                1252,
-                740
+                1147.8,
+                737.7
             ]
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
         "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark2"
+            "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark2"
         ]
     },
-    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark2": {
+    "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark2": {
+        "desc": "源石研究园锚点 markInstId=3400020743",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
             "at": [
-                952,
-                860
+                1296.4,
+                764.7
             ]
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
         "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark3"
+            "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark3"
         ]
     },
-    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark3": {
+    "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark3": {
+        "desc": "源石研究园锚点 markInstId=3400020746",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
             "at": [
-                1252,
-                860
+                959.1,
+                830.3
             ]
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
         "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark4"
+            "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark4"
         ]
     },
-    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark4": {
+    "SharedZiplineDeleteVisitValleyIVOriginiumSciencePark4": {
+        "desc": "源石研究园锚点 markInstId=3400021048",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
             "at": [
-                952,
-                960
+                1156.6,
+                869.3
             ]
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScanValleyIVOriginiumSciencePark5"
-        ]
-    },
-    "SharedZiplineDeleteScanValleyIVOriginiumSciencePark5": {
-        "recognition": "Custom",
-        "custom_recognition": "MapFind",
-        "custom_recognition_param": {
-            "zone": "ValleyIV",
-            "at": [
-                1252,
-                960
-            ]
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
             "SharedZiplineDeleteRegionDone"
         ]

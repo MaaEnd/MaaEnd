@@ -1,104 +1,126 @@
 {
-    // 阿伯莉采石场 ValleyIV AburreyQuarry MapFind 扫图（底图坐标，原点左上、y 向下）
-    // bbox [683,965]–[1092,1281]  size 409x316（用户标定）
-    // scale=0.47 (ZoomOut 实测约 0.466)  HitROI=1080x520  overlap=0.75
-    // tile=380.7x183.3  → grid 2x2=4
-    //
-    //   +-----+-----+
-    //   |  0  |  1  |
-    //   |  785|  990|
-    //   | 1044| 1044|
-    //   +-----+-----+
-    //   |  2  |  3  |
-    //   |  785|  990|
-    //   | 1202| 1202|
-    //   +-----+-----+
-    //      785   990
-    //
-    // 每格：MapFind(at) → 删滑索 → JumpBack 再 MapFind 同点恢复 → 认不到进下一格
+    // 阿伯莉采石场 ValleyIV AburreyQuarry：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map01base 投影（原点左上、y 向下）
+    //   300001865 → [886.2, 1032.0]
+    //   300002538 → [1001.5, 1067.2]
+    //   300001874 → [965.9, 1113.8]
+    //   300002665 → [958.7, 1217.7]
     "SharedZiplineDeletePrepareValleyIVAburreyQuarry": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]SharedZiplineDeleteFilterOpen",
             "[JumpBack]SceneMapZoomOut",
-            "SharedZiplineDeleteScanValleyIVAburreyQuarry0"
+            "SharedZiplineDeleteVisitValleyIVAburreyQuarry0"
         ]
     },
-    "SharedZiplineDeleteScanValleyIVAburreyQuarry0": {
+    "SharedZiplineDeleteVisitValleyIVAburreyQuarry0": {
+        "desc": "阿伯莉采石场锚点 markInstId=300001865",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
             "at": [
-                785,
-                1044
+                886.2,
+                1032.0
             ]
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
         "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScanValleyIVAburreyQuarry1"
+            "SharedZiplineDeleteVisitValleyIVAburreyQuarry1"
         ]
     },
-    "SharedZiplineDeleteScanValleyIVAburreyQuarry1": {
+    "SharedZiplineDeleteVisitValleyIVAburreyQuarry1": {
+        "desc": "阿伯莉采石场锚点 markInstId=300002538",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
             "at": [
-                990,
-                1044
+                1001.5,
+                1067.2
             ]
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
         "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScanValleyIVAburreyQuarry2"
+            "SharedZiplineDeleteVisitValleyIVAburreyQuarry2"
         ]
     },
-    "SharedZiplineDeleteScanValleyIVAburreyQuarry2": {
+    "SharedZiplineDeleteVisitValleyIVAburreyQuarry2": {
+        "desc": "阿伯莉采石场锚点 markInstId=300001874",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
             "at": [
-                785,
-                1202
+                965.9,
+                1113.8
             ]
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
         "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScanValleyIVAburreyQuarry3"
+            "SharedZiplineDeleteVisitValleyIVAburreyQuarry3"
         ]
     },
-    "SharedZiplineDeleteScanValleyIVAburreyQuarry3": {
+    "SharedZiplineDeleteVisitValleyIVAburreyQuarry3": {
+        "desc": "阿伯莉采石场锚点 markInstId=300002665",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
             "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
             "at": [
-                990,
-                1202
+                958.7,
+                1217.7
             ]
         },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
         "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
             "SharedZiplineDeleteRegionDone"
         ]

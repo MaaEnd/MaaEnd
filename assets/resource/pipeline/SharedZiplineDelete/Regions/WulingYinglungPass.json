@@ -1,31 +1,30 @@
 {
-    // 枢纽区 ValleyIV TheHub：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
-    // 锚点来自 LevelMapMark mark_sp_campfire，map01base 投影（原点左上、y 向下）
-    //   2100010282 → [591.1, 660.8]
-    //   2100000086 → [528.0, 695.1]  岩丘通道
-    //   2100000284 → [635.7, 900.1]
-    //   2100000031 → [452.4, 910.3]  旧供水设施东侧
-    //   2100000073 → [713.2, 965.6]
-    //   2100000322 → [612.8, 968.1]
-    //   2100000093 → [373.5, 984.6]
-    "SharedZiplineDeletePrepareValleyIVTheHub": {
+    // 应龙关 Wuling YinglungPass：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   10200030160 → [881.8, 871.8]
+    //   10200030169 → [1133.7, 796.0]
+    //   10200030255 → [1210.9, 771.0]
+    //   10200030151 → [1212.6, 907.5]
+    //   10200030168 → [1112.9, 977.5]
+    //   10200030153 → [1168.5, 1034.4]
+    "SharedZiplineDeletePrepareWulingYinglungPass": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]SharedZiplineDeleteFilterOpen",
             "[JumpBack]SceneMapZoomOut",
-            "SharedZiplineDeleteVisitValleyIVTheHub0"
+            "SharedZiplineDeleteVisitWulingYinglungPass0"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub0": {
-        "desc": "枢纽区锚点 markInstId=2100010282",
+    "SharedZiplineDeleteVisitWulingYinglungPass0": {
+        "desc": "应龙关锚点 markInstId=10200030160",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                591.1,
-                660.8
+                881.8,
+                871.8
             ]
         },
         "action": "Click",
@@ -41,19 +40,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub1"
+            "SharedZiplineDeleteVisitWulingYinglungPass1"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub1": {
-        "desc": "枢纽区锚点 markInstId=2100000086",
+    "SharedZiplineDeleteVisitWulingYinglungPass1": {
+        "desc": "应龙关锚点 markInstId=10200030169",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                528.0,
-                695.1
+                1133.7,
+                796.0
             ]
         },
         "action": "Click",
@@ -69,19 +68,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub2"
+            "SharedZiplineDeleteVisitWulingYinglungPass2"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub2": {
-        "desc": "枢纽区锚点 markInstId=2100000284",
+    "SharedZiplineDeleteVisitWulingYinglungPass2": {
+        "desc": "应龙关锚点 markInstId=10200030255",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                635.7,
-                900.1
+                1210.9,
+                771.0
             ]
         },
         "action": "Click",
@@ -97,19 +96,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub3"
+            "SharedZiplineDeleteVisitWulingYinglungPass3"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub3": {
-        "desc": "枢纽区锚点 markInstId=2100000031",
+    "SharedZiplineDeleteVisitWulingYinglungPass3": {
+        "desc": "应龙关锚点 markInstId=10200030151",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                452.4,
-                910.3
+                1212.6,
+                907.5
             ]
         },
         "action": "Click",
@@ -125,19 +124,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub4"
+            "SharedZiplineDeleteVisitWulingYinglungPass4"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub4": {
-        "desc": "枢纽区锚点 markInstId=2100000073",
+    "SharedZiplineDeleteVisitWulingYinglungPass4": {
+        "desc": "应龙关锚点 markInstId=10200030168",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                713.2,
-                965.6
+                1112.9,
+                977.5
             ]
         },
         "action": "Click",
@@ -153,47 +152,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub5"
+            "SharedZiplineDeleteVisitWulingYinglungPass5"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVTheHub5": {
-        "desc": "枢纽区锚点 markInstId=2100000322",
+    "SharedZiplineDeleteVisitWulingYinglungPass5": {
+        "desc": "应龙关锚点 markInstId=10200030153",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                612.8,
-                968.1
-            ]
-        },
-        "action": "Click",
-        "post_wait_freezes": {
-            "target": [
-                -200,
-                -200,
-                200,
-                200
-            ],
-            "time": 100
-        },
-        "next": [
-            "[JumpBack]SharedZiplineDeleteTeleportClick",
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVTheHub6"
-        ]
-    },
-    "SharedZiplineDeleteVisitValleyIVTheHub6": {
-        "desc": "枢纽区锚点 markInstId=2100000093",
-        "recognition": "Custom",
-        "custom_recognition": "MapFind",
-        "custom_recognition_param": {
-            "zone": "ValleyIV",
-            "icon": "TeleportAnchor",
-            "at": [
-                373.5,
-                984.6
+                1168.5,
+                1034.4
             ]
         },
         "action": "Click",

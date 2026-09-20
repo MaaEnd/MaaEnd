@@ -523,7 +523,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapFilterClear",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
@@ -543,7 +543,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapFilterClear",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
@@ -563,7 +563,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapFilterClear",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
@@ -583,7 +583,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapFilterClear",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
@@ -603,7 +603,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
@@ -618,7 +618,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
@@ -633,7 +633,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
@@ -648,7 +648,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
@@ -663,7 +663,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
@@ -678,7 +678,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
@@ -776,7 +776,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
@@ -874,7 +874,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
@@ -970,7 +970,7 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
+            "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]

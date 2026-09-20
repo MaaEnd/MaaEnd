@@ -1,29 +1,29 @@
 {
-    // 矿脉源区 ValleyIV OriginLodespring：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
-    // 锚点来自 LevelMapMark mark_sp_campfire，map01base 投影（原点左上、y 向下）
-    //   3500031058 → [882.0, 162.5]
-    //   3500031059 → [926.9, 289.3]
-    //   3500031061 → [1170.2, 320.3]
-    //   3500031060 → [1100.6, 457.3]
-    //   3500031199 → [1226.5, 562.8]
-    "SharedZiplineDeletePrepareValleyIVOriginLodespring": {
+    // 实验园区 Wuling TestArea：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   23200010005 → [1120.8, 1563.0]
+    //   23200013376 → [1301.1, 1516.1]
+    //   23200013087 → [1345.3, 1632.5]
+    //   23200013375 → [1346.3, 1699.5]
+    //   23200013265 → [1291.7, 1756.3]
+    "SharedZiplineDeletePrepareWulingTestArea": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",
             "[JumpBack]SharedZiplineDeleteFilterOpen",
             "[JumpBack]SceneMapZoomOut",
-            "SharedZiplineDeleteVisitValleyIVOriginLodespring0"
+            "SharedZiplineDeleteVisitWulingTestArea0"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVOriginLodespring0": {
-        "desc": "矿脉源区锚点 markInstId=3500031058",
+    "SharedZiplineDeleteVisitWulingTestArea0": {
+        "desc": "实验园区锚点 markInstId=23200010005",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                882.0,
-                162.5
+                1120.8,
+                1563.0
             ]
         },
         "action": "Click",
@@ -39,19 +39,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVOriginLodespring1"
+            "SharedZiplineDeleteVisitWulingTestArea1"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVOriginLodespring1": {
-        "desc": "矿脉源区锚点 markInstId=3500031059",
+    "SharedZiplineDeleteVisitWulingTestArea1": {
+        "desc": "实验园区锚点 markInstId=23200013376",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                926.9,
-                289.3
+                1301.1,
+                1516.1
             ]
         },
         "action": "Click",
@@ -67,19 +67,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVOriginLodespring2"
+            "SharedZiplineDeleteVisitWulingTestArea2"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVOriginLodespring2": {
-        "desc": "矿脉源区锚点 markInstId=3500031061",
+    "SharedZiplineDeleteVisitWulingTestArea2": {
+        "desc": "实验园区锚点 markInstId=23200013087",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                1170.2,
-                320.3
+                1345.3,
+                1632.5
             ]
         },
         "action": "Click",
@@ -95,19 +95,19 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVOriginLodespring3"
+            "SharedZiplineDeleteVisitWulingTestArea3"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVOriginLodespring3": {
-        "desc": "矿脉源区锚点 markInstId=3500031060",
+    "SharedZiplineDeleteVisitWulingTestArea3": {
+        "desc": "实验园区锚点 markInstId=23200013375",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                1100.6,
-                457.3
+                1346.3,
+                1699.5
             ]
         },
         "action": "Click",
@@ -123,19 +123,20 @@
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
             "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteVisitValleyIVOriginLodespring4"
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteVisitWulingTestArea4"
         ]
     },
-    "SharedZiplineDeleteVisitValleyIVOriginLodespring4": {
-        "desc": "矿脉源区锚点 markInstId=3500031199",
+    "SharedZiplineDeleteVisitWulingTestArea4": {
+        "desc": "实验园区锚点 markInstId=23200013265",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
-            "zone": "ValleyIV",
+            "zone": "Wuling",
             "icon": "TeleportAnchor",
             "at": [
-                1226.5,
-                562.8
+                1291.7,
+                1756.3
             ]
         },
         "action": "Click",

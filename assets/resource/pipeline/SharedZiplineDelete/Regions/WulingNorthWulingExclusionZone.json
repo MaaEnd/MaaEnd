@@ -1,0 +1,366 @@
+{
+    // 北部禁区 Wuling NorthWulingExclusionZone：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   23100010670 → [1167.6, 312.7]
+    //   23100010640 → [1280.8, 322.1]
+    //   23100010221 → [1395.8, 317.3]
+    //   23100010733 → [1546.1, 319.8]
+    //   23100010220 → [1202.5, 429.3]
+    //   23100010222 → [1588.0, 377.1]
+    //   23100010671 → [1583.9, 439.7]
+    //   23100010740 → [1591.3, 462.0]
+    //   23100031242 → [1393.8, 499.3]
+    //   23100010223 → [1455.3, 526.5]
+    //   23100010219 → [1121.4, 594.8]
+    //   23100031243 → [1293.2, 608.2]
+    "SharedZiplineDeletePrepareWulingNorthWulingExclusionZone": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone0"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone0": {
+        "desc": "北部禁区锚点 markInstId=23100010670",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1167.6,
+                312.7
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone1"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone1": {
+        "desc": "北部禁区锚点 markInstId=23100010640",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1280.8,
+                322.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone2"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone2": {
+        "desc": "北部禁区锚点 markInstId=23100010221",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1395.8,
+                317.3
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone3"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone3": {
+        "desc": "北部禁区锚点 markInstId=23100010733",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1546.1,
+                319.8
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone4"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone4": {
+        "desc": "北部禁区锚点 markInstId=23100010220",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1202.5,
+                429.3
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone5"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone5": {
+        "desc": "北部禁区锚点 markInstId=23100010222",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1588.0,
+                377.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone6"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone6": {
+        "desc": "北部禁区锚点 markInstId=23100010671",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1583.9,
+                439.7
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone7"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone7": {
+        "desc": "北部禁区锚点 markInstId=23100010740",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1591.3,
+                462.0
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone8"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone8": {
+        "desc": "北部禁区锚点 markInstId=23100031242",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1393.8,
+                499.3
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone9"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone9": {
+        "desc": "北部禁区锚点 markInstId=23100010223",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1455.3,
+                526.5
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone10"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone10": {
+        "desc": "北部禁区锚点 markInstId=23100010219",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1121.4,
+                594.8
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone11"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingNorthWulingExclusionZone11": {
+        "desc": "北部禁区锚点 markInstId=23100031243",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1293.2,
+                608.2
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

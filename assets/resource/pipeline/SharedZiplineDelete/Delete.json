@@ -1,16 +1,4 @@
 {
-    "SharedZiplineDeletePrepare": {
-        "desc": "清除共享滑索主节点",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]SharedZiplineDeleteFilterOpen",
-            "[JumpBack]SceneMapZoomOut",
-            "SharedZiplineDeleteResetPosition"
-        ]
-    },
     "SharedZiplineDeleteFilterOpen": {
         "desc": "打开标记显示管理",
         "recognition": "TemplateMatch",
@@ -126,50 +114,8 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__SharedZiplineDeleteHitColor": {
-        "desc": "共享滑索 ColorMatch 候选（供 HitRecognition 调用）",
-        "recognition": "ColorMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "lower": [
-            14,
-            120,
-            150
-        ],
-        "upper": [
-            30,
-            210,
-            255
-        ],
-        "connected": true,
-        "count": 15
-    },
-    "SharedZiplineDeleteHit": {
-        "desc": "识别共享滑索标记并点击（跳过本视口已点过的 box）",
-        "recognition": "Custom",
-        "custom_recognition": "SharedZiplineDeleteHitRecognition",
-        "action": "Click",
-        "post_wait_freezes": {
-            "target": [
-                -200,
-                -200,
-                200,
-                200
-            ],
-            "time": 100
-        },
-        "next": [
-            "SharedZiplineDeleteChoose",
-            "SharedZiplineDeleteConfirm",
-            "SharedZiplineDeleteDismissNoMapMind"
-        ]
-    },
-    "SharedZiplineDeleteDismissNoMapMind": {
-        "desc": "找不到 MapMind 时点击屏幕中央关闭遮挡",
+    "SharedZiplineDeleteTeleportClick": {
+        "desc": "识别共享滑索标记并点击",
         "recognition": "TemplateMatch",
         "roi": [
             -350,
@@ -182,13 +128,37 @@
         ],
         "method": 10001,
         "inverse": true,
-        "action": "Click",
-        "target": [
-            640,
-            360,
-            1,
-            1
+        "pre_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "SharedZiplineDeleteChooseZipline",
+            "SharedZiplineDeleteChooseTeleport",
+            "SharedZiplineDeleteConfirm",
+            "SharedZiplineDeleteDismissNoMapMind"
+        ]
+    },
+    "SharedZiplineDeleteHit": {
+        "desc": "识别共享滑索标记并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            1280,
+            620
         ],
+        "template": [
+            "SceneManager/MapSharedZipLine.png",
+            "SceneManager/MapSharedZipLine2.png"
+        ],
+        "green_mask": true,
+        "action": "Click",
         "post_wait_freezes": {
             "target": [
                 -200,
@@ -199,10 +169,79 @@
             "time": 100
         },
         "next": [
-            "SharedZiplineDeleteHit"
+            "SharedZiplineDeleteChooseZipline",
+            "SharedZiplineDeleteConfirm",
+            "SharedZiplineDeleteDismissNoMapMind"
         ]
     },
-    "SharedZiplineDeleteChoose": {
+    "SharedZiplineDeleteDismissNoMapMind": {
+        "desc": "找不到 MapMind 时按 Esc 关闭遮挡，鼠标会点到其他位置",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -350,
+            0,
+            350,
+            60
+        ],
+        "template": [
+            "SceneManager/MapMind.png"
+        ],
+        "method": 10001,
+        "inverse": true,
+        "action": "ClickKey",
+        "key": 27, // Esc
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        }
+    },
+    "SharedZiplineDeleteChooseTeleport": {
+        "desc": "多个图标重叠时，在候选列表中点传送点，让视角跳过去",
+        "recognition": "OCR",
+        "roi": [
+            -500,
+            350,
+            400,
+            300
+        ],
+        "expected": [
+            "协议传送点",
+            "協議傳送點",
+            "(?i)TP\\s*Point",
+            "協約転送ポイント",
+            "프로토콜 전송 지점",
+            "协议核心",
+            "協議核心",
+            "協約核心",
+            "프로토콜 코어",
+            "(?i)Protocol\\s*Automation.*",
+            "次级核心",
+            "次級核心",
+            "サブ協約核心",
+            "서브 코어",
+            "(?i)Sub-?PAC"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "next": [
+            "SharedZiplineDeleteDismissNoMapMind"
+        ]
+    },
+    "SharedZiplineDeleteChooseZipline": {
         "desc": "多个图标重叠时，在候选列表中点共享滑索",
         "recognition": "And",
         "all_of": [
@@ -274,8 +313,12 @@
             "刪除"
         ],
         "action": "Click",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "post_wait_freezes": 100,
         "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "SharedZiplineDeleteConfirmSuccess"
         ],
         "focus": {
@@ -296,388 +339,14 @@
             "刪除"
         ],
         "inverse": true,
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0
-    },
-    "SharedZiplineDeleteResetPosition": {
-        "desc": "移动地图到左上角",
-        "recognition": "DirectHit",
-        "action": "Swipe",
-        "begin": [
-            330,
-            20
-        ],
-        "end": [
-            930,
-            620
-        ],
-        "end_hold": 200,
-        "repeat": 3,
-        "repeat_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "next": [
-            "[Anchor]SharedZiplineDeleteScanAnchor"
-        ]
     },
     "SharedZiplineDeleteRegionDone": {
         "desc": "本区扫完，返回 Main 处理下一区",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
-    },
-    "SharedZiplineDeleteScan2x2Setp0": {
-        "desc": "2x2 cell0 (r0c0)：找滑索或继续",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan2x2Setp1"
-        ]
-    },
-    "SharedZiplineDeleteScan2x2Setp1": {
-        "desc": "2x2 cell0->cell1 (r0c0->r0c1) 视口right",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            730,
-            320
-        ],
-        "end": [
-            530,
-            320
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan2x2Setp2"
-        ]
-    },
-    "SharedZiplineDeleteScan2x2Setp2": {
-        "desc": "2x2 cell1->cell2 (r0c1->r1c1) 视口down",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            630,
-            420
-        ],
-        "end": [
-            630,
-            220
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan2x2Setp3"
-        ]
-    },
-    "SharedZiplineDeleteScan2x2Setp3": {
-        "desc": "2x2 cell2->cell3 (r1c1->r1c0) 视口left",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            530,
-            320
-        ],
-        "end": [
-            730,
-            320
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteRegionDone"
-        ]
-    },
-    "SharedZiplineDeleteScan3x3Setp0": {
-        "desc": "3x3 cell0 (r0c0)：找滑索或继续",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan3x3Setp1"
-        ]
-    },
-    "SharedZiplineDeleteScan3x3Setp1": {
-        "desc": "3x3 cell0->cell1 (r0c0->r0c1) 视口right",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            730,
-            320
-        ],
-        "end": [
-            530,
-            320
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan3x3Setp2"
-        ]
-    },
-    "SharedZiplineDeleteScan3x3Setp2": {
-        "desc": "3x3 cell1->cell2 (r0c1->r0c2) 视口right",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            730,
-            320
-        ],
-        "end": [
-            530,
-            320
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan3x3Setp3"
-        ]
-    },
-    "SharedZiplineDeleteScan3x3Setp3": {
-        "desc": "3x3 cell2->cell3 (r0c2->r1c2) 视口down",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            630,
-            420
-        ],
-        "end": [
-            630,
-            220
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan3x3Setp4"
-        ]
-    },
-    "SharedZiplineDeleteScan3x3Setp4": {
-        "desc": "3x3 cell3->cell4 (r1c2->r1c1) 视口left",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            530,
-            320
-        ],
-        "end": [
-            730,
-            320
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan3x3Setp5"
-        ]
-    },
-    "SharedZiplineDeleteScan3x3Setp5": {
-        "desc": "3x3 cell4->cell5 (r1c1->r1c0) 视口left",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            530,
-            320
-        ],
-        "end": [
-            730,
-            320
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan3x3Setp6"
-        ]
-    },
-    "SharedZiplineDeleteScan3x3Setp6": {
-        "desc": "3x3 cell5->cell6 (r1c0->r2c0) 视口down",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            630,
-            420
-        ],
-        "end": [
-            630,
-            220
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan3x3Setp7"
-        ]
-    },
-    "SharedZiplineDeleteScan3x3Setp7": {
-        "desc": "3x3 cell6->cell7 (r2c0->r2c1) 视口right",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            730,
-            320
-        ],
-        "end": [
-            530,
-            320
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteScan3x3Setp8"
-        ]
-    },
-    "SharedZiplineDeleteScan3x3Setp8": {
-        "desc": "3x3 cell7->cell8 (r2c1->r2c2) 视口right",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            730,
-            320
-        ],
-        "end": [
-            530,
-            320
-        ],
-        "end_hold": 200,
-        "post_wait_freezes": {
-            "target": [
-                600,
-                300,
-                100,
-                100
-            ],
-            "time": 200
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack]SharedZiplineDeleteHit",
-            "SharedZiplineDeleteRegionDone"
-        ]
     }
 }

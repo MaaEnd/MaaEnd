@@ -1,0 +1,332 @@
+{
+    // 景玉谷 Wuling JingyuValley：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   10100030027 → [814.5, 2138.1]
+    //   10100030018 → [972.5, 2196.8]
+    //   10100030017 → [791.7, 2324.0]
+    //   10100030048 → [984.7, 2355.2]
+    //   10100030179 → [741.6, 2411.4]
+    //   10100030146 → [964.0, 2424.6]
+    //   10100020646 → [977.0, 2501.8]
+    //   10100020350 → [753.7, 2595.3]
+    //   10100020314 → [689.9, 2653.9]
+    //   10100020319 → [814.2, 2773.2]
+    //   10100020315 → [602.9, 2828.3]  // 跳过：大地图缩放到边后仍在屏幕外，MapFind 无法点到
+    "SharedZiplineDeletePrepareWulingJingyuValley": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitWulingJingyuValley0"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley0": {
+        "desc": "景玉谷锚点 markInstId=10100030027",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                814.5,
+                2138.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingJingyuValley1"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley1": {
+        "desc": "景玉谷锚点 markInstId=10100030018",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                972.5,
+                2196.8
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingJingyuValley2"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley2": {
+        "desc": "景玉谷锚点 markInstId=10100030017",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                791.7,
+                2324.0
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingJingyuValley3"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley3": {
+        "desc": "景玉谷锚点 markInstId=10100030048",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                984.7,
+                2355.2
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingJingyuValley4"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley4": {
+        "desc": "景玉谷锚点 markInstId=10100030179",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                741.6,
+                2411.4
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingJingyuValley5"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley5": {
+        "desc": "景玉谷锚点 markInstId=10100030146",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                964.0,
+                2424.6
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingJingyuValley6"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley6": {
+        "desc": "景玉谷锚点 markInstId=10100020646",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                977.0,
+                2501.8
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingJingyuValley7"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley7": {
+        "desc": "景玉谷锚点 markInstId=10100020350",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                753.7,
+                2595.3
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingJingyuValley8"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley8": {
+        "desc": "景玉谷锚点 markInstId=10100020314",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                689.9,
+                2653.9
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingJingyuValley9"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingJingyuValley9": {
+        "desc": "景玉谷锚点 markInstId=10100020319",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                814.2,
+                2773.2
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+    // 10100020315 [602.9, 2828.3]：坐标在屏幕外无法点击到，跳过
+    // "SharedZiplineDeleteVisitWulingJingyuValley10": {
+    //     "desc": "景玉谷锚点 markInstId=10100020315",
+    //     "recognition": "Custom",
+    //     "custom_recognition": "MapFind",
+    //     "custom_recognition_param": {
+    //         "zone": "Wuling",
+    //         "icon": "TeleportAnchor",
+    //         "at": [
+    //             602.9,
+    //             2828.3
+    //         ]
+    //     },
+    //     "action": "Click",
+    //     "post_wait_freezes": {
+    //         "target": [
+    //             -200,
+    //             -200,
+    //             200,
+    //             200
+    //         ],
+    //         "time": 100
+    //     },
+    //     "next": [
+    //         "[JumpBack]SharedZiplineDeleteTeleportClick",
+    //         "[JumpBack]SharedZiplineDeleteHit",
+    //         "SharedZiplineDeleteRegionDone"
+    //     ]
+    // }
+}
