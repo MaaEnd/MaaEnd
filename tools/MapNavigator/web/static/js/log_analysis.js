@@ -249,8 +249,7 @@ function addObservedPosition(run, line) {
     numberValue(line, "position.x"),
     numberValue(line, "position.y"),
   ];
-  const valid =
-    numberValue(line, "status") === 0 && boolValue(line, "position.isHeld") !== true && point.every(Number.isFinite);
+  const valid = numberValue(line, "status") === 0 && point.every(Number.isFinite);
   if (!valid) {
     if (run._ziplineInFlight) run._ziplineLastPosition = null;
     else flushObservedWalk(run);

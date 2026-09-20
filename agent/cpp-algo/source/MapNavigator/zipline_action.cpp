@@ -124,7 +124,7 @@ public:
                     maplocator::SearchHint { .zone_id = zone, .x = node.x, .y = node.y, .radius = kZiplineLandingHintRadiusWu });
             }
         }
-        if (ctx_.position_provider->Capture(ctx_.position, false, {}, hints) && !ctx_.position_provider->LastCaptureWasHeld()) {
+        if (ctx_.position_provider->Capture(ctx_.position, false, {}, hints)) {
             obs.fix = *ctx_.position;
         }
         return obs;
