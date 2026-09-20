@@ -491,7 +491,7 @@
     "option.CreditShoppingRefreshCheckPrice.description": "开启后，刷新用尽直购或稳健改直购时，会按「持有信用点 − 物品价格」判断是否会买穿保留阈值，不足则取消并停止；关闭则先购买，买完后再用「保留信用点」判断是否停止。",
     "task.ZiplineImport.label": "🚡导入/更新滑索坐标",
     "task.ZiplineImport.description": "从官方地图登录并导入当前账号的滑索坐标，供寻路使用。\n**导入一次长期有效，仅初次使用，或账号滑索有变化时再执行。**",
-    "task.SharedZiplineDelete.label": "🚡删除共享滑索",
+    "task.SharedZiplineDelete.label": "✂️删除共享滑索",
     "task.SharedZiplineDelete.focus.deleted_one": "已删除一个共享滑索",
     "task.SharedZiplineDelete.focus.bootstrap_valley_iv": "准备前往四号谷地删除共享滑索",
     "task.SharedZiplineDelete.focus.bootstrap_wuling": "准备前往武陵删除共享滑索",

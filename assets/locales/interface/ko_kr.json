@@ -487,7 +487,7 @@
     "option.CreditShoppingRefreshCheckPrice.description": "켜면 새로고침 횟수 소진 직구 또는 신중 모드 직구 시「보유 크레딧 − 품목 가격」이 보유 임계값을 깨는지 확인하며, 깨면 취소 후 중지합니다. 끄면 먼저 구매한 뒤「보유 크레딧」검사로 중지합니다.",
     "task.ZiplineImport.label": "🚡 짚라인 좌표 가져오기/갱신",
     "task.ZiplineImport.description": "공식 지도에 로그인한 뒤 현재 계정의 짚라인 좌표를 가져와 경로 탐색에 사용합니다.\n**한 번 가져오면 장기 유효합니다. 최초 사용 시, 또는 계정 짚라인이 바뀔 때만 다시 실행하세요.**",
-    "task.SharedZiplineDelete.label": "🚡 공유 짚라인 삭제",
+    "task.SharedZiplineDelete.label": "✂️ 공유 짚라인 삭제",
     "task.SharedZiplineDelete.focus.deleted_one": "공유 짚라인 1개를 삭제했습니다",
     "task.SharedZiplineDelete.focus.bootstrap_valley_iv": "제4 계곡으로 이동해 공유 짚라인을 삭제할 준비 중",
     "task.SharedZiplineDelete.focus.bootstrap_wuling": "무릉으로 이동해 공유 짚라인을 삭제할 준비 중",

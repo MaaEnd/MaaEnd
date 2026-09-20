@@ -487,7 +487,7 @@
     "option.CreditShoppingRefreshCheckPrice.description": "有効時、更新回数尽きた直購入や堅実更新の直購入で「保有クレジット − 商品価格」が保留閾値を割るかを判定し、割る場合はキャンセルして停止します。無効時は先に購入し、購入後に「保留クレジット」判定で停止します。",
     "task.ZiplineImport.label": "🚡 ジップライン座標をインポート／更新",
     "task.ZiplineImport.description": "公式マップにログインし、現在のアカウントのジップライン座標を取り込んで経路探索に使用します。\n**一度取り込めば長期有効。初回利用時、またはアカウントのジップラインが変わったときだけ再実行してください。**",
-    "task.SharedZiplineDelete.label": "🚡 共有ジップラインを削除",
+    "task.SharedZiplineDelete.label": "✂️ 共有ジップラインを削除",
     "task.SharedZiplineDelete.focus.deleted_one": "共有ジップラインを 1 本削除しました",
     "task.SharedZiplineDelete.focus.bootstrap_valley_iv": "第4谷地へ向かい、共有ジップラインを削除する準備をしています",
     "task.SharedZiplineDelete.focus.bootstrap_wuling": "武陵へ向かい、共有ジップラインを削除する準備をしています",
