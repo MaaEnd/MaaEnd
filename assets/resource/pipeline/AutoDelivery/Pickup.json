@@ -51,6 +51,7 @@
             270
         ],
         "template": "AutoDelivery/FetchGoods.png",
+        "threshold": 0.9,
         "order_by": "Score",
         "pre_wait_freezes": {
             "time": 300,
