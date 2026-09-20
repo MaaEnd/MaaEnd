@@ -1,6 +1,5 @@
 #include "find_action.h"
 
-#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
@@ -181,7 +180,7 @@ bool SearchOneStep(const Context& ctx, const FindState& find)
     return TurnToHeadingOnce(ctx, step_deg);
 }
 
-// 框到手: 偏了就转视角, 走过了就退一步, 否则朝它走一步。脉冲长短按框的高低估远近
+// 框到手: 偏了就转视角, 走过了就退一步, 否则保持前进。移动连续, 修正跟着每拍的框走
 bool ApproachSighting(const Context& ctx, FindState& find, const MaaRect& box, int32_t frame_width, int32_t frame_height)
 {
     const int32_t center_x = box.x + box.width / 2;
@@ -194,24 +193,34 @@ bool ApproachSighting(const Context& ctx, FindState& find, const MaaRect& box, i
         static_cast<int32_t>(std::lround(static_cast<double>(offset_px) * kPipelineRoiBaseWidth / static_cast<double>(frame_width)));
 
     if (std::abs(offset_base) > kFindAlignTolerancePx) {
+        // 小偏角边走边转; 偏太大先站定转正, 免得带着旧方向越走越偏
+        const bool walk_through = std::abs(offset_base) <= kFindWalkWhileTurningPx;
+        if (!walk_through) {
+            ctx.motion_controller->SetForwardState(false);
+            // 停下也算移动指令, 紧随其后的转向会被后端的静默期吞掉, 等过去再转
+            utils::SleepFor(ctx.action_wrapper->SteeringProfile().action_quiet_period_ms);
+        }
         const double degrees_per_px = kTurnDegreesPerCircle / static_cast<double>(ComputeTurn360Units(frame_width));
         const double yaw_deg = static_cast<double>(offset_px) * degrees_per_px * kFindSteerGain;
-        LogDebug << "FIND: turning toward the target." << VAR(find.steps) << VAR(offset_px) << VAR(yaw_deg);
-        return TurnToHeadingOnce(ctx, yaw_deg);
+        LogDebug << "FIND: turning toward the target." << VAR(find.steps) << VAR(offset_px) << VAR(yaw_deg) << VAR(walk_through);
+        const bool turned = TurnToHeadingOnce(ctx, yaw_deg);
+        if (walk_through) {
+            ctx.motion_controller->SetForwardState(true);
+        }
+        return turned;
     }
 
     if (static_cast<double>(center_y) > static_cast<double>(frame_height) * kFindPassedCenterYRatio) {
         LogDebug << "FIND: target is behind, stepping back." << VAR(find.steps) << VAR(center_y);
+        ctx.motion_controller->SetForwardState(false);
         ctx.action_wrapper->SetMovementStateSync(false, false, true, false, kFindBackwardPulseMs);
         ctx.action_wrapper->SetMovementStateSync(false, false, false, false, 0);
         return true;
     }
 
-    const double half_height = static_cast<double>(frame_height) / 2.0;
-    const double far_factor = std::clamp((half_height - static_cast<double>(center_y)) / half_height, 0.0, 1.0);
-    const int32_t hold_ms = static_cast<int32_t>(std::lround(kFindForwardPulseMs * (1.0 + (kFindFarPulseScaleMax - 1.0) * far_factor)));
-    LogDebug << "FIND: stepping forward." << VAR(find.steps) << VAR(far_factor) << VAR(hold_ms);
-    ctx.action_wrapper->PulseForwardSync(hold_ms);
+    // 对准了保持前进: 移动不停, 下一拍再按新框修正
+    LogDebug << "FIND: walking toward the target." << VAR(find.steps) << VAR(offset_px);
+    ctx.motion_controller->SetForwardState(true);
     return true;
 }
 
@@ -277,7 +286,8 @@ Result TickFindTarget(const Context& ctx)
     MaaController* controller = ctx.action_wrapper->GetCtrl();
     ScopedImageBuffer image;
     if (controller == nullptr || !CaptureFindFrame(controller, &image)) {
-        // 截图抖动不判死整条路线, 空转这一拍, 步数预算兜住连续失败
+        // 看不清就先站住空转这一拍, 别照着上一帧继续走; 步数预算兜住连续失败
+        ctx.motion_controller->SetForwardState(false);
         LogWarn << "FIND: screencap failed, holding this step empty." << VAR(find.steps);
         utils::SleepFor(kFindStepSleepMs);
         return result;
@@ -314,6 +324,8 @@ Result TickFindTarget(const Context& ctx)
         return FailFind(ctx, "find_recognition_failed", "FIND target node failed to recognize.");
     }
     if (!target_sighting.hit) {
+        // 目标看不到了先站住, 别带着上一拍的朝向继续往前冲
+        ctx.motion_controller->SetForwardState(false);
         ++find.miss_streak;
         // 刚还看着的目标漏认一两拍就原地等: 遮挡与抖动不该把镜头甩走; 从没见过目标则不给宽限, 直接搜
         if (find.last_seen_side != 0 && find.miss_streak < kFindMissGraceTicks) {
@@ -338,6 +350,7 @@ Result TickFindTarget(const Context& ctx)
     const int32_t frame_height = MaaImageBufferHeight(image.Get());
     if (frame_width <= 0 || frame_height <= 0) {
         LogWarn << "FIND: the captured frame has no size." << VAR(frame_width) << VAR(frame_height);
+        ctx.motion_controller->SetForwardState(false);
         utils::SleepFor(kFindStepSleepMs);
         return result;
     }

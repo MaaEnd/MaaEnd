@@ -830,7 +830,7 @@ The following files are maintained by cpp-algo developers; path authors do not n
 
 ## Finding and Approaching a Target `FIND`
 
-`FIND` handles targets that exist only as a recognition box with no coordinate of their own: an NPC nameplate, a prop label, anything a recognizer can box. The navigator takes that box and walks by looking at the world — turning the camera in place to search, stepping forward once the target is near the screen center, stepping back when the target drops below the character — **staying off the minimap by default**. A hit on the node named by `find_stop`, or the position reaching `find_arrive`, ends the point.
+`FIND` handles targets that exist only as a recognition box with no coordinate of their own: an NPC nameplate, a prop label, anything a recognizer can box. The navigator takes that box and walks by looking at the world — turning the camera in place to search, keeping the walk going once aligned (a small offset is corrected while walking, and only a large one stops the walk for a turn), stepping back when the target drops below the character — **staying off the minimap by default**. A hit on the node named by `find_stop`, or the position reaching `find_arrive`, ends the point.
 
 Because its camera turns are open-loop, `FIND` is a break in localization: when it finishes, the character may stand off the walkable mesh facing anywhere, so the navigator voids its steering and corridor bookkeeping on the way out and lets the next leg start from a fresh fix. **Keep an ordinary movement point after a `FIND` point**; a `FIND` point at the very end of a route simply finishes the route when it is done.
 
@@ -881,9 +881,9 @@ The array form `[182.52, 173.4, "FIND"]` carries a coordinate only, so its targe
 
 - **Target briefly lost**: the first two misses in a row just hold still and take another look — no turn, no step. Only after three misses (`kFindMissGraceTicks`) does it start searching. Losing the box for a frame or two while closing in is normal, and turning away at that moment throws away an already-aimed camera. A target that has never been seen gets no grace at all: it is simply not on screen yet, so the search starts right away.
 - **Target not on screen**: turn the camera in place by a fixed step, the first step toward the side the target was last seen on and every later step in that same direction. Choosing a direction per step by "which side is closer" would make a target sitting exactly behind the character swing back and forth forever.
-- **Target on screen**: turn by the box's horizontal offset first and only start walking once it is within the screen-center tolerance; the length of each forward pulse is estimated from how high the box sits on screen.
-- **Box below the character**: the target has been walked past, so step back a little and line up again.
-- The approach always uses walking speed so that a single pulse cannot overshoot. Every one of these parameters lives in cpp-algo constants; route authors do not fill them in.
+- **Target on screen**: a small offset is corrected while walking — no stop for every correction — and only an offset past twice the alignment tolerance stops the walk for a turn. Once aligned the character keeps walking, so the approach no longer stutters step by step.
+- **Box below the character**: the target has been walked past, so stop and step back a little, then line up again.
+- The approach stays in the game's walking mode: movement is continuous and corrections only come with each frame's box, so the speed is kept low against overshooting. Every one of these parameters lives in cpp-algo constants; route authors do not fill them in.
 
 ### Files Path Authors Need to Care About
 

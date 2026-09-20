@@ -479,13 +479,12 @@ constexpr const char* kFindInlineOcrNode = "MapNavigatorFind";
 constexpr double kFindSearchStepDeg = 30.0;
 // 连续漏认这么多拍才转去搜索: 遮挡一两帧就把刚对准的镜头甩走, 下一拍还要转回来
 constexpr int32_t kFindMissGraceTicks = 3;
-// 框中心离画面中线进这个容差就只前进不转视角 (1280 基准帧像素)
+// 框中心离画面中线进这个容差就不再转视角, 保持直行 (1280 基准帧像素)
 constexpr int32_t kFindAlignTolerancePx = 80;
+// 偏出对准容差但没出这个窗口时边走边转; 再偏就先站定转正, 免得带着旧方向越走越偏
+constexpr int32_t kFindWalkWhileTurningPx = kFindAlignTolerancePx * 2;
 // 框中心掉到这条线以下算走过了, 退一步; 480/720 即画面下三分之一
 constexpr double kFindPassedCenterYRatio = 0.667;
-// 前进脉冲基准时长; 框越靠上离得越远, 按 far factor 插值到下面这个倍率
-constexpr int32_t kFindForwardPulseMs = 250;
-constexpr double kFindFarPulseScaleMax = 1.3;
 // 走过头退一步的时长, 只求把框拉回中线以下
 constexpr int32_t kFindBackwardPulseMs = 200;
 // 转向增益: 偏移换算成角度是线性化的, 打满会转过头
@@ -496,6 +495,5 @@ constexpr int32_t kFindStepSleepMs = 120;
 constexpr int32_t kFindMaxSteps = 48;
 constexpr int32_t kFindBudgetMs = 60000;
 static_assert(kFindStepSleepMs > kAdbTouchTurnProfile.action_quiet_period_ms, "find pacing must outlast the steering quiet period");
-static_assert(kFindFarPulseScaleMax >= 1.0, "find far pulse scale must stretch, not shrink");
 
 } // namespace mapnavigator

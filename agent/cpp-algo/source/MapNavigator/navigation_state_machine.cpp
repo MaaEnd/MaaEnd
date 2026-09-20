@@ -2197,7 +2197,7 @@ void NavigationStateMachine::UpdatePromptSprintSuppression()
 // motion is confirmed; its arrival gate still requires actual movement before digging.
 void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
 {
-    // FIND 的接近段一律走路: 脉冲长短是按框的高低估出来的, 跑起来一步就冲过去了
+    // FIND 的接近段一律走路: 移动连续、修正只跟着每拍的框来, 跑起来容易冲过头
     if (phase == NaviPhase::WaitFind) {
         walk_mode_.Request(true);
         return;
