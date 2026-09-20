@@ -475,7 +475,7 @@ uv run map-navigator --port 9000 --no-browser
 
 `interact_text` 的空字符串与空数组会被直接拒绝（整个节点参数解析失败），不会当作没写：空文本在识别侧等同于「什么都匹配」，见提示就按键。`interact_scan` 写空字符串等同于没写，回落到出厂的那一份。
 
-`find_target` / `find_text` / `find_stop` / `find_arrive` 与 `interact_*` 遵循同一条规则：写在点上的字段优先，路线级字段仅补充未配置的 `FIND` 点；同时接受驼峰写法 `findTarget` / `findText` / `findStop` / `findArrive`。区别在于不存在「退回原语义」的兜底：`FIND` 点缺少目标来源或完成条件时，参数解析会直接失败。
+`find_target` / `find_text` / `find_stop` / `find_arrive` 接受驼峰写法（`findTarget` / `findText` / `findStop` / `findArrive`），写在点上的字段优先。路线级默认值的补充按组区分：**目标来源**（`find_target` / `find_text`）按整体补充——点上只要设置了其中任一字段，路线级的这两个字段就都不生效；两者都未设置时才会同时补入。**完成条件**（`find_stop` / `find_arrive`）按字段分别补充，只补齐点上未设置的字段。`FIND` 点缺少目标来源或完成条件、或路线级同时配置 `find_target` 与 `find_text` 且路线包含 `FIND` 点时，参数解析会直接失败。
 
 ### 执行结果
 
@@ -859,9 +859,9 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 补充规则：
 
 - 四个字段均支持驼峰命名（`findTarget`、`findText`、`findStop`、`findArrive`）。
-- 节点级字段优先于路线级默认值；路线级字段仅补充节点上未配置的对应字段。
+- 节点级字段优先；路线级默认值按组补充：**目标来源**（`find_target` / `find_text`）按整体补充——点上只要设置了其中任一字段，路线级的这两个字段就都不生效；两者都未设置时才会同时补入。**完成条件**（`find_stop` / `find_arrive`）按字段分别补充，只补齐点上未设置的字段。
 - `find_stop` 与 `find_arrive` 同时配置时，以先满足者为准。
-- 以下配置在参数解析阶段直接失败，不会进入运行阶段：`find_target` 与 `find_text` 同时配置或均未配置；`find_stop` 与 `find_arrive` 均未配置；`find_arrive` 不是恰好包含两个数字的数组。
+- 以下配置在参数解析阶段直接失败，不会进入运行阶段：同一 `FIND` 点上 `find_target` 与 `find_text` 同时配置或均未配置；`find_stop` 与 `find_arrive` 均未配置；`find_arrive` 不是恰好包含两个数字的数组；路线级同时配置 `find_target` 与 `find_text` 且路线包含 `FIND` 点。
 
 > **注意**：`find_stop` 必须能够区分目标与背景。`FIND` 仅根据识别结果是否命中判定完成，不校验识别框指向的对象；若判据过于宽泛（例如「任意角色身上的交互提示」），经过其他可交互物时会提前完成。
 
