@@ -1252,6 +1252,11 @@ bool NavigationStateMachine::TickNavigate()
     if (active_semantic_result.request_failure) {
         return FailNavigation(active_semantic_result.failure_reason, active_semantic_result.failure_log_message, 0.0, 0.0, 0);
     }
+    // Drop the bridge ahead of the replan gate: a node can hold the tick and ask for a replan at once, and the
+    // gate returns first, so a clear sitting below it would be skipped and the node's standstill credited later.
+    if (active_semantic_result.stay_in_current_tick) {
+        runtime_state_.dwell.last_usable = {};
+    }
     if (runtime_state_.dynamic_replan_requested) {
         if (runtime_state_.zipline_recovery.pending) {
             return HandleZiplineRecoveryReplan();
@@ -1259,9 +1264,8 @@ bool NavigationStateMachine::TickNavigate()
         return HandleDynamicReplanRequest("dynamic_replan");
     }
     if (active_semantic_result.stay_in_current_tick) {
-        // A semantic node owns this tick and takes its own fixes; drop the bridge so the time it spends standing
-        // still by design lands nowhere. The disc and the clock survive, so pausing can only delay a trip.
-        runtime_state_.dwell.last_usable = {};
+        // A semantic node owns this tick and takes its own fixes, so the time it spends standing still by design
+        // lands nowhere. The disc and the clock survive, so pausing can only delay a trip.
         return true;
     }
 
@@ -1340,6 +1344,10 @@ bool NavigationStateMachine::TickNavigate()
     if (inline_semantic_result.request_failure) {
         return FailNavigation(inline_semantic_result.failure_reason, inline_semantic_result.failure_log_message, 0.0, 0.0, 0);
     }
+    // Same ordering as above: the bridge goes down before the replan gate gets a chance to return.
+    if (inline_semantic_result.stay_in_current_tick) {
+        runtime_state_.dwell.last_usable = {};
+    }
     if (runtime_state_.dynamic_replan_requested) {
         if (runtime_state_.zipline_recovery.pending) {
             return HandleZiplineRecoveryReplan();
@@ -1347,8 +1355,6 @@ bool NavigationStateMachine::TickNavigate()
         return HandleDynamicReplanRequest("dynamic_replan");
     }
     if (inline_semantic_result.stay_in_current_tick) {
-        // Same as above: the node holds the tick, so its stationary time is skipped rather than credited.
-        runtime_state_.dwell.last_usable = {};
         return true;
     }
     if (!session_->HasCurrentWaypoint()) {
