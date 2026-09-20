@@ -548,8 +548,7 @@ bool NavigationStateMachine::CaptureCurrentPosition(bool force_global_search)
 void NavigationStateMachine::UpdateDwellWatchdog(bool captured)
 {
     DwellWatchdogState& dwell = runtime_state_.dwell;
-    const bool usable = captured && position_->valid && !position_provider_->LastCaptureWasHeld()
-                        && !position_provider_->LastCaptureWasBlackScreen();
+    const bool usable = captured && position_->valid && !position_provider_->LastCaptureWasBlackScreen();
     // Only walking counts: a transfer, a zipline ride or a scripted interaction stands still by design, and a
     // blind fix says nothing about whether the agent moved.
     if (!usable || session_->phase() != NaviPhase::Navigate) {
