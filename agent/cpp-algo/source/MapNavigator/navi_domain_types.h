@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <limits>
 #include <optional>
@@ -37,7 +38,8 @@ namespace mapnavigator
 //            与 COLLECT 不同，DIG 仍是精确抵达后停车触发（挖掘是定点动作，非行进检测）
 // FIND     - 寻找并接近一个只有识别框、没有坐标的目标：拿点名节点给出的框直接对着世界走
 //            （转视角搜索 / 对准了前进 / 走过头退一步），全程不读小地图。命中 find_stop 即算到位，
-//            预算走完还没命中就判该点失败。带 target 先走到锚点再找，不带就是就地开找的控制节点
+//            位置走到 find_arrive 附近同样算到位（两者都给就先到先算）。带 target 先走到锚点再找，
+//            不带就是就地开找的控制节点
 // ZIPLINE  - 滑索上索点：精确抵达后停车，把镜头转向下索点再交互上索，然后等滑行自己结束。
 //            只由滑索规划生成，不手写：能不能滑取决于两端的落差与跨度，那是规划器算出来的
 #define NAVI_ACTION_TYPES(X) \
@@ -172,8 +174,10 @@ struct Waypoint
     std::string find_target;
     // FIND 专用：内联 OCR 文本表，执行时注入内置节点
     std::vector<std::string> find_text;
-    // FIND 专用：命中它就算到位，必填
+    // FIND 专用：命中它就算到位，与 find_arrive 至少给一个
     std::string find_stop;
+    // FIND 专用：走到这个坐标附近也算到位。给了它才读定位, 判定只看 x/y 距离, 不参与转向
+    std::optional<std::array<double, 2>> find_arrive;
     // ZIPLINE only: 这一跳的计划(两端架子、落点仰角、备用站位)。只由滑索规划写入; 缺这个字段的
     // ZIPLINE 点是配置写错了, 执行侧拒绝
     std::optional<ZiplineHopPlan> zipline_hop;

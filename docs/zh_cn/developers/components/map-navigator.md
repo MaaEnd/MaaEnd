@@ -339,7 +339,7 @@ uv run map-navigator --port 9000 --no-browser
 | `INTERACT` | 交互一次；写了 `interact_text` 时升级为异步交互，见[异步交互](#异步交互-interact) |
 | `COLLECT` | 采集：停止移动，触发 OCR 识别并点击采集，见[采集与挖掘](#采集与挖掘-collect--dig) |
 | `DIG` | 挖掘：停止移动，触发挖掘子任务，见[采集与挖掘](#采集与挖掘-collect--dig) |
-| `FIND` | 寻找并接近一个只有识别框的目标：转视角搜索、按框前进，命中 `find_stop` 即算到位，见[寻找并接近目标](#寻找并接近目标-find) |
+| `FIND` | 寻找并接近一个只有识别框的目标：转视角搜索、按框前进，命中 `find_stop` 或走到 `find_arrive` 附近即算到位，见[寻找并接近目标](#寻找并接近目标-find) |
 | `NAVMESH` | 从当前定位自动规划路线并移动到 `target`；必须使用上方对象格式 |
 | `TRANSFER` | 原地等待外力（剧情、传送等）将角色送至下一段，再从后续点继续 |
 | `PORTAL` | 过图点，触发后盲走一小段并等待区域切换 |
@@ -432,7 +432,7 @@ uv run map-navigator --port 9000 --no-browser
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` 同样要导出后手写，工具只负责原样保留。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 同样要导出后手写，工具只负责原样保留。
 
 ---
 
@@ -452,7 +452,8 @@ uv run map-navigator --port 9000 --no-browser
 | `interact_rec` | `false` | 整条路线的 `INTERACT` 点是否只认提示不按键，见[只认提示不按键](#只认提示不按键rec-模式) |
 | `find_target` | 空 | 整条路线的 `FIND` 目标识别节点默认值，见[寻找并接近目标](#寻找并接近目标-find) |
 | `find_text` | 空 | 整条路线的 `FIND` 内联 OCR 文本表默认值，与 `find_target` 二选一 |
-| `find_stop` | 空 | 整条路线的 `FIND` 停止判据默认值，命中即算到位 |
+| `find_stop` | 空 | 整条路线的 `FIND` 提示判据默认值，命中即算到位 |
+| `find_arrive` | 空 | 整条路线的 `FIND` 到位坐标默认值，走到附近即算到位 |
 | `enable_bootstrap_navmesh` | `true` | 起步时是否先用 navmesh 规划一段接进路线。填 `false` 就跳过这步，直接照 `path` 里录制的点走；叠层地形（平台/栈道/屋顶）上起步规划绕远路时用它兜底 |
 
 顶层未知字段会被静默忽略，不报错。
@@ -474,7 +475,7 @@ uv run map-navigator --port 9000 --no-browser
 
 `interact_text` 的空字符串与空数组会被直接拒绝（整个节点参数解析失败），不会当作没写：空文本在识别侧等同于「什么都匹配」，见提示就按键。`interact_scan` 写空字符串等同于没写，回落到出厂的那一份。
 
-`find_target` / `find_text` / `find_stop` 与 `interact_*` 同一条规则：写在点上的优先，路线级只补给那些自己没写的 `FIND` 点，驼峰写法 `findTarget` / `findText` / `findStop` 一样接受。区别在于它们没有「退回原语义」这一档——`FIND` 点缺目标或缺停止判据时整个节点参数解析失败，而不是白转一圈。
+`find_target` / `find_text` / `find_stop` / `find_arrive` 与 `interact_*` 同一条规则：写在点上的优先，路线级只补给那些自己没写的 `FIND` 点，驼峰写法 `findTarget` / `findText` / `findStop` / `findArrive` 一样接受。区别在于它们没有「退回原语义」这一档——`FIND` 点缺目标或缺到位判据时整个节点参数解析失败，而不是白转一圈。
 
 ### 执行结果
 
@@ -842,9 +843,9 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 
 ## 寻找并接近目标 `FIND`
 
-`FIND` 用来处理**只有识别框、没有坐标**的目标：NPC 名字牌、场景物件标签都行。导航器拿到框之后直接对着世界走——原地转视角搜索、把目标转到画面中线附近再前进、目标掉到身后就退一步——**全程不读小地图，也不依赖定位**；命中 `find_stop` 点名的节点即算到位。
+`FIND` 用来处理**只有识别框、没有坐标**的目标：NPC 名字牌、场景物件标签都行。导航器拿到框之后直接对着世界走——原地转视角搜索、把目标转到画面中线附近再前进、目标掉到身后就退一步，**默认全程不读小地图**；命中 `find_stop` 点名的节点、或位置走到 `find_arrive` 附近即算到位。
 
-正因为它不读地图，`FIND` 是定位的断层：结束时角色可能站在路网之外、朝向任意，导航器会在退出时作废操舵与走廊记账，让下一段从新定位重新起算。**建议在 `FIND` 后面留一个普通移动点**；把 `FIND` 直接接在终点上时，路线会在命中后立刻结束。
+搜索阶段是开环转视角，`FIND` 因此是定位的断层：结束时角色可能站在路网之外、朝向任意，导航器会在退出时作废操舵与走廊记账，让下一段从新定位重新起算。**建议在 `FIND` 后面留一个普通移动点**；把 `FIND` 直接接在终点上时，路线会在到位后立刻结束。
 
 ### 两种写法
 
@@ -878,13 +879,16 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 | -------------- | --------------------------------------------------------------------------------------------- |
 | `find_target` | 目标识别节点名。任意产出框的节点都行：OCR、`NeuralNetworkDetect`、`TemplateMatch`、`And` 组合 |
 | `find_text` | 内联 OCR 文本表，写字符串或字符串数组。与 `find_target` 二选一 |
-| `find_stop` | **必填。** 命中它就停车收尾，一般是交互提示 |
+| `find_stop` | 命中它就停车收尾，一般是交互提示 |
+| `find_arrive` | `[x, y]`。位置走到它附近（2 个单位内）也算收尾 |
 
-`find_text` 也可以写成 `{ "node": "某个 OCR 节点" }`，与 `find_target` 同义。三个字段都能写在路线顶层当默认值。
+`find_stop` 与 `find_arrive` **至少给一个**：前者是「看到提示就算到了」，后者是「走到那个坐标就算到了」，两个都给就先到先算。`find_text` 也可以写成 `{ "node": "某个 OCR 节点" }`，与 `find_target` 同义。这些字段都能写在路线顶层当默认值。
 
-- **`find_target` 与 `find_text` 写在同一个点上、或者 `find_stop` 缺省，都会让整个节点参数解析失败。** 缺的是识别节点而不是运气，值得当场拒绝，而不是白转一圈才发现。
+**`find_arrive` 只做「到位确认」，不参与导航。** 走还是按识别框走，它只是把「到了」从提示命中换成位置判定：目标没有交互提示、或者提示识别不稳时，把终点坐标写进去，位置一进半径就收尾。写了它的 `FIND` 点会**每拍读一次定位**（只取 x/y 算距离，不参与转向、也不进操舵记账），没写的点仍然全程不读小地图——这一点要记住，它是两种模式唯一的差别。
+
+- **`find_target` 与 `find_text` 写在同一个点上、或者 `find_stop` 与 `find_arrive` 都没写，都会让整个节点参数解析失败。** 缺的是识别节点而不是运气，值得当场拒绝，而不是白转一圈才发现。
 - **点名节点不存在、识别报错、节点命中却没给出可用的框**（例如把 `DirectHit` 当目标节点）都会立刻判该点失败，不会当成「没看见」继续搜索。
-- **预算走完仍未命中 `find_stop`** 时判该点失败，`MapNavigateAction` 返回 false，交给外层 `on_error` / 重试兜底。步数与时长见 `navi_config.h` 的 `kFindMaxSteps` / `kFindBudgetMs`。
+- **预算走完仍没到位** 时判该点失败，`MapNavigateAction` 返回 false，交给外层 `on_error` / 重试兜底。步数与时长见 `navi_config.h` 的 `kFindMaxSteps` / `kFindBudgetMs`，到位半径沿用 strict 到达的 `kStrictArrivalLookaheadRadius`。
 
 ### 搜索与接近的行为
 

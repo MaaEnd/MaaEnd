@@ -5,7 +5,7 @@
  * A `PathPoint` is a plain object:
  *   { x:number, y:number, action:number, actions:number[], zone:string, strict:boolean,
  *     required?:true, target_tier?:string, target_deck_y?:number,
- *     find_target?:string, find_text?:string[], find_stop?:string,
+ *     find_target?:string, find_text?:string[], find_stop?:string, find_arrive?:number[],
  *     auto_portal?:true, suppress_auto_portal?:true }
  * Invariant on `actions`: either `[RUN]` or a list of non-RUN/NONE actions; `action`
  * always mirrors the last element of the normalised chain.
@@ -352,7 +352,25 @@ export function findFieldsOf(point) {
   if (texts.length) fields.find_text = texts;
   const stop = String(point.find_stop === undefined ? "" : point.find_stop).trim();
   if (stop) fields.find_stop = stop;
+  const arrive = coerceFindArrive(point.find_arrive);
+  if (arrive.length) fields.find_arrive = arrive;
   return fields;
+}
+
+/**
+ * `find_arrive` is an `[x, y]` of finite numbers; anything else counts as not written.
+ * Mirrors `model.coerce_find_arrive`.
+ * @param {unknown} value
+ * @returns {number[]}
+ */
+export function coerceFindArrive(value) {
+  if (!Array.isArray(value) || value.length !== 2) return [];
+  const numbers = [];
+  for (const item of value) {
+    if (typeof item !== "number" || !Number.isFinite(item)) return [];
+    numbers.push(item);
+  }
+  return numbers;
 }
 
 /**
@@ -368,7 +386,8 @@ function findFieldsEqual(a, b) {
   return (
     (fa.find_target || "") === (fb.find_target || "") &&
     (fa.find_stop || "") === (fb.find_stop || "") &&
-    arraysEqual(fa.find_text || [], fb.find_text || [])
+    arraysEqual(fa.find_text || [], fb.find_text || []) &&
+    arraysEqual(fa.find_arrive || [], fb.find_arrive || [])
   );
 }
 

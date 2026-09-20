@@ -40,6 +40,7 @@ class PathPoint(TypedDict):
     find_target: NotRequired[str]
     find_text: NotRequired[list[str]]
     find_stop: NotRequired[str]
+    find_arrive: NotRequired[list[float]]
     auto_portal: NotRequired[bool]
     suppress_auto_portal: NotRequired[bool]
 
@@ -267,8 +268,23 @@ def coerce_find_text(value: object) -> list[str]:
     return texts
 
 
+def coerce_find_arrive(value: object) -> list[float]:
+    """find_arrive 只认两个有限数字的坐标：其他形状一律当没写。"""
+    if isinstance(value, bool) or not isinstance(value, (list, tuple)) or len(value) != 2:
+        return []
+    numbers: list[float] = []
+    for item in value:
+        if isinstance(item, bool) or not isinstance(item, (int, float)):
+            return []
+        number = float(item)
+        if not math.isfinite(number):
+            return []
+        numbers.append(number)
+    return numbers
+
+
 def find_fields_of(point: "PathPoint") -> dict[str, object]:
-    """FIND 点要带出去的三个字段，任何一个没写就整个不出现在导出结果里。"""
+    """FIND 点要带出去的字段，任何一个没写就整个不出现在导出结果里。"""
     fields: dict[str, object] = {}
     target = str(point.get("find_target", "") or "").strip()
     if target:
@@ -279,6 +295,9 @@ def find_fields_of(point: "PathPoint") -> dict[str, object]:
     stop = str(point.get("find_stop", "") or "").strip()
     if stop:
         fields["find_stop"] = stop
+    arrive = coerce_find_arrive(point.get("find_arrive"))
+    if arrive:
+        fields["find_arrive"] = arrive
     return fields
 
 

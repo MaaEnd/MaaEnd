@@ -177,6 +177,63 @@ class ExportPathNodesTest(unittest.TestCase):
 
         self.assertEqual(len(normalize_path_points([first, second])), 2)
 
+    def test_preserves_find_arrive_on_import_and_export(self) -> None:
+        routes = discover_path_routes(
+            {
+                "path": [
+                    {
+                        "action": "FIND",
+                        "target": [
+                            1242.04,
+                            773.41,
+                        ],
+                        "find_target": "GiftOperatorName",
+                        "findArrive": [
+                            1180.5,
+                            640.25,
+                        ],
+                    }
+                ]
+            }
+        )
+
+        self.assertEqual(routes[0][0]["find_arrive"], [1180.5, 640.25])
+        self.assertEqual(
+            export_path_nodes(routes[0]),
+            [
+                {
+                    "action": "FIND",
+                    "target": [
+                        1242.04,
+                        773.41,
+                    ],
+                    "find_target": "GiftOperatorName",
+                    "find_arrive": [
+                        1180.5,
+                        640.25,
+                    ],
+                }
+            ],
+        )
+
+    def test_does_not_merge_same_coordinate_with_different_find_arrive(self) -> None:
+        first = make_point(ActionType.FIND)
+        first["find_target"] = "NodeA"
+        first["find_arrive"] = [100.0, 200.0]
+        second = make_point(ActionType.FIND)
+        second["find_target"] = "NodeA"
+        second["find_arrive"] = [300.0, 400.0]
+
+        self.assertEqual(len(normalize_path_points([first, second])), 2)
+
+    def test_ignores_malformed_find_arrive(self) -> None:
+        for malformed in ([100.0], [100.0, 200.0, 300.0], ["100", 200.0], [100.0, float("inf")]):
+            point = make_point(ActionType.FIND)
+            point["find_target"] = "NodeA"
+            point["find_stop"] = "StopNode"
+            point["find_arrive"] = malformed  # type: ignore[typeddict-item]
+            self.assertNotIn("find_arrive", normalize_path_points([point])[0])
+
     def test_exports_required_recorded_action_as_object(self) -> None:
         nodes = export_path_nodes([make_point(ActionType.TRANSFER, required=True)])
 

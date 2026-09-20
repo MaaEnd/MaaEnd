@@ -33,6 +33,7 @@ TARGET_DECK_Y_KEYS = ("target_deck_y", "targetDeckY")
 FIND_TARGET_KEYS = ("find_target", "findTarget")
 FIND_TEXT_KEYS = ("find_text", "findText")
 FIND_STOP_KEYS = ("find_stop", "findStop")
+FIND_ARRIVE_KEYS = ("find_arrive", "findArrive")
 CONTROL_ACTION_NAMES = {"HEADING", "ZONE"}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = PROJECT_ROOT / "assets"
@@ -769,6 +770,10 @@ def _resolve_find_fields(node: dict[str, Any]) -> dict[str, object]:
     for stop_key in FIND_STOP_KEYS:
         if stop_key in node:
             raw["find_stop"] = node.get(stop_key)
+            break
+    for arrive_key in FIND_ARRIVE_KEYS:
+        if arrive_key in node:
+            raw["find_arrive"] = node.get(arrive_key)
             break
     return find_fields_of(raw)  # type: ignore[arg-type]
 

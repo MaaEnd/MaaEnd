@@ -98,6 +98,24 @@ int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::stead
     return std::chrono::duration_cast<std::chrono::milliseconds>(now - from).count();
 }
 
+// 到位判据之二: 走到 find_arrive 附近 (半径沿用 strict 到达的判定圈)。只有写了它才读定位, 读数只用于算距离
+bool ReachedArrivePoint(const Context& ctx, const Waypoint& waypoint)
+{
+    if (!waypoint.find_arrive.has_value()) {
+        return false;
+    }
+    if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id()) || ctx.position_provider->LastCaptureWasHeld()
+        || ctx.position_provider->LastCaptureWasBlackScreen()) {
+        return false; // 读不到就这一拍不算数, 下一步再读
+    }
+
+    const double dx = ctx.position->x - waypoint.find_arrive->at(0);
+    const double dy = ctx.position->y - waypoint.find_arrive->at(1);
+    const double distance = std::hypot(dx, dy);
+    LogDebug << "FIND: arrive point distance." << VAR(distance) << VAR(kStrictArrivalLookaheadRadius);
+    return distance <= kStrictArrivalLookaheadRadius;
+}
+
 // 退出时作废操舵记账、走廊、速度样本与路点进度: 这一段没读地图, 转视角是开环发的,
 // 留下的账会让下一段拿旧朝向去操舵
 void LeaveFindPhase(const Context& ctx)
@@ -183,8 +201,7 @@ bool ApproachSighting(const Context& ctx, FindState& find, const MaaRect& box, i
 
     const double half_height = static_cast<double>(frame_height) / 2.0;
     const double far_factor = std::clamp((half_height - static_cast<double>(center_y)) / half_height, 0.0, 1.0);
-    const int32_t hold_ms =
-        static_cast<int32_t>(std::lround(kFindForwardPulseMs * (1.0 + (kFindFarPulseScaleMax - 1.0) * far_factor)));
+    const int32_t hold_ms = static_cast<int32_t>(std::lround(kFindForwardPulseMs * (1.0 + (kFindFarPulseScaleMax - 1.0) * far_factor)));
     LogDebug << "FIND: stepping forward." << VAR(find.steps) << VAR(far_factor) << VAR(hold_ms);
     ctx.action_wrapper->PulseForwardSync(hold_ms);
     return true;
@@ -236,12 +253,12 @@ Result TickFindTarget(const Context& ctx)
         find.started_at = now;
     }
     if (find.steps >= kFindMaxSteps || ElapsedMs(find.started_at, now) >= kFindBudgetMs) {
-        return FailFind(ctx, "find_budget_exhausted", "FIND ran out of its search budget before the stop node hit.");
+        return FailFind(ctx, "find_budget_exhausted", "FIND ran out of budget before the stop node hit or the arrive point was reached.");
     }
     ++find.steps;
 
-    if (waypoint.find_stop.empty()) {
-        return FailFind(ctx, "find_stop_missing", "FIND point has no find_stop.");
+    if (waypoint.find_stop.empty() && !waypoint.find_arrive.has_value()) {
+        return FailFind(ctx, "find_criteria_missing", "FIND point has neither find_stop nor find_arrive.");
     }
 
     MaaController* controller = ctx.action_wrapper->GetCtrl();
@@ -253,15 +270,23 @@ Result TickFindTarget(const Context& ctx)
         return result;
     }
 
-    FindSighting stop_sighting {};
-    if (!RunFindNode(ctx.maa_context, waypoint.find_stop, "{}", image.Get(), &stop_sighting)) {
-        return FailFind(ctx, "find_recognition_failed", "FIND stop node failed to recognize.");
+    if (!waypoint.find_stop.empty()) {
+        FindSighting stop_sighting {};
+        if (!RunFindNode(ctx.maa_context, waypoint.find_stop, "{}", image.Get(), &stop_sighting)) {
+            return FailFind(ctx, "find_recognition_failed", "FIND stop node failed to recognize.");
+        }
+        if (stop_sighting.hit) {
+            LogInfo << "FIND: stop node hit, target reached." << VAR(waypoint.find_stop) << VAR(find.steps) << VAR(waypoint.x)
+                    << VAR(waypoint.y);
+            LeaveFindPhase(ctx);
+            return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), "find_target_reached");
+        }
     }
-    if (stop_sighting.hit) {
-        LogInfo << "FIND: stop node hit, target reached." << VAR(waypoint.find_stop) << VAR(find.steps) << VAR(waypoint.x)
-                << VAR(waypoint.y);
+
+    if (ReachedArrivePoint(ctx, waypoint)) {
+        LogInfo << "FIND: arrive point reached." << VAR(find.steps) << VAR(waypoint.find_arrive->at(0)) << VAR(waypoint.find_arrive->at(1));
         LeaveFindPhase(ctx);
-        return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), "find_target_reached");
+        return CompleteArrival(ctx, waypoint, ctx.session->CurrentAbsoluteNodeIndex(), "find_arrive_reached");
     }
 
     const bool inline_text = waypoint.find_target.empty();

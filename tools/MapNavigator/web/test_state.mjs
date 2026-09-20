@@ -77,6 +77,14 @@ test("FIND fields survive normalization and keep distinct specs apart", () => {
     makePoint(ActionType.FIND, {find_target: "NodeB", find_stop: "StopNode"}),
   ]);
   assert.equal(sameCoordinate.length, 2);
+
+  const withArrive = normalizePathPoints([
+    makePoint(ActionType.FIND, {find_target: "NodeA", find_arrive: [10, 20]}),
+    makePoint(ActionType.FIND, {find_target: "NodeA", find_arrive: [30, 40]}),
+  ]);
+  assert.equal(withArrive.length, 2);
+  assert.deepEqual(withArrive[0].find_arrive, [10, 20]);
+  assert.equal(normalizePathPoints([makePoint(ActionType.FIND, {find_arrive: [1]})])[0].find_arrive, undefined);
 });
 
 test("selected NAVMESH target deck participates in undo, redo, and clear", () => {
