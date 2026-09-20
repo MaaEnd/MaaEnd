@@ -55,17 +55,9 @@
             -1,
             -1
         ], // 必须覆写此字段
-        "post_wait_freezes": {
-            "time": 2000,
-            "target": [
-                2,
-                164,
-                264,
-                103
-            ]
-        },
         "timeout": 5000,
         "next": [
+            "SeizeDeliveryJobsExistDueTaskAfterAccept",
             "SeizeDeliveryJobsIsSeizeSuccess"
         ],
         "on_error": [

@@ -214,6 +214,7 @@
         "timeout": 10000, // 断言能在短时间内弹出接取成功动画
         "rate_limit": 250, // 加速等待
         "next": [
+            "SeizeDeliveryJobsExistDueTaskAfterAccept",
             "SeizeDeliveryJobsIsSeizeSuccess"
         ],
         "on_error": [
@@ -223,6 +224,23 @@
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.orderFound"
         }
+    },
+    "SeizeDeliveryJobsExistDueTaskAfterAccept": {
+        "desc": "点击接取后，识别已有其他送货任务提示",
+        "recognition": "OCR",
+        "roi": [
+            516,
+            113,
+            262,
+            23
+        ],
+        "expected": [
+            "当前已有其他送货任务，请完成后再接取"
+        ],
+        "next": [
+            "SeizeDeliveryJobsPostProcessingEntry",
+            "SeizeDeliveryJobsFailedExistDueTask"
+        ]
     },
     "SeizeDeliveryJobsIsSeizeSuccess": {
         "desc": "点击接取委托后，检查是否接取成功",
