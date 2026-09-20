@@ -33,6 +33,7 @@ var htmlTemplates = map[string]string{
 	"tasker.task_failed_feedback_hint":        "HTML/task-failed-feedback.html",
 	"tasker.hdr_warning":                      "HTML/hdr-warning.html",
 	"tasker.aspect_ratio_warning":             "HTML/aspect-ratio-warning.html",
+	"tasker.rtss_osd_warning":                 "HTML/rtss-osd-warning.html",
 	"essencefilter.loot_summary":              "HTML/essencefilter-loot-summary.html",
 	"essencefilter.init_weapons":              "HTML/essencefilter-init-weapons.html",
 	"essencefilter.init_skills":               "HTML/essencefilter-init-skills.html",
