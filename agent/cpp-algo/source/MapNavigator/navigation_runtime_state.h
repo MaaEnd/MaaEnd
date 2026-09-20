@@ -74,8 +74,6 @@ struct SemanticState
     std::chrono::steady_clock::time_point portal_transit_started {};
     // 这一次上索是行进预筛叫停的, 人可能还差几步。此时认不出提示只说明预筛看错了, 不该丢链
     bool zipline_prompt_probe = false;
-    std::string held_zone_candidate;
-    int held_zone_hits = 0;
 
     void ResetTransient()
     {
@@ -87,8 +85,6 @@ struct SemanticState
         portal_transit_needs_reacquire = false;
         portal_transit_started = {};
         zipline_prompt_probe = false;
-        held_zone_candidate.clear();
-        held_zone_hits = 0;
     }
 };
 
@@ -349,7 +345,6 @@ struct ZiplineRecoveryState
     std::chrono::steady_clock::time_point started_at {};
     NaviPosition stable_pos {};
     int32_t stable_hits = 0;
-    int32_t rejected_fixes = 0;
     bool pending = false;
 
     void Begin(const std::chrono::steady_clock::time_point& now)
@@ -357,7 +352,6 @@ struct ZiplineRecoveryState
         started_at = now;
         stable_pos = {};
         stable_hits = 0;
-        rejected_fixes = 0;
         pending = true;
     }
 
@@ -366,7 +360,6 @@ struct ZiplineRecoveryState
         started_at = {};
         stable_pos = {};
         stable_hits = 0;
-        rejected_fixes = 0;
         pending = false;
     }
 };

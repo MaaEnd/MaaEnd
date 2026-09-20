@@ -28,36 +28,6 @@ namespace semantic_nodes
 namespace
 {
 
-void ClearHeldZoneCandidate(NavigationRuntimeState* runtime_state)
-{
-    runtime_state->semantic.held_zone_candidate.clear();
-    runtime_state->semantic.held_zone_hits = 0;
-}
-
-bool AcceptHeldZoneCandidate(const Context& ctx, const std::string& zone_id)
-{
-    if (zone_id.empty()) {
-        ClearHeldZoneCandidate(ctx.runtime_state);
-        return false;
-    }
-
-    if (!ctx.position_provider->LastCaptureWasHeld()) {
-        ctx.runtime_state->semantic.held_zone_candidate = zone_id;
-        ctx.runtime_state->semantic.held_zone_hits = 1;
-        return true;
-    }
-
-    if (ctx.runtime_state->semantic.held_zone_candidate == zone_id) {
-        ++ctx.runtime_state->semantic.held_zone_hits;
-    }
-    else {
-        ctx.runtime_state->semantic.held_zone_candidate = zone_id;
-        ctx.runtime_state->semantic.held_zone_hits = 1;
-    }
-
-    return ctx.runtime_state->semantic.held_zone_hits >= kZoneConfirmStableFrames;
-}
-
 void ConsumeMatchedZoneNodes(const Context& ctx)
 {
     while (ctx.session->HasCurrentWaypoint() && ctx.session->CurrentWaypoint().IsZoneDeclaration()) {
@@ -90,7 +60,6 @@ Result FinalizePortalTransitZone(const Context& ctx, const std::string& zone_id,
     ctx.session->UpdateCurrentZone(zone_id);
     ctx.session->ResetProgress();
     ctx.runtime_state->OnWaypointAdvance();
-    ClearHeldZoneCandidate(ctx.runtime_state);
     ConsumeMatchedZoneNodes(ctx);
     StopMotionAndCommitment(ctx);
     ctx.position_provider->ResetTracking();
@@ -128,7 +97,7 @@ Result TickPortalTransit(const Context& ctx)
             utils::SleepFor(kZoneConfirmRetryIntervalMs);
             return result;
         }
-        if (ctx.position_provider->LastCaptureWasHeld() || ctx.position->zone_id != ctx.session->current_zone_id()) {
+        if (ctx.position->zone_id != ctx.session->current_zone_id()) {
             result.stay_in_current_tick = true;
             utils::SleepFor(kZoneConfirmRetryIntervalMs);
             return result;
@@ -139,7 +108,6 @@ Result TickPortalTransit(const Context& ctx)
         ctx.runtime_state->semantic.portal_transit_needs_reacquire = false;
         ctx.runtime_state->semantic.portal_transit_started = {};
         ctx.runtime_state->dynamic_replan_requested = true;
-        ClearHeldZoneCandidate(ctx.runtime_state);
         LogInfo << "Portal transit landing confirmed." << VAR(ctx.position->zone_id);
         result.consumed = true;
         result.stay_in_current_tick = true;
@@ -168,14 +136,6 @@ Result TickPortalTransit(const Context& ctx)
     const size_t matched_zone_index = FindFutureZoneDeclaration(ctx, candidate.zone_id);
     if (matched_zone_index == std::numeric_limits<size_t>::max()) {
         StopMotionAndCommitment(ctx);
-        result.stay_in_current_tick = true;
-        utils::SleepFor(kZoneConfirmRetryIntervalMs);
-        return result;
-    }
-
-    if (!AcceptHeldZoneCandidate(ctx, candidate.zone_id)) {
-        StopMotionAndCommitment(ctx);
-        ctx.position_provider->ResetTracking();
         result.stay_in_current_tick = true;
         utils::SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
@@ -220,19 +180,6 @@ Result TickTransferWaitImpl(const Context& ctx)
 
     const int64_t waited_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(now - ctx.runtime_state->semantic.transfer_wait_started).count();
-    if (ctx.position_provider->LastCaptureWasHeld()) {
-        ctx.runtime_state->semantic.transfer_stable_hits = 0;
-        if (waited_ms > kRelocationWaitTimeoutMs) {
-            result.request_failure = true;
-            result.failure_reason = "transfer_wait_timeout";
-            result.failure_log_message = "TRANSFER wait timed out while locator fix stayed held.";
-            return result;
-        }
-        result.stay_in_current_tick = true;
-        utils::SleepFor(kRelocationRetryIntervalMs);
-        return result;
-    }
-
     const double moved_from_anchor = std::hypot(
         ctx.position->x - ctx.runtime_state->semantic.transfer_anchor_pos.x,
         ctx.position->y - ctx.runtime_state->semantic.transfer_anchor_pos.y);
@@ -344,7 +291,7 @@ bool CaptureCleanFix(const Context& ctx, NaviPosition* out_pos)
             utils::SleepFor(kStrictSettleFixIntervalMs);
         }
         if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
-            || ctx.position_provider->LastCaptureWasHeld() || ctx.position_provider->LastCaptureWasBlackScreen()) {
+            || ctx.position_provider->LastCaptureWasBlackScreen()) {
             continue;
         }
         *out_pos = *ctx.position;
@@ -361,8 +308,7 @@ bool CaptureStableHeadingImpl(const Context& ctx, double* out_heading, const Can
         if (frame > 0) {
             utils::SleepFor(kHeadingStableReadIntervalMs);
         }
-        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
-            || ctx.position_provider->LastCaptureWasHeld()) {
+        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
             continue;
         }
         const double current = NaviMath::NormalizeAngle(ctx.position->angle);
@@ -648,7 +594,6 @@ Result ArrivePortal(const Context& ctx, const std::optional<size_t>& node_idx, d
     ctx.runtime_state->semantic.portal_transit_keep_moving_until_fix = true;
     ctx.runtime_state->semantic.portal_transit_needs_reacquire = false;
     ctx.runtime_state->semantic.portal_transit_started = std::chrono::steady_clock::now();
-    ClearHeldZoneCandidate(ctx.runtime_state);
     ctx.position_provider->ResetTracking();
     ctx.motion_controller->SetForwardState(true);
     LogInfo << "Action: PORTAL entered transit flow." << VAR(actual_distance);

@@ -877,20 +877,8 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     const navmesh::WorldPoint fix { .x = position_->x, .y = position_->y };
     const auto snap = NavmeshSnapAt(param_, position_->zone_id, fix, param_.navmesh_snap_radius);
     const bool on_mesh = on_tower || (snap && snap->distance <= param_.navmesh_snap_radius);
-    // 滑行期间的跟踪结果不可用, 只接受新鲜定位。贴不回可走面的定位同样接受: 它表示落点不在路面
-    // 上(落到未登记的架子、崖边未铺面处), 坐标本身仍然有效, 重展开时规划会吸附回最近的可走面。
-    if (position_provider_->LastCaptureWasHeld()) {
-        ++recovery.rejected_fixes;
-        if (recovery.rejected_fixes == 1) {
-            LogWarn << "Zipline recovery rejected a stale position; forcing another global locate." << VAR(on_mesh) << VAR(position_->x)
-                    << VAR(position_->y) << VAR(position_->zone_id);
-        }
-        recovery.stable_hits = 0;
-        position_provider_->ResetTracking();
-        utils::SleepFor(kZiplineRecoveryRetryIntervalMs);
-        return true;
-    }
-
+    // 贴不回可走面的定位照样接受: 它表示落点不在路面上(落到未登记的架子、崖边未铺面处),
+    // 坐标本身仍然有效, 重展开时规划会吸附回最近的可走面。
     const bool same_fix =
         recovery.stable_hits > 0 && recovery.stable_pos.zone_id == position_->zone_id
         && std::hypot(recovery.stable_pos.x - position_->x, recovery.stable_pos.y - position_->y) <= kZiplineRecoveryStableRadiusWu;
@@ -904,8 +892,8 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     if (!position_->zone_id.empty()) {
         session_->UpdateCurrentZone(position_->zone_id);
     }
-    LogInfo << "Zipline recovery position stabilized." << VAR(elapsed_ms) << VAR(recovery.stable_hits) << VAR(recovery.rejected_fixes)
-            << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
+    LogInfo << "Zipline recovery position stabilized." << VAR(elapsed_ms) << VAR(recovery.stable_hits) << VAR(position_->x)
+            << VAR(position_->y) << VAR(position_->zone_id);
 
     // 剩余展开是按「从链尾落点出发」算的, 实际未抵达该点时它与当前位置无关: 可接入点可能在另
     // 一侧, 沿途会撞上原本要用索越过的障碍。先回作者路线从当前位置重新展开, 判死的那一跳已记入
@@ -1155,10 +1143,9 @@ bool NavigationStateMachine::ExecutePhysicalUnstick(double stuck_heading)
     double moved = 0.0;
     for (int pulse = 0; pulse < kUnstickMaxPulses; ++pulse) {
         action_wrapper_->PulseForwardSync(kUnstickPulseMs);
-        // Stop the moment tracking goes blind (held / black screen = a likely river fall) so we don't keep
-        // driving forward into the water; the next tick's loss handling takes over.
-        if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasHeld() || position_provider_->LastCaptureWasBlackScreen()
-            || !position_->valid) {
+        // Stop the moment tracking goes blind (a lost fix / black screen = a likely river fall) so we don't
+        // keep driving forward into the water; the next tick's loss handling takes over.
+        if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
             break;
         }
         moved = std::hypot(position_->x - step_start.x, position_->y - step_start.y);
@@ -1299,15 +1286,12 @@ bool NavigationStateMachine::TickNavigate()
         runtime_state_.flow.navigate_started_at.time_since_epoch().count() > 0
         && std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.flow.navigate_started_at).count() >= 3000;
     const double current_heading = NaviMath::NormalizeAngle(position_->angle);
-    const bool degraded_fix =
-        position_provider_->LastCaptureWasHeld() || position_provider_->LastCaptureWasBlackScreen() || !position_->valid;
+    const bool degraded_fix = position_provider_->LastCaptureWasBlackScreen() || !position_->valid;
     // Gap between the screencap this tick's fix came from and the decision below: the locate itself plus the work
-    // in between. Every successful capture restamps, held ones included, so how stale the coordinates themselves
-    // are is held_fix_streak, not this.
+    // in between. Every successful capture restamps, so this only measures the current tick's own latency.
     const int64_t fix_age_ms = position_->timestamp.time_since_epoch().count() > 0
                                    ? std::chrono::duration_cast<std::chrono::milliseconds>(now - position_->timestamp).count()
                                    : 0;
-    const int held_fix_streak = position_provider_->HeldFixStreak();
 
     const size_t node_idx_before_tracking = session_->current_node_idx();
     RouteTrackingState route = RouteTracker::Update(session_, &runtime_state_.route, *position_);
@@ -1694,8 +1678,7 @@ bool NavigationStateMachine::TickNavigate()
                 motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
                 utils::SleepFor(kActionJumpSettleMs);
                 motion_controller_->SetForwardState(false);
-                if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasHeld()
-                    || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
+                if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
                     LogWarn << "Dynamic recovery waiting for post-jump local tracking fix." << VAR(stalled_ms)
                             << VAR(escalation.jump_attempt_count);
                     utils::SleepFor(kTargetTickMs);
@@ -1929,8 +1912,8 @@ bool NavigationStateMachine::TickNavigate()
              << VAR(nav_run_result.upcoming_turn_deg) << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg)
              << VAR(heading_rate_gap_ms) << VAR(heading_rate_gap_ticks) << VAR(heading_error) << VAR(steering.yaw_delta_deg)
              << VAR(issued_delta_deg) << VAR(turn_achieved_deg) << VAR(turn_residual_deg) << VAR(turn_elapsed_ms)
-             << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(held_fix_streak) << VAR(capture_ms)
-             << VAR(fix_age_ms) << VAR(tick_gap_ms) << VAR(tick_compute_ms);
+             << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(capture_ms) << VAR(fix_age_ms)
+             << VAR(tick_gap_ms) << VAR(tick_compute_ms);
 
     // 只有走到这里的拍才是完整的常规导航拍，语义节点、恢复、丢定位在上面就提前 return 了。
     latency::RecordStage(latency::Stage::Other, std::max<int64_t>(0, tick_compute_ms - capture_ms - steer_send_ms));

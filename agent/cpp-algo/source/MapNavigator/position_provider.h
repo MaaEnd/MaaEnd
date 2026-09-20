@@ -30,9 +30,7 @@ public:
         int retry_interval_ms,
         const std::function<bool()>& should_stop);
     void ResetTracking();
-    bool LastCaptureWasHeld() const;
     bool LastCaptureWasBlackScreen() const;
-    int HeldFixStreak() const;
 
     // Optional post-locate hook: maps every successful fix onto a common coordinate frame at the single
     // capture chokepoint (so every consumer — WaitForFix, the state machine, semantic nodes — sees the
@@ -51,9 +49,7 @@ private:
     std::function<void(NaviPosition&)> position_normalizer_;
     std::function<void(const cv::Mat&)> frame_observer_;
     bool uses_adb_minimap_roi_ = false;
-    bool last_capture_was_held_ = false;
     bool last_capture_was_black_screen_ = false;
-    int held_fix_streak_ = 0;
 };
 
 } // namespace mapnavigator

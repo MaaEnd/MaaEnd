@@ -19,7 +19,6 @@ struct MapPosition
     int sliceIndex = 0;
     double angle = 0.0;
     long long latencyMs = 0;
-    bool isHeld = false;
 };
 
 struct MapLocatorConfig
@@ -46,7 +45,7 @@ struct SearchHint
 
 struct LocateOptions
 {
-    double loc_threshold = 0.55;      // 最低分数线
+    double loc_threshold = 0.55;      // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
     double yolo_threshold = 0.70;
     bool force_global_search = false; // 是否强制放弃当前追踪，进行全局全图搜
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
@@ -240,7 +239,7 @@ struct TrackingConfig
 struct MatchConfig
 {
     int fineSearchRadius = 40;   // 精搜半径(px)
-    double passThreshold = 0.55; // 全局搜索及格线, 容忍UI遮挡+光影
+    double passThreshold = 0.55; // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
     double yoloConfThreshold = 0.60;
 };
 
