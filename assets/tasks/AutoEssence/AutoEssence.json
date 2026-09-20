@@ -391,6 +391,20 @@
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
+                        },
+                        "AutoEssenceLowSpFallbackChooseScaling1": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallbackConfirmObtain": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallback": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpUseMedication": {
+                            "anchor": {
+                                "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceLowSpFallbackChooseScaling1"
+                            }
                         }
                     },
                     "option": [
@@ -445,6 +459,20 @@
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
+                        },
+                        "AutoEssenceLowSpFallbackChooseScaling1": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallbackConfirmObtain": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallback": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpUseMedication": {
+                            "anchor": {
+                                "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceLowSpFallbackChooseScaling1"
+                            }
                         }
                     },
                     "option": [
@@ -509,6 +537,20 @@
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
+                        },
+                        "AutoEssenceLowSpFallbackChooseScaling1": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallbackConfirmObtain": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallback": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpUseMedication": {
+                            "anchor": {
+                                "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceLowSpFallbackChooseScaling1"
+                            }
                         },
                         "AutoEssenceChooseOverrideOff": {
                             "enabled": false

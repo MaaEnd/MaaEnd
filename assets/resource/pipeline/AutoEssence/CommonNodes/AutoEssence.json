@@ -1364,6 +1364,83 @@
         "inverse": true,
         "next": [
             "AutoEssenceLowSpUseMedication",
+            "AutoEssenceLowSpFallbackChooseScaling1",
+            "AutoEssenceLowSpCancelObtain"
+        ]
+    },
+    "AutoEssenceLowSpFallbackChooseScaling1": {
+        "desc": "双倍领取失败后切换为单倍领取",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    260,
+                    190,
+                    490,
+                    360
+                ],
+                "template": "AutoEssence/EssenceScaling1.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "AutoEssenceLowSpFallbackConfirmObtain"
+        ]
+    },
+    "AutoEssenceLowSpFallbackConfirmObtain": {
+        "desc": "确认领取单倍奖励并进入单倍领取结果分支",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    630,
+                    455,
+                    420,
+                    260
+                ],
+                "template": "Common/Button/YellowConfirmButtonType1.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                210,
+                168,
+                861,
+                422
+            ]
+        },
+        "post_delay": 1000,
+        "next": [
+            "AutoEssenceLowSpFallback",
+            "EssenceFilterAfterBattleStart",
+            "AutoEssenceCloseObtainDialog"
+        ]
+    },
+    "AutoEssenceLowSpFallback": {
+        "desc": "单倍领取仍然体力不足时关闭弹窗并结束领取",
+        "enabled": false,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEssenceLowSpDialog",
+                    "__AutoEssenceLowSpDialogCloseButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
             "AutoEssenceLowSpCancelObtain"
         ]
     },

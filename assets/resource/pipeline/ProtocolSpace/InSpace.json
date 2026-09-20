@@ -778,6 +778,25 @@
             "Node.Action.Succeeded": "$task.ProtocolSpace.focus.skip_permit"
         }
     },
+    "ProtocolSpaceRewardFallbackDontUsePermit": {
+        "desc": "双倍领取失败后切换为单倍奖励",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            360,
+            250,
+            560,
+            100
+        ],
+        "expected": [
+            "消耗",
+            "Cost"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardFallbackClaim"
+        ]
+    },
     "ProtocolSpaceRewardUsePermit": {
         "desc": "协议空间奖励界面使用许可",
         "recognition": "OCR",
@@ -817,6 +836,19 @@
             "Node.Action.Succeeded": "$task.ProtocolSpace.focus.confirm_claim_reward"
         }
     },
+    "ProtocolSpaceRewardFallbackClaim": {
+        "desc": "确认领取单倍奖励并进入单倍领取结果分支",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardFallbackClaimRestoreSanity",
+            "ProtocolSpaceRewardClaimSuccess"
+        ]
+    },
     "ProtocolSpaceRewardClaimRestoreSanity": {
         "desc": "领取后弹出恢复理智窗口，先关闭再进入补体力分支",
         "recognition": "And",
@@ -849,6 +881,43 @@
         "inverse": true,
         "next": [
             "ProtocolSpaceRewardClaimRestoreSanityUseMedication",
+            "ProtocolSpaceRewardFallbackDontUsePermit",
+            "ProtocolSpaceSanityLowExitToWorld"
+        ]
+    },
+    "ProtocolSpaceRewardFallbackClaimRestoreSanity": {
+        "desc": "单倍领取后关闭恢复理智窗口",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationDialogText",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -400,
+                    100,
+                    400,
+                    260
+                ],
+                "template": "Common/Button/CloseButtonType4.png"
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardFallbackClaimRestoreSanityDisappear"
+        ]
+    },
+    "ProtocolSpaceRewardFallbackClaimRestoreSanityDisappear": {
+        "desc": "确认单倍领取后的恢复理智窗口已关闭",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationDialogText"
+        ],
+        "inverse": true,
+        "next": [
             "ProtocolSpaceSanityLowExitToWorld"
         ]
     },

@@ -262,6 +262,23 @@
                         },
                         "ProtocolSpaceRewardUsePermit": {
                             "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackDontUsePermit": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackClaimRestoreSanity": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackClaimRestoreSanityDisappear": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardClaimRestoreSanityUseMedication": {
+                            "anchor": {
+                                "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "ProtocolSpaceRewardFallbackDontUsePermit"
+                            }
                         }
                     },
                     "option": [
@@ -323,6 +340,23 @@
                     "pipeline_override": {
                         "ProtocolSpaceRewardUsePermit": {
                             "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackDontUsePermit": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackClaimRestoreSanity": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackClaimRestoreSanityDisappear": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardClaimRestoreSanityUseMedication": {
+                            "anchor": {
+                                "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "ProtocolSpaceRewardFallbackDontUsePermit"
+                            }
                         }
                     },
                     "option": [
