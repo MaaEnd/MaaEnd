@@ -224,14 +224,13 @@
                 "key": 18 //alt键
             }
         },
-        // DirectHit 无图时 Self 为空框，显式全屏等待
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                0,
-                0,
-                1280,
-                720
+                32,
+                14,
+                128,
+                41
             ]
         },
         "next": [

@@ -54,14 +54,14 @@
                 "key": 87 //w键
             }
         },
-        // DirectHit 无图时 Self 为空框，显式全屏等待
+        // roi 与 _AutoEcoFarmFindMenuIcon 的 OCR 区域一致 [806,340,266,266]
         "post_wait_freezes": {
             "time": 200,
             "target": [
-                0,
-                0,
-                1280,
-                720
+                806,
+                340,
+                266,
+                266
             ]
         },
         "post_delay": 0,
@@ -269,14 +269,13 @@
                 "key": 18 //alt键
             }
         },
-        // DirectHit 无图时 Self 为空框，显式全屏等待
         "post_wait_freezes": {
             "time": 500,
             "target": [
-                0,
-                0,
-                1280,
-                720
+                548,
+                589,
+                185,
+                92
             ]
         },
         "next": [
