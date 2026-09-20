@@ -198,7 +198,15 @@
                 "dy": -480
             }
         },
-        "post_wait_freezes": 500,
+        "post_wait_freezes": {
+            "target": [
+                18,
+                44,
+                337,
+                593
+            ],
+            "time": 500
+        },
         "next": [
             "_AutoEcoFarmClickIndustrialFacilities"
         ]

@@ -240,14 +240,14 @@
     },
     "_AutoEcoFarmWork2": {
         "desc": "按下鼠标左键,点击菜单",
-        "pre_delay": 0,
+        "pre_delay": 400,
         "action": {
             "type": "Click",
             "param": {
                 "target": "_AutoEcoFarmFindMenuIcon"
             }
         },
-        "post_delay": 0,
+        "post_delay": 100,
         "next": [
             "_AutoEcoFarmWork3"
         ]
