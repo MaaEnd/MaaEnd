@@ -1,0 +1,825 @@
+{
+    "text": {
+        "anchors": "营地，取自 LevelMapMark 中 templateId=mark_sp_campfire 的标记；u/v 即它在底图上的位置",
+        "teleport_id": "传送到该营地时用的锚点 ID，取自标记的 detailedData.teleportValidationId",
+        "level": "所属关卡 ID，取自 LevelBasicInfoTable；ID 除以 10^8 即关卡 idNum"
+    },
+    "maps": {
+        "base01": {
+            "zone": "base01",
+            "zone_id": 3,
+            "size": [
+                384,
+                384
+            ],
+            "sx": 0.75,
+            "tx": 192.0,
+            "sy": 0.75,
+            "ty": 192.0
+        },
+        "map01": {
+            "zone": "map01base",
+            "zone_id": 1,
+            "size": [
+                1440,
+                1350
+            ],
+            "sx": 0.703125,
+            "tx": 720.0,
+            "sy": 0.703125,
+            "ty": 630.0
+        },
+        "map02": {
+            "zone": "map02base",
+            "zone_id": 2,
+            "size": [
+                2016,
+                2976
+            ],
+            "sx": 0.75,
+            "tx": 1536.0,
+            "sy": 0.75,
+            "ty": 1344.0
+        }
+    },
+    "coord": "u/v = MapLocator 底图像素，原点左上、y 向下；BaseNav 顶点也是这个平面（u, v, height），直接喂寻路即可。maps 里的 zone / sx / tx / sy / ty 原样取自 BaseNav pack 的 zone 表，世界坐标转进来是 u = sx*x + tx, v = -sy*z + ty",
+    "count": 97,
+    "anchors": [
+        {
+            "id": "200001237",
+            "teleport_id": "TpForMap_ent_200001237",
+            "map": "map01",
+            "level": "map01_lv002",
+            "u": 249.117,
+            "v": 684.359
+        },
+        {
+            "id": "200001239",
+            "teleport_id": "TpForMap_ent_200001239",
+            "map": "map01",
+            "level": "map01_lv002",
+            "u": 161.67,
+            "v": 545.688
+        },
+        {
+            "id": "200001240",
+            "teleport_id": "TpForMap_ent_200001240",
+            "map": "map01",
+            "level": "map01_lv002",
+            "u": 129.6,
+            "v": 542.784
+        },
+        {
+            "id": "300001865",
+            "teleport_id": "TpForMap_ent_300001865",
+            "map": "map01",
+            "level": "map01_lv003",
+            "u": 886.191,
+            "v": 1031.984
+        },
+        {
+            "id": "300001874",
+            "teleport_id": "TpForMap_ent_300001874",
+            "map": "map01",
+            "level": "map01_lv003",
+            "u": 965.96,
+            "v": 1113.884
+        },
+        {
+            "id": "300002538",
+            "teleport_id": "TpForMap_ent_300002538",
+            "map": "map01",
+            "level": "map01_lv003",
+            "u": 1001.566,
+            "v": 1067.224
+        },
+        {
+            "id": "300002665",
+            "teleport_id": "TpForMap_ent_300002665",
+            "map": "map01",
+            "level": "map01_lv003",
+            "u": 958.746,
+            "v": 1217.714
+        },
+        {
+            "id": "2100000031",
+            "teleport_id": "TpForMap_ent_2100000031",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 452.381,
+            "v": 910.308
+        },
+        {
+            "id": "2100000073",
+            "teleport_id": "TpForMap_ent_2100000073",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 713.228,
+            "v": 965.647
+        },
+        {
+            "id": "2100000086",
+            "teleport_id": "TpForMap_ent_2100000086",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 527.991,
+            "v": 695.115
+        },
+        {
+            "id": "2100000093",
+            "teleport_id": "TpForMap_ent_2100000093",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 373.486,
+            "v": 984.635
+        },
+        {
+            "id": "2100000284",
+            "teleport_id": "TpForMap_ent_2100000284",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 635.713,
+            "v": 900.137
+        },
+        {
+            "id": "2100000322",
+            "teleport_id": "TpForMap_ent_2100000322",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 612.78,
+            "v": 968.098
+        },
+        {
+            "id": "2100010282",
+            "teleport_id": "TpForMap_ent_2100010282",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 591.116,
+            "v": 660.79
+        },
+        {
+            "id": "2800001292",
+            "teleport_id": "TpForMap_ent_2800001292",
+            "map": "map01",
+            "level": "map01_lv007",
+            "u": 772.966,
+            "v": 148.338
+        },
+        {
+            "id": "2800001338",
+            "teleport_id": "TpForMap_ent_2800001338",
+            "map": "map01",
+            "level": "map01_lv007",
+            "u": 561.804,
+            "v": 287.951
+        },
+        {
+            "id": "2800001509",
+            "teleport_id": "TpForMap_ent_2800001509",
+            "map": "map01",
+            "level": "map01_lv007",
+            "u": 677.039,
+            "v": 225.534
+        },
+        {
+            "id": "2800001519",
+            "teleport_id": "TpForMap_ent_2800001519",
+            "map": "map01",
+            "level": "map01_lv007",
+            "u": 649.772,
+            "v": 382.092
+        },
+        {
+            "id": "3400010189",
+            "teleport_id": "TpForMap_ent_3400010189",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 1223.379,
+            "v": 667.185
+        },
+        {
+            "id": "3400020743",
+            "teleport_id": "TpForMap_ent_3400020743",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 1296.45,
+            "v": 764.747
+        },
+        {
+            "id": "3400020746",
+            "teleport_id": "TpForMap_ent_3400020746",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 959.178,
+            "v": 830.325
+        },
+        {
+            "id": "3400020747",
+            "teleport_id": "TpForMap_ent_3400020747",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 1147.859,
+            "v": 737.663
+        },
+        {
+            "id": "3400021048",
+            "teleport_id": "TpForMap_ent_3400021048",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 1156.711,
+            "v": 869.337
+        },
+        {
+            "id": "3500031058",
+            "teleport_id": "TpForMap_ent_3500031058",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 882.059,
+            "v": 162.424
+        },
+        {
+            "id": "3500031059",
+            "teleport_id": "TpForMap_ent_3500031059",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 926.965,
+            "v": 289.294
+        },
+        {
+            "id": "3500031060",
+            "teleport_id": "TpForMap_ent_3500031060",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 1100.637,
+            "v": 457.249
+        },
+        {
+            "id": "3500031061",
+            "teleport_id": "TpForMap_ent_3500031061",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 1170.239,
+            "v": 320.231
+        },
+        {
+            "id": "3500031199",
+            "teleport_id": "TpForMap_ent_3500031199",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 1226.595,
+            "v": 562.809
+        },
+        {
+            "id": "9800000001",
+            "teleport_id": "TpForMap_ent_9800000001",
+            "map": "base01",
+            "level": "base01_lv001",
+            "u": 192.0,
+            "v": 229.5
+        },
+        {
+            "id": "9800000002",
+            "teleport_id": "TpForMap_ent_9800000002",
+            "map": "base01",
+            "level": "base01_lv001",
+            "u": 192.0,
+            "v": 149.147
+        },
+        {
+            "id": "10100020314",
+            "teleport_id": "TpForMap_ent_10100020314",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 690.21,
+            "v": 2653.943
+        },
+        {
+            "id": "10100020315",
+            "teleport_id": "TpForMap_ent_10100020315",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 603.327,
+            "v": 2828.06
+        },
+        {
+            "id": "10100020319",
+            "teleport_id": "TpForMap_ent_10100020319",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 814.35,
+            "v": 2772.983
+        },
+        {
+            "id": "10100020350",
+            "teleport_id": "TpForMap_ent_10100020350",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 753.893,
+            "v": 2595.405
+        },
+        {
+            "id": "10100020646",
+            "teleport_id": "TpForMap_ent_10100020646",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 976.92,
+            "v": 2502.0
+        },
+        {
+            "id": "10100030017",
+            "teleport_id": "TpForMap_ent_10100030017",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 791.835,
+            "v": 2324.505
+        },
+        {
+            "id": "10100030018",
+            "teleport_id": "TpForMap_ent_10100030018",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 972.371,
+            "v": 2197.521
+        },
+        {
+            "id": "10100030027",
+            "teleport_id": "TpForMap_ent_10100030027",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 814.583,
+            "v": 2138.903
+        },
+        {
+            "id": "10100030048",
+            "teleport_id": "TpForMap_ent_10100030048",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 984.555,
+            "v": 2355.682
+        },
+        {
+            "id": "10100030146",
+            "teleport_id": "TpForMap_ent_10100030146",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 963.86,
+            "v": 2424.951
+        },
+        {
+            "id": "10100030179",
+            "teleport_id": "TpForMap_ent_10100030179",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 741.87,
+            "v": 2411.812
+        },
+        {
+            "id": "10200030151",
+            "teleport_id": "TpForMap_ent_10200030151",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1212.142,
+            "v": 910.14
+        },
+        {
+            "id": "10200030153",
+            "teleport_id": "TpForMap_ent_10200030153",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1168.057,
+            "v": 1036.837
+        },
+        {
+            "id": "10200030160",
+            "teleport_id": "TpForMap_ent_10200030160",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 881.835,
+            "v": 874.507
+        },
+        {
+            "id": "10200030168",
+            "teleport_id": "TpForMap_ent_10200030168",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1112.551,
+            "v": 980.07
+        },
+        {
+            "id": "10200030169",
+            "teleport_id": "TpForMap_ent_10200030169",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1133.303,
+            "v": 798.832
+        },
+        {
+            "id": "10200030255",
+            "teleport_id": "TpForMap_ent_10200030255",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1210.425,
+            "v": 773.82
+        },
+        {
+            "id": "22800030004",
+            "teleport_id": "TpForMap_ent_22800030004",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 497.435,
+            "v": 1563.724
+        },
+        {
+            "id": "22800030005",
+            "teleport_id": "TpForMap_ent_22800030005",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 705.128,
+            "v": 1622.955
+        },
+        {
+            "id": "22800030007",
+            "teleport_id": "TpForMap_ent_22800030007",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 529.253,
+            "v": 1743.233
+        },
+        {
+            "id": "22800030008",
+            "teleport_id": "TpForMap_ent_22800030008",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 704.033,
+            "v": 1891.979
+        },
+        {
+            "id": "22800030009",
+            "teleport_id": "TpForMap_ent_22800030009",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 914.332,
+            "v": 1586.58
+        },
+        {
+            "id": "22800030016",
+            "teleport_id": "TpForMap_ent_22800030016",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 942.689,
+            "v": 1781.185
+        },
+        {
+            "id": "22800031002",
+            "teleport_id": "TpForMap_ent_22800031002",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 973.162,
+            "v": 1959.338
+        },
+        {
+            "id": "22800060089",
+            "teleport_id": "TpForMap_ent_22800060089",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 921.743,
+            "v": 1309.733
+        },
+        {
+            "id": "22800060090",
+            "teleport_id": "TpForMap_ent_22800060090",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 866.085,
+            "v": 1868.82
+        },
+        {
+            "id": "22801120001",
+            "teleport_id": "TpForMap_ent_22801120001",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 908.34,
+            "v": 1182.825
+        },
+        {
+            "id": "22801140001",
+            "teleport_id": "TpForMap_ent_22801140001",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 1050.24,
+            "v": 1271.078
+        },
+        {
+            "id": "22801140002",
+            "teleport_id": "TpForMap_ent_22801140002",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 508.935,
+            "v": 1967.062
+        },
+        {
+            "id": "22801140057",
+            "teleport_id": "TpForMap_ent_22801140057",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 425.026,
+            "v": 1375.818
+        },
+        {
+            "id": "23100010219",
+            "teleport_id": "TpForMap_ent_23100010219",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1121.077,
+            "v": 597.96
+        },
+        {
+            "id": "23100010220",
+            "teleport_id": "TpForMap_ent_23100010220",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1202.048,
+            "v": 432.652
+        },
+        {
+            "id": "23100010221",
+            "teleport_id": "TpForMap_ent_23100010221",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1395.007,
+            "v": 320.88
+        },
+        {
+            "id": "23100010222",
+            "teleport_id": "TpForMap_ent_23100010222",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1586.91,
+            "v": 380.58
+        },
+        {
+            "id": "23100010223",
+            "teleport_id": "TpForMap_ent_23100010223",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1454.408,
+            "v": 529.762
+        },
+        {
+            "id": "23100010640",
+            "teleport_id": "TpForMap_ent_23100010640",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1280.213,
+            "v": 325.605
+        },
+        {
+            "id": "23100010670",
+            "teleport_id": "TpForMap_ent_23100010670",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1167.187,
+            "v": 316.244
+        },
+        {
+            "id": "23100010671",
+            "teleport_id": "TpForMap_ent_23100010671",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1582.89,
+            "v": 443.01
+        },
+        {
+            "id": "23100010733",
+            "teleport_id": "TpForMap_ent_23100010733",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1545.165,
+            "v": 323.287
+        },
+        {
+            "id": "23100010740",
+            "teleport_id": "TpForMap_ent_23100010740",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1590.27,
+            "v": 465.3
+        },
+        {
+            "id": "23100031242",
+            "teleport_id": "TpForMap_ent_23100031242",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1393.005,
+            "v": 502.523
+        },
+        {
+            "id": "23100031243",
+            "teleport_id": "TpForMap_ent_23100031243",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1292.618,
+            "v": 611.28
+        },
+        {
+            "id": "23200010005",
+            "teleport_id": "TpForMap_ent_23200010005",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1120.5,
+            "v": 1564.65
+        },
+        {
+            "id": "23200013087",
+            "teleport_id": "TpForMap_ent_23200013087",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1344.661,
+            "v": 1634.012
+        },
+        {
+            "id": "23200013265",
+            "teleport_id": "TpForMap_ent_23200013265",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1291.129,
+            "v": 1757.67
+        },
+        {
+            "id": "23200013375",
+            "teleport_id": "TpForMap_ent_23200013375",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1345.598,
+            "v": 1700.903
+        },
+        {
+            "id": "23200013376",
+            "teleport_id": "TpForMap_ent_23200013376",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1300.455,
+            "v": 1517.797
+        },
+        {
+            "id": "23300000095",
+            "teleport_id": "TpForMap_ent_23300000095",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1398.997,
+            "v": 2440.98
+        },
+        {
+            "id": "23300000096",
+            "teleport_id": "TpForMap_ent_23300000096",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1257.195,
+            "v": 2359.267
+        },
+        {
+            "id": "23300000097",
+            "teleport_id": "TpForMap_ent_23300000097",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1172.092,
+            "v": 2283.338
+        },
+        {
+            "id": "23300000098",
+            "teleport_id": "TpForMap_ent_23300000098",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1134.87,
+            "v": 2137.298
+        },
+        {
+            "id": "23300000102",
+            "teleport_id": "TpForMap_ent_23300000102",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1363.05,
+            "v": 2187.052
+        },
+        {
+            "id": "23400083018",
+            "teleport_id": "TpForMap_ent_23400083018",
+            "map": "map02",
+            "level": "map02_lv004",
+            "u": 491.28,
+            "v": 2116.791
+        },
+        {
+            "id": "23400083106",
+            "teleport_id": "TpForMap_ent_23400083106",
+            "map": "map02",
+            "level": "map02_lv004",
+            "u": 591.361,
+            "v": 2243.69
+        },
+        {
+            "id": "23400083248",
+            "teleport_id": "TpForMap_ent_23400083248",
+            "map": "map02",
+            "level": "map02_lv004",
+            "u": 412.584,
+            "v": 2232.165
+        },
+        {
+            "id": "23400083315",
+            "teleport_id": "TpForMap_ent_23400083315",
+            "map": "map02",
+            "level": "map02_lv004",
+            "u": 504.281,
+            "v": 2582.465
+        },
+        {
+            "id": "25000000343",
+            "teleport_id": "TpForMap_ent_25000000343",
+            "map": "map02",
+            "level": "map02_lv006",
+            "u": 1582.275,
+            "v": 2718.113
+        },
+        {
+            "id": "25000000345",
+            "teleport_id": "TpForMap_ent_25000000345",
+            "map": "map02",
+            "level": "map02_lv006",
+            "u": 1817.662,
+            "v": 2777.314
+        },
+        {
+            "id": "25000000461",
+            "teleport_id": "TpForMap_ent_25000000461",
+            "map": "map02",
+            "level": "map02_lv006",
+            "u": 1598.37,
+            "v": 2692.673
+        },
+        {
+            "id": "25000000462",
+            "teleport_id": "TpForMap_ent_25000000462",
+            "map": "map02",
+            "level": "map02_lv006",
+            "u": 1840.425,
+            "v": 2871.952
+        },
+        {
+            "id": "36100010006",
+            "teleport_id": "TpForMap_ent_36100010006",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1365.487,
+            "v": 987.712
+        },
+        {
+            "id": "36100010007",
+            "teleport_id": "TpForMap_ent_36100010007",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1509.78,
+            "v": 990.57
+        },
+        {
+            "id": "36100010365",
+            "teleport_id": "TpForMap_ent_36100010365",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1593.098,
+            "v": 934.53
+        },
+        {
+            "id": "36100010458",
+            "teleport_id": "TpForMap_ent_36100010458",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1595.925,
+            "v": 1075.5
+        },
+        {
+            "id": "36100010460",
+            "teleport_id": "TpForMap_ent_36100010460",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1413.0,
+            "v": 993.54
+        },
+        {
+            "id": "36100010467",
+            "teleport_id": "TpForMap_ent_36100010467",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1720.483,
+            "v": 994.983
+        },
+        {
+            "id": "36100010474",
+            "teleport_id": "TpForMap_ent_36100010474",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1598.535,
+            "v": 993.795
+        }
+    ]
+}
