@@ -66,10 +66,14 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
+        // 转交流程由 DeliveryJobs 组件的转交链负责，转交完成后按本锚点回到抢单主流程
+        "anchor": {
+            "DeliveryJobsReturnToDepotNode": "SeizeDeliveryJobsMain"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SeizeDeliveryJobsClickTransferJob",
+            "DeliveryJobsClickTransferJob",
             "SeizeDeliveryJobsOngoingJobFound"
         ],
         "focus": {
