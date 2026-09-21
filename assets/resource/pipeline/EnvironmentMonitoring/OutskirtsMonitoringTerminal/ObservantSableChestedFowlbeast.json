@@ -196,6 +196,17 @@
         "all_of": [
             "InObservantSableChestedFowlbeastMission"
         ],
+        // 面板入场动画期间点击可能被吞掉，等按钮区域静止后再继续
+        // （wait_freezes 按 ROI 整体判定静止，区域越大越容易把按钮位移稀释掉）
+        "pre_wait_freezes": {
+            "time": 500,
+            "target": [
+                904,
+                580,
+                368,
+                130
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
