@@ -21,7 +21,10 @@
         "next": [
             "__SeizeDeliveryJobsInJobList",
             "__SeizeDeliveryJobsEnterJobList"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已位于${AreaName}仓储管理"
+        }
     },
     "__SeizeDeliveryJobsRecoFilter${MapName}": {
         "desc": "寻找${AreaName}筛选标志（仅识别）",
@@ -45,7 +48,10 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsLoop"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前已是${AreaName}筛选，直接进入抢单"
+        }
     },
     "SeizeDeliveryJobsJobListSelect${MapName}FilterPre": {
         "desc": "展开地区筛选以选择${AreaName}",
@@ -58,7 +64,10 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsJobListSelect${MapName}Filter"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "展开地区筛选"
+        }
     },
     "SeizeDeliveryJobsJobListSelect${MapName}Filter": {
         "desc": "在筛选列表中选择${AreaName}",
@@ -71,6 +80,9 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsLoop"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "切换到${AreaName}筛选"
+        }
     }
 }

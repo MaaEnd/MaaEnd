@@ -33,6 +33,20 @@ function buildSourceCase({CaseId, MapId, Expected, FilterName}) {
                 next: [
                     "SeizeDeliveryJobsExistDueTask",
                     "SeizeDeliveryJobsFailedChanceExhausted",
+                    "SeizeDeliveryJobsPrepareAtDijiang",
+                    `SeizeDeliveryJobsJobListIs${filter}Filter`,
+                    `SeizeDeliveryJobsJobListSelect${filter}FilterPre`,
+                ],
+            },
+            // 传送到帝江号后仍从本委托来源对应的仓储重新进入委托列表；
+            // 与 Main 同理，字段级替换必须把 next 一起写全。
+            SeizeDeliveryJobsPrepareAtDijiang: {
+                next: [`SeizeDeliveryJobsEnter${mapName}JobList`],
+            },
+            // 帝江号传送后重新进列表时也要按来源收敛筛选分支：否则列表里残留的其它地图筛选
+            // 会先把 SeizeDeliveryJobsJobListIs*Filter 命中，直接进 Loop 抢错地图的单。
+            SeizeDeliveryJobsReadyAfterDijiangTeleport: {
+                next: [
                     `SeizeDeliveryJobsJobListIs${filter}Filter`,
                     `SeizeDeliveryJobsJobListSelect${filter}FilterPre`,
                 ],

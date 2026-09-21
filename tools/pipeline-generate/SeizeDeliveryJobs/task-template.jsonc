@@ -8,6 +8,7 @@
             "entry": "SeizeDeliveryJobsMain",
             "option": [
                 "SeizeDeliveryJobsReward",
+                "SeizeDeliveryJobsRefreshLimit",
                 "SeizeDeliveryJobsCommissionSource",
                 "SeizeDeliveryJobsPostProcessing"
             ],
@@ -73,6 +74,9 @@
                         },
                         "SeizeDeliveryJobsEndpointFilter": {
                             "enabled": true
+                        },
+                        "SeizeDeliveryJobsPrepareAtDijiang": {
+                            "enabled": true
                         }
                     }
                 }
@@ -104,6 +108,9 @@
                         },
                         "SeizeDeliveryJobsEndpointFilter": {
                             "enabled": true
+                        },
+                        "SeizeDeliveryJobsPrepareAtDijiang": {
+                            "enabled": true
                         }
                     }
                 }
@@ -129,6 +136,9 @@
                         },
                         "SeizeDeliveryJobsEndpointFilter": {
                             "enabled": true
+                        },
+                        "SeizeDeliveryJobsPrepareAtDijiang": {
+                            "enabled": true
                         }
                     }
                 }
@@ -153,6 +163,9 @@
                             "enabled": true
                         },
                         "SeizeDeliveryJobsEndpointFilter": {
+                            "enabled": true
+                        },
+                        "SeizeDeliveryJobsPrepareAtDijiang": {
                             "enabled": true
                         }
                     }
@@ -271,6 +284,25 @@
                     }
                 }
             ]
+        },
+        "SeizeDeliveryJobsRefreshLimit": {
+            "type": "input",
+            "label": "$task.SeizeDeliveryJobsRefreshLimit.label",
+            "inputs": [
+                {
+                    "name": "Limit",
+                    "label": "$task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.label",
+                    "default": "100",
+                    "pipeline_type": "int",
+                    "verify": "^([1-9]\\d{0,2}|1\\d{3}|2000)$",
+                    "pattern_msg": "$task.SeizeDeliveryJobsRefreshLimit.inputs.Limit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "SeizeDeliveryJobsRefreshHit": {
+                    "max_hit": "{Limit}"
+                }
+            }
         },
         "SeizeDeliveryJobsRepeatCount": {
             "type": "select",

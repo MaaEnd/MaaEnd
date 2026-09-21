@@ -153,7 +153,6 @@ func (a *SeizeDeliveryJobsScanTargetAction) Run(ctx *maa.Context, arg *maa.Custo
 	if err := ctx.OverridePipeline(map[string]any{
 		"SeizeDeliveryJobsFoundTargetViewLocationClick": map[string]any{"target": viewRect},
 		"SeizeDeliveryJobsAcceptClick":                  map[string]any{"target": acceptRect},
-		"SeizeDeliveryJobsRetryClickAccept":             map[string]any{"target": acceptRect},
 	}); err != nil {
 		log.Error().Err(err).
 			Str("component", "SeizeDeliveryJobs").

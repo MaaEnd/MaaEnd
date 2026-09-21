@@ -380,14 +380,12 @@ For an existing destination-direction change, run at least:
 
 ```bash
 node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs
-node --test tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs tools/pipeline-generate/DeliveryJobs/data.test.mjs
-pnpm check
-pnpm test
-pnpm format:md:check
 git diff --check
 ```
 
-`SeizeDeliveryJobs/task-data.test.mjs` covers source order, locale key order, entry structure, and display-name resolution. `DeliveryJobs/data.test.mjs` is an upstream file; its `DeliveryJobs packing item options inject IconRecognition item ids` case is a pre-existing failure unrelated to this task.
+Run `pnpm test` locally when the change includes `tests/**`; otherwise leave `pnpm check` / `pnpm test` to PR CI — see the [coding standards](../coding-standards.md#pre-submission-check).
+
+The generator's own ordering and locale invariants are covered by `tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs`; run `node --test tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs` when you want a local self-check (CI does not run generator unit tests, so this only matters when you touch the generator).
 
 For a new destination, area, or route, also run:
 
@@ -396,4 +394,4 @@ pnpm generate:AutoDelivery
 pnpm generate:SeizeDeliveryJobs
 ```
 
-Review the generated diff and confirm it contains only the expected task, Pipeline, locale, and AutoDelivery artifacts. Do not leave direct edits in generated files or add resource directories whose names begin with `_`. When code or JSON is changed as part of the work, also run the project-standard `pnpm format`, `pnpm format:go`, `pnpm check`, and `pnpm test` commands.
+Review the generated diff and confirm it contains only the expected task, Pipeline, locale, and AutoDelivery artifacts. Do not leave direct edits in generated files or add resource directories whose names begin with `_`. When code or JSON is changed as part of the work, also run the project-standard `pnpm format` and `pnpm format:go` commands.

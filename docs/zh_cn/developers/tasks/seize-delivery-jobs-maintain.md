@@ -385,14 +385,12 @@ Go 从 `__SeizeDeliveryJobsMinReward.expected[0]` 读取任务输入，并把奖
 
 ```bash
 node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs
-node --test tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs tools/pipeline-generate/DeliveryJobs/data.test.mjs
-pnpm check
-pnpm test
-pnpm format:md:check
 git diff --check
 ```
 
-`SeizeDeliveryJobs/task-data.test.mjs` 校验顺序同源、locale 键序、登记条目结构与展示名取值；`DeliveryJobs/data.test.mjs` 的 `DeliveryJobs packing item options inject IconRecognition item ids` 是既有失败，与本任务无关。
+改动包含 `tests/**` 时本地跑 `pnpm test`；`pnpm check` / `pnpm test` 的其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。
+
+生成器自身的顺序与文案不变量由 `tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs` 覆盖，需要本地自查时可 `node --test tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs`（CI 不跑生成器单测，改动生成器时才需要）。
 
 新增终点、区域或路线时，再确认：
 
@@ -401,4 +399,4 @@ pnpm generate:AutoDelivery
 pnpm generate:SeizeDeliveryJobs
 ```
 
-检查生成 diff 是否只包含预期的 task、Pipeline、locale 和 AutoDelivery 产物；确认没有直接编辑生成文件，也没有出现以下划线 `_` 开头的新资源目录。代码或 JSON 有修改时，按项目约定补跑 `pnpm format`、`pnpm format:go`、`pnpm check` 和 `pnpm test`。
+检查生成 diff 是否只包含预期的 task、Pipeline、locale 和 AutoDelivery 产物；确认没有直接编辑生成文件，也没有出现以下划线 `_` 开头的新资源目录。代码或 JSON 有修改时，按项目约定补跑 `pnpm format`、`pnpm format:go`。

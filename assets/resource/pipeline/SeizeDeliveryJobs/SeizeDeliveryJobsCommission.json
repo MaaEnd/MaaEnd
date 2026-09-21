@@ -21,7 +21,10 @@
         "next": [
             "__SeizeDeliveryJobsInJobList",
             "__SeizeDeliveryJobsEnterJobList"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已位于四号谷地仓储管理"
+        }
     },
     "__SeizeDeliveryJobsRecoFilterValleyIV": {
         "desc": "寻找四号谷地筛选标志（仅识别）",
@@ -45,7 +48,10 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsLoop"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前已是四号谷地筛选，直接进入抢单"
+        }
     },
     "SeizeDeliveryJobsJobListSelectValleyIVFilterPre": {
         "desc": "展开地区筛选以选择四号谷地",
@@ -58,7 +64,10 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsJobListSelectValleyIVFilter"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "展开地区筛选"
+        }
     },
     "SeizeDeliveryJobsJobListSelectValleyIVFilter": {
         "desc": "在筛选列表中选择四号谷地",
@@ -71,7 +80,10 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsLoop"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "切换到四号谷地筛选"
+        }
     },
     "SeizeDeliveryJobsEnterWulingJobList": {
         "desc": "进入武陵仓储的运送委托列表",
@@ -95,7 +107,10 @@
         "next": [
             "__SeizeDeliveryJobsInJobList",
             "__SeizeDeliveryJobsEnterJobList"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已位于武陵仓储管理"
+        }
     },
     "__SeizeDeliveryJobsRecoFilterWuling": {
         "desc": "寻找武陵筛选标志（仅识别）",
@@ -119,7 +134,10 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsLoop"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前已是武陵筛选，直接进入抢单"
+        }
     },
     "SeizeDeliveryJobsJobListSelectWulingFilterPre": {
         "desc": "展开地区筛选以选择武陵",
@@ -132,7 +150,10 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsJobListSelectWulingFilter"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "展开地区筛选"
+        }
     },
     "SeizeDeliveryJobsJobListSelectWulingFilter": {
         "desc": "在筛选列表中选择武陵",
@@ -145,6 +166,9 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsLoop"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "切换到武陵筛选"
+        }
     }
 }
