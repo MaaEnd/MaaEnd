@@ -22,7 +22,8 @@
             "option": [
                 "AutoStockStapleSchedule",
                 "AutoStockStapleValleyIV",
-                "AutoStockStapleWuling"
+                "AutoStockStapleWuling",
+                "AutoStockStapleAutoStashBackpack"
             ]
         }
     ],
@@ -2244,6 +2245,48 @@
                                     ]
                                 }
                             }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoStockStapleAutoStashBackpack": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.label",
+            "description": "$task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockStapleBagFullHandlerValleyIV": {
+                            "enabled": true
+                        },
+                        "AutoStockStapleBagFullHandlerWuling": {
+                            "enabled": true
+                        },
+                        "AutoStockStapleBagFullGiveUp": {
+                            "enabled": true
+                        },
+                        "StashBackpackMain": {
+                            "enabled": true
+                        },
+                        "StashBackpackStashQuick": {
+                            "enabled": true
+                        },
+                        "StashBackpackUsableItemsLimited": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoStockStapleBagFullHandlerValleyIV": {
+                            "enabled": false
+                        },
+                        "AutoStockStapleBagFullHandlerWuling": {
+                            "enabled": false
                         }
                     }
                 }
