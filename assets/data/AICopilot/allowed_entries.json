@@ -1,0 +1,44 @@
+{
+    "tasks": [
+        {
+            "entry": "DailyRewardStart",
+            "summary": "$task.DailyRewards.label"
+        },
+        {
+            "entry": "DijiangRewards",
+            "summary": "$task.DijiangRewards.label"
+        },
+        {
+            "entry": "CreditShoppingMain",
+            "summary": "$task.CreditShopping.label"
+        },
+        {
+            "entry": "ProdManualStart",
+            "summary": "$task.ReceiveProdManual.label"
+        },
+        {
+            "entry": "ResourceRecycleStationStart",
+            "summary": "$task.ResourceRecycleStation.label"
+        },
+        {
+            "entry": "IntelArchiveMain",
+            "summary": "$task.IntelArchive.label"
+        },
+        {
+            "entry": "StashBackpackMain",
+            "summary": "$task.StashBackpack.label"
+        },
+        {
+            "entry": "VisitFriendsMain",
+            "summary": "$task.VisitFriends.label"
+        },
+        {
+            "entry": "SimSpaceEntry",
+            "summary": "$task.ClaimSimulationRewards.label"
+        },
+        {
+            "entry": "AutoSellMain",
+            "summary": "$task.AutoSell.label"
+        }
+    ]
+}

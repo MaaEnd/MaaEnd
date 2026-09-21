@@ -226,5 +226,22 @@
     "ims.add_item_summary.title": "Gained items:",
     "ims.expression_ok": "expression matched: %s",
     "ims.expression_short": "expression not matched: %s",
-    "ims.item_current": "Current %s: %d"
+    "ims.item_current": "Current %s: %d",
+    "aicopilot.ready": "AI assistant is on standby. MCP endpoint: %s (add a custom plugin in your AI client, pick HTTP transport and paste this address)",
+    "aicopilot.serve_failed": "AI assistant failed to start: %v",
+    "aicopilot.command": "AI command: %s",
+    "aicopilot.command_entry": "AI command: %s (%s)",
+    "aicopilot.server.title": "MaaEnd game automation",
+    "aicopilot.server.instructions": "You are driving a running MaaEnd instance on the user's machine. Start with list_tasks to see which entries you may run, then get_task_detail when you need specifics. Use run_pipeline to do the work and ocr to tell which screen is showing. screencap returns a full frame and is expensive, so only reach for it when ocr is not enough. While run_pipeline is running the other tools answer busy; poll get_status until it is standby again.",
+    "aicopilot.tool.get_status": "Report whether MaaEnd is on standby or running a command. Other tools answer busy while run_pipeline is in flight, so poll this until the state is standby again.",
+    "aicopilot.tool.list_tasks": "List the pipeline entries you are allowed to run, one line each. Call this before running anything to learn the valid entry names.",
+    "aicopilot.tool.get_task_detail": "Report the preconditions, known limits and usual failure causes of one entry. Call it only when deciding whether an entry applies, or when diagnosing a failure.",
+    "aicopilot.tool.run_pipeline": "Run one white-listed pipeline entry and report the resulting status plus the trailing node names. MaaEnd is busy for the duration.",
+    "aicopilot.tool.click": "Click once, in 1280x720 reference coordinates. Prefer run_pipeline and only click when no entry covers what you need.",
+    "aicopilot.tool.ocr": "Read the text on the current frame, or within one region, to tell which screen is showing. Prefer this over screencap for identifying a screen.",
+    "aicopilot.tool.screencap": "Return a screenshot of the current frame. Images cost a lot of tokens, so use this only when ocr cannot identify the screen.",
+    "aicopilot.prompt.run_daily_routine.desc": "Work through the available daily entries in order",
+    "aicopilot.prompt.run_daily_routine.body": "Please work through today's dailies. Start with list_tasks to see the available entries, then run them one at a time with run_pipeline and judge each result from the returned status. When one fails, check get_task_detail for the usual cause, confirm the current screen with ocr, and only fall back to screencap if you still cannot tell. Give me a short summary once everything has run.",
+    "aicopilot.prompt.diagnose_stuck_screen.desc": "Work out why MaaEnd is stuck on a screen",
+    "aicopilot.prompt.diagnose_stuck_screen.body": "MaaEnd looks stuck. Check get_status first to see whether it is running or on standby, then read the current frame with ocr to work out which screen is showing. If the ocr result is not enough, take one screencap. Tell me where it is stuck and what you suggest doing about it."
 }

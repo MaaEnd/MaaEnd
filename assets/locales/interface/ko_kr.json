@@ -1445,6 +1445,8 @@
     "task.ResourceRecycleStation.focus.Empty": "이 지역에 수집 가능한 자원이 없습니다",
     "task.AccountSwitch.label": "🔑자동 계정 전환",
     "task.AccountSwitch.description": "현재 계정에서 로그아웃하고 지정한 계정으로 전환합니다(중국 서버는 전화번호, 글로벌 서버는 이메일로 매칭)",
+    "task.AICopilot.label": "🤖 AI 어시스턴트",
+    "task.AICopilot.description": "로컬에 MCP 엔드포인트를 열어 Doubao나 Cursor 같은 MCP 지원 AI 클라이언트가 접속하고, 어떤 화이트리스트 작업을 실행할지 AI가 결정하게 합니다. 주소는 작업 힌트에 표시되며 작업을 중지하면 연결이 끊깁니다.",
     "task.DevTest.label": "🧪 개발 테스트",
     "task.DevTest.description": "개발 디버깅용 빈 작업입니다. 필요에 따라 파이프라인 노드를 작성하세요.",
     "option.AccountSwitchLastFourDigits.label": "대상 계정 마지막 4자리",

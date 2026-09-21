@@ -225,5 +225,22 @@
     "ims.add_item_summary.title": "獲得したアイテム：",
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
-    "ims.item_current": "現在 %s：%d"
+    "ims.item_current": "現在 %s：%d",
+    "aicopilot.ready": "AI アシスタントが待機中です。MCP アドレス：%s（AI クライアントでカスタムプラグインを作成し、通信方式に HTTP を選んでこのアドレスを入力してください）",
+    "aicopilot.serve_failed": "AI アシスタントの起動に失敗しました：%v",
+    "aicopilot.command": "AI コマンド：%s",
+    "aicopilot.command_entry": "AI コマンド：%s（%s）",
+    "aicopilot.server.title": "MaaEnd ゲーム自動化",
+    "aicopilot.server.instructions": "あなたはユーザーの PC で動作中の MaaEnd を操作しています。まず list_tasks で実行できるタスク一覧を確認し、詳細が必要なときに get_task_detail を使ってください。実行には run_pipeline を、現在の画面の判別には ocr を使います。screencap は画面全体を返すため負荷が大きく、ocr で判断できないときだけ使ってください。run_pipeline の実行中、他のツールは busy を返すので、get_status をポーリングして待ってください。",
+    "aicopilot.tool.get_status": "MaaEnd が待機中か、コマンド実行中かを返します。run_pipeline の実行中は他のツールが busy を返すため、standby に戻るまでこのツールでポーリングしてください。",
+    "aicopilot.tool.list_tasks": "実行を許可されたタスクエントリーと 1 行の概要を一覧します。実行前にこのツールで有効な entry を取得してください。",
+    "aicopilot.tool.get_task_detail": "指定したエントリーの前提条件、既知の制限、よくある失敗原因を返します。実行可否の判断や失敗の調査が必要なときだけ呼び出してください。",
+    "aicopilot.tool.run_pipeline": "ホワイトリストのタスクエントリーを 1 つ実行し、実行ステータスと末尾のノード名を返します。実行中 MaaEnd は busy になります。",
+    "aicopilot.tool.click": "1280x720 基準座標で 1 回クリックします。対応するエントリーがない場合のみ使い、基本は run_pipeline を優先してください。",
+    "aicopilot.tool.ocr": "現在の画面（または指定領域）の文字を認識し、どの画面かを判別します。画面の判別には screencap より先にこのツールを使ってください。",
+    "aicopilot.tool.screencap": "現在の画面のスクリーンショットを返します。画像はトークンを大きく消費するため、ocr で画面を判別できないときだけ使ってください。",
+    "aicopilot.prompt.run_daily_routine.desc": "実行できるデイリータスクを順番に処理する",
+    "aicopilot.prompt.run_daily_routine.body": "今日のデイリーをひと通り進めてください。まず list_tasks でタスクエントリーを確認し、run_pipeline で 1 つずつ実行して、返ってきたステータスで成否を判断してください。失敗した場合は get_task_detail でよくある原因を確認し、ocr で現在の画面を確かめ、それでも判断できないときだけ screencap を使ってください。すべて終わったら短くまとめて報告してください。",
+    "aicopilot.prompt.diagnose_stuck_screen.desc": "MaaEnd が画面で止まっている原因を調べる",
+    "aicopilot.prompt.diagnose_stuck_screen.body": "MaaEnd が止まっているようです。まず get_status で実行中か待機中かを確認し、次に ocr で現在の画面の文字を読んでどの画面かを判別してください。ocr だけで分からなければ screencap を 1 回だけ使ってください。最後に、どこで止まっているかと対処案を教えてください。"
 }

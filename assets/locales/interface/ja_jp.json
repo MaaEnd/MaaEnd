@@ -1445,6 +1445,8 @@
     "task.ResourceRecycleStation.focus.Empty": "この地域に収集可能な資源はありません",
     "task.AccountSwitch.label": "🔑自動アカウント切替",
     "task.AccountSwitch.description": "現在のアカウントからログアウトし、指定アカウントに切り替えます（中国サーバーは電話番号、グローバルサーバーはメールアドレスで照合）",
+    "task.AICopilot.label": "🤖 AI アシスタント",
+    "task.AICopilot.description": "ローカルに MCP エンドポイントを公開し、Doubao や Cursor など MCP 対応の AI クライアントから接続して、どのホワイトリストタスクを実行するかを AI に任せます。アドレスはタスクのヒントに表示され、タスクを停止すると切断されます。",
     "task.DevTest.label": "🧪 開発テスト",
     "task.DevTest.description": "開発デバッグ用の空タスク。ノード内容は必要に応じて記入してください。",
     "option.AccountSwitchLastFourDigits.label": "対象アカウント下4桁",

@@ -225,5 +225,22 @@
     "ims.add_item_summary.title": "획득한 아이템:",
     "ims.expression_ok": "식 성립: %s",
     "ims.expression_short": "식 불성립: %s",
-    "ims.item_current": "현재 %s: %d"
+    "ims.item_current": "현재 %s: %d",
+    "aicopilot.ready": "AI 어시스턴트가 대기 중입니다. MCP 주소: %s (AI 클라이언트에서 사용자 지정 플러그인을 만들고 전송 방식을 HTTP로 선택한 뒤 이 주소를 입력하세요)",
+    "aicopilot.serve_failed": "AI 어시스턴트 시작 실패: %v",
+    "aicopilot.command": "AI 명령: %s",
+    "aicopilot.command_entry": "AI 명령: %s (%s)",
+    "aicopilot.server.title": "MaaEnd 게임 자동화",
+    "aicopilot.server.instructions": "사용자 PC에서 실행 중인 MaaEnd를 조작하고 있습니다. 먼저 list_tasks로 실행 가능한 작업 목록을 확인하고, 세부 정보가 필요할 때 get_task_detail을 사용하세요. 작업 실행에는 run_pipeline을, 현재 화면 판단에는 ocr을 사용합니다. screencap은 전체 화면을 반환해 비용이 크므로 ocr로 판단할 수 없을 때만 사용하세요. run_pipeline 실행 중에는 다른 도구가 busy를 반환하므로 get_status를 폴링하며 기다리면 됩니다.",
+    "aicopilot.tool.get_status": "MaaEnd가 대기 중인지 명령을 실행 중인지 확인합니다. run_pipeline 실행 중에는 다른 도구가 busy를 반환하므로 standby로 돌아올 때까지 이 도구로 폴링하세요.",
+    "aicopilot.tool.list_tasks": "실행이 허용된 작업 엔트리와 한 줄 요약을 나열합니다. 작업을 실행하기 전에 이 도구로 유효한 entry를 확인하세요.",
+    "aicopilot.tool.get_task_detail": "특정 엔트리의 전제 조건, 알려진 제한, 흔한 실패 원인을 반환합니다. 실행 가능 여부를 판단하거나 실패를 분석할 때만 호출하세요.",
+    "aicopilot.tool.run_pipeline": "화이트리스트에 있는 작업 엔트리를 하나 실행하고 실행 상태와 마지막 노드 이름들을 반환합니다. 실행 중 MaaEnd는 busy 상태입니다.",
+    "aicopilot.tool.click": "1280x720 기준 좌표로 한 번 클릭합니다. 해당하는 엔트리가 없을 때만 사용하고, 기본적으로 run_pipeline을 우선하세요.",
+    "aicopilot.tool.ocr": "현재 화면(또는 지정 영역)의 텍스트를 인식해 어떤 화면인지 판단합니다. 화면 판단에는 screencap보다 이 도구를 먼저 사용하세요.",
+    "aicopilot.tool.screencap": "현재 화면의 스크린샷을 반환합니다. 이미지는 토큰을 많이 소모하므로 ocr로 화면을 판단할 수 없을 때만 사용하세요.",
+    "aicopilot.prompt.run_daily_routine.desc": "실행 가능한 일일 작업을 순서대로 처리",
+    "aicopilot.prompt.run_daily_routine.body": "오늘의 일일 작업을 한 번 돌려주세요. 먼저 list_tasks로 작업 엔트리를 확인한 뒤 run_pipeline으로 하나씩 실행하고, 반환된 상태로 성공 여부를 판단하세요. 실패하면 get_task_detail로 흔한 원인을 확인하고 ocr로 현재 화면을 확인한 다음, 그래도 판단이 어려울 때만 screencap을 사용하세요. 전부 끝나면 짧게 정리해 알려주세요.",
+    "aicopilot.prompt.diagnose_stuck_screen.desc": "MaaEnd가 특정 화면에서 멈춘 원인 분석",
+    "aicopilot.prompt.diagnose_stuck_screen.body": "MaaEnd가 멈춘 것 같습니다. 먼저 get_status로 실행 중인지 대기 중인지 확인하고, ocr로 현재 화면의 텍스트를 읽어 어떤 화면인지 판단하세요. ocr 결과만으로 판단이 어려우면 screencap을 한 번 사용하세요. 마지막으로 어디에서 멈췄는지와 권장 조치를 알려주세요."
 }

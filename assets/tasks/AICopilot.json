@@ -1,0 +1,24 @@
+{
+    "task": [
+        {
+            "name": "AICopilot",
+            "label": "$task.AICopilot.label",
+            "entry": "AICopilotMain",
+            "description": "$task.AICopilot.description",
+            "controller": [
+                "ADB",
+                "CloudADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ]
+}

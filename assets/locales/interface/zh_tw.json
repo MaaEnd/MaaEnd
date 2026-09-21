@@ -1445,6 +1445,8 @@
     "task.ResourceRecycleStation.focus.Empty": "該地區暫無可收取資源",
     "task.AccountSwitch.label": "🔑自動切換帳號",
     "task.AccountSwitch.description": "自動登出目前帳號並切換到指定帳號（國服按手機號、國際服按電子郵件匹配）",
+    "task.AICopilot.label": "🤖AI 助手",
+    "task.AICopilot.description": "啟動後在本機開放 MCP 端點，供豆包、Cursor 等支援 MCP 的 AI 用戶端連線，由 AI 決定呼叫哪些白名單任務。位址顯示在任務提示裡，停止任務即中斷。",
     "task.DevTest.label": "🧪開發測試",
     "task.DevTest.description": "開發除錯用空任務，節點內容自行填寫",
     "option.AccountSwitchLastFourDigits.label": "目標帳號後四位",

@@ -1,0 +1,8 @@
+{
+    "AICopilotMain": {
+        "desc": "AI 助手待命：在本机回环地址暴露 MCP 端点，外部 AI 客户端连接后由其调用白名单 Pipeline、点击与识别；用户在客户端停止任务时退出并释放端口",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AICopilotStandbyAction"
+    }
+}

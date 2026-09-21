@@ -225,5 +225,22 @@
     "ims.add_item_summary.title": "獲得以下物品：",
     "ims.expression_ok": "表達式成立：%s",
     "ims.expression_short": "表達式不成立：%s",
-    "ims.item_current": "目前 %s：%d"
+    "ims.item_current": "目前 %s：%d",
+    "aicopilot.ready": "AI 助手已待命，MCP 位址：%s（在 AI 用戶端新增自訂外掛，傳輸方式選 HTTP 並填入該位址）",
+    "aicopilot.serve_failed": "AI 助手啟動失敗：%v",
+    "aicopilot.command": "AI 指令：%s",
+    "aicopilot.command_entry": "AI 指令：%s（%s）",
+    "aicopilot.server.title": "MaaEnd 遊戲自動化",
+    "aicopilot.server.instructions": "你正在操作使用者本機執行中的 MaaEnd。先用 list_tasks 看可執行的任務目錄，需要細節時再用 get_task_detail；用 run_pipeline 執行任務，用 ocr 判斷目前介面。screencap 會回傳整張截圖、開銷很大，只在 ocr 判斷不了時使用。run_pipeline 執行期間其餘工具會回傳 busy，此時輪詢 get_status 等待即可。",
+    "aicopilot.tool.get_status": "查詢 MaaEnd 目前是待命還是正在執行命令。run_pipeline 執行期間其他工具會回傳 busy，用本工具輪詢直到狀態回到 standby。",
+    "aicopilot.tool.list_tasks": "列出允許執行的任務入口及一行簡述。執行任務前先呼叫本工具取得合法的 entry。",
+    "aicopilot.tool.get_task_detail": "查詢某個任務入口的前置條件、已知限制和常見失敗原因。只在需要判斷能否執行或排查失敗時呼叫。",
+    "aicopilot.tool.run_pipeline": "執行一個白名單任務入口，回傳執行狀態與結尾若干節點名稱。執行期間 MaaEnd 處於 busy。",
+    "aicopilot.tool.click": "在 1280x720 基準座標上點擊一次。僅在沒有對應任務入口時使用，優先用 run_pipeline。",
+    "aicopilot.tool.ocr": "辨識目前畫面（或指定區域）中的文字，用於判斷所處介面。判斷介面時優先用本工具而非 screencap。",
+    "aicopilot.tool.screencap": "回傳目前畫面的截圖。圖片消耗大量 token，僅在 ocr 判斷不了介面時使用。",
+    "aicopilot.prompt.run_daily_routine.desc": "依序跑一遍可執行的日常任務",
+    "aicopilot.prompt.run_daily_routine.body": "請幫我跑一遍今天的日常。先用 list_tasks 看有哪些任務入口，然後逐個用 run_pipeline 執行，一次只執行一個，並依回傳狀態判斷是否成功。失敗時先用 get_task_detail 看常見原因，再用 ocr 確認目前介面，必要時才用 screencap。全部跑完後給我一份簡短彙總。",
+    "aicopilot.prompt.diagnose_stuck_screen.desc": "排查 MaaEnd 卡在某個介面的原因",
+    "aicopilot.prompt.diagnose_stuck_screen.body": "MaaEnd 好像卡住了。請先用 get_status 確認它在執行還是待命，再用 ocr 讀一下目前畫面的文字判斷處在哪個介面；如果 ocr 結果不足以判斷，再用 screencap 看一眼。最後告訴我卡在哪裡、建議怎麼處理。"
 }

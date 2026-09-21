@@ -1445,6 +1445,8 @@
     "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region",
     "task.AccountSwitch.label": "🔑 Auto Account Switch",
     "task.AccountSwitch.description": "Automatically log out and switch to the specified account (match by phone number on CN Server, by email on Global Server)",
+    "task.AICopilot.label": "🤖 AI Assistant",
+    "task.AICopilot.description": "Open a local MCP endpoint that MCP-capable AI clients such as Doubao or Cursor can connect to, letting the AI decide which white-listed tasks to run. The address appears in the task hint, and stopping the task closes it.",
     "task.DevTest.label": "🧪 Dev Test",
     "task.DevTest.description": "Empty task for development debugging. Fill in the pipeline node as needed.",
     "option.AccountSwitchLastFourDigits.label": "Target account last 4 digits",

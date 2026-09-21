@@ -9,6 +9,7 @@
                 "AccountSwitchWindowAction",
                 "AddItemData",
                 "AeroSalvageConfigureSwipeAction",
+                "AICopilotStandbyAction",
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
                 "AutoAltSwipeAction",

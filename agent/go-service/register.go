@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/accountswitch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aerosalvage"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/aicopilot"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autodelivery"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoessence"
@@ -88,6 +89,7 @@ func registerAll() {
 	// Business Custom
 	accountswitch.Register()
 	aerosalvage.Register()
+	aicopilot.Register()
 	captureuid.Register()
 	autosell.Register()
 	blueprintimport.Register()
