@@ -109,8 +109,8 @@ constexpr int kMaxNudges = 6;
 constexpr double kNudgeRatio = 0.35;
 
 // 缩放档位是视口求解的未知量，进来先压到最小钉死。按钮坐标各端不同，
-// 交给 pipeline 的 SceneMapZoomOut 处理，cpp 只触发一次子任务
-constexpr const char* kZoomOutNode = "SceneMapZoomOut";
+// 交给 pipeline 的 SceneMapZoomOutWithoutReco 处理，cpp 只触发一次子任务
+constexpr const char* kZoomOutNode = "SceneMapZoomOutWithoutReco";
 
 bool ParseParam(const char* raw, FindParam* out)
 {
@@ -431,7 +431,19 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
         }
 
         if (!view.viewport) {
-            view.viewport = session.solver->SolveViewport(view.screen, param.zone, session.viewportCfg);
+            // 拖动只挪地图，缩放进图时压到底就不再动，上一趟解出来的尺度照旧成立。
+            // 钉住它只搜位置，整条尺度阶梯都省了；缩放真被动过则这一趟解不出来，下一趟按整条阶梯解
+            if (view.previous) {
+                ViewportConfig pinned = session.viewportCfg;
+                pinned.scaleHint = view.previous->scale;
+                view.viewport = session.solver->SolveViewport(view.screen, param.zone, pinned);
+                if (!view.viewport) {
+                    LogInfo << "WorldMap: pinned scale rejected, rescanning full ladder" << VAR(view.previous->scale);
+                }
+            }
+            if (!view.viewport) {
+                view.viewport = session.solver->SolveViewport(view.screen, param.zone, session.viewportCfg);
+            }
             if (!view.viewport) {
                 view.previous.reset();
                 view.screen.release();

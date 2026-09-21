@@ -3,20 +3,7 @@
         "desc": "自动刷镀层主入口",
         "pre_delay": 0,
         "post_delay": 0,
-        "next": [
-            "TrialOfSwordmancyCoatingCheckRewardMode",
-            "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
-            "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
-        ]
-    },
-    "TrialOfSwordmancyCoatingCheckRewardMode": {
-        "desc": "检查是否处于奖励演算模式",
-        "recognition": "And",
-        "all_of": [
-            "TrialOfSwordmancyDrawCard"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingRewardMode",
             "TrialOfSwordmancyCoating1"
@@ -26,10 +13,11 @@
         "desc": "处于奖励演算模式",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyRewardMode"
+            "TrialOfSwordmancyInRewardMode"
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [],
         "focus": {
             "Node.Action.Succeeded": "今日还有奖励次数未用尽，请先完成奖励演算"
@@ -39,7 +27,7 @@
         "desc": "刷镀层第1次抽取铭牌",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyDrawCard"
+            "TrialOfSwordmancyDrawCardButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -52,6 +40,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating1Success"
         ]
@@ -64,9 +53,10 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck1",
-            "TrialOfSwordmancyCoatingGiveUp"
+            "TrialOfSwordmancyCoatingAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck1": {
@@ -81,6 +71,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating2"
         ]
@@ -89,7 +80,7 @@
         "desc": "刷镀层第2次抽取铭牌",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyDrawCard"
+            "TrialOfSwordmancyDrawCardButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -102,6 +93,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating2Success"
         ]
@@ -114,9 +106,10 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck2",
-            "TrialOfSwordmancyCoatingGiveUp"
+            "TrialOfSwordmancyCoatingAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck2": {
@@ -131,6 +124,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating3"
         ]
@@ -139,7 +133,7 @@
         "desc": "刷镀层第3次抽取铭牌",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyDrawCard"
+            "TrialOfSwordmancyDrawCardButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -152,6 +146,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating3Success"
         ]
@@ -164,9 +159,10 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck3",
-            "TrialOfSwordmancyCoatingGiveUp"
+            "TrialOfSwordmancyCoatingAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck3": {
@@ -181,6 +177,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating4"
         ]
@@ -189,7 +186,7 @@
         "desc": "刷镀层第4次抽取铭牌",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyDrawCard"
+            "TrialOfSwordmancyDrawCardButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -202,6 +199,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating4Success"
         ]
@@ -214,9 +212,10 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck4",
-            "TrialOfSwordmancyCoatingGiveUp"
+            "TrialOfSwordmancyCoatingAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck4": {
@@ -231,6 +230,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating5"
         ]
@@ -239,7 +239,7 @@
         "desc": "刷镀层第5次抽取铭牌",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyDrawCard"
+            "TrialOfSwordmancyDrawCardButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -252,6 +252,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoating5Success"
         ]
@@ -264,9 +265,10 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyCoatingCheck5",
-            "TrialOfSwordmancyCoatingGiveUp"
+            "TrialOfSwordmancyCoatingAbandon"
         ]
     },
     "TrialOfSwordmancyCoatingCheck5": {
@@ -277,6 +279,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SceneAnyEnterWorld"
         ],
@@ -284,11 +287,11 @@
             "Node.Action.Succeeded": "成功刷出目标点数"
         }
     },
-    "TrialOfSwordmancyCoatingGiveUp": {
+    "TrialOfSwordmancyCoatingAbandon": {
         "desc": "刷镀层放弃当前抽取",
         "recognition": "And",
         "all_of": [
-            "TrialOfSwordmancyGiveUp"
+            "TrialOfSwordmancyAbandonButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -296,30 +299,12 @@
         "custom_action_param": {
             "action": "Click",
             "interval_ms": 1500,
-            "wait_node": "TrialOfSwordmancyCoatingGiveUp"
+            "wait_node": "TrialOfSwordmancyAbandonButton"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "TrialOfSwordmancyCoatingResetNavigator"
-        ]
-    },
-    "TrialOfSwordmancyCoatingResetNavigator": {
-        "desc": "重置寻路maxhit",
-        "recognition": "And",
-        "all_of": [
-            "InWorld"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "TrialOfSwordmancyGotoTrialArenaCpp"
-            ]
-        },
-        "post_delay": 0,
-        "next": [
-            "TrialOfSwordmancyMain"
+            "TrialOfSwordmancyAbandonSuccess"
         ]
     }
 }

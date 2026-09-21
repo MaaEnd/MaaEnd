@@ -355,25 +355,27 @@
         ]
     },
     "__AccountSwitchLoginSuccess": {
-        "desc": "账号切换登录成功",
-        "recognition": "ColorMatch",
-        "roi": [
-            53,
-            315,
-            114,
-            61
-        ],
-        "method": 40,
-        "lower": [
-            18,
-            162,
-            242
-        ],
-        "upper": [
-            38,
-            245,
-            255
-        ],
+        "desc": "账号切换登录成功（登录按钮消失）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    471,
+                    309,
+                    328,
+                    400
+                ],
+                "expected": [
+                    // @i18n-skip
+                    "^\\s*登录\\s*$",
+                    "^\\s*登入\\s*$",
+                    "(?i)^\\s*Log\\s*in\\s*$",
+                    "^\\s*ログイン\\s*$",
+                    "^\\s*로그인\\s*$"
+                ]
+            }
+        },
+        "inverse": true,
         "next": [
             "__AccountSwitchClearUidCache"
         ]

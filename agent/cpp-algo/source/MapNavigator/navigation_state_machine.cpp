@@ -510,7 +510,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     case NaviPhase::Navigate:
         return TickNavigate();
     case NaviPhase::WaitTransfer:
-    case NaviPhase::WaitZipline: {
+    case NaviPhase::WaitZipline:
+    case NaviPhase::WaitFind: {
         const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(
             BuildSemanticContext(
                 action_wrapper_,
@@ -531,12 +532,45 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     case NaviPhase::Failed:
         return true;
     }
+    LogError << "Unhandled navigation phase." << VAR(static_cast<int>(phase));
     return false;
 }
 
 bool NavigationStateMachine::CaptureCurrentPosition(bool force_global_search)
 {
-    return position_provider_->Capture(position_, force_global_search, session_->current_zone_id());
+    const bool captured = position_provider_->Capture(position_, force_global_search, session_->current_zone_id());
+    UpdateDwellWatchdog(captured);
+    return captured;
+}
+
+// Dwell watchdog clock. It hangs off the capture rather than off the tick loop because half a wedge's wall
+// time is burned inside single ticks — unstick pulses, replans — that never reach the bottom of TickNavigate
+// yet do keep capturing, and those fixes are exactly the evidence that the agent is not moving. Everything
+// below except the credit line can only delay a trip: pausing keeps the disc and the clock, never feeds them.
+void NavigationStateMachine::UpdateDwellWatchdog(bool captured)
+{
+    DwellWatchdogState& dwell = runtime_state_.dwell;
+    const bool usable = captured && position_->valid && !position_provider_->LastCaptureWasBlackScreen();
+    // Only walking counts: a transfer, a zipline ride or a scripted interaction stands still by design, and a
+    // blind fix says nothing about whether the agent moved.
+    if (!usable || session_->phase() != NaviPhase::Navigate) {
+        dwell.last_usable = {};
+        return;
+    }
+
+    const auto now = std::chrono::steady_clock::now();
+    const bool zone_changed = !dwell.center_zone.empty() && !position_->zone_id.empty() && dwell.center_zone != position_->zone_id;
+    if (!dwell.latched || zone_changed || std::hypot(position_->x - dwell.center_x, position_->y - dwell.center_y) > kDwellWatchdogRadius) {
+        dwell.latched = true;
+        dwell.center_x = position_->x;
+        dwell.center_y = position_->y;
+        dwell.center_zone = position_->zone_id;
+        dwell.dwell_ms = 0;
+    }
+    else if (dwell.last_usable.time_since_epoch().count() > 0) {
+        dwell.dwell_ms += std::chrono::duration_cast<std::chrono::milliseconds>(now - dwell.last_usable).count();
+    }
+    dwell.last_usable = now;
 }
 
 // A sustained run of unusable fixes (commonly: the agent was shoved across a zone boundary into a
@@ -875,20 +909,8 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     const navmesh::WorldPoint fix { .x = position_->x, .y = position_->y };
     const auto snap = NavmeshSnapAt(param_, position_->zone_id, fix, param_.navmesh_snap_radius);
     const bool on_mesh = on_tower || (snap && snap->distance <= param_.navmesh_snap_radius);
-    // 滑行期间的跟踪结果不可用, 只接受新鲜定位。贴不回可走面的定位同样接受: 它表示落点不在路面
-    // 上(落到未登记的架子、崖边未铺面处), 坐标本身仍然有效, 重展开时规划会吸附回最近的可走面。
-    if (position_provider_->LastCaptureWasHeld()) {
-        ++recovery.rejected_fixes;
-        if (recovery.rejected_fixes == 1) {
-            LogWarn << "Zipline recovery rejected a stale position; forcing another global locate." << VAR(on_mesh) << VAR(position_->x)
-                    << VAR(position_->y) << VAR(position_->zone_id);
-        }
-        recovery.stable_hits = 0;
-        position_provider_->ResetTracking();
-        utils::SleepFor(kZiplineRecoveryRetryIntervalMs);
-        return true;
-    }
-
+    // 贴不回可走面的定位照样接受: 它表示落点不在路面上(落到未登记的架子、崖边未铺面处),
+    // 坐标本身仍然有效, 重展开时规划会吸附回最近的可走面。
     const bool same_fix =
         recovery.stable_hits > 0 && recovery.stable_pos.zone_id == position_->zone_id
         && std::hypot(recovery.stable_pos.x - position_->x, recovery.stable_pos.y - position_->y) <= kZiplineRecoveryStableRadiusWu;
@@ -902,8 +924,8 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     if (!position_->zone_id.empty()) {
         session_->UpdateCurrentZone(position_->zone_id);
     }
-    LogInfo << "Zipline recovery position stabilized." << VAR(elapsed_ms) << VAR(recovery.stable_hits) << VAR(recovery.rejected_fixes)
-            << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
+    LogInfo << "Zipline recovery position stabilized." << VAR(elapsed_ms) << VAR(recovery.stable_hits) << VAR(position_->x)
+            << VAR(position_->y) << VAR(position_->zone_id);
 
     // 剩余展开是按「从链尾落点出发」算的, 实际未抵达该点时它与当前位置无关: 可接入点可能在另
     // 一侧, 沿途会撞上原本要用索越过的障碍。先回作者路线从当前位置重新展开, 判死的那一跳已记入
@@ -1153,10 +1175,9 @@ bool NavigationStateMachine::ExecutePhysicalUnstick(double stuck_heading)
     double moved = 0.0;
     for (int pulse = 0; pulse < kUnstickMaxPulses; ++pulse) {
         action_wrapper_->PulseForwardSync(kUnstickPulseMs);
-        // Stop the moment tracking goes blind (held / black screen = a likely river fall) so we don't keep
-        // driving forward into the water; the next tick's loss handling takes over.
-        if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasHeld() || position_provider_->LastCaptureWasBlackScreen()
-            || !position_->valid) {
+        // Stop the moment tracking goes blind (a lost fix / black screen = a likely river fall) so we don't
+        // keep driving forward into the water; the next tick's loss handling takes over.
+        if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
             break;
         }
         moved = std::hypot(position_->x - step_start.x, position_->y - step_start.y);
@@ -1217,6 +1238,11 @@ bool NavigationStateMachine::TickNavigate()
     if (active_semantic_result.request_failure) {
         return FailNavigation(active_semantic_result.failure_reason, active_semantic_result.failure_log_message, 0.0, 0.0, 0);
     }
+    // Drop the bridge ahead of the replan gate: a node can hold the tick and ask for a replan at once, and the
+    // gate returns first, so a clear sitting below it would be skipped and the node's standstill credited later.
+    if (active_semantic_result.stay_in_current_tick) {
+        runtime_state_.dwell.last_usable = {};
+    }
     if (runtime_state_.dynamic_replan_requested) {
         if (runtime_state_.zipline_recovery.pending) {
             return HandleZiplineRecoveryReplan();
@@ -1224,6 +1250,8 @@ bool NavigationStateMachine::TickNavigate()
         return HandleDynamicReplanRequest("dynamic_replan");
     }
     if (active_semantic_result.stay_in_current_tick) {
+        // A semantic node owns this tick and takes its own fixes, so the time it spends standing still by design
+        // lands nowhere. The disc and the clock survive, so pausing can only delay a trip.
         return true;
     }
 
@@ -1252,6 +1280,41 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
+    // Dwell watchdog verdict, taken as early as a fix allows so no later branch of this tick can outrun it.
+    // The clock itself is kept by UpdateDwellWatchdog; here we only read it.
+    if (runtime_state_.dwell.dwell_ms >= kDwellWatchdogFailMs && session_->HasCurrentWaypoint()) {
+        const Waypoint& pinned_at = session_->CurrentWaypoint();
+        // 索边卡死跟自救超时同一个处置: 先退索走路, 别直接判导航失败。退链后给盘重新计时,
+        // 手上已经是走路点, 再攒满那一次才是真失败。
+        if (pinned_at.action == ActionType::ZIPLINE) {
+            LogWarn << "Dwell watchdog tripped at a zipline tower; dropping the chain and walking." << VAR(runtime_state_.dwell.dwell_ms)
+                    << VAR(position_->x) << VAR(position_->y);
+            semantic_nodes::AbandonZipline(
+                BuildSemanticContext(
+                    action_wrapper_,
+                    position_provider_,
+                    session_,
+                    motion_controller_,
+                    action_executor_,
+                    position_,
+                    &runtime_state_,
+                    maa_context_),
+                "zipline_dwell_watchdog",
+                "never left the tower's dwell radius");
+            runtime_state_.dwell.Reset();
+            return true;
+        }
+        LogError << "Dwell watchdog tripped; the agent never left its dwell radius." << VAR(runtime_state_.dwell.dwell_ms)
+                 << VAR(runtime_state_.dwell.center_x) << VAR(runtime_state_.dwell.center_y) << VAR(position_->x) << VAR(position_->y)
+                 << VAR(session_->current_node_idx());
+        return FailNavigation(
+            "dwell_watchdog",
+            "Agent stayed inside the dwell radius past the watchdog budget; terminating so the pipeline can retry.",
+            std::hypot(position_->x - pinned_at.x, position_->y - pinned_at.y),
+            0.0,
+            runtime_state_.dwell.dwell_ms);
+    }
+
     if (runtime_state_.cross_tier_escape.active) {
         const double distance_to_goal =
             std::hypot(position_->x - runtime_state_.cross_tier_escape.goal_x, position_->y - runtime_state_.cross_tier_escape.goal_y);
@@ -1266,6 +1329,10 @@ bool NavigationStateMachine::TickNavigate()
     const semantic_nodes::Result inline_semantic_result = semantic_nodes::ConsumeInlineSemantics(semantic_ctx);
     if (inline_semantic_result.request_failure) {
         return FailNavigation(inline_semantic_result.failure_reason, inline_semantic_result.failure_log_message, 0.0, 0.0, 0);
+    }
+    // Same ordering as above: the bridge goes down before the replan gate gets a chance to return.
+    if (inline_semantic_result.stay_in_current_tick) {
+        runtime_state_.dwell.last_usable = {};
     }
     if (runtime_state_.dynamic_replan_requested) {
         if (runtime_state_.zipline_recovery.pending) {
@@ -1297,15 +1364,12 @@ bool NavigationStateMachine::TickNavigate()
         runtime_state_.flow.navigate_started_at.time_since_epoch().count() > 0
         && std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.flow.navigate_started_at).count() >= 3000;
     const double current_heading = NaviMath::NormalizeAngle(position_->angle);
-    const bool degraded_fix =
-        position_provider_->LastCaptureWasHeld() || position_provider_->LastCaptureWasBlackScreen() || !position_->valid;
+    const bool degraded_fix = position_provider_->LastCaptureWasBlackScreen() || !position_->valid;
     // Gap between the screencap this tick's fix came from and the decision below: the locate itself plus the work
-    // in between. Every successful capture restamps, held ones included, so how stale the coordinates themselves
-    // are is held_fix_streak, not this.
+    // in between. Every successful capture restamps, so this only measures the current tick's own latency.
     const int64_t fix_age_ms = position_->timestamp.time_since_epoch().count() > 0
                                    ? std::chrono::duration_cast<std::chrono::milliseconds>(now - position_->timestamp).count()
                                    : 0;
-    const int held_fix_streak = position_provider_->HeldFixStreak();
 
     const size_t node_idx_before_tracking = session_->current_node_idx();
     RouteTrackingState route = RouteTracker::Update(session_, &runtime_state_.route, *position_);
@@ -1692,8 +1756,7 @@ bool NavigationStateMachine::TickNavigate()
                 motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
                 utils::SleepFor(kActionJumpSettleMs);
                 motion_controller_->SetForwardState(false);
-                if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasHeld()
-                    || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
+                if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
                     LogWarn << "Dynamic recovery waiting for post-jump local tracking fix." << VAR(stalled_ms)
                             << VAR(escalation.jump_attempt_count);
                     utils::SleepFor(kTargetTickMs);
@@ -1927,8 +1990,8 @@ bool NavigationStateMachine::TickNavigate()
              << VAR(nav_run_result.upcoming_turn_deg) << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg)
              << VAR(heading_rate_gap_ms) << VAR(heading_rate_gap_ticks) << VAR(heading_error) << VAR(steering.yaw_delta_deg)
              << VAR(issued_delta_deg) << VAR(turn_achieved_deg) << VAR(turn_residual_deg) << VAR(turn_elapsed_ms)
-             << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(held_fix_streak) << VAR(capture_ms)
-             << VAR(fix_age_ms) << VAR(tick_gap_ms) << VAR(tick_compute_ms);
+             << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(capture_ms) << VAR(fix_age_ms)
+             << VAR(tick_gap_ms) << VAR(tick_compute_ms);
 
     // 只有走到这里的拍才是完整的常规导航拍，语义节点、恢复、丢定位在上面就提前 return 了。
     latency::RecordStage(latency::Stage::Other, std::max<int64_t>(0, tick_compute_ms - capture_ms - steer_send_ms));
@@ -2195,6 +2258,12 @@ void NavigationStateMachine::UpdatePromptSprintSuppression()
 // motion is confirmed; its arrival gate still requires actual movement before digging.
 void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
 {
+    // FIND 的接近段一律走路: 移动连续、修正只跟着每拍的框来, 跑起来容易冲过头
+    if (phase == NaviPhase::WaitFind) {
+        walk_mode_.Request(true);
+        return;
+    }
+
     PromptDistance nearest = NearestPromptDistance();
     const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
     const bool has_waypoint = session_->HasCurrentWaypoint();

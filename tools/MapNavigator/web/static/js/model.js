@@ -5,6 +5,7 @@
  * A `PathPoint` is a plain object:
  *   { x:number, y:number, action:number, actions:number[], zone:string, strict:boolean,
  *     required?:true, target_tier?:string, target_deck_y?:number,
+ *     find_target?:string, find_text?:string[], find_stop?:string, find_arrive?:number[],
  *     auto_portal?:true, suppress_auto_portal?:true }
  * Invariant on `actions`: either `[RUN]` or a list of non-RUN/NONE actions; `action`
  * always mirrors the last element of the normalised chain.
@@ -26,6 +27,7 @@ export const ActionType = Object.freeze({
   COLLECT: 7,
   DIG: 8,
   NAVMESH: 9,
+  FIND: 10,
 });
 
 const VALID_ACTION_INTS = new Set(Object.values(ActionType));
@@ -43,6 +45,7 @@ export const ACTION_COLORS = {
   [ActionType.COLLECT]: "#ff0000",
   [ActionType.DIG]: "#7c2d12",
   [ActionType.NAVMESH]: "#ffffff",
+  [ActionType.FIND]: "#e11d48",
 };
 
 /** @type {Object<number,string>} display name per action. */
@@ -58,9 +61,10 @@ export const ACTION_NAMES = {
   [ActionType.COLLECT]: "Collect",
   [ActionType.DIG]: "Dig",
   [ActionType.NAVMESH]: "Navmesh",
+  [ActionType.FIND]: "Find",
 };
 
-/** @type {Object<number,string>} export token per action (RUN..NAVMESH; NONE has none). */
+/** @type {Object<number,string>} export token per action (RUN..FIND; NONE has none). */
 export const ACTION_TOKENS = {
   [ActionType.RUN]: "RUN",
   [ActionType.SPRINT]: "SPRINT",
@@ -72,6 +76,7 @@ export const ACTION_TOKENS = {
   [ActionType.COLLECT]: "COLLECT",
   [ActionType.DIG]: "DIG",
   [ActionType.NAVMESH]: "NAVMESH",
+  [ActionType.FIND]: "FIND",
 };
 
 /** @type {Object<string,number>} upper-case token → action int. */
@@ -87,9 +92,10 @@ export const ACTION_NAME_LOOKUP = {
   COLLECT: ActionType.COLLECT,
   DIG: ActionType.DIG,
   NAVMESH: ActionType.NAVMESH,
+  FIND: ActionType.FIND,
 };
 
-/** Actions shown in the UI dropdown, in order (RUN..NAVMESH). */
+/** Actions shown in the UI dropdown, in order (RUN..FIND). */
 export const ACTION_MENU_TYPES = [
   ActionType.RUN,
   ActionType.SPRINT,
@@ -101,6 +107,7 @@ export const ACTION_MENU_TYPES = [
   ActionType.COLLECT,
   ActionType.DIG,
   ActionType.NAVMESH,
+  ActionType.FIND,
 ];
 
 /** @type {string[]} dropdown labels matching {@link ACTION_MENU_TYPES}. */
@@ -311,6 +318,80 @@ export function exportActionToken(value) {
 }
 
 /**
+ * `find_text` accepts one string or a list of non-empty strings; anything else
+ * counts as not written. Mirrors `model.coerce_find_text`.
+ * @param {unknown} value
+ * @returns {string[]}
+ */
+export function coerceFindText(value) {
+  if (typeof value === "string") {
+    const text = value.trim();
+    return text ? [text] : [];
+  }
+  if (!Array.isArray(value)) return [];
+  const texts = [];
+  for (const item of value) {
+    if (typeof item !== "string") return [];
+    const text = item.trim();
+    if (!text) return [];
+    texts.push(text);
+  }
+  return texts;
+}
+
+/**
+ * The three FIND fields, omitting any that is not written. Mirrors `model.find_fields_of`.
+ * @param {PathPoint} point
+ * @returns {Object<string, string|string[]>}
+ */
+export function findFieldsOf(point) {
+  const fields = {};
+  const target = String(point.find_target === undefined ? "" : point.find_target).trim();
+  if (target) fields.find_target = target;
+  const texts = coerceFindText(point.find_text);
+  if (texts.length) fields.find_text = texts;
+  const stop = String(point.find_stop === undefined ? "" : point.find_stop).trim();
+  if (stop) fields.find_stop = stop;
+  const arrive = coerceFindArrive(point.find_arrive);
+  if (arrive.length) fields.find_arrive = arrive;
+  return fields;
+}
+
+/**
+ * `find_arrive` is an `[x, y]` of finite numbers; anything else counts as not written.
+ * Mirrors `model.coerce_find_arrive`.
+ * @param {unknown} value
+ * @returns {number[]}
+ */
+export function coerceFindArrive(value) {
+  if (!Array.isArray(value) || value.length !== 2) return [];
+  const numbers = [];
+  for (const item of value) {
+    if (typeof item !== "number" || !Number.isFinite(item)) return [];
+    numbers.push(item);
+  }
+  return numbers;
+}
+
+/**
+ * Whether two points carry the same FIND fields, so normalisation never merges
+ * two points that would lose one of them. Mirrors the Python merge guard.
+ * @param {PathPoint} a
+ * @param {PathPoint} b
+ * @returns {boolean}
+ */
+function findFieldsEqual(a, b) {
+  const fa = findFieldsOf(a);
+  const fb = findFieldsOf(b);
+  return (
+    (fa.find_target || "") === (fb.find_target || "") &&
+    (fa.find_stop || "") === (fb.find_stop || "") &&
+    arraysEqual(fa.find_text || [], fb.find_text || []) &&
+    arraysEqual(fa.find_arrive || [], fb.find_arrive || [])
+  );
+}
+
+/**
  * Keep `auto_portal`/`suppress_auto_portal` only while they still describe the
  * point's chain; drop otherwise. Mirrors `model._sync_portal_flags`.
  * @param {PathPoint} point
@@ -364,6 +445,7 @@ export function normalizePathPoints(points) {
       if (Number.isFinite(targetDeckY)) np.target_deck_y = targetDeckY;
     }
     if (Boolean(point.required)) np.required = true;
+    Object.assign(np, findFieldsOf(point));
     if (Boolean(point.auto_portal)) np.auto_portal = true;
     if (Boolean(point.suppress_auto_portal)) np.suppress_auto_portal = true;
     syncPortalFlags(np);
@@ -419,7 +501,8 @@ export function normalizePathPoints(points) {
       last.strict === point.strict &&
       Boolean(last.required) === Boolean(point.required) &&
       (last.target_tier || "") === (point.target_tier || "") &&
-      last.target_deck_y === point.target_deck_y
+      last.target_deck_y === point.target_deck_y &&
+      findFieldsEqual(last, point)
     ) {
       const mergedAutoPortal = Boolean(last.auto_portal) || Boolean(point.auto_portal);
       const mergedSuppressed = Boolean(last.suppress_auto_portal) || Boolean(point.suppress_auto_portal);

@@ -1,0 +1,22 @@
+{
+    // FIND 的内联文本目标：路线写 find_text 时，导航把这里的 expected 换成路线给的文字表后按帧调用，
+    // 节点本身从不派发。roi 只覆盖世界画面中上部，需要收紧时照抄一份、用 find_target 点名自己的节点。
+    "MapNavigatorFind": {
+        "desc": "FIND 的内联文本目标识别（expected 由路线注入）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    100,
+                    80,
+                    1080,
+                    520
+                ],
+                // 由 find_text 注入替换；没注入时谁都对不上，不会把路人当目标。
+                "expected": [
+                    "__MapNavigatorFindTextNotInjected__"
+                ]
+            }
+        }
+    }
+}

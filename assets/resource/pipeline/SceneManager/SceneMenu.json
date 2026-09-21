@@ -43,18 +43,7 @@
         "desc": "从选剑演武界面退出到大世界",
         "recognition": "And",
         "all_of": [
-            {
-                "recognition": "OCR",
-                "roi": [
-                    0,
-                    0,
-                    200,
-                    60
-                ],
-                "expected": [
-                    "选剑演武"
-                ]
-            },
+            "CheckTrialOfSwordmancyText",
             "CloseButtonType1"
         ],
         "box_index": 1,

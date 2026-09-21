@@ -1,0 +1,129 @@
+{
+    // 首墩 Wuling MarkerStone：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   23400083018 → [490.7, 2116.0]
+    //   23400083248 → [411.9, 2231.5]
+    //   23400083106 → [590.9, 2243.1]
+    //   23400083315 → [503.8, 2582.6]  // 地下点，Visit next 含 SceneMapLayerSwitchToMain
+    "SharedZiplineDeletePrepareWulingMarkerStone": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitWulingMarkerStone0"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingMarkerStone0": {
+        "desc": "首墩锚点 markInstId=23400083018",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                490.7,
+                2116.0
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingMarkerStone1"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingMarkerStone1": {
+        "desc": "首墩锚点 markInstId=23400083248",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                411.9,
+                2231.5
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingMarkerStone2"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingMarkerStone2": {
+        "desc": "首墩锚点 markInstId=23400083106",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                590.9,
+                2243.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingMarkerStone3"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingMarkerStone3": {
+        "desc": "首墩锚点 markInstId=23400083315（地下）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                503.8,
+                2582.6
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

@@ -139,8 +139,7 @@ bool ParseOffMeshSection(const uint8_t* data, size_t size, std::vector<BaseNavOf
     (void)ReadU32(cursor);
     const uint16_t expect_record_size = version == 1 ? kOffMeshRecordSizeV1 : (version == 2 ? kOffMeshRecordSizeV2 : 0);
     if (version > kOffMeshSectionVersion || expect_record_size == 0 || record_size != expect_record_size
-        || count != (size - kOffMeshHeaderSize) / record_size
-        || size != kOffMeshHeaderSize + static_cast<size_t>(count) * record_size) {
+        || count != (size - kOffMeshHeaderSize) / record_size || size != kOffMeshHeaderSize + static_cast<size_t>(count) * record_size) {
         return false;
     }
     links->reserve(count);

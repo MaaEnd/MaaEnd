@@ -92,18 +92,35 @@
 
 ## TeleportButton
 
-**Description**: Teleport button, fixed in the lower right area of the screen.
+**Description**: Teleport button, located in the lower right corner of the **map interface**.
 
 <!-- Screenshot: docs/developers/images/common-buttons/TeleportButton.png -->
 
 ![TeleportButton](https://github.com/user-attachments/assets/f1b0e309-e587-4bbd-89c8-7828e1d861db)
 
 | Item | Description |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Recognition Method** | Perform template matching within the fixed ROI `[1181, 611, 94, 102]` (720p, blue area), supporting normal and Hover states. |
-| **Search Range** | **Restricted area** ROI `[1181, 611, 94, 102]` (720p). It only recognizes within the blue area, and identical buttons appearing in other positions will not be clicked. |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Recognition Method** | `And`: first confirm the map interface via `SceneManager/MapMissionReminder.png`, then match the white confirmation button templates (normal and Hover states) within ROI `[1160, 600, 120, 120]` (720p). |
+| **Search Range** | **Restricted area** ROI `[1160, 600, 120, 120]` (720p); only effective on the map interface. |
 | **Action** | Single click. |
-| **Usage Condition** | Use only when the **teleport button appears at this fixed position** (approximate area starting at 1181,611 in the lower right corner, 94x102). If the interface layout or button position is different, do not reference this node. Define the ROI and templates yourself. |
+| **Usage Condition** | Use when the teleport button in the lower right corner must be clicked on the map interface. If the button sits elsewhere (for example the quick-teleport button), use `QuickTeleportButton`. |
+
+---
+
+## QuickTeleportButton
+
+**Description**: Quick-teleport button, sitting to the left of the teleport button in the lower right corner of the map interface.
+
+<!-- Screenshot: tests/MaaEndTestset/Win32/Official_CN/武陵_地图_拍摄巨兽心脏_前往传送.png -->
+
+![QuickTeleportButton](https://raw.githubusercontent.com/MaaEnd/MaaEndTestset/main/Win32/Official_CN/%E6%AD%A6%E9%99%B5_%E5%9C%B0%E5%9B%BE_%E6%8B%8D%E6%91%84%E5%B7%A8%E5%85%BD%E5%BF%83%E8%84%8F_%E5%89%8D%E5%BE%80%E4%BC%A0%E9%80%81.png)
+
+| Item | Description |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Recognition Method** | Same as `TeleportButton`, with button ROI `[1000, 600, 120, 120]` (720p) and threshold 0.87. |
+| **Search Range** | **Restricted area** ROI `[1000, 600, 120, 120]` (720p); only effective on the map interface. |
+| **Action** | Single click. |
+| **Usage Condition** | Use when "Go to teleport" must be clicked on the map interface (it pans the map viewport to the target teleport point); usually followed by a click on `TeleportButton` to finish the teleport. |
 
 ---
 
@@ -167,7 +184,8 @@
 | `YellowConfirmButtonType1` | Confirm button with yellow background + circular ring icon |
 | `YellowConfirmButtonType2` | Confirm button with yellow background + checkmark icon |
 | `CancelButton` | Cancel button with white background + X icon |
-| `TeleportButton` | Teleport button at the fixed position in the lower right corner |
+| `TeleportButton` | Teleport button in the lower right corner of the map interface |
+| `QuickTeleportButton` | Quick-teleport button to the left of it on the map interface |
 | `CloseRewardsButton` | Checkmark close button in the lower middle of the reward interface |
 | `CloseButtonType1` | Upper right X that only closes the interface (freezes under ESC) |
 | `CloseButtonType2` | Universal upper right X for closing the interface or ESC (use this to avoid freezes when ESC may appear) |

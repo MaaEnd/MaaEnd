@@ -19,13 +19,15 @@ struct MapPosition
     int sliceIndex = 0;
     double angle = 0.0;
     long long latencyMs = 0;
-    bool isHeld = false;
 };
 
 struct MapLocatorConfig
 {
     std::string mapResourceDir;
     std::string yoloModelPath;
+    // 摄像机朝向两图工件：前处理图 + 参考配对分类器；路径为空表示未部署该图。
+    std::string cameraOrientationPreprocessModelPath;
+    std::string cameraOrientationRefModelPath;
     int yoloThreads = 1;
 };
 
@@ -43,7 +45,7 @@ struct SearchHint
 
 struct LocateOptions
 {
-    double loc_threshold = 0.55;      // 最低分数线
+    double loc_threshold = 0.55;      // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
     double yolo_threshold = 0.70;
     bool force_global_search = false; // 是否强制放弃当前追踪，进行全局全图搜
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
@@ -70,11 +72,20 @@ enum class LocateStatus
     NotInitialized
 };
 
+// 摄像机朝向识别结果：rot ∈ [0,360)，confidence ∈ [0,1]。与角色箭头朝向
+// （MapPosition.angle）识别目标无关，独立输出，不参与定位内部逻辑。
+struct CameraOrientation
+{
+    double rot = 0.0;
+    double confidence = 0.0;
+};
+
 struct LocateResult
 {
     LocateStatus status;
     std::optional<MapPosition> position;
     std::string debugMessage; // 用于向 Pipeline 输出日志
+    std::optional<CameraOrientation> camRot;
 };
 
 enum class GlobalSearchMode
@@ -228,7 +239,7 @@ struct TrackingConfig
 struct MatchConfig
 {
     int fineSearchRadius = 40;   // 精搜半径(px)
-    double passThreshold = 0.55; // 全局搜索及格线, 容忍UI遮挡+光影
+    double passThreshold = 0.55; // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
     double yoloConfThreshold = 0.60;
 };
 

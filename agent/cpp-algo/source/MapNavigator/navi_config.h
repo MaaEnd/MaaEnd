@@ -20,6 +20,8 @@ struct AdbTouchTurnProfile
     double default_units_per_degree = 5.0;
     int32_t swipe_duration_ms = 70;
     int32_t post_swipe_settle_ms = 0;
+    // 移动指令之后这段时间里的转向会被游戏吞掉: 摇杆状态刚变, 视角拖动还没被受理
+    int32_t action_quiet_period_ms = 60;
 };
 
 inline constexpr AdbTouchTurnProfile kAdbTouchTurnProfile {};
@@ -201,6 +203,14 @@ constexpr int32_t kOffRouteWedgeReplanMs = 6000;
 constexpr int32_t kOffRouteWedgeReplanCooldownMs = 4000;
 constexpr int32_t kOffRouteWedgeFailMs = 12000;
 
+// Last-resort dwell watchdog: the agent never left a disc this small for this long. Measured in world pixels
+// against a latched centre, so no clock keyed on a path index, an anchor or a replan can launder it away —
+// the only way to clear it is to actually go somewhere. Sized off logged navigations: the longest healthy
+// dwell is 23.5s and every self-recovery there escaped on its first ladder attempt, while a wedged one
+// passes 160s having burned dozens, so the budget sits four times over the ladder's own.
+constexpr double kDwellWatchdogRadius = 20.0;
+constexpr int32_t kDwellWatchdogFailMs = 120000;
+
 // Cross-tier escape (wrong-tier fall): plan ONE navmesh corridor from a walkable FLOORED-tier fix back to the
 // nearest reachable authored waypoint and follow it as a fixed corridor (riding the legitimate tier<->base
 // oscillation). Exit needs BOTH arrival distance AND a floor-blind (base) zone — a shaft's lower loops pass under
@@ -262,7 +272,6 @@ constexpr int32_t kNavRunPlanFailureCooldownMs = 3000;
 // --- Zone / Portal / Transfer Constants ---
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;
 constexpr int32_t kZoneConfirmTimeoutMs = 12000;
-constexpr int32_t kZoneConfirmStableFrames = 2;
 constexpr int32_t kRelocationRetryIntervalMs = 120;
 constexpr int32_t kRelocationWaitTimeoutMs = 15000;
 constexpr int32_t kRelocationStableFixes = 2;
@@ -469,5 +478,32 @@ constexpr int32_t kRecoveryDeviceAttempts = 1;
 constexpr const char* kDefaultDigEntry = "AutoCollectDigStart";
 constexpr const char* kDigPipelineOverride = R"({"AutoCollectDigEnd":{"next":[]}})";
 constexpr int32_t kDigPostSleepMs = 80;
+
+// --- FIND: 按识别框接近目标 ---
+// 内联文本 (find_text) 走这个内置 OCR 节点: 每趟注入 expected 后按帧调用, 从不派发
+constexpr const char* kFindInlineOcrNode = "MapNavigatorFind";
+// 原地搜索每步转过的视角, 一圈 12 步
+constexpr double kFindSearchStepDeg = 30.0;
+// 连续漏认这么多拍才转去搜索: 遮挡一两帧就把刚对准的镜头甩走, 下一拍还要转回来
+constexpr int32_t kFindMissGraceTicks = 3;
+// 框中心离画面中线进这个容差就不再转视角, 保持直行 (1280 基准帧像素)
+constexpr int32_t kFindAlignTolerancePx = 80;
+// 偏出对准容差但没出这个窗口时边走边转; 再偏就先站定转正, 免得带着旧方向越走越偏
+constexpr int32_t kFindWalkWhileTurningPx = kFindAlignTolerancePx * 2;
+// 走路时停车判据的密集探测: 提示窗口很窄, 只靠每拍一查容易直接走过头; 窗口内按间隔抓快照重查
+constexpr int32_t kFindStopProbeWindowMs = 700;
+constexpr int32_t kFindStopProbeIntervalMs = 120;
+// 框中心掉到这条线以下算走过了, 退一步; 480/720 即画面下三分之一
+constexpr double kFindPassedCenterYRatio = 0.667;
+// 走过头退一步的时长, 只求把框拉回中线以下
+constexpr int32_t kFindBackwardPulseMs = 200;
+// 转向增益: 偏移换算成角度是线性化的, 打满会转过头
+constexpr double kFindSteerGain = 0.33;
+// 每步末尾的节流, 同时充当下一步转向的静默期 (短于后端 quiet period 会被上一条移动指令吞掉)
+constexpr int32_t kFindStepSleepMs = 120;
+// 预算, 步数与时长任一用尽即判该点失败
+constexpr int32_t kFindMaxSteps = 48;
+constexpr int32_t kFindBudgetMs = 60000;
+static_assert(kFindStepSleepMs > kAdbTouchTurnProfile.action_quiet_period_ms, "find pacing must outlast the steering quiet period");
 
 } // namespace mapnavigator

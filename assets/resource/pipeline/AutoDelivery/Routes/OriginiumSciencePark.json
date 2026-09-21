@@ -343,8 +343,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1163.183,
-                        831.525
+                        1156.971,
+                        823.25
                     ],
                     "target_deck_y": 87.394,
                     "required": true

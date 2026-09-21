@@ -1,0 +1,389 @@
+{
+    // 武陵城 Wuling WulingCity：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   22801120001 → [908.4, 1180.6]
+    //   22801140001 → [1050.5, 1269.0]
+    //   22800060089 → [921.8, 1307.7]
+    //   22801140057 → [424.3, 1373.9]
+    //   22800030004 → [496.8, 1562.1]
+    //   22800030005 → [704.8, 1621.4]
+    //   22800030009 → [914.4, 1585.0]
+    //   22800030007 → [528.7, 1741.8]
+    //   22800030016 → [942.8, 1779.9]
+    //   22800060090 → [866.0, 1867.6]
+    //   22800031002 → [973.3, 1958.3]
+    //   22801140002 → [508.4, 1966.0]
+    //   22800030008 → [703.8, 1890.9]
+    "SharedZiplineDeletePrepareWulingWulingCity": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitWulingWulingCity0"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity0": {
+        "desc": "武陵城锚点 markInstId=22801120001",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                908.4,
+                1180.6
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity2"
+        ]
+    },
+    // "SharedZiplineDeleteVisitWulingWulingCity1": {
+    //     "desc": "武陵城锚点 markInstId=22801140001",
+    //     "recognition": "Custom",
+    //     "custom_recognition": "MapFind",
+    //     "custom_recognition_param": {
+    //         "zone": "Wuling",
+    //         "icon": "TeleportAnchor",
+    //         "at": [
+    //             1050.5,
+    //             1269.0
+    //         ]
+    //     },
+    //     "action": "Click",
+    //     "post_wait_freezes": {
+    //         "target": [
+    //             -200,
+    //             -200,
+    //             200,
+    //             200
+    //         ],
+    //         "time": 100
+    //     },
+    //     "next": [
+    //         "[JumpBack]SharedZiplineDeleteTeleportClick",
+    //         "[JumpBack]SharedZiplineDeleteHit",
+    //         "SharedZiplineDeleteVisitWulingWulingCity2"
+    //     ]
+    // },
+    "SharedZiplineDeleteVisitWulingWulingCity2": {
+        "desc": "武陵城锚点 markInstId=22800060089",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                921.8,
+                1307.7
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity3"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity3": {
+        "desc": "武陵城锚点 markInstId=22801140057",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                424.3,
+                1373.9
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity4"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity4": {
+        "desc": "武陵城锚点 markInstId=22800030004",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                496.8,
+                1562.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity5"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity5": {
+        "desc": "武陵城锚点 markInstId=22800030005",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                704.8,
+                1621.4
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity6"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity6": {
+        "desc": "武陵城锚点 markInstId=22800030009",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                914.4,
+                1585.0
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity7"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity7": {
+        "desc": "武陵城锚点 markInstId=22800030007",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                528.7,
+                1741.8
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity8"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity8": {
+        "desc": "武陵城锚点 markInstId=22800030016",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                942.8,
+                1779.9
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity9"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity9": {
+        "desc": "武陵城锚点 markInstId=22800060090",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                866.0,
+                1867.6
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity10"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity10": {
+        "desc": "武陵城锚点 markInstId=22800031002",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                973.3,
+                1958.3
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity11"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity11": {
+        "desc": "武陵城锚点 markInstId=22801140002",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                508.4,
+                1966.0
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingWulingCity12"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingWulingCity12": {
+        "desc": "武陵城锚点 markInstId=22800030008",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                703.8,
+                1890.9
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

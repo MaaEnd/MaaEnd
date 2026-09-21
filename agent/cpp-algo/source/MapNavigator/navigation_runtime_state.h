@@ -3,9 +3,11 @@
 #include <chrono>
 #include <cstddef>
 #include <limits>
+#include <optional>
 #include <string>
 
 #include "navi_domain_types.h"
+#include "prompt_scan_profile.h"
 #include "zipline_ride_machine.h"
 
 namespace mapnavigator
@@ -72,8 +74,6 @@ struct SemanticState
     std::chrono::steady_clock::time_point portal_transit_started {};
     // 这一次上索是行进预筛叫停的, 人可能还差几步。此时认不出提示只说明预筛看错了, 不该丢链
     bool zipline_prompt_probe = false;
-    std::string held_zone_candidate;
-    int held_zone_hits = 0;
 
     void ResetTransient()
     {
@@ -85,8 +85,6 @@ struct SemanticState
         portal_transit_needs_reacquire = false;
         portal_transit_started = {};
         zipline_prompt_probe = false;
-        held_zone_candidate.clear();
-        held_zone_hits = 0;
     }
 };
 
@@ -105,6 +103,31 @@ struct DynamicRecoveryState
         last_replan_at = {};
         anchor_index = std::numeric_limits<size_t>::max();
         active = false;
+    }
+};
+
+// FIND 的进度。按点计: 推进点位或重开导航就清
+struct FindState
+{
+    std::chrono::steady_clock::time_point started_at {};
+    int32_t steps = 0;
+    // 连续漏认的拍数, 见 kFindMissGraceTicks
+    int32_t miss_streak = 0;
+    // 没见过目标时的搜索方向 (±1)
+    int32_t search_sign = 1;
+    // 上次看到目标时框中心在中线哪一侧 (+1 右 / -1 左 / 0 没见过), 搜索第一步朝这边转
+    int32_t last_seen_side = 0;
+    // 停车判据的模板预筛 (从 find_stop 节点读出), 空 = 判据读不成模板, 探测时直接跑权威识别
+    std::optional<PromptScanProfile> stop_probe;
+
+    void Reset()
+    {
+        started_at = {};
+        steps = 0;
+        miss_streak = 0;
+        search_sign = 1;
+        last_seen_side = 0;
+        stop_probe.reset();
     }
 };
 
@@ -242,6 +265,30 @@ struct OffRouteWedgeState
     }
 };
 
+// Dwell watchdog. A latched world-coordinate disc and the time spent inside it. Every other stall clock is
+// keyed on route bookkeeping — a waypoint index, a corridor anchor, a recovery episode — so anything that
+// renumbers the path zeroes it; this one answers only to where the agent physically is. Time is credited
+// between consecutive usable fixes, so blind stretches are skipped rather than counted or treated as progress.
+struct DwellWatchdogState
+{
+    double center_x = 0.0;
+    double center_y = 0.0;
+    std::string center_zone;
+    bool latched = false;
+    int64_t dwell_ms = 0;
+    std::chrono::steady_clock::time_point last_usable {};
+
+    void Reset()
+    {
+        center_x = 0.0;
+        center_y = 0.0;
+        center_zone.clear();
+        latched = false;
+        dwell_ms = 0;
+        last_usable = {};
+    }
+};
+
 // Cross-tier escape. The agent fell onto a wrong FLOORED tier (one the route never planned for); we plan ONE
 // navmesh corridor from that tier fix back to a reachable authored waypoint and follow it, tolerating the
 // open-air shaft's tier<->base oscillation as a live guard rather than re-planning on every flip. Everything is
@@ -322,7 +369,6 @@ struct ZiplineRecoveryState
     std::chrono::steady_clock::time_point started_at {};
     NaviPosition stable_pos {};
     int32_t stable_hits = 0;
-    int32_t rejected_fixes = 0;
     bool pending = false;
 
     void Begin(const std::chrono::steady_clock::time_point& now)
@@ -330,7 +376,6 @@ struct ZiplineRecoveryState
         started_at = now;
         stable_pos = {};
         stable_hits = 0;
-        rejected_fixes = 0;
         pending = true;
     }
 
@@ -339,7 +384,6 @@ struct ZiplineRecoveryState
         started_at = {};
         stable_pos = {};
         stable_hits = 0;
-        rejected_fixes = 0;
         pending = false;
     }
 };
@@ -356,7 +400,12 @@ struct NavigationRuntimeState
     LateralBypassState bypass;
     SteeringRateState steering_rate;
     OffRouteWedgeState offroute;
+    // 置于顶层且不进任何一个 Reset: 它要盖住的正是「重规划/换锚点把时钟清零」这件事, 跟着它们清就永远攒不满。
+    // 换区和走出盘由它自己按世界坐标清, 换了整趟导航由 BeginNavigation 清
+    DwellWatchdogState dwell;
     CrossTierEscapeState cross_tier_escape;
+    // FIND 的进度。按点计: 推进点位或重开导航就清, 步数预算与开始时刻都只属于当前这个 FIND 点
+    FindState find;
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
     // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
     ZiplineApproachState zipline_approach;
@@ -398,9 +447,11 @@ struct NavigationRuntimeState
         bypass.Reset();
         steering_rate.Reset();
         offroute.Reset();
+        dwell.Reset();
         cross_tier_escape.Reset();
         zipline_approach.Reset();
         zipline_recovery.Reset();
+        find.Reset();
         zipline_ride.ResetNavigation();
         virtual_no_go.clear();
         progress_identity.Reset();
@@ -421,6 +472,7 @@ struct NavigationRuntimeState
         bypass.Reset();
         offroute.Reset();
         zipline_recovery.Reset();
+        find.Reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;
         nav_run_dirty = true;

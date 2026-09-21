@@ -103,7 +103,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | `assets/resource/pipeline/AutoDelivery/Delivery.json` | 取消追踪、终点导航和提交货物 |
 | `agent/go-service/autodelivery/` | OCR 匹配、运行时目录校验和生成路线节点分发 |
 
-普通仓储和资源回收站由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往原始坐标，从而保证从交互正面接近；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。自动生成的点都带 `target_deck_y`，取值是该实体在数据源中的世界高度，接近点与终点同层、共用这个高度，用来在重叠可走面里选中目标层；人工覆盖路径的层声明按实测结果原样保留。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
+普通仓储和资源回收站由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往原始坐标，从而保证从交互正面接近（朝向不合适时用覆盖条目中的 `yaw` 修正，见下节）；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。自动生成的点都带 `target_deck_y`，取值是该实体在数据源中的世界高度，接近点与终点同层、共用这个高度，用来在重叠可走面里选中目标层；人工覆盖路径的层声明按实测结果原样保留。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
 
 运行 `pnpm generate:AutoDelivery` 后，每条主路线会生成普通与允许滑索两个 `AutoDeliveryRoute...` 节点。所有仓储和送货目标还会用同一条两点接近路线生成一个不启用滑索的 retry 节点；显式 `retry_path` 可以覆盖该路线。固定的 `AutoDeliveryNavigateDepot`、`AutoDeliveryRetryNavigateDepot`、`AutoDeliveryNavigateDestination` 和 `AutoDeliveryRetryNavigateDestination` 是 `SubTask` 分发器：Go Service 只根据 OCR 结果选择生成节点名，不再把坐标或完整 `path` 注入 Pipeline。生成节点是公开的单路线测试入口，`desc` 会注明路线对应的仓储节点；它们不替代完整送货业务的唯一入口 `AutoDelivery`。
 
@@ -118,14 +118,18 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | `depots` | `path` | 从快速传送落点前往仓储的完整 MapNavigator 路线；未配置时使用自动生成的仓储坐标 |
 | `depots` | `retry_path` | 覆盖首次未识别到取货按钮时执行的自动两点站位修正路线 |
 | `depots` | `departure_path` | 拼接到该仓储所属终点路线前的公共离场路线 |
+| `depots` | `yaw` | 覆盖主路线接近点与自动重试路线使用的朝向角；仓储朝向墙体时使用 |
+| `depots` | `offset` | 微调自动生成的仓储导航落点（底图像素偏移） |
 | `destinations` | `path` | 包含最终航点的完整终点路线；未配置时使用自动生成的终点坐标 |
 | `destinations` | `retry_path` | 覆盖首次未识别到提交按钮时执行的自动两点站位修正路线 |
+| `destinations` | `yaw` | 覆盖回收站主路线接近点与自动重试路线使用的朝向角；NPC 主路线仍为单个终点 |
+| `destinations` | `offset` | 微调自动生成的终点导航落点（底图像素偏移） |
 
 终点目录中的 `area` 取自 `LevelDescTable.showName`，对应任务详情页实际显示的关卡名称，而不是地区建设中的仓储节点名称。普通收货任务按 `buyerName` 匹配终点；`kind` 为 `recycle_bin` 的回收站任务不显示买家名，改为匹配完整 `mission`。同一区域存在多个相同回收站文案时保持歧义失败，不静默选择可能错误的终点。
 
 ### `retry_path`
 
-`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从主路线结束后的实际站位开始执行，只需维护路径点；首点区域声明由生成器按仓储所在 `map` 统一注入，同区声明会被归一化后重新生成，跨区声明直接报错。所有仓储和送货目标未配置时都使用自动生成的“8 米必经接近点 → 原始终点”路线，无需手工复制坐标；自动路线与主路线同源，从接近点到终点一律带 `target_deck_y`，共用实体的世界高度。这不改变 NPC 主路线仍为单个终点的规则。
+`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从主路线结束后的实际站位开始执行，只需维护路径点；首点区域声明由生成器按仓储所在 `map` 统一注入，同区声明会被归一化后重新生成，跨区声明直接报错。所有仓储和送货目标未配置时都使用自动生成的“8 米必经接近点 → 原始终点”路线，无需手工复制坐标；自动路线与主路线同源，从接近点到终点一律带 `target_deck_y`，共用实体的世界高度。接近点方位不合适时优先用下节的 `yaw` 修正，而不是改写整条 `retry_path`。这不改变 NPC 主路线仍为单个终点的规则。
 
 只在已经确认自动两点修正不适用时配置 `retry_path`，例如断网格、分层或目标附近需要绕行。不要用它掩盖模板不稳定、页面未加载或主路线错误。
 
@@ -140,16 +144,34 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。一次取货或交付流程最多执行一次站位修正。
 
+### `yaw`
+
+`yaw` 覆盖生成自动接近点使用的朝向角（度），用于收货 NPC 实际面向墙体、或数据源缺失朝向（`yaw` 缺省为 0）导致 8 米接近点落在不可达处、retry 站位修正必然失败的场景。它只改变接近点的方位，不改变路线结构：
+
+- 仓储：同时作用于主路线接近点与自动重试路线；
+- 终点：作用于资源回收站主路线的接近点与自动重试路线。NPC 主路线按既定规则仍只生成原始坐标的单个 `NAVMESH` 点，因此 `yaw` 只影响其 retry 路线。
+
+取值与数据源 `yaw` 同义：接近点位于实体该朝向的正方向 8 米处，0 度指向底图上方，数值增大顺时针旋转（90 度向右、180 度向下、270 度向左）；写负数或超过 360 的值会先归一化到 `[0, 360)`。
+
+`yaw` 只在存在自动接近点时生效：条目同时覆盖 `path` 与 `retry_path` 时生成器直接报错，避免配置静默失效。已经按实测路径覆盖接近段、或需要调整接近距离时，仍应使用 `retry_path`。
+
+### `offset`
+
+`offset` 用底图像素偏移 `[du, dv]` 微调自动生成的导航落点（右为正 `u`、下为正 `v`），用于数据源投影出来的坐标与实际可交互位置差几米的情况：落点被高架步道等上层结构挡住、停在另一张可走面上、或交互区域在相邻几米处，导致走到了坐标却触发不了交互按钮。相比整条重写 `path` / `retry_path`，它只改坐标，路线分段与区域声明仍由生成器维护。
+
+- 作用范围：仓储与终点的主路线终点、自动接近点、自动重试路线一起平移；接近点仍按 8 米与 `yaw` 重新计算，`target_deck_y` 不变。
+- 不影响回收站的大地图图标判定坐标：`AutoDeliveryFindRecycleBin...` 在 `assets/resource/pipeline/AutoDelivery/RecycleBinCandidates.json` 中用的 `at` 仍取自数据源。
+- 偏移后的落点必须仍在底图范围内，越界、非两个数值、全零偏移都会让生成器直接报错；条目同时覆盖 `path` 与 `retry_path` 时同样报错，避免配置静默失效。
+- 它只能修正水平落点。落点本身正确、只是停在了错误的可走层（高度差）时，`offset` 与 `yaw` 都无效，应按实测路径覆盖 `path` / `retry_path`。
+
 ### 验证
 
-修改数据、识别或流程后，先重新生成路线与运行时目录，再按改动范围运行：
+修改数据、识别或流程后，重新生成路线与运行时目录：
 
 ```powershell
 pnpm generate:AutoDelivery
-
-node --test tools/pipeline-generate/AutoDelivery/*.test.mjs tools/pipeline-generate/DeliveryJobs/*.test.mjs
-pnpm check
-pnpm test
 ```
+
+`pnpm check` / `pnpm test` 按需执行：改动包含 `tests/**` 时本地跑 `pnpm test`，其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。
 
 静态检查和节点测试不能代替游戏内验证。新增地区或修改交互界面后，仍需分别验证未取货恢复、已取货恢复、取货站位修正、NPC 交货和非 NPC 交货链路。

@@ -1,8 +1,16 @@
 {
     "__TeleportButton": {
-        "threshold": 0.7
+        "recognition": {
+            "param": {
+                "threshold": 0.7
+            }
+        }
     },
-    "__TeleportButtonHover": {
-        "threshold": 0.7
+    "__QuickTeleportButton": {
+        "recognition": {
+            "param": {
+                "threshold": 0.7
+            }
+        }
     }
 }

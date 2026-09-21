@@ -20,8 +20,9 @@ const (
 	regionCN     = "CN"
 	regionGlobal = "Global"
 
-	sdkDLLCN     = "hgsdk.dll"
-	sdkDLLGlobal = "gfsdk.dll"
+	sdkDLLCN       = "hgsdk.dll"
+	sdkDLLCNPCGame = "PCGameSDK.dll" // Bilibili 服，仍归国服
+	sdkDLLGlobal   = "gfsdk.dll"
 
 	optionUnchanged = "Unchanged"
 )
@@ -323,7 +324,8 @@ func ResolveRegion() (string, error) {
 	return region, nil
 }
 
-// detectRegionFromProcess 查找 Endfield.exe，按其目录下仅有的 hgsdk.dll / gfsdk.dll 判区。
+// detectRegionFromProcess 查找 Endfield.exe，按其目录下 SDK DLL 判区：
+// 有 hgsdk.dll（官服）或 PCGameSDK.dll（Bilibili 服）→ 国服；仅有 gfsdk.dll → 国际服。
 func detectRegionFromProcess() (string, error) {
 	procs, err := process.Processes()
 	if err != nil {
@@ -356,10 +358,15 @@ func detectRegionFromProcess() (string, error) {
 	}
 
 	dir := dirs[0]
-	hasCN, err := fileExists(filepath.Join(dir, sdkDLLCN))
+	hasHG, err := fileExists(filepath.Join(dir, sdkDLLCN))
 	if err != nil {
 		return "", err
 	}
+	hasPCGame, err := fileExists(filepath.Join(dir, sdkDLLCNPCGame))
+	if err != nil {
+		return "", err
+	}
+	hasCN := hasHG || hasPCGame
 	hasGlobal, err := fileExists(filepath.Join(dir, sdkDLLGlobal))
 	if err != nil {
 		return "", err
@@ -370,9 +377,9 @@ func detectRegionFromProcess() (string, error) {
 	case hasGlobal && !hasCN:
 		return regionGlobal, nil
 	case hasCN && hasGlobal:
-		return "", fmt.Errorf("gamesetting: both %s and %s exist under %s", sdkDLLCN, sdkDLLGlobal, dir)
+		return "", fmt.Errorf("gamesetting: both CN SDK (%s/%s) and %s exist under %s", sdkDLLCN, sdkDLLCNPCGame, sdkDLLGlobal, dir)
 	default:
-		return "", fmt.Errorf("gamesetting: neither %s nor %s found under %s", sdkDLLCN, sdkDLLGlobal, dir)
+		return "", fmt.Errorf("gamesetting: neither CN SDK (%s/%s) nor %s found under %s", sdkDLLCN, sdkDLLCNPCGame, sdkDLLGlobal, dir)
 	}
 }
 

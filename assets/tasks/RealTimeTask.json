@@ -914,24 +914,7 @@
             "description": "$option.AutoPuzzleSolving.description",
             "cases": [
                 {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "PuzzleSolverOnSuccess": {
-                            "next": [
-                                "RealTimeTaskMain"
-                            ]
-                        },
-                        "PuzzleSolverOnMiss": {
-                            "next": [
-                                "RealTimeTaskMain"
-                            ]
-                        },
-                        "PuzzleSolverOnPass": {
-                            "next": [
-                                "RealTimeTaskMain"
-                            ]
-                        }
-                    }
+                    "name": "Yes"
                 },
                 {
                     "name": "No",
@@ -955,15 +938,7 @@
             "description": "$option.AutoAeroSalvage.description",
             "cases": [
                 {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AeroSalvageCompleteConfirm": {
-                            "next": [
-                                "AeroSalvageMainLoop",
-                                "RealTimeTaskMain"
-                            ]
-                        }
-                    }
+                    "name": "Yes"
                 },
                 {
                     "name": "No",

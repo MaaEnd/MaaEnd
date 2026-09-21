@@ -34,7 +34,8 @@
                     ],
                     "target_deck_y": 87.27
                 }
-            ]
+            ],
+            "yaw": 300
         },
         {
             "source_id": "deliver_target_map01_lv005_03",
@@ -69,7 +70,11 @@
         {
             "source_id": "deliver_target_map01_lv006_recycle_01",
             "name": "“不是废品佬”",
-            "depot_id": "domain_1_lv006_depot_1"
+            "depot_id": "domain_1_lv006_depot_1",
+            "offset": [
+                -0.6,
+                -0.6
+            ]
         },
         {
             "source_id": "deliver_target_map01_lv006_recycle_03",
@@ -119,7 +124,8 @@
         {
             "source_id": "deliver_target_map02_lv002_recycle_01",
             "name": "火锅探店达人",
-            "depot_id": "domain_2_lv002_depot_1"
+            "depot_id": "domain_2_lv002_depot_1",
+            "yaw": 190
         },
         {
             "source_id": "deliver_target_map02_lv005_01",

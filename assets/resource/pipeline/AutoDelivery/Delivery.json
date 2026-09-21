@@ -124,7 +124,7 @@
             "AutoDelivery/SubmitGoods.png", // NPC 交货图标
             "AutoDelivery/SubmitGoods2.png" // 非 NPC 交货图标
         ],
-        "threshold": 0.8,
+        "threshold": 0.9,
         "order_by": "Score",
         "pre_wait_freezes": {
             "time": 300,

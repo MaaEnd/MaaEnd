@@ -210,23 +210,23 @@ func pickDecision(outcomes []solver.Outcome) solver.Action {
 }
 
 // routeDecision 把最优决策映射到执行节点，并用 OverrideNext 设置当前节点的 next。
-// 实际点击/等待由各执行节点（DoDrawCard / DoDoubleReward / GiveUp / StartTrial）完成；
+// 实际点击/等待由各执行节点（DrawCard / DoDoubleReward / DailyAbandon / PreStartTrial）完成；
 // Go 只负责决策与路由。仅处理 4 种真实决策；不可达（ActionNone）在调用前已 return false。
 //
-//   - DrawCard → DoDrawCard（点击抽牌按钮 + 第三抽弹窗 + 等动画）
+//   - DrawCard → DrawCard（点击抽牌按钮 + 第三抽弹窗 + 等动画）
 //   - Double   → DoDoubleReward（点击翻倍按钮 + 等动画）
-//   - Abandon  → GiveUp 链（放弃 → 确认 → 重置寻路 → 回主入口）
-//   - Calculate→ StartTrial 战斗链
+//   - Abandon  → DailyAbandon 链（放弃 → 确认 → 重置寻路 → 回主入口）
+//   - Calculate→ PreStartTrial 战斗链
 func routeDecision(ctx *maa.Context, currentNode string, action solver.Action) error {
 	return ctx.OverrideNext(currentNode, []maa.NextItem{{Name: executeNode(action)}})
 }
 
 // overrideDrawCardNodes 按本次局面覆盖抽牌等待锚点——静态值在后续抽牌时失效：
 // 落位槽递增（槽 1 早已在场），战力点变化（BattlePts0 只在战力点 0 时命中）。
-//   - DoDrawCard.custom_action_param.wait_node → BattlePts<战力点 = 手牌点数总和 % 11>
-//   - DoDrawCardSuccess.all_of → EnemyCard<落位槽 = 当前手牌数 + 1>（clamp [1,5] 纯属防御）
+//   - DrawCard.custom_action_param.wait_node → BattlePts<战力点 = 手牌点数总和 % 11>
+//   - DrawCardSuccess.all_of → EnemyCard<落位槽 = 当前手牌数 + 1>（clamp [1,5] 纯属防御）
 //
-// 注：override 为字段级浅合并，custom_action_param 必须全量给出，与 Daily.json 的 DoDrawCard 同步维护。
+// 注：override 为字段级浅合并，custom_action_param 必须全量给出，与 Daily.json 的 DrawCard 同步维护。
 func overrideDrawCardNodes(ctx *maa.Context, hand [5]int) error {
 	slot := 1
 	for _, c := range hand {
@@ -241,15 +241,15 @@ func overrideDrawCardNodes(ctx *maa.Context, hand [5]int) error {
 	waitNode := nodeBattlePtsPrefix + strconv.Itoa(power)
 
 	if err := ctx.OverridePipeline(map[string]any{
-		nodeDoDrawCard: map[string]any{
+		nodeDrawCard: map[string]any{
 			"custom_action_param": map[string]any{
 				"action":       "Click",
-				"interval_ms":  600,
-				"repeat_count": 6,
+				"interval_ms":  200,
+				"repeat_count": 20,
 				"wait_node":    waitNode,
 			},
 		},
-		nodeDoDrawCardSuccess: map[string]any{
+		nodeDrawCardSuccess: map[string]any{
 			"all_of": []string{enemyCard},
 		},
 	}); err != nil {
@@ -270,13 +270,13 @@ func overrideDrawCardNodes(ctx *maa.Context, hand [5]int) error {
 func executeNode(action solver.Action) string {
 	switch action {
 	case solver.DrawCard:
-		return nodeDoDrawCard
+		return nodeDrawCard
 	case solver.Double:
 		return nodeDoDoubleReward
 	case solver.Abandon:
-		return nodeGiveUp
+		return nodeAbandon
 	case solver.Calculate:
-		return nodeStartTrial
+		return nodePreStartTrial
 	}
 	return "" // ActionNone 已在调用前 return false，此处不命中
 }

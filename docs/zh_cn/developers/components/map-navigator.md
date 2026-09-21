@@ -145,7 +145,7 @@ uv run map-navigator --port 9000 --no-browser
 }
 ```
 
-该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
+该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
 
 字段也接受驼峰写法 `targetTier`。`NAVMESH` 的未知层名保持兼容行为：记录告警并把目标当作 base 坐标；普通坐标点显式声明了不存在的层名时会直接失败，避免静默走向错误位置。
 
@@ -339,6 +339,7 @@ uv run map-navigator --port 9000 --no-browser
 | `INTERACT` | 交互一次；写了 `interact_text` 时升级为异步交互，见[异步交互](#异步交互-interact) |
 | `COLLECT` | 采集：停止移动，触发 OCR 识别并点击采集，见[采集与挖掘](#采集与挖掘-collect--dig) |
 | `DIG` | 挖掘：停止移动，触发挖掘子任务，见[采集与挖掘](#采集与挖掘-collect--dig) |
+| `FIND` | 寻找并接近一个只有识别框的目标：转视角搜索、按框前进，命中 `find_stop` 或走到 `find_arrive` 附近即算到位，见[寻找并接近目标](#寻找并接近目标-find) |
 | `NAVMESH` | 从当前定位自动规划路线并移动到 `target`；必须使用上方对象格式 |
 | `TRANSFER` | 原地等待外力（剧情、传送等）将角色送至下一段，再从后续点继续 |
 | `PORTAL` | 过图点，触发后盲走一小段并等待区域切换 |
@@ -355,6 +356,7 @@ uv run map-navigator --port 9000 --no-browser
 - `ZONE`：声明区域上下文；
 - `HEADING`：调整朝向；
 - `COLLECT`、`DIG`：执行采集或挖掘任务。
+- `FIND`：寻找并接近识别框里的目标。
 
 启用滑索时，如果其他节点也必须抵达并执行，请添加 `"required": true`。该节点会结束当前优化区间，后续路线从这里重新开始。数组格式没有该字段，因此必经点必须使用对象格式。
 
@@ -430,7 +432,7 @@ uv run map-navigator --port 9000 --no-browser
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 同样要导出后手写，工具只负责原样保留。
 
 ---
 
@@ -448,6 +450,10 @@ uv run map-navigator --port 9000 --no-browser
 | `interact_text` | 空 | 整条路线的交互提示文字默认值，见[异步交互](#异步交互-interact) |
 | `interact_scan` | 空 | 整条路线的行进预筛节点默认值，见[换掉图标预筛](#换掉图标预筛) |
 | `interact_rec` | `false` | 整条路线的 `INTERACT` 点是否只认提示不按键，见[只认提示不按键](#只认提示不按键rec-模式) |
+| `find_target` | 空 | 整条路线的 `FIND` 目标识别节点默认值，见[寻找并接近目标](#寻找并接近目标-find) |
+| `find_text` | 空 | 整条路线的 `FIND` 内联 OCR 文本表默认值，与 `find_target` 二选一 |
+| `find_stop` | 空 | 整条路线的 `FIND` 提示判据默认值，命中即算到位 |
+| `find_arrive` | 空 | 整条路线的 `FIND` 到位坐标默认值，走到附近即算到位 |
 | `enable_bootstrap_navmesh` | `true` | 起步时是否先用 navmesh 规划一段接进路线。填 `false` 就跳过这步，直接照 `path` 里录制的点走；叠层地形（平台/栈道/屋顶）上起步规划绕远路时用它兜底 |
 
 顶层未知字段会被静默忽略，不报错。
@@ -468,6 +474,8 @@ uv run map-navigator --port 9000 --no-browser
 ```
 
 `interact_text` 的空字符串与空数组会被直接拒绝（整个节点参数解析失败），不会当作没写：空文本在识别侧等同于「什么都匹配」，见提示就按键。`interact_scan` 写空字符串等同于没写，回落到出厂的那一份。
+
+`find_target` / `find_text` / `find_stop` / `find_arrive` 接受驼峰写法（`findTarget` / `findText` / `findStop` / `findArrive`），写在点上的字段优先。路线级默认值的补充按组区分：**目标来源**（`find_target` / `find_text`）按整体补充——点上只要设置了其中任一字段，路线级的这两个字段就都不生效；两者都未设置时才会同时补入。**完成条件**（`find_stop` / `find_arrive`）按字段分别补充，只补齐点上未设置的字段。`FIND` 点缺少目标来源或完成条件、或路线级同时配置 `find_target` 与 `find_text` 且路线包含 `FIND` 点时，参数解析会直接失败。
 
 ### 执行结果
 
@@ -833,10 +841,104 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 
 ---
 
+## 寻找并接近目标 `FIND`
+
+`FIND` 用于处理**只有识别框、没有坐标**的目标，例如 NPC 名字牌与场景物件标签。运行时，导航器以识别框为方向控制角色移动；目标不在画面内时，通过旋转视角进行搜索；完成条件满足后，该节点结束。
+
+每个 `FIND` 点的配置分为两组：**目标来源**（`find_target` 或 `find_text`，二选一）与**完成条件**（`find_stop` 或 `find_arrive`，至少一项）。
+
+### 配置项
+
+| 字段 | 类型 | 说明 |
+| ---------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `find_target` | string | 目标识别节点名。任意可产生识别框的节点均可使用，例如 `OCR`、`NeuralNetworkDetect`、`TemplateMatch`、`And` 组合节点。与 `find_text` 二选一 |
+| `find_text` | string \| string[] \| object | 内联 OCR 文本表，取值为字符串或字符串数组；也可写为 `{ "node": "某 OCR 节点" }`，等价于将该节点名填入 `find_target`。与 `find_target` 二选一 |
+| `find_stop` | string | 完成判据节点名，命中即视为完成。与 `find_arrive` 至少配置一项 |
+| `find_arrive` | [number, number] | 完成坐标 `[x, y]`，进入其 2 单位半径即视为完成（半径与 strict 到达的 `kStrictArrivalLookaheadRadius` 相同）。与 `find_stop` 至少配置一项 |
+
+补充规则：
+
+- 四个字段均支持驼峰命名（`findTarget`、`findText`、`findStop`、`findArrive`）。
+- 节点级字段优先；路线级默认值按组补充：**目标来源**（`find_target` / `find_text`）按整体补充——点上只要设置了其中任一字段，路线级的这两个字段就都不生效；两者都未设置时才会同时补入。**完成条件**（`find_stop` / `find_arrive`）按字段分别补充，只补齐点上未设置的字段。
+- `find_stop` 与 `find_arrive` 同时配置时，以先满足者为准。
+- 以下配置在参数解析阶段直接失败，不会进入运行阶段：同一 `FIND` 点上 `find_target` 与 `find_text` 同时配置或均未配置；`find_stop` 与 `find_arrive` 均未配置；`find_arrive` 不是恰好包含两个数字的数组；路线级同时配置 `find_target` 与 `find_text` 且路线包含 `FIND` 点。
+
+> **注意**：`find_stop` 必须能够区分目标与背景。`FIND` 仅根据识别结果是否命中判定完成，不校验识别框指向的对象；若判据过于宽泛（例如「任意角色身上的交互提示」），经过其他可交互物时会提前完成。
+
+### 节点形态
+
+- **带坐标形态**：配置 `target` 时，节点先以普通移动点行进至该坐标（锚点），随后开始搜索。
+- **控制节点形态**：未配置 `target` 时，角色抵达该位置后立即开始搜索。
+- 两种形态的区别仅在于搜索的起始位置。
+- 数组形式 `[182.52, 173.4, "FIND"]` 仅携带坐标，目标来源与完成条件需由路线级默认值提供。
+- `FIND` 属于固有边界节点，启用滑索规划时不会被跳过。
+
+### 运行行为
+
+- **目标在画面内**：根据识别框的水平偏移修正朝向并保持前进。偏移在容差以内时保持前进；超出容差但不超过 2 倍容差时，在前进中同步转向；超过 2 倍容差时暂停前进，待朝向对正后恢复。
+- **目标已被越过**：识别框中心低于画面高度约 2/3 时，判定角色已越过目标，执行一次短距离后退脉冲，随后重新对齐。
+- **目标不在画面内**：以 30° 固定步长旋转视角搜索。搜索方向取目标最后出现的一侧，并在本次搜索中保持不变；目标从未出现时使用默认方向。
+- **目标短暂丢失**：目标曾出现后，连续丢失 1~2 拍时保持静止；连续丢失 3 拍后进入搜索。目标从未出现时不等待，直接进入搜索。
+- **行走中的完成判据检测**：角色前进期间，在每个行走周期内按固定间隔重复检测 `find_stop`。判据节点可解析为模板（`TemplateMatch`，交互提示图标通常属于此类）时，先执行毫秒级模板预筛，命中后停止前进并执行正式识别确认；预筛误报时恢复前进。无法解析为模板时（例如 OCR 节点），直接以相同节奏执行正式识别。
+- 上述节奏与阈值由 cpp-algo 侧的常量控制（`navi_config.h` 中的 `kFindSearchStepDeg`、`kFindMissGraceTicks`、`kFindAlignTolerancePx`、`kFindStopProbe*` 等），路线作者无需配置。
+
+### 完成与失败
+
+- **完成**：`find_stop` 命中，或位置进入 `find_arrive` 的半径（以先满足者为准）；节点完成后进入下一节点。
+- **失败**：
+    - 指定节点不存在、识别调用报错、或命中但未返回有效识别框（例如将 `DirectHit` 用作目标节点）时，该节点立即失败，不按「未识别」处理；
+    - 预算耗尽（`kFindMaxSteps`，48 拍；或 `kFindBudgetMs`，60 秒）仍未完成时，该节点失败，`MapNavigateAction` 返回 false，由外层 `on_error` 或重试逻辑处理。
+
+### 与相邻路段的关系
+
+`FIND` 的搜索阶段采用开环视角旋转，不读取小地图（仅 `find_arrive` 的距离判定会读取定位）。节点结束时，角色可能位于路网之外且朝向任意；导航器会在退出时重置本段的操舵与走廊记账。
+
+- 建议在 `FIND` 之后追加一个普通移动节点，以便下一段重新定位；
+- `FIND` 作为路线终节点亦可行，完成后路线结束。
+
+### 示例
+
+下列示例中 `GiftOperatorName`、`GiftOperatorApproachStop` 为示例节点名，实际使用时需替换为业务自身的识别节点。
+
+带坐标形态（先移动至锚点，再开始搜索）：
+
+```json
+{
+    "action": "FIND",
+    "target": [
+        182.52,
+        173.4
+    ],
+    "find_target": "GiftOperatorName",
+    "find_stop": "GiftOperatorApproachStop"
+}
+```
+
+控制节点形态（抵达后立即开始搜索）：
+
+```json
+{
+    "action": "FIND",
+    "find_target": "GiftOperatorName",
+    "find_stop": "GiftOperatorApproachStop"
+}
+```
+
+### 相关文件
+
+| 文件 | 职责 | 何时需要修改 |
+| -------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------ |
+| 业务自己的路线 JSON | `MapNavigateAction` 的 `path`、`FIND` 点与 `find_*` 字段 | 新增寻找点、换目标 |
+| 业务自己的识别节点 | `find_target` / `find_stop` 点名的节点 | 目标或提示的 ROI、文本变化 |
+| `assets/resource/pipeline/MapNavigator/Find.json` | 内联文本用的内置 OCR 节点 `MapNavigatorFind`；仅由导航按帧调用，从不单独派发 | 内联文本的默认 ROI |
+| `agent/cpp-algo/source/MapNavigator/find_action.cpp` | 搜索与接近的实现、退出时的记账清理 | 由 cpp-algo 维护者根据实机表现调参 |
+
+---
+
 ## 实践建议
 
 1. **首选 `NAVMESH`，需要语义再录制。** 纯移动路线在路径编辑器中手工打点并规划确认后即可复制；预览走不通的目标当场调整，不必等到运行时失败。只有含交互、过图等语义的路线才需要录制。
 2. **录制优于手写。** 实际走一遍通常比凭感觉填写坐标更准确；若录制时打点精度不足，可放慢移动速度。
 3. **保证起点状态稳定。** 录制前先调整好站位与视角，可显著减少后续的修点工作。
-4. **特殊动作点少而精。** 只在需要交互或切换区域的位置添加 `INTERACT`、`TRANSFER`、`PORTAL`；启用滑索后，必须执行的点应标记为 `required`。`HEADING`、`COLLECT`、`DIG` 始终保留。
+4. **特殊动作点少而精。** 只在需要交互或切换区域的位置添加 `INTERACT`、`TRANSFER`、`PORTAL`；启用滑索后，必须执行的点应标记为 `required`。`HEADING`、`COLLECT`、`DIG`、`FIND` 始终保留。
 5. **跨区域路线务必检查过图点。** 自动补充的 `PORTAL` 仅是语义标注，不代表每个跨区域边界都天然合理。

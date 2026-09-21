@@ -1,46 +1,80 @@
 {
     // 传送按钮。
-    // 主节点对常态和悬停态模板做短路优先识别，命中后直接点击。
+    // 根据 ROI 区分传送按钮与快速传送按钮
     "TeleportButton": {
-        "desc": "传送按钮：按常态优先短路匹配常态与悬停态模板",
+        "desc": "传送按钮",
         "recognition": {
-            "type": "Or",
+            "type": "And",
             "param": {
-                "any_of": [
-                    "__TeleportButton",
-                    "__TeleportButtonHover"
-                ]
+                "all_of": [
+                    "__TeleportMapAny",
+                    "__TeleportButton"
+                ],
+                "box_index": 1
             }
         },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "QuickTeleportButton": {
+        "desc": "前往传送的按钮（快速传送）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__TeleportMapAny",
+                    "__QuickTeleportButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__TeleportButton": {
-        "desc": "传送按钮常态模板，在右下固定区域优先匹配",
+    // 不能直接使用 InMapAny
+    "__TeleportMapAny": {
+        "desc": "传送按钮只会在地图界面出现",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1181,
-                    611,
-                    94,
-                    102
+                    0,
+                    0,
+                    220,
+                    100
                 ],
                 "template": [
-                    "Common/Button/TeleportButton.png"
+                    "SceneManager/MapMissionReminder.png"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__TeleportButton": {
+        "desc": "传送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1160,
+                    600,
+                    120,
+                    120
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
                 ],
                 "threshold": 0.9
             }
@@ -49,21 +83,22 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__TeleportButtonHover": {
-        "desc": "传送按钮悬停态模板，在常态未命中时作为回退匹配",
+    "__QuickTeleportButton": {
+        "desc": "前往传送的按钮（快速传送）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1181,
-                    611,
-                    94,
-                    102
+                    1000,
+                    600,
+                    120,
+                    120
                 ],
                 "template": [
-                    "Common/Button/TeleportButtonHover.png"
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
                 ],
-                "threshold": 0.9
+                "threshold": 0.87 // 快速传送按钮的匹配分数略低
             }
         },
         "pre_delay": 0,

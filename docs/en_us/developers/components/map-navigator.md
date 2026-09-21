@@ -102,6 +102,10 @@ Controls the character to move automatically along a given path and execute addi
 - `interact_text`: String or array of strings, empty by default. Route-wide default for the interact prompt text, see [Async Interaction](#async-interaction-interact). The field also supports camelCase `interactText`; text written on a waypoint wins, and the route-wide value only fills in the `INTERACT` points that carry none of their own. An empty string or an empty array is rejected outright (the whole parameter parse fails) rather than treated as absent, because empty text matches anything on the recognition side.
 - `interact_scan`: String, empty by default. Route-wide default for the walking pre-filter node, see [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter). The field also supports camelCase `interactScan`; a node named on a waypoint wins, and an empty string counts as absent (falling back to the shipped one).
 - `interact_rec`: Boolean, `false` by default. Whether this route's `INTERACT` points recognize the prompt without pressing anything, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode). The field also supports camelCase `interactRec`. Unlike the two above it does not follow "the waypoint wins": writing `true` here turns the whole route's `INTERACT` points on, and a waypoint cannot turn itself back off — a boolean cannot tell "written `false`" from "not written", so this field only ever switches points on. Leave it off the route root when some points should still press.
+- `find_target`: String, empty by default. Route-wide default for the `FIND` target recognition node, see [Finding and Approaching a Target](#finding-and-approaching-a-target-find). Camel case `findTarget` is accepted too; a value written on the point wins. The target source is filled as one group: a `FIND` point carrying either `find_target` or `find_text` receives neither route-wide field; only a point carrying neither receives both. If the route sets both `find_target` and `find_text` while containing a `FIND` point, parsing fails.
+- `find_text`: String or array of strings, empty by default. Route-wide default for the `FIND` inline OCR text table, camel case `findText` accepted. It is the other way of saying what to look for, so a point may carry either this or `find_target`, never both; the two fields form a single route-wide fallback, applied only to points that carry neither.
+- `find_stop`: String, empty by default. Route-wide default for the node whose hit means the `FIND` point is done, camel case `findStop` accepted. Unlike the `interact_*` fields there is no "fall back to the plain semantic" here: a `FIND` point without a target or without a completion criterion fails the whole parameter parse.
+- `find_arrive`: `[x, y]`, empty by default. Route-wide default for the coordinate that also completes a `FIND` point, camel case `findArrive` accepted. A point carrying it reads the locator once per step — x/y for the distance test only, never for steering — while points without it stay off the map entirely.
 - `enable_bootstrap_navmesh`: Boolean, `true` by default. Whether the run may plan a navmesh route at startup to join the recorded path. Set it to `false` to skip that planning and walk the recorded points directly — the escape hatch for stacked terrain (platforms, catwalks, rooftops) where the startup plan detours badly.
 - Other unknown top-level fields: Currently ignored silently without causing errors.
 
@@ -172,6 +176,7 @@ Only `INTERACT` points can take these fields — on any other action they are ig
 - `HEADING`: Adjust the camera to a specified orientation, then press `W` once.
 - `COLLECT`: Collection point, upon precise arrival, synchronously trigger AutoCollect OCR + click, without exiting NaviController. See [Collection Semantics](#collection-semantics-collect--dig).
 - `DIG`: Digging point, same as `COLLECT`, but triggers a digging subtask. See [Collection Semantics](#collection-semantics-collect--dig).
+- `FIND`: Look for a target that exists only as a recognition box and walk up to it — turning the camera to search, stepping toward the box, done as soon as `find_stop` hits or the position reaches `find_arrive`. See [Finding and Approaching a Target](#finding-and-approaching-a-target-find).
 
 ##### **3. Strict Arrival Point**
 
@@ -270,7 +275,7 @@ When the target point is on a specific **tier (layered map)**, each tier is a **
 - `target_tier`: The **area name** of that layer, i.e., the name part after `:` in the `id:name` of the tier dropdown in the GUI.
 - At runtime, the affine transformation baked into the `.nav` for that tier is used to automatically project `target` back to the base coordinate system (using the same mirroring logic as automatic normalization of the starting point localization), and snap the landing point according to that tier's floor height.
 - This is the only thing needed to go to a tier: **a single node with `target` + `target_tier` is enough**. No additional `ZONE` node is needed, no intermediate points need to be added, and no manual coordinate adjustment is required.
-- Positioned ordinary actions (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`) and target-based `HEADING` accept the same `target` + `target_tier` object form. Unlike `NAVMESH`, this declaration does not imply navigation or a zone transition; it only projects that one coordinate before execution.
+- Positioned ordinary actions (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND`) and target-based `HEADING` accept the same `target` + `target_tier` object form. Unlike `NAVMESH`, this declaration does not imply navigation or a zone transition; it only projects that one coordinate before execution.
 - The field also supports camelCase `targetTier`. An unknown tier on `NAVMESH` keeps the compatibility behavior of logging a warning and treating the target as base coordinates. An explicitly tagged ordinary point fails instead of silently moving toward the wrong location.
 
 ###### Overlapping Deck Target: `target_deck_y`
@@ -402,7 +407,7 @@ It supports:
 Official-map imports derive a pseudonymous account identity from the `/map/mark/list` `roleId`; game runs derive the same identity from the UID captured once during scene initialization. Runtime planning filters by account before map. Legacy records without an account field are not attributed at import time: when zipline navigation runs, the current account claims them — if that account has no records of its own yet, the legacy coordinates are attributed to it wholesale and persisted in place, so nothing has to be imported again after an upgrade; if the account already has records of its own, nothing is claimed, so two sets of coordinates never mix and then silently go wrong after an account switch. A successful claim is announced to the user; see `ZiplineStore::claimLegacyRecords`. Offline route preview cannot read the in-game UID, so the planning account selector lists imported pseudonymous identities, defaults to the most recently imported one, and remembers the browser choice. The choice also filters the current installation's zipline tower layer, but is never copied into route parameters and never overrides the account detected during a live run. Log analysis still filters snapshots by the account identity recorded in the matching run. Windows imports run in the cpp-algo embedded browser; on Linux, `agent/go-service/ziplineimport` captures the same endpoint through a local restricted MITM proxy, derives the account identity from the request URL's `roleId`, and stores records under `(account_id, map_id)` as well; an import that sees more than one `roleId` is rejected as a whole. Windows always clears the embedded browser site session before each import; Linux uses a throwaway Firefox profile on every import, so the session is never kept either.
 
 An additional note is that the current GUI editor round-trips coordinate path points, their optional `target_tier`, and `ZONE` declarations derived from area information. Untagged points keep the legacy array export, while tagged points use the `target` object form.
-Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like `NAVMESH` are not regular point editing objects in the GUI. It is recommended to manually add back or maintain `HEADING` after exporting the `path`, while `NAVMESH` can be directly generated using `Copy NAVMESH`.
+Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like `NAVMESH` are not regular point editing objects in the GUI. It is recommended to manually add back or maintain `HEADING` after exporting the `path`, while `NAVMESH` can be directly generated using `Copy NAVMESH`. A `FIND` point can be placed like an ordinary coordinate point, but its `find_target` / `find_text` / `find_stop` / `find_arrive` fields are written by hand after exporting — the editor only preserves them.
 
 ### Running Method
 
@@ -511,7 +516,7 @@ Next, directly handle the details in the GUI.
 - `Coordinate Tier`: Declare which tier basemap the selected point's coordinate was authored on. Leaving it empty keeps the legacy coordinate behavior; it does not modify `ZONE`.
 - `🗑`: Delete the currently selected point.
 
-The current action dropdown targets coordinate point actions, commonly edited to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`.
+The current action dropdown targets coordinate point actions, commonly edited to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND`.
 Non-coordinate control nodes like `HEADING` are not part of this GUI action chain.
 
 **Undo/Redo:**
@@ -822,3 +827,95 @@ The following files are maintained by cpp-algo developers; path authors do not n
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`: subtask node names, pre-filter cadence and last-resort constants, arrival values and others.
 - `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`: parsing of `interact_text` / `interact_scan` / `interact_rec` and propagation of the route-wide defaults.
 - `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: the fallback execution logic upon arrival.
+
+## Finding and Approaching a Target `FIND`
+
+`FIND` handles targets that exist **only as a recognition box and have no coordinate**, such as NPC nameplates and prop labels. At runtime, the navigator steers the character by the recognition box, rotates the camera to search when the target is off screen, and completes the node once the configured completion condition is met.
+
+Each `FIND` point is configured with two parameter groups: a **target source** (`find_target` or `find_text`; exactly one) and a **completion condition** (`find_stop` or `find_arrive`; at least one).
+
+### Configuration
+
+| Field | Type | Description |
+| ---------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `find_target` | string | Node name of the target recognition. Any box-producing node may be used, e.g. `OCR`, `NeuralNetworkDetect`, `TemplateMatch`, or an `And` combo. Exactly one of `find_target` / `find_text`. |
+| `find_text` | string \| string[] \| object | Inline OCR text table: a string or an array of strings. `{ "node": "SomeOcrNode" }` is also accepted, and is equivalent to writing that node name into `find_target`. Exactly one of `find_target` / `find_text`. |
+| `find_stop` | string | Node name of the completion criterion; a hit completes the point. At least one of `find_stop` / `find_arrive`. |
+| `find_arrive` | [number, number] | Completion coordinate `[x, y]`; entering its 2-unit radius completes the point (the same radius as strict arrival, `kStrictArrivalLookaheadRadius`). At least one of `find_stop` / `find_arrive`. |
+
+Additional rules:
+
+- All four fields accept camel case (`findTarget`, `findText`, `findStop`, `findArrive`).
+- Route-wide defaults are filled by group: for the target source (`find_target` / `find_text`), a point carrying either field receives neither route-wide value, and only a point carrying neither receives both; for the completion condition (`find_stop` / `find_arrive`), each field is filled individually.
+- When both `find_stop` and `find_arrive` are configured, whichever is satisfied first completes the point.
+- The following configurations fail during parameter parsing and never reach runtime: on a `FIND` point, both or neither of `find_target` / `find_text`; neither of `find_stop` / `find_arrive`; a `find_arrive` that is not an array of exactly two numbers; a route that sets both `find_target` and `find_text` while containing a `FIND` point.
+
+> **Note**: `find_stop` must be able to distinguish the target from the background. `FIND` completes on a recognition hit alone and does not verify what the box points at; an overly broad criterion (for example, "an interact prompt on any character") completes the point early when other interactables pass by.
+
+### Node Forms
+
+- **With a coordinate**: when `target` is configured, the node first walks to that coordinate (the anchor) as an ordinary movement point, then starts the search.
+- **Control node**: without `target`, the search starts as soon as the character reaches the point.
+- The two forms differ only in where the search starts.
+- The array form `[182.52, 173.4, "FIND"]` carries a coordinate only; the target source and completion condition must come from route-level defaults.
+- `FIND` is an intrinsic boundary node and is never skipped by zipline planning.
+
+### Runtime Behavior
+
+- **Target on screen**: corrects the heading by the box's horizontal offset and keeps walking. An offset within tolerance keeps the walk going; an offset beyond tolerance up to twice the tolerance is corrected while walking; an offset beyond twice the tolerance pauses the walk until the heading is aligned, after which the walk resumes.
+- **Target passed**: when the box center drops below roughly two thirds of the screen height, the character is considered past the target; one short backward pulse is issued, followed by re-alignment.
+- **Target off screen**: rotates the camera in fixed 30° steps. The search direction is the side on which the target was last seen and remains constant for the search; a target never seen uses a default side.
+- **Target briefly lost**: after the target has been seen, 1-2 consecutive misses hold position; the search starts after three consecutive misses. A target never seen is searched for immediately, without waiting.
+- **Completion checks while walking**: while the character is moving, `find_stop` is re-checked at fixed intervals within each walking cycle. When the criterion node resolves to a template (`TemplateMatch`; interact prompt icons usually do), a millisecond template pre-filter runs first, and a hit stops the walk for authoritative confirmation; a pre-filter false positive resumes the walk. When it does not (for example, an OCR node), the authoritative recognition runs directly at the same cadence.
+- These cadences and thresholds are controlled by cpp-algo constants (`kFindSearchStepDeg`, `kFindMissGraceTicks`, `kFindAlignTolerancePx`, `kFindStopProbe*`, etc., in `navi_config.h`); route authors do not configure them.
+
+### Completion and Failure
+
+- **Completion**: `find_stop` hits, or the position enters the `find_arrive` radius (whichever is satisfied first); the node then completes and the flow advances to the next point.
+- **Failure**:
+    - a named node that does not exist, a recognition call that errors, or a hit without a valid recognition box (for example, using a `DirectHit` node as the target) fails the node immediately; this is not treated as "not recognized";
+    - exhausting the budget (`kFindMaxSteps`, 48 ticks; or `kFindBudgetMs`, 60 seconds) without completion fails the node; `MapNavigateAction` returns false and the outer `on_error` or retry logic takes over.
+
+### Relation to Adjacent Legs
+
+The `FIND` search phase uses open-loop camera rotation and does not read the minimap (only the `find_arrive` distance test reads the locator). When the node ends, the character may stand outside the walkable mesh facing an arbitrary direction; the navigator resets this leg's steering and corridor bookkeeping on exit.
+
+- Adding an ordinary movement point after a `FIND` point is recommended so that the next leg can re-localize;
+- a `FIND` point as the final point of a route is also valid: the route finishes once it completes.
+
+### Example
+
+In the examples below, `GiftOperatorName` and `GiftOperatorApproachStop` are example node names; replace them with the recognition nodes of the business.
+
+With a coordinate (walk to the anchor first, then search):
+
+```json
+{
+    "action": "FIND",
+    "target": [
+        182.52,
+        173.4
+    ],
+    "find_target": "GiftOperatorName",
+    "find_stop": "GiftOperatorApproachStop"
+}
+```
+
+Control node (search starts as soon as the point is reached):
+
+```json
+{
+    "action": "FIND",
+    "find_target": "GiftOperatorName",
+    "find_stop": "GiftOperatorApproachStop"
+}
+```
+
+### Files Path Authors Need to Care About
+
+| File | Responsibility | When Changes Are Needed |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------ |
+| The business's own route JSON | The `MapNavigateAction` path, the `FIND` point and its `find_*` fields | Add a search point, change the target |
+| The business's own recognition nodes | The nodes named by `find_target` / `find_stop` | The ROI or the text of the target or prompt changes |
+| `assets/resource/pipeline/MapNavigator/Find.json` | The built-in OCR node `MapNavigatorFind` used for inline text; called per frame by the navigator and never dispatched on its own | The default ROI for inline text |
+| `agent/cpp-algo/source/MapNavigator/find_action.cpp` | The search and approach implementation and the bookkeeping it clears on the way out | Maintained by cpp-algo developers, tuned against a live client |

@@ -107,8 +107,8 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState&
         return DeviceRemovalOutcome::StillPinned;
     }
 
-    if (!position_provider_->Capture(position_, false, session_->current_zone_id()) || position_provider_->LastCaptureWasHeld()
-        || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
+    if (!position_provider_->Capture(position_, false, session_->current_zone_id()) || position_provider_->LastCaptureWasBlackScreen()
+        || !position_->valid) {
         // A stale fix would let the jump that follows measure its displacement from an old point and report an
         // escape that never happened, so wait for a real one instead.
         LogWarn << "Dynamic recovery waiting for a local tracking fix after the device move.";

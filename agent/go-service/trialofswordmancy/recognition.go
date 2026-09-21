@@ -21,11 +21,11 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 // 每步只做稳定识别（remainDeck OCR），手牌由缓存的 Deck 反推；完整识别（remainDeck + Hand 模板匹配）
 // 由 RecognizeDeck 在轮次开始时执行并缓存（见 roundstate.go）。缓存缺失 / 推导越界 → 严格中止，不猜测。
 //
-// 各字段来源（ROI/模板都在 TrialOfSwordmancyCommon.json 的 [go] 节点里，Go 按名调用 maafw）：
-//   - 屏幕态：RewardMode / DrawCard 在场 → 处于抽牌界面。
+// 各字段来源（ROI/模板都在 TrialOfSwordmancyCommon.json 的节点里，Go 按名调用 maafw）：
+//   - 屏幕态：InRewardMode / DrawCardButton 在场 → 处于抽牌界面。
 //   - Deck：RecognizeDeck 缓存的完整识别结果（remainDeck + Hand），决策到开始演算/放弃后重置。
 //   - Hand：Deck - remainDeck 推导（校验非负且总张数 ≤ 5）；HandRaw 为点数升序合成值，仅展示。
-//   - RemainCalc / RemainDouble：OCR（RemainCalc / RemainDouble 节点）。
+//   - RemainCalc / RemainDouble：OCR（RemainCalcText / RemainDoubleText 节点）。
 //   - RemainAband：RecognizeAband 从放弃弹窗识别后写入的持久化缓存。
 //   - IsDoubled：模板匹配（IsDoubled 节点）。
 type Recognition struct{}
@@ -54,11 +54,11 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, recognitionFailed(ctx, "牌库 OCR 失败")
 	}
 
-	remainCalc, calcOK := recognizeCount(ctx, arg.Img, nodeRemainCalc)
+	remainCalc, calcOK := recognizeCount(ctx, arg.Img, nodeRemainCalcText)
 	if !calcOK {
 		return nil, recognitionFailed(ctx, "剩余演算次数 OCR 失败")
 	}
-	remainDouble, doubleOK := recognizeCount(ctx, arg.Img, nodeRemainDouble)
+	remainDouble, doubleOK := recognizeCount(ctx, arg.Img, nodeRemainDoubleText)
 	if !doubleOK {
 		return nil, recognitionFailed(ctx, "剩余翻倍次数 OCR 失败")
 	}
@@ -319,7 +319,7 @@ func (r *AbandRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) 
 	}
 	if !exhausted {
 		var ok bool
-		text, ok = ocrNodeText(ctx, arg.Img, nodeAbandPopup)
+		text, ok = ocrNodeText(ctx, arg.Img, nodeAbandonPopupText)
 		if !ok {
 			log.Warn().Str("component", component).Msg("aband popup OCR failed")
 			return nil, false
@@ -340,7 +340,7 @@ func (r *AbandRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) 
 }
 
 func recognizeAbandExhausted(ctx *maa.Context, arg *maa.CustomRecognitionArg) (bool, bool) {
-	detail, err := ctx.RunRecognition(nodeAbandExhausted, arg.Img, nil)
+	detail, err := ctx.RunRecognition(nodeAbandonPopupExhausted, arg.Img, nil)
 	if err != nil || detail == nil {
 		log.Warn().Err(err).Str("component", component).Msg("aband exhausted ColorMatch failed")
 		return false, false

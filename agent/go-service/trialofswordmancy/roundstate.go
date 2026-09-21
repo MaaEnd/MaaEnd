@@ -67,7 +67,7 @@ func (s *RoundState) setAband(n int) {
 // OnRoundEnd 是轮次边界规则的唯一 owner。
 //
 // 放弃：跨日残局（crossDayRemainCalc）白送不扣；已用完（0）也不减——0 减成 -1 会把
-// 「未知」哨兵写回来，而 AbandProbe 每轮只在开始时探测一次。放弃/演算都会结束本轮，
+// 「未知」哨兵写回来，而 ProbeAbandon 每轮只在开始时探测一次。放弃/演算都会结束本轮，
 // 牌库必须失效。规则本体在 roundEndTransition 纯函数里。
 func (s *RoundState) OnRoundEnd(action solver.Action, st solver.State) {
 	newAband, reset := roundEndTransition(s.aband, action, st)

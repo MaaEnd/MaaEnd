@@ -31,6 +31,9 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "DeliveryJobsReturnToDepotNode": "InLocalDepotNode"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -64,67 +67,58 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "DeliveryJobsReturnToDepotNode": "InLocalDepotNode"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "DeliveryJobsClickTransferJob"
         ]
     },
-    "DeliveryJobsOpenOngoingAutoDelivery${DepotId}": {
-        "desc": "检测到已有送货任务，返回${DepotName}打开任务详情继续全自动送货",
-        "pre_delay": 0,
-        "anchor": {
-            "DeliveryJobsAfterViewCurrentJob": "DeliveryJobsAutoDelivery${DepotId}"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DeliveryJobsReturnAndView${DepotId}CurrentJob"
-        ]
-    },
-    "DeliveryJobsReturnAndView${DepotId}CurrentJob": {
-        "desc": "返回${DepotName}本地仓储节点查看当前送货任务",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "${DepotScene}"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DeliveryJobsView${DepotId}CurrentJob"
-        ]
-    },
-    "DeliveryJobsView${DepotId}CurrentJob": {
-        "desc": "${DepotName}：从本地仓储节点查看当前送货任务",
+    "DeliveryJobsWait${DepotId}DeliveryMissionDetail": {
+        "desc": "等待${DepotName}的送货任务详情界面稳定后再开始全自动送货",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
-            "DeliveryJobsCheck${DepotId}DeliveryJob"
+            "AutoDeliveryInDeliveryMissionDetail"
         ],
-        "box_index": 1,
+        // 等待区域与组件里 AutoDeliveryInDeliveryMissionDetail 的等待区域相同
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                417,
+                51,
+                547,
+                279
+            ]
+        },
         "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsAfterViewCurrentJob"
+            "DeliveryJobsAutoDelivery${DepotId}"
         ]
     },
     "DeliveryJobsAutoDelivery${DepotId}": {
-        "desc": "为${DepotName}当前送货任务调用全自动送货",
+        "desc": "为${DepotName}当前送货任务设置回跳锚点，并交给公共调用节点处理",
         "pre_delay": 0,
         "anchor": {
-            "AutoDeliveryAfterSubmitGoods": "DeliveryJobs${RegionId}Loop"
+            "DeliveryJobsAfterAutoDelivery": "DeliveryJobs${RegionId}Loop",
+            "DeliveryJobsReturnToDepotNode": "${DepotScene}"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsAutoDeliveryGuard",
-            "AutoDelivery"
+            "DeliveryJobsDeliverByAutoDelivery"
+        ]
+    },
+    "DeliveryJobsOngoingDeliveryFor${DepotId}": {
+        "desc": "按${DepotName}的处理方式处理已有的待运送货物；next 由该仓储节点的处理方式覆盖，不声明回跳落点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsSkipOngoingDelivery"
         ]
     },
     "DeliveryJobsCheckLocalDepotNode${DepotId}Text": {
@@ -181,9 +175,9 @@
         "anchor": {
             "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItems${RegionId}",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-            "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
             "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-            "DeliveryJobsGoToDepot": "${DepotScene}"
+            "DeliveryJobsGoToDepot": "${DepotScene}",
+            "DeliveryJobsReturnToDepotNode": "${DepotScene}"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -211,13 +205,12 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
             "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransfer${DepotId}"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsQuoteAction"
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     },
     "DeliveryJobs${DepotId}QuoteBelowMinimum": {
@@ -229,13 +222,12 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
             "DeliveryJobsGoToDepot": "${DepotScene}"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsQuoteAction"
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     }
 }

@@ -1,7 +1,30 @@
 {
     // 转交任务的流程
-    // “进入送货任务”步骤已拆分到各地区 pipeline 的 DeliveryJobsEnter*DeliveryJob 节点中
-    // 本文件仅负责：点击转交任务 -> 确认转交任务 -> 回到本地仓储界面
+    // 打开送货任务详情由 DeliveryJobsTransferOngoingJob 完成，进入它的入口有两个：
+    // 装箱时发现残留委托（DeliveryJobsOngoingDeliveryFor* 分派而来）、
+    // 自动送货失败（DeliveryJobsDeliverByAutoDelivery 的 on_error）。
+    // 本文件负责：点击转交任务 -> 确认转交任务 -> 按 DeliveryJobsReturnToDepotNode 跳转
+    "DeliveryJobsTransferOngoingJob": {
+        "desc": "进入任务界面选中送货任务，再转交它",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDeliveryOpenDeliveryMission"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryTransferred"
+        }
+    },
     "DeliveryJobsClickTransferJob": {
         "desc": "单击转交任务",
         "recognition": "OCR",
@@ -61,10 +84,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            // 转交完任务之后会直接回到本地仓储节点界面
-            // 需要等待本地仓储界面完全加载完成，才继续后面的流程
+            // 落点由发起方声明为本仓储节点的落点：仓储节点界面发起的转交声明 InLocalDepotNode，
+            // 需要等待本地仓储界面完全加载完成，才继续后面的流程，
             // 否则会因为无法识别到相关货物，导致退出去重新进入本地仓储界面
-            "InLocalDepotNode"
+            // 任务界面发起的转交会回到菜单列表，发起方声明本仓储节点的场景节点
+            "[Anchor]DeliveryJobsReturnToDepotNode"
         ]
     }
 }
