@@ -18,11 +18,11 @@
 | 字段 | 类型 | 必填 | 说明 |
 | ---------------------- | -------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `Direction` | `string` | 是 | 滑动方向。支持 `left` / `right` / `up` / `down`。 |
-| `SwipeButton` | `string` | 否 | 自定义滑块模板路径。提供时覆盖 `BetterSlidingSwipeButton` 节点的默认模板。默认 `""`（使用共享默认模板 `BetterSliding/SwipeButton.png`）。 |
+| `SwipeButton` | `string` 或 `object` | 否 | 滑块模板识别参数。提供时覆盖 `BetterSlidingSwipeButton` 节点的识别参数。默认不配置（使用共享默认模板 `BetterSliding/SwipeButton.png`）。写法见[识别参数：String 与 Object](#识别参数string-与-object)。 |
 | `ResetBeforeFindStart` | `bool` | 否 | 为 `true` 时，先向最小方向滑动复位，再匹配滑块起始位置并执行滑动。默认 `false`。 |
 
 > [!note]
-> Custom 内部匹配 `SwipeButton` 时固定开启绿色掩码（`green_mask: true`），涂绿方式可参考默认模板。该行为为默认行为，无需也不能通过参数关闭。
+> `SwipeButton` 使用模板匹配时默认开启绿色掩码（`green_mask: true`）。可在补丁中显式写 `"green_mask": false` 覆盖该默认值。请按默认模板的涂绿方式处理模板图片（不参与匹配的部分涂绿 RGB: (0, 255, 0)）。
 
 ### 示例
 
@@ -34,7 +34,7 @@
             "custom_action": "BetterSliding",
             "custom_action_param": {
                 "Direction": "right",
-                "SwipeButton": "BetterSliding/SwipeButton.png"
+                "SwipeButton": { "template": "BetterSliding/SwipeButton.png" }
             }
         }
     }
@@ -79,24 +79,53 @@
 除上述 6 个字段外，其余参数都只能从 `custom_action_param` 读取：
 
 | 字段 | 类型 | 必填 | 说明 |
-| ------------------------------- | ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------- |
+| ------------------------------- | ---------------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Direction` | `string` | 是 | 滑动方向。指定"最大值所在方向"，支持 `left` / `right` / `up` / `down`。 |
-| `IncreaseButton` | `string` 或 `int[2\|4]` | 是 | "增加数量"按钮。推荐传模板路径（阈值固定 `0.8`），也可传坐标 `[x, y]` 或 `[x, y, w, h]`。 |
-| `SwipeButton` | `string` | 否 | 自定义滑块模板路径，覆盖 `BetterSlidingSwipeButton` 节点的默认模板。默认 `""`（使用共享默认模板）。 |
-| `DecreaseButton` | `string` 或 `int[2\|4]` | 是 | "减少数量"按钮。格式同 `IncreaseButton`。 |
-| `SliderQuantity.Box` | `int[4]` | 是 | 当前滑条数量 OCR 区域，格式 `[x, y, w, h]`。 |
-| `SliderQuantity.Filter` | `object` | 否 | 当前滑条数量 OCR 的颜色过滤参数。 |
-| `SliderQuantity.OnlyRec` | `bool` | 否 | 是否为滑条数量 OCR 节点启用 `only_rec`。默认 `false`。 |
-| `AvailableQuantity.Box` | `int[4]` | 否 | OCR 区域，用于读取物品可购买/可出售的总量。仅当完全不提供 `AvailableQuantity`（或写 `null`）时，才使用滑条终点值作为计算基准；一旦提供 `AvailableQuantity`，本字段必须为 4 个整数。 |
-| `AvailableQuantity.Filter` | `object` | 否 | 可用总量 OCR 的颜色过滤参数。仅在显式提供 `AvailableQuantity` 时使用。 |
-| `AvailableQuantity.OnlyRec` | `bool` | 否 | 是否为 `BetterSlidingGetAvailableQuantity` 启用 `only_rec`。 |
+| `IncreaseButton` | `int[2\|4]` 或 `string` 或 `object` | 是 | "增加数量"按钮。传坐标 `[x, y]` / `[x, y, w, h]` 时直接点击该区域；传 String / Object 时按[识别参数](#识别参数string-与-object)做模板匹配，默认阈值 `0.8` 与 `green_mask: true`，命中后点击识别框。 |
+| `DecreaseButton` | `int[2\|4]` 或 `string` 或 `object` | 是 | "减少数量"按钮。格式同 `IncreaseButton`。 |
+| `SwipeButton` | `string` 或 `object` | 否 | 滑块识别参数，覆盖 `BetterSlidingSwipeButton` 节点。默认不配置（使用共享默认模板）。 |
+| `SliderQuantity` | `string` 或 `object` | 是 | 当前滑条数量 OCR 识别参数，覆盖 `BetterSlidingGetSliderQuantity` 节点；例如 `{"roi": [x, y, w, h], "only_rec": true}`。 |
+| `SliderQuantityFilter` | `string` 或 `object` | 否 | 当前滑条数量 OCR 预处理使用的颜色过滤（ColorMatch）识别参数，覆盖 `BetterSlidingSliderQuantityFilter` 节点，并通过 `color_filter` 链接到滑条数量节点。默认不配置。 |
+| `AvailableQuantity` | `string` 或 `object` | 否 | 可用总量 OCR 识别参数，覆盖并启用 `BetterSlidingGetAvailableQuantity`。仅当完全不提供 `AvailableQuantity`（或写 `null`）时，才使用滑条终点值作为计算基准。 |
+| `AvailableQuantityFilter` | `string` 或 `object` | 否 | 可用总量 OCR 预处理使用的颜色过滤（ColorMatch）识别参数，覆盖 `BetterSlidingAvailableQuantityFilter` 节点。默认不配置。 |
 | `CenterPointOffset` | `int[2]` | 否 | 相对滑块识别框中心点的点击偏移 `[x, y]`，负数向左/上，正数向右/下。默认 `[-10, 0]`。 |
 | `ClampTargetToSliderMax` | `bool` | 否 | 为 `true` 时，若目标超过 `sliderMaxQuantity`，则钳制为滑条最大可选数量继续执行。默认 `false`。 |
 | `OutOfRangeOverrideEnable` | `string` | 否 | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true` 并返回成功；未配置该字段（默认 `""`）时，本次动作直接返回失败。 |
 | `TargetReachableOverrideEnable` | `string` | 否 | 当解析后的目标无需钳制且位于 `[1, sliderMaxQuantity]` 时，将指定 Pipeline 节点的 `enabled` 设为 `true`。默认 `""`。 |
 
-> [!note]
-> `SwipeButton`、`IncreaseButton`、`DecreaseButton` 使用模板路径匹配时，Custom 内部固定开启绿色掩码（`green_mask: true`），无需也无法通过参数关闭。请按默认模板的涂绿方式处理模板图片（不参与匹配的部分涂绿 RGB: (0, 255, 0)）。
+### 识别参数：String 与 Object
+
+`SwipeButton`、`SliderQuantity`、`SliderQuantityFilter`、`AvailableQuantity`、`AvailableQuantityFilter` 以及模板形态的 `IncreaseButton` / `DecreaseButton` 统一接受两种写法：
+
+| 写法 | 语义 |
+| -------- | --------------------------------------------------------------------------------------------------------- |
+| `string` | **节点引用**。读取该节点的 `recognition.param` 作为识别参数补丁（不做后缀判断，任何字符串都按节点名解析）。 |
+| `object` | **识别参数补丁**。对象内容即目标节点的 `recognition.param` 键值。 |
+
+示例：
+
+```jsonc
+"custom_action_param": {
+    "Direction": "right",
+    // String：引用一个已有的 OCR / 模板节点，复用其识别参数
+    "SliderQuantity": "SomeExistingQuantityOCRNode",
+    // Object：直接给出识别参数补丁
+    "AvailableQuantity": { "roi": [1073, 327, 119, 25], "only_rec": true },
+    "SliderQuantityFilter": { "method": 4, "lower": [75, 75, 75], "upper": [255, 255, 255] },
+    "IncreaseButton": { "template": "AutoStockpile/IncreaseButton.png" },
+    "DecreaseButton": [965, 570, 20, 10]
+}
+```
+
+约束与行为：
+
+- **禁止替换识别类型**：补丁只写入 `recognition.param`，不写 `type`，因此会保留目标节点原本的识别算法与未提及字段。Object 内出现 `recognition` / `type` / `action` 键会直接报错并返回失败，不会被静默忽略。
+- **按钮模板形态**：`IncreaseButton` / `DecreaseButton` 传 String / Object 时，模板参数写入 `BetterSlidingIncreaseButton` / `BetterSlidingDecreaseButton` 节点，数量节点以 `And all_of` 引用它并点击命中框。补丁默认补充 `green_mask: true`，可在补丁中显式覆盖。
+- **数组仅按钮可用**：除 `IncreaseButton` / `DecreaseButton` 外的参数写数组会直接报错；按钮数组是坐标而非识别补丁。
+- **Filter 与 `color_filter` 的优先级**：`SliderQuantityFilter` / `AvailableQuantityFilter` 会写入对应内建 Filter 节点，并把节点名填进 Quantity 补丁的 `color_filter`；若 Quantity 补丁自身已声明 `color_filter`，以补丁为准。未配置 Filter 时不写 `color_filter`。
+- **Filter 的 String 引用应指向 ColorMatch 节点**：`color_filter` 在识别阶段按节点名查找并要求其识别类型为 ColorMatch，指向其他类型会识别失败。参数层面不做校验，请自行保证引用类型正确。
+- **`AvailableQuantityFilter` 可独立配置**：未同时提供 `AvailableQuantity` 时，Filter 参数仍会写入内建节点，但 `BetterSlidingGetAvailableQuantity` 保持 `enabled: false`（不告警）。
+- **定量模式判据**：任意一个 Filter 参数存在即视为定量模式（退出仅滑动模式）。
 
 ### 最小值短路
 
@@ -148,10 +177,10 @@
             "custom_action": "BetterSliding",
             "custom_action_param": {
                 "Direction": "right",
-                "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                "IncreaseButton": { "template": "AutoStockpile/IncreaseButton.png" },
+                "DecreaseButton": { "template": "AutoStockpile/DecreaseButton.png" },
                 "SliderQuantity": {
-                    "Box": [340, 430, 200, 140]
+                    "roi": [340, 430, 200, 140]
                 }
             }
         }

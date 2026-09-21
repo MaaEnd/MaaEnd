@@ -18,11 +18,11 @@ Suitable for scenarios where you want to slide to the maximum/minimum. Only the 
 | Field | Type | Required | Description |
 | ---------------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Direction` | `string` | Yes | Swipe direction. Supports `left` / `right` / `up` / `down`. |
-| `SwipeButton` | `string` | No | Custom slider template path. Overrides the default template of the `BetterSlidingSwipeButton` node when provided. Default `""` (uses the shared default template `BetterSliding/SwipeButton.png`). |
+| `SwipeButton` | `string` or `object` | No | Slider template recognition parameters. Overrides the recognition parameters of the `BetterSlidingSwipeButton` node when provided. Default: not configured (uses the shared default template `BetterSliding/SwipeButton.png`). See [Recognition Parameters: String vs Object](#recognition-parameters-string-vs-object). |
 | `ResetBeforeFindStart` | `bool` | No | When `true`, first swipes toward the minimum before matching the slider start position, then performs the swipe. Default `false`. |
 
 > [!note]
-> When matching the `SwipeButton` internally, the CustomAction always enables the green mask (`green_mask: true`). For the green masking method, please refer to the default template. This is the default behavior and cannot be turned off via any parameter.
+> When `SwipeButton` uses template matching, the green mask is enabled by default (`green_mask: true`). You can override it by writing `"green_mask": false` in the patch. Prepare your template images following the default template's green masking method (paint non-matching regions green, RGB: (0, 255, 0)).
 
 ### Example
 
@@ -34,7 +34,7 @@ Suitable for scenarios where you want to slide to the maximum/minimum. Only the 
             "custom_action": "BetterSliding",
             "custom_action_param": {
                 "Direction": "right",
-                "SwipeButton": "BetterSliding/SwipeButton.png"
+                "SwipeButton": { "template": "BetterSliding/SwipeButton.png" }
             }
         }
     }
@@ -81,22 +81,51 @@ In addition to the 6 fields above, all other parameters can only be read from `c
 | Field | Type | Required | Description |
 | ------------------------------- | ----------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Direction` | `string` | Yes | Swipe direction. Specifies "the direction of the maximum value", supports `left` / `right` / `up` / `down`. |
-| `IncreaseButton` | `string` or `int[2\|4]` | Yes | "Increase quantity" button. Template path is recommended (threshold fixed at `0.8`), or coordinates `[x, y]` or `[x, y, w, h]`. |
-| `SwipeButton` | `string` | No | Custom slider template path, overrides the default template of the `BetterSlidingSwipeButton` node. Default `""` (uses the shared default template). |
-| `DecreaseButton` | `string` or `int[2\|4]` | Yes | "Decrease quantity" button. Format same as `IncreaseButton`. |
-| `SliderQuantity.Box` | `int[4]` | Yes | OCR region for the current slider quantity, format `[x, y, w, h]`. |
-| `SliderQuantity.Filter` | `object` | No | Color filter parameters for the current slider quantity OCR. |
-| `SliderQuantity.OnlyRec` | `bool` | No | Whether to enable `only_rec` for slider-quantity OCR. Default `false`. |
-| `AvailableQuantity.Box` | `int[4]` | No | OCR region for reading the total available quantity. The slider endpoint value is used as the calculation reference only when `AvailableQuantity` is not provided at all (or is `null`); once `AvailableQuantity` is provided, this field must contain 4 integers. |
-| `AvailableQuantity.Filter` | `object` | No | Color filter parameters for available-quantity OCR. Used only when `AvailableQuantity` is explicitly provided. |
-| `AvailableQuantity.OnlyRec` | `bool` | No | Whether to enable `only_rec` for `BetterSlidingGetAvailableQuantity`. |
+| `IncreaseButton` | `int[2\|4]` or `string` or `object` | Yes | "Increase quantity" button. Coordinates `[x, y]` / `[x, y, w, h]` are clicked directly; a String / Object is used as [recognition parameters](#recognition-parameters-string-vs-object) for template matching (default threshold `0.8` and `green_mask: true`), and the matched box is clicked. |
+| `DecreaseButton` | `int[2\|4]` or `string` or `object` | Yes | "Decrease quantity" button. Format same as `IncreaseButton`. |
+| `SwipeButton` | `string` or `object` | No | Slider recognition parameters, overriding the `BetterSlidingSwipeButton` node. Default: not configured (uses the shared default template). |
+| `SliderQuantity` | `string` or `object` | Yes | OCR recognition parameters for the current slider quantity, overriding the `BetterSlidingGetSliderQuantity` node; for example `{"roi": [x, y, w, h], "only_rec": true}`. |
+| `SliderQuantityFilter` | `string` or `object` | No | ColorMatch recognition parameters used to preprocess the slider-quantity OCR, overriding the `BetterSlidingSliderQuantityFilter` node and linked to the quantity node via `color_filter`. Default: not configured. |
+| `AvailableQuantity` | `string` or `object` | No | OCR recognition parameters for the total available quantity, overriding and enabling `BetterSlidingGetAvailableQuantity`. The slider endpoint value is used as the calculation reference only when `AvailableQuantity` is not provided at all (or is `null`). |
+| `AvailableQuantityFilter` | `string` or `object` | No | ColorMatch recognition parameters used to preprocess the available-quantity OCR, overriding the `BetterSlidingAvailableQuantityFilter` node. Default: not configured. |
 | `CenterPointOffset` | `int[2]` | No | Click offset relative to the center point of the slider's recognition box `[x, y]`, negative values left/up, positive right/down. Default `[-10, 0]`. |
 | `ClampTargetToSliderMax` | `bool` | No | When `true`, a target above `sliderMaxQuantity` is clamped to the maximum selectable slider quantity. Default `false`. |
 | `OutOfRangeOverrideEnable` | `string` | No | When the resolved target is outside the slidable range, enables the specified Pipeline node and returns success; when the field is unset (default `""`), the action fails directly. |
 | `TargetReachableOverrideEnable` | `string` | No | When the resolved target needs no clamping and falls within `[1, sliderMaxQuantity]`, enables the specified Pipeline node. Default `""`. |
 
-> [!note]
-> When matching `SwipeButton`, `IncreaseButton`, or `DecreaseButton` via a template path, the CustomAction always enables the green mask (`green_mask: true`); this cannot be turned off via any parameter. Please prepare your template images following the default template's green masking method (paint non-matching regions green, RGB: (0, 255, 0)).
+### Recognition Parameters: String vs Object
+
+`SwipeButton`, `SliderQuantity`, `SliderQuantityFilter`, `AvailableQuantity`, `AvailableQuantityFilter`, and the template form of `IncreaseButton` / `DecreaseButton` all accept two forms:
+
+| Form | Meaning |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `string` | **Node reference.** Reads that node's `recognition.param` as the recognition patch (no suffix detection; every string is resolved as a node name). |
+| `object` | **Recognition patch.** The object content is the target node's `recognition.param` key/value set. |
+
+Example:
+
+```jsonc
+"custom_action_param": {
+    "Direction": "right",
+    // String: reference an existing OCR / template node to reuse its recognition parameters
+    "SliderQuantity": "SomeExistingQuantityOCRNode",
+    // Object: provide the recognition patch directly
+    "AvailableQuantity": { "roi": [1073, 327, 119, 25], "only_rec": true },
+    "SliderQuantityFilter": { "method": 4, "lower": [75, 75, 75], "upper": [255, 255, 255] },
+    "IncreaseButton": { "template": "AutoStockpile/IncreaseButton.png" },
+    "DecreaseButton": [965, 570, 20, 10]
+}
+```
+
+Constraints and behavior:
+
+- **Recognition type cannot be replaced**: a patch only writes `recognition.param` and never writes `type`, so the target node keeps its original recognition algorithm and any unmentioned fields. If an Object contains `recognition` / `type` / `action` keys, the action fails immediately with an error instead of silently ignoring them.
+- **Template-form buttons**: when `IncreaseButton` / `DecreaseButton` receive a String / Object, the template parameters are written to the `BetterSlidingIncreaseButton` / `BetterSlidingDecreaseButton` nodes, and the quantity node references those with `And all_of` and clicks the matched box. The patch defaults to `green_mask: true`, which can be overridden explicitly.
+- **Arrays are button-only**: passing an array for any parameter other than `IncreaseButton` / `DecreaseButton` fails immediately; a button array is coordinates, not a recognition patch.
+- **Filter and `color_filter` precedence**: `SliderQuantityFilter` / `AvailableQuantityFilter` are written to the corresponding built-in filter node and their node name is put into the quantity patch's `color_filter`; if the quantity patch already declares `color_filter`, the patch wins. No `color_filter` is written when the filter is not configured.
+- **A Filter's String reference should point to a ColorMatch node**: `color_filter` is resolved during recognition by node name and requires the node's recognition type to be ColorMatch; pointing at another type makes recognition fail. This is not validated at the parameter level, so make sure the referenced type is correct.
+- **`AvailableQuantityFilter` works standalone**: when `AvailableQuantity` is not provided at the same time, the filter parameters are still written to the built-in node, but `BetterSlidingGetAvailableQuantity` stays `enabled: false` (no warning).
+- **Quantity-mode criteria**: the presence of any filter parameter makes this a quantity-mode run (leaving swipe-only mode).
 
 ### Minimum-Value Short Circuit
 
@@ -148,10 +177,10 @@ When `TargetQuantityType` is `"Value"` (case-insensitive), `TargetQuantity` is `
             "custom_action": "BetterSliding",
             "custom_action_param": {
                 "Direction": "right",
-                "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                "IncreaseButton": { "template": "AutoStockpile/IncreaseButton.png" },
+                "DecreaseButton": { "template": "AutoStockpile/DecreaseButton.png" },
                 "SliderQuantity": {
-                    "Box": [340, 430, 200, 140]
+                    "roi": [340, 430, 200, 140]
                 }
             }
         }
