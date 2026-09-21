@@ -15,6 +15,8 @@ struct NaviPosition
     double score = 0.0;
     // 角色站在哪张可走面。实机定位给不出这个信息，只有预览端选了层才有值，不传就按区的主层走。
     std::optional<double> floor_y;
+    // 镜头朝向，与 angle（角色箭头朝向）是两个独立识别结果。判不出来就是空，消费方按没有这项信息处理。
+    std::optional<double> camera_angle;
     bool valid = false;
     std::string zone_id;
     std::chrono::steady_clock::time_point timestamp;

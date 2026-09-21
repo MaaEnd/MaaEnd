@@ -37,6 +37,9 @@ struct Result
     const char* failure_log_message = "";
 };
 
+// Aligns the camera to the character's facing before a start-off. No-op when the camera orientation is unavailable.
+void AlignCameraToCharacterOnce(const Context& ctx);
+
 Result TickSemanticFlow(const Context& ctx, NaviPhase phase);
 Result ConsumeInlineSemantics(const Context& ctx);
 Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance);

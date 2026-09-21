@@ -107,8 +107,12 @@ bool PositionProvider::Capture(
     const int status = static_cast<int>(locate_result.status);
     if (locate_result.position) {
         const auto& position = *locate_result.position;
+        // camRot/camRotConf 只进日志，不参与任何判据。
+        const double cam_rot = locate_result.camRot ? locate_result.camRot->rot : -1.0;
+        const double cam_rot_conf = locate_result.camRot ? locate_result.camRot->confidence : -1.0;
         LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << VAR(position.zoneId) << VAR(position.x)
-                << VAR(position.y) << VAR(position.score) << VAR(position.sliceIndex) << VAR(position.angle) << VAR(position.latencyMs);
+                << VAR(position.y) << VAR(position.score) << VAR(position.sliceIndex) << VAR(position.angle) << VAR(cam_rot)
+                << VAR(cam_rot_conf) << VAR(position.latencyMs);
     }
     else {
         LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << "position=null";
@@ -129,6 +133,7 @@ bool PositionProvider::Capture(
     out_pos->angle = locate_result.position->angle;
     out_pos->score = locate_result.position->score;
     out_pos->zone_id = locate_result.position->zoneId;
+    out_pos->camera_angle = locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt;
     out_pos->valid = true;
     out_pos->timestamp = capture_started_at;
 

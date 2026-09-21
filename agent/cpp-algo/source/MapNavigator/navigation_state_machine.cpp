@@ -1315,6 +1315,13 @@ bool NavigationStateMachine::TickNavigate()
             runtime_state_.dwell.dwell_ms);
     }
 
+    // 起步前对一次镜头: 位置用上面刚取的那帧, 此刻人是站着的。排在 ConsumeInlineSemantics 之前,
+    // 紧随其后的 HEADING 转身也从对齐后的镜头起算。
+    if (runtime_state_.camera_align_pending) {
+        runtime_state_.camera_align_pending = false;
+        semantic_nodes::AlignCameraToCharacterOnce(semantic_ctx);
+    }
+
     if (runtime_state_.cross_tier_escape.active) {
         const double distance_to_goal =
             std::hypot(position_->x - runtime_state_.cross_tier_escape.goal_x, position_->y - runtime_state_.cross_tier_escape.goal_y);

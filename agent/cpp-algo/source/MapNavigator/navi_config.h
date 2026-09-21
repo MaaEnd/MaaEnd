@@ -132,6 +132,7 @@ constexpr int32_t kHeadingTurnStepIntervalMs = 100;     // step pacing floor; ra
 constexpr double kHeadingStableReadToleranceDeg = 15.0; // two fresh reads must agree this closely to count
 constexpr int32_t kHeadingStableReadIntervalMs = 120;
 constexpr int32_t kHeadingStableReadMaxFrames = 4;      // default HEADING read budget; the caller decides its fallback
+constexpr double kCameraAlignMinDegrees = 10.0;         // camera-align deadband, under the arrow's own read noise
 constexpr int32_t kSerialRouteRetryDelayMs = 180;
 constexpr double kBootstrapOwnershipProjectionCorridor = 3.0;
 constexpr double kBootstrapOwnershipProjectionFrontThreshold = 0.35;
