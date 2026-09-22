@@ -12,33 +12,24 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone": {
-        "desc": "判断是否需要传送到最近锚点",
-        "recognition": {
-            "type": "Or",
+        "desc": "强制传送到最近锚点后前往激发点",
+        "action": {
+            "type": "Custom",
             "param": {
-                "any_of": [
-                    "__GotoTriggerPointNearAnchor_WLNorthWulingExclusionZone",
-                    "__GotoTriggerPointNearTrigger_WLNorthWulingExclusionZone"
-                ]
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterWorldWulingNorthWulingExclusionZone5"
+                    ]
+                }
             }
         },
-        "inverse": true,
         "next": [
-            "[JumpBack]__GotoTriggerPointTeleportOnce_WLNorthWulingExclusionZone",
             "GotoTriggerPointMove_WLNorthWulingExclusionZone"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
-    },
-    "__GotoTriggerPointTeleportOnce_WLNorthWulingExclusionZone": {
-        "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            // 距离淤积点最近的锚点：平波堤（锚点编号按 X 从左到右递增）
-            "SceneEnterWorldWulingNorthWulingExclusionZone5"
-        ]
     },
     "GotoTriggerPointMove_WLNorthWulingExclusionZone": {
         "action": {
@@ -103,6 +94,9 @@
         "post_delay": 1500,
         "next": [
             "AutoEssenceInteract"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

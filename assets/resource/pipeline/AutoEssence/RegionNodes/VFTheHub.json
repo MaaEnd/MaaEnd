@@ -12,38 +12,24 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_VFTheHub": {
-        "desc": "判断是否需要传送到最近锚点",
-        "recognition": {
+        "desc": "强制传送到最近锚点后前往激发点",
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "MapLocateAssertLocation",
-                "custom_recognition_param": {
-                    "zone_id": "ValleyIV_Base",
-                    "target": [
-                        445.38,
-                        907.85,
-                        29.54,
-                        38.77
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterWorldValleyIVTheHub1"
                     ]
                 }
             }
         },
-        "inverse": true,
         "next": [
-            "[JumpBack]__GotoTriggerPointTeleportOnce_VFTheHub",
             "GotoTriggerPointMove_VFTheHub"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
-    },
-    "__GotoTriggerPointTeleportOnce_VFTheHub": {
-        "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "SceneEnterWorldValleyIVTheHub1"
-        ]
     },
     "GotoTriggerPointMove_VFTheHub": {
         "action": {
@@ -75,6 +61,9 @@
         "post_delay": 1500,
         "next": [
             "AutoEssenceInteract"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

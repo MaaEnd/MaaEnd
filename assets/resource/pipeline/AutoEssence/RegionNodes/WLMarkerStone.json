@@ -12,32 +12,24 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLMarkerStone": {
-        "desc": "判断是否需要传送到最近锚点",
-        "recognition": {
-            "type": "Or",
+        "desc": "强制传送到最近锚点后前往激发点",
+        "action": {
+            "type": "Custom",
             "param": {
-                "any_of": [
-                    "__GotoTriggerPointNearAnchor_WLMarkerStone",
-                    "__GotoTriggerPointNearTrigger_WLMarkerStone"
-                ]
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterWorldWulingMarkerStone2"
+                    ]
+                }
             }
         },
-        "inverse": true,
         "next": [
-            "[JumpBack]__GotoTriggerPointTeleportOnce_WLMarkerStone",
             "GotoTriggerPointMove_WLMarkerStone"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
-    },
-    "__GotoTriggerPointTeleportOnce_WLMarkerStone": {
-        "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "SceneEnterWorldWulingMarkerStone2"
-        ]
     },
     "__GotoTriggerPointNearAnchor_WLMarkerStone": {
         "desc": "锚点附近",
@@ -224,6 +216,9 @@
         "post_delay": 1500,
         "next": [
             "AutoEssenceInteract"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

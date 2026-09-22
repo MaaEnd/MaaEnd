@@ -249,7 +249,7 @@
         }
     },
     "AutoEssenceClickTriggerButton": {
-        "desc": "识别并点击激发的大世界按钮（Alt 点击）",
+        "desc": "识别并点击激发的大世界按钮",
         "recognition": {
             "type": "Or",
             "param": {
@@ -262,29 +262,23 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "AutoEssenceClickEssenceStartPrepare",
+                        "AutoEssenceMistakeFactoryDevice"
+                    ]
+                }
             }
         },
-        "timeout": 2000,
         "next": [
             "AutoEssenceMistakeFactoryDevice",
             "AutoEssenceReadyToStart"
         ],
-        "on_error": [
-            "AutoEssenceClickTriggerButtonFailed"
-        ],
         "focus": {
             "Node.Action.Starting": "👆点击激发按钮"
         }
-    },
-    "AutoEssenceClickTriggerButtonFailed": {
-        "desc": "未能识别到激发的大世界按钮的守卫节点",
-        "max_hit": 8,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint"
-        ]
     },
     "AutoEssenceReadyToStart": {
         "desc": "点击了激发的大世界按钮之后的守卫节点",
@@ -322,7 +316,7 @@
             }
         },
         "next": [
-            "AutoEssenceClickTriggerButtonFailed"
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "😕误入工业设备界面，点击关闭按钮"
@@ -1054,7 +1048,10 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint" // 此 Anchor 最终会走回 AutoEssenceInteract 进行后续的奖励领取等操作
+            "AutoEssenceClickObtainButton",
+            "AutoEssenceClickDiscardButton",
+            "[JumpBack]AutoEssenceInObtain",
+            "[Anchor]AutoEssenceMoveToTriggerPoint" // 未识别到领取时纯寻路回交互位，再由 Interact 处理
         ],
         "focus": {
             "Node.Recognition.Starting": "🔍检查挑战是否结束",
