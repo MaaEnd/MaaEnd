@@ -8,6 +8,7 @@
             "[JumpBack]VisitFriendsAssistFull",
             "[JumpBack]VisitFriendsClueExchangeFull",
             "VisitFriendsMenuScanFriendsFull",
+            "[JumpBack]VisitFriendsMenuScanTargetFriendOpenPriorityRemark",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpenRemark",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
             "VisitFriendsMenuScanScrollFinish",
@@ -42,6 +43,17 @@
             "visited": []
         }
     },
+    "VisitFriendsMenuScanSelectPriorityRemarkConsumable": {
+        "desc": "白名单优先选友：只匹配 whitelist 里的备注；与其它选友共享 visited",
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "VisitFriendsRecognitionItemWithRemark",
+            "visited_node": "VisitFriendsMenuScanVisited",
+            "key_regex": ".*?[)）]",
+            "whitelist": ""
+        }
+    },
     "VisitFriendsMenuScanSelectFriendRemarkConsumable": {
         "desc": "消费性选友（仅备注）：与普通选友共享 visited；由 TargetFriendOpenRemark 链路调用",
         "recognition": "Custom",
@@ -63,6 +75,24 @@
             // 普通形如 Alice#1001；截到 #数字，去掉 UID 后 OCR 尾噪（Alice#1001小）。
             "key_regex": ".*?\\#\\d+"
         }
+    },
+    "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+        "desc": "白名单优先链路：名字框 ∧ 进船图标；只处理 whitelist 命中的备注好友",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsMenuScanSelectPriorityRemarkConsumable",
+            "VisitFriendsRecognitionItemEnterButtonByNameRemark"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsCheckAssistPriorityRemark",
+            "VisitFriendsMenuScanDetailClose"
+        ]
     },
     "VisitFriendsMenuScanTargetFriendOpenRemark": {
         "desc": "备注选友链路：名字框 ∧ 进船图标；VisitFriendsRemark=Yes 时仅走本链路；进船点击走 EnterShipRemark",
@@ -99,6 +129,20 @@
             "VisitFriendsMenuScanDetailClose"
         ]
     },
+    "VisitFriendsCheckAssistPriorityRemark": {
+        "desc": "白名单链路打开详情后检查可访问资源，进船点击复用白名单选中的飞船框",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsCheckAssist"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "VisitFriendsEnterShipPriorityRemark"
+        ]
+    },
     "VisitFriendsCheckAssistRemark": {
         "desc": "备注链路打开详情后检查可访问资源，进船点击复用备注选中的飞船框",
         "recognition": "And",
@@ -129,6 +173,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "VisitFriendsMenuScanPriorityRemarkFallback",
             "VisitFriendsMenuScanRemarkFallback",
             "VisitFriendsMenuScanScrollFinishDone"
         ],
@@ -142,6 +187,42 @@
         "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
+        }
+    },
+    "VisitFriendsMenuScanPriorityRemarkFallback": {
+        "desc": "白名单扫完：关闭白名单链路，开启备注链路，清空 visited/滚动模板；max_hit=1",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuScanTargetFriendOpenRemark": {
+                    "enabled": true
+                },
+                "VisitFriendsMenuScanVisited": {
+                    "attach": {
+                        "visited": []
+                    }
+                },
+                "VisitFriendsMenuScanScrollFinish": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanRemarkFallbackReopen"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "白名单已扫完，转为备注好友继续拜访"
         }
     },
     "VisitFriendsMenuScanRemarkFallback": {

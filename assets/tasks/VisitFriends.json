@@ -6,6 +6,8 @@
             "entry": "VisitFriendsMain",
             "description": "$task.VisitFriends.description",
             "option": [
+                "VisitFriendsPriorityRemarkEnable",
+                "VisitFriendsPriorityRemark",
                 "VisitFriendsRemark",
                 "ProductionAssistControl"
             ],
@@ -26,6 +28,54 @@
         }
     ],
     "option": {
+        "VisitFriendsPriorityRemarkEnable": {
+            "type": "switch",
+            "label": "$option.VisitFriendsPriorityRemarkEnable.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+                            "enabled": true
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallback": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallback": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "VisitFriendsPriorityRemark": {
+            "type": "input",
+            "label": "$option.VisitFriendsPriorityRemark.label",
+            "inputs": [
+                {
+                    "name": "PriorityRemarkName",
+                    "label": "$option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "VisitFriendsMenuScanSelectPriorityRemarkConsumable": {
+                    "custom_recognition_param": {
+                        "whitelist": "{PriorityRemarkName}"
+                    }
+                }
+            }
+        },
         "VisitFriendsRemark": {
             "type": "switch",
             "label": "$option.VisitFriendsRemark.label",
