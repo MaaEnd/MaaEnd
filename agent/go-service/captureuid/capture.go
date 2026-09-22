@@ -7,10 +7,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -31,17 +35,16 @@ const (
 )
 
 var (
-	// capturedUid 缓存从 gamesetting 读到的原始 UID 数字；未捕获或失败时为空字符串。
+	// capturedUid 缓存 OCR 或注册表得到的原始 UID 数字；未捕获或失败时为空字符串。
 	capturedUid   string
 	capturedUidMu sync.Mutex
+
+	uidDigitRe = regexp.MustCompile(`\d+`)
 )
 
-// Capture 读取玩家 UID，并按 outputType 返回格式化结果。
-// 缓存恒存原始 UID 数字，输出时才进行转换，因此 use_cache 命中时也能按任意 outputType 返回。
-//   - useCache: if true and cache has a UID, return cached UID immediately
-//   - allowUnknown: if true and registry read fails, return "unknown" instead of error
-//   - outputType: 输出格式，hashed / masked / raw
-func Capture(useCache, allowUnknown bool, outputType OutputType) (string, error) {
+// Capture 捕获玩家 UID，并按 outputType 返回格式化结果。
+// Win32 控制器仅从注册表读取；其他控制器使用原有的 OCR 流程。
+func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
 	if useCache {
 		if uid := GetCachedUID(outputType); uid != "" {
 			log.Debug().Str("component", component).Str("uid", safeUIDForLog(uid, outputType)).
@@ -50,24 +53,75 @@ func Capture(useCache, allowUnknown bool, outputType OutputType) (string, error)
 		}
 	}
 
+	typ := controllerType(ctrl)
+	if typ == "" {
+		return captureErr(allowUnknown, "cannot determine controller type")
+	}
+	if typ != control.CONTROL_TYPE_WIN32 {
+		return captureByOCR(ctx, ctrl, stayOnCurrentScreen, allowUnknown, outputType)
+	}
+
 	raw, err := gamesetting.GetCachedUID()
 	if err != nil {
 		return captureErr(allowUnknown, "gamesetting GetCachedUID failed: %w", err)
 	}
-	if !IsValidRawUID(raw) {
-		// 不写入原值；gamesetting 侧已做同类校验，此处仅作防御性兜底。
-		return captureErr(allowUnknown, "uid is not a valid 8-12 digit uid (len=%d)", len(raw))
+	return cacheAndFormat(raw, allowUnknown, outputType)
+}
+
+func controllerType(ctrl *maa.Controller) string {
+	if typ := strings.ToLower(strings.TrimSpace(pienv.ControllerType())); typ != "" {
+		return typ
+	}
+	typ, err := control.GetControlType(ctrl)
+	if err != nil {
+		return ""
+	}
+	return typ
+}
+
+func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
+	if ctx == nil || ctrl == nil {
+		return captureErr(allowUnknown, "OCR capture requires context and controller")
+	}
+	if !stayOnCurrentScreen {
+		if _, err := ctx.RunTask("SceneEnterMenuOperationalManual"); err != nil {
+			return captureErr(allowUnknown, "failed to navigate to SceneEnterMenuOperationalManual: %w", err)
+		}
 	}
 
+	ctrl.PostScreencap().Wait()
+	img, err := ctrl.CacheImage()
+	if err != nil || img == nil {
+		return captureErr(allowUnknown, "screenshot failed: %w", err)
+	}
+	param := maa.OCRParam{
+		ROI:      maa.NewTargetRect(maa.Rect{60, 690, 155, 25}),
+		Expected: []string{".*"},
+		OnlyRec:  true,
+		OrderBy:  maa.OCROrderByLength,
+	}
+	detail, err := ctx.RunRecognitionDirect(maa.RecognitionTypeOCR, &param, img)
+	if err != nil || detail == nil || !detail.Hit {
+		return captureErr(allowUnknown, "uid OCR miss")
+	}
+	digits := extractAllDigits(bestOCRText(detail))
+	if !IsValidRawUID(digits) {
+		return captureErr(allowUnknown, "uid digit count %d not in [8,12]", len(digits))
+	}
+	return cacheAndFormat(digits, allowUnknown, outputType)
+}
+
+func cacheAndFormat(raw string, allowUnknown bool, outputType OutputType) (string, error) {
+	if !IsValidRawUID(raw) {
+		return captureErr(allowUnknown, "uid is not a valid 8-12 digit uid (len=%d)", len(raw))
+	}
 	capturedUidMu.Lock()
 	capturedUid = raw
 	capturedUidMu.Unlock()
-
 	uid, err := formatUID(raw, outputType)
 	if err != nil {
 		return captureErr(allowUnknown, "format uid: %w", err)
 	}
-
 	log.Info().Str("component", component).Str("uid", safeUIDForLog(uid, outputType)).Str("output_type", string(outputType)).Msg("captured uid")
 	return uid, nil
 }
@@ -173,6 +227,35 @@ func normalizeOutputType(s string) (OutputType, error) {
 	default:
 		return "", fmt.Errorf("unsupported output_type %q, want hashed|masked|raw", s)
 	}
+}
+
+func bestOCRText(detail *maa.RecognitionDetail) string {
+	if detail == nil || detail.Results == nil {
+		return ""
+	}
+	if detail.Results.Best != nil {
+		if o, ok := detail.Results.Best.AsOCR(); ok {
+			return strings.TrimSpace(o.Text)
+		}
+	}
+	for _, r := range detail.Results.Filtered {
+		if r == nil {
+			continue
+		}
+		if o, ok := r.AsOCR(); ok {
+			return strings.TrimSpace(o.Text)
+		}
+	}
+	return ""
+}
+
+func extractAllDigits(s string) string {
+	parts := uidDigitRe.FindAllString(s, -1)
+	var b strings.Builder
+	for _, p := range parts {
+		b.WriteString(p)
+	}
+	return b.String()
 }
 
 func loadOrCreateSalt() (string, error) {

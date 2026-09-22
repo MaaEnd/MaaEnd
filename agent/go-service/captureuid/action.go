@@ -9,10 +9,11 @@ import (
 )
 
 type captureUidParam struct {
-	UseCache     *bool  `json:"use_cache,omitempty"`
-	AllowUnknown *bool  `json:"allow_unknown,omitempty"`
-	ClearCache   *bool  `json:"clear_cache,omitempty"`
-	OutputType   string `json:"output_type,omitempty"`
+	UseCache            *bool  `json:"use_cache,omitempty"`
+	StayOnCurrentScreen *bool  `json:"stay_on_current_screen,omitempty"`
+	AllowUnknown        *bool  `json:"allow_unknown,omitempty"`
+	ClearCache          *bool  `json:"clear_cache,omitempty"`
+	OutputType          string `json:"output_type,omitempty"`
 }
 
 // CaptureUidAction captures or clears the current player's UID for Pipeline callers.
@@ -47,7 +48,14 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
+	ctrl := ctx.GetTasker().GetController()
+	if ctrl == nil {
+		log.Error().Str("component", component).Msg("CaptureUid: nil controller")
+		return false
+	}
+
 	useCache := true
+	stayOnCurrentScreen := true
 	allowUnknown := true
 	clearCache := false
 	outputType := OutputTypeHashed
@@ -61,6 +69,9 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		}
 		if params.UseCache != nil {
 			useCache = *params.UseCache
+		}
+		if params.StayOnCurrentScreen != nil {
+			stayOnCurrentScreen = *params.StayOnCurrentScreen
 		}
 		if params.AllowUnknown != nil {
 			allowUnknown = *params.AllowUnknown
@@ -86,7 +97,7 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	uid, err := Capture(useCache, allowUnknown, outputType)
+	uid, err := Capture(ctx, ctrl, useCache, stayOnCurrentScreen, allowUnknown, outputType)
 	if err != nil {
 		log.Error().Err(err).Str("component", component).Msg("CaptureUid: capture failed")
 		return false
@@ -104,6 +115,7 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	log.Info().Str("component", component).Str("uid", safeUIDForLog(uid, outputType)).
 		Str("account_id", accountID).
 		Bool("use_cache", useCache).
+		Bool("stay_on_current_screen", stayOnCurrentScreen).
 		Bool("allow_unknown", allowUnknown).
 		Str("output_type", string(outputType)).
 		Msg("CaptureUid: done")

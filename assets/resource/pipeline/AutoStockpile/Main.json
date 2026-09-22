@@ -5,6 +5,41 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockpileEnterRegionalDevelopment",
+            "AutoStockpileStart"
+        ]
+    },
+    "AutoStockpileEnterRegionalDevelopment": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopment"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoStockpileGetUid"
+        ]
+    },
+    "AutoStockpileGetUid": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CaptureUid"
+            }
+        },
+        "next": [
             "AutoStockpileStart"
         ]
     },

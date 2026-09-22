@@ -95,7 +95,30 @@
             ]
         }
     },
-	"allOf": [
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "custom_action": { "const": "CaptureUid" }
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "use_cache": { "type": "boolean" },
+                            "stay_on_current_screen": { "type": "boolean" },
+                            "allow_unknown": { "type": "boolean" },
+                            "clear_cache": { "type": "boolean" },
+                            "output_type": { "enum": ["hashed", "masked", "raw"] }
+                        },
+                        "additionalProperties": false
+                    }
+                }
+            }
+        },
 		{
 			"if": {
 				"properties": {

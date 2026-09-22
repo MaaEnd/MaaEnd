@@ -110,7 +110,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	serverNow := time.Now()
 	serverDate, serverWeekday := serverDateInfo(serverNow, serverLocation)
 	if attach.AllowDataUpload {
-		uid, err := captureuid.Capture(true, true, captureuid.OutputTypeHashed)
+		uid, err := captureuid.Capture(ctx, ctx.GetTasker().GetController(), true, true, true, captureuid.OutputTypeHashed)
 		if err != nil {
 			log.Warn().
 				Err(err).

@@ -1,6 +1,6 @@
 # Developer Manual - CaptureUid Reference Documentation
 
-`CaptureUid` is a generic UID acquisition and caching module. It reads the player UID via `gamesetting.GetCachedUID` from Unity PlayerPrefs `PLDK_cachedRoleId` (game role UID), caches the raw UID digits, and converts them at output time according to `output_type` — hashed (default), masked, or raw — for other subsystems to reference as a pseudonymous identifier.
+`CaptureUid` is a generic UID acquisition and caching module. Win32 controllers read the player UID via `gamesetting.GetCachedUID` from Unity PlayerPrefs `PLDK_cachedRoleId` (game role UID); other controllers use the original OCR flow without reading the host registry. The module caches the raw UID digits, and converts them at output time according to `output_type` — hashed (default), masked, or raw — for other subsystems to reference as a pseudonymous identifier.
 
 > [!important]
 > The original UID is kept only in the in-memory cache and is never persisted. Use the default `hashed` pseudonymous identifier when persisting or uploading data.
@@ -12,7 +12,7 @@ The current implementation is located in `agent/go-service/captureuid/`:
 | File | Responsibility |
 | ------------- | ---------------------------------------------------------------------------------- |
 | `action.go` | CustomAction entry point, deserializes parameters, calls `Capture` or `ClearCache` |
-| `capture.go` | Core logic: registry read, hashing, caching |
+| `capture.go` | Core logic: controller routing, registry read, OCR, hashing, caching |
 | `register.go` | Registers the `CaptureUid` custom action with MaaFramework |
 
 Related tasks call `CaptureUid` when an account identity is needed and write the default
@@ -58,9 +58,10 @@ After switching accounts, the cache must be cleared to prevent reuse of old UIDs
 
 | Field | Type | Default | Description |
 | -------------- | -------- | --------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `use_cache` | `bool` | `true` | If the cache contains a UID, return it directly without reading the registry again. |
-| `allow_unknown` | `bool` | `true` | If registry read or region resolution fails, return `"unknown"` instead of throwing an error. If `false`, failure causes the action to fail. |
-| `clear_cache` | `bool` | `false` | Clear the UID cache and return immediately, without reading the registry. |
+| `use_cache` | `bool` | `true` | Return a cached UID without reading the registry or running OCR. |
+| `stay_on_current_screen` | `bool` | `true` | Non-Win32 only: if `false`, call `SceneEnterMenuOperationalManual` before screenshot OCR. |
+| `allow_unknown` | `bool` | `true` | If registry read, region resolution, or OCR fails, return `"unknown"` instead of throwing an error. If `false`, failure causes the action to fail. |
+| `clear_cache` | `bool` | `false` | Clear the UID cache and return immediately, without reading the registry or running OCR. |
 | `output_type` | `string` | `"hashed"` | Output format: `hashed` (salted SHA-256, first 16 hex characters), `masked` (first and last 3 characters kept, middle replaced with `*`), or `raw` (original UID digits). |
 
 > [!note]
@@ -75,8 +76,8 @@ In addition to Pipeline, other Go modules can also call the exported functions f
 ### Get UID (with cache)
 
 ```go
-uid, err := captureuid.Capture(true, true, captureuid.OutputTypeHashed)
-// useCache=true, allowUnknown=true, outputType=hashed
+uid, err := captureuid.Capture(ctx, ctrl, true, true, true, captureuid.OutputTypeHashed)
+// useCache=true, stayOnCurrentScreen=true, allowUnknown=true, outputType=hashed
 ```
 
 ### Read Cached UID (converted to the requested output format)
@@ -97,7 +98,7 @@ captureuid.ClearCache()
 The action executes in the following order:
 
 1. **Cache Check** — If `use_cache` is `true` and the cache already contains a UID, return it directly.
-2. **Registry Read** — Call `gamesetting.GetCachedUID()` to read `PLDK_cachedRoleId` for the current region.
+2. **Controller Routing** — Win32 calls `gamesetting.GetCachedUID()`; other controllers optionally navigate according to `stay_on_current_screen`, then capture a screenshot and extract UID digits with OCR at the original ROI `[60, 690, 155, 25]`. Win32 read failures never fall back to OCR. An unknown controller type is handled according to `allow_unknown`.
 3. **Digit Validation** — Verify the number has 8–12 digits. On failure, based on `allow_unknown`, either return `"unknown"` or throw an error.
 4. **Output Formatting** — Convert according to `output_type`: for `hashed`, read (or generate for the first time) the random salt `debug/record/random_salt.txt`, compute `SHA-256(numeric UID + salt)`, and take the first 16 hexadecimal characters; for `masked`, keep the first and last 3 characters and mask the middle with `*`; for `raw`, return the digits unchanged.
 5. **Caching** — Store the raw UID digits in an in-memory cache so subsequent calls can convert them to any `output_type`.
