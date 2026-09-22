@@ -17,10 +17,12 @@ const (
 	registryPathCN     = `Software\Hypergryph\Endfield`
 	registryPathGlobal = `Software\Gryphline\Endfield`
 
-	userGpuPreferencesPath = `Software\Microsoft\DirectX\UserGpuPreferences`
-	autoHDREnableKey       = "AutoHDREnable"
-	autoHDRDisabledValue   = "2096"
-	autoHDREnabledValue    = "2097"
+	userGpuPreferencesPath    = `Software\Microsoft\DirectX\UserGpuPreferences`
+	directXUserGlobalSettings = "DirectXUserGlobalSettings"
+	autoHDREnableKey          = "AutoHDREnable"
+	autoHDRDisabledValue      = "2096"
+	autoHDREnabledValue       = "2097"
+	autoHDRGlobalEnabledValue = "1"
 )
 
 var registryPath = registryPathCN
@@ -488,6 +490,75 @@ func parseResolution(resolution string) (uint32, uint32, error) {
 	return uint32(width), uint32(height), nil
 }
 
+// IsAutoHDREnabled 判断终末地是否会实际开启自动 HDR。
+// 按应用 *Endfield.exe 的 AutoHDREnable 优先；未显式配置时回退到 DirectXUserGlobalSettings。
+func IsAutoHDREnabled() (bool, error) {
+	k, err := registry.OpenKey(registry.CURRENT_USER, userGpuPreferencesPath, registry.QUERY_VALUE)
+	if err != nil {
+		if errors.Is(err, registry.ErrNotExist) {
+			return false, nil
+		}
+		return false, fmt.Errorf("gamesetting: open %q failed: %w", userGpuPreferencesPath, err)
+	}
+	defer k.Close()
+
+	names, err := k.ReadValueNames(-1)
+	if err != nil {
+		return false, fmt.Errorf("gamesetting: enumerate values under %q failed: %w", userGpuPreferencesPath, err)
+	}
+
+	var (
+		globalValue string
+		hasGlobal   bool
+		perAppSeen  bool
+		perAppOn    bool
+	)
+
+	for _, name := range names {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+
+		raw, _, err := k.GetStringValue(name)
+		if err != nil {
+			if errors.Is(err, registry.ErrNotExist) {
+				continue
+			}
+			return false, fmt.Errorf("gamesetting: read UserGpuPreferences %q failed: %w", name, err)
+		}
+
+		if strings.EqualFold(name, directXUserGlobalSettings) {
+			if v, ok := parseAutoHDRValue(raw); ok {
+				globalValue = v
+				hasGlobal = true
+			}
+			continue
+		}
+
+		if !strings.EqualFold(filepath.Base(name), endfieldProcessName) {
+			continue
+		}
+
+		v, ok := parseAutoHDRValue(raw)
+		if !ok {
+			continue
+		}
+		perAppSeen = true
+		if isAutoHDREnabledValue(v, true) {
+			perAppOn = true
+		}
+	}
+
+	if perAppSeen {
+		return perAppOn, nil
+	}
+	if hasGlobal {
+		return isAutoHDREnabledValue(globalValue, false), nil
+	}
+	return false, nil
+}
+
 // ApplyAutoHDR 按 mode 写入按应用自动 HDR：Unchanged 不改；Disable=2096；Enable=2097。
 func ApplyAutoHDR(mode string) error {
 	var value string
@@ -574,4 +645,33 @@ func mergeAutoHDRValue(existing, target string) string {
 		out = append(out, target)
 	}
 	return strings.Join(out, ";") + ";"
+}
+
+// parseAutoHDRValue 从 UserGpuPreferences 字符串中解析 AutoHDREnable 的值。
+func parseAutoHDRValue(raw string) (string, bool) {
+	for _, part := range strings.Split(raw, ";") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		eq := strings.IndexByte(part, '=')
+		if eq <= 0 || !strings.EqualFold(part[:eq], autoHDREnableKey) {
+			continue
+		}
+		return strings.TrimSpace(part[eq+1:]), true
+	}
+	return "", false
+}
+
+// isAutoHDREnabledValue 判断 AutoHDREnable 取值是否表示开启。
+// perApp=true 时兼容按应用取值（2097/1/4147）；false 时仅全局 1 为开启。
+func isAutoHDREnabledValue(value string, perApp bool) bool {
+	switch strings.TrimSpace(value) {
+	case autoHDRGlobalEnabledValue:
+		return true
+	case autoHDREnabledValue, "4147":
+		return perApp
+	default:
+		return false
+	}
 }

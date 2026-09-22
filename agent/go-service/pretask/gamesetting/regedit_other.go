@@ -207,3 +207,8 @@ func Apply(displayType, resolution string) bool {
 func ApplyAutoHDR(_ string) error {
 	return ErrUnsupported
 }
+
+// IsAutoHDREnabled 在非 Windows 平台始终视为未开启。
+func IsAutoHDREnabled() (bool, error) {
+	return false, nil
+}
