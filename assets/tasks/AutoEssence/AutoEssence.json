@@ -15,10 +15,6 @@
             "option": [
                 "AutoEssenceSchedule",
                 "AutoEssenceMenu",
-                // "AutoEssenceChooseLocationMode",
-                // ⚠️TODO: 由于 Dispatcher 在每轮之间会立即识别交互按钮，
-                // 这样就跳过了 Anchor 传送步骤，所以实际上暂时做不到每轮之间改换地区，
-                // 暂时没有什么好的解决方法，上面这个选项先注释掉，等以后再看看。
                 "AutoFightSettingFull"
             ],
             "group": [
@@ -708,32 +704,6 @@
                     ]
                 }
             }
-        },
-        "AutoEssenceChooseLocationMode": {
-            "type": "select",
-            "label": "$option.AutoEssenceChooseLocationMode.label",
-            "description": "$option.AutoEssenceChooseLocationMode.description",
-            "default_case": "ChooseOnlyOnce",
-            "cases": [
-                {
-                    "name": "ChooseOnlyOnce",
-                    "label": "$option.AutoEssenceChooseLocationMode.cases.ChooseOnlyOnce.label",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "max_hit": 1
-                        }
-                    }
-                },
-                {
-                    "name": "ChooseEveryTime",
-                    "label": "$option.AutoEssenceChooseLocationMode.cases.ChooseEveryTime.label",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "max_hit": 999999
-                        }
-                    }
-                }
-            ]
         },
         "EssenceFilterAfterBattle": {
             "type": "switch",
