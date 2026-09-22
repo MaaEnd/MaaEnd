@@ -520,6 +520,12 @@ func IsAutoHDREnabled() (bool, error) {
 			continue
 		}
 
+		isGlobal := strings.EqualFold(name, directXUserGlobalSettings)
+		isPerApp := strings.EqualFold(filepath.Base(name), endfieldProcessName)
+		if !isGlobal && !isPerApp {
+			continue
+		}
+
 		raw, _, err := k.GetStringValue(name)
 		if err != nil {
 			if errors.Is(err, registry.ErrNotExist) {
@@ -528,15 +534,11 @@ func IsAutoHDREnabled() (bool, error) {
 			return false, fmt.Errorf("gamesetting: read UserGpuPreferences %q failed: %w", name, err)
 		}
 
-		if strings.EqualFold(name, directXUserGlobalSettings) {
+		if isGlobal {
 			if v, ok := parseAutoHDRValue(raw); ok {
 				globalValue = v
 				hasGlobal = true
 			}
-			continue
-		}
-
-		if !strings.EqualFold(filepath.Base(name), endfieldProcessName) {
 			continue
 		}
 
