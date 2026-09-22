@@ -79,6 +79,15 @@
                                 "ペリカ",
                                 "펠리카"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "佩丽卡",
+                                "佩麗卡",
+                                "Perlica",
+                                "ペリカ",
+                                "펠리카"
+                            ]
                         }
                     }
                 },
@@ -102,6 +111,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "伊冯",
                                 "伊馮",
@@ -139,6 +157,15 @@
                                 "アルデリア",
                                 "아델리아"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
                         }
                     }
                 },
@@ -162,6 +189,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "洁尔佩塔",
                                 "潔爾佩塔",
@@ -199,6 +235,15 @@
                                 "チェン・センユー",
                                 "진천우"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "陈千语",
+                                "陳千語",
+                                "Chen Qianyu",
+                                "チェン・センユー",
+                                "진천우"
+                            ]
                         }
                     }
                 },
@@ -222,6 +267,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "狼卫",
+                                "狼衛",
+                                "Wulfgard",
+                                "ウルフガード",
+                                "울프가드"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "狼卫",
                                 "狼衛",
@@ -259,6 +313,15 @@
                                 "アンタル",
                                 "안탈"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
+                            ]
                         }
                     }
                 },
@@ -282,6 +345,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "赛希",
                                 "賽希",
@@ -319,6 +391,15 @@
                                 "リーフォン",
                                 "여풍"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
                         }
                     }
                 },
@@ -342,6 +423,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "卡契尔",
+                                "卡契爾",
+                                "Catcher",
+                                "キャッチャー",
+                                "카치르"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "卡契尔",
                                 "卡契爾",
@@ -379,6 +469,15 @@
                                 "アークライト",
                                 "아크라이트"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "弧光",
+                                "弧光",
+                                "Arclight",
+                                "アークライト",
+                                "아크라이트"
+                            ]
                         }
                     }
                 },
@@ -402,6 +501,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "艾维文娜",
+                                "艾維文娜",
+                                "Avywenna",
+                                "アイビーエナ",
+                                "아비웨나"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "艾维文娜",
                                 "艾維文娜",
@@ -439,6 +547,15 @@
                                 "レーヴァテイン",
                                 "레바테인"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
                         }
                     }
                 },
@@ -462,6 +579,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "阿列什",
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "阿列什",
                                 "阿列什",
@@ -499,6 +625,15 @@
                                 "ポグラニチニク",
                                 "포그라니치니크"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
+                            ]
                         }
                     }
                 },
@@ -522,6 +657,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "别礼",
                                 "別禮",
@@ -559,6 +703,15 @@
                                 "エンバー",
                                 "엠버"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "余烬",
+                                "餘燼",
+                                "Ember",
+                                "エンバー",
+                                "엠버"
+                            ]
                         }
                     }
                 },
@@ -582,6 +735,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "昼雪",
+                                "晝雪",
+                                "Snowshine",
+                                "スノーシャイン",
+                                "스노우샤인"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "昼雪",
                                 "晝雪",
@@ -619,6 +781,15 @@
                                 "ダパン",
                                 "판"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "大潘",
+                                "大潘",
+                                "Da Pan",
+                                "ダパン",
+                                "판"
+                            ]
                         }
                     }
                 },
@@ -642,6 +813,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "萤石",
+                                "螢石",
+                                "Fluorite",
+                                "フローライト",
+                                "플루라이트"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "萤石",
                                 "螢石",
@@ -679,6 +859,15 @@
                                 "アケクリ",
                                 "아케쿠리"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "秋栗",
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
                         }
                     }
                 },
@@ -702,6 +891,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "埃特拉",
+                                "埃特拉",
+                                "Estella",
+                                "エステーラ",
+                                "에스텔라"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "埃特拉",
                                 "埃特拉",
@@ -739,6 +937,15 @@
                                 "ロッシ",
                                 "로시"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "洛茜",
+                                "洛西",
+                                "Rossi",
+                                "ロッシ",
+                                "로시"
+                            ]
                         }
                     }
                 },
@@ -762,6 +969,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "汤汤",
                                 "湯湯",
@@ -799,6 +1015,15 @@
                                 "ゾアン・ファンイ",
                                 "장방이"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "庄方宜",
+                                "莊方宜",
+                                "Zhuang Fangyi",
+                                "ゾアン・ファンイ",
+                                "장방이"
+                            ]
                         }
                     }
                 },
@@ -822,6 +1047,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "弭弗",
+                                "弭弗",
+                                "Mi Fu",
+                                "ミ・フ",
+                                "미푸"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "弭弗",
                                 "弭弗",
@@ -859,6 +1093,15 @@
                                 "カミーユ",
                                 "카뮤"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
                         }
                     }
                 },
@@ -882,6 +1125,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "诀",
+                                "訣",
+                                "Arcane",
+                                "オクギ",
+                                "결"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "诀",
                                 "訣",
@@ -919,6 +1171,15 @@
                                 "リーノ",
                                 "리노"
                             ]
+                        },
+                        "GiftOperatorFindNameText": {
+                            "expected": [
+                                "梨诺",
+                                "梨諾",
+                                "Liino",
+                                "リーノ",
+                                "리노"
+                            ]
                         }
                     }
                 },
@@ -942,6 +1203,15 @@
                             ]
                         },
                         "GiftOperatorName": {
+                            "expected": [
+                                "提弗洛斯",
+                                "提弗洛斯",
+                                "Typhoeus",
+                                "ティフォロス",
+                                "티프로스"
+                            ]
+                        },
+                        "GiftOperatorFindNameText": {
                             "expected": [
                                 "提弗洛斯",
                                 "提弗洛斯",

@@ -1,7 +1,7 @@
 {
     "GiftOperatorMoveAhead": {
-        "desc": "移动尝试接触到干员",
-        "max_hit": 8, // 子节点到 max_hit 之后此节点仍然会空执行报错，所以要设置一个和它的子节点次数一样多的值，让它的父节点正常跳出
+        "desc": "FIND 寻找白色干员名称并接近",
+        "max_hit": 3,
         "recognition": {
             "type": "Custom",
             "param": {
@@ -18,45 +18,35 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            //"GiftOperatorMoveResetBackward",
-            "GiftOperatorTurnEast",
-            //"GiftOperatorMoveLocation3Move",
-            "GiftOperatorTurnNorthwest",
-            "GiftOperatorTurnNorthByWest",
-            "GiftOperatorTurnWest",
-            "GiftOperatorTurnSoutheast"
-        ]
-    },
-    "GiftOperatorMoveResetBackward": {
-        "desc": "向后(S)一步，再向前(W)重置视角",
-        "max_hit": 1,
-        "pre_delay": 0,
         "action": {
-            "type": "ClickKey",
+            "type": "Custom",
             "param": {
-                "key": 83
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "OMVBase01"
+                        },
+                        {
+                            "action": "FIND",
+                            "find_target": "GiftOperatorFindName",
+                            "find_stop": "GiftOperatorChat"
+                        }
+                    ]
+                }
             }
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "GiftOperatorMoveResetForward"
-        ]
-    },
-    "GiftOperatorMoveResetForward": {
-        "desc": "向前(W)一步，完成视角重置",
-        "pre_delay": 0,
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 87
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
             }
-        },
-        "post_delay": 0,
-        "rate_limit": 0
+        }
     },
     "GiftOperatorMoveRetry": {
         "desc": "寻路失败重试",
@@ -76,284 +66,11 @@
         "desc": "移动未能接触到干员，炸掉程序",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "ERROR", // 引发一个错误来结束当前任务并留下截图
+        "custom_action": "ERROR",
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.GiftOperator.focus.move_fail"
-        }
-    },
-    "GiftOperatorTurnWest": {
-        "desc": "转向270度(正西)尝试接触到干员",
-        "max_hit": 2,
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "HEADING",
-                            "angle": 270,
-                            "zone_id": "OMVBase01"
-                        }
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "GiftOperatorMoveLocation1Move": {
-        "desc": "移动尝试接触到干员(预设位置1)",
-        "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "OMVBase01"
-                        },
-                        [
-                            183.73,
-                            172.31,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "post_wait_freezes": {
-            "time": 150,
-            "target": [
-                807,
-                420,
-                70,
-                121
-            ],
-            "timeout": 2000
-        },
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "GiftOperatorTurnNorthwest": {
-        "desc": "转向315度(西北)尝试接触到干员",
-        "max_hit": 1,
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "HEADING",
-                            "angle": 315,
-                            "zone_id": "OMVBase01"
-                        }
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "GiftOperatorTurnNorthByWest": {
-        "desc": "转向345度(北偏西15度)尝试接触到干员",
-        "max_hit": 1,
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "HEADING",
-                            "angle": 345,
-                            "zone_id": "OMVBase01"
-                        }
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "GiftOperatorMoveLocation2Move": {
-        "desc": "移动尝试接触到干员(预设位置2)",
-        "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "OMVBase01"
-                        },
-                        [
-                            185.11,
-                            172.6,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "post_wait_freezes": {
-            "time": 150,
-            "target": [
-                807,
-                420,
-                70,
-                121
-            ],
-            "timeout": 2000
-        },
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "GiftOperatorTurnEast": {
-        "desc": "转向90度(正东)尝试接触到干员",
-        "max_hit": 2,
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "HEADING",
-                            "angle": 90,
-                            "zone_id": "OMVBase01"
-                        }
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "GiftOperatorTurnSoutheast": {
-        "desc": "转向135度(东南)尝试接触到干员",
-        "max_hit": 2,
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "HEADING",
-                            "angle": 135,
-                            "zone_id": "OMVBase01"
-                        }
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "GiftOperatorMoveLocation3Move": {
-        "desc": "移动尝试接触到干员(预设位置3)",
-        "max_hit": 1,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "OMVBase01"
-                        },
-                        [
-                            185.7,
-                            173.49,
-                            true
-                        ]
-                    ]
-                }
-            }
-        },
-        "post_wait_freezes": {
-            "time": 150,
-            "target": [
-                807,
-                420,
-                70,
-                121
-            ],
-            "timeout": 2000
-        },
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
         }
     },
     "GiftOperatorMove": {
@@ -384,14 +101,9 @@
                 }
             }
         },
-        // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [
             "GiftOperatorClickContact"
-            //"[JumpBack]GiftOperatorGoAheadContact"
         ],
-        // "on_error": [
-        //     "GiftOperatorMoveBackward"
-        // ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -506,13 +218,9 @@
                 }
             }
         },
-        // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [
             "GiftOperatorClickContact"
         ],
-        // "on_error": [
-        //     "GiftOperatorMoveBackward"
-        // ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
