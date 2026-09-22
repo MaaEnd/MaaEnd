@@ -1206,6 +1206,8 @@
     "preset.QuickDaily.description": "Only performs core reward-claiming tasks, saving time and effort.",
     "preset.RealtimeAssist.label": "Real-time Assist",
     "preset.RealtimeAssist.description": "Full suite of real-time assist features for AFK.",
+    "preset.AIAssistant.label": "AI Assistant",
+    "preset.AIAssistant.description": "Only the AI Assistant standby task; connect Doubao, Cursor, or other MCP clients and let the AI drive the run.",
     "task.AutoEcoFarm.label": "🌾Eco-Farm",
     "task.AutoEcoFarm.description": "\n## Task Function:\nThe task will automatically store all items in the backpack with one click before starting (enabled by default), then automatically complete harvesting, planting, watering, and other related operations.\n## Notice - Please prepare before starting the task:\n1. **It is recommended to place the Wuling Integrated Industrial Core near the edge of the Ecological Farm** (east side of the map) to prevent auto-pathfinding from getting stuck. The old 「blind walk」 feature has been integrated into the auto-navigation — no additional setup needed.\n2. **Please bring a full team of 3 teammates**; harvesting mostly relies on teammates. The lead character only provides guidance; missing teammates will result in huge losses of farmland.\n## Recommendations:\n1. Arrange farmland in a **dense formation as close to the center as possible**, preferably square, to avoid misses.\n2. Try not to place sprinklers on the **diagonal** of the farm, as this may cause jamming.",
     "task.AutoEcoFarm.focus.camera_mode_failed": "Could not enter photo mode. Please check the game window and tool hotkey.",

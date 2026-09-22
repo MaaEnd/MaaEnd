@@ -1,0 +1,14 @@
+{
+    "preset": [
+        {
+            "name": "AIAssistant",
+            "label": "$preset.AIAssistant.label",
+            "description": "$preset.AIAssistant.description",
+            "task": [
+                {
+                    "name": "AICopilot"
+                }
+            ]
+        }
+    ]
+}
