@@ -173,7 +173,15 @@ pnpm generate:AutoDelivery
 pnpm generate:SeizeDeliveryJobs
 ```
 
-`generate:SeizeDeliveryJobs` does not generate `assets/resource/pipeline/AutoDelivery/` or `assets/data/AutoDelivery/catalog.json`. Changing a direction, or renaming a destination in the source data, only requires SeizeDeliveryJobs regeneration, not AutoDelivery regeneration.
+`generate:SeizeDeliveryJobs` does not generate `assets/resource/pipeline/AutoDelivery/` or `assets/data/AutoDelivery/catalog.json`. Whether you must regenerate AutoDelivery first depends on which name you changed:
+
+| Change | What to run |
+| --- | --- |
+| A display name or `direction` of an **already-registered** destination in `endpoint-labels.json` | Only `pnpm generate:SeizeDeliveryJobs` |
+| A destination recipient name in the source `delivery_destinations.json` (arrives with a zmdmap data update) | `pnpm generate:AutoDelivery` first, then `pnpm generate:SeizeDeliveryJobs`: that name is written into `assets/data/AutoDelivery/catalog.json` and the metadata in `AutoDelivery/routes.json`, so running only one side leaves the two artifact sets inconsistent |
+| Adding or removing a destination, area or route | Same order; `generate:AutoDelivery` validates that `routes.json` and the destination catalog stay aligned by ID |
+
+Destinations with a registered display name no longer use the source recipient name, so renaming a source recipient does not change their text in the seize task (but it does leave the AutoDelivery artifacts stale).
 
 ## Maintaining Destination Names and Directions
 

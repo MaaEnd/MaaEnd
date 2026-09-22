@@ -173,7 +173,15 @@ pnpm generate:AutoDelivery
 pnpm generate:SeizeDeliveryJobs
 ```
 
-`generate:SeizeDeliveryJobs` 本身不会生成 `assets/resource/pipeline/AutoDelivery/` 或 `assets/data/AutoDelivery/catalog.json`。只改已有终点的展示名时，不需要重新生成 AutoDelivery。
+`generate:SeizeDeliveryJobs` 本身不会生成 `assets/resource/pipeline/AutoDelivery/` 或 `assets/data/AutoDelivery/catalog.json`。要不要先跑 `generate:AutoDelivery`，取决于改的是哪一层名字：
+
+| 改动 | 要跑什么 |
+| --- | --- |
+| `endpoint-labels.json` 里**已登记**终点的展示名或 `direction` | 只跑 `pnpm generate:SeizeDeliveryJobs` |
+| 数据源 `delivery_destinations.json` 里终点的收货人名称（随 zmdmap 数据更新进来） | 先 `pnpm generate:AutoDelivery`，再 `pnpm generate:SeizeDeliveryJobs`：这个名字会写进 `assets/data/AutoDelivery/catalog.json` 和 `AutoDelivery/routes.json` 的 metadata，只跑一边会让两套产物不一致 |
+| 新增 / 删除终点、区域或路线 | 同上顺序；`generate:AutoDelivery` 会校验 `routes.json` 与终点目录的 ID 对齐 |
+
+已登记展示名的终点不再取数据源的收货人名称，所以只改数据源的名字不会改变这些终点在抢单任务里的文案（但仍会让 AutoDelivery 的产物过期）。
 
 ## 终点展示名称与方位维护
 
