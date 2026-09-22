@@ -846,7 +846,6 @@
                 "only_rec": true
             }
         }
-    }
     },
     "GiftOperatorFindName": {
         "desc": "FIND 目标：白色干员名称",
