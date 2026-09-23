@@ -63,6 +63,9 @@
         },
         "next": [
             "GotoTriggerPointMoveExact_VFOriginLodespring"
+        ],        
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近",
@@ -100,10 +103,7 @@
         },
         "post_delay": 1500,
         "next": [
-            "AutoEssenceInteract"
-        ],
-        "on_error": [
-            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
+            "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",
