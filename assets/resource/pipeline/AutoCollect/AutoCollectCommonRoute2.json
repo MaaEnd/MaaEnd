@@ -1,6 +1,6 @@
 {
     "AutoCollectCommonRoute2Start": {
-        "desc": "黯银柑实采集线，5个点",
+        "desc": "黯银柑实采集线，3个点",
         "enabled": false,
         "pre_delay": 0,
         "post_delay": 0,
@@ -16,7 +16,7 @@
         "post_delay": 0
     },
     "AutoCollectCommonRoute2": {
-        "desc": "8个黯银柑实",
+        "desc": "6个黯银柑实",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -103,94 +103,6 @@
                         [
                             351.78,
                             897.23,
-                            "COLLECT"
-                        ],
-                        {
-                            "action": "NAVMESH",
-                            "target": [
-                                267.87,
-                                935.85
-                            ],
-                            "zone_id": "ValleyIV_Base"
-                        },
-                        [
-                            267.87,
-                            935.85,
-                            "DIG"
-                        ],
-                        [
-                            267.87,
-                            935.85,
-                            "DIG"
-                        ]
-                    ]
-                }
-            }
-        },
-        "next": [
-            "AutoCollectCommonRoute2GoFight3"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute2GoFight3": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "AutoCollectCommonRoute2fightSub",
-            "AutoCollectCommonRoute2Goto2"
-        ]
-    },
-    "AutoCollectCommonRoute2fightSub": {
-        "desc": "战斗，只打一只怪",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoFight"
-            ],
-            "continue": true
-        },
-        "next": [
-            "AutoCollectCommonRoute2Goto2"
-        ]
-    },
-    "AutoCollectCommonRoute2Goto2": {
-        "desc": "前往采集点",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
-                        },
-                        [
-                            262.8,
-                            937.85,
-                            "COLLECT"
-                        ],
-                        [
-                            296.4,
-                            918.09,
-                            "COLLECT"
-                        ],
-                        [
-                            296.4,
-                            918.09,
-                            "COLLECT"
-                        ],
-                        [
-                            296.4,
-                            918.09,
                             "COLLECT"
                         ]
                     ]
