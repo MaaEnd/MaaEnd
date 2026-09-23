@@ -1,18 +1,23 @@
 import {depots, destinations, rawJson} from "./model.mjs";
 
-export function buildRows(routeFileId, id, description, path, routeNode, zipRouteNode, walkOnly = false) {
+// 普通节点的 zip 与 WithZipline 节点的 zip 默认相反；walk_only / zipline_only 把两个节点
+// 统一钉在同一个滑索策略上，避免留下一条已知走不通的路线。zipline_only 的终点在用户选择
+// 步行时由 Go 侧直接报错，不会走到这里生成的节点。
+function buildRows(routeFileId, id, description, path, routeNode, zipRouteNode, {walkOnly = false, ziplineOnly = false} = {}) {
+    const forcedZip = walkOnly ? false : ziplineOnly ? true : null;
+    const zipNote = walkOnly ? "仅允许步行" : ziplineOnly ? "仅允许使用滑索" : "允许使用滑索";
     return [
         {
             RouteFileId: routeFileId,
             Node: routeNode,
-            Description: `${description}（${id}）`,
-            ActionParam: rawJson({path, zip: false}),
+            Description: `${description}${ziplineOnly ? "，仅允许使用滑索" : ""}（${id}）`,
+            ActionParam: rawJson({path, zip: forcedZip ?? false}),
         },
         {
             RouteFileId: routeFileId,
             Node: zipRouteNode,
-            Description: `${description}，${walkOnly ? "仅允许步行" : "允许使用滑索"}（${id}）`,
-            ActionParam: rawJson({path, zip: !walkOnly}),
+            Description: `${description}，${zipNote}（${id}）`,
+            ActionParam: rawJson({path, zip: forcedZip ?? true}),
         },
     ];
 }
@@ -26,7 +31,7 @@ export default [
             depot.path,
             depot.routeNode,
             depot.zipRouteNode,
-            depot.walkOnly,
+            depot,
         ),
         ...(depot.retryRouteNode
             ? [
@@ -47,7 +52,7 @@ export default [
             destination.path,
             destination.routeNode,
             destination.zipRouteNode,
-            destination.walkOnly,
+            destination,
         ),
         ...(destination.retryRouteNode
             ? [

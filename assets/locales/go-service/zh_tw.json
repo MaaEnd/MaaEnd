@@ -203,6 +203,8 @@
     "autodelivery.focus.depot_resolved": "🚛 已識別倉儲節點：%s",
     "autodelivery.focus.destination_resolved": "🚛 已識別送貨目標：%s",
     "autodelivery.destination.recycle_bin": "%s資源回收站 #%d",
+    "autodelivery.focus.depot_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">倉儲節點 %s 只能透過滑索抵達</span>，目前未啟用滑索，無法步行前往；請在任務選項中開啟「送貨時優先使用滑索」後重試",
+    "autodelivery.focus.destination_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">送貨目標 %s 只能透過滑索抵達</span>，目前未啟用滑索，無法步行送達；請在任務選項中開啟「送貨時優先使用滑索」後重試",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 該送貨任務屬於（%s）",
     "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 未能確定未完成的送貨任務屬於哪個倉儲節點，詳見執行日誌",
     "seizedeliveryjobs.scanning": "正在掃描委託列表...",

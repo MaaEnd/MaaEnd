@@ -22,14 +22,26 @@ function assertNonEmptyString(value, label) {
     return value;
 }
 
-function readWalkOnly(value, label) {
+function readRouteModeFlag(value, label, key) {
     if (value === undefined) {
         return false;
     }
     if (typeof value !== "boolean") {
-        throw new TypeError(`[AutoDelivery] ${label}.walk_only 必须是布尔值`);
+        throw new TypeError(`[AutoDelivery] ${label}.${key} 必须是布尔值`);
     }
     return value;
+}
+
+// walk_only 与 zipline_only 是对同一条主路线滑索策略的两个相反约束：
+// walk_only 在用户启用滑索时仍走作者录制的步行路线；zipline_only 表示步行根本到不了，
+// 用户选择步行时运行时必须报错而不是静默退化成一条走不通的路线。两者同时声明无解。
+function readRouteMode(override, label) {
+    const walkOnly = readRouteModeFlag(override?.walk_only, label, "walk_only");
+    const ziplineOnly = readRouteModeFlag(override?.zipline_only, label, "zipline_only");
+    if (walkOnly && ziplineOnly) {
+        throw new Error(`[AutoDelivery] ${label} 同时声明了 walk_only 与 zipline_only，二者互斥`);
+    }
+    return {walkOnly, ziplineOnly};
 }
 
 // 数据源的 yaw 是游戏内实测的实体朝向，部分 NPC 面向墙或缺失朝向（缺省 0），
@@ -274,7 +286,7 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
     const id = assertNonEmptyString(source.id, `depots[${index}].id`);
     const override = depotOverrides.get(id);
     assertAutoGenerationOverrideUsed(override, `仓储 ${id}`);
-    const walkOnly = readWalkOnly(override?.walk_only, `仓储 ${id}`);
+    const {walkOnly, ziplineOnly} = readRouteMode(override, `仓储 ${id}`);
     const defaultPath = buildNavmeshPath(source, `仓储 ${id}`, {
         withApproachPoint: true,
         yaw: readYawOverride(override?.yaw, `仓储 ${id}`),
@@ -297,6 +309,7 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
         retryPath,
         departurePath: override?.departure_path ?? [],
         walkOnly,
+        ziplineOnly,
         routeNode: buildRouteNode("Depot", id),
         zipRouteNode: buildRouteNode("Depot", id, true),
         retryRouteNode: buildRouteNode("DepotRetry", id),
@@ -332,7 +345,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
         }
         const override = destinationOverrides.get(id);
         assertAutoGenerationOverrideUsed(override, `终点 ${id}`);
-        const walkOnly = readWalkOnly(override?.walk_only, `终点 ${id}`);
+        const {walkOnly, ziplineOnly} = readRouteMode(override, `终点 ${id}`);
         const yaw = readYawOverride(override?.yaw, `终点 ${id}`);
         const offset = readOffset(override?.offset, `终点 ${id}`);
         const withApproachPoint = source.kind === "recycle_bin";
@@ -381,6 +394,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             path,
             retryPath,
             walkOnly,
+            ziplineOnly,
             routeNode: buildRouteNode("Destination", id),
             zipRouteNode: buildRouteNode("Destination", id, true),
             retryRouteNode: buildRouteNode("DestinationRetry", id),
@@ -408,6 +422,7 @@ export const runtimeCatalog = {
         map: item.map,
         route_node: item.routeNode,
         zip_route_node: item.zipRouteNode,
+        ...(item.ziplineOnly ? {zipline_only: true} : {}),
         ...(item.retryRouteNode ? {retry_route_node: item.retryRouteNode} : {}),
     })),
     destinations: destinations.map((item) => ({
@@ -420,6 +435,7 @@ export const runtimeCatalog = {
         area: item.area,
         route_node: item.routeNode,
         zip_route_node: item.zipRouteNode,
+        ...(item.ziplineOnly ? {zipline_only: true} : {}),
         ...(item.retryRouteNode ? {retry_route_node: item.retryRouteNode} : {}),
     })),
 };

@@ -31,6 +31,7 @@ type destination struct {
 	RouteNode        string
 	ZipRouteNode     string
 	RetryRouteNode   string
+	ZiplineOnly      bool
 	SerialID         int
 	Names            map[string]string
 	AreaNames        map[string]string
@@ -49,6 +50,7 @@ type generatedDepot struct {
 	Map            string            `json:"map"`
 	RouteNode      string            `json:"route_node"`
 	ZipRouteNode   string            `json:"zip_route_node"`
+	ZiplineOnly    bool              `json:"zipline_only"`
 	RetryRouteNode string            `json:"retry_route_node"`
 }
 
@@ -62,6 +64,7 @@ type generatedDestination struct {
 	Area           map[string]string `json:"area"`
 	RouteNode      string            `json:"route_node"`
 	ZipRouteNode   string            `json:"zip_route_node"`
+	ZiplineOnly    bool              `json:"zipline_only"`
 	RetryRouteNode string            `json:"retry_route_node"`
 }
 
@@ -71,6 +74,7 @@ type depot struct {
 	Map            string
 	RouteNode      string
 	ZipRouteNode   string
+	ZiplineOnly    bool
 	RetryRouteNode string
 }
 
@@ -165,6 +169,7 @@ func buildDepots(generated generatedCatalog) (map[string]depot, error) {
 			Map:            source.Map,
 			RouteNode:      source.RouteNode,
 			ZipRouteNode:   source.ZipRouteNode,
+			ZiplineOnly:    source.ZiplineOnly,
 			RetryRouteNode: source.RetryRouteNode,
 		}
 	}
@@ -228,6 +233,7 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 			RouteNode:        source.RouteNode,
 			ZipRouteNode:     source.ZipRouteNode,
 			RetryRouteNode:   source.RetryRouteNode,
+			ZiplineOnly:      source.ZiplineOnly,
 			SerialID:         source.SerialID,
 			Names:            source.Name,
 			AreaNames:        source.Area,

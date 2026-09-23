@@ -366,7 +366,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502": {
-        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往裴令容（deliver_target_map02_lv005_02）",
+        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往裴令容，仅允许使用滑索（deliver_target_map02_lv005_02）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -393,7 +393,7 @@
                     "target_deck_y": 244.758
                 }
             ],
-            "zip": false
+            "zip": true
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -407,7 +407,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502WithZipline": {
-        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往裴令容，允许使用滑索（deliver_target_map02_lv005_02）",
+        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往裴令容，仅允许使用滑索（deliver_target_map02_lv005_02）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",

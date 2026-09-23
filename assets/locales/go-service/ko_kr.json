@@ -203,6 +203,8 @@
     "autodelivery.focus.depot_resolved": "🚛 창고 거점 식별: %s",
     "autodelivery.focus.destination_resolved": "🚛 배송 목적지 식별: %s",
     "autodelivery.destination.recycle_bin": "%s 자원 재활용 스테이션 #%d",
+    "autodelivery.focus.depot_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">창고 거점 %s은(는) 집라인으로만 도달할 수 있습니다</span>. 집라인이 비활성화되어 있어 도보로는 이동할 수 없습니다. 작업 옵션에서 「배달 시 집라인 우선 사용」을 활성화한 뒤 다시 시도하십시오.",
+    "autodelivery.focus.destination_zipline_required": "🚛 <span style=\"color: red; font-weight: bold;\">배송 대상 %s은(는) 집라인으로만 도달할 수 있습니다</span>. 집라인이 비활성화되어 있어 도보로는 배송할 수 없습니다. 작업 옵션에서 「배달 시 집라인 우선 사용」을 활성화한 뒤 다시 시도하십시오.",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 이 배달 임무는 (%s) 소속입니다",
     "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 미완료 배달 임무가 어느 창고 거점에 속하는지 판별하지 못했습니다. 자세한 내용은 실행 로그를 확인하세요.",
     "seizedeliveryjobs.scanning": "배달 의뢰 스캔 중...",

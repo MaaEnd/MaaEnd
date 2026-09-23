@@ -120,10 +120,12 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | `depots` | `departure_path` | 拼接到该仓储所属终点路线前的公共离场路线 |
 | `depots` | `yaw` | 覆盖主路线接近点与自动重试路线使用的朝向角；仓储朝向墙体时使用 |
 | `depots` | `offset` | 微调自动生成的仓储导航落点（底图像素偏移） |
+| `depots` | `walk_only` / `zipline_only` | 覆盖该仓储主路线的滑索策略，见下节；二者互斥 |
 | `destinations` | `path` | 包含最终航点的完整终点路线；未配置时使用自动生成的终点坐标 |
 | `destinations` | `retry_path` | 覆盖首次未识别到提交按钮时执行的自动两点站位修正路线 |
 | `destinations` | `yaw` | 覆盖回收站主路线接近点与自动重试路线使用的朝向角；NPC 主路线仍为单个终点 |
 | `destinations` | `offset` | 微调自动生成的终点导航落点（底图像素偏移） |
+| `destinations` | `walk_only` / `zipline_only` | 覆盖该终点主路线的滑索策略，见下节；二者互斥 |
 
 终点目录中的 `area` 取自 `LevelDescTable.showName`，对应任务详情页实际显示的关卡名称，而不是地区建设中的仓储节点名称。普通收货任务按 `buyerName` 匹配终点；`kind` 为 `recycle_bin` 的回收站任务不显示买家名，改为匹配完整 `mission`。同一区域存在多个相同回收站文案时保持歧义失败，不静默选择可能错误的终点。
 
@@ -163,6 +165,15 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 - 不影响回收站的大地图图标判定坐标：`AutoDeliveryFindRecycleBin...` 在 `assets/resource/pipeline/AutoDelivery/RecycleBinCandidates.json` 中用的 `at` 仍取自数据源。
 - 偏移后的落点必须仍在底图范围内，越界、非两个数值、全零偏移都会让生成器直接报错；条目同时覆盖 `path` 与 `retry_path` 时同样报错，避免配置静默失效。
 - 它只能修正水平落点。落点本身正确、只是停在了错误的可走层（高度差）时，`offset` 与 `yaw` 都无效，应按实测路径覆盖 `path` / `retry_path`。
+
+### `walk_only` / `zipline_only`
+
+这两个字段覆盖一条主路线的滑索策略，二者互斥，同时声明时生成器直接报错：
+
+- `walk_only: true`：完整保留录制路径，禁止全局滑索规划跳过作者路点。生成器仍保留普通节点和 `WithZipline` 节点名，但两个节点都写 `"zip": false`，即用户全局启用滑索时仍严格按作者路径步行执行。
+- `zipline_only: true`：该目标只有坐滑索才到得了（如终点裴令容），没有可用的步行路线。两个节点都写 `"zip": true`，避免留下一条已知走不通的步行路线；运行时若用户选择步行送货（「送货时优先使用滑索」为关），Go 侧在 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 分发路线前直接输出红色提示说明原因并让动作失败，不会静默退化成步行走到不可达处再超时。
+
+注意 `zip: true` 只表示允许 MapNavigator 在合适时使用滑索；未导入滑索坐标或滑索成本不占优时，导航仍可能选择步行。`zipline_only` 拦截的是「用户明确选择步行」这种配置错误，不保证导航规划一定采用滑索。
 
 ### 验证
 

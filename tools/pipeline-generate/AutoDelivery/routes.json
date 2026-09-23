@@ -135,7 +135,9 @@
         {
             "source_id": "deliver_target_map02_lv005_02",
             "name": "裴令容",
-            "depot_id": "domain_2_lv005_depot_1"
+            "depot_id": "domain_2_lv005_depot_1",
+            "description": "只能通过滑索抵达，步行不可达",
+            "zipline_only": true
         },
         {
             "source_id": "deliver_target_map02_lv005_03",

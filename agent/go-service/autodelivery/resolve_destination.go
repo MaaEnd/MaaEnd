@@ -16,6 +16,8 @@ const (
 	afterResolveDestinationNode  = "AutoDeliveryAfterResolveDestination"
 	areaTextNode                 = "AutoDeliveryCheckAreaText"
 	destinationTextNode          = "AutoDeliveryCheckDestinationText"
+	// destinationZiplineRequiredFocusKey 是「只能坐滑索抵达、但用户选择步行」时讲给用户的原因。
+	destinationZiplineRequiredFocusKey = "autodelivery.focus.destination_zipline_required"
 )
 
 // AutoDeliveryResolveDestinationAction 根据 Pipeline OCR 文本或已确认的终点 ID 选择对应的生成路线节点。
@@ -108,6 +110,15 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 			Float64("areaSimilarity", match.AreaSimilarity).
 			Float64("areaRunnerUpSimilarity", match.AreaRunnerUp).
 			Msg("failed to resolve delivery destination")
+		return false
+	}
+	// 只能坐滑索抵达的终点没有可用步行路线，用户选择步行时必须直接失败，不能硬走。
+	if !ensureZiplineSelected(ctx, dest.ZiplineOnly, options.Zip, destinationZiplineRequiredFocusKey, destinationDisplayName(dest)) {
+		log.Error().
+			Str("component", resolveDestinationActionName).
+			Str("destination", dest.ID).
+			Str("depot", dest.DepotID).
+			Msg("delivery destination is zipline-only but navigation is configured to walk")
 		return false
 	}
 	if err := ctx.OverridePipeline(buildDestinationNavigationOverride(dest, options.Zip)); err != nil {

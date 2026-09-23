@@ -39,6 +39,10 @@
                         "type": "boolean",
                         "description": "是否在全局启用滑索时仍强制该仓储主路线仅步行。"
                     },
+                    "zipline_only": {
+                        "type": "boolean",
+                        "description": "是否要求该仓储只能通过滑索抵达。全局未启用滑索时运行时直接报错，不会退化成步行。"
+                    },
                     "yaw": {
                         "type": "number",
                         "description": "覆盖自动接近点使用的朝向角（度，与数据源 yaw 同义：0 度指向底图上方，数值增大顺时针旋转）。主路线或自动重试路线未被 path / retry_path 覆盖时生效。"
@@ -92,6 +96,10 @@
                     "walk_only": {
                         "type": "boolean",
                         "description": "是否在全局启用滑索时仍强制该终点主路线仅步行。"
+                    },
+                    "zipline_only": {
+                        "type": "boolean",
+                        "description": "是否要求该终点只能通过滑索抵达。全局未启用滑索时运行时直接报错，不会退化成步行。"
                     },
                     "yaw": {
                         "type": "number",
