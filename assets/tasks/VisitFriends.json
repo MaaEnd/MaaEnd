@@ -7,7 +7,6 @@
             "description": "$task.VisitFriends.description",
             "option": [
                 "VisitFriendsPriorityRemarkEnable",
-                "VisitFriendsPriorityRemark",
                 "VisitFriendsRemark",
                 "ProductionAssistControl"
             ],
@@ -48,7 +47,10 @@
                         "VisitFriendsMenuScanTargetFriendOpen": {
                             "enabled": false
                         }
-                    }
+                    },
+                    "option": [
+                        "VisitFriendsPriorityRemark"
+                    ]
                 },
                 {
                     "name": "No",

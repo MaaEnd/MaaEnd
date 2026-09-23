@@ -102,19 +102,14 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		log.Warn().Str("component", componentName).Str("text", text).Msg("visited key empty after key_regex")
 		return nil, false
 	}
-	if p.Whitelist != "" {
-		re := regexp.MustCompile(`[,，;；、\s]+`)
-		parts := re.Split(strings.TrimSpace(p.Whitelist), -1)
-		match := false
-		for _, n := range parts {
-			if n = strings.TrimSpace(n); n != "" && n == key {
-				match = true
-				break
-			}
-		}
-		if !match {
-			return nil, false
-		}
+	if !matchWhitelist(p.Whitelist, key) {
+		log.Warn().
+			Str("component", componentName).
+			Str("text", text).
+			Str("key", key).
+			Str("whitelist", p.Whitelist).
+			Msg("key not in whitelist, reject")
+		return nil, false
 	}
 	if containsVisited(visited, key) {
 		// 黑名单本应挡住；仍命中则拒绝，避免同一 key 重复入库。
@@ -341,6 +336,19 @@ func withBlacklist(base, visited []string, allowTrailingNoise bool) []string {
 		return []string{prefix + ".+"}
 	}
 	return out
+}
+
+func matchWhitelist(whitelist, key string) bool {
+	if strings.TrimSpace(whitelist) == "" {
+		return true // no whitelist means no filtering
+	}
+	re := regexp.MustCompile(`[,，;；、\s]+`)
+	for _, n := range re.Split(strings.TrimSpace(whitelist), -1) {
+		if n = strings.TrimSpace(n); n != "" && n == key {
+			return true
+		}
+	}
+	return false
 }
 
 // applyKeyRegex 按业务声明的 key_regex 从 OCR 原文提取 visited key。

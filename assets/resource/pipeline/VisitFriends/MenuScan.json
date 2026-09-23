@@ -50,7 +50,7 @@
         "custom_recognition_param": {
             "candidate": "VisitFriendsRecognitionItemWithRemark",
             "visited_node": "VisitFriendsMenuScanVisited",
-            "key_regex": ".*?[)）]",
+            "key_regex": "[（(]([^）)]+)",
             "whitelist": ""
         }
     },
