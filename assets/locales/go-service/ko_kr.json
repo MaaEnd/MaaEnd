@@ -179,7 +179,7 @@
     "tasker.process_warning.recommend_rtss": "ℹ️ OSD를 켜면 화면 인식에 영향을 주어 작업이 실패할 수 있습니다",
     "tasker.hdr_warning.title": "⚠️ 주의: 자동 HDR이 켜져 있습니다",
     "tasker.hdr_warning.desc": "자동 HDR은 화면 색상을 바꿔 인식 실패를 유발합니다.",
-    "tasker.hdr_warning.recommend_title": "아래 방법 중 하나로 끈 뒤 게임을 재시작하고 다시 시도하세요:",
+    "tasker.hdr_warning.recommend_title": "다음 옵션을 확인하세요:",
     "tasker.hdr_warning.recommend_1": "① 앱만 끄기: 설정 → 시스템 → 디스플레이 → 그래픽 → Endfield.exe → 자동 HDR → 끄기",
     "tasker.hdr_warning.recommend_2": "② 전역 설정 끄기: 설정 → 시스템 → 디스플레이 → 그래픽 → 자동 HDR → 끄기",
     "tasker.aspect_ratio_warning.title": "🚨 경고: 해상도가 요구 사항을 만족하지 않습니다! 🚨",

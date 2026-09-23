@@ -9,6 +9,7 @@ import (
 )
 
 // HDRChecker checks if Endfield Auto HDR is effectively enabled before task execution.
+// Display HDR must be on first; otherwise Auto HDR cannot take effect and registry is skipped.
 type HDRChecker struct {
 	// warned tracks whether we've already warned in this session
 	// to avoid spamming the user with repeated warnings
@@ -30,15 +31,27 @@ func (c *HDRChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, det
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
-		Msg("Checking Endfield Auto HDR status before task execution")
+		Msg("Checking display HDR status before task execution")
 
-	hdrEnabled, err := gamesetting.IsAutoHDREnabled()
+	displayHDR, err := IsHDREnabled()
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to check display HDR status")
+		return
+	}
+	if !displayHDR {
+		log.Debug().Msg("display HDR off, skip Auto HDR registry check")
+		return
+	}
+
+	log.Debug().Msg("display HDR on, checking Endfield Auto HDR registry")
+
+	autoHDR, err := gamesetting.IsAutoHDREnabled()
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to check Endfield Auto HDR status")
 		return
 	}
 
-	if hdrEnabled {
+	if autoHDR {
 		log.Warn().Msg("Endfield Auto HDR is enabled! This may cause issues with image recognition.")
 
 		maafocus.PrintLargeContentTrimNewline(
