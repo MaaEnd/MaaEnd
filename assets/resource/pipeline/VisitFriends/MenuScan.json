@@ -82,7 +82,7 @@
         "recognition": "And",
         "all_of": [
             "VisitFriendsMenuScanSelectPriorityRemarkConsumable",
-            "VisitFriendsRecognitionItemEnterButtonByNameRemark"
+            "VisitFriendsRecognitionItemEnterButtonByNamePriorityRemark"
         ],
         "box_index": 1,
         "pre_delay": 0,
