@@ -265,7 +265,7 @@
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "製造艙を支援",
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "培養艙を支援",
     "option.VisitFriendsRemark.label": "メモ付きのフレンドを優先訪問",
-    "option.VisitFriendsPriorityRemarkEnable.label": "指定フレンドを優先訪問",
+    "option.VisitFriendsPriorityRemarkEnable.label": "指定フレンドを優先訪問（メモスキャンより優先）",
     "option.VisitFriendsPriorityRemark.label": "優先訪問するフレンド（括弧内の内容を入力、複数はカンマ区切り、例：博士#1001,管理者#1002）。",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "プレイヤー名",
     "option.StageTaskSetting.label": "段階タスク設定",

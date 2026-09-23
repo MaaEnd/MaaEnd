@@ -265,7 +265,7 @@
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "제조 캐빈 지원",
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "배양실 지원",
     "option.VisitFriendsRemark.label": "메모가 있는 친구 우선 방문",
-    "option.VisitFriendsPriorityRemarkEnable.label": "지정 친구 우선 방문",
+    "option.VisitFriendsPriorityRemarkEnable.label": "지정 친구 우선 방문 (메모 스캔보다 우선)",
     "option.VisitFriendsPriorityRemark.label": "우선 방문 친구 (괄호 안 내용 입력, 여러 개는 쉼표로 구분, 예: 박사#1001,관리자#1002).",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "플레이어 이름",
     "option.StageTaskSetting.label": "단계 작업 설정",

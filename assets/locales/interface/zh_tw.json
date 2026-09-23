@@ -269,7 +269,7 @@
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "助力製造艙",
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "助力培養艙",
     "option.VisitFriendsRemark.label": "優先拜訪帶備註的好友",
-    "option.VisitFriendsPriorityRemarkEnable.label": "優先拜訪指定好友",
+    "option.VisitFriendsPriorityRemarkEnable.label": "優先拜訪指定好友（優先級高於備註掃描）",
     "option.VisitFriendsPriorityRemark.label": "優先拜訪的好友（填括號內內容，多個用逗號分隔，如 博士#1001,管理員#1002）。",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "玩家名",
     "option.StageTaskSetting.label": "階段任務設定",
