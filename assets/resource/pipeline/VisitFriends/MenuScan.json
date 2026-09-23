@@ -47,10 +47,10 @@
         "desc": "白名单优先选友：只匹配 whitelist 里的备注；与其它选友共享 visited",
         "recognition": "Custom",
         "custom_recognition": "ExpendableRecognition",
-		"custom_recognition_param": {
+        "custom_recognition_param": {
             "candidate": "VisitFriendsRecognitionItemWithRemark",
             "visited_node": "VisitFriendsMenuScanVisited",
-            "key_regex": "[（(]([^）)]+)",
+            "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)",
             "whitelist": ""
         }
     },
@@ -61,8 +61,7 @@
         "custom_recognition_param": {
             "candidate": "VisitFriendsRecognitionItemWithRemark",
             "visited_node": "VisitFriendsMenuScanVisited",
-            // 备注形如 小明(Alice#1001)；按第一个 )／）截断，去掉 ) 后 OCR 尾噪。
-            "key_regex": ".*?[)）]"
+            "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)"
         }
     },
     "VisitFriendsMenuScanSelectFriendConsumable": {
@@ -72,8 +71,7 @@
         "custom_recognition_param": {
             "candidate": "VisitFriendsRecognitionItemWithName",
             "visited_node": "VisitFriendsMenuScanVisited",
-            // 普通形如 Alice#1001；截到 #数字，去掉 UID 后 OCR 尾噪（Alice#1001小）。
-            "key_regex": ".*?\\#\\d+"
+            "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)"
         }
     },
     "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
@@ -191,7 +189,7 @@
         }
     },
     "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
-        "desc": "白名单扫完：关闭白名单链路，开启备注链路，清空 visited/滚动模板；max_hit=1",
+        "desc": "白名单扫完：关闭白名单链路，开启备注链路，清空滚动模板；max_hit=1",
         "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
@@ -205,11 +203,6 @@
                 },
                 "VisitFriendsMenuScanTargetFriendOpenRemark": {
                     "enabled": true
-                },
-                "VisitFriendsMenuScanVisited": {
-                    "attach": {
-                        "visited": []
-                    }
                 },
                 "VisitFriendsMenuScanScrollFinish": {
                     "attach": {
@@ -227,7 +220,7 @@
         }
     },
     "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
-        "desc": "白名单扫完：关闭白名单链路，直接开启普通链路，清空 visited/滚动模板；max_hit=1",
+        "desc": "白名单扫完：关闭白名单链路，直接开启普通链路，清空滚动模板；max_hit=1",
         "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
@@ -245,11 +238,6 @@
                 "VisitFriendsMenuScanTargetFriendOpen": {
                     "enabled": true
                 },
-                "VisitFriendsMenuScanVisited": {
-                    "attach": {
-                        "visited": []
-                    }
-                },
                 "VisitFriendsMenuScanScrollFinish": {
                     "attach": {
                         "ready": false
@@ -266,7 +254,7 @@
         }
     },
     "VisitFriendsMenuScanRemarkFallback": {
-        "desc": "备注优先回退：首轮仅备注扫到底后，关闭备注选友、开启任意选友，清空 visited/滚动模板；max_hit=1 只回退一次；VisitFriendsRemark=Yes 时开启",
+        "desc": "备注优先回退：首轮仅备注扫到底后，关闭备注选友、开启任意选友，清空滚动模板；max_hit=1 只回退一次；VisitFriendsRemark=Yes 时开启",
         "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
@@ -280,11 +268,6 @@
                 },
                 "VisitFriendsMenuScanTargetFriendOpen": {
                     "enabled": true
-                },
-                "VisitFriendsMenuScanVisited": {
-                    "attach": {
-                        "visited": []
-                    }
                 },
                 "VisitFriendsMenuScanScrollFinish": {
                     "attach": {
