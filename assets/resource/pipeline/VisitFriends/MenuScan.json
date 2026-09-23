@@ -47,7 +47,7 @@
         "desc": "白名单优先选友：只匹配 whitelist 里的备注；与其它选友共享 visited",
         "recognition": "Custom",
         "custom_recognition": "ExpendableRecognition",
-        "custom_recognition_param": {
+		"custom_recognition_param": {
             "candidate": "VisitFriendsRecognitionItemWithRemark",
             "visited_node": "VisitFriendsMenuScanVisited",
             "key_regex": "[（(]([^）)]+)",
@@ -158,7 +158,7 @@
         ]
     },
     "VisitFriendsMenuScanScrollFinish": {
-        "desc": "列表已到底：ListComplete 命中（好友列表区域与上一帧静止模板相似度 >= 0.98）后走备注回退或结束。attach.ready 由 ListCompleteRecognition 维护；备注回退重开前会清空。识别前须由滑动节点 post_wait_freezes 保证画面静止",
+        "desc": "列表已到底：ListComplete 命中（好友列表区域与上一帧静止模板相似度 >= 0.98）后走回退或结束。attach.ready 由 ListCompleteRecognition 维护；回退重开前会清空。识别前须由滑动节点 post_wait_freezes 保证画面静止",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
         "custom_recognition_param": {
@@ -173,7 +173,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenuScanPriorityRemarkFallback",
+            "VisitFriendsMenuScanPriorityRemarkFallbackToRemark",
+            "VisitFriendsMenuScanPriorityRemarkFallbackToNormal",
             "VisitFriendsMenuScanRemarkFallback",
             "VisitFriendsMenuScanScrollFinishDone"
         ],
@@ -189,7 +190,7 @@
             "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
         }
     },
-    "VisitFriendsMenuScanPriorityRemarkFallback": {
+    "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
         "desc": "白名单扫完：关闭白名单链路，开启备注链路，清空 visited/滚动模板；max_hit=1",
         "enabled": false,
         "max_hit": 1,
@@ -223,6 +224,45 @@
         ],
         "focus": {
             "Node.Action.Succeeded": "白名单已扫完，转为备注好友继续拜访"
+        }
+    },
+    "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
+        "desc": "白名单扫完：关闭白名单链路，直接开启普通链路，清空 visited/滚动模板；max_hit=1",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuScanTargetFriendOpenRemark": {
+                    "enabled": false
+                },
+                "VisitFriendsMenuScanTargetFriendOpen": {
+                    "enabled": true
+                },
+                "VisitFriendsMenuScanVisited": {
+                    "attach": {
+                        "visited": []
+                    }
+                },
+                "VisitFriendsMenuScanScrollFinish": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanRemarkFallbackReopen"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "白名单已扫完，重新打开列表并拜访任意好友"
         }
     },
     "VisitFriendsMenuScanRemarkFallback": {
