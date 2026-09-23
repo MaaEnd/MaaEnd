@@ -41,6 +41,12 @@
                         },
                         "VisitFriendsMenuScanPriorityRemarkFallback": {
                             "enabled": true
+                        },
+                        "VisitFriendsMenuScanTargetFriendOpenRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanTargetFriendOpen": {
+                            "enabled": false
                         }
                     }
                 },
