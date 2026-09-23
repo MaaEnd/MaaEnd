@@ -103,7 +103,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 	if p.Whitelist != "" {
-		re := regexp.MustCompile(`[,，;；\s]+`)
+		re := regexp.MustCompile(`[,，;；、\s]+`)
 		parts := re.Split(strings.TrimSpace(p.Whitelist), -1)
 		match := false
 		for _, n := range parts {
