@@ -92,13 +92,11 @@
                         },
                         "SeizeDeliveryJobsMain": {
                             "next": [
-                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsEnterWulingJobList"
                             ]
                         },
                         "SeizeDeliveryJobsReadyToSeize": {
                             "next": [
-                                "SeizeDeliveryJobsExistDueTask",
                                 "SeizeDeliveryJobsFailedChanceExhausted",
                                 "SeizeDeliveryJobsPrepareAtDijiang",
                                 "SeizeDeliveryJobsJobListIsAllFilter",
@@ -139,13 +137,11 @@
                         },
                         "SeizeDeliveryJobsMain": {
                             "next": [
-                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsEnterWulingJobList"
                             ]
                         },
                         "SeizeDeliveryJobsReadyToSeize": {
                             "next": [
-                                "SeizeDeliveryJobsExistDueTask",
                                 "SeizeDeliveryJobsFailedChanceExhausted",
                                 "SeizeDeliveryJobsPrepareAtDijiang",
                                 "SeizeDeliveryJobsJobListIsWulingFilter",
@@ -181,13 +177,11 @@
                         },
                         "SeizeDeliveryJobsMain": {
                             "next": [
-                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsEnterWulingJobList"
                             ]
                         },
                         "SeizeDeliveryJobsReadyToSeize": {
                             "next": [
-                                "SeizeDeliveryJobsExistDueTask",
                                 "SeizeDeliveryJobsFailedChanceExhausted",
                                 "SeizeDeliveryJobsPrepareAtDijiang",
                                 "SeizeDeliveryJobsJobListIsWulingFilter",
@@ -225,13 +219,11 @@
                         },
                         "SeizeDeliveryJobsMain": {
                             "next": [
-                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsEnterWulingJobList"
                             ]
                         },
                         "SeizeDeliveryJobsReadyToSeize": {
                             "next": [
-                                "SeizeDeliveryJobsExistDueTask",
                                 "SeizeDeliveryJobsFailedChanceExhausted",
                                 "SeizeDeliveryJobsPrepareAtDijiang",
                                 "SeizeDeliveryJobsJobListIsWulingFilter",
@@ -278,13 +270,11 @@
                         },
                         "SeizeDeliveryJobsMain": {
                             "next": [
-                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsEnterValleyIVJobList"
                             ]
                         },
                         "SeizeDeliveryJobsReadyToSeize": {
                             "next": [
-                                "SeizeDeliveryJobsExistDueTask",
                                 "SeizeDeliveryJobsFailedChanceExhausted",
                                 "SeizeDeliveryJobsPrepareAtDijiang",
                                 "SeizeDeliveryJobsJobListIsValleyIVFilter",
@@ -322,13 +312,11 @@
                         },
                         "SeizeDeliveryJobsMain": {
                             "next": [
-                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsEnterValleyIVJobList"
                             ]
                         },
                         "SeizeDeliveryJobsReadyToSeize": {
                             "next": [
-                                "SeizeDeliveryJobsExistDueTask",
                                 "SeizeDeliveryJobsFailedChanceExhausted",
                                 "SeizeDeliveryJobsPrepareAtDijiang",
                                 "SeizeDeliveryJobsJobListIsValleyIVFilter",
@@ -366,13 +354,11 @@
                         },
                         "SeizeDeliveryJobsMain": {
                             "next": [
-                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsEnterValleyIVJobList"
                             ]
                         },
                         "SeizeDeliveryJobsReadyToSeize": {
                             "next": [
-                                "SeizeDeliveryJobsExistDueTask",
                                 "SeizeDeliveryJobsFailedChanceExhausted",
                                 "SeizeDeliveryJobsPrepareAtDijiang",
                                 "SeizeDeliveryJobsJobListIsValleyIVFilter",
@@ -409,13 +395,11 @@
                         },
                         "SeizeDeliveryJobsMain": {
                             "next": [
-                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsEnterValleyIVJobList"
                             ]
                         },
                         "SeizeDeliveryJobsReadyToSeize": {
                             "next": [
-                                "SeizeDeliveryJobsExistDueTask",
                                 "SeizeDeliveryJobsFailedChanceExhausted",
                                 "SeizeDeliveryJobsPrepareAtDijiang",
                                 "SeizeDeliveryJobsJobListIsValleyIVFilter",

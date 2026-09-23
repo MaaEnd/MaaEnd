@@ -5,7 +5,16 @@
             "name": "SeizeDeliveryJobs",
             "description": "$task.SeizeDeliveryJobs.description",
             "label": "$task.SeizeDeliveryJobs.label",
-            "entry": "SeizeDeliveryJobsMain",
+            "entry": "SeizeDeliveryJobsCheckOngoingJob",
+            // 任务入口门控自己判定身上是否已有送货委托；只有组件确认「委托列表已滑到底」
+            // （AutoDeliveryDeliveryMissionNotFound）才放行到无单主流程，其余失败停在门控里报错。
+            "pipeline_override": {
+                "AutoDeliveryDeliveryMissionNotFound": {
+                    "anchor": {
+                        "SeizeDeliveryJobsAfterMissionListExhausted": "SeizeDeliveryJobsNoOngoingJob"
+                    }
+                }
+            },
             "option": [
                 "SeizeDeliveryJobsReward",
                 "SeizeDeliveryJobsRefreshLimit",
@@ -221,6 +230,8 @@
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true,
                             "next": [
+                                // 风险知悉拦截挂在全自动送货这一档的最前面，由本档的「我已知悉可能的后果」选项开启
+                                "SeizeDeliveryJobsGuard",
                                 "SeizeDeliveryJobsFullDelivery"
                             ]
                         }

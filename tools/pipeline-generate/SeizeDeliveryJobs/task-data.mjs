@@ -21,17 +21,14 @@ function buildSourceCase({CaseId, MapId, Expected, FilterName}) {
         option: [`SeizeDeliveryJobsSpecifyDeliveryPoint${CaseId}`],
         pipeline_override: {
             __SeizeDeliveryJobsRecoOrigin: {expected: Expected},
-            // override 是字段级替换，不是追加：被覆盖的 next 必须把原本要保留的节点一起写全，
-            // 否则风险知悉拦截（Guard）和已有委托 / 今日上限检查都会失效。
+            // override 是字段级替换，不是追加：被覆盖的 next 必须把原本要保留的节点一起写全。
+            // 风险知悉拦截（Guard）由「全自动送货」档的后处理路径负责、已有委托由任务入口门控
+            // （SeizeDeliveryJobsCheckOngoingJob）负责，因此都不在这两条 next 里。
             SeizeDeliveryJobsMain: {
-                next: [
-                    "SeizeDeliveryJobsGuard",
-                    `SeizeDeliveryJobsEnter${mapName}JobList`,
-                ],
+                next: [`SeizeDeliveryJobsEnter${mapName}JobList`],
             },
             SeizeDeliveryJobsReadyToSeize: {
                 next: [
-                    "SeizeDeliveryJobsExistDueTask",
                     "SeizeDeliveryJobsFailedChanceExhausted",
                     "SeizeDeliveryJobsPrepareAtDijiang",
                     `SeizeDeliveryJobsJobListIs${filter}Filter`,
