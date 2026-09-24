@@ -272,7 +272,6 @@
     "option.VisitFriendsPriorityRemarkEnable.label": "Prioritize specified friends",
     "option.VisitFriendsPriorityRemark.label": "Priority friends (fill content inside brackets, comma-separated, e.g. Doctor#1001,Endmin#1002).",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "Player name",
-    "option.VisitFriendsPriorityRemarkFallbackToRemark.label": "Continue scanning remark friends after priority",
     "option.StageTaskSetting.label": "Stage Task Settings",
     "option.StageTaskSetting.description": "Enable to control the mood recovery, Reception Room, Manufacturing, and Growth Chamber stages individually.",
     "option.FastCollect.label": "Fast Collect",

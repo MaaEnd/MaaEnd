@@ -7,6 +7,7 @@
             "description": "$task.VisitFriends.description",
             "option": [
                 "VisitFriendsRemark",
+                "VisitFriendsPriorityRemarkEnable",
                 "ProductionAssistControl"
             ],
             "controller": [
@@ -42,11 +43,14 @@
                         },
                         "VisitFriendsMenuScanRemarkFallback": {
                             "enabled": true
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
+                            "enabled": true
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
+                            "enabled": false
                         }
-                    },
-                    "option": [
-                        "VisitFriendsPriorityRemarkEnable"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -59,6 +63,12 @@
                         },
                         "VisitFriendsMenuScanRemarkFallback": {
                             "enabled": false
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
+                            "enabled": true
                         }
                     }
                 }
@@ -83,14 +93,19 @@
                         }
                     },
                     "option": [
-                        "VisitFriendsPriorityRemark",
-                        "VisitFriendsPriorityRemarkFallbackToRemark"
+                        "VisitFriendsPriorityRemark"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
                             "enabled": false
                         }
                     }
@@ -111,42 +126,13 @@
             "pipeline_override": {
                 "VisitFriendsMenuScanSelectPriorityRemarkConsumable": {
                     "custom_recognition_param": {
-                        "candidate": "VisitFriendsRecognitionItemWithRemark",
+                        "candidate": "VisitFriendsRecognitionItemWithName",
                         "visited_node": "VisitFriendsMenuScanVisited",
-                        "key_regex": "[（(]([^）)]+)",
+                        "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)",
                         "whitelist": "{PriorityRemarkName}"
                     }
                 }
             }
-        },
-        "VisitFriendsPriorityRemarkFallbackToRemark": {
-            "type": "switch",
-            "label": "$option.VisitFriendsPriorityRemarkFallbackToRemark.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
-                            "enabled": true
-                        },
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
-                            "enabled": false
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
-                            "enabled": false
-                        },
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
-                            "enabled": true
-                        }
-                    }
-                }
-            ]
         },
         "ProductionAssistControl": {
             "type": "checkbox",

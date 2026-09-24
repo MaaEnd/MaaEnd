@@ -44,11 +44,11 @@
         }
     },
     "VisitFriendsMenuScanSelectPriorityRemarkConsumable": {
-        "desc": "白名单优先选友：只匹配 whitelist 里的备注；与其它选友共享 visited",
+        "desc": "白名单优先选友：匹配所有好友，只保留 whitelist 命中的；与其它选友共享 visited",
         "recognition": "Custom",
         "custom_recognition": "ExpendableRecognition",
         "custom_recognition_param": {
-            "candidate": "VisitFriendsRecognitionItemWithRemark",
+            "candidate": "VisitFriendsRecognitionItemWithName",
             "visited_node": "VisitFriendsMenuScanVisited",
             "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)",
             "whitelist": ""
@@ -237,6 +237,9 @@
                 },
                 "VisitFriendsMenuScanTargetFriendOpen": {
                     "enabled": true
+                },
+                "VisitFriendsMenuScanRemarkFallback": {
+                    "enabled": false
                 },
                 "VisitFriendsMenuScanScrollFinish": {
                     "attach": {
