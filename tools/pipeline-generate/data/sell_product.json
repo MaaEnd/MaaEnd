@@ -651,6 +651,16 @@
                 "ja_jp": "リーノ",
                 "ko_kr": "리노"
             }
+        },
+        "chr_0038_purrche": {
+            "id": "chr_0038_purrche",
+            "names": {
+                "zh_cn": "噗切娜",
+                "zh_tw": "噗切娜",
+                "en_us": "Purrchena",
+                "ja_jp": "プチエナ",
+                "ko_kr": "푸치나"
+            }
         }
     },
     "settlements": {
@@ -1206,7 +1216,8 @@
                         "chr_0019_karin",
                         "chr_0026_lastrite",
                         "chr_0030_zhuangfy",
-                        "chr_0032_lizhiyan"
+                        "chr_0032_lizhiyan",
+                        "chr_0038_purrche"
                     ]
                 },
                 {

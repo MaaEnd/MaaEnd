@@ -541,6 +541,15 @@
                 "ja_jp": "リーノ",
                 "ko_kr": "리노"
             }
+        },
+        "Purrchena": {
+            "names": {
+                "zh_cn": "噗切娜",
+                "zh_tw": "噗切娜",
+                "en_us": "Purrchena",
+                "ja_jp": "プチエナ",
+                "ko_kr": "푸치나"
+            }
         }
     },
     "location_order": [
@@ -1160,6 +1169,11 @@
                 },
                 {
                     "name": "Akekuri",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Purrchena",
                     "bonus_tier": 2,
                     "outpost_prosperity_max_bonus_tier": 0
                 },
