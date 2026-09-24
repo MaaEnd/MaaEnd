@@ -270,7 +270,7 @@
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "Assist Growth Chamber",
     "option.VisitFriendsRemark.label": "Prioritize friends with remarks",
     "option.VisitFriendsPriorityRemarkEnable.label": "Prioritize specified friends (higher priority than remark scan)",
-    "option.VisitFriendsPriorityRemark.label": "Priority friends (fill content inside brackets, comma-separated, e.g. Doctor#1001,Endmin#1002).",
+    "option.VisitFriendsPriorityRemark.label": "Priority friends (enter the player's full name, comma-separated, e.g. Doctor#1001,Endmin#1002).",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "Player name",
     "option.StageTaskSetting.label": "Stage Task Settings",
     "option.StageTaskSetting.description": "Enable to control the mood recovery, Reception Room, Manufacturing, and Growth Chamber stages individually.",
