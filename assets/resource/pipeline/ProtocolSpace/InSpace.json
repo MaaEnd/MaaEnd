@@ -1112,18 +1112,9 @@
     },
     "ProtocolSpaceOperationFailed": {
         "desc": "行动失败",
-        "recognition": "OCR",
-        "roi": [
-            520,
-            0,
-            240,
-            180
-        ],
-        "expected": [
-            "行动失败",
-            "行動失敗",
-            "Operation Failed",
-            "작전 실패"
+        "recognition": "And",
+        "all_of": [
+            "CheckOperationFailedText"
         ],
         "pre_wait_freezes": 200,
         "action": "Click",

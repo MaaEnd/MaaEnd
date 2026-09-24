@@ -182,5 +182,24 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "CheckOperationFailedText": {
+        "desc": "检查行动失败的文本",
+        "recognition": "OCR",
+        "roi": [
+            520,
+            0,
+            240,
+            180
+        ],
+        "expected": [
+            "行动失败",
+            "行動失敗",
+            "Operation Failed",
+            "작전 실패"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
