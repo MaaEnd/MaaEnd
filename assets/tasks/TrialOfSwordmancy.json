@@ -167,7 +167,7 @@
                         "AutoFight": {
                             "attach": {
                                 "pause_exit_nodes": [
-                                    "TrialOfSwordmancyFightSuccess"
+                                    "TrialOfSwordmancyFightFinish"
                                 ]
                             }
                         }
