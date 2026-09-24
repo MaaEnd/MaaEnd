@@ -30,6 +30,7 @@ const (
 
 var htmlTemplates = map[string]string{
 	"tasker.process_warning":                  "HTML/process-warning.html",
+	"tasker.multi_instance_warning":           "HTML/multi-instance-warning.html",
 	"tasker.task_failed_feedback_hint":        "HTML/task-failed-feedback.html",
 	"tasker.hdr_warning":                      "HTML/hdr-warning.html",
 	"tasker.aspect_ratio_warning":             "HTML/aspect-ratio-warning.html",
