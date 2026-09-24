@@ -1513,6 +1513,7 @@
     "option.TrialOfSwordmancyStopOnOverflow.label": "Auto-battle only without overflow",
     "option.TrialOfSwordmancyStopOnOverflow.description": "When the solver decides to start the trial and the hand has overflowed, the current hand is preserved and the task ends. <b style='font-size:1.0em;color:#f0903a'>Please start the trial manually</b>",
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">This overflowed hand has been preserved. Please start the trial manually.</span>",
+    "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">Operation failed</span>",
     "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle",
     "option.TrialOfSwordmancyAutoFight.description": "When enabled, MaaEnd fights battles automatically\n\nNo overflow + auto-battle, can be included in full-auto dailies",
     "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal after each battle",

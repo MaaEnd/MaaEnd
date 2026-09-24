@@ -211,7 +211,10 @@
         "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyLeaveSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.TrialOfSwordmancy.focus.operation_failed"
+        }
     },
     "TrialOfSwordmancyFightSuccess": {
         "desc": "战斗胜利：IMS A3 识别武陵调度券后再继续",

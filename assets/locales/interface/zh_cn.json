@@ -1513,6 +1513,7 @@
     "option.TrialOfSwordmancyStopOnOverflow.label": "仅未溢出时自动战斗",
     "option.TrialOfSwordmancyStopOnOverflow.description": "决策器开战且手牌溢出时，会保留当前手牌并结束任务，<b style='font-size:1.0em;color:#f0903a'>请手动开始演算</b>",
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">本局已溢出并保留手牌，请手动开始演算。</span>",
+    "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">行动失败</span>",
     "option.TrialOfSwordmancyAutoFight.label": "启用自动战斗",
     "option.TrialOfSwordmancyAutoFight.description": "开启后由 MaaEnd 自动进行战斗\n\n不接受溢出+自动战斗，可放入全自动日常",
     "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次战斗后传送回复血量",

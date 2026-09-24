@@ -1513,6 +1513,7 @@
     "option.TrialOfSwordmancyStopOnOverflow.label": "オーバーフローしていない場合のみ自動戦闘",
     "option.TrialOfSwordmancyStopOnOverflow.description": "演算開始を決定した時点で手札がオーバーフローしている場合、手札を保持してタスクを終了します。<b style='font-size:1.0em;color:#f0903a'>手動で演算を開始してください</b>",
     "task.TrialOfSwordmancy.focus.overflow_stopped": "<span style=\"color: red; font-weight: bold;\">今回の手札はオーバーフローしており保持されています。手動で演算を開始してください。</span>",
+    "task.TrialOfSwordmancy.focus.operation_failed": "<span style=\"color: red; font-weight: bold;\">作戦失敗</span>",
     "option.TrialOfSwordmancyAutoFight.label": "自動戦闘を有効化",
     "option.TrialOfSwordmancyAutoFight.description": "有効にすると、MaaEnd が自動で戦闘を行います\n\nオーバーフローなし＋自動戦闘なら、フルオートデイリーに組み込めます",
     "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘後にテレポートしてHP回復",
