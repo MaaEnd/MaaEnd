@@ -5,6 +5,7 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/shirou/gopsutil/v4/process"
@@ -40,6 +41,10 @@ func (c *ProcessChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 	}
 
 	if c.blacklistWarned && c.instanceWarned {
+		return
+	}
+
+	if !strings.EqualFold(pienv.ControllerType(), "Win32") {
 		return
 	}
 
