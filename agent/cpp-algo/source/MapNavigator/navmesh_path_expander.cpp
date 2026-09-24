@@ -1560,33 +1560,78 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     return NavmeshSnap { .distance = entry->distance, .height = navmesh->planner.triangleHeight(entry->triangle) };
 }
 
-std::vector<std::optional<double>>
-    NavmeshLineRises(const NaviParam& param, const std::string& locator_zone, const std::vector<NavmeshAirLine>& lines)
+namespace
 {
-    std::vector<std::optional<double>> rises(lines.size());
+
+// Each zone's occluder scene is decoded once: the collision faces and their lookup trees run to hundreds of MB in a
+// large scene, while one plan asks thousands of lines. A failed decode is cached too, so no line rereads the file.
+std::shared_ptr<const navmesh::OccluderScene> LoadCachedOccluder(const std::filesystem::path& path, const std::string& zone_name)
+{
+    static std::mutex mutex;
+    static std::unordered_map<std::string, std::shared_ptr<const navmesh::OccluderScene>> cache;
+    const std::string cache_key = BuildNavmeshCacheKey(path, zone_name);
+
+    const std::lock_guard<std::mutex> lock(mutex);
+    if (const auto iter = cache.find(cache_key); iter != cache.end()) {
+        return iter->second;
+    }
+    std::shared_ptr<const navmesh::OccluderScene> scene;
+    std::vector<uint8_t> bytes;
+    const navmesh::BaseNavLoadResult read = navmesh::ReadNavFileBytes(path, &bytes);
+    if (read.status != navmesh::BaseNavLoadStatus::Success) {
+        LogError << "Failed to read the occluder pack." << VAR(path) << VAR(read.message);
+    }
+    else {
+        scene = navmesh::DecodeOccluderScene(bytes.data(), bytes.size(), zone_name);
+        if (!scene) {
+            LogError << "Failed to decode the occluder scene." << VAR(path) << VAR(zone_name) << VAR(bytes.size());
+        }
+        else {
+            LogInfo << "Occluder scene loaded." << VAR(zone_name) << VAR(scene->templates.size()) << VAR(scene->instances.size())
+                    << VAR(scene->blocks.size());
+        }
+    }
+    cache.emplace(cache_key, scene);
+    return scene;
+}
+
+}
+
+std::vector<std::vector<navmesh::OccluderHit>> NavmeshLineGroupBlocks(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const std::vector<std::vector<NavmeshAirLine>>& groups)
+{
+    std::vector<std::vector<navmesh::OccluderHit>> blocks(groups.size());
+    if (groups.empty()) {
+        return blocks;
+    }
     const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
     if (navmesh_zone.empty()) {
-        return rises;
+        return blocks;
     }
-    const auto navmesh = LoadCachedNavmesh(ResolveNavmeshFile(param.navmesh_file), navmesh_zone);
-    if (!navmesh) {
-        return rises;
+    const std::filesystem::path occluder_path = navmesh::OccluderSidecarPath(ResolveNavmeshFile(param.navmesh_file));
+    const auto scene = LoadCachedOccluder(occluder_path, navmesh_zone);
+    if (!scene) {
+        // Without an occluder scene every line passes, which is looser than before. Warn loudly, since otherwise the only
+        // symptom is ziplines appearing out of nowhere.
+        LogWarn << "No occluder scene, every air line passes." << VAR(occluder_path) << VAR(navmesh_zone) << VAR(groups.size());
+        return blocks;
     }
-    for (size_t index = 0; index < lines.size(); ++index) {
-        const NavmeshAirLine& line = lines[index];
-        const auto from = navmesh->pack.projectToBase(navmesh_zone, line.a.x, line.a.y);
-        const auto to = navmesh->pack.projectToBase(navmesh_zone, line.b.x, line.b.y);
-        if (!from || !to || from->geometry_zone == nullptr || from->geometry_zone != to->geometry_zone) {
-            continue;
+    for (size_t index = 0; index < groups.size(); ++index) {
+        // Stop at the first clear line of a group: asking the rest could only give the same pass.
+        std::vector<navmesh::OccluderHit> hits;
+        for (const NavmeshAirLine& line : groups[index]) {
+            const std::vector<navmesh::OccluderHit> line_hits = scene->lineHits(line.a, line.b);
+            if (line_hits.empty()) {
+                hits.clear();
+                break;
+            }
+            hits.push_back(line_hits.front());
         }
-        rises[index] = navmesh->planner.lineRise(
-            from->geometry_zone->zone_id,
-            { .x = from->x, .y = from->y },
-            line.a_height,
-            { .x = to->x, .y = to->y },
-            line.b_height);
+        blocks[index] = std::move(hits);
     }
-    return rises;
+    return blocks;
 }
 
 std::vector<std::vector<uint32_t>>

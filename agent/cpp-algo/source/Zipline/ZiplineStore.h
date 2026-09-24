@@ -13,7 +13,7 @@ namespace zipline
 struct ZiplineMark
 {
     std::string template_id;
-    // 森空岛的楼层编号。同一张图的不同层之间挂不上索，配对时要靠它把跨层的对排除掉。
+    // 森空岛的区域编号。同一张图各区共用一套世界坐标，配对不看它。
     std::string level_id;
     double x = 0.0;
     double y = 0.0;

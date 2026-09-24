@@ -50,14 +50,14 @@ struct ZiplineFrame
     bool accepts(const ZiplineMark& mark) const;
 };
 
-// 一种滑索架的物理属性。两根架子之间挂没挂索按几何判，而不同架子能拉多长的索不一样，
-// 判的时候必须按类型分开看。
+// 一种滑索架的物理属性。两根架子之间挂没挂索按几何判，不同架子能拉的索长不一样，
+// 一根索的长度上限取两端架子里较小的那个。
 struct ZiplineType
 {
     std::string template_id;
     // 给人看的名字，取自接口的 markTemplates，判定不读它。
     std::string name;
-    // 同型两根架子之间的索长上限，单位是世界距离。
+    // 这种架子能挂的索长上限，单位是世界距离。
     double max_span = 0.0;
     // 架子在工厂网格上的水平占地 [x, z]。森空岛记录的是随朝向变化的角格锚点而非
     // 中心格；没有朝向时靠占地尺寸界定中心可能落在哪一格。

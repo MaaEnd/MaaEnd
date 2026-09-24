@@ -100,11 +100,6 @@ public:
         double half_width = 0.0,
         std::optional<double> seed_height = std::nullopt) const;
 
-    // 这条空中连线被地形顶起多少(高度口径同 floor_y, 恒 >= 0)。沿 a→b 采样, 取可走面高出两端
-    // 连线(高度线性插值)的最大值。采不到可走面的采样点不计入: 网格只含可走面, 未铺面的陡壁孤石
-    // 无从判定, 一律按未阻挡处理。用于判定两根滑索架之间是否隔着地形。
-    double lineRise(uint16_t zone_id, const WorldPoint& a, double a_height, const WorldPoint& b, double b_height) const;
-
     // RecastNav 复用: pack 链接表里有没有 source→target 这条(且过了通行判据)。
     bool hasLink(uint32_t source, uint32_t target) const;
 

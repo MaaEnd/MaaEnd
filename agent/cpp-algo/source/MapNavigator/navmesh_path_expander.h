@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "../Navmesh/BaseNavPlanner.h"
+#include "../Navmesh/OccluderPack.h"
 #include "navi_domain_types.h"
 #include "navmesh_diagnostics.h"
 
@@ -47,7 +48,8 @@ inline constexpr double kStartRecoveryMaxBlindWalk = 32.0;
 inline constexpr double kBlindTargetMaxExtension = 30.0;
 
 std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path = {});
-// 虚拟禁区表锚在 exe 上 (<exe>/../data/MapNavigator/nogo_zones.json), 与 zipline_frames.json 同一规则。
+// The virtual no-go table is anchored on the exe (<exe>/../data/MapNavigator/nogo_zones.json), the same rule as
+// zipline_frames.json.
 std::filesystem::path NoGoTablePath();
 std::string InitialExpectedZone(const NaviParam& param);
 // Maps a live locator fix onto the navmesh base-pixel frame using the navmesh's OWN baked tier affine
@@ -101,20 +103,25 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     double radius,
     std::optional<double> floor_y = std::nullopt);
 
-// A straight line hanging in the air, each end carrying its own height (same frame as BaseNavRouteRequest::floor_y).
+// A straight line hanging in the air between two world points, in metres — the frame the occluder pack uses.
 struct NavmeshAirLine
 {
-    navmesh::WorldPoint a;
-    double a_height = 0.0;
-    navmesh::WorldPoint b;
-    double b_height = 0.0;
+    navmesh::OccluderPoint a;
+    navmesh::OccluderPoint b;
 };
 
-// How far terrain pushes up into each air line; see BaseNavPlanner::lineRise for the measure. An empty optional means
-// "no answer" (zone unresolved, or the two ends project into different geometry zones), never "rises by zero", so the
-// caller has to read it as a pass. One zone resolution is shared by the whole batch.
-std::vector<std::optional<double>>
-    NavmeshLineRises(const NaviParam& param, const std::string& locator_zone, const std::vector<NavmeshAirLine>& lines);
+// Whether the occluder pack blocks every line of each group. A group holds the alternative lines for one rope and
+// passes once any of them is clear; lines are asked in order and the rest are skipped after the first clear one.
+// Each line is intersected exactly with the triangles in the occluder pack, with zero margin: touching any face, from
+// either side or on an edge, blocks it. A blocked group gets one hit per line, in line order, namely the
+// hit nearest to that line's start.
+// An empty result means some line is clear OR that no answer was available (zone unresolved, occluder pack missing,
+// scene absent), never "blocked", so the caller has to read it as a pass. One zone resolution and one pack decode
+// are shared by the whole batch.
+std::vector<std::vector<navmesh::OccluderHit>> NavmeshLineGroupBlocks(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const std::vector<std::vector<NavmeshAirLine>>& groups);
 
 // The bake-time connectivity classes each point sits in. A route is searched inside one class only, so
 // two points whose sets are disjoint cannot be connected by any plan — a cheap way to drop legs that are

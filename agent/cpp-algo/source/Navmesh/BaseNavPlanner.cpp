@@ -22,9 +22,6 @@ constexpr double kBridgeMaxHeightDelta = 3.0;
 constexpr uint32_t kSmallBridgeComponentMaxTriangles = 512;
 constexpr double kSmallBridgeMaxGap = 4.0;
 constexpr double kRoutePullSampleStep = 0.5; // 拉直判据沿捷径采样的步长(像素),与 Python ROUTE_PULL_SAMPLE_STEP 对齐
-// lineRise 沿连线采样的步长(像素)。它同时是腐蚀尺度: 窄于此宽度的结构按孤立面片处理。
-// 不随体素边长下调, 步长越密越会把单格尖刺计入连续地形。
-constexpr double kLineRiseSampleStep = 1.0;
 
 struct DisjointSet
 {
@@ -594,47 +591,6 @@ bool BaseNavPlanner::isRouteSegmentDrivable(
         }
     }
     return true;
-}
-
-double BaseNavPlanner::lineRise(uint16_t zone_id, const WorldPoint& a, double a_height, const WorldPoint& b, double b_height) const
-{
-    if (pack_.findZone(zone_id) == nullptr) {
-        return 0.0;
-    }
-    const double length = std::hypot(b.x - a.x, b.y - a.y);
-    const int samples = std::max(1, static_cast<int>(length / kLineRiseSampleStep));
-
-    // 先整条采完再判: 腐蚀需要看采样点两侧, 边采边判取不到后一个。
-    // 每点取最低一层可走面(reference 留空): 可走面之上留有净空, 索线高于其中一层即可通过;
-    // 取最高会把头顶的楼板判成地形。
-    std::vector<std::optional<double>> ground(static_cast<size_t>(samples) + 1);
-    for (int index = 0; index <= samples; ++index) {
-        const double t = static_cast<double>(index) / samples;
-        const WorldPoint point { .x = a.x + (b.x - a.x) * t, .y = a.y + (b.y - a.y) * t };
-        uint32_t hit = kInvalidTriangle;
-        ground[static_cast<size_t>(index)] = groundHeightNearIndexed(zone_id, point, std::nullopt, hit);
-    }
-
-    double rise = 0.0;
-    for (int index = 0; index <= samples; ++index) {
-        // 相邻采样取小(形态学腐蚀): 仅顶起单个采样点的结构窄于采样间距, 属网格上的孤立面片;
-        // 相邻采不到面的同样按此处理, 一并剔除。
-        std::optional<double> covered;
-        for (int probe = std::max(index - 1, 0); probe <= std::min(index + 1, samples); ++probe) {
-            const std::optional<double>& height = ground[static_cast<size_t>(probe)];
-            if (!height) {
-                covered.reset();
-                break;
-            }
-            covered = covered ? std::min(*covered, *height) : *height;
-        }
-        if (!covered) {
-            continue;
-        }
-        const double t = static_cast<double>(index) / samples;
-        rise = std::max(rise, *covered - (a_height + (b_height - a_height) * t));
-    }
-    return rise;
 }
 
 bool BaseNavPlanner::isSmallIslandTriangle(uint32_t triangle_index) const
