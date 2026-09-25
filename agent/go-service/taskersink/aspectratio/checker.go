@@ -166,7 +166,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Msg("Using aspect ratio and minimum resolution check for non-ADB controller")
 
 	if !resolutionOK {
-		recheckedWidth, recheckedHeight, recheckedOK := trySwitchFullscreenToWindowedAndRecheck(controller, detail, width, height)
+		recheckedWidth, recheckedHeight, recheckedOK := trySwitchToWindowedAndRecheck(controller, detail, width, height)
 		if recheckedOK {
 			return
 		}
@@ -279,7 +279,7 @@ func isNonADBResolutionOK(width, height int32) (bool, bool, bool, int, int) {
 	return aspectRatioOK, minResolutionOK, aspectRatioOK && minResolutionOK && scaledOK, scaledW, scaledH
 }
 
-func trySwitchFullscreenToWindowedAndRecheck(controller *maa.Controller, detail maa.TaskerTaskDetail, width, height int32) (int32, int32, bool) {
+func trySwitchToWindowedAndRecheck(controller *maa.Controller, detail maa.TaskerTaskDetail, width, height int32) (int32, int32, bool) {
 	if runtime.GOOS != "windows" {
 		log.Debug().
 			Uint64("task_id", detail.TaskID).
@@ -298,12 +298,18 @@ func trySwitchFullscreenToWindowedAndRecheck(controller *maa.Controller, detail 
 			Msg("Failed to read fullscreen setting, skip Alt+Enter")
 		return width, height, false
 	}
-	if fullScreen != 1 {
-		log.Debug().
+	var toggleCount int
+	switch fullScreen {
+	case 0:
+		toggleCount = 2
+	case 1:
+		toggleCount = 1
+	default:
+		log.Warn().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
 			Uint32("video_full_screen", fullScreen).
-			Msg("Game is not fullscreen, skip Alt+Enter")
+			Msg("Unknown fullscreen setting, skip Alt+Enter")
 		return width, height, false
 	}
 
@@ -312,22 +318,32 @@ func trySwitchFullscreenToWindowedAndRecheck(controller *maa.Controller, detail 
 		Str("entry", detail.Entry).
 		Int32("width", width).
 		Int32("height", height).
-		Msg("Game is fullscreen with invalid resolution, sending Alt+Enter to switch to windowed mode")
+		Uint32("video_full_screen", fullScreen).
+		Int("toggle_count", toggleCount).
+		Msg("Game has invalid resolution, sending Alt+Enter to restore windowed mode")
 
-	readResolution, err := sendAltEnterWindows(controller)
-	if err != nil {
-		log.Warn().
-			Err(err).
+	// 初始为窗口时，先切到全屏再切回窗口，完成全部切换后才复检分辨率。
+	var readResolution resolutionReader
+	for toggleIndex := 1; toggleIndex <= toggleCount; toggleIndex++ {
+		readResolution, err = sendAltEnterWindows(controller)
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Uint64("task_id", detail.TaskID).
+				Str("entry", detail.Entry).
+				Int("toggle_index", toggleIndex).
+				Int("toggle_count", toggleCount).
+				Msg("Failed to send Alt+Enter, skip resolution recheck")
+			return width, height, false
+		}
+		log.Debug().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
-			Msg("Failed to send Alt+Enter, skip resolution recheck")
-		return width, height, false
+			Int("toggle_index", toggleIndex).
+			Int("toggle_count", toggleCount).
+			Msg("Alt+Enter completed, waiting for fullscreen toggle to settle")
+		time.Sleep(500 * time.Millisecond)
 	}
-	log.Debug().
-		Uint64("task_id", detail.TaskID).
-		Str("entry", detail.Entry).
-		Msg("Alt+Enter completed, waiting for fullscreen toggle to settle")
-	time.Sleep(500 * time.Millisecond)
 
 	return recheckResolutionAfterFullscreenToggle(readResolution, detail, width, height)
 }
