@@ -28,10 +28,15 @@
                 "resource/image/EssenceFilter/ThumbLock.png",
                 "resource/image/EssenceFilter/LockPurple.png"
             ],
+            // 宽度收到 948：956 会把右侧详情面板的左边框（x≈965）框进 ROI，
+            // 而列数走的是「暗分隔线」推导 —— 那条边框被当成一条分隔线，首帧于是
+            // 多出一个 6px 宽的假列（10 列）；后续帧因拿到追踪器测出的格宽而只认 9 列。
+            // 首帧与后续帧列数不一致会让 GridTracker 判 shape_changed 并永久卡死
+            // （拒绝后不更新基准，直到 reco_timeout），故收窄 ROI 让首帧也是 9 列。
             "roi": [
                 18,
                 72,
-                956,
+                948,
                 570
             ],
             "normalized_size": [
