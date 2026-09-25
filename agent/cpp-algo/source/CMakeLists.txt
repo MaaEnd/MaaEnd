@@ -66,7 +66,7 @@ target_include_directories(cpp-algo
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${MAA_PRIVATE_INC} ${MAA_PUBLIC_INC})
 
 target_link_libraries(cpp-algo
-    PRIVATE icon-recognition-core grid-tracker MaaUtils MaaFramework::MaaToolkit MaaAgentServer::MaaAgentServer
+    PRIVATE icon-recognition-core grid-tracker MaaUtils MaaAgentServer::MaaAgentServer
     PRIVATE Boost::system ${OpenCV_LIBS} ONNXRuntime::ONNXRuntime ZLIB::ZLIB)
 
 if(LINUX)
