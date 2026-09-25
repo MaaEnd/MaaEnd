@@ -13,6 +13,73 @@
     //   23100010223 → [1455.3, 526.5]
     //   23100010219 → [1121.4, 594.8]
     //   23100031243 → [1293.2, 608.2]
+    "SharedZiplineDeleteEnterWLNorthWulingExclusionZone": {
+        "desc": "北部禁区：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportWLNorthWulingExclusionZone",
+            "SharedZiplineDeleteTeleportWLNorthWulingExclusionZone"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportWLNorthWulingExclusionZone": {
+        "desc": "已在北部禁区地图，跳过世界传送",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingNorthWulingExclusionZone"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingNorthWulingExclusionZone"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLNorthWulingExclusionZone": {
+        "desc": "不在北部禁区时，传送到本区锚点",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingNorthWulingExclusionZone5"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapWLNorthWulingExclusionZone"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapWLNorthWulingExclusionZone": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingNorthWulingExclusionZone"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingNorthWulingExclusionZone"
+        ]
+    },
     "SharedZiplineDeletePrepareWulingNorthWulingExclusionZone": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

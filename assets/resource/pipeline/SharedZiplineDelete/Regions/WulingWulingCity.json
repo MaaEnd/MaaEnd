@@ -14,6 +14,73 @@
     //   22800031002 → [973.3, 1958.3]
     //   22801140002 → [508.4, 1966.0]
     //   22800030008 → [703.8, 1890.9]
+    "SharedZiplineDeleteEnterWLWulingCity": {
+        "desc": "武陵城：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportWLWulingCity",
+            "SharedZiplineDeleteTeleportWLWulingCity"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportWLWulingCity": {
+        "desc": "已在武陵城地图，跳过世界传送",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingWulingCity"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLWulingCity": {
+        "desc": "不在武陵城时，传送到本区锚点",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity0"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapWLWulingCity"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapWLWulingCity": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingWulingCity"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingWulingCity"
+        ]
+    },
     "SharedZiplineDeletePrepareWulingWulingCity": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

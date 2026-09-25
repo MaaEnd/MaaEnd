@@ -6,6 +6,73 @@
     //   23300000097 → [1172.5, 2282.8]
     //   23300000096 → [1257.7, 2358.8]
     //   23300000095 → [1399.8, 2440.7]
+    "SharedZiplineDeleteEnterWLQingboStockade": {
+        "desc": "清波寨：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportWLQingboStockade",
+            "SharedZiplineDeleteTeleportWLQingboStockade"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportWLQingboStockade": {
+        "desc": "已在清波寨地图，跳过世界传送",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingQingboStockade"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingQingboStockade"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLQingboStockade": {
+        "desc": "不在清波寨时，传送到本区锚点",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingQingboStockade2"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapWLQingboStockade"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapWLQingboStockade": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingQingboStockade"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingQingboStockade"
+        ]
+    },
     "SharedZiplineDeletePrepareWulingQingboStockade": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

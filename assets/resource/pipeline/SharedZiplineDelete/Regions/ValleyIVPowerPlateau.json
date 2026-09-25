@@ -5,6 +5,73 @@
     //   2800001509 → [677.0, 225.6]
     //   2800001338 → [561.8, 288.0]
     //   2800001519 → [649.8, 382.1]
+    "SharedZiplineDeleteEnterVFPowerPlateau": {
+        "desc": "供能高地：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportVFPowerPlateau",
+            "SharedZiplineDeleteTeleportVFPowerPlateau"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportVFPowerPlateau": {
+        "desc": "已在供能高地地图，跳过世界传送",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVPowerPlateau"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVPowerPlateau"
+        ]
+    },
+    "SharedZiplineDeleteTeleportVFPowerPlateau": {
+        "desc": "不在供能高地时，传送到本区锚点",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVPowerPlateau1"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapVFPowerPlateau"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapVFPowerPlateau": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVPowerPlateau"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVPowerPlateau"
+        ]
+    },
     "SharedZiplineDeletePrepareValleyIVPowerPlateau": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

@@ -5,6 +5,73 @@
     //   300002538 → [1001.5, 1067.2]
     //   300001874 → [965.9, 1113.8]
     //   300002665 → [958.7, 1217.7]
+    "SharedZiplineDeleteEnterVFAburreyQuarry": {
+        "desc": "阿伯莉采石场：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportVFAburreyQuarry",
+            "SharedZiplineDeleteTeleportVFAburreyQuarry"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportVFAburreyQuarry": {
+        "desc": "已在阿伯莉采石场地图，跳过世界传送",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVAburreyQuarry"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVAburreyQuarry"
+        ]
+    },
+    "SharedZiplineDeleteTeleportVFAburreyQuarry": {
+        "desc": "不在阿伯莉采石场时，传送到本区锚点",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVAburreyQuarry0"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapVFAburreyQuarry"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapVFAburreyQuarry": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVAburreyQuarry"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVAburreyQuarry"
+        ]
+    },
     "SharedZiplineDeletePrepareValleyIVAburreyQuarry": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",
