@@ -166,231 +166,6 @@
                     "pipeline_override": {
                         "AutoCollectInventoryResetSnapshot": {
                             "enabled": true
-                        },
-                        "AutoCollectRoute1Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute1SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute1SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute2Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute2SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute2SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute3Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute3SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute3SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute4Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute4SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute4SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute5Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute5SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute5SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute6Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute6SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute6SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute7Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute7SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute7SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute8Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute8SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute8SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute9Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute9SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute9SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute10Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute10SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute10SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute11Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute11SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute11SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute12Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute12SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute12SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute13Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute13SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute13SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute14Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute14SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute14SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute15Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute15SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute15SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute16Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute16SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute16SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute17Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute17SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute17SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute1Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute1SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute1SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute2Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute2SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute2SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute3Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute3SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute3SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute4Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute4SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute4SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute5Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute5SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute5SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute6Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute6SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute6SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute7Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute7SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute7SubSkipped": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute8Sub": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute8SubGated": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute8SubSkipped": {
-                            "enabled": true
                         }
                     },
                     "option": [
@@ -620,29 +395,11 @@
                 }
             ],
             "pipeline_override": {
-                "AutoCollectRoute1SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route1}==0 || {item_plant_crylplant_2_1}<{AutoCollectLimit_Route1}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectRoute1SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_Route1}==0 || {item_plant_crylplant_2_1}<{AutoCollectLimit_Route1})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectRoute2SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route2}==0 || {item_plant_crylplant_2_2}<{AutoCollectLimit_Route2}"
                             }
                         }
                     }
@@ -656,29 +413,11 @@
                         }
                     }
                 },
-                "AutoCollectRoute3SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route3}==0 || {item_plant_crylplant_1_3}<{AutoCollectLimit_Route3}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectRoute3SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_Route3}==0 || {item_plant_crylplant_1_3}<{AutoCollectLimit_Route3})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectRoute4SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route4}==0 || {item_plant_crylplant_1_2}<{AutoCollectLimit_Route4}"
                             }
                         }
                     }
@@ -692,29 +431,11 @@
                         }
                     }
                 },
-                "AutoCollectRoute5SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route5}==0 || {item_plant_spcstone_1_1}<{AutoCollectLimit_Route5}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectRoute5SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_Route5}==0 || {item_plant_spcstone_1_1}<{AutoCollectLimit_Route5})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectRoute6SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route6}==0 || {item_plant_mushroom_1_1}<{AutoCollectLimit_Route6}"
                             }
                         }
                     }
@@ -728,29 +449,11 @@
                         }
                     }
                 },
-                "AutoCollectRoute7SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "({AutoCollectLimit_Route7Bloodcap}==0 && {AutoCollectLimit_Route7Wulingstone}==0) || ({AutoCollectLimit_Route7Bloodcap}>0 && {item_plant_mushroom_2_1}<{AutoCollectLimit_Route7Bloodcap}) || ({AutoCollectLimit_Route7Wulingstone}>0 && {item_plant_spcstone_2_2}<{AutoCollectLimit_Route7Wulingstone})"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectRoute7SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!(({AutoCollectLimit_Route7Bloodcap}==0 && {AutoCollectLimit_Route7Wulingstone}==0) || ({AutoCollectLimit_Route7Bloodcap}>0 && {item_plant_mushroom_2_1}<{AutoCollectLimit_Route7Bloodcap}) || ({AutoCollectLimit_Route7Wulingstone}>0 && {item_plant_spcstone_2_2}<{AutoCollectLimit_Route7Wulingstone}))"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectRoute8SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route8}==0 || {item_plant_mushroom_2_2}<{AutoCollectLimit_Route8}"
                             }
                         }
                     }
@@ -764,29 +467,11 @@
                         }
                     }
                 },
-                "AutoCollectRoute9SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route9}==0 || {item_plant_spcstone_2_1}<{AutoCollectLimit_Route9}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectRoute9SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_Route9}==0 || {item_plant_spcstone_2_1}<{AutoCollectLimit_Route9})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectRoute10SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route10}==0 || {item_plant_mushroom_1_3}<{AutoCollectLimit_Route10}"
                             }
                         }
                     }
@@ -800,29 +485,11 @@
                         }
                     }
                 },
-                "AutoCollectRoute11SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route11}==0 || {item_plant_spcstone_1_3}<{AutoCollectLimit_Route11}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectRoute11SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_Route11}==0 || {item_plant_spcstone_1_3}<{AutoCollectLimit_Route11})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectRoute12SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route12}==0 || {item_plant_mushroom_1_2}<{AutoCollectLimit_Route12}"
                             }
                         }
                     }
@@ -836,29 +503,11 @@
                         }
                     }
                 },
-                "AutoCollectRoute13SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route13}==0 || {item_plant_spcstone_1_2}<{AutoCollectLimit_Route13}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectRoute13SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_Route13}==0 || {item_plant_spcstone_1_2}<{AutoCollectLimit_Route13})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectRoute14SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route14}==0 || {item_plant_crylplant_1_1}<{AutoCollectLimit_Route14}"
                             }
                         }
                     }
@@ -872,29 +521,11 @@
                         }
                     }
                 },
-                "AutoCollectRoute15SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route15}==0 || {item_plant_crylplant_2_3}<{AutoCollectLimit_Route15}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectRoute15SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_Route15}==0 || {item_plant_crylplant_2_3}<{AutoCollectLimit_Route15})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectRoute16SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route16}==0 || {item_plant_spcstone_2_3}<{AutoCollectLimit_Route16}"
                             }
                         }
                     }
@@ -908,29 +539,11 @@
                         }
                     }
                 },
-                "AutoCollectRoute17SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_Route17}==0 || {item_plant_mushroom_2_3}<{AutoCollectLimit_Route17}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectRoute17SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_Route17}==0 || {item_plant_mushroom_2_3}<{AutoCollectLimit_Route17})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectCommonRoute1SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_CommonRoute1}==0 || {item_plant_moss_spc_1}<{AutoCollectLimit_CommonRoute1}"
                             }
                         }
                     }
@@ -944,29 +557,11 @@
                         }
                     }
                 },
-                "AutoCollectCommonRoute2SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_CommonRoute2}==0 || {item_plant_moss_spc_2}<{AutoCollectLimit_CommonRoute2}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectCommonRoute2SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_CommonRoute2}==0 || {item_plant_moss_spc_2}<{AutoCollectLimit_CommonRoute2})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectCommonRoute3SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_CommonRoute3}==0 || {item_plant_tundra_insect_2}<{AutoCollectLimit_CommonRoute3}"
                             }
                         }
                     }
@@ -980,29 +575,11 @@
                         }
                     }
                 },
-                "AutoCollectCommonRoute4SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_CommonRoute4}==0 || {item_plant_tundra_insect_1}<{AutoCollectLimit_CommonRoute4}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectCommonRoute4SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_CommonRoute4}==0 || {item_plant_tundra_insect_1}<{AutoCollectLimit_CommonRoute4})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectCommonRoute5SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_CommonRoute5}==0 || {item_plant_grass_spc_1}<{AutoCollectLimit_CommonRoute5}"
                             }
                         }
                     }
@@ -1016,15 +593,6 @@
                         }
                     }
                 },
-                "AutoCollectCommonRoute6SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_CommonRoute6}==0 || {item_plant_sp_3}<{AutoCollectLimit_CommonRoute6}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectCommonRoute6SubSkipped": {
                     "recognition": {
                         "param": {
@@ -1034,29 +602,11 @@
                         }
                     }
                 },
-                "AutoCollectCommonRoute7SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_CommonRoute7}==0 || {item_plant_grass_spc_2}<{AutoCollectLimit_CommonRoute7}"
-                            }
-                        }
-                    }
-                },
                 "AutoCollectCommonRoute7SubSkipped": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
                                 "expression": "!({AutoCollectLimit_CommonRoute7}==0 || {item_plant_grass_spc_2}<{AutoCollectLimit_CommonRoute7})"
-                            }
-                        }
-                    }
-                },
-                "AutoCollectCommonRoute8SubGated": {
-                    "recognition": {
-                        "param": {
-                            "custom_recognition_param": {
-                                "expression": "{AutoCollectLimit_CommonRoute8}==0 || {item_plant_sp_4}<{AutoCollectLimit_CommonRoute8}"
                             }
                         }
                     }
@@ -1104,7 +654,10 @@
                     "name": "Route4",
                     "label": "$option.AutoCollectRoute4.label",
                     "pipeline_override": {
-                        "AutoCollectRoute4Dispatch": {
+                        "AutoCollectRoute4Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute4SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute4Start": {
@@ -1116,7 +669,10 @@
                     "name": "Route5",
                     "label": "$option.AutoCollectRoute5.label",
                     "pipeline_override": {
-                        "AutoCollectRoute5Dispatch": {
+                        "AutoCollectRoute5Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute5SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute5Start": {
@@ -1128,7 +684,10 @@
                     "name": "Route6",
                     "label": "$option.AutoCollectRoute6.label",
                     "pipeline_override": {
-                        "AutoCollectRoute6Dispatch": {
+                        "AutoCollectRoute6Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute6SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute6Start": {
@@ -1140,7 +699,10 @@
                     "name": "Route13",
                     "label": "$option.AutoCollectRoute13.label",
                     "pipeline_override": {
-                        "AutoCollectRoute13Dispatch": {
+                        "AutoCollectRoute13Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute13SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute13Start": {
@@ -1152,7 +714,10 @@
                     "name": "Route14",
                     "label": "$option.AutoCollectRoute14.label",
                     "pipeline_override": {
-                        "AutoCollectRoute14Dispatch": {
+                        "AutoCollectRoute14Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute14SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute14Start": {
@@ -1174,7 +739,10 @@
                     "name": "CommonRoute1",
                     "label": "$option.AutoCollectCommonRoute1.label",
                     "pipeline_override": {
-                        "AutoCollectCommonRoute1Dispatch": {
+                        "AutoCollectCommonRoute1Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute1SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectCommonRoute1Start": {
@@ -1186,7 +754,10 @@
                     "name": "CommonRoute2",
                     "label": "$option.AutoCollectCommonRoute2.label",
                     "pipeline_override": {
-                        "AutoCollectCommonRoute2Dispatch": {
+                        "AutoCollectCommonRoute2Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute2SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectCommonRoute2Start": {
@@ -1235,7 +806,10 @@
                     "name": "Route1",
                     "label": "$option.AutoCollectRoute1.label",
                     "pipeline_override": {
-                        "AutoCollectRoute1Dispatch": {
+                        "AutoCollectRoute1Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute1SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute1Start": {
@@ -1247,7 +821,10 @@
                     "name": "Route2",
                     "label": "$option.AutoCollectRoute2.label",
                     "pipeline_override": {
-                        "AutoCollectRoute2Dispatch": {
+                        "AutoCollectRoute2Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute2SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute2Start": {
@@ -1259,7 +836,10 @@
                     "name": "Route3",
                     "label": "$option.AutoCollectRoute3.label",
                     "pipeline_override": {
-                        "AutoCollectRoute3Dispatch": {
+                        "AutoCollectRoute3Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute3SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute3Start": {
@@ -1271,7 +851,10 @@
                     "name": "Route7",
                     "label": "$option.AutoCollectRoute7.label",
                     "pipeline_override": {
-                        "AutoCollectRoute7Dispatch": {
+                        "AutoCollectRoute7Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute7SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute7Start": {
@@ -1283,7 +866,10 @@
                     "name": "Route8",
                     "label": "$option.AutoCollectRoute8.label",
                     "pipeline_override": {
-                        "AutoCollectRoute8Dispatch": {
+                        "AutoCollectRoute8Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute8SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute8Start": {
@@ -1295,7 +881,10 @@
                     "name": "Route9",
                     "label": "$option.AutoCollectRoute9.label",
                     "pipeline_override": {
-                        "AutoCollectRoute9Dispatch": {
+                        "AutoCollectRoute9Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute9SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute9Start": {
@@ -1307,7 +896,10 @@
                     "name": "Route10",
                     "label": "$option.AutoCollectRoute10.label",
                     "pipeline_override": {
-                        "AutoCollectRoute10Dispatch": {
+                        "AutoCollectRoute10Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute10SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute10Start": {
@@ -1319,7 +911,10 @@
                     "name": "Route11",
                     "label": "$option.AutoCollectRoute11.label",
                     "pipeline_override": {
-                        "AutoCollectRoute11Dispatch": {
+                        "AutoCollectRoute11Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute11SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute11Start": {
@@ -1331,7 +926,10 @@
                     "name": "Route12",
                     "label": "$option.AutoCollectRoute12.label",
                     "pipeline_override": {
-                        "AutoCollectRoute12Dispatch": {
+                        "AutoCollectRoute12Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute12SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute12Start": {
@@ -1343,7 +941,10 @@
                     "name": "Route15",
                     "label": "$option.AutoCollectRoute15.label",
                     "pipeline_override": {
-                        "AutoCollectRoute15Dispatch": {
+                        "AutoCollectRoute15Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute15SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute15Start": {
@@ -1355,7 +956,10 @@
                     "name": "Route16",
                     "label": "$option.AutoCollectRoute16.label",
                     "pipeline_override": {
-                        "AutoCollectRoute16Dispatch": {
+                        "AutoCollectRoute16Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute16SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute16Start": {
@@ -1367,7 +971,10 @@
                     "name": "Route17",
                     "label": "$option.AutoCollectRoute17.label",
                     "pipeline_override": {
-                        "AutoCollectRoute17Dispatch": {
+                        "AutoCollectRoute17Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute17SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectRoute17Start": {
@@ -1393,7 +1000,10 @@
                     "name": "CommonRoute3",
                     "label": "$option.AutoCollectCommonRoute3.label",
                     "pipeline_override": {
-                        "AutoCollectCommonRoute3Dispatch": {
+                        "AutoCollectCommonRoute3Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute3SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectCommonRoute3Start": {
@@ -1405,7 +1015,10 @@
                     "name": "CommonRoute4",
                     "label": "$option.AutoCollectCommonRoute4.label",
                     "pipeline_override": {
-                        "AutoCollectCommonRoute4Dispatch": {
+                        "AutoCollectCommonRoute4Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute4SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectCommonRoute4Start": {
@@ -1417,7 +1030,10 @@
                     "name": "CommonRoute5",
                     "label": "$option.AutoCollectCommonRoute5.label",
                     "pipeline_override": {
-                        "AutoCollectCommonRoute5Dispatch": {
+                        "AutoCollectCommonRoute5Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute5SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectCommonRoute5Start": {
@@ -1429,7 +1045,10 @@
                     "name": "CommonRoute6",
                     "label": "$option.AutoCollectCommonRoute6.label",
                     "pipeline_override": {
-                        "AutoCollectCommonRoute6Dispatch": {
+                        "AutoCollectCommonRoute6Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute6SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectCommonRoute6Start": {
@@ -1441,7 +1060,10 @@
                     "name": "CommonRoute7",
                     "label": "$option.AutoCollectCommonRoute7.label",
                     "pipeline_override": {
-                        "AutoCollectCommonRoute7Dispatch": {
+                        "AutoCollectCommonRoute7Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute7SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectCommonRoute7Start": {
@@ -1453,7 +1075,10 @@
                     "name": "CommonRoute8",
                     "label": "$option.AutoCollectCommonRoute8.label",
                     "pipeline_override": {
-                        "AutoCollectCommonRoute8Dispatch": {
+                        "AutoCollectCommonRoute8Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute8SubSkipped": {
                             "enabled": true
                         },
                         "AutoCollectCommonRoute8Start": {

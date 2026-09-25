@@ -91,7 +91,7 @@
         ]
     },
     "AutoCollectInventoryPrepare": {
-        "desc": "目标库存模式：严格执行 IMS 两仓事务同步，Action 失败时切换为无库存门控的兼容路径",
+        "desc": "目标库存模式：严格执行 IMS 两仓事务同步，失败时保留已勾选路线",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -131,13 +131,38 @@
         ]
     },
     "AutoCollectInventoryReady": {
-        "desc": "仓库同步成功，开始按目标库存筛选采集路线",
+        "desc": "仓库同步成功后筛选已勾选路线；单条禁用失败时保留该路线并继续筛选",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]AutoCollectRoute1SubSkipped",
+            "[JumpBack]AutoCollectRoute2SubSkipped",
+            "[JumpBack]AutoCollectRoute3SubSkipped",
+            "[JumpBack]AutoCollectRoute4SubSkipped",
+            "[JumpBack]AutoCollectRoute5SubSkipped",
+            "[JumpBack]AutoCollectRoute6SubSkipped",
+            "[JumpBack]AutoCollectRoute7SubSkipped",
+            "[JumpBack]AutoCollectRoute8SubSkipped",
+            "[JumpBack]AutoCollectRoute9SubSkipped",
+            "[JumpBack]AutoCollectRoute10SubSkipped",
+            "[JumpBack]AutoCollectRoute11SubSkipped",
+            "[JumpBack]AutoCollectRoute12SubSkipped",
+            "[JumpBack]AutoCollectRoute13SubSkipped",
+            "[JumpBack]AutoCollectRoute14SubSkipped",
+            "[JumpBack]AutoCollectRoute15SubSkipped",
+            "[JumpBack]AutoCollectRoute16SubSkipped",
+            "[JumpBack]AutoCollectRoute17SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute1SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute2SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute3SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute4SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute5SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute6SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute7SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute8SubSkipped",
             "AutoCollectInventoryReleaseSnapshot"
         ],
         "focus": {
@@ -145,244 +170,10 @@
         }
     },
     "AutoCollectInventoryFallback": {
-        "desc": "仓库同步失败：任务级放回各线路的常规调度节点，所有已勾选路线按原逻辑执行，不使用旧缓存",
+        "desc": "仓库同步失败：提示后释放同步状态，所有已勾选路线按原逻辑执行，不使用旧缓存",
         "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "AutoCollectRoute1Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute1SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute1SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute2Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute2SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute2SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute3Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute3SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute3SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute4Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute4SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute4SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute5Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute5SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute5SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute6Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute6SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute6SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute7Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute7SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute7SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute8Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute8SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute8SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute9Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute9SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute9SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute10Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute10SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute10SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute11Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute11SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute11SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute12Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute12SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute12SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute13Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute13SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute13SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute14Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute14SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute14SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute15Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute15SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute15SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute16Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute16SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute16SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute17Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectRoute17SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectRoute17SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute1Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute1SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute1SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute2Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute2SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute2SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute3Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute3SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute3SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute4Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute4SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute4SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute5Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute5SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute5SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute6Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute6SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute6SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute7Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute7SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute7SubSkipped": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute8Sub": {
-                            "enabled": true
-                        },
-                        "AutoCollectCommonRoute8SubGated": {
-                            "enabled": false
-                        },
-                        "AutoCollectCommonRoute8SubSkipped": {
-                            "enabled": false
-                        }
-                    }
-                }
-            }
-        },
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -393,7 +184,7 @@
         }
     },
     "AutoCollectInventoryReleaseSnapshot": {
-        "desc": "在任何路线执行前立即恢复仓库入口并清除完成标记，避免中断后锁住采集前快照",
+        "desc": "采集前恢复仓库同步入口并清除完成标记，释放本轮库存同步状态",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -420,33 +211,33 @@
         ]
     },
     "AutoCollectLoop": {
-        "desc": "依次调度已勾选的自动采集路线，未选路线不进入库存判断",
+        "desc": "依次执行本轮仍启用的已勾选采集路线",
         "next": [
-            "[JumpBack]AutoCollectRoute1Dispatch",
-            "[JumpBack]AutoCollectRoute2Dispatch",
-            "[JumpBack]AutoCollectRoute3Dispatch",
-            "[JumpBack]AutoCollectRoute4Dispatch",
-            "[JumpBack]AutoCollectRoute5Dispatch",
-            "[JumpBack]AutoCollectRoute6Dispatch",
-            "[JumpBack]AutoCollectRoute7Dispatch",
-            "[JumpBack]AutoCollectRoute8Dispatch",
-            "[JumpBack]AutoCollectRoute9Dispatch",
-            "[JumpBack]AutoCollectRoute10Dispatch",
-            "[JumpBack]AutoCollectRoute11Dispatch",
-            "[JumpBack]AutoCollectRoute12Dispatch",
-            "[JumpBack]AutoCollectRoute13Dispatch",
-            "[JumpBack]AutoCollectRoute14Dispatch",
-            "[JumpBack]AutoCollectRoute15Dispatch",
-            "[JumpBack]AutoCollectRoute16Dispatch",
-            "[JumpBack]AutoCollectRoute17Dispatch",
-            "[JumpBack]AutoCollectCommonRoute1Dispatch",
-            "[JumpBack]AutoCollectCommonRoute2Dispatch",
-            "[JumpBack]AutoCollectCommonRoute3Dispatch",
-            "[JumpBack]AutoCollectCommonRoute4Dispatch",
-            "[JumpBack]AutoCollectCommonRoute5Dispatch",
-            "[JumpBack]AutoCollectCommonRoute6Dispatch",
-            "[JumpBack]AutoCollectCommonRoute7Dispatch",
-            "[JumpBack]AutoCollectCommonRoute8Dispatch",
+            "[JumpBack]AutoCollectRoute1Sub",
+            "[JumpBack]AutoCollectRoute2Sub",
+            "[JumpBack]AutoCollectRoute3Sub",
+            "[JumpBack]AutoCollectRoute4Sub",
+            "[JumpBack]AutoCollectRoute5Sub",
+            "[JumpBack]AutoCollectRoute6Sub",
+            "[JumpBack]AutoCollectRoute7Sub",
+            "[JumpBack]AutoCollectRoute8Sub",
+            "[JumpBack]AutoCollectRoute9Sub",
+            "[JumpBack]AutoCollectRoute10Sub",
+            "[JumpBack]AutoCollectRoute11Sub",
+            "[JumpBack]AutoCollectRoute12Sub",
+            "[JumpBack]AutoCollectRoute13Sub",
+            "[JumpBack]AutoCollectRoute14Sub",
+            "[JumpBack]AutoCollectRoute15Sub",
+            "[JumpBack]AutoCollectRoute16Sub",
+            "[JumpBack]AutoCollectRoute17Sub",
+            "[JumpBack]AutoCollectCommonRoute1Sub",
+            "[JumpBack]AutoCollectCommonRoute2Sub",
+            "[JumpBack]AutoCollectCommonRoute3Sub",
+            "[JumpBack]AutoCollectCommonRoute4Sub",
+            "[JumpBack]AutoCollectCommonRoute5Sub",
+            "[JumpBack]AutoCollectCommonRoute6Sub",
+            "[JumpBack]AutoCollectCommonRoute7Sub",
+            "[JumpBack]AutoCollectCommonRoute8Sub",
             "AutoCollectAfterStashBackpack"
         ]
     },
@@ -478,25 +269,9 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute1Dispatch": {
-        "desc": "AutoCollectRoute1调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute1SubSkipped",
-            "AutoCollectRoute1SubGated",
-            "AutoCollectRoute1Sub",
-            "AutoCollectEnd"
-        ]
-    },
     "AutoCollectRoute1Sub": {
-        "desc": "AutoCollectRoute1常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute1SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute1执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -511,7 +286,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute1SubSkipped": {
-        "desc": "AutoCollectRoute1目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute1采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -525,57 +300,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.skipped"
-        }
-    },
-    "AutoCollectRoute1SubGated": {
-        "desc": "AutoCollectRoute1目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_crylplant_2_1}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute1Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute1Start",
-            "failure_task": "AutoCollectRoute1Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute2Dispatch": {
-        "desc": "AutoCollectRoute2调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute2SubSkipped",
-            "AutoCollectRoute2SubGated",
-            "AutoCollectRoute2Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute1.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute2Sub": {
-        "desc": "AutoCollectRoute2常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute2SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute2执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -590,7 +340,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute2SubSkipped": {
-        "desc": "AutoCollectRoute2目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute2采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -604,57 +354,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.skipped"
-        }
-    },
-    "AutoCollectRoute2SubGated": {
-        "desc": "AutoCollectRoute2目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_crylplant_2_2}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute2Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute2Start",
-            "failure_task": "AutoCollectRoute2Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute3Dispatch": {
-        "desc": "AutoCollectRoute3调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute3SubSkipped",
-            "AutoCollectRoute3SubGated",
-            "AutoCollectRoute3Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute2.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute3Sub": {
-        "desc": "AutoCollectRoute3常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute3SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute3执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -669,7 +394,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute3SubSkipped": {
-        "desc": "AutoCollectRoute3目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute3采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -683,57 +408,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute3.skipped"
-        }
-    },
-    "AutoCollectRoute3SubGated": {
-        "desc": "AutoCollectRoute3目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_crylplant_1_3}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute3Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute3Start",
-            "failure_task": "AutoCollectRoute3Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute4Dispatch": {
-        "desc": "AutoCollectRoute4调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute4SubSkipped",
-            "AutoCollectRoute4SubGated",
-            "AutoCollectRoute4Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute3.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute4Sub": {
-        "desc": "AutoCollectRoute4常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute4SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute4执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -748,7 +448,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute4SubSkipped": {
-        "desc": "AutoCollectRoute4目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute4采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -762,57 +462,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.skipped"
-        }
-    },
-    "AutoCollectRoute4SubGated": {
-        "desc": "AutoCollectRoute4目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_crylplant_1_2}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute4Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute4Start",
-            "failure_task": "AutoCollectRoute4Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute5Dispatch": {
-        "desc": "AutoCollectRoute5调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute5SubSkipped",
-            "AutoCollectRoute5SubGated",
-            "AutoCollectRoute5Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute4.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute5Sub": {
-        "desc": "AutoCollectRoute5常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute5SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute5执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -827,7 +502,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute5SubSkipped": {
-        "desc": "AutoCollectRoute5目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute5采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -841,57 +516,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.skipped"
-        }
-    },
-    "AutoCollectRoute5SubGated": {
-        "desc": "AutoCollectRoute5目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_spcstone_1_1}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute5Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute5Start",
-            "failure_task": "AutoCollectRoute5Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute6Dispatch": {
-        "desc": "AutoCollectRoute6调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute6SubSkipped",
-            "AutoCollectRoute6SubGated",
-            "AutoCollectRoute6Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute5.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute6Sub": {
-        "desc": "AutoCollectRoute6常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute6SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute6执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -906,7 +556,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute6SubSkipped": {
-        "desc": "AutoCollectRoute6目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute6采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -920,57 +570,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute6.skipped"
-        }
-    },
-    "AutoCollectRoute6SubGated": {
-        "desc": "AutoCollectRoute6目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_mushroom_1_1}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute6Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute6Start",
-            "failure_task": "AutoCollectRoute6Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute7Dispatch": {
-        "desc": "AutoCollectRoute7调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute7SubSkipped",
-            "AutoCollectRoute7SubGated",
-            "AutoCollectRoute7Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute6.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute7Sub": {
-        "desc": "AutoCollectRoute7常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute7SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute7执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -985,7 +610,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute7SubSkipped": {
-        "desc": "AutoCollectRoute7目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute7采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -999,57 +624,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute7.skipped"
-        }
-    },
-    "AutoCollectRoute7SubGated": {
-        "desc": "AutoCollectRoute7目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_mushroom_2_1}>=0 || {item_plant_spcstone_2_2}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute7Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute7Start",
-            "failure_task": "AutoCollectRoute7Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute8Dispatch": {
-        "desc": "AutoCollectRoute8调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute8SubSkipped",
-            "AutoCollectRoute8SubGated",
-            "AutoCollectRoute8Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute7.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute8Sub": {
-        "desc": "AutoCollectRoute8常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute8SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute8执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1064,7 +664,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute8SubSkipped": {
-        "desc": "AutoCollectRoute8目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute8采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1078,57 +678,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.skipped"
-        }
-    },
-    "AutoCollectRoute8SubGated": {
-        "desc": "AutoCollectRoute8目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_mushroom_2_2}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute8Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute8Start",
-            "failure_task": "AutoCollectRoute8Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute9Dispatch": {
-        "desc": "AutoCollectRoute9调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute9SubSkipped",
-            "AutoCollectRoute9SubGated",
-            "AutoCollectRoute9Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute8.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute9Sub": {
-        "desc": "AutoCollectRoute9常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute9SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute9执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1143,7 +718,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute9SubSkipped": {
-        "desc": "AutoCollectRoute9目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute9采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1157,57 +732,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.skipped"
-        }
-    },
-    "AutoCollectRoute9SubGated": {
-        "desc": "AutoCollectRoute9目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_spcstone_2_1}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute9Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute9Start",
-            "failure_task": "AutoCollectRoute9Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute10Dispatch": {
-        "desc": "AutoCollectRoute10调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute10SubSkipped",
-            "AutoCollectRoute10SubGated",
-            "AutoCollectRoute10Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute9.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute10Sub": {
-        "desc": "AutoCollectRoute10常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute10SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute10执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1222,7 +772,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute10SubSkipped": {
-        "desc": "AutoCollectRoute10目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute10采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1236,57 +786,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.skipped"
-        }
-    },
-    "AutoCollectRoute10SubGated": {
-        "desc": "AutoCollectRoute10目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_mushroom_1_3}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute10Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute10Start",
-            "failure_task": "AutoCollectRoute10Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute11Dispatch": {
-        "desc": "AutoCollectRoute11调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute11SubSkipped",
-            "AutoCollectRoute11SubGated",
-            "AutoCollectRoute11Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute10.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute11Sub": {
-        "desc": "AutoCollectRoute11常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute11SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute11执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1301,7 +826,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute11SubSkipped": {
-        "desc": "AutoCollectRoute11目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute11采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1315,57 +840,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute11.skipped"
-        }
-    },
-    "AutoCollectRoute11SubGated": {
-        "desc": "AutoCollectRoute11目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_spcstone_1_3}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute11Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute11Start",
-            "failure_task": "AutoCollectRoute11Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute12Dispatch": {
-        "desc": "AutoCollectRoute12调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute12SubSkipped",
-            "AutoCollectRoute12SubGated",
-            "AutoCollectRoute12Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute11.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute12Sub": {
-        "desc": "AutoCollectRoute12常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute12SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute12执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1380,7 +880,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute12SubSkipped": {
-        "desc": "AutoCollectRoute12目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute12采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1394,57 +894,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute12.skipped"
-        }
-    },
-    "AutoCollectRoute12SubGated": {
-        "desc": "AutoCollectRoute12目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_mushroom_1_2}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute12Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute12Start",
-            "failure_task": "AutoCollectRoute12Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute13Dispatch": {
-        "desc": "AutoCollectRoute13调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute13SubSkipped",
-            "AutoCollectRoute13SubGated",
-            "AutoCollectRoute13Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute12.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute13Sub": {
-        "desc": "AutoCollectRoute13常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute13SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute13执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1459,7 +934,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute13SubSkipped": {
-        "desc": "AutoCollectRoute13目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute13采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1473,57 +948,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute13.skipped"
-        }
-    },
-    "AutoCollectRoute13SubGated": {
-        "desc": "AutoCollectRoute13目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_spcstone_1_2}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute13Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute13Start",
-            "failure_task": "AutoCollectRoute13Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute14Dispatch": {
-        "desc": "AutoCollectRoute14调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute14SubSkipped",
-            "AutoCollectRoute14SubGated",
-            "AutoCollectRoute14Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute13.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute14Sub": {
-        "desc": "AutoCollectRoute14常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute14SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute14执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1538,7 +988,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute14SubSkipped": {
-        "desc": "AutoCollectRoute14目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute14采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1552,57 +1002,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute14.skipped"
-        }
-    },
-    "AutoCollectRoute14SubGated": {
-        "desc": "AutoCollectRoute14目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_crylplant_1_1}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute14Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute14Start",
-            "failure_task": "AutoCollectRoute14Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute15Dispatch": {
-        "desc": "AutoCollectRoute15调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute15SubSkipped",
-            "AutoCollectRoute15SubGated",
-            "AutoCollectRoute15Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute14.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute15Sub": {
-        "desc": "AutoCollectRoute15常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute15SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute15执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1617,7 +1042,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute15SubSkipped": {
-        "desc": "AutoCollectRoute15目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute15采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1631,57 +1056,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute15.skipped"
-        }
-    },
-    "AutoCollectRoute15SubGated": {
-        "desc": "AutoCollectRoute15目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_crylplant_2_3}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute15Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute15Start",
-            "failure_task": "AutoCollectRoute15Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute16Dispatch": {
-        "desc": "AutoCollectRoute16调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute16SubSkipped",
-            "AutoCollectRoute16SubGated",
-            "AutoCollectRoute16Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute15.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute16Sub": {
-        "desc": "AutoCollectRoute16常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute16SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute16执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1696,7 +1096,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute16SubSkipped": {
-        "desc": "AutoCollectRoute16目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute16采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1710,57 +1110,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute16.skipped"
-        }
-    },
-    "AutoCollectRoute16SubGated": {
-        "desc": "AutoCollectRoute16目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_spcstone_2_3}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute16Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute16Start",
-            "failure_task": "AutoCollectRoute16Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectRoute17Dispatch": {
-        "desc": "AutoCollectRoute17调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectRoute17SubSkipped",
-            "AutoCollectRoute17SubGated",
-            "AutoCollectRoute17Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute16.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute17Sub": {
-        "desc": "AutoCollectRoute17常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute17SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectRoute17执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1775,7 +1150,7 @@
         "rate_limit": 0
     },
     "AutoCollectRoute17SubSkipped": {
-        "desc": "AutoCollectRoute17目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectRoute17采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1789,57 +1164,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectRoute17.skipped"
-        }
-    },
-    "AutoCollectRoute17SubGated": {
-        "desc": "AutoCollectRoute17目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_mushroom_2_3}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectRoute17Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectRoute17Start",
-            "failure_task": "AutoCollectRoute17Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectCommonRoute1Dispatch": {
-        "desc": "AutoCollectCommonRoute1调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectCommonRoute1SubSkipped",
-            "AutoCollectCommonRoute1SubGated",
-            "AutoCollectCommonRoute1Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectRoute17.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectCommonRoute1Sub": {
-        "desc": "AutoCollectCommonRoute1常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute1SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectCommonRoute1执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1854,7 +1204,7 @@
         "rate_limit": 0
     },
     "AutoCollectCommonRoute1SubSkipped": {
-        "desc": "AutoCollectCommonRoute1目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectCommonRoute1采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1868,57 +1218,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute1.skipped"
-        }
-    },
-    "AutoCollectCommonRoute1SubGated": {
-        "desc": "AutoCollectCommonRoute1目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_moss_spc_1}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectCommonRoute1Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectCommonRoute1Start",
-            "failure_task": "AutoCollectCommonRoute1Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectCommonRoute2Dispatch": {
-        "desc": "AutoCollectCommonRoute2调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectCommonRoute2SubSkipped",
-            "AutoCollectCommonRoute2SubGated",
-            "AutoCollectCommonRoute2Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectCommonRoute1.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectCommonRoute2Sub": {
-        "desc": "AutoCollectCommonRoute2常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute2SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectCommonRoute2执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -1933,7 +1258,7 @@
         "rate_limit": 0
     },
     "AutoCollectCommonRoute2SubSkipped": {
-        "desc": "AutoCollectCommonRoute2目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectCommonRoute2采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -1947,57 +1272,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute2.skipped"
-        }
-    },
-    "AutoCollectCommonRoute2SubGated": {
-        "desc": "AutoCollectCommonRoute2目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_moss_spc_2}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectCommonRoute2Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectCommonRoute2Start",
-            "failure_task": "AutoCollectCommonRoute2Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectCommonRoute3Dispatch": {
-        "desc": "AutoCollectCommonRoute3调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectCommonRoute3SubSkipped",
-            "AutoCollectCommonRoute3SubGated",
-            "AutoCollectCommonRoute3Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectCommonRoute2.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectCommonRoute3Sub": {
-        "desc": "AutoCollectCommonRoute3常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute3SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectCommonRoute3执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2012,7 +1312,7 @@
         "rate_limit": 0
     },
     "AutoCollectCommonRoute3SubSkipped": {
-        "desc": "AutoCollectCommonRoute3目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectCommonRoute3采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -2026,57 +1326,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute3.skipped"
-        }
-    },
-    "AutoCollectCommonRoute3SubGated": {
-        "desc": "AutoCollectCommonRoute3目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_tundra_insect_2}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectCommonRoute3Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectCommonRoute3Start",
-            "failure_task": "AutoCollectCommonRoute3Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectCommonRoute4Dispatch": {
-        "desc": "AutoCollectCommonRoute4调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectCommonRoute4SubSkipped",
-            "AutoCollectCommonRoute4SubGated",
-            "AutoCollectCommonRoute4Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectCommonRoute3.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectCommonRoute4Sub": {
-        "desc": "AutoCollectCommonRoute4常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute4SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectCommonRoute4执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2091,7 +1366,7 @@
         "rate_limit": 0
     },
     "AutoCollectCommonRoute4SubSkipped": {
-        "desc": "AutoCollectCommonRoute4目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectCommonRoute4采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -2105,57 +1380,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute4.skipped"
-        }
-    },
-    "AutoCollectCommonRoute4SubGated": {
-        "desc": "AutoCollectCommonRoute4目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_tundra_insect_1}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectCommonRoute4Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectCommonRoute4Start",
-            "failure_task": "AutoCollectCommonRoute4Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectCommonRoute5Dispatch": {
-        "desc": "AutoCollectCommonRoute5调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectCommonRoute5SubSkipped",
-            "AutoCollectCommonRoute5SubGated",
-            "AutoCollectCommonRoute5Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectCommonRoute4.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectCommonRoute5Sub": {
-        "desc": "AutoCollectCommonRoute5常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute5SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectCommonRoute5执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2170,7 +1420,7 @@
         "rate_limit": 0
     },
     "AutoCollectCommonRoute5SubSkipped": {
-        "desc": "AutoCollectCommonRoute5目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectCommonRoute5采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -2184,57 +1434,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute5.skipped"
-        }
-    },
-    "AutoCollectCommonRoute5SubGated": {
-        "desc": "AutoCollectCommonRoute5目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_grass_spc_1}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectCommonRoute5Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectCommonRoute5Start",
-            "failure_task": "AutoCollectCommonRoute5Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectCommonRoute6Dispatch": {
-        "desc": "AutoCollectCommonRoute6调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectCommonRoute6SubSkipped",
-            "AutoCollectCommonRoute6SubGated",
-            "AutoCollectCommonRoute6Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectCommonRoute5.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectCommonRoute6Sub": {
-        "desc": "AutoCollectCommonRoute6常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute6SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectCommonRoute6执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2249,7 +1474,7 @@
         "rate_limit": 0
     },
     "AutoCollectCommonRoute6SubSkipped": {
-        "desc": "AutoCollectCommonRoute6目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectCommonRoute6采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -2263,57 +1488,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute6.skipped"
-        }
-    },
-    "AutoCollectCommonRoute6SubGated": {
-        "desc": "AutoCollectCommonRoute6目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_sp_3}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectCommonRoute6Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectCommonRoute6Start",
-            "failure_task": "AutoCollectCommonRoute6Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectCommonRoute7Dispatch": {
-        "desc": "AutoCollectCommonRoute7调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectCommonRoute7SubSkipped",
-            "AutoCollectCommonRoute7SubGated",
-            "AutoCollectCommonRoute7Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectCommonRoute6.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectCommonRoute7Sub": {
-        "desc": "AutoCollectCommonRoute7常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute7SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectCommonRoute7执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2328,7 +1528,7 @@
         "rate_limit": 0
     },
     "AutoCollectCommonRoute7SubSkipped": {
-        "desc": "AutoCollectCommonRoute7目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectCommonRoute7采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -2342,57 +1542,32 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute7.skipped"
-        }
-    },
-    "AutoCollectCommonRoute7SubGated": {
-        "desc": "AutoCollectCommonRoute7目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_grass_spc_2}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectCommonRoute7Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectCommonRoute7Start",
-            "failure_task": "AutoCollectCommonRoute7Failed"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoCollectCommonRoute8Dispatch": {
-        "desc": "AutoCollectCommonRoute8调度入口：仅勾选后启用，再按采集模式与库存选择分支",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoCollectCommonRoute8SubSkipped",
-            "AutoCollectCommonRoute8SubGated",
-            "AutoCollectCommonRoute8Sub",
+        "on_error": [
             "AutoCollectEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectCommonRoute7.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectCommonRoute8Sub": {
-        "desc": "AutoCollectCommonRoute8常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute8SubGated 按库存决定",
-        "enabled": true,
+        "desc": "AutoCollectCommonRoute8执行：仅勾选后启用，目标库存筛选可在当前任务中禁用路线",
+        "enabled": false,
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -2407,7 +1582,7 @@
         "rate_limit": 0
     },
     "AutoCollectCommonRoute8SubSkipped": {
-        "desc": "AutoCollectCommonRoute8目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "desc": "AutoCollectCommonRoute8采集前库存筛选：仅勾选路线启用，库存达标后任务级禁用路线并播报",
         "enabled": false,
         "max_hit": 1,
         "recognition": {
@@ -2421,37 +1596,28 @@
             }
         },
         "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute8.skipped"
-        }
-    },
-    "AutoCollectCommonRoute8SubGated": {
-        "desc": "AutoCollectCommonRoute8目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "ItemQuantitySatisfied",
-                "custom_recognition_param": {
-                    "expression": "{item_plant_sp_4}>=0",
-                    "notify_ui": false
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectCommonRoute8Sub": {
+                            "enabled": false
+                        }
+                    }
                 }
             }
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FailureCollectorRunTask",
-        "custom_action_param": {
-            "key": "AutoCollect",
-            "task": "AutoCollectCommonRoute8Start",
-            "failure_task": "AutoCollectCommonRoute8Failed"
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "on_error": [
+            "AutoCollectEnd"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$option.AutoCollectCommonRoute8.skipped",
+            "Node.Action.Failed": "$task.AutoCollect.focus.inventory_filter_failed"
+        }
     },
     "AutoCollectRoute1Failed": {
         "desc": "AutoCollectRoute1执行失败提示",

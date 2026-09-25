@@ -1031,6 +1031,7 @@
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "태스크 전후 배낭 보관",
     "task.AutoCollect.focus.inventory_ready": "창고 재고 동기화가 완료되어 목표 재고에 따라 채집 경로를 선별합니다",
     "task.AutoCollect.focus.inventory_fallback": "창고 재고 동기화에 실패하여 목표 재고를 무시하고 선택한 경로를 계속 진행합니다",
+    "task.AutoCollect.focus.inventory_filter_failed": "이 경로의 재고 확인에 실패하여 채집 대상으로 유지합니다",
     "option.AutoCollectMode.label": "채집 모드",
     "option.AutoCollectMode.description": "기본적으로 선택한 경로를 채집합니다. 목표 재고 모드는 먼저 제4 계곡과 무릉 두 창고의 총재고를 동기화하고 목표를 달성한 경로를 건너뜁니다.",
     "option.AutoCollectMode.case.Always.label": "선택한 경로 채집",

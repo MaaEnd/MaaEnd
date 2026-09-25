@@ -1031,6 +1031,7 @@
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "Stash backpack before and after task",
     "task.AutoCollect.focus.inventory_ready": "Depot inventory synced; filtering collection routes by target inventory",
     "task.AutoCollect.focus.inventory_fallback": "Depot inventory sync failed; target inventory was ignored and selected routes will continue",
+    "task.AutoCollect.focus.inventory_filter_failed": "Inventory filtering failed for this route; it will still be collected",
     "option.AutoCollectMode.label": "Collection Mode",
     "option.AutoCollectMode.description": "Collect selected routes by default. Target Inventory first syncs the combined Valley IV and Wuling depot stock and skips routes whose targets are met.",
     "option.AutoCollectMode.case.Always.label": "Collect Selected Routes",

@@ -1031,6 +1031,7 @@
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "任务前后存放背包",
     "task.AutoCollect.focus.inventory_ready": "仓库库存同步完成，开始按目标库存筛选采集路线",
     "task.AutoCollect.focus.inventory_fallback": "仓库库存同步失败，已忽略目标库存并按勾选路线继续",
+    "task.AutoCollect.focus.inventory_filter_failed": "路线库存筛选失败，将保留该路线继续采集",
     "option.AutoCollectMode.label": "采集模式",
     "option.AutoCollectMode.description": "默认按勾选路线采集；目标库存模式会先同步四号谷地与武陵两座仓库的总库存，并跳过已达目标的路线。",
     "option.AutoCollectMode.case.Always.label": "按勾选路线采集",

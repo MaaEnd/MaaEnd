@@ -1031,6 +1031,7 @@
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "タスク前後にバックパックを収納",
     "task.AutoCollect.focus.inventory_ready": "倉庫在庫の同期が完了しました。目標在庫に基づいて採集ルートを選別します",
     "task.AutoCollect.focus.inventory_fallback": "倉庫在庫の同期に失敗したため、目標在庫を無視して選択済みルートを続行します",
+    "task.AutoCollect.focus.inventory_filter_failed": "このルートの在庫判定に失敗したため、採集対象に残します",
     "option.AutoCollectMode.label": "採集モード",
     "option.AutoCollectMode.description": "通常は選択済みルートを採集します。目標在庫モードでは、先に第4谷地と武陵の2つの倉庫の合計在庫を同期し、目標達成済みのルートをスキップします。",
     "option.AutoCollectMode.case.Always.label": "選択済みルートを採集",
