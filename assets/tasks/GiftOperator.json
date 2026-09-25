@@ -951,6 +951,36 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Purrchena",
+                    "label": "$operator.Purrchena",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Purrchena.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "噗切娜",
+                                "噗切娜",
+                                "Purrchena",
+                                "プチエナ",
+                                "푸치나"
+                            ]
+                        }
+                    }
                 }
             ]
         },
