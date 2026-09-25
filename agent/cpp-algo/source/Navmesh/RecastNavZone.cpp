@@ -523,17 +523,16 @@ std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double ra
                 continue;
             }
             const double isl = island[static_cast<size_t>(t)] != 0 ? 1.0 : 0.0;
-            // floor 盲键 (isl, dist, -高度, t) 全序;floor 感知键 (带外, isl, dist, delta)
-            // dist 打平只发生在同一 (u,v) 上摞着好几层地面(都含点 ⇒ 都是 0)。此时取最高那层:
-            // 底图像素是俯视图上的一点,那点看得见的就是最上面那层。拿三角号破平是任意的 ——
-            // 重烘一次三角序一换,起点就可能吸到水下/桥下那层,与终点分属两个分量,直接报不连通。
+            // dist 打平只发生在同一 (u,v) 上摞着好几层地面(都含点 ⇒ 都是 0), 由层级破平:
+            // 声明了起点层就按它挑, 否则取高的那层 —— 可达是单向的, 高层能往下掉、低层爬不
+            // 上去, 取高猜错只多绕一段, 取低猜错当场报不连通。
             std::array<double, 4> k;
             if (!floor_y.has_value()) {
-                k = { isl, dist, -triHeight(mesh, t), static_cast<double>(t) };
+                k = { dist, -triHeight(mesh, t), isl, static_cast<double>(t) };
             }
             else {
                 const double delta = std::fabs(triHeight(mesh, t) - *floor_y);
-                k = { delta <= static_cast<double>(kBaseNavFloorBand) ? 0.0 : 1.0, isl, dist, delta };
+                k = { delta <= static_cast<double>(kBaseNavFloorBand) ? 0.0 : 1.0, dist, delta, isl };
             }
             if (!have || k < bk) {
                 have = true;

@@ -48,8 +48,17 @@ int64_t occFind(const SpanTable& st, int64_t cid)
     return st.j(cid);
 }
 
-// cid 沿 (dx,dy) 走 s 格处是否有落在 h±kStepUp 的 span。s 可为负,即朝反方向探。
-bool levelAt(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, int64_t s, float h)
+// cid 沿 (dx,dy) 走 s 格处是否有落在 h±tol 的 span。s 可为负,即朝反方向探。
+bool levelAt(
+    const SpanTable& st,
+    int64_t nx,
+    int64_t ny,
+    int64_t cid,
+    int64_t dx,
+    int64_t dy,
+    int64_t s,
+    float h,
+    double tol)
 {
     const int64_t ax = cid % nx + dx * s;
     const int64_t ay = cid / nx + dy * s;
@@ -63,7 +72,7 @@ bool levelAt(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t d
     const int64_t b = st.cstart(j);
     const int64_t n = st.ccnt(j);
     for (int64_t k = 0; k < n; ++k) {
-        if (std::fabs(static_cast<double>(st.sp_h[static_cast<size_t>(b + k)] - h)) <= kStepUp) {
+        if (std::fabs(static_cast<double>(st.sp_h[static_cast<size_t>(b + k)]) - static_cast<double>(h)) <= tol) {
             return true;
         }
     }
@@ -91,8 +100,17 @@ bool rasterFace(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_
 bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1)
 {
     const double dh = static_cast<double>(h1) - static_cast<double>(h0);
-    if (dh < -kClimb) {
+    if (dh < -kDrop) {
         return false;
+    }
+    // 落差超过可攀爬高差时前探几格: 出发那层又回来, 说明脚下只是一道窄到不足一格的空档,
+    // 两侧本是同一片路面, 跟随层跟不了掉进去再走出来的线。出发层一直不回来的才是台沿。
+    if (dh < -kClimb) {
+        for (int64_t s = 1; s <= kSeamCells; ++s) {
+            if (levelAt(st, nx, ny, cid, dx, dy, s, h0, kClimb)) {
+                return false;
+            }
+        }
     }
     // 坡度口径以内两条支路结论一样: 立面按坡度放行, 平地按 UpAllow 放行而 UpAllow 恒不小于
     // 坡度口径。于是这一档不必去问是不是立面 —— 绝大多数边是平的, 省下的正是那两次叠层扫描。
@@ -121,14 +139,14 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
         // 往前几格回到出发高度而没有目标高度: 落脚处是路面上一处窄凸起。两个高度都在说明
         // 那里是上下两层叠着, 立面被栅格化成一列叠层时正是如此, 于是不算凸起 —— 少了这一条,
         // 台阶侧面与地面就被连起来, 直线会从楼梯旁边爬上去而不是从台阶口走上去。
-        if (levelAt(st, nx, ny, cid, dx, dy, s, h0) && !levelAt(st, nx, ny, cid, dx, dy, s, h1)) {
+        if (levelAt(st, nx, ny, cid, dx, dy, s, h0, kStepUp) && !levelAt(st, nx, ny, cid, dx, dy, s, h1, kStepUp)) {
             return true;
         }
     }
     for (int64_t s = 1; s <= kDipCells; ++s) {
         // 身后有目标高度而没有出发高度: 出发处是路面上一处浅坑。两个高度都在说明身后是上下
         // 两层叠着, 一级级往上的台阶正是如此; 挡住这一类, 才不会顺着台阶把立面爬上去。
-        if (levelAt(st, nx, ny, cid, dx, dy, -s, h1) && !levelAt(st, nx, ny, cid, dx, dy, -s, h0)) {
+        if (levelAt(st, nx, ny, cid, dx, dy, -s, h1, kStepUp) && !levelAt(st, nx, ny, cid, dx, dy, -s, h0, kStepUp)) {
             return true;
         }
     }
@@ -1014,6 +1032,10 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const auto byJump = [&](int64_t p, int64_t u) {
         return hj && p >= 0 && jumps->has(p, u);
     };
+    // 从台沿跳下来的那一步: 台沿本身挡视线, 弦判据必然不过, 所以与跳边同样豁免
+    const auto byFall = [&](int64_t p, int64_t u) {
+        return p >= 0 && static_cast<double>(st.sp_h[static_cast<size_t>(p)]) - static_cast<double>(st.sp_h[static_cast<size_t>(u)]) > kClimb;
+    };
     const int64_t nx = ok2.nx, ny = ok2.ny;
     const int64_t gc = st.sp_cell[static_cast<size_t>(gset.front())];
     const int64_t gxx = gc % nx, gyy = gc / nx;
@@ -1052,9 +1074,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
             if (j < 0) {
                 continue;
             }
-            if (forbidden != nullptr && forbidden->has(cw, cu)) {
-                continue;
-            }
+            // 与扩展同口径: 禁步位只管不是纯下落的那些 span 对
+            const bool faceblk = forbidden != nullptr && forbidden->has(cw, cu);
             double pen = 0.0;
             if (banned != nullptr && banned->has(cw, cu)) {
                 if (bnp == nullptr) {
@@ -1067,6 +1088,9 @@ std::optional<std::vector<int64_t>> SpanAstar(
             for (int64_t k = 0; k < jn; ++k) {
                 const int64_t w = jb + k;
                 if (ok[static_cast<size_t>(w)] == 0 || closed[static_cast<size_t>(w)] == 0) {
+                    continue;
+                }
+                if (faceblk && !byFall(w, u)) {
                     continue;
                 }
                 if (!RiseOk(st, nx, ny, cw, -d.dx, -d.dy, st.sp_h[static_cast<size_t>(w)], hu)) {
@@ -1098,7 +1122,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 continue;
             }
             const int64_t p = prev[static_cast<size_t>(u)];
-            if (p >= 0 && !byJump(p, u)
+            if (p >= 0 && !byJump(p, u) && !byFall(p, u)
                 && !vis->ok(
                     vis->at(st.sp_cell[static_cast<size_t>(p)]),
                     vis->at(cu),
@@ -1117,7 +1141,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
         const float m0 = mult.v(static_cast<size_t>(cu));
         // 父节点确定后不再变化, 是否经跳边到达在每次弹出时只查询一次; 放入邻格循环会使二分次数增至八倍
         const int64_t pu = vis != nullptr ? prev[static_cast<size_t>(u)] : -1;
-        const bool pj = byJump(pu, u);
+        const bool pj = byJump(pu, u) || byFall(pu, u);
         for (const auto& d : kNb8) {
             const int64_t a = x + d.dx, b = y + d.dy;
             if (a < 0 || a >= nx || b < 0 || b >= ny) {
@@ -1134,9 +1158,9 @@ std::optional<std::vector<int64_t>> SpanAstar(
             if (j < 0) {
                 continue;
             }
-            if (forbidden != nullptr && forbidden->has(cu, cv)) {
-                continue;
-            }
+            // 禁步位不分方向, 而纯下落的 span 对不该受它管 —— 跳下台沿不需要台阶,
+            // 所以放到逐 span 循环里按落差方向再定。
+            const bool faceblk = forbidden != nullptr && forbidden->has(cu, cv);
             double pen = 0.0;
             if (banned != nullptr && banned->has(cu, cv)) {
                 if (bnp == nullptr) {
@@ -1169,13 +1193,20 @@ std::optional<std::vector<int64_t>> SpanAstar(
                     continue;
                 }
                 const float hv = st.sp_h[static_cast<size_t>(v)];
+                const bool fall = static_cast<double>(hu) - static_cast<double>(hv) > kClimb;
+                if (faceblk && !fall) {
+                    continue;
+                }
                 if (!RiseOk(st, nx, ny, cu, d.dx, d.dy, hu, hv)) {
                     continue;
                 }
-                if (ndp < dist[static_cast<size_t>(v)] - 1e-12) {
-                    dist[static_cast<size_t>(v)] = ndp;
-                    prev[static_cast<size_t>(v)] = static_cast<int32_t>(np);
-                    pq.emplace(ndp + std::hypot(static_cast<double>(gxx - a), static_cast<double>(gyy - b)), v);
+                // 下落是单向边, 弦会从台沿上方穿空而过, 所以不接祖父
+                const int64_t pv = fall ? u : np;
+                const double dv = fall ? nd : ndp;
+                if (dv < dist[static_cast<size_t>(v)] - 1e-12) {
+                    dist[static_cast<size_t>(v)] = dv;
+                    prev[static_cast<size_t>(v)] = static_cast<int32_t>(pv);
+                    pq.emplace(dv + std::hypot(static_cast<double>(gxx - a), static_cast<double>(gyy - b)), v);
                 }
             }
         }
