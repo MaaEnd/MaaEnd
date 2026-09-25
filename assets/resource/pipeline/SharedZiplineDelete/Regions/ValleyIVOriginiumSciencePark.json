@@ -27,7 +27,6 @@
     },
     "SharedZiplineDeleteSkipTeleportVFOriginiumSciencePark": {
         "desc": "已在源石研究园地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapValleyIVOriginiumSciencePark"
@@ -42,7 +41,6 @@
     },
     "SharedZiplineDeleteTeleportVFOriginiumSciencePark": {
         "desc": "不在源石研究园时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -58,7 +56,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapVFOriginiumSciencePark": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

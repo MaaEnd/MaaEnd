@@ -27,7 +27,6 @@
     },
     "SharedZiplineDeleteSkipTeleportVFOriginLodespring": {
         "desc": "已在矿脉源区地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapValleyIVOriginLodespring"
@@ -42,7 +41,6 @@
     },
     "SharedZiplineDeleteTeleportVFOriginLodespring": {
         "desc": "不在矿脉源区时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -58,7 +56,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapVFOriginLodespring": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

@@ -26,7 +26,6 @@
     },
     "SharedZiplineDeleteSkipTeleportWLSwordVaultDale": {
         "desc": "已在藏剑谷地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapWulingSwordVaultDale"
@@ -41,7 +40,6 @@
     },
     "SharedZiplineDeleteTeleportWLSwordVaultDale": {
         "desc": "不在藏剑谷时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -57,7 +55,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapWLSwordVaultDale": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

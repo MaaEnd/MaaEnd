@@ -26,7 +26,6 @@
     },
     "SharedZiplineDeleteSkipTeleportWLMarkerStone": {
         "desc": "已在首墩地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapWulingMarkerStone"
@@ -41,7 +40,6 @@
     },
     "SharedZiplineDeleteTeleportWLMarkerStone": {
         "desc": "不在首墩时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -57,7 +55,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapWLMarkerStone": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

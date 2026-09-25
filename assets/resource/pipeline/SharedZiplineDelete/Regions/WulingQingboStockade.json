@@ -27,7 +27,6 @@
     },
     "SharedZiplineDeleteSkipTeleportWLQingboStockade": {
         "desc": "已在清波寨地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapWulingQingboStockade"
@@ -42,7 +41,6 @@
     },
     "SharedZiplineDeleteTeleportWLQingboStockade": {
         "desc": "不在清波寨时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -58,7 +56,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapWLQingboStockade": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

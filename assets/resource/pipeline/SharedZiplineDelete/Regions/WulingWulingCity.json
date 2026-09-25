@@ -35,7 +35,6 @@
     },
     "SharedZiplineDeleteSkipTeleportWLWulingCity": {
         "desc": "已在武陵城地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapWulingWulingCity"
@@ -50,7 +49,6 @@
     },
     "SharedZiplineDeleteTeleportWLWulingCity": {
         "desc": "不在武陵城时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -66,7 +64,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapWLWulingCity": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

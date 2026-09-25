@@ -29,7 +29,6 @@
     },
     "SharedZiplineDeleteSkipTeleportWLSnowyForest": {
         "desc": "已在雪松林地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapWulingSnowyForest"
@@ -44,7 +43,6 @@
     },
     "SharedZiplineDeleteTeleportWLSnowyForest": {
         "desc": "不在雪松林时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -60,7 +58,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapWLSnowyForest": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

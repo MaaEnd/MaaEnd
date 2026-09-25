@@ -34,7 +34,6 @@
     },
     "SharedZiplineDeleteSkipTeleportWLNorthWulingExclusionZone": {
         "desc": "已在北部禁区地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapWulingNorthWulingExclusionZone"
@@ -49,7 +48,6 @@
     },
     "SharedZiplineDeleteTeleportWLNorthWulingExclusionZone": {
         "desc": "不在北部禁区时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -65,7 +63,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapWLNorthWulingExclusionZone": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

@@ -26,7 +26,6 @@
     },
     "SharedZiplineDeleteSkipTeleportVFPowerPlateau": {
         "desc": "已在供能高地地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapValleyIVPowerPlateau"
@@ -41,7 +40,6 @@
     },
     "SharedZiplineDeleteTeleportVFPowerPlateau": {
         "desc": "不在供能高地时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -57,7 +55,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapVFPowerPlateau": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

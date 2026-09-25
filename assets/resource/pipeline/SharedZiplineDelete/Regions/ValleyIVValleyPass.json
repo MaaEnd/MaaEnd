@@ -25,7 +25,6 @@
     },
     "SharedZiplineDeleteSkipTeleportVFValleyPass": {
         "desc": "已在谷地通道地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapValleyIVValleyPass"
@@ -40,7 +39,6 @@
     },
     "SharedZiplineDeleteTeleportVFValleyPass": {
         "desc": "不在谷地通道时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -56,7 +54,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapVFValleyPass": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

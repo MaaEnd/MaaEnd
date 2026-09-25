@@ -29,7 +29,6 @@
     },
     "SharedZiplineDeleteSkipTeleportVFTheHub": {
         "desc": "已在枢纽区地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapValleyIVTheHub"
@@ -44,7 +43,6 @@
     },
     "SharedZiplineDeleteTeleportVFTheHub": {
         "desc": "不在枢纽区时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -60,7 +58,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapVFTheHub": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",

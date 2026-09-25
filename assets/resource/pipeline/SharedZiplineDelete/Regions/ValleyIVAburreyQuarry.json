@@ -26,7 +26,6 @@
     },
     "SharedZiplineDeleteSkipTeleportVFAburreyQuarry": {
         "desc": "已在阿伯莉采石场地图，跳过世界传送",
-        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "InMapValleyIVAburreyQuarry"
@@ -41,7 +40,6 @@
     },
     "SharedZiplineDeleteTeleportVFAburreyQuarry": {
         "desc": "不在阿伯莉采石场时，传送到本区锚点",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -57,7 +55,6 @@
         ]
     },
     "SharedZiplineDeleteOpenMapVFAburreyQuarry": {
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
