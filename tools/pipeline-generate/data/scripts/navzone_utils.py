@@ -30,6 +30,8 @@ COORD_TEXT = (
 )
 
 NAVMESH_DIR = MAAEND_REPO_DIR / "assets" / "resource" / "model" / "map" / "navmesh"
+# 与 CI 侧登记了 zone 参数的底图保持一致；nav 里另有 indie_dgXXX 的 zone，CI 未登记。
+ZONE_MAPS = ("map01", "map02", "base01", "dung01")
 NAV_CANDIDATES = ("base.nav.gz", "base.nav")
 NAV_SUBMODULE_API = (
     "https://api.github.com/repos/MaaEnd/MaaEnd/contents/assets/resource/model?ref=v2"
