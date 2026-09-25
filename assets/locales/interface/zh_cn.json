@@ -481,8 +481,6 @@
     "task.ZiplineImport.description": "从官方地图登录并导入当前账号的滑索坐标，供寻路使用。\n**导入一次长期有效，仅初次使用，或账号滑索有变化时再执行。**",
     "task.SharedZiplineDelete.label": "✂️删除共享滑索",
     "task.SharedZiplineDelete.focus.deleted_one": "已删除一个共享滑索",
-    "task.SharedZiplineDelete.focus.bootstrap_valley_iv": "准备前往四号谷地删除共享滑索",
-    "task.SharedZiplineDelete.focus.bootstrap_wuling": "准备前往武陵删除共享滑索",
     "task.ImportBluePrints.label": "📐一键导入蓝图",
     "task.ImportBluePrints.description": "一键批量导入蓝图，支持智能解析",
     "option.ImportBluePrints.label": "导入蓝图",

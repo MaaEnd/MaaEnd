@@ -12,6 +12,70 @@
     //   10100020314 → [689.9, 2653.9]
     //   10100020319 → [814.2, 2773.2]
     //   10100020315 → [602.9, 2828.3]  // 跳过：大地图缩放到边后仍在屏幕外，MapFind 无法点到
+    "SharedZiplineDeleteEnterWLJingyuValley": {
+        "desc": "景玉谷：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportWLJingyuValley",
+            "SharedZiplineDeleteTeleportWLJingyuValley"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportWLJingyuValley": {
+        "desc": "已在景玉谷地图，跳过世界传送",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingJingyuValley"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLJingyuValley": {
+        "desc": "不在景玉谷时，传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley0"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapWLJingyuValley"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapWLJingyuValley": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingJingyuValley"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingJingyuValley"
+        ]
+    },
     "SharedZiplineDeletePrepareWulingJingyuValley": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",
