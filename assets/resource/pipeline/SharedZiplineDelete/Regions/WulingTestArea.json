@@ -6,6 +6,70 @@
     //   23200013087 → [1345.3, 1632.5]
     //   23200013375 → [1346.3, 1699.5]
     //   23200013265 → [1291.7, 1756.3]
+    "SharedZiplineDeleteEnterWLTestArea": {
+        "desc": "实验园区：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportWLTestArea",
+            "SharedZiplineDeleteTeleportWLTestArea"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportWLTestArea": {
+        "desc": "已在实验园区地图，跳过世界传送",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingTestArea"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingTestArea"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLTestArea": {
+        "desc": "不在实验园区时，传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingTestArea2"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapWLTestArea"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapWLTestArea": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingTestArea"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingTestArea"
+        ]
+    },
     "SharedZiplineDeletePrepareWulingTestArea": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

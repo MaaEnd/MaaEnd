@@ -6,6 +6,70 @@
     //   3400020743 → [1296.4, 764.7]
     //   3400020746 → [959.1, 830.3]
     //   3400021048 → [1156.6, 869.3]
+    "SharedZiplineDeleteEnterVFOriginiumSciencePark": {
+        "desc": "源石研究园：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportVFOriginiumSciencePark",
+            "SharedZiplineDeleteTeleportVFOriginiumSciencePark"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportVFOriginiumSciencePark": {
+        "desc": "已在源石研究园地图，跳过世界传送",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVOriginiumSciencePark"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVOriginiumSciencePark"
+        ]
+    },
+    "SharedZiplineDeleteTeleportVFOriginiumSciencePark": {
+        "desc": "不在源石研究园时，传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVOriginiumSciencePark1"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapVFOriginiumSciencePark"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapVFOriginiumSciencePark": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVOriginiumSciencePark"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVOriginiumSciencePark"
+        ]
+    },
     "SharedZiplineDeletePrepareValleyIVOriginiumSciencePark": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

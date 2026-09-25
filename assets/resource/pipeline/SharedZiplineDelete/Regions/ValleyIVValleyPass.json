@@ -4,6 +4,70 @@
     //   200001240 → [129.7, 542.8]
     //   200001239 → [161.7, 545.7]
     //   200001237 → [249.2, 684.4]
+    "SharedZiplineDeleteEnterVFValleyPass": {
+        "desc": "谷地通道：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportVFValleyPass",
+            "SharedZiplineDeleteTeleportVFValleyPass"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportVFValleyPass": {
+        "desc": "已在谷地通道地图，跳过世界传送",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVValleyPass"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVValleyPass"
+        ]
+    },
+    "SharedZiplineDeleteTeleportVFValleyPass": {
+        "desc": "不在谷地通道时，传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVValleyPass0"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapVFValleyPass"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapVFValleyPass": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVValleyPass"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVValleyPass"
+        ]
+    },
     "SharedZiplineDeletePrepareValleyIVValleyPass": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

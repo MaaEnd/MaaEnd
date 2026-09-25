@@ -5,6 +5,70 @@
     //   23400083248 → [411.9, 2231.5]
     //   23400083106 → [590.9, 2243.1]
     //   23400083315 → [503.8, 2582.6]  // 地下点，Visit next 含 SceneMapLayerSwitchToMain
+    "SharedZiplineDeleteEnterWLMarkerStone": {
+        "desc": "首墩：先进任意地图，已在本区则跳过传送",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapAny"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteSkipTeleportWLMarkerStone",
+            "SharedZiplineDeleteTeleportWLMarkerStone"
+        ]
+    },
+    "SharedZiplineDeleteSkipTeleportWLMarkerStone": {
+        "desc": "已在首墩地图，跳过世界传送",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingMarkerStone"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingMarkerStone"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLMarkerStone": {
+        "desc": "不在首墩时，传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone2"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapWLMarkerStone"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapWLMarkerStone": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingMarkerStone"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingMarkerStone"
+        ]
+    },
     "SharedZiplineDeletePrepareWulingMarkerStone": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",
