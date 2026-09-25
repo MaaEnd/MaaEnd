@@ -1,0 +1,36 @@
+{
+    // ${AreaName}区域门控：OCR 地图左上角「大区域 /子区域」里的子区域名，确认当前地图聚焦在本区域。
+    // 门控在 candidates（MapFind 进来会 zoom out 钉死缩放）之前执行，此时地图还是游戏默认打开状态、左上角子区域名有效。
+    // 命中才 next 到本区域的 candidates 节点；未命中则框架继续试守卫 next 里的下一个门控。
+    // 子区域名互不为子串，expected 子串匹配即可区分，且不会误匹配大区域名（如「武陵」）。
+    // roi 为左上角区域名文本框（720p 基准），需游戏内微调。
+    "SeizeDeliveryJobsEndpointRegion${AreaId}": {
+        "desc": "OCR 地图左上角确认当前聚焦${AreaName}区域，命中才判定本区域送货终点",
+        "recognition": "OCR",
+        "roi": [
+            16,
+            14,
+            214,
+            41
+        ],
+        "expected": "${Expected}",
+        "next": [
+            "SeizeDeliveryJobsEndpointCandidates${AreaId}",
+            "SeizeDeliveryJobsEndpointNotMatched"
+        ]
+    },
+    // ${AreaName}区域的送货终点候选：一次缩放 + 一次视口求解，判本区域全部已启用终点。
+    // 命中的候选把自己的 next 交回框架（顶掉本节点 next），前往对应落点叶子；全部未中则本节点识别失败。
+    // 候选开关 = 它 next 那个落点叶子的 enabled（task 选项逐个打开），关掉的候选直接跳过、连认都不认。
+    // 守卫经门控只路由到对应区域节点，地图本就以终点为中心打开，故本区域候选基本在屏内、无需跨区域拖动。
+    "SeizeDeliveryJobsEndpointCandidates${AreaId}": {
+        "desc": "一次判定${AreaName}区域全部已启用的送货终点，命中即前往接取（共享一次缩放与视口求解）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "${Zone}",
+            "icon": "${Icon}",
+            "candidates": "${Candidates}"
+        }
+    }
+}

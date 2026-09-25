@@ -143,7 +143,10 @@ func (e *Engine) matchEssenceSkills(ocrSkills [3]string, targets []SkillCombinat
 		}
 		ocrIDs[i] = id
 	}
+	return matchSkillIDs(ocrIDs, targets)
+}
 
+func matchSkillIDs(ocrIDs [3]int, targets []SkillCombination) (*SkillCombinationMatch, bool) {
 	var matchedWeapons []WeaponData
 	var skillIDs []int
 	var skillsChinese []string

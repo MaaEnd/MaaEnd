@@ -1,0 +1,127 @@
+{
+    "__EssenceFilterDetectLangCN": {
+        "desc": "探测游戏语言：简体中文（库存愿望单 / 战后离开）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    554,
+                    545,
+                    400,
+                    175
+                ],
+                "expected": [
+                    // 基质愿望单
+                    // 离开
+                    // @i18n-skip
+                    "基质愿望单",
+                    "离开"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__EssenceFilterDetectLangTC": {
+        "desc": "探测游戏语言：繁体中文（库存愿望单 / 战后离开）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    554,
+                    545,
+                    400,
+                    175
+                ],
+                "expected": [
+                    // 基質願望清單
+                    // 離開
+                    // @i18n-skip
+                    "基質願望清單",
+                    "離開"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__EssenceFilterDetectLangEN": {
+        "desc": "探测游戏语言：English（库存愿望单 / 战后离开）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    554,
+                    545,
+                    400,
+                    175
+                ],
+                "expected": [
+                    // Essence Wishlist
+                    // Leave
+                    // @i18n-skip
+                    "Essence Wishlist",
+                    "Leave"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__EssenceFilterDetectLangJP": {
+        "desc": "探测游戏语言：日本語（库存愿望单 / 战后离开）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    554,
+                    545,
+                    400,
+                    175
+                ],
+                "expected": [
+                    // 基質厳選リスト
+                    // 立ち去る
+                    // @i18n-skip
+                    "基質厳選リスト",
+                    "立ち去る"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__EssenceFilterDetectLangKR": {
+        "desc": "探测游戏语言：한국어（库存愿望单 / 战后离开）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    554,
+                    545,
+                    400,
+                    175
+                ],
+                "expected": [
+                    // 기질 찜 목록
+                    // 떠나기
+                    // @i18n-skip
+                    "기질 찜 목록",
+                    "떠나기"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

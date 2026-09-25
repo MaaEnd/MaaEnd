@@ -2,6 +2,7 @@
 
 #include "Backend/backend.h"
 #include "action_wrapper.h"
+#include "sensitivity_observer.h"
 
 namespace mapnavigator
 {
@@ -40,7 +41,8 @@ const char* ActionWrapper::unsupported_reason() const
 
 double ActionWrapper::DefaultTurnUnitsPerDegree() const
 {
-    return backend_->default_turn_units_per_degree();
+    // 偏航度→单位只从这里过，校正系数只乘这一处。
+    return backend_->default_turn_units_per_degree() * sensitivity::TurnUnitsScale();
 }
 
 double ActionWrapper::DefaultPitchUnitsPerDegree() const
@@ -115,7 +117,13 @@ void ActionWrapper::MouseRightUpSync(int delay_millis)
 
 bool ActionWrapper::SendViewDeltaSync(int dx, int dy)
 {
-    return backend_->SendViewDeltaSync(dx, dy);
+    const bool sent = backend_->SendViewDeltaSync(dx, dy);
+    // 所有偏航输入都从这里出去，按当下的度→单位系数折回度数报给灵敏度估计器。
+    const double units_per_degree = DefaultTurnUnitsPerDegree();
+    if (sent && dx != 0 && units_per_degree > 0.0) {
+        sensitivity::NoteTurnIssued(static_cast<double>(dx) / units_per_degree);
+    }
+    return sent;
 }
 
 } // namespace mapnavigator

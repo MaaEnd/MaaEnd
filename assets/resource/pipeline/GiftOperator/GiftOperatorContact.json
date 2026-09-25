@@ -132,6 +132,7 @@
             "GiftOperatorSelect_Akekuri",
             "GiftOperatorSelect_Alesh",
             "GiftOperatorSelect_Antal",
+            "GiftOperatorSelect_Arcane",
             "GiftOperatorSelect_Arclight",
             "GiftOperatorSelect_Ardelia",
             "GiftOperatorSelect_Avywenna",
@@ -143,7 +144,6 @@
             "GiftOperatorSelect_Estella",
             "GiftOperatorSelect_Fluorite",
             "GiftOperatorSelect_Gilberta",
-            "GiftOperatorSelect_Jue",
             "GiftOperatorSelect_Laevatain",
             "GiftOperatorSelect_LastRite",
             "GiftOperatorSelect_Lifeng",
@@ -154,6 +154,7 @@
             "GiftOperatorSelect_Rossi",
             "GiftOperatorSelect_Snowshine",
             "GiftOperatorSelect_Tangtang",
+            "GiftOperatorSelect_Typhoeus",
             "GiftOperatorSelect_Wulfgard",
             "GiftOperatorSelect_Xaihi",
             "GiftOperatorSelect_Yvonne",
@@ -456,18 +457,37 @@
                 "custom_action": "AutoAltClickAction"
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                911,
-                312,
-                89,
-                121
-            ]
-        },
         "next": [
-            "GiftOperatorCheckContact"
+            "GiftOperatorCheckContact",
+            "[JumpBack]GiftOperatorClickContact_reply"
         ]
+    },
+    "GiftOperatorClickContact_reply": {
+        "desc": "点击干员联络台",
+        "max_hit": 15,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    722,
+                    312,
+                    550,
+                    362
+                ],
+                "expected": [
+                    "干员联络台",
+                    "幹員聯絡台",
+                    "(?i)Operator\\s*Contact\\s*Panel",
+                    "連絡カウンター"
+                ]
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        }
     },
     "GiftOperatorConfirmSelect": {
         "desc": "点击确认按钮呼唤干员",
@@ -485,7 +505,9 @@
         },
         "next": [
             "GiftOperatorWaitChat",
-            "[JumpBack]GiftOperatorMoveAhead"
+            "[JumpBack]GiftOperatorMoveAhead",
+            // "GiftOperatorMoveRetry",
+            "GiftOperatorMoveFail"
         ]
     },
     "GiftOperatorTrustIcon": {

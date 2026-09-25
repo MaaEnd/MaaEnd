@@ -124,7 +124,7 @@
             "AutoDelivery/SubmitGoods.png", // NPC 交货图标
             "AutoDelivery/SubmitGoods2.png" // 非 NPC 交货图标
         ],
-        "threshold": 0.8,
+        "threshold": 0.9,
         "order_by": "Score",
         "pre_wait_freezes": {
             "time": 300,
@@ -329,7 +329,7 @@
         ]
     },
     "AutoDeliverySkipChat": {
-        "desc": "送货交互进入对话时跳过对话",
+        "desc": "送货交互进入对话时，先将鼠标移到左上角",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryInChatDialog",
@@ -337,8 +337,55 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoAltClickAction",
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCheckSkipChatAfterMoveAway"
+        ]
+    },
+    "AutoDeliveryCheckSkipChatAfterMoveAway": {
+        "desc": "鼠标移到左上角后，重新识别对话和跳过按钮，确认按钮仍可见并产出最新识别框",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInChatDialog",
+            "AutoDeliveryCheckSkipChatButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySkipChatMoveToButton"
+        ]
+    },
+    "AutoDeliverySkipChatMoveToButton": {
+        "desc": "按移开后重新识别到的跳过按钮位置，将鼠标移回跳过按钮",
+        "pre_delay": 0,
+        "action": "TouchMove",
+        "target": "AutoDeliveryCheckSkipChatAfterMoveAway",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySkipChatClick"
+        ]
+    },
+    "AutoDeliverySkipChatClick": {
+        "desc": "鼠标移回跳过按钮后，重新确认对话和按钮仍然可见再点击",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInChatDialog",
+            "AutoDeliveryCheckSkipChatButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
         "post_wait_freezes": {
             "target": [
                 520,

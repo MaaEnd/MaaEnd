@@ -88,9 +88,8 @@ func parseOverflowPlus(texts []string) (int, bool) {
 	return 0, false
 }
 
-func resolveOverflow(current int, max int, plus int) (overflowDetected bool, overflowAmount int) {
-	overflowAmount = current + plus - max
-	return overflowAmount > 0, overflowAmount
+func resolveOverflow(current int, max int, plus int) int {
+	return current + plus - max
 }
 
 func resolveAbortReasonFromOverflowCurrent(current int) AbortReason {

@@ -6,9 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -40,9 +38,9 @@ type addItemDataParam struct {
 // OCR quantities into the IMS cache (A3). Does not change readiness / last_sync.
 //
 // If IMS has never been initialized (hasData=false), recognition still runs and
-// per-item Focus is printed; cache write is skipped and the action returns
+// one HTML Focus summary is printed; cache write is skipped and the action returns
 // success so Pipeline can continue (e.g. closing the rewards UI). No IMS
-// init / summary Focus is printed in either case.
+// init Focus is printed in either case.
 //
 // Finding no reward cards (IconRecognition no_match / grid_detection_failed)
 // is also success. Corrupt IMS.json is reset by ensureHydrated. Any remaining
@@ -151,6 +149,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	addedTotal := 0
 	applied := 0
+	pageReport := make(map[string]int)
 	var (
 		persistItems map[string]int
 		lastSync     time.Time
@@ -166,7 +165,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			continue
 		}
 		displayName := iconqty.ItemDisplayName(h.ItemID)
-		maafocus.Print(ctx, i18n.T("ims.add_item_found", displayName, h.Qty))
+		pageReport[h.ItemID] += h.Qty
 		addedTotal += h.Qty
 		applied++
 
@@ -205,10 +204,13 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 	}
 
+	reportedItemCount := reportAddedItems(ctx, pageReport)
+
 	log.Info().
 		Str("component", componentAddItemData).
 		Int("hit_count", applied).
 		Int("added_total", addedTotal).
+		Int("reported_item_count", reportedItemCount).
 		Bool("cache_ready", cacheReady).
 		Str("grid_type", gridType).
 		Strs("item_filters", scanFilters).

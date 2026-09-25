@@ -7,7 +7,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    // FIXME: 一件售卖产品场景中的奖励图标样式不同，标题图标校验暂不接入主链。
+                    // FIXME: 据点交易场景中的奖励图标样式不同，标题图标校验暂不接入主链。
                     // "DectedCloseRewardsImage",
                     "__CloseRewardsButton"
                 ]

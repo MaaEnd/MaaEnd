@@ -1,0 +1,352 @@
+{
+    "SharedZiplineDeleteFilterOpen": {
+        "desc": "打开标记显示管理",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            -120,
+            220,
+            120
+        ],
+        "template": "SceneManager/MapFilterNotChoose.png",
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "SharedZiplineDeleteFilterClearAll"
+        ]
+    },
+    "SharedZiplineDeleteFilterClearAll": {
+        "desc": "点击清空选中",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -120,
+            220,
+            120
+        ],
+        "expected": [
+            "清空选中",
+            "清除選取",
+            "(?i)Clear\\s*All",
+            "一括解除",
+            "クリア選択",
+            "Clear Selection",
+            "선택 해제"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "SharedZiplineDeleteFilterSwipeDown"
+        ]
+    },
+    "SharedZiplineDeleteFilterSwipeDown": {
+        "desc": "筛选列表下滑一段，露出滑索选项",
+        "recognition": "DirectHit",
+        "action": "Swipe",
+        "begin": [
+            110,
+            520
+        ],
+        "end": [
+            110,
+            280
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "target": [
+                50,
+                200,
+                150,
+                200
+            ],
+            "time": 200
+        },
+        "next": [
+            "SharedZiplineDeleteFilterSelectZipline"
+        ]
+    },
+    "SharedZiplineDeleteFilterSelectZipline": {
+        "desc": "识别「滑索」并点击",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -300,
+            400,
+            300
+        ],
+        "expected": [
+            "滑索",
+            "(?i)Zipline",
+            "ジップライン",
+            "집라인"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "SharedZiplineDeleteFilterClose"
+        ]
+    },
+    "SharedZiplineDeleteFilterClose": {
+        "desc": "关闭标记显示管理",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            80
+        ],
+        "expected": [
+            "标记显示管理",
+            "標記顯示管理",
+            "(?i)Marker\\s*Tags",
+            "ソート",
+            "표식 관리"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            500,
+            0,
+            0,
+            0
+        ],
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SharedZiplineDeleteTeleportClick": {
+        "desc": "识别共享滑索标记并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -350,
+            0,
+            350,
+            60
+        ],
+        "template": [
+            "SceneManager/MapMind.png"
+        ],
+        "method": 10001,
+        "inverse": true,
+        "pre_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "SharedZiplineDeleteChooseZipline",
+            "SharedZiplineDeleteChooseTeleport",
+            "SharedZiplineDeleteConfirm",
+            "SharedZiplineDeleteDismissNoMapMind"
+        ]
+    },
+    "SharedZiplineDeleteHit": {
+        "desc": "识别共享滑索标记并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            1280,
+            620
+        ],
+        "template": [
+            "SharedZiplineDelete/MapSharedZipLine.png",
+            "SharedZiplineDelete/MapSharedZipLine2.png"
+        ],
+        "green_mask": true,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "SharedZiplineDeleteChooseZipline",
+            "SharedZiplineDeleteConfirm",
+            "SharedZiplineDeleteDismissNoMapMind"
+        ]
+    },
+    "SharedZiplineDeleteDismissNoMapMind": {
+        "desc": "找不到 MapMind 时按 Esc 关闭遮挡，鼠标会点到其他位置",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -350,
+            0,
+            350,
+            60
+        ],
+        "template": [
+            "SceneManager/MapMind.png"
+        ],
+        "method": 10001,
+        "inverse": true,
+        "action": "ClickKey",
+        "key": 27, // Esc
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        }
+    },
+    "SharedZiplineDeleteChooseTeleport": {
+        "desc": "多个图标重叠时，在候选列表中点传送点，让视角跳过去",
+        "recognition": "OCR",
+        "roi": [
+            -500,
+            350,
+            400,
+            300
+        ],
+        "expected": [
+            "协议传送点",
+            "協議傳送點",
+            "(?i)TP\\s*Point",
+            "協約転送ポイント",
+            "프로토콜 전송 지점",
+            "协议核心",
+            "協議核心",
+            "協約核心",
+            "프로토콜 코어",
+            "(?i)Protocol\\s*Automation.*",
+            "次级核心",
+            "次級核心",
+            "サブ協約核心",
+            "서브 코어",
+            "(?i)Sub-?PAC"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "next": [
+            "SharedZiplineDeleteDismissNoMapMind"
+        ]
+    },
+    "SharedZiplineDeleteChooseZipline": {
+        "desc": "多个图标重叠时，在候选列表中点共享滑索",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "label",
+                "recognition": "OCR",
+                "roi": [
+                    -500,
+                    350,
+                    400,
+                    300
+                ],
+                "expected": [
+                    "滑索架",
+                    "长距滑索架",
+                    "長距滑索架"
+                ]
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "label",
+                "roi_offset": [
+                    -40,
+                    -5,
+                    -5,
+                    10
+                ],
+                "lower": [
+                    14,
+                    120,
+                    150
+                ],
+                "upper": [
+                    30,
+                    220,
+                    255
+                ],
+                "connected": false,
+                "count": 15
+            }
+        ],
+        "box_index": 0,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "next": [
+            "SharedZiplineDeleteConfirm"
+        ]
+    },
+    "SharedZiplineDeleteConfirm": {
+        "desc": "点击确认删除",
+        "recognition": "OCR",
+        "roi": [
+            -350,
+            -150,
+            350,
+            150
+        ],
+        "expected": [
+            "删除",
+            "刪除"
+        ],
+        "action": "Click",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "post_wait_freezes": 100,
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "SharedZiplineDeleteConfirmSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.SharedZiplineDelete.focus.deleted_one"
+        }
+    },
+    "SharedZiplineDeleteConfirmSuccess": {
+        "desc": "确认删除成功",
+        "recognition": "OCR",
+        "roi": [
+            -350,
+            -150,
+            350,
+            150
+        ],
+        "expected": [
+            "删除",
+            "刪除"
+        ],
+        "inverse": true,
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "SharedZiplineDeleteRegionDone": {
+        "desc": "本区扫完，返回 Main 处理下一区",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

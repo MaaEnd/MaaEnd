@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <limits>
 #include <optional>
@@ -10,6 +11,8 @@
 #include <meojson/json.hpp>
 
 #include "navi_config.h"
+#include "navi_position.h"
+#include "zipline_types.h"
 
 namespace mapnavigator
 {
@@ -33,6 +36,10 @@ namespace mapnavigator
 //            （检测只受冷却限速，误报由 OCR 名称白名单挡下，最多白停一次）
 // DIG      - 触发 AutoCollectDigStart pipeline 子任务（无条件 Click target=true 两次），用于挖掘点。
 //            与 COLLECT 不同，DIG 仍是精确抵达后停车触发（挖掘是定点动作，非行进检测）
+// FIND     - 寻找并接近一个只有识别框、没有坐标的目标：拿点名节点给出的框直接对着世界走
+//            （转视角搜索 / 对准了前进 / 走过头退一步），全程不读小地图。命中 find_stop 即算到位，
+//            位置走到 find_arrive 附近同样算到位（两者都给就先到先算）。带 target 先走到锚点再找，
+//            不带就是就地开找的控制节点
 // ZIPLINE  - 滑索上索点：精确抵达后停车，把镜头转向下索点再交互上索，然后等滑行自己结束。
 //            只由滑索规划生成，不手写：能不能滑取决于两端的落差与跨度，那是规划器算出来的
 #define NAVI_ACTION_TYPES(X) \
@@ -48,6 +55,7 @@ namespace mapnavigator
     X(ZONE)                  \
     X(COLLECT)               \
     X(DIG)                   \
+    X(FIND)                  \
     X(ZIPLINE)
 
 enum class ActionType
@@ -58,34 +66,71 @@ enum class ActionType
     MEOJSON_ENUM_RANGE(RUN, ZIPLINE)
 };
 
-// 滑索的另一端。执行时先把镜头转向这里再交互上索，滑行结束后角色就落在这个点上。
-struct ZiplineTarget
+// 每种动作的静态策略, 一种动作一行; 到点后做什么见 semantic_nodes 的到点分发
+struct ActionTraits
 {
-    double x = 0.0;
-    double y = 0.0;
-    double height = 0.0;
-    // 索的仰角，正数是往上滑。落差大的一跳镜头不抬到这个角度就起不了滑。规划时按两端的世界
-    // 坐标算好，运行时不再碰单位——x/y 是缩放过的平面单位，跟 height 不同尺。
-    double elevation_deg = 0.0;
+    bool strict_arrival = false;     // 到点必须精确停住, 线路上的 strict_arrival 只能再加严
+    bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 只对线路明写 strict_arrival 的点
+    bool walk_approach = false;      // 接近段允许切走路
+    bool walk_at_startup = false;    // 起步位移还没确认也允许走路
+    bool settle_walking = false;     // 末端纠正前先切走路
+    bool route_boundary = false;     // 全局规划分段的固有边界
+    double commit_distance = 0.0;    // 判定圈下限 px, 0 = 不放宽
 };
 
-// 上索认不出提示时的备用站位。面板给的是离身位最近的那台设备, 架子边上贴着供电桩时会被它抢走,
-// 这个点从供电桩那侧让开一点点, 让架子重新成为最近的那个。
-struct ZiplineRestand
+constexpr ActionTraits TraitsOf(ActionType action)
 {
+    switch (action) {
+    case ActionType::RUN:
+        return { .settles_at_arrival = true, .walk_approach = true };
+    case ActionType::SPRINT:
+        return { .strict_arrival = true, .settles_at_arrival = true };
+    case ActionType::JUMP:
+        return { .strict_arrival = true, .settles_at_arrival = true };
+    case ActionType::FIGHT:
+        return { .strict_arrival = true, .settles_at_arrival = true };
+    case ActionType::INTERACT:
+        return { .strict_arrival = true, .walk_approach = true };
+    case ActionType::TRANSFER:
+        return { .strict_arrival = true, .settles_at_arrival = true };
+    case ActionType::PORTAL:
+        return { .strict_arrival = true, .commit_distance = kPortalCommitDistance };
+    case ActionType::HEADING:
+        return { .route_boundary = true };
+    case ActionType::NAVMESH:
+        return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
+    case ActionType::ZONE:
+        return {};
+    case ActionType::COLLECT:
+        return { .walk_approach = true, .route_boundary = true };
+    case ActionType::DIG:
+        return {
+            .strict_arrival = true,
+            .settles_at_arrival = true,
+            .walk_approach = true,
+            .walk_at_startup = true,
+            .settle_walking = true,
+            .route_boundary = true,
+        };
+    // 不设 strict_arrival：锚点只是「站这儿开始找」，收尾由视觉伺服完成
+    case ActionType::FIND:
+        return { .walk_approach = true, .route_boundary = true };
+    case ActionType::ZIPLINE:
+        return { .strict_arrival = true, .walk_approach = true };
+    }
+    return {};
+}
+
+// 运行期在卡死点前方生成的圆形禁区, 用于占位网格中未记录的障碍, 此后每次规划都绕开它。
+// 圆心按生成时所在定位区的坐标记录, 仅对同区规划生效。push_through 表示该禁区封闭了唯一通路,
+// 规划时不再计入, 只作为恢复流程判定此处需要物理脱困的依据。
+struct VirtualNoGoDisc
+{
+    std::string zone_id;
     double x = 0.0;
     double y = 0.0;
-};
-
-// 执行侧判死过的一跳。重展开时滑索照常参与规划, 只是这两根架子之间的索不再是候选——
-// 不然重规划会再选中刚失败的链, 无限重试。坐标按规划产出的架子平面位置记; 链首航点站的
-// 是上索走位点而不是架子本身, 所以匹配放宽到 kZiplineHopBanMatchWu。
-struct ZiplineHopBan
-{
-    double from_x = 0.0;
-    double from_y = 0.0;
-    double to_x = 0.0;
-    double to_y = 0.0;
+    double radius = 0.0;
+    bool push_through = false;
 };
 
 struct Waypoint
@@ -125,10 +170,17 @@ struct Waypoint
     // INTERACT 专用: rec 模式, 只认提示不按键。判定圈、行进中提示停车都照旧, 按不按、按哪个留给业务侧决定。
     // 写在路线顶层是整条路线的默认, 点上只能开不能关
     bool interact_rec;
-    // ZIPLINE only: 滑索落点。只由滑索规划写入; 缺这个字段的 ZIPLINE 点是配置写错了, 执行侧拒绝
-    std::optional<ZiplineTarget> zipline_target;
-    // ZIPLINE only: 备用站位, 只在上索按空一次之后才改瞄它。架子旁边没有供电结构就不写
-    std::optional<ZiplineRestand> mount_restand;
+    // FIND 专用：目标识别节点名，与 find_text 二选一
+    std::string find_target;
+    // FIND 专用：内联 OCR 文本表，执行时注入内置节点
+    std::vector<std::string> find_text;
+    // FIND 专用：命中它就算到位，与 find_arrive 至少给一个
+    std::string find_stop;
+    // FIND 专用：走到这个坐标附近也算到位。给了它才读定位, 判定只看 x/y 距离, 不参与转向
+    std::optional<std::array<double, 2>> find_arrive;
+    // ZIPLINE only: 这一跳的计划(两端架子、落点仰角、备用站位)。只由滑索规划写入; 缺这个字段的
+    // ZIPLINE 点是配置写错了, 执行侧拒绝
+    std::optional<ZiplineHopPlan> zipline_hop;
     // 展开路径专用: 这个点由原始作者 path 的哪一组(组首下标)展开而来。滑索链半路失败时按它把
     // 进度折回作者路线重新展开; 作者原始点和运行时生成的点不带(= max)。
     size_t authored_group_begin = std::numeric_limits<size_t>::max();
@@ -159,44 +211,15 @@ struct Waypoint
         return std::min(band, std::max(corridor_clearance, kMinArrivalBand));
     }
 
-    bool RequiresStrictArrival() const
-    {
-        if (!has_position) {
-            return false;
-        }
-        return strict_arrival || action == ActionType::SPRINT || action == ActionType::JUMP || action == ActionType::INTERACT
-               || action == ActionType::FIGHT || action == ActionType::TRANSFER || action == ActionType::PORTAL
-               || action == ActionType::NAVMESH || action == ActionType::DIG || action == ActionType::ZIPLINE;
-    }
+    ActionTraits Traits() const { return TraitsOf(action); }
 
-    // 末端纠正到位才验收的点, 只认线路明写的 strict_arrival。不写 default: 加动作时漏归类, clang/gcc 会
-    // 报 -Wswitch; 真漏到运行期也按不纠正走, 那是这套东西上线前的行为
-    bool SettlesAtArrival() const
-    {
-        if (!has_position || !authored_strict_arrival) {
-            return false;
-        }
-        switch (action) {
-        // 滑索和传送门各有自己的站位与提交距离, 往圈心收反而站不上去
-        case ActionType::ZIPLINE:
-        case ActionType::PORTAL:
-        // 判出提示就地停车, 再往回走等于离开刚认下的那个目标
-        case ActionType::INTERACT:
-        case ActionType::COLLECT:
-            return false;
-        case ActionType::RUN:
-        case ActionType::SPRINT:
-        case ActionType::JUMP:
-        case ActionType::FIGHT:
-        case ActionType::TRANSFER:
-        case ActionType::HEADING:
-        case ActionType::NAVMESH:
-        case ActionType::ZONE:
-        case ActionType::DIG:
-            return true;
-        }
-        return false;
-    }
+    bool RequiresStrictArrival() const { return has_position && (strict_arrival || Traits().strict_arrival); }
+
+    // 末端纠正到位才验收的点, 只认线路明写的 strict_arrival
+    bool SettlesAtArrival() const { return has_position && authored_strict_arrival && Traits().settles_at_arrival; }
+
+    // 顺着走过去就算数的点: 走廊跟随、经过即推进都只对这种点生效
+    bool IsContinuousRun() const { return has_position && action == ActionType::RUN && !RequiresStrictArrival(); }
 
     // 路线说了停下后认什么才走异步交互。只换预筛不给文本的点走不通: 共用识别节点里的占位文本没被顶掉, 停下来
     // 也认不出东西, 所以那种点退回原语义而不是白停一次。
@@ -213,7 +236,9 @@ struct Waypoint
 
     bool IsHeadingOnly() const { return action == ActionType::HEADING; }
 
-    bool IsIntrinsicRouteBoundary() const { return IsHeadingOnly() || action == ActionType::COLLECT || action == ActionType::DIG; }
+    bool IsFindPoint() const { return action == ActionType::FIND; }
+
+    bool IsIntrinsicRouteBoundary() const { return Traits().route_boundary; }
 
     bool ClosesGlobalRouteGroup() const { return route_required || IsIntrinsicRouteBoundary(); }
 
@@ -286,19 +311,6 @@ struct Waypoint
         waypoint.zone_id = std::move(zone);
         return waypoint;
     }
-};
-
-struct NaviPosition
-{
-    double x = 0.0;
-    double y = 0.0;
-    double angle = 0.0;
-    double score = 0.0;
-    // 角色站在哪张可走面。实机定位给不出这个信息，只有预览端选了层才有值，不传就按区的主层走。
-    std::optional<double> floor_y;
-    bool valid = false;
-    std::string zone_id;
-    std::chrono::steady_clock::time_point timestamp;
 };
 
 struct TurnCommandResult

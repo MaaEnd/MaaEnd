@@ -196,6 +196,17 @@
         "all_of": [
             "InPierWaterwheelMission"
         ],
+        // 面板入场动画期间点击可能被吞掉，等按钮区域静止后再继续
+        // （wait_freezes 按 ROI 整体判定静止，区域越大越容易把按钮位移稀释掉）
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                904,
+                580,
+                368,
+                130
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -253,7 +264,7 @@
         "desc": "已进入码头水车任务地图，准备快捷传送",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "QuickTeleportButton",
             "InPierWaterwheelMission"
         ],
         "pre_delay": 0,
@@ -267,7 +278,7 @@
         "desc": "在码头水车任务地图中点击前往传送",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringQuickTeleportSelectButton",
+            "QuickTeleportButton",
             "InPierWaterwheelMission"
         ],
         "pre_delay": 0,
@@ -283,7 +294,7 @@
         "desc": "在码头水车任务地图中点击传送",
         "recognition": "And",
         "all_of": [
-            "WhiteConfirmButtonType1"
+            "TeleportButton"
         ],
         "pre_delay": 0,
         "action": "Click",

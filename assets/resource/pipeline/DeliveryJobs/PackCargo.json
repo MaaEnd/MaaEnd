@@ -434,41 +434,6 @@
             "[Anchor]DeliveryJobsAfterAcceptJob"
         ]
     },
-    "DeliveryJobsQuoteTransferJob": {
-        "desc": "按报价处理：接取任务并返回当前仓储节点转交",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DeliveryJobsRedistributionBidNextStep"
-        ]
-    },
-    "DeliveryJobsQuoteAcceptJobOnly": {
-        "desc": "按报价处理：仅接取任务，接取完成后继续",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DeliveryJobsRedistributionBidNextStep"
-        ]
-    },
-    "DeliveryJobsQuoteDoNotAccept": {
-        "desc": "按报价处理：关闭报价页，暂不接取当前委托",
-        "recognition": "And",
-        "all_of": [
-            "CloseButtonType1",
-            "DeliveryJobsInCargoRedistributionBid"
-        ],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "InLocalDepotNode"
-        ]
-    },
     "DeliveryJobsBidPriceRecognitionFailed": {
         "desc": "无法识别当前选中报价时停在报价页",
         "recognition": "DirectHit",
@@ -519,8 +484,7 @@
             "按任意處繼續",
             "(?i)Click\\s*to\\s*continue",
             "クリックして続行",
-            "화면을 눌러 계속하기",
-            "Click to continue"
+            "화면을 눌러 계속하기"
         ],
         "order_by": "Expected",
         "pre_delay": 0,
@@ -532,7 +496,7 @@
         ]
     },
     "DeliveryJobsOngoingDelivery": {
-        "desc": "识别已有待运送的货物，并按当前仓储节点模式处理",
+        "desc": "识别已有待运送的货物，转去任务详情解析它属于哪个仓储节点",
         "recognition": "OCR",
         "roi": [
             882,
@@ -553,29 +517,69 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsOngoingDeliveryAction"
-        ]
-    },
-    "DeliveryJobsStopForOngoingDelivery": {
-        "desc": "有待运送的货物，无法继续当前处理流程，退出任务",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "StopTask",
-        "post_delay": 0,
-        "rate_limit": 0,
+            "DeliveryJobsEnsureOngoingDeliveryMission"
+        ],
         "focus": {
-            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDelivery"
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryDetected"
         }
     },
+    "DeliveryJobsEnsureOngoingDeliveryMission": {
+        "desc": "进入任务界面并选中残留的送货任务，供后续解析它所属的仓储节点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResolveOngoingDepot"
+        ]
+    },
+    "DeliveryJobsResolveOngoingDepot": {
+        "desc": "从送货任务详情识别它所属的仓储节点，并把后续交给该仓储节点的处理方式",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckAreaText"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                455,
+                88,
+                250,
+                28
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "DeliveryJobsResolveOngoingDepotAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsSkipOngoingDelivery"
+        ]
+    },
     "DeliveryJobsSkipOngoingDelivery": {
-        "desc": "仅装箱模式已有待运送货物时，关闭当前页面并继续下一个仓储节点",
+        "desc": "已有待运送货物且当前仓储节点不处理它时，退出任务界面并回到本地区仓储节点继续遍历",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsBackToDepotFromBid"
-        ]
+            // 此时停在任务详情界面，落点由发起遍历的地区循环声明为本地区仓储节点的场景节点
+            "[Anchor]DeliveryJobsReturnToDepotNode"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliverySkipped"
+        }
     },
     "DeliveryJobsBackToDepot": {
         "desc": "回到本地仓储界面",
@@ -590,8 +594,8 @@
             "[Anchor]DeliveryJobsGoToDepot"
         ]
     },
-    "DeliveryJobsBackToDepotFromBid": {
-        "desc": "从调度申请界面回到本地仓储界面",
+    "DeliveryJobsCloseRedistributionBid": {
+        "desc": "关闭调度申请界面并回到本地仓储节点（不接取当前委托）",
         "recognition": "And",
         "all_of": [
             "CloseButtonType1",

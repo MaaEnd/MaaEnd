@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"sort"
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -18,9 +19,15 @@ const (
 	// 调大可容忍抗锯齿和轻微抖动，但也会增加将短距离滚动误判为未移动的风险。
 	defaultPositionTolerance = 2
 
-	// scrollbarWhiteThreshold 是单个颜色通道视为白色的最低值，按测试素材标定。
-	// 调低会提高半透明白条召回率，也更容易把浅色背景识别为滚动条。
-	scrollbarWhiteThreshold = 200
+	// scrollbarBackgroundWidth 是滑块 ROI 左右各自用于估算局部背景的宽度。
+	scrollbarBackgroundWidth = 3
+
+	// scrollbarStablePixelCount 限制每行参与前景估算的高亮像素数，避免单点噪声造成误判。
+	scrollbarStablePixelCount = 3
+
+	// scrollbarMinLocalContrast 是白色滑块相对邻近背景的最低归一化增亮比例。
+	// 使用相对对比度可避免动态浅色背景被固定亮度阈值误认为滑块。
+	scrollbarMinLocalContrast = 0.45
 
 	// scrollbarMaxGap 是白条内部允许填补的最大纵向断点，单位为 720p 像素。
 	// 调大可连接更严重的透明纹理断点，也可能合并两段相邻高亮区域。
@@ -240,19 +247,73 @@ func detectScrollbarSegment(img image.Image, roi image.Rectangle) (scrollbarSegm
 		return scrollbarSegment{}, false
 	}
 
-	whiteRows := make([]bool, roi.Dy())
+	contrastRows := make([]float64, roi.Dy())
+	highlightedRows := make([]bool, roi.Dy())
 	for y := roi.Min.Y; y < roi.Max.Y; y++ {
-		for x := roi.Min.X; x < roi.Max.X; x++ {
-			r, g, b, _ := img.At(x, y).RGBA()
-			if min(r>>8, g>>8, b>>8) >= scrollbarWhiteThreshold {
-				whiteRows[y-roi.Min.Y] = true
-				break
-			}
+		contrast, ok := scrollbarRowContrast(img, roi, y)
+		if !ok || contrast < scrollbarMinLocalContrast {
+			continue
 		}
+		index := y - roi.Min.Y
+		contrastRows[index] = contrast
+		highlightedRows[index] = true
 	}
 
-	fillScrollbarGaps(whiteRows)
-	return longestScrollbarSegment(whiteRows)
+	fillScrollbarGaps(highlightedRows)
+	return strongestScrollbarSegment(highlightedRows, contrastRows)
+}
+
+func scrollbarRowContrast(img image.Image, roi image.Rectangle, y int) (float64, bool) {
+	foreground := make([]int, 0, roi.Dx())
+	for x := roi.Min.X; x < roi.Max.X; x++ {
+		foreground = append(foreground, pixelWhiteness(img, x, y))
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(foreground)))
+	stablePixelCount := min(scrollbarStablePixelCount, len(foreground))
+	if stablePixelCount == 0 {
+		return 0, false
+	}
+	foregroundWhiteness := averageInts(foreground[:stablePixelCount])
+
+	background := make([]int, 0, scrollbarBackgroundWidth*2)
+	leftStart := max(img.Bounds().Min.X, roi.Min.X-scrollbarBackgroundWidth)
+	for x := leftStart; x < roi.Min.X; x++ {
+		background = append(background, pixelWhiteness(img, x, y))
+	}
+	rightEnd := min(img.Bounds().Max.X, roi.Max.X+scrollbarBackgroundWidth)
+	for x := roi.Max.X; x < rightEnd; x++ {
+		background = append(background, pixelWhiteness(img, x, y))
+	}
+	if len(background) == 0 {
+		return 0, false
+	}
+	backgroundWhiteness := medianInts(background)
+	if foregroundWhiteness <= backgroundWhiteness || backgroundWhiteness >= 255 {
+		return 0, true
+	}
+	return (foregroundWhiteness - backgroundWhiteness) / (255 - backgroundWhiteness), true
+}
+
+func pixelWhiteness(img image.Image, x, y int) int {
+	r, g, b, _ := img.At(x, y).RGBA()
+	return int(min(r>>8, g>>8, b>>8))
+}
+
+func averageInts(values []int) float64 {
+	total := 0
+	for _, value := range values {
+		total += value
+	}
+	return float64(total) / float64(len(values))
+}
+
+func medianInts(values []int) float64 {
+	sort.Ints(values)
+	middle := len(values) / 2
+	if len(values)%2 != 0 {
+		return float64(values[middle])
+	}
+	return float64(values[middle-1]+values[middle]) / 2
 }
 
 func fillScrollbarGaps(rows []bool) {
@@ -274,8 +335,9 @@ func fillScrollbarGaps(rows []bool) {
 	}
 }
 
-func longestScrollbarSegment(rows []bool) (scrollbarSegment, bool) {
+func strongestScrollbarSegment(rows []bool, contrasts []float64) (scrollbarSegment, bool) {
 	best := scrollbarSegment{}
+	bestStrength := 0.0
 	bestLength := 0
 	for index := 0; index < len(rows); {
 		if !rows[index] {
@@ -287,12 +349,20 @@ func longestScrollbarSegment(rows []bool) (scrollbarSegment, bool) {
 			index++
 		}
 		length := index - start
-		if length > bestLength {
+		if length < scrollbarMinLength {
+			continue
+		}
+		strength := 0.0
+		for contrastIndex := start; contrastIndex < index; contrastIndex++ {
+			strength += contrasts[contrastIndex]
+		}
+		if strength > bestStrength || (strength == bestStrength && length > bestLength) {
 			best = scrollbarSegment{Top: start, Bottom: index - 1}
+			bestStrength = strength
 			bestLength = length
 		}
 	}
-	return best, bestLength >= scrollbarMinLength
+	return best, bestLength > 0
 }
 
 func scrollbarSegmentsMatch(previous, current scrollbarSegment, tolerance int) bool {

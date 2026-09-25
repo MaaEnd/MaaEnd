@@ -20,6 +20,8 @@ struct AdbTouchTurnProfile
     double default_units_per_degree = 5.0;
     int32_t swipe_duration_ms = 70;
     int32_t post_swipe_settle_ms = 0;
+    // 移动指令之后这段时间里的转向会被游戏吞掉: 摇杆状态刚变, 视角拖动还没被受理
+    int32_t action_quiet_period_ms = 60;
 };
 
 inline constexpr AdbTouchTurnProfile kAdbTouchTurnProfile {};
@@ -130,6 +132,7 @@ constexpr int32_t kHeadingTurnStepIntervalMs = 100;     // step pacing floor; ra
 constexpr double kHeadingStableReadToleranceDeg = 15.0; // two fresh reads must agree this closely to count
 constexpr int32_t kHeadingStableReadIntervalMs = 120;
 constexpr int32_t kHeadingStableReadMaxFrames = 4;      // default HEADING read budget; the caller decides its fallback
+constexpr double kCameraAlignMinDegrees = 10.0;         // camera-align deadband, under the arrow's own read noise
 constexpr int32_t kSerialRouteRetryDelayMs = 180;
 constexpr double kBootstrapOwnershipProjectionCorridor = 3.0;
 constexpr double kBootstrapOwnershipProjectionFrontThreshold = 0.35;
@@ -155,8 +158,20 @@ constexpr int32_t kDynamicRecoveryTotalTimeoutMs = 30000;
 // abandons the precise route.
 constexpr int32_t kRecoveryJumpAttemptsBeforeDetour = 2;
 constexpr double kDynamicRecoveryResetDistance = 2.0;
-constexpr double kCloseGoalDetourSuppressSlack = 6.0;
-constexpr int32_t kRecoveryDetourAttemptsBeforeUnstick = 1;
+// Each detour attempt places one virtual no-go disc and re-plans around it; a further stall at the same
+// spot places a larger one. After this many attempts at one anchor the ladder moves on to the physical
+// unstick.
+constexpr int32_t kRecoveryDetourAttemptsBeforeUnstick = 3;
+// Virtual no-go disc placed ahead of a stall. The first radius is an estimate of the unseen obstacle's
+// size; a further stall against an existing disc adds one step, up to the cap. The standoff keeps the
+// agent's own cell outside the disc so the replan has a start point; the goal clearance keeps the anchor
+// outside it.
+constexpr double kVirtualNoGoRadius = 2.0;
+constexpr double kVirtualNoGoRadiusStep = 1.5;
+constexpr double kVirtualNoGoRadiusMax = 6.5;
+constexpr double kVirtualNoGoRadiusMin = 1.0;
+constexpr double kVirtualNoGoStandoff = 1.0;
+constexpr double kVirtualNoGoGoalClearance = 1.0;
 constexpr double kUnstickSampleStepM = 0.5;  // per-ray on/off scan resolution (world units)
 constexpr double kUnstickMaxRockCrossingM =
     2.0;                                     // tolerate this much off-mesh (the rock) before solid ground; longer = water => reject bearing
@@ -188,6 +203,14 @@ constexpr int32_t kRiverFallRecoverySettleMs = 2000;                            
 constexpr int32_t kOffRouteWedgeReplanMs = 6000;
 constexpr int32_t kOffRouteWedgeReplanCooldownMs = 4000;
 constexpr int32_t kOffRouteWedgeFailMs = 12000;
+
+// Last-resort dwell watchdog: the agent never left a disc this small for this long. Measured in world pixels
+// against a latched centre, so no clock keyed on a path index, an anchor or a replan can launder it away —
+// the only way to clear it is to actually go somewhere. Sized off logged navigations: the longest healthy
+// dwell is 23.5s and every self-recovery there escaped on its first ladder attempt, while a wedged one
+// passes 160s having burned dozens, so the budget sits four times over the ladder's own.
+constexpr double kDwellWatchdogRadius = 20.0;
+constexpr int32_t kDwellWatchdogFailMs = 120000;
 
 // Cross-tier escape (wrong-tier fall): plan ONE navmesh corridor from a walkable FLOORED-tier fix back to the
 // nearest reachable authored waypoint and follow it as a fixed corridor (riding the legitimate tier<->base
@@ -250,7 +273,6 @@ constexpr int32_t kNavRunPlanFailureCooldownMs = 3000;
 // --- Zone / Portal / Transfer Constants ---
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;
 constexpr int32_t kZoneConfirmTimeoutMs = 12000;
-constexpr int32_t kZoneConfirmStableFrames = 2;
 constexpr int32_t kRelocationRetryIntervalMs = 120;
 constexpr int32_t kRelocationWaitTimeoutMs = 15000;
 constexpr int32_t kRelocationStableFixes = 2;
@@ -260,14 +282,14 @@ constexpr double kRelocationResumeMinDistance = 3.0;
 // 一跳分三步: 站上架子(仅链首)、把镜头对准落点、按左键起滑。滑行途中人悬在半空, 位置一路在动,
 // 所以判完成只认「进了落点圈」这一条, 任何「动了就算走完」的判据都会在起滑瞬间成立
 constexpr double kZiplineLandingBandWu = 6.0;
+// 落地那一帧是冷启动, 把落点(和同一架子上其它索的落点)交给定位器当搜索先验, 每个点开这么大
+// 半径的小窗跟 YOLO 格窗比分。要装得下落点散布(band), 又小到错先验只能撞出弱峰；模板半宽由
+// 定位器自己补边, 这里不用算进去
+constexpr double kZiplineLandingHintRadiusWu = 24.0;
 constexpr int32_t kZiplineRideRetryIntervalMs = 150;
 constexpr int32_t kZiplineRideTimeoutMs = 30000;
-// 落点圈内还要连着读到这么多个非 held 定位才收工, 避免滑行途中恰好飞过落点上方就提前落地
-constexpr int32_t kZiplineLandingStableFixes = 2;
-// 站上架子后交互提示就没了, 所以确认只看「还认不认得出这条提示」。留一小段窗口是因为按下的
-// 那一帧提示往往还在
-constexpr int32_t kZiplineMountConfirmAttempts = 6;
-constexpr int32_t kZiplineMountConfirmIntervalMs = 250;
+// 起滑后连着这么多帧定位不到就当滑出去了: 滑行中小地图整个隐藏, 站在架子上没滑走时跟踪不会断
+constexpr int32_t kZiplineRideLostFixes = 3;
 // 起滑按完先等这么久再开始量位移, 免得把起步前的几帧当成没滑起来
 constexpr int32_t kZiplineLaunchSettleMs = 400;
 // 瞄准精度只能在按左键之前保证: 按下去人就滑走了, 半空里没有跟随层能把方向修回来。走路那套
@@ -276,6 +298,11 @@ constexpr double kZiplineAimToleranceDeg = 6.0;
 // 上索后的稳定等待与全部水平修正共用这个截止时间。每次只发一个后端批次并等待真实反馈，
 // 避免大角度转向在上索动画尚未结束时一次性排入多条输入。
 constexpr int32_t kZiplineAimHeadingTimeoutMs = 6000;
+// 第一批转完量一次「发了多少转了多少」当增益, 后面的 yaw 和俯仰都按它缩放。太小的一批量不准,
+// 增益夹在这个范围里, 一帧读歪不至于把俯仰整个放飞
+constexpr double kZiplineAimGainMinTurnDeg = 5.0;
+constexpr double kZiplineAimGainMin = 0.5;
+constexpr double kZiplineAimGainMax = 2.0;
 // 落差够大时镜头得抬到索的仰角上才起得了滑。小地图读不到俯仰, 所以每次从地面登上滑索架后
 // 先通过 Pipeline 把镜头拉到上限, 将该硬限位记作 +90 度, 再从这个固定基准开环调整。连续滑索
 // 没有上下索动作, 直接沿用上一跳记住的俯仰。游戏的俯仰范围不对称: 仰角最多 90 度, 俯角最多 60 度。
@@ -289,17 +316,20 @@ constexpr int32_t kZiplineLaunchAttempts = 3;
 // 滑行中位置每拍都在变, 连着这么多拍几乎不动就说明这趟已经结束了
 constexpr double kZiplineSettleMoveWu = 1.5;
 constexpr int32_t kZiplineSettleFixes = 4;
-// 全局搜索偶尔会在同一区域错锁到远处的相似纹理。低分本身不能判错，滑到相邻索也可能真离开
-// 目标线段；只有「低于断言定位的常用及格线」且「距上索点远超当前索跨度」才拒绝这一帧。
-constexpr double kZiplineOutlierFixConfidence = 0.70;
-constexpr double kZiplineOutlierSpanFactorSquared = 9.0;
-constexpr double kZiplineOutlierDistanceSlackWu = 12.0;
 // 下索是一次右键。站在架子上时移动指令会被架子的选点状态吃掉, 所以走路之前必须先下来
 constexpr int32_t kZiplineDismountHoldMs = 80;
-// 索没通电、两端根本没挂索时起滑是空响, 人还站在架子上。滑一趟是大位移, 所以「过了确认时间
-// 还在原地」与「滑起来了但没到落点」分得开, 不必耗满整个滑行超时。两个值待实机核准
-constexpr int32_t kZiplineMountConfirmMs = 5000;
+// 索没通电、两端根本没挂索时起滑是空响, 人还站在架子上。真滑起来小地图随即读不回坐标, 空响时坐标
+// 一直有效且位移为零, 两种结局分得开, 确认时间只要盖住失定位到判出滑行那几拍
+constexpr int32_t kZiplineLaunchConfirmMs = 1500;
 constexpr double kZiplineMountMinMoveWu = 3.0;
+// 上索判定读两个信号: 右上角按钮在架上收起, 底部操作引导出现架上那几条提示。底部提示的逐帧可读性
+// 随机位起落, 所以架上一侧读到一帧即认; 地面一侧要连续若干帧, 避免在上架过程中重按。按键到按钮
+// 收起的延迟里地面读数不予采信, settle 为其预留时间。窗口要盖住提示从按键到第一帧读得出的滞后,
+// 余量不足会把已经上架的人按下索键弄下来
+constexpr int32_t kZiplineMountSettleMs = 600;
+constexpr int32_t kZiplineMountWindowMs = 4000;
+constexpr int32_t kZiplineMountOnGroundFixes = 2;
+constexpr int32_t kZiplineMountPressBudget = 2;
 // 同一个上索点最多让重规划试这么多次, 再要重规划就当这根架子够不着, 退索改走路。楔死看门狗
 // 6s 重规划一次、12s 掐掉整趟导航, 所以这里必须小到能在它掐之前让出路来。滑索省下的那点路
 // 远不值一次导航失败, 判错方向只损失一段捷径
@@ -326,6 +356,18 @@ constexpr int32_t kZiplineAbandonWalkFallbackCount = 3;
 // 判定圈收到这里, 让人真把那点距离走完(有备用站位就是走过去, 没有就是再走近点)。
 // 再往下收就到定位噪声底下了, 收不拢只会白等看门狗
 constexpr double kZiplineRestandBandWu = 1.0;
+// 顶在设备上走不动时换下一个站位的门限。这时到点判定过不去、提示也没出来, 再等下去先招来的是
+// 恢复阶梯 —— 它跳一下、挪一下设备, 把这一轮的站位拖走, 所以必须抢在它前面动手
+constexpr int32_t kZiplineMountSpotStallMs = 2000;
+static_assert(kZiplineMountSpotStallMs < kObstacleRecoveryMinTriggerMs);
+// 滑错索又滑回来之后, 同一跳最多再试这么多次, 用完就站在架子上等换路
+constexpr int32_t kZiplineHopRetryBudget = 2;
+// 下索键按完等定位稳定的基准时长: 两倍还不稳再按一次, 四倍还不稳当卡住
+constexpr int32_t kZiplineDismountTimeoutMs = 2000;
+// 落地定位对不上时给冷启动的时间, 到点还对不上这跳按丢失记
+constexpr int32_t kZiplineUnknownTimeoutMs = 8000;
+// 两个节点算同一根架子的世界坐标距离。架子是点状物, 同一 level 里两根架子挨不到这么近
+constexpr double kZiplineTowerIdentityWu = 2.0;
 
 constexpr double kNoProgressDistanceEpsilon = 0.5;
 constexpr double kRouteProgressEpsilon = 0.5;
@@ -342,6 +384,8 @@ constexpr double kPostTurnForwardCommitMinDegrees = 15.0;
 
 constexpr const char* kDefaultNavmeshRelativePath = "assets/resource/model/map/navmesh/base.nav";
 constexpr const char* kDefaultCompressedNavmeshRelativePath = "assets/resource/model/map/navmesh/base.nav.gz";
+// 作者圈的虚拟禁区表。resource/model 是另一个仓库的子模块, 本仓库的配置统一放 data/<模块>/。
+constexpr const char* kNoGoTableRelativePath = "data/MapNavigator/nogo_zones.json";
 
 // Prompt-driven actions (collect / async interact), three nodes per kind: entry, authoritative recognition, exit.
 // The recognition node is also the ROI source, the pre-warm target and where the route's text is injected.
@@ -357,9 +401,14 @@ constexpr const char* kInteractExitNode = "MapNavigatorInteractEnd";
 constexpr const char* kZiplineMountEntryNode = "MapNavigatorZiplineMountStart";
 constexpr const char* kZiplineMountRecognitionNode = "MapNavigatorZiplineMount";
 constexpr const char* kZiplineMountExitNode = "MapNavigatorZiplineMountEnd";
-constexpr const char* kZiplineMountScanEntryNode = "MapNavigatorZiplineMountScanStart";
 constexpr const char* kZiplineMountScanNode = "MapNavigatorZiplineMountScan";
 constexpr const char* kZiplinePitchResetNode = "MapNavigatorZiplinePitchReset";
+// 上索判定的两个信号, 同样各配一个 Start 节点。地面判据的识别逻辑引自 Interface/InScene 的
+// 公开节点 InWorld, 在 pipeline 里包一层, 使未命中记在 MapNavigator 自己的节点名下
+constexpr const char* kZiplineOnGroundEntryNode = "MapNavigatorZiplineOnGroundStart";
+constexpr const char* kZiplineOnGroundNode = "MapNavigatorZiplineOnGround";
+constexpr const char* kZiplineOnTowerHintEntryNode = "MapNavigatorZiplineOnTowerHintStart";
+constexpr const char* kZiplineOnTowerHintNode = "MapNavigatorZiplineOnTowerHint";
 constexpr int32_t kPromptPostSleepMs = 80;
 
 // Resolution every pipeline ROI is authored against; the scanner rescales it to whatever the frame really is.
@@ -391,9 +440,18 @@ constexpr int32_t kSprintCancelReleaseMs = 60;
 // otherwise the mount prompt can appear on the first frame after walking is toggled and stop motion immediately.
 constexpr double kCollectWalkEnterBandWu = 3.0;
 constexpr double kCollectWalkExitBandWu = 4.5;
+// DIG accepts arrival at 2.25 units: the ordinary 3-unit walking band leaves only 0.75 units to slow down.
+// Start earlier without changing where digging is allowed or opting ordinary DIG points into strict settling.
+constexpr double kDigWalkEnterBandWu = 5.0;
+constexpr double kDigWalkExitBandWu = 7.5;
 constexpr double kZiplineWalkEnterBandWu = 5.0;
 constexpr double kZiplineWalkExitBandWu = 7.5;
 static_assert(kCollectWalkEnterBandWu < kCollectWalkExitBandWu, "collect walk enter band must be smaller than its exit band");
+static_assert(kDigWalkEnterBandWu < kDigWalkExitBandWu, "dig walk enter band must be smaller than its exit band");
+static_assert(
+    kStrictArrivalLookaheadRadius + kMeasurementDefaultPositionQuantum < kDigWalkEnterBandWu,
+    "dig walking must start before arrival");
+static_assert(kDigWalkExitBandWu < kCollectSprintSuppressBandWu, "dig walk bands must sit inside the sprint-suppress band");
 static_assert(kZiplineWalkEnterBandWu < kZiplineWalkExitBandWu, "zipline walk enter band must be smaller than its exit band");
 static_assert(kZiplineWalkExitBandWu < kCollectSprintSuppressBandWu, "walk bands must sit inside the sprint-suppress band");
 
@@ -421,5 +479,32 @@ constexpr int32_t kRecoveryDeviceAttempts = 1;
 constexpr const char* kDefaultDigEntry = "AutoCollectDigStart";
 constexpr const char* kDigPipelineOverride = R"({"AutoCollectDigEnd":{"next":[]}})";
 constexpr int32_t kDigPostSleepMs = 80;
+
+// --- FIND: 按识别框接近目标 ---
+// 内联文本 (find_text) 走这个内置 OCR 节点: 每趟注入 expected 后按帧调用, 从不派发
+constexpr const char* kFindInlineOcrNode = "MapNavigatorFind";
+// 原地搜索每步转过的视角, 一圈 12 步
+constexpr double kFindSearchStepDeg = 30.0;
+// 连续漏认这么多拍才转去搜索: 遮挡一两帧就把刚对准的镜头甩走, 下一拍还要转回来
+constexpr int32_t kFindMissGraceTicks = 3;
+// 框中心离画面中线进这个容差就不再转视角, 保持直行 (1280 基准帧像素)
+constexpr int32_t kFindAlignTolerancePx = 80;
+// 偏出对准容差但没出这个窗口时边走边转; 再偏就先站定转正, 免得带着旧方向越走越偏
+constexpr int32_t kFindWalkWhileTurningPx = kFindAlignTolerancePx * 2;
+// 走路时停车判据的密集探测: 提示窗口很窄, 只靠每拍一查容易直接走过头; 窗口内按间隔抓快照重查
+constexpr int32_t kFindStopProbeWindowMs = 700;
+constexpr int32_t kFindStopProbeIntervalMs = 120;
+// 框中心掉到这条线以下算走过了, 退一步; 480/720 即画面下三分之一
+constexpr double kFindPassedCenterYRatio = 0.667;
+// 走过头退一步的时长, 只求把框拉回中线以下
+constexpr int32_t kFindBackwardPulseMs = 200;
+// 转向增益: 偏移换算成角度是线性化的, 打满会转过头
+constexpr double kFindSteerGain = 0.33;
+// 每步末尾的节流, 同时充当下一步转向的静默期 (短于后端 quiet period 会被上一条移动指令吞掉)
+constexpr int32_t kFindStepSleepMs = 120;
+// 预算, 步数与时长任一用尽即判该点失败
+constexpr int32_t kFindMaxSteps = 48;
+constexpr int32_t kFindBudgetMs = 60000;
+static_assert(kFindStepSleepMs > kAdbTouchTurnProfile.action_quiet_period_ms, "find pacing must outlast the steering quiet period");
 
 } // namespace mapnavigator

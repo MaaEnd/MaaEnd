@@ -32,5 +32,11 @@
             "../AutoDelivery/RecycleBin.png"
         ],
         "gold_ratio": 0.5
+    },
+    "DeliveryPoint": {
+        "templates": [
+            "../SeizeDeliveryJobs/DeliveryPoint.png"
+        ],
+        "threshold": 0.8
     }
 }

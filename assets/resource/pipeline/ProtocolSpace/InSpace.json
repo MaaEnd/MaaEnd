@@ -38,8 +38,8 @@
     },
     "ProtocolSpaceEnterSpace": {
         "desc": "进入协议空间",
-        "recognition": "Or",
-        "any_of": [
+        "recognition": "And",
+        "all_of": [
             "WhiteConfirmButtonType1",
             {
                 "recognition": "OCR",
@@ -56,6 +56,8 @@
                 ]
             }
         ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
         "action": "Click",
         "next": [
             "ProtocolSpaceEnterSpaceSelectClaimReward",
@@ -71,6 +73,7 @@
         "post_delay": 0,
         "next": [
             "ProtocolSpacePopupSanityLowExit",
+            "ProtocolSpacePopupSanityLowUseSpMedicationPrepare",
             "ProtocolSpaceEnterSpacePrepareSuccess"
         ]
     },
@@ -167,6 +170,51 @@
         },
         "focus": {
             "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_end"
+        }
+    },
+    "ProtocolSpacePopupSanityLowUseSpMedicationPrepare": {
+        "desc": "弹出理智不足，关闭弹窗后尝试使用药剂恢复",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "CancelButton",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    279,
+                    295,
+                    310,
+                    40
+                ],
+                "expected": [
+                    "理智不足",
+                    "Insufficient Sanity"
+                ]
+            }
+        ],
+        "box_index": 0,
+        "action": "Click",
+        "next": [
+            "ProtocolSpacePopupSanityLowUseSpMedication"
+        ]
+    },
+    "ProtocolSpacePopupSanityLowUseSpMedication": {
+        "desc": "回到进入界面，尝试添加理智",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "ProtocolSpacePopupSanityLowNoMedicationFinish",
+            "AutoUseSpMedicationInPrepareFinishUseAnchor": "ProtocolSpaceEnterSpace"
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoUseSpMedicationInPrepareWithAnchor"
+        ]
+    },
+    "ProtocolSpacePopupSanityLowNoMedicationFinish": {
+        "desc": "无可用药剂，结束任务",
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Starting": "$task.ProtocolSpace.focus.sanity_low_end"
         }
     },
     "ProtocolSpacePopupSanityLowContinue": {
@@ -664,7 +712,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ProtocolSpaceRewardSanityLow",
             "ProtocolSpaceRewardUsePermit",
             "ProtocolSpaceRewardDontUsePermit",
             "ProtocolSpaceRewardClaim"
@@ -710,59 +757,6 @@
             "Node.Action.Succeeded": "$task.ProtocolSpace.focus.success_count_reached"
         }
     },
-    "ProtocolSpaceRewardUsePermitSanityLow": {
-        "desc": "使用理智消耗许可时理智不足",
-        "recognition": "ColorMatch",
-        "roi": [
-            680,
-            530,
-            110,
-            35
-        ],
-        "method": 4,
-        "lower": [
-            180,
-            90,
-            90
-        ],
-        "upper": [
-            255,
-            130,
-            130
-        ],
-        "count": 30,
-        "next": [
-            "ProtocolSpaceRewardDontUsePermit"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_skip_permit"
-        }
-    },
-    "ProtocolSpaceRewardSanityLow": {
-        "desc": "理智不足",
-        "recognition": "ColorMatch",
-        "roi": [
-            680,
-            530,
-            110,
-            35
-        ],
-        "method": 4,
-        "lower": [
-            180,
-            90,
-            90
-        ],
-        "upper": [
-            255,
-            130,
-            130
-        ],
-        "count": 30,
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_end"
-        }
-    },
     "ProtocolSpaceRewardDontUsePermit": {
         "desc": "协议空间奖励界面不使用许可",
         "recognition": "OCR",
@@ -778,7 +772,6 @@
         ],
         "action": "Click",
         "next": [
-            "ProtocolSpaceRewardSanityLow",
             "ProtocolSpaceRewardClaim"
         ],
         "focus": {
@@ -803,7 +796,6 @@
         ],
         "action": "Click",
         "next": [
-            "ProtocolSpaceRewardUsePermitSanityLow",
             "ProtocolSpaceRewardClaim"
         ],
         "focus": {
@@ -818,10 +810,71 @@
         ],
         "action": "Click",
         "next": [
+            "ProtocolSpaceRewardClaimRestoreSanity",
             "ProtocolSpaceRewardClaimSuccess"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.ProtocolSpace.focus.confirm_claim_reward"
+        }
+    },
+    "ProtocolSpaceRewardClaimRestoreSanity": {
+        "desc": "领取后弹出恢复理智窗口，先关闭再进入补体力分支",
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationDialogText",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -400,
+                    100,
+                    400,
+                    260
+                ],
+                "template": "Common/Button/CloseButtonType4.png"
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardClaimRestoreSanityDisappear"
+        ]
+    },
+    "ProtocolSpaceRewardClaimRestoreSanityDisappear": {
+        "desc": "确认恢复理智窗口已关闭",
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationDialogText"
+        ],
+        "inverse": true,
+        "next": [
+            "ProtocolSpaceRewardClaimRestoreSanityUseMedication",
+            "ProtocolSpaceSanityLowExitToWorld"
+        ]
+    },
+    "ProtocolSpaceRewardClaimRestoreSanityUseMedication": {
+        "desc": "关闭恢复理智窗口后，尝试点击加号补充体力",
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "ProtocolSpaceSanityLowExitToWorld",
+            "AutoUseSpMedicationInPrepareFinishUseAnchor": "ProtocolSpaceRewardClaim"
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoUseSpMedicationInPrepareWithAnchor"
+        ]
+    },
+    "ProtocolSpaceSanityLowExitToWorld": {
+        "desc": "理智不足收工：回到大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceOperationExitToWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.sanity_low_end"
         }
     },
     "ProtocolSpaceRewardClaimSuccess": {
@@ -851,9 +904,7 @@
         },
         "next": [
             "ProtocolSpaceRewardAddItemData",
-            "ProtocolSpaceRewardClaimSuccessSanityLow",
-            "ProtocolSpaceRewardClaimSuccessContinue",
-            "ProtocolSpaceRewardClaimSuccessFinish"
+            "ProtocolSpaceRewardClaimSuccessNext"
         ]
     },
     "ProtocolSpaceRewardAddItemData": {
@@ -877,7 +928,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ProtocolSpaceRewardClaimSuccessSanityLow",
+            "ProtocolSpaceRewardClaimSuccessNext"
+        ]
+    },
+    "ProtocolSpaceRewardClaimSuccessNext": {
+        "desc": "协议空间奖励界面：继续或结束",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "ProtocolSpaceRewardClaimSuccessContinue",
             "ProtocolSpaceRewardClaimSuccessFinish"
         ]
@@ -893,6 +952,35 @@
             "[JumpBack]SceneNoticeRewardsUpgrade",
             "[JumpBack]SceneWaitBlackScreenLoadingExit",
             "ProtocolSpaceEnterSpaceSuccess",
+            "ProtocolSpaceRewardClaimSuccessSanityLowUseSpMedicationPrepare",
+            "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.continue_operation"
+        }
+    },
+    "ProtocolSpaceRewardClaimSuccessAfterMedicationNext": {
+        "desc": "用药成功后回到奖励页：再继续或结束（不占用 Continue 的 max_hit）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceRewardClaimSuccessContinueAfterMedication",
+            "ProtocolSpaceRewardClaimSuccessFinish"
+        ]
+    },
+    "ProtocolSpaceRewardClaimSuccessContinueAfterMedication": {
+        "desc": "用药成功后继续下一轮（独立节点，不共享 Continue max_hit）",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "[JumpBack]SceneNoticeRewardsUpgrade",
+            "[JumpBack]SceneWaitBlackScreenLoadingExit",
+            "ProtocolSpaceEnterSpaceSuccess",
+            "ProtocolSpaceRewardClaimSuccessSanityLowUseSpMedicationPrepare",
             "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
         ],
         "focus": {
@@ -900,7 +988,8 @@
         }
     },
     "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
-        "desc": "理智不足对话框检测，避免理智不足颜色检测失败",
+        "desc": "理智不足对话框检测，关闭后结束任务",
+        "enabled": true,
         "recognition": "And",
         "all_of": [
             {
@@ -929,33 +1018,51 @@
             "ProtocolSpaceRewardClaimSuccessSanityLowFinish"
         ]
     },
-    "ProtocolSpaceRewardClaimSuccessSanityLow": {
-        "desc": "使用理智消耗许可时理智不足",
-        "recognition": "ColorMatch",
-        "roi": [
-            330,
-            -180,
-            300,
-            180
+    "ProtocolSpaceRewardClaimSuccessSanityLowUseSpMedicationPrepare": {
+        "desc": "理智不足对话框，关闭后尝试使用药剂恢复",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    280,
+                    220,
+                    600,
+                    230
+                ],
+                "expected": [
+                    "当前理智不足",
+                    "目前理智不足",
+                    "Insufficient Sanity",
+                    "理性が不足しているため",
+                    "현재 이성이 부족해",
+                    "// @i18n-skip"
+                ]
+            },
+            "CancelButton"
         ],
-        "method": 4,
-        "lower": [
-            200,
-            100,
-            100
-        ],
-        "upper": [
-            255,
-            140,
-            140
-        ],
-        "count": 15,
+        "box_index": 1,
+        "pre_wait_freezes": 200,
+        "action": "Click",
         "next": [
-            "ProtocolSpaceRewardClaimSuccessSanityLowFinish"
+            "ProtocolSpaceRewardClaimSuccessSanityLowUseSpMedication"
+        ]
+    },
+    "ProtocolSpaceRewardClaimSuccessSanityLowUseSpMedication": {
+        "desc": "领奖后理智不足，尝试添加理智",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "ProtocolSpaceRewardClaimSuccessSanityLowFinish",
+            "AutoUseSpMedicationInPrepareFinishUseAnchor": "ProtocolSpaceRewardClaimSuccessAfterMedicationNext"
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoUseSpMedicationInPrepareWithAnchor"
         ]
     },
     "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
-        "desc": "协议空间奖励界面，结束任务",
+        "desc": "协议空间奖励界面，关闭后结束任务",
         "recognition": "And",
         "all_of": [
             {
@@ -980,12 +1087,8 @@
         "pre_wait_freezes": 100,
         "action": "Click",
         "next": [
-            "ProtocolSpaceOperationExitToWorld",
-            "[JumpBack]SceneAnyEnterWorld"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.sanity_low_end"
-        }
+            "ProtocolSpaceSanityLowExitToWorld"
+        ]
     },
     "ProtocolSpaceRewardClaimSuccessFinish": {
         "desc": "协议空间奖励界面，结束任务",
@@ -1009,18 +1112,9 @@
     },
     "ProtocolSpaceOperationFailed": {
         "desc": "行动失败",
-        "recognition": "OCR",
-        "roi": [
-            520,
-            0,
-            240,
-            180
-        ],
-        "expected": [
-            "行动失败",
-            "行動失敗",
-            "Operation Failed",
-            "작전 실패"
+        "recognition": "And",
+        "all_of": [
+            "CheckOperationFailedText"
         ],
         "pre_wait_freezes": 200,
         "action": "Click",

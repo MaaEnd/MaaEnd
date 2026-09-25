@@ -669,6 +669,8 @@ const char* ToString(BaseNavRouteStatus status)
         return "zone_not_found";
     case BaseNavRouteStatus::Unreachable:
         return "unreachable";
+    case BaseNavRouteStatus::NoGo:
+        return "no_go";
     }
     return "unknown";
 }

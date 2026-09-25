@@ -13,6 +13,7 @@
         ],
         "option": [
             "GameSettingRegion",
+            "GameSettingLanguage",
             "GameSettingDisplayType",
             "GameSettingGraphicsQuality",
             "GameSettingFrameRate",
@@ -32,6 +33,73 @@
                 {
                     "name": "Global",
                     "label": "$option.GameSettingRegion.cases.Global.label"
+                }
+            ]
+        },
+        "GameSettingLanguage": {
+            "label": "$option.GameSettingLanguage.label",
+            "type": "select",
+            "default_case": "Unchanged",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.GameSettingLanguage.cases.Unchanged.label"
+                },
+                {
+                    "name": "CN",
+                    "label": "简体中文"
+                },
+                {
+                    "name": "TC",
+                    "label": "繁體中文"
+                },
+                {
+                    "name": "DE",
+                    "label": "Deutsch"
+                },
+                {
+                    "name": "EN",
+                    "label": "English"
+                },
+                {
+                    "name": "MX",
+                    "label": "Español"
+                },
+                {
+                    "name": "FR",
+                    "label": "Français"
+                },
+                {
+                    "name": "ID",
+                    "label": "Bahasa Indonesia"
+                },
+                {
+                    "name": "IT",
+                    "label": "Italiano"
+                },
+                {
+                    "name": "JP",
+                    "label": "日本語"
+                },
+                {
+                    "name": "KR",
+                    "label": "한국어"
+                },
+                {
+                    "name": "BR",
+                    "label": "Português (Brasil)"
+                },
+                {
+                    "name": "RU",
+                    "label": "Русский"
+                },
+                {
+                    "name": "TH",
+                    "label": "ภาษาไทย"
+                },
+                {
+                    "name": "VN",
+                    "label": "Tiếng Việt"
                 }
             ]
         },

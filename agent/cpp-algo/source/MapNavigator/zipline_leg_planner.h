@@ -8,6 +8,7 @@
 #include "../Navmesh/BaseNavPlanner.h"
 #include "../Zipline/ZiplineFrames.h"
 #include "navmesh_diagnostics.h"
+#include "zipline_types.h"
 
 namespace mapnavigator
 {
@@ -18,9 +19,10 @@ struct NaviParam;
 // 两者分开记才说得清。
 struct ZiplineOutcome
 {
-    bool used = false;       // 至少有一条腿走了滑索
-    bool no_data = false;    // 有标定但没导入坐标，或这个区一根通电的都没记到
-    bool not_chosen = false; // 有候选，但没有一条比走路划算
+    bool used = false;            // 至少有一条腿走了滑索
+    bool account_unknown = false; // 本次初始化没有取得当前账号 UID；不能安全选择任何账号记录
+    bool no_data = false;         // 有标定但没导入坐标，或这个区一根通电的都没记到
+    bool not_chosen = false;      // 有候选，但没有一条比走路划算
 };
 
 // 由寻路入口在请求开始时清零、结束时取用。账记在调用线程上，并发请求各算各的。
@@ -35,14 +37,22 @@ struct ZiplineRoute
     // 依次经过的架子，至少两根。中间那些既是上一跳的落点也是下一跳的上索点，
     // 人落下来就站在下一根上，所以跳与跳之间不需要走路。
     std::vector<zipline::ZiplineNode> towers;
+    // 与 towers 逐跳对应(最后一根没有)：这根架子上除了下一跳以外还挂着索通向哪些架子。
+    // 执行侧拿它当落地定位的备选先验，挂错索也认得出落在哪。
+    std::vector<std::vector<zipline::ZiplineNode>> hop_alternates;
     // 折算成等效走路距离的总代价，与 baseline_length 可直接比大小。
     double cost = 0.0;
-    // 上索点旁边贴着供电结构时给的备用站位，执行侧认不出上索提示才改瞄它。
-    // 接近段仍然走到架子本身：让开量再小也是往外推，把它当常规落脚点会把人推出够得着的那圈。
-    std::optional<navmesh::WorldPoint> mount_restand;
+    // 链首上索要依次试的站位，执行侧按顺序走，认不出提示就换下一个。
+    // 坐标记的是随朝向变化的角格锚点，设备模型占着锚点四周哪一格未知，所以前几个是各个可能的
+    // 中心格；贴着供电结构时末位再补一个让开它的点。为空表示只能按架子坐标本身走。
+    std::vector<navmesh::WorldPoint> mount_spots;
     // 仅 WebUI 预览请求收集；只含最终选中方案的接近段和离索段。
     std::vector<NavmeshRouteDiagnostic> diagnostics;
 };
+
+// 把标定里的一根架子转成执行侧认身份用的引用。身份判定靠世界坐标，漏掉任何一个分量都会让
+// SameTower 悄悄退化成按像素认架子，所以两侧共用这一份映射。
+ZiplineNodeRef ToNodeRef(const zipline::ZiplineNode& node);
 
 // 在本区找一条滑索路线：纯走路可达时只返回显著更省的方案；纯走路不可达时返回能把
 // 起终两侧可走面接起来的最低成本连续链。没有可用方案、该区没标定过、或请求没开滑索时返回 nullopt。

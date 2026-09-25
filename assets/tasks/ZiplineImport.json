@@ -6,9 +6,12 @@
             "entry": "ZiplineImportMain",
             "description": "$task.ZiplineImport.description",
             "option": [
-                "ZiplineImportRegion"
+                "ZiplineImportClearLogin"
             ],
             "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
                 "Win32-Front"
             ],
             "group": [
@@ -17,41 +20,26 @@
         }
     ],
     "option": {
-        "ZiplineImportRegion": {
-            "type": "select",
-            "label": "$option.ZiplineImportRegion.label",
-            "description": "$option.ZiplineImportRegion.description",
-            "default_case": "CN",
+        "ZiplineImportClearLogin": {
+            "type": "switch",
+            "controller": [
+                "Win32-Front"
+            ],
+            "label": "$option.ZiplineImportClearLogin.label",
+            "default_case": "No",
             "cases": [
                 {
-                    "name": "CN",
-                    "label": "$option.ZiplineImportRegion.cases.CN.label",
+                    "name": "Yes",
                     "pipeline_override": {
                         "ZiplineImportMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "url": "https://game.skland.com/map/endfield"
-                                    }
-                                }
+                            "attach": {
+                                "clear_login": true
                             }
                         }
                     }
                 },
                 {
-                    "name": "Global",
-                    "label": "$option.ZiplineImportRegion.cases.Global.label",
-                    "pipeline_override": {
-                        "ZiplineImportMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "url": "https://game.skport.com/map/endfield"
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    "name": "No"
                 }
             ]
         }

@@ -39,13 +39,28 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Str("region", region).
 		Msg("goods region resolved")
 
-	overflowDetected := false
+	// ItemMap 的可用性在此处校验：runOverflowDetailOCR 与后续扫描都强依赖它，
+	// 放在 OCR 之前可让配置错误立即暴露，也避免白跑一次 overflow 识别。
+	// 校验通过后 getItemMap() 必然返回非空映射，下游无需再判空。
+	itemMap := getItemMap()
+	if err := validateItemMap(itemMap); err != nil {
+		nameCount, idCount := itemMapCounts(itemMap)
+		log.Error().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("step", "load_item_map").
+			Int("name_count", nameCount).
+			Int("id_count", idCount).
+			Msg("item_map is unavailable")
+		return nil, false
+	}
+
 	overflowAmount := 0
 	overflowCurrent := 0
 	overflowAbortReason := AbortReasonNone
 	if cur, max, plus, ok := runOverflowDetailOCR(ctx, arg.Img); ok {
 		overflowCurrent = cur
-		overflowDetected, overflowAmount = resolveOverflow(cur, max, plus)
+		overflowAmount = resolveOverflow(cur, max, plus)
 
 		log.Info().
 			Str("component", autoStockpileComponent).
@@ -53,7 +68,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Int("overflow_max", max).
 			Int("overflow_plus", plus).
 			Int("overflow_amount", overflowAmount).
-			Bool("overflow_detected", overflowDetected).
+			Bool("overflow_detected", overflowAmount > 0).
 			Msg("overflow detail parsed")
 
 		overflowAbortReason = resolveAbortReasonFromOverflowCurrent(cur)
@@ -74,19 +89,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Msg("quota exhausted, aborting recognition before goods scan")
 
 		return buildAbortedRecognitionResult(arg, overflowAbortReason)
-	}
-
-	itemMap := GetItemMap()
-	if err := validateItemMap(itemMap); err != nil {
-		nameCount, idCount := itemMapCounts(itemMap)
-		log.Error().
-			Err(err).
-			Str("component", autoStockpileComponent).
-			Str("step", "load_item_map").
-			Int("name_count", nameCount).
-			Int("id_count", idCount).
-			Msg("item_map is unavailable")
-		return nil, false
 	}
 
 	resultGoods, secondPageOnlyIDs, goodsAbortReason, scanErr := scanGoodsWithOptionalSecondPage(ctx, arg.Img, region, itemMap)
@@ -116,8 +118,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Msg("recognized goods contains invalid tier")
 		return buildAbortedRecognitionResult(arg, AbortReasonGoodsTierInvalidFatal)
 	}
-
-	applyTestPricesIfEnabled(resultGoods)
 
 	resultPayload := RecognitionResult{
 		Data: &RecognitionData{

@@ -90,7 +90,8 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return true
 	}
 
-	updatedData := copyRecognitionData(state.RawRecognitionData)
+	// getDecisionState 已返回深拷贝，setDecisionState 入参也会再拷贝，此处就地修改不会污染全局状态。
+	updatedData := state.RawRecognitionData
 	matched := false
 	for i := range updatedData.Goods {
 		if updatedData.Goods[i].ID != state.CurrentDecision.Selection.ProductID {
@@ -133,12 +134,9 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 			Int("fallback_price", newSelection.CurrentPrice).
 			Int("quantity", newQuantityDecision.Target).
 			Msg("fallback purchase triggered during reconcile")
-		maafocus.Print(ctx, i18n.T("autostockpile.fallback_purchase", newSelection.ProductName, newSelection.CurrentPrice))
 	}
 
-	if priceChanged {
-		maafocus.Print(ctx, i18n.T("autostockpile.reconcile_price_corrected", oldPrice, price))
-	}
+	maafocus.Print(ctx, i18n.T("autostockpile.reconcile_price_corrected", oldPrice, price))
 
 	isEquivalent := newSelection.Selected &&
 		newSelection.ProductID == state.CurrentDecision.Selection.ProductID &&
@@ -205,7 +203,7 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return true
 	}
 
-	override, err := buildSelectionPipelineOverride(ctx, newSelection, newQuantityDecision)
+	override, err := buildSelectionPipelineOverride(newSelection, newQuantityDecision)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -233,12 +231,13 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		},
 	})
 
-	maafocus.Print(ctx, i18n.T("autostockpile.product_selected", formatSelectionMode(newSelection, updatedData), newSelection.ProductName, newSelection.CurrentPrice))
+	maafocus.Print(ctx, i18n.T("autostockpile.product_selected", formatSelectionMode(newSelection), newSelection.ProductName, newSelection.CurrentPrice))
 
 	log.Info().
 		Str("component", "autostockpile").
 		Str("old_product_id", state.CurrentDecision.Selection.ProductID).
 		Str("new_product_id", newSelection.ProductID).
+		Str("selection_source", string(newSelection.Source)).
 		Str("new_quantity_mode", string(newQuantityDecision.Mode)).
 		Int("new_quantity_target", newQuantityDecision.Target).
 		Int("price", price).

@@ -112,11 +112,6 @@ double CorridorArcLengthTo(const navmesh::WorldPath& path, const std::vector<dou
     return arc_prefix[projection.edge_idx] + std::hypot(projection.point.x - edge_start.x, projection.point.y - edge_start.y);
 }
 
-bool IsContinuousRunWaypoint(const Waypoint& waypoint)
-{
-    return waypoint.HasPosition() && waypoint.action == ActionType::RUN && !waypoint.RequiresStrictArrival();
-}
-
 // Count how many upcoming continuous-RUN session waypoints the corridor has already carried the
 // agent past, scanning forward from the current index. A waypoint counts as passed when its
 // closest point on the corridor lies at or behind the agent's own corridor arc-length. The scan
@@ -144,7 +139,7 @@ size_t CountCorridorPassedRunWaypoints(
             break;
         }
         const Waypoint& waypoint = waypoints[index];
-        if (!IsContinuousRunWaypoint(waypoint)) {
+        if (!waypoint.IsContinuousRun()) {
             break;
         }
         const NaviPosition waypoint_pos { .x = waypoint.x, .y = waypoint.y };
@@ -403,6 +398,7 @@ void NavRunController::invalidate()
 bool NavRunController::buildPlan(
     const NaviParam& param,
     const NavigationSession& session,
+    const NavigationRuntimeState& runtime,
     const NaviPosition& position,
     size_t anchor_index,
     const Waypoint& anchor,
@@ -450,8 +446,7 @@ bool NavRunController::buildPlan(
 
     // 末点是作者手写的裸坐标时仍按"直着走过去"处理: 交给 A* 会为了贴回网格绕远路。
     // navmesh 展开出的点带 clearance 且末点 strict, 不走这条。
-    if (authored.points.size() == 1 && anchor.action == ActionType::RUN && !anchor.RequiresStrictArrival()
-        && anchor.corridor_clearance <= 0.0
+    if (authored.points.size() == 1 && anchor.IsContinuousRun() && anchor.corridor_clearance <= 0.0
         && std::hypot(position.x - anchor.x, position.y - anchor.y) > kMeasurementDefaultPositionQuantum) {
         LogDebug << "NavRunController trailing authored point kept literal." << VAR(anchor_index) << VAR(anchor.x) << VAR(anchor.y);
         return commit_authored();
@@ -459,7 +454,8 @@ bool NavRunController::buildPlan(
 
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, anchor.target_deck_y);
+    auto route =
+        PlanNavmeshRoute(param, position.zone_id, start, goal, anchor.target_deck_y, std::nullopt, nullptr, &runtime.virtual_no_go);
     if (route && route->ok() && route->path.points.size() >= 2) {
         commit(std::move(route->path), false);
         return true;
@@ -592,7 +588,7 @@ NavRunTickResult NavRunController::tick(
         if (failed_build_anchor_ == anchor_index && ElapsedMs(failed_build_at_, now) < kNavRunPlanFailureCooldownMs) {
             return result;
         }
-        if (!buildPlan(param, *session, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
+        if (!buildPlan(param, *session, *runtime, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
             failed_build_anchor_ = anchor_index;
             failed_build_at_ = now;
             return result;
@@ -628,7 +624,7 @@ NavRunTickResult NavRunController::tick(
         if (budget_left && (hard_off || cooldown_ready)) {
             plan_.last_soft_replan_at = now;
             plan_.soft_replan_attempts += 1;
-            if (buildPlan(param, *session, position, anchor_index, anchor, reason, now)) {
+            if (buildPlan(param, *session, *runtime, position, anchor_index, anchor, reason, now)) {
                 auto reprojected = ProjectOntoCorridor(plan_.path, plan_.cursor, position);
                 if (!reprojected) {
                     invalidate();

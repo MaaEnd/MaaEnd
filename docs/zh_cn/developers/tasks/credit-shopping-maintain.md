@@ -124,6 +124,7 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 1. 回基建会客室，按配置赠送线索或开启线索交流。
 2. 赠送次数由 `CreditShoppingClueSend` 控制（`0` = 不送）。
 3. 可赠送的线索库存下限由 `CreditShoppingClueStockLimit` 控制（默认保留 2 个，即库存 ≥ 3 才送）。
+4. 「快速赠予重复线索」由 `CreditShoppingQuickGiveDuplicateClues` 控制（默认关；开启后进入赠予界面优先一键赠送）。
 
 三档各自独立开关；刷新费不足**不会**触发补信用（旧版 `RefreshGetCredits` 已移除）。
 

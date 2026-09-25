@@ -22,11 +22,10 @@ const (
 	nodeBetterSlidingPreciseClick            = "BetterSlidingPreciseClick"
 	nodeBetterSlidingClearMaxHit             = "BetterSlidingClearMaxHit"
 	nodeBetterSlidingJumpBackNode            = "BetterSlidingJumpBackNode"
-	nodeBetterSlidingJumpBackMoveMouse       = "[JumpBack]BetterSlidingMoveMouse"
-	nodeBetterSlidingFail                    = "BetterSlidingFail"
 	nodeBetterSlidingIncreaseQuantity        = "BetterSlidingIncreaseQuantity"
 	nodeBetterSlidingDecreaseQuantity        = "BetterSlidingDecreaseQuantity"
 	nodeBetterSlidingReset                   = "BetterSlidingReset"
+	nodeBetterSlidingReset2                  = "BetterSlidingReset2"
 )
 
 var betterSlidingActionNodes = []string{

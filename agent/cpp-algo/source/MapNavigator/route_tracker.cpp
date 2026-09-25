@@ -40,11 +40,6 @@ bool IsSameZoneSegment(const Waypoint& lhs, const Waypoint& rhs)
     return lhs.zone_id.empty() || rhs.zone_id.empty() || lhs.zone_id == rhs.zone_id;
 }
 
-bool IsContinuousRunWaypoint(const Waypoint& waypoint)
-{
-    return waypoint.HasPosition() && waypoint.action == ActionType::RUN && !waypoint.RequiresStrictArrival();
-}
-
 size_t FindNextPositionNode(const std::vector<Waypoint>& path, size_t waypoint_idx)
 {
     for (size_t index = waypoint_idx + 1; index < path.size(); ++index) {
@@ -65,7 +60,7 @@ std::optional<SegmentProjection>
 
     const Waypoint& from = path[from_idx];
     const Waypoint& to = path[to_idx];
-    if (!IsContinuousRunWaypoint(from) || !IsContinuousRunWaypoint(to) || !IsSameZoneSegment(from, to)) {
+    if (!from.IsContinuousRun() || !to.IsContinuousRun() || !IsSameZoneSegment(from, to)) {
         return std::nullopt;
     }
 
@@ -210,7 +205,7 @@ RouteTrackingState RouteTracker::Update(NavigationSession* session, RouteTracker
     tracking.progress_distance = tracking.waypoint_distance;
     tracking.waypoint_heading = NaviMath::CalcTargetRotation(position.x, position.y, waypoint.x, waypoint.y);
 
-    if (!IsContinuousRunWaypoint(waypoint)) {
+    if (!waypoint.IsContinuousRun()) {
         tracking.route_heading = tracking.waypoint_heading;
         tracking.on_route = false;
         return tracking;
@@ -245,7 +240,7 @@ RouteTrackingState RouteTracker::Update(NavigationSession* session, RouteTracker
 
         const Waypoint& from = session->CurrentPathAt(cursor);
         const Waypoint& to = session->CurrentPathAt(next_idx);
-        if (!IsContinuousRunWaypoint(from) || !IsContinuousRunWaypoint(to) || !IsSameZoneSegment(from, to)) {
+        if (!from.IsContinuousRun() || !to.IsContinuousRun() || !IsSameZoneSegment(from, to)) {
             break;
         }
 

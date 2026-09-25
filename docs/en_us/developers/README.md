@@ -97,7 +97,8 @@ Only required when maintaining the corresponding task.
 | [DijiangRewards](./tasks/dijiang-rewards-maintain.md) | Main flow, stage responsibilities, and interface option override logic |
 | [CreditShopping](./tasks/credit-shopping-maintain.md) | Purchase priority, credit linkage, refresh strategy, and product extension |
 | [EnvironmentMonitoring](./tasks/environment-monitoring-maintain.md) | Observation point route data, `pipeline-generate` automatic generation and new point integration process |
-| [SellProduct](./tasks/sell-product-maintain.md) | Main flow, zmdmap compact game data sync, automatic operators, and dynamic selling-loop maintenance |
+| [OutpostTrading](./tasks/outpost-trading-maintain.md) | Main flow, zmdmap compact game data sync, automatic operators, and dynamic selling-loop maintenance |
+| [SeizeDeliveryJobs](./tasks/seize-delivery-jobs-maintain.md) | Data-driven endpoint generation, landmark-name maintenance, fallback text, and locale synchronization |
 | [GiftOperator](./tasks/gift-operator-maintain.md) | Navigation pathfinding, contact operator selection, gift giving/receiving branches, and operator extension maintenance |
 
 ### Third-Party Protocol Documents (`protocol/`)

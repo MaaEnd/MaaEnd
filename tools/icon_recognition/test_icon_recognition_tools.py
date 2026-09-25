@@ -14,6 +14,7 @@ from download import (
     ITEM_TABLE_URL,
     LANG_URL,
     WEAPON_TABLE_URL,
+    apply_item_blacklist,
     build_download_jobs,
     download_sources,
     validate_icon_png_bytes,
@@ -37,6 +38,7 @@ from publish import (
 )
 from expected import merge_expected_results
 from text import clean_text, validate_identifier
+from ui_icons.generate import select_items
 
 
 class IconRecognitionToolsTest(unittest.TestCase):
@@ -66,6 +68,127 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(paths.catalog_output, Path("repo/assets/data/IconRecognition/recognition_items.json"))
         self.assertEqual(paths.asset_image_root, Path("repo/assets/resource/image/IconRecognition"))
         self.assertEqual(paths.locale_root, Path("repo/assets/locales/interface"))
+
+    def test_ui_icon_exclude_rules_filter_weapon_rarity(self) -> None:
+        catalog = {
+            "weapon_4": {
+                "storageKind": "ValuableDepot",
+                "categoryType": "Weapon",
+                "rarity": 4,
+            },
+            "weapon_5": {
+                "storageKind": "ValuableDepot",
+                "categoryType": "Weapon",
+                "rarity": 5,
+            },
+            "weapon_6": {
+                "storageKind": "ValuableDepot",
+                "categoryType": "Weapon",
+                "rarity": 6,
+            },
+            "special_4": {
+                "storageKind": "ValuableDepot",
+                "categoryType": "SpecialItem",
+                "rarity": 4,
+            },
+        }
+        config = {
+            "item_filters": ["ValuableDepot:Weapon", "ValuableDepot:SpecialItem"],
+            "exclude_rules": [
+                {
+                    "item_filter": "ValuableDepot:Weapon",
+                    "sub_rules": [{"rarity": {"not_in": [5, 6]}}],
+                }
+            ],
+        }
+
+        selected = select_items(catalog, config)
+
+        self.assertEqual([item_id for item_id, _ in selected], ["weapon_5", "weapon_6", "special_4"])
+
+        in_config = {
+            **config,
+            "item_filters": ["ValuableDepot:Weapon"],
+            "exclude_rules": [
+                {
+                    "item_filter": "ValuableDepot:Weapon",
+                    "sub_rules": [{"rarity": {"in": [4]}}],
+                }
+            ],
+        }
+        selected = select_items(catalog, in_config)
+        self.assertEqual([item_id for item_id, _ in selected], ["weapon_5", "weapon_6"])
+
+        additional_id_config = {
+            "item_filters": ["ValuableDepot:Weapon"],
+            "additional_item_ids": ["special_4"],
+        }
+        selected = select_items(catalog, additional_id_config)
+        self.assertEqual(
+            [item_id for item_id, _ in selected], ["weapon_4", "weapon_5", "weapon_6", "special_4"]
+        )
+
+        with self.assertRaisesRegex(ValueError, "未知 item_id"):
+            select_items({}, {"additional_item_ids": ["missing"]})
+
+        with self.assertRaisesRegex(ValueError, "只能包含 in 或 not_in"):
+            select_items(
+                catalog,
+                {
+                    **config,
+                    "exclude_rules": [
+                        {
+                            "item_filter": "ValuableDepot:Weapon",
+                            "sub_rules": [
+                                {"rarity": {"in": [5], "not_in": [6]}}
+                            ],
+                        }
+                    ],
+                },
+            )
+
+    def test_ui_icon_exclude_rules_validate_without_matching_catalog_items(self) -> None:
+        invalid_configs = (
+            (
+                "只能包含 in 或 not_in",
+                {
+                    "exclude_rules": [
+                        {
+                            "item_filter": "ValuableDepot:Weapon",
+                            "sub_rules": [
+                                {"rarity": {"in": [5], "not_in": [6]}}
+                            ],
+                        }
+                    ]
+                },
+            ),
+            (
+                "非法 UI 图标集筛选条件",
+                {
+                    "exclude_rules": [
+                        {
+                            "item_filter": "ValuableDepot",
+                            "sub_rules": [{"rarity": {"in": [5]}}],
+                        }
+                    ]
+                },
+            ),
+            (
+                "必须是整数数组",
+                {
+                    "exclude_rules": [
+                        {
+                            "item_filter": "ValuableDepot:Weapon",
+                            "sub_rules": [{"rarity": {"in": "5"}}],
+                        }
+                    ]
+                },
+            ),
+        )
+        for message, config in invalid_configs:
+            with self.subTest(message=message):
+                with self.assertRaisesRegex(ValueError, message):
+                    select_items({}, config)
 
     def test_relocate_rarity_changed_icon_preserves_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -510,11 +633,31 @@ class IconRecognitionToolsTest(unittest.TestCase):
             item = self._mini_item(name="item_name_hash")
             paths.item_source.parent.mkdir(parents=True, exist_ok=True)
             paths.item_source.write_text(
-                json.dumps({"item_test": item}),
+                json.dumps(
+                    {
+                        "item_test": item,
+                        "item_port_soil_grass_fast_1": self._mini_item(
+                            name="simulated_name_hash",
+                            category="生产工具",
+                            categoryType="Producer",
+                            iconId="item_port_soil_grass_1",
+                        ),
+                    }
+                ),
                 encoding="utf-8",
             )
             paths.localization_item_source.write_text(
-                json.dumps({"item_test": item}),
+                json.dumps(
+                    {
+                        "item_test": item,
+                        "item_port_soil_grass_fast_1": self._mini_item(
+                            name="simulated_name_hash",
+                            category="生产工具",
+                            categoryType="Producer",
+                            iconId="item_port_soil_grass_1",
+                        ),
+                    }
+                ),
                 encoding="utf-8",
             )
             paths.weapon_source.write_text("{}", encoding="utf-8")
@@ -524,6 +667,10 @@ class IconRecognitionToolsTest(unittest.TestCase):
             destination = paths.asset_image_root / "3" / "item_test.png"
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(b"stale")
+            removed_destination = (
+                paths.asset_image_root / "3" / "item_port_soil_grass_1.png"
+            )
+            removed_destination.write_bytes(b"blacklisted")
             for locale, (_, language) in LOCALE_MAP.items():
                 translations = (
                     {}
@@ -533,7 +680,8 @@ class IconRecognitionToolsTest(unittest.TestCase):
                             "测试物品"
                             if locale == "zh_cn"
                             else f"{language}:item_test"
-                        )
+                        ),
+                        "simulated_name_hash": f"{language}:simulated",
                     }
                 )
                 (paths.language_root / f"lang_{language}.json").write_text(
@@ -542,7 +690,14 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 )
                 locale_path = paths.locale_root / f"{locale}.json"
                 locale_path.parent.mkdir(parents=True, exist_ok=True)
-                locale_path.write_text("{}", encoding="utf-8")
+                locale_path.write_text(
+                    json.dumps(
+                        {
+                            "iconRecognition.name.item_port_soil_grass_fast_1": "stale"
+                        }
+                    ),
+                    encoding="utf-8",
+                )
 
             publish(paths)
 
@@ -555,8 +710,14 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 (paths.asset_image_root / "3" / "item_test.png").read_bytes(),
                 b"stale",
             )
+            self.assertFalse(removed_destination.exists())
         self.assertEqual(catalog["item_test"]["name"], "测试物品")
+        self.assertNotIn("item_port_soil_grass_fast_1", catalog)
         self.assertEqual(en_us["iconRecognition.name.item_test"], "item_name_hash")
+        self.assertNotIn(
+            "iconRecognition.name.item_port_soil_grass_fast_1",
+            en_us,
+        )
 
     def test_sync_published_images_copies_missing_target(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -576,6 +737,53 @@ class IconRecognitionToolsTest(unittest.TestCase):
 
             destination = asset_image_root / "3" / "item_test.png"
             self.assertEqual(destination.read_bytes(), b"source")
+
+    def test_sync_published_images_preserves_removed_icon_used_by_catalog(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            asset_image_root = root / "assets"
+            destination = asset_image_root / "2" / "shared_icon.png"
+            destination.parent.mkdir(parents=True)
+            destination.write_bytes(b"keep")
+
+            sync_published_images(
+                root / "images",
+                asset_image_root,
+                {"item_current": {"rarity": 2, "iconId": "shared_icon"}},
+                {},
+                [{"removedId": "item_removed", "iconId": "shared_icon"}],
+            )
+
+            self.assertEqual(destination.read_bytes(), b"keep")
+
+    def test_sync_published_images_preserves_removed_icon_used_by_fluid_catalog(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            asset_image_root = root / "assets"
+            destination = asset_image_root / "1" / "shared_fluid.png"
+            destination.parent.mkdir(parents=True)
+            destination.write_bytes(b"keep")
+
+            sync_published_images(
+                root / "images",
+                asset_image_root,
+                {
+                    "item_container": {
+                        "rarity": 3,
+                        "iconId": "item_container",
+                        "fluidIconId": "shared_fluid",
+                    }
+                },
+                {
+                    "item_fluid": {
+                        "rarity": 1,
+                        "iconId": "shared_fluid",
+                    }
+                },
+                [{"removedId": "item_removed", "iconId": "shared_fluid"}],
+            )
+
+            self.assertEqual(destination.read_bytes(), b"keep")
 
     def test_sync_published_images_copies_fluid_icon_for_composite_catalog(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -679,6 +887,50 @@ class IconRecognitionToolsTest(unittest.TestCase):
         )
         self.assertIn("item_activity_xiranite_enr_hulu", mismatched)
         self.assertEqual(mismatched_removals, [])
+
+    def test_item_blacklist_filters_simulated_producers_from_cached_map(self) -> None:
+        blacklisted_ids = {
+            "item_port_soil_grass_fast_1",
+            "item_port_soil_grass_fast_2",
+            "item_port_soil_sp_fast_3",
+            "item_port_soil_sp_fast_4",
+        }
+        source = {
+            item_id: self._mini_item(
+                name=f"hash_{item_id}",
+                category="生产工具",
+                categoryType="Producer",
+                iconId=item_id,
+            )
+            for item_id in blacklisted_ids
+        }
+        source["item_kept"] = self._mini_item(iconId="item_kept")
+
+        items, removals = apply_item_blacklist(source)
+
+        self.assertEqual(set(items), {"item_kept"})
+        self.assertEqual(
+            {row["removedId"] for row in removals},
+            blacklisted_ids,
+        )
+
+    def test_prepare_item_map_does_not_filter_by_localized_name_prefix(self) -> None:
+        items, removals = prepare_item_map(
+            {
+                "item_regular": self._mini_item(
+                    name="普通田块",
+                    iconId="shared_soil",
+                ),
+                "item_simulated": self._mini_item(
+                    name="模拟田块",
+                    iconId="shared_soil",
+                ),
+            },
+            blacklist=(),
+        )
+
+        self.assertEqual(set(items), {"item_regular", "item_simulated"})
+        self.assertEqual(removals, [])
 
     def test_fixed_translation_hashes_are_not_catalog_item_ids(self) -> None:
         self.assertEqual(

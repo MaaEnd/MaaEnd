@@ -212,7 +212,8 @@
             "substring": true
         },
         "next": [
-            "__AccountSwitchOCRSelectAccount"
+            "__AccountSwitchOCRSelectAccount",
+            "__AccountSwitchClickDropdown"
         ]
     },
     "__AccountSwitchOCRSelectAccount": {
@@ -282,9 +283,9 @@
                 "roi": "__AccountSwitchClickDropdown",
                 "roi_offset": [
                     -15,
-                    -15,
+                    -20,
                     60,
-                    30
+                    40
                 ],
                 "expected": [
                     // @i18n-skip
@@ -310,9 +311,9 @@
                 "roi": "__AccountSwitchClickDropdown",
                 "roi_offset": [
                     -15,
-                    -15,
+                    -20,
                     60,
-                    30
+                    40
                 ],
                 "expected": [
                     // @i18n-skip
@@ -354,25 +355,27 @@
         ]
     },
     "__AccountSwitchLoginSuccess": {
-        "desc": "账号切换登录成功",
-        "recognition": "ColorMatch",
-        "roi": [
-            53,
-            315,
-            114,
-            61
-        ],
-        "method": 40,
-        "lower": [
-            18,
-            162,
-            242
-        ],
-        "upper": [
-            38,
-            245,
-            255
-        ],
+        "desc": "账号切换登录成功（登录按钮消失）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    471,
+                    309,
+                    328,
+                    400
+                ],
+                "expected": [
+                    // @i18n-skip
+                    "^\\s*登录\\s*$",
+                    "^\\s*登入\\s*$",
+                    "(?i)^\\s*Log\\s*in\\s*$",
+                    "^\\s*ログイン\\s*$",
+                    "^\\s*로그인\\s*$"
+                ]
+            }
+        },
+        "inverse": true,
         "next": [
             "__AccountSwitchClearUidCache"
         ]
@@ -386,11 +389,26 @@
             "clear_cache": true
         },
         "next": [
+            "__AccountSwitchResetSceneImageCheck"
+        ]
+    },
+    "__AccountSwitchResetSceneImageCheck": {
+        "desc": "账号切换后重置场景初始化状态，使下一个任务重新做画面检查",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ImageCheckSetResultAction",
+        "custom_action_param": {
+            "result": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "__AccountSwitchResetImsFirstScan"
         ]
     },
     "__AccountSwitchResetImsFirstScan": {
-        "desc": "清空 IMS 首次库存扫描标记：重新打开各地区 Begin，关闭商店 Completed，切号后会再次真正扫库",
+        "desc": "清空 IMS 首次库存扫描标记：重新打开各地区 Begin，关闭各完成标记，切号后会再次真正扫库",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -402,6 +420,12 @@
                     "patch": {
                         "SyncItemDataBegin": {
                             "enabled": true
+                        },
+                        "SyncDepotItemDataBegin": {
+                            "enabled": true
+                        },
+                        "SyncDepotItemDataCompleted": {
+                            "enabled": false
                         },
                         "SyncShopItemDataBegin": {
                             "enabled": true

@@ -1,0 +1,216 @@
+{
+    // 雪松林 Wuling SnowyForest：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   36100010006 → [1366.2, 985.2]
+    //   36100010460 → [1413.8, 991.0]
+    //   36100010007 → [1510.7, 988.0]
+    //   36100010365 → [1594.2, 931.9]
+    //   36100010474 → [1599.6, 991.3]
+    //   36100010458 → [1597.0, 1073.1]
+    //   36100010467 → [1721.7, 992.5]
+    "SharedZiplineDeletePrepareWulingSnowyForest": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitWulingSnowyForest0"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSnowyForest0": {
+        "desc": "雪松林锚点 markInstId=36100010006",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1366.2,
+                985.2
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingSnowyForest1"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSnowyForest1": {
+        "desc": "雪松林锚点 markInstId=36100010460",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1413.8,
+                991.0
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "SharedZiplineDeleteVisitWulingSnowyForest2"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSnowyForest2": {
+        "desc": "雪松林锚点 markInstId=36100010007",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1510.7,
+                988.0
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingSnowyForest3"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSnowyForest3": {
+        "desc": "雪松林锚点 markInstId=36100010365",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1594.2,
+                931.9
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingSnowyForest4"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSnowyForest4": {
+        "desc": "雪松林锚点 markInstId=36100010474",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1599.6,
+                991.3
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingSnowyForest5"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSnowyForest5": {
+        "desc": "雪松林锚点 markInstId=36100010458",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1597.0,
+                1073.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingSnowyForest6"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSnowyForest6": {
+        "desc": "雪松林锚点 markInstId=36100010467",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1721.7,
+                992.5
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

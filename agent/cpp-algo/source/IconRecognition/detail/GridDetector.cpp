@@ -13,6 +13,9 @@
 #include <tuple>
 #include <vector>
 
+#include <MaaUtils/Logger.h>
+
+#include "ForegroundTexture.h"
 #include "GridAnchors.h"
 #include "GridFeatures.h"
 #include "GridGeometry.h"
@@ -23,6 +26,36 @@ namespace iconrecognition::detail
 {
 namespace
 {
+
+struct TransferTextureContext
+{
+    const cv::Mat& source_image;
+    cv::Rect texture_roi;
+    double source_grid_scale;
+};
+
+cv::Rect ScaleRectToSource(const cv::Rect& rect, double scale, const cv::Size& bounds);
+
+std::optional<double>
+    ScoreTransferForeground(const cv::Mat& analysis_image, const cv::Rect& analysis_cell, const TransferTextureContext* texture_context)
+{
+    if (texture_context == nullptr || texture_context->source_grid_scale == kWin32ControllerGridScale) {
+        return ForegroundTextureScore(analysis_image, analysis_cell, GridType::Transfer);
+    }
+    const auto source_score = ForegroundTextureScore(
+        texture_context->source_image,
+        ScaleRectToSource(analysis_cell, texture_context->source_grid_scale, texture_context->source_image.size()),
+        GridType::Transfer,
+        texture_context->texture_roi);
+    const auto analysis_score = ForegroundTextureScore(analysis_image, analysis_cell, GridType::Transfer);
+    if (!source_score) {
+        return analysis_score;
+    }
+    if (!analysis_score) {
+        return source_score;
+    }
+    return std::max(*source_score, *analysis_score);
+}
 
 // 响应、分母和归一化的近零阈值，仅用于数值稳定性。
 constexpr double kEpsilon = 1e-8;
@@ -98,12 +131,16 @@ constexpr double kLegacyStructureWeight = 0.65;
 constexpr double kLegacyRarityWeight = 0.35;
 // transfer 的弱 rarity 拟合必须包含彩色证据才可接管结构相位；灰色背景不能单独改写网格。
 constexpr int kMinimumReliableRarityCells = 1;
+// 灰色 rarity 条只有与物品前景纹理同时出现才可决定相位；至少需要两个物品避免单条背景线误触发。
+constexpr int kMinimumGrayRarityTextureCells = 2;
 // 补行所需的最低结构支持相对已有行均值比例；调高减少补行，调低可能扩展到空白行。
 constexpr double kRowCompletionSupportRatio = 0.04;
-// 仅一个直接观测时最多允许补出的行数；调大可覆盖更多行，也会放大单点误差。
+// 只有一个直接观测时最多允许补出的行数；调大可覆盖更多行，也会放大单点误差。
 constexpr std::size_t kSingleObservationCompletionLimit = 2;
 // 允许结构证据补足末行所需的最少直接 rarity 行数；调高更保守，调低更易补行。
 constexpr std::size_t kStableRarityMinimumRows = 3;
+// 最终二维相位使用逐格结构支持的下四分位数；它要求大部分格子都有完整四边，避免少数强纹理主导结果。
+constexpr double kTransferPhaseLowerQuantile = 0.25;
 // 少量卡片时，允许的相位残差占网格 pitch 的比例；调大提高召回，调小可抑制误拟合。
 constexpr double kCreditTradeMaximumPhaseResidualRatio = 0.04;
 // 边界中心只采纳接近峰顶的平台样本；调高更抗旁瓣，调低可追踪较宽但较弱的边界。
@@ -1395,6 +1432,256 @@ double CellSupport(const cv::Mat& score, int x, int y)
     return maximum;
 }
 
+std::optional<int> PairedBoundaryCenter(const std::vector<float>& signed_boundary, int position, int offset, int search_radius)
+{
+    if (signed_boundary.empty() || search_radius < 0) {
+        return std::nullopt;
+    }
+    const int local_position = position - offset;
+    const int left = std::max(0, local_position - search_radius);
+    const int right = std::min(static_cast<int>(signed_boundary.size()) - 1, local_position + search_radius);
+    if (right < left) {
+        return std::nullopt;
+    }
+
+    double positive_weight = 0.0;
+    double negative_weight = 0.0;
+    double positive_moment = 0.0;
+    double negative_moment = 0.0;
+    for (int index = left; index <= right; ++index) {
+        const double value = signed_boundary[index];
+        if (value > 0.0) {
+            positive_weight += value;
+            positive_moment += index * value;
+        }
+        else {
+            const double weight = -value;
+            negative_weight += weight;
+            negative_moment += index * weight;
+        }
+    }
+    if (positive_weight <= kEpsilon || negative_weight <= kEpsilon) {
+        return std::nullopt;
+    }
+    const double positive_center = positive_moment / positive_weight;
+    const double negative_center = negative_moment / negative_weight;
+    return cvRound(offset + 0.5 * (positive_center + negative_center));
+}
+
+std::vector<int> FormalAxisStarts(double seed, double pitch, int begin, int end, int cell_size, int maximum_count)
+{
+    if (pitch <= 0 || cell_size <= 0 || end - begin < cell_size || maximum_count <= 0) {
+        return {};
+    }
+    while (seed - pitch >= begin) {
+        seed -= pitch;
+    }
+    while (seed < begin) {
+        seed += pitch;
+    }
+    std::vector<int> starts;
+    for (int index = 0; static_cast<int>(starts.size()) < maximum_count; ++index) {
+        const int value = cvRound(seed + index * pitch);
+        if (value + cell_size > end) {
+            break;
+        }
+        starts.push_back(value);
+    }
+    return starts;
+}
+
+std::vector<int> RefineBoundaryAxis(
+    const std::vector<int>& starts,
+    const std::vector<float>& signed_boundary,
+    double pitch,
+    int offset,
+    int begin,
+    int end,
+    int cell_size,
+    int expected_count)
+{
+    if (starts.empty() || expected_count <= 0) {
+        return {};
+    }
+    const int grid_gap = std::max(0, cvRound(pitch - cell_size));
+    std::vector<double> phases;
+    for (std::size_t index = 0; index < starts.size(); ++index) {
+        const int local = starts[index] - offset;
+        if (local - grid_gap < 0 || local + grid_gap >= static_cast<int>(signed_boundary.size())) {
+            continue;
+        }
+        if (const auto center = PairedBoundaryCenter(signed_boundary, starts[index], offset, grid_gap)) {
+            phases.push_back(*center - index * pitch);
+        }
+    }
+    if (phases.empty()) {
+        return {};
+    }
+    // 面板裁边可能截断首格，使用其余完整边框的共同起点，不因首边不可测而放弃整条轴。
+    return FormalAxisStarts(Median(phases), pitch, begin, end, cell_size, expected_count);
+}
+
+struct TransferEmptyGridFit
+{
+    std::vector<int> x_starts;
+    std::vector<int> y_starts;
+    double pitch = 0.0;
+    double median_support = 0.0;
+    double mean_support = 0.0;
+};
+
+std::optional<TransferEmptyGridFit> FitTransferEmptyGrid(
+    const TransferGridHint& hint,
+    const std::vector<int>& x_seed_starts,
+    double pitch,
+    const TransferGridProfile& profile,
+    const cv::Mat& cell_score,
+    const std::vector<float>& signed_x,
+    const std::vector<float>& signed_y)
+{
+    if (x_seed_starts.empty() || hint.y_starts.empty() || cell_score.empty() || pitch <= 0.0) {
+        return std::nullopt;
+    }
+    std::optional<TransferEmptyGridFit> best;
+    // 响应矩阵需要格子外侧的梯度采样，尺寸比完整格子的合法起点范围少 1px；贴边时使用最近的有效响应。
+    const auto structure_support = [&](int x, int y) {
+        if (x < 0 || y < 0 || x > cell_score.cols || y > cell_score.rows) {
+            return 0.0;
+        }
+        return static_cast<double>(cell_score.at<float>(std::min(y, cell_score.rows - 1), std::min(x, cell_score.cols - 1)));
+    };
+    const auto is_better = [](const TransferEmptyGridFit& left, const TransferEmptyGridFit& right) {
+        const auto cell_count = [](const TransferEmptyGridFit& fit) {
+            return fit.x_starts.size() * fit.y_starts.size();
+        };
+        return std::tuple {
+            left.median_support * std::sqrt(static_cast<double>(cell_count(left))),
+            left.median_support,
+            cell_count(left),
+            left.mean_support,
+        } > std::tuple {
+            right.median_support * std::sqrt(static_cast<double>(cell_count(right))),
+            right.median_support,
+            cell_count(right),
+            right.mean_support,
+        };
+    };
+    // 纵向覆盖一个完整周期，允许候选跳过顶部只剩局部边缘的残行。
+    const int phase_period = std::max(1, cvRound(pitch));
+    const int first_vertical_shift = -phase_period / 2;
+    const int last_vertical_shift = first_vertical_shift + phase_period - 1;
+    const int minimum_rows = ProfileFor(GridType::Transfer).min_rows;
+    // 与最终布局共用顶部可见率，保留仅被渐变区遮住少量像素的首行。
+    const int minimum_y = hint.region.y - cvFloor((1.0 - profile.minimum_top_visibility) * profile.cell_size);
+    const auto x_starts = FormalAxisStarts(
+        x_seed_starts.front(),
+        pitch,
+        hint.region.x,
+        hint.region.x + hint.region.width,
+        profile.cell_size,
+        std::numeric_limits<int>::max());
+    for (int y_shift = first_vertical_shift; y_shift <= last_vertical_shift; ++y_shift) {
+        const auto y_starts = FormalAxisStarts(
+            hint.y_starts.front() + y_shift,
+            pitch,
+            minimum_y,
+            hint.region.y + hint.region.height,
+            profile.cell_size,
+            profile.maximum_rows);
+        if (static_cast<int>(y_starts.size()) < minimum_rows) {
+            continue;
+        }
+        std::vector<double> supports;
+        supports.reserve(x_starts.size() * y_starts.size());
+        double total = 0.0;
+        for (int y : y_starts) {
+            for (int x : x_starts) {
+                const double support = structure_support(x, y);
+                supports.push_back(support);
+                total += support;
+            }
+        }
+        if (supports.empty()) {
+            continue;
+        }
+        TransferEmptyGridFit candidate {
+            .x_starts = x_starts,
+            .y_starts = y_starts,
+            .pitch = pitch,
+            .median_support = Median(supports),
+            .mean_support = total / supports.size(),
+        };
+        if (!best || is_better(candidate, *best)) {
+            best = std::move(candidate);
+        }
+    }
+    // 阴影内沿可能比真实格框有更强的结构响应；不能在双边缘校正前用旧相位分数淘汰候选。
+    // 校正后的候选仍须逐格通过低纹理判空，才可接管最终网格。
+    if (!best || best->median_support <= kEpsilon) {
+        return std::nullopt;
+    }
+
+    // 正负梯度双边缘的中心对应格框外边界；整条轴的共同 phase 可容忍个别弱边，无需固定像素补偿。
+    const std::size_t column_count = best->x_starts.size();
+    const std::size_t row_count = best->y_starts.size();
+    // 行列数量相同不代表旧坐标准确；两轴均由同一拟合间距重新生成，避免粗定位误差累积到末格。
+    // 恢复粗定位曾观测到的末列，但不因细化后多出空白空间而外推未观测的新列。
+    best->x_starts = RefineBoundaryAxis(
+        best->x_starts,
+        signed_x,
+        best->pitch,
+        hint.region.x,
+        hint.region.x,
+        hint.region.x + hint.region.width,
+        profile.cell_size,
+        static_cast<int>(std::max(best->x_starts.size(), x_seed_starts.size())));
+    best->y_starts = RefineBoundaryAxis(
+        best->y_starts,
+        signed_y,
+        best->pitch,
+        hint.region.y,
+        minimum_y,
+        hint.region.y + hint.region.height,
+        profile.cell_size,
+        static_cast<int>(row_count));
+    if (best->x_starts.size() < column_count || best->y_starts.size() != row_count) {
+        return std::nullopt;
+    }
+    return best;
+}
+
+bool IsTransferEmptyGridCandidate(
+    const cv::Mat& image,
+    const cv::Rect& roi,
+    const std::vector<int>& x_starts,
+    const std::vector<int>& y_starts,
+    int cell_size,
+    const TransferTextureContext* texture_context)
+{
+    const cv::Rect image_bounds(0, 0, image.cols, image.rows);
+    int checked_cells = 0;
+    for (int y : y_starts) {
+        for (int x : x_starts) {
+            const cv::Rect cell(roi.x + x, roi.y + y, cell_size, cell_size);
+            if (!IsFormal(cell, roi) || (cell & image_bounds) != cell) {
+                continue;
+            }
+            ++checked_cells;
+            // ADB 的几何在归一化图上拟合，判空仍读取原图，保持前后两处的 4px 裁剪及阈值一致。
+            const auto score = texture_context ? ForegroundTextureScore(
+                                   texture_context->source_image,
+                                   ScaleRectToSource(cell, texture_context->source_grid_scale, texture_context->source_image.size()),
+                                   GridType::Transfer,
+                                   texture_context->texture_roi)
+                                               : ForegroundTextureScore(image, cell, GridType::Transfer);
+            if (!score || *score >= kDefaultLowTextureThreshold) {
+                return false;
+            }
+        }
+    }
+    return checked_cells > 0;
+}
+
 int AlignedTrustedStrips(
     const TrustedRarityGridFit& fit,
     const std::vector<int>& x_starts,
@@ -1435,6 +1722,200 @@ double NormalizedStructureSupport(const cv::Mat& score, const std::vector<int>& 
         }
     }
     return total / static_cast<double>(x_starts.size() * y_starts.size());
+}
+
+bool HasGrayRarityTextureSupport(
+    const cv::Mat& image,
+    const cv::Rect& analysis_roi,
+    const RarityGridFit& fit,
+    const TransferGridProfile& profile,
+    const std::vector<int>& observed_y_starts,
+    const TransferTextureContext* texture_context)
+{
+    if (fit.x_starts.empty() || observed_y_starts.empty()) {
+        return false;
+    }
+    int textured_cells = 0;
+    for (int y : observed_y_starts) {
+        for (int x : fit.x_starts) {
+            const cv::Rect cell(analysis_roi.x + x, analysis_roi.y + y, profile.cell_size, profile.cell_size);
+            const auto score = ScoreTransferForeground(image, cell, texture_context);
+            if (score && *score >= kDefaultLowTextureThreshold) {
+                ++textured_cells;
+            }
+        }
+    }
+    return textured_cells >= kMinimumGrayRarityTextureCells;
+}
+
+struct TransferPanelPhaseFit
+{
+    std::vector<int> x_starts;
+    std::vector<int> y_starts;
+};
+
+std::optional<TransferPanelPhaseFit> FitTransferPanelPhase(
+    const cv::Mat& cell_score,
+    const std::vector<int>& current_x,
+    const std::vector<int>& current_y,
+    const TransferGridProfile& profile,
+    const cv::Rect& panel_region,
+    const std::vector<float>& signed_x,
+    const std::vector<float>& signed_y,
+    bool phase_anchored)
+{
+    if (cell_score.empty() || current_x.empty() || current_y.empty()) {
+        return std::nullopt;
+    }
+    const int maximum_columns = std::max(1, (panel_region.width - profile.cell_size) / std::max(profile.pitch_min, 1) + 1);
+    const int minimum_rows = ProfileFor(GridType::Transfer).min_rows;
+    // full ROI 时 hint.region 只覆盖单侧面板；候选与 signed 梯度都必须限制在 region 内，
+    // 否则另一侧面板的边界会把相位竞争带偏。
+    const int panel_x_begin = panel_region.x;
+    const int panel_x_end = panel_region.x + panel_region.width + cvFloor((1.0 - kMinimumHorizontalVisibility) * profile.cell_size);
+    const int minimum_y = panel_region.y - cvFloor((1.0 - profile.minimum_top_visibility) * profile.cell_size);
+    const int panel_y_end = panel_region.y + panel_region.height + cvFloor((1.0 - profile.minimum_bottom_visibility) * profile.cell_size);
+    std::vector<std::vector<int>> x_candidates;
+    for (int pitch = profile.pitch_min; pitch <= profile.pitch_max; ++pitch) {
+        // FitTransferAxis 会按观测跨度补齐中间列，starts 数量不能证明每列都被直接观测。
+        // 所有路径都枚举完整周期；rarity 只约束候选残差，避免粗定位把相邻格边或半格相位锁死。
+        for (int phase = panel_x_begin; phase < panel_x_begin + pitch; ++phase) {
+            auto starts = FormalAxisStarts(phase, pitch, panel_x_begin, panel_x_end, profile.cell_size, maximum_columns);
+            if (!starts.empty() && std::ranges::find(x_candidates, starts) == x_candidates.end()) {
+                x_candidates.push_back(std::move(starts));
+            }
+        }
+    }
+    if (!x_candidates.empty()) {
+        std::size_t widest_coverage = 0;
+        for (const auto& starts : x_candidates) {
+            widest_coverage = std::max(widest_coverage, starts.size());
+        }
+        // 背包面板的容量由当前可见宽度决定。半格相位常会少容纳一列，却因穿过物品纹理得到更高响应；
+        // 先保留覆盖最完整的相位，再比较二维边框连续性，避免局部强纹理胜过完整网格。
+        std::erase_if(x_candidates, [widest_coverage](const auto& starts) { return starts.size() < widest_coverage; });
+    }
+    std::vector<std::vector<int>> y_candidates;
+    for (int pitch = profile.pitch_min; pitch <= profile.pitch_max; ++pitch) {
+        for (int phase = minimum_y; phase < minimum_y + pitch; ++phase) {
+            auto starts = FormalAxisStarts(phase, pitch, minimum_y, panel_y_end, profile.cell_size, profile.maximum_rows);
+            if (static_cast<int>(starts.size()) >= minimum_rows && std::ranges::find(y_candidates, starts) == y_candidates.end()) {
+                y_candidates.push_back(std::move(starts));
+            }
+        }
+    }
+
+    const auto quantile = [](std::vector<double> values, double fraction) {
+        std::ranges::sort(values);
+        const std::size_t index = static_cast<std::size_t>(std::floor((values.size() - 1) * fraction));
+        return values[index];
+    };
+    const auto anchor_residual = [](const std::vector<int>& candidate, const std::vector<int>& anchors) {
+        double total = 0.0;
+        for (int anchor : anchors) {
+            const auto nearest = std::ranges::min_element(candidate, {}, [anchor](int value) { return std::abs(value - anchor); });
+            total += nearest == candidate.end() ? std::numeric_limits<double>::infinity() : std::abs(*nearest - anchor);
+        }
+        return total / anchors.size();
+    };
+
+    std::optional<TransferPanelPhaseFit> best;
+    std::tuple<double, double, double, double, double, double> best_rank {
+        -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(),
+    };
+    for (const auto& x_starts : x_candidates) {
+        const double x_residual = anchor_residual(x_starts, current_x);
+        for (const auto& y_starts : y_candidates) {
+            const double y_residual = anchor_residual(y_starts, current_y);
+            const double maximum_anchor_residual = std::max(x_residual, y_residual);
+            if (phase_anchored && maximum_anchor_residual > profile.phase_tolerance) {
+                continue;
+            }
+            std::vector<double> supports;
+            std::vector<double> row_supports;
+            std::vector<double> column_supports(x_starts.size(), 0.0);
+            std::vector<int> column_samples(x_starts.size(), 0);
+            supports.reserve(x_starts.size() * y_starts.size());
+            for (int y : y_starts) {
+                std::vector<double> row;
+                row.reserve(x_starts.size());
+                for (std::size_t column = 0; column < x_starts.size(); ++column) {
+                    if (x_starts[column] < 0 || y < 0 || x_starts[column] > cell_score.cols || y > cell_score.rows) {
+                        continue;
+                    }
+                    const double support = CellSupport(cell_score, x_starts[column], y);
+                    supports.push_back(support);
+                    row.push_back(support);
+                    column_supports[column] += support;
+                    ++column_samples[column];
+                }
+                if (!row.empty()) {
+                    row_supports.push_back(Median(std::move(row)));
+                }
+            }
+            std::vector<double> measured_column_supports;
+            measured_column_supports.reserve(column_supports.size());
+            for (std::size_t column = 0; column < column_supports.size(); ++column) {
+                if (column_samples[column] > 0) {
+                    measured_column_supports.push_back(column_supports[column] / column_samples[column]);
+                }
+            }
+            if (supports.empty() || row_supports.empty() || measured_column_supports.empty()) {
+                continue;
+            }
+            const double lower_support = quantile(supports, kTransferPhaseLowerQuantile);
+            const double continuity = std::min(
+                quantile(std::move(row_supports), kTransferPhaseLowerQuantile),
+                quantile(std::move(measured_column_supports), kTransferPhaseLowerQuantile));
+            if (lower_support <= kEpsilon || continuity <= kEpsilon) {
+                continue;
+            }
+            const double median_support = Median(supports);
+            const double mean_support = std::accumulate(supports.begin(), supports.end(), 0.0) / supports.size();
+            const auto rank = std::tuple {
+                continuity, lower_support, median_support, mean_support, static_cast<double>(supports.size()), -maximum_anchor_residual,
+            };
+            if (!best || rank > best_rank) {
+                best = TransferPanelPhaseFit { x_starts, y_starts };
+                best_rank = rank;
+            }
+        }
+    }
+    if (!best) {
+        // 返回值只表示通过二维连续结构验收的相位；旧轴不得绕过验收进入后续规则化。
+        return std::nullopt;
+    }
+    if (!phase_anchored) {
+        const auto axis_pitch = [&](const std::vector<int>& starts) {
+            return starts.size() < 2 ? profile.preferred_pitch : starts[1] - starts[0];
+        };
+        const auto refined_x = RefineBoundaryAxis(
+            best->x_starts,
+            signed_x,
+            axis_pitch(best->x_starts),
+            panel_region.x,
+            panel_x_begin,
+            panel_x_end,
+            profile.cell_size,
+            static_cast<int>(best->x_starts.size()));
+        const auto refined_y = RefineBoundaryAxis(
+            best->y_starts,
+            signed_y,
+            axis_pitch(best->y_starts),
+            panel_region.y,
+            minimum_y,
+            panel_y_end,
+            profile.cell_size,
+            static_cast<int>(best->y_starts.size()));
+        if (refined_x.size() == best->x_starts.size()) {
+            best->x_starts = refined_x;
+        }
+        if (refined_y.size() == best->y_starts.size()) {
+            best->y_starts = refined_y;
+        }
+    }
+    return best;
 }
 
 std::vector<int> DropPortRows(
@@ -1501,11 +1982,19 @@ std::vector<int> DropPortRows(
     return y_starts;
 }
 
-GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const TransferGridHint& hint, int grid_index, GridType type)
+GridLayout BuildTransferLayout(
+    const cv::Mat& image,
+    const cv::Rect& roi,
+    const TransferGridHint& hint,
+    int grid_index,
+    GridType type,
+    const TransferTextureContext* texture_context)
 {
     const bool transfer = type == GridType::Transfer;
     const int absolute_center = roi.x + hint.rect.x + hint.rect.width / 2;
     const bool left_side = absolute_center < image.cols / 2;
+    // Transfer 左侧是仓库已有物品列表，缺少物品的位置不代表可补出的空格；只有右侧背包需要完整容量网格。
+    const bool complete_transfer_panel = transfer && !left_side;
     const TransferGridVariant variant = transfer
                                             ? (left_side ? TransferGridVariant::TransferLeft : TransferGridVariant::TransferRight)
                                             : (left_side ? TransferGridVariant::PortStoragerLeft : TransferGridVariant::PortStoragerRight);
@@ -1514,9 +2003,13 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     const StructureMaps maps = BuildStructureMaps(image(absolute_region), profile.cell_size);
     const auto boundary_x = RobustProjection(maps.vertical, true);
     const auto boundary_y = RobustProjection(maps.horizontal, false);
+    const auto signed_x = AggregateSigned(maps.signed_x, true);
+    const auto signed_y = AggregateSigned(maps.signed_y, false);
     const int column_count = static_cast<int>(hint.x_starts.size());
-    const auto trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
     const auto refined_x = RefineFirstBoundary(hint.x_starts, boundary_x, hint.region.x, profile.cell_size);
+    // 背包和便捷存取站的观测都可能缺少中间格框：观测点数不等于列跨度，补洞时不能截掉已观测的末列。
+    // 共用面板容量约束；各侧面板宽度决定上限，不向观测跨度之外盲目补列。
+    const int maximum_columns = std::max(1, (hint.region.width - profile.cell_size) / profile.pitch_min + 1);
     const auto x_fit = FitTransferAxis(
         refined_x,
         boundary_x,
@@ -1524,54 +2017,190 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         profile.cell_size,
         { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
         profile.observed_pitch_tolerance,
-        static_cast<int>(refined_x.size()),
+        maximum_columns,
         !transfer,
         false);
     if (!x_fit) {
         return {};
     }
+    const std::vector<int> observed_x_phase = x_fit->starts;
+    const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
     std::vector<int> local_x = x_fit->starts;
     std::vector<int> local_y;
-    const auto rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
-    const bool reliable_rarity_fit = rarity_fit.has_value()
-                                     && (!transfer || rarity_fit->supporting_strong_cells >= kMinimumReliableRarityCells
-                                         || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells);
-    if (reliable_rarity_fit) {
-        local_x = rarity_fit->x_starts;
-        const int count = std::min(profile.maximum_rows, std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows));
-        for (int row = 0; row < count; ++row) {
-            local_y.push_back(rarity_fit->origin + row * rarity_fit->pitch);
+    const auto build_structural_y = [&]() {
+        if (transfer) {
+            const auto structural_y = RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, profile.cell_size);
+            auto result = CompleteAxis(
+                structural_y,
+                profile.maximum_rows,
+                static_cast<int>(std::floor(x_fit->pitch + 0.5)),
+                profile.preferred_pitch,
+                profile.pitch_min,
+                profile.pitch_max,
+                profile.observed_pitch_tolerance,
+                column_count == 4 || column_count == 7);
+            if (column_count >= 7) {
+                result = RefineStructuralPhase(
+                    result,
+                    boundary_y,
+                    hint.region.y,
+                    profile.cell_size,
+                    kWideTransferPhaseMaximumShift,
+                    kWideTransferPhaseMinimumGain,
+                    true);
+            }
+            return result;
         }
-    }
-    else {
-        auto structural_y = transfer ? RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, profile.cell_size) : hint.y_starts;
-        auto refined_y = structural_y != hint.y_starts
-                             ? structural_y
-                             : RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count, profile.cell_size);
-        local_y = CompleteAxis(
+        // 存取站沿用父分支的端口 y 轴规则化；直接使用局部边界峰会把缩放后的间距误差带入最终轴拟合。
+        const auto refined_y = RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count, profile.cell_size);
+        return CompleteAxis(
             refined_y,
             profile.maximum_rows,
-            transfer ? std::optional<int>(static_cast<int>(std::floor(x_fit->pitch + 0.5))) : std::nullopt,
+            std::nullopt,
             profile.preferred_pitch,
             profile.pitch_min,
             profile.pitch_max,
             profile.observed_pitch_tolerance,
             column_count == 4 || column_count == 7);
-        if (transfer && column_count >= 7) {
-            local_y = RefineStructuralPhase(
-                local_y,
-                boundary_y,
-                hint.region.y,
-                profile.cell_size,
-                kWideTransferPhaseMaximumShift,
-                kWideTransferPhaseMinimumGain,
-                true);
+    };
+    std::optional<std::vector<int>> structural_y;
+    bool empty_grid_selected = false;
+    if (transfer) {
+        // 全空面板先用规则边框和低纹理门控确认；命中后跳过两套稀有度扫描，非空面板仍走原路径。
+        structural_y = build_structural_y();
+        // 空网格用连续边框重新拟合起点和间距，不能把粗轴的最小二乘误差当成固定 pitch。
+        const auto empty_x_fit = FitTransferAxis(
+            local_x,
+            boundary_x,
+            hint.region.x,
+            profile.cell_size,
+            { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
+            profile.observed_pitch_tolerance,
+            maximum_columns,
+            true,
+            true);
+        const auto empty_grid =
+            empty_x_fit ? FitTransferEmptyGrid(hint, empty_x_fit->starts, empty_x_fit->pitch, profile, cell_score, signed_x, signed_y)
+                        : std::nullopt;
+        empty_grid_selected =
+            empty_grid
+            && IsTransferEmptyGridCandidate(image, roi, empty_grid->x_starts, empty_grid->y_starts, profile.cell_size, texture_context);
+        if (empty_grid_selected) {
+            local_x = empty_grid->x_starts;
+            local_y = empty_grid->y_starts;
+        }
+    }
+    std::optional<TrustedRarityGridFit> trusted_fit;
+    std::optional<RarityGridFit> rarity_fit;
+    bool reliable_rarity_fit = false;
+    if (!empty_grid_selected) {
+        trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
+        rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
+        // 满背包同类灰色物品的重复纹理可能比格框更强；有前景支持的灰条也应约束右侧相位。
+        const bool gray_rarity_fit = transfer && rarity_fit.has_value() && rarity_fit->supporting_strong_cells == 0
+                                     && rarity_fit->supporting_chromatic_cells == 0
+                                     && rarity_fit->supporting_cells >= kMinimumGrayRarityTextureCells
+                                     && HasGrayRarityTextureSupport(image, roi, *rarity_fit, profile, hint.y_starts, texture_context);
+        reliable_rarity_fit = rarity_fit.has_value()
+                              && (!transfer || rarity_fit->supporting_strong_cells >= kMinimumReliableRarityCells
+                                  || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells || gray_rarity_fit);
+        if (reliable_rarity_fit) {
+            // rarity 列坐标与结构观测同处 ROI 坐标系，直接作为所有变体的公共相位锚；
+            // 右侧背包随后以它为锚做容量相位搜索，左侧仓库与存取站沿用这些列坐标。
+            local_x = rarity_fit->x_starts;
+            // Transfer 用支持行的实际范围补足粗网格；仅增加总行数会把顶部缺行错补到下面。
+            // Port 保持原有从粗起点向下生成的策略。
+            if (complete_transfer_panel) {
+                const int first_row = std::min(0, rarity_fit->first_supported_row);
+                const int last_row = std::max(static_cast<int>(hint.y_starts.size()) - 1, rarity_fit->last_supported_row);
+                const int count = std::min(profile.maximum_rows, last_row - first_row + 1);
+                for (int row = 0; row < count; ++row) {
+                    local_y.push_back(rarity_fit->origin + (first_row + row) * rarity_fit->pitch);
+                }
+            }
+            else if (transfer && left_side) {
+                // rarity 只确定规则相位；仓库底部残行的色带可能被底栏遮住，行范围还需采纳连续的实测格框。
+                std::vector<int> observed_rows;
+                for (int observed : hint.y_starts) {
+                    const int row = cvRound(static_cast<double>(observed - rarity_fit->origin) / rarity_fit->pitch);
+                    const int projected = rarity_fit->origin + row * rarity_fit->pitch;
+                    const cv::Rect projected_cell(roi.x + local_x.front(), roi.y + projected, profile.cell_size, profile.cell_size);
+                    if (std::abs(projected - observed) <= profile.observed_pitch_tolerance
+                        && IsFormal(projected_cell, roi, profile.minimum_top_visibility, profile.minimum_bottom_visibility)) {
+                        observed_rows.push_back(row);
+                    }
+                }
+                std::ranges::sort(observed_rows);
+                observed_rows.erase(std::unique(observed_rows.begin(), observed_rows.end()), observed_rows.end());
+
+                int first_row = rarity_fit->first_supported_row;
+                int last_row = rarity_fit->last_supported_row;
+                while (std::ranges::binary_search(observed_rows, first_row - 1)) {
+                    --first_row;
+                }
+                while (std::ranges::binary_search(observed_rows, last_row + 1)) {
+                    ++last_row;
+                }
+                for (int row = first_row; row <= last_row; ++row) {
+                    local_y.push_back(rarity_fit->origin + row * rarity_fit->pitch);
+                }
+
+                // 末行可能只有物品主体，底栏会遮住整行 rarity；沿已确定 pitch 试探时只接受有前景且仍有格框支持的行。
+                double existing_structure_support = 0.0;
+                for (int y : local_y) {
+                    double support = 0.0;
+                    for (int x : local_x) {
+                        support += CellSupport(cell_score, x, y);
+                    }
+                    existing_structure_support = std::max(existing_structure_support, support / local_x.size());
+                }
+                while (local_y.size() < static_cast<std::size_t>(profile.maximum_rows)) {
+                    const int next_y = local_y.back() + cvRound(rarity_fit->pitch);
+                    int textured_cells = 0;
+                    double next_structure_support = 0.0;
+                    bool formal_row = true;
+                    bool bottom_clipped = false;
+                    for (int x : local_x) {
+                        const cv::Rect cell(roi.x + x, roi.y + next_y, profile.cell_size, profile.cell_size);
+                        if (!IsFormal(cell, roi, profile.minimum_top_visibility, profile.minimum_bottom_visibility)) {
+                            formal_row = false;
+                            break;
+                        }
+                        bottom_clipped = bottom_clipped || cell.y + cell.height > roi.y + roi.height;
+                        const auto texture = ScoreTransferForeground(image, cell, texture_context);
+                        textured_cells += texture && *texture >= kDefaultLowTextureThreshold;
+                        next_structure_support += CellSupport(cell_score, x, next_y);
+                    }
+                    const bool continuous_structure =
+                        next_structure_support / local_x.size() >= existing_structure_support * kRowCompletionSupportRatio;
+                    // 左侧只补紧邻的有物品行。末行被 ROI 截断时下边框和 rarity 本来就不可见，
+                    // 此时由前景证明该行存在；完整行仍必须有连续格框，避免背景纹理扩成仓库容量网格。
+                    if (!formal_row || textured_cells == 0 || (!bottom_clipped && !continuous_structure)) {
+                        break;
+                    }
+                    local_y.push_back(next_y);
+                }
+            }
+            else {
+                // 便捷存取站仍沿用 rarity 拟合后的完整行范围；这里不能让 local_y 为空，否则整页会被提前判为空网格。
+                const int first_row = 0;
+                const int last_row = std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows) - 1;
+                const int count = std::min(profile.maximum_rows, last_row - first_row + 1);
+                for (int row = 0; row < count; ++row) {
+                    local_y.push_back(rarity_fit->origin + (first_row + row) * rarity_fit->pitch);
+                }
+            }
+        }
+        else {
+            if (!structural_y) {
+                structural_y = build_structural_y();
+            }
+            local_y = std::move(*structural_y);
         }
     }
     if (local_x.empty() || local_y.empty()) {
         return {};
     }
-    const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
     bool trusted_selected = false;
     double trusted_candidate_score = 0.0;
     const double legacy_structure = NormalizedStructureSupport(cell_score, local_x, local_y);
@@ -1597,7 +2226,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             rejected_reasons.emplace_back("trusted-candidate-lacks-structure");
         }
     }
-    else {
+    else if (!empty_grid_selected) {
         rejected_reasons.emplace_back("no-trusted-chromatic-strip");
     }
     const double legacy_candidate_score = kLegacyStructureWeight * legacy_structure + kLegacyRarityWeight * legacy_rarity;
@@ -1619,26 +2248,113 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             spacings.push_back(local_y[index] - local_y[index - 1]);
         }
         const int pitch_y = spacings.empty() ? profile.preferred_pitch : static_cast<int>(std::floor(Median(spacings) + 0.5));
-        const std::size_t completion_limit = trusted_selected && trusted_fit->y_axis.direct_indices.size() == 1
-                                                 ? std::min<std::size_t>(kSingleObservationCompletionLimit, profile.maximum_rows)
-                                                 : static_cast<std::size_t>(profile.maximum_rows);
-        while (local_y.size() < completion_limit) {
-            const int following = local_y.back() + std::clamp(pitch_y, profile.pitch_min, profile.pitch_max);
-            if (hint.region.y + hint.region.height - following < profile.minimum_bottom_visibility * profile.cell_size) {
-                break;
+        const int clamped_pitch_y = std::clamp(pitch_y, profile.pitch_min, profile.pitch_max);
+        const bool stable_rarity_lattice =
+            (reliable_rarity_fit && rarity_fit->supporting_rows >= static_cast<int>(kStableRarityMinimumRows))
+            || (trusted_selected && trusted_fit->y_axis.direct_indices.size() >= kStableRarityMinimumRows);
+        if (complete_transfer_panel) {
+            const int minimum_y = -cvFloor((1.0 - profile.minimum_top_visibility) * profile.cell_size);
+            const int panel_y_end = roi.height + cvFloor((1.0 - profile.minimum_bottom_visibility) * profile.cell_size);
+            const auto panel_y =
+                FormalAxisStarts(local_y.front(), clamped_pitch_y, minimum_y, panel_y_end, profile.cell_size, profile.maximum_rows);
+            std::vector<int> observed_indices;
+            for (int observed : local_y) {
+                const auto nearest =
+                    std::ranges::min_element(panel_y, {}, [observed](int candidate) { return std::abs(candidate - observed); });
+                if (nearest != panel_y.end() && std::abs(*nearest - observed) <= profile.observed_pitch_tolerance + 1) {
+                    observed_indices.push_back(static_cast<int>(std::distance(panel_y.begin(), nearest)));
+                }
             }
-            const bool stable_rarity_lattice =
-                (reliable_rarity_fit && rarity_fit->supporting_rows >= static_cast<int>(kStableRarityMinimumRows))
-                || (trusted_selected && trusted_fit->y_axis.direct_indices.size() >= kStableRarityMinimumRows);
-            if (!stable_rarity_lattice && (minimum_support <= 0.0 || row_support(following) < minimum_support)) {
-                break;
+            if (!observed_indices.empty()) {
+                int first = *std::ranges::min_element(observed_indices);
+                int last = *std::ranges::max_element(observed_indices);
+                const auto supported = [&](int index, int accepted_count) {
+                    const int y = panel_y[index];
+                    const bool clipped_edge = (y < 0 || y + profile.cell_size > roi.height) && accepted_count >= 3;
+                    return empty_grid_selected || stable_rarity_lattice || clipped_edge
+                           || (minimum_support > 0.0 && row_support(y) >= minimum_support);
+                };
+                while (first > 0 && supported(first - 1, last - first + 1)) {
+                    --first;
+                }
+                while (last + 1 < static_cast<int>(panel_y.size()) && supported(last + 1, last - first + 1)) {
+                    ++last;
+                }
+                local_y.assign(panel_y.begin() + first, panel_y.begin() + last + 1);
             }
-            local_y.push_back(following);
+        }
+        else if (!transfer) {
+            const std::size_t completion_limit = trusted_selected && trusted_fit->y_axis.direct_indices.size() == 1
+                                                     ? std::min<std::size_t>(kSingleObservationCompletionLimit, profile.maximum_rows)
+                                                     : static_cast<std::size_t>(profile.maximum_rows);
+            while (local_y.size() < completion_limit) {
+                const int following = local_y.back() + clamped_pitch_y;
+                if (hint.region.y + hint.region.height - following < profile.minimum_bottom_visibility * profile.cell_size) {
+                    break;
+                }
+                if (!stable_rarity_lattice && (minimum_support <= 0.0 || row_support(following) < minimum_support)) {
+                    break;
+                }
+                local_y.push_back(following);
+            }
         }
     }
     // 右侧七列始终检查分类工具栏遮挡；左侧四列的末行空行启发式只用于缺少 rarity 证据的旧结构路径。
     if (!transfer && (column_count == 7 || (!reliable_rarity_fit && !trusted_selected))) {
         local_y = DropPortRows(image, roi, local_x, local_y, column_count, profile.cell_size);
+    }
+
+    if (transfer && left_side && !empty_grid_selected && !reliable_rarity_fit && !trusted_selected) {
+        double maximum_structure = 0.0;
+        cv::minMaxLoc(cell_score, nullptr, &maximum_structure);
+        // 左侧 legacy 候选也必须包含真实格框；零响应不能仅凭规则轴生成假网格。
+        if (maximum_structure <= kEpsilon) {
+            LogDebug << "Transfer-left legacy candidate rejected: no structure response." << VAR(grid_index);
+            return {};
+        }
+        // 背景模糊纹理也可能产生少量格框响应；至少一格必须有物品级前景，才能确认这是实际仓库内容。
+        const bool has_foreground_cell = std::ranges::any_of(local_y, [&](int y) {
+            return std::ranges::any_of(local_x, [&](int x) {
+                const cv::Rect cell(roi.x + x, roi.y + y, profile.cell_size, profile.cell_size);
+                const auto texture = ScoreTransferForeground(image, cell, texture_context);
+                return texture && *texture >= kDefaultLowTextureThreshold;
+            });
+        });
+        if (!has_foreground_cell) {
+            LogDebug << "Transfer-left legacy candidate rejected: no foreground cell." << VAR(grid_index);
+            return {};
+        }
+        // 当前观测到的无稀有度接受路径必须留痕，便于实机排查潜在的幻影网格。
+        LogDebug << "Transfer-left legacy candidate accepted without rarity evidence." << VAR(grid_index) << VAR(local_x.size())
+                 << VAR(local_y.size());
+    }
+
+    if (complete_transfer_panel) {
+        // 只有右侧完整背包面板允许二维相位竞争；左侧已有物品的 rarity/结构观测直接约束相位。
+        if (!empty_grid_selected) {
+            double maximum_structure = 0.0;
+            cv::minMaxLoc(cell_score, nullptr, &maximum_structure);
+            if (maximum_structure <= kEpsilon && !reliable_rarity_fit) {
+                return {};
+            }
+            const auto final_phase = FitTransferPanelPhase(
+                cell_score,
+                // rarity/trusted 证据接管相位后必须以当前轴为锚；继续使用旧粗轴会把正确色带相位当成半格偏移拒绝。
+                reliable_rarity_fit || trusted_selected ? local_x : observed_x_phase,
+                local_y,
+                profile,
+                hint.region,
+                signed_x,
+                signed_y,
+                reliable_rarity_fit || trusted_selected);
+            if (!final_phase) {
+                LogDebug << "Transfer-right phase search rejected all candidates." << VAR(grid_index) << VAR(local_x.size())
+                         << VAR(local_y.size());
+                return {};
+            }
+            local_x = final_phase->x_starts;
+            local_y = final_phase->y_starts;
+        }
     }
 
     const auto fit_final_axis = [&](const std::vector<int>& starts, int maximum_count) {
@@ -1659,8 +2375,11 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     if (!final_x_axis || !final_y_axis) {
         return {};
     }
-    local_x = ProjectRegularAxis(*final_x_axis);
-    local_y = ProjectRegularAxis(*final_y_axis);
+    const bool preserve_left_structural_axis = transfer && left_side && !reliable_rarity_fit && !trusted_selected;
+    if (!empty_grid_selected && !preserve_left_structural_axis) {
+        local_x = ProjectRegularAxis(*final_x_axis);
+        local_y = ProjectRegularAxis(*final_y_axis);
+    }
 
     GridLayout layout;
     layout.grid_index = grid_index;
@@ -1668,9 +2387,17 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     for (int row = 0; row < static_cast<int>(local_y.size()); ++row) {
         for (int column = 0; column < static_cast<int>(local_x.size()); ++column) {
             const cv::Rect cell(roi.x + local_x[column], roi.y + local_y[row], profile.cell_size, profile.cell_size);
-            if (IsFormal(cell, roi, profile.minimum_top_visibility, profile.minimum_bottom_visibility)) {
-                layout.cells.push_back({ grid_index, row, column, cell });
+            if (!IsFormal(cell, roi, profile.minimum_top_visibility, profile.minimum_bottom_visibility)) {
+                continue;
             }
+            if (transfer && left_side && (reliable_rarity_fit || trusted_selected)) {
+                // 只有已有 rarity/trusted 物品证据时才过滤低纹理格；无物品证据时保留已观测结构，避免缩放几何被误删。
+                const auto texture = ScoreTransferForeground(image, cell, texture_context);
+                if (!texture || *texture < kDefaultLowTextureThreshold) {
+                    continue;
+                }
+            }
+            layout.cells.push_back({ grid_index, row, column, cell });
         }
     }
     if (layout.cells.empty()) {
@@ -1713,7 +2440,9 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         .residual_trend = std::max(std::abs(final_x_axis->residual_trend), std::abs(final_y_axis->residual_trend)),
         .trusted_rarity_cells = trusted_fit ? trusted_fit->rarity_counts : std::array<int, 6> {},
         .fallback_used = !trusted_selected,
-        .fallback_reason = trusted_selected ? "" : "legacy-structure-without-conflicting-trusted-rarity",
+        .fallback_reason = trusted_selected      ? ""
+                           : empty_grid_selected ? "empty-grid-structure"
+                                                 : "legacy-structure-without-conflicting-trusted-rarity",
         .rejected_reasons = std::move(rejected_reasons),
     };
     return layout;
@@ -1993,7 +2722,13 @@ void RefineScaledTransferDetection(const cv::Mat& image, const cv::Rect& roi, do
     }
 }
 
-GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv::Rect& roi, double source_grid_scale)
+GridDetection DetectGridNormalized(
+    const cv::Mat& image,
+    GridType type,
+    const cv::Rect& roi,
+    double source_grid_scale,
+    const TransferTextureContext* texture_context = nullptr,
+    bool allow_transfer_hint_fallback = false)
 {
     GridDetection result {
         .type = type,
@@ -2009,9 +2744,18 @@ GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv
         Append(result, DetectCreditTrade(image, roi));
     }
     else if (type == GridType::Transfer || type == GridType::PortStorager) {
-        const auto hints = DiscoverTransferGridHints(image(roi), type == GridType::Transfer);
+        auto hints = DiscoverTransferGridHints(image(roi), type == GridType::Transfer);
+        if (type == GridType::Transfer && hints.empty() && allow_transfer_hint_fallback) {
+            // 该入口只能由已按 TransferPanelRegionsFor 切分的单侧面板开启；禁止整幅 ROI 横跨左右面板搜索。
+            hints.push_back({
+                .region = cv::Rect(0, 0, roi.width, roi.height),
+                .rect = cv::Rect(0, 0, roi.width, roi.height),
+                .x_starts = { 0 },
+                .y_starts = { 0 },
+            });
+        }
         for (int index = 0; index < static_cast<int>(hints.size()); ++index) {
-            Append(result, BuildTransferLayout(image, roi, hints[index], index, type));
+            Append(result, BuildTransferLayout(image, roi, hints[index], index, type, texture_context));
         }
     }
     else {
@@ -2051,6 +2795,44 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
         };
     }
     const double resolved_scale = *estimated_scale;
+    if (type == GridType::Transfer) {
+        GridDetection result { .type = type, .roi = roi, .grid_scale = resolved_scale };
+        const auto panels = TransferPanelRegionsFor(resolved_scale, roi);
+        cv::Mat analysis_image = image;
+        if (resolved_scale != kWin32ControllerGridScale) {
+            cv::resize(
+                image,
+                analysis_image,
+                cv::Size(std::max(1, cvRound(image.cols / resolved_scale)), std::max(1, cvRound(image.rows / resolved_scale))),
+                0.0,
+                0.0,
+                cv::INTER_AREA);
+        }
+        for (const auto& panel : panels) {
+            if (panel.search_roi.empty()) {
+                continue;
+            }
+            const cv::Rect analysis_roi = ScaleRectForGridAnalysis(panel.search_roi, 1.0 / resolved_scale, analysis_image.size());
+            const TransferTextureContext texture_context { image, panel.texture_roi, resolved_scale };
+            auto detection = DetectGridNormalized(analysis_image, type, analysis_roi, resolved_scale, &texture_context, true);
+            if (resolved_scale != kWin32ControllerGridScale) {
+                ScaleDetectionToSource(detection, resolved_scale, image.size());
+                RefineScaledTransferDetection(image, panel.search_roi, resolved_scale, detection);
+            }
+            for (auto& layout : detection.grids) {
+                layout.grid_index = static_cast<int>(result.grids.size());
+                for (auto& cell : layout.cells) {
+                    cell.grid_index = layout.grid_index;
+                    cell.texture_roi = panel.texture_roi;
+                }
+                Append(result, std::move(layout));
+            }
+        }
+        if (result.cells.empty()) {
+            result.failure_message = "Transfer panel intersection contains no formal cells";
+        }
+        return result;
+    }
     if (resolved_scale == kWin32ControllerGridScale) {
         return DetectGridNormalized(image, type, roi, resolved_scale);
     }

@@ -5,7 +5,6 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -16,7 +15,7 @@ var screenshotStableBaseline *image.RGBA
 
 var _ maa.CustomRecognitionRunner = (*ScreenshotStableRecognition)(nil)
 
-// ScreenshotStableRecognition 仅在 Win32-Front + 游戏全屏时，于 Agent 进程生命周期内判定一次
+// ScreenshotStableRecognition 仅在 Win32-Front 时，于 Agent 进程生命周期内判定一次
 // 画面是否连续三帧稳定。每次调用只用 arg.Img：第 1 次存 baseline；第 2 帧不匹配则结束周期；
 // 匹配后再采第 3 帧确认。仅第 3 帧仍相似时命中。
 type ScreenshotStableRecognition struct{}
@@ -72,18 +71,7 @@ func (r *ScreenshotStableRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 }
 
 func shouldRunScreenshotStable() bool {
-	if pienv.ControllerName() != "Win32-Front" {
-		return false
-	}
-	fullScreen, err := gamesetting.GetVideoFullScreen()
-	if err != nil {
-		log.Debug().
-			Err(err).
-			Str("component", "ScreenshotStableRecognition").
-			Msg("failed to read fullscreen setting, skip")
-		return false
-	}
-	return fullScreen == 1
+	return pienv.ControllerName() == "Win32-Front"
 }
 
 func finishScreenshotStable() {

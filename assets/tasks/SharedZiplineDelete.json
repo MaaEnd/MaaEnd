@@ -1,0 +1,232 @@
+{
+    "task": [
+        {
+            "name": "SharedZiplineDelete",
+            "label": "$task.SharedZiplineDelete.label",
+            "entry": "SharedZiplineDeleteMain",
+            "option": [
+                "SharedZiplineDeleteValleyIV",
+                "SharedZiplineDeleteWuling"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
+            ],
+            "group": [
+                "open_world"
+            ]
+        }
+    ],
+    "option": {
+        "SharedZiplineDeleteValleyIV": {
+            "type": "switch",
+            "label": "$global.region.ValleyIV",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SharedZiplineDeleteValleyIVRegions"
+                    ],
+                    "pipeline_override": {
+                        "SharedZiplineDeleteBootstrapValleyIV": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "SharedZiplineDeleteValleyIVRegions": {
+            "type": "checkbox",
+            "label": "$option.SharedZiplineDeleteRegions.label",
+            "default_case": [
+                "VFTheHub",
+                "VFValleyPass",
+                "VFOriginiumSciencePark",
+                "VFAburreyQuarry",
+                "VFOriginLodespring",
+                "VFPowerPlateau"
+            ],
+            "cases": [
+                {
+                    "name": "VFTheHub",
+                    "label": "$global.region.TheHub",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterVFTheHub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "VFValleyPass",
+                    "label": "$global.region.ValleyPass",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterVFValleyPass": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "VFOriginiumSciencePark",
+                    "label": "$global.region.OriginiumSciencePark",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterVFOriginiumSciencePark": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "VFAburreyQuarry",
+                    "label": "$global.region.AburreyQuarry",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterVFAburreyQuarry": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "VFOriginLodespring",
+                    "label": "$global.region.OriginLodespring",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterVFOriginLodespring": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "VFPowerPlateau",
+                    "label": "$global.region.PowerPlateau",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterVFPowerPlateau": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SharedZiplineDeleteWuling": {
+            "type": "switch",
+            "label": "$global.region.Wuling",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SharedZiplineDeleteWulingRegions"
+                    ],
+                    "pipeline_override": {
+                        "SharedZiplineDeleteBootstrapWuling": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "SharedZiplineDeleteWulingRegions": {
+            "type": "checkbox",
+            "label": "$option.SharedZiplineDeleteRegions.label",
+            "default_case": [
+                "WLWulingCity",
+                "WLJingyuValley",
+                "WLQingboStockade",
+                "WLMarkerStone",
+                "WLTestArea",
+                "WLSwordVaultDale",
+                "WLYinglungPass",
+                "WLNorthWulingExclusionZone",
+                "WLSnowyForest"
+            ],
+            "cases": [
+                {
+                    "name": "WLWulingCity",
+                    "label": "$global.region.WulingCity",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterWLWulingCity": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLJingyuValley",
+                    "label": "$global.region.JingyuValley",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterWLJingyuValley": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLQingboStockade",
+                    "label": "$global.region.QingboStockade",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterWLQingboStockade": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLMarkerStone",
+                    "label": "$global.region.MarkerStone",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterWLMarkerStone": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLTestArea",
+                    "label": "$global.region.TestArea",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterWLTestArea": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLSwordVaultDale",
+                    "label": "$global.region.SwordVaultDale",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterWLSwordVaultDale": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLYinglungPass",
+                    "label": "$global.region.YinglungPass",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterWLYinglungPass": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLNorthWulingExclusionZone",
+                    "label": "$global.region.NorthWulingExclusionZone",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterWLNorthWulingExclusionZone": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLSnowyForest",
+                    "label": "$global.region.SnowyForest",
+                    "pipeline_override": {
+                        "SharedZiplineDeleteEnterWLSnowyForest": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

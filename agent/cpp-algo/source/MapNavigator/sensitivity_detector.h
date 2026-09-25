@@ -1,11 +1,8 @@
 #pragma once
 
 #include <array>
-#include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <optional>
-#include <vector>
 
 namespace mapnavigator
 {
@@ -13,86 +10,109 @@ namespace mapnavigator
 namespace sensitivity
 {
 
-// 一条指令的转量摊在后面几拍上，逐拍相除量到的是滞后。拿这么多拍一起拟合才是灵敏度。
-inline constexpr int kLagCount = 6;
+// 一条指令的转量摊在后面十来拍上，逐拍相除量到的是滞后。拿这么多拍一起拟合才是灵敏度。
+inline constexpr int kLagCount = 12;
 
 using LagVector = std::array<double, kLagCount>;
 using LagMatrix = std::array<LagVector, kLagCount>;
 
 struct Config
 {
-    // 按真实时间切窗，不按拍数：慢机每秒攒不到几拍，按拍数等于越慢越难判出来。
-    int64_t window_ms = 12000;
-    // 一窗至少发出这么多度才作数，转得太少的窗拟合出来是噪声。
-    double window_min_cmd_deg = 150.0;
-    // 只报转过头。转不到位有太多正常原因（指令被吞、贴墙转不动、掉帧），低倍率分不出是哪种。
+    // 倍率的两条判决线，正常机的估计值落在 1.00 附近 ±0.05。
     double overshoot_ratio = 1.20;
-    // 攒够这么多窗才判，两倍灵敏度实机 37 秒就够。
-    int required_windows = 3;
-    // 线路走坏时改用这个窗数，跑得再短也给个结论。
-    int failure_windows = 2;
-    std::size_t history_size = 256;
+    double undershoot_ratio = 1.0 / 1.20;
+    // 估计值往 1.0 的方向退这么多倍标准误差还过线才判。
+    double sigma_margin = 3.0;
+    // 估计值超出这段范围就当观测本身出了问题，不改。
+    double max_ratio = 2.5;
+    double min_ratio = 0.4;
+    // 攒够这么多拍样本才开始判，之后样本每翻一倍再判一次，线路结束也判一次。
+    int min_samples = 500;
+    // 单条线路攒到这么多样本，它自己的估计值才有资格否决偏慢的判决。
+    int min_run_samples = 50;
+    // 拍号跳一格且那拍没发过转向，两拍相隔在此之内才把两拍并成一行记账。
+    int64_t bridge_max_gap_ms = 600;
+    // 出口记的账和这拍报的指令差出这么多度，就是别的路径发过转向，滞后链作废。
+    double issued_match_tol_deg = 0.5;
 };
 
 struct Verdict
 {
+    double ratio = 1.0;
     int ratio_percent = 0;
-    int window_count = 0;
+    int sample_count = 0;
 };
 
-// 一个窗的原始账目，留给日志。
-struct WindowSample
+// 当前的估计值和它的标准误差，留给日志。
+struct Estimate
 {
     double ratio = 0.0;
+    double se = 0.0;
+    int sample_count = 0;
     double cmd_deg = 0.0;
-    int tick_count = 0;
+};
+
+// 正规方程的累加量。断拍只清滞后链，不动这些：只有「哪拍对哪拍」要连续，统计量不要。
+struct NormalSums
+{
+    LagMatrix xtx {};
+    LagVector xty {};
+    double yty = 0.0;
+    int sample_count = 0;
+    double cmd_deg = 0.0;
+
+    void Add(const LagVector& row, double heading_delta, double issued_delta_deg);
+    void Reset();
 };
 
 // 比对发出的转向指令和实测的朝向变化，算出实际转到了指令的百分之多少。
-// 跨线路一直攒着：灵敏度是个设置，不会这条线路对下条线路错。
+// 整个进程一直攒着：灵敏度是个设置，不会这条线路对下条线路错。
 class Detector
 {
 public:
     explicit Detector(Config config = {});
 
-    // 每次导航开始调一次：断开滞后链，已经封好的窗全部保留。
+    // 每次导航开始调一次：断开滞后链，攒下的方程全部保留。
     void BeginRun();
-    std::optional<Verdict> RecordTick(uint64_t tick_seq, double heading_deg, double issued_delta_deg, bool degraded_fix);
-    // 线路结束时调一次。走坏了的话按更低的窗数门槛再判一次。
-    std::optional<Verdict> EndRun(bool route_failed);
+    // 每一份从输入出口发出去的偏航度数，不论哪条路径发的。
+    void NoteIssued(double delta_deg);
+    std::optional<Verdict> RecordTick(uint64_t tick_seq, int64_t now_ms, double heading_deg, double issued_delta_deg, bool degraded_fix);
+    // 线路结束时调一次。
+    std::optional<Verdict> EndRun();
 
     bool fired() const { return fired_; }
 
-    // 上一次封好的窗，取走就清空。
-    std::optional<WindowSample> TakeLastWindow();
+    // 上一次算出的估计值，取走就清空。
+    std::optional<Estimate> TakeLastEstimate();
 
 private:
-    using Clock = std::chrono::steady_clock;
-
-    void ResetWindow();
-    void CloseWindow();
-    std::optional<Verdict> Evaluate(int required_windows);
+    void PushLag(double cmd_deg);
+    void ResetAccumulators();
+    std::optional<Estimate> Solve(const NormalSums& sums) const;
+    bool RunReadsNormal() const;
+    std::optional<Verdict> Evaluate();
 
     Config config_;
-    std::vector<double> ratio_history_;
 
     uint64_t prev_tick_seq_ = 0;
     bool has_prev_tick_ = false;
+    int64_t prev_tick_ms_ = 0;
     double prev_heading_deg_ = 0.0;
     bool has_prev_heading_ = false;
+    double issued_since_record_ = 0.0;
 
-    // 最近 kLagCount 拍的指令，[0] 是当前拍。攒不满说明账刚断过，这拍不进方程。
+    // 前 kLagCount 拍的指令，[0] 是上一拍。攒不满说明账刚断过，这拍不进方程。
     LagVector cmd_lags_ {};
     int chain_len_ = 0;
 
-    // 正规方程的累加量。断拍只清滞后链，不动这两个：只有「哪拍对哪拍」要连续，统计量不要。
-    LagMatrix xtx_ {};
-    LagVector xty_ {};
-    double window_cmd_deg_ = 0.0;
-    int window_samples_ = 0;
-    Clock::time_point window_started_at_ {};
+    // 全程的累加量，和当前这条线路单独的一份。
+    // 卡墙时指令很大、朝向不动，一段就能把全程估计压到一半，所以偏慢要求没有任何一条线路单独读出正常值。
+    NormalSums total_;
+    NormalSums run_;
+    bool normal_run_seen_ = false;
+    int next_eval_at_ = 0;
 
-    std::optional<WindowSample> last_window_;
+    std::optional<Estimate> last_estimate_;
     bool fired_ = false;
 };
 

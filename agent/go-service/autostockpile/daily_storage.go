@@ -7,14 +7,14 @@ import (
 	"path/filepath"
 	"sort"
 	"time"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 )
 
 const (
 	dailyStorageFileName     = "ElasticGoodsPrices.json"
 	maxDailyStorageDateCount = 120
 )
-
-var resolveDailyStoragePathFunc = resolveDailyStoragePath
 
 type dailyStorageFile struct {
 	SchemaVersion int                  `json:"schema_version"`
@@ -42,11 +42,9 @@ func maaWeekday(weekday time.Weekday) int {
 	return int(weekday)
 }
 
-func storeDailyGoodsPrices(enabled bool, now time.Time, loc *time.Location, region string, uid string, data RecognitionData) error {
-	if !enabled {
-		return nil
-	}
-
+// storeDailyGoodsPrices 落盘当日商品价格记录。
+// 是否允许落盘由调用方判定（见 AutoStockpileAttach.AllowDataUpload）。
+func storeDailyGoodsPrices(now time.Time, loc *time.Location, region string, uid string, data RecognitionData) error {
 	if uid == "" {
 		uid = "unknown"
 	}
@@ -61,7 +59,7 @@ func storeDailyGoodsPrices(enabled bool, now time.Time, loc *time.Location, regi
 		Goods:      cloneGoodsItems(data.Goods),
 	}
 
-	path := resolveDailyStoragePathFunc()
+	path := resolveDailyStoragePath()
 	return upsertDailyStorageRecord(path, record)
 }
 
@@ -98,46 +96,9 @@ func upsertDailyStorageRecord(path string, record dailyStorageRecord) error {
 		return fmt.Errorf("marshal daily storage: %w", err)
 	}
 	content = append(content, '\n')
-	if err := writeFileAtomic(path, content, 0644); err != nil {
+	if err := fsutil.WriteFileAtomic(path, content, 0644); err != nil {
 		return fmt.Errorf("write daily storage: %w", err)
 	}
-
-	return nil
-}
-
-func writeFileAtomic(path string, content []byte, perm os.FileMode) error {
-	dir := filepath.Dir(path)
-	tmp, err := os.CreateTemp(dir, "."+filepath.Base(path)+".*.tmp")
-	if err != nil {
-		return err
-	}
-	tmpPath := tmp.Name()
-	cleanup := true
-	defer func() {
-		if cleanup {
-			_ = os.Remove(tmpPath)
-		}
-	}()
-
-	if _, err := tmp.Write(content); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Chmod(perm); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Sync(); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(tmpPath, path); err != nil {
-		return err
-	}
-	cleanup = false
 
 	return nil
 }
@@ -171,8 +132,10 @@ func readDailyStorageFile(path string) (dailyStorageFile, error) {
 	return storage, nil
 }
 
+// retainRecentDailyStorageDates 仅保留最近 maxDateCount 个服务器日期的记录。
+// maxDateCount 由唯一调用方固定传入 maxDailyStorageDateCount（> 0）。
 func retainRecentDailyStorageDates(records []dailyStorageRecord, maxDateCount int) []dailyStorageRecord {
-	if maxDateCount <= 0 || len(records) == 0 {
+	if len(records) == 0 {
 		return nil
 	}
 

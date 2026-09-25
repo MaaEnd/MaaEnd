@@ -14,10 +14,7 @@ func runShelfSwipe(ctx *maa.Context, nodeName string) error {
 	}
 
 	_, err := ctx.RunAction(nodeName, maa.Rect{0, 0, 0, 0}, "", nil)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func swipeShelfDown(ctx *maa.Context) error {
@@ -45,9 +42,6 @@ func screencapShelf(ctx *maa.Context) (image.Image, error) {
 	img, err := ctrl.CacheImage()
 	if err != nil {
 		return nil, err
-	}
-	if img == nil {
-		return nil, fmt.Errorf("cached image is nil")
 	}
 	return img, nil
 }

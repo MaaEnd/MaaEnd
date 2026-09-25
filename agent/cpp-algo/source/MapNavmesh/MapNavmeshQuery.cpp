@@ -18,6 +18,7 @@
 
 #include <MaaFramework/Utility/MaaBuffer.h>
 #include <MaaUtils/Logger.h>
+#include <MaaUtils/Platform.h>
 
 #include "../MapNavigator/navi_param_parser.h"
 #include "../MapNavigator/navmesh_path_expander.h"
@@ -27,6 +28,7 @@
 #include "../Navmesh/BaseNavReader.h"
 #include "../Navmesh/RecastNavGrid.h"
 #include "../Navmesh/RecastNavRoute.h"
+#include "../Zipline/ZiplineStore.h"
 
 #ifndef MAA_TRUE
 #define MAA_TRUE 1
@@ -62,6 +64,7 @@ struct QueryParam
     std::vector<double> position;
     std::string position_zone;
     json::value custom_action_param = json::object {};
+    std::string zipline_account_id;
     std::string out_file;
 
     MEO_JSONIZATION(
@@ -78,6 +81,7 @@ struct QueryParam
         MEO_OPT position,
         MEO_OPT position_zone,
         MEO_OPT custom_action_param,
+        MEO_OPT zipline_account_id,
         MEO_OPT out_file)
 };
 
@@ -106,7 +110,8 @@ QueryContext* AcquireContext(const std::string& configured_path, std::string& er
     if (ec) {
         absolute = resolved;
     }
-    const std::string key = absolute.lexically_normal().string();
+    const std::filesystem::path normalized = absolute.lexically_normal();
+    const std::string key = MAA_NS::path_to_utf8_string(normalized);
 
     const std::lock_guard<std::mutex> lock(g_contexts_mutex);
     const auto found = g_contexts.find(key);
@@ -114,7 +119,7 @@ QueryContext* AcquireContext(const std::string& configured_path, std::string& er
         return found->second.get();
     }
 
-    auto loaded = navmesh::LoadBaseNavPack(key, {});
+    auto loaded = navmesh::LoadBaseNavPack(normalized, {});
     if (!loaded.ok()) {
         error = loaded.message.empty() ? navmesh::ToString(loaded.status) : loaded.message;
         LogError << "load navmesh failed" << VAR(key) << VAR(error);
@@ -124,7 +129,7 @@ QueryContext* AcquireContext(const std::string& configured_path, std::string& er
     auto context = std::make_unique<QueryContext>();
     context->pack = std::move(*loaded.pack);
     context->planner.emplace(context->pack);
-    context->engine.emplace(context->pack, *context->planner);
+    context->engine.emplace(context->pack, *context->planner, mapnavigator::NoGoTablePath());
     context->pack.releaseLinks();
     QueryContext* raw = context.get();
     g_contexts.emplace(key, std::move(context));
@@ -214,7 +219,7 @@ json::object BuildMesh(const QueryContext& context, uint16_t zone_id, const std:
         cursor += 4;
     }
 
-    std::ofstream out(out_file, std::ios::binary);
+    std::ofstream out(MAA_NS::path(out_file), std::ios::binary);
     if (!out.is_open()) {
         return Fail("写不开 " + out_file);
     }
@@ -340,7 +345,7 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     const navmesh::WorldPoint start { .x = param.start[0], .y = param.start[1] };
     const navmesh::WorldPoint goal { .x = param.goal[0], .y = param.goal[1] };
     const float floor_y = FloorOrNone(param.floor_y);
-    const auto plan = context.engine->plan(zone->name, start, goal, floor_y, floor_y, FloorOrNone(param.goal_deck_y), {}, {}, {});
+    const auto plan = context.engine->plan(zone->name, start, goal, floor_y, floor_y, FloorOrNone(param.goal_deck_y), {}, {});
 
     if (!plan.ok) {
         // 失败时带上两端的离网探针，调用方才能标出是哪个点掉在网格外。
@@ -539,6 +544,16 @@ json::object BuildRoutePreview(const QueryParam& query)
     }
     param.navmesh_file = query.navmesh_file;
     param.normalize_position_via_navmesh = true;
+    if (param.zipline_enabled) {
+        // 这是开发工具的顶层查询字段，不属于 MapNavigateAction 参数。正式运行仍只认当前游戏 UID。
+        param.zipline_account_id = query.zipline_account_id;
+        if (param.zipline_account_id.empty()) {
+            zipline::ZiplineStore store;
+            if (store.load(zipline::ZiplineStore::DefaultPath())) {
+                param.zipline_account_id = store.latestAccountId();
+            }
+        }
+    }
 
     mapnavigator::NaviPosition position {
         .x = query.position[0],
@@ -622,23 +637,27 @@ json::object BuildRoutePreview(const QueryParam& query)
         if (waypoint.action != mapnavigator::ActionType::ZIPLINE) {
             continue;
         }
-        if (!waypoint.zipline_target) {
+        if (!waypoint.zipline_hop) {
             return Fail("滑索展开结果缺少下索点");
         }
 
         flush_walk();
-        const mapnavigator::ZiplineTarget& target = *waypoint.zipline_target;
-        const navmesh::WorldPoint landing { .x = target.x, .y = target.y };
+        const mapnavigator::ZiplineHopPlan& hop = *waypoint.zipline_hop;
+        const navmesh::WorldPoint landing { .x = hop.landing.x, .y = hop.landing.y };
         json::object segment {
             { "from", json::array { point.x, point.y } },
             { "to", json::array { landing.x, landing.y } },
             { "from_height", waypoint.target_deck_y ? json::value(*waypoint.target_deck_y) : json::value() },
-            { "to_height", target.height },
-            { "elevation_deg", target.elevation_deg },
+            { "to_height", hop.landing.height },
+            { "elevation_deg", hop.planned_elevation_deg },
             { "authored_group_begin", waypoint.authored_group_begin },
         };
-        if (waypoint.mount_restand) {
-            segment.emplace("mount_restand", json::array { waypoint.mount_restand->x, waypoint.mount_restand->y });
+        if (!hop.mount_spots.empty()) {
+            json::array spots;
+            for (const mapnavigator::ZiplineMountSpot& spot : hop.mount_spots) {
+                spots.emplace_back(json::array { spot.x, spot.y });
+            }
+            segment.emplace("mount_spots", std::move(spots));
         }
         zipline_segments.emplace_back(std::move(segment));
         AppendDistinct(all_points, landing);
@@ -662,7 +681,9 @@ json::object BuildRoutePreview(const QueryParam& query)
         { "zipline",
           json::object {
               { "requested", param.zipline_enabled },
+              { "account_id", param.zipline_account_id },
               { "used", outcome.used },
+              { "account_unknown", outcome.account_unknown },
               { "no_data", outcome.no_data },
               { "not_chosen", outcome.not_chosen },
           } },

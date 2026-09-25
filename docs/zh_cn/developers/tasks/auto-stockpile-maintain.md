@@ -54,6 +54,8 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 | `Tier2` | 较大 |
 | `Tier3` | 极大 |
 
+价格阈值只由 `strategy.go` 的「地区基准 + 档位基准 + 星期调整」公式产出，已无 JSON 配置入口；需要调整阈值时只能修改该公式。
+
 ## 添加商品
 
 添加新商品时，需要维护**商品映射**和**模板图片**两部分。

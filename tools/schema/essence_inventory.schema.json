@@ -1,0 +1,99 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "MaaEnd 无暇基质库存导出",
+    "description": "扫描未标记弃置的无暇基质，包含已锁定的基质；仅导出能精确匹配当前支持武器的组合。每个词条组合一组，组内按三个等级合并计数。空数组表示完整扫描后没有符合条件的基质。",
+    "$comment": "框架与网格扫描器负责遍历和去重，Pipeline 在识别或操作失败时终止盘点。导出按词条组合及等级聚合，武器列表完整且升序；JSON Schema 校验结构和取值。仅正常扫描结束时更新文件。",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+            "weapon_ids",
+            "essences"
+        ],
+        "properties": {
+            "weapon_ids": {
+                "description": "该词条组合精确匹配的全部武器 ID，去重并按 ID 升序排列。表示适配关系，不表示已装备。",
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                    "type": "string",
+                    "pattern": "^wpn_[a-z0-9_]+$"
+                }
+            },
+            "essences": {
+                "description": "本组基质的等级与数量分布。不同等级分别记录，相同等级合并；weapon_ids 中所有武器共享这份库存。",
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "levels",
+                        "count"
+                    ],
+                    "properties": {
+                        "levels": {
+                            "description": "依次为基础属性、附加属性、技能属性的等级，必须与词条类别对齐。",
+                            "type": "array",
+                            "minItems": 3,
+                            "items": false,
+                            "prefixItems": [
+                                {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 6
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 6
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 3
+                                }
+                            ]
+                        },
+                        "count": {
+                            "description": "本组中三个等级完全相同、未标记弃置的基质持有份数，包含已锁定的基质；不能乘以武器数。",
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "examples": [
+        [],
+        [
+            {
+                "weapon_ids": [
+                    "wpn_sword_0012",
+                    "wpn_sword_0016"
+                ],
+                "essences": [
+                    {
+                        "levels": [
+                            3,
+                            2,
+                            1
+                        ],
+                        "count": 2
+                    },
+                    {
+                        "levels": [
+                            6,
+                            6,
+                            3
+                        ],
+                        "count": 1
+                    }
+                ]
+            }
+        ]
+    ]
+}

@@ -1,6 +1,7 @@
 {
     "GiftOperatorMoveAhead": {
         "desc": "移动尝试接触到干员",
+        "max_hit": 8, // 子节点到 max_hit 之后此节点仍然会空执行报错，所以要设置一个和它的子节点次数一样多的值，让它的父节点正常跳出
         "recognition": {
             "type": "Custom",
             "param": {
@@ -26,8 +27,7 @@
             "GiftOperatorTurnNorthwest",
             "GiftOperatorTurnNorthByWest",
             "GiftOperatorTurnWest",
-            "GiftOperatorTurnSoutheast",
-            "GiftOperatorMoveFail"
+            "GiftOperatorTurnSoutheast"
         ]
     },
     "GiftOperatorMoveResetBackward": {
@@ -58,11 +58,25 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "GiftOperatorMoveRetry": {
+        "desc": "寻路失败重试",
+        "max_hit": 5,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.GiftOperator.focus.move_retry"
+        }
+    },
     "GiftOperatorMoveFail": {
         "desc": "移动未能接触到干员，炸掉程序",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "ERROR", //引发一个错误来结束当前任务并留下截图
+        "custom_action": "ERROR", // 引发一个错误来结束当前任务并留下截图
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
@@ -370,10 +384,14 @@
                 }
             }
         },
+        // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [
             "GiftOperatorClickContact"
             //"[JumpBack]GiftOperatorGoAheadContact"
         ],
+        // "on_error": [
+        //     "GiftOperatorMoveBackward"
+        // ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -382,6 +400,23 @@
                 "trace": true
             }
         }
+    },
+    "GiftOperatorMoveBackward": {
+        "desc": "向后(S)一步，一般都是走过了，先转身退一步试试",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 83
+            }
+        },
+        "timeout": 5000,
+        "next": [
+            "GiftOperatorClickContact"
+        ],
+        "on_error": [
+            "GiftOperatorMoveRetry",
+            "GiftOperatorMoveFail"
+        ]
     },
     "GiftOperatorGoAheadContact": {
         "desc": "继续向前走尝试接触联络台",
@@ -413,6 +448,43 @@
             }
         }
     },
+    "GiftOperatorMoveSCAway": {
+        "desc": "短途寻路先走开几步避免识别精度问题",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "OMVBase01"
+                        },
+                        [
+                            182,
+                            179,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorMoveSC"
+        ],
+        "on_error": [
+            "GiftOperatorMoveRetry",
+            "GiftOperatorMoveFail"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "GiftOperatorMoveSC": {
         "desc": "寻路走到干员联络台",
         "action": {
@@ -434,9 +506,13 @@
                 }
             }
         },
+        // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [
             "GiftOperatorClickContact"
         ],
+        // "on_error": [
+        //     "GiftOperatorMoveBackward"
+        // ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -469,7 +545,7 @@
         },
         "post_delay": 500,
         "next": [
-            "GiftOperatorMoveSC"
+            "GiftOperatorMoveSCAway"
         ]
     }
 }

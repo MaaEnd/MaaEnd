@@ -121,12 +121,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_PROTOSET",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -230,12 +228,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_PROTODISK",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -327,12 +323,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -424,12 +418,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -521,12 +513,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -618,12 +608,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -715,12 +703,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -824,12 +810,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_PROTOHEDRON",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -933,12 +917,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_PROTOPRISM",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -1034,12 +1016,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_T_CREDS",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -1146,12 +1126,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_HEAVY_CAST_DIE",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -1258,12 +1236,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_CAST_DIE",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -1295,7 +1271,7 @@
         }
     },
     "SupplyPlanSanityLowEnd": {
-        "desc": "目标库存模式：理智不足回到大世界后结束任务，不再重新调度刷取（播报已由 ProtocolSpaceRewardClaimSuccessSanityLowFinish 负责，此处不再重复 focus）",
+        "desc": "目标库存模式：理智不足回到大世界后结束任务，不再重新调度刷取（播报已由 ProtocolSpaceSanityLowExitToWorld 负责，此处不再重复 focus）",
         "recognition": {
             "type": "And",
             "param": {
@@ -1680,12 +1656,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_COGNITIVE_CARRIER_EXP",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -1811,12 +1785,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_COMBAT_RECORD_EXP",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"
@@ -1937,12 +1909,10 @@
                         "ProtocolSpaceRewardAddItemData": {
                             "next": [
                                 "SupplyPlanRewardItemMet_WEAPON_EXP",
-                                "ProtocolSpaceRewardClaimSuccessSanityLow",
-                                "ProtocolSpaceRewardClaimSuccessContinue",
-                                "ProtocolSpaceRewardClaimSuccessFinish"
+                                "ProtocolSpaceRewardClaimSuccessNext"
                             ]
                         },
-                        "ProtocolSpaceRewardClaimSuccessSanityLowFinish": {
+                        "ProtocolSpaceSanityLowExitToWorld": {
                             "next": [
                                 "SupplyPlanSanityLowEnd",
                                 "[JumpBack]SceneAnyEnterWorld"

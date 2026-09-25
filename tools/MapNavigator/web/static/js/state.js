@@ -297,7 +297,7 @@ export const PointEditing = {
    * Insert a point into the current zone at the best segment position (mirrors
    * `insert_point`: nearest segment; append past the last segment when projection > 0.85).
    * Mutates `points`.
-   * @returns {void}
+   * @returns {number} local index of the new point within the zone
    */
   insertPoint(
     points,
@@ -325,7 +325,7 @@ export const PointEditing = {
 
     if (zoneIndices.length < 2) {
       points.push(newPoint);
-      return;
+      return zoneIndices.length;
     }
 
     let bestSegment = 0;
@@ -346,12 +346,18 @@ export const PointEditing = {
     const insertPos =
       isLastSegment && bestProjection > 0.85 ? zoneIndices[bestSegment + 1] + 1 : zoneIndices[bestSegment + 1];
     points.splice(insertPos, 0, newPoint);
+    return isLastSegment && bestProjection > 0.85 ? bestSegment + 2 : bestSegment + 1;
   },
 
   /**
    * Set the selected point's action, strict flag, NAVMESH boundary flag, and optional coordinate frame. Uses
    * `setPointActions` when the chain is unchanged (preserve auto/suppress flags), else `setManualPointActions`. Mirrors
-   * `apply_attributes`. Mutates `points`.
+   * `apply_attributes`. A `null` field keeps the point's own value, so a multi-selection with mixed values only
+   * changes what the author actually touched. Mutates `points`.
+   * @param {?string} actionName
+   * @param {?boolean} strictArrival
+   * @param {?boolean} routeRequired
+   * @param {?string} [targetTier] empty clears the frame, `null` keeps it
    * @returns {boolean} whether it applied
    */
   applyAttributes(points, zoneIndices, selectedIdx, actionName, strictArrival, routeRequired, targetTier = "") {
@@ -359,17 +365,19 @@ export const PointEditing = {
     const globalIdx = zoneIndices[selectedIdx];
     const point = points[globalIdx];
     const currentActions = getPointActions(point);
-    const newActions = [actionNameToType(actionName)];
-    if (currentActions.length === newActions.length && currentActions[0] === newActions[0]) {
-      setPointActions(point, newActions);
-    } else {
-      setManualPointActions(point, newActions);
+    const newActions = actionName === null ? currentActions : [actionNameToType(actionName)];
+    if (actionName !== null) {
+      if (currentActions.length === newActions.length && currentActions[0] === newActions[0]) {
+        setPointActions(point, newActions);
+      } else {
+        setManualPointActions(point, newActions);
+      }
     }
-    point.strict = strictArrival;
-    if (routeRequired) point.required = true;
-    else delete point.required;
+    if (strictArrival !== null) point.strict = strictArrival;
+    if (routeRequired === true) point.required = true;
+    else if (routeRequired === false) delete point.required;
     const previousTargetTier = normalizeZoneId(point.target_tier || "");
-    const normalizedTargetTier = normalizeZoneId(targetTier);
+    const normalizedTargetTier = targetTier === null ? previousTargetTier : normalizeZoneId(targetTier);
     if (normalizedTargetTier) point.target_tier = normalizedTargetTier;
     else delete point.target_tier;
     if (!newActions.includes(ActionType.NAVMESH) || previousTargetTier !== normalizedTargetTier) {
@@ -406,7 +414,7 @@ function roundCoord(value) {
 // --- app state orchestrator (app_tk.py glue) -----------------------------------------
 
 /** Editing and read-only analysis modes. */
-export const Mode = Object.freeze({EDIT: "edit", ASSERT: "assert", LOG: "log"});
+export const Mode = Object.freeze({EDIT: "edit", ASSERT: "assert", LOG: "log", NOGO: "nogo"});
 
 /**
  * Top-level editable state: the point list, zone-segment navigation, selection, and
@@ -604,11 +612,11 @@ export class AppState {
    * Insert a manually authored navigation target. Recorded tracks bypass this helper
    * and keep their backend-provided RUN actions.
    * @param {number} worldX @param {number} worldY @param {string} zone @param {string} [targetTier='']
-   * @returns {void}
+   * @returns {number} local index of the new point within the zone
    */
   editInsertManualNavmeshPoint(worldX, worldY, zone, targetTier = "") {
     this.snapshot();
-    PointEditing.insertPoint(
+    const localIdx = PointEditing.insertPoint(
       this.points,
       this.zonePointGlobalIndices(),
       normalizeZoneId(zone),
@@ -620,6 +628,7 @@ export class AppState {
       targetTier,
     );
     this.reindex();
+    return localIdx;
   }
 
   /**
@@ -642,8 +651,9 @@ export class AppState {
   }
 
   /**
-   * Apply the action, strict flag, and optional coordinate frame to EVERY selected point.
-   * @param {string} actionName @param {boolean} strictArrival @param {boolean} routeRequired @param {string} targetTier
+   * Apply the action, strict flag, and optional coordinate frame to EVERY selected point; a `null` field keeps each
+   * point's own value (see {@link PointEditing.applyAttributes}).
+   * @param {?string} actionName @param {?boolean} strictArrival @param {?boolean} routeRequired @param {?string} targetTier
    * @returns {{selectionEmpty:boolean, changed:boolean}}
    */
   editApplyActionToSelected(actionName, strictArrival, routeRequired, targetTier = "") {

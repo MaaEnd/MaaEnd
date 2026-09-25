@@ -1,0 +1,8 @@
+{
+    "template": "endpoint-dispatcher-template.jsonc",
+    "data": "endpoint-dispatcher-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/SeizeDeliveryJobs",
+    "outputFile": "SeizeDeliveryJobsEndpointDispatcher.json",
+    "format": true,
+    "merged": true
+}

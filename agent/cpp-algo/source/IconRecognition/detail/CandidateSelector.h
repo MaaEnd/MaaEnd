@@ -15,6 +15,7 @@ void ValidateCandidateFilterList(const std::vector<std::string>& filters, std::s
 std::vector<PreparedTemplate> SelectCandidateTemplates(
     const std::vector<PreparedTemplate>& all,
     const CandidateFilter& candidates,
-    const std::vector<std::string>& defaults);
+    const std::vector<std::string>& defaults,
+    bool preserve_aliases = true);
 
 } // namespace iconrecognition::detail

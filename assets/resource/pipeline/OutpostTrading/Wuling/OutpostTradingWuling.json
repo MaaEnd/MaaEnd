@@ -1,0 +1,182 @@
+{
+    // ===== 地区据点锚点（锚定该地区第一个据点的标签页文本） =====
+    "OutpostTradingInWulingOutpost": {
+        "desc": "在武陵据点",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingInOutpost",
+            "OutpostTradingCheckSkyKingFlatsConstructionSiteTabText"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingWuling": {
+        "desc": "武陵售卖流程入口",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWuling"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingWulingSell"
+        ]
+    },
+    "OutpostTradingWulingSell": {
+        "desc": "在武陵售卖",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWulingOutpostManagement"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingWulingInitializePrioritySession"
+        ]
+    },
+    "OutpostTradingWulingInitializePrioritySession": {
+        "desc": "切换武陵优先售卖配置",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "reset_preferred",
+            "enabled": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingWulingRegisterPriorityItem1"
+        ]
+    },
+    "OutpostTradingWulingRegisterPriorityItem1": {
+        "desc": "注册武陵第1个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingWulingRegisterPriorityItem2"
+        ]
+    },
+    "OutpostTradingWulingRegisterPriorityItem2": {
+        "desc": "注册武陵第2个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingWulingRegisterPriorityItem3"
+        ]
+    },
+    "OutpostTradingWulingRegisterPriorityItem3": {
+        "desc": "注册武陵第3个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingWulingRegisterPriorityItem4"
+        ]
+    },
+    "OutpostTradingWulingRegisterPriorityItem4": {
+        "desc": "注册武陵第4个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingWulingRegisterPriorityItem5"
+        ]
+    },
+    "OutpostTradingWulingRegisterPriorityItem5": {
+        "desc": "注册武陵第5个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingWulingRegisterPriorityItem6"
+        ]
+    },
+    "OutpostTradingWulingRegisterPriorityItem6": {
+        "desc": "注册武陵第6个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingWulingPrepareOperatorCache"
+        ]
+    },
+    "OutpostTradingWulingPrepareOperatorCache": {
+        "desc": "武陵售卖前准备联络干员缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "OutpostTradingScanOperatorList"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]OutpostTradingSkyKingFlatsConstructionSite",
+            "[JumpBack]OutpostTradingCardiacRemediationStation",
+            "[JumpBack]OutpostTradingXiranflowCloudseederStation",
+            "OutpostTradingLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    }
+}

@@ -26,6 +26,7 @@
                     "name": "Yes",
                     "option": [
                         "CloseGamePCGameSettingRegion",
+                        "CloseGamePCGameSettingLanguage",
                         "CloseGamePCGameSettingDisplayType",
                         "CloseGamePCGameSettingGraphicsQuality",
                         "CloseGamePCGameSettingFrameRate",
@@ -74,6 +75,179 @@
                         "CloseGamePC": {
                             "attach": {
                                 "GameSettingRegion": "Global"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CloseGamePCGameSettingLanguage": {
+            "type": "select",
+            "label": "$option.GameSettingLanguage.label",
+            "description": "$option.CloseGamePCGameSettingLanguage.description",
+            "default_case": "Unchanged",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.GameSettingLanguage.cases.Unchanged.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "Unchanged"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "CN",
+                    "label": "简体中文",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "CN"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TC",
+                    "label": "繁體中文",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "TC"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DE",
+                    "label": "Deutsch",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "DE"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "EN",
+                    "label": "English",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "EN"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "MX",
+                    "label": "Español",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "MX"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "FR",
+                    "label": "Français",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "FR"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ID",
+                    "label": "Bahasa Indonesia",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "ID"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "IT",
+                    "label": "Italiano",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "IT"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "JP",
+                    "label": "日本語",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "JP"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "KR",
+                    "label": "한국어",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "KR"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "BR",
+                    "label": "Português (Brasil)",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "BR"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "RU",
+                    "label": "Русский",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "RU"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TH",
+                    "label": "ภาษาไทย",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "TH"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "VN",
+                    "label": "Tiếng Việt",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingLanguage": "VN"
                             }
                         }
                     }

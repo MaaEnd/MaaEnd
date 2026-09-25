@@ -1,0 +1,162 @@
+{
+    "InSetting": {
+        "desc": "在设置界面（任意子页）；仅 PC",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    150,
+                    40
+                ],
+                "expected": [
+                    "设置"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InSettingPerformanceGraphic": {
+        "desc": "在设置-性能与画面；标题在负载条下方，roi 低于其它子页",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    150,
+                    280,
+                    50
+                ],
+                "expected": [
+                    "性能与画面"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InSettingAudio": {
+        "desc": "在设置-音频",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    48,
+                    160,
+                    36
+                ],
+                "expected": [
+                    "音频"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InSettingControls": {
+        "desc": "在设置-操控",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    48,
+                    160,
+                    36
+                ],
+                "expected": [
+                    "操控"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InSettingKeybinding": {
+        "desc": "在设置-按键；roi 收紧以免扫到正文里的按键",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    48,
+                    120,
+                    36
+                ],
+                "expected": [
+                    "按键"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InSettingLanguage": {
+        "desc": "在设置-语言；roi 收紧以免扫到游戏语言",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    48,
+                    120,
+                    36
+                ],
+                "expected": [
+                    "语言"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InSettingPlatformAccount": {
+        "desc": "在设置-平台与账户",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    48,
+                    220,
+                    36
+                ],
+                "expected": [
+                    "平台与账户"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InSettingOthers": {
+        "desc": "在设置-其他",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    16,
+                    48,
+                    160,
+                    36
+                ],
+                "expected": [
+                    "其他"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

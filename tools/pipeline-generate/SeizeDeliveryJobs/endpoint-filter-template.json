@@ -1,0 +1,12 @@
+{
+    "SeizeDeliveryJobsEndpointFilter${EndpointId}": {
+        "desc": "${Desc}",
+        "enabled": false,
+        "next": [
+            "SeizeDeliveryJobsEndpointMatched"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.endpoint${EndpointId}"
+        }
+    }
+}

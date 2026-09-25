@@ -220,7 +220,7 @@ git submodule update --init --recursive
     "识别": {
         "类型": "模板匹配",
         "参数": {
-            "模板": "SellProduct/按钮.png",
+            "模板": "OutpostTrading/按钮.png",
             "阈值": 0.7
         }
     },
@@ -377,10 +377,10 @@ git submodule update --init --recursive
 ### 5.3 下一步的跳转逻辑
 
 ```json
-"next": ["SellProductSchedule", "SellProductTaskEnd"]
+"next": ["OutpostTradingSchedule", "OutpostTradingTaskEnd"]
 ```
 
-Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个。所以把**最可能出现的状态写在最前面**：任务刚启动时多半还在主界面，先试 `SellProductSchedule`；万一已经卖完了，再试 `SellProductTaskEnd` 让任务收尾。候选越多越好，能在一轮"截图 → 识别 → 动作"的循环中命中。
+Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个。所以把**最可能出现的状态写在最前面**：任务刚启动时多半还在主界面，先试 `OutpostTradingSchedule`；万一已经卖完了，再试 `OutpostTradingTaskEnd` 让任务收尾。候选越多越好，能在一轮"截图 → 识别 → 动作"的循环中命中。
 
 ### 5.4 常用识别方式速查
 
@@ -473,7 +473,7 @@ git config --global user.email
 
 这次改动是两个文件配套，都在 `assets/resource/` 下：
 
-1. **模板图**：按 [5.5 怎么自己截一张识别模板](#55-怎么自己截一张识别模板) 的方法截好图并处理成识别模板，存成 PNG 放进 `assets/resource/image/你的任务名/` 文件夹（英文名，比如 `SellProduct/`，图片比如 `SellButton.png`）
+1. **模板图**：按 [5.5 怎么自己截一张识别模板](#55-怎么自己截一张识别模板) 的方法截好图并处理成识别模板，存成 PNG 放进 `assets/resource/image/你的任务名/` 文件夹（英文名，比如 `OutpostTrading/`，图片比如 `SellButton.png`）
 2. **JSON 节点**：在 `assets/resource/pipeline/` 下新建 `你的任务名.json`，写一个 Pipeline 节点，`recognition` 里的 `template` 指向你刚做的那张图。节点长什么样、每个字段干什么，[5.2](#52-拆解一个真实节点) 刚讲过，照着写就行
 
 ### 第 3 步：Commit——存档
@@ -486,7 +486,7 @@ git config --global user.email
 | 终端 | `git add .` 然后 `git commit -m "feat(任务名): 做了什么"` |
 | VS Code | `Ctrl + Shift + G` → 点 `+` 暂存 → 写 commit 消息 → 点 `✓` |
 
-消息按下方"Commit 消息格式"写，比如 `feat(SellProduct): 添加售货按钮识别模板`。
+消息按下方"Commit 消息格式"写，比如 `feat(OutpostTrading): 添加售货按钮识别模板`。
 
 ### 第 4 步：Push——上传到 GitHub
 
@@ -537,7 +537,7 @@ git push --set-upstream origin feat/add-sell-button
 | `style:` | 格式/空白调整（不影响代码含义） |
 | `chore:` | 构建、依赖等杂项 |
 
-示例：`feat(SellProduct): 添加售货按钮识别模板`、`fix: 修复启动崩溃`。
+示例：`feat(OutpostTrading): 添加售货按钮识别模板`、`fix: 修复启动崩溃`。
 
 ### 然后呢
 

@@ -56,7 +56,7 @@
             "_AutoEcoFarmEnterCameraModeFallbackSelectTool"
         ],
         "on_error": [
-            "_AutoEcoFarmPhotoModeFailJumpBack"
+            "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError"
         ]
     },
     "_AutoEcoFarmEnterCameraModeFallbackSelectTool": {
@@ -116,19 +116,22 @@
             "_AutoEcoFarmWaitCameraModeAfterFallback"
         ],
         "on_error": [
-            "_AutoEcoFarmPhotoModeFailJumpBack"
+            "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError"
         ]
     },
     "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError": {
-        "desc": "回退选择拍照工具失败时释放通用快捷键",
+        "desc": "回退选择拍照工具失败时释放通用快捷键，本轮跳过隐藏工业设施并继续农场作业",
         "pre_delay": 0,
         "action": "KeyUp",
         "key": 82, // R 0x52
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "_AutoEcoFarmPhotoModeFailJumpBack"
-        ]
+            "_AutoEcoFarmWaitForTeammate"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoEcoFarm.focus.camera_mode_failed"
+        }
     },
     "_AutoEcoFarmWaitCameraMode": {
         "desc": "等待拍照模式界面出现",
@@ -640,6 +643,9 @@
         "rate_limit": 0,
         "next": [
             "_AutoEcoFarmPhotoSettingsPanelClosed"
+        ],
+        "on_error": [
+            "_AutoEcoFarmRecoverExitCameraMode"
         ]
     },
     "_AutoEcoFarmPhotoSettingsPanelClosed": {

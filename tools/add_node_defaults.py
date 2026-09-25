@@ -9,7 +9,7 @@ DEFAULT_PATTERNS = [
     "assets/resource/pipeline/Common/*.json",
     "assets/resource/pipeline/EnvironmentMonitoring.json",
     "assets/resource/pipeline/EnvironmentMonitoring/*.json",
-    "assets/resource/pipeline/SellProduct/SellCore.json",
+    "assets/resource/pipeline/OutpostTrading/SellCore.json",
 ]
 FIELD_NAMES = (
     "rate_limit",

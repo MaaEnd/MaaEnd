@@ -93,14 +93,19 @@
                     "name": "SeizeDeliveryJobs"
                 },
                 {
+                    "name": "ProtocolSpace"
+                },
+                {
                     "name": "AutoCollect",
                     "option": {
-                        "AutoCollectRoutes": [
-                            "Route1",
-                            "Route2",
-                            "Route3",
+                        "AutoCollectValleyIVRareRoutes": [
                             "Route4",
                             "Route5"
+                        ],
+                        "AutoCollectWulingRareRoutes": [
+                            "Route1",
+                            "Route2",
+                            "Route3"
                         ]
                     }
                 }

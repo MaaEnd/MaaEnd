@@ -1,0 +1,98 @@
+{
+    "__AutoUseSpMedicationInQuickUse": {
+        "desc": "进入恢复理智界面",
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationDialogText"
+        ],
+        "pre_wait_freezes": 100,
+        "next": [
+            "__AutoUseSpMedicationSelectEmergencySanityBooster",
+            "__AutoUseSpMedicationInQuickNoUseClose"
+        ]
+    },
+    "__AutoUseSpMedicationSelectEmergencySanityBooster": {
+        "desc": "选择应急理智加强剂",
+        "recognition": "And",
+        "all_of": [
+            "__AutoUseSpMedicationFindDeadlineEmergencySanityBooster"
+        ],
+        "action": "Click",
+        "target_offset": [
+            10,
+            10,
+            0,
+            0
+        ],
+        "post_wait_freezes": 300,
+        "next": [
+            "__AutoUseSpMedicationUseEmergencySpBooster"
+        ]
+    },
+    "__AutoUseSpMedicationInQuickNoUseClose": {
+        "desc": "关闭窗口",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -400,
+                    100,
+                    400,
+                    260
+                ],
+                "template": "Common/Button/CloseButtonType4.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__AutoUseSpMedicationNoUseEmergencySpBoosterFinish"
+        ]
+    },
+    "__AutoUseSpMedicationNoUseEmergencySpBoosterFinish": {
+        "desc": "未使用结束",
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationDialogText"
+        ],
+        "inverse": true,
+        "next": [
+            "[Anchor]AutoUseSpMedicationInPrepareFinishNoUseAnchor"
+        ]
+    },
+    "__AutoUseSpMedicationUseEmergencySpBooster": {
+        "desc": "点击详情页的使用按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2"
+                ],
+                "box_index": 0
+            }
+        },
+        "action": "Click",
+        "anchor": {
+            "SceneNoticeRewardsConfirmNextAnchor": "__AutoUseSpMedicationUseEmergencySpBoosterFinish"
+        },
+        "post_wait_freezes": 300,
+        "next": [
+            "SceneNoticeRewardsConfirmWithAnchor"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoUseSpMedication.focus.restore_sanity"
+        }
+    },
+    "__AutoUseSpMedicationUseEmergencySpBoosterFinish": {
+        "desc": "使用理智界面关闭",
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationDialogText"
+        ],
+        "inverse": true,
+        "next": [
+            "[Anchor]AutoUseSpMedicationInPrepareFinishUseAnchor"
+        ]
+    }
+}

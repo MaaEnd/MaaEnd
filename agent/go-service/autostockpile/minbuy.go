@@ -24,7 +24,7 @@ func resolveMinBuyFallback(selection SelectionResult, data RecognitionData, regi
 		return selection, quantityDecision{}, false
 	}
 
-	cheapest, err := SelectCheapestProduct(data)
+	cheapest, err := selectCheapestProduct(data)
 	if err != nil || !cheapest.Selected {
 		return selection, quantityDecision{}, false
 	}
@@ -36,9 +36,9 @@ func resolveMinBuyFallback(selection SelectionResult, data RecognitionData, regi
 	}, true
 }
 
-// SelectCheapestProduct 在全部已识别商品中选出价格最低的商品；价格相同时按名称稳定排序。
-// 与 SelectBestProduct 的按阈值/利润选品不同，本函数用于「至少购买一个」的强制降级。
-func SelectCheapestProduct(data RecognitionData) (SelectionResult, error) {
+// selectCheapestProduct 在全部已识别商品中选出价格最低的商品；价格相同时按名称稳定排序。
+// 与 selectBestProduct 的按阈值/利润选品不同，本函数用于「至少购买一个」的强制降级。
+func selectCheapestProduct(data RecognitionData) (SelectionResult, error) {
 	if len(data.Goods) == 0 {
 		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_goods_recognized")}, nil
 	}
@@ -50,11 +50,13 @@ func SelectCheapestProduct(data RecognitionData) (SelectionResult, error) {
 		}
 	}
 
+	// Threshold 刻意不填：来源已由 Source 显式表达，展示层不再依赖它。
 	return SelectionResult{
 		Selected:      true,
 		ProductID:     cheapest.ID,
 		ProductName:   cheapest.Name,
 		CanonicalName: cheapest.Tier,
 		CurrentPrice:  cheapest.Price,
+		Source:        selectionSourceMinBuy,
 	}, nil
 }

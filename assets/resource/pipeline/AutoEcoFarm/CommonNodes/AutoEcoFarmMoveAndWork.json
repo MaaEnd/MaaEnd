@@ -107,8 +107,16 @@
                 "key": 87 //w键
             }
         },
-        //稍微加点延迟保证停稳
-        "post_wait_freezes": 200,
+        // DirectHit 无图时 Self 为空框，显式全屏等待
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ]
+        },
         "next": [
             //最后识别一次，这次要是没菜单了就结束任务，否则回到工作流程
             "_AutoEcoFarmFindMenuIcon",
@@ -240,14 +248,14 @@
     },
     "_AutoEcoFarmWork2": {
         "desc": "按下鼠标左键,点击菜单",
-        "pre_delay": 0,
+        "pre_delay": 400,
         "action": {
             "type": "Click",
             "param": {
                 "target": "_AutoEcoFarmFindMenuIcon"
             }
         },
-        "post_delay": 0,
+        "post_delay": 100,
         "next": [
             "_AutoEcoFarmWork3"
         ]

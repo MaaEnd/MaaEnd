@@ -17,7 +17,7 @@
             "author": "maintainer"
         },
         {
-            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作，各功能子包（essencefilter/、puzzle-solver/、autofight/、bettersliding/、autostockpile/、creditshopping/、autodelivery/、sellproduct/ 等）有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。原生 C++ 层 agent/cpp-algo 负责地图定位/寻路、图标识别、网格识别等高性能识别，并在 agent/cpp-algo/source/main.cpp 中注册。",
+            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作，各功能子包（essencefilter/、puzzle-solver/、autofight/、bettersliding/、autostockpile/、creditshopping/、autodelivery/、outposttrading/ 等）有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。原生 C++ 层 agent/cpp-algo 负责地图定位/寻路、图标识别、网格识别等高性能识别，并在 agent/cpp-algo/source/main.cpp 中注册。",
             "author": "maintainer"
         },
         {
@@ -93,7 +93,7 @@
         },
         {
             "title": "IMS 物品管理系统",
-            "purpose": "文档化 IMS（Item Management System）子包（agent/go-service/ims/）的实现：物品数据缓存与同步、物品目录查询、物品数量判断、国际化和多语言支持。该模块是 Go Service 的数据层，被 AutoStockpile、AutoDelivery、SellProduct 等多个任务依赖。引用 docs/zh_cn/developers/components/ims.md。",
+            "purpose": "文档化 IMS（Item Management System）子包（agent/go-service/ims/）的实现：物品数据缓存与同步、物品目录查询、物品数量判断、国际化和多语言支持。该模块是 Go Service 的数据层，被 AutoStockpile、AutoDelivery、OutpostTrading 等多个任务依赖。引用 docs/zh_cn/developers/components/ims.md。",
             "parent": "Go Service 扩展"
         },
         {
@@ -106,7 +106,7 @@
         },
         {
             "title": "IconRecognition 物品图标识别系统",
-            "purpose": "文档化 cpp-algo 的 IconRecognition 模块（agent/cpp-algo/source/IconRecognition/）：物品图标定位、分类与数量识别，支持多平台 controller profile（Win32 / ADB 等）。该模块是 EssenceFilter、CreditShopping、SellProduct 等任务的基础识别能力。引用 docs/zh_cn/developers/components/icon-recognition.md。"
+            "purpose": "文档化 cpp-algo 的 IconRecognition 模块（agent/cpp-algo/source/IconRecognition/）：物品图标定位、分类与数量识别，支持多平台 controller profile（Win32 / ADB 等）。该模块是 EssenceFilter、CreditShopping、OutpostTrading 等任务的基础识别能力。引用 docs/zh_cn/developers/components/icon-recognition.md。"
         },
         {
             "title": "RecoGrid / EssenceGrid 网格识别引擎",
@@ -114,7 +114,7 @@
         },
         {
             "title": "任务功能模块总览",
-            "purpose": "总览所有用户可见的自动化任务功能。按 Pipeline 目录列举：\n- 日常类：DailyRewards（日常奖励）、ProtocolSpace（协议空间）、DijiangRewards（基建任务）\n- 经济类：AutoStockpile（自动囤货）、AutoSell（自动售卖）、AutoStockStaple（稳定物资采购）、CreditShopping（信用点购物）、SellProduct（售卖产品）\n- 战斗类：AutoFight（辅助战斗）、AutoEssence（自动刷取基质）、EssenceFilter（基质筛选）\n- 地图类：AutoCollect（自动采集）、AutoEcoFarm（生态农场）、EnvironmentMonitoring（环境监测）、DeliveryJobs（送货任务）、SeizeDeliveryJobs（委托抢单）\n- 交互类：RealTimeTask（实时开荒辅助）、AutoDelivery（自动送货）、ItemTransfer（物品转移）、GiftOperator（赠送干员礼物）\n- 工具类：BatchUseDetector（批量使用道具）、AutoUseSpMedication（批量使用药品）、GearAssembly（装配）、ResourceRecycleStation（资源回收站）、Crafting（制作）、Weapon（武器）、SimpleProductionBatchStart（批量生产）、SwitchTeam（切换队伍）、StashBackpack（后台背包整理）\n- 社交类：VisitFriends（拜访好友）、BatchAddFriends（批量加好友）\n- 系统类：AccountSwitch（账号切换）、CloseGame（关闭游戏）、ImportBluePrints（蓝图导入）、ZiplineImport（滑索导入）、IntelArchive（情报档案）、PullCountCalculator（卡池计数计算器）、AeroSalvage（气溶胶回收）、TrialOfSwordmancy（试炼解谜）、WebEvent（活动任务）\n说明 assets/tasks/ 的任务定义方式和预设场景机制。"
+            "purpose": "总览所有用户可见的自动化任务功能。按 Pipeline 目录列举：\n- 日常类：DailyRewards（日常奖励）、ProtocolSpace（协议空间）、DijiangRewards（基建任务）\n- 经济类：AutoStockpile（自动囤货）、AutoSell（自动售卖）、AutoStockStaple（稳定物资采购）、CreditShopping（信用点购物）、OutpostTrading（据点交易）\n- 战斗类：AutoFight（辅助战斗）、AutoEssence（自动刷取基质）、EssenceFilter（基质筛选）\n- 地图类：AutoCollect（自动采集）、AutoEcoFarm（生态农场）、EnvironmentMonitoring（环境监测）、DeliveryJobs（送货任务）、SeizeDeliveryJobs（委托抢单）\n- 交互类：RealTimeTask（实时开荒辅助）、AutoDelivery（自动送货）、ItemTransfer（物品转移）、GiftOperator（赠送干员礼物）\n- 工具类：BatchUseDetector（批量使用道具）、AutoUseSpMedication（批量使用药品）、GearAssembly（装配）、ResourceRecycleStation（资源回收站）、Crafting（制作）、Weapon（武器）、SimpleProductionBatchStart（批量生产）、SwitchTeam（切换队伍）、StashBackpack（后台背包整理）\n- 社交类：VisitFriends（拜访好友）、BatchAddFriends（批量加好友）\n- 系统类：AccountSwitch（账号切换）、CloseGame（关闭游戏）、ImportBluePrints（蓝图导入）、ZiplineImport（滑索导入）、IntelArchive（情报档案）、PullCountCalculator（卡池计数计算器）、AeroSalvage（气溶胶回收）、TrialOfSwordmancy（试炼解谜）、WebEvent（活动任务）\n说明 assets/tasks/ 的任务定义方式和预设场景机制。"
         },
         {
             "title": "自动囤货与倒卖",
@@ -147,8 +147,8 @@
             "parent": "任务功能模块总览"
         },
         {
-            "title": "售卖产品",
-            "purpose": "文档化 SellProduct 模块：Go 层的 sellproduct 子包（商品管理、运营人员管理、售卖策略）和 Pipeline 层目录。引用 docs/zh_cn/developers/tasks/sell-product-maintain.md。",
+            "title": "据点交易",
+            "purpose": "文档化 OutpostTrading 模块：Go 层的 outposttrading 子包（商品管理、运营人员管理、售卖策略）和 Pipeline 层目录。引用 docs/zh_cn/developers/tasks/outpost-trading-maintain.md。",
             "parent": "任务功能模块总览"
         },
         {

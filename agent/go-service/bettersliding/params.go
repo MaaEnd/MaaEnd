@@ -28,7 +28,8 @@ type parsedBetterSlidingParams struct {
 	targetQuantityType            string
 	reverseTarget                 bool
 	swipeOnlyMode                 bool
-	finishAfterPreciseClick       bool
+	fineTuneQuantity              fineTuneQuantity
+	fineTuneFallback              string
 	resetBeforeFindStart          bool
 }
 
@@ -54,7 +55,8 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 		ReverseTarget:                 hasNonNullRawKey(rawKeys, "ReverseTarget"),
 		CenterPointOffset:             hasNonNullRawKey(rawKeys, "CenterPointOffset"),
 		ClampTargetToSliderMax:        hasNonNullRawKey(rawKeys, "ClampTargetToSliderMax"),
-		FinishAfterPreciseClick:       hasNonNullRawKey(rawKeys, "FinishAfterPreciseClick"),
+		FineTuneQuantity:              hasNonNullRawKey(rawKeys, "FineTuneQuantity"),
+		FineTuneFallback:              hasNonNullRawKey(rawKeys, "FineTuneFallback"),
 		ResetBeforeFindStart:          hasNonNullRawKey(rawKeys, "ResetBeforeFindStart"),
 	}, nil
 }
@@ -136,6 +138,27 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 		return parsedBetterSlidingParams{}, false
 	}
 
+	fineTuneQuantity, err := normalizeFineTuneQuantity(
+		params.FineTuneQuantity,
+		params.presence.FineTuneQuantity,
+	)
+	if err != nil {
+		a.logger.Error().
+			Err(err).
+			Interface("fine_tune_quantity", params.FineTuneQuantity).
+			Msg("invalid FineTuneQuantity")
+		return parsedBetterSlidingParams{}, false
+	}
+
+	fineTuneFallback, err := normalizeFineTuneFallback(params.FineTuneFallback)
+	if err != nil {
+		a.logger.Error().
+			Err(err).
+			Str("fine_tune_fallback", params.FineTuneFallback).
+			Msg("invalid FineTuneFallback")
+		return parsedBetterSlidingParams{}, false
+	}
+
 	if isSwipeOnlyMode(params) {
 		direction := strings.ToLower(strings.TrimSpace(params.Direction))
 		switch direction {
@@ -167,7 +190,8 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 			targetQuantityType:            targetQuantityType,
 			reverseTarget:                 params.ReverseTarget,
 			swipeOnlyMode:                 true,
-			finishAfterPreciseClick:       false,
+			fineTuneQuantity:              defaultFineTuneQuantity,
+			fineTuneFallback:              FineTuneFallbackNone,
 			resetBeforeFindStart:          params.ResetBeforeFindStart,
 		}, true
 	}
@@ -250,7 +274,8 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 		targetQuantityType:            targetQuantityType,
 		reverseTarget:                 params.ReverseTarget,
 		swipeOnlyMode:                 false,
-		finishAfterPreciseClick:       params.FinishAfterPreciseClick,
+		fineTuneQuantity:              fineTuneQuantity,
+		fineTuneFallback:              fineTuneFallback,
 		resetBeforeFindStart:          params.ResetBeforeFindStart,
 	}, true
 }
@@ -278,7 +303,8 @@ func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams
 	a.TargetQuantityType = params.targetQuantityType
 	a.ReverseTarget = params.reverseTarget
 	a.SwipeOnlyMode = params.swipeOnlyMode
-	a.FinishAfterPreciseClick = params.finishAfterPreciseClick
+	a.FineTuneQuantity = params.fineTuneQuantity
+	a.FineTuneFallback = params.fineTuneFallback
 	a.ResetBeforeFindStart = params.resetBeforeFindStart
 }
 
@@ -297,7 +323,10 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 		Bool("available_quantity_only_rec", a.AvailableQuantityOnlyRec).
 		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
 		Bool("clamp_target_to_slider_max", a.ClampTargetToSliderMax).
-		Bool("finish_after_precise_click", a.FinishAfterPreciseClick).
+		Str("fine_tune_quantity_mode", a.FineTuneQuantity.modeLabel()).
+		Bool("fine_tune_quantity_enabled", a.FineTuneQuantity.enabled).
+		Int("fine_tune_quantity_threshold", a.FineTuneQuantity.threshold).
+		Str("fine_tune_fallback", a.FineTuneFallback).
 		Bool("reset_before_find_start", a.ResetBeforeFindStart).
 		Str("swipe_button", a.SwipeButton).
 		Str("out_of_range_override_enable", a.OutOfRangeOverrideEnable).
@@ -334,9 +363,8 @@ func (a *BetterSlidingAction) initLogger(taskName string) {
 		Logger()
 }
 
-// mergeAttachParams reads the attach block from the caller pipeline node and merges
-// TargetQuantity, TargetQuantityType, ReverseTarget, FinishAfterPreciseClick, and
-// ResetBeforeFindStart into the customActionParam JSON.
+// mergeAttachParams reads the attach block from the caller pipeline node and merges the
+// recognized fields into the customActionParam JSON.
 // On any error, the original customActionParam string is returned unchanged.
 func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionParam string) string {
 	if ctx == nil || callerNodeName == "" {
@@ -432,16 +460,30 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 		}
 	}
 
-	if fapcRaw, has := attachKeys["FinishAfterPreciseClick"]; has {
-		var fapc bool
-		if err := json.Unmarshal(fapcRaw, &fapc); err == nil {
-			paramMap["FinishAfterPreciseClick"] = fapc
+	if ftqRaw, has := attachKeys["FineTuneQuantity"]; has {
+		var ftq any
+		if err := json.Unmarshal(ftqRaw, &ftq); err == nil {
+			paramMap["FineTuneQuantity"] = ftq
 		} else {
 			logger.Warn().
 				Err(err).
 				Str("node", callerNodeName).
-				Str("field", "attach.FinishAfterPreciseClick").
-				Str("value", string(fapcRaw)).
+				Str("field", "attach.FineTuneQuantity").
+				Str("value", string(ftqRaw)).
+				Msg("failed to parse attach field")
+		}
+	}
+
+	if ftfRaw, has := attachKeys["FineTuneFallback"]; has {
+		var ftf string
+		if err := json.Unmarshal(ftfRaw, &ftf); err == nil {
+			paramMap["FineTuneFallback"] = ftf
+		} else {
+			logger.Warn().
+				Err(err).
+				Str("node", callerNodeName).
+				Str("field", "attach.FineTuneFallback").
+				Str("value", string(ftfRaw)).
 				Msg("failed to parse attach field")
 		}
 	}

@@ -1,0 +1,220 @@
+{
+    "BatchDeleteFriendsMain": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchDeleteFriendsOnList",
+            "[JumpBack]SceneEnterMenuFriendsList"
+        ]
+    },
+    "BatchDeleteFriendsOnList": {
+        "desc": "确认已在好友列表界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            200,
+            150
+        ],
+        "template": "VisitFriends/OnFriendList.png",
+        "threshold": 0.8,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                -100,
+                200,
+                200
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchDeleteFriendsEnsureSort"
+        ]
+    },
+    "BatchDeleteFriendsEnsureSort": {
+        "desc": "确保好友列表为升序",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]BatchDeleteFriendsSwitchAscending",
+            "BatchDeleteFriendsScan"
+        ]
+    },
+    "BatchDeleteFriendsSwitchAscending": {
+        "desc": "识别到降序模板则点击切换为升序",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            -100,
+            300,
+            100
+        ],
+        "template": [
+            "LevelUpOperator/FilterDesc.png",
+            "LevelUpOperator/FilterDescHover.png"
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "post_wait_freezes": 100,
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "BatchDeleteFriendsSwitchAscendingSuccess"
+        ]
+    },
+    "BatchDeleteFriendsSwitchAscendingSuccess": {
+        "desc": "确认已切换为升序",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            -100,
+            300,
+            100
+        ],
+        "template": [
+            "LevelUpOperator/FilterAsce.png",
+            "LevelUpOperator/FilterAsceHover.png"
+        ],
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchDeleteFriendsScan": {
+        "desc": "好友列表扫描：有备注跳过 → 达标则删除 → 未达标则结束 → 到底结束 → 否则下滑",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]BatchDeleteFriendsSkipRemark",
+            "[JumpBack]BatchDeleteFriendsProcessInactive",
+            "BatchDeleteFriendsNotInactive",
+            "BatchDeleteFriendsScrollFinish",
+            "[JumpBack]BatchDeleteFriendsScrollList"
+        ]
+    },
+    "BatchDeleteFriendsVisited": {
+        "desc": "选友共享黑名单 attach.visited",
+        "recognition": "DirectHit",
+        "attach": {
+            "visited": []
+        }
+    },
+    "BatchDeleteFriendsSelectRemark": {
+        "desc": "消费性选中带备注好友",
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "VisitFriendsRecognitionItemWithRemark",
+            "visited_node": "BatchDeleteFriendsVisited",
+            "key_regex": ".*?[)）]"
+        }
+    },
+    "BatchDeleteFriendsSelectNoRemark": {
+        "desc": "消费性选中好友（任意含 #）；备注已由 SkipRemark 写入 visited，黑名单会跳过",
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "VisitFriendsRecognitionItemWithName",
+            "visited_node": "BatchDeleteFriendsVisited",
+            "key_regex": ".*?\\#\\d+"
+        }
+    },
+    "BatchDeleteFriendsSkipRemark": {
+        "desc": "有备注：记入 visited 后跳过，不删除",
+        "recognition": "And",
+        "all_of": [
+            "BatchDeleteFriendsSelectRemark"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchDeleteFriendsProcessInactive": {
+        "desc": "选中好友且登录时间 OCR 达标",
+        "recognition": "And",
+        "all_of": [
+            "BatchDeleteFriendsSelectNoRemark",
+            "BatchDeleteFriendsInactive"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchDeleteFriendsPropertyClick"
+        ]
+    },
+    "BatchDeleteFriendsNotInactive": {
+        "desc": "选中好友但登录时间未达删除天数，结束任务",
+        "recognition": "And",
+        "all_of": [
+            "BatchDeleteFriendsSelectNoRemark"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.BatchDeleteFriends.focus.not_inactive"
+        }
+    },
+    "BatchDeleteFriendsScrollFinish": {
+        "desc": "列表已到底：ListComplete 命中后结束",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            46,
+            114,
+            1052,
+            498
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchDeleteFriendsScrollFinishDone"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.BatchDeleteFriends.focus.scroll_finish"
+        },
+        "attach": {
+            "ready": false
+        }
+    },
+    "BatchDeleteFriendsScrollFinishDone": {
+        "desc": "好友列表已滚动到底部，批量删除扫描结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "BatchDeleteFriendsScrollList": {
+        "desc": "列表未到底时向下滚动；滑动后 post_wait_freezes 再回扫描",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            650,
+            470
+        ],
+        "end": [
+            650,
+            150
+        ],
+        "end_hold": 600,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

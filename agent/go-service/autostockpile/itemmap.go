@@ -26,9 +26,9 @@ var (
 	cachedItemMapMu sync.RWMutex
 )
 
-// LoadItemMap 从嵌入的 item_map.json 加载商品映射数据。
+// loadItemMap 从嵌入的 item_map.json 加载商品映射数据。
 // 参数 locale 指定语言区域（如 "zh_cn"）。
-func LoadItemMap(locale string) (*ItemMap, error) {
+func loadItemMap(locale string) (*ItemMap, error) {
 	var raw map[string]map[string]string
 	if err := json.Unmarshal(itemMapJSON, &raw); err != nil {
 		return nil, fmt.Errorf("failed to parse embedded item_map.json: %w", err)
@@ -69,7 +69,7 @@ func InitItemMap(locale string) error {
 		return nil
 	}
 
-	itemMap, err := LoadItemMap(locale)
+	itemMap, err := loadItemMap(locale)
 	if err != nil {
 		return err
 	}
@@ -77,8 +77,8 @@ func InitItemMap(locale string) error {
 	return nil
 }
 
-// GetItemMap 返回缓存的 ItemMap，若未初始化则返回空映射。
-func GetItemMap() *ItemMap {
+// getItemMap 返回缓存的 ItemMap，若未初始化则返回空映射。
+func getItemMap() *ItemMap {
 	cachedItemMapMu.RLock()
 	defer cachedItemMapMu.RUnlock()
 
@@ -91,10 +91,10 @@ func GetItemMap() *ItemMap {
 	return cachedItemMap
 }
 
-// MatchGoodsName 使用 Levenshtein 距离匹配 OCR 文本到商品名称。
+// matchGoodsName 使用 Levenshtein 距离匹配 OCR 文本到商品名称。
 // 返回匹配的商品 ID、规范名称以及是否成功匹配。
 // 仅返回编辑距离 ≤ maxDistance 的最佳匹配。
-func MatchGoodsName(ocrText string, itemMap *ItemMap, maxDistance int) (id string, name string, matched bool) {
+func matchGoodsName(ocrText string, itemMap *ItemMap, maxDistance int) (id string, name string, matched bool) {
 	if itemMap == nil || len(itemMap.NameToID) == 0 {
 		return "", "", false
 	}
@@ -118,9 +118,9 @@ func MatchGoodsName(ocrText string, itemMap *ItemMap, maxDistance int) (id strin
 	return "", "", false
 }
 
-// ParseTierFromID 从商品 ID 中提取 Tier 信息。
+// parseTierFromID 从商品 ID 中提取 Tier 信息。
 // 例如：输入 "ValleyIV/OriginiumSaplings.Tier3" 返回 "ValleyIV.Tier3"
-func ParseTierFromID(id string) string {
+func parseTierFromID(id string) string {
 	parts := strings.Split(id, "/")
 	if len(parts) < 2 {
 		return ""
@@ -142,9 +142,9 @@ func ParseTierFromID(id string) string {
 	return region + "." + tierPart
 }
 
-// BuildTemplatePath 根据商品 ID 构造模板路径。
+// buildTemplatePath 根据商品 ID 构造模板路径。
 // 例如：输入 "ValleyIV/OriginiumSaplings.Tier3" 返回 "AutoStockpile/Goods/ValleyIV/OriginiumSaplings.Tier3.png"
-func BuildTemplatePath(id string) string {
+func buildTemplatePath(id string) string {
 	return filepath.ToSlash(filepath.Join("AutoStockpile", "Goods", id+".png"))
 }
 

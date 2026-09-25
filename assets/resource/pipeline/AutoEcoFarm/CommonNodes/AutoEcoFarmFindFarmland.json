@@ -198,7 +198,15 @@
                 "dy": -480
             }
         },
-        "post_wait_freezes": 500,
+        "post_wait_freezes": {
+            "target": [
+                18,
+                44,
+                337,
+                593
+            ],
+            "time": 500
+        },
         "next": [
             "_AutoEcoFarmClickIndustrialFacilities"
         ]
@@ -250,7 +258,16 @@
                 "dy": 240
             }
         },
-        "post_wait_freezes": 10,
+        // DirectHit 无图时 Self 为空框，显式全屏等待
+        "post_wait_freezes": {
+            "time": 10,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ]
+        },
         "post_delay": 0,
         "next": [
             //找到农田就下一步，没找到再拉缩放
@@ -304,7 +321,16 @@
                 ]
             }
         },
-        "post_wait_freezes": 10,
+        // DirectHit 无图时 Self 为空框，显式全屏等待
+        "post_wait_freezes": {
+            "time": 10,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ]
+        },
         "post_delay": 0,
         "next": [
             "[Anchor]_AutoEcoFarmFindEcoFarmAnchor"

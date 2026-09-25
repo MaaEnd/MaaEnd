@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "../Navmesh/BaseNavPlanner.h"
+#include "../Navmesh/OccluderPack.h"
 #include "navi_domain_types.h"
 #include "navmesh_diagnostics.h"
 
@@ -47,6 +48,9 @@ inline constexpr double kStartRecoveryMaxBlindWalk = 32.0;
 inline constexpr double kBlindTargetMaxExtension = 30.0;
 
 std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path = {});
+// The virtual no-go table is anchored on the exe (<exe>/../data/MapNavigator/nogo_zones.json), the same rule as
+// zipline_frames.json.
+std::filesystem::path NoGoTablePath();
 std::string InitialExpectedZone(const NaviParam& param);
 // Maps a live locator fix onto the navmesh base-pixel frame using the navmesh's OWN baked tier affine
 // (the same is_tier / base = s*tier + t the python tool uses), in place. A geometry / base-matched /
@@ -56,16 +60,20 @@ void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos);
 void PreloadNavmeshWaypoints(const NaviParam& param);
 // `should_stop` is polled between waypoints and between fallback probes: expansion runs before the
 // state machine exists, so it is the only place a stop request can be honored during planning.
+// `no_go` carries the virtual no-go discs this navigation has stamped so far; every leg planned here
+// treats the discs of its zone as walls. Null on the initial expansion, when none exist yet.
 bool ExpandNavmeshWaypoints(
     const NaviParam& param,
     const NaviPosition& initial_pos,
     const std::function<bool()>& should_stop,
     std::vector<Waypoint>& out_path,
-    std::vector<NavmeshRouteDiagnostic>* out_diagnostics = nullptr);
+    std::vector<NavmeshRouteDiagnostic>* out_diagnostics = nullptr,
+    const std::vector<VirtualNoGoDisc>* no_go = nullptr);
 NavmeshExpansionFailure CurrentNavmeshExpansionFailure();
 // The goal deck pins which overlapping walkable surface the route must stop on; unset keeps the full span
 // set. `start_floor_y` overrides which floor the start snaps onto, for the rare caller that actually knows
 // the height it is standing at (a zipline dismount); unset keeps the zone's dominant floor, unchanged.
+// `no_go` is the navigation's virtual no-go discs; the ones stamped in `locator_zone` become walls.
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -73,7 +81,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const navmesh::WorldPoint& goal,
     std::optional<double> goal_deck_y = std::nullopt,
     std::optional<double> start_floor_y = std::nullopt,
-    NavmeshRouteDiagnostic* out_diagnostic = nullptr);
+    NavmeshRouteDiagnostic* out_diagnostic = nullptr,
+    const std::vector<VirtualNoGoDisc>* no_go = nullptr);
 
 // Which walkable surface `point` lands on: the planar distance to it, and its height on the same scale
 // as BaseNavRouteRequest::floor_y. Height matters as much as distance — a point directly above or below
@@ -93,6 +102,25 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     const navmesh::WorldPoint& point,
     double radius,
     std::optional<double> floor_y = std::nullopt);
+
+// A straight line hanging in the air between two world points, in metres — the frame the occluder pack uses.
+struct NavmeshAirLine
+{
+    navmesh::OccluderPoint a;
+    navmesh::OccluderPoint b;
+};
+
+// Whether the occluder pack blocks every line of each group. A group holds the alternative lines for one rope and
+// passes once any of them is clear; lines are asked in order and the rest are skipped after the first clear one.
+// Each line is intersected exactly with the triangles in the occluder pack, with zero margin: touching any face, from
+// either side or on an edge, blocks it. A blocked group gets one hit per line, in line order, namely the
+// hit nearest to that line's start.
+// An empty result means some line is clear OR that no answer was available (zone unresolved, occluder pack missing,
+// scene absent), never "blocked", so the caller has to read it as a pass. One zone resolution and one pack decode
+// are shared by the whole batch.
+std::vector<std::vector<navmesh::OccluderHit>>
+    NavmeshLineGroupBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<NavmeshAirLine>>& groups);
+
 // The bake-time connectivity classes each point sits in. A route is searched inside one class only, so
 // two points whose sets are disjoint cannot be connected by any plan — a cheap way to drop legs that are
 // bound to fail. An empty set means "no answer" (no baked grid, unknown zone, no voxel nearby), never
@@ -133,12 +161,6 @@ double NavmeshOffMeshFraction(
     const std::string& locator_zone,
     const std::vector<navmesh::WorldPoint>& polyline,
     double step);
-std::optional<navmesh::BaseNavRouteResult> PlanNavmeshDetourRoute(
-    const NaviParam& param,
-    const NaviPosition& position,
-    const Waypoint& anchor,
-    double route_heading,
-    navmesh::WorldPoint* out_detour_vertex = nullptr);
 std::optional<navmesh::WorldPoint> PlanUnstickTarget(
     const NaviParam& param,
     const NaviPosition& position,

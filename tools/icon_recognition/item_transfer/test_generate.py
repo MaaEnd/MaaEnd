@@ -12,6 +12,7 @@ from item_transfer import generate
 from item_transfer.generate import (
     FORWARD_NODES,
     RETURN_NODES,
+    build_item_icon,
     build_transfer_cases,
     generate_item_transfer_task,
     select_transfer_items,
@@ -195,6 +196,7 @@ class ItemTransferGeneratorTest(unittest.TestCase):
 
         self.assertEqual(forward["name"], "测试产物")
         self.assertEqual(forward["label"], "$iconRecognition.name.item_product")
+        self.assertNotIn("icon", forward)
         self.assertEqual(
             forward["pipeline_override"],
             {
@@ -215,6 +217,27 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 "ItemTransferFindReturnItemInBag": self.item_id_override("item_product", "Normal:Product"),
             },
         )
+
+    def test_build_transfer_cases_includes_ui_icon_when_available(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+        catalog = {
+            "item_copper_ore": make_item("Ore", -80, 1),
+        }
+        zh_cn = {
+            "iconRecognition.name.item_copper_ore": "赤铜矿",
+        }
+
+        forward = build_transfer_cases(catalog, zh_cn, FORWARD_NODES)[0]
+
+        self.assertEqual(
+            forward["icon"],
+            "resource/image/UI/Item/item_copper_ore.png",
+        )
+        self.assertTrue(
+            (repo_root / "assets/resource/image/UI/Item/item_copper_ore.png").is_file()
+        )
+        self.assertEqual(build_item_icon("item_copper_ore"), forward["icon"])
+        self.assertIsNone(build_item_icon("item_product"))
 
     def test_build_transfer_cases_rejects_missing_zh_cn_name(self) -> None:
         catalog = {

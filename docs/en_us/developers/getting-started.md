@@ -77,7 +77,7 @@ Code commits in this project strictly follow the [Conventional Commits specifica
 - `style:` Changes that do not affect the meaning of the code (whitespace, formatting, missing semicolons, etc.)
 - `chore:` Changes to the build process or auxiliary tools (does not involve production code)
 
-> **Example**: `feat(SellProduct): Add regional construction auto-sell Pipeline`
+> **Example**: `feat(OutpostTrading): Add regional construction auto-sell Pipeline`
 
 ### About Submodule Updates
 
@@ -117,11 +117,11 @@ Create a **Draft PR** on GitHub as early as possible, with a clear title stating
 
 First, read the [Component Guide](./components-guide.md) to understand the project structure and confirm where you should make changes.
 
-For "Sell Product", organize the Pipeline by task name **SellProduct**: the entry point is written in `assets/resource/pipeline/SellProduct.json`. If the process is complex, you can create a subdirectory `SellProduct/` in the same location and split it into multiple JSON files (consistent with the existing "Sell Product" task in the MaaEnd repository), then start writing nodes.
+For "selling items", organize the Pipeline by module name **OutpostTrading**: the entry point is written in `assets/resource/pipeline/OutpostTrading.json`. If the process is complex, you can create a subdirectory `OutpostTrading/` in the same location and split it into multiple JSON files (consistent with the existing "Outpost Trading" task in the MaaEnd repository), then start writing nodes.
 
 ### Naming
 
-Node names use PascalCase and are consistent with the task prefix, e.g., `SellProductOpenBag`, `SellProductSelectItem`, `SellProductConfirmSell`.
+Node names use PascalCase and are consistent with the task prefix, e.g., `OutpostTradingOpenBag`, `OutpostTradingSelectItem`, `OutpostTradingConfirmSell`.
 
 ### Think like a State Machine/Decision Tree
 
@@ -150,18 +150,18 @@ As you can see, our image has background interference, which reduces matching ef
 
 ![green background](https://github.com/user-attachments/assets/4da87f61-30fe-4a94-b6ed-68672877fff3)
 
-Place the captured templates under `assets/resource/image/SellProduct/`.
+Place the captured templates under `assets/resource/image/OutpostTrading/`.
 
 Once we have the images, we can start writing the first node. Below, we use **TemplateMatch** to find the "Regional Construction" entry on the main interface, and after a hit, **Click** to enter. `template` is the relative path to your image placed under `assets/resource/image/`, `roi` is selected using the plugin to narrow the search area (needs adjustment based on your template and interface); if you processed the template with a green screen, you can add `green_mask`.
 
 ```json
 {
-    "SellProductMain": {
+    "OutpostTradingMain": {
         "desc": "On the main interface, recognize the regional construction entry and click to enter",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "SellProduct/RegionalDevelopmentEntry.png",
+                "template": "OutpostTrading/RegionalDevelopmentEntry.png",
                 "roi": [
                     400,
                     200,
@@ -180,7 +180,7 @@ Once we have the images, we can start writing the first node. Below, we use **Te
         "rate_limit": 0,
         "post_wait_freezes": 100,
         "next": [
-            "SellProductLoop"
+            "OutpostTradingLoop"
         ]
     }
 }
@@ -192,11 +192,11 @@ Coding Standard: Using hard delays like `pre_delay` or `post_delay` is not recom
 
 Use `pre_wait_freezes` or `post_wait_freezes` only when necessary to wait for the screen to stabilize; otherwise, delays should be avoided as much as possible. For example, `"post_wait_freezes": 100` in the text above means waiting 100 ms after pixel changes in the `roi` area `[400, 200, 480, 320]` have stopped.
 
-The next step in `SellProductLoop` should continue using a recognition node to confirm entry into the regional construction interface, rather than assuming the click was successful. The most important rule for an FSM is: recognize and confirm the current state first, then perform the operation.
+The next step in `OutpostTradingLoop` should continue using a recognition node to confirm entry into the regional construction interface, rather than assuming the click was successful. The most important rule for an FSM is: recognize and confirm the current state first, then perform the operation.
 
 ```json
 {
-    "SellProductLoop": {
+    "OutpostTradingLoop": {
         "desc": "Main loop, only supports starting from the regional construction interface",
         "recognition": "And",
         "all_of": [
@@ -206,9 +206,9 @@ The next step in `SellProductLoop` should continue using a recognition node to c
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductValleyIV",
-            "SellProductWuling",
-            "SellProductTaskEnd"
+            "OutpostTradingValleyIV",
+            "OutpostTradingWuling",
+            "OutpostTradingTaskEnd"
         ]
     }
 }
@@ -267,13 +267,13 @@ It is recommended to directly call existing scene transition nodes. After comple
 
 ```json
 {
-    "SellProductMain": {
+    "OutpostTradingMain": {
         "desc": "Script entry point",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductLoop",
+            "OutpostTradingLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     }
@@ -321,10 +321,10 @@ Create or modify a JSON file under `assets/tasks/` to define the task entry node
 {
     "task": [
         {
-            "name": "SellProduct",
-            "label": "$task.SellProduct.label",
-            "entry": "SellProductMain",
-            "description": "$task.SellProduct.description",
+            "name": "OutpostTrading",
+            "label": "$task.OutpostTrading.label",
+            "entry": "OutpostTradingMain",
+            "description": "$task.OutpostTrading.description",
             "option": [
                 "ValleyIVSell",
                 "WulingSell"
@@ -343,8 +343,8 @@ Add translation keys for the task name and description in `assets/locales/interf
 
 ```json
 {
-    "task.SellProduct.label": "🛒 Sell Products",
-    "task.SellProduct.description": "Use products to redeem corresponding dispatch vouchers at various outposts.\nYou can enable or disable sales functions for specific regions in the task options."
+    "task.OutpostTrading.label": "🛒 Outpost Trading",
+    "task.OutpostTrading.description": "Use goods to redeem corresponding stock bills at various outposts.\nYou can enable or disable sales functions for specific regions in the task options."
 }
 ```
 
@@ -356,7 +356,7 @@ Finally, import the task file via `import` in `assets/interface.json`, for examp
         "tasks/DijiangRewards.json",
         "tasks/DailyRewards.json",
         "tasks/ClaimSimulationRewards.json",
-        "tasks/SellProduct.json"
+        "tasks/OutpostTrading.json"
     ]
 }
 ```

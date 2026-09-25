@@ -1,0 +1,157 @@
+{
+    // 清波寨 Wuling QingboStockade：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   23300000098 → [1135.2, 2136.5]
+    //   23300000102 → [1363.8, 2186.3]
+    //   23300000097 → [1172.5, 2282.8]
+    //   23300000096 → [1257.7, 2358.8]
+    //   23300000095 → [1399.8, 2440.7]
+    "SharedZiplineDeletePrepareWulingQingboStockade": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitWulingQingboStockade0"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingQingboStockade0": {
+        "desc": "清波寨锚点 markInstId=23300000098",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1135.2,
+                2136.5
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingQingboStockade1"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingQingboStockade1": {
+        "desc": "清波寨锚点 markInstId=23300000102",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1363.8,
+                2186.3
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingQingboStockade2"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingQingboStockade2": {
+        "desc": "清波寨锚点 markInstId=23300000097",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1172.5,
+                2282.8
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingQingboStockade3"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingQingboStockade3": {
+        "desc": "清波寨锚点 markInstId=23300000096",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1257.7,
+                2358.8
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingQingboStockade4"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingQingboStockade4": {
+        "desc": "清波寨锚点 markInstId=23300000095",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1399.8,
+                2440.7
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

@@ -160,7 +160,7 @@ const customActParser: PropSelector = (name, param, utils) => {
     tryAddTaskFields(param, utils, result, ['wait_node'])
   } else if (name === 'RealTimeTaskAction') {
     tryAddTaskFields(param, utils, result, [], ['nodes'], 'ignore')
-  } else if (name === 'SellProductReserveSession') {
+  } else if (name === 'OutpostTradingReserveSession') {
     tryAddTaskFields(param, utils, result, ['sliding_node'])
   } else if (name === 'AddItemData' || name === 'SyncItemData') {
     tryAddTaskMapValues(param, utils, result, ['items'])

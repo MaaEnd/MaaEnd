@@ -29,6 +29,14 @@ const ASSERT_HANDLE_SIZE = 8;
 
 const SELECTION_RECT_STROKE = "#38bdf8";
 
+// Virtual no-go zones borrow the assert rose so "the planner will not enter here" reads
+// as the same kind of hard boundary, with the in-progress ring brighter than saved ones.
+const NOGO_STROKE = "#fb7185";
+const NOGO_FILL = "rgba(244, 63, 94, 0.22)";
+const NOGO_SELECTED_STROKE = "#fda4af";
+const NOGO_DRAFT_STROKE = "#fde047";
+const NOGO_DRAFT_FILL = "rgba(253, 224, 71, 0.16)";
+
 // Off-mesh warnings share the amber of the hint marker — "look here", never "blocked".
 const OFFMESH_COLOR = "#ffaa00";
 const OFFMESH_DIM = "rgba(255, 170, 0, 0.55)";
@@ -87,6 +95,8 @@ export class Overlay {
    *   @param {Array<Object>} [vm.offMeshMarks] points off the walkable mesh — see
    *     {@link Overlay#_drawOffMeshMarks} (drawn in every mode)
    *   @param {?Object} [vm.selectionRect] `{x0,y0,x1,y1}` canvas-px drag box, or null
+   *   @param {?Object} [vm.noGo] virtual no-go polygons + the ring being drawn — see
+   *     {@link Overlay#_drawNoGo}
    * @returns {void}
    */
   render(camera, vm) {
@@ -96,7 +106,10 @@ export class Overlay {
 
     const mode = vm.mode || "edit";
 
-    if (mode === "edit" || mode === "assert") this._drawMapZiplines(camera, vm.mapZiplines || []);
+    // Under everything else: a no-go zone is a region, and routes have to stay readable on top of it.
+    if (vm.noGo) this._drawNoGo(camera, vm.noGo);
+
+    if (mode === "edit" || mode === "assert" || mode === "nogo") this._drawMapZiplines(camera, vm.mapZiplines || []);
 
     // Real route points in every mode (the caller decides which ones are in frame);
     // mode-specific artifacts are layered on top so they stay readable over a route.
@@ -839,6 +852,85 @@ export class Overlay {
 
       ctx.restore();
     }
+  }
+
+  /**
+   * Saved no-go polygons plus the ring currently being drawn. The draft is rubber-banded
+   * to the pointer and closed with a dashed edge so its enclosed area is visible before
+   * it is committed.
+   * @param {Camera} camera
+   * @param {{polys:Array<{ring:Array<number[]>, id:string, selected:boolean, vertex:?number}>,
+   *          draft:Array<number[]>, cursor:?number[]}} noGo display-frame coords; the selected
+   *          polygon gets vertex handles, with `vertex` (the one Delete removes) filled in
+   * @returns {void}
+   */
+  _drawNoGo(camera, noGo) {
+    const ctx = this.ctx;
+    const trace = (ring) => {
+      ctx.beginPath();
+      ring.forEach(([wx, wy], i) => {
+        const [cx, cy] = camera.worldToCanvas(wx, wy);
+        if (i === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      });
+    };
+
+    ctx.save();
+    for (const poly of noGo.polys || []) {
+      if (!poly.ring || poly.ring.length < 3) continue;
+      trace(poly.ring);
+      ctx.closePath();
+      ctx.setLineDash([]);
+      ctx.fillStyle = NOGO_FILL;
+      ctx.fill();
+      ctx.lineWidth = poly.selected ? 3 : 2;
+      ctx.strokeStyle = poly.selected ? NOGO_SELECTED_STROKE : NOGO_STROKE;
+      ctx.stroke();
+      if (poly.id) {
+        const [lx, ly] = camera.worldToCanvas(poly.ring[0][0], poly.ring[0][1]);
+        ctx.font = `11px ${MONO}`;
+        ctx.fillStyle = ASSERT_LABEL_FILL;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(poly.id, lx + 6, ly - 4);
+      }
+      if (poly.selected) {
+        const half = ASSERT_HANDLE_SIZE / 2;
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = NOGO_SELECTED_STROKE;
+        poly.ring.forEach(([wx, wy], i) => {
+          const [cx, cy] = camera.worldToCanvas(wx, wy);
+          ctx.fillStyle = i === poly.vertex ? NOGO_DRAFT_STROKE : ASSERT_HANDLE_FILL;
+          ctx.fillRect(cx - half, cy - half, ASSERT_HANDLE_SIZE, ASSERT_HANDLE_SIZE);
+          ctx.strokeRect(cx - half, cy - half, ASSERT_HANDLE_SIZE, ASSERT_HANDLE_SIZE);
+        });
+      }
+    }
+
+    const draft = noGo.draft || [];
+    if (draft.length) {
+      const live = noGo.cursor ? [...draft, noGo.cursor] : draft;
+      if (live.length >= 3) {
+        trace(live);
+        ctx.closePath();
+        ctx.fillStyle = NOGO_DRAFT_FILL;
+        ctx.fill();
+      }
+      ctx.setLineDash([6, 4]);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = NOGO_DRAFT_STROKE;
+      trace(live);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = NOGO_DRAFT_STROKE;
+      for (const [wx, wy] of draft) {
+        const [cx, cy] = camera.worldToCanvas(wx, wy);
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
   }
 
   /**

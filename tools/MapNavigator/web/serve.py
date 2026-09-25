@@ -45,6 +45,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import os
 import secrets
 import socket
@@ -125,6 +126,10 @@ def _log(message: str) -> None:
 
 
 navmesh_backend = NavmeshBackend(NAVMESH_GZ if NAVMESH_GZ.exists() else NAVMESH_RAW)
+# 虚拟禁区表是本仓库的配置, 与 zipline_frames.json 同规矩放 data/MapNavigator/, 与 planner 的解析一致。
+NOGO_JSON = ZIPLINE_FRAMES.with_name("nogo_zones.json")
+# 禁区表的写与删串行: 两次保存共用同一个临时文件名, 不串行会互相替换半成品。
+_nogo_write_lock = threading.Lock()
 
 
 # --- maafw 运行时 (惰性加载, 仅录制需要) ----------------------------------------------
@@ -363,6 +368,7 @@ class RoutePreviewRequest(BaseModel):
     position_zone: str
     floor_y: float | None = None
     custom_action_param: dict[str, Any]
+    zipline_account_id: str = ""
 
 
 def _slot(value: float | None) -> list[float]:
@@ -482,11 +488,103 @@ async def api_route_preview(req: RoutePreviewRequest) -> dict[str, Any]:
                 position_zone=req.position_zone,
                 floor_y=_slot(req.floor_y),
                 custom_action_param=req.custom_action_param,
+                zipline_account_id=req.zipline_account_id,
             )
         except RuntimeError as exc:
             return {"ok": False, "error": f"navmesh 尚未就绪: {exc}"}
 
     return await run_in_threadpool(_compute)
+
+
+def _validate_nogo(doc: Any) -> dict[str, Any]:
+    """按 planner 的解析口径校验禁区表; 读不通的表在 planner 那边是致命错误, 所以宁可在这里 400 掉。"""
+    if not isinstance(doc, dict) or doc.get("version") != 1:
+        raise HTTPException(status_code=400, detail="禁区表版本必须是 1")
+    # 只对缺键兜底; [] / 0 / false 这类假值要原样送去下面被拒, 否则会当成空表把文件删掉。
+    zones = doc.get("zones", {})
+    if not isinstance(zones, dict):
+        raise HTTPException(status_code=400, detail="禁区表 zones 必须是对象")
+    clean: dict[str, list[dict[str, Any]]] = {}
+    for name, polys in zones.items():
+        if not isinstance(name, str) or not name or not isinstance(polys, list):
+            raise HTTPException(status_code=400, detail=f"禁区表的区 {name!r} 结构不对")
+        out: list[dict[str, Any]] = []
+        for poly in polys:
+            ring = poly.get("poly") if isinstance(poly, dict) else None
+            if not isinstance(ring, list) or len(ring) < 3:
+                raise HTTPException(status_code=400, detail=f"区 {name} 的禁区点数不够")
+            pts: list[list[float]] = []
+            for pt in ring:
+                # bool 是 int 的子类, NaN/inf 能过 json 解析却写不出 planner 认得的表, 都得拦在这里。
+                if (
+                    not isinstance(pt, list)
+                    or len(pt) != 2
+                    or not all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in pt)
+                ):
+                    raise HTTPException(status_code=400, detail=f"区 {name} 的禁区里有不是两个数的点")
+                pts.append([float(pt[0]), float(pt[1])])
+            entry: dict[str, Any] = {"poly": pts}
+            poly_id = poly.get("id")
+            if isinstance(poly_id, str) and poly_id:
+                entry["id"] = poly_id
+            tier = poly.get("tier")
+            if tier is not None:
+                if not isinstance(tier, str) or not tier.strip():
+                    raise HTTPException(status_code=400, detail=f"区 {name} 的禁区 tier 必须是 tier 名")
+                entry["tier"] = tier.strip()
+            out.append(entry)
+        if out:
+            clean[name] = out
+    return {"version": 1, "zones": clean}
+
+
+@app.get("/api/nogo")
+async def api_get_nogo() -> dict[str, Any]:
+    """data/MapNavigator 下的虚拟禁区表; 没有这个文件就是没有禁区。"""
+
+    def _read() -> dict[str, Any]:
+        # 存在性检查与读取要在同一把锁里, 否则 PUT 删文件正好插在中间就 500。
+        with _nogo_write_lock:
+            if not NOGO_JSON.is_file():
+                return {"version": 1, "zones": {}}
+            return json.loads(NOGO_JSON.read_text(encoding="utf-8"))
+
+    return await run_in_threadpool(_read)
+
+
+@app.put("/api/nogo")
+async def api_put_nogo(payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
+    """写回禁区表并冷启 navmesh 会话 —— agent 只在起来时读一次这张表。
+
+    零禁区时删文件而非留个空表: 缺文件与空表在 planner 那边同义, 留着只会让人以为还有禁区。
+    落盘与重载分开报: 表已经写好了, 重载失败只是下一次规划还按旧表走。
+    """
+    doc = _validate_nogo(payload)
+
+    def _write() -> None:
+        with _nogo_write_lock:
+            if doc["zones"]:
+                tmp = NOGO_JSON.with_suffix(".json.tmp")
+                tmp.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                tmp.replace(NOGO_JSON)
+            elif NOGO_JSON.is_file():
+                NOGO_JSON.unlink()
+
+    await run_in_threadpool(_write)
+    reload_error = ""
+    try:
+        # 冷启要等在途查询让出 _query_lock, 一条规划就是好几秒, 别拿事件循环去等。
+        await run_in_threadpool(navmesh_backend.restart)
+    except Exception as exc:  # noqa: BLE001
+        reload_error = str(exc)
+        _log(f"navmesh 重载失败: {exc}")
+    return {
+        "ok": True,
+        "path": str(NOGO_JSON),
+        "zones": len(doc["zones"]),
+        "reloaded": not reload_error,
+        "error": reload_error,
+    }
 
 
 @app.get("/basemap/{path:path}")
@@ -1181,6 +1279,8 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
             "path": path if isinstance(path, list) else [],
             # 白名单构造: 不显式搬过来的键在这里就没了, 提权子进程也拿不到。
             "exported": bool(first.get("exported")),
+            "zip": bool(first.get("zip")),
+            "zipline_account_id": str(first.get("zipline_account_id") or ""),
             "assert_target": assert_target if isinstance(assert_target, dict) else None,
             "live_only": bool(first.get("live_only")),
         }

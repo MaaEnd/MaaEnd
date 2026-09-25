@@ -30,6 +30,7 @@ const (
 
 var htmlTemplates = map[string]string{
 	"tasker.process_warning":                  "HTML/process-warning.html",
+	"tasker.multi_instance_warning":           "HTML/multi-instance-warning.html",
 	"tasker.task_failed_feedback_hint":        "HTML/task-failed-feedback.html",
 	"tasker.hdr_warning":                      "HTML/hdr-warning.html",
 	"tasker.aspect_ratio_warning":             "HTML/aspect-ratio-warning.html",
@@ -50,6 +51,8 @@ var htmlTemplates = map[string]string{
 	"autoecofarm.interruptible_sleep_done":    "HTML/interruptible-sleep-done.html",
 	"autoecofarm.interruptible_sleep_stopped": "HTML/interruptible-sleep-stopped.html",
 	"dijiangrewards.wait_exchange_countdown":  "HTML/dijiangrewards-wait-exchange-countdown.html",
+	"ims.sync_item_summary":                   "HTML/ims-sync-item-summary.html",
+	"ims.add_item_summary":                    "HTML/ims-add-item-summary.html",
 }
 
 var (

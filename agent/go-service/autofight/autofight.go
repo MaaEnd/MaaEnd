@@ -38,14 +38,18 @@ type autoFightAttach struct {
 var screenAnalyzer = NewScreenAnalyzer()
 
 func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
-	detail, err := ctx.RunRecognition("__AutoFightRecognitionCharactorLevelShow", img)
+	box, ok := screenAnalyzer.GetCharacterSelectBox()
+	if !ok {
+		return false
+	}
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionCharactorLevelShow", img, map[string]any{
+		"__AutoFightRecognitionCharactorLevelShow": map[string]any{
+			"roi":        []int{box[0], box[1], box[2], box[3]},
+			"roi_offset": []int{-25, box[3] + 35, 20, 4},
+		},
+	})
 	if err != nil || detail == nil {
-		log.Error().
-			Err(err).
-			Str("component", "AutoFight").
-			Str("step", "getCharactorLevelShow").
-			Str("recognition", "__AutoFightRecognitionCharactorLevelShow").
-			Msg("failed to run recognition for character level show")
+		log.Error().Err(err).Str("component", "AutoFight").Msg("failed to run recognition for character level show")
 		return false
 	}
 	return detail.Hit
@@ -443,16 +447,11 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		if time.Since(lastLevelShowCheck) >= 5*time.Second {
 			lastLevelShowCheck = time.Now()
 			if getCharactorLevelShow(ctx, img) {
-				confirmImg, ok := captureAndUpdateScreenDetail(ctx)
-				// 双重检测，避免ocr误识别
-				if ok && getCharactorLevelShow(ctx, confirmImg) {
-					log.Info().Str("component", "AutoFight").Msg("character level show detected, exiting fight")
-					maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
-					// saveExitImage(confirmImg, "character_level_show")
-					result = true
-					break
-				}
-				log.Info().Str("component", "AutoFight").Msg("character level show confirm failed, continue fight")
+				log.Info().Str("component", "AutoFight").Msg("character level show detected, exiting fight")
+				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
+				// saveExitImage(img, "character_level_show")
+				result = true
+				break
 			}
 		}
 		// CharacterLevel小概率识别不到，comboEmpty大概率不显示了依然命中，双重保险

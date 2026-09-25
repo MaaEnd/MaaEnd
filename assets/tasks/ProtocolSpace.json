@@ -205,9 +205,7 @@
                 }
             ]
         },
-        // 刷取模式：UsePermit 只定义一次。
-        // - 按次数：挂在「领取奖励」下，选不领取时隐藏
-        // - 目标库存：固定领取（pipeline 默认关闭不领取节点），故始终显示 UsePermit
+        // 领取方式：按次数用三项（双倍/单倍/刷取）；目标库存固定领取，仅双倍/单倍。
         "ProtocolSpaceMode": {
             "type": "select",
             "label": "$option.ProtocolSpaceMode.label",
@@ -218,7 +216,7 @@
                     "name": "ByCount",
                     "label": "$option.ProtocolSpaceMode.case.ByCount.label",
                     "option": [
-                        "ProtocolSpaceSuccessAction",
+                        "ProtocolSpaceObtainMode",
                         "ProtocolSpaceSuccessCount",
                         "ProtocolSpaceFailedCount",
                         "ProtocolSpaceTab"
@@ -235,21 +233,20 @@
                         }
                     },
                     "option": [
-                        "ProtocolSpaceUsePermit",
+                        "ProtocolSpaceObtainModeClaim",
                         "SupplyPlanLimits"
                     ]
                 }
             ]
         },
-        "ProtocolSpaceSuccessAction": {
+        "ProtocolSpaceObtainMode": {
             "type": "select",
-            "label": "$option.ProtocolSpaceSuccessAction.label",
-            "default_case": "RewardClaim",
+            "label": "$option.ProtocolSpaceObtainMode.label",
+            "default_case": "ObtainScaling2",
             "cases": [
                 {
-                    "name": "RewardClaim",
-                    "label": "$option.ProtocolSpaceSuccessAction.case.RewardClaim.label",
-                    // 与 pipeline 默认一致；显式写出便于从「不领取」切回时覆盖
+                    "name": "ObtainScaling2",
+                    "label": "$option.ProtocolSpaceObtainMode.cases.ObtainScaling2.label",
                     "pipeline_override": {
                         "ProtocolSpaceRewardSelectClaim": {
                             "enabled": true
@@ -261,16 +258,43 @@
                             "enabled": true
                         },
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardUsePermit": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "ProtocolSpaceUseSpMedication"
+                    ]
+                },
+                {
+                    "name": "ObtainScaling1",
+                    "label": "$option.ProtocolSpaceObtainMode.cases.ObtainScaling1.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardSelectNoClaim": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceEnterSpaceSelectClaimReward": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardUsePermit": {
                             "enabled": false
                         }
                     },
                     "option": [
-                        "ProtocolSpaceUsePermit"
+                        "ProtocolSpaceUseSpMedication"
                     ]
                 },
                 {
-                    "name": "NoRewardClaim",
-                    "label": "$option.ProtocolSpaceSuccessAction.case.NoRewardClaim.label",
+                    "name": "Discard",
+                    "label": "$option.ProtocolSpaceObtainMode.cases.Discard.label",
                     "pipeline_override": {
                         "ProtocolSpaceRewardSelectClaim": {
                             "enabled": false
@@ -283,6 +307,161 @@
                         },
                         "ProtocolSpaceEnterSpaceSelectNoClaimReward": {
                             "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "ProtocolSpaceObtainModeClaim": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceObtainModeClaim.label",
+            "default_case": "ObtainScaling2",
+            "cases": [
+                {
+                    "name": "ObtainScaling2",
+                    "label": "$option.ProtocolSpaceObtainModeClaim.cases.ObtainScaling2.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardUsePermit": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "ProtocolSpaceUseSpMedication"
+                    ]
+                },
+                {
+                    "name": "ObtainScaling1",
+                    "label": "$option.ProtocolSpaceObtainModeClaim.cases.ObtainScaling1.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardUsePermit": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "ProtocolSpaceUseSpMedication"
+                    ]
+                }
+            ]
+        },
+        "ProtocolSpaceUseSpMedication": {
+            "type": "select",
+            "label": "$option.AutoUseSpMedication.label",
+            "default_case": "UseMedication",
+            "cases": [
+                {
+                    "name": "EndTask",
+                    "label": "$option.AutoUseSpMedication.cases.EndTask.label",
+                    "pipeline_override": {
+                        "ProtocolSpacePopupSanityLowExit": {
+                            "enabled": true
+                        },
+                        "ProtocolSpacePopupSanityLowUseSpMedicationPrepare": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowUseSpMedicationPrepare": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardClaimRestoreSanityUseMedication": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "UseMedication",
+                    "label": "$option.AutoUseSpMedication.cases.UseMedication.label",
+                    "pipeline_override": {
+                        "ProtocolSpacePopupSanityLowExit": {
+                            "enabled": false
+                        },
+                        "ProtocolSpacePopupSanityLowUseSpMedicationPrepare": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowDialog": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardClaimSuccessSanityLowUseSpMedicationPrepare": {
+                            "enabled": true
+                        },
+                        "ProtocolSpaceRewardClaimRestoreSanityUseMedication": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "ProtocolSpaceSpMedicationExpireWithinDays"
+                    ]
+                }
+            ]
+        },
+        "ProtocolSpaceSpMedicationExpireWithinDays": {
+            "label": "$option.AutoUseSpMedicationExpireWithinDays.label",
+            "type": "select",
+            "default_case": "Days3",
+            "cases": [
+                {
+                    "name": "All",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.All.label",
+                    "pipeline_override": {
+                        "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^(\\d+小时|([1-9]|1[0-3])天)"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days10",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days10.label",
+                    "pipeline_override": {
+                        "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^(\\d+小时|([1-9]|10)天)"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days7",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days7.label",
+                    "pipeline_override": {
+                        "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^(\\d+小时|[1-7]天)"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days3",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label",
+                    "pipeline_override": {
+                        "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^(\\d+小时|[1-3]天)"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Days1",
+                    "label": "$option.AutoUseSpMedicationExpireWithinDays.cases.Days1.label",
+                    "pipeline_override": {
+                        "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
+                            "expected": [
+                                // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+                                // @i18n-skip
+                                "^(\\d+小时|1天)"
+                            ]
                         }
                     }
                 }
@@ -412,28 +591,6 @@
                 {
                     "name": "ProtocolSpaceFailedCountUnlimited",
                     "label": "$option.ProtocolSpaceCountUnlimited.label"
-                }
-            ]
-        },
-        "ProtocolSpaceUsePermit": {
-            "type": "switch",
-            "label": "$option.ProtocolSpaceUsePermit.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "ProtocolSpaceRewardUsePermit": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "ProtocolSpaceRewardUsePermit": {
-                            "enabled": false
-                        }
-                    }
                 }
             ]
         },

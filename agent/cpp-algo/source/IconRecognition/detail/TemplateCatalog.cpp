@@ -1,9 +1,13 @@
 #include "TemplateCatalog.h"
 
+#include <algorithm>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 
 #include <meojson/json.hpp>
+
+#include <MaaUtils/ImageIo.h>
 
 #include "Common/JsoncFile.h"
 #include "CompositeIcon.h"
@@ -26,16 +30,16 @@ constexpr int kRegionUnavailableMarkSourceHeight = 24;
 cv::Mat DecodeDisabledOverlay(const std::filesystem::path& path, const cv::Size& expected_size)
 {
     if (!std::filesystem::is_regular_file(path)) {
-        throw std::runtime_error("disabled overlay not found: " + path.string());
+        throw std::runtime_error("disabled overlay not found: " + MAA_NS::path_to_utf8_string(path));
     }
-    const cv::Mat overlay = cv::imread(path.string(), cv::IMREAD_UNCHANGED);
+    const cv::Mat overlay = MAA_NS::imread(path, cv::IMREAD_UNCHANGED);
     if (overlay.empty()) {
-        throw std::runtime_error("unable to decode disabled overlay: " + path.string());
+        throw std::runtime_error("unable to decode disabled overlay: " + MAA_NS::path_to_utf8_string(path));
     }
     if (overlay.type() != CV_8UC4 || overlay.size() != expected_size) {
         throw std::runtime_error(
             "disabled overlay must be a " + std::to_string(expected_size.width) + "x" + std::to_string(expected_size.height)
-            + " BGRA image: " + path.string());
+            + " BGRA image: " + MAA_NS::path_to_utf8_string(path));
     }
     return overlay;
 }
@@ -115,20 +119,33 @@ bool TemplateCatalog::InitializeUnlocked()
                                               ? object.at("fluidIconId").as_string()
                                               : throw std::runtime_error("catalog fluidIconId invalid: " + item_id);
         records_.push_back(TemplateRecord {
-            item_id,
-            "iconRecognition.name." + item_id,
-            get_string("category"),
-            get_string("storageKind"),
-            get_string("categoryType"),
-            rarity,
-            icon_id,
-            fluid_icon_id,
-            object.contains("regionRestricted") && object.at("regionRestricted").as_boolean(),
+            .item_id = item_id,
+            .name_key = "iconRecognition.name." + item_id,
+            .category = get_string("category"),
+            .storage_kind = get_string("storageKind"),
+            .category_type = get_string("categoryType"),
+            .rarity = rarity,
+            .icon_id = icon_id,
+            .fluid_icon_id = fluid_icon_id,
+            .sort_id_1 = has_sort_id1 ? std::optional<int>(object.at("sortId1").as_integer()) : std::nullopt,
+            .sort_id_2 = has_sort_id2 ? std::optional<int>(object.at("sortId2").as_integer()) : std::nullopt,
+            .region_restricted = object.contains("regionRestricted") && object.at("regionRestricted").as_boolean(),
         });
     }
     if (records_.empty()) {
         throw std::runtime_error("recognition catalog is empty");
     }
+    // 游戏内 sort 顺序决定共享图标组的代表项；无 sort 的固定物品和武器统一后置。
+    std::ranges::sort(records_, [](const TemplateRecord& left, const TemplateRecord& right) {
+        if (left.sort_id_1.has_value() != right.sort_id_1.has_value()) {
+            return left.sort_id_1.has_value();
+        }
+        if (left.sort_id_1) {
+            return std::tuple { *left.sort_id_1, *left.sort_id_2, left.item_id }
+                   > std::tuple { *right.sort_id_1, *right.sort_id_2, right.item_id };
+        }
+        return left.item_id > right.item_id;
+    });
     initialized_ = true;
     return true;
 }

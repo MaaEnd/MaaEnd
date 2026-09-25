@@ -36,6 +36,17 @@ func buildResetSwipeEnd(direction string) ([]int, error) {
 	}
 }
 
+// buildReset2SwipeEnd returns the swipe end rect for the BetterSlidingReset2 node.
+// The reset moves the slider to the opposite side of the precise click: when the click
+// sits near Start the Reset2 swipe ends at the maximum side, and vice versa.
+func buildReset2SwipeEnd(direction string, side reset2Side) ([]int, error) {
+	if side == reset2SideTowardEnd {
+		return buildSwipeEnd(direction)
+	}
+
+	return buildResetSwipeEnd(direction)
+}
+
 // buildResetSwipeOverride builds the pipeline override for the reset flow.
 // The BetterSlidingFindSwipeForReset gate controls whether the reset swipe runs;
 // BetterSlidingReset itself only gets its end overridden in the same multi-segment
@@ -192,20 +203,11 @@ func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode 
 			return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
 		}
 	}
-	if err := ctx.OverrideNext(currentNode, buildCheckQuantityBranchNextItems(nextNode)); err != nil {
+	if err := ctx.OverrideNext(currentNode, []maa.NextItem{{Name: nextNode}}); err != nil {
 		return fmt.Errorf("%w: %w", errCheckQuantityBranchNextOverride, err)
 	}
 
 	return nil
-}
-
-func buildCheckQuantityBranchNextItems(nextNode string) []maa.NextItem {
-	nextItems := []maa.NextItem{{Name: nextNode}}
-	if nextNode != nodeBetterSlidingIncreaseQuantity && nextNode != nodeBetterSlidingDecreaseQuantity {
-		return nextItems
-	}
-
-	return append(nextItems, maa.NextItem{Name: nodeBetterSlidingJumpBackMoveMouse})
 }
 
 func resolveButtonHelperNode(nextNode string) string {

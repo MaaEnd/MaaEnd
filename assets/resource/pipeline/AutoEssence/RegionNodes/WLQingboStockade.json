@@ -12,38 +12,24 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLQingboStockade": {
-        "desc": "判断是否需要传送到最近锚点",
-        "recognition": {
+        "desc": "强制传送到最近锚点后前往激发点",
+        "action": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "MapLocateAssertLocation",
-                "custom_recognition_param": {
-                    "zone_id": "Wuling_Base",
-                    "target": [
-                        1242.58,
-                        2357.97,
-                        27.57,
-                        39.41
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterWorldWulingQingboStockade2"
                     ]
                 }
             }
         },
-        "inverse": true,
         "next": [
-            "[JumpBack]__GotoTriggerPointTeleportOnce_WLQingboStockade",
             "GotoTriggerPointMove_WLQingboStockade"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
-    },
-    "__GotoTriggerPointTeleportOnce_WLQingboStockade": {
-        "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "SceneEnterWorldWulingQingboStockade2"
-        ]
     },
     "GotoTriggerPointMove_WLQingboStockade": {
         "action": {
@@ -74,7 +60,7 @@
         },
         "post_delay": 1500,
         "next": [
-            "AutoEssenceInteract"
+            "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

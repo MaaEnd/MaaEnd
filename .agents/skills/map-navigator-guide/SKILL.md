@@ -30,6 +30,7 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 | 判断角色当前是否已经站在某个区域内        | `MapLocateAssertLocation`             |
 | 只想读出当前坐标 / 朝向，自己决定后续逻辑 | `MapLocateRecognition`                |
 | 走到某点后采集 / 挖掘                     | `path` 里的 `COLLECT` / `DIG` 语义点  |
+| 目标只有识别框、没有坐标（名字牌、物件标签） | `path` 里的 `FIND` 语义点            |
 
 **优先考虑 `NAVMESH`。** 只要目标点在不发生交互、过图或特殊机关的情况下本来就可达，填一个 `target` 坐标即可，运行时会基于三角图自动规划出可执行路径，不需要预先录制整段路线：
 
@@ -62,13 +63,15 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 
 启用滑索后，才会对作者路径做全局规划。每个区间先尝试从起点直达末端；成功时跳过中间的移动和兜底点，失败时仍按作者路径逐点执行。可跳过的点包括 `NAVMESH`、`RUN`、`SPRINT`、`JUMP`、`FIGHT`、`TRANSFER`、`PORTAL` 和 `INTERACT`。
 
-`ZONE` 是结构边界，`HEADING`、`COLLECT`、`DIG` 是固有动作边界，始终保留。其他节点必须抵达并执行时写 `required: true`；该节点会结束当前规划区间，并成为后续规划的新起点。
+`ZONE` 是结构边界，`HEADING`、`COLLECT`、`DIG`、`FIND` 是固有动作边界，始终保留。其他节点必须抵达并执行时写 `required: true`；该节点会结束当前规划区间，并成为后续规划的新起点。
 
 直达的纯步行路线不可达时，开启滑索的请求仍会尝试用一条连续滑索链桥接起终两侧可走面；桥接成功优先于盲走和作者路径回退。纯步行可达时才按全程成本与收益门槛比较，不能简单按滑索跳数给固定优先级。
 
 声明只钉这一段停在哪张面，起点站在哪张面由寻路按起点自己的高度判断，所以跨面的一段不需要给起点补声明。
 
 **交互点的提示文字别在多条路线里各抄一份。** `INTERACT` 点写了 `interact_text` 才升级为异步交互（行进中看到提示就停车，OCR 确认命中才按键），不写则保持到点直接按键的原语义。这份文字表除了直接写字符串 / 字符串数组，还可以写成 `{ "node": "某个 OCR 节点" }` 点名一个现成的 OCR 节点：导航只读它的 `expected`，从不派发它，于是同一业务铺到多个区域时共用一张表。写在点上的盖过写在 `custom_action_param` 顶层的；节点读不出来时该点退回原语义，整条路线照跑。
+
+**目标只有识别框、没有坐标时（NPC 名字牌、物件标签等）使用 `FIND` 语义点**，不应在 Pipeline 中使用 `NeuralNetworkDetect` + `CharacterMoveToTargetAction` 自行实现。每个 `FIND` 点需配置两组参数：目标来源（`find_target` 或 `find_text`，二选一）与完成条件（`find_stop` 或 `find_arrive`，至少一项）。旋转视角搜索、按识别框前进、越过目标后的后退均由导航器处理；配置 `find_arrive` 时，该点每拍额外读取一次定位用于距离判定（不参与转向），其余时刻不读取小地图。带 `target` 时先移动至锚点再开始搜索；不带 `target` 时抵达后立即开始搜索。搜索阶段的视角旋转为开环控制，节点结束后角色可能不在路网内且朝向任意，导航器会在退出时重置操舵与走廊记账；若其后仍有移动需求，建议追加一个普通移动节点以供重新定位；`FIND` 作为路线终点亦可行。
 
 **提示弹出来之后按哪一行由业务决定时，给 `INTERACT` 点加 `interact_rec`。** 交互键只会选中默认那一行，所以一个可交互物上挂着「领取 / 放弃」这类多行选项时，导航一按就把业务侧那个「按哪一行」的开关架空了，而且完全无声——键按下去了、界面也开了，看不出哪里不对。写了 `interact_rec` 的点照旧预筛、停车、OCR 确认，只是最后那一下不按，按哪一行交回外层 Pipeline。它得配着 `interact_text` 用（文本没解析出来的点进不了异步那条路，会退回到点直接按键）；写在 `custom_action_param` 顶层是整条路线一起打开，且只能开不能关。
 
@@ -84,8 +87,9 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 - `MapNavigator` 目录：导航状态机与路径执行；
     - `navi_param_parser.cpp`：`custom_action_param` 解析，含 `target_tier` 等字段；
     - `navi_domain_types.h`：`ActionType` 枚举，所有路径点语义动作在此声明；
-    - `navi_config.h`：子任务入口名、`pipeline_override`、等待时间等常量；
-    - `semantic_nodes.cpp`：各语义点（`COLLECT`/`DIG`/`INTERACT` 等）到达后的执行逻辑；
+- `navi_config.h`：子任务入口名、`pipeline_override`、等待时间等常量；
+- `semantic_nodes.cpp`：各语义点（`COLLECT`/`DIG`/`INTERACT` 等）到达后的执行逻辑；
+- `find_action.cpp`：`FIND` 的搜索与接近（按帧跑识别节点取框、转视角、前进脉冲），以及退出时的记账作废；
     - `NavigationStateMachine`：到点判定、疾跑控制、失败与恢复。
 - `Navmesh` 目录：BaseNav 三角图寻路核心；
     - `BaseNavReader.cpp`：`.nav` / `.nav.gz` 二进制包解析（magic 为 `BNAV`）；

@@ -96,11 +96,6 @@ void main() {
 }
 `;
 
-// Canvas clear color #000000 → linear-ish sRGB bytes / 255.
-const CLEAR_R = 0.0;
-const CLEAR_G = 0.0;
-const CLEAR_B = 0.0;
-
 // Matches the tk `max_points` walkable-dot stride cap (§2.4 / §4).
 const DOT_STRIDE_CAP = 60000;
 
@@ -112,8 +107,12 @@ export class Renderer {
     /** @type {HTMLCanvasElement} */
     this.canvas = canvas;
 
+    // Shaders emit straight (non-premultiplied) colour, so tell the compositor that.
+    const attrs = {premultipliedAlpha: false};
     const gl = /** @type {WebGL2RenderingContext|WebGLRenderingContext|null} */ (
-      canvas.getContext("webgl2") || canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
+      canvas.getContext("webgl2", attrs) ||
+        canvas.getContext("webgl", attrs) ||
+        canvas.getContext("experimental-webgl", attrs)
     );
     if (!gl) throw new Error("Renderer: WebGL not available (webgl2/webgl both null)");
     /** @type {WebGL2RenderingContext|WebGLRenderingContext} */
@@ -202,8 +201,10 @@ export class Renderer {
     // --- static GL state --------------------------------------------------
     gl.disable(gl.DEPTH_TEST);
     gl.disable(gl.CULL_FACE);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(CLEAR_R, CLEAR_G, CLEAR_B, 1.0);
+    // Straight alpha: colour blends by source alpha, coverage accumulates without re-scaling.
+    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    // Clear to transparent so the page background is the single source of the map ground colour.
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
     // Best-effort initial sizing so a render before the first resize() isn't degenerate.
     const w0 = canvas.clientWidth || canvas.width || 300;
@@ -453,7 +454,8 @@ export class Renderer {
   render(camera) {
     const gl = this.gl;
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-    gl.clearColor(CLEAR_R, CLEAR_G, CLEAR_B, 1.0);
+    // Clear to transparent so the page background is the single source of the map ground colour.
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Fold camera (world→canvas CSS px) then canvas→clip into one per-axis affine.

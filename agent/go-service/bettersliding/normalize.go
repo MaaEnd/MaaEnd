@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 func clampClickRepeat(repeat int) int {
@@ -225,6 +227,103 @@ func resolveTargetQuantity(
 	}
 }
 
+// isMinimumTargetShortCircuit 判断本次是否走「目标即滑条最小值 1」的短路路径。
+// 仅在 TargetQuantityType 为 Value、原始目标为 1 且未启用 ReverseTarget 时成立：
+// Percentage 模式与 ReverseTarget 的有效目标依赖运行时 availableQuantity，无法在进入流程前判定。
+func isMinimumTargetShortCircuit(targetQuantity int, targetQuantityType string, reverseTarget bool) bool {
+	return targetQuantity == 1 &&
+		targetQuantityType == TargetQuantityTypeValue &&
+		!reverseTarget
+}
+
+// minimumTargetShortCircuitNext 返回短路时被覆写 next 的节点：
+// ResetBeforeFindStart 时在复位滑动完成后收尾（覆写 BetterSlidingReset.next），
+// 否则在清空命中计数后直接收尾（覆写 BetterSlidingClearMaxHit.next）。
+func minimumTargetShortCircuitNext(resetBeforeFindStart bool) string {
+	if resetBeforeFindStart {
+		return nodeBetterSlidingReset
+	}
+
+	return nodeBetterSlidingClearMaxHit
+}
+
+// normalizeFineTuneQuantity 归一化 FineTuneQuantity：
+//
+//	未提供（present=false，含显式 null）-> 默认 enabled（始终微调）；
+//	bool                               -> 布尔语义；
+//	整数值                             -> 阈值语义，阈值须 >= 1；超过 maxFineTuneThreshold
+//	                                      时饱和为 enabled（始终微调）。
+//
+// 非整数、其他类型与 < 1 的值均返回错误。
+//
+// present 由调用方（hasNonNullRawKey）判定：显式 null 与键缺失一样视为「未提供」，
+// 因此这里不再单独区分 null。
+func normalizeFineTuneQuantity(raw any, present bool) (fineTuneQuantity, error) {
+	if !present {
+		return defaultFineTuneQuantity, nil
+	}
+
+	switch v := raw.(type) {
+	case bool:
+		return fineTuneQuantity{enabled: v}, nil
+	case float64:
+		if v != math.Trunc(v) {
+			return fineTuneQuantity{}, fmt.Errorf("FineTuneQuantity must be a bool or an integer, got %v", v)
+		}
+
+		return newThresholdFineTuneQuantity(v)
+	default:
+		return fineTuneQuantity{}, fmt.Errorf(
+			"FineTuneQuantity must be a bool or an integer >= 1, got %T",
+			raw,
+		)
+	}
+}
+
+func newThresholdFineTuneQuantity(v float64) (fineTuneQuantity, error) {
+	if v < 1 {
+		return fineTuneQuantity{}, fmt.Errorf("FineTuneQuantity threshold must be >= 1, got %v", v)
+	}
+	// 阈值超过 maxFineTuneThreshold 时已超出 int 可表示范围，且远大于任何真实数量差值，
+	// 语义上等价于「始终微调」：饱和为 enabled，不截断、不报错（文档只约束 N >= 1）。
+	if v > maxFineTuneThreshold {
+		log.Warn().
+			Float64("fine_tune_quantity", v).
+			Int("max_fine_tune_threshold", maxFineTuneThreshold).
+			Msg("FineTuneQuantity threshold above max, treated as always fine-tune")
+
+		return fineTuneQuantity{enabled: true}, nil
+	}
+
+	return fineTuneQuantity{thresholdMode: true, threshold: int(v)}, nil
+}
+
+// normalizeFineTuneFallback 归一化 FineTuneFallback：空串或 null（JSON null 解析为空串）
+// 归一为 none；大小写不敏感地接受 none / more / less 并返回小写规范值；其他值返回错误。
+func normalizeFineTuneFallback(raw string) (string, error) {
+	s := strings.TrimSpace(raw)
+	if s == "" {
+		return FineTuneFallbackNone, nil
+	}
+
+	switch strings.ToLower(s) {
+	case FineTuneFallbackNone:
+		return FineTuneFallbackNone, nil
+	case FineTuneFallbackMore:
+		return FineTuneFallbackMore, nil
+	case FineTuneFallbackLess:
+		return FineTuneFallbackLess, nil
+	default:
+		return "", fmt.Errorf(
+			"invalid FineTuneFallback %q, expected %q, %q or %q",
+			raw,
+			FineTuneFallbackNone,
+			FineTuneFallbackMore,
+			FineTuneFallbackLess,
+		)
+	}
+}
+
 func isSwipeOnlyMode(params betterSlidingParam) bool {
 	return !params.presence.TargetQuantity &&
 		!params.presence.SliderQuantity &&
@@ -236,5 +335,7 @@ func isSwipeOnlyMode(params betterSlidingParam) bool {
 		!params.presence.TargetQuantityType &&
 		!params.presence.ReverseTarget &&
 		!params.presence.CenterPointOffset &&
-		!params.presence.ClampTargetToSliderMax
+		!params.presence.ClampTargetToSliderMax &&
+		!params.presence.FineTuneQuantity &&
+		!params.presence.FineTuneFallback
 }

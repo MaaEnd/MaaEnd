@@ -111,6 +111,19 @@
         ],
         "box_index": 3
     },
+    "VisitFriendsRecognitionItemEnterButtonByNamePriorityRemark": {
+        "desc": "优先链路：以白名单名框为锚向右偏移，识别该行进船（飞船）图标",
+        "recognition": "TemplateMatch",
+        "roi": "VisitFriendsMenuScanSelectPriorityRemarkConsumable",
+        "roi_offset": [
+            956,
+            -18,
+            33,
+            106
+        ],
+        "template": "VisitFriends/EnterButton.png",
+        "threshold": 0.9
+    },
     "VisitFriendsRecognitionItemEnterButtonByNameRemark": {
         "desc": "备注选友链路：以备注名框为锚向右偏移，识别该行进船（飞船）图标",
         // 与 NameByEnterButtonForScroll 相对 EnterButton 的 [-1069,-29,218,5] 反向；w/h 略放宽以容 OCR 框抖动

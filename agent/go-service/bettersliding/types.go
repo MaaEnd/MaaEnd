@@ -1,6 +1,8 @@
 package bettersliding
 
 import (
+	"math"
+
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog"
 )
@@ -19,7 +21,8 @@ type betterSlidingParam struct {
 	ReverseTarget                 bool                       `json:"ReverseTarget"`
 	CenterPointOffset             any                        `json:"CenterPointOffset"`
 	ClampTargetToSliderMax        bool                       `json:"ClampTargetToSliderMax"`
-	FinishAfterPreciseClick       bool                       `json:"FinishAfterPreciseClick"`
+	FineTuneQuantity              any                        `json:"FineTuneQuantity"`
+	FineTuneFallback              string                     `json:"FineTuneFallback"`
 	ResetBeforeFindStart          bool                       `json:"ResetBeforeFindStart"`
 	presence                      betterSlidingParamPresence `json:"-"`
 }
@@ -38,7 +41,8 @@ type betterSlidingParamPresence struct {
 	ReverseTarget                 bool
 	CenterPointOffset             bool
 	ClampTargetToSliderMax        bool
-	FinishAfterPreciseClick       bool
+	FineTuneQuantity              bool
+	FineTuneFallback              bool
 	ResetBeforeFindStart          bool
 }
 
@@ -76,7 +80,11 @@ type quantityFilterParam struct {
 //   - DecreaseButton: decrease button template path or coordinates
 //   - CenterPointOffset: click offset from slider handle center, default [-10, 0]
 //   - ClampTargetToSliderMax: clamp target to sliderMaxQuantity instead of failing (default false)
-//   - FinishAfterPreciseClick: skip fine-tuning and return success after precise click (default false)
+//   - FineTuneQuantity: bool or int >= 1; true (default) always fine-tunes via
+//     Increase/Decrease, false never, int N only when abs(current - target) <= N.
+//     Integers above maxFineTuneThreshold saturate to "always fine-tune".
+//   - FineTuneFallback: none (default) / more / less; only used when this run decides
+//     not to fine-tune, more/less nudges the precise click by 1px steps on one axis.
 //   - ResetBeforeFindStart: swipe toward the minimum before matching the slider start position,
 //     so the recorded start position is the minimum value (default false)
 //   - SwipeButton: custom slider template path overriding BetterSlidingSwipeButton
@@ -99,7 +107,8 @@ type BetterSlidingAction struct {
 	DecreaseButton                buttonTarget
 	CenterPointOffset             [2]int
 	ClampTargetToSliderMax        bool
-	FinishAfterPreciseClick       bool
+	FineTuneQuantity              fineTuneQuantity
+	FineTuneFallback              string
 	ResetBeforeFindStart          bool
 	SwipeButton                   string
 	OutOfRangeOverrideEnable      string
@@ -109,13 +118,19 @@ type BetterSlidingAction struct {
 	SwipeOnlyMode                 bool
 	OriginalTargetQuantity        int
 
-	startBox                  []int
-	endBox                    []int
+	startBox []int
+	endBox   []int
+	// preciseClickBase 精确点击基准坐标；preciseClickNudges 为已偏移次数，仅作日志索引。
+	preciseClickBase          [2]int
+	preciseClickNudges        int
 	sliderMaxQuantity         int
 	availableQuantity         int
 	availableQuantityResolved bool
 	outOfRange                bool
 	targetReachable           bool
+	// minimumTargetShortCircuit 表示本次走「目标即最小值 1」的短路路径：
+	// 跳过滑条端点识别与精确点击，ResetBeforeFindStart 时仅执行复位滑动后直接收尾。
+	minimumTargetShortCircuit bool
 	runtimeTargetResolved     bool
 	logger                    zerolog.Logger
 }
@@ -134,6 +149,82 @@ func (b buttonTarget) logValue() any {
 }
 
 const maxClickRepeat = 30
+
+// maxFineTuneThreshold 是 FineTuneQuantity 整数阈值的饱和边界。
+//
+// 取 math.MaxInt32：远大于任何真实数量差值，且能被 float64 精确表示。阈值超过该值时
+// 不再执行 int(v)，而是饱和为「始终微调」（见 newThresholdFineTuneQuantity）——旧实现
+// 钳到 float64(math.MaxInt)（= 2^63）再转换会回绕成 math.MinInt，把「超大阈值」
+// 反转成「从不微调」。
+const maxFineTuneThreshold = math.MaxInt32
+
+// fineTuneQuantity 是 FineTuneQuantity 归一化后的载体（语义见 normalizeFineTuneQuantity）。
+type fineTuneQuantity struct {
+	thresholdMode bool
+	enabled       bool
+	threshold     int
+}
+
+// defaultFineTuneQuantity 对应「未提供 FineTuneQuantity」时的默认行为：始终微调。
+var defaultFineTuneQuantity = fineTuneQuantity{enabled: true}
+
+// FineTuneFallback 的规范取值（大小写不敏感地接受，归一化后统一为小写）。
+const (
+	// FineTuneFallbackNone 不偏移，复检后收尾。
+	FineTuneFallbackNone = "none"
+	// FineTuneFallbackMore 朝 End 方向做单轴 1px 累加偏移后复查。
+	FineTuneFallbackMore = "more"
+	// FineTuneFallbackLess 朝 Start 方向做单轴 1px 累加偏移后复查。
+	FineTuneFallbackLess = "less"
+)
+
+// nudgeAxis 表示不微调时单轴 1px 累加偏移所选的轴。
+type nudgeAxis uint8
+
+const (
+	// nudgeAxisX 表示偏移作用在 x 分量上。
+	nudgeAxisX nudgeAxis = iota
+	// nudgeAxisY 表示偏移作用在 y 分量上（也是平局与重合时的兜底选择）。
+	nudgeAxisY
+)
+
+// String 返回轴的日志标签（"x" / "y"）。
+func (a nudgeAxis) String() string {
+	if a == nudgeAxisX {
+		return "x"
+	}
+
+	return "y"
+}
+
+// reset2Side 表示 BetterSlidingReset2 的复位方向，由精确点击基准坐标在
+// Start → End 轴上的相对位置决定：靠近 Start 时朝 End 滑动，靠近 End 时朝 Start 滑动。
+type reset2Side uint8
+
+const (
+	// reset2SideTowardStart 表示向最小侧（Start）滑动复位，终点取 buildResetSwipeEnd。
+	reset2SideTowardStart reset2Side = iota
+	// reset2SideTowardEnd 表示向最大侧（End）滑动复位，终点取 buildSwipeEnd。
+	reset2SideTowardEnd
+)
+
+// String 返回复位方向的日志标签（"start" / "end"）。
+func (s reset2Side) String() string {
+	if s == reset2SideTowardEnd {
+		return "end"
+	}
+
+	return "start"
+}
+
+// modeLabel 返回 fineTuneQuantity 语义标签，仅用于日志。
+func (q fineTuneQuantity) modeLabel() string {
+	if q.thresholdMode {
+		return "threshold"
+	}
+
+	return "bool"
+}
 
 // TargetQuantityType constants for canonical target quantity type values.
 const (

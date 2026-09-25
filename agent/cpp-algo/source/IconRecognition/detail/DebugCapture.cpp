@@ -7,6 +7,8 @@
 
 #include <meojson/json.hpp>
 
+#include <MaaUtils/ImageIo.h>
+
 #include "RecognitionDiagnostics.h"
 
 namespace iconrecognition::detail
@@ -27,19 +29,27 @@ std::string Stamp(std::uint64_t reco_id)
     return std::to_string(milliseconds) + "_reco-" + std::to_string(reco_id) + "_" + std::to_string(sequence.fetch_add(1));
 }
 
+// 文件名走 path 运算拼接，非 ASCII 目录下不过系统 ANSI 码页；后缀是 ASCII 字面量，码页无关。
+std::filesystem::path SiblingWithSuffix(const std::filesystem::path& dir, const std::filesystem::path& stem, const char* suffix)
+{
+    std::filesystem::path file = dir / stem;
+    file += suffix;
+    return file;
+}
+
 void RemoveGroup(
     const std::filesystem::path& raw_dir,
     const std::filesystem::path& annotated_dir,
     const std::filesystem::path& detail_dir,
-    const std::string& stem) noexcept
+    const std::filesystem::path& stem) noexcept
 {
     try {
         std::error_code ec;
-        std::filesystem::remove(raw_dir / (stem + ".png"), ec);
+        std::filesystem::remove(SiblingWithSuffix(raw_dir, stem, ".png"), ec);
         ec.clear();
-        std::filesystem::remove(annotated_dir / (stem + ".png"), ec);
+        std::filesystem::remove(SiblingWithSuffix(annotated_dir, stem, ".png"), ec);
         ec.clear();
-        std::filesystem::remove(detail_dir / (stem + ".json"), ec);
+        std::filesystem::remove(SiblingWithSuffix(detail_dir, stem, ".json"), ec);
     }
     catch (...) {
     }
@@ -60,7 +70,7 @@ void TrimGroups(const std::filesystem::path& raw_dir, const std::filesystem::pat
         return left.path().filename() < right.path().filename();
     });
     while (groups.size() > kMaxCaptureGroups) {
-        RemoveGroup(raw_dir, annotated_dir, detail_dir, groups.front().path().stem().string());
+        RemoveGroup(raw_dir, annotated_dir, detail_dir, groups.front().path().stem());
         groups.erase(groups.begin());
     }
 }
@@ -78,7 +88,7 @@ void DrawDiagnostics(cv::Mat& annotated, const RecognitionResult& result)
         if (cell.candidate_box.area() > 0) {
             cv::rectangle(annotated, cell.candidate_box, cv::Scalar(255, 128, 0), 1);
         }
-        std::string label = cell.best_candidate_id + " " + std::to_string(cell.score);
+        std::string label = cell.template_matching_skipped ? "empty" : cell.best_candidate_id + " " + std::to_string(cell.score);
         if (cell.row && cell.column) {
             label += " r" + std::to_string(*cell.row) + "c" + std::to_string(*cell.column);
         }
@@ -105,13 +115,13 @@ bool SaveDebugCaptureImpl(const std::filesystem::path& root, const cv::Mat& imag
     std::filesystem::create_directories(raw_dir);
     std::filesystem::create_directories(annotated_dir);
     std::filesystem::create_directories(detail_dir);
-    const std::string stamp = Stamp(reco_id);
+    const std::filesystem::path stamp = MAA_NS::path(Stamp(reco_id));
     try {
         const cv::Mat raw = image.clone();
         cv::Mat annotated = image.clone();
         DrawDiagnostics(annotated, result);
-        if (!cv::imwrite((raw_dir / (stamp + ".png")).string(), raw)
-            || !cv::imwrite((annotated_dir / (stamp + ".png")).string(), annotated)) {
+        if (!MAA_NS::imwrite(SiblingWithSuffix(raw_dir, stamp, ".png"), raw)
+            || !MAA_NS::imwrite(SiblingWithSuffix(annotated_dir, stamp, ".png"), annotated)) {
             RemoveGroup(raw_dir, annotated_dir, detail_dir, stamp);
             return false;
         }
@@ -119,7 +129,7 @@ bool SaveDebugCaptureImpl(const std::filesystem::path& root, const cv::Mat& imag
         if (result.diagnostics) {
             detail["diagnostics"] = *result.diagnostics;
         }
-        std::ofstream stream(detail_dir / (stamp + ".json"), std::ios::binary | std::ios::trunc);
+        std::ofstream stream(SiblingWithSuffix(detail_dir, stamp, ".json"), std::ios::binary | std::ios::trunc);
         if (!stream.is_open()) {
             RemoveGroup(raw_dir, annotated_dir, detail_dir, stamp);
             return false;

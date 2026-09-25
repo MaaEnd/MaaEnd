@@ -7,14 +7,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func buildSelectionPipelineOverride(_ *maa.Context, selection SelectionResult, decision quantityDecision) (map[string]any, error) {
+func buildSelectionPipelineOverride(selection SelectionResult, decision quantityDecision) (map[string]any, error) {
 	override := map[string]any{
 		relayNodeDecisionReadyNodeName: map[string]any{
 			"enabled": false,
 		},
 		selectedGoodsClickNodeName: map[string]any{
 			"enabled":  true,
-			"template": []string{BuildTemplatePath(selection.ProductID)},
+			"template": []string{buildTemplatePath(selection.ProductID)},
 		},
 		skipNodeName: map[string]any{
 			"enabled": false,
@@ -122,9 +122,6 @@ func overrideSelectedGoodsClickROIY(ctx *maa.Context, y int) error {
 	if err != nil {
 		return err
 	}
-	if len(roi) != 4 {
-		return fmt.Errorf("invalid roi length %d", len(roi))
-	}
 
 	roi = append([]int(nil), roi...)
 	roi[1] = y
@@ -141,27 +138,11 @@ func recognitionParamROI(node *maa.Node) ([]int, error) {
 		return nil, fmt.Errorf("node %s missing recognition param", selectedGoodsClickNodeName)
 	}
 
-	var target maa.Target
-	switch param := node.Recognition.Param.(type) {
-	case *maa.TemplateMatchParam:
-		target = param.ROI
-	case *maa.FeatureMatchParam:
-		target = param.ROI
-	case *maa.ColorMatchParam:
-		target = param.ROI
-	case *maa.OCRParam:
-		target = param.ROI
-	case *maa.NeuralNetworkClassifyParam:
-		target = param.ROI
-	case *maa.NeuralNetworkDetectParam:
-		target = param.ROI
-	case *maa.CustomRecognitionParam:
-		target = param.ROI
-	default:
+	param, ok := node.Recognition.Param.(*maa.TemplateMatchParam)
+	if !ok || param == nil {
 		return nil, fmt.Errorf("node %s has unsupported recognition param type %T", selectedGoodsClickNodeName, node.Recognition.Param)
 	}
-
-	rect, err := target.AsRect()
+	rect, err := param.ROI.AsRect()
 	if err != nil {
 		return nil, fmt.Errorf("node %s roi: %w", selectedGoodsClickNodeName, err)
 	}

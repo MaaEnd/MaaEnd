@@ -1,3 +1,10 @@
+{{with .}}
 <span style="color: #ff9800; font-size: 1.55em; font-weight: 800;">{{t "title"}}</span>
 <br/><span style="color: #ff9800; font-size: 1.25em; font-weight: 800;">{{.ProcessNames}}</span>
+{{range .RecommendLines}}
+<br/><span style="font-size: 1.2em; font-weight: bold;">{{escapeHTML .}}</span>
+{{end}}
+{{else}}
+<span style="color: #ff9800; font-size: 1.55em; font-weight: 800;">{{t "title"}}</span>
 <br/><span style="font-size: 1.2em; font-weight: bold;">{{t "recommend_1"}}</span>
+{{end}}

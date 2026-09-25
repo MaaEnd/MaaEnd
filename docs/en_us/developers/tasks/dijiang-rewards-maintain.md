@@ -75,9 +75,11 @@ Material selection logic is almost entirely overridden by [cultivation chamber o
 Implemented in `ReceptionRoom.json`. When clues overflow, enter the gifting process: identify clue type and inventory quantity → select clues that meet the threshold → combine with friend's missing color or send button to complete gifting.
 
 | Configuration | Behavior |
-| -------------------------- | ------------------------------------------------------------------------------------- |
+| -------------------------------------- | ------------------------------------------------------------------------------------- |
 | `ClueSetting=No` (default) | Maximum of 3 gifts per session; send only if each clue inventory ≥ 3 (retain 2) |
-| `ClueSetting=Yes` | Expand `ClueSend`, `ClueStockLimit` for customizing attempts and inventory thresholds |
+| `ClueSetting=Yes` | Expand `SendCluesDirect`, `ClueSend`, `ClueStockLimit` for customizing entry / attempts / inventory thresholds |
+| `QuickGiveDuplicateClues=No` (default) | Do not click in-game "Give Away All Duplicates"; send one by one by stock threshold |
+| `QuickGiveDuplicateClues=Yes` | Prefer the one-click "Give Away All Duplicates" action after entering the Send Clues screen |
 
 The attempt limit modifies the `max_hit` of the gifting loop; the inventory threshold modifies the quantity OCR regex.
 
@@ -126,6 +128,7 @@ DijiangRewards
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
 ├── ClueSetting                # Expand clue gifting attempts / inventory thresholds
+├── QuickGiveDuplicateClues    # Give Away All Duplicates; off by default
 └── SelectToGrow               # Cultivation chamber main mode
     ├── DoNothing
     ├── GrowAgain

@@ -67,6 +67,30 @@ private:
     MaaStringBuffer* buffer_ = nullptr;
 };
 
+class ScopedStringListBuffer
+{
+public:
+    ScopedStringListBuffer()
+        : buffer_(MaaStringListBufferCreate())
+    {
+    }
+
+    ~ScopedStringListBuffer()
+    {
+        if (buffer_ != nullptr) {
+            MaaStringListBufferDestroy(buffer_);
+        }
+    }
+
+    ScopedStringListBuffer(const ScopedStringListBuffer&) = delete;
+    ScopedStringListBuffer& operator=(const ScopedStringListBuffer&) = delete;
+
+    MaaStringListBuffer* Get() const { return buffer_; }
+
+private:
+    MaaStringListBuffer* buffer_ = nullptr;
+};
+
 // Directory containing the running executable. Resolve bundled resources against this rather than
 // the process current-working-directory: the CWD differs between dev and production, but resources
 // always ship at a fixed location relative to the binary. This is the single anchor used by every

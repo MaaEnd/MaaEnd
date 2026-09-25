@@ -19,7 +19,7 @@
 namespace mapnavigator
 {
 
-class IActionExecutor;
+class ActionExecutor;
 class ActionWrapper;
 class MotionController;
 class PositionProvider;
@@ -37,7 +37,7 @@ public:
         PositionProvider* position_provider,
         NavigationSession* session,
         MotionController* motion_controller,
-        IActionExecutor* action_executor,
+        ActionExecutor* action_executor,
         NaviPosition* position,
         std::function<bool()> should_stop,
         MaaContext* maa_context);
@@ -50,22 +50,31 @@ private:
     {
         double distance_sq = -1.0;
         bool is_zipline = false;
+        double dig_distance_sq = -1.0;
     };
 
     bool Bootstrap();
     bool TickNavigate();
     bool TickPhase(NaviPhase phase);
     bool CaptureCurrentPosition(bool force_global_search = false);
+    void UpdateDwellWatchdog(bool captured);
     bool HandleLocalizationLoss();
     bool ArmRiverFallRecoveryIfBlackScreenLoss(const char* via);
     bool TryApplyDynamicOverlayToAnchor(
         const char* reason,
         size_t continue_index,
         const Waypoint& anchor,
-        bool use_detour,
-        double route_heading = 0.0,
         bool emit_interior_corners = false);
-    bool TryApplyDynamicOverlayToNextAnchor(const char* reason, bool use_detour, double route_heading = 0.0);
+    bool TryApplyDynamicOverlayToNextAnchor(const char* reason);
+    // 无观测绕障: 在 origin 前方生成一块虚拟禁区, 再从当前位置重新规划到锚点。禁区存续整趟导航,
+    // 此后每次规划都绕开它。带禁区规划失败则缩小半径重试一次; 仍失败说明此处是唯一通路,
+    // 该禁区标记为 push_through 并返回 false。
+    bool TryVirtualNoGoReplan(
+        const char* reason,
+        size_t continue_index,
+        const Waypoint& anchor,
+        const NaviPosition& origin,
+        double stuck_heading);
     // 走不到的上索点在这里让路: 判成够不着就丢掉这条链改走路, 返回 true 表示这一拍已经处理完。
     bool GiveUpUnreachableZipline(const char* reason);
     bool HandleZiplineRecoveryReplan();
@@ -98,7 +107,7 @@ private:
     // 架子的交互提示出现就算够得着了。预筛看错时返回 false, 这一拍照常往前走
     bool TryZiplineMountPrompt(const Waypoint& waypoint, const RouteTrackingState& route);
     void UpdatePromptSprintSuppression();
-    // Distance and kind of the nearest prompt-driven point; distance_sq is -1 when the route has none.
+    // Distance and kind of the nearest point needing a slow approach; distance_sq is -1 when the route has none.
     PromptDistance NearestPromptDistance() const;
     void UpdateWalkMode(NaviPhase phase);
 
@@ -107,7 +116,7 @@ private:
     PositionProvider* position_provider_;
     NavigationSession* session_;
     MotionController* motion_controller_;
-    IActionExecutor* action_executor_;
+    ActionExecutor* action_executor_;
     NaviPosition* position_;
     std::function<bool()> should_stop_;
     MaaContext* maa_context_;

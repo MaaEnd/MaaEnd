@@ -1,0 +1,17 @@
+{
+    "EndChallengeButton": {
+        "desc": "大世界战斗场景的中止挑战按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            157,
+            264,
+            40,
+            29
+        ],
+        "template": "Common/Button/EndChallengeButton.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

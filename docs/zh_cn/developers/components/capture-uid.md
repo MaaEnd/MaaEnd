@@ -1,6 +1,6 @@
 # 开发手册 - CaptureUid 参考文档
 
-`CaptureUid` 是一个通用 UID 获取与缓存模块。它通过截屏 OCR 读取玩家 UID，缓存原始 UID 数字，输出时按 `output_type` 转换为哈希（默认）、打码或原始形式，供其他子系统以伪匿名标识符引用。
+`CaptureUid` 是一个通用 UID 获取与缓存模块。Win32 控制器通过 `gamesetting.GetCachedUID` 读取 Unity PlayerPrefs 中的 `PLDK_cachedRoleId`（游戏角色 UID）；非 Win32 控制器使用原有 OCR 流程，不读取宿主机注册表。模块缓存原始 UID 数字，输出时按 `output_type` 转换为哈希（默认）、打码或原始形式，供其他子系统以伪匿名标识符引用。
 
 > [!important]
 > 原始 UID 仅保存在内存缓存中，不会落盘。需要持久化或上报时，应使用默认的 `hashed` 伪匿名标识符。
@@ -12,30 +12,28 @@
 | 文件 | 职责 |
 | ------------- | --------------------------------------------------------------- |
 | `action.go` | CustomAction 入口，反序列化参数，调用 `Capture` 或 `ClearCache` |
-| `capture.go` | 核心逻辑：截屏、OCR、哈希、缓存 |
+| `capture.go` | 核心逻辑：控制器分流、注册表读取、OCR、哈希、缓存 |
 | `register.go` | 向 MaaFramework 注册 `CaptureUid` 自定义动作 |
+
+每次需要账号身份时由相关任务调用 `CaptureUid`，并把默认的伪匿名哈希写入通用状态节点
+`CurrentAccountIdentity.attach.account_id`。该节点使用 Resource 级覆盖，使 Go Service 与 cpp-algo
+可以共享当前账号身份；跨进程传递的只有哈希，原始 UID 仍只存在 Go 进程内存中。
 
 ## 在 Pipeline 中调用
 
 ### 获取 UID
 
-> [!note]
-> Pipeline中无法对捕获的uid进行处理，所以实际用途为在Scene导航过程中的某个稳定界面进行截图，并缓存此时的捕获结果，从而提高识别准确度
-
-使用默认参数获取 UID（缓存优先、当前画面 OCR、允许降级为 `"unknown"`）：
+使用默认参数获取 UID（缓存优先、允许降级为 `"unknown"`）：
 
 ```json
-"AutoStockpileGetUid": {
+"SomeGetUidNode": {
     "action": {
         "type": "Custom",
         "param": {
             "custom_action": "CaptureUid",
             "custom_action_param": {}
         }
-    },
-    "next": [
-        "AutoStockpileStart"
-    ]
+    }
 }
 ```
 
@@ -58,15 +56,17 @@
 ## 参数说明
 
 | 字段 | 类型 | 默认值 | 说明 |
-| ------------------------ | ------ | ------- | ---------------------------------------------------------------------------------------- |
-| `use_cache` | `bool` | `true` | 缓存中有 UID 时直接返回，不再截屏 OCR。 |
-| `stay_on_current_screen` | `bool` | `true` | 是否在当前画面截屏 OCR。为 `false` 时先导航至 `SceneEnterMenuOperationalManual` 再截屏。 |
-| `allow_unknown` | `bool` | `true` | OCR 失败时返回 `"unknown"` 而非报错。为 `false` 时 OCR 失败将导致动作失败。 |
-| `clear_cache` | `bool` | `false` | 清空 UID 缓存并立即返回，不执行截屏 OCR。 |
+| -------------- | -------- | --------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `use_cache` | `bool` | `true` | 缓存中有 UID 时直接返回，不再读取注册表或执行 OCR。 |
+| `stay_on_current_screen` | `bool` | `true` | 仅影响非 Win32：为 `false` 时先调用 `SceneEnterMenuOperationalManual`，再截图 OCR。 |
+| `allow_unknown` | `bool` | `true` | 注册表读取、区服判定或 OCR 失败时返回 `"unknown"` 而非报错。为 `false` 时失败将导致动作失败。 |
+| `clear_cache` | `bool` | `false` | 清空 UID 缓存并立即返回，不执行注册表读取或 OCR。 |
 | `output_type` | `string` | `"hashed"` | 输出格式：`hashed`（加盐 SHA-256 前 16 位十六进制）、`masked`（保留首尾各 3 位，中间以 `*` 打码）、`raw`（原始 UID 数字）。 |
 
 > [!note]
 > `clear_cache` 为 `true` 时，其余参数均不生效——动作仅清空缓存后直接返回成功。
+
+区服由 `gamesetting.ResolveRegion` / `SetRegion` 决定，CaptureUid 本身不接受 region 参数。
 
 ## 在 Go 代码中直接调用
 
@@ -97,16 +97,15 @@ captureuid.ClearCache()
 动作按以下顺序执行：
 
 1. **缓存检查** — 若 `use_cache` 为 `true` 且缓存已有 UID，直接返回。
-2. **导航**（可选）— 若 `stay_on_current_screen` 为 `false`，先执行 `SceneEnterMenuOperationalManual` 导航到可读取 UID 的界面。
-3. **截屏** — 通过 `ctrl.PostScreencap()` 获取当前画面。
-4. **OCR** — 在 ROI 区域 `{60, 690, 155, 25}` 内识别文字，提取所有数字字符。
-5. **数字校验** — 验证提取的数字位数为 8–12 位。不在此范围则按 `allow_unknown` 决定返回 `"unknown"` 或报错。
-6. **输出格式化** — 按 `output_type` 转换：`hashed` 读取（或首次生成）随机盐 `debug/record/random_salt.txt` 并计算 `SHA-256(数字UID + 盐)` 前 16 位十六进制；`masked` 保留首尾各 3 位、中间以 `*` 打码；`raw` 原样返回。
-7. **缓存** — 将原始 UID 数字存入内存缓存，供后续调用按任意 `output_type` 转换使用。
+2. **按控制器获取 UID** — Win32 调用 `gamesetting.GetCachedUID()`；其他控制器按 `stay_on_current_screen` 决定是否导航，然后在原有 ROI `[60, 690, 155, 25]` 截图 OCR 并提取数字。Win32 读取失败不会回退 OCR；控制器类型无法确定时按 `allow_unknown` 处理。
+3. **数字校验** — 验证位数为 8–12 位。不在此范围或读取失败时，按 `allow_unknown` 决定返回 `"unknown"` 或报错。
+4. **输出格式化** — 按 `output_type` 转换：`hashed` 读取（或首次生成）随机盐 `debug/record/random_salt.txt` 并计算 `SHA-256(数字UID + 盐)` 前 16 位十六进制；`masked` 保留首尾各 3 位、中间以 `*` 打码；`raw` 原样返回。
+5. **缓存** — 将原始 UID 数字存入内存缓存，供后续调用按任意 `output_type` 转换使用。
+6. **发布账号身份** — Custom Action 将哈希写入通用状态节点 `CurrentAccountIdentity`，供滑索规划等跨 Agent 消费方识别当前账号；捕获结果为 `"unknown"` 时发布空值，规划器改为步行。
 
 ## 隐私设计
 
-- 原始 UID 数字仅保存在内存缓存中，**不落盘**，也不会写入日志（日志只输出转换后的结果）。
+- 原始 UID 数字仅保存在内存缓存中，**不落盘**；即使调用方请求 `raw` 输出，日志也只写打码形式。
 - 每次安装随机生成 16 字节盐，保存至 `debug/record/random_salt.txt`。
 - `hashed` 输出为 `SHA-256(UID数字 + 盐)[:16]` — 16 位十六进制字符串，足以跨会话标识同一玩家但无法反推原始 UID；需要持久化或上报时应使用该格式。
 
@@ -114,7 +113,11 @@ captureuid.ClearCache()
 
 | 使用方 | 文件 | 方式 | 用途 |
 | ---------------------- | ------------------------------------------------------------------------------------ | ------------------------- | ------------------------ |
-| AutoStockpile | `assets/resource/pipeline/AutoStockpile/Main.json`（`AutoStockpileGetUid` 节点） | Pipeline | 获取并缓存 UID |
-| AutoStockpile selector | `agent/go-service/autostockpile/selector.go` | Go API（`GetCachedUID`） | 关联物价数据与伪匿名身份 |
+| AutoStockpile selector | `agent/go-service/autostockpile/selector.go` | Go API（`Capture`） | 上传物价时关联伪匿名身份 |
 | CreditShopping | `agent/go-service/creditshopping/action_record.go` | Go API（`Capture`） | 记录货架快照时关联 UID |
 | AccountSwitch | `assets/resource/pipeline/AccountSwitch.json`（`__AccountSwitchClearUidCache` 节点） | Pipeline（`clear_cache`） | 切换账号后清空缓存 |
+| SceneImageCheck | `assets/resource/pipeline/SceneManager/SceneImageCheck.json`（`__SceneImageCaptureUid`） | Pipeline（空参 `CaptureUid`） | 场景画面检查时发布 `CurrentAccountIdentity` |
+| MapNavigator | `assets/resource/pipeline/Common/AccountIdentity.json` | Resource 通用状态节点 | 运行时自动选择当前账号的滑索记录 |
+| ZiplineImport（Linux） | `agent/go-service/ziplineimport/parse.go` | Go API（`AccountIDFromRawUID`） | 从网页 `roleId` 生成同一账号标识，按账号落盘滑索记录 |
+
+`AccountSwitch` 成功后还会把场景图像检查状态重置为未完成，使同一次任务队列中的下一个场景任务重新做画面检查；同时清空 UID 缓存与 `CurrentAccountIdentity`，避免沿用切号前的账号身份。

@@ -11,6 +11,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -32,30 +35,54 @@ const (
 )
 
 var (
-	// capturedUid 缓存 OCR 得到的原始 UID 数字；未捕获或失败时为空字符串。
+	// capturedUid 缓存 OCR 或注册表得到的原始 UID 数字；未捕获或失败时为空字符串。
 	capturedUid   string
 	capturedUidMu sync.Mutex
 
 	uidDigitRe = regexp.MustCompile(`\d+`)
-
-	// loadSaltFunc 是加载（或首次生成）盐的注入点，单元测试可替换为固定盐。
-	loadSaltFunc = loadOrCreateSalt
 )
 
 // Capture 捕获玩家 UID，并按 outputType 返回格式化结果。
-// 缓存恒存原始 UID 数字，输出时才进行转换，因此 use_cache 命中时也能按任意 outputType 返回。
-//   - useCache: if true and cache has a UID, return cached UID immediately
-//   - stayOnCurrentScreen: if false, navigate to SceneEnterMenuOperationalManual before OCR
-//   - allowUnknown: if true and OCR cannot extract UID, return "unknown" instead of error
-//   - outputType: 输出格式，hashed / masked / raw
+// Win32 控制器仅从注册表读取；其他控制器使用原有的 OCR 流程。
 func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
 	if useCache {
 		if uid := GetCachedUID(outputType); uid != "" {
-			log.Debug().Str("component", component).Str("uid", uid).Str("output_type", string(outputType)).Msg("returning cached uid")
+			log.Debug().Str("component", component).Str("uid", safeUIDForLog(uid, outputType)).
+				Str("output_type", string(outputType)).Msg("returning cached uid")
 			return uid, nil
 		}
 	}
 
+	typ := controllerType(ctrl)
+	if typ == "" {
+		return captureErr(allowUnknown, "cannot determine controller type")
+	}
+	if typ != control.CONTROL_TYPE_WIN32 {
+		return captureByOCR(ctx, ctrl, stayOnCurrentScreen, allowUnknown, outputType)
+	}
+
+	raw, err := gamesetting.GetCachedUID()
+	if err != nil {
+		return captureErr(allowUnknown, "gamesetting GetCachedUID failed: %w", err)
+	}
+	return cacheAndFormat(raw, allowUnknown, outputType)
+}
+
+func controllerType(ctrl *maa.Controller) string {
+	if typ := strings.ToLower(strings.TrimSpace(pienv.ControllerType())); typ != "" {
+		return typ
+	}
+	typ, err := control.GetControlType(ctrl)
+	if err != nil {
+		return ""
+	}
+	return typ
+}
+
+func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
+	if ctx == nil || ctrl == nil {
+		return captureErr(allowUnknown, "OCR capture requires context and controller")
+	}
 	if !stayOnCurrentScreen {
 		if _, err := ctx.RunTask("SceneEnterMenuOperationalManual"); err != nil {
 			return captureErr(allowUnknown, "failed to navigate to SceneEnterMenuOperationalManual: %w", err)
@@ -67,9 +94,8 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	if err != nil || img == nil {
 		return captureErr(allowUnknown, "screenshot failed: %w", err)
 	}
-
 	param := maa.OCRParam{
-		ROI:      targetRect(maa.Rect{60, 690, 155, 25}),
+		ROI:      maa.NewTargetRect(maa.Rect{60, 690, 155, 25}),
 		Expected: []string{".*"},
 		OnlyRec:  true,
 		OrderBy:  maa.OCROrderByLength,
@@ -78,23 +104,25 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	if err != nil || detail == nil || !detail.Hit {
 		return captureErr(allowUnknown, "uid OCR miss")
 	}
-
-	text := bestOCRText(detail)
-	digits := extractAllDigits(text)
-	if len(digits) < 8 || len(digits) > 12 {
-		return captureErr(allowUnknown, "uid digit count %d not in [8,12], text=%q", len(digits), text)
+	digits := extractAllDigits(bestOCRText(detail))
+	if !IsValidRawUID(digits) {
+		return captureErr(allowUnknown, "uid digit count %d not in [8,12]", len(digits))
 	}
+	return cacheAndFormat(digits, allowUnknown, outputType)
+}
 
+func cacheAndFormat(raw string, allowUnknown bool, outputType OutputType) (string, error) {
+	if !IsValidRawUID(raw) {
+		return captureErr(allowUnknown, "uid is not a valid 8-12 digit uid (len=%d)", len(raw))
+	}
 	capturedUidMu.Lock()
-	capturedUid = digits
+	capturedUid = raw
 	capturedUidMu.Unlock()
-
-	uid, err := formatUID(digits, outputType)
+	uid, err := formatUID(raw, outputType)
 	if err != nil {
 		return captureErr(allowUnknown, "format uid: %w", err)
 	}
-
-	log.Info().Str("component", component).Str("uid", uid).Str("output_type", string(outputType)).Msg("captured uid")
+	log.Info().Str("component", component).Str("uid", safeUIDForLog(uid, outputType)).Str("output_type", string(outputType)).Msg("captured uid")
 	return uid, nil
 }
 
@@ -119,6 +147,37 @@ func GetCachedUID(outputType OutputType) string {
 	return uid
 }
 
+// IsValidRawUID reports whether uid is a raw 8–12 digit game UID or web roleId.
+// CaptureUid and ZiplineImport share this check so a value accepted on one side can
+// always be converted to the same account identity on the other.
+func IsValidRawUID(uid string) bool {
+	if len(uid) < 8 || len(uid) > 12 {
+		return false
+	}
+	for i := 0; i < len(uid); i++ {
+		if uid[i] < '0' || uid[i] > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// AccountIDFromRawUID validates a raw UID / roleId and returns the pseudonymous account
+// identity SHA-256(uid + salt)[:16]. The salt is the shared debug/record/random_salt.txt,
+// so CaptureUid (in-game UID) and ZiplineImport (web roleId) derive the same identity for
+// the same account.
+func AccountIDFromRawUID(uid string) (string, error) {
+	if !IsValidRawUID(uid) {
+		return "", fmt.Errorf("raw uid must be 8-12 digits")
+	}
+	salt, err := loadOrCreateSalt()
+	if err != nil {
+		return "", fmt.Errorf("salt load/create failed: %w", err)
+	}
+	hash := sha256.Sum256([]byte(uid + salt))
+	return hex.EncodeToString(hash[:])[:16], nil
+}
+
 // formatUID 将原始 UID 数字按 outputType 转换为输出格式。
 // hashed 保持原算法 SHA-256(uid+盐) 前 16 位十六进制；masked 保留首尾各 3 位；
 // raw 原样返回；空字符串与 "unknown" 在所有模式下原样透传。
@@ -133,12 +192,7 @@ func formatUID(raw string, outputType OutputType) (string, error) {
 	}
 	switch outputType {
 	case OutputTypeHashed:
-		salt, err := loadSaltFunc()
-		if err != nil {
-			return "", fmt.Errorf("salt load/create failed: %w", err)
-		}
-		hash := sha256.Sum256([]byte(raw + salt))
-		return hex.EncodeToString(hash[:])[:16], nil
+		return AccountIDFromRawUID(raw)
 	case OutputTypeMasked:
 		return maskUID(raw), nil
 	default:
@@ -152,6 +206,13 @@ func maskUID(uid string) string {
 		return uid
 	}
 	return uid[:3] + strings.Repeat("*", len(uid)-6) + uid[len(uid)-3:]
+}
+
+func safeUIDForLog(uid string, outputType OutputType) string {
+	if outputType == OutputTypeRaw {
+		return maskUID(uid)
+	}
+	return uid
 }
 
 // normalizeOutputType 校验并规范化 output_type 参数；空字符串按 hashed 处理。
@@ -195,10 +256,6 @@ func extractAllDigits(s string) string {
 		b.WriteString(p)
 	}
 	return b.String()
-}
-
-func targetRect(r maa.Rect) maa.Target {
-	return maa.NewTargetRect(r)
 }
 
 func loadOrCreateSalt() (string, error) {

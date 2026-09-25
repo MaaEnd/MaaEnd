@@ -686,6 +686,7 @@
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502",
             "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502WithZipline",
+            "zipline_only": true,
             "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00502"
         },
         {

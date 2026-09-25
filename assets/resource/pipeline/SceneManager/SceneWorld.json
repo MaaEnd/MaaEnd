@@ -12,6 +12,7 @@
             "SceneManager/WorldSpaceExit.png",
             "SceneManager/WorldSpaceExit1.png"
         ],
+        "threshold": 0.8,
         "pre_wait_freezes": 200,
         "pre_delay": 0,
         "action": {
@@ -44,12 +45,11 @@
         ],
         "template": "RealTimeTask/AutoSkipEsc.png",
         "threshold": 0.7,
-        "pre_delay": 0,
         "action": "Click",
-        "post_delay": 0,
+        "post_delay": 1000, // 在送礼界面会到其他地方，没有Confirm就交给上一层继续处理
         "next": [
             "__ScenePrivateWorldStorySkipConfirm",
-            "__ScenePrivateAnyEnterWorldSuccess"
+            "__ScenePrivateNextTrue"
         ]
     },
     "__ScenePrivateWorldStorySkipConfirm": {
@@ -84,7 +84,16 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "__ScenePrivateWorldSpaceExitConfirm"
+                    ]
+                }
+            }
         },
         "next": [
             "__ScenePrivateWorldSpaceExitConfirm"

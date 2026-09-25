@@ -1,0 +1,39 @@
+{
+    // 终点筛选守卫：确认地图已打开后，交给各区域门控节点（OCR 左上角子区域名）路由。
+    // next 由 endpoint-filter-data.mjs 生成（全部区域门控节点）；
+    // 框架对 next 逐轮识别、首个命中胜出，匹配当前子区域的门控放行到对应 candidates 节点，
+    // 区域标题尚未加载完成时继续识别，超时后才关闭地图并扫描下一单。
+    // 避免「不限来源」时先判另一区域、再跨区域来回拖动地图。
+    "SeizeDeliveryJobsEndpointFilter": {
+        "desc": "检查地图已打开后，交给区域门控按左上角子区域名路由到对应 candidates",
+        "enabled": false,
+        "recognition": "Or",
+        "any_of": [
+            "__SeizeDeliveryJobsRecoAnyDepotNode"
+        ],
+        "inverse": true, // 如果*不在*仓储管理页面时，视为地图已经打开
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                16,
+                14,
+                214,
+                41
+            ]
+        },
+        "post_delay": 0,
+        "timeout": 10000,
+        "rate_limit": 500,
+        "next": [
+            "SeizeDeliveryJobsEndpointRegionWulingCity",
+            "SeizeDeliveryJobsEndpointRegionTestArea",
+            "SeizeDeliveryJobsEndpointRegionOriginiumSciencePark",
+            "SeizeDeliveryJobsEndpointRegionOriginLodespring",
+            "SeizeDeliveryJobsEndpointRegionPowerPlateau"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsPressEscAfterNotMatch"
+        ]
+    }
+}

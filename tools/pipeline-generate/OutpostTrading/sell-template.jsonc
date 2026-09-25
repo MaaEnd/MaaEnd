@@ -1,0 +1,174 @@
+{
+    // ===== 地区据点锚点（锚定该地区第一个据点的标签页文本） =====
+    "OutpostTradingIn${RegionPrefix}Outpost": {
+        "desc": "在${RegionDesc}据点",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingInOutpost",
+            "OutpostTradingCheck${AnchorLocationId}TabText"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTrading${RegionPrefix}": {
+        "desc": "${RegionDesc}售卖流程入口",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopment${RegionPrefix}"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTrading${RegionPrefix}Sell"
+        ]
+    },
+    "OutpostTrading${RegionPrefix}Sell": {
+        "desc": "在${RegionDesc}售卖",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopment${RegionPrefix}OutpostManagement"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": "${SellNext}"
+    },
+    "OutpostTrading${RegionPrefix}InitializePrioritySession": {
+        "desc": "切换${RegionDesc}优先售卖配置",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "reset_preferred",
+            "enabled": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTrading${RegionPrefix}RegisterPriorityItem1"
+        ]
+    },
+    "OutpostTrading${RegionPrefix}RegisterPriorityItem1": {
+        "desc": "注册${RegionDesc}第1个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTrading${RegionPrefix}RegisterPriorityItem2"
+        ]
+    },
+    "OutpostTrading${RegionPrefix}RegisterPriorityItem2": {
+        "desc": "注册${RegionDesc}第2个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTrading${RegionPrefix}RegisterPriorityItem3"
+        ]
+    },
+    "OutpostTrading${RegionPrefix}RegisterPriorityItem3": {
+        "desc": "注册${RegionDesc}第3个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTrading${RegionPrefix}RegisterPriorityItem4"
+        ]
+    },
+    "OutpostTrading${RegionPrefix}RegisterPriorityItem4": {
+        "desc": "注册${RegionDesc}第4个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTrading${RegionPrefix}RegisterPriorityItem5"
+        ]
+    },
+    "OutpostTrading${RegionPrefix}RegisterPriorityItem5": {
+        "desc": "注册${RegionDesc}第5个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTrading${RegionPrefix}RegisterPriorityItem6"
+        ]
+    },
+    "OutpostTrading${RegionPrefix}RegisterPriorityItem6": {
+        "desc": "注册${RegionDesc}第6个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTrading${RegionPrefix}PrepareOperatorCache"
+        ]
+    },
+    "OutpostTrading${RegionPrefix}PrepareOperatorCache": {
+        "desc": "${RegionDesc}售卖前准备联络干员缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "OutpostTradingScanOperatorList"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": "${PrepareNext}"
+    }
+}

@@ -1,0 +1,90 @@
+{
+    "SceneEnterMenuSetting": {
+        "desc": "从任意界面进入设置（仅 PC）。首次从菜单总列表进入时默认性能与画面，成功条件为任意设置子页",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingSuccess",
+            "__ScenePrivateMenuListEnterMenuSetting",
+            "[JumpBack]SceneEnterMenuList"
+        ]
+    },
+    "SceneEnterMenuSettingPerformanceGraphic": {
+        "desc": "从任意界面进入设置-性能与画面（仅 PC）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingPerformanceGraphicSuccess",
+            "__ScenePrivateMenuSettingClickPerformanceGraphicIcon",
+            "[JumpBack]SceneEnterMenuSetting"
+        ]
+    },
+    "SceneEnterMenuSettingAudio": {
+        "desc": "从任意界面进入设置-音频（仅 PC）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingAudioSuccess",
+            "__ScenePrivateMenuSettingClickAudioIcon",
+            "[JumpBack]SceneEnterMenuSetting"
+        ]
+    },
+    "SceneEnterMenuSettingControls": {
+        "desc": "从任意界面进入设置-操控（仅 PC）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingControlsSuccess",
+            "__ScenePrivateMenuSettingClickControlsIcon",
+            "[JumpBack]SceneEnterMenuSetting"
+        ]
+    },
+    "SceneEnterMenuSettingKeybinding": {
+        "desc": "从任意界面进入设置-按键（仅 PC）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingKeybindingSuccess",
+            "__ScenePrivateMenuSettingClickKeybindingIcon",
+            "[JumpBack]SceneEnterMenuSetting"
+        ]
+    },
+    "SceneEnterMenuSettingLanguage": {
+        "desc": "从任意界面进入设置-语言（仅 PC）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingLanguageSuccess",
+            "__ScenePrivateMenuSettingClickLanguageIcon",
+            "[JumpBack]SceneEnterMenuSetting"
+        ]
+    },
+    "SceneEnterMenuSettingPlatformAccount": {
+        "desc": "从任意界面进入设置-平台与账户（仅 PC）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingPlatformAccountSuccess",
+            "__ScenePrivateMenuSettingClickPlatformAccountIcon",
+            "[JumpBack]SceneEnterMenuSetting"
+        ]
+    },
+    "SceneEnterMenuSettingOthers": {
+        "desc": "从任意界面进入设置-其他（仅 PC）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingOthersSuccess",
+            "__ScenePrivateMenuSettingClickOthersIcon",
+            "[JumpBack]SceneEnterMenuSetting"
+        ]
+    }
+}

@@ -24,8 +24,8 @@ const request = {
   task_id: 200000001,
 };
 
-function position(timestamp, x, y, {status = 0, held = false} = {}) {
-  return `[${timestamp}][INF][position_provider.cpp][mapnavigator::PositionProvider::Capture] MapLocator [status=${status}] [position.zoneId=Wuling_Base] [position.x=${x}] [position.y=${y}] [position.isHeld=${held}]`;
+function position(timestamp, x, y, {status = 0} = {}) {
+  return `[${timestamp}][INF][position_provider.cpp][mapnavigator::PositionProvider::Capture] MapLocator [status=${status}] [position.zoneId=Wuling_Base] [position.x=${x}] [position.y=${y}]`;
 }
 
 const lines = [
@@ -88,6 +88,14 @@ test("parses one selected zipline chain and its actual launches", () => {
     {index: 2, point: [957, 1653], height: null, confirmed: true},
     {index: 3, point: [912, 1584], height: null, confirmed: true},
   ]);
+});
+
+test("associates the pseudonymous zipline account with a runtime log", () => {
+  const accountLine =
+    "[2026-08-26 11:42:20.500][INF][zipline_preference.cpp] ZiplineAccount: current game account selected [account_id=0123456789abcdef]";
+  const [run] = parseMapNavigatorLog([lines[0], accountLine, ...lines.slice(1)].join("\n"));
+
+  assert.equal(run.accountId, "0123456789abcdef");
 });
 
 test("marks only reached towers as confirmed when a selected chain stops partway", () => {
@@ -175,7 +183,7 @@ test("frames author, walk, and zipline coordinates", () => {
   assert.ok(points.some(([x, y]) => x === 538.031 && y === 1250.27));
 });
 
-test("extracts measured ground tracks without connecting zipline rides or held positions", () => {
+test("extracts measured ground tracks without connecting zipline rides", () => {
   const traceLines = [
     lines[0],
     position("2026-08-26 11:42:21.000", 965.5, 1803.38),
@@ -189,7 +197,7 @@ test("extracts measured ground tracks without connecting zipline rides or held p
     position("2026-08-26 11:43:30.000", 912.2, 1584.1),
     "[2026-08-26 11:43:33.696][INF][zipline_action.cpp] Action: ZIPLINE ride landed.",
     position("2026-08-26 11:43:34.000", 900, 1585),
-    position("2026-08-26 11:43:35.000", 850, 1590, {held: true}),
+    position("2026-08-26 11:43:35.000", 850, 1590),
     position("2026-08-26 11:43:36.000", 800, 1594),
     position("2026-08-26 11:43:37.000", 724.98, 1596.8),
     lines[lines.length - 1],
@@ -208,14 +216,12 @@ test("extracts measured ground tracks without connecting zipline rides or held p
     [
       [912.2, 1584.1],
       [900, 1585],
-    ],
-    [
+      [850, 1590],
       [800, 1594],
       [724.98, 1596.8],
     ],
   ]);
   assert.ok(!run.observedWalks.flat().some(([x, y]) => x === 950 && y === 1750));
-  assert.ok(!run.observedWalks.flat().some(([x, y]) => x === 850 && y === 1590));
 
   const points = logRunPoints(run);
   assert.ok(points.some(([x, y]) => x === 940.8 && y === 1699.8));

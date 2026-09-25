@@ -85,22 +85,22 @@
                     "SliderQuantity": {
                         "Box": [
                             360,
-                            480,
+                            484,
                             100,
-                            45
+                            38
                         ],
                         "Filter": {
                             "lower": [
-                                20,
-                                150,
-                                150
+                                75,
+                                75,
+                                75
                             ],
                             "upper": [
-                                35,
+                                255,
                                 255,
                                 255
                             ],
-                            "method": 40
+                            "method": 4
                         }
                     },
                     "ClampTargetToSliderMax": true

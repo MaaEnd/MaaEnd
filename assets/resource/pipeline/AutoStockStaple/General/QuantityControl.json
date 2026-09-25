@@ -56,9 +56,12 @@
             "AutoStockStapleQuantityControlChubbyLungFangxingMemorabilia",
             "AutoStockStapleQuantityControlStoneholdRemedy",
             "AutoStockStapleQuantityControlRuinPurgerRemedy",
+            "AutoStockStapleQuantityControlSearToastedLiver",
             "AutoStockStapleQuantityControlWulingTalositeProbe",
             "AutoStockStapleQuantityControlFowlbeastPaperKite",
-            "AutoStockStapleQuantityControlSwingingGentlemanClassicalAlbum"
+            "AutoStockStapleQuantityControlSwingingGentlemanClassicalAlbum",
+            "AutoStockStapleQuantityControlMyrkwoodBerryPreserve",
+            "AutoStockStapleQuantityControlMiracleCake"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
@@ -4492,6 +4495,363 @@
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.swinging_gentleman_classical_album"
+        }
+    },
+    "AutoStockStapleQuantityControlSearToastedLiver": {
+        "desc": "香焗兽肝的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsSearToastedLiver"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlSearToastedLiverStockBillInsufficient",
+            "AutoStockStapleQuantityControlSearToastedLiverBuy",
+            "AutoStockStapleQuantityControlSearToastedLiverExclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlSearToastedLiverRemoveFilter": {
+        "desc": "香焗兽肝移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "sear_toasted_liver": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlSearToastedLiverBuy": {
+        "desc": "香焗兽肝低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsSearToastedLiver",
+                    "AutoStockStapleGoodsSearToastedLiverValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "sear_toasted_liver"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.sear_toasted_liver"
+        }
+    },
+    "AutoStockStapleQuantityControlSearToastedLiverExclude": {
+        "desc": "香焗兽肝达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsSearToastedLiver",
+                    "AutoStockStapleGoodsSearToastedLiverExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlSearToastedLiverRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.sear_toasted_liver"
+        }
+    },
+    "AutoStockStapleQuantityControlSearToastedLiverStockBillInsufficient": {
+        "desc": "香焗兽肝调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsSearToastedLiver",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlSearToastedLiverRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.sear_toasted_liver"
+        }
+    },
+    "AutoStockStapleQuantityControlMyrkwoodBerryPreserve": {
+        "desc": "黑森林浆果酱的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMyrkwoodBerryPreserve"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlMyrkwoodBerryPreserveStockBillInsufficient",
+            "AutoStockStapleQuantityControlMyrkwoodBerryPreserveBuy",
+            "AutoStockStapleQuantityControlMyrkwoodBerryPreserveExclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlMyrkwoodBerryPreserveRemoveFilter": {
+        "desc": "黑森林浆果酱移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "myrkwood_berry_preserve": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlMyrkwoodBerryPreserveBuy": {
+        "desc": "黑森林浆果酱低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMyrkwoodBerryPreserve",
+                    "AutoStockStapleGoodsMyrkwoodBerryPreserveValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "myrkwood_berry_preserve"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.myrkwood_berry_preserve"
+        }
+    },
+    "AutoStockStapleQuantityControlMyrkwoodBerryPreserveExclude": {
+        "desc": "黑森林浆果酱达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMyrkwoodBerryPreserve",
+                    "AutoStockStapleGoodsMyrkwoodBerryPreserveExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlMyrkwoodBerryPreserveRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.myrkwood_berry_preserve"
+        }
+    },
+    "AutoStockStapleQuantityControlMyrkwoodBerryPreserveStockBillInsufficient": {
+        "desc": "黑森林浆果酱调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMyrkwoodBerryPreserve",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlMyrkwoodBerryPreserveRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.myrkwood_berry_preserve"
+        }
+    },
+    "AutoStockStapleQuantityControlMiracleCake": {
+        "desc": "奇迹蛋糕的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMiracleCake"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlMiracleCakeStockBillInsufficient",
+            "AutoStockStapleQuantityControlMiracleCakeBuy",
+            "AutoStockStapleQuantityControlMiracleCakeExclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlMiracleCakeRemoveFilter": {
+        "desc": "奇迹蛋糕移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "miracle_cake": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlMiracleCakeBuy": {
+        "desc": "奇迹蛋糕低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMiracleCake",
+                    "AutoStockStapleGoodsMiracleCakeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "miracle_cake"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.miracle_cake"
+        }
+    },
+    "AutoStockStapleQuantityControlMiracleCakeExclude": {
+        "desc": "奇迹蛋糕达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMiracleCake",
+                    "AutoStockStapleGoodsMiracleCakeExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlMiracleCakeRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.miracle_cake"
+        }
+    },
+    "AutoStockStapleQuantityControlMiracleCakeStockBillInsufficient": {
+        "desc": "奇迹蛋糕调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsMiracleCake",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlMiracleCakeRemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.miracle_cake"
         }
     },
     "AutoStockStapleCheckSliding": {

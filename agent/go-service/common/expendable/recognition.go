@@ -36,6 +36,8 @@ type params struct {
 	// KeyRegex 可选。对 OCR 原文做匹配，命中后用第 1 捕获组（若有）否则用整段匹配作为
 	// 写入 attach.visited 的 key；未配置则用原文。配置后黑名单会额外容忍 key 后的非数字尾噪。
 	KeyRegex string `json:"key_regex"`
+	// Whitelist 优先级更高的白名单
+	Whitelist string `json:"whitelist"`
 }
 
 // Run implements maa.CustomRecognitionRunner.
@@ -100,6 +102,15 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		log.Warn().Str("component", componentName).Str("text", text).Msg("visited key empty after key_regex")
 		return nil, false
 	}
+	if !matchWhitelist(p.Whitelist, key) {
+		log.Warn().
+			Str("component", componentName).
+			Str("text", text).
+			Str("key", key).
+			Str("whitelist", p.Whitelist).
+			Msg("key not in whitelist, reject")
+		return nil, false
+	}
 	if containsVisited(visited, key) {
 		// 黑名单本应挡住；仍命中则拒绝，避免同一 key 重复入库。
 		log.Warn().
@@ -150,6 +161,7 @@ func parseParams(raw string) (params, error) {
 			return params{}, fmt.Errorf("key_regex: %w", err)
 		}
 	}
+	p.Whitelist = strings.TrimSpace(p.Whitelist)
 	return p, nil
 }
 
@@ -324,6 +336,19 @@ func withBlacklist(base, visited []string, allowTrailingNoise bool) []string {
 		return []string{prefix + ".+"}
 	}
 	return out
+}
+
+func matchWhitelist(whitelist, key string) bool {
+	if strings.TrimSpace(whitelist) == "" {
+		return true // no whitelist means no filtering
+	}
+	re := regexp.MustCompile(`[,，;；、\s]+`)
+	for _, n := range re.Split(strings.TrimSpace(whitelist), -1) {
+		if n = strings.TrimSpace(n); n != "" && n == key {
+			return true
+		}
+	}
+	return false
 }
 
 // applyKeyRegex 按业务声明的 key_regex 从 OCR 原文提取 visited key。

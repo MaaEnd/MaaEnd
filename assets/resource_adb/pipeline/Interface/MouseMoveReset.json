@@ -1,0 +1,7 @@
+{
+    "MouseMoveReset": {
+        "desc": "ADB 无鼠标光标，无需重置",
+        "action": "DoNothing",
+        "post_delay": 0
+    }
+}

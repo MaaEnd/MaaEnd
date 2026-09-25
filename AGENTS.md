@@ -11,8 +11,9 @@
 > **`docs/zh_cn/developers/coding-standards.md`（编码规范）是代码产出的基准。AI 生成的代码必须符合规范，不应让用户事后纠正。**
 >
 > 1. **合规优先 + 主动提醒**：AI 应在用户指令可能违反规范时主动提醒，给出符合规范的替代方案，但不替代用户的最终判断。例如用户想"加个延迟"→ 提醒优先使用 `post_wait_freezes` + 中间识别节点，但若用户确认确实需要硬延迟，则按用户意图执行；用户想"重试几次"→ 提醒分析根因、修补对应节点，而非盲目重试。
-> 2. **产出即合规**：AI 生成的代码默认应通过 `pnpm check` 和 `pnpm test`，不需要用户手动修正违规写法。
+> 2. **产出即合规**：AI 生成的代码默认应符合规范，不需要用户手动修正违规写法。
 > 3. **信息不足时标注而非瞎编**：缺少截图、ROI 等上下文时，AI 应基于已有信息写出初稿，并明确标注不确定的占位部分，要求用户补充。
+> 4. **验证按需，默认交给 CI**：不要主动跑 `pnpm check` / `pnpm test`，这两个套件由 PR 的 CI 负责，跟进 CI 状态即可。**仅当改动包含 `tests/**` 内容**（新增/修改用例、截图、`hits` / `box` 期望），或用户明确要求时，才在本地先跑 `pnpm test`；此时若还改了 `assets/**`、`tools/schema/**`，一并跑 `pnpm check`。
 >
 > **AI 的默认行为**
 >
@@ -25,8 +26,9 @@
 > | 让 AI 全权负责修 bug 不 review | 产出修复并说明改动逻辑，用户理解并 review 后再提交 |
 > | 让 Go Service 里写大段流程控制 | 将流程逻辑留在 Pipeline JSON，Go 仅处理复杂算法，遵循「Pipeline 管流程，Go 管难点」 |
 > | 整体识别一次然后连点多次 | 每步操作都有独立识别节点，遵循「识别 → 操作 → 再识别」 |
-> | 代码产出完成 | 主动告知可运行的格式化与检查命令：`pnpm format`、`pnpm format:go`、`pnpm check`、`pnpm test` |
+> | 代码产出完成 | 提醒跑格式化：`pnpm format`（JSON/YAML）、`pnpm format:go`（Go）、`pnpm format:md`（Markdown）；**不要**主动跑 `pnpm check` / `pnpm test`，交给 PR 的 CI |
 > | 为验证而生成临时测试文件 | 验证完成后删除，除非用户明确要求保留 |
+> | 新增 / 修改 option 或 Pipeline 节点 | **不要**主动生成 option 的 `description`、Pipeline 的 `focus` 提示字段；仅当用户明确要求时再添加 |
 >
 > **核心原则：AI 产出的代码默认合规，用户无需事后纠正。**
 
@@ -46,6 +48,7 @@
 - [`assets/resource/image/`](assets/resource/image/): 识别所需的图片资源（基准分辨率 720p）。
 - [`agent/go-service/`](agent/go-service/): 自定义 Go Service 源码。
 - [`assets/locales/`](assets/locales/): 国际化本地化文件（任务名称、UI 文本等）。
+- [`tests/`](tests/): 节点测试用例与测试集（`tests/**/*.json`）；新增或修改识别节点时补充用例，写法见 [`docs/zh_cn/developers/node-testing.md`](docs/zh_cn/developers/node-testing.md)。
 - [`docs/zh_cn/developers/README.md`](docs/zh_cn/developers/README.md): 中文开发者文档索引（阅读路线、文档目录）；英文镜像见 [`docs/en_us/developers/README.md`](docs/en_us/developers/README.md)。
 
 ## 编码规范
@@ -118,3 +121,4 @@
 - [MaaFramework Pipeline 协议规范](https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.1-PipelineProtocol.md)
 - [MaaFramework 项目接口 V2](https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.3-ProjectInterfaceV2.md)
 - [MaaEnd 开发者文档（中文索引）](docs/zh_cn/developers/README.md) · [English index](docs/en_us/developers/README.md)
+- [Go Service `pkg/` 公共包](docs/zh_cn/developers/go-service-pkg.md)（And 解包、条件计算等）

@@ -19,6 +19,15 @@ inline constexpr std::array<double, 2> kSupportedControllerGridScales {
 // 将 MaaFramework 控制器类型映射到已经过真实截图标定的网格比例；未知类型保留图像推断回退。
 std::optional<double> GridScaleForControllerType(std::string_view controller_type);
 
+struct TransferPanelRegion
+{
+    cv::Rect search_roi;
+    cv::Rect texture_roi;
+};
+
+// 仅用于 Transfer：在 1280x720 原图坐标下，将调用方 ROI 分别与左右面板的外边界、可信内容区求交。
+std::array<TransferPanelRegion, 2> TransferPanelRegionsFor(double grid_scale, const cv::Rect& roi);
+
 struct GridProfile
 {
     // 单个物品 cell 的模板边长，单位为 720p 像素。

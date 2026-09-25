@@ -1,20 +1,31 @@
 import * as THREE from "three";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
+import {LiveHeightTracker, LiveTrail} from "./live_height_tracker.js";
 import {buildBoundaryEdgeIndices, parseNmsh} from "./navmesh_3d_data.js";
 
 const LOW_COLOR = [0.01, 0.06, 0.18];
 const MID_COLOR = [0.0, 0.36, 0.26];
 const HIGH_COLOR = [0.85, 0.28, 0.02];
 const MOVEMENT_CODES = new Set(["KeyW", "KeyA", "KeyS", "KeyD"]);
-const CONTROL_CODES = new Set(["ControlLeft", "ControlRight"]);
-const FREE_LOOK_SENSITIVITY = 0.003;
-const MAX_FREE_LOOK_PITCH = Math.PI / 2 - 0.01;
+const DESCEND_CODES = new Set(["ShiftLeft", "ShiftRight"]);
+const LOOK_SENSITIVITY = 0.0022;
+const MAX_LOOK_PITCH = Math.PI / 2 - 0.01;
+/** Largest mouse delta accepted per event; pointer lock occasionally reports a huge first jump. */
+const MAX_LOOK_DELTA = 300;
+/** Spectator speed at 1x as a fraction of the mesh radius per second. */
+const SPECTATOR_SPEED_RATIO = 0.12;
+const SPEED_WHEEL_STEP = 1.15;
+const MIN_SPEED_MULTIPLIER = 0.1;
+const MAX_SPEED_MULTIPLIER = 3;
+/** Seconds for the velocity to close most of the gap to the keyed direction. */
+const VELOCITY_SMOOTHING = 0.08;
 const HEIGHT_CONTRAST = 3.2;
 const PATH_RADIUS = 0.1;
 const DIAGNOSTIC_RADIUS = 0.045;
 const PATH_LIFT = 0.02;
 const PATH_COLOR = 0xff4fd8;
+const LIVE_PATH_COLOR = 0x22d3ee;
 
 function writeHeightColor(target, offset, value) {
   const t = Math.max(0, Math.min(1, value));
@@ -26,18 +37,35 @@ function writeHeightColor(target, offset, value) {
   target[offset + 2] = from[2] + (to[2] - from[2]) * localT;
 }
 
+function movementKeyFor(code) {
+  if (MOVEMENT_CODES.has(code)) return code;
+  if (code === "Space") return "Up";
+  if (DESCEND_CODES.has(code)) return "Down";
+  return null;
+}
+
 export class ThreeNavmeshView {
   /**
-   * @param {{canvas:HTMLCanvasElement,onPick:(point:{u:number,v:number,height:number})=>void}} options
+   * @param {{
+   *   canvas:HTMLCanvasElement,
+   *   onPick:(point:{u:number,v:number,height:number})=>void,
+   *   onStartChoice?:(heights:number[])=>void,
+   *   onSpectatorChange?:(active:boolean)=>void,
+   *   onSpeedChange?:(multiplier:number)=>void,
+   * }} options
    */
-  constructor({canvas, onPick}) {
+  constructor({canvas, onPick, onStartChoice = () => {}, onSpectatorChange = () => {}, onSpeedChange = () => {}}) {
     this.canvas = canvas;
     this.onPick = onPick;
+    this.onStartChoice = onStartChoice;
+    this.onSpectatorChange = onSpectatorChange;
+    this.onSpeedChange = onSpeedChange;
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x080d12);
 
     this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10000);
-    this.renderer = new THREE.WebGLRenderer({canvas, antialias: true, alpha: false});
+    // Transparent canvas: the 2D and 3D views share the page background instead of each painting its own.
+    this.renderer = new THREE.WebGLRenderer({canvas, antialias: true, alpha: true});
+    this.renderer.setClearColor(0x000000, 0);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
@@ -49,7 +77,12 @@ export class ThreeNavmeshView {
     this.controls.mouseButtons.RIGHT = null;
     this.controls.addEventListener("change", () => this.render());
 
-    this.navigationMode = "free";
+    this.navigationMode = "spectator";
+    this.spectatorActive = false;
+    // Optical centre in CSS px: the sidebar covers the canvas' left edge, so the HUD band is off-middle.
+    this.viewCenterX = null;
+    this.viewWidth = 1;
+    this.viewHeight = 1;
     this.movementSpeedMultiplier = 1;
     this.mesh = null;
     this.wireMesh = null;
@@ -72,34 +105,35 @@ export class ThreeNavmeshView {
     this.visible = false;
     this.meshLayerVisible = true;
     this.pointerDown = null;
-    this.freeLookPointer = null;
+    this.heightTracker = null;
+    this.liveTrail = null;
+    this.liveHeightValue = null;
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
     this.lookEuler = new THREE.Euler(0, 0, 0, "YXZ");
     this.lookForward = new THREE.Vector3();
     this.movementKeys = new Set();
-    this.spacePressed = false;
     this.movementFrame = 0;
     this.lastMovementTime = null;
     this.movementForward = new THREE.Vector3();
     this.movementRight = new THREE.Vector3();
-    this.movementDelta = new THREE.Vector3();
+    this.movementTarget = new THREE.Vector3();
+    this.velocity = new THREE.Vector3();
     this.worldUp = new THREE.Vector3(0, 1, 0);
     this._movementFrameBound = (timestamp) => this._onMovementFrame(timestamp);
+    this._pointerLockChangeBound = () => this._onPointerLockChange();
 
     canvas.addEventListener("pointerdown", (event) => this._onPointerDown(event));
     canvas.addEventListener("pointermove", (event) => this._onPointerMove(event));
-    canvas.addEventListener("pointerup", (event) => this._onPointerUp(event));
     canvas.addEventListener("click", (event) => this._onClick(event));
-    canvas.addEventListener("pointercancel", (event) => {
+    canvas.addEventListener("pointercancel", () => {
       this.pointerDown = null;
-      this._endFreeLook(event.pointerId);
     });
     canvas.addEventListener("contextmenu", (event) => event.preventDefault());
-    window.addEventListener("blur", () => {
-      this._stopMovement();
-      this._endFreeLook();
-    });
+    canvas.addEventListener("wheel", (event) => this._onWheel(event), {passive: false});
+    document.addEventListener("pointerlockchange", this._pointerLockChangeBound);
+    document.addEventListener("pointerlockerror", this._pointerLockChangeBound);
+    window.addEventListener("blur", () => this._stopMovement());
   }
 
   /** @param {ArrayBuffer} buffer */
@@ -209,6 +243,9 @@ export class ThreeNavmeshView {
     this.liveHeading.renderOrder = 12;
     this.scene.add(this.liveHeading);
 
+    this.heightTracker = new LiveHeightTracker(parsed);
+    this.liveTrail = new LiveTrail(this.heightTracker);
+
     this.setMeshVisible(this.meshLayerVisible);
     this.fitView();
   }
@@ -243,11 +280,7 @@ export class ThreeNavmeshView {
       this.scene.remove(this.routeLine);
       this._disposeObject(this.routeLine);
     }
-    if (this.livePathLine) {
-      this.scene.remove(this.livePathLine);
-      this._disposeObject(this.livePathLine);
-      this.livePathLine = null;
-    }
+    this._disposeLivePath();
     for (const line of this.diagnosticLines) {
       this.scene.remove(line);
       this._disposeObject(line);
@@ -269,6 +302,9 @@ export class ThreeNavmeshView {
     this.meshMinHeight = 0;
     this.meshMaxHeight = 0;
     this.heightFocus = null;
+    this.heightTracker = null;
+    this.liveTrail = null;
+    this.liveHeightValue = null;
     this.render();
   }
 
@@ -280,6 +316,13 @@ export class ThreeNavmeshView {
         for (const material of materials) material.dispose();
       }
     });
+  }
+
+  _disposeLivePath() {
+    if (!this.livePathLine) return;
+    this.scene.remove(this.livePathLine);
+    this._disposeObject(this.livePathLine);
+    this.livePathLine = null;
   }
 
   _createPathObject(vertices, color = PATH_COLOR, radius = PATH_RADIUS) {
@@ -311,19 +354,45 @@ export class ThreeNavmeshView {
     return true;
   }
 
-  /** @param {"free"|"orbit"} mode */
+  /** @param {"spectator"|"orbit"} mode */
   setNavigationMode(mode) {
-    const nextMode = mode === "orbit" ? "orbit" : "free";
+    const nextMode = mode === "orbit" ? "orbit" : "spectator";
     this._stopMovement();
-    this._endFreeLook();
+    if (nextMode !== this.navigationMode) this.exitSpectator();
     this.navigationMode = nextMode;
-    this.controls.mouseButtons.RIGHT = nextMode === "orbit" ? THREE.MOUSE.ROTATE : null;
+    // Orbit: left drag rotates, right drag pans. Spectator leaves both unbound so a click can capture the pointer.
+    const orbit = nextMode === "orbit";
+    this.controls.mouseButtons.LEFT = orbit ? THREE.MOUSE.ROTATE : null;
+    this.controls.mouseButtons.RIGHT = orbit ? THREE.MOUSE.PAN : null;
+    if (orbit) this._anchorOrbitTarget();
+  }
+
+  /** Pivot the orbit on the navmesh point straight ahead so rotating swings around what is in view. */
+  _anchorOrbitTarget() {
+    if (!this.mesh) return;
+    this._castCenterRay();
+    const hit = this.raycaster.intersectObject(this.mesh, false)[0];
+    if (!hit) return;
+    this.controls.target.copy(hit.point);
+    this.controls.update();
+    this.render();
+  }
+
+  /** Aim the raycaster along the camera axis: with a view offset NDC (0, 0) is no longer the optical centre. */
+  _castCenterRay() {
+    this.camera.getWorldDirection(this.lookForward);
+    this.raycaster.set(this.camera.position, this.lookForward);
   }
 
   setMovementSpeed(multiplier) {
-    this.movementSpeedMultiplier = THREE.MathUtils.clamp(Number(multiplier) || 1, 0.1, 3);
+    this.movementSpeedMultiplier = THREE.MathUtils.clamp(
+      Number(multiplier) || 1,
+      MIN_SPEED_MULTIPLIER,
+      MAX_SPEED_MULTIPLIER,
+    );
   }
 
+  /** Vertical ray fallback for points without trajectory context: the face nearest the colour focus. */
   _heightAt(u, v) {
     if (!this.mesh) return this.meshCenter.height;
     const top = this.meshMaxHeight - this.meshCenter.height;
@@ -344,27 +413,104 @@ export class ThreeNavmeshView {
     return hit ? hit.point.y + this.meshCenter.height : this.meshCenter.height;
   }
 
-  getHeightAt(u, v) {
-    return Number.isFinite(u) && Number.isFinite(v) ? this._heightAt(u, v) : null;
-  }
+  /**
+   * Lift the measured trajectory and the live marker onto the faces they stand on.
+   * @param {Array<[number, number]>} points display-frame fixes, oldest first
+   * @param {?{u:number,v:number,rot?:number}} current where the marker goes
+   * @param {{drawPath?:boolean}} options
+   */
+  setLiveTrail(points = [], current = null, {drawPath = true} = {}) {
+    this._disposeLivePath();
+    if (!this.mesh || !this.liveTrail) {
+      this.render();
+      return;
+    }
+    const list = [];
+    for (const point of Array.isArray(points) ? points : []) {
+      if (Array.isArray(point) && Number.isFinite(point[0]) && Number.isFinite(point[1]))
+        list.push([point[0], point[1]]);
+    }
+    const becamePending = this.liveTrail.update(list);
+    if (this.liveTrail.pending) {
+      this.liveMarker.visible = false;
+      this.liveHeading.visible = false;
+      this.liveHeightValue = null;
+      if (becamePending) this.onStartChoice(this.startChoices());
+      this.render();
+      return;
+    }
 
-  setLivePosition({u, v, height = null, rot = null} = {}) {
-    if (!this.liveMarker || !Number.isFinite(u) || !Number.isFinite(v)) return;
-    const y = Number.isFinite(height) ? height : this._heightAt(u, v);
-    this.liveMarker.position.set(u - this.meshCenter.u, y - this.meshCenter.height, v - this.meshCenter.v);
-    this.liveMarker.visible = true;
-    if (this.liveHeading) {
-      const length = Math.max(this.meshRadius * 0.0045, 0.5);
-      const angle = Number.isFinite(rot) ? (rot * Math.PI) / 180 : 0;
-      const endX = this.liveMarker.position.x + Math.sin(angle) * length;
-      const endZ = this.liveMarker.position.z - Math.cos(angle) * length;
-      const attr = this.liveHeading.geometry.getAttribute("position");
-      attr.setXYZ(0, this.liveMarker.position.x, this.liveMarker.position.y, this.liveMarker.position.z);
-      attr.setXYZ(1, endX, this.liveMarker.position.y, endZ);
-      attr.needsUpdate = true;
-      this.liveHeading.visible = Number.isFinite(rot);
+    if (drawPath) {
+      const vertices = [];
+      for (const entry of this.liveTrail.entries) {
+        vertices.push(
+          entry.u - this.meshCenter.u,
+          entry.height - this.meshCenter.height + PATH_LIFT,
+          entry.v - this.meshCenter.v,
+        );
+      }
+      this.livePathLine = this._createPathObject(vertices, LIVE_PATH_COLOR);
+      if (this.livePathLine) {
+        this.livePathLine.renderOrder = 14;
+        this.scene.add(this.livePathLine);
+      }
+    }
+
+    if (current && Number.isFinite(current.u) && Number.isFinite(current.v)) {
+      let height = this.liveTrail.heightFor(current.u, current.v);
+      if (!Number.isFinite(height)) height = this._heightAt(current.u, current.v);
+      this.liveHeightValue = height;
+      this._placeLiveMarker(current.u, current.v, height, current.rot);
+    } else {
+      this.liveMarker.visible = false;
+      this.liveHeading.visible = false;
+      this.liveHeightValue = null;
     }
     this.render();
+  }
+
+  _placeLiveMarker(u, v, height, rot) {
+    this.liveMarker.position.set(u - this.meshCenter.u, height - this.meshCenter.height, v - this.meshCenter.v);
+    this.liveMarker.visible = true;
+    const length = Math.max(this.meshRadius * 0.0045, 0.5);
+    const angle = Number.isFinite(rot) ? (rot * Math.PI) / 180 : 0;
+    const endX = this.liveMarker.position.x + Math.sin(angle) * length;
+    const endZ = this.liveMarker.position.z - Math.cos(angle) * length;
+    const attr = this.liveHeading.geometry.getAttribute("position");
+    attr.setXYZ(0, this.liveMarker.position.x, this.liveMarker.position.y, this.liveMarker.position.z);
+    attr.setXYZ(1, endX, this.liveMarker.position.y, endZ);
+    attr.needsUpdate = true;
+    this.liveHeading.visible = Number.isFinite(rot);
+  }
+
+  /** Floor heights the trajectory start could be on, highest first; null when nothing is pending. */
+  startChoices() {
+    if (!this.liveTrail || !this.liveTrail.pending) return null;
+    return this.liveTrail.pendingChoices.map((choice) => choice.height);
+  }
+
+  /**
+   * Answer the pending start choice; call {@link setLiveTrail} afterwards to redraw.
+   * @param {number} height
+   * @param {Array<[number, number]>} points the trajectory passed to {@link setLiveTrail}
+   */
+  chooseStartHeight(height, points = []) {
+    if (!this.liveTrail) return;
+    this.liveTrail.chooseStart(height, points);
+  }
+
+  clearLiveTrail() {
+    if (this.liveTrail) this.liveTrail.reset();
+    this._disposeLivePath();
+    if (this.liveMarker) this.liveMarker.visible = false;
+    if (this.liveHeading) this.liveHeading.visible = false;
+    this.liveHeightValue = null;
+    this.render();
+  }
+
+  /** Height the live marker was last placed at, or null when it is hidden. */
+  liveHeight() {
+    return this.liveHeightValue;
   }
 
   setHeightFocus(height) {
@@ -385,42 +531,6 @@ export class ThreeNavmeshView {
       writeHeightColor(attr.array, i * 3, t);
     }
     attr.needsUpdate = true;
-  }
-
-  clearLivePosition() {
-    if (this.liveMarker) this.liveMarker.visible = false;
-    this.render();
-  }
-
-  setLivePath(points = []) {
-    if (this.livePathLine) {
-      this.scene.remove(this.livePathLine);
-      this._disposeObject(this.livePathLine);
-      this.livePathLine = null;
-    }
-    if (!this.mesh || !Array.isArray(points) || points.length < 2) {
-      this.render();
-      return;
-    }
-    const vertices = [];
-    for (const point of points) {
-      if (!Array.isArray(point) || point.length < 2) continue;
-      const [u, v] = point;
-      vertices.push(
-        u - this.meshCenter.u,
-        this._heightAt(u, v) - this.meshCenter.height + PATH_LIFT,
-        v - this.meshCenter.v,
-      );
-    }
-    if (vertices.length < 6) {
-      this.render();
-      return;
-    }
-    this.livePathLine = this._createPathObject(vertices, 0x22d3ee);
-    if (!this.livePathLine) return;
-    this.livePathLine.renderOrder = 14;
-    this.scene.add(this.livePathLine);
-    this.render();
   }
 
   setRoute(points = []) {
@@ -515,11 +625,11 @@ export class ThreeNavmeshView {
   setVisible(visible) {
     this.visible = visible;
     this.canvas.hidden = !visible;
-    this.controls.enabled = visible;
+    this.controls.enabled = visible && !this.spectatorActive;
     if (visible) this.render();
     else {
       this._stopMovement();
-      this._endFreeLook();
+      this.exitSpectator();
     }
   }
 
@@ -533,45 +643,86 @@ export class ThreeNavmeshView {
     if (this.visible) this.render();
   }
 
+  // --- spectator (pointer lock) ---
+
+  /** Capture the pointer so the mouse steers the camera; the browser releases it on Esc. */
+  enterSpectator() {
+    if (!this.visible || !this.mesh || this.navigationMode !== "spectator" || this.spectatorActive) return;
+    const swallow = (promise) => {
+      if (promise && typeof promise.catch === "function") promise.catch(() => {});
+    };
+    let request;
+    try {
+      request = this.canvas.requestPointerLock({unadjustedMovement: true});
+    } catch {
+      request = this.canvas.requestPointerLock();
+    }
+    if (request && typeof request.catch === "function") {
+      request.catch(() => swallow(this.canvas.requestPointerLock()));
+    }
+  }
+
+  exitSpectator() {
+    if (document.pointerLockElement === this.canvas) document.exitPointerLock();
+  }
+
+  _onPointerLockChange() {
+    const active = document.pointerLockElement === this.canvas;
+    if (active === this.spectatorActive) return;
+    this.spectatorActive = active;
+    this.controls.enabled = this.visible && !active;
+    if (!active) this._stopMovement();
+    this.onSpectatorChange(active);
+  }
+
+  _lookBy(deltaX, deltaY) {
+    const dx = THREE.MathUtils.clamp(deltaX, -MAX_LOOK_DELTA, MAX_LOOK_DELTA);
+    const dy = THREE.MathUtils.clamp(deltaY, -MAX_LOOK_DELTA, MAX_LOOK_DELTA);
+    if (dx === 0 && dy === 0) return;
+    this.lookEuler.setFromQuaternion(this.camera.quaternion, "YXZ");
+    this.lookEuler.y -= dx * LOOK_SENSITIVITY;
+    this.lookEuler.x = THREE.MathUtils.clamp(this.lookEuler.x - dy * LOOK_SENSITIVITY, -MAX_LOOK_PITCH, MAX_LOOK_PITCH);
+    this.lookEuler.z = 0;
+    this.camera.quaternion.setFromEuler(this.lookEuler);
+    this._syncOrbitTarget();
+    this.render();
+  }
+
+  /** Keep the orbit pivot in front of the camera so switching modes does not snap the view. */
+  _syncOrbitTarget() {
+    const targetDistance = Math.max(this.camera.position.distanceTo(this.controls.target), 1e-6);
+    this.lookForward.set(0, 0, -1).applyQuaternion(this.camera.quaternion);
+    this.controls.target.copy(this.camera.position).addScaledVector(this.lookForward, targetDistance);
+    this.controls.update();
+  }
+
+  _onWheel(event) {
+    if (!this.spectatorActive) return;
+    event.preventDefault();
+    if (event.deltaY === 0) return;
+    const factor = event.deltaY < 0 ? SPEED_WHEEL_STEP : 1 / SPEED_WHEEL_STEP;
+    this.setMovementSpeed(this.movementSpeedMultiplier * factor);
+    this.onSpeedChange(this.movementSpeedMultiplier);
+  }
+
   /**
-   * Update one 3D movement key and start or stop continuous camera movement.
+   * Update one movement key and start or stop continuous camera movement. Keys only count in
+   * spectator mode while the pointer is captured; orbit mode is mouse-only.
    * @param {string} code
    * @param {boolean} pressed
    * @param {{ctrlKey?:boolean}} modifiers
    * @returns {boolean} whether this view consumed the key transition
    */
   setMovementKey(code, pressed, {ctrlKey = false} = {}) {
-    if (code === "Space") {
-      if (!pressed) {
-        const consumed = this.spacePressed;
-        this.spacePressed = false;
-        this.movementKeys.delete("SpaceUp");
-        this.movementKeys.delete("SpaceDown");
-        if (this.movementKeys.size === 0) this._stopMovement();
-        return consumed;
-      }
-      if (!this.visible || !this.mesh || this.navigationMode !== "free") return false;
-      this.spacePressed = true;
-      if (this._setVerticalMovement(ctrlKey)) this._moveCamera(1 / 60);
-      this._startMovement();
-      return true;
-    }
-    if (CONTROL_CODES.has(code)) {
-      if (!this.spacePressed || this.navigationMode !== "free") return false;
-      if (this._setVerticalMovement(ctrlKey)) this._moveCamera(1 / 60);
-      return true;
-    }
-    if (!MOVEMENT_CODES.has(code)) return false;
-    if (!pressed) {
-      const consumed = this.movementKeys.delete(code);
-      if (this.movementKeys.size === 0) this._stopMovement();
-      return consumed;
-    }
-    if (ctrlKey) return false;
+    const key = movementKeyFor(code);
+    if (!key) return false;
+    if (!pressed) return this.movementKeys.delete(key);
+    if (this.navigationMode !== "spectator" || !this.spectatorActive) return false;
+    if (ctrlKey && key === code) return false;
     if (!this.visible || !this.mesh) return false;
 
-    const added = !this.movementKeys.has(code);
-    this.movementKeys.add(code);
+    const added = !this.movementKeys.has(key);
+    this.movementKeys.add(key);
     if (added) this._moveCamera(1 / 60);
     this._startMovement();
     return true;
@@ -584,21 +735,33 @@ export class ThreeNavmeshView {
     }
   }
 
-  _setVerticalMovement(descending) {
-    const nextKey = descending ? "SpaceDown" : "SpaceUp";
-    const changed = !this.movementKeys.has(nextKey);
-    this.movementKeys.delete(descending ? "SpaceUp" : "SpaceDown");
-    this.movementKeys.add(nextKey);
-    return changed;
-  }
-
   /** @param {number} width @param {number} height @param {number} dpr */
   resize(width, height, dpr) {
     this.renderer.setPixelRatio(Math.min(dpr || 1, 2));
-    this.renderer.setSize(Math.max(1, width), Math.max(1, height), false);
-    this.camera.aspect = Math.max(1, width) / Math.max(1, height);
-    this.camera.updateProjectionMatrix();
+    this.viewWidth = Math.max(1, width);
+    this.viewHeight = Math.max(1, height);
+    this.renderer.setSize(this.viewWidth, this.viewHeight, false);
+    this._applyProjection();
     this.render();
+  }
+
+  /** Put the optical centre (crosshair, locked-mode pick) at CSS x `centerX` instead of the canvas middle. */
+  setViewCenter(centerX) {
+    this.viewCenterX = Number.isFinite(centerX) ? centerX : null;
+    this._applyProjection();
+    this.render();
+  }
+
+  _applyProjection() {
+    const width = this.viewWidth;
+    const height = this.viewHeight;
+    const shift = this.viewCenterX === null ? 0 : width / 2 - this.viewCenterX;
+    if (Math.abs(shift) > 0.5) {
+      this.camera.setViewOffset(width, height, shift, 0, width, height);
+    } else {
+      this.camera.aspect = width / height;
+      this.camera.clearViewOffset();
+    }
   }
 
   fitView() {
@@ -641,7 +804,9 @@ export class ThreeNavmeshView {
 
   _onMovementFrame(timestamp) {
     this.movementFrame = 0;
-    if (!this.visible || !this.mesh || this.movementKeys.size === 0) {
+    const coasting = this.velocity.lengthSq() > 1e-6;
+    if (!this.visible || !this.mesh || (this.movementKeys.size === 0 && !coasting)) {
+      this.velocity.set(0, 0, 0);
       this.lastMovementTime = null;
       return;
     }
@@ -652,49 +817,50 @@ export class ThreeNavmeshView {
     this.movementFrame = requestAnimationFrame(this._movementFrameBound);
   }
 
+  /** Horizontal WASD relative to the camera yaw, Space/Shift straight up and down, with a little inertia. */
   _moveCamera(deltaSeconds) {
     const forwardAxis = Number(this.movementKeys.has("KeyW")) - Number(this.movementKeys.has("KeyS"));
     const rightAxis = Number(this.movementKeys.has("KeyD")) - Number(this.movementKeys.has("KeyA"));
-    const verticalAxis = Number(this.movementKeys.has("SpaceUp")) - Number(this.movementKeys.has("SpaceDown"));
-    if (forwardAxis === 0 && rightAxis === 0 && verticalAxis === 0) return;
+    const verticalAxis = Number(this.movementKeys.has("Up")) - Number(this.movementKeys.has("Down"));
 
     this.camera.getWorldDirection(this.movementForward);
-    if (this.navigationMode === "orbit") {
-      this.movementForward.y = 0;
-      if (this.movementForward.lengthSq() < 1e-8) {
-        this.movementRight.setFromMatrixColumn(this.camera.matrixWorld, 0);
-        this.movementRight.y = 0;
-        this.movementRight.normalize();
-        this.movementForward.crossVectors(this.worldUp, this.movementRight);
-      } else {
-        this.movementForward.normalize();
-        this.movementRight.crossVectors(this.movementForward, this.worldUp).normalize();
-      }
+    this.movementForward.y = 0;
+    if (this.movementForward.lengthSq() < 1e-8) {
+      this.movementRight.setFromMatrixColumn(this.camera.matrixWorld, 0);
+      this.movementRight.y = 0;
+      this.movementRight.normalize();
+      this.movementForward.crossVectors(this.worldUp, this.movementRight);
     } else {
       this.movementForward.normalize();
-      this.movementRight.set(1, 0, 0).applyQuaternion(this.camera.quaternion).normalize();
+      this.movementRight.crossVectors(this.movementForward, this.worldUp).normalize();
     }
 
-    this.movementDelta
+    this.movementTarget
       .copy(this.movementForward)
       .multiplyScalar(forwardAxis)
       .addScaledVector(this.movementRight, rightAxis)
-      .addScaledVector(this.worldUp, verticalAxis)
-      .normalize();
-    const cameraDistance = this.camera.position.distanceTo(this.controls.target);
-    const speed =
-      THREE.MathUtils.clamp(cameraDistance * 0.4, this.meshRadius * 0.01, this.meshRadius * 1.2) *
-      this.movementSpeedMultiplier;
-    this.movementDelta.multiplyScalar(speed * deltaSeconds);
-    this.camera.position.add(this.movementDelta);
-    this.controls.target.add(this.movementDelta);
+      .addScaledVector(this.worldUp, verticalAxis);
+    if (this.movementTarget.lengthSq() > 0) {
+      this.movementTarget.normalize().multiplyScalar(this._movementSpeed());
+    }
+    this.velocity.lerp(this.movementTarget, Math.min(1, deltaSeconds / VELOCITY_SMOOTHING));
+    if (this.velocity.lengthSq() < 1e-6) {
+      this.velocity.set(0, 0, 0);
+      return;
+    }
+    this.camera.position.addScaledVector(this.velocity, deltaSeconds);
+    this.controls.target.addScaledVector(this.velocity, deltaSeconds);
     this.controls.update();
     this.render();
   }
 
+  _movementSpeed() {
+    return this.meshRadius * SPECTATOR_SPEED_RATIO * this.movementSpeedMultiplier;
+  }
+
   _stopMovement() {
     this.movementKeys.clear();
-    this.spacePressed = false;
+    this.velocity.set(0, 0, 0);
     this.lastMovementTime = null;
     if (this.movementFrame) cancelAnimationFrame(this.movementFrame);
     this.movementFrame = 0;
@@ -702,69 +868,37 @@ export class ThreeNavmeshView {
 
   _onPointerDown(event) {
     if (!this.visible) return;
-    if (event.button === 0) {
-      this.pointerDown = {x: event.clientX, y: event.clientY};
-    } else if (event.button === 2 && this.navigationMode === "free") {
-      this.freeLookPointer = {
-        pointerId: event.pointerId,
-        x: event.clientX,
-        y: event.clientY,
-      };
-      this.canvas.style.cursor = "grabbing";
-    }
+    if (event.button === 0) this.pointerDown = {x: event.clientX, y: event.clientY};
   }
 
   _onPointerMove(event) {
-    if (!this.visible || !this.freeLookPointer || event.pointerId !== this.freeLookPointer.pointerId) return;
-    if ((event.buttons & 2) === 0) {
-      this._endFreeLook(event.pointerId);
-      return;
-    }
-
-    const deltaX = event.clientX - this.freeLookPointer.x;
-    const deltaY = event.clientY - this.freeLookPointer.y;
-    this.freeLookPointer.x = event.clientX;
-    this.freeLookPointer.y = event.clientY;
-    if (deltaX === 0 && deltaY === 0) return;
-
-    const targetDistance = Math.max(this.camera.position.distanceTo(this.controls.target), 1e-6);
-    this.lookEuler.setFromQuaternion(this.camera.quaternion, "YXZ");
-    this.lookEuler.y -= deltaX * FREE_LOOK_SENSITIVITY;
-    this.lookEuler.x = THREE.MathUtils.clamp(
-      this.lookEuler.x - deltaY * FREE_LOOK_SENSITIVITY,
-      -MAX_FREE_LOOK_PITCH,
-      MAX_FREE_LOOK_PITCH,
-    );
-    this.lookEuler.z = 0;
-    this.camera.quaternion.setFromEuler(this.lookEuler);
-    this.lookForward.set(0, 0, -1).applyQuaternion(this.camera.quaternion);
-    this.controls.target.copy(this.camera.position).addScaledVector(this.lookForward, targetDistance);
-    this.controls.update();
-    this.render();
-  }
-
-  _onPointerUp(event) {
-    if (event.button === 2) this._endFreeLook(event.pointerId);
-  }
-
-  _endFreeLook(pointerId = null) {
-    if (!this.freeLookPointer || (pointerId !== null && pointerId !== this.freeLookPointer.pointerId)) return;
-    this.freeLookPointer = null;
-    this.canvas.style.cursor = "";
+    if (!this.visible || !this.spectatorActive) return;
+    this._lookBy(event.movementX || 0, event.movementY || 0);
   }
 
   _onClick(event) {
-    if (!this.visible || event.button !== 0 || !this.mesh || !this.meshLayerVisible) return;
+    if (!this.visible || event.button !== 0 || !this.mesh) return;
     const distance = this.pointerDown
       ? Math.hypot(event.clientX - this.pointerDown.x, event.clientY - this.pointerDown.y)
       : 0;
     this.pointerDown = null;
     if (distance > 4) return;
 
-    const rect = this.canvas.getBoundingClientRect();
-    this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    this.pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-    this.raycaster.setFromCamera(this.pointer, this.camera);
+    if (this.navigationMode === "spectator" && !this.spectatorActive) {
+      this.enterSpectator();
+      return;
+    }
+    if (!this.meshLayerVisible) return;
+
+    if (this.spectatorActive) {
+      // The pointer is captured: pick under the crosshair, which sits on the camera axis.
+      this._castCenterRay();
+    } else {
+      const rect = this.canvas.getBoundingClientRect();
+      this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      this.pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      this.raycaster.setFromCamera(this.pointer, this.camera);
+    }
     const hit = this.raycaster.intersectObject(this.mesh, false)[0];
     if (!hit) return;
 

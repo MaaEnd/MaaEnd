@@ -79,7 +79,7 @@
             "source_path": "docs/zh_cn/developers/getting-started.md",
             "relative_path": "developers/getting-started.md",
             "target_path": "docs/en_us/developers/getting-started.md",
-            "source_sha256": "01bda1645f102582c004c74cfeecbd1c212ae742170a63e5fa13633e73d2e2e7"
+            "source_sha256": "2e2d3b2462c89b816d14f1579e305b64512c0baafcaed71492dc443ff6157578"
         },
         "docs/zh_cn/developers/in-scene.md": {
             "source_path": "docs/zh_cn/developers/in-scene.md",
@@ -147,11 +147,11 @@
             "target_path": "docs/en_us/developers/tasks/gift-operator-maintain.md",
             "source_sha256": "d3daa3ac6884e97769a3aa19009dc22a6a204502b012fe990123545cafc18789"
         },
-        "docs/zh_cn/developers/tasks/sell-product-maintain.md": {
-            "source_path": "docs/zh_cn/developers/tasks/sell-product-maintain.md",
-            "relative_path": "developers/tasks/sell-product-maintain.md",
-            "target_path": "docs/en_us/developers/tasks/sell-product-maintain.md",
-            "source_sha256": "7dd7ec13108ebb02bd6752b3707f5f243befe511e084f81c61dec4a8e567052a"
+        "docs/zh_cn/developers/tasks/outpost-trading-maintain.md": {
+            "source_path": "docs/zh_cn/developers/tasks/outpost-trading-maintain.md",
+            "relative_path": "developers/tasks/outpost-trading-maintain.md",
+            "target_path": "docs/en_us/developers/tasks/outpost-trading-maintain.md",
+            "source_sha256": "cfaecf09a87d07055157b39d82ed4437dee0699b9b64626d8e4a83e8b3bcf67f"
         },
         "docs/zh_cn/developers/tools-and-debug.md": {
             "source_path": "docs/zh_cn/developers/tools-and-debug.md",

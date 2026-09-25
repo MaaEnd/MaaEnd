@@ -162,5 +162,44 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "CheckTrialOfSwordmancyText": {
+        "desc": "检查选剑演武左上角的文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            240,
+            60
+        ],
+        "expected": [
+            "选剑演武",
+            "選劍演武",
+            "(?i)Trial\\s*of\\s*Swordmancy",
+            "選剣演武",
+            "선검 연무"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckOperationFailedText": {
+        "desc": "检查行动失败的文本",
+        "recognition": "OCR",
+        "roi": [
+            520,
+            0,
+            240,
+            180
+        ],
+        "expected": [
+            "行动失败",
+            "行動失敗",
+            "Operation Failed",
+            "작전 실패"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

@@ -124,7 +124,7 @@
         "count": 30 //自测50x1~50x3波动
     },
     "__AutoFightRecognitionCharactorLevelShow": {
-        "desc": "识别角色是否显示等级",
+        "desc": "选中干员框下方等级OCR,在go内设置真实坐标",
         "recognition": "OCR",
         "roi": [
             20,
@@ -133,8 +133,11 @@
             18
         ],
         "expected": [
-            "\\d.*\\d"
-        ],
+            "L",
+            "l",
+            "V",
+            "v"
+        ], // 勿加裸数字：战斗 HUD 条带易被 OCR 成 8/9 导致误退
         "only_rec": true
     },
     "__AutoFightRecognitionComboCooldown1": {

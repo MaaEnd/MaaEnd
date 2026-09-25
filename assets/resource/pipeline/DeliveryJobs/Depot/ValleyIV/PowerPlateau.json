@@ -31,6 +31,9 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "DeliveryJobsReturnToDepotNode": "InLocalDepotNode"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -64,67 +67,58 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "DeliveryJobsReturnToDepotNode": "InLocalDepotNode"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "DeliveryJobsClickTransferJob"
         ]
     },
-    "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau": {
-        "desc": "检测到已有送货任务，返回供能高地打开任务详情继续全自动送货",
-        "pre_delay": 0,
-        "anchor": {
-            "DeliveryJobsAfterViewCurrentJob": "DeliveryJobsAutoDeliveryPowerPlateau"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DeliveryJobsReturnAndViewPowerPlateauCurrentJob"
-        ]
-    },
-    "DeliveryJobsReturnAndViewPowerPlateauCurrentJob": {
-        "desc": "返回供能高地本地仓储节点查看当前送货任务",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DeliveryJobsViewPowerPlateauCurrentJob"
-        ]
-    },
-    "DeliveryJobsViewPowerPlateauCurrentJob": {
-        "desc": "供能高地：从本地仓储节点查看当前送货任务",
+    "DeliveryJobsWaitPowerPlateauDeliveryMissionDetail": {
+        "desc": "等待供能高地的送货任务详情界面稳定后再开始全自动送货",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
-            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+            "AutoDeliveryInDeliveryMissionDetail"
         ],
-        "box_index": 1,
+        // 等待区域与组件里 AutoDeliveryInDeliveryMissionDetail 的等待区域相同
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                417,
+                51,
+                547,
+                279
+            ]
+        },
         "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsAfterViewCurrentJob"
+            "DeliveryJobsAutoDeliveryPowerPlateau"
         ]
     },
     "DeliveryJobsAutoDeliveryPowerPlateau": {
-        "desc": "为供能高地当前送货任务调用全自动送货",
+        "desc": "为供能高地当前送货任务设置回跳锚点，并交给公共调用节点处理",
         "pre_delay": 0,
         "anchor": {
-            "AutoDeliveryAfterSubmitGoods": "DeliveryJobsValleyIVLoop"
+            "DeliveryJobsAfterAutoDelivery": "DeliveryJobsValleyIVLoop",
+            "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsAutoDeliveryGuard",
-            "AutoDelivery"
+            "DeliveryJobsDeliverByAutoDelivery"
+        ]
+    },
+    "DeliveryJobsOngoingDeliveryForPowerPlateau": {
+        "desc": "按供能高地的处理方式处理已有的待运送货物；next 由该仓储节点的处理方式覆盖，不声明回跳落点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsSkipOngoingDelivery"
         ]
     },
     "DeliveryJobsCheckLocalDepotNodePowerPlateauText": {
@@ -186,9 +180,9 @@
         "anchor": {
             "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-            "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
             "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-            "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+            "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
+            "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -216,13 +210,12 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
             "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsQuoteAction"
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     },
     "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
@@ -234,13 +227,12 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsQuoteAction"
+            "DeliveryJobsRedistributionBidNextStep"
         ]
     }
 }

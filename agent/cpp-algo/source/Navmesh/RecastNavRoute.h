@@ -13,6 +13,7 @@
 #include "BaseNavPlanner.h"
 #include "RecastNavFieldsIO.h"
 #include "RecastNavGridIO.h"
+#include "RecastNavNoGoIO.h"
 #include "RecastNavZone.h"
 
 namespace navmesh::recast
@@ -22,6 +23,8 @@ struct RecastPlanResult
 {
     bool ok = false;
     std::string error;
+    // 端点落在虚拟禁区里被判掉。这是作者画的硬约束, 调用方不该再拿兜底手段去凑一条线。
+    bool no_go = false;
     std::vector<WorldPoint> points;
     std::vector<double> clearance; // 逐点通道半宽 px
     double length = 0.0;
@@ -82,13 +85,13 @@ class RecastNavEngine
 {
 public:
     // 预烘场旁包从主包同目录按名找 (base.nav.gz → base.fields.nav.gz), 读不到或对不上主包
-    // 就没法规划 —— 运行期不再重建那些场。
-    RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& planner);
+    // 就没法规划 —— 运行期不再重建那些场。nogo_table 是作者圈的虚拟禁区表, 由调用方定位:
+    // 它是本仓库的配置, 不跟主包放在一起。
+    RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& planner, const std::filesystem::path& nogo_table);
 
     // start/goal 各带楼层高度(<= kBaseNavFloorYValidMin ⇒ floor 盲吸附);
     // goal_deck_y = 终点所在重叠面的高度,选层用,与吸附用的 floor_y 是两件事;
-    // blocked = pack 全局三角形号封堵集,命中格从可走层盖掉;
-    // blocked_points = 世界坐标封堵点,kBlockedPointRadius 半径内的格盖掉;
+    // no_go_discs = 运行期虚拟禁区, 与作者禁区同口径盖格, 但端点落在里面照常规划;
     // should_stop = 外部取消,两档窗口之间查一次
     RecastPlanResult plan(
         const std::string& zone_name,
@@ -97,8 +100,7 @@ public:
         float start_floor_y = kBaseNavFloorYNone,
         float goal_floor_y = kBaseNavFloorYNone,
         float goal_deck_y = kBaseNavFloorYNone,
-        const std::vector<uint32_t>& blocked = {},
-        const std::vector<WorldPoint>& blocked_points = {},
+        const std::vector<BaseNavNoGoDisc>& no_go_discs = {},
         const std::function<bool()>& should_stop = {});
 
     // 把该区的清洗网格与预烘场提前建好,让首条路线不必冷吃这份开销。
@@ -130,8 +132,7 @@ private:
         float start_floor_y,
         float goal_floor_y,
         float goal_deck_y,
-        const std::vector<uint32_t>& blocked,
-        const std::vector<WorldPoint>& blocked_points,
+        const std::vector<BaseNavNoGoDisc>& no_go_discs,
         const std::function<bool()>& should_stop);
 
     const BaseNavPack& pack_;
@@ -141,6 +142,7 @@ private:
     uint64_t zone_clock_ = 0;
     GridPack grid_;     // 包里的预烘格图,没有它就没法规划
     FieldsPack fields_; // 旁包里的预烘场, 同样缺不得
+    NoGoTable nogo_;    // 虚拟禁区表, 缺了就是没有禁区
     std::string grid_error_;
 };
 

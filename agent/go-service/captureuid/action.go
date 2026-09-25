@@ -2,6 +2,7 @@ package captureuid
 
 import (
 	"encoding/json"
+	"fmt"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -15,9 +16,31 @@ type captureUidParam struct {
 	OutputType          string `json:"output_type,omitempty"`
 }
 
+// CaptureUidAction captures or clears the current player's UID for Pipeline callers.
 type CaptureUidAction struct{}
 
 var _ maa.CustomActionRunner = &CaptureUidAction{}
+
+const accountIdentityNode = "CurrentAccountIdentity"
+
+// publishAccountIdentity 将当前账号的伪匿名标识写入 Resource 级通用状态节点，供独立的
+// cpp-algo 进程读取。原始 UID 仍只留在本进程内存中，跨进程传递的只有加盐哈希。
+func publishAccountIdentity(ctx *maa.Context, accountID string) error {
+	if ctx == nil || ctx.GetTasker() == nil {
+		return fmt.Errorf("nil context or tasker")
+	}
+	resource := ctx.GetTasker().GetResource()
+	if resource == nil {
+		return fmt.Errorf("nil resource")
+	}
+	return resource.OverridePipeline(map[string]any{
+		accountIdentityNode: map[string]any{
+			"attach": map[string]any{
+				"account_id": accountID,
+			},
+		},
+	})
+}
 
 func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil || ctx.GetTasker() == nil {
@@ -67,6 +90,10 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	if clearCache {
 		ClearCache()
+		if err := publishAccountIdentity(ctx, ""); err != nil {
+			log.Error().Err(err).Str("component", component).Msg("CaptureUid: failed to clear account identity")
+			return false
+		}
 		return true
 	}
 
@@ -76,7 +103,17 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
-	log.Info().Str("component", component).Str("uid", uid).
+	accountID := ""
+	if uid != "unknown" {
+		accountID = GetCachedUID(OutputTypeHashed)
+	}
+	if err := publishAccountIdentity(ctx, accountID); err != nil {
+		log.Error().Err(err).Str("component", component).Msg("CaptureUid: failed to publish account identity")
+		return false
+	}
+
+	log.Info().Str("component", component).Str("uid", safeUIDForLog(uid, outputType)).
+		Str("account_id", accountID).
 		Bool("use_cache", useCache).
 		Bool("stay_on_current_screen", stayOnCurrentScreen).
 		Bool("allow_unknown", allowUnknown).

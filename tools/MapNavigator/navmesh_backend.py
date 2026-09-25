@@ -66,7 +66,10 @@ class NavmeshBackend:
         self._error: str | None = None
         self._ready = threading.Event()
         self._started = False
+        # 每拉起一次 agent 加一; 晚到的启动线程只认自己那一代, 被换掉的会话不许再挂回来。
+        self._boot_generation = 0
         self._start_lock = threading.Lock()
+        self._reload_lock = threading.Lock()
         self._query_lock = threading.Lock()
         self._latest_lock = threading.Lock()
         self._latest_generation: dict[str, int] = {}
@@ -80,19 +83,39 @@ class NavmeshBackend:
                 return
             self._started = True
             ready = self._ready
-        threading.Thread(target=self._boot, args=(ready,), name="navmesh-agent", daemon=True).start()
+            generation = self._next_generation()
+        threading.Thread(target=self._boot, args=(ready, generation), name="navmesh-agent", daemon=True).start()
 
-    def _boot(self, ready: threading.Event) -> None:
+    def _next_generation(self) -> int:
+        """仅在持有 _start_lock 时调用。"""
+        self._boot_generation += 1
+        return self._boot_generation
+
+    def _boot(self, ready: threading.Event, generation: int) -> None:
+        error: str | None = None
+        geom_of: dict[int, int] | None = None
         try:
-            self._connect()
+            session = self._connect()
+            with self._start_lock:
+                # 起会话期间又有人换了代 (agent 死了被探到): 这份晚到的不能挂回去, 否则再也关不掉。
+                if generation != self._boot_generation:
+                    session.close()
+                    return
+                # open() 成功之后才发布: 半成品会话被查询看见时 resource/tasker 还是 None。
+                self._session = session
             # 顺带把 pack 读进 agent, 并留下 tier -> 几何区的映射供 mesh 缓存用。
             probe = self._post("zones")
             if not probe.get("ok"):
                 raise RuntimeError(probe.get("error") or "navmesh 查询失败")
-            self._geom_of = {int(z["zone_id"]): int(z["geometry_zone_id"]) for z in probe["zones"]}
+            geom_of = {int(z["zone_id"]): int(z["geometry_zone_id"]) for z in probe["zones"]}
         except Exception as exc:  # noqa: BLE001
-            self._error = str(exc)
+            error = str(exc)
         finally:
+            with self._start_lock:
+                if generation == self._boot_generation:
+                    self._error = error
+                    if geom_of is not None:
+                        self._geom_of = geom_of
             ready.set()
 
     def _restart_dead_session(self) -> bool:
@@ -116,12 +139,37 @@ class NavmeshBackend:
                 self._ready = threading.Event()
                 self._started = True
                 ready = self._ready
+                generation = self._next_generation()
             if session is not None:
                 session.close()
-        threading.Thread(target=self._boot, args=(ready,), name="navmesh-agent", daemon=True).start()
+        threading.Thread(target=self._boot, args=(ready, generation), name="navmesh-agent", daemon=True).start()
         return True
 
-    def _connect(self) -> None:
+    def restart(self) -> None:
+        """强制冷启一个新会话并等它起来。agent 只在起来时读一次旁包和禁区表, 改了就得让它重读。"""
+        # 重载整段串行: 在途的启动先落地, 再换会话, 再等这一代起来。等只能在 _query_lock 之外,
+        # _boot 的探针查询自己要拿这把锁。
+        with self._reload_lock:
+            if self._started and not self._ready.wait(180.0):
+                raise RuntimeError("navmesh agent 启动超时")
+            with self._query_lock:
+                with self._start_lock:
+                    session, self._session = self._session, None
+                    self._error = None
+                    self._ready = threading.Event()
+                    self._started = True
+                    ready = self._ready
+                    generation = self._next_generation()
+                if session is not None:
+                    session.close()
+            threading.Thread(target=self._boot, args=(ready, generation), name="navmesh-agent", daemon=True).start()
+            # 只有这一代真起来了才算重载成功; 起不来就在这里报, 别等到下一次规划才冒头。
+            if not ready.wait(180.0):
+                raise RuntimeError("navmesh agent 启动超时")
+            if self._error is not None:
+                raise RuntimeError(self._error)
+
+    def _connect(self) -> AgentSession:
         runtime = load_maa_runtime()
         if runtime is None:
             raise RuntimeError("maafw 不可用")
@@ -131,8 +179,7 @@ class NavmeshBackend:
         except Exception:
             session.close()
             raise
-        # open() 成功之后才发布: 半成品会话被查询看见时 resource/tasker 还是 None。
-        self._session = session
+        return session
 
     def close(self) -> None:
         # 关会话得跟查询串行, 否则 _post_locked() 正拿着它用; 但关服务器不能被在途的长规划卡死。

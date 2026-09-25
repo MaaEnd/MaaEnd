@@ -29,6 +29,15 @@ test("assert mode cancels an active gesture before clearing the completed frame 
   assert.equal(resolveEscapeAction({mode: "assert", assertRectSelected: true}), EscapeAction.CLEAR_ASSERT_CONTEXT);
 });
 
+test("no-go editing drops the ring in progress before deselecting a saved polygon", () => {
+  assert.equal(
+    resolveEscapeAction({mode: "nogo", hasNoGoDraft: true, noGoSelected: true}),
+    EscapeAction.CANCEL_NOGO_DRAFT,
+  );
+  assert.equal(resolveEscapeAction({mode: "nogo", noGoSelected: true}), EscapeAction.CLEAR_NOGO_SELECTION);
+  assert.equal(resolveEscapeAction({mode: "nogo", hasMapInspection: true}), EscapeAction.NONE);
+});
+
 test("log analysis clears point details or measurement and otherwise leaves Escape unhandled", () => {
   assert.equal(resolveEscapeAction({mode: "log", hasMapInspection: true}), EscapeAction.CLEAR_LOG_CONTEXT);
   assert.equal(resolveEscapeAction({mode: "log"}), EscapeAction.NONE);

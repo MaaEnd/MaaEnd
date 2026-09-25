@@ -104,5 +104,53 @@
         "next": [
             "SceneEnterMenuIntelArchiveNexusFiles"
         ]
+    },
+    "SceneTestEnterMenuSetting": {
+        "desc": "在任意场景下，进入设置（仅 PC）",
+        "next": [
+            "SceneEnterMenuSetting"
+        ]
+    },
+    "SceneTestEnterMenuSettingPerformanceGraphic": {
+        "desc": "在任意场景下，进入设置-性能与画面（仅 PC）",
+        "next": [
+            "SceneEnterMenuSettingPerformanceGraphic"
+        ]
+    },
+    "SceneTestEnterMenuSettingAudio": {
+        "desc": "在任意场景下，进入设置-音频（仅 PC）",
+        "next": [
+            "SceneEnterMenuSettingAudio"
+        ]
+    },
+    "SceneTestEnterMenuSettingControls": {
+        "desc": "在任意场景下，进入设置-操控（仅 PC）",
+        "next": [
+            "SceneEnterMenuSettingControls"
+        ]
+    },
+    "SceneTestEnterMenuSettingKeybinding": {
+        "desc": "在任意场景下，进入设置-按键（仅 PC）",
+        "next": [
+            "SceneEnterMenuSettingKeybinding"
+        ]
+    },
+    "SceneTestEnterMenuSettingLanguage": {
+        "desc": "在任意场景下，进入设置-语言（仅 PC）",
+        "next": [
+            "SceneEnterMenuSettingLanguage"
+        ]
+    },
+    "SceneTestEnterMenuSettingPlatformAccount": {
+        "desc": "在任意场景下，进入设置-平台与账户（仅 PC）",
+        "next": [
+            "SceneEnterMenuSettingPlatformAccount"
+        ]
+    },
+    "SceneTestEnterMenuSettingOthers": {
+        "desc": "在任意场景下，进入设置-其他（仅 PC）",
+        "next": [
+            "SceneEnterMenuSettingOthers"
+        ]
     }
 }

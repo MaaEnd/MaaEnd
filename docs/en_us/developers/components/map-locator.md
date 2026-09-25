@@ -39,6 +39,8 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 | `mapName` | (On success) The localized zone name, e.g., `map01_lv001` |
 | `x` / `y` | (On success) Global pixel coordinates |
 | `rot` | (On success) Orientation yaw angle, 0°–360°, north as zero |
+| `camRot` | Camera orientation, 0°–360°, north as zero; carried only by frames with a successful localization (see [How Localization Works](#how-localization-works)). Unrelated to `rot` (the character orientation) |
+| `camRotConf` | Confidence of the camera orientation |
 | `locConf` | Confidence score of this hit, for reference when tuning parameters |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 
@@ -89,7 +91,7 @@ Overriding parameters (e.g., forcing a global search after a long-distance telep
 
 Checks whether the character is currently inside a specified rectangle within a given `zone_id`.
 
-Unlike the single-frame check of `MapLocateRecognition`, this node performs a **settled determination**: it resets the tracking state, forces a global search, then polls at 250ms intervals (up to 60 frames, about 15 seconds). It requires 3 consecutive frames with successful localization, a matching zone, and positions stable within a 12px radius, and finally checks the centroid coordinate against the rectangle. A call may therefore block for several seconds — it is not instantaneous.
+This node performs a **waiting determination**: it resets the tracking state, forces a global search, then polls at 250ms intervals (up to 60 frames, about 15 seconds) until a frame localizes successfully with coordinates falling inside the rectangle. The zone banner shown after a teleport covers the minimap, and this budget exists to wait it out. A call may therefore block for several seconds — it is not instantaneous.
 
 ### Node Parameters
 
@@ -100,14 +102,7 @@ Required parameters (`custom_recognition_param`):
 | `zone_id` | Target zone name; must exactly match the localized zone name |
 | `target` | Array of 4 numbers `[x, y, w, h]`: rectangle top-left corner and size |
 
-Optional parameters (`custom_recognition_param`):
-
-| Parameter | Default | Description |
-| ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `loc_threshold` | `0.70` | Lower bound of the template matching score, same meaning as above; note the default is higher than for single-frame localization |
-| `yolo_threshold` | `0.70` | Same meaning as above |
-
-The assertion always forces a global search and only accepts localization results inside `zone_id`; no search-scope configuration is needed.
+There are no optional parameters. The assertion always forces a global search and only accepts localization results inside `zone_id`; the match score and YOLO confidence use the locator defaults, matching how `MapNavigator` captures positions.
 
 ### Return Value (out_detail)
 
@@ -118,8 +113,10 @@ The assertion always forces a global search and only accepts localization result
 | `inTarget` | Equivalent to `matched` |
 | `message` | Localization log or failure reason |
 | `zoneId` | The target zone name required by this assertion |
-| `x` / `y` | (On success) Centroid coordinates of the stable window |
+| `x` / `y` | (On success) Global pixel coordinates returned by the locator |
 | `rot` | (On success) Orientation yaw angle |
+| `camRot` | Camera orientation, same value and source as `camRot` in `MapLocateRecognition` |
+| `camRotConf` | Confidence of the camera orientation |
 | `locConf` | Confidence score of this hit |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 | `target` | Echoes the `[x, y, w, h]` rectangle used for this assertion |
@@ -159,6 +156,7 @@ This section is for readers who want to understand the internals; it is not requ
 2. **YOLO pre-filtering**: judges by confidence whether a valid minimap area exists in the current frame, filtering out abnormal frames such as full-screen menus and effect occlusion.
 3. **Gradient-domain ZNCC matching**: gradient features are extracted for semi-transparent UI stacking scenarios, paired with ZNCC (Zero-mean Normalized Cross-Correlation) template matching. Matching relies mainly on edge and contour features, staying stable when skill effects flash or the UI changes.
 4. **MotionTracker motion prediction**: infers the search range for the current frame from historical movement speed instead of searching globally every frame, which improves speed and avoids matching distant areas that look similar but are not actually reachable.
+5. **Camera-orientation artifact**: `camRot` / `camRotConf` are produced by the two-graph artifact delivered together under `assets/resource/model/map/cameraorientation/`. `preprocess.onnx` is the single implementation of preprocessing: it takes the 118×120 observation ROI (BGR), the zone map asset (BGRA, dynamic size) and the localized `(x, y, scale)`, and outputs the observation strip and the reference strip; polar geometry, reference sampling and strip-domain composition, and the sampling and rounding conventions are all encapsulated in the graph, with the reference BGR composited over a white backdrop at transparent asset pixels and out-of-bounds reads returning 0, while the reference alpha keeps the raw asset values. `polar_with_ref.onnx` consumes the 7-channel `[obs.BGR, ref.BGR, ref.A]` reference pair and outputs a 360-bin azimuth probability distribution. A missing reference (cropped out of bounds or transparent, `ref.A` == 0) is expressed explicitly inside the pair and handled by the model, so MapLocator neither routes nor falls back: when the zone asset is missing or not BGRA it feeds a fully transparent placeholder asset, making the reference strip entirely missing, and the gap fraction only goes to the diagnostic log. The reference pair needs the localization result `(x, y, zone)`, so only frames with a successful localization and a zone other than `None` carry `camRot`; a model that is not loaded or fails inference yields none.
 
 > [!IMPORTANT]
 >

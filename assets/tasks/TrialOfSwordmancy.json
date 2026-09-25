@@ -104,6 +104,9 @@
                 {
                     "name": "Once",
                     "label": "$option.TrialOfSwordmancyOverflow.cases.Once.label",
+                    "option": [
+                        "TrialOfSwordmancyStopOnOverflow"
+                    ],
                     "pipeline_override": {
                         "TrialOfSwordmancyDecide": {
                             "custom_action_param": {
@@ -114,7 +117,29 @@
                 },
                 {
                     "name": "Twice",
-                    "label": "$option.TrialOfSwordmancyOverflow.cases.Twice.label"
+                    "label": "$option.TrialOfSwordmancyOverflow.cases.Twice.label",
+                    "option": [
+                        "TrialOfSwordmancyStopOnOverflow"
+                    ]
+                }
+            ]
+        },
+        "TrialOfSwordmancyStopOnOverflow": {
+            "type": "switch",
+            "label": "$option.TrialOfSwordmancyStopOnOverflow.label",
+            "description": "$option.TrialOfSwordmancyStopOnOverflow.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "TrialOfSwordmancyFinishOnOverflow": {
+                            "enabled": true
+                        }
+                    }
                 }
             ]
         },
@@ -142,7 +167,7 @@
                         "AutoFight": {
                             "attach": {
                                 "pause_exit_nodes": [
-                                    "TrialOfSwordmancyFightSuccess"
+                                    "TrialOfSwordmancyFightFinish"
                                 ]
                             }
                         }
@@ -165,18 +190,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "TrialOfSwordmancyDailyAutoFightResetState": {
-                            "enabled": true
-                        },
-                        "TrialOfSwordmancyDailyAutoFightRearmResetState": {
-                            "enabled": true
-                        },
-                        "TrialOfSwordmancyDailyMain": {
+                        "TrialOfSwordmancyFightSuccess": {
                             "next": [
-                                "TrialOfSwordmancyDailyAutoFightResetState",
-                                "TrialOfSwordmancyDailyCheckRewardMode",
-                                "[JumpBack]TrialOfSwordmancyEnterTrialMenu",
-                                "[JumpBack]TrialOfSwordmancyGotoTrialArenaStart"
+                                "TrialOfSwordmancyFightSuccessLeave"
                             ]
                         }
                     }

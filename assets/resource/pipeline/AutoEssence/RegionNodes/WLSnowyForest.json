@@ -1,0 +1,139 @@
+{
+    "GotoTriggerPointSetAnchor_WLSnowyForest": {
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLSnowyForest",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLSnowyForest"
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：雪松林"
+        }
+    },
+    "GotoTriggerPointMaybeTeleport_WLSnowyForest": {
+        "desc": "强制传送到最近锚点后前往激发点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterWorldWulingSnowyForest2"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMove_WLSnowyForest"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "__GotoTriggerPointNearAnchor_WLSnowyForest": {
+        "desc": "锚点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        1505.45,
+                        982.74,
+                        15.43,
+                        16.63
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointNearTrigger_WLSnowyForest": {
+        "desc": "淤积点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        1458.88,
+                        1097.57,
+                        25.01,
+                        25.01
+                    ]
+                }
+            }
+        }
+    },
+    "GotoTriggerPointMove_WLSnowyForest": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1455.0,
+                                1092.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_WLSnowyForest"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GotoTriggerPointMoveExact_WLSnowyForest": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            1458.88,
+                            1097.57,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "post_delay": 1500,
+        "next": [
+            "AutoEssenceDispatcher"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

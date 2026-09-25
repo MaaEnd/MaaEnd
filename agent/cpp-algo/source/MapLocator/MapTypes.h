@@ -3,6 +3,7 @@
 #include <meojson/json.hpp>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <MaaUtils/NoWarningCV.hpp>
 
@@ -18,30 +19,46 @@ struct MapPosition
     int sliceIndex = 0;
     double angle = 0.0;
     long long latencyMs = 0;
-    bool isHeld = false;
 };
 
 struct MapLocatorConfig
 {
     std::string mapResourceDir;
     std::string yoloModelPath;
+    // 摄像机朝向两图工件：前处理图 + 参考配对分类器；路径为空表示未部署该图。
+    std::string cameraOrientationPreprocessModelPath;
+    std::string cameraOrientationRefModelPath;
     int yoloThreads = 1;
+};
+
+// 调用方对「人大概在哪」的先验，例如滑索落点、传送落点。只在全局搜索时多开一个以它为中心的
+// 小窗参与比分，位置仍由匹配分数决定；坐标是 zone_id 那张图自己的像素。
+struct SearchHint
+{
+    std::string zone_id;
+    double x = 0.0;
+    double y = 0.0;
+    double radius = 0.0;
+
+    MEO_JSONIZATION(zone_id, x, y, radius)
 };
 
 struct LocateOptions
 {
-    double loc_threshold = 0.55;      // 最低分数线
+    double loc_threshold = 0.55;      // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
     double yolo_threshold = 0.70;
     bool force_global_search = false; // 是否强制放弃当前追踪，进行全局全图搜
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
     std::string expected_zone_id;     // 非空时仅接受该区域的定位结果
+    std::vector<SearchHint> search_hints;
 
     MEO_JSONIZATION(
         MEO_OPT loc_threshold,
         MEO_OPT yolo_threshold,
         MEO_OPT force_global_search,
         MEO_OPT max_lost_frames,
-        MEO_OPT expected_zone_id)
+        MEO_OPT expected_zone_id,
+        MEO_OPT search_hints)
 };
 
 // --- 返回结果枚举与封装 ---
@@ -55,11 +72,20 @@ enum class LocateStatus
     NotInitialized
 };
 
+// 摄像机朝向识别结果：rot ∈ [0,360)，confidence ∈ [0,1]。与角色箭头朝向
+// （MapPosition.angle）识别目标无关，独立输出，不参与定位内部逻辑。
+struct CameraOrientation
+{
+    double rot = 0.0;
+    double confidence = 0.0;
+};
+
 struct LocateResult
 {
     LocateStatus status;
     std::optional<MapPosition> position;
     std::string debugMessage; // 用于向 Pipeline 输出日志
+    std::optional<CameraOrientation> camRot;
 };
 
 enum class GlobalSearchMode
@@ -146,7 +172,6 @@ inline bool TryExtractMinimap(const cv::Mat& image, bool use_adb_minimap_roi, cv
 }
 
 constexpr int MaxLostTrackingCount = 3;
-constexpr double MinMatchScore = 0.7;
 constexpr double MobileSearchRadius = 50.0;
 
 // global 跨帧跳变保护 + 冷启动 burn-in
@@ -214,7 +239,7 @@ struct TrackingConfig
 struct MatchConfig
 {
     int fineSearchRadius = 40;   // 精搜半径(px)
-    double passThreshold = 0.55; // 全局搜索及格线, 容忍UI遮挡+光影
+    double passThreshold = 0.55; // 低于此分先跑第二策略和提示窗, 仍无更高峰则照样交付
     double yoloConfThreshold = 0.60;
 };
 

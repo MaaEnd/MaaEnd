@@ -142,6 +142,47 @@ void TestSupplementalLocalImageName()
         "local suffix without an index must remain a regular fixture");
 }
 
+void TestAliasesUseOneToOneCounts()
+{
+    const auto expected = iconrecognition::test::LoadExpectedResults(kFixturePath);
+    const auto passes = [&](const auto& result) {
+        return !iconrecognition::test::CompareExpectedCase(
+            expected,
+            "transfer/fixture.png",
+            iconrecognition::GridType::Transfer,
+            "full",
+            result,
+            false);
+    };
+    auto result = MakeMatchResult();
+    result.matches[1].item.item_id = "new_primary_b";
+    result.matches[1].item.aliases = { { .item_id = "item_b" } };
+    Check(passes(result), "an expected id in aliases must be accepted");
+
+    // 第一格可匹配 a 或 b，后两格只能匹配 a；必须能撤销第一次分配，不能依赖结果顺序。
+    result = MakeMatchResult();
+    result.matches[0].item.aliases = { { .item_id = "item_b" } };
+    result.matches[1].item.item_id = "item_a";
+    Check(passes(result), "overlapping aliases must be reassigned without greedy false negatives");
+    std::ranges::reverse(result.matches);
+    Check(passes(result), "alias comparison must be independent of result order");
+
+    result.matches.pop_back();
+    Check(!passes(result), "aliases must not let two actual cells satisfy three expected cells");
+    result = MakeMatchResult();
+    result.matches.push_back(result.matches.front());
+    Check(!passes(result), "extra actual cells must fail even when their ids are expected");
+
+    result = MakeMatchResult();
+    result.matches[0].item = { .item_id = "unknown", .aliases = { { .item_id = "item_a" }, { .item_id = "item_a" } } };
+    Check(passes(result), "repeated aliases must not double-count a cell");
+    result.matches[2].item = { .item_id = "unrelated" };
+    Check(!passes(result), "a repeated alias must not hide a missing expected cell or an unrelated item");
+    result = MakeMatchResult();
+    result.matches[1].item = { .item_id = "item_a" };
+    Check(!passes(result), "equal total count with the wrong item multiplicities must fail");
+}
+
 } // namespace
 
 int main()
@@ -151,6 +192,7 @@ int main()
         TestExpectedZeroMatchIsExplicit();
         TestWrongItemCountAndUnexpectedCaseFail();
         TestSupplementalLocalImageName();
+        TestAliasesUseOneToOneCounts();
         std::filesystem::remove(kFixturePath);
         return 0;
     }

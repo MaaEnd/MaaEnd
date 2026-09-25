@@ -1,0 +1,99 @@
+{
+    // 谷地通道 ValleyIV ValleyPass：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map01base 投影（原点左上、y 向下）
+    //   200001240 → [129.7, 542.8]
+    //   200001239 → [161.7, 545.7]
+    //   200001237 → [249.2, 684.4]
+    "SharedZiplineDeletePrepareValleyIVValleyPass": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitValleyIVValleyPass0"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVValleyPass0": {
+        "desc": "谷地通道锚点 markInstId=200001240",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                129.7,
+                542.8
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVValleyPass1"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVValleyPass1": {
+        "desc": "谷地通道锚点 markInstId=200001239",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                161.7,
+                545.7
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVValleyPass2"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVValleyPass2": {
+        "desc": "谷地通道锚点 markInstId=200001237",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                249.2,
+                684.4
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

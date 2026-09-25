@@ -429,8 +429,10 @@ FodyWeavers.xsd
 # Local History for Visual Studio Code
 .history/
 
-# Claude Code
+# Coding Agents
 .claude/*
+.sisyphus/
+.workbuddy*/
 
 # Windows Installer files from build outputs
 *.cab
@@ -483,6 +485,3 @@ venv/
 
 # maa-tools
 tests/maatools
-
-# oh-my-opencode
-.sisyphus/

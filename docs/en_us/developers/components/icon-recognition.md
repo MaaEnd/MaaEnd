@@ -39,7 +39,7 @@ Use a top-level key from [`assets/data/IconRecognition/recognition_items.json`](
 }
 ```
 
-All accepted cell positions are returned by default. With `deduplicate: true`, only the highest-scoring cell is kept for each `item_id`; different items retain separate results.
+All accepted cell positions are returned by default. With `deduplicate: true`, only the highest-scoring cell is kept for each `item_id`. Items that share the same `(iconId, fluidIconId)` cannot be distinguished visually, so the component scores that identity once and preserves the other possible identities in the representative match's `aliases`.
 
 ### Recognize every item in a grid
 
@@ -147,6 +147,7 @@ The component does not infer, move, or expand the request ROI from the selected 
 
 - **`threshold` and `subpixel_threshold`**: Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it passes the low-texture check. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask, but they do not bypass the uniform threshold. Check the ROI, frame stability, and candidate filters before lowering thresholds.
 - **Candidate-set order**: The final set is `(((item_filters or grid defaults) ∩ item_ids) ∪ additional_item_filters) - excluded_item_ids`; omit the intersection when `item_ids` is absent. `excluded_item_ids` is applied as the final candidate-set operation, so listed items never participate in recognition. Duplicate values in candidate arrays are treated as one. Unknown IDs in `item_ids` or `excluded_item_ids`, malformed or catalog-unmatched filters, and an empty final set return `invalid_argument`.
+- **Shared icons and representatives**: After filtering, candidates are deduplicated by `(iconId, fluidIconId)`, so each visual identity is scored once. The alias scope is only `(item_filters or grid defaults) ∪ additional_item_filters`, followed by `excluded_item_ids`; aliases are never pulled from the complete catalog. Without an exact request, the representative follows descending catalog order by `sortId1`, `sortId2`, and `item_id`, with records lacking both sort fields placed last. When one ID in a shared-icon group is requested exactly, that ID takes priority as the representative: requesting `a` returns `a` with `b` in `aliases`, while requesting `b` returns `b` with `a` in `aliases`, provided both remain in the alias scope and are not excluded. If one request contains multiple IDs from the same group, catalog order chooses the representative.
 - **`item_recheck_filters`**: When `item_ids` is used to find specific items, visually similar items outside that set may be mistaken for a target item. `item_recheck_filters` rechecks only matches from the original `item_ids`; it does not recheck items appended by `additional_item_filters`. Compared with omitting `item_ids` and using only `item_filters` to recognize the entire grid, this approach rechecks only matched cells and is usually faster. Set `deduplicate: true` as well to avoid repeated rechecks of the same item.
 
 For template composition, masking, and fallback matching details, see [Recognition algorithm](/agent/cpp-algo/source/IconRecognition/docs/algorithm.md#候选选择与图标匹配).
@@ -242,6 +243,7 @@ Fields in `matches[]`:
 | `category` | string | Catalog category label |
 | `storage_kind` / `category_type` | string | Classification fields for later filtering or business rules |
 | `rarity` | integer | Catalog rarity |
+| `aliases` | object[] | Optional; other filtered items sharing the representative's `(iconId, fluidIconId)`. Each entry contains `item_id` and the locale key `name`; omitted when empty |
 | `cell_box` | integer[4] | Owning grid cell as `[x,y,width,height]`; equal to the request ROI for `single_roi` |
 | `item_box` | integer[4] | Final template match location as `[x,y,width,height]` |
 | `score` | number | Final match score |

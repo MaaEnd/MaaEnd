@@ -12,32 +12,24 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_VFOriginLodespring": {
-        "desc": "判断是否需要传送到最近锚点",
-        "recognition": {
-            "type": "Or",
+        "desc": "强制传送到最近锚点后前往激发点",
+        "action": {
+            "type": "Custom",
             "param": {
-                "any_of": [
-                    "__GotoTriggerPointNearAnchor_VFOriginLodespring",
-                    "__GotoTriggerPointNearTrigger_VFOriginLodespring"
-                ]
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterWorldValleyIVOriginLodespring3"
+                    ]
+                }
             }
         },
-        "inverse": true,
         "next": [
-            "[JumpBack]__GotoTriggerPointTeleportOnce_VFOriginLodespring",
             "GotoTriggerPointMove_VFOriginLodespring"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
-    },
-    "__GotoTriggerPointTeleportOnce_VFOriginLodespring": {
-        "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "SceneEnterWorldValleyIVOriginLodespring3"
-        ]
     },
     "GotoTriggerPointMove_VFOriginLodespring": {
         "action": {
@@ -46,6 +38,10 @@
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
                         {
                             "action": "NAVMESH",
                             "target": [
@@ -68,6 +64,9 @@
         "next": [
             "GotoTriggerPointMoveExact_VFOriginLodespring"
         ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
+        ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近",
             "Node.Action.Succeeded": {
@@ -86,6 +85,10 @@
                 "custom_action_param": {
                     "path": [
                         {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_L6_109"
+                        },
+                        {
                             "action": "RUN",
                             "target": [
                                 97.7,
@@ -100,7 +103,7 @@
         },
         "post_delay": 1500,
         "next": [
-            "AutoEssenceInteract"
+            "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

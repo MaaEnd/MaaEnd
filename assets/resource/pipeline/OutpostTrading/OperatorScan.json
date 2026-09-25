@@ -1,0 +1,198 @@
+{
+    "OutpostTradingInitializeOperatorSession": {
+        "desc": "初始化自动选择干员会话",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingOperatorSession",
+        "custom_action_param": {
+            "operation": "reset",
+            "mode": "cache"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingRegisterLocationRefugeeCamp"
+        ]
+    },
+    "OutpostTradingOperatorSessionReady": {
+        "desc": "自动选择干员会话已就绪",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingScanOperatorList": {
+        "desc": "扫描联络干员列表",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingOperatorCacheReady",
+            "OutpostTradingOpenOperatorListForScan"
+        ]
+    },
+    "OutpostTradingOperatorCacheReady": {
+        "desc": "联络干员缓存已就绪",
+        "recognition": "Custom",
+        "custom_recognition": "OutpostTradingOperatorCacheReady",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "all",
+            "location": "global",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingOpenOperatorListForScan": {
+        "desc": "打开联络干员列表以扫描缓存",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingOpenOperatorLiaisonButton",
+            "OutpostTradingInOutpost"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingInOperatorListForScan"
+        ]
+    },
+    "OutpostTradingInOperatorListForScan": {
+        "desc": "已打开联络干员列表，扫描当前页",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingInOperatorLiaison"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingOperatorListScanDone",
+            "OutpostTradingOperatorListScanFailed",
+            "OutpostTradingSwipeOperatorListForScan"
+        ]
+    },
+    "OutpostTradingOperatorListScanDone": {
+        "desc": "联络干员列表扫描到底",
+        "recognition": "Custom",
+        "custom_recognition": "OutpostTradingOperatorListBottom",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "all",
+            "location": "global",
+            "result": "scan_done",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingCloseOperatorListAfterScan"
+        ]
+    },
+    "OutpostTradingOperatorListScanFailed": {
+        "desc": "联络干员缓存扫描失败",
+        "recognition": "Custom",
+        "custom_recognition": "OutpostTradingOperatorScanOutcome",
+        "custom_recognition_param": {
+            "mode": "cache",
+            "usage": "all",
+            "location": "global",
+            "result": "error",
+            "roi": [
+                164,
+                121,
+                700,
+                430
+            ]
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingSwipeOperatorListForScan": {
+        "desc": "扫描联络干员列表时向下滑动",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingInOperatorLiaison"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            620,
+            520
+        ],
+        "end": [
+            [
+                620,
+                285
+            ],
+            [
+                760,
+                285
+            ]
+        ],
+        "end_hold": 200,
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                170,
+                120,
+                690,
+                425
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingInOperatorListForScan"
+        ]
+    },
+    "OutpostTradingCloseOperatorListAfterScan": {
+        "desc": "扫描联络干员列表后关闭列表",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingInOperatorLiaison",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                45,
+                55,
+                1180,
+                620
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

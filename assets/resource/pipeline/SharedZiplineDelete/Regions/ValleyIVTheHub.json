@@ -1,0 +1,215 @@
+{
+    // 枢纽区 ValleyIV TheHub：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map01base 投影（原点左上、y 向下）
+    //   2100010282 → [591.1, 660.8]
+    //   2100000086 → [528.0, 695.1]  岩丘通道
+    //   2100000284 → [635.7, 900.1]
+    //   2100000031 → [452.4, 910.3]  旧供水设施东侧
+    //   2100000073 → [713.2, 965.6]
+    //   2100000322 → [612.8, 968.1]
+    //   2100000093 → [373.5, 984.6]
+    "SharedZiplineDeletePrepareValleyIVTheHub": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitValleyIVTheHub0"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVTheHub0": {
+        "desc": "枢纽区锚点 markInstId=2100010282",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                591.1,
+                660.8
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVTheHub1"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVTheHub1": {
+        "desc": "枢纽区锚点 markInstId=2100000086",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                528.0,
+                695.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVTheHub2"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVTheHub2": {
+        "desc": "枢纽区锚点 markInstId=2100000284",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                635.7,
+                900.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVTheHub3"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVTheHub3": {
+        "desc": "枢纽区锚点 markInstId=2100000031",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                452.4,
+                910.3
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVTheHub4"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVTheHub4": {
+        "desc": "枢纽区锚点 markInstId=2100000073",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                713.2,
+                965.6
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVTheHub5"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVTheHub5": {
+        "desc": "枢纽区锚点 markInstId=2100000322",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                612.8,
+                968.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVTheHub6"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVTheHub6": {
+        "desc": "枢纽区锚点 markInstId=2100000093",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                373.5,
+                984.6
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

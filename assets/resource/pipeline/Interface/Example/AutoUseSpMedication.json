@@ -1,0 +1,24 @@
+{
+    "AutoUseSpMedicationExampleInPrepare": {
+        "desc": "准备界面补充理智示例",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoUseSpMedicationInPrepareFinishUseAnchor": "AutoUseSpMedicationExampleAfterUse",
+            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoUseSpMedicationExampleAfterNoUse"
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoUseSpMedicationInPrepareWithAnchor"
+        ]
+    },
+    "AutoUseSpMedicationExampleAfterUse": {
+        "desc": "成功使用应急理智加强剂后的后续业务",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoUseSpMedicationExampleAfterNoUse": {
+        "desc": "未找到可使用的应急理智加强剂后的后续业务",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

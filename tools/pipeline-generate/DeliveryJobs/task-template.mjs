@@ -1,4 +1,15 @@
+import {existsSync} from "node:fs";
+
 import {DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT, deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
+
+const UI_ITEM_DIR = new URL("../../../assets/resource/image/UI/Item/", import.meta.url);
+
+function buildItemIcon(itemId) {
+    if (!itemId || !existsSync(new URL(`${itemId}.png`, UI_ITEM_DIR))) {
+        return undefined;
+    }
+    return `resource/image/UI/Item/${itemId}.png`;
+}
 
 const ALL_CARGO_EXPECTED = [
     "查看报价",
@@ -29,16 +40,15 @@ const AUTO_DELIVERY_NAVIGATE_NODES = [
 function buildCargoAnchor(
     depot,
     bidAction,
-    ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery",
     goToDepot = depot.DepotScene,
     afterAcceptJob = "DeliveryJobsDeliverQuickly",
 ) {
     return {
         DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
         DeliveryJobsRedistributionBidAction: bidAction,
-        DeliveryJobsOngoingDeliveryAction: ongoingDeliveryAction,
         DeliveryJobsAfterAcceptJob: afterAcceptJob,
         DeliveryJobsGoToDepot: goToDepot,
+        DeliveryJobsReturnToDepotNode: depot.DepotScene,
     };
 }
 
@@ -56,9 +66,14 @@ function buildModeOverride(depot, {deliveryEnabled, cargoEnabled, cargoExpected,
     };
 
     if (cargoEnabled) {
-        pipelineOverride[cargoNode].anchor = buildCargoAnchor(depot, bidAction, ongoingDeliveryAction);
+        pipelineOverride[cargoNode].anchor = buildCargoAnchor(depot, bidAction);
         pipelineOverride[cargoCheckNode] = {
             expected: cargoExpected,
+        };
+        pipelineOverride[`DeliveryJobsOngoingDeliveryFor${depot.Id}`] = {
+            next: [
+                ongoingDeliveryAction,
+            ],
         };
     }
 
@@ -78,6 +93,7 @@ function buildDepotOption(depot) {
                     cargoEnabled: true,
                     cargoExpected: ALL_CARGO_EXPECTED,
                     bidAction: "DeliveryJobsRedistributionBidNextStep",
+                    ongoingDeliveryAction: "DeliveryJobsTransferOngoingJob",
                 }),
             },
             ...(depot.AutoDeliverySupported
@@ -104,6 +120,7 @@ function buildDepotOption(depot) {
                     cargoEnabled: true,
                     cargoExpected: ALL_CARGO_EXPECTED,
                     bidAction: `DeliveryJobsDecide${depot.Id}Quote`,
+                    ongoingDeliveryAction: "DeliveryJobsSkipOngoingDelivery",
                 }),
             },
             {
@@ -114,6 +131,7 @@ function buildDepotOption(depot) {
                     cargoEnabled: true,
                     cargoExpected: ALL_CARGO_EXPECTED,
                     bidAction: "DeliveryJobsRedistributionBidNextStep",
+                    ongoingDeliveryAction: "DeliveryJobsSkipOngoingDelivery",
                 }),
             },
             {
@@ -123,7 +141,7 @@ function buildDepotOption(depot) {
                     deliveryEnabled: false,
                     cargoEnabled: true,
                     cargoExpected: PACK_CARGO_EXPECTED,
-                    bidAction: "DeliveryJobsBackToDepotFromBid",
+                    bidAction: "DeliveryJobsCloseRedistributionBid",
                     ongoingDeliveryAction: "DeliveryJobsSkipOngoingDelivery",
                 }),
             },
@@ -190,6 +208,18 @@ function buildQuoteThresholdOption(depot) {
 function buildQuoteActionOption(depot, {comparison, label, description, defaultCase}) {
     const comparisonNode = `DeliveryJobs${depot.Id}Quote${comparison}`;
     const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
+    // 是否接取由 next 表达，接取后的去向只由 DeliveryJobsGoToDepot 表达；
+    // 「不处理」直接关闭调度申请界面，不经过 DeliveryJobsBackToDepot。
+    const acceptThen = (goToDepot) => ({
+        [comparisonNode]: {
+            next: [
+                "DeliveryJobsRedistributionBidNextStep",
+            ],
+            anchor: {
+                DeliveryJobsGoToDepot: goToDepot,
+            },
+        },
+    });
     return {
         type: "select",
         label,
@@ -198,52 +228,30 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
             {
                 name: "Transfer",
                 label: "$task.DeliveryJobs.QuoteAction.Transfer",
-                pipeline_override: {
-                    [comparisonNode]: {
-                        anchor: {
-                            DeliveryJobsQuoteAction: "DeliveryJobsQuoteTransferJob",
-                            DeliveryJobsGoToDepot: `DeliveryJobsReturnAndTransfer${depot.Id}`,
-                        },
-                    },
-                },
+                pipeline_override: acceptThen(`DeliveryJobsReturnAndTransfer${depot.Id}`),
             },
             ...(depot.AutoDeliverySupported
                 ? [
                       {
                           name: "AutoDelivery",
                           label: "$task.DeliveryJobs.QuoteAction.AutoDelivery",
-                          pipeline_override: {
-                              [comparisonNode]: {
-                                  anchor: {
-                                      DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                                      DeliveryJobsGoToDepot: autoDelivery,
-                                  },
-                              },
-                          },
+                          pipeline_override: acceptThen(autoDelivery),
                       },
                   ]
                 : []),
             {
                 name: "AcceptJobOnly",
                 label: "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
-                pipeline_override: {
-                    [comparisonNode]: {
-                        anchor: {
-                            DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                            DeliveryJobsGoToDepot: depot.DepotScene,
-                        },
-                    },
-                },
+                pipeline_override: acceptThen(depot.DepotScene),
             },
             {
                 name: "DoNotAccept",
                 label: "$task.DeliveryJobs.QuoteAction.DoNotAccept",
                 pipeline_override: {
                     [comparisonNode]: {
-                        anchor: {
-                            DeliveryJobsQuoteAction: "DeliveryJobsQuoteDoNotAccept",
-                            DeliveryJobsGoToDepot: depot.DepotScene,
-                        },
+                        next: [
+                            "DeliveryJobsCloseRedistributionBid",
+                        ],
                     },
                 },
             },
@@ -255,40 +263,45 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
 function buildAutoDeliveryOverride(depot, {bidAction}) {
     const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
     const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
-    const openOngoingAutoDelivery = `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`;
     const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
+    // 入口 A 点完「查看任务」后先经门节点等任务详情界面稳定，再交给全自动送货
+    const waitDetail = `DeliveryJobsWait${depot.Id}DeliveryMissionDetail`;
     return {
         [deliveryNode]: {
             enabled: true,
-            next: [autoDelivery],
+            next: [waitDetail],
         },
         [cargoNode]: {
             enabled: true,
-            anchor: buildCargoAnchor(depot, bidAction, openOngoingAutoDelivery, autoDelivery),
+            anchor: buildCargoAnchor(depot, bidAction, autoDelivery),
+        },
+        [`DeliveryJobsOngoingDeliveryFor${depot.Id}`]: {
+            next: [
+                autoDelivery,
+            ],
         },
     };
 }
 
-function buildAutoDeliveryRiskAcknowledgementOption() {
+function buildOngoingDeliveryFallbackOption() {
+    // 自动送货失败统一在公共调用节点 DeliveryJobsDeliverByAutoDelivery 上处理，
+    // 因此开关只需要覆盖一次 on_error，无需为每个仓储节点重复。
     return {
         type: "switch",
-        label: "$task.AutoDeliveryRiskAcknowledgement.label",
-        description: "$task.AutoDeliveryRiskAcknowledgement.description",
+        label: "$task.DeliveryJobs.OngoingDeliveryFallback.label",
+        description: "$task.DeliveryJobs.OngoingDeliveryFallback.description",
         default_case: "No",
         cases: [
             {
                 name: "No",
-                pipeline_override: {
-                    DeliveryJobsAutoDeliveryGuard: {
-                        enabled: true,
-                    },
-                },
             },
             {
                 name: "Yes",
                 pipeline_override: {
-                    DeliveryJobsAutoDeliveryGuard: {
-                        enabled: false,
+                    DeliveryJobsDeliverByAutoDelivery: {
+                        on_error: [
+                            "DeliveryJobsTransferOngoingJob",
+                        ],
                     },
                 },
             },
@@ -386,28 +399,32 @@ function buildFillItemPriorityRegionOption(region) {
 }
 
 function buildFillItemCases(region, priority) {
-    const cases = region.FillItems.map((item) => ({
-        name: item.Id,
-        label: item.Label,
-        pipeline_override: {
-            [`DeliveryJobsStartFill${region.Id}Priority${priority}`]: {
-                enabled: true,
-            },
-            [`DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`]: {
-                enabled: true,
-                custom_recognition_param: {
-                    grid_type: "shipment",
-                    item_ids: [
-                        item.ItemId,
-                    ],
-                    item_recheck_filters: [
-                        item.RecheckFilter,
-                    ],
-                    deduplicate: true,
+    const cases = region.FillItems.map((item) => {
+        const icon = buildItemIcon(item.ItemId);
+        return {
+            name: item.Id,
+            label: item.Label,
+            ...(icon ? {icon} : {}),
+            pipeline_override: {
+                [`DeliveryJobsStartFill${region.Id}Priority${priority}`]: {
+                    enabled: true,
+                },
+                [`DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`]: {
+                    enabled: true,
+                    custom_recognition_param: {
+                        grid_type: "shipment",
+                        item_ids: [
+                            item.ItemId,
+                        ],
+                        item_recheck_filters: [
+                            item.RecheckFilter,
+                        ],
+                        deduplicate: true,
+                    },
                 },
             },
-        },
-    }));
+        };
+    });
     if (priority > 1) {
         cases.unshift({
             name: "None",
@@ -440,8 +457,8 @@ function buildTaskOptions() {
         }
     }
 
-    options.DeliveryJobsAutoDeliveryRiskAcknowledgement = buildAutoDeliveryRiskAcknowledgementOption();
     options.DeliveryJobsAutoDeliveryPreferZipline = buildAutoDeliveryPreferZiplineOption();
+    options.DeliveryJobsOngoingDeliveryFallback = buildOngoingDeliveryFallbackOption();
     options.PackCargoSelectItem = {
         type: "switch",
         label: "$task.DeliveryJobs.PackCargoSelectItem.label",
@@ -490,8 +507,8 @@ export default function buildDeliveryJobsTask() {
                 option: [
                     ...deliveryJobRegions.map((region) => region.Id),
                     "PackCargoSelectItem",
-                    "DeliveryJobsAutoDeliveryRiskAcknowledgement",
                     "DeliveryJobsAutoDeliveryPreferZipline",
+                    "DeliveryJobsOngoingDeliveryFallback",
                 ],
                 controller: [
                     "ADB",

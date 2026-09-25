@@ -39,21 +39,7 @@
         "desc": "直接点击传送按钮",
         "recognition": "And",
         "all_of": [
-            "TeleportButton",
-            {
-                "sub_name": "识别是否为传送按钮",
-                "recognition": "OCR",
-                "roi": [
-                    1120,
-                    612,
-                    146,
-                    100
-                ],
-                "expected": [
-                    "传送",
-                    "傳送"
-                ]
-            }
+            "TeleportButton"
         ],
         "pre_delay": 0,
         "action": "Click",

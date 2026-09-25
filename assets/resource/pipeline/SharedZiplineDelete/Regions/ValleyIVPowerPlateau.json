@@ -1,0 +1,128 @@
+{
+    // 供能高地 ValleyIV PowerPlateau：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map01base 投影（原点左上、y 向下）
+    //   2800001292 → [772.9, 148.4]
+    //   2800001509 → [677.0, 225.6]
+    //   2800001338 → [561.8, 288.0]
+    //   2800001519 → [649.8, 382.1]
+    "SharedZiplineDeletePrepareValleyIVPowerPlateau": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitValleyIVPowerPlateau0"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVPowerPlateau0": {
+        "desc": "供能高地锚点 markInstId=2800001292",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                772.9,
+                148.4
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVPowerPlateau1"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVPowerPlateau1": {
+        "desc": "供能高地锚点 markInstId=2800001509",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                677.0,
+                225.6
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVPowerPlateau2"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVPowerPlateau2": {
+        "desc": "供能高地锚点 markInstId=2800001338",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                561.8,
+                288.0
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitValleyIVPowerPlateau3"
+        ]
+    },
+    "SharedZiplineDeleteVisitValleyIVPowerPlateau3": {
+        "desc": "供能高地锚点 markInstId=2800001519",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                649.8,
+                382.1
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

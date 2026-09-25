@@ -1,0 +1,17 @@
+{
+    // 成功使用理智调用 AutoUseSpMedicationInPrepareFinishUseAnchor
+    // 未找到理智物品调用 AutoUseSpMedicationInPrepareFinishNoUseAnchor
+    // 调用前后画面保持不变
+    // 用法示例见 Interface/Example/AutoUseSpMedication.json
+    "AutoUseSpMedicationInPrepareWithAnchor": {
+        "desc": "在右上角有理智图标的准备界面添加理智",
+        "recognition": "And",
+        "all_of": [
+            "__AutoUseSpMedicationAddButtonRecognition"
+        ],
+        "action": "Click",
+        "next": [
+            "__AutoUseSpMedicationInQuickUse"
+        ]
+    }
+}

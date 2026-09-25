@@ -12,7 +12,10 @@
                     60
                 ],
                 "expected": [
-                    "浮空回收"
+                    "浮空回收",
+                    "空中回収",
+                    "AERO-SALVAGE",
+                    "부유 회수"
                 ]
             },
             {
@@ -225,7 +228,13 @@
             165,
             33
         ],
-        "expected": "回收条件达成",
+        "expected": [
+            "回收条件达成",
+            "回收條件達成",
+            "回収条件達成",
+            "SALVAGING REQUIREMENTS MET",
+            "회수 조건 달성"
+        ],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,

@@ -223,7 +223,7 @@
         }
     },
     "__SceneImageCaptureUid": {
-        "desc": "获取一下uid",
+        "desc": "从注册表（Win32）或 OCR（其他控制器）获取 UID 并发布到 CurrentAccountIdentity，供 cpp-algo 滑索规划使用",
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",

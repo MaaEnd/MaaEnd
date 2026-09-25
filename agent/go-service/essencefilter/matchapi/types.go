@@ -90,6 +90,13 @@ type OCRInput struct {
 	Levels [3]int    // slot1..slot3 levels
 }
 
+// InventoryMatch describes an exact weapon match with levels in semantic slot order.
+type InventoryMatch struct {
+	SkillIDs [3]int
+	Levels   [3]int
+	Weapons  []WeaponData
+}
+
 type MatchKind int
 
 const (

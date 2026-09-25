@@ -87,7 +87,7 @@ def build_sell_product_data(tables: dict[str, Any]) -> dict[str, Any]:
 
     used_item_ids: set[str] = set()
     settlements = {}
-    for settlement_id, settlement_value in settlement_table.items():
+    for settlement_id, settlement_value in sorted_entries(settlement_table):
         settlement = assert_record(settlement_value, f"据点 {settlement_id}")
         if "settlementId" in settlement and settlement["settlementId"] != settlement_id:
             raise ValueError(
@@ -124,6 +124,7 @@ def build_sell_product_data(tables: dict[str, Any]) -> dict[str, Any]:
                     {
                         "item_id": item_id,
                         "unit_price": trade_item.get("rewardMoneyCount"),
+                        "activity_id": trade_item.get("activityId") or "",
                     }
                 )
             trade_items.sort(key=lambda item: item["unit_price"], reverse=True)

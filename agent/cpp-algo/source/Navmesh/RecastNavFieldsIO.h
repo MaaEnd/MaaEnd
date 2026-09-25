@@ -73,6 +73,59 @@ struct FieldsZone
     bool wallKeep(int32_t tri, int k, uint32_t rid, bool& known) const;
 };
 
+// 离网连接 (FLNK 段) 的一头: 烘焙侧已对着 BGRD 挑好落脚格与 span。格号与 BGRD 瓦片同一全局格。
+struct FieldsLinkSide
+{
+    int32_t gx = 0;
+    int32_t gy = 0;
+    float h = 0.0F;      // 选中 span 在 BGRD 里的高
+    float decl_h = 0.0F; // 源声明的落脚高
+    uint32_t rid = 0;
+    uint16_t clr = 0;
+    uint8_t flags = 0;
+    uint8_t why = 0; // 0 可落脚; 1 出界; 2 无面; 3 高度带内无面; 4 带内只有 core==0 的面
+};
+
+// 一条离网连接, BOML 字段原样转述; valid bit0 = lo 可落脚, bit1 = hi 可落脚。
+struct FieldsLinkRec
+{
+    uint32_t boml_index = 0;
+    uint16_t zone_id = 0;
+    uint8_t kind = 0;
+    uint8_t valid = 0;
+    int32_t is_ext = 0;
+    int32_t bidirectional = 0;
+    int32_t area = 0;
+    uint16_t link_type = 0;
+    uint8_t direction = 0;
+    float radius = 0.0F;
+    float cost_modifier = 0.0F;
+    FieldsLinkSide lo;
+    FieldsLinkSide hi;
+};
+
+struct FieldsLinkZone
+{
+    uint16_t zone_id = 0;
+    uint32_t first = 0;
+    uint32_t len = 0;
+};
+
+// 可打通的死格 (FOPN 段): 烘焙侧已按墙类过滤, 仅收录被缝类墙覆盖且未接触崖/实墙/虚空的死记录
+// 以及源声明的离网落点。解瓦时匹配 (gx, gy, h 位模式) 即并入 flags, 净空取较大值。
+struct FieldsOpenRec
+{
+    int32_t gx = 0;
+    int32_t gy = 0;
+    float h = 0.0F;
+    uint16_t clr = 0; // 打通后的净空, 平方格数
+    uint8_t flags = 0;
+    uint8_t src = 0;  // bit0 = 缝门控, bit1 = 离网落点
+};
+
+// 在区内按 (gy, gx, h 位模式) 升序的区段中查找一条; 未找到返回空。
+const FieldsOpenRec* FindOpen(const FieldsOpenRec* p, size_t n, int32_t gx, int32_t gy, float h);
+
 class FieldsPack
 {
 public:
@@ -88,11 +141,23 @@ public:
 
     bool loadZone(const FieldsZoneDir& z, FieldsZone& out, std::string& err) const;
 
+    // 区 zone_id 的离网连接, 按 BOML 下标升序; 旁包没有 FLNK 段或该区没有连接时 n = 0。
+    const FieldsLinkRec* linksOfZone(uint16_t zone_id, size_t& n) const;
+
+    const std::vector<FieldsLinkRec>& links() const { return links_; }
+
+    // 区 zone_id 的可打通死格, 按 (gy, gx, h) 升序; 没有 FOPN 段或该区没有时 n = 0。
+    const FieldsOpenRec* opensOfZone(uint16_t zone_id, size_t& n) const;
+
 private:
     std::vector<uint8_t> bytes_;
     bool loaded_ = false;
     uint16_t flags_ = 0;
     std::vector<FieldsZoneDir> zones_;
+    std::vector<FieldsLinkRec> links_;
+    std::vector<FieldsLinkZone> link_zones_;
+    std::vector<FieldsOpenRec> opens_;
+    std::vector<FieldsLinkZone> open_zones_;
 };
 
 }

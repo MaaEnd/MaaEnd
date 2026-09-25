@@ -3,11 +3,18 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <MaaUtils/NoWarningCV.hpp>
 
 namespace iconrecognition::detail
 {
+
+struct TemplateAlias
+{
+    std::string item_id;
+    std::string name_key;
+};
 
 struct TemplateRecord
 {
@@ -19,7 +26,10 @@ struct TemplateRecord
     int rarity = 0;
     std::string icon_id;
     std::string fluid_icon_id;
+    std::optional<int> sort_id_1;
+    std::optional<int> sort_id_2;
     bool region_restricted = false;
+    std::vector<TemplateAlias> aliases;
 };
 
 struct PreparedTemplate

@@ -12,32 +12,24 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLSwordVaultDale": {
-        "desc": "判断是否需要传送到最近锚点",
-        "recognition": {
-            "type": "Or",
+        "desc": "强制传送到最近锚点后前往激发点",
+        "action": {
+            "type": "Custom",
             "param": {
-                "any_of": [
-                    "__GotoTriggerPointNearAnchor_WLSwordVaultDale",
-                    "__GotoTriggerPointNearTrigger_WLSwordVaultDale"
-                ]
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterWorldWulingSwordVaultDale3"
+                    ]
+                }
             }
         },
-        "inverse": true,
         "next": [
-            "[JumpBack]__GotoTriggerPointTeleportOnce_WLSwordVaultDale",
             "GotoTriggerPointMove_WLSwordVaultDale"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
         }
-    },
-    "__GotoTriggerPointTeleportOnce_WLSwordVaultDale": {
-        "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "SceneEnterWorldWulingSwordVaultDale3"
-        ]
     },
     "GotoTriggerPointMove_WLSwordVaultDale": {
         "action": {
@@ -96,7 +88,7 @@
         },
         "post_delay": 1500,
         "next": [
-            "AutoEssenceInteract"
+            "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

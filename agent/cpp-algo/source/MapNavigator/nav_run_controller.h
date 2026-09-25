@@ -99,6 +99,7 @@ private:
     bool buildPlan(
         const NaviParam& param,
         const NavigationSession& session,
+        const NavigationRuntimeState& runtime,
         const NaviPosition& position,
         size_t anchor_index,
         const Waypoint& anchor,

@@ -1,0 +1,610 @@
+{
+    "option": {
+        "AutoEssenceLocationSecondary_WLSwordVaultDale": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationSecondary.label",
+            "description": "$option.AutoEssenceLocationSecondary.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "攻击",
+                                        "ATK",
+                                        "攻擊",
+                                        "攻撃力",
+                                        "공격력"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "攻击",
+                                        "ATK",
+                                        "攻擊",
+                                        "攻撃力",
+                                        "공격력"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "生命",
+                                        "HP",
+                                        "생명력"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "生命",
+                                        "HP",
+                                        "생명력"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "物理",
+                                        "Physical",
+                                        "물리"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "物理",
+                                        "Physical",
+                                        "물리"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "灼热",
+                                        "Heat",
+                                        "灼熱",
+                                        "열기"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "灼热",
+                                        "Heat",
+                                        "灼熱",
+                                        "열기"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "寒冷",
+                                        "Cryo",
+                                        "냉기"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "寒冷",
+                                        "Cryo",
+                                        "냉기"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "自然",
+                                        "Nature",
+                                        "자연"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "自然",
+                                        "Nature",
+                                        "자연"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "源石技艺提升",
+                                        "源石技艺强度",
+                                        "Arts Intensity",
+                                        "源石技藝提升",
+                                        "源石技藝強度",
+                                        "アーツ強度UP",
+                                        "アーツ強度",
+                                        "오리지늄 아츠 강도 증가",
+                                        "오리지늄 아츠 강도"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "源石技艺提升",
+                                        "源石技艺强度",
+                                        "Arts Intensity",
+                                        "源石技藝提升",
+                                        "源石技藝強度",
+                                        "アーツ強度UP",
+                                        "アーツ強度",
+                                        "오리지늄 아츠 강도 증가",
+                                        "오리지늄 아츠 강도"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "治疗",
+                                        "Treatment",
+                                        "治療",
+                                        "回復",
+                                        "치유"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "治疗",
+                                        "Treatment",
+                                        "治療",
+                                        "回復",
+                                        "치유"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s3_6",
+                    "label": "$option.AutoEssenceSkill.s3_6",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "强攻",
+                                        "強攻",
+                                        "Assault",
+                                        "강공"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "强攻",
+                                        "強攻",
+                                        "Assault",
+                                        "강공"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s3_13",
+                    "label": "$option.AutoEssenceSkill.s3_13",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "追袭",
+                                        "追襲",
+                                        "Pursuit",
+                                        "추격"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "追袭",
+                                        "追襲",
+                                        "Pursuit",
+                                        "추격"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s3_8",
+                    "label": "$option.AutoEssenceSkill.s3_8",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "昂扬",
+                                        "昂揚",
+                                        "Inspiring",
+                                        "사기"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "昂扬",
+                                        "昂揚",
+                                        "Inspiring",
+                                        "사기"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s3_5",
+                    "label": "$option.AutoEssenceSkill.s3_5",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "巧技",
+                                        "Combative",
+                                        "기예"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "巧技",
+                                        "Combative",
+                                        "기예"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s3_2",
+                    "label": "$option.AutoEssenceSkill.s3_2",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "医疗",
+                                        "醫療",
+                                        "Medicant",
+                                        "治癒",
+                                        "의료"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "医疗",
+                                        "醫療",
+                                        "Medicant",
+                                        "治癒",
+                                        "의료"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s3_1",
+                    "label": "$option.AutoEssenceSkill.s3_1",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "切骨",
+                                        "Fracture",
+                                        "골절"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "切骨",
+                                        "Fracture",
+                                        "골절"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s3_12",
+                    "label": "$option.AutoEssenceSkill.s3_12",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "迸发",
+                                        "迸發",
+                                        "Detonate",
+                                        "噴発",
+                                        "방출"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "迸发",
+                                        "迸發",
+                                        "Detonate",
+                                        "噴発",
+                                        "방출"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s3_7",
+                    "label": "$option.AutoEssenceSkill.s3_7",
+                    "pipeline_override": {
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "效益",
+                                        "Efficacy",
+                                        "効率",
+                                        "효율"
+                                    ]
+                                }
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "效益",
+                                        "Efficacy",
+                                        "効率",
+                                        "효율"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

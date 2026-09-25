@@ -1,4 +1,4 @@
-/** Escape-key behavior shared by the three 2D map modes. */
+/** Escape-key behavior shared by the 2D map modes. */
 
 export const EscapeAction = Object.freeze({
   NONE: "none",
@@ -7,6 +7,8 @@ export const EscapeAction = Object.freeze({
   CANCEL_ASSERT_GESTURE: "cancel-assert-gesture",
   CLEAR_ASSERT_CONTEXT: "clear-assert-context",
   CLEAR_LOG_CONTEXT: "clear-log-context",
+  CANCEL_NOGO_DRAFT: "cancel-nogo-draft",
+  CLEAR_NOGO_SELECTION: "clear-nogo-selection",
 });
 
 /**
@@ -18,6 +20,8 @@ export const EscapeAction = Object.freeze({
  *   hasMapInspection?:boolean,
  *   isAssertGesture?:boolean,
  *   assertRectSelected?:boolean,
+ *   hasNoGoDraft?:boolean,
+ *   noGoSelected?:boolean,
  * }} state
  * @returns {string}
  */
@@ -28,7 +32,14 @@ export function resolveEscapeAction({
   hasMapInspection = false,
   isAssertGesture = false,
   assertRectSelected = false,
+  hasNoGoDraft = false,
+  noGoSelected = false,
 }) {
+  if (mode === "nogo") {
+    if (hasNoGoDraft) return EscapeAction.CANCEL_NOGO_DRAFT;
+    if (noGoSelected) return EscapeAction.CLEAR_NOGO_SELECTION;
+    return EscapeAction.NONE;
+  }
   if (mode === "edit") {
     if (hasQuickRouteTest) return EscapeAction.CLEAR_QUICK_TEST;
     if (hasEditContext || hasMapInspection) return EscapeAction.CLEAR_EDIT_CONTEXT;

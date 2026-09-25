@@ -16,6 +16,11 @@ from runtime import AGENT_DIR, CPP_AGENT_EXE, MAAFW_BIN_DIR, MaaRuntime, get_age
 # Agent 起来到能接受连接的等待时间。
 BOOT_WAIT_SECONDS = 2.0
 
+# go-service: 正式包的第二个 agent。挂索链 MapNavigatorZiplineMount 的
+# custom_action=AutoAltClickAction (按住 Alt 点击交互提示) 注册在这里,
+# 缺了它 OCR 识别到提示也点不了。与 cpp-algo 同一 Resource, 双 client 并挂。
+GO_SERVICE_EXE = AGENT_DIR / "go-service.exe"
+
 
 def _agent_process_options() -> dict[str, Any]:
     """让 Agent 不继承启动终端的 Ctrl+C，由会话生命周期负责关闭。"""
@@ -44,6 +49,8 @@ class AgentSession:
         # 控制器与 AgentClient 析构即销毁底层句柄, 必须由会话持有到 close, 否则 Tasker 拿着野句柄。
         self._controller: Any = None
         self._client: Any = None
+        self._aux_processes: list[subprocess.Popen] = []
+        self._aux_clients: list[Any] = []
         self.tasker: Any = None
         self.resource: Any = None
 
@@ -58,6 +65,8 @@ class AgentSession:
         *,
         agent_name: str,
         pipeline_override: dict | None = None,
+        resource_dirs: list | None = None,
+        aux_agents: list | None = None,
     ) -> None:
         agent_id = new_agent_id(agent_name)
         if not CPP_AGENT_EXE.exists():
@@ -90,12 +99,47 @@ class AgentSession:
         print("Connecting AgentClient...")
         resource = self._runtime.Resource()
         connector.attach_resource(resource)
+        # 资源目录 (pipeline/OCR 模型等) 在 bind 给 agent 前挂上。滑索挂索链
+        # (MapNavigatorZiplineMount*) 是正式包 pipeline 节点, cpp 端到达塔脚后要
+        # GetNodeData 读扫描配置、RunTask 跑挂索任务 —— 没有这份资源就只会走路上索提示。
+        for resource_dir in resource_dirs or []:
+            print(f"Loading resource dir: {resource_dir}")
+            job = resource.post_bundle(str(resource_dir))
+            job.wait()
+            if not job.succeeded:
+                raise RuntimeError(f"资源目录装载失败: {resource_dir}")
         client = self._runtime.AgentClient(identifier=agent_id)
         client.bind(resource)
         client.connect()
         if not client.connected:
             raise RuntimeError("Agent 连接失败。")
         print("AgentClient connected.")
+
+        # 辅助 agent (go-service 等): 各自起进程、bind 同一份 Resource。Tasker 执行
+        # pipeline 时按注册名分发 custom action/recognition, 谁注册谁接单。
+        # go-service 按 cwd/maafw 找 MAA DLL (agent.go libDir=cwd/maafw), 正式包主程序
+        # 以包根为 cwd 拉起它; 对应这里就是 install\ (MAAFW_BIN_DIR 的父目录)。
+        aux_cwd = MAAFW_BIN_DIR.parent
+        for aux_exe in aux_agents or []:
+            if not aux_exe.exists():
+                print(f"Aux agent missing, skipped: {aux_exe}")
+                continue
+            aux_id = new_agent_id(aux_exe.stem)
+            print(f"Starting aux agent process: {aux_exe} {aux_id}")
+            aux_process = subprocess.Popen(
+                [str(aux_exe), aux_id],
+                cwd=str(aux_cwd),
+                env=get_agent_env(),
+                **_agent_process_options(),
+            )
+            self._aux_processes.append(aux_process)
+            aux_client = self._runtime.AgentClient(identifier=aux_id)
+            aux_client.bind(resource)
+            aux_client.connect()
+            if not aux_client.connected:
+                raise RuntimeError(f"辅助 Agent 连接失败: {aux_exe.name}")
+            self._aux_clients.append(aux_client)
+            print(f"Aux agent connected: {aux_exe.name}")
 
         if pipeline_override:
             resource.override_pipeline(pipeline_override)
@@ -118,6 +162,16 @@ class AgentSession:
         if process is not None:
             process.terminate()
             process.wait()
+        for aux_process in self._aux_processes:
+            aux_process.terminate()
+        for aux_process in self._aux_processes:
+            try:
+                aux_process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                aux_process.kill()
+                aux_process.wait()
+        self._aux_processes = []
+        self._aux_clients = []
         self.tasker = None
         self.resource = None
         self._client = None

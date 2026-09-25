@@ -42,7 +42,6 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "SklandMapRegion",
                         "SklandMapOpacity"
                     ],
                     "pipeline_override": {
@@ -59,35 +58,6 @@
                         "RealTimeTaskMain": {
                             "attach": {
                                 "skland_map_enable": false
-                            }
-                        }
-                    }
-                }
-            ]
-        },
-        "SklandMapRegion": {
-            "type": "select",
-            "label": "$option.SklandMapRegion.label",
-            "default_case": "CN",
-            "cases": [
-                {
-                    "name": "CN",
-                    "label": "$option.SklandMapRegion.cases.CN.label",
-                    "pipeline_override": {
-                        "RealTimeTaskMain": {
-                            "attach": {
-                                "skland_map_url": "https://game.skland.com/map/endfield"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "Global",
-                    "label": "$option.SklandMapRegion.cases.Global.label",
-                    "pipeline_override": {
-                        "RealTimeTaskMain": {
-                            "attach": {
-                                "skland_map_url": "https://game.skport.com/map/endfield"
                             }
                         }
                     }
@@ -944,24 +914,7 @@
             "description": "$option.AutoPuzzleSolving.description",
             "cases": [
                 {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "PuzzleSolverOnSuccess": {
-                            "next": [
-                                "RealTimeTaskMain"
-                            ]
-                        },
-                        "PuzzleSolverOnMiss": {
-                            "next": [
-                                "RealTimeTaskMain"
-                            ]
-                        },
-                        "PuzzleSolverOnPass": {
-                            "next": [
-                                "RealTimeTaskMain"
-                            ]
-                        }
-                    }
+                    "name": "Yes"
                 },
                 {
                     "name": "No",
@@ -985,15 +938,7 @@
             "description": "$option.AutoAeroSalvage.description",
             "cases": [
                 {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AeroSalvageCompleteConfirm": {
-                            "next": [
-                                "AeroSalvageMainLoop",
-                                "RealTimeTaskMain"
-                            ]
-                        }
-                    }
+                    "name": "Yes"
                 },
                 {
                     "name": "No",

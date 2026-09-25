@@ -21,7 +21,7 @@ struct Context
     PositionProvider* position_provider = nullptr;
     NavigationSession* session = nullptr;
     MotionController* motion_controller = nullptr;
-    IActionExecutor* action_executor = nullptr;
+    ActionExecutor* action_executor = nullptr;
     NaviPosition* position = nullptr;
     NavigationRuntimeState* runtime_state = nullptr;
     MaaContext* maa_context = nullptr;
@@ -37,9 +37,12 @@ struct Result
     const char* failure_log_message = "";
 };
 
+// Aligns the camera to the character's facing before a start-off. No-op when the camera orientation is unavailable.
+void AlignCameraToCharacterOnce(const Context& ctx);
+
 Result TickSemanticFlow(const Context& ctx, NaviPhase phase);
 Result ConsumeInlineSemantics(const Context& ctx);
-Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, double actual_distance);
+Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual_distance);
 
 } // namespace semantic_nodes
 

@@ -1,0 +1,207 @@
+{
+    // 四号谷地
+    // 源石研究园
+    // 英格
+    "deliver_target_map01_lv005_01": {
+        "zh_cn": "醇化合物工厂",
+        "zh_tw": "醇化合物工廠",
+        "en_us": "Kohl Plant",
+        "ja_jp": "合成コール工場",
+        "ko_kr": "콜 화합물 공장",
+        "direction": 2
+    },
+    // 基特
+    "deliver_target_map01_lv005_02": {
+        "zh_cn": "地下区域",
+        "zh_tw": "地下區域",
+        "en_us": "Underground Area",
+        "ja_jp": "地下",
+        "ko_kr": "지하 구역",
+        "direction": 8
+    },
+    // 嘉娜
+    "deliver_target_map01_lv005_03": {
+        "zh_cn": "五号公路",
+        "zh_tw": "五號公路",
+        "en_us": "Route 5",
+        "ja_jp": "五号道路",
+        "ko_kr": "5번 국도",
+        "direction": 6
+    },
+    // 学术复读羽兽
+    "deliver_target_map01_lv005_recycle_02": {
+        "zh_cn": "猫头鹰",
+        "zh_tw": "貓頭鷹",
+        "en_us": "Owl",
+        "ja_jp": "フクロウ",
+        "ko_kr": "올빼미",
+        "direction": 3
+    },
+    // 采购-醇化合物工厂模组
+    "deliver_target_map01_lv005_recycle_03": {
+        "zh_cn": "猫头鹰",
+        "zh_tw": "貓頭鷹",
+        "en_us": "Owl",
+        "ja_jp": "フクロウ",
+        "ko_kr": "올빼미",
+        "direction": 4
+    },
+    // 矿脉源区
+    // 马泰奥
+    "deliver_target_map01_lv006_01": {
+        "zh_cn": "矿区医疗站",
+        "zh_tw": "礦區醫療站",
+        "en_us": "Mining Area Clinic",
+        "ja_jp": "鉱区診療所",
+        "ko_kr": "광산 지역 의료소",
+        "direction": 2
+    },
+    // 陆言
+    "deliver_target_map01_lv006_02": {
+        "zh_cn": "矿区营地",
+        "zh_tw": "礦區營地",
+        "en_us": "Mining Camp",
+        "ja_jp": "鉱区居住地",
+        "ko_kr": "광산 생활 구역",
+        "direction": 4
+    },
+    // 莫莉
+    "deliver_target_map01_lv006_03": {
+        "zh_cn": "矿区营地",
+        "zh_tw": "礦區營地",
+        "en_us": "Mining Camp",
+        "ja_jp": "鉱区居住地",
+        "ko_kr": "광산 생활 구역",
+        "direction": 8
+    },
+    // “不是废品佬”
+    "deliver_target_map01_lv006_recycle_01": {
+        "zh_cn": "猫头鹰",
+        "zh_tw": "貓頭鷹",
+        "en_us": "Owl",
+        "ja_jp": "フクロウ",
+        "ko_kr": "올빼미",
+        "direction": 5
+    },
+    // 采购-矿区医疗站模组
+    "deliver_target_map01_lv006_recycle_03": {
+        "zh_cn": "猫头鹰",
+        "zh_tw": "貓頭鷹",
+        "en_us": "Owl",
+        "ja_jp": "フクロウ",
+        "ko_kr": "올빼미",
+        "direction": 6
+    },
+    // 供能高地
+    // 库济米尼奇娜
+    "deliver_target_map01_lv007_01": {
+        "zh_cn": "能量淤积点",
+        "zh_tw": "能量淤積點",
+        "en_us": "Energy Alluvium",
+        "ja_jp": "超域活性点",
+        "ko_kr": "에너지 응집점",
+        "direction": 5
+    },
+    // 里斯卡
+    "deliver_target_map01_lv007_02": {
+        "zh_cn": "联盟停车场",
+        "zh_tw": "聯盟停車場",
+        "en_us": "United Parking Lot",
+        "ja_jp": "工業団駐車場",
+        "ko_kr": "연맹 주차장",
+        "direction": 3
+    },
+    // 戈里昂
+    "deliver_target_map01_lv007_03": {
+        "zh_cn": "超域试验场门口",
+        "zh_tw": "超域實驗場門口",
+        "en_us": "Æther Test Site Entrance",
+        "ja_jp": "超域実験場入口",
+        "ko_kr": "초자연 실험장 입구",
+        "direction": 8
+    },
+    // 无畏的工团成员
+    "deliver_target_map01_lv007_recycle_02": {
+        "zh_cn": "猫头鹰",
+        "zh_tw": "貓頭鷹",
+        "en_us": "Owl",
+        "ja_jp": "フクロウ",
+        "ko_kr": "올빼미",
+        "direction": 3
+    },
+    // 采购-超域试验场物资模组
+    "deliver_target_map01_lv007_recycle_03": {
+        "zh_cn": "猫头鹰",
+        "zh_tw": "貓頭鷹",
+        "en_us": "Owl",
+        "ja_jp": "フクロウ",
+        "ko_kr": "올빼미",
+        "direction": 6
+    },
+    // 武陵
+    // 武陵城
+    // 苏白易
+    "deliver_target_map02_lv002_01": {
+        "zh_cn": "技术生产办公室",
+        "zh_tw": "技術生產辦公室",
+        "en_us": "Technological Production Office",
+        "ja_jp": "技術生産室",
+        "ko_kr": "기술 생산 사무소",
+        "direction": 5
+    },
+    // 普里莫·林德
+    "deliver_target_map02_lv002_02": {
+        "zh_cn": "材料研究所",
+        "zh_tw": "材料研究所",
+        "en_us": "Institute of Materials Science",
+        "ja_jp": "材料研究所",
+        "ko_kr": "재료 연구소",
+        "direction": 6
+    },
+    // 于施
+    "deliver_target_map02_lv002_03": {
+        "zh_cn": "观测站",
+        "zh_tw": "觀測站",
+        "en_us": "Monitoring Center",
+        "ja_jp": "観測所",
+        "ko_kr": "관측소",
+        "direction": 7
+    },
+    // 火锅探店达人
+    "deliver_target_map02_lv002_recycle_01": {
+        "zh_cn": "猫头鹰",
+        "zh_tw": "貓頭鷹",
+        "en_us": "Owl",
+        "ja_jp": "フクロウ",
+        "ko_kr": "올빼미",
+        "direction": 8
+    },
+    // 试验园区
+    // 赵昭
+    "deliver_target_map02_lv005_01": {
+        "zh_cn": "经纬田区",
+        "zh_tw": "經緯田區",
+        "en_us": "Meridian Grid Area",
+        "ja_jp": "格子田エリア",
+        "ko_kr": "경위 논밭 구역",
+        "direction": 4
+    },
+    // 裴令容
+    "deliver_target_map02_lv005_02": {
+        "zh_cn": "一号丙型辅桩区",
+        "zh_tw": "一號丙型輔樁區",
+        "en_us": "Type-C Auxiliary Pillar Area 1",
+        "ja_jp": "丙型補杭エリア1",
+        "ko_kr": "1번 C형 보조 기둥 구역",
+        "direction": 5
+    },
+    // 阿禾
+    "deliver_target_map02_lv005_03": {
+        "zh_cn": "三号丙型辅桩区",
+        "zh_tw": "三號丙型輔樁區",
+        "en_us": "Type-C Auxiliary Pillar Area 3",
+        "ja_jp": "丙型補杭エリア3",
+        "ko_kr": "3번 C형 보조 기둥 구역",
+        "direction": 7
+    }
+}

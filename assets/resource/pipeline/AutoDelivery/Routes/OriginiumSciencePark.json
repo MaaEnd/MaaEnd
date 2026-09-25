@@ -7,11 +7,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
                         799.095
                     ],
+                    "target_deck_y": 93.098,
                     "required": true
                 },
                 {
@@ -19,7 +24,8 @@
                     "target": [
                         1043.463,
                         804.72
-                    ]
+                    ],
+                    "target_deck_y": 93.098
                 }
             ],
             "zip": false
@@ -43,11 +49,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
                         799.095
                     ],
+                    "target_deck_y": 93.098,
                     "required": true
                 },
                 {
@@ -55,7 +66,8 @@
                     "target": [
                         1043.463,
                         804.72
-                    ]
+                    ],
+                    "target_deck_y": 93.098
                 }
             ],
             "zip": true
@@ -79,11 +91,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
                         799.095
                     ],
+                    "target_deck_y": 93.098,
                     "required": true
                 },
                 {
@@ -91,7 +108,8 @@
                     "target": [
                         1043.463,
                         804.72
-                    ]
+                    ],
+                    "target_deck_y": 93.098
                 }
             ]
         },
@@ -114,11 +132,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1132.831,
                         900.497
-                    ]
+                    ],
+                    "target_deck_y": 90.519
                 }
             ],
             "zip": false
@@ -142,11 +165,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1132.831,
                         900.497
-                    ]
+                    ],
+                    "target_deck_y": 90.519
                 }
             ],
             "zip": true
@@ -170,11 +198,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1130.172,
                         905.454
                     ],
+                    "target_deck_y": 90.519,
                     "required": true
                 },
                 {
@@ -182,7 +215,8 @@
                     "target": [
                         1132.831,
                         900.497
-                    ]
+                    ],
+                    "target_deck_y": 90.519
                 }
             ]
         },
@@ -204,6 +238,10 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -250,6 +288,10 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1144.79,
@@ -295,11 +337,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
-                        1163.183,
-                        831.525
+                        1156.971,
+                        823.25
                     ],
+                    "target_deck_y": 87.394,
                     "required": true
                 },
                 {
@@ -307,7 +354,8 @@
                     "target": [
                         1161.842,
                         826.062
-                    ]
+                    ],
+                    "target_deck_y": 87.394
                 }
             ]
         },
@@ -330,11 +378,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         968.209,
                         824.369
-                    ]
+                    ],
+                    "target_deck_y": 95.898
                 }
             ],
             "zip": false
@@ -358,11 +411,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         968.209,
                         824.369
-                    ]
+                    ],
+                    "target_deck_y": 95.898
                 }
             ],
             "zip": true
@@ -386,11 +444,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         972.459,
                         828.054
                     ],
+                    "target_deck_y": 95.898,
                     "required": true
                 },
                 {
@@ -398,7 +461,8 @@
                     "target": [
                         968.209,
                         824.369
-                    ]
+                    ],
+                    "target_deck_y": 95.898
                 }
             ]
         },
@@ -421,11 +485,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         910.924,
                         764.145
                     ],
+                    "target_deck_y": 87.331,
                     "required": true
                 },
                 {
@@ -433,7 +502,8 @@
                     "target": [
                         905.299,
                         764.145
-                    ]
+                    ],
+                    "target_deck_y": 87.331
                 }
             ],
             "zip": false
@@ -457,11 +527,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         910.924,
                         764.145
                     ],
+                    "target_deck_y": 87.331,
                     "required": true
                 },
                 {
@@ -469,7 +544,8 @@
                     "target": [
                         905.299,
                         764.145
-                    ]
+                    ],
+                    "target_deck_y": 87.331
                 }
             ],
             "zip": true
@@ -493,11 +569,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         910.924,
                         764.145
                     ],
+                    "target_deck_y": 87.331,
                     "required": true
                 },
                 {
@@ -505,7 +586,8 @@
                     "target": [
                         905.299,
                         764.145
-                    ]
+                    ],
+                    "target_deck_y": 87.331
                 }
             ]
         },
@@ -528,11 +610,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1179.481,
                         813.139
                     ],
+                    "target_deck_y": 96.809,
                     "required": true
                 },
                 {
@@ -540,7 +627,8 @@
                     "target": [
                         1183.458,
                         817.116
-                    ]
+                    ],
+                    "target_deck_y": 96.809
                 }
             ],
             "zip": false
@@ -564,11 +652,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1179.481,
                         813.139
                     ],
+                    "target_deck_y": 96.809,
                     "required": true
                 },
                 {
@@ -576,7 +669,8 @@
                     "target": [
                         1183.458,
                         817.116
-                    ]
+                    ],
+                    "target_deck_y": 96.809
                 }
             ],
             "zip": true
@@ -600,11 +694,16 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "ValleyIV_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         1179.481,
                         813.139
                     ],
+                    "target_deck_y": 96.809,
                     "required": true
                 },
                 {
@@ -612,7 +711,8 @@
                     "target": [
                         1183.458,
                         817.116
-                    ]
+                    ],
+                    "target_deck_y": 96.809
                 }
             ]
         },

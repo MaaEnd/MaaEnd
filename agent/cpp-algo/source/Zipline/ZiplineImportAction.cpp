@@ -3,8 +3,11 @@
 #include <algorithm>
 #include <chrono>
 #include <condition_variable>
+#include <cstring>
+#include <iterator>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -13,12 +16,16 @@
 
 #include <meojson/json.hpp>
 
+#include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 
+#include "../Common/GameRegion.h"
 #include "../Common/WebView2.h"
 #include "../Common/notice.h"
+#include "../utils.h"
 #include "ZiplineFrames.h"
 #include "ZiplineStore.h"
+#include "account_identity.h"
 
 namespace zipline
 {
@@ -26,29 +33,29 @@ namespace zipline
 namespace
 {
 
-constexpr const char* kDefaultMapUrl = "https://game.skland.com/map/endfield";
 // 标记列表接口的路径片段。只匹配路径，避免被 query 里的参数顺序影响。
-// 可被 param 覆盖：各区服是同一套前端，路径本该一致，万一哪边不一样不必重新编译。
 constexpr const char* kMarkListPathFragment = "/map/mark/list";
+constexpr const char* kMapUrlCN = "https://game.skland.com/map/endfield";
+constexpr const char* kMapUrlGlobal = "https://game.skport.com/map/endfield";
 // 窗口的存活上限，留给用户登录：登录后抓齐只要几秒，正常路径根本用不到这个数。
-constexpr int64_t kDefaultTimeoutMs = 300000;
+constexpr int64_t kDefaultTimeoutMs = 180000;
 constexpr int kPollIntervalMs = 200;
 // 标定过的地图全抓到之后再静默这么久就收工，留一点余量给同批次的最后几条。
 constexpr int kSettleMs = 1200;
 // 抓到了一些但凑不齐标定过的地图时的兜底：静默这么久也收工，不干等满超时。
 constexpr int kIdleCloseMs = 20000;
-constexpr int kDefaultWindowWidth = 960;
-constexpr int kDefaultWindowHeight = 640;
-// 日志里回显响应体的上限，够看清结构又不至于把整份标记列表刷进日志。
-constexpr size_t kBodyLogPreviewBytes = 256;
+constexpr int kDefaultWindowWidth = 1280;
+constexpr int kDefaultWindowHeight = 720;
 
 struct ImportParam
 {
-    std::string url = kDefaultMapUrl;
+    // 由 gamesetting::DetectGameRegion 填入，不接受 attach 覆盖。
+    std::string url;
     std::string mark_list_path = kMarkListPathFragment;
     int64_t timeout = kDefaultTimeoutMs;
     int width = kDefaultWindowWidth;
     int height = kDefaultWindowHeight;
+    bool clear_login = false;
     std::vector<std::string> template_ids;
 };
 
@@ -73,38 +80,38 @@ struct SniffState
     std::vector<CapturedResponse> captured;
 };
 
-bool ParseParam(const char* raw, ImportParam& out)
+// 只从 attach 读 option 会写的字段（目前仅 clear_login）；其余用 ImportParam 默认值。
+ImportParam LoadParam(MaaContext* context, const char* node_name)
 {
-    if (!raw || *raw == '\0') {
-        return true;
+    ImportParam out;
+    if (!context || !node_name || *node_name == '\0') {
+        return out;
+    }
+
+    ScopedStringBuffer buffer;
+    if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, node_name, buffer.Get())) {
+        return out;
+    }
+
+    const char* raw = MaaStringBufferGet(buffer.Get());
+    if (raw == nullptr || std::strlen(raw) == 0) {
+        return out;
     }
 
     const auto parsed = json::parse(raw);
     if (!parsed || !parsed->is_object()) {
-        LogError << "ZiplineImport: param is not a json object" << VAR(raw);
-        return false;
+        LogWarn << "ZiplineImport: node data is not a json object" << VAR(node_name);
+        return out;
     }
 
     const auto& obj = parsed->as_object();
-    out.url = obj.get("url", out.url);
-    out.mark_list_path = obj.get("mark_list_path", out.mark_list_path);
-    // 空片段会匹配上页面的每一条响应，把整个会话都当成标记列表抓回来。
-    if (out.mark_list_path.empty()) {
-        LogError << "ZiplineImport: mark_list_path must not be empty";
-        return false;
+    if (!obj.contains("attach") || !obj.at("attach").is_object()) {
+        return out;
     }
-    out.timeout = obj.get("timeout", out.timeout);
-    out.width = obj.get("width", out.width);
-    out.height = obj.get("height", out.height);
 
-    if (obj.contains("template_ids") && obj.at("template_ids").is_array()) {
-        for (const auto& item : obj.at("template_ids").as_array()) {
-            if (item.is_string()) {
-                out.template_ids.push_back(item.as_string());
-            }
-        }
-    }
-    return true;
+    const auto& attach = obj.at("attach").as_object();
+    out.clear_login = attach.get("clear_login", out.clear_login);
+    return out;
 }
 
 // 取 URL query 里某个参数的值，取不到返回空串。
@@ -126,6 +133,29 @@ std::string QueryValue(const std::string& url, const std::string& key)
         pos = url.find('&', start);
     }
     return {};
+}
+
+// 请求 URL 会携带 roleId/serverId。它们只能在内存里参与账号匹配，任何日志都必须先打码；
+// 同名参数可能重复出现，每一处都要打。
+std::string RedactAccountQuery(std::string url)
+{
+    const std::string mask = "<redacted>";
+    for (const std::string key : { "roleId", "serverId" }) {
+        const std::string needle = key + "=";
+        size_t pos = url.find('?');
+        while (pos != std::string::npos) {
+            const size_t start = pos + 1;
+            if (url.compare(start, needle.size(), needle) == 0) {
+                const size_t value_start = start + needle.size();
+                const size_t value_end = url.find_first_of("&#", value_start);
+                url.replace(value_start, value_end == std::string::npos ? std::string::npos : value_end - value_start, mask);
+                pos = url.find('&', value_start + mask.size());
+                continue;
+            }
+            pos = url.find('&', start);
+        }
+    }
+    return url;
 }
 
 // 从标记列表响应里挑出滑索，按各自的 mapId 分组。template_ids 为空表示不过滤，全部收下——
@@ -189,22 +219,66 @@ bool ParseMarks(
     return true;
 }
 
-// 把抓到的响应并进磁盘记录。返回本次新写入的滑索条数。
-size_t PersistCaptured(const std::vector<CapturedResponse>& captured, const std::vector<std::string>& template_ids)
+// 把抓到的响应并进磁盘记录。成功时带回条数、本次原始 roleId（仅供提示，不落盘）与磁盘账号数。
+struct PersistResult
 {
+    size_t total = 0;
+    size_t disk_account_count = 0;
+    std::string role_id;
+};
+
+PersistResult PersistCaptured(const std::vector<CapturedResponse>& captured, const std::vector<std::string>& template_ids)
+{
+    PersistResult result;
     const std::filesystem::path path = ZiplineStore::DefaultPath();
 
     ZiplineStore store;
     if (!store.load(path)) {
         LogError << "ZiplineImport: load existing record failed, refuse to overwrite" << VAR(path);
-        return 0;
+        return result;
     }
 
-    // 先把所有响应并到一起再落盘：同一张图可能被不止一条响应带回来，
-    // 一条一次 replaceMap 会让后一条把前一条整个抹掉。
+    // 先把所有响应并到一起再落盘：同一张图可能被不止一条响应带回来，一条一次 replaceMap
+    // 会让后一条把前一条整个抹掉。只有实际带回 saveMarks 的响应才参与账号判定，避免登录前
+    // 那批 roleId 为空的公开空列表污染结果。
     std::unordered_map<std::string, std::vector<ZiplineMark>> by_map;
+    std::unordered_set<std::string> role_ids;
     for (const auto& response : captured) {
-        ParseMarks(response.body, template_ids, QueryValue(response.url, "mapId"), by_map);
+        const std::string fallback_map_id = QueryValue(response.url, "mapId");
+        std::unordered_map<std::string, std::vector<ZiplineMark>> all_marks;
+        if (!ParseMarks(response.body, {}, fallback_map_id, all_marks) || all_marks.empty()) {
+            continue;
+        }
+
+        const std::string role_id = QueryValue(response.url, "roleId");
+        if (!IsValidRawUid(role_id)) {
+            // 页面初始化期间可能先返回一份带旧登录态标记、但尚未绑定当前角色的响应。
+            // 它无法安全归属账号，忽略并等待同一列表后续带 roleId 的正式响应。
+            LogDebug << "ZiplineImport: ignore mark response without valid roleId" << VAR(role_id.size())
+                     << VAR(RedactAccountQuery(response.url));
+            continue;
+        }
+        role_ids.insert(role_id);
+
+        std::unordered_map<std::string, std::vector<ZiplineMark>> filtered;
+        if (!ParseMarks(response.body, template_ids, fallback_map_id, filtered)) {
+            continue;
+        }
+        for (auto& [map_id, marks] : filtered) {
+            auto& target = by_map[map_id];
+            target.insert(target.end(), std::make_move_iterator(marks.begin()), std::make_move_iterator(marks.end()));
+        }
+    }
+
+    if (role_ids.size() != 1) {
+        LogError << "ZiplineImport: one import must contain exactly one roleId; refuse to persist" << VAR(role_ids.size());
+        return result;
+    }
+    const std::string role_id = *role_ids.begin();
+    const auto account_id = HashUidForAccount(role_id);
+    if (!account_id) {
+        LogError << "ZiplineImport: failed to derive account identity; refuse to persist";
+        return result;
     }
 
     size_t total = 0;
@@ -232,6 +306,7 @@ size_t PersistCaptured(const std::vector<CapturedResponse>& captured, const std:
         total += marks.size();
 
         ZiplineMapRecord record;
+        record.account_id = *account_id;
         record.map_id = map_id;
         record.fetched_at = CurrentTimestamp();
         record.marks = std::move(marks);
@@ -239,12 +314,23 @@ size_t PersistCaptured(const std::vector<CapturedResponse>& captured, const std:
     }
 
     if (total == 0) {
-        return 0;
+        return result;
     }
     if (!store.save(path)) {
-        return 0;
+        return result;
     }
-    return total;
+    result.total = total;
+    result.role_id = role_id;
+    {
+        std::unordered_set<std::string> accounts;
+        for (const auto& record : store.maps()) {
+            if (!record.account_id.empty()) {
+                accounts.insert(record.account_id);
+            }
+        }
+        result.disk_account_count = accounts.size();
+    }
+    return result;
 }
 
 void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shared_ptr<SniffState>& state, std::string mark_list_path)
@@ -304,7 +390,7 @@ void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shar
                 if (!ok) {
                     // 页面对同一接口常发两次请求，经 Service Worker / 缓存应答的那份取不到响应体，
                     // 属预期竞态，另一份会补上；真缺数据由收尾的 covered / expected 校验兜底。
-                    LogDebug << "ZiplineImport: getResponseBody failed" << VAR(url);
+                    LogDebug << "ZiplineImport: getResponseBody failed" << VAR(RedactAccountQuery(url));
                     return;
                 }
                 const auto parsed_body = json::parse(result_json);
@@ -313,7 +399,7 @@ void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shar
                 }
                 const auto& body_obj = parsed_body->as_object();
                 if (body_obj.get("base64Encoded", false)) {
-                    LogWarn << "ZiplineImport: response body is base64, not handled" << VAR(url);
+                    LogWarn << "ZiplineImport: response body is base64, not handled" << VAR(RedactAccountQuery(url));
                     return;
                 }
 
@@ -321,7 +407,7 @@ void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shar
                 if (body.empty()) {
                     return;
                 }
-                LogDebug << "ZiplineImport: body preview" << VAR(url) << VAR(body.substr(0, kBodyLogPreviewBytes));
+                LogDebug << "ZiplineImport: response body captured" << VAR(RedactAccountQuery(url)) << VAR(body.size());
 
                 {
                     std::lock_guard<std::mutex> lock(state->mutex);
@@ -338,9 +424,9 @@ void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shar
 MaaBool MAA_CALL ZiplineImportActionRun(
     MaaContext* context,
     [[maybe_unused]] MaaTaskId task_id,
-    [[maybe_unused]] const char* node_name,
+    const char* node_name,
     [[maybe_unused]] const char* custom_action_name,
-    const char* custom_action_param,
+    [[maybe_unused]] const char* custom_action_param,
     [[maybe_unused]] MaaRecoId reco_id,
     [[maybe_unused]] const MaaRect* box,
     [[maybe_unused]] void* trans_arg)
@@ -350,8 +436,16 @@ MaaBool MAA_CALL ZiplineImportActionRun(
         return false;
     }
 
-    ImportParam param;
-    if (!ParseParam(custom_action_param, param)) {
+    ImportParam param = LoadParam(context, node_name);
+    switch (gamesetting::DetectGameRegion()) {
+    case gamesetting::Region::CN:
+        param.url = kMapUrlCN;
+        break;
+    case gamesetting::Region::Global:
+        param.url = kMapUrlGlobal;
+        break;
+    case gamesetting::Region::Unknown:
+        LogError << "ZiplineImport: failed to resolve map URL from game region";
         return false;
     }
 
@@ -360,10 +454,12 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     webview->SetTouchEmulation(true);
     webview->SetSize(param.width, param.height);
     webview->SetURL(param.url);
+    webview->SetClearWebData(param.clear_login);
     if (!webview->Open()) {
         LogError << "ZiplineImport: webview open failed" << VAR(param.url);
         return false;
     }
+    common::notice::Publish(context, common::notice::Text("zipline.import_sign_in_hint"));
 
     auto state = std::make_shared<SniffState>();
     SubscribeSniffers(webview, state, param.mark_list_path);
@@ -394,13 +490,14 @@ MaaBool MAA_CALL ZiplineImportActionRun(
 
     std::vector<CapturedResponse> captured;
     std::unordered_set<std::string> covered;
-    // 没登录时页面照样发标记请求、响应体照样有，只是 saveMarks 是空数组。这行提示只打一次。
+    // 没有可归属账号的标记时继续等用户登录或选择角色。这行提示只打一次。
     bool signin_hint_logged = false;
     // 已登录判定：主地图列表「先空后非空」＝窗口里刚完成登录；首条就非空＝本来就登录着。
     // 关卡/基地子列表对多数用户恒为空，永远进不了非空集合，不会干扰判定。
     std::unordered_map<std::string, bool> list_first_parse_empty;
     bool login_transition_seen = false;
     bool signed_in_notice_decided = false;
+    bool timed_out = false;
     while (true) {
         std::vector<CapturedResponse> fresh;
         bool inflight = false;
@@ -425,10 +522,11 @@ MaaBool MAA_CALL ZiplineImportActionRun(
             }
 
             const bool non_empty = !by_map.empty();
-            // 列表身份用 query 的 mapId/levelId，不用整个 URL，免得 roleId/serverId 变化拆散同一份列表。
+            const bool account_ready = non_empty && IsValidRawUid(QueryValue(response.url, "roleId"));
+            // 没有有效 roleId 的非空响应仍处在账号上下文初始化阶段，不能据此关窗或落盘。
             const std::string list_key = QueryValue(response.url, "mapId") + "|" + QueryValue(response.url, "levelId");
-            const auto [it, inserted] = list_first_parse_empty.try_emplace(list_key, !non_empty);
-            if (non_empty) {
+            const auto [it, inserted] = list_first_parse_empty.try_emplace(list_key, !account_ready);
+            if (account_ready) {
                 for (const auto& entry : by_map) {
                     covered.insert(entry.first);
                 }
@@ -436,17 +534,18 @@ MaaBool MAA_CALL ZiplineImportActionRun(
                     login_transition_seen = true;
                 }
             }
+            else if (non_empty) {
+                LogDebug << "ZiplineImport: marks arrived before account identity, keep waiting" << VAR(RedactAccountQuery(response.url));
+            }
             captured.push_back(std::move(response));
         }
 
         if (!covered.empty() && !signed_in_notice_decided) {
             signed_in_notice_decided = true;
-            if (!login_transition_seen) {
-                common::notice::Publish(context, common::notice::Text("zipline.already_signed_in"));
-            }
-            else {
+            if (login_transition_seen) {
                 LogInfo << "ZiplineImport: mark list went from empty to non-empty, the user just signed in";
             }
+            common::notice::Publish(context, common::notice::Text("zipline.import_login_ok"));
         }
 
         const auto now = std::chrono::steady_clock::now();
@@ -473,10 +572,11 @@ MaaBool MAA_CALL ZiplineImportActionRun(
         }
         else if (!captured.empty() && !inflight && !signin_hint_logged && now - last_event >= std::chrono::milliseconds(kIdleCloseMs)) {
             signin_hint_logged = true;
-            LogInfo << "ZiplineImport: mark lists carry no saved marks, waiting for the user to sign in" << VAR(captured.size());
+            LogInfo << "ZiplineImport: no account-scoped marks yet, waiting for sign-in or role selection" << VAR(captured.size());
         }
         if (now >= deadline) {
             LogWarn << "ZiplineImport: timed out waiting for the mark list";
+            timed_out = true;
             break;
         }
         if (tasker && MaaTaskerStopping(tasker)) {
@@ -492,19 +592,28 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     // Close() 会等 UI 线程退出，只能在业务线程上调，CDP 回调里调就是自己等自己。
     webview->Close();
 
+    if (timed_out) {
+        common::notice::Publish(context, common::notice::Text("zipline.import_timeout"));
+    }
+
     if (covered.empty()) {
-        // 一条标记都没抓到。最常见的原因就是自始至终没登录：接口回的是公开图标，saveMarks 是空的。
-        LogWarn << "ZiplineImport: no saved marks captured, was the page signed in?" << VAR(captured.size());
+        // 没抓到同时具有标记和账号身份的响应，不能安全归属后落盘。
+        LogWarn << "ZiplineImport: no account-scoped marks captured, was the page signed in with a role selected?" << VAR(captured.size());
         return false;
     }
 
-    const size_t total = PersistCaptured(captured, param.template_ids);
-    LogInfo << "ZiplineImport: done" << VAR(captured.size()) << VAR(total);
-    if (total > 0) {
-        // 导完就散场的话没人知道还差一步: 设置里的三态默认是跟随任务, 不会自己去找滑索。
-        common::notice::Publish(context, common::notice::Text("zipline.import_done", { static_cast<int64_t>(total) }));
+    const PersistResult persisted = PersistCaptured(captured, param.template_ids);
+    LogInfo << "ZiplineImport: done" << VAR(captured.size()) << VAR(persisted.total);
+    if (persisted.total > 0) {
+        common::notice::Publish(
+            context,
+            common::notice::Text(
+                "zipline.import_done",
+                { std::stoll(persisted.role_id),
+                  static_cast<int64_t>(persisted.total),
+                  static_cast<int64_t>(persisted.disk_account_count) }));
     }
-    return total > 0;
+    return persisted.total > 0;
 }
 
 } // namespace zipline

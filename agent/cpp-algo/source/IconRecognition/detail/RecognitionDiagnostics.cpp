@@ -56,17 +56,22 @@ json::value CellRecognitionDiagnostics::to_json() const
 {
     json::object object {
         { "cell_box", RectToJson(cell_box) },
-        { "candidate_box", RectToJson(candidate_box) },
-        { "best_candidate_id", best_candidate_id },
-        { "baseline_score", baseline_score },
-        { "score", score },
         { "candidate_count", static_cast<unsigned long long>(candidate_count) },
         { "fallback_used", fallback_used },
         { "region_unavailable_fallback_used", region_unavailable_fallback_used },
-        { "best_phase", json::object { { "x", best_phase.x }, { "y", best_phase.y } } },
-        { "rarity", json::object { { "coverage", rarity_coverage } } },
-        { "mask_kind", mask_kind },
     };
+    if (template_matching_skipped) {
+        object["template_matching_skipped"] = true;
+    }
+    else {
+        object["candidate_box"] = RectToJson(candidate_box);
+        object["best_candidate_id"] = best_candidate_id;
+        object["baseline_score"] = baseline_score;
+        object["score"] = score;
+        object["best_phase"] = json::object { { "x", best_phase.x }, { "y", best_phase.y } };
+        object["rarity"] = json::object { { "coverage", rarity_coverage } };
+        object["mask_kind"] = mask_kind;
+    }
     if (top2_margin) {
         object["top2_margin"] = *top2_margin;
     }

@@ -32,7 +32,12 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
-	detailJSON := extractCustomRecognitionDetailJSON(arg.RecognitionDetail)
+	detailJSON := ""
+	if arg.RecognitionDetail != nil && arg.RecognitionDetail.Results != nil && arg.RecognitionDetail.Results.Best != nil {
+		if customResult, ok := arg.RecognitionDetail.Results.Best.AsCustom(); ok && customResult != nil {
+			detailJSON = customResult.Detail
+		}
+	}
 	if detailJSON == "" {
 		log.Error().
 			Str("component", "autostockpile").
@@ -56,10 +61,20 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
-	goodsCount := 0
-	if result.Data != nil {
-		goodsCount = len(result.Data.Goods)
+	if shouldStopTask(result.AbortReason) {
+		return stopTaskWithFocus(ctx, result.AbortReason, nil)
 	}
+	if shouldRouteSkip(result.AbortReason) {
+		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, i18n.T("autostockpile.recognition_early_end"))
+	}
+
+	// 所有非 None 的 abort 原因均已在上面的路由中返回（Fatal 走 stopTaskWithFocus，
+	// Warn/Skip 走 routeSkipWithAbortReason，二者携带的都是 Data == nil）。因此到达此处时
+	// Validate() 的不变式已确立：AbortReason == None 且 Data != nil，可安全解引用。
+	// 注意：解引用必须留在两条路由之后，否则 QuotaZeroSkip（Current == 0 的日常路径）
+	// 会在此处 panic。
+	data := result.Data
+	goodsCount := len(data.Goods)
 
 	log.Info().
 		Str("component", "autostockpile").
@@ -68,14 +83,6 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Int("goods_count", goodsCount).
 		Msg("recognition result parsed")
 
-	if shouldStopTask(result.AbortReason) {
-		return stopTaskWithFocus(ctx, result.AbortReason, nil)
-	}
-	if shouldRouteSkip(result.AbortReason) {
-		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, i18n.T("autostockpile.recognition_early_end"))
-	}
-
-	data := result.Data
 	region, err := resolveGoodsRegionFromActionArg(arg)
 	if err != nil {
 		return stopTaskWithFocus(ctx, AbortReasonRegionResolveFailedFatal, err)
@@ -102,14 +109,24 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	serverNow := time.Now()
 	serverDate, serverWeekday := serverDateInfo(serverNow, serverLocation)
-	if err := storeDailyGoodsPrices(attach.AllowDataUpload, serverNow, serverLocation, region, captureuid.GetCachedUID(captureuid.OutputTypeHashed), *data); err != nil {
-		log.Warn().
-			Err(err).
-			Str("component", "autostockpile").
-			Str("server_date", serverDate).
-			Int("weekday", serverWeekday).
-			Str("region", region).
-			Msg("failed to store daily goods prices")
+	if attach.AllowDataUpload {
+		uid, err := captureuid.Capture(ctx, ctx.GetTasker().GetController(), true, true, true, captureuid.OutputTypeHashed)
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Str("component", "autostockpile").
+				Msg("uid capture failed before storing daily goods prices")
+			uid = "unknown"
+		}
+		if err := storeDailyGoodsPrices(serverNow, serverLocation, region, uid, *data); err != nil {
+			log.Warn().
+				Err(err).
+				Str("component", "autostockpile").
+				Str("server_date", serverDate).
+				Int("weekday", serverWeekday).
+				Str("region", region).
+				Msg("failed to store daily goods prices")
+		}
 	}
 
 	cfg, err := buildSelectionConfig(region, serverLocation, applyWeekdayAdjustment)
@@ -121,7 +138,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	if bypassThresholdFilter {
 		log.Info().
 			Str("component", "autostockpile").
-			Bool("overflow_allow", result.hasOverflow()).
+			Bool("overflow_allow", bypassThresholdFilter).
 			Msg("allow all goods mode enabled")
 	}
 
@@ -154,7 +171,6 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				Int("fallback_price", selection.CurrentPrice).
 				Int("quantity", quantityDecision.Target).
 				Msg("fallback purchase triggered")
-			maafocus.Print(ctx, i18n.T("autostockpile.fallback_purchase", selection.ProductName, selection.CurrentPrice))
 		}
 	}
 
@@ -170,27 +186,6 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				Str("component", "autostockpile").
 				Str("node", arg.CurrentTaskName).
 				Msg("failed to enable skip branch")
-			return false
-		}
-		return true
-	}
-
-	if quantityDecision.Mode == quantityModeSkip {
-		log.Info().
-			Str("component", "autostockpile").
-			Str("selection_mode", formatSelectionMode(selection, *data)).
-			Str("quantity_mode", string(quantityDecision.Mode)).
-			Str("quantity_reason", quantityDecision.Reason).
-			Int("quota_current", data.Quota.Current).
-			Int("quota_overflow", data.Quota.Overflow).
-			Msg("quantity decision requested skip short-circuit")
-		maafocus.Print(ctx, i18n.T("autostockpile.hit_but_skip", quantityDecision.Reason))
-		if err := overrideSkipBranch(ctx); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", "autostockpile").
-				Str("node", arg.CurrentTaskName).
-				Msg("failed to enable quantity skip branch")
 			return false
 		}
 		return true
@@ -213,7 +208,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		}
 	}
 
-	override, err := buildSelectionPipelineOverride(ctx, selection, quantityDecision)
+	override, err := buildSelectionPipelineOverride(selection, quantityDecision)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -241,11 +236,12 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		},
 	})
 
-	selectionMode := formatSelectionMode(selection, *data)
+	selectionMode := formatSelectionMode(selection)
 	quantityLog := log.Info().
 		Str("component", "autostockpile").
 		Str("selection_mode", selectionMode).
-		Str("template", BuildTemplatePath(selection.ProductID)).
+		Str("selection_source", string(selection.Source)).
+		Str("template", buildTemplatePath(selection.ProductID)).
 		Str("tier", selection.CanonicalName).
 		Int("threshold", selection.Threshold).
 		Int("price", selection.CurrentPrice).
@@ -265,8 +261,8 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	return true
 }
 
-// SelectBestProduct 按阈值与利润分数选择当前应购买的最佳商品。
-func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThresholdFilter bool) (SelectionResult, error) {
+// selectBestProduct 按阈值与利润分数选择当前应购买的最佳商品。
+func selectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThresholdFilter bool) (SelectionResult, error) {
 	if len(data.Goods) == 0 {
 		return SelectionResult{Selected: false, Reason: i18n.T("autostockpile.no_goods_recognized")}, nil
 	}
@@ -318,6 +314,13 @@ func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 	})
 
 	best := candidates[0]
+	// 价格不低于阈值仍能进入候选，只可能来自 bypass 放行。
+	// 这里用价格判据（而非 bypassThresholdFilter 变量）取来源，以与
+	// resolveQuantityDecision 的「价格低于阈值优先买满」判据保持完全一致。
+	source := selectionSourceThreshold
+	if best.goods.Price >= best.threshold {
+		source = selectionSourceOverflow
+	}
 	return SelectionResult{
 		Selected:      true,
 		ProductID:     best.goods.ID,
@@ -326,6 +329,7 @@ func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 		Threshold:     best.threshold,
 		CurrentPrice:  best.goods.Price,
 		Score:         best.score,
+		Source:        source,
 	}, nil
 }
 
@@ -406,12 +410,22 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 }
 
 // formatSelectionMode 返回当前选择模式的本地化描述。
-func formatSelectionMode(selection SelectionResult, data RecognitionData) string {
-	if selection.CurrentPrice < selection.Threshold {
+// 仅接受 Selected == true 的结果；Source 由选品函数在构造时写入。
+func formatSelectionMode(selection SelectionResult) string {
+	switch selection.Source {
+	case selectionSourceThreshold:
+		return i18n.T("autostockpile.mode_low_price")
+	case selectionSourceOverflow:
+		return i18n.T("autostockpile.mode_overflow")
+	case selectionSourceMinBuy:
+		return i18n.T("autostockpile.mode_min_buy")
+	default:
+		// 契约破坏：Selected 为 true 的结果必然带 Source。
+		log.Warn().
+			Str("component", autoStockpileComponent).
+			Str("product_id", selection.ProductID).
+			Str("selection_source", string(selection.Source)).
+			Msg("unknown selection source, fall back to low price label")
 		return i18n.T("autostockpile.mode_low_price")
 	}
-	if data.Quota.Overflow > 0 {
-		return i18n.T("autostockpile.mode_overflow")
-	}
-	return i18n.T("autostockpile.mode_low_price")
 }

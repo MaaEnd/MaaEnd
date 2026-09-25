@@ -70,5 +70,44 @@ class NavmeshBackendLatestQueryTest(unittest.TestCase):
         return False
 
 
+class _FakeSession:
+    agent_exit_code: int | None = None
+
+    def close(self) -> None:
+        self.agent_exit_code = 0
+
+
+class NavmeshBackendRestartTest(unittest.TestCase):
+    def test_restart_raises_when_agent_fails_to_start(self) -> None:
+        backend = NavmeshBackend(Path("base.nav.gz"))
+
+        def connect() -> Any:
+            raise RuntimeError("maafw 不可用")
+
+        backend._connect = connect  # type: ignore[method-assign]
+
+        with self.assertRaisesRegex(RuntimeError, "maafw 不可用"):
+            backend.restart()
+        # 直接看留下的失败状态; status() 会顺手再拉一次 agent, 把 _error 清掉再异步写回。
+        self.assertEqual(backend._error, "maafw 不可用")
+        self.assertIsNone(backend._session)
+        self.assertTrue(backend._ready.is_set())
+
+    def test_restart_returns_only_after_new_session_is_ready(self) -> None:
+        backend = NavmeshBackend(Path("base.nav.gz"))
+        session = _FakeSession()
+        backend._connect = lambda: session  # type: ignore[method-assign]
+        backend._post = lambda _op, **_params: {  # type: ignore[method-assign]
+            "ok": True,
+            "zones": [{"zone_id": 3, "geometry_zone_id": 1}],
+        }
+
+        backend.restart()
+
+        self.assertIs(backend._session, session)
+        self.assertEqual(backend._geom_of, {3: 1})
+        self.assertTrue(backend.status()["ready"])
+
+
 if __name__ == "__main__":
     unittest.main()

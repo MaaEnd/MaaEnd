@@ -1,0 +1,216 @@
+{
+    "option": {
+        "AutoEssenceLocationSlot1": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceLocationSlot1.label",
+            "description": "$option.AutoEssenceLocationSlot1.description",
+            "min_count": 3,
+            "max_count": 3,
+            "default_case": [
+                "s1_2",
+                "s1_3",
+                "s1_4"
+            ],
+            "cases": [
+                {
+                    "name": "s1_1",
+                    "label": "$option.AutoEssenceSkill.s1_1",
+                    "pipeline_override": {
+                        "AutoEssenceSelectEngraveBase_s1_1": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "主能力",
+                                        "Main Attribute",
+                                        "メイン能力",
+                                        "주요 능력치"
+                                    ]
+                                }
+                            },
+                            "action": {
+                                "type": "Click"
+                            }
+                        },
+                        "AutoEssenceEngraveCondition1Base_s1_1": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "主能力",
+                                        "Main Attribute",
+                                        "メイン能力",
+                                        "주요 능력치"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_2",
+                    "label": "$option.AutoEssenceSkill.s1_2",
+                    "pipeline_override": {
+                        "AutoEssenceSelectEngraveBase_s1_2": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "力量",
+                                        "Strength",
+                                        "筋力",
+                                        "힘"
+                                    ]
+                                }
+                            },
+                            "action": {
+                                "type": "Click"
+                            }
+                        },
+                        "AutoEssenceEngraveCondition1Base_s1_2": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "力量",
+                                        "Strength",
+                                        "筋力",
+                                        "힘"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_3",
+                    "label": "$option.AutoEssenceSkill.s1_3",
+                    "pipeline_override": {
+                        "AutoEssenceSelectEngraveBase_s1_3": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "意志",
+                                        "Will",
+                                        "의지"
+                                    ]
+                                }
+                            },
+                            "action": {
+                                "type": "Click"
+                            }
+                        },
+                        "AutoEssenceEngraveCondition1Base_s1_3": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "意志",
+                                        "Will",
+                                        "의지"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_4",
+                    "label": "$option.AutoEssenceSkill.s1_4",
+                    "pipeline_override": {
+                        "AutoEssenceSelectEngraveBase_s1_4": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "敏捷",
+                                        "Agility",
+                                        "민첩"
+                                    ]
+                                }
+                            },
+                            "action": {
+                                "type": "Click"
+                            }
+                        },
+                        "AutoEssenceEngraveCondition1Base_s1_4": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "敏捷",
+                                        "Agility",
+                                        "민첩"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_5",
+                    "label": "$option.AutoEssenceSkill.s1_5",
+                    "pipeline_override": {
+                        "AutoEssenceSelectEngraveBase_s1_5": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        43,
+                                        125,
+                                        904,
+                                        540
+                                    ],
+                                    "expected": [
+                                        "智识",
+                                        "智識",
+                                        "Intellect",
+                                        "知性",
+                                        "지능"
+                                    ]
+                                }
+                            },
+                            "action": {
+                                "type": "Click"
+                            }
+                        },
+                        "AutoEssenceEngraveCondition1Base_s1_5": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "智识",
+                                        "智識",
+                                        "Intellect",
+                                        "知性",
+                                        "지능"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

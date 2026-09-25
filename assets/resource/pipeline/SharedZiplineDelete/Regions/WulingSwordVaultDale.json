@@ -1,0 +1,128 @@
+{
+    // 藏剑谷 Wuling SwordVaultDale：MapFind 认 TeleportAnchor 并 Click，再 Hit 搜滑索
+    // 锚点来自 LevelMapMark mark_sp_campfire，map02base 投影（原点左上、y 向下）
+    //   25000000343 → [1583.3, 2718.2]
+    //   25000000461 → [1599.4, 2692.7]
+    //   25000000345 → [1819.1, 2777.5]
+    //   25000000462 → [1841.9, 2872.3]
+    "SharedZiplineDeletePrepareWulingSwordVaultDale": {
+        "next": [
+            "[JumpBack]SceneMapLayerSwitchToMain",
+            "[JumpBack]SharedZiplineDeleteFilterOpen",
+            "[JumpBack]SceneMapZoomOut",
+            "SharedZiplineDeleteVisitWulingSwordVaultDale0"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSwordVaultDale0": {
+        "desc": "藏剑谷锚点 markInstId=25000000343",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1583.3,
+                2718.2
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingSwordVaultDale1"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSwordVaultDale1": {
+        "desc": "藏剑谷锚点 markInstId=25000000461",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1599.4,
+                2692.7
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingSwordVaultDale2"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSwordVaultDale2": {
+        "desc": "藏剑谷锚点 markInstId=25000000345",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1819.1,
+                2777.5
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteVisitWulingSwordVaultDale3"
+        ]
+    },
+    "SharedZiplineDeleteVisitWulingSwordVaultDale3": {
+        "desc": "藏剑谷锚点 markInstId=25000000462",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "Wuling",
+            "icon": "TeleportAnchor",
+            "at": [
+                1841.9,
+                2872.3
+            ]
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -200,
+                -200,
+                200,
+                200
+            ],
+            "time": 100
+        },
+        "next": [
+            "[JumpBack]SharedZiplineDeleteTeleportClick",
+            "[JumpBack]SharedZiplineDeleteHit",
+            "SharedZiplineDeleteRegionDone"
+        ]
+    }
+}

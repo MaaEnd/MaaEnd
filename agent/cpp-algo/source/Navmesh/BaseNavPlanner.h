@@ -20,16 +20,21 @@ struct BaseNavSnapResult
     double distance = 0.0;
 };
 
+// A disc placed at runtime where the agent stalled against an obstacle the mesh does not record.
+// Cleared from the walkable set like an authored no-go zone, yet never terminal: an endpoint inside it
+// still plans.
+struct BaseNavNoGoDisc
+{
+    WorldPoint center;
+    double radius = 0.0;
+};
+
 struct BaseNavRouteRequest
 {
     std::string zone_name;
     WorldPoint start;
     WorldPoint goal;
-    std::vector<uint32_t> blocked_triangles;
-    // World-coordinate blocked points (radius navmesh::recast::kBlockedPointRadius). Finer-grained than
-    // blocked_triangles for obstacles inside the start/goal triangle, where triangle blocking would seal
-    // an endpoint.
-    std::vector<WorldPoint> blocked_points;
+    std::vector<BaseNavNoGoDisc> no_go_discs;
     // Dominant-floor height of the floor being navigated (from the locator/tier zone). Lets snap resolve
     // onto the right floor of a multi-floor base. kBaseNavFloorYNone (default) keeps the floor-blind path.
     // Shared fallback for both endpoints; the per-endpoint overrides below take precedence when set.
@@ -49,6 +54,8 @@ enum class BaseNavRouteStatus
     Success,
     ZoneNotFound,
     Unreachable,
+    // An endpoint sits inside an authored virtual no-go zone. Terminal: no fallback may route around it.
+    NoGo,
 };
 
 struct BaseNavRouteResult

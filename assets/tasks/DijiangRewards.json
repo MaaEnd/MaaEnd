@@ -9,6 +9,7 @@
                 "AutoStartExchange",
                 "StageTaskSetting",
                 "ClueSetting",
+                "QuickGiveDuplicateClues",
                 "SelectToGrow"
             ],
             "controller": [
@@ -329,6 +330,30 @@
                 }
             ]
         },
+        "QuickGiveDuplicateClues": {
+            "type": "switch",
+            "label": "$option.QuickGiveDuplicateClues.label",
+            "description": "$option.QuickGiveDuplicateClues.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesQuickGiveDuplicates": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesQuickGiveDuplicates": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "ClueSend": {
             "type": "input",
             "label": "$option.ClueSend.label",
@@ -442,6 +467,7 @@
                 {
                     "name": "Wulingstone",
                     "label": "$item.Wulingstone",
+                    "icon": "resource/image/UI/Item/item_plant_spcstone_2_2.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -459,6 +485,7 @@
                 {
                     "name": "Igneosite",
                     "label": "$item.Igneosite",
+                    "icon": "resource/image/UI/Item/item_plant_spcstone_2_1.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -476,6 +503,7 @@
                 {
                     "name": "FalseAggela",
                     "label": "$item.FalseAggela",
+                    "icon": "resource/image/UI/Item/item_plant_crylplant_2_2.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -493,6 +521,7 @@
                 {
                     "name": "BlightedJadeleaf",
                     "label": "$item.BlightedJadeleaf",
+                    "icon": "resource/image/UI/Item/item_plant_crylplant_2_1.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -510,6 +539,7 @@
                 {
                     "name": "Cosmagaric",
                     "label": "$item.Cosmagaric",
+                    "icon": "resource/image/UI/Item/item_plant_mushroom_2_2.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -527,6 +557,7 @@
                 {
                     "name": "Bloodcap",
                     "label": "$item.Bloodcap",
+                    "icon": "resource/image/UI/Item/item_plant_mushroom_2_1.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -544,6 +575,7 @@
                 {
                     "name": "Umbronyx",
                     "label": "$item.Umbronyx",
+                    "icon": "resource/image/UI/Item/item_plant_spcstone_1_3.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -561,6 +593,7 @@
                 {
                     "name": "Auronyx",
                     "label": "$item.Auronyx",
+                    "icon": "resource/image/UI/Item/item_plant_spcstone_1_2.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -578,6 +611,7 @@
                 {
                     "name": "Kalkonyx",
                     "label": "$item.Kalkonyx",
+                    "icon": "resource/image/UI/Item/item_plant_spcstone_1_1.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -595,6 +629,7 @@
                 {
                     "name": "Vitrodendra",
                     "label": "$item.Vitrodendra",
+                    "icon": "resource/image/UI/Item/item_plant_crylplant_1_3.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -612,6 +647,7 @@
                 {
                     "name": "Chrysodendra",
                     "label": "$item.Chrysodendra",
+                    "icon": "resource/image/UI/Item/item_plant_crylplant_1_2.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -629,6 +665,7 @@
                 {
                     "name": "Kalkodendra",
                     "label": "$item.Kalkodendra",
+                    "icon": "resource/image/UI/Item/item_plant_crylplant_1_1.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -646,6 +683,7 @@
                 {
                     "name": "RubyBolete",
                     "label": "$item.RubyBolete",
+                    "icon": "resource/image/UI/Item/item_plant_mushroom_1_3.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -663,6 +701,7 @@
                 {
                     "name": "RedBolete",
                     "label": "$item.RedBolete",
+                    "icon": "resource/image/UI/Item/item_plant_mushroom_1_2.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -680,6 +719,7 @@
                 {
                     "name": "PinkBolete",
                     "label": "$item.PinkBolete",
+                    "icon": "resource/image/UI/Item/item_plant_mushroom_1_1.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -697,6 +737,7 @@
                 {
                     "name": "TalosCap",
                     "label": "$item.TalosCap",
+                    "icon": "resource/image/UI/Item/item_plant_mushroom_2_3.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -714,6 +755,7 @@
                 {
                     "name": "CrimsonSpearleaf",
                     "label": "$item.CrimsonSpearleaf",
+                    "icon": "resource/image/UI/Item/item_plant_crylplant_2_3.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {
@@ -731,6 +773,7 @@
                 {
                     "name": "Protocolith",
                     "label": "$item.Protocolith",
+                    "icon": "resource/image/UI/Item/item_plant_spcstone_2_3.png",
                     "pipeline_override": {
                         "GrowthChamberSelectTarget": {
                             "attach": {

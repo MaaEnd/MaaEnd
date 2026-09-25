@@ -130,10 +130,30 @@ void ApplyValuablesWeaponPortraitMask(cv::Mat& mask)
     }
 }
 
-void ClearValuablesWeaponPortrait(cv::Mat& mask, const cv::Mat& slot)
+std::string DescribeMaskKind(MaskKind kind, bool composite)
 {
-    if (mask.empty() || slot.empty() || mask.size() != slot.size() || slot.rows != slot.cols) {
-        return;
+    std::string active_kind;
+    switch (kind) {
+    case MaskKind::LowerExtended:
+        active_kind = "lower_extended";
+        break;
+    case MaskKind::ShipmentTopBar:
+        active_kind = "shipment_top_bar";
+        break;
+    case MaskKind::ValuablesWeapon:
+        active_kind = "valuables_weapon";
+        break;
+    }
+    if (!composite) {
+        return active_kind;
+    }
+    return kind == MaskKind::LowerExtended ? "composite_union" : "composite_union+" + active_kind;
+}
+
+bool HasValuablesWeaponPortrait(const cv::Mat& slot)
+{
+    if (slot.empty() || slot.rows != slot.cols) {
+        return false;
     }
     const double scale = static_cast<double>(slot.rows) / kValuablesSlotSize;
     const int detection_x1 = cvRound(kValuablesPortraitDetectionRect.x * scale);
@@ -141,6 +161,10 @@ void ClearValuablesWeaponPortrait(cv::Mat& mask, const cv::Mat& slot)
     const int detection_x2 = cvRound((kValuablesPortraitDetectionRect.x + kValuablesPortraitDetectionRect.width) * scale);
     const int detection_y2 = cvRound((kValuablesPortraitDetectionRect.y + kValuablesPortraitDetectionRect.height) * scale);
     const cv::Rect detection_rect(detection_x1, detection_y1, detection_x2 - detection_x1, detection_y2 - detection_y1);
+    const cv::Rect bounds(0, 0, slot.cols, slot.rows);
+    if (detection_rect.empty() || (detection_rect & bounds) != detection_rect) {
+        return false;
+    }
     cv::Mat gray;
     if (slot.channels() == 4) {
         cv::cvtColor(slot(detection_rect), gray, cv::COLOR_BGRA2GRAY);
@@ -162,16 +186,13 @@ void ClearValuablesWeaponPortrait(cv::Mat& mask, const cv::Mat& slot)
         kPortraitHoughAccumulatorThreshold,
         std::max(1, cvRound(kPortraitHoughMinRadius * scale)),
         std::max(1, cvRound(kPortraitHoughMaxRadius * scale)));
-    const bool detected = std::ranges::any_of(circles, [&](const cv::Vec3f& circle) {
+    return std::ranges::any_of(circles, [&](const cv::Vec3f& circle) {
         const double absolute_x = circle[0] + detection_rect.x;
         const double absolute_y = circle[1];
         return absolute_x >= kPortraitCenterMinX * scale && absolute_x <= kPortraitCenterMaxX * scale
                && absolute_y >= kPortraitCenterMinY * scale && absolute_y <= kPortraitCenterMaxY * scale
                && circle[2] >= kPortraitHoughMinRadius * scale && circle[2] <= kPortraitHoughMaxRadius * scale;
     });
-    if (detected) {
-        ApplyValuablesWeaponPortraitMask(mask);
-    }
 }
 
 cv::Mat BuildMask(const cv::Mat& image, int target_size, GridType grid_type, MaskKind kind)
@@ -183,8 +204,8 @@ cv::Mat BuildMask(const cv::Mat& image, int target_size, GridType grid_type, Mas
     if (kind == MaskKind::ShipmentTopBar && HasShipmentTopBar(image)) {
         ApplyShipmentTopBarMask(mask);
     }
-    if (kind == MaskKind::ValuablesWeapon && grid_type == GridType::Valuables) {
-        ClearValuablesWeaponPortrait(mask, image);
+    if (kind == MaskKind::ValuablesWeapon && grid_type == GridType::Valuables && HasValuablesWeaponPortrait(image)) {
+        ApplyValuablesWeaponPortraitMask(mask);
     }
     return mask;
 }

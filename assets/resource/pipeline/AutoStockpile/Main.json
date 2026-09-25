@@ -11,6 +11,7 @@
     },
     "AutoStockpileEnterRegionalDevelopment": {
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -22,8 +23,24 @@
                 }
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoStockpileGetUid"
+        ]
+    },
+    "AutoStockpileGetUid": {
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CaptureUid"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileStart"
         ]
     },
     "AutoStockpileElasticValleyIV": {
@@ -92,18 +109,6 @@
             "[JumpBack]AutoStockpileElasticValleyIV",
             "[JumpBack]AutoStockpileElasticWuling",
             "AutoStockpileDone"
-        ]
-    },
-    "AutoStockpileGetUid": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "CaptureUid",
-                "custom_action_param": {}
-            }
-        },
-        "next": [
-            "AutoStockpileStart"
         ]
     }
 }

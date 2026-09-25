@@ -1,0 +1,40 @@
+{
+    "configs": {
+        "name": "一键据点交易，测试地区识别",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设_据点_难民暂居处.png",
+            "hits": [
+                "OutpostTradingInOutpost",
+                "OutpostTradingInRefugeeCamp"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_据点_基建前站.png",
+            "hits": [
+                "OutpostTradingInOutpost",
+                "OutpostTradingInInfraStation"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_据点_重建指挥部.png",
+            "hits": [
+                "OutpostTradingInOutpost",
+                "OutpostTradingInReconstructionHQ"
+            ]
+        },
+        {
+            "image": "武陵_地区建设_据点_天王坪援建点.png",
+            "hits": [
+                "OutpostTradingInOutpost",
+                "OutpostTradingInSkyKingFlatsConstructionSite"
+            ]
+        }
+    ]
+}

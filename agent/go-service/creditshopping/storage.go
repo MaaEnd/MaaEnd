@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/rs/zerolog/log"
 )
 
@@ -85,7 +86,7 @@ func upsertShelfSnapshots(path string, entries []snapshotEntry) (upserted int, e
 		return 0, fmt.Errorf("marshal snapshots: %w", err)
 	}
 	raw = append(raw, '\n')
-	if err := writeFileAtomic(path, raw, 0644); err != nil {
+	if err := fsutil.WriteFileAtomic(path, raw, 0644); err != nil {
 		return 0, err
 	}
 	return upserted, nil
@@ -132,41 +133,6 @@ func migrateSnapshotFile(s *snapshotFile) {
 		Int("records", len(s.Records)).
 		Int("names_filled", namesFilled).
 		Msg("credit shopping shelf snapshots migrated")
-}
-
-func writeFileAtomic(path string, content []byte, perm os.FileMode) error {
-	dir := filepath.Dir(path)
-	tmp, err := os.CreateTemp(dir, "."+filepath.Base(path)+".*.tmp")
-	if err != nil {
-		return err
-	}
-	tmpPath := tmp.Name()
-	cleanup := true
-	defer func() {
-		if cleanup {
-			_ = os.Remove(tmpPath)
-		}
-	}()
-	if _, err := tmp.Write(content); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Chmod(perm); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Sync(); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Rename(tmpPath, path); err != nil {
-		return err
-	}
-	cleanup = false
-	return nil
 }
 
 func logSnapshotSaved(path string, upserted int) {

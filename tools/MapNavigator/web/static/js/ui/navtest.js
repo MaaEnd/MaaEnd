@@ -257,11 +257,11 @@ export class NavTestController {
         break;
       case "armed":
         if (!msg.count) {
-          this.armedLabel.textContent = "未装载 · 先在编辑器里画出路线或断言框";
+          this._setArmedText("未装载 · 先在编辑器里画出路线或断言框");
         } else if (msg.kind === "assert") {
-          this.armedLabel.textContent = "已装载断言框 · F3 检查的就是这一份";
+          this._setArmedText("已装载断言框 · F3 检查的就是这一份");
         } else {
-          this.armedLabel.textContent = `已装载 ${msg.count} 个节点 · F3 跑的就是这一份`;
+          this._setArmedText(`已装载 ${msg.count} 个节点 · F3 跑的就是这一份`);
         }
         break;
       case "run_state":
@@ -330,28 +330,48 @@ export class NavTestController {
     }
   }
 
+  /**
+   * Publish the armed state to the run button's tooltip as well as the label:
+   * the button stays enabled with nothing loaded, and only this text says so.
+   * @param {string} text
+   * @returns {void}
+   */
+  _setArmedText(text) {
+    this.armedLabel.textContent = text;
+    this.btnRun.title = `${text}\nF3 跑 · F4 停，游戏在前台也能按`;
+  }
+
   /** Reflect session/run state onto the buttons and the running overlay. @returns {void} */
   _syncUi() {
     const live = !!this.socket;
     const idle = live && !this.running;
-    this.btnRun.textContent =
-      this._opening ? "正在准备…" : this._closing ? "正在关闭…" : live ? "重跑 (F3)" : "开始试跑 (F3)";
+    this.btnRun.textContent = this._opening
+      ? "正在准备…"
+      : this._closing
+        ? "正在关闭…"
+        : live
+          ? "重跑 (F3)"
+          : "开始试跑 (F3)";
     this.btnRun.disabled =
-      this.disabled || this._opening || this._closing || this.running || (live ? !this.connected : !this.connectionReady);
+      this.disabled ||
+      this._opening ||
+      this._closing ||
+      this.running ||
+      (live ? !this.connected : !this.connectionReady);
     this.btnStop.textContent = idle ? "结束会话 (F4)" : "终止试跑 (F4)";
     this.btnStop.disabled = !live || this._opening || this._closing;
     if (!live) {
       const route = this.getRoute();
       if (this.disabled) {
-        this.armedLabel.textContent = "当前模式不参与实机试跑";
+        this._setArmedText("当前模式不支持试跑");
       } else if (!this.connectionReady) {
-        this.armedLabel.textContent = "连接状态未就绪 · 请先检查游戏连接";
+        this._setArmedText("未连接游戏");
       } else if (route.assert_target) {
-        this.armedLabel.textContent = "连接状态正常 ·「开始试跑」将检查这个框";
+        this._setArmedText("就绪 · 校验断言框");
       } else if (route.path.length) {
-        this.armedLabel.textContent = "连接状态正常 ·「开始试跑」将直接跑这条线";
+        this._setArmedText("就绪 · 试跑当前路线");
       } else {
-        this.armedLabel.textContent = "当前页签里没有可试跑的东西";
+        this._setArmedText("无可试跑内容");
       }
       this.hotkeyNote.classList.remove("hotkey-degraded");
       this.hotkeyNote.innerHTML = this._hotkeyNoteHtml;

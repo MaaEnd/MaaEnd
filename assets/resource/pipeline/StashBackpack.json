@@ -80,6 +80,24 @@
     "StashBackpackUsableItemsLimited": {
         "desc": "少量可用物品存放",
         "enabled": false,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackSort"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackUsableItemsStoreFull",
+            "[JumpBack]StashBackpackUsableItemsLimitedDrag",
+            "StashBackpackSort"
+        ]
+    },
+    "StashBackpackSort": {
+        "desc": "点击排序",
         "recognition": "TemplateMatch",
         "roi": [
             1023,
@@ -96,8 +114,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackUsableItemsStoreFull",
-            "[JumpBack]StashBackpackUsableItemsLimitedDrag",
             "EmptyNode"
         ]
     },
@@ -121,7 +137,7 @@
         "rate_limit": 0
     },
     "StashBackpackUsableItemsLimitedDrag": {
-        "desc": "拖动物品到仓库",
+        "desc": "按住 Shift 准备快速移动物品",
         "max_hit": 5, //防止重复拖动物品导致卡住
         "recognition": "And",
         "all_of": [
@@ -156,15 +172,51 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": {
-            "type": "Swipe",
+            "type": "KeyDown",
             "param": {
-                "end": [
-                    388,
-                    330
+                "key": 16
+            }
+        },
+        "post_delay": 50,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackUsableItemsLimitedQuickMoveClick"
+        ]
+    },
+    "StashBackpackUsableItemsLimitedQuickMoveClick": {
+        "desc": "Shift + 单击目标物品进行快速移动",
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "StashBackpackUsableItemsLimitedDrag",
+                "target_offset": [
+                    0,
+                    -24,
+                    0,
+                    0
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "post_delay": 50,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackUsableItemsLimitedQuickMoveKeyUp"
+        ]
+    },
+    "StashBackpackUsableItemsLimitedQuickMoveKeyUp": {
+        "desc": "释放 Shift 并等待物品移动完成",
+        "pre_delay": 0,
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 16
+            }
+        },
+        "post_wait_freezes": {
+            "target": "StashBackpackUsableItemsLimitedDrag",
+            "time": 200
+        },
         "post_delay": 0,
         "rate_limit": 0
     }

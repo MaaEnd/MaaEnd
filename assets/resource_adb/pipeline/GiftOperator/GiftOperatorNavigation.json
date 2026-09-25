@@ -1,4 +1,42 @@
 {
+    "GiftOperatorMove": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "OMVBase01"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                182.52,
+                                180.5
+                            ]
+                        },
+                        [
+                            182.52,
+                            173.4,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorClickContact",
+            "[JumpBack]GiftOperatorGoAheadContact"
+        ]
+    },
+    "GiftOperatorShiftToRun": {
+        "action": "DoNothing"
+    },
+    "GiftOperatorShiftToRunSC": {
+        "action": "DoNothing"
+    },
     // ADB 摇杆：中心 (195, 551)，步行偏移 15
     // 后退 (195, 566) / 前进 (195, 536)
     "GiftOperatorMoveResetBackward": {
@@ -31,6 +69,24 @@
                 "end": [
                     195,
                     536
+                ],
+                "end_hold": 100,
+                "duration": 50
+            }
+        }
+    },
+    "GiftOperatorMoveBackward": {
+        "desc": "向后走一步（ADB 虚拟摇杆下推），一般都是走过了，先转身退一步试试",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    195,
+                    551
+                ],
+                "end": [
+                    195,
+                    566
                 ],
                 "end_hold": 100,
                 "duration": 50

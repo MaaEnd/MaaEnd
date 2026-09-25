@@ -72,6 +72,14 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 | 菜单 | `SceneEnterMenuIntelArchiveAudioRecords` | 进入档案库-音像存档 |
 | 菜单 | `SceneEnterMenuIntelArchiveFindings` | 进入档案库-见闻辑录 |
 | 菜单 | `SceneEnterMenuIntelArchiveNexusFiles` | 进入档案库-中枢档案 |
+| 菜单 | `SceneEnterMenuSetting` | 进入设置（仅 PC） |
+| 菜单 | `SceneEnterMenuSettingPerformanceGraphic` | 进入设置-性能与画面（仅 PC） |
+| 菜单 | `SceneEnterMenuSettingAudio` | 进入设置-音频（仅 PC） |
+| 菜单 | `SceneEnterMenuSettingControls` | 进入设置-操控（仅 PC） |
+| 菜单 | `SceneEnterMenuSettingKeybinding` | 进入设置-按键（仅 PC） |
+| 菜单 | `SceneEnterMenuSettingLanguage` | 进入设置-语言（仅 PC） |
+| 菜单 | `SceneEnterMenuSettingPlatformAccount` | 进入设置-平台与账户（仅 PC） |
+| 菜单 | `SceneEnterMenuSettingOthers` | 进入设置-其他（仅 PC） |
 | 菜单 | `SceneEnterMenuHeadhunt` | 进入干员寻访界面 |
 | 辅助 | `SceneDialogConfirm` | 点击对话框确认按钮 |
 | 辅助 | `SceneDialogCancel` | 点击对话框取消按钮 |

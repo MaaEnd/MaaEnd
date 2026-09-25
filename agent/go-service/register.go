@@ -5,6 +5,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aerosalvage"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autodelivery"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoessence"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile"
@@ -31,17 +32,18 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/deliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/intelarchive"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/outposttrading"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
@@ -49,6 +51,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/taskfail"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy"
 	webevent202605 "github.com/MaaXYZ/MaaEnd/agent/go-service/webevent/202605"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/ziplineimport"
 	"github.com/rs/zerolog/log"
 )
 
@@ -91,10 +94,12 @@ func registerAll() {
 	puzzle.Register()
 	bettersliding.Register()
 	essencefilter.Register()
+	autoessence.Register()
 	dijiangrewards.Register()
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autodelivery.Register()
+	deliveryjobs.Register()
 	autofight.Register()
 	scenemanager.Register()
 	seizedeliveryjobs.Register()
@@ -103,9 +108,10 @@ func registerAll() {
 	ims.Register()
 	intelarchive.Register()
 	itemtransfer.Register()
-	sellproduct.Register()
+	outposttrading.Register()
 	creditshopping.Register()
 	webevent202605.Register()
+	ziplineimport.Register()
 	pullcount.Register()
 	trialofswordmancy.Register()
 	log.Info().

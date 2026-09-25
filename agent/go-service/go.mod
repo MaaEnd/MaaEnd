@@ -5,6 +5,7 @@ go 1.25.6
 require (
 	github.com/MaaXYZ/maa-framework-go/v4 v4.0.0-beta.18
 	github.com/bytedance/sonic v1.15.0
+	github.com/elazarl/goproxy v1.9.0
 	github.com/rs/zerolog v1.34.0
 	github.com/shirou/gopsutil/v4 v4.26.2
 	golang.org/x/image v0.37.0
@@ -27,6 +28,8 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/arch v0.25.0 // indirect
+	golang.org/x/net v0.50.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
 )
 
 replace github.com/ebitengine/purego => github.com/ebitengine/purego v0.9.1 // indirect; pinned for maa-framework-go compatibility

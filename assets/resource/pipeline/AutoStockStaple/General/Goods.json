@@ -881,5 +881,68 @@
                 ]
             }
         }
+    },
+    "AutoStockStapleGoodsSearToastedLiver": {
+        "desc": "香焗兽肝",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "香焗兽肝",
+                    "香焗獸肝",
+                    "(?i)Sear\\s*-\\s*Toasted\\s*Liver",
+                    "レバーの塩蒸し焼き",
+                    "향신료로 구운 비스트의 간"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsMyrkwoodBerryPreserve": {
+        "desc": "黑森林浆果酱",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "黑森林浆果酱",
+                    "黑森林漿果醬",
+                    "(?i)Myrkwood\\s*Berry\\s*Preserve",
+                    "「黒き森」のベリージャム",
+                    "검은 숲의 베리잼"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsMiracleCake": {
+        "desc": "奇迹蛋糕",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "奇迹蛋糕",
+                    "奇蹟蛋糕",
+                    "(?i)Miracle\\s*Cake",
+                    "ミラクルケーキ",
+                    "기적의 케이크"
+                ]
+            }
+        }
     }
 }

@@ -28,6 +28,15 @@
                 "MapFind",
                 "MapLocateAssertLocation",
                 "MapNavmeshQuery",
+                "OutpostTradingCurrentBestOperator",
+                "OutpostTradingCurrentGoods",
+                "OutpostTradingCurrentOperatorUncached",
+                "OutpostTradingOperatorCacheReady",
+                "OutpostTradingOperatorConflict",
+                "OutpostTradingOperatorListBottom",
+                "OutpostTradingOperatorScanOutcome",
+                "OutpostTradingPriorityItem",
+                "OutpostTradingSelectBestOperator",
                 "PuzzleRecognition",
                 "ReceptionRoomExchangeCountdownWithinThresholdRecognition",
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
@@ -35,14 +44,6 @@
                 "ScreenshotStableRecognition",
                 "ScrollbarRecognition",
                 "ScrollbarCompleteRecognition",
-                "SellProductCurrentBestOperator",
-                "SellProductCurrentGoods",
-                "SellProductCurrentOperatorUncached",
-                "SellProductOperatorCacheReady",
-                "SellProductOperatorListBottom",
-                "SellProductOperatorScanOutcome",
-                "SellProductPriorityItem",
-                "SellProductSelectBestOperator",
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
                 "TrialOfSwordmancy.RecognizeDeck",
@@ -440,6 +441,11 @@
                                 "minLength": 1,
                                 "title": "Key Regex",
                                 "description": "Optional. Regex applied to OCR text to derive the visited key (capture group 1 if present, otherwise the full match; fall back to raw text on no match). Without it, store/exclude the raw OCR string exactly. With it, the blacklist also tolerates non-digit OCR tail noise after the key. Game-specific truncation (e.g. remark cut at first ')', normal name cut at '#UID') belongs in Pipeline, not in this component."
+                            },
+                            "whitelist": {
+                                "type": "string",
+                                "title": "Whitelist",
+                                "description": "Optional. Comma-separated whitelist. If empty, no filtering. Only candidates whose key is in the whitelist are accepted."
                             }
                         }
                     }
@@ -486,15 +492,6 @@
                                 },
                                 "minItems": 4,
                                 "maxItems": 4
-                            },
-                            "loc_threshold": {
-                                "type": "number"
-                            },
-                            "yolo_threshold": {
-                                "type": "number"
-                            },
-                            "force_global_search": {
-                                "type": "boolean"
                             }
                         }
                     }
@@ -521,13 +518,13 @@
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "SellProductCurrentGoods" } }
+                "properties": { "custom_recognition": { "const": "OutpostTradingCurrentGoods" } }
             },
             "then": {
                 "type": "object",
                 "required": [ "custom_recognition_param" ],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/sell_product.schema.json#/$defs/CurrentGoodsRecognitionParam" }
+                    "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/CurrentGoodsRecognitionParam" }
                 }
             }
         },
@@ -535,13 +532,13 @@
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "SellProductPriorityItem" } }
+                "properties": { "custom_recognition": { "const": "OutpostTradingPriorityItem" } }
             },
             "then": {
                 "type": "object",
                 "required": [ "custom_recognition_param" ],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/sell_product.schema.json#/$defs/PriorityItemRecognitionParam" }
+                    "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam" }
                 }
             }
         }

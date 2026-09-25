@@ -18,6 +18,9 @@ struct RarityGridFit
     int pitch_x = 0;
     int pitch = 0;
     int supporting_rows = 0;
+    // 色带实际支持的首末行索引（闭区间），相对 origin；负索引表示粗起点上方的行。
+    int first_supported_row = 0;
+    int last_supported_row = 0;
     int supporting_cells = 0;
     int supporting_strong_cells = 0;
     int supporting_chromatic_cells = 0;

@@ -235,18 +235,22 @@ func readResolutionWithRetry(controller *maa.Controller) (int32, int32, bool) {
 	for i := 0; i < maxRetries; i++ {
 		var err error
 		width, height, err = controller.GetResolution()
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get resolution")
-			return width, height, false
-		}
-		if width > 100 && height > 100 {
+		if err == nil && width > 100 && height > 100 {
 			return width, height, true
 		}
-		log.Debug().
-			Int32("width", width).
-			Int32("height", height).
-			Int("attempt", i+1).
-			Msg("Resolution too small, window may not be ready yet, retrying...")
+		if err != nil {
+			// DirectHit截图方式会导致err != nil
+			log.Debug().
+				Err(err).
+				Int("attempt", i+1).
+				Msg("Failed to get resolution, screencap and retry")
+		} else {
+			log.Debug().
+				Int32("width", width).
+				Int32("height", height).
+				Int("attempt", i+1).
+				Msg("Resolution too small, window may not be ready yet, retrying...")
+		}
 		time.Sleep(time.Second)
 		controller.PostScreencap().Wait()
 	}

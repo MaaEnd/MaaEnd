@@ -330,6 +330,12 @@
         "action": {
             "type": "Click",
             "param": {
+                "target": [
+                    600,
+                    320,
+                    80,
+                    80
+                ],
                 "contact": 2
             }
         },

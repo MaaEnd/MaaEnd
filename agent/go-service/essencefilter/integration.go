@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoessence"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -248,6 +249,9 @@ func runUnifiedSkillDecision(
 	case matchapi.MatchExact:
 		st.MatchedCount++
 		reportMatchedWeapons(ctx, matchResult.Weapons)
+		if next.Lock == "EssenceFilterAfterBattleLockItem" {
+			recordAfterBattleInventory(matchResult.Weapons)
+		}
 
 		key := skillCombinationKey(matchResult.SkillIDs)
 		if key != "" {
@@ -321,13 +325,24 @@ func runUnifiedSkillDecision(
 	return true
 }
 
+func recordAfterBattleInventory(weapons []matchapi.WeaponData) {
+	ids := make([]string, 0, len(weapons))
+	for _, w := range weapons {
+		if w.InternalID != "" {
+			ids = append(ids, w.InternalID)
+		}
+	}
+	autoessence.Add(ids, 1)
+}
+
 func loadMatchEngine(ctx *maa.Context, nodeName string) (*matchapi.Engine, *EssenceFilterOptions, error) {
 	opts, err := getOptionsFromAttach(ctx, nodeName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("load options from %s: %w", nodeName, err)
 	}
 
-	locale := matchapi.NormalizeInputLocale(opts.InputLanguage)
+	locale := resolveInputLanguage(ctx, opts.InputLanguage)
+	opts.InputLanguage = locale
 	engine, err := matchapi.NewEngineFromDirWithLocale(essenceFilterDataDir, locale)
 	if err != nil {
 		return nil, nil, fmt.Errorf("load match engine: %w", err)

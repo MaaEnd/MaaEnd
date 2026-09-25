@@ -18,7 +18,17 @@
             "type": "object",
             "description": "Parameters for MapFind: work out where the open world map is currently showing, bring the given base map coordinate into view, and hand back the screen position it landed on. What to do with that position is the node's own action.",
             "additionalProperties": false,
-            "required": [ "zone", "at" ],
+            "required": [ "zone" ],
+            "oneOf": [
+                { "required": [ "at" ] },
+                { "required": [ "candidates" ] }
+            ],
+            "allOf": [
+                {
+                    "if": { "required": [ "candidates" ] },
+                    "then": { "required": [ "icon" ] }
+                }
+            ],
             "properties": {
                 "zone": {
                     "title": "Zone",
@@ -28,8 +38,32 @@
                 },
                 "at": {
                     "title": "At",
-                    "description": "The point to find, [x, y] in that zone's base map pixel frame.",
+                    "description": "The point to find, [x, y] in that zone's base map pixel frame. Use candidates instead to judge several points in one call.",
                     "$ref": "#/$defs/Coordinate2D"
+                },
+                "candidates": {
+                    "title": "Candidates",
+                    "description": "Several points judged in one call, in writing order. They share a single zoom-out and a single viewport solve, and the map is only panned for a candidate that is not already on screen, so a set of points costs far less here than one node per point. The first candidate whose icon confirms hands its own next back to the framework and the rest are never looked at. A candidate whose next node is turned off with enabled false is skipped without being looked at, which is how a task option turns one destination off and leaves the others to be judged. Requires an icon: coordinates alone cannot tell candidates apart, so every candidate would confirm.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "at", "next" ],
+                        "properties": {
+                            "at": {
+                                "title": "At",
+                                "description": "The point to find, [x, y] in that zone's base map pixel frame.",
+                                "$ref": "#/$defs/Coordinate2D"
+                            },
+                            "next": {
+                                "title": "Next",
+                                "description": "Node the framework goes to when this candidate is the one confirmed. It also owns the candidate's on/off switch: turning this node off with enabled false skips the candidate entirely.",
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    }
                 },
                 "icon": {
                     "title": "Icon",

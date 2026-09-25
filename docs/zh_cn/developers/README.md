@@ -15,6 +15,7 @@ flowchart TD
     Components --> SI["in-scene.md"]
     Components --> SM["scene-manager.md"]
     Components --> CU["custom.md"]
+    Components --> Gopkg["go-service-pkg.md"]
     Components --> Comps["components/*.md"]
     Tools --> NT["node-testing.md"]
 ```
@@ -27,8 +28,9 @@ flowchart TD
 4. 掌握开发工具和调试流程 → `tools-and-debug.md`
 5. 查阅编码规范 → `coding-standards.md`
 6. 需要写测试集时 → `node-testing.md`
-7. 用到某个高级组件时 → 查 `components/` 下的对应文档
-8. 维护某个具体任务时 → 查 `tasks/` 下的对应文档
+7. 写 Go Custom / 复用工具包时 → `custom.md`、`go-service-pkg.md`
+8. 用到某个高级组件时 → 查 `components/` 下的对应文档
+9. 维护某个具体任务时 → 查 `tasks/` 下的对应文档
 
 > [!WARNING]
 > **提交任何代码前，必须先通读 [编码规范](./coding-standards.md)。**
@@ -51,6 +53,7 @@ flowchart TD
 | [组件指南](./components-guide.md) | 项目架构、判断改哪、可复用节点目录 |
 | [工具与调试](./tools-and-debug.md) | 开发工具清单、常用调试入口、交流群信息 |
 | [节点测试](./node-testing.md) | 如何编写和运行节点测试，验证识别是否稳定命中 |
+| [Go Service `pkg/` 公共包](./go-service-pkg.md) | And 解包、条件计算、OCR 数值、i18n / focus / 资源读取等通用工具 |
 | [Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/) | MaaFramework 官方 Pipeline 协议全文 |
 | [发版流程](./release-process.md) | 发版周期、分支模型、PR 往哪提、自动化说明 |
 
@@ -98,8 +101,10 @@ flowchart TD
 | [DijiangRewards 基建任务](./tasks/dijiang-rewards-maintain.md) | 主流程、阶段职责与 interface 选项覆盖逻辑 |
 | [CreditShopping 信用点商店](./tasks/credit-shopping-maintain.md) | 购买优先级、补信用联动、刷新策略与商品扩展 |
 | [EnvironmentMonitoring 环境监测](./tasks/environment-monitoring-maintain.md) | 观察点路线数据、`pipeline-generate` 自动生成与新点接入流程 |
-| [SellProduct 售卖产品](./tasks/sell-product-maintain.md) | 主流程、zmdmap 精简游戏数据同步、自动干员与动态售卖循环维护 |
+| [OutpostTrading 据点交易](./tasks/outpost-trading-maintain.md) | 主流程、zmdmap 精简游戏数据同步、自动干员与动态售卖循环维护 |
+| [SeizeDeliveryJobs 抢委托送货](./tasks/seize-delivery-jobs-maintain.md) | 终点数据驱动生成、地标名称维护、回退文案与多语言同步 |
 | [GiftOperator 赠送干员礼物](./tasks/gift-operator-maintain.md) | 导航寻路、联络选人、送礼收礼分支与干员扩展维护 |
+| [DeliveryJobs 转交委托](./tasks/delivery-jobs-maintain.md) | 仓储节点处理方式、anchor 落点规则、报价分支与装箱优先级维护 |
 
 ### 第三方协议文档（`protocol/`）
 
@@ -117,7 +122,7 @@ flowchart TD
 | 第一次参与，从零开始 | [getting-started.md](./getting-started.md) |
 | 了解项目架构 | [components-guide.md](./components-guide.md) |
 | 改 Pipeline 节点 | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [in-scene.md](./in-scene.md) / [scene-manager.md](./scene-manager.md) |
-| 写或调 Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md) |
+| 写或调 Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md) → [go-service-pkg.md](./go-service-pkg.md) |
 | 查阅编码规范 | [coding-standards.md](./coding-standards.md) |
 | 发版 / 提 PR 该往哪分支 | [release-process.md](./release-process.md) |
 

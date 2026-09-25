@@ -4,6 +4,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <thread>
 
 #include <opencv2/core.hpp>
@@ -51,5 +52,16 @@ private:
     std::atomic<bool> stop_ { false };
     std::atomic<bool> detected_ { false };
 };
+
+// One-shot match for callers that pace their own probing on frames they already hold (FIND's stop pre-filter):
+// crops the authored ROI, normalizes it back to the authored size and runs the same matcher as the worker, with
+// no thread and no latch. Returns the hit directly; the caller owns pacing and reaction.
+bool MatchTemplateOnFrame(
+    const cv::Mat& frame,
+    const cv::Rect& base_roi,
+    const cv::Mat& templ,
+    const cv::Mat& mask,
+    double threshold,
+    std::string_view tag);
 
 } // namespace mapnavigator

@@ -266,7 +266,7 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 | `style:` | Formatting/whitespace adjustments (doesn't affect code meaning) |
 | `chore:` | Build, dependencies, and other miscellaneous |
 
-Examples: `feat(SellProduct): Add sell button recognition template`, `fix: Fix startup crash`.
+Examples: `feat(OutpostTrading): Add sell button recognition template`, `fix: Fix startup crash`.
 
 ---
 
@@ -318,7 +318,7 @@ Examples: `feat(SellProduct): Add sell button recognition template`, `fix: Fix s
     "recognition": {
         "type": "template_matching",
         "param": {
-            "template": "SellProduct/button.png",
+            "template": "OutpostTrading/button.png",
             "threshold": 0.7
         }
     },
@@ -420,13 +420,13 @@ Each Pipeline node does three things:
 
 ```json
 {
-    "SellProductMain": {
+    "OutpostTradingMain": {
         "desc": "When on the main screen, recognize the regional development entry and click to enter",
 
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "SellProduct/RegionalDevelopmentEntry.png",
+                "template": "OutpostTrading/RegionalDevelopmentEntry.png",
                 "roi": [
                     400,
                     200,
@@ -446,7 +446,7 @@ Each Pipeline node does three things:
         "post_delay": 0,
         "post_wait_freezes": 100,
 
-        "next": ["SellProductLoop"]
+        "next": ["OutpostTradingLoop"]
     }
 }
 ```
@@ -465,9 +465,9 @@ Translated line by line into plain English:
 | `"pre_delay": 0` | How many milliseconds to wait after recognition, before executing the action. Entry node screen is stable, set to 0 |
 | `"post_delay": 0` | How many milliseconds to wait after executing the action, before recognizing next. Here `post_wait_freezes` is used instead |
 | `"post_wait_freezes": 100` | Wait for the screen to stop moving after executing the action, then wait an additional 100ms. More reliable than a fixed `post_delay` |
-| `"next": ["SellProductLoop"]` | After completion, try each node in next in order, only execute the first one recognized |
+| `"next": ["OutpostTradingLoop"]` | After completion, try each node in next in order, only execute the first one recognized |
 
-> Use delay fields only when necessary: `pre_delay` waits for the screen to appear, `post_delay` waits for animations to finish, `post_wait_freezes` waits for the screen to stabilize. Most nodes can be set to 0. SellProductMain is the task entry, the screen itself is stable, so both pre/post_delay are 0.
+> Use delay fields only when necessary: `pre_delay` waits for the screen to appear, `post_delay` waits for animations to finish, `post_wait_freezes` waits for the screen to stabilize. Most nodes can be set to 0. OutpostTradingMain is the task entry, the screen itself is stable, so both pre/post_delay are 0.
 >
 > This only breaks down the most commonly used fields; there are many more available in practice — when you encounter unfamiliar ones, search online for **MaaFramework Pipeline Protocol**, the official documentation has a complete list (link in section 5.5).
 
@@ -484,7 +484,7 @@ Translated line by line into plain English:
 ### 5.4 Next Step Jump Logic
 
 ```json
-"next": ["SellProductStartSelling", "SellProductTaskEnd"]
+"next": ["OutpostTradingStartSelling", "OutpostTradingTaskEnd"]
 ```
 
 The Pipeline will **try in order** — it tries the first one, only tries the second if the first doesn't match. So put the most likely state first. The more candidates, the better, so you can hit one in a single "screenshot → recognize → action" cycle.

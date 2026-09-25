@@ -16,6 +16,7 @@ from model import (
     coerce_action_type,
     coerce_strict_arrival,
     export_action_token,
+    find_fields_of,
     get_display_action,
     get_point_actions,
     normalize_path_points,
@@ -29,6 +30,10 @@ ACTION_KEYS = ("action", "action_type", "actionType", "type")
 STRICT_KEYS = ("strict", "strict_arrival", "strictArrival")
 TARGET_TIER_KEYS = ("target_tier", "targetTier")
 TARGET_DECK_Y_KEYS = ("target_deck_y", "targetDeckY")
+FIND_TARGET_KEYS = ("find_target", "findTarget")
+FIND_TEXT_KEYS = ("find_text", "findText")
+FIND_STOP_KEYS = ("find_stop", "findStop")
+FIND_ARRIVE_KEYS = ("find_arrive", "findArrive")
 CONTROL_ACTION_NAMES = {"HEADING", "ZONE"}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = PROJECT_ROOT / "assets"
@@ -261,6 +266,7 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
         required = coerce_strict_arrival(point.get("required"), default=False)
         target_tier = normalize_zone_id(point.get("target_tier", ""))
         target_deck_y = point.get("target_deck_y")
+        find_fields = find_fields_of(point)
         for action in get_point_actions(point):
             target = [_compact_number(point["x"]), _compact_number(point["y"])]
             if action == int(ActionType.NAVMESH):
@@ -273,6 +279,19 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
                 if required:
                     navmesh_node["required"] = True
                 exported_nodes.append(navmesh_node)
+                continue
+
+            # FIND 的三个字段只有对象形装得下：数组形 [x, y, "FIND"] 只能表达坐标与动作，
+            # 而"找什么、怎么算找到"必须跟着点一起走，所以这里一律导出对象形。
+            if action == int(ActionType.FIND) and find_fields:
+                find_node: dict[str, Any] = {"action": "FIND", "target": target, **find_fields}
+                if target_tier:
+                    find_node["target_tier"] = target_tier
+                if strict_arrival:
+                    find_node["strict"] = True
+                if required:
+                    find_node["required"] = True
+                exported_nodes.append(find_node)
                 continue
 
             if target_tier or required:
@@ -639,6 +658,8 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
     target_deck_y = _resolve_target_deck_y(node)
     if target_deck_y is not None:
         point["target_deck_y"] = target_deck_y
+    for key, value in _resolve_find_fields(node).items():
+        point[key] = value  # type: ignore[literal-required]
     return point
 
 
@@ -733,6 +754,28 @@ def _resolve_target_deck_y(node: dict[str, Any]) -> float | None:
         if target_deck_y is not None and math.isfinite(target_deck_y):
             return target_deck_y
     return None
+
+
+# FIND 的三个字段：先按驼峰/下划线两种写法收拢，再交给 model 那份统一清洗
+def _resolve_find_fields(node: dict[str, Any]) -> dict[str, object]:
+    raw: dict[str, object] = {}
+    for target_key in FIND_TARGET_KEYS:
+        if target_key in node:
+            raw["find_target"] = node.get(target_key)
+            break
+    for text_key in FIND_TEXT_KEYS:
+        if text_key in node:
+            raw["find_text"] = node.get(text_key)
+            break
+    for stop_key in FIND_STOP_KEYS:
+        if stop_key in node:
+            raw["find_stop"] = node.get(stop_key)
+            break
+    for arrive_key in FIND_ARRIVE_KEYS:
+        if arrive_key in node:
+            raw["find_arrive"] = node.get(arrive_key)
+            break
+    return find_fields_of(raw)  # type: ignore[arg-type]
 
 
 def _as_float(value: Any) -> float | None:

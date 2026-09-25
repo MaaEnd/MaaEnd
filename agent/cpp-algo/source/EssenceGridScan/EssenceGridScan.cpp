@@ -123,7 +123,7 @@ std::optional<std::filesystem::path> resolve_essence_image_path(const std::strin
         return std::nullopt;
     }
 
-    const std::filesystem::path configured(configured_path);
+    const std::filesystem::path configured = MAA_NS::path(configured_path);
     const std::filesystem::path executable_dir = get_exe_dir();
     const std::vector<std::filesystem::path> candidates = {
         configured,

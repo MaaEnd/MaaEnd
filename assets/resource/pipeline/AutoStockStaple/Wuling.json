@@ -33,6 +33,18 @@
             }
         }
     },
+    "AutoStockDiscountCompareWuling": {
+        "desc": "比较商品折扣与最低折扣阈值，武陵",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoStockInStapleItemDiscountsWuling} <= -50"
+                }
+            }
+        }
+    },
     "AutoStockTargetCanNotBuyWuling": {
         "desc": "识别目标调度券是否不可购买",
         "recognition": {
@@ -53,15 +65,23 @@
                 "all_of": [
                     "AutoStockInStapleItem",
                     "AutoStockInStapleItemName_Expected",
-                    "AutoStockInStapleItemDiscountsWuling"
+                    "AutoStockInStapleItemDiscountsWuling",
+                    "AutoStockDiscountCompareWuling"
                 ],
                 "box_index": 2
             }
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
+            "type": "Custom",
             "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
                 "target_offset": [
                     -45,
                     85,
@@ -74,7 +94,10 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControl"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
+        }
     },
     "AutoStockSwipeWuling": {
         "desc": "向下滑动寻找商品，直到找到商品或到达底部",

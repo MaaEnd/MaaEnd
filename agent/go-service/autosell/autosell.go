@@ -197,18 +197,63 @@ func firstContainedKeyword(s string, subs []string) string {
 	return ""
 }
 
+// flattenKeywordGroups 把「同一物资的不同语言/措辞变体」分组列表展开成扁平的关键词清单，
+// 提供给 firstContainedKeyword 做 strings.Contains 匹配。
+func flattenKeywordGroups(groups [][]string) []string {
+	var out []string
+	for _, g := range groups {
+		out = append(out, g...)
+	}
+	return out
+}
+
+// 每一组是同一件物资的所有已知语言/措辞变体（简体 / 繁体 / 混写形 / EN / JP / KR）。
+// 中文部分已对照 EndfieldData ItemTable（type=56 domainshop_cargo）与繁体客户端实际
+// 物资全名核实；EN/JP/KR 由用户对照游戏内实际显示文字提供，未经二次验证的部分见各组注释。
+// 多数是简繁转字，但也有部分繁体客户端用完全不同的词，不是简繁转换函式能推算出来的，见各组注释。
+// EN/JP/KR 关键词只取「第一个词」或「与中文关键词同义的词」，不用完整物资全名，
+// 跟中文关键词的简短风格一致，也避免多个物资共用前缀词（如「Xiranite」）互相误判。
+// 跟既有中文关键词完全相同的语言（如日文汉字与简中一致）不重复列出。
 var (
-	// 关键词只写了简体，繁体客户端物资名不会被 strings.Contains 命中，
-	// 因此补充繁体对应词；已对照 EndfieldData ItemTable（type=56 domainshop_cargo）
-	// 与繁体客户端实际物资全名核实（26 种弹性需求物资全覆盖，2026-09 / 1.5）。
-	// "锚點" 是游戏繁体客户端实际出现的混写形（简体"锚"+繁体"點"），t2s/s2t 整词转换都对不上，只能整词照抄。
-	// "岳研避瘴茶货组"繁体客户端仍写"岳研"，未简化为"嶽研"，故不加"嶽研"。
-	// 「天师龙泡泡」与「天师桩机芯」共用「天师」前缀，分别用「天师龙/天师桩」区分，避免 FindText 串货。
-	moderatePriceKeywords = []string{"锚点", "錨點", "锚點", "悬空", "懸空", "巫术", "巫術", "天使", "岳研", "冬虫", "冬蟲", "武陵", "武侠", "武俠"}
-	largePriceKeywords    = []string{"谷地水", "团结", "團結", "塞什", "星体", "星體", "天师龙", "天師龍", "天师桩", "天師樁", "息壤净", "息壤淨", "息壤色", "息壤桥", "息壤橋", "清波", "飞天", "飛天", "选剑", "選劍", "界石", "浮空艇"}
-	// "硬頭殼"是"硬脑壳/硬脑"的繁体地区叫法（用词差异，非简繁转换）；
-	// "碎料"是"边角料"的繁体地区叫法（用词差异，非简繁转换）。
-	massivePriceKeywords = []string{"源石", "警戒", "硬脑", "硬腦", "硬頭殼", "边角", "邊角", "碎料"}
+	moderatePriceKeywordGroups = [][]string{
+		{"锚点", "錨點", "锚點", "Ankhorilling", "アンカー", "앵커"}, // "锚點" 是繁体客户端实际出现的混写形（简体"锚"+繁体"點"），t2s/s2t 整词转换都对不上
+		{"悬空", "懸空", "Musbeast", "浮かぶ", "공중"},
+		{"巫术", "巫術", "Witchcraft", "주술"},
+		{"天使", "Aggeloi", "アンゲロス", "아겔로스"},
+		{"岳研", "Eureka", "악연"},
+		{"冬虫", "冬蟲", "Nymphsprout", "동충하순"},
+		{"武陵", "Wuling", "무릉"},
+		{"武侠", "武俠", "Wuxia", "무협"},
+	}
+	largePriceKeywordGroups = [][]string{
+		{"谷地水", "Hydroculture", "협곡 수경"},
+		{"团结", "團結", "Unity", "ユナイト", "단결"},
+		{"塞什", "Seš'qamam", "セシュカ", "세쉬카"},
+		{"星体", "星體", "Astarron", "アスタロン", "별체"},
+		// 「天师龙泡泡」与「天师桩机芯」共用「天师」前缀，分别用「天师龙/天师桩」区分，避免 FindText 串货。
+		{"天师龙", "天師龍", "Chubby Lung Tianshi", "천사"},
+		{"天师桩", "天師樁"}, // 新物资，暂无 EN/JP/KR 资料
+		{"息壤净", "息壤淨", "Xiranite Filter", "息壌浄", "식양 정수"},
+		{"息壤色", "Xiran-Hue", "息壌色", "식양색을"},
+		{"息壤桥", "息壤橋", "息壌橋", "Xiranite Bridge", "식양 다리"},
+		{"清波", "Qingbo", "청파"},
+		{"飞天", "飛天", "Aerial", "空飛ぶ", "비행"},
+		{"选剑", "選劍", "選剣", "Swordmancer", "선검"},
+		{"界石"},  // 新物资，暂无其他语言资料
+		{"浮空艇"}, // 新物资，暂无其他语言资料
+	}
+	massivePriceKeywordGroups = [][]string{
+		{"源石", "Originium", "작은 오리지늄"},
+		{"警戒", "Vigilant", "경계자"},
+		{"硬脑", "硬頭殼", "Hard Noggin", "石頭", "단단한"},
+		{"边角", "碎料", "Scrap", "端材", "재활용"},
+	}
+)
+
+var (
+	moderatePriceKeywords = flattenKeywordGroups(moderatePriceKeywordGroups)
+	largePriceKeywords    = flattenKeywordGroups(largePriceKeywordGroups)
+	massivePriceKeywords  = flattenKeywordGroups(massivePriceKeywordGroups)
 )
 
 // Compile-time interface checks

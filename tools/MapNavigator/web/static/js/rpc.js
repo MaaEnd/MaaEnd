@@ -190,7 +190,8 @@ export function getZiplineRecords() {
  * Expand a complete MapNavigator request with the runtime planner, preserving global
  * route boundaries and zipline semantics.
  *
- * @param {{position:number[], position_zone:string, floor_y?:?number, custom_action_param:Object}} req
+ * @param {{position:number[], position_zone:string, floor_y?:?number, custom_action_param:Object,
+ *   zipline_account_id?:string}} req
  * @returns {Promise<{ok:boolean, stale?:boolean, points?:number[][],
  *   walk_segments?:number[][][], zipline_segments?:Array<Object>,
  *   diagnostics?:Array<Object>, expanded_waypoints?:number, zipline?:Object, error?:string,
@@ -206,6 +207,7 @@ export function postRoutePreview(req) {
     position_zone: req.position_zone,
     floor_y: req.floor_y === undefined ? null : req.floor_y,
     custom_action_param: req.custom_action_param,
+    zipline_account_id: req.zipline_account_id || "",
   });
 }
 
@@ -360,6 +362,23 @@ export function putSettings(payload) {
 }
 
 /**
+ * @returns {Promise<Object>} the virtual no-go table the planner reads from data/MapNavigator
+ */
+export function fetchNoGoZones() {
+  return getJson("/api/nogo");
+}
+
+/**
+ * Persist the no-go table. The backend then cold-starts the navmesh session so the
+ * next route preview plans against the saved polygons; `reloaded` says whether it did.
+ * @param {Object} payload serialized no-go doc
+ * @returns {Promise<{ok:boolean, path:string, zones:number, reloaded:boolean, error:string}>}
+ */
+export function saveNoGoZones(payload) {
+  return sendJson("/api/nogo", payload, "PUT");
+}
+
+/**
  * Check connection status with backend.
  * @param {Object} payload settings payload to check
  * @returns {Promise<{connected:boolean, message:string}>}
@@ -471,7 +490,7 @@ export class RecordingSocket extends SessionSocket {
    * @returns {void}
    */
   start(sessionConfig, options = {}) {
-    this._open({ ...(sessionConfig || {}), live_only: !!options.liveOnly });
+    this._open({...(sessionConfig || {}), live_only: !!options.liveOnly});
   }
 
   /** Ask the backend to stop recording. @returns {void} */
@@ -498,7 +517,7 @@ export class NavTestSocket extends SessionSocket {
   /**
    * Open the session and walk `route` as soon as the game is connected.
    * @param {Object} sessionConfig `{kind:'win32'|'adb'|..., win32?, adb?}`
-   * @param {{path: Array, exported: boolean, zip?: boolean, assert_target: ?Object}} route see {@link NavTestSocket#arm}
+   * @param {{path: Array, exported: boolean, zip?: boolean, zipline_account_id?: string, assert_target: ?Object}} route see {@link NavTestSocket#arm}
    * @returns {void}
    */
   start(sessionConfig, route) {
@@ -509,7 +528,9 @@ export class NavTestSocket extends SessionSocket {
    * Load what F3 (and the next `run`) will run. `exported` false means editor waypoints
    * the backend still has to export, true means ready pipeline nodes. `assert_target`
    * `{zone_id, target:[x,y,w,h]}` runs the assert rect instead and wins over `path`.
-   * @param {{path: Array, exported: boolean, zip?: boolean, assert_target: ?Object}} route
+   * `zipline_account_id` travels with `zip` so the runtime can match account-scoped
+   * zipline records; without it the whole route degrades to walking.
+   * @param {{path: Array, exported: boolean, zip?: boolean, zipline_account_id?: string, assert_target: ?Object}} route
    * @returns {void}
    */
   arm(route) {
@@ -521,12 +542,13 @@ export class NavTestSocket extends SessionSocket {
     this._send({type: "run", ...this._route(route)});
   }
 
-  /** @returns {{path: Array, exported: boolean, zip: boolean, assert_target: ?Object}} */
+  /** @returns {{path: Array, exported: boolean, zip: boolean, zipline_account_id: string, assert_target: ?Object}} */
   _route(route) {
     return {
       path: (route && route.path) || [],
       exported: !!(route && route.exported),
       zip: !!(route && route.zip),
+      zipline_account_id: (route && route.zipline_account_id) || "",
       assert_target: (route && route.assert_target) || null,
     };
   }

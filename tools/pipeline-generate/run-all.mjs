@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 扫描指定子目录下的所有 *config.json，依次调用 maa-pipeline-generate --config <file>。
 // 用法：node tools/pipeline-generate/run-all.mjs <subdir>
-// 例： node tools/pipeline-generate/run-all.mjs SellProduct
+// 例： node tools/pipeline-generate/run-all.mjs OutpostTrading
 
 import {spawnSync} from "node:child_process";
 import {existsSync, readdirSync, readFileSync, rmSync, statSync} from "node:fs";

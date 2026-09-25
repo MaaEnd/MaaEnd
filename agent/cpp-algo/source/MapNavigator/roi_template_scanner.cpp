@@ -73,7 +73,44 @@ bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, const cv::Mat& m
     return max_val >= threshold;
 }
 
+// 裁剪图归一化到作者 ROI 尺寸后跑同一套匹配: worker 与一次性探测共用, 免得两边判据漂移
+bool MatchNormalized(
+    const cv::Mat& crop,
+    const cv::Size& base_size,
+    const cv::Mat& templ,
+    const cv::Mat& mask,
+    double threshold,
+    const std::string& tag)
+{
+    cv::Mat normalized;
+    if (crop.size() == base_size) {
+        normalized = crop;
+    }
+    else {
+        cv::resize(crop, normalized, base_size, 0, 0, cv::INTER_AREA);
+    }
+    return MatchesTemplate(ToGray(normalized), templ, mask, threshold, tag);
+}
+
 } // namespace
+
+bool MatchTemplateOnFrame(
+    const cv::Mat& frame,
+    const cv::Rect& base_roi,
+    const cv::Mat& templ,
+    const cv::Mat& mask,
+    double threshold,
+    std::string_view tag)
+{
+    if (frame.empty() || templ.empty()) {
+        return false;
+    }
+    const cv::Rect roi = ScaledRoi(frame.size(), base_roi);
+    if (roi.width <= 0 || roi.height <= 0) {
+        return false;
+    }
+    return MatchNormalized(frame(roi), base_roi.size(), templ, mask, threshold, std::string(tag));
+}
 
 RoiTemplateScanner::RoiTemplateScanner(
     std::string tag,
@@ -137,16 +174,7 @@ void RoiTemplateScanner::WorkerLoop()
         }
 
         // Normalize the crop back to the authored ROI size so detection runs in one fixed pixel space.
-        // INTER_AREA for the downscale.
-        cv::Mat normalized;
-        if (roi.size() == base_roi_.size()) {
-            normalized = roi;
-        }
-        else {
-            cv::resize(roi, normalized, base_roi_.size(), 0, 0, cv::INTER_AREA);
-        }
-
-        if (MatchesTemplate(ToGray(normalized), template_, mask_, match_threshold_, tag_)) {
+        if (MatchNormalized(roi, base_roi_.size(), template_, mask_, match_threshold_, tag_)) {
             detected_.store(true);
         }
     }

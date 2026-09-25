@@ -1,0 +1,101 @@
+{
+    "BatchDeleteFriendsPropertyClick": {
+        "desc": "点击好友头像",
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": "BatchDeleteFriendsInactive",
+        "target_offset": [
+            -60,
+            -40,
+            -70,
+            0
+        ],
+        "next": [
+            "BatchDeleteFriendsPropertyClickSuccess"
+        ]
+    },
+    "BatchDeleteFriendsPropertyClickSuccess": {
+        "desc": "点击好友头像成功",
+        "recognition": "OCR",
+        "roi": "BatchDeleteFriendsInactive",
+        "roi_offset": [
+            -60,
+            -30,
+            130,
+            180
+        ],
+        "expected": [
+            "移除好友"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "BatchDeleteFriendsPropertyDeleteConfirm"
+        ]
+    },
+    "BatchDeleteFriendsPropertyDeleteConfirm": {
+        "desc": "弹出确认弹窗",
+        "recognition": "And",
+        "all_of": [
+            "BatchDeleteFriendsPropertyDeleteConfirmOCR"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchDeleteFriendsPropertyDeleteConfirmFocus"
+        ]
+    },
+    "BatchDeleteFriendsPropertyDeleteConfirmFocus": {
+        "desc": "截图识别确认弹窗好友名并 maafocus 播报",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FocusOCRAction",
+        "custom_action_param": {
+            "node": "BatchDeleteFriendsPropertyFriendName",
+            "focus": "删除好友 %s"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BatchDeleteFriendsDeleteDone"
+        ]
+    },
+    "BatchDeleteFriendsDeleteDone": {
+        "desc": "确认删除",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "BatchDeleteFriendsDeleteDoneSuccess"
+        ]
+    },
+    "BatchDeleteFriendsDeleteDoneSuccess": {
+        "desc": "确认已回到好友列表（左上角 OnFriendList）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            200,
+            150
+        ],
+        "template": "VisitFriends/OnFriendList.png",
+        "threshold": 0.8,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                -100,
+                200,
+                200
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

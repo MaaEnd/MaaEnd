@@ -159,6 +159,46 @@ std::string DescribeCounts(const std::map<std::string, std::size_t, std::less<>>
     return output.str();
 }
 
+bool MatchesExpectedItems(const ExpectedCase& expected, const RecognitionResult& actual)
+{
+    std::vector<std::string_view> expected_slots;
+    for (const auto& [item_id, count] : expected.item_counts) {
+        if (count > actual.matches.size() - expected_slots.size()) {
+            return false;
+        }
+        expected_slots.insert(expected_slots.end(), count, item_id);
+    }
+    if (expected_slots.size() != actual.matches.size()) {
+        return false;
+    }
+
+    // 每个实际格子只占一个预期名额；增广路径允许重新分配重叠别名，避免贪心匹配依赖结果顺序。
+    std::vector<std::optional<std::size_t>> owners(expected_slots.size());
+    const auto assign = [&](auto&& self, std::size_t match_index, std::vector<bool>& visited) -> bool {
+        const auto& item = actual.matches[match_index].item;
+        for (std::size_t slot = 0; slot < expected_slots.size(); ++slot) {
+            if (visited[slot] || (item.item_id != expected_slots[slot] && !std::ranges::any_of(item.aliases, [&](const auto& alias) {
+                                      return alias.item_id == expected_slots[slot];
+                                  }))) {
+                continue;
+            }
+            visited[slot] = true;
+            if (!owners[slot] || self(self, *owners[slot], visited)) {
+                owners[slot] = match_index;
+                return true;
+            }
+        }
+        return false;
+    };
+    for (std::size_t index = 0; index < actual.matches.size(); ++index) {
+        std::vector<bool> visited(expected_slots.size(), false);
+        if (!assign(assign, index, visited)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 std::string DescribeCase(std::string_view image, GridType grid_type, std::string_view roi_name)
 {
     return std::string(GridTypeName(grid_type)) + "/" + std::string(roi_name) + "/" + std::string(image);
@@ -268,7 +308,7 @@ std::optional<std::string> CompareExpectedCase(
         return allow_unexpected ? std::nullopt : std::optional("missing expected case: " + description);
     }
     const auto actual_counts = CountActualItems(actual);
-    if (expected_case->item_counts != actual_counts) {
+    if (expected_case->item_counts != actual_counts && !MatchesExpectedItems(*expected_case, actual)) {
         return "item mismatch: " + description + " expected=" + DescribeCounts(expected_case->item_counts)
                + " actual=" + DescribeCounts(actual_counts);
     }

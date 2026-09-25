@@ -1,0 +1,121 @@
+{
+    "__AutoUseSpMedicationAddButtonRecognition": {
+        "desc": "识别添加理智按钮",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "mind_icon",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -350,
+                    0,
+                    350,
+                    60
+                ],
+                "template": "SceneManager/MapMind.png"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "mind_icon",
+                "roi_offset": [
+                    100,
+                    -10,
+                    40,
+                    20
+                ],
+                "template": "AutoUseSpMedication/AddButton.png"
+            }
+        ],
+        "box_index": 1
+    },
+    "__AutoUseSpMedicationFindEmergencySanityBooster": {
+        "desc": "识别应急理智加强剂",
+        "recognition": "TemplateMatch",
+        "roi": [
+            30,
+            80,
+            940,
+            560
+        ],
+        "template": [
+            "Valuables/EmergencySpBooster.png",
+            "Valuables/EmergencySpBoosterInCombat.png"
+        ],
+        "green_mask": true,
+        "threshold": 0.84,
+        "order_by": "Vertical"
+    },
+    "__AutoUseSpMedicationColorRecognitionEmergencySanityBoosterDeadline": {
+        "desc": "颜色识别,确认是时限应急理智加强剂(绿色或红色时限)",
+        "recognition": "ColorMatch",
+        "roi": "__AutoUseSpMedicationFindEmergencySanityBooster",
+        "method": 40,
+        "lower": [
+            [
+                50,
+                200,
+                150
+            ],
+            [
+                161,
+                0,
+                0
+            ]
+        ],
+        "upper": [
+            [
+                90,
+                255,
+                255
+            ],
+            [
+                191,
+                255,
+                255
+            ]
+        ],
+        "connected": true,
+        "count": 100
+    },
+    "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime": {
+        "desc": "识别应急理智加强剂剩余时间,由选项覆盖expected",
+        "recognition": "OCR",
+        "roi": "__AutoUseSpMedicationColorRecognitionEmergencySanityBoosterDeadline",
+        "roi_offset": [
+            15,
+            -1,
+            -14,
+            2
+        ],
+        "expected": [
+            // 剩余时间 OCR：行首锚定，避免匹配「剩余23小时」「剩余1天」等带前缀文本
+            // @i18n-skip
+            "^(\\d+小时|([1-9]|1[0-3])天)"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "__AutoUseSpMedicationFindDeadlineEmergencySanityBooster": {
+        "desc": "识别带时限的应急理智加强剂",
+        "recognition": "And",
+        "all_of": [
+            "__AutoUseSpMedicationFindEmergencySanityBooster",
+            "__AutoUseSpMedicationColorRecognitionEmergencySanityBoosterDeadline",
+            "__AutoUseSpMedicationOCRRecognitionEmergencySanityBoosterRemainingTime"
+        ],
+        "box_index": 2
+    },
+    "AutoUseSpMedicationDialogText": {
+        "desc": "识别恢复理智界面标题",
+        "recognition": "OCR",
+        "roi": [
+            180,
+            180,
+            200,
+            100
+        ],
+        "expected": [
+            "恢复理智"
+        ]
+    }
+}

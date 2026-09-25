@@ -12,8 +12,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0
       '@nekosu/maa-tools':
-        specifier: 1.0.22
-        version: 1.0.22
+        specifier: 1.1.2
+        version: 1.1.2
       '@nekosu/prettier-plugin-maafw-sort':
         specifier: 1.0.4
         version: 1.0.4
@@ -91,18 +91,24 @@ packages:
   '@nekosu/maa-locale@1.0.2':
     resolution: {integrity: sha512-h09IQIN6iKt3OmwiCD7O36QOkmfL8lFO4nAAj+cXOuQfXYbWv4kLDzApzfURhGezjpm4+9gPaksYY9xK9LLkOA==}
 
+  '@nekosu/maa-locale@1.1.0':
+    resolution: {integrity: sha512-bVfUFO47H9Ja1F3ufGf4eTB8fWuo+4uWFvTVZpusVeGvAjo60+5jSTKsxxiv7W7Lj0//tU8gyNxR08m65b72QA==}
+
   '@nekosu/maa-pipeline-manager@1.0.10':
     resolution: {integrity: sha512-uGTEtO9nKgQfm1sJxYv6kFO8tl62TXxWqhFh42TrSTICy+tLqmBzmJrhHR584kEeRuFw5AfAGXUsammZZbcVDw==}
+
+  '@nekosu/maa-pipeline-manager@1.0.14':
+    resolution: {integrity: sha512-tJmjik7ObIlQj9LgHP7WoAyKYLa3NmyFn9KQXxFu8MjHP3ln1EmYHyMC8Cq3GflGDNKabPO148v1jkHE4Pg5Qg==}
 
   '@nekosu/maa-tasker@1.0.0':
     resolution: {integrity: sha512-p5SaBJGvAMr5J2uk6imoiK7eIF7yA67HndWyfxddAHHdoyliai2dkHqBhTmDDuRmmAJ/ly4INg5Hnx8CI7Po3A==}
 
-  '@nekosu/maa-tools@1.0.22':
-    resolution: {integrity: sha512-+aa6IgRCDzPF2RtwWXzHH4TpjMfmMuGwZ0VydMJLdXQ4w/0A2ej0jaVjRUsnS67EFi205Mnddvo0za4BbPvL0Q==}
+  '@nekosu/maa-tools@1.1.2':
+    resolution: {integrity: sha512-foNLUwcx3+8fqT54/p6PzwqdgzhURZOdo41An0S4sC/PMnjsOFpoBGrlM4WU7UEQ2mdFerAx4JDfyvKEpyE7Nw==}
     hasBin: true
 
-  '@nekosu/maa-version-manager@1.0.2':
-    resolution: {integrity: sha512-jQ4wTJKNAkjzf7MIFzKMlyRx3PjHyEWMD+M8Yjh8pCLAB+LyZKDHcDojczWQKeYmGL93uxtTDhyKB12UEo7TkQ==}
+  '@nekosu/maa-version-manager@1.1.0':
+    resolution: {integrity: sha512-WB2rHQYFUK+e49+dTd7KW0k17OWM3H89jkTgH092iOH/pmOqBIBAzanUSKw5yEwI1ikhY+IRa75b1zhKh+wjNA==}
 
   '@nekosu/prettier-plugin-maafw-sort@1.0.4':
     resolution: {integrity: sha512-k8ZS9aGzlNW32oKBJ/wT+q9zJ/fSthpWFgSZPgTra4fLXvuzpGs92oK3lN76kDU+lXufDSg8kMIv65zKmquvUQ==}
@@ -218,10 +224,6 @@ packages:
 
   balanced-match@4.0.4:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
-    engines: {node: 18 || 20 || >=22}
-
-  brace-expansion@5.0.4:
-    resolution: {integrity: sha512-h+DEnpVvxmfVefa4jFbCf5HdH5YMDXRsmKflpf1pILZWRFlTbJpxeU55nJl4Smt5HQaGzg1o6RHFPJaOqnmBDg==}
     engines: {node: 18 || 20 || >=22}
 
   brace-expansion@5.0.8:
@@ -538,10 +540,6 @@ packages:
   micromark@4.0.2:
     resolution: {integrity: sha512-zpe98Q6kvavpCr1NPVSCMebCKfD7CA2NqZ+rykeNhONIJBpc1tFKt9hucLGwha3jNTNI8lHpctWJWoimVF4PfA==}
 
-  minimatch@10.2.4:
-    resolution: {integrity: sha512-oRjTw/97aTBN0RHbYCdtF1MQfvusSIBQM0IZEgzl6426+8jSC0nF1a/GmnVLpfB9yyr6g6FTqWqiZVbxrtaCIg==}
-    engines: {node: 18 || 20 || >=22}
-
   minimatch@10.2.6:
     resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
     engines: {node: 18 || 20 || >=22}
@@ -641,10 +639,6 @@ packages:
   path-scurry@2.0.2:
     resolution: {integrity: sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==}
     engines: {node: 18 || 20 || >=22}
-
-  picomatch@4.0.3:
-    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
-    engines: {node: '>=12'}
 
   picomatch@4.0.5:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
@@ -759,10 +753,6 @@ packages:
   tar@7.5.9:
     resolution: {integrity: sha512-BTLcK0xsDh2+PUe9F6c2TlRp4zOOBMTkoQHQIWSIzI0R7KG46uEwq4OPk2W7bZcprBMsuaeFsqwYr7pjh6CuHg==}
     engines: {node: '>=18'}
-
-  tinyglobby@0.2.15:
-    resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
-    engines: {node: '>=12.0.0'}
 
   tinyglobby@0.2.17:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
@@ -897,9 +887,18 @@ snapshots:
 
   '@nekosu/maa-locale@1.0.2': {}
 
+  '@nekosu/maa-locale@1.1.0': {}
+
   '@nekosu/maa-pipeline-manager@1.0.10':
     dependencies:
       '@nekosu/maa-locale': 1.0.2
+      '@nekosu/maa-tasker': 1.0.0
+      chokidar: 5.0.0
+      jsonc-parser: 3.3.1
+
+  '@nekosu/maa-pipeline-manager@1.0.14':
+    dependencies:
+      '@nekosu/maa-locale': 1.1.0
       '@nekosu/maa-tasker': 1.0.0
       chokidar: 5.0.0
       jsonc-parser: 3.3.1
@@ -908,12 +907,12 @@ snapshots:
     dependencies:
       '@nekosu/simple-parser': 1.0.0
 
-  '@nekosu/maa-tools@1.0.22':
+  '@nekosu/maa-tools@1.1.2':
     dependencies:
       '@actions/core': 3.0.0
-      '@nekosu/maa-locale': 1.0.2
-      '@nekosu/maa-pipeline-manager': 1.0.10
-      '@nekosu/maa-version-manager': 1.0.2
+      '@nekosu/maa-locale': 1.1.0
+      '@nekosu/maa-pipeline-manager': 1.0.14
+      '@nekosu/maa-version-manager': 1.1.0
       chalk: 5.6.2
       jiti: 2.6.1
       jsonc-parser: 3.3.1
@@ -921,7 +920,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nekosu/maa-version-manager@1.0.2':
+  '@nekosu/maa-version-manager@1.1.0':
     dependencies:
       pacote: 21.4.0
       proper-lockfile: 4.1.2
@@ -1030,7 +1029,7 @@ snapshots:
   '@tufjs/models@4.1.0':
     dependencies:
       '@tufjs/canonical-json': 2.0.0
-      minimatch: 10.2.4
+      minimatch: 10.2.6
 
   '@types/debug@4.1.13':
     dependencies:
@@ -1059,10 +1058,6 @@ snapshots:
   argparse@2.0.1: {}
 
   balanced-match@4.0.4: {}
-
-  brace-expansion@5.0.4:
-    dependencies:
-      balanced-match: 4.0.4
 
   brace-expansion@5.0.8:
     dependencies:
@@ -1134,10 +1129,6 @@ snapshots:
 
   exponential-backoff@3.1.3: {}
 
-  fdir@6.5.0(picomatch@4.0.3):
-    optionalDependencies:
-      picomatch: 4.0.3
-
   fdir@6.5.0(picomatch@4.0.5):
     optionalDependencies:
       picomatch: 4.0.5
@@ -1150,7 +1141,7 @@ snapshots:
 
   glob@13.0.6:
     dependencies:
-      minimatch: 10.2.4
+      minimatch: 10.2.6
       minipass: 7.1.3
       path-scurry: 2.0.2
 
@@ -1183,7 +1174,7 @@ snapshots:
 
   ignore-walk@8.0.0:
     dependencies:
-      minimatch: 10.2.4
+      minimatch: 10.2.6
 
   ignore@7.0.6: {}
 
@@ -1466,10 +1457,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  minimatch@10.2.4:
-    dependencies:
-      brace-expansion: 5.0.4
-
   minimatch@10.2.6:
     dependencies:
       brace-expansion: 5.0.8
@@ -1524,7 +1511,7 @@ snapshots:
       proc-log: 6.1.0
       semver: 7.7.4
       tar: 7.5.9
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.17
       which: 6.0.1
     transitivePeerDependencies:
       - supports-color
@@ -1613,8 +1600,6 @@ snapshots:
     dependencies:
       lru-cache: 11.2.6
       minipass: 7.1.3
-
-  picomatch@4.0.3: {}
 
   picomatch@4.0.5: {}
 
@@ -1728,11 +1713,6 @@ snapshots:
       minipass: 7.1.3
       minizlib: 3.1.0
       yallist: 5.0.0
-
-  tinyglobby@0.2.15:
-    dependencies:
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
 
   tinyglobby@0.2.17:
     dependencies:

@@ -75,6 +75,14 @@ These node names **do not start with `__ScenePrivate`**.
 | Menu | `SceneEnterMenuIntelArchiveAudioRecords` | Enter Intel Archives - Audio Records. |
 | Menu | `SceneEnterMenuIntelArchiveFindings` | Enter Intel Archives - Findings. |
 | Menu | `SceneEnterMenuIntelArchiveNexusFiles` | Enter Intel Archives - Nexus Files. |
+| Menu | `SceneEnterMenuSetting` | Enter Settings (PC only). |
+| Menu | `SceneEnterMenuSettingPerformanceGraphic` | Enter Settings - Performance & Graphics (PC only). |
+| Menu | `SceneEnterMenuSettingAudio` | Enter Settings - Audio (PC only). |
+| Menu | `SceneEnterMenuSettingControls` | Enter Settings - Controls (PC only). |
+| Menu | `SceneEnterMenuSettingKeybinding` | Enter Settings - Keybinding (PC only). |
+| Menu | `SceneEnterMenuSettingLanguage` | Enter Settings - Language (PC only). |
+| Menu | `SceneEnterMenuSettingPlatformAccount` | Enter Settings - Platform & Account (PC only). |
+| Menu | `SceneEnterMenuSettingOthers` | Enter Settings - Others (PC only). |
 | Menu | `SceneEnterMenuHeadhunt` | Enter Operator Headhunt screen. |
 | Helper | `SceneDialogConfirm` | Click confirm button in dialogs. |
 | Helper | `SceneDialogCancel` | Click cancel button in dialogs. |

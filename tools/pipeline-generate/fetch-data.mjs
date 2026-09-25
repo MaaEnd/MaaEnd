@@ -18,6 +18,8 @@ const DATA_FILES = [
     "delivery_destinations.json",
     "environment_monitoring.json",
     "sell_product.json",
+    "teleport_anchors.json",
+    "collect_points.json",
 ];
 
 const VERSION_FILE = "version.txt";

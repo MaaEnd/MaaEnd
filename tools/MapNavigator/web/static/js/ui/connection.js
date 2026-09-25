@@ -265,13 +265,16 @@ export class ConnectionPanel {
   /** Collapse/expand the connection card body. @param {boolean} collapsed @returns {void} */
   setCollapsed(collapsed) {
     const panel = document.getElementById("panel-connection");
-    if (panel) panel.classList.toggle("collapsed", collapsed);
+    if (!panel) return;
+    panel.classList.toggle("collapsed", collapsed);
+    const toggle = document.getElementById("connection-header-toggle");
+    if (toggle) toggle.setAttribute("aria-expanded", String(!collapsed));
   }
 
   /** Toggle the connection card body (header click). @returns {void} */
   toggleCollapsed() {
     const panel = document.getElementById("panel-connection");
-    if (panel) panel.classList.toggle("collapsed");
+    if (panel) this.setCollapsed(!panel.classList.contains("collapsed"));
   }
 
   /**

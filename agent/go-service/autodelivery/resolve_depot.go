@@ -11,6 +11,8 @@ const (
 	resolveDepotActionName = "AutoDeliveryResolveDepotAction"
 	navigateDepotNode      = "AutoDeliveryNavigateDepot"
 	retryNavigateDepotNode = "AutoDeliveryRetryNavigateDepot"
+	// depotZiplineRequiredFocusKey 是「只能坐滑索抵达、但用户选择步行」时讲给用户的原因。
+	depotZiplineRequiredFocusKey = "autodelivery.focus.depot_zipline_required"
 )
 
 // AutoDeliveryResolveDepotAction 根据区域 OCR 匹配仓储节点并选择对应的生成路线节点。
@@ -87,6 +89,15 @@ func (a *AutoDeliveryResolveDepotAction) Run(ctx *maa.Context, arg *maa.CustomAc
 			Str("component", resolveDepotActionName).
 			Str("depot", area.DepotID).
 			Msg("failed to resolve delivery depot")
+		return false
+	}
+	// 只能坐滑索抵达的仓储没有可用步行路线，用户选择步行时必须直接失败，不能硬走。
+	if !ensureZiplineSelected(ctx, route.ZiplineOnly, options.Zip, depotZiplineRequiredFocusKey, localizedName(route.Names, route.ID)) {
+		log.Error().
+			Str("component", resolveDepotActionName).
+			Str("depot", route.ID).
+			Str("area", area.ID).
+			Msg("delivery depot is zipline-only but navigation is configured to walk")
 		return false
 	}
 	if err := ctx.OverridePipeline(buildDepotNavigationOverride(route, options.Zip)); err != nil {

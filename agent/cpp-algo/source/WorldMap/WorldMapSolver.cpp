@@ -376,12 +376,18 @@ std::optional<Viewport> ScanViewport(
 {
     const int down = std::max(1, cfg.coarseDownscale);
 
+    // 钉尺度时粗解只留给定档与相邻两档。相邻档与它差一个 coarseRatio，够远，
+    // 下面算可信度时正好当对手：缩放真变过，赢的就会是旁边那档
+    const std::vector<double> coarseLadder =
+        cfg.scaleHint ? GeometricLadder(*cfg.scaleHint / cfg.coarseRatio, *cfg.scaleHint * cfg.coarseRatio, cfg.coarseRatio)
+                      : GeometricLadder(cfg.scaleMin, cfg.scaleMax, cfg.coarseRatio);
+
     std::vector<ScanRung> coarseRungs;
     const auto coarse = ScanScales(
         baseSmall,
         roiSmall,
         cv::Mat(),
-        GeometricLadder(cfg.scaleMin, cfg.scaleMax, cfg.coarseRatio),
+        coarseLadder,
         kMinTemplateSide,
         std::max(1, static_cast<int>(std::lround(cfg.scanSlack / static_cast<double>(down)))),
         maplocator::PeakRefineMode::Parabola,
@@ -410,12 +416,18 @@ std::optional<Viewport> ScanViewport(
         return std::nullopt;
     }
 
+    // 钉尺度时细解钉的是给定值本身，不跟着粗解落档走：缩放变了就该让分数掉下去被拒，
+    // 跟过去反倒会拿一个差着一档的尺度算出错位置
+    const std::vector<double> fineLadder =
+        cfg.scaleHint ? std::vector<double> { *cfg.scaleHint }
+                      : LinearLadder(std::max(cfg.scaleMin, coarse->scale - span), coarse->scale + span, cfg.fineSteps);
+
     // 细解窗口是照模板尺寸开的，本来就贴边，可落位置已由粗解锚定，不需要再留余量
     const auto fine = ScanScales(
         base(window),
         roi,
         cv::Mat(),
-        LinearLadder(std::max(cfg.scaleMin, coarse->scale - span), coarse->scale + span, cfg.fineSteps),
+        fineLadder,
         kMinTemplateSide,
         0,
         maplocator::PeakRefineMode::Continuous,
@@ -796,7 +808,7 @@ const WorldMapSolver::IconTemplate* WorldMapSolver::LoadIconTemplate(const std::
     }
 
     IconTemplate& slot = _icons[name];
-    const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kIconDir) / name);
+    const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kIconDir) / MAA_NS::path(name));
     const cv::Mat image = file ? MAA_NS::imread(*file, cv::IMREAD_UNCHANGED) : cv::Mat();
     if (image.empty()) {
         LogError << "WorldMap: icon template not found" << VAR(name) << VAR(mapnavigator::DescribeRoots(_imageRoots));

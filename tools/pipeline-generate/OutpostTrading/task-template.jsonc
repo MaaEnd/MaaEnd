@@ -1,0 +1,512 @@
+{
+    "task": [
+        {
+            "name": "SellProduct",
+            "label": "$task.OutpostTrading.label",
+            "entry": "OutpostTradingSchedule",
+            "description": "$task.OutpostTrading.description",
+            "option": "${TaskOptions}",
+            "controller": [
+                "ADB",
+                "CloudADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front"
+            ],
+            "group": [
+                "regional_development"
+            ]
+        }
+    ],
+    "option": {
+        // ==== 执行周期 =====
+        "SellProductSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "default_case": [
+                "SellProductScheduleMonday",
+                "SellProductScheduleTuesday",
+                "SellProductScheduleWednesday",
+                "SellProductScheduleThursday",
+                "SellProductScheduleFriday",
+                "SellProductScheduleSaturday",
+                "SellProductScheduleSunday"
+            ],
+            "cases": [
+                {
+                    "name": "SellProductScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "OutpostTradingScheduleEnabled": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "OutpostTradingScheduleEnabled": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "OutpostTradingScheduleEnabled": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "OutpostTradingScheduleEnabled": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "OutpostTradingScheduleEnabled": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "OutpostTradingScheduleEnabled": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SellProductScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "OutpostTradingScheduleEnabled": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductPriorityRules": {
+            "type": "switch",
+            "label": "$task.OutpostTrading.PrioritySwitch",
+            "description": "$task.OutpostTrading.PriorityDescription",
+            "default_case": "No",
+            "cases": "${PriorityRuleSwitchCases}"
+        },
+        "SellProductSelectionStrategy": {
+            "type": "select",
+            "label": "$task.OutpostTrading.SelectionStrategy",
+            "description": "$task.OutpostTrading.SelectionStrategyDescription",
+            "default_case": "Rarity",
+            "cases": "${SelectionStrategyCases}"
+        },
+        "SellProductStockMinimumUnitPrice": {
+            "type": "input",
+            "label": "$task.OutpostTrading.StockMinimumUnitPriceInput",
+            "inputs": [
+                {
+                    "name": "SellProductStockMinimumUnitPrice",
+                    "label": "$task.OutpostTrading.StockMinimumUnitPrice",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "${StockMinimumUnitPriceDefault}",
+                    "pattern_msg": "$task.OutpostTrading.StockMinimumUnitPricePattern"
+                }
+            ],
+            "pipeline_override": {
+                "OutpostTradingConfigureSelectionStrategy": {
+                    "custom_action_param": {
+                        "operation": "configure_strategy",
+                        "strategy": "stock",
+                        "minimum_unit_price": "{SellProductStockMinimumUnitPrice}"
+                    }
+                }
+            }
+        },
+        "SellProductOnlyPreferredItems": {
+            "type": "switch",
+            "label": "$task.OutpostTrading.OnlyPreferredItems",
+            "description": "$task.OutpostTrading.OnlyPreferredItemsDescription",
+            "default_case": "No",
+            "cases": "${OnlyPreferredSwitchCases}"
+        },
+        "SellProduct${RegionPrefix}PriorityRules": {
+            "type": "switch",
+            "label": "$task.OutpostTrading.PriorityRules${RegionPrefix}",
+            "description": "$task.OutpostTrading.PriorityRegionDescription",
+            "default_case": "No",
+            "cases": "${RegionPriorityRuleSwitchCases}"
+        },
+        "SellProduct${RegionPrefix}PriorityItem1": {
+            "type": "select",
+            "label": "$task.OutpostTrading.PriorityItem1",
+            "default_case": "None",
+            "cases": "${PriorityItemCases1}"
+        },
+        "SellProduct${RegionPrefix}PriorityItem2": {
+            "type": "select",
+            "label": "$task.OutpostTrading.PriorityItem2",
+            "default_case": "None",
+            "cases": "${PriorityItemCases2}"
+        },
+        "SellProduct${RegionPrefix}PriorityItem3": {
+            "type": "select",
+            "label": "$task.OutpostTrading.PriorityItem3",
+            "default_case": "None",
+            "cases": "${PriorityItemCases3}"
+        },
+        "SellProduct${RegionPrefix}PriorityItem4": {
+            "type": "select",
+            "label": "$task.OutpostTrading.PriorityItem4",
+            "default_case": "None",
+            "cases": "${PriorityItemCases4}"
+        },
+        "SellProduct${RegionPrefix}PriorityItem5": {
+            "type": "select",
+            "label": "$task.OutpostTrading.PriorityItem5",
+            "default_case": "None",
+            "cases": "${PriorityItemCases5}"
+        },
+        "SellProduct${RegionPrefix}PriorityItem6": {
+            "type": "select",
+            "label": "$task.OutpostTrading.PriorityItem6",
+            "default_case": "None",
+            "cases": "${PriorityItemCases6}"
+        },
+        "SellProductItemReserveRules": {
+            "type": "switch",
+            "label": "$task.OutpostTrading.ReserveSwitch",
+            "description": "$task.OutpostTrading.ReserveSwitchDescription",
+            "default_case": "No",
+            "cases": "${ReserveRuleSwitchCases}"
+        },
+        // 选中具体货品后先选择处理方式，仅保留模式展开数量输入。
+        "SellProductReserveItem1": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveItem1",
+            "description": "$task.OutpostTrading.ReserveDescription",
+            "default_case": "None",
+            "cases": "${ReserveItemCases1}"
+        },
+        "SellProductReserveItem1Mode": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases1}"
+        },
+        "SellProductReserveItem1Value": {
+            "type": "input",
+            "label": "$task.OutpostTrading.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem1Value",
+                    "label": "$task.OutpostTrading.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "OutpostTradingRegisterReserveRule1": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem1Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem2": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveItem2",
+            "default_case": "None",
+            "cases": "${ReserveItemCases2}"
+        },
+        "SellProductReserveItem2Mode": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases2}"
+        },
+        "SellProductReserveItem2Value": {
+            "type": "input",
+            "label": "$task.OutpostTrading.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem2Value",
+                    "label": "$task.OutpostTrading.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "OutpostTradingRegisterReserveRule2": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem2Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem3": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveItem3",
+            "default_case": "None",
+            "cases": "${ReserveItemCases3}"
+        },
+        "SellProductReserveItem3Mode": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases3}"
+        },
+        "SellProductReserveItem3Value": {
+            "type": "input",
+            "label": "$task.OutpostTrading.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem3Value",
+                    "label": "$task.OutpostTrading.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "OutpostTradingRegisterReserveRule3": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem3Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem4": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveItem4",
+            "default_case": "None",
+            "cases": "${ReserveItemCases4}"
+        },
+        "SellProductReserveItem4Mode": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases4}"
+        },
+        "SellProductReserveItem4Value": {
+            "type": "input",
+            "label": "$task.OutpostTrading.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem4Value",
+                    "label": "$task.OutpostTrading.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "OutpostTradingRegisterReserveRule4": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem4Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem5": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveItem5",
+            "default_case": "None",
+            "cases": "${ReserveItemCases5}"
+        },
+        "SellProductReserveItem5Mode": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases5}"
+        },
+        "SellProductReserveItem5Value": {
+            "type": "input",
+            "label": "$task.OutpostTrading.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem5Value",
+                    "label": "$task.OutpostTrading.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "OutpostTradingRegisterReserveRule5": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem5Value}"
+                    }
+                }
+            }
+        },
+        "SellProductReserveItem6": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveItem6",
+            "default_case": "None",
+            "cases": "${ReserveItemCases6}"
+        },
+        "SellProductReserveItem6Mode": {
+            "type": "select",
+            "label": "$task.OutpostTrading.ReserveMode",
+            "default_case": "Quantity",
+            "cases": "${ReserveModeCases6}"
+        },
+        "SellProductReserveItem6Value": {
+            "type": "input",
+            "label": "$task.OutpostTrading.ReserveQuantityInput",
+            "inputs": [
+                {
+                    "name": "SellProductReserveItem6Value",
+                    "label": "$task.OutpostTrading.ReserveQuantity",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "100",
+                    "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
+                }
+            ],
+            "pipeline_override": {
+                "OutpostTradingRegisterReserveRule6": {
+                    "custom_action_param": {
+                        "operation": "register",
+                        "quantity": "{SellProductReserveItem6Value}"
+                    }
+                }
+            }
+        },
+        "SellProductOperatorAutoSwitch": {
+            "type": "switch",
+            "label": "$task.OutpostTrading.OperatorAutoSwitch",
+            "description": "$task.OutpostTrading.OperatorAutoSwitchDescription",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SellProductForceRefreshOperatorCache"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "OutpostTradingScanOperatorList": {
+                            "next": []
+                        },
+                        "OutpostTradingSellMain": {
+                            "next": [
+                                "OutpostTradingSellLoop"
+                            ]
+                        },
+                        "OutpostTradingSellLoopEnd": {
+                            "next": []
+                        }
+                    }
+                }
+            ]
+        },
+        "SellProductForceRefreshOperatorCache": {
+            "type": "switch",
+            "label": "$task.OutpostTrading.ForceRefreshOperatorCache",
+            "description": "$task.OutpostTrading.ForceRefreshOperatorCacheDescription",
+            "default_case": "No",
+            "cases": "${OperatorRefreshModeCases}"
+        },
+        "${RegionPrefix}Sell": {
+            "type": "switch",
+            "label": "$global.region.${RegionPrefix}",
+            "description": "$task.OutpostTrading.regionToggleDescription",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "OutpostTrading${RegionPrefix}": {
+                            "enabled": true
+                        }
+                    },
+                    "option": "${SellOptions}"
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "OutpostTrading${RegionPrefix}": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "${RegionPrefix}${LocationId}": {
+            "type": "switch",
+            "label": "$task.OutpostTrading.${RegionPrefix}${LocationId}",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "OutpostTrading${LocationId}": {
+                            "enabled": true
+                        },
+                        "OutpostTradingRegisterLocation${LocationId}": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "location": "${LocationId}",
+                                "active": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "OutpostTrading${LocationId}": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

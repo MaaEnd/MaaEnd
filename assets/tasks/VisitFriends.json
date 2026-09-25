@@ -7,6 +7,7 @@
             "description": "$task.VisitFriends.description",
             "option": [
                 "VisitFriendsRemark",
+                "VisitFriendsPriorityRemarkEnable",
                 "ProductionAssistControl"
             ],
             "controller": [
@@ -42,6 +43,12 @@
                         },
                         "VisitFriendsMenuScanRemarkFallback": {
                             "enabled": true
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
+                            "enabled": true
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
+                            "enabled": false
                         }
                     }
                 },
@@ -56,10 +63,76 @@
                         },
                         "VisitFriendsMenuScanRemarkFallback": {
                             "enabled": false
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
+                            "enabled": true
                         }
                     }
                 }
             ]
+        },
+        "VisitFriendsPriorityRemarkEnable": {
+            "type": "switch",
+            "label": "$option.VisitFriendsPriorityRemarkEnable.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+                            "enabled": true
+                        },
+                        "VisitFriendsMenuScanTargetFriendOpenRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanTargetFriendOpen": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "VisitFriendsPriorityRemark"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "VisitFriendsPriorityRemark": {
+            "type": "input",
+            "label": "$option.VisitFriendsPriorityRemark.label",
+            "inputs": [
+                {
+                    "name": "PriorityRemarkName",
+                    "label": "$option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "VisitFriendsMenuScanSelectPriorityRemarkConsumable": {
+                    "custom_recognition_param": {
+                        "candidate": "VisitFriendsRecognitionItemWithName",
+                        "visited_node": "VisitFriendsMenuScanVisited",
+                        "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)",
+                        "whitelist": "{PriorityRemarkName}"
+                    }
+                }
+            }
         },
         "ProductionAssistControl": {
             "type": "checkbox",

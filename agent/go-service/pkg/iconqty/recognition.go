@@ -16,6 +16,9 @@ import (
 )
 
 const (
+	// GridTransfer is IconRecognition grid_type for backpack and depot grids.
+	GridTransfer = string(iconrecognition.GridTypeTransfer)
+
 	// GridValuables is IconRecognition grid_type for 贵重品库.
 	GridValuables = string(iconrecognition.GridTypeValuables)
 	// GridRewards is IconRecognition grid_type for 奖励界面.

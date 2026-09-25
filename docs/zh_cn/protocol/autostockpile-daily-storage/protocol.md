@@ -99,14 +99,14 @@ debug/record/ElasticGoodsPrices.json
 
 ## UID 哈希算法
 
-UID 的获取由 `CaptureUid` 承担：AutoStockpile 在 `AutoStockpileGetUid` 节点调用该自定义动作，截屏 OCR 读取 UID 并缓存原始数字，记录写入时取哈希结果（详见 [CaptureUid 参考文档](../../developers/components/capture-uid.md)）。第三方如需验证或比对 UID，算法如下：
+UID 的获取由 `CaptureUid` 承担：AutoStockpile 在允许数据上传时于 selector 内调用 `captureuid.Capture`，经 `gamesetting.GetCachedUID` 从注册表读取 `PLDK_cachedRoleId` 并缓存原始数字，记录写入时取哈希结果（详见 [CaptureUid 参考文档](../../developers/components/capture-uid.md)）。第三方如需验证或比对 UID，算法如下：
 
-1. `CaptureUid` 在稳定界面截屏 OCR，从结果中提取所有连续数字片段并拼接为一个字符串（如 `"123456789"`），校验位数 8–12 后缓存
+1. `CaptureUid` / `captureuid.Capture` 按当前区服读取 `PLDK_cachedRoleId`，校验位数 8–12 后缓存
 2. 读取用户本地生成的随机盐：首次使用时生成 16 字节随机盐（32 位十六进制）并写入 `debug/record/random_salt.txt`，之后复用；不再使用固定盐值
 3. 计算 `SHA256(数字字符串 + 盐)`
 4. 取十六进制摘要的前 16 个字符作为最终 UID
 
-无法提取有效数字（OCR 失败或位数不在 8–12 范围）时，UID 为 `"unknown"`。
+无法读取有效 UID（注册表缺项、区服判定失败或位数不在 8–12 范围）时，UID 为 `"unknown"`。
 
 > 该哈希为**不可逆加盐摘要**，无法从文件中的 UID 反推游戏内原始 UID。盐由用户本地生成：同一安装内跨会话稳定（可用于关联同一玩家），不同安装之间盐不同，同一玩家的哈希值不可跨安装比对。
 
