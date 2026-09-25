@@ -11,7 +11,15 @@ import subprocess
 import time
 from typing import Any, Protocol
 
-from runtime import AGENT_DIR, CPP_AGENT_EXE, MAAFW_BIN_DIR, MaaRuntime, get_agent_env, new_agent_id
+from runtime import (
+    AGENT_DIR,
+    CPP_AGENT_EXE,
+    INSTALL_DIR,
+    MAAFW_BIN_DIR,
+    MaaRuntime,
+    get_agent_env,
+    new_agent_id,
+)
 
 # Agent 起来到能接受连接的等待时间。
 BOOT_WAIT_SECONDS = 2.0
@@ -75,7 +83,7 @@ class AgentSession:
         print(f"Starting Agent process: {CPP_AGENT_EXE} {agent_id}")
         self._process = subprocess.Popen(
             [str(CPP_AGENT_EXE), agent_id],
-            cwd=str(AGENT_DIR),
+            cwd=str(INSTALL_DIR),
             env=get_agent_env(),
             **_agent_process_options(),
         )
@@ -83,7 +91,9 @@ class AgentSession:
         print(f"Waiting {BOOT_WAIT_SECONDS}s for Agent to boot...")
         time.sleep(BOOT_WAIT_SECONDS)
         if self._process.poll() is not None:
-            raise RuntimeError(f"Agent 启动失败，进程已退出，返回码: {self._process.returncode}")
+            raise RuntimeError(
+                f"Agent 启动失败，进程已退出，返回码: {self._process.returncode}"
+            )
 
         print("Opening runtime library...")
         try:
