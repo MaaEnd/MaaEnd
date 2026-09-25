@@ -507,7 +507,7 @@
         "action": "Click",
         "target": [
             630,
-            619
+            650
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess"
@@ -848,6 +848,12 @@
             }
         },
         "action": "Click",
+        "target_offset": [
+            60,
+            70,
+            0,
+            0
+        ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZoneSuccess"
         ]
