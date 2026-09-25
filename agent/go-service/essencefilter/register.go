@@ -10,6 +10,10 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("EssenceFilterSkillDecisionAction", &EssenceFilterSkillDecisionAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterFinishAction", &EssenceFilterFinishAction{})
 
+	// 840 全收集模式
+	maa.AgentServerRegisterCustomAction("EssenceFilterCollectionPlanAction", &EssenceFilterCollectionPlanAction{})
+	maa.AgentServerRegisterCustomAction("EssenceFilterCollectionReportAction", &EssenceFilterCollectionReportAction{})
+
 	//战斗后识别版本
 	maa.AgentServerRegisterCustomAction("EssenceFilterAfterBattleSkillDecisionAction", &EssenceFilterAfterBattleSkillDecisionAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterAfterBattleTierGateAction", &EssenceFilterAfterBattleTierGateAction{})

@@ -6,7 +6,7 @@
             "entry": "EssenceFilterMain",
             "description": "$task.EssenceFilter.description",
             "option": [
-                "ExportInventory"
+                "EssenceFilterMode"
             ],
             "controller": [
                 "ADB",
@@ -24,18 +24,39 @@
         }
     ],
     "option": {
-        "ExportInventory": {
-            "type": "switch",
-            "label": "$option.ExportInventory.label",
-            "description": "$option.ExportInventory.description",
-            "default_case": "No",
+        "EssenceFilterMode": {
+            "type": "select",
+            "label": "$option.EssenceFilterMode.label",
+            "default_case": "Off",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "Off",
+                    "label": "$option.EssenceFilterMode.cases.Off.label",
+                    "option": [
+                        "SelectWeaponRarity",
+                        "SelectEssence",
+                        "SelectExtraRules",
+                        "SkipThumbLock",
+                        "SkipThumbDiscard"
+                    ],
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "attach": {
-                                "export_inventory": true
+                                "export_inventory": false,
+                                "collection_mode": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ExportInventory",
+                    "label": "$option.EssenceFilterMode.cases.ExportInventory.label",
+                    "description": "$option.EssenceFilterMode.cases.ExportInventory.description",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "export_inventory": true,
+                                "collection_mode": false
                             }
                         },
                         "EssenceFilterCheckItemOCRFallback": {
@@ -55,18 +76,159 @@
                     }
                 },
                 {
-                    "name": "No",
+                    "name": "Collection",
+                    "label": "$option.EssenceFilterMode.cases.Collection.label",
                     "option": [
-                        "SelectWeaponRarity",
-                        "SelectEssence",
-                        "SelectExtraRules",
-                        "SkipThumbLock",
-                        "SkipThumbDiscard"
+                        "CollectionKeepMode",
+                        "CollectionLockKeepers",
+                        "CollectionDiscardLocked",
+                        "CollectionDryRun"
                     ],
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "attach": {
-                                "export_inventory": false
+                                "collection_mode": true,
+                                "collection_phase": "scan"
+                            }
+                        },
+                        "EssenceFilterMain": {
+                            "next": [
+                                "EssenceFilterCollectionScan"
+                            ]
+                        },
+                        "EssenceFilterCheckItemOCRFallback": {
+                            "action": "StopTask"
+                        },
+                        "EssenceGridClickPending": {
+                            "on_error": [
+                                "EssenceFilterCheckItemOCRFallback"
+                            ]
+                        },
+                        "EssenceFilterMainFailed": {
+                            "action": "StopTask"
+                        },
+                        "EssenceFilterNavigateToInventory": {
+                            "action": "StopTask"
+                        }
+                    }
+                }
+            ]
+        },
+        "CollectionKeepMode": {
+            "type": "select",
+            "label": "$option.CollectionKeepMode.label",
+            "default_case": "A",
+            "cases": [
+                {
+                    "name": "A",
+                    "label": "$option.CollectionKeepMode.cases.A.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_keep_mode": "A"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "B",
+                    "label": "$option.CollectionKeepMode.cases.B.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_keep_mode": "B"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "C",
+                    "label": "$option.CollectionKeepMode.cases.C.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_keep_mode": "C"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CollectionDryRun": {
+            "type": "switch",
+            "label": "$option.CollectionDryRun.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_dry_run": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_dry_run": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CollectionLockKeepers": {
+            "type": "switch",
+            "label": "$option.CollectionLockKeepers.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_lock_keepers": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_lock_keepers": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CollectionDiscardLocked": {
+            "type": "switch",
+            "label": "$option.CollectionDiscardLocked.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_discard_locked": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_discard_locked": false
                             }
                         }
                     }

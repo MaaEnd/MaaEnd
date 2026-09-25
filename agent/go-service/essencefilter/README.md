@@ -34,6 +34,7 @@ Go 只通过 `ctx.OverrideNext` 选择 Pipeline 分支：
 | `ui.go` | MXU 展示、匹配摘要和预刻写输出 |
 | `plan_export.go` | 可选的 `EssencePlan.html` 导出 |
 | `inventory.go` | 无暇库存分组计数和 `EssenceInventory.json` 导出 |
+| `collection.go` | 840 全收集模式的纯计算内核：保留偏好比较链、A/B/C 保留配额、缺失统计与稀缺度索引 |
 | `matchapi/` | 可复用的纯匹配 API：`OCRInput -> MatchResult` |
 | `register.go` | 注册本包 CustomAction / CustomRecognition |
 
@@ -58,8 +59,20 @@ Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。
 
 库存模式通过 Pipeline 预设把 OCR fallback、点击失败及入口失败改为 `StopTask`，不跳格继续。合法但不适配的基质照常略过；OCR 文本无法解析或等级非法则由 Go 返回动作失败。只有正常到达 Finish 才写入 `EssenceInventory.json`，并在临时文件写完、关闭后替换旧文件；失败或中断保留旧导出。普通筛选仍使用原有 fallback。
 
-## 匹配数据
+## 840 全收集模式（内核）
 
+基质词条全集由各槽池大小决定：`slot1(5) x slot2(12) x slot3(14) = 840`。该模式下判定基准从「已出的武器」换成**词条组合全集**，因此读取路径必须用 `matchapi.MatchCollectionOCR`（不做武器过滤），不能用 `MatchInventoryOCR`（只覆盖武器需要的 65 个组合）。
+
+`collection.go` 只做纯计算，不接触 maa 上下文、不点击：
+
+- **保留偏好比较链**（`collectionLevelsBetter`，按序比较）：① `slot1`/`slot2` 中等级 6 的个数 → ② `slot3` 等级 → ③ `slot1+slot2` 之和 → ④ 三槽最大数 → ⑤ 无法区分。注意比较链**不**单独比较三槽之和，所以同类中 `(6,1,3)` 优于 `(5,5,3)`；三槽之和只用于模式 B 的阈值。
+- **保留配额**（`buildCollectionPlan`）：模式 A 每类保留 1 份比较链最优的；模式 B 额外保留三槽之和 `> 9` 的全部份数；模式 C 额外保留第三词条满级（`= 3`）的全部份数。配额以「组合 + 精确等级签名」为键，因此执行遍与扫描顺序无关。
+- **执行遍判定**（`decide`）：配额剩余 `> 0` 返回锁定并扣减；配额为 `0` 返回丢弃；**签名不在配额表中返回跳过**。第三态是安全规则——该签名在只读盘点中从未出现，可能是 OCR 误读或两遍之间库存变化，宁可不动也不能误丢。
+- **缺失统计与稀缺度**（`missing` / `collectionScarcity` / `sortCollectionMissing`）：全集里一份都没有的组合即建议刷取目标，按「可产出地点数」升序排列（越少越难凑）。
+
+实现约束：`buildCollectionPlan` 必须为每一个「盘点到过」的等级签名建立条目（配额 0），否则被比较链淘汰的签名会在执行遍落进「未知签名 -> 跳过」分支而漏丢。`collection_test.go` 对此有回归用例。
+
+## 匹配数据
 资源位于 `assets/data/EssenceFilter/`，运行目录下对应 `data/EssenceFilter/`：
 
 - `matcher_config.json`：多语言归一化、相似字和停用后缀；

@@ -1,0 +1,5 @@
+<div style="margin-top:3px;border-left:3px solid {{.BorderColor}};padding-left:6px;">
+{{printf (t "missing") .MissingCount}}{{if .ScarceCount}}{{printf (t "scarce") .ScarceCount .MinScarcity}}{{end}}<br>
+<span style="color:#888;">{{printf (t "pools") .Slot2Text .Slot3Text}}</span><br>
+{{printf (t "combos") .MissingCount}}{{.PreviewText}}{{if .MoreCount}} <span style="color:#888;">{{printf (t "more") .MoreCount}}</span>{{end}}
+</div>

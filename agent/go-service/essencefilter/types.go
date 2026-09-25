@@ -25,6 +25,29 @@ type EssenceFilterOptions struct {
 	ExportCalculatorScript bool `json:"export_calculator_script"`
 	// ExportInventory selects the read-only flawless inventory preset.
 	ExportInventory bool `json:"export_inventory"`
+	// CollectionMode switches the decision basis from released weapons to the whole
+	// slot1 x slot2 x slot3 combination universe (840 entries with current pools).
+	// See collection.go for the keep-policy kernel.
+	CollectionMode bool `json:"collection_mode"`
+	// CollectionKeepMode selects the keep policy: "A" | "B" | "C".
+	// Empty / unknown falls back to A.
+	CollectionKeepMode string `json:"collection_keep_mode"`
+	// CollectionPhase is "scan" (read-only inventory pass) or "apply" (act on the quota).
+	// The collection orchestrator rewrites it to "apply" between the two passes.
+	CollectionPhase string `json:"collection_phase"`
+	// CollectionDryRun selects the rehearsal: the quota is computed and reported but the
+	// apply pass never runs, so no mark is changed.
+	//
+	// 三态：nil（字段缺失）按「预演」处理 —— 标记丢弃不可逆，绝不能因为配置没传到就真执行。
+	CollectionDryRun *bool `json:"collection_dry_run"`
+	// CollectionDiscardLocked also applies the keep policy to already-locked essences:
+	// a locked essence that is not a keeper gets marked discarded.
+	//
+	// 三态：nil（字段缺失）按「不动已锁定」处理 —— 弃置不可逆，安全默认是不碰它们。
+	CollectionDiscardLocked *bool `json:"collection_discard_locked"`
+	// CollectionLockKeepers locks the essences the policy decides to keep.
+	// 关闭时只做「不弃置」，不新增任何锁定。三态：nil 按 true 处理（锁定非破坏性）。
+	CollectionLockKeepers *bool `json:"collection_lock_keepers"`
 	// InputLanguage is game/OCR language for skill matching: CN|TC|EN|JP|KR.
 	// Empty / omitted / AUTO: detect via __EssenceFilterDetectLang* OCR nodes at Init.
 	// Explicit CN|TC|EN|JP|KR: force that locale (debug / override).

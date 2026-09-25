@@ -28,7 +28,38 @@ type (
 		Color string
 		Cards []string
 	}
+	// collectionSectionView / collectionCardHTML 与原版的 planSectionView / planCardHTML
+	// 同一套路：分段按地点，卡片由子模板预渲染成 HTML 串。
+	collectionSectionView struct {
+		Name  string
+		Color string
+		Cards []string
+	}
+	collectionCardView struct {
+		BorderColor  string
+		MissingCount int
+		ScarceCount  int
+		MinScarcity  int
+		Slot2Text    string
+		Slot3Text    string
+		PreviewText  string
+		MoreCount    int
+	}
 )
+
+// collectionCardHTML 用子模板渲染一张地点卡片。
+func collectionCardHTML(plan collectionLocationPlan) string {
+	return i18n.RenderHTML("essencefilter.collection.card", map[string]any{
+		"BorderColor":  "#c8960c",
+		"MissingCount": plan.MissingCount,
+		"ScarceCount":  plan.ScarceCount,
+		"MinScarcity":  plan.MinScarcity,
+		"Slot2Text":    escapeHTML(plan.Slot2Text),
+		"Slot3Text":    escapeHTML(plan.Slot3Text),
+		"PreviewText":  escapeHTML(plan.PreviewText),
+		"MoreCount":    plan.MoreCount,
+	})
+}
 
 func LogMXUHTML(ctx *maa.Context, htmlText string) {
 	htmlText = strings.TrimLeft(htmlText, " \t\r\n")
@@ -355,4 +386,91 @@ func logCalculatorResult(ctx *maa.Context, st *RunState) {
 	} else {
 		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.focus.plan.html_saved"))
 	}
+}
+
+// --- 840 全收集板块 ---
+
+// reportCollectionBoard 输出 840 全收集板块：一份到 MXU，一份追加写入 EssencePlan.html。
+// 返回 false 表示网页落盘失败（MXU 已经输出，调用方据此决定是否让任务失败）。
+func reportCollectionBoard(ctx *maa.Context, board *collectionBoard) bool {
+	if board == nil {
+		return true
+	}
+	// 与原版 plan_recommend 一致：同一份 HTML 既进 MXU 日志，也落 EssencePlan.html。
+	// 内容有界（每地点一张卡片、卡片内组合数封顶），所以日志里也读得下去。
+	htmlText := collectionReportHTML(board)
+	LogMXUHTML(ctx, htmlText)
+
+	log.Info().
+		Str("component", "EssenceCollection").
+		// 显式报出「盘点到多少个无瑕基质」，避免读者把 classes 当成基质数量。
+		Int("scanned_gold_essences", board.Scanned).
+		Int("classes", board.Collected).
+		Int("collected", board.Collected).
+		Int("total", board.Total).
+		Int("missing", board.MissingCount).
+		Int("locked", board.Locked).
+		Int("spared", board.Spared).
+		Int("discarded", board.Discarded).
+		Int("skipped", board.Skipped).
+		Msg("collection report")
+
+	if err := appendPlanSectionHTML(planRecommendHTMLPath, htmlText); err != nil {
+		log.Warn().
+			Str("component", "EssenceCollection").
+			Str("path", planRecommendHTMLPath).
+			Err(err).
+			Msg("failed to append collection section")
+		reportSimpleByKey(ctx, "collection.html.save_failed",
+			html.EscapeString(planRecommendHTMLPath), html.EscapeString(err.Error()))
+		return false
+	}
+	reportSimpleByKey(ctx, "collection.html.saved")
+	return true
+}
+
+// collectionSections 把按地点的刷取建议转成「分段 + 卡片」结构。
+func collectionSections(board *collectionBoard) []collectionSectionView {
+	sections := make([]collectionSectionView, 0, len(board.Locations))
+	for _, plan := range board.Locations {
+		sections = append(sections, collectionSectionView{
+			Name:  plan.ShortName,
+			Color: "#c8960c",
+			Cards: []string{collectionCardHTML(plan)},
+		})
+	}
+	return sections
+}
+
+// collectionReportHTML 用已注册模板渲染 840 全收集板块。抽成独立函数便于单测占位符契约。
+func collectionReportHTML(board *collectionBoard) string {
+	if board == nil {
+		return ""
+	}
+	items := make([]map[string]any, 0, len(board.Missing))
+	for _, item := range board.Missing {
+		items = append(items, map[string]any{
+			"ComboText": item.ComboText,
+			"Scarcity":  item.Scarcity,
+			"Locations": item.Locations,
+		})
+	}
+	return i18n.RenderHTML("essencefilter.collection.report", map[string]any{
+		"Collected":    board.Collected,
+		"Total":        board.Total,
+		"Percent":      board.Percent,
+		"KeepModeKey":  "keep_mode." + strings.ToLower(board.KeepMode.String()),
+		"DryRun":       board.DryRun,
+		"Missing":      board.MissingCount > 0,
+		"MissingCount": board.MissingCount,
+		"Sections":     collectionSections(board),
+		"Scanned":      board.Scanned,
+		"Signatures":   board.Signatures,
+		"ScarceTotal":  board.ScarceTotal,
+		"Items":        items,
+		"Locked":       board.Locked,
+		"Spared":       board.Spared,
+		"Discarded":    board.Discarded,
+		"Skipped":      board.Skipped,
+	})
 }

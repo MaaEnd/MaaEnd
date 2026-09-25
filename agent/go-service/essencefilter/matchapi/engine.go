@@ -254,10 +254,10 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 	}, nil
 }
 
-// MatchInventoryOCR matches against all supported four- to six-star weapons.
-// A resolved but incompatible essence returns (nil, nil); unresolved skills or
-// invalid levels return an error. No filtering or lock/discard rules are applied.
-func (e *Engine) MatchInventoryOCR(ocr OCRInput) (*InventoryMatch, error) {
+// resolveInventorySlots resolves the three OCR skills into semantic slot order and
+// validates their levels. It returns (nil, nil) when the three skills do not map to
+// three distinct slot pools; unresolved skills or out-of-range levels return an error.
+func (e *Engine) resolveInventorySlots(ocr OCRInput) (*InventoryMatch, error) {
 	e.ensureSlotIndices()
 	var result InventoryMatch
 	var used [3]bool
@@ -283,6 +283,17 @@ func (e *Engine) MatchInventoryOCR(ocr OCRInput) (*InventoryMatch, error) {
 	if used != [3]bool{true, true, true} {
 		return nil, nil
 	}
+	return &result, nil
+}
+
+// MatchInventoryOCR matches against all supported four- to six-star weapons.
+// A resolved but incompatible essence returns (nil, nil); unresolved skills or
+// invalid levels return an error. No filtering or lock/discard rules are applied.
+func (e *Engine) MatchInventoryOCR(ocr OCRInput) (*InventoryMatch, error) {
+	result, err := e.resolveInventorySlots(ocr)
+	if err != nil || result == nil {
+		return nil, err
+	}
 	targets := e.BuildTargets(EssenceFilterOptions{
 		Rarity4Weapon: true, Rarity5Weapon: true, Rarity6Weapon: true,
 	})
@@ -291,7 +302,23 @@ func (e *Engine) MatchInventoryOCR(ocr OCRInput) (*InventoryMatch, error) {
 		return nil, nil
 	}
 	result.Weapons = match.Weapons
-	return &result, nil
+	return result, nil
+}
+
+// MatchCollectionOCR resolves one essence into the full combination space without
+// filtering by supported weapons.
+//
+// This is the read path of the 840 collection mode: a combination that no released
+// weapon needs is still returned, because the collector tracks the whole universe
+// (slot1 x slot2 x slot3), not the subset covered by weapons. As with
+// MatchInventoryOCR, unparseable skills or out-of-range levels return an error, and
+// a resolved essence whose skills do not occupy three distinct pools returns (nil, nil).
+func (e *Engine) MatchCollectionOCR(ocr OCRInput) (*CollectionMatch, error) {
+	result, err := e.resolveInventorySlots(ocr)
+	if err != nil || result == nil {
+		return nil, err
+	}
+	return &CollectionMatch{SkillIDs: result.SkillIDs, Levels: result.Levels}, nil
 }
 
 // reorderByPoolAssignmentIfPossible reorders OCR skills/levels into slot1/2/3 order

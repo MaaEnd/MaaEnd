@@ -50,6 +50,8 @@
                 "EssenceFilterAfterBattleTierGateAction",
                 "EssenceFilterCheckItemAction",
                 "EssenceFilterCheckItemLevelAction",
+                "EssenceFilterCollectionPlanAction",
+                "EssenceFilterCollectionReportAction",
                 "EssenceFilterFinishAction",
                 "EssenceFilterInitAction",
                 "EssenceFilterSkillDecisionAction",

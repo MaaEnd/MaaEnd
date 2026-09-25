@@ -1,0 +1,11 @@
+<div style="color:#00bfff;font-weight:900;margin-top:8px;">{{t "title"}}</div>
+{{printf (t "progress") .Collected .Total .Percent}}<br>
+{{printf (t "keep_mode") (t .KeepModeKey)}}<br>
+<span style="color:#98c379;">{{printf (t "scanned") .Scanned .Collected .Signatures}}</span><br>
+{{if .Sections}}<div style="color:#c8960c;font-weight:900;margin-top:8px;">{{t "locations_title"}}</div>
+{{range .Sections}}<div style="color:{{.Color}};font-weight:900;margin-top:6px;">{{escapeHTML .Name}}</div>
+{{range .Cards}}{{.}}{{end}}{{end}}{{else}}{{t "missing_none"}}{{end}}
+<hr style="border:none;border-top:1px solid #333;margin:8px 0"/>
+{{if .DryRun}}{{printf (t "dry_run_summary") .Locked .Spared .Discarded}}<br>
+<span style="color:#e6a23c;font-size:12px;">{{t "dry_run_note"}}</span>{{else}}{{printf (t "apply_summary") .Locked .Spared .Discarded .Skipped}}<br>
+<span style="color:#666;font-size:12px;">{{t "skip_note"}}</span>{{end}}

@@ -1,0 +1,124 @@
+{
+    "EssenceFilterCollectionScan": {
+        "desc": "840 全收集：写入盘点阶段标记，随后跑一次只读盘点",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "collection_phase": "scan"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterCollectionScanRun"
+        ],
+        "on_error": [
+            "EssenceFilterCollectionFailed"
+        ]
+    },
+    "EssenceFilterCollectionScanRun": {
+        "desc": "盘点遍：只读扫描全部词条组合，不修改任何标记。经 SubTask 运行以获得新的 TaskId，否则 C++ 网格追踪器不会重置",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "EssenceFilterCollectionPass"
+                    ],
+                    "continue": false,
+                    "strict": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterCollectionPlan"
+        ],
+        "on_error": [
+            "EssenceFilterCollectionFailed"
+        ]
+    },
+    "EssenceFilterCollectionPass": {
+        "desc": "一次完整的基质筛选流程。与 EssenceFilterMain 等价，供 SubTask 反复调用（收集模式会覆写 EssenceFilterMain 的 next，因此不能复用它做 Pass）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterSwitchTab",
+            "EssenceFilterInitNormalize",
+            "[JumpBack]SceneEnterMenuValuables"
+        ],
+        "on_error": "EssenceFilterMainFailed"
+    },
+    "EssenceFilterCollectionPlan": {
+        "desc": "按保留模式计算每个等级签名的保留配额，并把阶段标记改成 apply",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterCollectionPlanAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterCollectionApplyRun"
+        ],
+        "on_error": [
+            "EssenceFilterCollectionFailed"
+        ]
+    },
+    "EssenceFilterCollectionApplyRun": {
+        "desc": "执行遍：按配额锁定或标记丢弃",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "EssenceFilterCollectionPass"
+                    ],
+                    "continue": false,
+                    "strict": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterCollectionReport"
+        ],
+        "on_error": [
+            "EssenceFilterCollectionFailed"
+        ]
+    },
+    "EssenceFilterCollectionReport": {
+        "desc": "输出 840 全收集板块：MXU 展示 + 追加写入 EssencePlan.html",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterCollectionReportAction"
+            }
+        },
+        "post_delay": 0,
+        "on_error": [
+            "EssenceFilterCollectionFailed"
+        ]
+    },
+    "EssenceFilterCollectionFailed": {
+        "desc": "840 全收集失败：终止任务（未完成的盘点不会产生配额，下次盘点会重建会话）",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0
+    }
+}

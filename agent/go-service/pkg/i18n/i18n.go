@@ -38,6 +38,8 @@ var htmlTemplates = map[string]string{
 	"essencefilter.init_weapons":              "HTML/essencefilter-init-weapons.html",
 	"essencefilter.init_skills":               "HTML/essencefilter-init-skills.html",
 	"essencefilter.plan_recommend":            "HTML/essencefilter-plan-recommend.html",
+	"essencefilter.collection.report":         "HTML/essencefilter-collection-report.html",
+	"essencefilter.collection.card":           "HTML/essencefilter-collection-card.html",
 	"essencefilter.plan_card":                 "HTML/essencefilter-plan-card.html",
 	"essencefilter.simple_message":            "HTML/essencefilter-simple-message.html",
 	"essencefilter.matched_weapons":           "HTML/essencefilter-matched-weapons.html",

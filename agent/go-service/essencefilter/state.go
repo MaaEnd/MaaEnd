@@ -38,9 +38,19 @@ type RunState struct {
 
 	// PipelineOpts is a copy of EssenceFilterInit attach JSON; filled in Init for the run (avoids re-parsing).
 	PipelineOpts EssenceFilterOptions
+
+	// 840 全收集状态；非收集模式下依次为 none / nil / nil。
+	CollectionPhase collectionPhase
+	CollectionState *collectionState
+	CollectionPlan  *collectionPlan
 }
 
 // runStateResetSink clears state even when a task is stopped before Finish.
+//
+// 注意：只清 currentRun，不清全收集会话（currentCollection / currentCollectionPlan）。
+// 收集模式的两个 Pass 各自是一次 SubTask，它们的结束事件会走到这里；若在此清理会话，
+// 执行遍就拿不到盘点结果了。会话由 Report 节点正常释放，异常中断则由下一次盘点遍的
+// Init 直接覆盖。
 type runStateResetSink struct{}
 
 var _ maa.TaskerEventSink = &runStateResetSink{}

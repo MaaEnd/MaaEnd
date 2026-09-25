@@ -97,6 +97,17 @@ type InventoryMatch struct {
 	Weapons  []WeaponData
 }
 
+// CollectionMatch describes one essence resolved into the full combination space,
+// with levels in semantic slot order (基础属性 / 附加属性 / 技能属性).
+//
+// Unlike InventoryMatch it carries no weapon association: the 840 collection mode
+// tracks every combination in slot1 x slot2 x slot3, including combinations that no
+// released weapon needs yet.
+type CollectionMatch struct {
+	SkillIDs [3]int `json:"skill_ids"`
+	Levels   [3]int `json:"levels"`
+}
+
 type MatchKind int
 
 const (

@@ -26,6 +26,10 @@ matchapi 只返回结构化匹配结果；面向用户的文案由上层 `essenc
 
 库存盘点使用 `engine.MatchInventoryOCR(ocr)`：固定匹配全部四至六星武器，返回 `InventoryMatch` 中的组合 ID、按基础属性／附加属性／技能属性排列的等级，以及全部适配武器。已识别但不匹配的组合返回 `(nil, nil)`；无法解析的词条或非法等级返回错误。此入口不返回锁定或弃置指令。
 
+**注意 `MatchInventoryOCR` 会用「已出武器」过滤结果**：没有被任何已支持武器需要的组合会返回 `(nil, nil)`，调用方无法观察到它们。因此它能覆盖的组合数上限等于武器理想组合的去重数量（当前数据为 65），而不是词条全集 `5 x 12 x 14 = 840`。
+
+「840 全收集」需要观察词条全集，使用 `engine.MatchCollectionOCR(ocr)`：它与 `MatchInventoryOCR` 共用槽位解析与等级校验，但**不做武器过滤**，返回 `CollectionMatch`（只有组合 ID 与等级，没有 `Weapons`）。校验行为完全一致：词条无法解析或等级越界返回错误，三槽落在同一个池上返回 `(nil, nil)`。
+
 ```go
 engine, err := matchapi.NewDefaultEngine()
 if err != nil {

@@ -43,7 +43,11 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		reportFocusByKey(ctx, "focus.error.load_engine_failed", err.Error())
 		return false
 	}
-	*opts = inventoryPreset(*opts)
+	if opts.CollectionMode {
+		*opts = collectionPreset(*opts)
+	} else {
+		*opts = inventoryPreset(*opts)
+	}
 	inputLocale := engine.Locale()
 
 	log.Info().Str("component", "EssenceFilter").Str("input_language", inputLocale).Msg("match engine ready")
@@ -87,17 +91,26 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	st.EssenceMode = essenceMode
 
 	matchOpts := matchOptsFromPipeline(opts)
-	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
+	if !opts.CollectionMode {
+		// 收集模式按 840 词条全集判定，不构建面向武器的目标组合。
+		st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
+	}
 	st.MatchedCombinationSummary = make(map[string]*matchapi.SkillCombinationSummary)
 	currentRun = st
-	if opts.ExportInventory {
+	if opts.CollectionMode {
+		if !initCollection(ctx, st, engine, opts) {
+			return false
+		}
+	} else if opts.ExportInventory {
 		st.Inventory = &inventoryState{groups: make(map[[3]int]*inventoryCounts)}
 		if err := ctx.OverridePipeline(inventoryGridOverride()); err != nil {
 			return inventoryFailed(err)
 		}
 		reportSimpleByKey(ctx, "inventory.started")
 	}
-	reportInitSelection(ctx, weaponRarity, essenceTypes)
+	if !opts.CollectionMode {
+		reportInitSelection(ctx, weaponRarity, essenceTypes)
+	}
 
 	names := make([]string, 0, len(st.TargetSkillCombinations))
 	for _, combo := range st.TargetSkillCombinations {
@@ -106,13 +119,72 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	vm := buildInitViewModel(st)
 	filteredWeapons := vm.FilteredWeapons
 	log.Info().Str("component", "EssenceFilter").Str("step", "FilterWeapons").Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("weapons filtered")
-	reportInitWeapons(ctx, filteredWeapons)
+	if !opts.CollectionMode {
+		reportInitWeapons(ctx, filteredWeapons)
+	}
 
 	log.Info().Str("component", "EssenceFilter").Str("step", "BuildSkillCombinations").Int("combinations", len(st.TargetSkillCombinations)).Msg("skill combinations built")
 	log.Info().Str("component", "EssenceFilter").Msg("init done")
 
-	reportInitSkillList(ctx, vm.SlotSkills)
+	if !opts.CollectionMode {
+		reportInitSkillList(ctx, vm.SlotSkills)
+	}
 	reportDataVersionNotice(ctx, st)
+	return true
+}
+
+// initCollection prepares one 840 全收集 Pass.
+//
+// 盘点遍建立新的会话；执行遍复用编排节点算好的配额。执行遍缺少盘点结果时直接失败，
+// 避免在没有配额的情况下把整仓基质当成「未知签名」而全部跳过（那样虽然安全但毫无意义）。
+func initCollection(ctx *maa.Context, st *RunState, engine *matchapi.Engine, opts *EssenceFilterOptions) bool {
+	discardLocked := opts.collectionDiscardLocked()
+	var gridOverride map[string]any
+
+	switch parseCollectionPhase(opts.CollectionPhase) {
+	case collectionPhaseScan:
+		st.CollectionPhase = collectionPhaseScan
+		st.CollectionState = newCollectionState()
+		currentCollection = st.CollectionState
+		currentCollectionPlan = nil
+		currentCollectionMode = parseCollectionKeepMode(opts.CollectionKeepMode)
+		currentCollectionEngine = engine
+		currentCollectionDryRun = opts.collectionDryRun()
+		currentCollectionDiscardLocked = discardLocked
+		currentCollectionLockKeepers = opts.collectionLockKeepers()
+		// 盘点遍始终包含已锁定基质：它们也属于「已收集」，漏掉会让进度与配额都算错。
+		gridOverride = collectionScanGridOverride()
+	case collectionPhaseApply:
+		if currentCollection == nil || currentCollectionPlan == nil {
+			reportFocusByKey(ctx, "focus.error.collection_no_plan")
+			return false
+		}
+		st.CollectionPhase = collectionPhaseApply
+		st.CollectionState = currentCollection
+		st.CollectionPlan = currentCollectionPlan
+		// 执行遍按「已锁定的也要弃置」决定是否把已锁定基质纳入队列。
+		gridOverride = collectionApplyGridOverride(discardLocked)
+	default:
+		reportFocusByKey(ctx, "focus.error.collection_bad_phase")
+		return false
+	}
+
+	if err := ctx.OverridePipeline(gridOverride); err != nil {
+		log.Error().Err(err).Str("component", "EssenceCollection").Msg("grid override failed")
+		return false
+	}
+	log.Info().
+		Str("component", "EssenceCollection").
+		Int("phase", int(st.CollectionPhase)).
+		Bool("dry_run", currentCollectionDryRun).
+		Bool("discard_locked", discardLocked).
+		Bool("lock_keepers", currentCollectionLockKeepers).
+		Msg("collection session initialized")
+	if st.CollectionPhase == collectionPhaseScan {
+		reportSimpleByKey(ctx, "collection.scan.started")
+	} else {
+		reportSimpleByKey(ctx, "collection.apply.started")
+	}
 	return true
 }
 
@@ -219,6 +291,35 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		reportFocusByKey(ctx, "focus.error.no_match_engine")
 		return false
 	}
+	switch st.CollectionPhase {
+	case collectionPhaseScan:
+		// 盘点遍：记录全部 840 组合，不判定、不点击。
+		match, err := st.MatchEngine.MatchCollectionOCR(ocr)
+		if err != nil {
+			return collectionScanFailed(err)
+		}
+		st.CollectionState.record(match)
+		return true
+	case collectionPhaseApply:
+		// 执行遍：只处理盘点见过的等级签名；未知签名跳过，绝不误丢。
+		match, err := st.MatchEngine.MatchCollectionOCR(ocr)
+		if err != nil || match == nil {
+			if err != nil {
+				log.Warn().Err(err).
+					Str("component", "EssenceCollection").
+					Msg("apply: unreadable essence, skipping")
+			}
+			return overrideCollectionNext(ctx, arg, "EssenceGridAdvance")
+		}
+		next := "EssenceGridAdvance"
+		switch st.CollectionPlan.decide(collectionCombo(match.SkillIDs), collectionLevels(match.Levels)) {
+		case collectionLock:
+			next = "EssenceFilterLockItem"
+		case collectionDiscard:
+			next = "EssenceFilterDiscardItem"
+		}
+		return overrideCollectionNext(ctx, arg, next)
+	}
 	if st.Inventory != nil {
 		match, err := st.MatchEngine.MatchInventoryOCR(ocr)
 		if err != nil {
@@ -243,6 +344,16 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	log.Info().Str("component", "EssenceFilter").Msg("finish")
 	st := currentRun
 	if st == nil {
+		return true
+	}
+	if st.CollectionPhase != collectionPhaseNone {
+		// 收集模式不在 Finish 输出：报告由 CollectionReport 节点统一生成，
+		// 那里能看到盘点结果与执行统计的完整数据。
+		log.Info().
+			Str("component", "EssenceCollection").
+			Int("phase", int(st.CollectionPhase)).
+			Msg("collection pass finished")
+		currentRun = nil
 		return true
 	}
 	if st.Inventory != nil {
