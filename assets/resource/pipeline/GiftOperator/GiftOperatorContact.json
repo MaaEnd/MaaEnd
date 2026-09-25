@@ -452,7 +452,10 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
         },
         "next": [
             "GiftOperatorCheckContact",
@@ -480,7 +483,10 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
         }
     },
     "GiftOperatorConfirmSelect": {

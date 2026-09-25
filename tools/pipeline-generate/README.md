@@ -7,7 +7,7 @@ MaaEnd 使用六份由 zmdmap 数据 CI 生成并发布的精简游戏数据：
 - `data/environment_monitoring.json`：监测终端、观察点与五语言名称；
 - `data/sell_product.json`：据点、可售物品、据点特性与匹配干员；
 - `data/teleport_anchors.json`：营地（地图传送锚点）的底图坐标与传送 ID；
-- `data/collect_points.json`：可交互采集物的底图坐标及其所属营地。
+- `data/collect_points.json`：可交互采集物的底图坐标。
 
 这些文件都是按任务需要裁剪出的游戏数据，不是完整的上游数据快照，也不包含数据生产端的版本或来源元数据。MaaEnd 通过 `data/version.txt` 单独记录当前数据版本，`fetch-data.mjs` 根据 zmdmap 版本接口下载六份文件；版本未变化且本地缓存完整时跳过下载，网络检查失败时保留当前缓存。
 

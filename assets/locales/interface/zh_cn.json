@@ -269,7 +269,7 @@
     "option.ProductionAssistControl.ProductionAssistMFGCabin.label": "助力制造舱",
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "助力培养舱",
     "option.VisitFriendsRemark.label": "优先拜访带备注的好友",
-    "option.VisitFriendsPriorityRemarkEnable.label": "优先拜访指定好友（优先级高于备注扫描）",
+    "option.VisitFriendsPriorityRemarkEnable.label": "优先拜访指定好友（优先级高于拜访备注好友）",
     "option.VisitFriendsPriorityRemark.label": "优先拜访的好友（填玩家全名，多个用逗号分隔，如 博士#1001,管理员#1002）。",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "玩家名",
     "option.StageTaskSetting.label": "阶段任务设置",

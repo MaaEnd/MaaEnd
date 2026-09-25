@@ -118,10 +118,8 @@ struct NavmeshAirLine
 // An empty result means some line is clear OR that no answer was available (zone unresolved, occluder pack missing,
 // scene absent), never "blocked", so the caller has to read it as a pass. One zone resolution and one pack decode
 // are shared by the whole batch.
-std::vector<std::vector<navmesh::OccluderHit>> NavmeshLineGroupBlocks(
-    const NaviParam& param,
-    const std::string& locator_zone,
-    const std::vector<std::vector<NavmeshAirLine>>& groups);
+std::vector<std::vector<navmesh::OccluderHit>>
+    NavmeshLineGroupBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<NavmeshAirLine>>& groups);
 
 // The bake-time connectivity classes each point sits in. A route is searched inside one class only, so
 // two points whose sets are disjoint cannot be connected by any plan — a cheap way to drop legs that are

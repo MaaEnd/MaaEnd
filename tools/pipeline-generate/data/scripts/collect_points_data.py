@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import math
 import struct
 import sys
 import urllib.error
@@ -14,6 +13,7 @@ from typing import Any
 
 from navzone_utils import (
     COORD_TEXT,
+    ZONE_MAPS,
     describe_zones,
     load_nav_zones,
     project_to_pixel,
@@ -29,30 +29,17 @@ from tablecfg_utils import (
     should_skip,
     write_dataset,
 )
-from teleport_anchors_data import (
-    build_anchors,
-    build_level_index,
-    level_of,
-    map_of_level,
-)
+from teleport_anchors_data import build_level_index, level_of, map_of_level
 
 LABEL = "CollectPoints"
 OUTPUT_PATH = DATA_DIR / "collect_points.json"
 DEFAULT_GAMEPLAY_CONFIG_DIR = DEFAULT_JSON_DATA_DIR / "GameplayConfig"
-GAMEPLAY_CONFIG_NAMES = (
-    "WorldEntityRegistry.json",
-    "LevelMapMark.json",
-    "LevelBasicInfoTable.json",
-)
+GAMEPLAY_CONFIG_NAMES = ("WorldEntityRegistry.json", "LevelBasicInfoTable.json")
 
 DATA_BASE_URL = "https://assets.fz.wiki/output_maaend"
 GAMEPLAY_CONFIG_BASE_URL: str | None = DATA_BASE_URL
 
 DOODAD_PREFIX = "int_doodad_"
-# 采集路线一律从营地传送出发，离所有营地都超过这个距离的采集物不属于任何采集圈。
-CAMPFIRE_RADIUS_PX = 120.0
-# 当前接入采集任务的地图；覆盖新地图时把它的 map ID 加进来。
-COLLECT_MAPS = ("map02",)
 
 
 def build_doodads(
@@ -61,12 +48,13 @@ def build_doodads(
     zones: dict[str, dict[str, Any]],
     used_zones: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
-    """COLLECT_MAPS 上的可交互采集物，按实体 ID 数值升序。"""
+    """CI 侧登记了 zone 参数的底图上的可交互采集物，按实体 ID 数值升序。"""
     brief_infos = assert_record(
         registry.get("worldEntityBriefInfos"),
         "WorldEntityRegistry.worldEntityBriefInfos",
     )
     doodads: list[dict[str, Any]] = []
+    skipped_maps: set[str] = set()
     out_of_bounds = 0
     for entity_id in sorted(brief_infos, key=lambda key: (len(key), key)):
         entity = assert_record(brief_infos[entity_id], f"世界实体 {entity_id}")
@@ -77,7 +65,8 @@ def build_doodads(
         if level_id is None:
             continue
         map_id = map_of_level(level_id)
-        if map_id not in COLLECT_MAPS:
+        if map_id not in ZONE_MAPS:
+            skipped_maps.add(map_id)
             continue
         zone = used_zones.get(map_id)
         if zone is None:
@@ -102,22 +91,15 @@ def build_doodads(
             }
         )
 
+    if skipped_maps:
+        print(
+            f"[{LABEL}] 以下底图在 CI 侧未登记 zone 参数，"
+            f"其采集物未纳入：{sorted(skipped_maps)}",
+            file=sys.stderr,
+        )
     if out_of_bounds:
         print(f"[{LABEL}] {out_of_bounds} 个采集物投影越界，已跳过", file=sys.stderr)
     return doodads
-
-
-def nearest_anchor(point: dict[str, Any], anchors: list[dict[str, Any]]) -> str | None:
-    """同图内距离最近且在采集圈内的营地 ID。"""
-    best_id: str | None = None
-    best_distance = CAMPFIRE_RADIUS_PX
-    for anchor in anchors:
-        if anchor["map"] != point["map"]:
-            continue
-        distance = math.hypot(anchor["u"] - point["u"], anchor["v"] - point["v"])
-        if distance <= best_distance:
-            best_id, best_distance = anchor["id"], distance
-    return best_id
 
 
 def build_collect_points_data(
@@ -128,13 +110,8 @@ def build_collect_points_data(
             gameplay_config["LevelBasicInfoTable.json"], "LevelBasicInfoTable"
         )
     )
-    anchors, _ = build_anchors(
-        assert_record(gameplay_config["LevelMapMark.json"], "LevelMapMark"),
-        levels,
-        zones,
-    )
     used_zones: dict[str, dict[str, Any]] = {}
-    doodads = build_doodads(
+    points = build_doodads(
         assert_record(
             gameplay_config["WorldEntityRegistry.json"], "WorldEntityRegistry"
         ),
@@ -143,24 +120,13 @@ def build_collect_points_data(
         used_zones,
     )
 
-    points: list[dict[str, Any]] = []
-    used_maps: set[str] = set()
-    for point in doodads:
-        anchor_id = nearest_anchor(point, anchors)
-        if anchor_id is None:
-            continue
-        used_maps.add(point["map"])
-        points.append({**point, "anchor_id": anchor_id})
     if not points:
-        raise TableCfgError("没有任何采集物落在营地附近，请确认几份输入取自同一版本")
+        raise TableCfgError("WorldEntityRegistry 里一个可交互采集物都没有")
+    used_maps = {point["map"] for point in points}
 
     return {
         "text": {
-            "points": (
-                "可交互采集物，detailId 以 int_doodad_ 开头；"
-                f"只保留距最近同图营地 {CAMPFIRE_RADIUS_PX:.0f} 像素以内的点位"
-            ),
-            "anchor_id": "该点位所属营地的 ID，对应 teleport_anchors.json 的 anchors[].id",
+            "points": "可交互采集物，detailId 以 int_doodad_ 开头",
         },
         "maps": describe_zones({map_id: used_zones[map_id] for map_id in used_maps}),
         "coord": COORD_TEXT,

@@ -1597,10 +1597,8 @@ std::shared_ptr<const navmesh::OccluderScene> LoadCachedOccluder(const std::file
 
 }
 
-std::vector<std::vector<navmesh::OccluderHit>> NavmeshLineGroupBlocks(
-    const NaviParam& param,
-    const std::string& locator_zone,
-    const std::vector<std::vector<NavmeshAirLine>>& groups)
+std::vector<std::vector<navmesh::OccluderHit>>
+    NavmeshLineGroupBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<NavmeshAirLine>>& groups)
 {
     std::vector<std::vector<navmesh::OccluderHit>> blocks(groups.size());
     if (groups.empty()) {

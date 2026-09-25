@@ -382,7 +382,12 @@ struct TreeBuild
 };
 
 // 按包围盒中心沿最长轴对半分的包围盒树。每项的盒子各面先外扩 pad。
-void BuildTree(const std::vector<Vec3>& lo, const std::vector<Vec3>& hi, double pad, std::vector<BoxNode>& nodes, std::vector<uint32_t>& order)
+void BuildTree(
+    const std::vector<Vec3>& lo,
+    const std::vector<Vec3>& hi,
+    double pad,
+    std::vector<BoxNode>& nodes,
+    std::vector<uint32_t>& order)
 {
     const uint32_t count = static_cast<uint32_t>(lo.size());
     order.resize(count);
@@ -738,12 +743,10 @@ std::shared_ptr<const OccluderScene> DecodeSceneBody(const uint8_t* data, size_t
         return nullptr;
     }
     // 每个模板在模板流里至少三个字节,每个实例在旋转码流里正好一个字节,每块在块流里至少三个字节
-    if (template_count > st[kTemplate].size() / 3 || instance_count != st[kRotationCode].size()
-        || block_count > st[kBlock].size() / 3) {
+    if (template_count > st[kTemplate].size() / 3 || instance_count != st[kRotationCode].size() || block_count > st[kBlock].size() / 3) {
         return nullptr;
     }
-    if (!DecodeTemplates(*scene, template_count, st)
-        || !DecodeInstances(*scene, instance_count, pos_q, origin, rot_scale, scale_unit, st)
+    if (!DecodeTemplates(*scene, template_count, st) || !DecodeInstances(*scene, instance_count, pos_q, origin, rot_scale, scale_unit, st)
         || !DecodeBlocks(*scene, block_count, pos_q, origin, st)) {
         return nullptr;
     }
@@ -892,12 +895,7 @@ std::vector<OccluderHit> OccluderScene::lineHits(const OccluderPoint& start, con
     }
 
     const auto key = [](const OccluderHit& hit) {
-        return std::make_tuple(
-            hit.terrain,
-            hit.terrain ? hit.block : hit.instance,
-            hit.terrain ? hit.u : hit.triangle,
-            hit.v,
-            hit.second);
+        return std::make_tuple(hit.terrain, hit.terrain ? hit.block : hit.instance, hit.terrain ? hit.u : hit.triangle, hit.v, hit.second);
     };
     std::sort(out.begin(), out.end(), [&](const OccluderHit& x, const OccluderHit& y) {
         if (x.s != y.s) {
