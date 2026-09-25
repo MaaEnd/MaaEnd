@@ -13,6 +13,7 @@ from typing import Any
 
 from navzone_utils import (
     COORD_TEXT,
+    ZONE_MAPS,
     describe_zones,
     load_nav_zones,
     project_to_pixel,
@@ -43,8 +44,6 @@ CAMPFIRE_TEMPLATE_ID = "mark_sp_campfire"
 ID_LEVEL_FACTOR = 10**8
 # indie_dgXXX 各自一张底图，其余关卡按 mapXX / base01 / dung01 归图。
 INDIE_LEVEL_HEAD = "indie"
-# 与 CI 侧登记了 zone 参数的底图保持一致；nav 里另有 indie_dgXXX 的 zone，CI 未登记。
-ANCHOR_MAPS = ("map01", "map02", "base01", "dung01")
 
 
 def map_of_level(level_id: str) -> str:
@@ -104,7 +103,7 @@ def build_anchors(
             )
             if basic.get("templateId") != CAMPFIRE_TEMPLATE_ID:
                 continue
-            if map_id not in ANCHOR_MAPS:
+            if map_id not in ZONE_MAPS:
                 skipped_maps.add(map_id)
                 continue
 
