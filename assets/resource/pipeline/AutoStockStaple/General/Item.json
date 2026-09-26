@@ -230,39 +230,43 @@
                 "custom_action": "BetterSliding",
                 "custom_action_param": {
                     "ClampTargetToSliderMax": true,
-                    "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                    "DecreaseButton": {
+                        "template": "AutoStockpile/DecreaseButton.png"
+                    },
                     "Direction": "right",
-                    "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                    "IncreaseButton": {
+                        "template": "AutoStockpile/IncreaseButton.png"
+                    },
                     "SliderQuantity": {
-                        "Box": [
+                        "roi": [
                             375,
                             508,
                             36,
                             24
                         ],
-                        "OnlyRec": true
+                        "only_rec": true
                     }
                     //"SliderQuantity": {
-                    //    "Box": [
+                    //    "roi": [
                     //        375,
                     //        508,
                     //        36,
                     //        24
                     //    ],
-                    //    "Filter": {
-                    //        "lower": [
-                    //            28,
-                    //            100,
-                    //            100
-                    //        ],
-                    //        "upper": [
-                    //            28,
-                    //            255,
-                    //            255
-                    //        ],
-                    //        "method": 40
-                    //    },
-                    //    "OnlyRec": true
+                    //    "only_rec": true
+                    //},
+                    //"SliderQuantityFilter": {
+                    //    "lower": [
+                    //        28,
+                    //        100,
+                    //        100
+                    //    ],
+                    //    "upper": [
+                    //        28,
+                    //        255,
+                    //        255
+                    //    ],
+                    //    "method": 40
                     //}
                 }
             }

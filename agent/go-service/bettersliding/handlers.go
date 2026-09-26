@@ -23,7 +23,7 @@ func (a *BetterSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		return a.runInternalPipeline(ctx, arg)
 	}
 
-	if !a.loadActionParams(arg.CustomActionParam) {
+	if !a.loadActionParams(ctx, arg.CustomActionParam) {
 		return false
 	}
 
@@ -72,19 +72,6 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		a.targetReachable = true
 	}
 
-	if !a.SwipeOnlyMode && len(a.SliderQuantityBox) != 4 {
-		a.logger.Error().
-			Ints("slider_quantity_box", a.SliderQuantityBox).
-			Msg("invalid slider quantity box, expected [x,y,w,h]")
-		return false
-	}
-	if a.AvailableQuantityExplicit && len(a.AvailableQuantityBox) != 4 {
-		a.logger.Error().
-			Ints("available_quantity_box", a.AvailableQuantityBox).
-			Msg("invalid available quantity box, expected [x,y,w,h]")
-		return false
-	}
-
 	end, err := buildSwipeEnd(a.Direction)
 	if err != nil {
 		a.logger.Error().
@@ -96,14 +83,12 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 
 	override := buildMainInitializationOverride(
 		end,
-		a.SliderQuantityBox,
-		a.AvailableQuantityBox,
+		a.swipeButtonPatch,
+		a.sliderQuantityPatch,
+		a.sliderQuantityFilterPatch,
+		a.availableQuantityPatch,
+		a.availableQuantityFilterPatch,
 		a.AvailableQuantityExplicit,
-		a.SliderQuantityFilter,
-		a.AvailableQuantityFilter,
-		a.SliderQuantityOnlyRec,
-		a.AvailableQuantityOnlyRec,
-		a.SwipeButton,
 	)
 
 	resetOverride, err := buildResetSwipeOverride(a.Direction, a.ResetBeforeFindStart)
@@ -156,35 +141,16 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 			Msg("minimum target short circuit, skip slider recognition")
 	}
 
-	initializationLog := a.logger.Info().
+	a.logger.Info().
 		Str("direction", a.Direction).
 		Ints("end", end).
-		Ints("slider_quantity_roi", a.SliderQuantityBox).
-		Ints("available_quantity_roi", a.AvailableQuantityBox).
 		Bool("available_quantity_explicit", a.AvailableQuantityExplicit).
-		Bool("slider_quantity_filter_enabled", a.SliderQuantityFilter != nil).
-		Bool("available_quantity_filter_enabled", a.AvailableQuantityFilter != nil).
-		Bool("slider_quantity_only_rec", a.SliderQuantityOnlyRec).
-		Bool("available_quantity_only_rec", a.AvailableQuantityOnlyRec).
+		Bool("slider_quantity_filter_enabled", a.sliderQuantityFilterNode != "").
+		Bool("available_quantity_filter_enabled", a.availableQuantityFilterNode != "").
 		Bool("reset_before_find_start", a.ResetBeforeFindStart).
 		Bool("swipe_only_mode", a.SwipeOnlyMode).
-		Bool("minimum_target_short_circuit", a.minimumTargetShortCircuit)
-
-	if a.SliderQuantityFilter != nil {
-		initializationLog = initializationLog.
-			Int("slider_quantity_filter_method", a.SliderQuantityFilter.Method).
-			Ints("slider_quantity_filter_lower", a.SliderQuantityFilter.Lower).
-			Ints("slider_quantity_filter_upper", a.SliderQuantityFilter.Upper)
-	}
-
-	if a.AvailableQuantityFilter != nil {
-		initializationLog = initializationLog.
-			Int("available_quantity_filter_method", a.AvailableQuantityFilter.Method).
-			Ints("available_quantity_filter_lower", a.AvailableQuantityFilter.Lower).
-			Ints("available_quantity_filter_upper", a.AvailableQuantityFilter.Upper)
-	}
-
-	initializationLog.Msg("main initialization completed with pipeline overrides")
+		Bool("minimum_target_short_circuit", a.minimumTargetShortCircuit).
+		Msg("main initialization completed with pipeline overrides")
 	return true
 }
 
@@ -910,7 +876,7 @@ func (a *BetterSlidingAction) runInternalPipeline(ctx *maa.Context, arg *maa.Cus
 		return false
 	}
 
-	parsed, ok := a.normalizeActionParams(raw)
+	parsed, ok := a.normalizeActionParams(ctx, raw)
 	if !ok {
 		return false
 	}

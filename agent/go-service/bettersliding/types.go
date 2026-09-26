@@ -7,14 +7,24 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// betterSlidingParam 是 Pipeline custom_action_param 的原始解析载体。
+//
+// 识别参数类字段统一为 String | Object：
+//   - String：节点引用，取该节点 recognition.param 作为识别参数补丁；
+//   - Object：识别参数补丁，内容即 recognition.param 的键值。
+//
+// IncreaseButton / DecreaseButton 额外接受 int[2] | int[4] 坐标。
+// 补丁只写 recognition.param，绝不替换 recognition 类型。
 type betterSlidingParam struct {
 	TargetQuantity                int                        `json:"TargetQuantity"`
-	SliderQuantity                quantityParam              `json:"SliderQuantity"`
-	AvailableQuantity             quantityParam              `json:"AvailableQuantity"`
+	SliderQuantity                any                        `json:"SliderQuantity"`
+	SliderQuantityFilter          any                        `json:"SliderQuantityFilter"`
+	AvailableQuantity             any                        `json:"AvailableQuantity"`
+	AvailableQuantityFilter       any                        `json:"AvailableQuantityFilter"`
 	Direction                     string                     `json:"Direction"`
 	IncreaseButton                any                        `json:"IncreaseButton"`
 	DecreaseButton                any                        `json:"DecreaseButton"`
-	SwipeButton                   string                     `json:"SwipeButton"`
+	SwipeButton                   any                        `json:"SwipeButton"`
 	OutOfRangeOverrideEnable      string                     `json:"OutOfRangeOverrideEnable"`
 	TargetReachableOverrideEnable string                     `json:"TargetReachableOverrideEnable"`
 	TargetQuantityType            string                     `json:"TargetQuantityType"`
@@ -30,7 +40,9 @@ type betterSlidingParam struct {
 type betterSlidingParamPresence struct {
 	TargetQuantity                bool
 	SliderQuantity                bool
+	SliderQuantityFilter          bool
 	AvailableQuantity             bool
+	AvailableQuantityFilter       bool
 	Direction                     bool
 	IncreaseButton                bool
 	DecreaseButton                bool
@@ -46,38 +58,26 @@ type betterSlidingParamPresence struct {
 	ResetBeforeFindStart          bool
 }
 
-type quantityParam struct {
-	Box     []int                `json:"Box"`
-	Filter  *quantityFilterParam `json:"Filter"`
-	OnlyRec *bool                `json:"OnlyRec"`
-}
-
-// quantityFilterParam 定义数量 OCR 预处理使用的单组颜色阈值。
-type quantityFilterParam struct {
-	Lower  []int `json:"lower"`
-	Upper  []int `json:"upper"`
-	Method int   `json:"method"`
-}
-
 // BetterSlidingAction handles slider-based quantity selection UIs.
 // It recognizes slider endpoints, computes a proportional click position from
 // the target quantity, and fine-tunes via increase/decrease buttons.
 //
 // Parameter fields:
 //   - TargetQuantity: target quantity (overridden by attach.TargetQuantity when present)
-//   - SliderQuantity.Box: OCR ROI [x,y,w,h] for reading the current slider quantity.
-//   - AvailableQuantity.Box: OCR ROI [x,y,w,h] for reading the total available quantity.
-//     When provided, BetterSlidingGetAvailableQuantity runs after SwipeToMax and its OCR result is
-//     used for ReverseTarget / TargetQuantityType calculation.
+//   - SliderQuantity: OCR recognition param patch for the current slider quantity,
+//     applied to BetterSlidingGetSliderQuantity (node reference string or patch object).
+//   - SliderQuantityFilter: ColorMatch param patch written to
+//     BetterSlidingSliderQuantityFilter and linked into the quantity patch via color_filter.
+//   - AvailableQuantity: OCR recognition param patch for the total available quantity,
+//     applied to BetterSlidingGetAvailableQuantity and enabling that node.
+//     When provided, its OCR result is used for ReverseTarget / TargetQuantityType calculation.
 //     When AvailableQuantity is not provided, target resolution falls back to the
 //     BetterSlidingGetSliderMaxQuantity runtime value (slider endpoint).
-//   - SliderQuantity.Filter: optional color filter for slider quantity OCR
-//   - SliderQuantity.OnlyRec: enable only_rec for the slider quantity OCR node
-//   - AvailableQuantity.Filter: optional color filter for available quantity OCR
-//   - AvailableQuantity.OnlyRec: enable only_rec for available quantity OCR
+//   - AvailableQuantityFilter: ColorMatch param patch written to
+//     BetterSlidingAvailableQuantityFilter and linked into the available quantity patch.
 //   - Direction: swipe direction (left/right/up/down)
-//   - IncreaseButton: increase button template path or coordinates
-//   - DecreaseButton: decrease button template path or coordinates
+//   - IncreaseButton: increase button coordinates, node reference, or param patch
+//   - DecreaseButton: decrease button coordinates, node reference, or param patch
 //   - CenterPointOffset: click offset from slider handle center, default [-10, 0]
 //   - ClampTargetToSliderMax: clamp target to sliderMaxQuantity instead of failing (default false)
 //   - FineTuneQuantity: bool or int >= 1; true (default) always fine-tunes via
@@ -87,7 +87,7 @@ type quantityFilterParam struct {
 //     not to fine-tune, more/less nudges the precise click by 1px steps on one axis.
 //   - ResetBeforeFindStart: swipe toward the minimum before matching the slider start position,
 //     so the recorded start position is the minimum value (default false)
-//   - SwipeButton: custom slider template path overriding BetterSlidingSwipeButton
+//   - SwipeButton: slider template recognition param patch overriding BetterSlidingSwipeButton
 //   - OutOfRangeOverrideEnable: Pipeline node name to enable when target is out of range
 //   - TargetReachableOverrideEnable: Pipeline node name to enable when the resolved target can be
 //     reached without clamping. The caller must still confirm that its outer operation succeeded.
@@ -95,13 +95,7 @@ type quantityFilterParam struct {
 //   - ReverseTarget: reverse target calculation
 type BetterSlidingAction struct {
 	TargetQuantity                int
-	SliderQuantityBox             []int
-	AvailableQuantityBox          []int
 	AvailableQuantityExplicit     bool
-	SliderQuantityFilter          *quantityFilterParam
-	AvailableQuantityFilter       *quantityFilterParam
-	SliderQuantityOnlyRec         bool
-	AvailableQuantityOnlyRec      bool
 	Direction                     string
 	IncreaseButton                buttonTarget
 	DecreaseButton                buttonTarget
@@ -110,13 +104,22 @@ type BetterSlidingAction struct {
 	FineTuneQuantity              fineTuneQuantity
 	FineTuneFallback              string
 	ResetBeforeFindStart          bool
-	SwipeButton                   string
 	OutOfRangeOverrideEnable      string
 	TargetReachableOverrideEnable string
 	TargetQuantityType            string
 	ReverseTarget                 bool
 	SwipeOnlyMode                 bool
 	OriginalTargetQuantity        int
+
+	// 识别参数补丁。patch 为空表示该参数未配置；FilterNode 非空表示该 Filter 已配置，
+	// 需要把内建 Filter 节点名写进对应 Quantity 补丁的 color_filter。
+	swipeButtonPatch             map[string]any
+	sliderQuantityPatch          map[string]any
+	sliderQuantityFilterNode     string
+	sliderQuantityFilterPatch    map[string]any
+	availableQuantityPatch       map[string]any
+	availableQuantityFilterNode  string
+	availableQuantityFilterPatch map[string]any
 
 	startBox []int
 	endBox   []int
@@ -135,14 +138,17 @@ type BetterSlidingAction struct {
 	logger                    zerolog.Logger
 }
 
+// buttonTarget 是 IncreaseButton / DecreaseButton 归一化后的载体：
+// coordinates 与 patch 二选一。coordinates 非空表示直接点击坐标；
+// patch 非空表示按钮模板识别补丁（经 And 包装成 TemplateMatch 后点击命中框）。
 type buttonTarget struct {
 	coordinates []int
-	template    string
+	patch       map[string]any
 }
 
 func (b buttonTarget) logValue() any {
-	if b.template != "" {
-		return b.template
+	if len(b.patch) > 0 {
+		return b.patch
 	}
 
 	return append([]int(nil), b.coordinates...)
@@ -235,7 +241,8 @@ const (
 var defaultCenterPointOffset = [2]int{-10, 0}
 
 // defaultGreenMask 是 BetterSliding 按钮模板匹配默认启用的绿色掩码开关。
-// BetterSliding 对 SwipeButton / IncreaseButton / DecreaseButton 的模板匹配固定开启绿色掩码。
+// BetterSliding 对 SwipeButton / IncreaseButton / DecreaseButton 的模板匹配默认开启绿色掩码，
+// 但可被参数补丁里的 green_mask 显式覆盖。
 const defaultGreenMask = true
 
 var _ maa.CustomActionRunner = &BetterSlidingAction{}

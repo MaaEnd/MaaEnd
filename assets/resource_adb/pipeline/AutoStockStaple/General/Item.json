@@ -30,17 +30,21 @@
                 "custom_action": "BetterSliding",
                 "custom_action_param": {
                     "ClampTargetToSliderMax": true,
-                    "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                    "DecreaseButton": {
+                        "template": "AutoStockpile/DecreaseButton.png"
+                    },
                     "Direction": "right",
-                    "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                    "IncreaseButton": {
+                        "template": "AutoStockpile/IncreaseButton.png"
+                    },
                     "SliderQuantity": {
-                        "Box": [
+                        "roi": [
                             304,
                             540,
                             54,
                             39
                         ],
-                        "OnlyRec": true
+                        "only_rec": true
                     }
                 }
             }
