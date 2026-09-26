@@ -216,7 +216,7 @@
     "option.AutoEssenceChooseLocation.label": "Random regions",
     "option.AutoEssenceChooseLocation.description": "- Randomly picks one region from those selected to challenge (the task stops if none is selected).\n- Due to terrain, the regions with the highest success rate are currently Sword Vault Dale and Qingbo Stockade, while the lowest success rate is in Test Area.",
     "option.AutoEssenceObtainMode.label": "Reward Claim Mode",
-    "option.AutoEssenceObtainMode.description": "How to handle rewards after each challenge round.",
+    "option.AutoEssenceObtainMode.description": "Double rewards: first use boosters according to your settings. If Sanity is still insufficient for double rewards but sufficient for single rewards, claim single rewards and end the task.",
     "option.AutoEssenceObtainMode.cases.Discard.label": "Do Not Claim (Farm Materials Only)",
     "option.AutoEssenceObtainMode.cases.ObtainScaling1.label": "Single Claim",
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "Double Claim",

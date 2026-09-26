@@ -212,7 +212,7 @@
     "option.AutoEssenceChooseLocation.label": "ランダム地域",
     "option.AutoEssenceChooseLocation.description": "- 選択した地域の中からランダムに1つを選んで挑戦します（何も選択しない場合はタスクを終了します）。\n- 地形の影響により、現在成功率が最も高い地域は蔵剣谷と清波寨、最も低い地域は実験区域です。",
     "option.AutoEssenceObtainMode.label": "受け取り方法",
-    "option.AutoEssenceObtainMode.description": "各挑戦終了後の報酬処理方法。",
+    "option.AutoEssenceObtainMode.description": "2倍受取では、設定に従って先に理性回復剤を使用します。それでも2倍分に足りず、1倍分には足りる場合は、1倍で受け取ってタスクを終了します。",
     "option.AutoEssenceObtainMode.cases.Discard.label": "受け取らない（素材周回のみ）",
     "option.AutoEssenceObtainMode.cases.ObtainScaling1.label": "1倍受け取り",
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "2倍受け取り",

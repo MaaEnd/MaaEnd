@@ -216,7 +216,7 @@
     "option.AutoEssenceChooseLocation.label": "隨機地區",
     "option.AutoEssenceChooseLocation.description": "- 將從所選的地區中，隨機選取一個地區進行挑戰（若全不選則任務終止）。\n- 受地形影響，目前成功率最高的地區是藏劍谷和清波寨，成功率最低的地區是試驗園區。",
     "option.AutoEssenceObtainMode.label": "領取方式",
-    "option.AutoEssenceObtainMode.description": "每輪挑戰結束後的獎勵處理方式",
+    "option.AutoEssenceObtainMode.description": "雙倍領取時優先依設定使用藥劑；仍不足雙倍但足夠單倍時，自動改領單倍並結束任務。",
     "option.AutoEssenceObtainMode.cases.Discard.label": "不領取（僅刷素材）",
     "option.AutoEssenceObtainMode.cases.ObtainScaling1.label": "單倍領取",
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "雙倍領取",
