@@ -1089,7 +1089,7 @@
     "option.AutoCollectMode.case.Always.label": "按勾选路线采集",
     "option.AutoCollectMode.case.TargetInventory.label": "按目标库存采集",
     "option.AutoCollectTargetInventory.label": "目标库存",
-    "option.AutoCollectTargetInventory.description": "统计扫描时四号谷地与武陵两座左侧仓库的总量，不包含右侧背包。启用任务前后存放背包时，统计前置存放完成后的仓库数量；关闭时，仍留在背包中的物品不会计入目标库存。0 表示不限制该物品，库存达到目标时跳过对应路线。",
+    "option.AutoCollectTargetInventory.description": "统计不包含背包。0表示始终运行，库存达到目标时跳过对应路线。",
     "option.AutoCollectTargetInventory.pattern_msg": "请输入非负整数",
     "option.AutoCollectRoutes.label": "采集线路",
     "option.AutoCollectRoute1.label": "线路1：受蚀玉化叶",
