@@ -20,10 +20,7 @@
         },
         "next": [
             "AutoCollectDigSpace"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "执行首次挖掘"
-        }
+        ]
     },
     "AutoCollectDigSpace": {
         "pre_delay": 100,
@@ -54,7 +51,7 @@
     },
     //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
     "AutoCollectDigEnd": {
-        "pre_delay": 0,
+        "pre_delay": 300,
         "post_delay": 0
     }
 }
