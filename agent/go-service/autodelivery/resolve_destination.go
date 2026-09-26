@@ -2,6 +2,7 @@ package autodelivery
 
 import (
 	"errors"
+	"regexp"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -16,6 +17,9 @@ const (
 	afterResolveDestinationNode  = "AutoDeliveryAfterResolveDestination"
 	areaTextNode                 = "AutoDeliveryCheckAreaText"
 	destinationTextNode          = "AutoDeliveryCheckDestinationText"
+	submitGoodsTargetNode        = "AutoDeliveryCheckSubmitGoodsTarget"
+	submitGoodsButtonNode        = "AutoDeliveryCheckSubmitGoodsButton"
+	submitGoodsNameNode          = "AutoDeliveryCheckSubmitGoodsName"
 	// destinationZiplineRequiredFocusKey 是「只能坐滑索抵达、但用户选择步行」时讲给用户的原因。
 	destinationZiplineRequiredFocusKey = "autodelivery.focus.destination_zipline_required"
 )
@@ -147,6 +151,7 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		Float64("areaRunnerUpSimilarity", match.AreaRunnerUp).
 		Str("area", dest.AreaID).
 		Bool("zip", options.Zip).
+		Bool("nameCheck", dest.NameCheck).
 		Str("routeNode", selectRouteNode(dest.RouteNode, dest.ZipRouteNode, options.Zip)).
 		Str("retryRouteNode", dest.RetryRouteNode).
 		Msg("resolved delivery job destination")
@@ -185,7 +190,32 @@ func buildDestinationNavigationOverride(dest destination, zip bool) map[string]a
 			},
 		}
 	}
+
+	// 交货图标只有十几像素，周围还有别的角色时容易命中别人的交互提示。
+	// 开启名称复核的终点额外要求提示文本命中该终点的名称；每次解析都显式重写 all_of，
+	// 避免上一个终点开启的复核残留到本次流程。
+	submitGoodsAllOf := []string{submitGoodsButtonNode}
+	if dest.NameCheck {
+		submitGoodsAllOf = append(submitGoodsAllOf, submitGoodsNameNode)
+		override[submitGoodsNameNode] = map[string]any{
+			"expected": nameExpectations(dest),
+		}
+	}
+	override[submitGoodsTargetNode] = map[string]any{
+		"all_of": submitGoodsAllOf,
+	}
 	return override
+}
+
+// nameExpectations 把终点的各语言名称转成正则字面量：交互提示里的名称随游戏语言变化，
+// 而 OCR 节点的 expected 按正则匹配，名称里的正则元字符必须转义。
+func nameExpectations(dest destination) []string {
+	names := localizedTexts(dest.Names)
+	expected := make([]string, 0, len(names))
+	for _, name := range names {
+		expected = append(expected, regexp.QuoteMeta(name))
+	}
+	return expected
 }
 
 func buildRecycleBinResolutionOverride(areaID string) map[string]any {

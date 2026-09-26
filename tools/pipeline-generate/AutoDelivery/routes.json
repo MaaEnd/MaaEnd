@@ -65,7 +65,8 @@
         {
             "source_id": "deliver_target_map01_lv006_03",
             "name": "莫莉",
-            "depot_id": "domain_1_lv006_depot_1"
+            "depot_id": "domain_1_lv006_depot_1",
+            "name_check": true
         },
         {
             "source_id": "deliver_target_map01_lv006_recycle_01",

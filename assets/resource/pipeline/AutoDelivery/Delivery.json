@@ -112,7 +112,7 @@
         "order_by": "Score"
     },
     "AutoDeliveryCheckSubmitGoodsButton": {
-        "desc": "在送货目标附近识别交货图标，并等待交互提示区域稳定",
+        "desc": "在送货目标附近识别交货图标",
         "recognition": "TemplateMatch",
         "roi": [
             760,
@@ -125,7 +125,26 @@
             "AutoDelivery/SubmitGoods2.png" // 非 NPC 交货图标
         ],
         "threshold": 0.9,
-        "order_by": "Score",
+        "order_by": "Score"
+    },
+    "AutoDeliveryCheckSubmitGoodsName": {
+        "desc": "识别送货目标交互提示中的文本，由 Go 按当前终点的名称注入 expected 复核",
+        "recognition": "OCR",
+        "roi": [
+            763,
+            349,
+            195,
+            270
+        ],
+        "only_rec": false,
+        "order_by": "Horizontal"
+    },
+    "AutoDeliveryCheckSubmitGoodsTarget": {
+        "desc": "确认已站在送货目标前：交货图标命中，需要名称复核时交互提示中的名称也要命中",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryCheckSubmitGoodsButton"
+        ],
         "pre_wait_freezes": {
             "time": 300,
             "target": [
@@ -219,7 +238,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckSubmitGoodsButton",
+            "AutoDeliveryCheckSubmitGoodsTarget",
             "AutoDeliverySearchSubmitGoodsButton"
         ],
         "focus": {
@@ -272,7 +291,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckSubmitGoodsButton"
+            "AutoDeliveryCheckSubmitGoodsTarget"
         ]
     },
     "AutoDeliveryReturnWorldAndNavigateDestination": {
@@ -294,19 +313,19 @@
         ]
     },
     "AutoDeliverySearchSubmitGoodsButton": {
-        "desc": "到达送货目标后未找到交货按钮时，环绕微调站位并持续查找按钮",
+        "desc": "到达送货目标后未确认站在目标前时，环绕微调站位并持续查找目标",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "CharacterSearchAction",
         "custom_action_param": {
             "wait_nodes": [
-                "AutoDeliveryCheckSubmitGoodsButton"
+                "AutoDeliveryCheckSubmitGoodsTarget"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckSubmitGoodsButton"
+            "AutoDeliveryCheckSubmitGoodsTarget"
         ],
         "on_error": [
             "AutoDeliveryRetryNavigateDestination"
@@ -429,7 +448,7 @@
         "desc": "在送货目标附近识别交互按钮并提交货物",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCheckSubmitGoodsButton"
+            "AutoDeliveryCheckSubmitGoodsTarget"
         ],
         "pre_delay": 0,
         "action": "Custom",
