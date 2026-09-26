@@ -153,7 +153,7 @@ jobs:
 
           if [ -n "$timeout_message" ]; then
             echo "ai-analysis timed out: $timeout_message"
-            minutes=$(printf '%s' "$timeout_message" | sed -nE 's/.*maximum execution time of ([0-9]+)m.*/\1/p' | head -1)
+            minutes=$(printf '%s' "$timeout_message" | sed -nE 's/.*maximum execution time of ([0-9]+) ?m.*/\1/p' | head -1)
             notice="⏰ **分析超时**：AI 分析超过 ${minutes:-时限} 分钟仍未完成，已被自动终止，本次未能给出结论。可展开下方查看已进行的分析过程，或稍后评论 \`@MaaEndBot\` 重新触发分析。"
             body=$(cat "$comment_file")
             rest="${body#"$RESULT_ERROR_MESSAGE"}"
