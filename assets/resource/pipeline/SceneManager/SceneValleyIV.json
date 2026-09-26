@@ -656,36 +656,6 @@
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },
-    "__ScenePrivateMapValleyIVValleyPassEnterWorldAnchorWithPick": {
-        "desc": "在四号谷地-谷地通道地图界面，进入[锚点]大世界",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVValleyPass"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]SceneMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomOut",
-            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
-        ]
-    },
-    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldAnchorWithPick": {
-        "desc": "在四号谷地-阿伯莉采石场地图界面，进入[锚点]大世界",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVAburreyQuarry"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]SceneMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomOut",
-            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
-        ]
-    },
     "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor": {
         "desc": "在四号谷地-供能高地地图界面，进入[锚点]大世界",
         "recognition": "And",

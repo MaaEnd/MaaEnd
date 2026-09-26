@@ -477,6 +477,8 @@
     "task.ZiplineImport.description": "公式マップにログインし、現在のアカウントのジップライン座標を取り込んで経路探索に使用します。\n**一度取り込めば長期有効。初回利用時、またはアカウントのジップラインが変わったときだけ再実行してください。**",
     "task.SharedZiplineDelete.label": "✂️ 共有ジップラインを削除",
     "task.SharedZiplineDelete.focus.deleted_one": "共有ジップラインを 1 本削除しました",
+    "task.SharedZiplineDelete.focus.bootstrap_valley_iv": "第4谷地へ向かい、共有ジップラインを削除する準備をしています",
+    "task.SharedZiplineDelete.focus.bootstrap_wuling": "武陵へ向かい、共有ジップラインを削除する準備をしています",
     "task.ImportBluePrints.label": "📐 設計図を一括インポート",
     "task.ImportBluePrints.description": "設計図を一括でインポートします（スマート解析対応）。",
     "option.ImportBluePrints.label": "設計図インポート",
