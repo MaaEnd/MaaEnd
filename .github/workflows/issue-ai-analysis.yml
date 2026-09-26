@@ -22,10 +22,14 @@ jobs:
        contains(github.event.comment.body, '@MaaEndBot') &&
        github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     permissions:
       contents: read
     steps:
+      # 用于区分 job 超时与手动取消
+      - name: Record job start time
+        run: echo "JOB_STARTED_AT=$(date +%s)" >> "$GITHUB_ENV"
+
       - name: Install DMP analysis tools
         run: |
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
@@ -75,3 +79,49 @@ jobs:
           echo "comment_id=$COMMENT_ID"
           echo "comment_url=$COMMENT_URL"
           echo "(Full agent-output and final-conclusion are available in the uploaded artifacts)"
+
+      # App token 有效期仅 1 小时，分析超过 1 小时后 action 回写最终评论会因 token 过期失败，
+      # 这里用新 token 重新回写一次，并在 job 超时时注明原因
+      - name: Regenerate MaaEndBot GitHub App token
+        id: final-app-token
+        if: always() && steps.analysis.outputs.comment-id != ''
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-issues: write
+
+      - name: 回写最终评论
+        if: always() && steps.analysis.outputs.comment-id != ''
+        env:
+          GH_TOKEN: ${{ steps.final-app-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          COMMENT_ID: ${{ steps.analysis.outputs.comment-id }}
+          JOB_STATUS: ${{ job.status }}
+          # 与上方 job 的 timeout-minutes 保持一致
+          TIMEOUT_MINUTES: 90
+          # action 默认的 result-error-message，未产出结论时 final comment 以此开头
+          RESULT_ERROR_MESSAGE: 分析结果出现错误，请重试。
+          FINAL_COMMENT_FILE: .cache/final_comment.md
+        run: |
+          if [ ! -f "$FINAL_COMMENT_FILE" ]; then
+            echo "$FINAL_COMMENT_FILE not found; skip."
+            exit 0
+          fi
+
+          # 评论体可能超过单个命令行参数上限（128 KiB），经文件传给 jq
+          comment_file="$RUNNER_TEMP/final_comment.md"
+          cp "$FINAL_COMMENT_FILE" "$comment_file"
+
+          # 手动取消时运行时长达不到超时阈值，不视为超时
+          elapsed=$(( $(date +%s) - JOB_STARTED_AT ))
+          if [ "$JOB_STATUS" = "cancelled" ] && [ "$elapsed" -ge $(( (TIMEOUT_MINUTES - 2) * 60 )) ]; then
+            body=$(cat "$FINAL_COMMENT_FILE")
+            notice="⏰ **分析超时**：AI 分析超过 ${TIMEOUT_MINUTES} 分钟仍未完成，已被自动终止，本次未能给出结论。可展开下方查看已进行的分析过程，或稍后评论 \`@MaaEndBot\` 重新触发分析。"
+            { printf '%s\n' "$notice"; printf '%s\n' "${body#"$RESULT_ERROR_MESSAGE"}"; } > "$comment_file"
+            echo "Job timed out after ${elapsed}s; adding timeout notice."
+          fi
+
+          jq -n --rawfile body "$comment_file" '{body: $body}' \
+            | gh api -X PATCH "repos/$REPO/issues/comments/$COMMENT_ID" --input - > /dev/null
+          echo "Final comment updated."
