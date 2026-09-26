@@ -40,6 +40,8 @@ constexpr int kCreditTradeTemplateSize = 140;
 constexpr int kCreditTradeOffsetX = -6;
 // 信用交易模板相对检测 cell 左上角的纵向偏移；数值增大时采样区域向下移动。
 constexpr int kCreditTradeOffsetY = 4;
+// 贵重品库和奖励界面兼容另一种常见的 97px 图标尺寸；只在这两类网格中竞争使用。
+constexpr int kAlternateTemplateSize = 97;
 // 亚像素细化至少保留的候选数量；调大提高次优模板翻盘机会，但增加相位匹配次数。
 constexpr int kShortlistCount = 5;
 // 除固定数量外允许进入细化的分数窗口；调大提高召回但增加耗时，调小更偏向首轮排名。
@@ -101,9 +103,13 @@ int TemplateSizeFor(GridType type, double grid_scale)
     return std::max(1, cvRound(baseline_size * grid_scale));
 }
 
-cv::Rect SlotFor(GridType type, const detail::GridCell& cell, double grid_scale)
+int AlternateTemplateSizeFor(double grid_scale)
 {
-    const int template_size = TemplateSizeFor(type, grid_scale);
+    return std::max(1, cvRound(kAlternateTemplateSize * grid_scale));
+}
+
+cv::Rect SlotFor(GridType type, const detail::GridCell& cell, double grid_scale, int template_size)
+{
     if (type == GridType::Trade) {
         const int inset = (cell.cell_box.width - template_size) / 2;
         return cv::Rect(cell.cell_box.x + inset, cell.cell_box.y + inset, template_size, template_size);
@@ -116,6 +122,11 @@ cv::Rect SlotFor(GridType type, const detail::GridCell& cell, double grid_scale)
             template_size);
     }
     return cv::Rect(cell.cell_box.x, cell.cell_box.y, template_size, template_size);
+}
+
+cv::Rect SlotFor(GridType type, const detail::GridCell& cell, double grid_scale)
+{
+    return SlotFor(type, cell, grid_scale, TemplateSizeFor(type, grid_scale));
 }
 
 struct ActiveTemplateSelection
@@ -570,6 +581,14 @@ bool ContainsRequestedItem(const ItemInfo& item, const std::unordered_set<std::s
            || std::ranges::any_of(item.aliases, [&](const auto& alias) { return requested_ids.contains(alias.item_id); });
 }
 
+bool PreferAlternateEvaluation(const CellEvaluation& candidate, const CellEvaluation& current)
+{
+    if (candidate.accepted != current.accepted) {
+        return candidate.accepted;
+    }
+    return candidate.ranking.best.diagnostics.score > current.ranking.best.diagnostics.score;
+}
+
 void ValidateRecognitionRoi(const cv::Mat& image, const cv::Rect& roi)
 {
     const cv::Rect bounds(0, 0, image.cols, image.rows);
@@ -614,7 +633,12 @@ public:
 
     const std::vector<detail::PreparedTemplate>& TemplatesFor(GridType type, double grid_scale) const
     {
-        return catalog_.load(TemplateSizeFor(type, grid_scale));
+        return TemplatesForSize(TemplateSizeFor(type, grid_scale));
+    }
+
+    const std::vector<detail::PreparedTemplate>& TemplatesForSize(int target_size) const
+    {
+        return catalog_.load(target_size);
     }
 
     const std::vector<detail::PreparedTemplate>& RoiTemplates(int target_size) const { return catalog_.load(target_size); }
@@ -632,7 +656,10 @@ public:
                 else {
                     for (const double grid_scale : detail::kSupportedControllerGridScales) {
                         const int target_size = TemplateSizeFor(request.grid_type, grid_scale);
-                        static_cast<void>(catalog_.load(target_size));
+                        static_cast<void>(TemplatesForSize(target_size));
+                        if (request.grid_type == GridType::Valuables || request.grid_type == GridType::Rewards) {
+                            static_cast<void>(TemplatesForSize(AlternateTemplateSizeFor(grid_scale)));
+                        }
                         if (request.recognize_region_unavailable && SupportsRegionUnavailableRecognition(request.grid_type)) {
                             static_cast<void>(catalog_.loadRegionUnavailable(target_size));
                         }
@@ -687,6 +714,7 @@ public:
             std::vector<detail::GridCell> cells;
             std::vector<detail::GridLayout> detected_grids;
             std::vector<detail::PreparedTemplate> selected;
+            std::vector<detail::PreparedTemplate> alternate_selected;
             double grid_scale = detail::kWin32ControllerGridScale;
             int template_size = 0;
             if (single_roi) {
@@ -728,6 +756,12 @@ public:
                     TemplatesFor(request.grid_type, grid_scale),
                     request.candidates,
                     detail::DefaultItemFilters(request.grid_type));
+                if (request.grid_type == GridType::Valuables || request.grid_type == GridType::Rewards) {
+                    alternate_selected = detail::SelectCandidateTemplates(
+                        TemplatesForSize(AlternateTemplateSizeFor(grid_scale)),
+                        request.candidates,
+                        detail::DefaultItemFilters(request.grid_type));
+                }
                 if (performance) {
                     performance->template_selection_ms += ElapsedMilliseconds(selection_started);
                 }
@@ -774,7 +808,7 @@ public:
                 }
                 const cv::Rect slot = single_roi ? cell.cell_box : SlotFor(request.grid_type, cell, grid_scale);
                 const auto rarity_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const auto rarity = single_roi ? detail::RarityResult {} : detail::ClassifyRarity(image, slot, grid_scale);
+                auto rarity = single_roi ? detail::RarityResult {} : detail::ClassifyRarity(image, slot, grid_scale);
                 if (performance) {
                     performance->rarity_classification_ms += ElapsedMilliseconds(rarity_started);
                 }
@@ -791,6 +825,28 @@ public:
                     request.subpixel_threshold,
                     performance_ptr,
                     transfer_foreground_texture);
+                if (request.grid_type == GridType::Valuables || request.grid_type == GridType::Rewards) {
+                    const int fallback_template_size = AlternateTemplateSizeFor(grid_scale);
+                    const cv::Rect fallback_slot = SlotFor(request.grid_type, cell, grid_scale, fallback_template_size);
+                    const auto fallback_rarity = detail::ClassifyRarity(image, fallback_slot, grid_scale);
+                    CellEvaluation fallback = EvaluateCellTemplates(
+                        image,
+                        request.grid_type,
+                        cell.cell_box,
+                        fallback_slot,
+                        alternate_selected,
+                        fallback_rarity.rarity,
+                        false,
+                        grid_scale,
+                        request.threshold,
+                        request.subpixel_threshold,
+                        performance_ptr,
+                        transfer_foreground_texture);
+                    if (PreferAlternateEvaluation(fallback, evaluation)) {
+                        evaluation = std::move(fallback);
+                        rarity = fallback_rarity;
+                    }
+                }
                 bool region_unavailable_fallback_used = false;
                 if (!evaluation.accepted && region_unavailable_enabled && has_region_restricted_candidates) {
                     if (!region_unavailable_selected) {
