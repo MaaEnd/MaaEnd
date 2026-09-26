@@ -2341,5 +2341,6 @@
     "resource/image/SharedZiplineDelete/MapSharedZipLine2": "b4610ead524529870d3c7271c324b76a5f79698ca0dc88fd57a883a68e73986b",
     "resource/image/SharedZiplineDelete/MapSharedZipLine": "f64337b650ab7e6b4158547ff37a830b78ff617e5b751f2ead06399db048166d",
     "resource/image/SeizeDeliveryJobs/DepotNodePage/ValleyIVToken": "6c9c901fb5e7e29f550f95bc6177b32f8f278ac90ee90c5ae515dc2c05617c8d",
-    "resource/image/Common/Button/EndChallengeButton": "d11458035b1cd25788586aa89347702326ea1f7b63b3795ace07051fb58ca59e"
+    "resource/image/Common/Button/EndChallengeButton": "d11458035b1cd25788586aa89347702326ea1f7b63b3795ace07051fb58ca59e",
+    "resource/image/GiftOperator/Operators/Purrchena": "89c25d2fbbfea9795c6d1ef434904427b80ef08ac9281fe9007e969e5eecd115"
 }
