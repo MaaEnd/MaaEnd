@@ -668,6 +668,8 @@
     "task.ZiplineImport.description": "Sign in on the official map and import zipline coordinates for the current account, for navigation.\n**Import once, it stays valid. Re-run only on first use, or when this account's ziplines change.**",
     "task.SharedZiplineDelete.label": "✂️ Delete Shared Ziplines",
     "task.SharedZiplineDelete.focus.deleted_one": "Deleted one shared zipline",
+    "task.SharedZiplineDelete.focus.bootstrap_valley_iv": "Preparing to go to Valley IV to delete shared ziplines",
+    "task.SharedZiplineDelete.focus.bootstrap_wuling": "Preparing to go to Wuling to delete shared ziplines",
     "task.ImportBluePrints.label": "📐 Import Blueprints",
     "task.ImportBluePrints.description": "Batch import blueprints with smart parsing.",
     "option.ImportBluePrints.label": "Import Blueprints",
