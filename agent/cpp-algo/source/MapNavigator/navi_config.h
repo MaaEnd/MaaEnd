@@ -362,7 +362,7 @@ constexpr int32_t kZiplineMountSpotStallMs = 2000;
 static_assert(kZiplineMountSpotStallMs < kObstacleRecoveryMinTriggerMs);
 // 滑错索又滑回来之后, 同一跳最多再试这么多次, 用完就站在架子上等换路
 constexpr int32_t kZiplineHopRetryBudget = 2;
-// 下索键按完等定位稳定的基准时长: 两倍还不稳再按一次, 四倍还不稳当卡住
+// 下索键按完等人下来的基准时长: 两倍还没下来再按一次, 四倍还没下来当卡住
 constexpr int32_t kZiplineDismountTimeoutMs = 2000;
 // 落地定位对不上时给冷启动的时间, 到点还对不上这跳按丢失记
 constexpr int32_t kZiplineUnknownTimeoutMs = 8000;
