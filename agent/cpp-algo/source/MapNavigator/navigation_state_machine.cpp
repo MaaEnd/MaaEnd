@@ -584,6 +584,7 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     if (loss.started_at == std::chrono::steady_clock::time_point {}) {
         loss.started_at = now;
     }
+    runtime_state_.offroute.PauseAt(now);
     // River-fall discriminator: a black capture during a loss = fell in water (the locator folds it into a
     // generic TrackingLost). Latch it so the re-acquire below can arm recovery. See navigator-river-fall.
     if (position_provider_->LastCaptureWasBlackScreen()) {
@@ -1584,6 +1585,7 @@ bool NavigationStateMachine::TickNavigate()
 
     if (runtime_state_.river_fall.pending) {
         RiverFallRecoveryState& rf = runtime_state_.river_fall;
+        runtime_state_.offroute.PauseAt(now);
         if (session_->HardStalledMs(now) > kRiverFallRecoveryTimeoutMs) {
             return FailNavigation(
                 "river_fall_recovery_timeout",
@@ -1635,6 +1637,10 @@ bool NavigationStateMachine::TickNavigate()
     if (session_->phase() == NaviPhase::Navigate && waypoint.IsContinuousRun() && !route.on_route && std::isfinite(route.cross_track)
         && !runtime_state_.cross_tier_escape.active) {
         OffRouteWedgeState& wedge = runtime_state_.offroute;
+        if (const int64_t blind_ms = wedge.ResumeAt(now); blind_ms > 0) {
+            LogInfo << "Off-route wedge clock resumed after a blind stretch." << VAR(blind_ms) << VAR(route.progress_distance)
+                    << VAR(wedge.best_distance);
+        }
         const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
         if (!wedge.active || route.progress_distance + progress_epsilon < wedge.best_distance) {
             wedge.active = true;
