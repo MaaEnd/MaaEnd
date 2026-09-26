@@ -112,14 +112,20 @@ struct NavmeshAirLine
 
 // Whether the occluder pack blocks every line of each group. A group holds the alternative lines for one rope and
 // passes once any of them is clear; lines are asked in order and the rest are skipped after the first clear one.
-// Each line is intersected exactly with the triangles in the occluder pack, with zero margin: touching any face, from
-// either side or on an edge, blocks it. A blocked group gets one hit per line, in line order, namely the
+// Each line is intersected exactly with the mesh triangles in the occluder pack, terrain left out, with zero margin:
+// touching any face, from either side or on an edge, blocks it. A blocked group gets one hit per line, in line order, namely the
 // hit nearest to that line's start.
 // An empty result means some line is clear OR that no answer was available (zone unresolved, occluder pack missing,
 // scene absent), never "blocked", so the caller has to read it as a pass. One zone resolution and one pack decode
 // are shared by the whole batch.
 std::vector<std::vector<navmesh::OccluderHit>>
     NavmeshLineGroupBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<NavmeshAirLine>>& groups);
+
+// The height each structure base settles to in the occluder pack's collision world (see OccluderScene::groundHeight),
+// in the shape of bases. Where no answer is available (zone unresolved, occluder pack missing, scene absent) a base
+// keeps its own y. Resolves the zone and shares the decoded pack like NavmeshLineGroupBlocks.
+std::vector<std::vector<double>>
+    NavmeshGroundHeights(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<navmesh::OccluderPoint>>& bases);
 
 // The bake-time connectivity classes each point sits in. A route is searched inside one class only, so
 // two points whose sets are disjoint cannot be connected by any plan — a cheap way to drop legs that are

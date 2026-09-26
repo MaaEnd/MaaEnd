@@ -72,6 +72,22 @@ constexpr size_t kTreeMinTriangles = 8;
 constexpr uint32_t kLeafSize = 4;
 // 四元数除最大分量外的三个分量按 [-1/√2, 1/√2] 存。
 constexpr double kFrac1Sqrt2 = std::numbers::sqrt2 / 2.0;
+// 建筑落地只看塔底附近一个 1 m 见方的格,这是它的半宽(米)。格按整米对齐,与建造网格同一步长。
+constexpr double kSettleHalfWidth = 0.5;
+// 薄板从名义塔底上方这么多米处起落。名义塔底是建造格的整米高度,实际地面可能高出它,从上方起落才接得住。
+constexpr double kSettleLift = 1.0;
+// 薄板底面比起落高度低这么多米、顶面高这么多米。薄板只用来判断起落处是否已经贴着面,
+// 厚度只在面恰好停在起落高度附近万分之一米内时起作用,远小于绳与障碍之间的余量。
+constexpr double kSettlePlateBelow = 5e-5;
+constexpr double kSettlePlateAbove = 1.5e-4;
+// 面的最高点伸到板底下这么多米以内也算贴着,吸收浮点舍入。
+constexpr double kSettleTouch = 1e-5;
+// 薄板最多往下落这么多米找地,落到底还没碰上面就保留名义塔底。与 kSettleLift 一起盖住名义塔底上下各 1 m。
+constexpr double kSettleDrop = 2.0;
+// 落地结果离名义塔底最多这么多米。名义塔底按整米取,实际地面与它差不出这个范围。
+constexpr double kSettleClamp = 1.0;
+// 三角裁进竖直柱子后最多几个顶点:三角本身 3 个,四刀每刀最多多出一个。
+constexpr size_t kClipMaxVertices = 8;
 
 uint16_t ReadU16(const uint8_t*& cursor)
 {
@@ -168,6 +184,11 @@ Vec3 Add(const Vec3& a, const Vec3& b)
     return { a[0] + b[0], a[1] + b[1], a[2] + b[2] };
 }
 
+Vec3 Scale(const Vec3& v, double s)
+{
+    return { v[0] * s, v[1] * s, v[2] * s };
+}
+
 double Dot(const Vec3& a, const Vec3& b)
 {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
@@ -181,6 +202,11 @@ Vec3 Cross(const Vec3& a, const Vec3& b)
 Vec3 Mul(const Mat3& m, const Vec3& v)
 {
     return { Dot(m[0], v), Dot(m[1], v), Dot(m[2], v) };
+}
+
+double Det(const Mat3& m)
+{
+    return Dot(m[0], Cross(m[1], m[2]));
 }
 
 // 行列式恰为 0 或不是有限数(压扁成面、线的摆放)时没有逆。
@@ -291,6 +317,41 @@ bool SegTri(const Vec3& o, const Vec3& d, double d2, const Vec3& v0, const Vec3&
     }
     t = Dot(e2, q) * inv;
     return t >= 0.0 && t <= 1.0;
+}
+
+// 三角裁到竖直的柱子 [x0, x1] × [z0, z1] 里(边界上的也留),裁剩的多边形写进 poly,返回顶点数,裁没了是 0。
+size_t ClipToRect(const Vec3 (&tri)[3], double x0, double x1, double z0, double z1, std::array<Vec3, kClipMaxVertices>& poly)
+{
+    struct Cut
+    {
+        size_t axis;
+        double bound;
+        bool keep_above;
+    };
+    const Cut cuts[4] = { { 0, x0, true }, { 0, x1, false }, { 2, z0, true }, { 2, z1, false } };
+    std::copy(std::begin(tri), std::end(tri), poly.begin());
+    size_t count = 3;
+    std::array<Vec3, kClipMaxVertices> next {};
+    for (const Cut& cut : cuts) {
+        const auto inside = [&](const Vec3& p) { return cut.keep_above ? p[cut.axis] >= cut.bound : p[cut.axis] <= cut.bound; };
+        size_t kept = 0;
+        for (size_t i = 0; i < count; ++i) {
+            const Vec3& p = poly[i];
+            const Vec3& q = poly[(i + 1) % count];
+            if (inside(p)) {
+                next[kept++] = p;
+            }
+            if (inside(p) != inside(q)) {
+                next[kept++] = Add(p, Scale(Sub(q, p), (cut.bound - p[cut.axis]) / (q[cut.axis] - p[cut.axis])));
+            }
+        }
+        poly = next;
+        count = kept;
+        if (count == 0) {
+            break;
+        }
+    }
+    return count;
 }
 
 // double 向下、向上取到 float,保证 float 盒子装得下原来的盒子。
@@ -407,9 +468,20 @@ void BuildTree(
     nodes.shrink_to_fit();
 }
 
-// 沿树找线段碰得到的叶子,逐项交给 visit。对半分的树深不过 32 层,栈开 64 足够。
-template <typename Visit>
-void VisitTree(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& order, const Vec3& o, const Vec3& d, Visit&& visit)
+// 两个轴对齐盒碰不碰得到(第二个各面外扩 kBoxPad)。与 SegBox 一样,盒子变大时只会从不碰变成碰。
+bool BoxBox(const Vec3& lo, const Vec3& hi, const Vec3& other_lo, const Vec3& other_hi)
+{
+    for (size_t k = 0; k < 3; ++k) {
+        if (other_lo[k] - kBoxPad > hi[k] || other_hi[k] + kBoxPad < lo[k]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// 沿树找 reaches(节点盒)为真的叶子,逐项交给 visit。对半分的树深不过 32 层,栈开 64 足够。
+template <typename Reaches, typename Visit>
+void VisitTree(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& order, Reaches&& reaches, Visit&& visit)
 {
     if (nodes.empty()) {
         return;
@@ -422,7 +494,7 @@ void VisitTree(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& o
         const BoxNode& node = nodes[index];
         const Vec3 lo { node.lo[0], node.lo[1], node.lo[2] };
         const Vec3 hi { node.hi[0], node.hi[1], node.hi[2] };
-        if (!SegBox(o, d, lo, hi)) {
+        if (!reaches(lo, hi)) {
             continue;
         }
         if (node.count > 0) {
@@ -774,7 +846,8 @@ std::vector<OccluderHit> OccluderScene::lineHits(const OccluderPoint& start, con
         return hit;
     };
 
-    VisitTree(instance_nodes, instance_order, a, d, [&](uint32_t index) {
+    const auto reaches = [&](const Vec3& lo, const Vec3& hi) { return SegBox(a, d, lo, hi); };
+    VisitTree(instance_nodes, instance_order, reaches, [&](uint32_t index) {
         const Instance& inst = instances[index];
         if (!SegBox(a, d, inst.lo, inst.hi)) {
             return;
@@ -816,87 +889,11 @@ std::vector<OccluderHit> OccluderScene::lineHits(const OccluderPoint& start, con
             }
         }
         else {
-            VisitTree(tpl.nodes, tpl.order, la, ld, test);
+            const auto local_reaches = [&](const Vec3& lo, const Vec3& hi) { return SegBox(la, ld, lo, hi); };
+            VisitTree(tpl.nodes, tpl.order, local_reaches, test);
         }
     });
 
-    // 地形:线段在块里经过的每一行格,取它在这一行里的 x 范围,前后各多看一格
-    if (!blocks.empty()) {
-        const size_t n = block_n;
-        const double last = static_cast<double>(n - 2);
-        const double d2 = Dot(d, d);
-        for (uint32_t bi = 0; bi < blocks.size(); ++bi) {
-            const Block& block = blocks[bi];
-            if (!SegBox(a, d, block.lo, block.hi)) {
-                continue;
-            }
-            const auto sample = [&](size_t u, size_t v) {
-                return Vec3 { block.x0 + static_cast<double>(u) * cell,
-                              lattice_a + lattice_b * static_cast<double>(block.k[v * n + u]),
-                              block.z0 + static_cast<double>(v) * cell };
-            };
-            const double za = std::fmin(a[2], a[2] + d[2]);
-            const double zb = std::fmax(a[2], a[2] + d[2]);
-            const double r0 = std::fmax(std::floor((za - block.z0) / cell) - 1.0, 0.0);
-            const double r1 = std::fmin(std::floor((zb - block.z0) / cell) + 1.0, last);
-            if (!(r0 <= r1)) {
-                continue;
-            }
-            for (size_t v = static_cast<size_t>(r0); v <= static_cast<size_t>(r1); ++v) {
-                const double zl = block.z0 + static_cast<double>(v) * cell;
-                const double zh = block.z0 + static_cast<double>(v + 1) * cell;
-                double s0 = 0.0;
-                double s1 = 1.0;
-                if (d[2] == 0.0) {
-                    if (a[2] < zl - cell || a[2] > zh + cell) {
-                        continue;
-                    }
-                }
-                else {
-                    const double p = (zl - a[2]) / d[2];
-                    const double q = (zh - a[2]) / d[2];
-                    s0 = std::fmax(std::fmin(p, q), 0.0);
-                    s1 = std::fmin(std::fmax(p, q), 1.0);
-                }
-                if (s0 > s1) {
-                    continue;
-                }
-                const double xa = a[0] + d[0] * s0;
-                const double xb = a[0] + d[0] * s1;
-                const double c0 = std::fmax(std::floor((std::fmin(xa, xb) - block.x0) / cell) - 1.0, 0.0);
-                const double c1 = std::fmin(std::floor((std::fmax(xa, xb) - block.x0) / cell) + 1.0, last);
-                if (!(c0 <= c1)) {
-                    continue;
-                }
-                for (size_t u = static_cast<size_t>(c0); u <= static_cast<size_t>(c1); ++u) {
-                    const size_t c = v * (n - 1) + u;
-                    if (!block.holes.empty() && ((block.holes[c / 8] >> (c % 8)) & 1U) != 0) {
-                        continue;
-                    }
-                    const Vec3 p00 = sample(u, v);
-                    const Vec3 p01 = sample(u, v + 1);
-                    const Vec3 p10 = sample(u + 1, v);
-                    const Vec3 p11 = sample(u + 1, v + 1);
-                    const Vec3 tris[2][3] = { { p00, p01, p10 }, { p10, p01, p11 } };
-                    for (size_t k = 0; k < 2; ++k) {
-                        double s = 0.0;
-                        if (SegTri(a, d, d2, tris[k][0], tris[k][1], tris[k][2], s)) {
-                            OccluderHit& hit = push(s);
-                            hit.terrain = true;
-                            hit.block = bi;
-                            hit.u = static_cast<uint32_t>(u);
-                            hit.v = static_cast<uint32_t>(v);
-                            hit.second = k == 1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    const auto key = [](const OccluderHit& hit) {
-        return std::make_tuple(hit.terrain, hit.terrain ? hit.block : hit.instance, hit.terrain ? hit.u : hit.triangle, hit.v, hit.second);
-    };
     std::sort(out.begin(), out.end(), [&](const OccluderHit& x, const OccluderHit& y) {
         if (x.s != y.s) {
             return x.s < y.s;
@@ -904,9 +901,152 @@ std::vector<OccluderHit> OccluderScene::lineHits(const OccluderPoint& start, con
         if (std::signbit(x.s) != std::signbit(y.s)) {
             return std::signbit(x.s);
         }
-        return key(x) < key(y);
+        return std::tie(x.instance, x.triangle) < std::tie(y.instance, y.triangle);
     });
     return out;
+}
+
+double OccluderScene::groundHeight(const OccluderPoint& base) const
+{
+    const double x0 = std::floor(base.x - kSettleHalfWidth);
+    const double z0 = std::floor(base.z - kSettleHalfWidth);
+    const double x1 = x0 + 2.0 * kSettleHalfWidth;
+    const double z1 = z0 + 2.0 * kSettleHalfWidth;
+    const double start = base.y + kSettleLift;
+    const double bottom = start - kSettlePlateBelow;
+    const double top = start + kSettlePlateAbove;
+    const Vec3 lo { x0, bottom - kSettleDrop, z0 };
+    const Vec3 hi { x1, top, z1 };
+
+    // 盒子里的每个面,放到世界里,记下朝不朝上
+    struct Face
+    {
+        Vec3 v[3];
+        bool up = false;
+    };
+    std::vector<Face> faces;
+    const auto reaches = [&](const Vec3& node_lo, const Vec3& node_hi) { return BoxBox(lo, hi, node_lo, node_hi); };
+    VisitTree(instance_nodes, instance_order, reaches, [&](uint32_t index) {
+        const Instance& inst = instances[index];
+        if (!BoxBox(lo, hi, inst.lo, inst.hi)) {
+            return;
+        }
+        Mat3 a = inst.m;
+        if (inst.invertible && !Inverse(inst.m, a)) {
+            return;
+        }
+        // 镜像的摆放把绕序反过来,朝向跟着翻
+        const double facing = Det(a) < 0.0 ? -1.0 : 1.0;
+        const Template& tpl = templates[inst.tpl];
+        const auto take = [&](uint32_t k) {
+            Face face;
+            for (size_t c = 0; c < 3; ++c) {
+                face.v[c] = Add(Mul(a, tpl.verts[tpl.tris[k][c]]), inst.t);
+            }
+            face.up = facing * Cross(Sub(face.v[1], face.v[0]), Sub(face.v[2], face.v[0]))[1] < 0.0;
+            faces.push_back(face);
+        };
+        if (!inst.invertible || tpl.nodes.empty()) {
+            for (uint32_t k = 0; k < tpl.tris.size(); ++k) {
+                take(k);
+            }
+            return;
+        }
+        // 盒子八个角换进模板局部系,取装得下它们的盒子去问模板的树
+        Vec3 local_lo;
+        Vec3 local_hi;
+        local_lo.fill(std::numeric_limits<double>::infinity());
+        local_hi.fill(-std::numeric_limits<double>::infinity());
+        for (uint32_t corner = 0; corner < 8; ++corner) {
+            Vec3 w;
+            for (size_t j = 0; j < 3; ++j) {
+                w[j] = ((corner >> j) & 1U) == 0 ? lo[j] : hi[j];
+            }
+            const Vec3 l = Mul(inst.m, Sub(w, inst.t));
+            for (size_t j = 0; j < 3; ++j) {
+                local_lo[j] = std::fmin(local_lo[j], l[j]);
+                local_hi[j] = std::fmax(local_hi[j], l[j]);
+            }
+        }
+        const auto local_reaches = [&](const Vec3& node_lo, const Vec3& node_hi) { return BoxBox(local_lo, local_hi, node_lo, node_hi); };
+        VisitTree(tpl.nodes, tpl.order, local_reaches, take);
+    });
+    // 地形处处朝上;挖了洞的格没有面
+    const size_t n = block_n;
+    for (const Block& block : blocks) {
+        if (!BoxBox(lo, hi, block.lo, block.hi)) {
+            continue;
+        }
+        const double last = static_cast<double>(n - 2);
+        const double u0 = std::fmax(std::floor((x0 - block.x0) / cell) - 1.0, 0.0);
+        const double u1 = std::fmin(std::floor((x1 - block.x0) / cell) + 1.0, last);
+        const double v0 = std::fmax(std::floor((z0 - block.z0) / cell) - 1.0, 0.0);
+        const double v1 = std::fmin(std::floor((z1 - block.z0) / cell) + 1.0, last);
+        if (!(u0 <= u1 && v0 <= v1)) {
+            continue;
+        }
+        const auto sample = [&](size_t u, size_t v) {
+            return Vec3 { block.x0 + static_cast<double>(u) * cell,
+                          lattice_a + lattice_b * static_cast<double>(block.k[v * n + u]),
+                          block.z0 + static_cast<double>(v) * cell };
+        };
+        for (size_t v = static_cast<size_t>(v0); v <= static_cast<size_t>(v1); ++v) {
+            for (size_t u = static_cast<size_t>(u0); u <= static_cast<size_t>(u1); ++u) {
+                const size_t c = v * (n - 1) + u;
+                if (!block.holes.empty() && ((block.holes[c / 8] >> (c % 8)) & 1U) != 0) {
+                    continue;
+                }
+                const Vec3 p00 = sample(u, v);
+                const Vec3 p01 = sample(u, v + 1);
+                const Vec3 p10 = sample(u + 1, v);
+                const Vec3 p11 = sample(u + 1, v + 1);
+                faces.push_back(Face { .v = { p00, p01, p10 }, .up = true });
+                faces.push_back(Face { .v = { p10, p01, p11 }, .up = true });
+            }
+        }
+    }
+
+    // 每个面裁到占地格里,看它的高度范围:贴上薄板就是原地碰上了,否则薄板往下落时先碰到最高的那个朝上面
+    bool touching = false;
+    double landed = -std::numeric_limits<double>::infinity();
+    for (const Face& face : faces) {
+        std::array<Vec3, kClipMaxVertices> poly;
+        const size_t count = ClipToRect(face.v, x0, x1, z0, z1, poly);
+        if (count == 0) {
+            continue;
+        }
+        double y_lo = std::numeric_limits<double>::infinity();
+        double y_hi = -std::numeric_limits<double>::infinity();
+        for (size_t i = 0; i < count; ++i) {
+            y_lo = std::fmin(y_lo, poly[i][1]);
+            y_hi = std::fmax(y_hi, poly[i][1]);
+        }
+        if (y_hi >= bottom - kSettleTouch && y_lo <= top) {
+            touching = true;
+        }
+        else if (face.up && y_hi < bottom && y_hi >= bottom - kSettleDrop) {
+            landed = std::fmax(landed, y_hi);
+        }
+    }
+    // 原地碰上时改从占地四个角往下看,取最高的朝上面
+    if (touching) {
+        landed = -std::numeric_limits<double>::infinity();
+        const Vec3 d { 0.0, -kSettleDrop, 0.0 };
+        const double d2 = Dot(d, d);
+        for (const double cx : { x0, x1 }) {
+            for (const double cz : { z0, z1 }) {
+                const Vec3 o { cx, start, cz };
+                for (const Face& face : faces) {
+                    double s = 0.0;
+                    if (face.up && SegTri(o, d, d2, face.v[0], face.v[1], face.v[2], s)) {
+                        landed = std::fmax(landed, start + d[1] * s);
+                    }
+                }
+            }
+        }
+    }
+    const double ground = std::isfinite(landed) ? landed : base.y;
+    return std::fmin(std::fmax(ground, base.y - kSettleClamp), base.y + kSettleClamp);
 }
 
 std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, size_t size, std::string_view zone_name)

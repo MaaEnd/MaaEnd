@@ -1632,6 +1632,32 @@ std::vector<std::vector<navmesh::OccluderHit>>
     return blocks;
 }
 
+std::vector<std::vector<double>>
+    NavmeshGroundHeights(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<navmesh::OccluderPoint>>& bases)
+{
+    std::vector<std::vector<double>> heights(bases.size());
+    for (size_t index = 0; index < bases.size(); ++index) {
+        for (const navmesh::OccluderPoint& base : bases[index]) {
+            heights[index].push_back(base.y);
+        }
+    }
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    if (navmesh_zone.empty()) {
+        return heights;
+    }
+    // A missing scene is already logged by the loader and warned about by the line test.
+    const auto scene = LoadCachedOccluder(navmesh::OccluderSidecarPath(ResolveNavmeshFile(param.navmesh_file)), navmesh_zone);
+    if (!scene) {
+        return heights;
+    }
+    for (size_t index = 0; index < bases.size(); ++index) {
+        for (size_t k = 0; k < bases[index].size(); ++k) {
+            heights[index][k] = scene->groundHeight(bases[index][k]);
+        }
+    }
+    return heights;
+}
+
 std::vector<std::vector<uint32_t>>
     NavmeshRegionsNear(const NaviParam& param, const std::string& locator_zone, const std::vector<navmesh::WorldPoint>& points)
 {
