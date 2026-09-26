@@ -5,6 +5,70 @@
     //   300002538 → [1001.5, 1067.2]
     //   300001874 → [965.9, 1113.8]
     //   300002665 → [958.7, 1217.7]
+    "SharedZiplineDeleteEnterVFAburreyQuarry": {
+        "desc": "阿伯莉采石场：直接传送到本区锚点",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteTeleportVFAburreyQuarry"
+        ]
+    },
+    "SharedZiplineDeleteTeleportVFAburreyQuarry": {
+        "desc": "阿伯莉采石场：传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVAburreyQuarry0"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteWalkOffVFAburreyQuarry"
+        ]
+    },
+    "SharedZiplineDeleteWalkOffVFAburreyQuarry": {
+        "desc": "传送落地后寻路走开，避免挡住锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        886.05,
+                        1015.48
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapVFAburreyQuarry"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapVFAburreyQuarry": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVAburreyQuarry"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVAburreyQuarry"
+        ]
+    },
     "SharedZiplineDeletePrepareValleyIVAburreyQuarry": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

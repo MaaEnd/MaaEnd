@@ -5,6 +5,70 @@
     //   2800001509 → [677.0, 225.6]
     //   2800001338 → [561.8, 288.0]
     //   2800001519 → [649.8, 382.1]
+    "SharedZiplineDeleteEnterVFPowerPlateau": {
+        "desc": "供能高地：直接传送到本区锚点",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteTeleportVFPowerPlateau"
+        ]
+    },
+    "SharedZiplineDeleteTeleportVFPowerPlateau": {
+        "desc": "供能高地：传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVPowerPlateau1"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteWalkOffVFPowerPlateau"
+        ]
+    },
+    "SharedZiplineDeleteWalkOffVFPowerPlateau": {
+        "desc": "传送落地后寻路走开，避免挡住锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        669.07,
+                        214.41
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapVFPowerPlateau"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapVFPowerPlateau": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVPowerPlateau"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVPowerPlateau"
+        ]
+    },
     "SharedZiplineDeletePrepareValleyIVPowerPlateau": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

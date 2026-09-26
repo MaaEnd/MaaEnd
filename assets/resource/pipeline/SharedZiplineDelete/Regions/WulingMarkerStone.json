@@ -5,6 +5,70 @@
     //   23400083248 → [411.9, 2231.5]
     //   23400083106 → [590.9, 2243.1]
     //   23400083315 → [503.8, 2582.6]  // 地下点，Visit next 含 SceneMapLayerSwitchToMain
+    "SharedZiplineDeleteEnterWLMarkerStone": {
+        "desc": "首墩：直接传送到本区锚点",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteTeleportWLMarkerStone"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLMarkerStone": {
+        "desc": "首墩：传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingMarkerStone3"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteWalkOffWLMarkerStone"
+        ]
+    },
+    "SharedZiplineDeleteWalkOffWLMarkerStone": {
+        "desc": "传送落地后寻路走开，避免挡住锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        615.21,
+                        2239.35
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapWLMarkerStone"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapWLMarkerStone": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingMarkerStone"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingMarkerStone"
+        ]
+    },
     "SharedZiplineDeletePrepareWulingMarkerStone": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

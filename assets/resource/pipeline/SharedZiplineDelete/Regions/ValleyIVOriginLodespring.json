@@ -6,6 +6,70 @@
     //   3500031061 → [1170.2, 320.3]
     //   3500031060 → [1100.6, 457.3]
     //   3500031199 → [1226.5, 562.8]
+    "SharedZiplineDeleteEnterVFOriginLodespring": {
+        "desc": "矿脉源区：直接传送到本区锚点",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteTeleportVFOriginLodespring"
+        ]
+    },
+    "SharedZiplineDeleteTeleportVFOriginLodespring": {
+        "desc": "矿脉源区：传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldValleyIVOriginLodespring3"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteWalkOffVFOriginLodespring"
+        ]
+    },
+    "SharedZiplineDeleteWalkOffVFOriginLodespring": {
+        "desc": "传送落地后寻路走开，避免挡住锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1109.86,
+                        445.28
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapVFOriginLodespring"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapVFOriginLodespring": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapValleyIVOriginLodespring"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareValleyIVOriginLodespring"
+        ]
+    },
     "SharedZiplineDeletePrepareValleyIVOriginLodespring": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",

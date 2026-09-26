@@ -8,6 +8,70 @@
     //   36100010474 → [1599.6, 991.3]
     //   36100010458 → [1597.0, 1073.1]
     //   36100010467 → [1721.7, 992.5]
+    "SharedZiplineDeleteEnterWLSnowyForest": {
+        "desc": "雪松林：直接传送到本区锚点",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteTeleportWLSnowyForest"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLSnowyForest": {
+        "desc": "雪松林：传送到本区锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingSnowyForest2"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteWalkOffWLSnowyForest"
+        ]
+    },
+    "SharedZiplineDeleteWalkOffWLSnowyForest": {
+        "desc": "传送落地后寻路走开，避免挡住锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1519.92,
+                        980.17
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteOpenMapWLSnowyForest"
+        ]
+    },
+    "SharedZiplineDeleteOpenMapWLSnowyForest": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMapWulingSnowyForest"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeletePrepareWulingSnowyForest"
+        ]
+    },
     "SharedZiplineDeletePrepareWulingSnowyForest": {
         "next": [
             "[JumpBack]SceneMapLayerSwitchToMain",
