@@ -1081,7 +1081,7 @@
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label": "3天内",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days7.label": "7天内",
     "task.AutoUseSpMedication.focus.restore_sanity": "补充理智",
-    "task.AutoCollect.description": "自动采集野外资源（需一直保持前台，不要乱动鼠标）\n 注意，作物没有完全生长齐的时候作物会随机生长，会导致收集不齐的情况。\n 受限于识别精度即使齐了也会有个别无法收集",
+    "task.AutoCollect.description": "自动采集野外资源\n 注意，作物没有完全生长齐的时候作物会随机生长，会导致收集不齐的情况。\n <span style=\"color: green;\"> 矿石任务建议使用远程角色</span>",
     "task.AutoCollect.label": "🧺自动采集",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "任务前后存放背包",
     "task.AutoCollect.focus.inventory_ready": "仓库库存同步完成，开始按目标库存筛选采集路线",
