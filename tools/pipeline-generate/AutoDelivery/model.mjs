@@ -74,17 +74,17 @@ function readOffset(value, label) {
 }
 
 // 交货图标模板只有十几像素，目标周围还有别的角色时，图标匹配可能命中别人的交互提示。
-// name_check 让到达判定额外复核交互提示中的角色名，只有提示里出现该终点的名称才算到位；
+// verify_name 让到达判定额外复核交互提示中的角色名，只有提示里出现该终点的名称才算到位；
 // 提示文本随游戏语言变化，运行时用目录里的五语言名称匹配。
-function readNameCheck(value, label, kind) {
+function readVerifyName(value, label, kind) {
     if (value === undefined) {
         return false;
     }
     if (typeof value !== "boolean") {
-        throw new TypeError(`[AutoDelivery] ${label}.name_check 必须是布尔值`);
+        throw new TypeError(`[AutoDelivery] ${label}.verify_name 必须是布尔值`);
     }
     if (value && kind !== "npc") {
-        throw new Error(`[AutoDelivery] ${label}.name_check 只支持 NPC 终点，${kind} 终点的交互提示不显示终点名称`);
+        throw new Error(`[AutoDelivery] ${label}.verify_name 只支持 NPC 终点，${kind} 终点的交互提示不显示终点名称`);
     }
     return value;
 }
@@ -364,7 +364,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
         const override = destinationOverrides.get(id);
         assertAutoGenerationOverrideUsed(override, `终点 ${id}`);
         const {walkOnly, ziplineOnly} = readRouteMode(override, `终点 ${id}`);
-        const nameCheck = readNameCheck(override?.name_check, `终点 ${id}`, source.kind);
+        const verifyName = readVerifyName(override?.verify_name, `终点 ${id}`, source.kind);
         const yaw = readYawOverride(override?.yaw, `终点 ${id}`);
         const offset = readOffset(override?.offset, `终点 ${id}`);
         const withApproachPoint = source.kind === "recycle_bin";
@@ -414,7 +414,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             retryPath,
             walkOnly,
             ziplineOnly,
-            nameCheck,
+            verifyName,
             routeNode: buildRouteNode("Destination", id),
             zipRouteNode: buildRouteNode("Destination", id, true),
             retryRouteNode: buildRouteNode("DestinationRetry", id),
@@ -456,7 +456,7 @@ export const runtimeCatalog = {
         route_node: item.routeNode,
         zip_route_node: item.zipRouteNode,
         ...(item.ziplineOnly ? {zipline_only: true} : {}),
-        ...(item.nameCheck ? {name_check: true} : {}),
+        ...(item.verifyName ? {verify_name: true} : {}),
         ...(item.retryRouteNode ? {retry_route_node: item.retryRouteNode} : {}),
     })),
 };

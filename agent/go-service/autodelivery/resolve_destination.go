@@ -151,7 +151,7 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		Float64("areaRunnerUpSimilarity", match.AreaRunnerUp).
 		Str("area", dest.AreaID).
 		Bool("zip", options.Zip).
-		Bool("nameCheck", dest.NameCheck).
+		Bool("verifyName", dest.VerifyName).
 		Str("routeNode", selectRouteNode(dest.RouteNode, dest.ZipRouteNode, options.Zip)).
 		Str("retryRouteNode", dest.RetryRouteNode).
 		Msg("resolved delivery job destination")
@@ -195,7 +195,7 @@ func buildDestinationNavigationOverride(dest destination, zip bool) map[string]a
 	// 开启名称复核的终点额外要求提示文本命中该终点的名称；每次解析都显式重写 all_of，
 	// 避免上一个终点开启的复核残留到本次流程。
 	submitGoodsAllOf := []string{submitGoodsButtonNode}
-	if dest.NameCheck {
+	if dest.VerifyName {
 		submitGoodsAllOf = append(submitGoodsAllOf, submitGoodsNameNode)
 		override[submitGoodsNameNode] = map[string]any{
 			"expected": nameExpectations(dest),
