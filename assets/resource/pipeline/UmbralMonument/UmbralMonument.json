@@ -1,0 +1,998 @@
+{
+    "UmbralMonumentMain": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverride",
+        "custom_action_param": {
+            "patch": {
+                "UmbralMonumentSelectSeason": {
+                    "attach": {
+                        "visited": []
+                    }
+                },
+                "UmbralMonumentSeasonsStart": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "UmbralMonumentSeasonsEnd": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentOverview",
+            "UmbralMonumentBackFromStage",
+            "UmbralMonumentBackFromTeam",
+            "UmbralMonumentManual",
+            "[JumpBack]SceneEnterMenuOperationalManual"
+        ]
+    },
+    "UmbralMonumentManual": {
+        "recognition": "And",
+        "all_of": [
+            "InOperationalManual"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentEntrance",
+            "UmbralMonumentPermanent"
+        ]
+    },
+    "UmbralMonumentPermanent": {
+        "recognition": "OCR",
+        "roi": [
+            150,
+            110,
+            1010,
+            80
+        ],
+        "expected": [
+            "常驻"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentEntrance"
+        ]
+    },
+    "UmbralMonumentEntrance": {
+        "recognition": "OCR",
+        "roi": [
+            150,
+            190,
+            1000,
+            180
+        ],
+        "expected": [
+            "影拓丰碑"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentOverview"
+        ]
+    },
+    "UmbralMonumentSeasonPage": {
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            250,
+            65
+        ],
+        "expected": [
+            "影拓丰碑"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentMode": {
+        "recognition": "OCR",
+        "roi": [
+            775,
+            630,
+            140,
+            70
+        ],
+        "expected": [
+            "苦难模式"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentQuickTeam": {
+        "recognition": "OCR",
+        "roi": [
+            885,
+            635,
+            150,
+            65
+        ],
+        "expected": [
+            "快捷编队"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentChallengeButton": {
+        "recognition": "OCR",
+        "roi": [
+            1040,
+            632,
+            230,
+            70
+        ],
+        "expected": [
+            "挑战影拓丰碑"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentVictoryTitle": {
+        "recognition": "OCR",
+        "roi": [
+            500,
+            55,
+            280,
+            90
+        ],
+        "expected": [
+            "获得奖励"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentLeaveButton": {
+        "recognition": "OCR",
+        "roi": [
+            600,
+            550,
+            500,
+            140
+        ],
+        "expected": [
+            "离开"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentBackFromStage": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentOverview",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "UmbralMonumentBackFromTeam": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentQuickTeam",
+            "UmbralMonumentChallengeButton"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentBackFromStage"
+        ]
+    },
+    "UmbralMonumentOverview": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentSeasonPage"
+        ],
+        "pre_wait_freezes": {
+            "time": 250,
+            "target": [
+                20,
+                552,
+                1220,
+                47
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSeasonsRewound",
+            "UmbralMonumentRewindSeasons"
+        ]
+    },
+    "UmbralMonumentSeasonsStart": {
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "roi": [
+            20,
+            552,
+            1220,
+            47
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "attach": {
+            "ready": false
+        }
+    },
+    "UmbralMonumentSeasonsEnd": {
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "roi": [
+            20,
+            552,
+            1220,
+            47
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "attach": {
+            "ready": false
+        }
+    },
+    "UmbralMonumentStagesStart": {
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "roi": [
+            25,
+            85,
+            245,
+            435
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "attach": {
+            "ready": false
+        }
+    },
+    "UmbralMonumentStagesEnd": {
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "roi": [
+            25,
+            85,
+            245,
+            435
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "attach": {
+            "ready": false
+        }
+    },
+    "UmbralMonumentSeasonsRewound": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentSeasonPage",
+            "UmbralMonumentSeasonsStart"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSelectSeason",
+            "UmbralMonumentSeasonsDone",
+            "UmbralMonumentSwipeSeasons"
+        ]
+    },
+    "UmbralMonumentRewindSeasons": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentSeasonPage"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            350,
+            420
+        ],
+        "end": [
+            1080,
+            420
+        ],
+        "end_hold": 150,
+        "duration": 650,
+        "post_wait_freezes": {
+            "time": 250,
+            "target": [
+                20,
+                552,
+                1220,
+                47
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSeasonsRewound",
+            "UmbralMonumentRewindSeasons"
+        ]
+    },
+    "UmbralMonumentSwipeSeasons": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentSeasonPage"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            1080,
+            420
+        ],
+        "end": [
+            350,
+            420
+        ],
+        "end_hold": 150,
+        "duration": 650,
+        "post_wait_freezes": {
+            "time": 250,
+            "target": [
+                20,
+                552,
+                1220,
+                47
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSelectSeason",
+            "UmbralMonumentSeasonsDone",
+            "UmbralMonumentSwipeSeasons"
+        ]
+    },
+    "UmbralMonumentStagesRewound": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentStagesStart"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSelectStage",
+            "UmbralMonumentStagesDone",
+            "UmbralMonumentSwipeStages"
+        ]
+    },
+    "UmbralMonumentRewindStages": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            185,
+            175
+        ],
+        "end": [
+            185,
+            455
+        ],
+        "end_hold": 150,
+        "duration": 650,
+        "post_wait_freezes": {
+            "time": 250,
+            "target": [
+                25,
+                85,
+                245,
+                435
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentStagesRewound",
+            "UmbralMonumentRewindStages"
+        ]
+    },
+    "UmbralMonumentSwipeStages": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode"
+        ],
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            185,
+            455
+        ],
+        "end": [
+            185,
+            175
+        ],
+        "end_hold": 150,
+        "duration": 650,
+        "post_wait_freezes": {
+            "time": 250,
+            "target": [
+                25,
+                85,
+                245,
+                435
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSelectStage",
+            "UmbralMonumentStagesDone",
+            "UmbralMonumentSwipeStages"
+        ]
+    },
+    "UmbralMonumentSeasonsDone": {
+        "desc": "所有可见赛季均已处理且横向列表不再变化",
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentSeasonPage",
+            "UmbralMonumentSeasonsEnd"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": []
+    },
+    "UmbralMonumentStagesDone": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentStagesEnd"
+        ],
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentBackToSeasons",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "UmbralMonumentBackToSeasons": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentSeasonPage"
+        ],
+        "pre_wait_freezes": {
+            "time": 250,
+            "target": [
+                20,
+                552,
+                1220,
+                47
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSelectSeason",
+            "UmbralMonumentSeasonsDone",
+            "UmbralMonumentSwipeSeasons"
+        ]
+    },
+    "UmbralMonumentSeasons": {
+        "desc": "读取动态名称，不截断匹配固定文案",
+        "recognition": "OCR",
+        "roi": [
+            35,
+            552,
+            1125,
+            47
+        ],
+        "expected": [
+            // @i18n-skip -- 赛季/关卡名称随内容变化，排除英文装饰文字
+            "[一-龥]{2,}"
+        ],
+        "threshold": 0.7,
+        "order_by": "Horizontal",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentSeasonCandidate": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentSeasonPage",
+            "UmbralMonumentSeasons"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentSelectSeason": {
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "UmbralMonumentSeasonCandidate"
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSeasonOpened"
+        ],
+        "attach": {
+            "visited": []
+        }
+    },
+    "UmbralMonumentStages": {
+        "desc": "读取动态名称，不截断匹配固定文案",
+        "recognition": "OCR",
+        "roi": [
+            75,
+            85,
+            175,
+            435
+        ],
+        "expected": [
+            // @i18n-skip -- 赛季/关卡名称随内容变化，排除英文装饰文字
+            "[一-龥]{2,}"
+        ],
+        "threshold": 0.7,
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentStageCandidate": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentStages"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentSelectStage": {
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "UmbralMonumentStageCandidate"
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSelected"
+        ],
+        "attach": {
+            "visited": []
+        }
+    },
+    "UmbralMonumentSeasonOpened": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode"
+        ],
+        "pre_wait_freezes": {
+            "time": 250,
+            "target": [
+                25,
+                85,
+                245,
+                435
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverride",
+        "custom_action_param": {
+            "patch": {
+                "UmbralMonumentSelectStage": {
+                    "attach": {
+                        "visited": []
+                    }
+                },
+                "UmbralMonumentStages": {
+                    "expected": [
+                        "[一-龥]{2,}"
+                    ]
+                },
+                "UmbralMonumentStagesStart": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "UmbralMonumentStagesEnd": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "UmbralMonumentSeasonsEnd": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentStagesRewound",
+            "UmbralMonumentRewindStages"
+        ]
+    },
+    "UmbralMonumentSelectedRow": {
+        "recognition": "ColorMatch",
+        "roi": "UmbralMonumentSelectStage",
+        "roi_offset": [
+            80,
+            0,
+            0,
+            0
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            200
+        ],
+        "upper": [
+            180,
+            40,
+            255
+        ],
+        "count": 300,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentSelected": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentSelectedRow"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentHardComplete",
+            "UmbralMonumentNormalComplete",
+            "UmbralMonumentNormal"
+        ]
+    },
+    "UmbralMonumentHardComplete": {
+        "recognition": "ColorMatch",
+        "roi": "UmbralMonumentSelectStage",
+        "roi_offset": [
+            -30,
+            0,
+            0,
+            0
+        ],
+        "method": 40,
+        "lower": [
+            18,
+            90,
+            140
+        ],
+        "upper": [
+            40,
+            255,
+            255
+        ],
+        "count": 8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentResume"
+        ]
+    },
+    "UmbralMonumentNormalComplete": {
+        "recognition": "ColorMatch",
+        "roi": "UmbralMonumentSelectStage",
+        "roi_offset": [
+            -30,
+            0,
+            0,
+            0
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            90,
+            130
+        ],
+        "upper": [
+            10,
+            255,
+            255
+        ],
+        "count": 8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentHard",
+            "UmbralMonumentResume"
+        ]
+    },
+    "UmbralMonumentNormalOn": {
+        "recognition": "ColorMatch",
+        "roi": [
+            974,
+            653,
+            42,
+            16
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            100
+        ],
+        "upper": [
+            180,
+            45,
+            255
+        ],
+        "count": 300,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentHardOn": {
+        "recognition": "ColorMatch",
+        "roi": [
+            914,
+            653,
+            42,
+            16
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            140
+        ],
+        "upper": [
+            180,
+            45,
+            255
+        ],
+        "count": 300,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "UmbralMonumentNormal": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentNormalReady",
+            "UmbralMonumentSwitchNormal"
+        ]
+    },
+    "UmbralMonumentNormalReady": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentNormalOn"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "UmbralMonumentAfterVictory": "UmbralMonumentAfterNormal"
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentChallenge"
+        ]
+    },
+    "UmbralMonumentSwitchNormal": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentHardOn"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            985,
+            650,
+            25,
+            25
+        ],
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentNormalReady"
+        ]
+    },
+    "UmbralMonumentHard": {
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentHardReady",
+            "UmbralMonumentSwitchHard"
+        ]
+    },
+    "UmbralMonumentHardReady": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentHardOn"
+        ],
+        "pre_delay": 0,
+        "anchor": {
+            "UmbralMonumentAfterVictory": "UmbralMonumentResume"
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentChallenge"
+        ]
+    },
+    "UmbralMonumentSwitchHard": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentNormalOn"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            926,
+            650,
+            25,
+            25
+        ],
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentHardReady"
+        ]
+    },
+    "UmbralMonumentAfterNormal": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentSelectedRow"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentHard",
+            "UmbralMonumentResume"
+        ]
+    },
+    "UmbralMonumentChallenge": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentChallengeButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentPrepare",
+            "UmbralMonumentVictory",
+            "UmbralMonumentFailure",
+            "UmbralMonumentCombat",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "UmbralMonumentPrepare": {
+        "desc": "选关之后的编队确认页，仍需点击黄色的「挑战影拓丰碑」",
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentQuickTeam",
+            "UmbralMonumentChallengeButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentVictory",
+            "UmbralMonumentFailure",
+            "UmbralMonumentCombat",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "UmbralMonumentCombat": {
+        "recognition": "And",
+        "all_of": [
+            "AutoFight"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoFight"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentVictory",
+            "UmbralMonumentFailure",
+            "UmbralMonumentResume",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "UmbralMonumentVictory": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentVictoryTitle",
+            "UmbralMonumentLeaveButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentVictoryReturned",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "UmbralMonumentFailure": {
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceOperationFailed",
+            "UmbralMonumentLeaveButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentResume",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "UmbralMonumentVictoryReturned": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode",
+            "UmbralMonumentSelectedRow"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[Anchor]UmbralMonumentAfterVictory"
+        ]
+    },
+    "UmbralMonumentResume": {
+        "recognition": "And",
+        "all_of": [
+            "UmbralMonumentMode"
+        ],
+        "pre_wait_freezes": {
+            "time": 250,
+            "target": [
+                25,
+                85,
+                245,
+                435
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverride",
+        "custom_action_param": {
+            "patch": {
+                "UmbralMonumentStagesEnd": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "UmbralMonumentSelectStage",
+            "UmbralMonumentStagesDone",
+            "UmbralMonumentSwipeStages"
+        ]
+    }
+}
