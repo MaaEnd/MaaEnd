@@ -40,6 +40,12 @@ type params struct {
 	Whitelist string `json:"whitelist"`
 }
 
+type ocrCandidate struct {
+	text string
+	key  string
+	box  maa.Rect
+}
+
 // Run implements maa.CustomRecognitionRunner.
 func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if ctx == nil || arg == nil {
@@ -88,57 +94,45 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
-	text, ok := extractText(ctx, p.Candidate, detail)
-	if !ok || text == "" {
-		log.Warn().Str("component", componentName).Str("candidate", p.Candidate).Msg("hit but text missing")
-		return nil, false
-	}
-	key, err := applyKeyRegex(text, p.KeyRegex)
+	candidates, err := extractCandidates(ctx, p.Candidate, detail, p.KeyRegex)
 	if err != nil {
-		log.Error().Err(err).Str("component", componentName).Str("key_regex", p.KeyRegex).Msg("apply key_regex failed")
-		return nil, false
-	}
-	if key == "" {
-		log.Warn().Str("component", componentName).Str("text", text).Msg("visited key empty after key_regex")
-		return nil, false
-	}
-	if !matchWhitelist(p.Whitelist, key) {
-		log.Warn().
-			Str("component", componentName).
-			Str("text", text).
-			Str("key", key).
-			Str("whitelist", p.Whitelist).
-			Msg("key not in whitelist, reject")
-		return nil, false
-	}
-	if containsVisited(visited, key) {
-		// 黑名单本应挡住；仍命中则拒绝，避免同一 key 重复入库。
-		log.Warn().
-			Str("component", componentName).
-			Str("text", text).
-			Str("key", key).
-			Strs("visited", visited).
-			Msg("key already visited, reject")
+		log.Error().Err(err).Str("component", componentName).Str("candidate", p.Candidate).Msg("extract OCR candidates failed")
 		return nil, false
 	}
 
-	newVisited := append(append([]string{}, visited...), key)
+	if len(candidates) == 0 {
+		log.Warn().Str("component", componentName).Str("candidate", p.Candidate).Msg("hit but text missing")
+		return nil, false
+	}
+
+	selected, ok := selectCandidate(candidates, p.Whitelist, visited)
+	if !ok {
+		log.Info().
+			Str("component", componentName).
+			Str("candidate", p.Candidate).
+			Str("whitelist", p.Whitelist).
+			Strs("visited", visited).
+			Msg("no candidate passed filters")
+		return nil, false
+	}
+
+	newVisited := append(append([]string{}, visited...), selected.key)
 	if err := saveVisited(ctx, visitedOwner, newVisited); err != nil {
-		log.Error().Err(err).Str("component", componentName).Str("key", key).Msg("save visited failed")
+		log.Error().Err(err).Str("component", componentName).Str("key", selected.key).Msg("save visited failed")
 		return nil, false
 	}
 
 	log.Info().
 		Str("component", componentName).
-		Str("text", text).
-		Str("key", key).
+		Str("text", selected.text).
+		Str("key", selected.key).
 		Str("visited_node", visitedOwner).
-		Interface("box", detail.Box).
+		Interface("box", selected.box).
 		Strs("visited", newVisited).
 		Msg("selected unvisited candidate")
 
-	detailJSON, _ := json.Marshal(map[string]string{"text": text, "key": key})
-	return &maa.CustomRecognitionResult{Box: detail.Box, Detail: string(detailJSON)}, true
+	detailJSON, _ := json.Marshal(map[string]string{"text": selected.text, "key": selected.key})
+	return &maa.CustomRecognitionResult{Box: selected.box, Detail: string(detailJSON)}, true
 }
 
 func parseParams(raw string) (params, error) {
@@ -381,42 +375,73 @@ func containsVisited(visited []string, key string) bool {
 	return false
 }
 
-func extractText(ctx *maa.Context, candidate string, detail *maa.RecognitionDetail) (string, bool) {
+func selectCandidate(candidates []ocrCandidate, whitelist string, visited []string) (ocrCandidate, bool) {
+	for _, candidate := range candidates {
+		if candidate.key == "" {
+			log.Warn().Str("component", componentName).Str("text", candidate.text).Msg("visited key empty after key_regex")
+			continue
+		}
+		if !matchWhitelist(whitelist, candidate.key) {
+			log.Warn().
+				Str("component", componentName).
+				Str("text", candidate.text).
+				Str("key", candidate.key).
+				Str("whitelist", whitelist).
+				Msg("key not in whitelist, reject")
+			continue
+		}
+		if containsVisited(visited, candidate.key) {
+			log.Warn().
+				Str("component", componentName).
+				Str("text", candidate.text).
+				Str("key", candidate.key).
+				Strs("visited", visited).
+				Msg("key already visited, reject")
+			continue
+		}
+
+		return candidate, true
+	}
+	return ocrCandidate{}, false
+}
+
+func extractCandidates(ctx *maa.Context, candidate string, detail *maa.RecognitionDetail, keyRegex string) ([]ocrCandidate, error) {
 	raw, err := ctx.GetNodeJSON(candidate)
 	if err != nil {
-		return "", false
+		return nil, err
 	}
 	selected, err := recogtarget.SelectDetailFromJSON([]byte(raw), detail)
 	if err != nil {
-		return "", false
+		return nil, err
 	}
-	return ocrText(selected)
+	return ocrCandidates(selected, keyRegex)
 }
 
-func ocrText(detail *maa.RecognitionDetail) (string, bool) {
+func ocrCandidates(detail *maa.RecognitionDetail, keyRegex string) ([]ocrCandidate, error) {
 	if detail == nil || detail.Results == nil {
-		return "", false
+		return nil, nil
 	}
-	try := func(result *maa.RecognitionResult) (string, bool) {
+	results := detail.Results.Filtered
+	if len(results) == 0 && detail.Results.Best != nil {
+		results = []*maa.RecognitionResult{detail.Results.Best}
+	}
+	candidates := make([]ocrCandidate, 0, len(results))
+	for _, result := range results {
 		if result == nil {
-			return "", false
+			continue
 		}
 		ocr, ok := result.AsOCR()
 		if !ok {
-			return "", false
+			continue
 		}
 		text := strings.TrimSpace(ocr.Text)
-		return text, text != ""
-	}
-	if text, ok := try(detail.Results.Best); ok {
-		return text, true
-	}
-	for _, result := range detail.Results.Filtered {
-		if text, ok := try(result); ok {
-			return text, true
+		key, err := applyKeyRegex(text, keyRegex)
+		if err != nil {
+			return nil, err
 		}
+		candidates = append(candidates, ocrCandidate{text: text, key: key, box: ocr.Box})
 	}
-	return "", false
+	return candidates, nil
 }
 
 func loadVisited(ctx *maa.Context, nodeName string) ([]string, error) {

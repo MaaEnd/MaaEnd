@@ -492,13 +492,14 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 - `candidate: string`：必填。候选节点：`OCR`，或 `And`（`box_index` 指向文案 OCR）。只覆盖该命名 OCR；命中框即返回给 `Click` 的框。
 - `visited_node: string`：可选。黑名单读写该节点的 `attach.visited`；省略则用当前 Custom 节点。多个消费节点可指向同一 `visited_node` 共享黑名单（例如备注优先节点 + 普通节点）。
 - `key_regex: string`：可选。从 OCR 原文提取写入 `attach.visited` 的 key（有捕获组取第 1 组，否则取整段匹配；未命中则用原文）。未配置时与旧行为一致：原文精确入库、精确排除。配置后黑名单会额外容忍 key 后的非数字 OCR 尾噪。业务文案规则（如备注截到第一个 `)`、普通名截到 `#UID`）由 Pipeline 声明，不写进通用模块。
+- `whitelist: string`：可选。逗号、分号、顿号或空白分隔的 key 白名单；为空表示不过滤。
 
 行为：
 
 1. 从 `visited_node`（或当前节点）读取 `attach.visited`。
 2. 解析 `candidate` 的 key OCR（And 用 `box_index`），读取其 `expected`，按 `visited` 拼负向黑名单并只覆盖 `expected`（`order_by` 等其它字段保持原样）。
 3. 执行 `candidate`；未命中则失败。
-4. 从命中结果取 OCR 文案；若配置了 `key_regex` 则先提取 key，再写入上述节点的 `attach.visited`，返回命中框。
+4. 从命中结果的 `Filtered` OCR 文案中依次应用 `key_regex` 与 `whitelist`；第一个未访问候选写入上述节点的 `attach.visited`，并返回其 OCR 结果框。
 
 候选结构、点击目标、备注优先（多项 `expected` + `order_by: Expected`，或拆成两个消费节点 + 共享 `visited_node`），以及 OCR 文案如何收成 key，均由 Pipeline 配置。
 
