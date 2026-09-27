@@ -538,7 +538,7 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
 
 bool NavigationStateMachine::CaptureCurrentPosition(bool force_global_search)
 {
-    const bool captured = position_provider_->Capture(position_, force_global_search, session_->current_zone_id());
+    const bool captured = position_provider_->captureForNavigation(position_, force_global_search, session_->current_zone_id());
     UpdateDwellWatchdog(captured);
     return captured;
 }
@@ -608,7 +608,7 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     if (!relocalize_cooling) {
         last_global_relocalize_at_ = now;
         const std::string prior_zone = session_->current_zone_id();
-        if (position_provider_->Capture(position_, /*force_global_search=*/true, /*expected_zone_id=*/std::string())) {
+        if (position_provider_->captureForNavigation(position_, /*force_global_search=*/true, /*expected_zone_id=*/std::string())) {
             const bool zone_changed = !position_->zone_id.empty() && position_->zone_id != prior_zone;
 
             if (runtime_state_.cross_tier_escape.active) {
@@ -1321,6 +1321,9 @@ bool NavigationStateMachine::TickNavigate()
     if (runtime_state_.camera_align_pending) {
         runtime_state_.camera_align_pending = false;
         semantic_nodes::AlignCameraToCharacterOnce(semantic_ctx);
+        if (position_->heading_source == HeadingSource::None) {
+            return HandleLocalizationLoss();
+        }
     }
 
     if (runtime_state_.cross_tier_escape.active) {
@@ -1335,6 +1338,9 @@ bool NavigationStateMachine::TickNavigate()
     }
 
     const semantic_nodes::Result inline_semantic_result = semantic_nodes::ConsumeInlineSemantics(semantic_ctx);
+    if (position_->heading_source == HeadingSource::None && !inline_semantic_result.request_failure) {
+        return HandleLocalizationLoss();
+    }
     if (inline_semantic_result.request_failure) {
         return FailNavigation(inline_semantic_result.failure_reason, inline_semantic_result.failure_log_message, 0.0, 0.0, 0);
     }
@@ -1565,6 +1571,9 @@ bool NavigationStateMachine::TickNavigate()
                     semantic_nodes::SettleAtStrictGoal(semantic_ctx, waypoint);
                     // 收尾里的转镜头没走操舵那条路, 在途转角账认不出来, 清掉重新起算
                     runtime_state_.steering_rate.Reset();
+                    if (position_->heading_source == HeadingSource::None) {
+                        return HandleLocalizationLoss();
+                    }
                 }
                 // 走路买的是接近段和收尾的精度, 到点就还回去: 跳跃、冲刺这些动作照旧在慢跑态下执行
                 walk_mode_.Request(false);
@@ -1856,6 +1865,11 @@ bool NavigationStateMachine::TickNavigate()
     double turn_achieved_deg = 0.0;
     double turn_residual_deg = 0.0;
     int64_t turn_elapsed_ms = 0;
+    if (runtime_state_.steering_rate.heading_source != position_->heading_source) {
+        // 两种观测的差值不是实际转身，旧角速度和未兑现转向不能跨来源继承。
+        runtime_state_.steering_rate.Reset();
+        runtime_state_.steering_rate.heading_source = position_->heading_source;
+    }
     if (runtime_state_.steering_rate.has_cmd) {
         turn_achieved_deg = NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.cmd_heading_deg);
         turn_residual_deg = NaviMath::NormalizeAngle(turn_achieved_deg - runtime_state_.steering_rate.cmd_delta_deg);

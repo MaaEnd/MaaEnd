@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cmath>
 
 #include <MaaUtils/Logger.h>
 
@@ -6,6 +7,7 @@
 #include "MapNavigator/controller_info_utils.h"
 #include "controller_type_utils.h"
 #include "latency_observer.h"
+#include "navi_config.h"
 #include "navi_math.h"
 #include "position_provider.h"
 
@@ -107,7 +109,6 @@ bool PositionProvider::Capture(
     const int status = static_cast<int>(locate_result.status);
     if (locate_result.position) {
         const auto& position = *locate_result.position;
-        // camRot/camRotConf 只进日志，不参与任何判据。
         const double cam_rot = locate_result.camRot ? locate_result.camRot->rot : -1.0;
         const double cam_rot_conf = locate_result.camRot ? locate_result.camRot->confidence : -1.0;
         LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << VAR(position.zoneId) << VAR(position.x)
@@ -133,7 +134,9 @@ bool PositionProvider::Capture(
     out_pos->angle = locate_result.position->angle;
     out_pos->score = locate_result.position->score;
     out_pos->zone_id = locate_result.position->zoneId;
+    out_pos->heading_source = locate_result.rot ? HeadingSource::Character : HeadingSource::None;
     out_pos->camera_angle = locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt;
+    out_pos->camera_confidence = locate_result.camRot ? locate_result.camRot->confidence : 0.0;
     out_pos->valid = true;
     out_pos->timestamp = capture_started_at;
 
@@ -144,6 +147,26 @@ bool PositionProvider::Capture(
         position_normalizer_(*out_pos);
     }
     return true;
+}
+
+bool PositionProvider::captureForNavigation(NaviPosition* out_pos, bool force_global_search, const std::string& expected_zone_id)
+{
+    if (!Capture(out_pos, force_global_search, expected_zone_id)) {
+        if (out_pos != nullptr) {
+            out_pos->heading_source = HeadingSource::None;
+        }
+        return false;
+    }
+    if (out_pos->heading_source == HeadingSource::Character && std::isfinite(out_pos->angle) && out_pos->angle >= 0.0) {
+        return true;
+    }
+    out_pos->heading_source = HeadingSource::None;
+    if (out_pos->camera_angle && std::isfinite(*out_pos->camera_angle) && out_pos->camera_confidence >= kNavigationCameraMinConfidence) {
+        out_pos->angle = *out_pos->camera_angle;
+        out_pos->heading_source = HeadingSource::Camera;
+        return true;
+    }
+    return false;
 }
 
 void PositionProvider::SetPositionNormalizer(std::function<void(NaviPosition&)> normalizer)
@@ -162,7 +185,7 @@ bool PositionProvider::WaitForFix(
         if (should_stop()) {
             return false;
         }
-        if (Capture(out_pos, !expected_zone_id.empty(), expected_zone_id)) {
+        if (captureForNavigation(out_pos, !expected_zone_id.empty(), expected_zone_id)) {
             return true;
         }
         utils::SleepFor(retry_interval_ms);

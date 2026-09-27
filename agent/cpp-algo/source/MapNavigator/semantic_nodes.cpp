@@ -92,7 +92,7 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     if (ctx.runtime_state->semantic.portal_transit_needs_reacquire) {
-        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
+        if (!ctx.position_provider->captureForNavigation(ctx.position, false, ctx.session->current_zone_id())) {
             result.stay_in_current_tick = true;
             utils::SleepFor(kZoneConfirmRetryIntervalMs);
             return result;
@@ -120,7 +120,7 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     NaviPosition candidate;
-    if (!ctx.position_provider->Capture(&candidate, true, {})) {
+    if (!ctx.position_provider->captureForNavigation(&candidate, true, {})) {
         result.stay_in_current_tick = true;
         utils::SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
@@ -165,7 +165,7 @@ Result TickTransferWaitImpl(const Context& ctx)
         ctx.runtime_state->semantic.transfer_wait_started = now;
     }
 
-    if (!ctx.position_provider->Capture(ctx.position, false, {})) {
+    if (!ctx.position_provider->captureForNavigation(ctx.position, false, {})) {
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - ctx.runtime_state->semantic.transfer_wait_started).count()
             > kRelocationWaitTimeoutMs) {
             result.request_failure = true;
@@ -264,6 +264,13 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         // Closed-loop: confirm the turn landed and redo a swallowed view-drag (accept within wide band).
         achieved_heading = VerifyAndCorrectHeading(ctx, target_heading, start_heading);
 
+        if (ctx.position->heading_source == HeadingSource::None) {
+            // 未取得可用朝向，不消耗节点，交回常规导航的丢定位恢复。
+            result.consumed = true;
+            result.stay_in_current_tick = true;
+            return result;
+        }
+
         LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(heading_delta)
                 << VAR(achieved_heading);
         ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
@@ -290,7 +297,7 @@ bool CaptureCleanFix(const Context& ctx, NaviPosition* out_pos)
         if (frame > 0) {
             utils::SleepFor(kStrictSettleFixIntervalMs);
         }
-        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
+        if (!ctx.position_provider->captureForNavigation(ctx.position, false, ctx.session->current_zone_id())
             || ctx.position_provider->LastCaptureWasBlackScreen()) {
             continue;
         }
@@ -304,19 +311,23 @@ template <typename CanCaptureFrame>
 bool CaptureStableHeadingImpl(const Context& ctx, double* out_heading, const CanCaptureFrame& can_capture_frame)
 {
     std::optional<double> previous;
+    HeadingSource previous_source = HeadingSource::None;
     for (int frame = 0; can_capture_frame(frame); ++frame) {
         if (frame > 0) {
             utils::SleepFor(kHeadingStableReadIntervalMs);
         }
-        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
+        if (!ctx.position_provider->captureForNavigation(ctx.position, false, ctx.session->current_zone_id())) {
+            previous.reset();
             continue;
         }
         const double current = NaviMath::NormalizeAngle(ctx.position->angle);
-        if (previous && std::abs(NaviMath::NormalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
+        if (previous && previous_source == ctx.position->heading_source
+            && std::abs(NaviMath::NormalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
             *out_heading = current;
             return true;
         }
         previous = current;
+        previous_source = ctx.position->heading_source;
     }
     return false;
 }
@@ -354,6 +365,9 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
 // 调用方保证 ctx.position 是刚取的一帧, 且此刻人已站定。
 void AlignCameraToCharacterOnce(const Context& ctx)
 {
+    if (ctx.position->heading_source != HeadingSource::Character) {
+        return;
+    }
     if (!ctx.position->camera_angle.has_value()) {
         LogInfo << "Camera align skipped: no camera orientation.";
         return;
@@ -373,11 +387,11 @@ void AlignCameraToCharacterOnce(const Context& ctx)
     utils::SleepFor(kWaitAfterFirstTurnMs);
 
     // 补读一帧记进日志: camera_after 看对齐是收敛还是背离, character_after 用来分辨镜头转了还是人跟着
-    // 一起转了。读到什么都不重试、不拦截。
+    // 一起转了。这里不重试；位置或朝向不可用时，由调用方转入恢复。
     double camera_after = -1.0;
     double character_after = -1.0;
-    if (ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
-        character_after = ctx.position->angle;
+    if (ctx.position_provider->captureForNavigation(ctx.position, false, ctx.session->current_zone_id())) {
+        character_after = ctx.position->heading_source == HeadingSource::Character ? ctx.position->angle : -1.0;
         if (ctx.position->camera_angle) {
             camera_after = *ctx.position->camera_angle;
         }
