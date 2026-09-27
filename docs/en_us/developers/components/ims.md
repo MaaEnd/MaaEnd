@@ -156,7 +156,7 @@ A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`,
 | Typical screen | Valuables (`valuables`) | Rewards popup (`rewards`) |
 | Establishes ready | Yes | No |
 
-If IMS was never initialized (`hasData=false`), A3 still recognizes and prints one HTML Focus summary, skips cache write, and returns success so Pipeline can close the rewards UI. An empty rewards grid (`no_match` / `grid_detection_failed`) and a failed disk hydrate are also considered a success: A3 must not block the close-rewards next node. Same-ID stacks are merged into one row in the summary (template `ims.add_item_summary`, with icons); no IMS init banner.
+If IMS was never initialized (`hasData=false`), A3 still recognizes and prints one HTML Focus summary, skips cache write, and returns success so Pipeline can close the rewards UI. An empty rewards grid (`no_match` / `grid_detection_failed`) and a failed disk hydrate are also considered a success. An IconRecognition `exception` (for example `recognition_items.json` cannot be opened or is not an object) is logged and treated as an empty grid, so the close-rewards click still runs. A3 must not block the close-rewards next node. Same-ID stacks are merged into one row in the summary (template `ims.add_item_summary`, with icons); no IMS init banner.
 
 > Use `pre_wait_freezes` on the reward area before A3. Reference: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
 

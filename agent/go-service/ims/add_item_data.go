@@ -43,9 +43,12 @@ type addItemDataParam struct {
 // init Focus is printed in either case.
 //
 // Finding no reward cards (IconRecognition no_match / grid_detection_failed)
-// is also success. Corrupt IMS.json is reset by ensureHydrated. Any remaining
-// hydrate error is treated like an uninitialized cache: recognize and Focus,
-// skip write, still return true. A3 must not block the close-rewards next node.
+// is also success. An IconRecognition exception, such as a missing or invalid
+// recognition_items.json, is logged and treated as no hits so the
+// close-rewards next node still runs. Corrupt IMS.json is reset by
+// ensureHydrated. Any remaining hydrate error is treated like an uninitialized
+// cache: recognize and Focus, skip write, still return true. A3 must not block
+// the close-rewards next node.
 //
 // Best practice: run as the action of a node that recognizes CloseRewardsButton,
 // then next to a Click node that closes the rewards UI.
