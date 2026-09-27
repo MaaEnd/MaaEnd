@@ -1706,6 +1706,7 @@
             "SceneManager/FriendsList1.png",
             "SceneManager/FriendsList2.png"
         ],
+        "order_by": "Score",
         "pre_wait_freezes": 100,
         "action": "Click",
         "next": [
@@ -1757,6 +1758,7 @@
             "BatchAddFriends/addFriend2.png"
         ],
         "threshold": 0.8,
+        "order_by": "Score",
         "pre_wait_freezes": 100,
         "action": "Click",
         "next": [

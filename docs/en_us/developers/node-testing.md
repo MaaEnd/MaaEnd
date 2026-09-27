@@ -226,7 +226,6 @@ In this repository, `package.json` maps that command to `maa-tools test`, and CI
 `maa-tools test` does not start agents, so it cannot test custom recognitions that agents provide. `MapLocateAssertLocation` location nodes are tested by a standalone Python runner instead: run `pnpm test:map-locate` or `uv run python tests/MapLocateAssertLocation/map_locate.py`. In CI this is the `map-locate-test` job. See the [location node screenshot test](../../../tests/MapLocateAssertLocation/README.md) for the case format, sample requirements, and prerequisites.
 
 Route pathfinding connectivity is checked by another standalone runner: run `uv run python tests/MapNavmeshConnectivity/navmesh_connectivity.py`. It sends the start and goal from its case file to the agent for route planning; a successful plan counts as connected. It does not need screenshots. In CI this is the `Run navmesh connectivity tests` step of the `map-locate-test` job. See the [connectivity test](../../../tests/MapNavmeshConnectivity/README.md) for the case format and pass criteria.
-
 Ordinary node test logs are written to:
 
 ```text

@@ -1,0 +1,10 @@
+{
+    "AutoSellPressStockRedistribution": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        }
+    }
+}

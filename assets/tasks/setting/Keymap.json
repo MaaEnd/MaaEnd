@@ -53,6 +53,9 @@
                 "MapNavigatorInteract": {
                     "key": "{KeymapInteract.primary}"
                 },
+                "AutoSellPressStockRedistribution": {
+                    "key": "{KeymapInteract.primary}"
+                },
                 "AutoPickFalls": {
                     "key": "{KeymapInteract.primary}"
                 },

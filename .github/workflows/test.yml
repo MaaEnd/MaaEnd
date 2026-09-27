@@ -158,7 +158,6 @@ jobs:
       - name: Run navmesh connectivity tests
         if: ${{ !cancelled() }}
         run: uv run --no-sync python -u tests/MapNavmeshConnectivity/navmesh_connectivity.py
-
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v6

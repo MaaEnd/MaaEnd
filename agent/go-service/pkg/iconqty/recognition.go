@@ -40,10 +40,11 @@ type Request struct {
 	ItemFilters []string
 	ItemIDs     []string
 	Deduplicate bool
-	// TolerateEmptyGrid treats grid_detection_failed as "no items" instead of
-	// a hard error. A3 (rewards add) sets this so an empty popup cannot block
-	// closing the rewards UI. A2 (depot sync) leaves it false: a missing grid
-	// usually means the wrong screen.
+	// TolerateEmptyGrid treats grid_detection_failed and IconRecognition
+	// exception as "no items" instead of a hard error. A3 (rewards add) sets
+	// this so an empty popup or a catalog load failure cannot block closing
+	// the rewards UI. A2 (depot sync) leaves it false: a missing grid usually
+	// means the wrong screen.
 	TolerateEmptyGrid bool
 }
 
@@ -189,8 +190,10 @@ func recognizeIcons(ctx *maa.Context, img image.Image, req Request) ([]iconrecog
 }
 
 // emptyMatches reports whether IconRecognition returned no usable items.
-// no_match is always empty. grid_detection_failed is empty only when
-// tolerateEmptyGrid is set (A3). Other structured errors stay hard failures.
+// no_match is always empty. grid_detection_failed and exception are empty
+// only when tolerateEmptyGrid is set (A3): a missing catalog or a grid that
+// cannot be read must not block the close-rewards click. Other structured
+// errors stay hard failures.
 func emptyMatches(parsed iconrecognition.Detail, tolerateEmptyGrid bool) (empty bool, err error) {
 	code := iconrecognition.ErrorCode("")
 	message := ""
@@ -205,6 +208,14 @@ func emptyMatches(parsed iconrecognition.Detail, tolerateEmptyGrid bool) (empty 
 				Str("error_code", string(code)).
 				Str("message", message).
 				Msg("grid detection found no cells, treat as empty")
+			return true, nil
+		}
+		if tolerateEmptyGrid && code == iconrecognition.ErrorCodeException {
+			log.Error().
+				Str("component", "iconqty").
+				Str("error_code", string(code)).
+				Str("message", message).
+				Msg("IconRecognition exception, skip reward update")
 			return true, nil
 		}
 		return false, fmt.Errorf("IconRecognition %s: %s", code, message)
