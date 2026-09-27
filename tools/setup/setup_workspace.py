@@ -709,7 +709,9 @@ def install_android_maafw(
         (ANDROID_MAAFW_DIR / "bin").is_dir()
         and (ANDROID_MAAFW_DIR / "share").is_dir()
     )
-    if skip_if_exist and installed:
+    # 指定了 Release 标签时，已安装版本不一致则不能跳过
+    tag_mismatch = release_tag is not None and local_version != release_tag
+    if skip_if_exist and installed and not tag_mismatch:
         print(Console.ok(t("inf_android_maafw_installed_skip")))
         return True
 

@@ -80,6 +80,7 @@ jobs:
         run: python3 tools/maadeps-download.py arm64-android
 
       - name: Resolve MaaFramework version
+        if: inputs.maafw_version == ''
         id: maafw-latest-release
         uses: step-security/github-action-get-latest-release@v0.8.2
         with:
@@ -130,8 +131,9 @@ jobs:
           GOARCH: arm64
           CGO_ENABLED: 1
         run: |
-          export CC="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android23-clang"
-          export CXX="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android23-clang++"
+          api_level="${ANDROID_PLATFORM#android-}"
+          export CC="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${api_level}-clang"
+          export CXX="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${api_level}-clang++"
 
           go build \
             -mod=readonly \
