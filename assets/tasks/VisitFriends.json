@@ -82,6 +82,15 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
+                        "VisitFriendsWaitFriendNameLoaded": {
+                            "next": [
+                                "VisitFriendsPriorityRemarkInit",
+                                "VisitFriendsMenuScan"
+                            ]
+                        },
+                        "VisitFriendsPriorityRemarkInit": {
+                            "enabled": true
+                        },
                         "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
                             "enabled": true
                         },
@@ -124,12 +133,11 @@
                 }
             ],
             "pipeline_override": {
-                "VisitFriendsMenuScanSelectPriorityRemarkConsumable": {
-                    "custom_recognition_param": {
-                        "candidate": "VisitFriendsRecognitionItemWithName",
-                        "visited_node": "VisitFriendsMenuScanVisited",
-                        "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)",
-                        "whitelist": "{PriorityRemarkName}"
+                "VisitFriendsPriorityRemarkInit": {
+                    "custom_action_param": {
+                        "target": "VisitFriendsRecognitionItemNamePriorityRemarkByEnterButton",
+                        "keywords": "{PriorityRemarkName}",
+                        "substring": true
                     }
                 }
             }
