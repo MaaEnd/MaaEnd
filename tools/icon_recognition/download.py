@@ -400,7 +400,9 @@ def _normalized_weapon(
         "category": _category_name("ValuableDepot", "Weapon"),
         "storageKind": "ValuableDepot",
         "categoryType": "Weapon",
-        "iconId": item_id,
+        "iconId": validate_identifier(
+            raw_source.get("icon_id", item_id), field=f"{item_id}.icon_id"
+        ),
         "rarity": _require_rarity(raw_source, item_id),
         "fluidType": None,
         "fluid": None,
@@ -567,7 +569,13 @@ def _metadata_path(destination: Path) -> Path:
     return destination.with_suffix(destination.suffix + ".meta.json")
 
 
-def fetch(url: str, destination: Path, *, timeout: float = 60) -> dict[str, Any]:
+def fetch(
+    url: str,
+    destination: Path,
+    *,
+    timeout: float = 60,
+    validate_content: Callable[[bytes], Any] | None = None,
+) -> dict[str, Any]:
     """使用 ETag/Last-Modified 条件请求原子更新单个远端文件。"""
 
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -578,7 +586,9 @@ def fetch(url: str, destination: Path, *, timeout: float = 60) -> dict[str, Any]
         else {}
     )
     headers = {"User-Agent": "MaaEnd-IconRecognition/1.0"}
-    if destination.is_file():
+    if destination.is_file() and (
+        validate_content is None or is_valid_png(destination)
+    ):
         if isinstance(metadata.get("etag"), str):
             headers["If-None-Match"] = metadata["etag"]
         if isinstance(metadata.get("lastModified"), str):
@@ -587,6 +597,8 @@ def fetch(url: str, destination: Path, *, timeout: float = 60) -> dict[str, Any]
     try:
         with urlopen(request, timeout=timeout) as response:
             data = response.read()
+            if validate_content is not None:
+                validate_content(data)
             result: dict[str, Any] = {
                 "url": url,
                 "bytes": len(data),
@@ -618,22 +630,14 @@ def fetch(url: str, destination: Path, *, timeout: float = 60) -> dict[str, Any]
 
 
 def _download_icon(job: DownloadJob, timeout: float) -> str:
-    if is_valid_png(job.destination):
-        return "skipped"
-    job.destination.parent.mkdir(parents=True, exist_ok=True)
-    temporary = job.destination.with_suffix(job.destination.suffix + ".part")
-    request = Request(
-        job.url, headers={"User-Agent": "MaaEnd-IconRecognition/1.0"}
+    previous = job.destination.read_bytes() if is_valid_png(job.destination) else None
+    fetch(
+        job.url,
+        job.destination,
+        timeout=timeout,
+        validate_content=validate_icon_png_bytes,
     )
-    try:
-        with urlopen(request, timeout=timeout) as response:
-            content = response.read()
-        validate_icon_png_bytes(content)
-        temporary.write_bytes(content)
-        temporary.replace(job.destination)
-        return "downloaded"
-    finally:
-        temporary.unlink(missing_ok=True)
+    return "skipped" if previous == job.destination.read_bytes() else "downloaded"
 
 
 def download_images(

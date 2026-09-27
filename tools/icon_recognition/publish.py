@@ -10,6 +10,8 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from PIL import Image
+
 from catalog import build_catalog, write_catalog
 from download import apply_item_blacklist, validate_icon_png_bytes
 from fixed_items import FIXED_ITEMS
@@ -58,7 +60,7 @@ def sync_published_images(
     catalog: dict[str, dict[str, object]],
     item_source: Mapping[str, object],
     removed_items: Sequence[Mapping[str, object]] = (),
-) -> None:
+) -> set[str]:
     """按 catalog 同步图标并清理不再使用的已发布图标。"""
     expected_images: set[Path] = set()
     referenced_icon_ids: set[str] = set()
@@ -101,8 +103,10 @@ def sync_published_images(
             if stale.is_file():
                 stale.unlink()
 
+    changed_icon_ids: set[str] = set()
     for relative_path in expected_images:
         destination = asset_image_root / relative_path
+        source = image_root / relative_path
         stale_paths = [
             path
             for path in asset_image_root.glob(f"*/{relative_path.name}")
@@ -111,19 +115,45 @@ def sync_published_images(
         if destination.exists():
             for stale in stale_paths:
                 stale.unlink()
+            if source.is_file() and not _same_image_pixels(source, destination):
+                shutil.copy2(source, destination)
+                changed_icon_ids.add(relative_path.stem)
             continue
         if len(stale_paths) == 1:
             destination.parent.mkdir(parents=True, exist_ok=True)
             stale_paths[0].replace(destination)
+            if source.is_file() and not _same_image_pixels(source, destination):
+                shutil.copy2(source, destination)
+            changed_icon_ids.add(relative_path.stem)
             continue
-        source = image_root / relative_path
         if not source.is_file():
             continue
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
+        changed_icon_ids.add(relative_path.stem)
+    return changed_icon_ids
+
+
+def _same_image_pixels(source: Path, destination: Path) -> bool:
+    if source.read_bytes() == destination.read_bytes():
+        return True
+    try:
+        with Image.open(source) as source_image, Image.open(destination) as existing:
+            return (
+                source_image.size == existing.size
+                and source_image.convert("RGBA").tobytes()
+                == existing.convert("RGBA").tobytes()
+            )
+    except OSError:
+        return False
 
 
 def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
+    previous_catalog = (
+        load_json_object(paths.catalog_output)
+        if paths.catalog_output.is_file()
+        else {}
+    )
     source = json.loads(paths.item_source.read_text(encoding="utf-8-sig"), object_pairs_hook=OrderedDict)
     if not isinstance(source, dict):
         raise ValueError(f"JSON 顶层必须是对象: {paths.item_source}")
@@ -141,7 +171,7 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     )
     for item_id, record in catalog.items():
         record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
-    sync_published_images(
+    changed_icon_ids = sync_published_images(
         paths.image_root,
         paths.asset_image_root,
         catalog,
@@ -150,7 +180,17 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     )
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
     write_catalog(catalog, paths.catalog_output)
-    generate_ui_icons()
+    refresh_item_ids = {
+        item_id
+        for item_id, record in catalog.items()
+        if record["iconId"] in changed_icon_ids
+        or record.get("fluidIconId") in changed_icon_ids
+        or any(
+            previous_catalog.get(item_id, {}).get(field) != record.get(field)
+            for field in ("iconId", "rarity", "fluidIconId")
+        )
+    }
+    generate_ui_icons(refresh_item_ids=refresh_item_ids)
     locale_counts = generate_locales(
         paths.catalog_output,
         paths.localization_item_source,
