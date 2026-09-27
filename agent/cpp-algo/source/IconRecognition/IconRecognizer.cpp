@@ -339,6 +339,7 @@ SlotRanking RankSlot(
         performance);
     ranking.rarity_prefiltered = passes.prefiltered;
     if (ranking.best.diagnostics.score < accept && !passes.remaining_indices.empty()) {
+        const bool refinement_attempted = ranking.fallback_used;
         ScoreBaselineCandidates(image, slot, templates, passes.remaining_indices, search_radius, baseline_candidates, performance);
         if (performance) {
             ++performance->ranking.rarity_fallback_cells;
@@ -354,6 +355,7 @@ SlotRanking RankSlot(
             search_radius,
             refinement_cache,
             performance);
+        ranking.fallback_used = ranking.fallback_used || refinement_attempted;
         ranking.rarity_prefiltered = true;
         ranking.rarity_fallback_used = true;
     }
@@ -825,10 +827,11 @@ public:
                     request.subpixel_threshold,
                     performance_ptr,
                     transfer_foreground_texture);
-                if (request.grid_type == GridType::Valuables || request.grid_type == GridType::Rewards) {
+                if ((request.grid_type == GridType::Valuables || request.grid_type == GridType::Rewards)
+                    && evaluation.ranking.fallback_used && !evaluation.accepted) {
                     const int fallback_template_size = AlternateTemplateSizeFor(grid_scale);
                     const cv::Rect fallback_slot = SlotFor(request.grid_type, cell, grid_scale, fallback_template_size);
-                    const auto fallback_rarity = detail::ClassifyRarity(image, fallback_slot, grid_scale);
+                    const auto fallback_rarity = rarity;
                     CellEvaluation fallback = EvaluateCellTemplates(
                         image,
                         request.grid_type,
