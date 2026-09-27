@@ -56,24 +56,19 @@
         "recognition": "ColorMatch",
         "roi": "VisitFriendsRecognitionItemOnline",
         "roi_offset": [
-            -8,
-            -62,
+            -6,
+            -58,
             143,
-            43
+            12
         ],
-        "method": 40,
+        "method": 6,
         "lower": [
-            0,
-            0,
-            140
+            163
         ],
         "upper": [
-            180,
-            45,
             255
         ],
-        "count": 60,
-        "order_by": "Vertical"
+        "count": 30
     },
     "VisitFriendsRecognitionItemNameByEnterButton": {
         "desc": "在名字色块内 only_rec 读出好友名（任意含 #）",
