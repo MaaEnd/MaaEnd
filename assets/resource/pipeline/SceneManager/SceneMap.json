@@ -354,6 +354,7 @@
             120
         ],
         "template": "SceneManager/MapFilterNotChoose.png",
+        "threshold": 0.8,
         "action": "Click",
         "post_wait_freezes": 200,
         "next": [

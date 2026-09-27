@@ -17,7 +17,9 @@ namespace navmesh::recast
 {
 
 inline constexpr double kCS = 0.25;             // 体素边长 px
-inline constexpr double kClimb = 3.0;           // 相邻格可连通最大高差 px
+inline constexpr double kClimb = 3.0;           // 相邻格可向上连通最大高差 px
+inline constexpr double kDrop = 1.0e9;          // 相邻格可向下连通最大落差 px, 角色无摔落伤害所以不设实际上限
+inline constexpr int64_t kSeamCells = 4;        // 下落前探格数: 出发那层在这么多格内回来即路面上一道缝
 inline constexpr double kSlope = 1.0;           // 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面
 inline constexpr double kStepUp = 0.5;          // 可直接迈上的台阶高 px, 是角色属性所以不跟体素边长挂钩
 inline constexpr double kBumpUp = 1.25;         // 跨过路面窄凸起/浅坑允许的抬升 px, 仅在落差不延伸时生效

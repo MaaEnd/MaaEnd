@@ -9,46 +9,46 @@
     //   2100000322 → [612.8, 968.1]
     //   2100000093 → [373.5, 984.6]
     "SharedZiplineDeleteEnterVFTheHub": {
-        "desc": "枢纽区：先进任意地图，已在本区则跳过传送",
+        "desc": "枢纽区：直接传送到本区锚点",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterMapAny"
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeleteSkipTeleportVFTheHub",
             "SharedZiplineDeleteTeleportVFTheHub"
         ]
     },
-    "SharedZiplineDeleteSkipTeleportVFTheHub": {
-        "desc": "已在枢纽区地图，跳过世界传送",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVTheHub"
-        ],
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SharedZiplineDeletePrepareValleyIVTheHub"
-        ]
-    },
     "SharedZiplineDeleteTeleportVFTheHub": {
-        "desc": "不在枢纽区时，传送到本区锚点",
+        "desc": "枢纽区：传送到本区锚点",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
                 "SceneEnterWorldValleyIVTheHub1"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteWalkOffVFTheHub"
+        ]
+    },
+    "SharedZiplineDeleteWalkOffVFTheHub": {
+        "desc": "传送落地后寻路走开，避免挡住锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        430.55,
+                        908.22
+                    ]
+                }
             ]
         },
         "post_delay": 0,

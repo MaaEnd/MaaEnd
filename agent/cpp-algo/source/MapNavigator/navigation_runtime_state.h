@@ -253,13 +253,36 @@ struct OffRouteWedgeState
 {
     std::chrono::steady_clock::time_point since {};
     std::chrono::steady_clock::time_point last_replan_at {};
+    // First blind tick (localization loss, river-fall recovery) since the watchdog last ran. Those ticks return before
+    // the watchdog and cannot move route progress, so the next watchdog tick shifts `since` past the whole gap.
+    std::chrono::steady_clock::time_point blind_since {};
     double best_distance = std::numeric_limits<double>::max();
     bool active = false;
+
+    void PauseAt(const std::chrono::steady_clock::time_point& now)
+    {
+        if (active && blind_since == std::chrono::steady_clock::time_point {}) {
+            blind_since = now;
+        }
+    }
+
+    // Returns the blind milliseconds taken off the clock, zero when there was no pause.
+    int64_t ResumeAt(const std::chrono::steady_clock::time_point& now)
+    {
+        if (blind_since == std::chrono::steady_clock::time_point {}) {
+            return 0;
+        }
+        const auto blind = now - blind_since;
+        since += blind;
+        blind_since = {};
+        return std::chrono::duration_cast<std::chrono::milliseconds>(blind).count();
+    }
 
     void Reset()
     {
         since = {};
         last_replan_at = {};
+        blind_since = {};
         best_distance = std::numeric_limits<double>::max();
         active = false;
     }

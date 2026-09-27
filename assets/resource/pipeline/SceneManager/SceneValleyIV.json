@@ -529,9 +529,7 @@
         "action": "Click",
         "target": [
             710,
-            620,
-            100,
-            60
+            620
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess"

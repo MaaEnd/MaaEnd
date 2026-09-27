@@ -327,10 +327,11 @@ double PolylineLength(const navmesh::WorldPath& path)
 
 constexpr size_t kNoTower = std::numeric_limits<size_t>::max();
 
-// 索线中段横向近到这个距离还有另一根通电架子，这条直索就只算不确定边：滑行可能终止在中间
-// 那根上。三次实测终止在中间架子，拦路架横向 10.14 / 11.23 / 14.99；另有一次中段立着横向 4.55
-// 的架子，人却整条滑完了。横向距离分不开这四例，架子朝向又不在记录里，所以这条规则只降档不删边，
-// 取值取到盖住已知被拦的 14.99 为止。
+// 索线中段近到这个距离还有另一根通电架子，这条直索就只算不确定边：滑行可能终止在中间那根上。
+// 距离按三维量，是架子到两端连线的垂距。三次实测终止在中间架子，拦路架垂距 12.51 / 10.23 / 14.99；
+// 另有一次中段立着垂距 4.55 的架子，人却整条滑完了。距离分不开这四例，所以这条规则只降档不删边，
+// 取值取到盖住已知被拦的 14.99 为止。只量水平会把高出索线几十米的架子也算进来：平面上离索线
+// 8.78、高出 55 m 的那根实测拦不住人。
 constexpr double kRopeInterceptLateralWu = 15.0;
 
 // 架子把人从脚下地面抬到绳端高度，滑到那头也保持这个高度。判索挂不挂得住只能按抬升后的两端连
@@ -338,12 +339,23 @@ constexpr double kRopeInterceptLateralWu = 15.0;
 // 在塔底上方 5.72 m；绳从梁底下几厘米钻过去的线要按这个高度才判得通。
 constexpr double kRopeEndHeightWu = 5.72;
 
-// 这根架子的绳端可能在哪：每个可能的塔心正上方绳端高度处。
-std::vector<navmesh::OccluderPoint> RopeEnds(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
+// 这根架子可能立在哪：每个可能的塔心，高度是记录里的塔底。
+std::vector<navmesh::OccluderPoint> TowerBases(const zipline::ZiplineNode& node, const std::array<int, 2>& footprint)
+{
+    std::vector<navmesh::OccluderPoint> bases;
+    for (const auto& [x, z] : TowerCenters(node, footprint)) {
+        bases.push_back(navmesh::OccluderPoint { .x = x, .y = node.world_y, .z = z });
+    }
+    return bases;
+}
+
+// 绳端在塔心正上方，从塔落地后的高度起算。记录里的塔底是建造格的整数高度，建成的塔会贴到
+// 脚下的实际地面上，两者差出几厘米就足以让贴着梁底过的绳判错。
+std::vector<navmesh::OccluderPoint> RopeEnds(const std::vector<navmesh::OccluderPoint>& bases, const std::vector<double>& grounds)
 {
     std::vector<navmesh::OccluderPoint> ends;
-    for (const auto& [x, z] : TowerCenters(node, footprint)) {
-        ends.push_back(navmesh::OccluderPoint { .x = x, .y = node.world_y + kRopeEndHeightWu, .z = z });
+    for (size_t k = 0; k < bases.size(); ++k) {
+        ends.push_back(navmesh::OccluderPoint { .x = bases[k].x, .y = grounds[k] + kRopeEndHeightWu, .z = bases[k].z });
     }
     return ends;
 }
@@ -376,7 +388,7 @@ void DropEdge(std::vector<std::vector<size_t>>& links, size_t a, size_t b)
     drop(links[b], a);
 }
 
-// from→to 的索中段拦着另一根架子时返回它的横向距离。拦路架需离两端各超过一个拦截半径，更贴近
+// from→to 的索中段拦着另一根架子时返回它到索线的垂距。拦路架需离两端各超过一个拦截半径，更贴近
 // 端点的即端点自身；它与 from 之间也要挂得上索，从 from 够不到的架子接不住滑过来的人。
 // nodes 已完成通电筛选，不承载索的架子不构成拦截。
 std::optional<double> RopeIntercepted(
@@ -388,8 +400,9 @@ std::optional<double> RopeIntercepted(
     const std::vector<std::array<int, 2>>& footprints)
 {
     const double dx = nodes[to].world_x - nodes[from].world_x;
+    const double dy = nodes[to].world_y - nodes[from].world_y;
     const double dz = nodes[to].world_z - nodes[from].world_z;
-    const double span = std::hypot(dx, dz);
+    const double span = std::hypot(dx, dy, dz);
     if (span <= 2.0 * kRopeInterceptLateralWu) {
         return std::nullopt;
     }
@@ -398,19 +411,20 @@ std::optional<double> RopeIntercepted(
             continue;
         }
         const double offset_x = nodes[k].world_x - nodes[from].world_x;
+        const double offset_y = nodes[k].world_y - nodes[from].world_y;
         const double offset_z = nodes[k].world_z - nodes[from].world_z;
-        const double along = (offset_x * dx + offset_z * dz) / span;
+        const double along = (offset_x * dx + offset_y * dy + offset_z * dz) / span;
         if (along <= kRopeInterceptLateralWu || along >= span - kRopeInterceptLateralWu) {
             continue;
         }
         const double lateral_x = offset_x - dx * along / span;
+        const double lateral_y = offset_y - dy * along / span;
         const double lateral_z = offset_z - dz * along / span;
-        const double lateral = std::hypot(lateral_x, lateral_z);
+        const double lateral = std::hypot(lateral_x, lateral_y, lateral_z);
         if (lateral > kRopeInterceptLateralWu) {
             continue;
         }
         const double limit = std::min(span_limit[from], span_limit[k]);
-        const double offset_y = nodes[k].world_y - nodes[from].world_y;
         if (minimum_possible_world_span_squared(offset_x, offset_y, offset_z, footprints[from], footprints[k]) > limit * limit) {
             continue;
         }
@@ -436,7 +450,7 @@ ZipLinkGraph BuildLinks(
     ZipLinkGraph graph;
     graph.all.resize(nodes.size());
     graph.certain.resize(nodes.size());
-    // 逐条记下拦路架的横向距离：kRopeInterceptLateralWu 的依据只有四条实测索，实机日志里攒起来的
+    // 逐条记下拦路架的垂距：kRopeInterceptLateralWu 的依据只有四条实测索，实机日志里攒起来的
     // 这个分布才是后续调它的证据。
     std::vector<double> demoted_lateral;
     for (size_t i = 0; i < nodes.size(); ++i) {
@@ -459,12 +473,13 @@ ZipLinkGraph BuildLinks(
             if (span_squared > limit_squared) {
                 continue;
             }
-            // 两端各取每个可能的塔心逐组量绳长，有一组在索长以内这根索就进候选；够得着的那几组留给遮挡体问
+            // 两端各取每个可能的塔心逐组量绳长，有一组在索长以内这根索就进候选；够得着的那几组留给遮挡体问。
+            // 绳长的高差按记录里的塔底量，与上面的下界用同一组高度。
             std::vector<NavmeshAirLine> lines;
+            const double dy = nodes[j].world_y - nodes[i].world_y;
             for (const navmesh::OccluderPoint& end_a : rope_ends[i]) {
                 for (const navmesh::OccluderPoint& end_b : rope_ends[j]) {
                     const double dx = end_b.x - end_a.x;
-                    const double dy = end_b.y - end_a.y;
                     const double dz = end_b.z - end_a.z;
                     if (dx * dx + dy * dy + dz * dz <= limit_squared) {
                         lines.push_back(NavmeshAirLine { .a = end_a, .b = end_b });
@@ -850,9 +865,14 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     };
 
     // 一条路线用几条索由代价决定，不设跳数上限：换乘要收钱，划不来的长链自己就被淘汰了。
+    std::vector<std::vector<navmesh::OccluderPoint>> tower_bases(nodes.size());
+    for (size_t i = 0; i < nodes.size(); ++i) {
+        tower_bases[i] = TowerBases(nodes[i], footprints[i]);
+    }
+    const std::vector<std::vector<double>> grounds = NavmeshGroundHeights(param, locator_zone, tower_bases);
     std::vector<std::vector<navmesh::OccluderPoint>> rope_ends(nodes.size());
     for (size_t i = 0; i < nodes.size(); ++i) {
-        rope_ends[i] = RopeEnds(nodes[i], footprints[i]);
+        rope_ends[i] = RopeEnds(tower_bases[i], grounds[i]);
     }
     ZipLinkGraph graph = BuildLinks(nodes, node_map, span_limit, footprints, rope_ends);
 

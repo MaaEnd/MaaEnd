@@ -22,7 +22,7 @@ jobs:
        contains(github.event.comment.body, '@MaaEndBot') &&
        github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     permissions:
       contents: read
     steps:
@@ -75,3 +75,93 @@ jobs:
           echo "comment_id=$COMMENT_ID"
           echo "comment_url=$COMMENT_URL"
           echo "(Full agent-output and final-conclusion are available in the uploaded artifacts)"
+
+      # 交给 finalize-comment job 回写最终评论
+      - name: Save final comment
+        if: always() && steps.analysis.outputs.comment-id != ''
+        continue-on-error: true
+        env:
+          COMMENT_ID: ${{ steps.analysis.outputs.comment-id }}
+        run: |
+          if [ ! -f .cache/final_comment.md ]; then
+            echo ".cache/final_comment.md not found; skip."
+            exit 0
+          fi
+          mkdir -p "$RUNNER_TEMP/final-comment"
+          echo "$COMMENT_ID" > "$RUNNER_TEMP/final-comment/comment_id"
+          cp .cache/final_comment.md "$RUNNER_TEMP/final-comment/final_comment.md"
+
+      - name: Upload final comment
+        if: always() && steps.analysis.outputs.comment-id != ''
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
+        with:
+          name: final-comment-attempt-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/final-comment/
+          if-no-files-found: ignore
+          retention-days: 1
+
+  # App token 有效期仅 1 小时，分析超过 1 小时后 action 回写最终评论会因 token 过期失败，
+  # 这里用新 token 重新回写一次；ai-analysis 超时时在评论中注明原因
+  finalize-comment:
+    needs: ai-analysis
+    if: always() && needs.ai-analysis.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      checks: read
+    steps:
+      - name: Download final comment
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v7
+        with:
+          name: final-comment-attempt-${{ github.run_attempt }}
+          path: final-comment
+
+      - name: Regenerate MaaEndBot GitHub App token
+        id: app-token
+        if: steps.download.outcome == 'success'
+        continue-on-error: true
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-issues: write
+
+      - name: 回写最终评论
+        if: steps.app-token.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          READ_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          # action 默认的 result-error-message，未产出结论时 final comment 以此开头
+          RESULT_ERROR_MESSAGE: 分析结果出现错误，请重试。
+        run: |
+          comment_id=$(cat final-comment/comment_id)
+          comment_file=final-comment/final_comment.md
+
+          # 以 GitHub 给 job 附加的超时注解作为明确信号，手动取消不会产生该注解
+          job_id=$(GH_TOKEN="$READ_TOKEN" gh api "repos/$REPO/actions/runs/$RUN_ID/attempts/$RUN_ATTEMPT/jobs" \
+            --jq '.jobs[] | select(.name == "ai-analysis") | .id')
+          timeout_message=$(GH_TOKEN="$READ_TOKEN" gh api "repos/$REPO/check-runs/$job_id/annotations" \
+            --jq '.[].message | select(contains("exceeded the maximum execution time"))')
+
+          if [ -n "$timeout_message" ]; then
+            echo "ai-analysis timed out: $timeout_message"
+            minutes=$(printf '%s' "$timeout_message" | sed -nE 's/.*maximum execution time of ([0-9]+) ?m.*/\1/p' | head -1)
+            notice="⏰ **分析超时**：AI 分析超过 ${minutes:-时限} 分钟仍未完成，已被自动终止，本次未能给出结论。可展开下方查看已进行的分析过程，或稍后评论 \`@MaaEndBot\` 重新触发分析。"
+            body=$(cat "$comment_file")
+            rest="${body#"$RESULT_ERROR_MESSAGE"}"
+            rest="${rest#"${rest%%[!$'\n']*}"}"
+            # 评论体可能超过单个命令行参数上限（128 KiB），经文件传给 jq
+            printf '%s\n\n%s\n' "$notice" "$rest" > "$comment_file"
+          fi
+
+          jq -n --rawfile body "$comment_file" '{body: $body}' \
+            | gh api -X PATCH "repos/$REPO/issues/comments/$comment_id" --input - > /dev/null
+          echo "Final comment updated."

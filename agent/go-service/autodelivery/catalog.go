@@ -32,6 +32,7 @@ type destination struct {
 	ZipRouteNode     string
 	RetryRouteNode   string
 	ZiplineOnly      bool
+	VerifyName       bool
 	SerialID         int
 	Names            map[string]string
 	AreaNames        map[string]string
@@ -65,6 +66,7 @@ type generatedDestination struct {
 	RouteNode      string            `json:"route_node"`
 	ZipRouteNode   string            `json:"zip_route_node"`
 	ZiplineOnly    bool              `json:"zipline_only"`
+	VerifyName     bool              `json:"verify_name"`
 	RetryRouteNode string            `json:"retry_route_node"`
 }
 
@@ -201,6 +203,10 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 		if source.Kind == destinationKindRecycleBin && source.SerialID <= 0 {
 			return nil, nil, fmt.Errorf("AutoDelivery recycle bin destination %q has invalid serial id %d", source.ID, source.SerialID)
 		}
+		// 只有 NPC 终点的世界交互提示会显示终点名称，其他终点开启名称复核只会一直失败。
+		if source.VerifyName && source.Kind != destinationKindNPC {
+			return nil, nil, fmt.Errorf("AutoDelivery destination %q enables name check on kind %q", source.ID, source.Kind)
+		}
 		if _, exists := depots[source.DepotID]; !exists {
 			return nil, nil, fmt.Errorf("AutoDelivery destination %q references unknown depot %q", source.ID, source.DepotID)
 		}
@@ -234,6 +240,7 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 			ZipRouteNode:     source.ZipRouteNode,
 			RetryRouteNode:   source.RetryRouteNode,
 			ZiplineOnly:      source.ZiplineOnly,
+			VerifyName:       source.VerifyName,
 			SerialID:         source.SerialID,
 			Names:            source.Name,
 			AreaNames:        source.Area,

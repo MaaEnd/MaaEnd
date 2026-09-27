@@ -15,46 +15,46 @@
     //   22801140002 → [508.4, 1966.0]
     //   22800030008 → [703.8, 1890.9]
     "SharedZiplineDeleteEnterWLWulingCity": {
-        "desc": "武陵城：先进任意地图，已在本区则跳过传送",
+        "desc": "武陵城：直接传送到本区锚点",
         "enabled": false,
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteTeleportWLWulingCity"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLWulingCity": {
+        "desc": "武陵城：传送到本区锚点",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterMapAny"
+                "SceneEnterWorldWulingWulingCity3"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeleteSkipTeleportWLWulingCity",
-            "SharedZiplineDeleteTeleportWLWulingCity"
+            "SharedZiplineDeleteWalkOffWLWulingCity"
         ]
     },
-    "SharedZiplineDeleteSkipTeleportWLWulingCity": {
-        "desc": "已在武陵城地图，跳过世界传送",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SharedZiplineDeletePrepareWulingWulingCity"
-        ]
-    },
-    "SharedZiplineDeleteTeleportWLWulingCity": {
-        "desc": "不在武陵城时，传送到本区锚点",
+    "SharedZiplineDeleteWalkOffWLWulingCity": {
+        "desc": "传送落地后寻路走开，避免挡住锚点",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "SubTask",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingWulingCity0"
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        712.76,
+                        1600.84
+                    ]
+                }
             ]
         },
         "post_delay": 0,

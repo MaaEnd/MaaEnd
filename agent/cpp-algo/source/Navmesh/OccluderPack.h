@@ -19,24 +19,19 @@ struct OccluderPoint
     double z = 0.0;
 };
 
-// One collision face a segment touches. s is the parameter along the segment (0 = start, 1 = end) and point is the
-// intersection. A mesh face records the instance and the triangle index within its template; a terrain face records
-// the block, the cell (u, v) and which of the cell's two triangles it is.
+// One mesh face a segment touches. s is the parameter along the segment (0 = start, 1 = end) and point is the
+// intersection; the face is the triangle index within the template of the instance.
 struct OccluderHit
 {
     double s = 0.0;
     OccluderPoint point;
-    bool terrain = false;
     uint32_t instance = 0;
     uint32_t triangle = 0;
-    uint32_t block = 0;
-    uint32_t u = 0;
-    uint32_t v = 0;
-    bool second = false;
 };
 
-// The occluding faces of one zone: mesh templates, their placements and a terrain height grid. A segment is intersected
-// with these triangles with zero margin: touching any face, from either side or on an edge, blocks it.
+// The collision world of one zone: mesh templates, their placements and a terrain height grid. A segment is intersected
+// with the mesh triangles only, with zero margin: touching any face, from either side or on an edge, blocks it. The
+// terrain takes part only in settling a structure onto the ground.
 struct OccluderScene
 {
     using Vec3 = std::array<double, 3>;
@@ -102,9 +97,19 @@ struct OccluderScene
     std::vector<BoxNode> instance_nodes;
     std::vector<uint32_t> instance_order;
 
-    // Every collision face segment a -> b touches, sorted by the parameter along the segment from the start; ties put
-    // mesh faces before terrain, then order by index.
+    // Every mesh face segment a -> b touches, sorted by the parameter along the segment from the start, ties by
+    // instance and then triangle.
     std::vector<OccluderHit> lineHits(const OccluderPoint& a, const OccluderPoint& b) const;
+
+    // The height a structure placed with its base at `base` settles to. Its footprint is the 1 m grid cell
+    // [⌊x − 0.5⌋, ⌊x − 0.5⌋ + 1] × [⌊z − 0.5⌋, ⌊z − 0.5⌋ + 1], and a thin plate over it sits 1 m above base.y. When any
+    // face, mesh or terrain and from either side, touches the plate, the base goes to the highest upward face that
+    // the four footprint corners meet looking straight down from 1 m above base.y through 2 m. Otherwise the plate is
+    // lowered through up to 2 m and the base goes to the first upward face inside the footprint it meets. Terrain
+    // faces up everywhere; a mesh face faces up when (v1 − v0) × (v2 − v0) of its placed corners has a negative y,
+    // the sign flipped under a mirroring placement. Meeting nothing leaves base.y. The result is kept within
+    // base.y ± 1 m.
+    double groundHeight(const OccluderPoint& base) const;
 };
 
 // Decodes only the scene of zone_name from the whole decompressed container. Returns nullptr on malformed bytes.

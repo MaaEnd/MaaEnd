@@ -8,46 +8,46 @@
     //   10200030168 → [1112.9, 977.5]
     //   10200030153 → [1168.5, 1034.4]
     "SharedZiplineDeleteEnterWLYinglungPass": {
-        "desc": "应龙关：先进任意地图，已在本区则跳过传送",
+        "desc": "应龙关：直接传送到本区锚点",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterMapAny"
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeleteSkipTeleportWLYinglungPass",
             "SharedZiplineDeleteTeleportWLYinglungPass"
         ]
     },
-    "SharedZiplineDeleteSkipTeleportWLYinglungPass": {
-        "desc": "已在应龙关地图，跳过世界传送",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingYinglungPass"
-        ],
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SharedZiplineDeletePrepareWulingYinglungPass"
-        ]
-    },
     "SharedZiplineDeleteTeleportWLYinglungPass": {
-        "desc": "不在应龙关时，传送到本区锚点",
+        "desc": "应龙关：传送到本区锚点",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
                 "SceneEnterWorldWulingYinglungPass2"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteWalkOffWLYinglungPass"
+        ]
+    },
+    "SharedZiplineDeleteWalkOffWLYinglungPass": {
+        "desc": "传送落地后寻路走开，避免挡住锚点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1121.06,
+                        783.15
+                    ]
+                }
             ]
         },
         "post_delay": 0,

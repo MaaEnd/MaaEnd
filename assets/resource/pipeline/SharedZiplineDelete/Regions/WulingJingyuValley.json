@@ -13,46 +13,46 @@
     //   10100020319 → [814.2, 2773.2]
     //   10100020315 → [602.9, 2828.3]  // 跳过：大地图缩放到边后仍在屏幕外，MapFind 无法点到
     "SharedZiplineDeleteEnterWLJingyuValley": {
-        "desc": "景玉谷：先进任意地图，已在本区则跳过传送",
+        "desc": "景玉谷：直接传送到本区锚点",
         "enabled": false,
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SharedZiplineDeleteTeleportWLJingyuValley"
+        ]
+    },
+    "SharedZiplineDeleteTeleportWLJingyuValley": {
+        "desc": "景玉谷：传送到本区锚点",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterMapAny"
+                "SceneEnterWorldWulingJingyuValley6"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SharedZiplineDeleteSkipTeleportWLJingyuValley",
-            "SharedZiplineDeleteTeleportWLJingyuValley"
+            "SharedZiplineDeleteWalkOffWLJingyuValley"
         ]
     },
-    "SharedZiplineDeleteSkipTeleportWLJingyuValley": {
-        "desc": "已在景玉谷地图，跳过世界传送",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SharedZiplineDeletePrepareWulingJingyuValley"
-        ]
-    },
-    "SharedZiplineDeleteTeleportWLJingyuValley": {
-        "desc": "不在景玉谷时，传送到本区锚点",
+    "SharedZiplineDeleteWalkOffWLJingyuValley": {
+        "desc": "传送落地后寻路走开，避免挡住锚点",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "SubTask",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "sub": [
-                "SceneEnterWorldWulingJingyuValley0"
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        985.79,
+                        2483.18
+                    ]
+                }
             ]
         },
         "post_delay": 0,

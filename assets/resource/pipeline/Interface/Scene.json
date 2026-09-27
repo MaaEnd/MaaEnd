@@ -263,6 +263,7 @@
             },
             "__ScenePrivateMapZoomOutWhite"
         ],
+        "box_index": 1,
         "action": "LongPress",
         "duration": 2000,
         "post_wait_freezes": {
