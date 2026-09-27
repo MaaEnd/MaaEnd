@@ -191,7 +191,7 @@ StageResult ZiplineRideMachine::Tick(IZiplineObserver& observer, IZiplineActuato
     case ZiplineStage::Landed:
         return TickLanded(obs, observer, actuator);
     case ZiplineStage::Dismounting:
-        return TickDismounting(obs, actuator);
+        return TickDismounting(obs, observer, actuator);
     default:
         return {};
     }
@@ -700,15 +700,16 @@ StageResult ZiplineRideMachine::Classify(IZiplineObserver& observer, IZiplineAct
     return {};
 }
 
-// 下索键按出去就当下来了, 只等定位稳定。久等不稳再按一次, 还不稳就是卡住了
-StageResult ZiplineRideMachine::TickDismounting(const ZiplineObservation& obs, IZiplineActuator& actuator)
+// 定位稳定、且读不到架上的操作引导才算下来了: 下索键偶尔不生效, 人留在架上时定位同样稳定。
+// 久等下不来再按一次, 还下不来就是卡住了
+StageResult ZiplineRideMachine::TickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
     if (obs.fix) {
         const bool same = dismount_stable_pos_ && DistanceWu(*obs.fix, *dismount_stable_pos_) <= kZiplineRecoveryStableRadiusWu;
         dismount_stable_hits_ = same ? dismount_stable_hits_ + 1 : 1;
         dismount_stable_pos_ = obs.fix;
-        if (dismount_stable_hits_ >= kZiplineRecoveryStableFixes) {
+        if (dismount_stable_hits_ >= kZiplineRecoveryStableFixes && observer.CheckMounted() != MountVerdict::OnTower) {
             EnterStage(ZiplineStage::Handoff, now);
             return Handoff(now);
         }

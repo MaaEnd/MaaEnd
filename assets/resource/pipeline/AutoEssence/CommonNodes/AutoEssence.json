@@ -1360,19 +1360,88 @@
         "inverse": true,
         "next": [
             "AutoEssenceLowSpUseMedication",
-            "AutoEssenceLowSpCancelObtain"
+            "AutoEssenceLowSpNoMedication"
         ]
     },
     "AutoEssenceLowSpUseMedication": {
         "desc": "尝试使用理智消耗许可",
         "pre_delay": 0,
         "anchor": {
-            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceLowSpCancelObtain",
+            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceLowSpNoMedication",
             "AutoUseSpMedicationInPrepareFinishUseAnchor": "AutoEssenceConfirmObtain"
         },
         "post_delay": 0,
         "next": [
             "AutoUseSpMedicationInPrepareWithAnchor"
+        ]
+    },
+    "AutoEssenceLowSpNoMedication": {
+        "desc": "体力不足且未补充体力：双倍模式回退单倍领取，否则取消领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceLowSpFallbackScaling1",
+            "AutoEssenceLowSpCancelObtain"
+        ]
+    },
+    "AutoEssenceLowSpFallbackScaling1": {
+        "desc": "双倍领取体力不足，切换为单倍领取（默认关闭；仅双倍领取选项启用）",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "AutoEssenceChooseScaling1"
+        ],
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "AutoEssenceLowSpFallbackConfirmObtain"
+        ]
+    },
+    "AutoEssenceLowSpFallbackConfirmObtain": {
+        "desc": "回退单倍后点击确认领取",
+        "recognition": "And",
+        "all_of": [
+            "AutoEssenceConfirmObtain"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                210,
+                168,
+                861,
+                422
+            ]
+        },
+        "post_delay": 1000,
+        "next": [
+            "AutoEssenceLowSpFallbackLowSp",
+            "EssenceFilterAfterBattleStart",
+            "AutoEssenceCloseObtainDialog"
+        ]
+    },
+    "AutoEssenceLowSpFallbackLowSp": {
+        "desc": "单倍领取仍体力不足，关闭弹窗后取消领取",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEssenceLowSpDialog",
+            "__AutoEssenceLowSpDialogCloseButton"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoEssenceLowSpFallbackLowDisappear"
+        ]
+    },
+    "AutoEssenceLowSpFallbackLowDisappear": {
+        "desc": "识别体力不足的弹窗消失",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEssenceLowSpDialog"
+        ],
+        "inverse": true,
+        "next": [
+            "AutoEssenceLowSpCancelObtain"
         ]
     },
     "AutoEssenceLowSpCancelObtain": {

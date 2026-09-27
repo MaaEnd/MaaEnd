@@ -5,7 +5,6 @@
             "label": "$task.AutoEssence.label",
             "entry": "AutoEssenceSchedule",
             "controller": [
-                "ADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -362,6 +361,9 @@
                         "AutoEssenceChooseScaling2": {
                             "enabled": false
                         },
+                        "AutoEssenceLowSpFallbackScaling1": {
+                            "enabled": false
+                        },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
                         }
@@ -383,6 +385,9 @@
                             "enabled": false
                         },
                         "AutoEssenceChooseScaling2": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallbackScaling1": {
                             "enabled": true
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
@@ -416,6 +421,9 @@
                         "AutoEssenceChooseScaling2": {
                             "enabled": false
                         },
+                        "AutoEssenceLowSpFallbackScaling1": {
+                            "enabled": false
+                        },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
                         }
@@ -437,6 +445,9 @@
                             "enabled": false
                         },
                         "AutoEssenceChooseScaling2": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallbackScaling1": {
                             "enabled": true
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
@@ -470,6 +481,9 @@
                         "AutoEssenceChooseScaling2": {
                             "enabled": false
                         },
+                        "AutoEssenceLowSpFallbackScaling1": {
+                            "enabled": false
+                        },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
                         },
@@ -501,6 +515,9 @@
                             "enabled": false
                         },
                         "AutoEssenceChooseScaling2": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallbackScaling1": {
                             "enabled": true
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
