@@ -75,17 +75,34 @@ jobs:
       - name: Install test dependencies
         run: uv sync --locked --no-default-groups --group pipeline --group images
 
-      # SDK 与 Python 绑定使用同版运行库，避免分别解析 latest 造成版本不一致。
+      # 与 install.yml 相同：以 MaaFramework 最新 release 为准，SDK、Python 绑定与 MaaUtils 均对齐到该版本。
       - name: Resolve MaaFramework version
         id: maafw
-        run: echo "version=$(uv run --no-sync python -c 'from maa.library import Library; print(Library.version())')" >> "$GITHUB_OUTPUT"
+        uses: step-security/github-action-get-latest-release@v0.8.2
+        with:
+          repository: MaaXYZ/MaaFramework
+          excludes: "draft"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Agent 按 MaaUtils 子模块编译，必须与运行时加载的 MaaFramework 同版。
+      - name: Check MaaUtils matches MaaFramework
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
+        run: python3 tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION"
+
+      # 覆盖锁文件中的版本；后续步骤均使用 --no-sync，不会被还原。
+      - name: Install matching Python binding
+        env:
+          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
+        run: uv pip install "maafw==${MAAFW_VERSION#v}"
 
       - name: Download MaaFramework SDK
         uses: robinraju/release-downloader@v1
         with:
           repository: MaaXYZ/MaaFramework
           fileName: "MAA-linux-x86_64*"
-          tag: ${{ steps.maafw.outputs.version }}
+          tag: ${{ steps.maafw.outputs.release }}
           out-file-path: deps
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
