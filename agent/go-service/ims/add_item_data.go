@@ -2,6 +2,7 @@ package ims
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -43,12 +44,13 @@ type addItemDataParam struct {
 // init Focus is printed in either case.
 //
 // Finding no reward cards (IconRecognition no_match / grid_detection_failed)
-// is also success. An IconRecognition exception, such as a missing or invalid
-// recognition_items.json, is logged and treated as no hits so the
-// close-rewards next node still runs. Corrupt IMS.json is reset by
-// ensureHydrated. Any remaining hydrate error is treated like an uninitialized
-// cache: recognize and Focus, skip write, still return true. A3 must not block
-// the close-rewards next node.
+// is also success. A missing or invalid recognition_items.json is logged and
+// treated as no hits whether it fails while resolving item_ids or inside
+// IconRecognition, so the close-rewards next node still runs. Illegal
+// parameters (bad JSON, empty or duplicate entries, unknown item_id) still
+// fail the action. Corrupt IMS.json is reset by ensureHydrated. Any remaining
+// hydrate error is treated like an uninitialized cache: recognize and Focus,
+// skip write, still return true. A3 must not block the close-rewards next node.
 //
 // Best practice: run as the action of a node that recognizes CloseRewardsButton,
 // then next to a Click node that closes the rewards UI.
@@ -115,8 +117,8 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Error().
 			Err(err).
 			Str("component", componentAddItemData).
-			Msg("failed to cache image")
-		return false
+			Msg("failed to cache image, skip reward update")
+		return true
 	}
 
 	scanFilters, scanIDs, err := resolveAddItemDataCandidates(params.ItemFilters, params.ItemIDs)
@@ -128,6 +130,9 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Strs("item_filters", params.ItemFilters).
 			Strs("item_ids", params.ItemIDs).
 			Msg("failed to resolve reward candidates")
+		if errors.Is(err, errRecognitionCatalogUnavailable) {
+			return true
+		}
 		return false
 	}
 
@@ -146,8 +151,8 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Str("grid_type", gridType).
 			Strs("item_filters", scanFilters).
 			Strs("item_ids", scanIDs).
-			Msg("failed to recognize reward icons")
-		return false
+			Msg("failed to recognize reward icons, skip reward update")
+		return true
 	}
 
 	addedTotal := 0
@@ -202,8 +207,8 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			log.Error().
 				Err(err).
 				Str("component", componentAddItemData).
-				Msg("failed to persist item quantities")
-			return false
+				Msg("failed to persist item quantities, skip reward update")
+			return true
 		}
 	}
 
