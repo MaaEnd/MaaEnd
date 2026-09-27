@@ -17,7 +17,7 @@ struct MapPosition
     double y = 0.0;
     double score = 0.0;
     int sliceIndex = 0;
-    double angle = 0.0;
+    double angle = 0.0; // 当前帧角色朝向，负值表示未识别到；定位成功不保证朝向可用。
     long long latencyMs = 0;
 };
 
@@ -86,6 +86,7 @@ struct LocateResult
     std::optional<MapPosition> position;
     std::string debugMessage; // 用于向 Pipeline 输出日志
     std::optional<CameraOrientation> camRot;
+    std::optional<double> rot; // 当前帧角色朝向，不依赖位置是否识别成功。
 };
 
 enum class GlobalSearchMode
@@ -182,10 +183,6 @@ constexpr double kFarJumpRejectDistance = 80.0;   // global 跨帧跳变阈值
 constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分以上直接 reseed
 constexpr const char* kColdStartCollectingMessage = "Cold-start collecting.";
 constexpr double kSeamFallbackMinPeakScore = 0.0;
-
-// 小地图被遮挡时最长拒绝多久，超时放行以免长期被遮挡的点位彻底卡死。
-// 实测遮挡自行消散耗时 2.8~4.2s，取 5s 留余量；上界是导航起步等待定位的 10s 预算。
-constexpr int kOcclusionRejectTimeoutMs = 5000;
 
 // tracking 匹配低于此分时通知上层考虑改走全局搜索
 constexpr double kFastTrackingPassScore = 0.75;
