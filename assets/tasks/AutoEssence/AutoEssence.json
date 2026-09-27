@@ -5,7 +5,6 @@
             "label": "$task.AutoEssence.label",
             "entry": "AutoEssenceSchedule",
             "controller": [
-                "ADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
