@@ -27,6 +27,7 @@ from text import clean_text, validate_identifier
 ITEM_TABLE_URL = "https://assets.fz.wiki/output_beyondmap/item_mini_table.json"
 WEAPON_TABLE_URL = "https://assets.fz.wiki/output_maaend/weapons.json"
 IMAGE_BASE_URL = "https://assets.fz.wiki/output_image/itemicon"
+BIG_IMAGE_BASE_URL = "https://assets.fz.wiki/output_image/itemiconbig"
 LANG_URL = "https://assets.fz.wiki/output_beyondmap/i18n/{locale}/lang.json"
 LOCALES = {
     "zh-CN": "CN",
@@ -38,6 +39,28 @@ LOCALES = {
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 DEFAULT_CACHE_ROOT = Path("tools/icon_recognition/.cache/downloads")
 DEFAULT_BLACKLIST_PATH = Path(__file__).with_name("blacklist.json")
+BIG_ICON_IDS_PATH = Path(__file__).with_name("big_icon_ids.json")
+
+
+def load_big_icon_ids(path: Path = BIG_ICON_IDS_PATH) -> set[str]:
+    ids = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(ids, list) or any(not isinstance(icon_id, str) for icon_id in ids):
+        raise ValueError("大图名单必须是 iconId 字符串数组")
+    for icon_id in ids:
+        validate_identifier(icon_id, field="大图名单 iconId")
+    if len(ids) != len(set(ids)):
+        raise ValueError("大图名单存在重复 iconId")
+    return set(ids)
+
+
+def rarity_directories(root: Path) -> list[Path]:
+    if not root.is_dir():
+        return []
+    return [
+        path
+        for path in root.iterdir()
+        if path.is_dir() and path.name.isascii() and path.name.isdecimal()
+    ]
 
 
 def validate_icon_png_bytes(content: bytes) -> int:
@@ -52,6 +75,9 @@ def validate_icon_png_bytes(content: bytes) -> int:
     if width & (width - 1):
         raise ValueError(f"图标 PNG 边长必须是 2 的整数次幂，实际为 {width}")
     return width
+
+
+
 ITEM_FIELDS = (
     "name",
     "category",
@@ -477,7 +503,7 @@ def merge_item_sources(
 
 
 def build_download_jobs(
-    items: Mapping[str, Mapping[str, Any]], image_root: Path
+    items: Mapping[str, Mapping[str, Any]], image_root: Path, *, image_base_url: str = IMAGE_BASE_URL
 ) -> tuple[list[DownloadJob], list[dict[str, Any]]]:
     jobs_by_destination: dict[Path, DownloadJob] = {}
     missing_icons: list[dict[str, Any]] = []
@@ -500,7 +526,7 @@ def build_download_jobs(
         job = DownloadJob(
             icon_id=icon_id,
             rarity=rarity,
-            url=f"{IMAGE_BASE_URL}/{quote(icon_id, safe='')}.png@raw",
+            url=f"{image_base_url}/{quote(icon_id, safe='')}.png@raw",
             destination=destination,
         )
         previous = jobs_by_destination.get(destination)
@@ -527,11 +553,11 @@ def relocate_rarity_changed_icons(
 
     moved = 0
     for icon_id, destination in destinations.items():
-        candidates = [
-            path
-            for path in image_root.glob(f"*/{icon_id}.png")
-            if path.is_file() and path != destination
-        ]
+        candidates = []
+        for rarity_directory in rarity_directories(image_root):
+            path = rarity_directory / f"{icon_id}.png"
+            if path.is_file() and path != destination:
+                candidates.append(path)
         if len(candidates) > 1:
             raise ValueError(f"同一 iconId 存在多个旧稀有度图标: {icon_id}")
         if not candidates:
@@ -576,7 +602,7 @@ def fetch(
     timeout: float = 60,
     validate_content: Callable[[bytes], Any] | None = None,
 ) -> dict[str, Any]:
-    """使用 ETag/Last-Modified 条件请求原子更新单个远端文件。"""
+    """来源地址未变化时使用条件请求；切换来源后重新下载并原子更新。"""
 
     destination.parent.mkdir(parents=True, exist_ok=True)
     metadata_path = _metadata_path(destination)
@@ -586,7 +612,7 @@ def fetch(
         else {}
     )
     headers = {"User-Agent": "MaaEnd-IconRecognition/1.0"}
-    if destination.is_file() and (
+    if destination.is_file() and metadata.get("url") == url and (
         validate_content is None or is_valid_png(destination)
     ):
         if isinstance(metadata.get("etag"), str):
@@ -765,6 +791,13 @@ def run(
     jobs, missing_icons = build_download_jobs(merged, root / "images")
     relocated = relocate_rarity_changed_icons(jobs, root / "images")
     report = download_images(jobs, workers=workers, timeout=timeout)
+    big_icon_ids = load_big_icon_ids()
+    big_items = {item_id: item for item_id, item in merged.items() if item.get("iconId") in big_icon_ids}
+    big_jobs, _ = build_download_jobs(big_items, root / "big_images", image_base_url=BIG_IMAGE_BASE_URL)
+    if {job.icon_id for job in big_jobs} != big_icon_ids:
+        raise ValueError("大图名单包含不在物品源数据中的 iconId")
+    relocate_rarity_changed_icons(big_jobs, root / "big_images")
+    big_report = download_images(big_jobs, workers=workers, timeout=timeout)
     blacklist_removals = [
         row for row in removals if row["reason"] == "blacklist"
     ]
@@ -789,6 +822,7 @@ def run(
             "missingIconCount": len(missing_icons),
             "missingIconItems": missing_icons,
             "relocatedCount": relocated,
+            "bigImages": big_report,
         }
     )
     _write_json(root / "download_report.json", report)

@@ -62,6 +62,7 @@ bool TemplateCatalog::InitializeUnlocked()
 {
     records_.clear();
     cache_.clear();
+    big_cache_.clear();
     region_unavailable_cache_.clear();
     region_unavailable_background_.release();
     region_unavailable_mark_.release();
@@ -157,6 +158,11 @@ std::filesystem::path ResolveIconPath(const std::filesystem::path& image_root, c
         if (!directory.is_directory()) {
             continue;
         }
+        const auto name = directory.path().filename().native();
+        if (name.empty()
+            || !std::ranges::all_of(name, [](auto character) { return character >= '0' && character <= '9'; })) {
+            continue;
+        }
         const auto path = directory.path() / (icon_id + ".png");
         if (!std::filesystem::is_regular_file(path)) {
             continue;
@@ -207,6 +213,40 @@ const std::vector<PreparedTemplate>& TemplateCatalog::loadUnlocked(int target_si
         }
     }
     return cache_.emplace(target_size, std::move(result)).first->second;
+}
+
+const std::vector<PreparedTemplate>& TemplateCatalog::loadBig(int target_size)
+{
+    const std::lock_guard lock(mutex_);
+    if (!initialized_) {
+        InitializeUnlocked();
+    }
+    if (target_size <= 0) {
+        throw std::invalid_argument("template size must be positive");
+    }
+    if (const auto it = big_cache_.find(target_size); it != big_cache_.end()) {
+        return it->second;
+    }
+    std::vector<PreparedTemplate> result;
+    for (const auto& record : records_) {
+        const auto path = image_root_ / "Big" / std::to_string(record.rarity) / (record.icon_id + ".png");
+        if (!std::filesystem::is_regular_file(path)) {
+            continue;
+        }
+        const cv::Mat base = DecodeBgra(path);
+        if (record.fluid_icon_id.empty()) {
+            result.push_back(PrepareStandardTemplate(record, base, target_size, kTemplateAlphaThreshold));
+        }
+        else {
+            result.push_back(BuildCompositeIcon(
+                record,
+                base,
+                DecodeBgra(ResolveIconPath(image_root_, record.fluid_icon_id)),
+                target_size,
+                kTemplateAlphaThreshold));
+        }
+    }
+    return big_cache_.emplace(target_size, std::move(result)).first->second;
 }
 
 const std::vector<PreparedTemplate>& TemplateCatalog::loadRegionUnavailable(int target_size)

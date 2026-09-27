@@ -535,6 +535,24 @@ std::vector<detail::PreparedTemplate> SelectRegionUnavailableVariants(
     return result;
 }
 
+std::vector<detail::PreparedTemplate> SelectBigVariants(
+    const std::vector<detail::PreparedTemplate>& big,
+    const std::vector<detail::PreparedTemplate>& selected)
+{
+    std::vector<detail::PreparedTemplate> result;
+    for (const auto& original : selected) {
+        const auto variant = std::ranges::find_if(big, [&](const auto& templ) {
+            return templ.record.icon_id == original.record.icon_id && templ.record.fluid_icon_id == original.record.fluid_icon_id;
+        });
+        if (variant == big.end()) {
+            continue;
+        }
+        result.push_back(*variant);
+        result.back().record = original.record;
+    }
+    return result;
+}
+
 std::vector<detail::PreparedTemplate> BuildRegionUnavailableRecheckTemplates(
     const std::vector<detail::PreparedTemplate>& selected,
     const std::vector<detail::PreparedTemplate>& region_unavailable)
@@ -643,6 +661,11 @@ public:
         return catalog_.load(target_size);
     }
 
+    const std::vector<detail::PreparedTemplate>& BigTemplatesForSize(int target_size) const
+    {
+        return catalog_.loadBig(target_size);
+    }
+
     const std::vector<detail::PreparedTemplate>& RoiTemplates(int target_size) const { return catalog_.load(target_size); }
 
     bool preload(const std::vector<RecognitionRequest>& requests)
@@ -654,13 +677,16 @@ public:
                         throw std::invalid_argument("single_roi preload must use a positive square ROI");
                     }
                     static_cast<void>(RoiTemplates(request.roi.width));
+                    static_cast<void>(BigTemplatesForSize(request.roi.width));
                 }
                 else {
                     for (const double grid_scale : detail::kSupportedControllerGridScales) {
                         const int target_size = TemplateSizeFor(request.grid_type, grid_scale);
                         static_cast<void>(TemplatesForSize(target_size));
+                        static_cast<void>(BigTemplatesForSize(target_size));
                         if (request.grid_type == GridType::Valuables || request.grid_type == GridType::Rewards) {
                             static_cast<void>(TemplatesForSize(AlternateTemplateSizeFor(grid_scale)));
+                            static_cast<void>(BigTemplatesForSize(AlternateTemplateSizeFor(grid_scale)));
                         }
                         if (request.recognize_region_unavailable && SupportsRegionUnavailableRecognition(request.grid_type)) {
                             static_cast<void>(catalog_.loadRegionUnavailable(target_size));
@@ -717,6 +743,8 @@ public:
             std::vector<detail::GridLayout> detected_grids;
             std::vector<detail::PreparedTemplate> selected;
             std::vector<detail::PreparedTemplate> alternate_selected;
+            std::vector<detail::PreparedTemplate> big_selected;
+            std::vector<detail::PreparedTemplate> big_alternate_selected;
             double grid_scale = detail::kWin32ControllerGridScale;
             int template_size = 0;
             if (single_roi) {
@@ -734,6 +762,7 @@ public:
                     RoiTemplates(request.roi.width),
                     request.candidates,
                     detail::DefaultItemFilters(request.grid_type));
+                big_selected = SelectBigVariants(BigTemplatesForSize(request.roi.width), selected);
                 if (performance) {
                     performance->template_selection_ms += ElapsedMilliseconds(selection_started);
                 }
@@ -758,11 +787,14 @@ public:
                     TemplatesFor(request.grid_type, grid_scale),
                     request.candidates,
                     detail::DefaultItemFilters(request.grid_type));
+                big_selected = SelectBigVariants(BigTemplatesForSize(template_size), selected);
                 if (request.grid_type == GridType::Valuables || request.grid_type == GridType::Rewards) {
                     alternate_selected = detail::SelectCandidateTemplates(
                         TemplatesForSize(AlternateTemplateSizeFor(grid_scale)),
                         request.candidates,
                         detail::DefaultItemFilters(request.grid_type));
+                    big_alternate_selected = SelectBigVariants(
+                        BigTemplatesForSize(AlternateTemplateSizeFor(grid_scale)), alternate_selected);
                 }
                 if (performance) {
                     performance->template_selection_ms += ElapsedMilliseconds(selection_started);
@@ -878,6 +910,44 @@ public:
                             evaluation = std::move(fallback);
                             region_unavailable_fallback_used = true;
                         }
+                    }
+                }
+                if (!evaluation.accepted && !big_selected.empty()) {
+                    CellEvaluation big = EvaluateCellTemplates(
+                        image,
+                        request.grid_type,
+                        cell.cell_box,
+                        slot,
+                        big_selected,
+                        std::nullopt,
+                        single_roi,
+                        grid_scale,
+                        request.threshold,
+                        request.subpixel_threshold,
+                        performance_ptr,
+                        transfer_foreground_texture);
+                    if (!big.accepted && !big_alternate_selected.empty()) {
+                        const cv::Rect big_slot = SlotFor(
+                            request.grid_type, cell, grid_scale, AlternateTemplateSizeFor(grid_scale));
+                        CellEvaluation alternate_big = EvaluateCellTemplates(
+                            image,
+                            request.grid_type,
+                            cell.cell_box,
+                            big_slot,
+                            big_alternate_selected,
+                            std::nullopt,
+                            false,
+                            grid_scale,
+                            request.threshold,
+                            request.subpixel_threshold,
+                            performance_ptr,
+                            transfer_foreground_texture);
+                        if (PreferAlternateEvaluation(alternate_big, big)) {
+                            big = std::move(alternate_big);
+                        }
+                    }
+                    if (big.accepted) {
+                        evaluation = std::move(big);
                     }
                 }
 

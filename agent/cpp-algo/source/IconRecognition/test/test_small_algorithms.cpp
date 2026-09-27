@@ -635,6 +635,18 @@ void TestCatalogBuildsFinalSizeDirectlyFromSourceAssets()
     }
 }
 
+void TestCatalogLoadsOnlyAvailableBigVariants()
+{
+    iconrecognition::detail::TemplateCatalog catalog("assets/data/IconRecognition", "assets/resource/image/IconRecognition");
+    Check(catalog.initialize(), "big template catalog must initialize from public assets");
+    const auto& variants = catalog.loadBig(96);
+    Check(variants.size() >= 2, "big template catalog must include the published variants");
+    for (const auto& item_id : { "item_char_skill_crown", "item_case_wpn_selfselect_bp_2" }) {
+        const auto found = std::ranges::find_if(variants, [&](const auto& templ) { return templ.record.item_id == item_id; });
+        Check(found != variants.end() && found->image.size() == cv::Size(96, 96), "big template must retain its original item identity");
+    }
+}
+
 void TestCatalogUsesGameSortOrderBeforeItemId()
 {
     const std::filesystem::path fixture = "agent/cpp-algo/source/IconRecognition/test/build/generated-sorted-catalog";
@@ -736,6 +748,7 @@ int main()
         TestEdgeOcclusionSkipsRewardsAndSingleRoi();
         TestEdgeOcclusionRecoveryPolicyIsConservative();
         TestCatalogBuildsFinalSizeDirectlyFromSourceAssets();
+        TestCatalogLoadsOnlyAvailableBigVariants();
         TestCatalogUsesGameSortOrderBeforeItemId();
         TestCatalogRejectsNonBooleanRegionRestricted();
         TestCatalogConcurrentLoadIsStable();

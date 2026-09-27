@@ -13,7 +13,7 @@ from pathlib import Path
 from PIL import Image
 
 from catalog import build_catalog, write_catalog
-from download import apply_item_blacklist, validate_icon_png_bytes
+from download import apply_item_blacklist, load_big_icon_ids, rarity_directories, validate_icon_png_bytes
 from fixed_items import FIXED_ITEMS
 from localization import (
     LOCALE_MAP,
@@ -96,9 +96,7 @@ def sync_published_images(
         icon_id = validate_identifier(icon_id, field="黑名单移除项.iconId")
         if icon_id in referenced_icon_ids:
             continue
-        for rarity_directory in asset_image_root.iterdir():
-            if not rarity_directory.is_dir():
-                continue
+        for rarity_directory in rarity_directories(asset_image_root):
             stale = rarity_directory / f"{icon_id}.png"
             if stale.is_file():
                 stale.unlink()
@@ -107,11 +105,11 @@ def sync_published_images(
     for relative_path in expected_images:
         destination = asset_image_root / relative_path
         source = image_root / relative_path
-        stale_paths = [
-            path
-            for path in asset_image_root.glob(f"*/{relative_path.name}")
-            if path.is_file() and path != destination
-        ]
+        stale_paths = []
+        for rarity_directory in rarity_directories(asset_image_root):
+            path = rarity_directory / relative_path.name
+            if path.is_file() and path != destination:
+                stale_paths.append(path)
         if destination.exists():
             for stale in stale_paths:
                 stale.unlink()
@@ -132,6 +130,36 @@ def sync_published_images(
         shutil.copy2(source, destination)
         changed_icon_ids.add(relative_path.stem)
     return changed_icon_ids
+
+
+def sync_published_big_images(
+    image_root: Path,
+    asset_image_root: Path,
+    catalog: Mapping[str, Mapping[str, object]],
+    big_icon_ids: set[str],
+) -> None:
+    source_root = image_root.parent / "big_images"
+    target_root = asset_image_root / "Big"
+    expected: set[Path] = set()
+    for record in catalog.values():
+        icon_id = str(record["iconId"])
+        if icon_id not in big_icon_ids:
+            continue
+        relative_path = Path(str(record["rarity"])) / f"{icon_id}.png"
+        source = source_root / relative_path
+        if not source.is_file():
+            raise FileNotFoundError(f"大图名单中的下载缓存不存在: {source}")
+        validate_icon_png_bytes(source.read_bytes())
+        target = target_root / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if not target.is_file() or not _same_image_pixels(source, target):
+            shutil.copy2(source, target)
+        expected.add(relative_path)
+    if target_root.is_dir():
+        for rarity_directory in rarity_directories(target_root):
+            for path in rarity_directory.glob("*.png"):
+                if path.relative_to(target_root) not in expected:
+                    path.unlink()
 
 
 def _same_image_pixels(source: Path, destination: Path) -> bool:
@@ -178,6 +206,7 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
         source,
         removals,
     )
+    sync_published_big_images(paths.image_root, paths.asset_image_root, catalog, load_big_icon_ids())
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
     write_catalog(catalog, paths.catalog_output)
     refresh_item_ids = {
@@ -214,15 +243,11 @@ def publish_fixed_items(paths: PublishPaths) -> int:
         }
         for item_id, payload in FIXED_ITEMS.items()
     }
-    rarity_directories = (
-        [path for path in paths.asset_image_root.iterdir() if path.is_dir()]
-        if paths.asset_image_root.is_dir()
-        else []
-    )
+    existing_rarity_directories = rarity_directories(paths.asset_image_root)
     for payload in FIXED_ITEMS.values():
         source = paths.image_root / str(payload["rarity"]) / f"{payload['iconId']}.png"
         validate_icon_png_bytes(source.read_bytes())
-        for rarity_directory in rarity_directories:
+        for rarity_directory in existing_rarity_directories:
             stale = rarity_directory / source.name
             expected = paths.asset_image_root / str(payload["rarity"]) / source.name
             if stale.is_file() and stale != expected:
