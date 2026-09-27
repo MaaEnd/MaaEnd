@@ -293,7 +293,7 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 300,
+        "post_delay": 500,
         "next": [
             "__MapNavigatorObstacleDevice_CancelMove"
         ]
