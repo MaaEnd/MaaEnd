@@ -225,6 +225,8 @@ pnpm test
 
 `maa-tools test` 不启动 Agent，无法测试 Agent 提供的自定义识别。`MapLocateAssertLocation` 定位节点改用独立的 Python 执行器测试：运行 `pnpm test:map-locate`，或 `uv run python tests/MapLocateAssertLocation/map_locate.py`。CI 中对应的是 `map-locate-test` job。用例格式、样本要求和运行前提见[定位节点截图测试](../../../tests/MapLocateAssertLocation/README.md)。
 
+路线的寻路连通性由另一个独立执行器检查：运行 `uv run python tests/MapNavmeshConnectivity/navmesh_connectivity.py`，它按用例文件中的起点和终点交给 Agent 规划，规划成功即视为连通，不依赖截图。CI 中对应 `map-locate-test` job 的 `Run navmesh connectivity tests` 步骤。用例格式与判定方式见[连通性测试](../../../tests/MapNavmeshConnectivity/README.md)。
+
 普通节点测试日志默认输出到：
 
 ```text
