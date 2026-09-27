@@ -22,6 +22,7 @@
         "pre_delay": 0,
         "action": "KeyDown",
         "key": 164, // 0xA4	Left Alt key
+        "auto_up": true,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

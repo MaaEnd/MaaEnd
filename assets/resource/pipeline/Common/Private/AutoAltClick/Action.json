@@ -4,6 +4,7 @@
         "pre_delay": 0,
         "action": "KeyDown",
         "key": 18,
+        "auto_up": true,
         "post_delay": 0
     },
     "__AutoAltClickAltKeyUpAction": {
@@ -30,6 +31,7 @@
         "pre_delay": 0,
         "action": "KeyDown",
         "key": 17,
+        "auto_up": true,
         "post_delay": 0
     },
     "__AutoCtrlClickCtrlKeyUpAction": {

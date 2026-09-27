@@ -265,7 +265,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 18
+                "key": 18,
+                "auto_up": true
             }
         },
         "next": [
