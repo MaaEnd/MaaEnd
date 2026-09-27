@@ -93,7 +93,11 @@ func applyKeywordsRegexOverride(ctx *maa.Context, targetNodeName, keywordsInput 
 		}
 	}
 	override := map[string]any{
-		targetNodeName: map[string]any{"expected": expected},
+		targetNodeName: map[string]any{
+			"recognition": map[string]any{
+				"param": map[string]any{"expected": expected},
+			},
+		},
 	}
 
 	log.Debug().
@@ -115,6 +119,9 @@ func splitInputKeywords(keywordsInput string) []string {
 	seen := make(map[string]struct{}, len(parts))
 	result := make([]string, 0, len(parts))
 	for _, part := range parts {
+		if part == "" {
+			continue
+		}
 		if _, ok := seen[part]; ok {
 			continue
 		}
