@@ -24,9 +24,14 @@ public:
         const std::string& expected_zone_id,
         const std::vector<maplocator::SearchHint>& search_hints = {});
     // Walking requires both a position and a usable heading; Capture remains position-only for ziplines.
-    bool captureForNavigation(NaviPosition* out_pos, bool force_global_search, const std::string& expected_zone_id);
+    bool captureForNavigation(
+        NaviPosition* out_pos,
+        HeadingSource heading_source,
+        bool force_global_search,
+        const std::string& expected_zone_id);
     bool WaitForFix(
         NaviPosition* out_pos,
+        HeadingSource heading_source,
         const std::string& expected_zone_id,
         int max_retries,
         int retry_interval_ms,

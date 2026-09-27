@@ -25,6 +25,7 @@ struct Context
     NaviPosition* position = nullptr;
     NavigationRuntimeState* runtime_state = nullptr;
     MaaContext* maa_context = nullptr;
+    HeadingSource heading_source = HeadingSource::Character;
 };
 
 struct Result

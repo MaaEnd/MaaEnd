@@ -367,7 +367,8 @@ semantic_nodes::Context BuildSemanticContext(
     ActionExecutor* action_executor,
     NaviPosition* position,
     NavigationRuntimeState* runtime_state,
-    MaaContext* maa_context)
+    MaaContext* maa_context,
+    HeadingSource heading_source)
 {
     semantic_nodes::Context ctx;
     ctx.action_wrapper = action_wrapper;
@@ -378,6 +379,7 @@ semantic_nodes::Context BuildSemanticContext(
     ctx.position = position;
     ctx.runtime_state = runtime_state;
     ctx.maa_context = maa_context;
+    ctx.heading_source = heading_source;
     return ctx;
 }
 
@@ -521,7 +523,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
                 action_executor_,
                 position_,
                 &runtime_state_,
-                maa_context_),
+                maa_context_,
+                param_.heading_source),
             phase);
         if (semantic_result.request_failure) {
             return FailNavigation(semantic_result.failure_reason, semantic_result.failure_log_message, 0.0, 0.0, 0);
@@ -538,7 +541,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
 
 bool NavigationStateMachine::CaptureCurrentPosition(bool force_global_search)
 {
-    const bool captured = position_provider_->captureForNavigation(position_, force_global_search, session_->current_zone_id());
+    const bool captured =
+        position_provider_->captureForNavigation(position_, param_.heading_source, force_global_search, session_->current_zone_id());
     UpdateDwellWatchdog(captured);
     return captured;
 }
@@ -608,7 +612,11 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     if (!relocalize_cooling) {
         last_global_relocalize_at_ = now;
         const std::string prior_zone = session_->current_zone_id();
-        if (position_provider_->captureForNavigation(position_, /*force_global_search=*/true, /*expected_zone_id=*/std::string())) {
+        if (position_provider_->captureForNavigation(
+                position_,
+                param_.heading_source,
+                /*force_global_search=*/true,
+                /*expected_zone_id=*/std::string())) {
             const bool zone_changed = !position_->zone_id.empty() && position_->zone_id != prior_zone;
 
             if (runtime_state_.cross_tier_escape.active) {
@@ -874,7 +882,8 @@ bool NavigationStateMachine::GiveUpUnreachableZipline(const char* reason)
             action_executor_,
             position_,
             &runtime_state_,
-            maa_context_),
+            maa_context_,
+            param_.heading_source),
         "zipline_unreachable",
         reason);
     return true;
@@ -948,7 +957,8 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
                 action_executor_,
                 position_,
                 &runtime_state_,
-                maa_context_));
+                maa_context_,
+                param_.heading_source));
         }
         return FailNavigation(
             "zipline_recovery_route_unavailable",
@@ -971,7 +981,8 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
                 action_executor_,
                 position_,
                 &runtime_state_,
-                maa_context_),
+                maa_context_,
+                param_.heading_source),
             session_->CurrentWaypoint(),
             0.0);
         return true;
@@ -1052,7 +1063,8 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
             action_executor_,
             position_,
             &runtime_state_,
-            maa_context_);
+            maa_context_,
+            param_.heading_source);
         if (semantic_nodes::CurrentHopStartsUnderfoot(ctx)) {
             LogInfo << "Zipline recovery re-expanded the remaining authored route; the next hop leaves from this tower." << VAR(reason)
                     << VAR(slice_begin) << VAR(session_->current_path().size());
@@ -1234,7 +1246,8 @@ bool NavigationStateMachine::TickNavigate()
         action_executor_,
         position_,
         &runtime_state_,
-        maa_context_);
+        maa_context_,
+        param_.heading_source);
     const semantic_nodes::Result active_semantic_result = semantic_nodes::TickSemanticFlow(semantic_ctx, NaviPhase::Navigate);
     if (active_semantic_result.request_failure) {
         return FailNavigation(active_semantic_result.failure_reason, active_semantic_result.failure_log_message, 0.0, 0.0, 0);
@@ -1299,7 +1312,8 @@ bool NavigationStateMachine::TickNavigate()
                     action_executor_,
                     position_,
                     &runtime_state_,
-                    maa_context_),
+                    maa_context_,
+                    param_.heading_source),
                 "zipline_dwell_watchdog",
                 "never left the tower's dwell radius");
             runtime_state_.dwell.Reset();
@@ -1737,7 +1751,8 @@ bool NavigationStateMachine::TickNavigate()
                             action_executor_,
                             position_,
                             &runtime_state_,
-                            maa_context_),
+                            maa_context_,
+                            param_.heading_source),
                         "zipline_recovery_timeout",
                         "stuck at the tower after recovery ran out");
                     return true;
@@ -1865,11 +1880,6 @@ bool NavigationStateMachine::TickNavigate()
     double turn_achieved_deg = 0.0;
     double turn_residual_deg = 0.0;
     int64_t turn_elapsed_ms = 0;
-    if (runtime_state_.steering_rate.heading_source != position_->heading_source) {
-        // 两种观测的差值不是实际转身，旧角速度和未兑现转向不能跨来源继承。
-        runtime_state_.steering_rate.Reset();
-        runtime_state_.steering_rate.heading_source = position_->heading_source;
-    }
     if (runtime_state_.steering_rate.has_cmd) {
         turn_achieved_deg = NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.cmd_heading_deg);
         turn_residual_deg = NaviMath::NormalizeAngle(turn_achieved_deg - runtime_state_.steering_rate.cmd_delta_deg);

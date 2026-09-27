@@ -92,7 +92,7 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     if (ctx.runtime_state->semantic.portal_transit_needs_reacquire) {
-        if (!ctx.position_provider->captureForNavigation(ctx.position, false, ctx.session->current_zone_id())) {
+        if (!ctx.position_provider->captureForNavigation(ctx.position, ctx.heading_source, false, ctx.session->current_zone_id())) {
             result.stay_in_current_tick = true;
             utils::SleepFor(kZoneConfirmRetryIntervalMs);
             return result;
@@ -120,7 +120,7 @@ Result TickPortalTransit(const Context& ctx)
     }
 
     NaviPosition candidate;
-    if (!ctx.position_provider->captureForNavigation(&candidate, true, {})) {
+    if (!ctx.position_provider->captureForNavigation(&candidate, ctx.heading_source, true, {})) {
         result.stay_in_current_tick = true;
         utils::SleepFor(kZoneConfirmRetryIntervalMs);
         return result;
@@ -165,7 +165,7 @@ Result TickTransferWaitImpl(const Context& ctx)
         ctx.runtime_state->semantic.transfer_wait_started = now;
     }
 
-    if (!ctx.position_provider->captureForNavigation(ctx.position, false, {})) {
+    if (!ctx.position_provider->captureForNavigation(ctx.position, ctx.heading_source, false, {})) {
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - ctx.runtime_state->semantic.transfer_wait_started).count()
             > kRelocationWaitTimeoutMs) {
             result.request_failure = true;
@@ -297,7 +297,7 @@ bool CaptureCleanFix(const Context& ctx, NaviPosition* out_pos)
         if (frame > 0) {
             utils::SleepFor(kStrictSettleFixIntervalMs);
         }
-        if (!ctx.position_provider->captureForNavigation(ctx.position, false, ctx.session->current_zone_id())
+        if (!ctx.position_provider->captureForNavigation(ctx.position, ctx.heading_source, false, ctx.session->current_zone_id())
             || ctx.position_provider->LastCaptureWasBlackScreen()) {
             continue;
         }
@@ -311,23 +311,20 @@ template <typename CanCaptureFrame>
 bool CaptureStableHeadingImpl(const Context& ctx, double* out_heading, const CanCaptureFrame& can_capture_frame)
 {
     std::optional<double> previous;
-    HeadingSource previous_source = HeadingSource::None;
     for (int frame = 0; can_capture_frame(frame); ++frame) {
         if (frame > 0) {
             utils::SleepFor(kHeadingStableReadIntervalMs);
         }
-        if (!ctx.position_provider->captureForNavigation(ctx.position, false, ctx.session->current_zone_id())) {
+        if (!ctx.position_provider->captureForNavigation(ctx.position, ctx.heading_source, false, ctx.session->current_zone_id())) {
             previous.reset();
             continue;
         }
         const double current = NaviMath::NormalizeAngle(ctx.position->angle);
-        if (previous && previous_source == ctx.position->heading_source
-            && std::abs(NaviMath::NormalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
+        if (previous && std::abs(NaviMath::NormalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
             *out_heading = current;
             return true;
         }
         previous = current;
-        previous_source = ctx.position->heading_source;
     }
     return false;
 }
@@ -365,7 +362,7 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
 // 调用方保证 ctx.position 是刚取的一帧, 且此刻人已站定。
 void AlignCameraToCharacterOnce(const Context& ctx)
 {
-    if (ctx.position->heading_source != HeadingSource::Character) {
+    if (ctx.heading_source != HeadingSource::Character || ctx.position->heading_source != HeadingSource::Character) {
         return;
     }
     if (!ctx.position->camera_angle.has_value()) {
@@ -390,7 +387,7 @@ void AlignCameraToCharacterOnce(const Context& ctx)
     // 一起转了。这里不重试；位置或朝向不可用时，由调用方转入恢复。
     double camera_after = -1.0;
     double character_after = -1.0;
-    if (ctx.position_provider->captureForNavigation(ctx.position, false, ctx.session->current_zone_id())) {
+    if (ctx.position_provider->captureForNavigation(ctx.position, ctx.heading_source, false, ctx.session->current_zone_id())) {
         character_after = ctx.position->heading_source == HeadingSource::Character ? ctx.position->angle : -1.0;
         if (ctx.position->camera_angle) {
             camera_after = *ctx.position->camera_angle;

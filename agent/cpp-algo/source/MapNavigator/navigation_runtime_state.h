@@ -214,7 +214,6 @@ struct LateralBypassState
 // can report how much heading the turn really produced. Nothing steers off them.
 struct SteeringRateState
 {
-    HeadingSource heading_source = HeadingSource::None;
     double prev_heading_deg = 0.0;
     bool has_prev = false;
     std::chrono::steady_clock::time_point at {};
@@ -233,7 +232,6 @@ struct SteeringRateState
 
     void Reset()
     {
-        heading_source = HeadingSource::None;
         prev_heading_deg = 0.0;
         has_prev = false;
         at = {};

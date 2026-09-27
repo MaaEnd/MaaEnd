@@ -116,7 +116,8 @@ bool NaviController::Navigate(const NaviParam& requested_param)
 
     NaviPosition pos;
     const std::string initial_expected_zone = InitialExpectedZone(param);
-    if (!position_provider.WaitForFix(&pos, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
+    if (!position_provider
+             .WaitForFix(&pos, param.heading_source, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
         || is_stopping()) {
         return false;
     }

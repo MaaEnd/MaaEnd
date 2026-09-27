@@ -99,6 +99,33 @@
         {
             "if": {
                 "properties": {
+                    "custom_action": { "const": "MapNavigateAction" }
+                },
+                "required": [
+                    "custom_action"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "heading_source": {
+                                "type": "string",
+                                "enum": [
+                                    "character",
+                                    "camera"
+                                ],
+                                "default": "character"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
                     "custom_action": { "const": "CaptureUid" }
                 },
                 "required": ["custom_action"]

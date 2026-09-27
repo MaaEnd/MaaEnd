@@ -149,7 +149,11 @@ bool PositionProvider::Capture(
     return true;
 }
 
-bool PositionProvider::captureForNavigation(NaviPosition* out_pos, bool force_global_search, const std::string& expected_zone_id)
+bool PositionProvider::captureForNavigation(
+    NaviPosition* out_pos,
+    HeadingSource heading_source,
+    bool force_global_search,
+    const std::string& expected_zone_id)
 {
     if (!Capture(out_pos, force_global_search, expected_zone_id)) {
         if (out_pos != nullptr) {
@@ -157,11 +161,14 @@ bool PositionProvider::captureForNavigation(NaviPosition* out_pos, bool force_gl
         }
         return false;
     }
-    if (out_pos->heading_source == HeadingSource::Character && std::isfinite(out_pos->angle) && out_pos->angle >= 0.0) {
+    if (heading_source == HeadingSource::Character && out_pos->heading_source == HeadingSource::Character && std::isfinite(out_pos->angle)
+        && out_pos->angle >= 0.0 && out_pos->angle < 360.0) {
         return true;
     }
     out_pos->heading_source = HeadingSource::None;
-    if (out_pos->camera_angle && std::isfinite(*out_pos->camera_angle) && out_pos->camera_confidence >= kNavigationCameraMinConfidence) {
+    if (heading_source == HeadingSource::Camera && out_pos->camera_angle && std::isfinite(*out_pos->camera_angle)
+        && *out_pos->camera_angle >= 0.0 && *out_pos->camera_angle < 360.0 && std::isfinite(out_pos->camera_confidence)
+        && out_pos->camera_confidence >= kNavigationCameraMinConfidence) {
         out_pos->angle = *out_pos->camera_angle;
         out_pos->heading_source = HeadingSource::Camera;
         return true;
@@ -176,6 +183,7 @@ void PositionProvider::SetPositionNormalizer(std::function<void(NaviPosition&)> 
 
 bool PositionProvider::WaitForFix(
     NaviPosition* out_pos,
+    HeadingSource heading_source,
     const std::string& expected_zone_id,
     int max_retries,
     int retry_interval_ms,
@@ -185,7 +193,7 @@ bool PositionProvider::WaitForFix(
         if (should_stop()) {
             return false;
         }
-        if (captureForNavigation(out_pos, !expected_zone_id.empty(), expected_zone_id)) {
+        if (captureForNavigation(out_pos, heading_source, !expected_zone_id.empty(), expected_zone_id)) {
             return true;
         }
         utils::SleepFor(retry_interval_ms);

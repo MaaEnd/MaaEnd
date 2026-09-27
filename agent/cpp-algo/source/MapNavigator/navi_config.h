@@ -10,7 +10,7 @@ namespace mapnavigator
 constexpr int32_t kWorkWidth = 1280;
 constexpr int32_t kWorkHeight = 720;
 
-// 角色朝向缺失时，镜头朝向可用于步行导航的经验置信度门槛（含边界）。
+// 镜头朝向模式下，常规导航接受读数的经验置信度门槛（含边界）。
 constexpr double kNavigationCameraMinConfidence = 0.3;
 
 // --- ActionWrapper Constants ---
