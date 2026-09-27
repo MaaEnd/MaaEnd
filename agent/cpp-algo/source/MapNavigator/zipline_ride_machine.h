@@ -15,7 +15,7 @@ class IZiplineObserver
 {
 public:
     virtual ~IZiplineObserver() = default;
-    virtual ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes) = 0;
+    virtual ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes, bool force_global_search) = 0;
     // 判定角色在架上还是在地面。仅在上索确认期间调用: 一次调用要跑识别, 开销高于一帧定位
     virtual MountVerdict CheckMounted() = 0;
     virtual void ResetTracking() = 0;

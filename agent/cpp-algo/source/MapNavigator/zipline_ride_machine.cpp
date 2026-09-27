@@ -176,7 +176,8 @@ StageResult ZiplineRideMachine::Tick(IZiplineObserver& observer, IZiplineActuato
         break;
     }
 
-    const ZiplineObservation obs = observer.Observe(KnownNodes());
+    // 起滑后跟踪器仍停在上索点, 小地图隐藏帧会被跟踪出贴着上索点的假位置
+    const ZiplineObservation obs = observer.Observe(KnownNodes(), stage_ == ZiplineStage::Fired);
     switch (stage_) {
     case ZiplineStage::Mounting:
         return TickMounting(obs, observer, actuator);
@@ -518,7 +519,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
     return {};
 }
 
-// 起滑后: 滑行中小地图整个隐藏, 定位连着断掉就是滑出去了; 站在架子上没滑走时跟踪不会断,
+// 起滑后: 滑行中小地图整个隐藏, 定位连着断掉就是滑出去了; 空响没滑走时人还站在上索架上, 小地图照常显示,
 // 过了确认时间定位还在起点就是空响
 StageResult ZiplineRideMachine::TickFired(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator)
 {

@@ -112,7 +112,7 @@ public:
     {
     }
 
-    ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes) override
+    ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes, bool force_global_search) override
     {
         ZiplineObservation obs;
         obs.at = std::chrono::steady_clock::now();
@@ -124,9 +124,7 @@ public:
                     maplocator::SearchHint { .zone_id = zone, .x = node.x, .y = node.y, .radius = kZiplineLandingHintRadiusWu });
             }
         }
-        // 滑索子状态机不采信运动连续性仲裁的位置，避免用它判断位移、停稳和落点。
-        if (ctx_.position_provider->Capture(ctx_.position, false, {}, hints)
-            && !ctx_.position_provider->LastCaptureWasMotionArbitrated()) {
+        if (ctx_.position_provider->Capture(ctx_.position, force_global_search, {}, hints)) {
             obs.fix = *ctx_.position;
         }
         return obs;
