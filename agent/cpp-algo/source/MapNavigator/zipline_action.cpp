@@ -124,7 +124,9 @@ public:
                     maplocator::SearchHint { .zone_id = zone, .x = node.x, .y = node.y, .radius = kZiplineLandingHintRadiusWu });
             }
         }
-        if (ctx_.position_provider->Capture(ctx_.position, false, {}, hints)) {
+        // 滑索子状态机不采信运动连续性仲裁的位置，避免用它判断位移、停稳和落点。
+        if (ctx_.position_provider->Capture(ctx_.position, false, {}, hints)
+            && !ctx_.position_provider->LastCaptureWasMotionArbitrated()) {
             obs.fix = *ctx_.position;
         }
         return obs;

@@ -31,6 +31,7 @@ public:
         const std::function<bool()>& should_stop);
     void ResetTracking();
     bool LastCaptureWasBlackScreen() const;
+    bool LastCaptureWasMotionArbitrated() const;
 
     // Optional post-locate hook: maps every successful fix onto a common coordinate frame at the single
     // capture chokepoint (so every consumer — WaitForFix, the state machine, semantic nodes — sees the
@@ -50,6 +51,7 @@ private:
     std::function<void(const cv::Mat&)> frame_observer_;
     bool uses_adb_minimap_roi_ = false;
     bool last_capture_was_black_screen_ = false;
+    bool last_capture_was_motion_arbitrated_ = false;
 };
 
 } // namespace mapnavigator

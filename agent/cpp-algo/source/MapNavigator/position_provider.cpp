@@ -75,6 +75,7 @@ bool PositionProvider::Capture(
     }
 
     last_capture_was_black_screen_ = false;
+    last_capture_was_motion_arbitrated_ = false;
     const auto capture_started_at = std::chrono::steady_clock::now();
 
     const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller_);
@@ -105,6 +106,7 @@ bool PositionProvider::Capture(
     const auto locate_result = locator_->locate(minimap, options);
     const auto locate_done_at = std::chrono::steady_clock::now();
     const int status = static_cast<int>(locate_result.status);
+    last_capture_was_motion_arbitrated_ = locate_result.debugMessage == "Dual-Mode Motion Arbitrated";
     if (locate_result.position) {
         const auto& position = *locate_result.position;
         // camRot/camRotConf 只进日志，不参与任何判据。
@@ -174,6 +176,12 @@ void PositionProvider::ResetTracking()
 {
     locator_->resetTrackingState();
     last_capture_was_black_screen_ = false;
+    last_capture_was_motion_arbitrated_ = false;
+}
+
+bool PositionProvider::LastCaptureWasMotionArbitrated() const
+{
+    return last_capture_was_motion_arbitrated_;
 }
 
 bool PositionProvider::LastCaptureWasBlackScreen() const
