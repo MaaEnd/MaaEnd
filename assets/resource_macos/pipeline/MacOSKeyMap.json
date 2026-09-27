@@ -58,6 +58,14 @@
             }
         }
     },
+    "AutoSellPressStockRedistribution": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
+            }
+        }
+    },
     "EnterCameraModeButton": {
         "action": {
             "type": "ClickKey",
