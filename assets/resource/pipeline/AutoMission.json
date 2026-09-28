@@ -1,0 +1,6 @@
+{
+    "AutoMission": {
+        "recognition": "DirectHit",
+        "action": "DoNothing"
+    }
+}

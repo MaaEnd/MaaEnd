@@ -730,6 +730,7 @@
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label": "3天內",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days7.label": "7天內",
     "task.AutoUseSpMedication.focus.restore_sanity": "補充理智",
+    "task.AutoMission.label": "📋自動做任務",
     "task.AutoCollect.description": "自動採集野外資源（需一直保持前台，不要亂動滑鼠）\n注意，作物沒有完全生長齊的時候作物會隨機生長，會導致收集不齊的情況。\n受限於識別精度即使齊了也會有個別無法收集",
     "task.AutoCollect.label": "🧺自動採集",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "任務前後存放背包",

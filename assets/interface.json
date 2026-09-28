@@ -238,6 +238,7 @@
         // group: open_world
         "tasks/ResourceRecycleStation.json",
         "tasks/AutoCollect.json",
+        "tasks/AutoMission.json",
         "tasks/AutoEcoFarm.json",
         "tasks/PuzzleSolver.json",
         "tasks/SwitchTeam.json",

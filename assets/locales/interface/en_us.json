@@ -1079,6 +1079,7 @@
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days3.label": "Within 3 days",
     "option.AutoUseSpMedicationExpireWithinDays.cases.Days7.label": "Within 7 days",
     "task.AutoUseSpMedication.focus.restore_sanity": "Restoring sanity",
+    "task.AutoMission.label": "📋 Auto Mission",
     "task.AutoCollect.description": "Automatically collect wild resources (the game must stay in the foreground; do not move the mouse).\nNote: if crops have not fully grown, they may grow randomly, which can lead to incomplete collection.\nDue to recognition accuracy limits, even when fully grown some may not be collected.",
     "task.AutoCollect.label": "🧺 Auto Collect",
     "task.AutoCollect.option.AutoCollectStashBackpackSubTask.label": "Stash backpack before and after task",
