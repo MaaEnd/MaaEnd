@@ -810,6 +810,10 @@ private:
     std::uint64_t frameId = 0;
     std::uint64_t activeFrameId = 0;
 
+    // 小地图被遮挡的起始时刻，未遮挡时为默认值；超时放行后置位以免重复打日志
+    TimePoint occluded_since_ {};
+    bool occlusion_timed_out_ = false;
+
     std::vector<MapPosition> coldStartBuffer;
     std::optional<MapPosition> stablePosition;
 
@@ -1825,6 +1829,27 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
                             ->predict(minimap, referenceAsset, result.position->x, result.position->y, ZoneTemplateScale(zoneId), zoneId);
         return result;
     };
+    // 箭头不可见时，小地图可能被横幅遮挡；在匹配及更新追踪状态前拒帧。
+    // 超时放行以免长期遮挡处卡死；镜头朝向导航由调用方显式跳过此拦截。
+    if (options.reject_occluded_frames && angle_future.get() < 0.0) {
+        if (occluded_since_ == TimePoint {}) {
+            occluded_since_ = now;
+            occlusion_timed_out_ = false;
+            LogWarn << "Minimap occluded: character arrow not visible; holding until it clears.";
+        }
+        if (now - occluded_since_ < std::chrono::milliseconds(kOcclusionRejectTimeoutMs)) {
+            return LocateResult { .status = LocateStatus::ScreenBlocked, .debugMessage = "Minimap occluded: arrow not visible." };
+        }
+        if (!occlusion_timed_out_) {
+            occlusion_timed_out_ = true;
+            LogWarn << "Minimap occlusion outlasted the reject timeout; locating on occluded frames again.";
+        }
+    }
+    else {
+        occluded_since_ = {};
+        occlusion_timed_out_ = false;
+    }
+
     FrameTemplateFeatureCache featureCache;
     std::optional<AsyncYoloHandle> sameFrameYolo;
     const std::string expectedZoneSelector = options.expected_zone_id;
@@ -2101,6 +2126,8 @@ void MapLocator::Impl::resetTrackingState()
         motionTracker->clearVelocity();
     }
     currentZoneId = "";
+    occluded_since_ = {};
+    occlusion_timed_out_ = false;
     coldStartBuffer.clear();
     stablePosition.reset();
     arbiterRejectedPrimary.reset();

@@ -51,6 +51,8 @@ struct LocateOptions
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
     std::string expected_zone_id;     // 非空时仅接受该区域的定位结果
     std::vector<SearchHint> search_hints;
+    // 仅供 C++ 调用方控制；镜头朝向导航可关闭，不暴露为 Recognition 参数。
+    bool reject_occluded_frames = true;
 
     MEO_JSONIZATION(
         MEO_OPT loc_threshold,
@@ -183,6 +185,10 @@ constexpr double kFarJumpRejectDistance = 80.0;   // global 跨帧跳变阈值
 constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分以上直接 reseed
 constexpr const char* kColdStartCollectingMessage = "Cold-start collecting.";
 constexpr double kSeamFallbackMinPeakScore = 0.0;
+
+// 小地图被遮挡时最长拒绝多久，超时放行以免长期被遮挡的点位彻底卡死。
+// 实测遮挡自行消散耗时 2.8~4.2s，取 5s 留余量；上界是导航起步等待定位的 10s 预算。
+constexpr int kOcclusionRejectTimeoutMs = 5000;
 
 // tracking 匹配低于此分时通知上层考虑改走全局搜索
 constexpr double kFastTrackingPassScore = 0.75;

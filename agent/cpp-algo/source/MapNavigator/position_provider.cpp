@@ -103,6 +103,7 @@ bool PositionProvider::Capture(
 
     maplocator::LocateOptions options;
     options.force_global_search = force_global_search;
+    options.reject_occluded_frames = heading_source_ != HeadingSource::Camera;
     options.expected_zone_id = expected_zone_id;
     options.search_hints = search_hints;
 
