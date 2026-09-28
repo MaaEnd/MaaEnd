@@ -161,16 +161,21 @@ bool PositionProvider::captureForNavigation(
         }
         return false;
     }
-    if (heading_source == HeadingSource::Character && out_pos->heading_source == HeadingSource::Character && std::isfinite(out_pos->angle)
-        && out_pos->angle >= 0.0 && out_pos->angle < 360.0) {
+    return selectHeading(*out_pos, heading_source);
+}
+
+bool PositionProvider::selectHeading(NaviPosition& position, HeadingSource heading_source)
+{
+    if (heading_source == HeadingSource::Character && position.heading_source == HeadingSource::Character && std::isfinite(position.angle)
+        && position.angle >= 0.0 && position.angle < 360.0) {
         return true;
     }
-    out_pos->heading_source = HeadingSource::None;
-    if (heading_source == HeadingSource::Camera && out_pos->camera_angle && std::isfinite(*out_pos->camera_angle)
-        && *out_pos->camera_angle >= 0.0 && *out_pos->camera_angle < 360.0 && std::isfinite(out_pos->camera_confidence)
-        && out_pos->camera_confidence >= kNavigationCameraMinConfidence) {
-        out_pos->angle = *out_pos->camera_angle;
-        out_pos->heading_source = HeadingSource::Camera;
+    position.heading_source = HeadingSource::None;
+    if (heading_source == HeadingSource::Camera && position.camera_angle && std::isfinite(*position.camera_angle)
+        && *position.camera_angle >= 0.0 && *position.camera_angle < 360.0 && std::isfinite(position.camera_confidence)
+        && position.camera_confidence >= kNavigationCameraMinConfidence) {
+        position.angle = *position.camera_angle;
+        position.heading_source = HeadingSource::Camera;
         return true;
     }
     return false;

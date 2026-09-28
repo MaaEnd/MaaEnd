@@ -23,7 +23,9 @@ public:
         bool force_global_search,
         const std::string& expected_zone_id,
         const std::vector<maplocator::SearchHint>& search_hints = {});
-    // Walking requires both a position and a usable heading; Capture remains position-only for ziplines.
+    // Selects a heading from a fresh Capture result; preserves the position when the heading is unavailable.
+    static bool selectHeading(NaviPosition& position, HeadingSource heading_source);
+    // Captures a position and requires a usable heading; callers needing search hints use Capture and selectHeading.
     bool captureForNavigation(
         NaviPosition* out_pos,
         HeadingSource heading_source,
