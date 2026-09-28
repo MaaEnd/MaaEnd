@@ -18,6 +18,8 @@ constexpr double kPitchDegreesPerRange = 180.0;
 struct AdbTouchTurnProfile
 {
     double default_units_per_degree = 5.0;
+    double default_pitch_units_per_degree =
+        default_units_per_degree * kTurnDegreesPerCircle * kWorkHeight / (kWorkWidth * kPitchDegreesPerRange);
     int32_t swipe_duration_ms = 70;
     int32_t post_swipe_settle_ms = 0;
     // 移动指令之后这段时间里的转向会被游戏吞掉: 摇杆状态刚变, 视角拖动还没被受理

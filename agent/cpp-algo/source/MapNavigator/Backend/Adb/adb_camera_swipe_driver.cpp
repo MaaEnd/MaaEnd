@@ -34,10 +34,8 @@ AdbCameraSwipeDriver::AdbCameraSwipeDriver(MaaController* controller, AdbCameraS
 
 bool AdbCameraSwipeDriver::SwipeByPixels(int dx, int dy) const
 {
-    (void)dy;
-
-    if (controller_ == nullptr || dx == 0) {
-        return dx == 0;
+    if (controller_ == nullptr || (dx == 0 && dy == 0)) {
+        return dx == 0 && dy == 0;
     }
 
     const std::optional<ScreenGeometry> geometry = GetScreenGeometry();
@@ -45,12 +43,18 @@ bool AdbCameraSwipeDriver::SwipeByPixels(int dx, int dy) const
         return false;
     }
 
-    const int clamped_dx = std::clamp(dx, -geometry->left_limit, geometry->right_limit);
-    if (clamped_dx == 0) {
-        return false;
-    }
+    int swipe_dx = std::clamp(dx, -geometry->left_limit, geometry->right_limit);
+    int remaining_dy = dy;
+    do {
+        const int swipe_dy = std::clamp(remaining_dy, -geometry->up_limit, geometry->down_limit);
+        if (!ExecuteSwipe(*geometry, swipe_dx, swipe_dy)) {
+            return false;
+        }
+        swipe_dx = 0;
+        remaining_dy -= swipe_dy;
+    } while (remaining_dy != 0);
 
-    return ExecuteSwipe(*geometry, clamped_dx);
+    return true;
 }
 
 std::optional<AdbCameraSwipeDriver::ScreenGeometry> AdbCameraSwipeDriver::GetScreenGeometry() const
@@ -79,15 +83,15 @@ std::optional<AdbCameraSwipeDriver::ScreenGeometry> AdbCameraSwipeDriver::GetScr
     return geometry;
 }
 
-bool AdbCameraSwipeDriver::ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx) const
+bool AdbCameraSwipeDriver::ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const
 {
-    return ExecuteStableDrag(geometry, swipe_dx);
+    return ExecuteStableDrag(geometry, swipe_dx, swipe_dy);
 }
 
-bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx) const
+bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const
 {
     const cv::Point start = geometry.center;
-    const cv::Point end = ClampPoint({ geometry.center.x + swipe_dx, geometry.center.y }, geometry.resolution);
+    const cv::Point end = ClampPoint({ geometry.center.x + swipe_dx, geometry.center.y + swipe_dy }, geometry.resolution);
 
     if (!PostTouchDown(start)) {
         return false;

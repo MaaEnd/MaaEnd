@@ -46,6 +46,7 @@ public:
     bool is_supported() const override;
     const std::string& unsupported_reason() const override;
     double default_turn_units_per_degree() const override;
+    double default_pitch_units_per_degree() const override;
     SteeringTransportProfile steering_transport_profile() const override;
     bool supports_sprint() const override;
     bool supports_walk_toggle() const override { return true; }

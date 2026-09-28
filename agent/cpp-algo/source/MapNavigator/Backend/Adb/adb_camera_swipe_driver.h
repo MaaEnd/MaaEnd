@@ -50,8 +50,8 @@ private:
     };
 
     std::optional<ScreenGeometry> GetScreenGeometry() const;
-    bool ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx) const;
-    bool ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx) const;
+    bool ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
+    bool ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
     bool PostTouchDown(const cv::Point& point) const;
     bool PostTouchMove(const cv::Point& point) const;
     bool PostTouchUp() const;

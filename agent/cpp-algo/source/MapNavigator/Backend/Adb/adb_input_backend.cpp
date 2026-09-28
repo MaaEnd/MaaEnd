@@ -83,6 +83,11 @@ double AdbInputBackend::default_turn_units_per_degree() const
     return default_turn_units_per_degree_;
 }
 
+double AdbInputBackend::default_pitch_units_per_degree() const
+{
+    return kAdbTouchTurnProfile.default_pitch_units_per_degree;
+}
+
 SteeringTransportProfile AdbInputBackend::steering_transport_profile() const
 {
     return SteeringTransportProfile {

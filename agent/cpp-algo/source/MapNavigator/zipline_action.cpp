@@ -163,13 +163,16 @@ public:
     // 独立 Pipeline 节点通过相对鼠标移动承载实际输入, 不会像 Swipe 那样带一次左键按下/抬起。
     bool ResetPitchToMaximum() override
     {
+        const double reset_delta_deg =
+            kZiplinePitchMaximumElevationDeg + kZiplinePitchMaximumDepressionDeg + kZiplinePitchResetOvershootDeg;
+        const int units = static_cast<int>(std::lround(-reset_delta_deg * ctx_.action_wrapper->DefaultPitchUnitsPerDegree()));
+        if (ctx_.action_wrapper->uses_touch_backend()) {
+            return units != 0 && ctx_.action_wrapper->SendViewDeltaSync(0, units);
+        }
         if (ctx_.maa_context == nullptr) {
             LogWarn << "Zipline aim: no pipeline context to reset the pitch.";
             return false;
         }
-        const double reset_delta_deg =
-            kZiplinePitchMaximumElevationDeg + kZiplinePitchMaximumDepressionDeg + kZiplinePitchResetOvershootDeg;
-        const int units = static_cast<int>(std::lround(-reset_delta_deg * ctx_.action_wrapper->DefaultPitchUnitsPerDegree()));
         if (units == 0
             || !RunNodeAndReportHit(ctx_.maa_context, kZiplinePitchResetNode, kZiplinePitchResetNode, BuildPitchResetOverride(units))) {
             LogWarn << "Zipline aim: the pitch reset task did not complete." << VAR(kZiplinePitchResetNode) << VAR(units);
