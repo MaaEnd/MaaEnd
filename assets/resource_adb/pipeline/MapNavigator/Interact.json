@@ -7,5 +7,18 @@
                 "custom_action": "AutoAltClickAction"
             }
         }
+    },
+    "MapNavigatorInteractScan": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    720,
+                    330,
+                    332,
+                    312
+                ]
+            }
+        }
     }
 }
