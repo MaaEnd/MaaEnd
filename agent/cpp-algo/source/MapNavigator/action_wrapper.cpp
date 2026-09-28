@@ -115,6 +115,16 @@ void ActionWrapper::MouseRightUpSync(int delay_millis)
     backend_->MouseRightUpSync(delay_millis);
 }
 
+void ActionWrapper::TriggerZiplineLaunchSync()
+{
+    backend_->TriggerZiplineLaunchSync();
+}
+
+void ActionWrapper::TriggerZiplineDismountSync(int hold_millis)
+{
+    backend_->TriggerZiplineDismountSync(hold_millis);
+}
+
 bool ActionWrapper::SendViewDeltaSync(int dx, int dy)
 {
     const bool sent = backend_->SendViewDeltaSync(dx, dy);

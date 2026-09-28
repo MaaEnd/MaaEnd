@@ -51,6 +51,15 @@ public:
     virtual void ClickMouseLeftSync() = 0;
     virtual void MouseRightDownSync(int delay_millis) = 0;
     virtual void MouseRightUpSync(int delay_millis) = 0;
+
+    virtual void TriggerZiplineLaunchSync() { ClickMouseLeftSync(); }
+
+    virtual void TriggerZiplineDismountSync(int hold_millis)
+    {
+        MouseRightDownSync(hold_millis);
+        MouseRightUpSync(0);
+    }
+
     virtual bool SendViewDeltaSync(int dx, int dy) = 0;
 };
 

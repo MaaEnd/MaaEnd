@@ -178,6 +178,20 @@ void AdbInputBackend::MouseRightUpSync(int delay_millis)
     MouseRightUpOnTargetSync(action_buttons_.sprint_button.contact_id, delay_millis);
 }
 
+void AdbInputBackend::TriggerZiplineLaunchSync()
+{
+    if (!ClickTargetSync(action_buttons_.zipline_launch_button, action_buttons_.default_hold_ms, action_buttons_.post_action_delay_ms)) {
+        LogWarn << "AdbInputBackend: failed to click zipline launch button.";
+    }
+}
+
+void AdbInputBackend::TriggerZiplineDismountSync(int hold_millis)
+{
+    if (!ClickTargetSync(action_buttons_.zipline_dismount_button, hold_millis, action_buttons_.post_action_delay_ms)) {
+        LogWarn << "AdbInputBackend: failed to click zipline dismount button.";
+    }
+}
+
 bool AdbInputBackend::SendViewDeltaSync(int dx, int dy)
 {
     if (ctrl_ == nullptr || (dx == 0 && dy == 0)) {

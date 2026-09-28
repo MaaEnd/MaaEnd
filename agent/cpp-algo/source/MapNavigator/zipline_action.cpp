@@ -205,14 +205,10 @@ public:
     void FireLaunch() override
     {
         ctx_.motion_controller->SetForwardState(false);
-        ctx_.action_wrapper->ClickMouseLeftSync();
+        ctx_.action_wrapper->TriggerZiplineLaunchSync();
     }
 
-    void Dismount() override
-    {
-        ctx_.action_wrapper->MouseRightDownSync(kZiplineDismountHoldMs);
-        ctx_.action_wrapper->MouseRightUpSync(0);
-    }
+    void Dismount() override { ctx_.action_wrapper->TriggerZiplineDismountSync(kZiplineDismountHoldMs); }
 
     void Wait(int32_t ms) override { utils::SleepFor(ms); }
 
