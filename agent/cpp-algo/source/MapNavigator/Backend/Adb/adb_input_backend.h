@@ -8,7 +8,6 @@
 #include "../backend.h"
 #include "adb_camera_swipe_driver.h"
 #include "adb_virtual_joystick_driver.h"
-#include "adb_zone_guard.h"
 
 namespace maplocator
 {
@@ -63,9 +62,6 @@ public:
 
 private:
     void ApplyMovementState(int delay_millis);
-    bool CaptureFrame(cv::Mat* out_image) const;
-    bool IsBlindActionAllowed(const char* action_name) const;
-    bool ClickBlindTargetSync(const char* action_name, const AdbTapTarget& target, int hold_millis, int delay_millis);
     bool ClickTargetSync(const AdbTapTarget& target, int hold_millis, int delay_millis);
     bool TouchDownTargetSync(const AdbTapTarget& target) const;
     void MouseRightDownOnTargetSync(const AdbTapTarget& target, int delay_millis);
@@ -79,7 +75,6 @@ private:
     double default_turn_units_per_degree_ = 0.0;
     bool has_locator_ = false;
     AdbCameraSwipeDriver camera_swipe_driver_;
-    AdbZoneGuard zone_guard_;
     AdbVirtualJoystickDriver joystick_driver_;
     AdbActionButtonLayout action_buttons_ {};
     bool forward_down_ = false;
