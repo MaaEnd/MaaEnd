@@ -1,23 +1,22 @@
 import {depots, destinations, rawJson} from "./model.mjs";
 
-// 普通节点的 zip 与 WithZipline 节点的 zip 默认相反；walk_only / zipline_only 把两个节点
-// 统一钉在同一个滑索策略上，避免留下一条已知走不通的路线。zipline_only 的终点在用户选择
-// 步行时由 Go 侧直接报错，不会走到这里生成的节点。
+// 普通节点的 zip 与 WithZipline 节点的 zip 始终取各自节点的语义：普通节点仅步行、WithZipline
+// 节点允许滑索。walk_only / zipline_only 是一条路线的滑索策略，写在运行时映射（catalog.json）
+// 里由 Go 分发时处理，不在生成节点上改写 zip，免得节点名与参数互相矛盾。
 function buildRows(routeFileId, id, description, path, routeNode, zipRouteNode, {walkOnly = false, ziplineOnly = false} = {}) {
-    const forcedZip = walkOnly ? false : ziplineOnly ? true : null;
     const zipNote = walkOnly ? "仅允许步行" : ziplineOnly ? "仅允许使用滑索" : "允许使用滑索";
     return [
         {
             RouteFileId: routeFileId,
             Node: routeNode,
             Description: `${description}${ziplineOnly ? "，仅允许使用滑索" : ""}（${id}）`,
-            ActionParam: rawJson({path, zip: forcedZip ?? false}),
+            ActionParam: rawJson({path, zip: false}),
         },
         {
             RouteFileId: routeFileId,
             Node: zipRouteNode,
             Description: `${description}，${zipNote}（${id}）`,
-            ActionParam: rawJson({path, zip: forcedZip ?? true}),
+            ActionParam: rawJson({path, zip: true}),
         },
     ];
 }

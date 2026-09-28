@@ -188,7 +188,7 @@
                     1752.33
                 ]
             ],
-            "zip": false
+            "zip": true
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -393,7 +393,7 @@
                     "target_deck_y": 244.758
                 }
             ],
-            "zip": true
+            "zip": false
         },
         "post_delay": 0,
         "rate_limit": 0,

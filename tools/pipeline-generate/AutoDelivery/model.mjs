@@ -37,6 +37,8 @@ function readRouteModeFlag(value, label, key) {
 // walk_only 与 zipline_only 是对同一条主路线滑索策略的两个相反约束：
 // walk_only 在用户启用滑索时仍走作者录制的步行路线；zipline_only 表示步行根本到不了，
 // 用户选择步行时运行时必须报错而不是静默退化成一条走不通的路线。两者同时声明无解。
+// 两个标记随运行时目录交给 Go，在分发路线节点时生效；生成节点上的 zip 保持各自的节点语义，
+// 所以映射条目必须带上标记，Go 才发现得了这条路线不能用滑索变体。
 function readRouteMode(override, label) {
     const walkOnly = readRouteModeFlag(override?.walk_only, label, "walk_only");
     const ziplineOnly = readRouteModeFlag(override?.zipline_only, label, "zipline_only");
@@ -442,6 +444,7 @@ export const runtimeCatalog = {
         map: item.map,
         route_node: item.routeNode,
         zip_route_node: item.zipRouteNode,
+        ...(item.walkOnly ? {walk_only: true} : {}),
         ...(item.ziplineOnly ? {zipline_only: true} : {}),
         ...(item.retryRouteNode ? {retry_route_node: item.retryRouteNode} : {}),
     })),
@@ -455,6 +458,7 @@ export const runtimeCatalog = {
         area: item.area,
         route_node: item.routeNode,
         zip_route_node: item.zipRouteNode,
+        ...(item.walkOnly ? {walk_only: true} : {}),
         ...(item.ziplineOnly ? {zipline_only: true} : {}),
         ...(item.verifyName ? {verify_name: true} : {}),
         ...(item.retryRouteNode ? {retry_route_node: item.retryRouteNode} : {}),

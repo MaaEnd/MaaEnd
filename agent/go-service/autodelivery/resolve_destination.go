@@ -151,8 +151,9 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		Float64("areaRunnerUpSimilarity", match.AreaRunnerUp).
 		Str("area", dest.AreaID).
 		Bool("zip", options.Zip).
+		Bool("walkOnly", dest.WalkOnly).
 		Bool("verifyName", dest.VerifyName).
-		Str("routeNode", selectRouteNode(dest.RouteNode, dest.ZipRouteNode, options.Zip)).
+		Str("routeNode", selectRouteNode(dest.RouteNode, dest.ZipRouteNode, options.Zip, dest.WalkOnly)).
 		Str("retryRouteNode", dest.RetryRouteNode).
 		Msg("resolved delivery job destination")
 	return true
@@ -174,7 +175,7 @@ func buildDestinationNavigationOverride(dest destination, zip bool) map[string]a
 		navigateDestinationNode: map[string]any{
 			"custom_action": "SubTask",
 			"custom_action_param": map[string]any{
-				"sub": []string{selectRouteNode(dest.RouteNode, dest.ZipRouteNode, zip)},
+				"sub": []string{selectRouteNode(dest.RouteNode, dest.ZipRouteNode, zip, dest.WalkOnly)},
 			},
 		},
 		retryNavigateDestinationNode: map[string]any{

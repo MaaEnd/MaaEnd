@@ -252,7 +252,7 @@
                     230.87
                 ]
             ],
-            "zip": false
+            "zip": true
         },
         "post_delay": 0,
         "rate_limit": 0,
