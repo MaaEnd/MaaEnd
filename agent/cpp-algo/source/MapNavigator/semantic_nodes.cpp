@@ -264,13 +264,6 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         // Closed-loop: confirm the turn landed and redo a swallowed view-drag (accept within wide band).
         achieved_heading = VerifyAndCorrectHeading(ctx, target_heading, start_heading);
 
-        if (ctx.position->heading_source == HeadingSource::None) {
-            // 未取得可用朝向，不消耗节点，交回常规导航的丢定位恢复。
-            result.consumed = true;
-            result.stay_in_current_tick = true;
-            return result;
-        }
-
         LogInfo << "Heading-only node completed." << VAR(target_heading) << VAR(start_heading) << VAR(heading_delta)
                 << VAR(achieved_heading);
         ctx.session->AdvanceToNextWaypoint(ActionType::HEADING, "heading_consumed");
@@ -280,6 +273,10 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
 
         if (!ctx.session->HasCurrentWaypoint()) {
             ctx.session->NoteRouteTailConsumed(*ctx.position, "heading_route_consumed");
+        }
+        // 复核失败仍按既有语义完成当前节点；后续节点等下一拍重新取位，避免使用缺失的朝向。
+        if (ctx.position->heading_source == HeadingSource::None) {
+            break;
         }
     }
 

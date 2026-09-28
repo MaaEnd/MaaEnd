@@ -1352,9 +1352,6 @@ bool NavigationStateMachine::TickNavigate()
     }
 
     const semantic_nodes::Result inline_semantic_result = semantic_nodes::ConsumeInlineSemantics(semantic_ctx);
-    if (position_->heading_source == HeadingSource::None && !inline_semantic_result.request_failure) {
-        return HandleLocalizationLoss();
-    }
     if (inline_semantic_result.request_failure) {
         return FailNavigation(inline_semantic_result.failure_reason, inline_semantic_result.failure_log_message, 0.0, 0.0, 0);
     }
@@ -1370,6 +1367,9 @@ bool NavigationStateMachine::TickNavigate()
     }
     if (inline_semantic_result.stay_in_current_tick) {
         return true;
+    }
+    if (position_->heading_source == HeadingSource::None) {
+        return HandleLocalizationLoss();
     }
     if (!session_->HasCurrentWaypoint()) {
         session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
