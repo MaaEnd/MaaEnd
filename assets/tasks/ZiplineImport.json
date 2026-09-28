@@ -12,6 +12,8 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
+                "MacOS-Front",
+                "MacOS-Background",
                 "Win32-Front"
             ],
             "group": [
@@ -23,6 +25,8 @@
         "ZiplineImportClearLogin": {
             "type": "switch",
             "controller": [
+                "MacOS-Front",
+                "MacOS-Background",
                 "Win32-Front"
             ],
             "label": "$option.ZiplineImportClearLogin.label",

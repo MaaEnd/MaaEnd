@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <system_error>
+#include <thread>
 
 #include <meojson/json.hpp>
 
@@ -10,6 +11,7 @@
 #include <MaaUtils/Platform.h>
 
 #include "Common/CrashHandler.h"
+#include "Common/MacAppHost.h"
 #include "Common/ParentProcessWatcher.h"
 #include "Common/SystemMonitor.h"
 #include "EssenceGridScan/EssenceGridScan.h"
@@ -126,8 +128,8 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomRecognition("MapFind", worldmap::MapFindRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
-#ifdef MAAEND_HAVE_WEBVIEW2
-    // 导入要开一个内嵌浏览器让用户自己登录, 而这个控件只有 Windows 有实现,
+#if defined(MAAEND_HAVE_WEBVIEW2) || defined(MAAEND_HAVE_WEBKIT)
+    // 导入要开一个内嵌浏览器让用户自己登录, 而这个控件只有 Windows 和 macOS 有实现,
     // 其余平台把这个动作名留给各自的实现
     MaaAgentServerRegisterCustomAction("ZiplineImport", zipline::ZiplineImportActionRun, nullptr);
 #endif
@@ -136,7 +138,16 @@ int main(int argc, char** argv)
 
     MaaAgentServerStartUp(identifier);
 
+#ifdef __APPLE__
+    std::thread agent([] {
+        MaaAgentServerJoin();
+        common::macapp::QuitMainLoop();
+    });
+    common::macapp::RunMainLoop();
+    agent.join();
+#else
     MaaAgentServerJoin();
+#endif
 
     MaaAgentServerShutDown();
 

@@ -20,7 +20,11 @@
 #include <MaaUtils/Logger.h>
 
 #include "../Common/GameRegion.h"
+#ifdef MAAEND_HAVE_WEBKIT
+#include "../Common/WebKitWindow.h"
+#else
 #include "../Common/WebView2.h"
+#endif
 #include "../Common/notice.h"
 #include "../utils.h"
 #include "ZiplineFrames.h"
@@ -333,6 +337,44 @@ PersistResult PersistCaptured(const std::vector<CapturedResponse>& captured, con
     return result;
 }
 
+#ifdef MAAEND_HAVE_WEBKIT
+
+void SubscribeSniffers(const std::shared_ptr<WebKitWindow>& window, const std::shared_ptr<SniffState>& state, std::string mark_list_path)
+{
+    window->SubscribeResponses(
+        std::move(mark_list_path),
+        [state](std::string request_id, std::string url) {
+            {
+                std::lock_guard<std::mutex> lock(state->mutex);
+                state->watching.insert(request_id);
+                state->request_urls[request_id] = std::move(url);
+                state->last_event = std::chrono::steady_clock::now();
+            }
+            state->cv.notify_all();
+        },
+        [state](std::string request_id, std::string url, std::string body) {
+            if (body.empty()) {
+                LogDebug << "ZiplineImport: response body unavailable" << VAR(RedactAccountQuery(url));
+            }
+            else {
+                LogDebug << "ZiplineImport: response body captured" << VAR(RedactAccountQuery(url)) << VAR(body.size());
+            }
+
+            {
+                std::lock_guard<std::mutex> lock(state->mutex);
+                state->watching.erase(request_id);
+                state->request_urls.erase(request_id);
+                if (!body.empty()) {
+                    state->captured.push_back(CapturedResponse { .url = std::move(url), .body = std::move(body) });
+                }
+                state->last_event = std::chrono::steady_clock::now();
+            }
+            state->cv.notify_all();
+        });
+}
+
+#else
+
 void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shared_ptr<SniffState>& state, std::string mark_list_path)
 {
     // 响应头到达：只记下路径命中的请求，此刻响应体还没收完，不能取。
@@ -419,6 +461,8 @@ void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shar
     });
 }
 
+#endif // MAAEND_HAVE_WEBKIT
+
 } // namespace
 
 MaaBool MAA_CALL ZiplineImportActionRun(
@@ -445,10 +489,29 @@ MaaBool MAA_CALL ZiplineImportActionRun(
         param.url = kMapUrlGlobal;
         break;
     case gamesetting::Region::Unknown:
+#ifdef __APPLE__
+        LogWarn << "ZiplineImport: game region unknown, use CN map";
+        param.url = kMapUrlCN;
+        break;
+#else
         LogError << "ZiplineImport: failed to resolve map URL from game region";
         return false;
+#endif
     }
 
+#ifdef MAAEND_HAVE_WEBKIT
+    auto webview = std::make_shared<WebKitWindow>();
+    webview->SetSize(param.width, param.height);
+    webview->SetURL(param.url);
+    webview->SetClearWebData(param.clear_login);
+    auto state = std::make_shared<SniffState>();
+    SubscribeSniffers(webview, state, param.mark_list_path);
+    if (!webview->Open()) {
+        LogError << "ZiplineImport: webview open failed" << VAR(param.url);
+        return false;
+    }
+    common::notice::Publish(context, common::notice::Text("zipline.import_sign_in_hint"));
+#else
     auto webview = std::make_shared<WebView2>();
     webview->SetContextMenuEnabled(false);
     webview->SetTouchEmulation(true);
@@ -475,6 +538,7 @@ MaaBool MAA_CALL ZiplineImportActionRun(
             LogWarn << "ZiplineImport: Network.setCacheDisabled failed, the page may answer from cache";
         }
     });
+#endif
 
     LogInfo << "ZiplineImport: waiting for the page to fetch its marks" << VAR(param.url) << VAR(param.mark_list_path)
             << VAR(param.timeout);
