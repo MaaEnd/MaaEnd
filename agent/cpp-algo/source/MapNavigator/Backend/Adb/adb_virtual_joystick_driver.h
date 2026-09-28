@@ -23,6 +23,7 @@ struct AdbVirtualJoystickDriverConfig
     cv::Size frame_size { 1280, 720 };
     int contact_id = 8;
     int drag_radius = 72;
+    double walk_drag_ratio = 0.25;
     int control_edge_inset = 4;
     int touch_down_hold_ms = 16;
     int move_steps = 4;
@@ -42,6 +43,8 @@ public:
     bool SetMovementState(bool forward, bool left, bool backward, bool right, int delay_millis);
     bool PulseForward(int hold_millis);
     bool Release(int delay_millis);
+    bool SetWalking(bool walking);
+    bool walking() const { return walking_; }
 
 private:
     enum class Direction
@@ -81,6 +84,7 @@ private:
     AdbVirtualJoystickDriverConfig config_;
     Direction active_direction_ = Direction::kNone;
     bool touch_active_ = false;
+    bool walking_ = false;
     std::optional<ControlGeometry> active_geometry_;
     cv::Point active_touch_point_ {};
 };

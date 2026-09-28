@@ -174,6 +174,8 @@ void AdbInputBackend::TriggerSprintSync()
         LogWarn << "AdbInputBackend: failed to trigger sprint.";
     }
     sprint_button_down_ = false;
+    // 冲刺会退出走路, 摇杆推回满行程
+    joystick_driver_.SetWalking(false);
 }
 
 void AdbInputBackend::ResetForwardWalkSync(int release_millis)
