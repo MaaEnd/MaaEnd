@@ -14,7 +14,7 @@ namespace mapnavigator
 struct NaviParam
 {
     std::string map_name;
-    // Fixed for this navigation call; mounted zipline captures do not use this selection.
+    // Fixed for all captures in this navigation call, including zipline rides.
     HeadingSource heading_source = HeadingSource::Character;
     std::vector<Waypoint> path;
     std::string navmesh_file;

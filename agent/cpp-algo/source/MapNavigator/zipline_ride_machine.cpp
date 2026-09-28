@@ -450,8 +450,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
     if (turn_pending_ && ElapsedMs(turn_sent_at_, now) < kWaitAfterFirstTurnMs) {
         return {};
     }
-    if (!obs.fix || obs.fix->heading_source == HeadingSource::None || !std::isfinite(obs.fix->angle) || obs.fix->angle < 0.0
-        || obs.fix->angle >= 360.0) {
+    if (!obs.fix) {
         stable_heading_hits_ = 0;
         prev_heading_.reset();
         return {};

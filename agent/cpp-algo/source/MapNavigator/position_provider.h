@@ -15,25 +15,17 @@ namespace mapnavigator
 class PositionProvider
 {
 public:
-    PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator);
+    PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator, HeadingSource heading_source);
 
+    // Succeeds only when both position and the configured heading are usable.
     // search_hints: 调用方知道人大概在哪时（滑索落点等）交给定位器多搜几个小窗，见 SearchHint。
     bool Capture(
         NaviPosition* out_pos,
         bool force_global_search,
         const std::string& expected_zone_id,
         const std::vector<maplocator::SearchHint>& search_hints = {});
-    // Selects a heading from a fresh Capture result; preserves the position when the heading is unavailable.
-    static bool selectHeading(NaviPosition& position, HeadingSource heading_source);
-    // Captures a position and requires a usable heading; callers needing search hints use Capture and selectHeading.
-    bool captureForNavigation(
-        NaviPosition* out_pos,
-        HeadingSource heading_source,
-        bool force_global_search,
-        const std::string& expected_zone_id);
     bool WaitForFix(
         NaviPosition* out_pos,
-        HeadingSource heading_source,
         const std::string& expected_zone_id,
         int max_retries,
         int retry_interval_ms,
@@ -55,6 +47,7 @@ public:
 private:
     MaaController* controller_;
     std::shared_ptr<maplocator::MapLocator> locator_;
+    const HeadingSource heading_source_;
     std::function<void(NaviPosition&)> position_normalizer_;
     std::function<void(const cv::Mat&)> frame_observer_;
     bool uses_adb_minimap_roi_ = false;

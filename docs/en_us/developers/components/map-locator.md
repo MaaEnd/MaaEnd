@@ -44,7 +44,7 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 | `locConf` | Confidence score of this hit, for reference when tuning parameters |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 
-Successful localization does not guarantee an available character orientation: localization continues when the character arrow is invisible rather than rejecting the position result. Character orientation recognition does not depend on localization; camera orientation recognition depends on the localization result, but neither orientation determines localization success. An unavailable `rot` is omitted; when the camera model is not loaded or inference fails, both `camRot` and `camRotConf` are omitted. A valid `0°` is still emitted. Callers must decide whether the available orientations meet their own requirements.
+Successful localization does not guarantee an available orientation. Callers must check that the orientation fields they need are present.
 
 `status` values:
 
@@ -116,7 +116,7 @@ There are no optional parameters. The assertion always forces a global search an
 | `message` | Localization log or failure reason |
 | `zoneId` | The target zone name required by this assertion |
 | `x` / `y` | (On success) Global pixel coordinates returned by the locator |
-| `rot` | Current-frame character orientation; omitted when unavailable and may be present even when localization fails, as in `MapLocateRecognition` |
+| `rot` | Character orientation, with the same semantics as `MapLocateRecognition` |
 | `camRot` | Camera orientation, same value and source as `camRot` in `MapLocateRecognition` |
 | `camRotConf` | Confidence of the camera orientation; present or omitted together with `camRot` |
 | `locConf` | Confidence score of this hit |

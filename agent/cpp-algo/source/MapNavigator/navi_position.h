@@ -9,7 +9,6 @@ namespace mapnavigator
 
 enum class HeadingSource
 {
-    None,
     Character,
     Camera,
 };
@@ -22,10 +21,9 @@ struct NaviPosition
     double score = 0.0;
     // 角色站在哪张可走面。实机定位给不出这个信息，只有预览端选了层才有值，不传就按区的主层走。
     std::optional<double> floor_y;
-    // Capture 保留角色角度；captureForNavigation 将 angle 设为当前选中的导航朝向。
-    HeadingSource heading_source = HeadingSource::None;
+    // angle 是本次导航选定的朝向；camera_angle 仅用于起步前将镜头对齐到该朝向。
     std::optional<double> camera_angle;
-    double camera_confidence = 0.0;
+    // 本帧位置与选定朝向均可用。
     bool valid = false;
     std::string zone_id;
     std::chrono::steady_clock::time_point timestamp;

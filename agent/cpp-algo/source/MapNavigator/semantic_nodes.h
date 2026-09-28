@@ -25,7 +25,6 @@ struct Context
     NaviPosition* position = nullptr;
     NavigationRuntimeState* runtime_state = nullptr;
     MaaContext* maa_context = nullptr;
-    HeadingSource heading_source = HeadingSource::Character;
 };
 
 struct Result
@@ -39,7 +38,7 @@ struct Result
 };
 
 // Aligns the camera to the character's facing before a start-off. No-op when the camera orientation is unavailable.
-void AlignCameraToCharacterOnce(const Context& ctx);
+void AlignCameraToHeadingOnce(const Context& ctx);
 
 Result TickSemanticFlow(const Context& ctx, NaviPhase phase);
 Result ConsumeInlineSemantics(const Context& ctx);

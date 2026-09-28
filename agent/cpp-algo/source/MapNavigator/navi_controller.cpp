@@ -80,7 +80,7 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     NaviParam param = requested_param;
 
     ActionWrapper action_wrapper(ctx_);
-    PositionProvider position_provider(action_wrapper.GetCtrl(), maplocator::getOrInitLocator());
+    PositionProvider position_provider(action_wrapper.GetCtrl(), maplocator::getOrInitLocator(), param.heading_source);
     position_provider.ResetTracking();
     if (param.normalize_position_via_navmesh) {
         position_provider.SetPositionNormalizer([&param](NaviPosition& pos) { NormalizeLivePositionToBase(param, pos); });
@@ -116,8 +116,7 @@ bool NaviController::Navigate(const NaviParam& requested_param)
 
     NaviPosition pos;
     const std::string initial_expected_zone = InitialExpectedZone(param);
-    if (!position_provider
-             .WaitForFix(&pos, param.heading_source, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
+    if (!position_provider.WaitForFix(&pos, initial_expected_zone, kLocatorWaitMaxRetries, kLocatorWaitIntervalMs, is_stopping)
         || is_stopping()) {
         return false;
     }

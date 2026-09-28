@@ -54,9 +54,10 @@ bool IsBlackScreen(const cv::Mat& image)
 
 } // namespace
 
-PositionProvider::PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator)
+PositionProvider::PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator, HeadingSource heading_source)
     : controller_(controller)
     , locator_(std::move(locator))
+    , heading_source_(heading_source)
     , uses_adb_minimap_roi_(IsAdbLikeControllerType(DetectControllerType(controller_)))
 {
 }
@@ -76,6 +77,7 @@ bool PositionProvider::Capture(
         return false;
     }
 
+    out_pos->valid = false;
     last_capture_was_black_screen_ = false;
     const auto capture_started_at = std::chrono::steady_clock::now();
 
@@ -122,6 +124,17 @@ bool PositionProvider::Capture(
         return false;
     }
 
+    std::optional<double> heading = locate_result.rot;
+    if (heading_source_ == HeadingSource::Camera) {
+        heading = locate_result.camRot && std::isfinite(locate_result.camRot->confidence)
+                          && locate_result.camRot->confidence >= kNavigationCameraMinConfidence
+                      ? std::optional<double>(locate_result.camRot->rot)
+                      : std::nullopt;
+    }
+    if (!heading || !std::isfinite(*heading) || *heading < 0.0 || *heading >= 360.0) {
+        return false;
+    }
+
     // 只统计整套走通的取位；全局搜索本来就比逐帧跟踪慢，算进去会把它的耗时当成机器常态。
     if (!force_global_search) {
         latency::RecordStage(latency::Stage::Screencap, ElapsedMs(capture_started_at, screencap_done_at));
@@ -131,12 +144,10 @@ bool PositionProvider::Capture(
 
     out_pos->x = locate_result.position->x;
     out_pos->y = locate_result.position->y;
-    out_pos->angle = locate_result.position->angle;
+    out_pos->angle = *heading;
     out_pos->score = locate_result.position->score;
     out_pos->zone_id = locate_result.position->zoneId;
-    out_pos->heading_source = locate_result.rot ? HeadingSource::Character : HeadingSource::None;
     out_pos->camera_angle = locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt;
-    out_pos->camera_confidence = locate_result.camRot ? locate_result.camRot->confidence : 0.0;
     out_pos->valid = true;
     out_pos->timestamp = capture_started_at;
 
@@ -149,38 +160,6 @@ bool PositionProvider::Capture(
     return true;
 }
 
-bool PositionProvider::captureForNavigation(
-    NaviPosition* out_pos,
-    HeadingSource heading_source,
-    bool force_global_search,
-    const std::string& expected_zone_id)
-{
-    if (!Capture(out_pos, force_global_search, expected_zone_id)) {
-        if (out_pos != nullptr) {
-            out_pos->heading_source = HeadingSource::None;
-        }
-        return false;
-    }
-    return selectHeading(*out_pos, heading_source);
-}
-
-bool PositionProvider::selectHeading(NaviPosition& position, HeadingSource heading_source)
-{
-    if (heading_source == HeadingSource::Character && position.heading_source == HeadingSource::Character && std::isfinite(position.angle)
-        && position.angle >= 0.0 && position.angle < 360.0) {
-        return true;
-    }
-    position.heading_source = HeadingSource::None;
-    if (heading_source == HeadingSource::Camera && position.camera_angle && std::isfinite(*position.camera_angle)
-        && *position.camera_angle >= 0.0 && *position.camera_angle < 360.0 && std::isfinite(position.camera_confidence)
-        && position.camera_confidence >= kNavigationCameraMinConfidence) {
-        position.angle = *position.camera_angle;
-        position.heading_source = HeadingSource::Camera;
-        return true;
-    }
-    return false;
-}
-
 void PositionProvider::SetPositionNormalizer(std::function<void(NaviPosition&)> normalizer)
 {
     position_normalizer_ = std::move(normalizer);
@@ -188,7 +167,6 @@ void PositionProvider::SetPositionNormalizer(std::function<void(NaviPosition&)> 
 
 bool PositionProvider::WaitForFix(
     NaviPosition* out_pos,
-    HeadingSource heading_source,
     const std::string& expected_zone_id,
     int max_retries,
     int retry_interval_ms,
@@ -198,7 +176,7 @@ bool PositionProvider::WaitForFix(
         if (should_stop()) {
             return false;
         }
-        if (captureForNavigation(out_pos, heading_source, !expected_zone_id.empty(), expected_zone_id)) {
+        if (Capture(out_pos, !expected_zone_id.empty(), expected_zone_id)) {
             return true;
         }
         utils::SleepFor(retry_interval_ms);

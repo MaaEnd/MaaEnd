@@ -44,7 +44,7 @@ MapLocator 属于 Recognition 层，只负责坐标与方位识别，不接管�
 | `locConf` | 本次命中的置信度得分，调参时参考 |
 | `latencyMs` | 本次计算耗时（毫秒） |
 
-定位成功不保证角色朝向可用：角色箭头不可见时仍继续定位，不以朝向缺失阻断位置结果。角色朝向识别不依赖定位；摄像机朝向识别单向依赖定位结果，两种朝向都不决定定位是否成功。`rot` 缺失时不输出该字段；摄像机模型未加载或推理失败时，`camRot` 与 `camRotConf` 同时省略，有效的 `0°` 正常输出。调用方应根据自身需求判断朝向是否可用。
+定位成功不保证朝向可用，调用方需检查所需朝向字段是否存在。
 
 `status` 取值：
 
@@ -116,7 +116,7 @@ MapLocator 属于 Recognition 层，只负责坐标与方位识别，不接管�
 | `message` | 定位日志或失败原因 |
 | `zoneId` | 本次判定要求的目标区域名 |
 | `x` / `y` | （成功时）定位器返回的全局像素坐标 |
-| `rot` | 本帧角色朝向，缺失时省略，定位失败时也可能携带；语义同 `MapLocateRecognition` |
+| `rot` | 角色朝向，语义同 `MapLocateRecognition` |
 | `camRot` | 摄像机朝向，取值与来源同 `MapLocateRecognition` 的 `camRot` |
 | `camRotConf` | 摄像机朝向置信度，与 `camRot` 同时携带或省略 |
 | `locConf` | 本次命中的置信度得分 |

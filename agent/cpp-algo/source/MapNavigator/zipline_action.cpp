@@ -124,9 +124,7 @@ public:
                     maplocator::SearchHint { .zone_id = zone, .x = node.x, .y = node.y, .radius = kZiplineLandingHintRadiusWu });
             }
         }
-        // 滑行中小地图隐藏，偶发位置误识别不能作为落地证据；所选朝向也有效才交给阶段机。
-        if (ctx_.position_provider->Capture(ctx_.position, force_global_search, {}, hints)
-            && PositionProvider::selectHeading(*ctx_.position, ctx_.heading_source)) {
+        if (ctx_.position_provider->Capture(ctx_.position, force_global_search, {}, hints)) {
             obs.fix = *ctx_.position;
         }
         return obs;
