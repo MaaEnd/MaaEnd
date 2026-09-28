@@ -25,8 +25,6 @@ struct AdbTouchTurnProfile
 };
 
 inline constexpr AdbTouchTurnProfile kAdbTouchTurnProfile {};
-constexpr double kAdbTurnScaleMinUnitsPerDegree = 1.0;
-constexpr double kAdbTurnScaleMaxUnitsPerDegree = 4.0;
 constexpr double kWin32TurnScaleMinUnitsPerDegree = 1.0;
 constexpr double kWin32TurnScaleMaxUnitsPerDegree = 50.0;
 
