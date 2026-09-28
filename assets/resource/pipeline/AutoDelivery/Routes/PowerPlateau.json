@@ -1,6 +1,6 @@
 {
     "AutoDeliveryRouteDepotDomain1Lv007Depot1": {
-        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点（domain_1_lv007_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点(domain_1_lv007_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -133,7 +133,7 @@
         }
     },
     "AutoDeliveryRouteDepotDomain1Lv007Depot1WithZipline": {
-        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点，仅允许步行（domain_1_lv007_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点，仅允许步行(domain_1_lv007_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -266,7 +266,7 @@
         }
     },
     "AutoDeliveryRouteDepotRetryDomain1Lv007Depot1": {
-        "desc": "AutoDelivery 仓储站位修正路线：供能高地仓储节点（domain_1_lv007_depot_1）",
+        "desc": "AutoDelivery 仓储站位修正路线：供能高地仓储节点(domain_1_lv007_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -307,7 +307,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00701": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜（deliver_target_map01_lv007_01）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜(deliver_target_map01_lv007_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -340,7 +340,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00701WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜，允许使用滑索（deliver_target_map01_lv007_01）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜，允许使用滑索(deliver_target_map01_lv007_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -373,7 +373,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00701": {
-        "desc": "AutoDelivery 终点站位修正路线：库济米尼奇娜（deliver_target_map01_lv007_01）",
+        "desc": "AutoDelivery 终点站位修正路线：库济米尼奇娜(deliver_target_map01_lv007_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -414,7 +414,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00702": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡（deliver_target_map01_lv007_02）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡(deliver_target_map01_lv007_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -447,7 +447,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00702WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡，允许使用滑索（deliver_target_map01_lv007_02）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡，允许使用滑索(deliver_target_map01_lv007_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -480,7 +480,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00702": {
-        "desc": "AutoDelivery 终点站位修正路线：里斯卡（deliver_target_map01_lv007_02）",
+        "desc": "AutoDelivery 终点站位修正路线：里斯卡(deliver_target_map01_lv007_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -521,7 +521,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00703": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂（deliver_target_map01_lv007_03）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂(deliver_target_map01_lv007_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -554,7 +554,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00703WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂，允许使用滑索（deliver_target_map01_lv007_03）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂，允许使用滑索(deliver_target_map01_lv007_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -587,7 +587,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00703": {
-        "desc": "AutoDelivery 终点站位修正路线：戈里昂（deliver_target_map01_lv007_03）",
+        "desc": "AutoDelivery 终点站位修正路线：戈里昂(deliver_target_map01_lv007_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -628,7 +628,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle02": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员（deliver_target_map01_lv007_recycle_02）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员(deliver_target_map01_lv007_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -670,7 +670,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle02WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员，允许使用滑索（deliver_target_map01_lv007_recycle_02）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员，允许使用滑索(deliver_target_map01_lv007_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -712,7 +712,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv007Recycle02": {
-        "desc": "AutoDelivery 终点站位修正路线：无畏的工团成员（deliver_target_map01_lv007_recycle_02）",
+        "desc": "AutoDelivery 终点站位修正路线：无畏的工团成员(deliver_target_map01_lv007_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -753,7 +753,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle03": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组（deliver_target_map01_lv007_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组(deliver_target_map01_lv007_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -795,7 +795,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle03WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组，允许使用滑索（deliver_target_map01_lv007_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组，允许使用滑索(deliver_target_map01_lv007_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -837,7 +837,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv007Recycle03": {
-        "desc": "AutoDelivery 终点站位修正路线：采购-超域试验场物资模组（deliver_target_map01_lv007_recycle_03）",
+        "desc": "AutoDelivery 终点站位修正路线：采购-超域试验场物资模组(deliver_target_map01_lv007_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",

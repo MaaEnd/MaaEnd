@@ -7,6 +7,8 @@
 - `assets/resource/pipeline/AutoDelivery/RecycleBinCandidates.json`：为每个资源回收站单独生成 `MapFind` 候选节点，使用数据源中的 `u/v` 坐标检查 `RecycleBin` 图标，并把命中的精确终点交给既有路线分发节点；
 - `assets/data/AutoDelivery/catalog.json`：Go Service 运行时 OCR 匹配目录，只包含文本、归属关系与对应的生成节点名，不再包含坐标或路径。
 
+生成的 `desc` 里作为注解的数据 ID（如 `domain_1_lv006_depot_1`、`deliver_target_map02_lv005_02`）一律用半角括号包起来，例如 `前往矿脉源区仓储节点(domain_1_lv006_depot_1)`；`desc` 里其余中文说明照常使用全角括号。SeizeDeliveryJobs 用同一份终点数据生成的 `desc` 同此约定。
+
 运行：
 
 ```powershell
