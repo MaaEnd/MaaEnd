@@ -53,110 +53,112 @@ jobs:
           name: maa-tools-test-logs
           path: tests/maatools
 
-  map-locate-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
-      CCACHE_MAXSIZE: 1G
-      CCACHE_BASEDIR: ${{ github.workspace }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          submodules: recursive
-
-      - name: Setup Python
-        uses: astral-sh/setup-uv@v7
-        with:
-          python-version: "3.12"
-          enable-cache: true
-
-      - name: Install test dependencies
-        run: uv sync --locked --no-default-groups --group pipeline --group images
-
-      # 与 install.yml 相同：以 MaaFramework 最新 release 为准，SDK、Python 绑定与 MaaUtils 均对齐到该版本。
-      - name: Resolve MaaFramework version
-        id: maafw
-        uses: step-security/github-action-get-latest-release@v0.8.2
-        with:
-          repository: MaaXYZ/MaaFramework
-          excludes: "draft"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Agent 按 MaaUtils 子模块编译，必须与运行时加载的 MaaFramework 同版。
-      - name: Check MaaUtils matches MaaFramework
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
-        run: python3 tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION"
-
-      # 覆盖锁文件中的版本；后续步骤均使用 --no-sync，不会被还原。
-      - name: Install matching Python binding
-        env:
-          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
-        run: uv pip install "maafw==${MAAFW_VERSION#v}"
-
-      - name: Download MaaFramework SDK
-        uses: robinraju/release-downloader@v1
-        with:
-          repository: MaaXYZ/MaaFramework
-          fileName: "MAA-linux-x86_64*"
-          tag: ${{ steps.maafw.outputs.release }}
-          out-file-path: deps
-          extract: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install C++ build tools
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y ninja-build cmake ccache
-
-      # 缓存路径和 key 与 install.yml 保持一致；这里只恢复，由 install 统一保存。
-      - name: Restore MaaDeps
-        id: maadeps
-        uses: actions/cache/restore@v5
-        with:
-          path: ./agent/cpp-algo/MaaUtils/MaaDeps
-          key: maadeps-linux-x86_64-${{ hashFiles('./tools/maadeps-download.py') }}
-
-      - name: Bootstrap MaaDeps
-        if: steps.maadeps.outputs.cache-hit != 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run --no-sync python tools/maadeps-download.py x64-linux
-
-      - name: Restore ccache
-        uses: actions/cache/restore@v5
-        with:
-          path: ./.cache/ccache
-          key: ccache-linux-x86_64-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
-          restore-keys: |
-            ccache-linux-x86_64-
-
-      # 复用 Linux x64 构建预设，限制并行数以控制 runner 内存。
-      - name: Build C++ Agent
-        working-directory: agent/cpp-algo
-        run: |
-          cmake --preset "NinjaMulti Linux x64" \
-            -DMAADEPS_TRIPLET=maa-x64-linux \
-            -DRPATH_LIBRARY_INSTALL_DIR=maafw \
-            -DENABLE_CCACHE=ON
-          cmake --build build --preset "NinjaMulti Linux x64 - RelWithDebInfo" --target cpp-algo --parallel 2
-          cmake --install build --config RelWithDebInfo --prefix "${{ github.workspace }}/install"
-
-      - name: Prepare offline runtime
-        run: |
-          mkdir -p install/maafw
-          cp -a deps/bin/. install/maafw/
-          ln -s ../assets/resource install/resource
-
-      - name: Run location tests
-        run: uv run --no-sync python -u tests/MapLocateAssertLocation/map_locate.py
-
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: map-locate-test-logs
-          path: tests/MapLocateAssertLocation/output
+  # map-locate-test 暂时停用：MaaFramework v5.14.1 的 maafw 尚未发布到 PyPI，
+  # Install matching Python binding 会必然失败。包发布后恢复本 job。
+#   map-locate-test:
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 30
+#     env:
+#       CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+#       CCACHE_MAXSIZE: 1G
+#       CCACHE_BASEDIR: ${{ github.workspace }}
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v6
+#         with:
+#           submodules: recursive
+#
+#       - name: Setup Python
+#         uses: astral-sh/setup-uv@v7
+#         with:
+#           python-version: "3.12"
+#           enable-cache: true
+#
+#       - name: Install test dependencies
+#         run: uv sync --locked --no-default-groups --group pipeline --group images
+#
+#       # 与 install.yml 相同：以 MaaFramework 最新 release 为准，SDK、Python 绑定与 MaaUtils 均对齐到该版本。
+#       - name: Resolve MaaFramework version
+#         id: maafw
+#         uses: step-security/github-action-get-latest-release@v0.8.2
+#         with:
+#           repository: MaaXYZ/MaaFramework
+#           excludes: "draft"
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#
+#       # Agent 按 MaaUtils 子模块编译，必须与运行时加载的 MaaFramework 同版。
+#       - name: Check MaaUtils matches MaaFramework
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
+#         run: python3 tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION"
+#
+#       # 覆盖锁文件中的版本；后续步骤均使用 --no-sync，不会被还原。
+#       - name: Install matching Python binding
+#         env:
+#           MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
+#         run: uv pip install "maafw==${MAAFW_VERSION#v}"
+#
+#       - name: Download MaaFramework SDK
+#         uses: robinraju/release-downloader@v1
+#         with:
+#           repository: MaaXYZ/MaaFramework
+#           fileName: "MAA-linux-x86_64*"
+#           tag: ${{ steps.maafw.outputs.release }}
+#           out-file-path: deps
+#           extract: true
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#
+#       - name: Install C++ build tools
+#         run: |
+#           sudo apt-get update -y
+#           sudo apt-get install -y ninja-build cmake ccache
+#
+#       # 缓存路径和 key 与 install.yml 保持一致；这里只恢复，由 install 统一保存。
+#       - name: Restore MaaDeps
+#         id: maadeps
+#         uses: actions/cache/restore@v5
+#         with:
+#           path: ./agent/cpp-algo/MaaUtils/MaaDeps
+#           key: maadeps-linux-x86_64-${{ hashFiles('./tools/maadeps-download.py') }}
+#
+#       - name: Bootstrap MaaDeps
+#         if: steps.maadeps.outputs.cache-hit != 'true'
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: uv run --no-sync python tools/maadeps-download.py x64-linux
+#
+#       - name: Restore ccache
+#         uses: actions/cache/restore@v5
+#         with:
+#           path: ./.cache/ccache
+#           key: ccache-linux-x86_64-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
+#           restore-keys: |
+#             ccache-linux-x86_64-
+#
+#       # 复用 Linux x64 构建预设，限制并行数以控制 runner 内存。
+#       - name: Build C++ Agent
+#         working-directory: agent/cpp-algo
+#         run: |
+#           cmake --preset "NinjaMulti Linux x64" \
+#             -DMAADEPS_TRIPLET=maa-x64-linux \
+#             -DRPATH_LIBRARY_INSTALL_DIR=maafw \
+#             -DENABLE_CCACHE=ON
+#           cmake --build build --preset "NinjaMulti Linux x64 - RelWithDebInfo" --target cpp-algo --parallel 2
+#           cmake --install build --config RelWithDebInfo --prefix "${{ github.workspace }}/install"
+#
+#       - name: Prepare offline runtime
+#         run: |
+#           mkdir -p install/maafw
+#           cp -a deps/bin/. install/maafw/
+#           ln -s ../assets/resource install/resource
+#
+#       - name: Run location tests
+#         run: uv run --no-sync python -u tests/MapLocateAssertLocation/map_locate.py
+#
+#       - name: Upload logs
+#         if: always()
+#         uses: actions/upload-artifact@v6
+#         with:
+#           name: map-locate-test-logs
+#           path: tests/MapLocateAssertLocation/output
