@@ -356,7 +356,8 @@
                 "all_of": [
                     "YellowConfirmButtonType1",
                     "YellowButtonConfirmText"
-                ]
+                ],
+                "box_index": 0
             }
         },
         "pre_wait_freezes": {
