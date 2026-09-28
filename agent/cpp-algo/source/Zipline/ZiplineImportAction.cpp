@@ -481,7 +481,7 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     }
 
     ImportParam param = LoadParam(context, node_name);
-    switch (gamesetting::DetectGameRegion()) {
+    switch (gamesetting::DetectGameRegion(MaaTaskerGetController(MaaContextGetTasker(context)))) {
     case gamesetting::Region::CN:
         param.url = kMapUrlCN;
         break;
@@ -489,14 +489,8 @@ MaaBool MAA_CALL ZiplineImportActionRun(
         param.url = kMapUrlGlobal;
         break;
     case gamesetting::Region::Unknown:
-#ifdef __APPLE__
-        LogWarn << "ZiplineImport: game region unknown, use CN map";
-        param.url = kMapUrlCN;
-        break;
-#else
         LogError << "ZiplineImport: failed to resolve map URL from game region";
         return false;
-#endif
     }
 
 #ifdef MAAEND_HAVE_WEBKIT

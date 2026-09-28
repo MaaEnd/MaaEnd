@@ -105,4 +105,18 @@ bool IsMainLoopRunning()
     return g_running;
 }
 
+std::vector<std::string> RunningApplicationIds()
+{
+    std::vector<std::string> ids;
+    @autoreleasepool {
+        for (NSRunningApplication* app in [[NSWorkspace sharedWorkspace] runningApplications]) {
+            const char* bundle_id = app.bundleIdentifier.UTF8String;
+            if (bundle_id != nullptr) {
+                ids.emplace_back(bundle_id);
+            }
+        }
+    }
+    return ids;
+}
+
 } // namespace common::macapp

@@ -12,9 +12,9 @@
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
-                "MacOS-Front",
-                "MacOS-Background",
-                "Win32-Front"
+                "Win32-Front",
+                "ADB",
+                "PlayCover"
             ],
             "group": [
                 "open_world"
@@ -25,9 +25,9 @@
         "ZiplineImportClearLogin": {
             "type": "switch",
             "controller": [
-                "MacOS-Front",
-                "MacOS-Background",
-                "Win32-Front"
+                "Win32-Front",
+                "ADB",
+                "PlayCover"
             ],
             "label": "$option.ZiplineImportClearLogin.label",
             "default_case": "No",
