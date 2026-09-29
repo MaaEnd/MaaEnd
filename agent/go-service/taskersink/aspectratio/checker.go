@@ -229,21 +229,33 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Msg("resolution check passed")
 }
 
+// GetResolution 返回的是上一张截图的原始尺寸。入口节点多为 DirectHit，不会自行截图，
+// 因此每次检查都先截一张，避免用户改完分辨率后仍按旧图判断。
 func readResolutionWithRetry(controller *maa.Controller) (int32, int32, bool) {
 	const maxRetries = 20
 	var width, height int32
 	for i := 0; i < maxRetries; i++ {
+		screencap := controller.PostScreencap().Wait()
+		if !screencap.Success() {
+			log.Debug().
+				Int("attempt", i+1).
+				Msg("Screencap failed, retrying")
+			if i+1 < maxRetries {
+				time.Sleep(time.Second)
+			}
+			continue
+		}
+
 		var err error
 		width, height, err = controller.GetResolution()
 		if err == nil && width > 100 && height > 100 {
 			return width, height, true
 		}
 		if err != nil {
-			// DirectHit截图方式会导致err != nil
 			log.Debug().
 				Err(err).
 				Int("attempt", i+1).
-				Msg("Failed to get resolution, screencap and retry")
+				Msg("Failed to get resolution after screencap, retrying")
 		} else {
 			log.Debug().
 				Int32("width", width).
@@ -251,8 +263,9 @@ func readResolutionWithRetry(controller *maa.Controller) (int32, int32, bool) {
 				Int("attempt", i+1).
 				Msg("Resolution too small, window may not be ready yet, retrying...")
 		}
-		time.Sleep(time.Second)
-		controller.PostScreencap().Wait()
+		if i+1 < maxRetries {
+			time.Sleep(time.Second)
+		}
 	}
 	return width, height, false
 }
