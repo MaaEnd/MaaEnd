@@ -1,10 +1,16 @@
 {
+    // 移动端画面缩放后黄色竖条的蓝色通道在 10~15 之间，PC 的上限 10 只剩零星像素
     "AutoSellFriendsPricesExpectedGoToHighlightRecognition": {
         "roi_offset": [
             -394,
             -29,
             136,
             55
+        ],
+        "upper": [
+            255,
+            248,
+            40
         ]
     }
 }
