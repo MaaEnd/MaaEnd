@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstddef>
+#include <deque>
 #include <limits>
 #include <optional>
 #include <string>
@@ -229,6 +230,14 @@ struct SteeringRateState
     // same error is commanded over and over before any of it lands.
     double pending_turn_deg = 0.0;
     double pending_ref_heading_deg = 0.0;
+    // Sends still inside their own lifetime. The total above is capped at their sum, so a swallowed send expires
+    // on its own clock whatever is sent after it.
+    struct InFlightTurn
+    {
+        double delta_deg = 0.0;
+        std::chrono::steady_clock::time_point sent_at {};
+    };
+    std::deque<InFlightTurn> in_flight;
 
     void Reset()
     {
@@ -243,6 +252,7 @@ struct SteeringRateState
         turn_latch_sign = 0;
         pending_turn_deg = 0.0;
         pending_ref_heading_deg = 0.0;
+        in_flight.clear();
     }
 };
 

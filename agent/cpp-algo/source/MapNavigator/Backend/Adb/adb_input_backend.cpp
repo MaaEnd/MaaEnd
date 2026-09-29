@@ -94,7 +94,7 @@ SteeringTransportProfile AdbInputBackend::steering_transport_profile() const
         .supports_concurrent_move_and_look = true,
         .min_send_interval_ms = 0,
         .min_emit_delta_deg = 1.5,
-        .max_batch_delta_deg = 20.0,
+        .max_batch_delta_deg = 90.0,
         .action_quiet_period_ms = kAdbTouchTurnProfile.action_quiet_period_ms,
     };
 }

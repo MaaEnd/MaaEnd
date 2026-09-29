@@ -17,7 +17,7 @@ constexpr double kPitchDegreesPerRange = 180.0;
 
 struct AdbTouchTurnProfile
 {
-    double default_units_per_degree = 5.0;
+    double default_units_per_degree = 3.0;
     double default_pitch_units_per_degree =
         default_units_per_degree * kTurnDegreesPerCircle * kWorkHeight / (kWorkWidth * kPitchDegreesPerRange);
     int32_t swipe_duration_ms = 70;

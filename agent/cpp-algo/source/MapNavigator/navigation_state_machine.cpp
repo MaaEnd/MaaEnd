@@ -1898,22 +1898,35 @@ bool NavigationStateMachine::TickNavigate()
     // an unpaid debt expires, so a swallowed drag can never leave steering suppressed against a turn never coming.
     // Walking turns at about half rate: a jogging-sized lifetime expires mid-turn and the loop re-commands it.
     SteeringRateState& steering_rate = runtime_state_.steering_rate;
-    // The floor covers one batch; a tick that spends several sweeps further and takes correspondingly longer to
-    // land, so add time for the part beyond the first batch. A debt written off mid-sweep makes the loop command
-    // the remainder a second time, which overshoots by whatever was still in flight and then hunts back.
-    const double extra_sweep_deg = std::max(0.0, std::abs(steering_rate.cmd_delta_deg) - motion_controller_->SteeringBatchCapDeg());
-    const int64_t base_pending_lifetime_ms =
-        kSteeringPendingLifetimeMs + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
-    const int64_t pending_lifetime_ms = walk_mode_.engaged() ? base_pending_lifetime_ms * kWalkModeSlowFactor : base_pending_lifetime_ms;
+    const double batch_cap_deg = motion_controller_->SteeringBatchCapDeg();
+    const bool walk_engaged = walk_mode_.engaged();
+    const auto pending_lifetime_ms = [&](double delta_deg) {
+        // The floor covers one batch; a tick that spends several sweeps further and takes correspondingly longer to
+        // land, so add time for the part beyond the first batch. A debt written off mid-sweep makes the loop command
+        // the remainder a second time, which overshoots by whatever was still in flight and then hunts back.
+        const double extra_sweep_deg = std::max(0.0, std::abs(delta_deg) - batch_cap_deg);
+        const int64_t base_ms = kSteeringPendingLifetimeMs + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
+        return walk_engaged ? base_ms * kWalkModeSlowFactor : base_ms;
+    };
+    std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count() >= pending_lifetime_ms(turn.delta_deg);
+    });
     if (steering_rate.pending_turn_deg != 0.0) {
-        const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
-        if (pending_age_ms >= pending_lifetime_ms) {
+        if (steering_rate.in_flight.empty()) {
             steering_rate.pending_turn_deg = 0.0;
         }
         else {
             const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
             const double owed = std::abs(steering_rate.pending_turn_deg);
             steering_rate.pending_turn_deg = std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed);
+            double deliverable_deg = 0.0;
+            for (const SteeringRateState::InFlightTurn& turn : steering_rate.in_flight) {
+                deliverable_deg += turn.delta_deg;
+            }
+            const bool same_way = steering_rate.pending_turn_deg * deliverable_deg > 0.0;
+            if (same_way && std::abs(steering_rate.pending_turn_deg) > std::abs(deliverable_deg)) {
+                steering_rate.pending_turn_deg = deliverable_deg;
+            }
         }
     }
     steering_rate.pending_ref_heading_deg = current_heading;
@@ -1930,6 +1943,8 @@ bool NavigationStateMachine::TickNavigate()
 
     double issued_delta_deg = 0.0;
     int64_t steer_send_ms = 0;
+    // Lifetimes start at the send: a tick that replans before getting here can outlast a whole lifetime.
+    const auto steer_sent_at = std::chrono::steady_clock::now();
     if (steering.issued) {
         const TurnCommandResult steering_result = motion_controller_->ApplySteering(steering.yaw_delta_deg, tick_gap_ms);
         steer_send_ms = steering_result.send_ms;
@@ -1940,9 +1955,10 @@ bool NavigationStateMachine::TickNavigate()
     if (issued_delta_deg != 0.0) {
         steering_rate.cmd_heading_deg = current_heading;
         steering_rate.cmd_delta_deg = issued_delta_deg;
-        steering_rate.cmd_at = now;
+        steering_rate.cmd_at = steer_sent_at;
         steering_rate.has_cmd = true;
         steering_rate.pending_turn_deg += issued_delta_deg;
+        steering_rate.in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
     }
     // 只有走到这里的拍才记账。在上面就返回的拍留下拍号缺口，估计器拿输入出口的账判断那拍有没有发过转向。
     const int64_t now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();

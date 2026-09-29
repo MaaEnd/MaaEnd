@@ -90,8 +90,9 @@ bool AdbCameraSwipeDriver::ExecuteSwipe(const ScreenGeometry& geometry, int swip
 
 bool AdbCameraSwipeDriver::ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const
 {
-    const cv::Point start = geometry.center;
-    const cv::Point end = ClampPoint({ geometry.center.x + swipe_dx, geometry.center.y + swipe_dy }, geometry.resolution);
+    // 横向以中心对称起落: 被当成点击时落点离屏幕中心最近, 碰不到两侧的任务追踪和按钮
+    const cv::Point start = ClampPoint({ geometry.center.x - swipe_dx / 2, geometry.center.y }, geometry.resolution);
+    const cv::Point end = ClampPoint({ start.x + swipe_dx, geometry.center.y + swipe_dy }, geometry.resolution);
 
     if (!PostTouchDown(start)) {
         return false;
