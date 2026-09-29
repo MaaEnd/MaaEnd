@@ -157,7 +157,7 @@ DijiangRewards
 | 领奖后没再次种植 | `SelectToGrow=GrowAgain`；领奖关闭后的 next 链 |
 | 培养点错材料 | `SelectToGrowItems` 勾选范围、各 case 的五语言 `attach`、`GrowthChamberInitSelectTarget` 生成的精确白名单 |
 | 所有材料都不命中 | 是否未勾选材料而生成 `a^`；目标别名是否完整；初始化动作是否成功执行 |
-| 有本体却不提取 | `AutoExtractSeed` 与 `GrowthChamberCheckTargetNotEmpty` 联动覆盖 |
+| 有本体却不提取 | `AutoExtractSeed` 与 `GrowthChamberFindTargetByPlant` 任务选项禁用 |
 | 排序不符合预期 | `SortBy` / `SortOrder`；两者仅在「指定材料」模式生效 |
 | 其他 OCR 识别漂移 | `Template/` 下三文件的多语言 `expected` |
 

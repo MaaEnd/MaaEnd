@@ -276,19 +276,8 @@
             }
         }
     },
-    "GrowthChamberCheckTargetNotEmpty": {
-        "desc": "[培养舱·培养] 已弃用：And 内 Or 受 MaaFramework #1313 影响，请使用 FindTargetBySeed + FindTargetByPlant",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "GrowthChamberCheckSeedNotEmpty",
-                    "GrowthChamberCheckPlantNotEmpty"
-                ]
-            }
-        }
-    },
     "GrowthChamberCheckSeedNotEmpty": {
+        "desc": "[培养舱·培养] 识别种子数量不为0",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -310,6 +299,7 @@
         }
     },
     "GrowthChamberCheckPlantNotEmpty": {
+        "desc": "[培养舱·培养] 识别培养对象数量不为0",
         "recognition": {
             "type": "OCR",
             "param": {
