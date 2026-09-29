@@ -1,4 +1,15 @@
 {
+    // 移动端返回键比 PC 大（约 38px），PC 的 31px 模板在这里会误匹配到按钮下方；改用通用安卓返回键模板
+    "GrowthChamberBackButton": {
+        "recognition": {
+            "param": {
+                "template": [
+                    "Common/Button/BackButton.png"
+                ],
+                "green_mask": false
+            }
+        }
+    },
     "GrowthChamberBackExtract": {
         "action": {
             "type": "ClickKey",
