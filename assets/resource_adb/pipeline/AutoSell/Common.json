@@ -5,6 +5,13 @@
     "AutoSellShipEnterStockRedistribution": {
         "post_wait_freezes": {
             "time": 500,
+            // 默认只盯识别框（左上角 ESC 按钮），页面切换要看整屏
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
             "timeout": 3000
         }
     },

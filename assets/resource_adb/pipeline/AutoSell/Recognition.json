@@ -12,5 +12,15 @@
             248,
             40
         ]
+    },
+    // 移动端卡片里绿线在「拥有」黑框下方约 64~70px，PC 的区域只到 +68，第一行常只截到线的下半截，
+    // 凑不够 count 370，要卖的货品在第一行时就找不到。区域加高 10px 把整条线框进来
+    "AutoSellStockRedistributionItemGreenLineRecognition": {
+        "roi_offset": [
+            -20,
+            40,
+            140,
+            20
+        ]
     }
 }
