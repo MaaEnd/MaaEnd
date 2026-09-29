@@ -121,8 +121,10 @@ type BetterSlidingAction struct {
 	startBox []int
 	endBox   []int
 	// preciseClickBase 精确点击基准坐标；preciseClickNudges 为已偏移次数，仅作日志索引。
-	preciseClickBase          [2]int
-	preciseClickNudges        int
+	preciseClickBase   [2]int
+	preciseClickNudges int
+	// preciseClickRecalibrated 表示本轮已按实测数量校准过一次精确点击，见 recalibratePreciseClick
+	preciseClickRecalibrated  bool
 	sliderMaxQuantity         int
 	availableQuantity         int
 	availableQuantityResolved bool

@@ -467,6 +467,7 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 	// 重算基准坐标即重置偏移索引。
 	a.preciseClickBase = [2]int{clickX, clickY}
 	a.preciseClickNudges = 0
+	a.preciseClickRecalibrated = false
 
 	if err := ctx.OverridePipeline(map[string]any{
 		nodeBetterSlidingPreciseClick: map[string]any{
@@ -545,6 +546,10 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 	if err != nil {
 		a.logger.Error().Err(err).Msg("failed to parse current quantity from ocr")
 		return false
+	}
+
+	if a.shouldRecalibratePreciseClick(currentQuantity) {
+		return a.recalibratePreciseClick(ctx, arg, currentQuantity)
 	}
 
 	if !shouldFineTuneQuantity(a.FineTuneQuantity, currentQuantity, a.TargetQuantity) {
@@ -776,6 +781,114 @@ func (a *BetterSlidingAction) nudgePreciseClick(
 		Ints("reset_end", resetEnd).
 		Msg("fine-tuning skipped, reset2 and nudge precise click, then re-check")
 	return true
+}
+
+// shouldRecalibratePreciseClick 判断精确点击后的读数是否偏得超出一轮按钮微调（maxClickRepeat）。
+// 终点识别偶尔会认错：移动端滑到最大时手柄变灰，禁用的「+」按钮反而更像手柄，
+// 按错误终点插值出的落点只靠 Increase/Decrease 的次数上限补不回来。每轮只校准一次
+func (a *BetterSlidingAction) shouldRecalibratePreciseClick(currentQuantity int) bool {
+	return !a.preciseClickRecalibrated &&
+		a.preciseClickBase != [2]int{} &&
+		len(a.startBox) >= 4 &&
+		currentQuantity > 1 &&
+		a.TargetQuantity >= 1 &&
+		absInt(currentQuantity-a.TargetQuantity) > maxClickRepeat
+}
+
+// recalibratePreciseClick 以「起点 = 数量 1、本次落点 = 实测数量」两点重新线性插值出目标点击位置，
+// 顺带按同一比例外推出真实终点替换 endBox，之后的复位方向与微调偏移都按校准后的几何走。
+// 路由与 nudgePreciseClick 相同：先经 BetterSlidingReset2 把手柄挪开，再回到精确点击复查
+func (a *BetterSlidingAction) recalibratePreciseClick(
+	ctx *maa.Context,
+	arg *maa.CustomActionArg,
+	currentQuantity int,
+) bool {
+	startX, startY := centerPoint(a.startBox, a.CenterPointOffset)
+	start := [2]int{startX, startY}
+	previous := a.preciseClickBase
+	target := interpolateClickTarget(start, previous, currentQuantity, a.TargetQuantity)
+	if a.sliderMaxQuantity > 1 {
+		end := interpolateClickTarget(start, previous, currentQuantity, a.sliderMaxQuantity)
+		a.endBox = boxCenteredAt(end, a.startBox, a.CenterPointOffset)
+	}
+
+	a.preciseClickRecalibrated = true
+	a.preciseClickBase = target
+	a.preciseClickNudges = 0
+
+	axis, _ := resolveNudgeAxis(a.startBox, a.endBox, a.CenterPointOffset)
+	side := resolveReset2Side(axis, a.startBox, a.endBox, a.CenterPointOffset, target)
+	resetEnd, err := buildReset2SwipeEnd(a.Direction, side)
+	if err != nil {
+		a.logger.Error().
+			Err(err).
+			Str("direction", a.Direction).
+			Str("reset_side", side.String()).
+			Msg("failed to build reset2 swipe end for recalibration")
+		return false
+	}
+
+	if err := ctx.OverridePipeline(map[string]any{
+		nodeBetterSlidingPreciseClick: map[string]any{
+			"action": map[string]any{
+				"param": map[string]any{
+					"target": []int{target[0], target[1]},
+				},
+			},
+		},
+		nodeBetterSlidingReset2: map[string]any{
+			"action": map[string]any{
+				"param": map[string]any{
+					"end": resetEnd,
+				},
+			},
+		},
+	}); err != nil {
+		a.logger.Error().
+			Err(err).
+			Ints("recalibrated_target", []int{target[0], target[1]}).
+			Ints("reset_end", resetEnd).
+			Msg("failed to override recalibrated precise click target and reset2 end")
+		return false
+	}
+
+	if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingReset2}}); err != nil {
+		a.logger.Error().
+			Err(err).
+			Ints("recalibrated_target", []int{target[0], target[1]}).
+			Msg("failed to override next to reset2 for recalibration")
+		return false
+	}
+
+	a.logger.Info().
+		Int("current_quantity", currentQuantity).
+		Int("target_quantity", a.TargetQuantity).
+		Ints("previous_target", []int{previous[0], previous[1]}).
+		Ints("recalibrated_target", []int{target[0], target[1]}).
+		Ints("recalibrated_end_box", a.endBox).
+		Str("reset_side", side.String()).
+		Msg("precise click missed by more than one fine-tune round, recalibrate from measured quantity")
+	return true
+}
+
+// interpolateClickTarget 过「start = 数量 1」与「measured = measuredQuantity」两点线性求 quantity 所在坐标。
+// 调用方保证 measuredQuantity > 1
+func interpolateClickTarget(start [2]int, measured [2]int, measuredQuantity int, quantity int) [2]int {
+	scale := float64(quantity-1) / float64(measuredQuantity-1)
+	return [2]int{
+		start[0] + int(math.Round(float64(measured[0]-start[0])*scale)),
+		start[1] + int(math.Round(float64(measured[1]-start[1])*scale)),
+	}
+}
+
+// boxCenteredAt 生成与 like 同尺寸、centerPoint 恰为 center 的矩形
+func boxCenteredAt(center [2]int, like []int, offset [2]int) []int {
+	return []int{
+		center[0] - offset[0] - like[2]/2,
+		center[1] - offset[1] - like[3]/2,
+		like[2],
+		like[3],
+	}
 }
 
 // shouldFineTuneQuantity 判断本次读数是否进入 Increase/Decrease 微调。
@@ -1025,6 +1138,7 @@ func (a *BetterSlidingAction) resetState() {
 	a.endBox = nil
 	a.preciseClickBase = [2]int{}
 	a.preciseClickNudges = 0
+	a.preciseClickRecalibrated = false
 	a.sliderMaxQuantity = 0
 	a.availableQuantity = 0
 	a.availableQuantityResolved = false
