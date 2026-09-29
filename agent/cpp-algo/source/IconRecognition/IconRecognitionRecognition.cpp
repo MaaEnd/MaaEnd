@@ -1,6 +1,7 @@
 #include "IconRecognitionRecognition.h"
 
 #include <cstdint>
+#include <filesystem>
 #include <cstring>
 #include <memory>
 #include <mutex>
@@ -133,6 +134,23 @@ void SaveDebugCaptureBestEffort(const cv::Mat& image, const RecognitionResult& r
 {
     try {
         const auto root = get_exe_dir() / ".." / "debug" / "vision" / "IconRecognition";
+        static std::mutex session_mutex;
+        static MaaTaskId active_task_id = 0;
+        static bool session_initialized = false;
+        {
+            std::scoped_lock lock(session_mutex);
+            if (!session_initialized || active_task_id != task_id) {
+                std::error_code ec;
+                std::filesystem::remove_all(root, ec);
+                if (ec) {
+                    LogWarn << "IconRecognition debug capture cleanup failed" << VAR(task_id) << VAR(root);
+                }
+                else {
+                    active_task_id = task_id;
+                    session_initialized = true;
+                }
+            }
+        }
         if (!detail::SaveDebugCapture(root, image, result, static_cast<std::uint64_t>(task_id))) {
             LogWarn << "IconRecognition debug capture failed" << VAR(task_id) << VAR(root);
         }
@@ -193,7 +211,7 @@ MaaBool MAA_CALL IconRecognitionRun(
         if (object.contains("grid_scale")) {
             throw std::invalid_argument("IconRecognition grid_scale is not supported; controller profile is selected automatically");
         }
-        const bool debug = ReadBool(object, "debug", false);
+        const bool debug = ReadBool(object, "debug", true);
         debug_requested = debug;
         RecognitionRequest request;
         request.grid_type = *parsed_grid_type;
