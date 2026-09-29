@@ -4,6 +4,7 @@
 #include <atomic>
 #include <chrono>
 #include <fstream>
+#include <limits>
 
 #include <meojson/json.hpp>
 
@@ -17,7 +18,7 @@ namespace
 {
 
 // 每个 debug 目录最多保留的完整截图组数；调大便于追溯，但会线性增加磁盘占用。
-constexpr std::size_t kMaxCaptureGroups = 20;
+constexpr std::size_t kMaxCaptureGroups = std::numeric_limits<std::size_t>::max();
 // 诊断文字按 720p 截图标定；调大更易读但更容易遮挡相邻槽位。
 constexpr double kDiagnosticTextScale = 0.35;
 
