@@ -28,7 +28,8 @@
                     "target_deck_y": 278.757
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -70,7 +71,8 @@
                     "target_deck_y": 278.757
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -111,7 +113,8 @@
                     ],
                     "target_deck_y": 278.757
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -144,7 +147,8 @@
                     "target_deck_y": 275.148
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -177,7 +181,8 @@
                     "target_deck_y": 275.148
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -218,7 +223,8 @@
                     ],
                     "target_deck_y": 275.148
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -251,7 +257,8 @@
                     "target_deck_y": 315.37
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -284,7 +291,8 @@
                     "target_deck_y": 315.37
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -325,7 +333,8 @@
                     ],
                     "target_deck_y": 315.37
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -358,7 +367,8 @@
                     "target_deck_y": 265.279
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -391,7 +401,8 @@
                     "target_deck_y": 265.279
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -432,7 +443,8 @@
                     ],
                     "target_deck_y": 265.279
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -474,7 +486,8 @@
                     "target_deck_y": 325.819
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -516,7 +529,8 @@
                     "target_deck_y": 325.819
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -557,7 +571,8 @@
                     ],
                     "target_deck_y": 325.819
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,

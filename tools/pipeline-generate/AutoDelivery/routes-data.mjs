@@ -10,13 +10,13 @@ function buildRows(routeFileId, id, description, path, routeNode, zipRouteNode, 
             RouteFileId: routeFileId,
             Node: routeNode,
             Description: `${description}${ziplineOnly ? "，仅允许使用滑索" : ""}(${id})`,
-            ActionParam: rawJson({path, zip: false}),
+            ActionParam: rawJson({path, zip: false, heading_source: "camera"}),
         },
         {
             RouteFileId: routeFileId,
             Node: zipRouteNode,
             Description: `${description}，${zipNote}(${id})`,
-            ActionParam: rawJson({path, zip: true}),
+            ActionParam: rawJson({path, zip: true, heading_source: "camera"}),
         },
     ];
 }
@@ -38,7 +38,7 @@ export default [
                       RouteFileId: depot.routeFileId,
                       Node: depot.retryRouteNode,
                       Description: `AutoDelivery 仓储站位修正路线：${depot.name}仓储节点(${depot.id})`,
-                      ActionParam: rawJson({path: depot.retryPath}),
+                      ActionParam: rawJson({path: depot.retryPath, heading_source: "camera"}),
                   },
               ]
             : []),
@@ -59,7 +59,7 @@ export default [
                       RouteFileId: destination.routeFileId,
                       Node: destination.retryRouteNode,
                       Description: `AutoDelivery 终点站位修正路线：${destination.name.zh_cn}(${destination.id})`,
-                      ActionParam: rawJson({path: destination.retryPath}),
+                      ActionParam: rawJson({path: destination.retryPath, heading_source: "camera"}),
                   },
               ]
             : []),

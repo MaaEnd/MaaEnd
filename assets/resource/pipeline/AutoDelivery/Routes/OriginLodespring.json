@@ -28,7 +28,8 @@
                     "target_deck_y": 74.57
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -70,7 +71,8 @@
                     "target_deck_y": 74.57
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -111,7 +113,8 @@
                     ],
                     "target_deck_y": 74.57
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -217,7 +220,8 @@
                     "target_deck_y": 39.315
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -323,7 +327,8 @@
                     "target_deck_y": 39.315
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -364,7 +369,8 @@
                     ],
                     "target_deck_y": 39.315
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -470,7 +476,8 @@
                     "target_deck_y": 34.228
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -576,7 +583,8 @@
                     "target_deck_y": 34.228
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -617,7 +625,8 @@
                     ],
                     "target_deck_y": 34.228
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -723,7 +732,8 @@
                     "target_deck_y": 36.701
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -829,7 +839,8 @@
                     "target_deck_y": 36.701
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -870,7 +881,8 @@
                     ],
                     "target_deck_y": 36.701
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -985,7 +997,8 @@
                     "target_deck_y": 41.441
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1100,7 +1113,8 @@
                     "target_deck_y": 41.441
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1141,7 +1155,8 @@
                     ],
                     "target_deck_y": 41.441
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1256,7 +1271,8 @@
                     "target_deck_y": 36.255
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1371,7 +1387,8 @@
                     "target_deck_y": 36.255
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1412,7 +1429,8 @@
                     ],
                     "target_deck_y": 36.255
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
