@@ -45,3 +45,31 @@ func TestShouldRecalibratePreciseClickOnlyOnceAndOnlyWhenFarOff(t *testing.T) {
 		t.Fatal("recalibration must happen at most once per precise click")
 	}
 }
+
+// 实测精确点击后第一次读到的是滑到最大时的 960：这种读数先重读一次，不拿来校准或微调
+func TestLooksLikePreClickReading(t *testing.T) {
+	a := &BetterSlidingAction{}
+	a.TargetQuantity = 320
+	a.sliderMaxQuantity = 960
+
+	if !a.looksLikePreClickReading(960) {
+		t.Fatal("reading the slider max right after the click should be re-checked")
+	}
+	if !a.looksLikePreClickReading(1) {
+		t.Fatal("reading the slider min right after the click should be re-checked")
+	}
+	if a.looksLikePreClickReading(519) {
+		t.Fatal("an in-between reading is a real result")
+	}
+
+	a.TargetQuantity = 950
+	if a.looksLikePreClickReading(960) {
+		t.Fatal("a target next to the max may legitimately read the max")
+	}
+
+	a.TargetQuantity = 320
+	a.staleRecheckUsed = true
+	if a.looksLikePreClickReading(960) {
+		t.Fatal("only one re-check per precise click")
+	}
+}

@@ -287,6 +287,7 @@ func (a *BetterSlidingAction) handleGetSliderMaxQuantity(ctx *maa.Context, arg *
 			nodeBetterSlidingDone,
 			buttonTarget{},
 			0,
+			nil,
 		); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
@@ -330,7 +331,7 @@ func (a *BetterSlidingAction) handleGetSliderMaxQuantity(ctx *maa.Context, arg *
 		return false
 	}
 	if nextNode != "" {
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0, nil); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("slider_max_quantity", a.sliderMaxQuantity).
@@ -468,6 +469,8 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 	a.preciseClickBase = [2]int{clickX, clickY}
 	a.preciseClickNudges = 0
 	a.preciseClickRecalibrated = false
+	a.preciseClickPendingCheck = true
+	a.staleRecheckUsed = false
 
 	if err := ctx.OverridePipeline(map[string]any{
 		nodeBetterSlidingPreciseClick: map[string]any{
@@ -548,7 +551,13 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 		return false
 	}
 
-	if a.shouldRecalibratePreciseClick(currentQuantity) {
+	// 只有精确点击刚落下后的读数能和点击位置对应上；按过加减之后的读数不能拿来校准
+	justClicked := a.preciseClickPendingCheck
+	a.preciseClickPendingCheck = false
+	if justClicked && a.looksLikePreClickReading(currentQuantity) {
+		return a.recheckQuantity(ctx, arg, currentQuantity)
+	}
+	if justClicked && a.shouldRecalibratePreciseClick(currentQuantity) {
 		return a.recalibratePreciseClick(ctx, arg, currentQuantity)
 	}
 
@@ -558,7 +567,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 
 	switch {
 	case currentQuantity == a.TargetQuantity:
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, nil); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -580,7 +589,8 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 	case currentQuantity < a.TargetQuantity:
 		diff := a.TargetQuantity - currentQuantity
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingIncreaseQuantity, a.IncreaseButton, repeat); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingIncreaseQuantity, a.IncreaseButton, repeat,
+			resolveButtonPlacement(a.startBox, a.Direction, true)); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -608,7 +618,8 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 	default:
 		diff := currentQuantity - a.TargetQuantity
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDecreaseQuantity, a.DecreaseButton, repeat); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDecreaseQuantity, a.DecreaseButton, repeat,
+			resolveButtonPlacement(a.startBox, a.Direction, false)); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -677,6 +688,7 @@ func (a *BetterSlidingAction) handleNoFineTune(
 		nodeBetterSlidingDone,
 		buttonTarget{},
 		0,
+		nil,
 	); err != nil {
 		errEvent := a.logger.Error().
 			Err(err).
@@ -815,6 +827,8 @@ func (a *BetterSlidingAction) recalibratePreciseClick(
 	a.preciseClickRecalibrated = true
 	a.preciseClickBase = target
 	a.preciseClickNudges = 0
+	a.preciseClickPendingCheck = true
+	a.staleRecheckUsed = false
 
 	axis, _ := resolveNudgeAxis(a.startBox, a.endBox, a.CenterPointOffset)
 	side := resolveReset2Side(axis, a.startBox, a.endBox, a.CenterPointOffset, target)
@@ -868,6 +882,37 @@ func (a *BetterSlidingAction) recalibratePreciseClick(
 		Ints("recalibrated_end_box", a.endBox).
 		Str("reset_side", side.String()).
 		Msg("precise click missed by more than one fine-tune round, recalibrate from measured quantity")
+	return true
+}
+
+// looksLikePreClickReading 判断精确点击后的读数是否还是点击前滑块停在端点的数量：
+// 点击前滑块要么被滑到最大（SwipeToMax / 向终点复位），要么复位到最小；
+// 目标离端点超过一轮微调时，读数恰好等于端点多半是画面还没刷新。每次点击只重读一次
+func (a *BetterSlidingAction) looksLikePreClickReading(currentQuantity int) bool {
+	if a.staleRecheckUsed || a.sliderMaxQuantity <= 1 {
+		return false
+	}
+	atMax := currentQuantity == a.sliderMaxQuantity && a.TargetQuantity < a.sliderMaxQuantity-maxClickRepeat
+	atMin := currentQuantity == 1 && a.TargetQuantity > 1+maxClickRepeat
+	return atMax || atMin
+}
+
+// recheckQuantity 让 CheckQuantity 再读一次，仍按「刚点击后」的读数处理
+func (a *BetterSlidingAction) recheckQuantity(ctx *maa.Context, arg *maa.CustomActionArg, currentQuantity int) bool {
+	a.staleRecheckUsed = true
+	a.preciseClickPendingCheck = true
+	if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingCheckQuantity}}); err != nil {
+		a.logger.Error().
+			Err(err).
+			Int("current_quantity", currentQuantity).
+			Msg("failed to route back to check quantity for a stale reading")
+		return false
+	}
+	a.logger.Info().
+		Int("current_quantity", currentQuantity).
+		Int("target_quantity", a.TargetQuantity).
+		Int("slider_max_quantity", a.sliderMaxQuantity).
+		Msg("quantity after precise click still reads the slider end, re-check once")
 	return true
 }
 
@@ -1139,6 +1184,8 @@ func (a *BetterSlidingAction) resetState() {
 	a.preciseClickBase = [2]int{}
 	a.preciseClickNudges = 0
 	a.preciseClickRecalibrated = false
+	a.preciseClickPendingCheck = false
+	a.staleRecheckUsed = false
 	a.sliderMaxQuantity = 0
 	a.availableQuantity = 0
 	a.availableQuantityResolved = false

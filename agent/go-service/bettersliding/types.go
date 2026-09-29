@@ -124,7 +124,11 @@ type BetterSlidingAction struct {
 	preciseClickBase   [2]int
 	preciseClickNudges int
 	// preciseClickRecalibrated 表示本轮已按实测数量校准过一次精确点击，见 recalibratePreciseClick
+	// preciseClickPendingCheck 表示下一次复查读的是精确点击刚落下后的数量（中间没按过加减）；
+	// staleRecheckUsed 表示已为疑似未刷新的读数重读过一次
 	preciseClickRecalibrated  bool
+	preciseClickPendingCheck  bool
+	staleRecheckUsed          bool
 	sliderMaxQuantity         int
 	availableQuantity         int
 	availableQuantityResolved bool

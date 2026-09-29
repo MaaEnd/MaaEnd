@@ -4,6 +4,13 @@
     "BetterSlidingPreciseClick": {
         "post_wait_freezes": {
             "time": 500,
+            // 精确点击是直接点坐标，识别框为空，不写 target 时 wait_freezes 取不到区域直接跳过
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ],
             "timeout": 2000
         }
     }
