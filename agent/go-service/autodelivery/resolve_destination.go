@@ -232,7 +232,6 @@ func buildRecycleBinResolutionOverride(areaID string) map[string]any {
 
 func defaultDestinationFlow() []string {
 	return []string{
-		"AutoDeliveryCancelCurrentJobTracking",
-		"AutoDeliveryCheckCurrentJobTrackingAlreadyOff",
+		"AutoDeliveryReturnWorldAndNavigateDestination",
 	}
 }
