@@ -1,4 +1,13 @@
 {
+    // 寻路最后一步已经点开了物资调度终端，但移动端（尤其云终末地）画面有延迟，紧接着的识别仍看到交互提示，
+    // AutoSellPressStockRedistribution 会再点一次，正好点在已打开页面的货品上弹出出售框。等画面稳定再往下走；
+    // 寻路停在终端前没按的情况下大世界一直有动静，靠 timeout 兜住，随后照常补按
+    "AutoSellShipEnterStockRedistribution": {
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 3000
+        }
+    },
     "AutoSellPressStockRedistribution": {
         "action": {
             "type": "Custom",
