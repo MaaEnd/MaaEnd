@@ -112,7 +112,7 @@ void TestDebugCaptureKeepsSynchronizedGroups()
     const auto raw_stems = Stems(root / "raw");
     const auto annotated_stems = Stems(root / "annotated");
     const auto detail_stems = Stems(root / "detail");
-    Require(raw_stems.size() == 20, "raw captures must retain at most 20 groups");
+    Require(raw_stems.size() == 21, "raw captures must retain all debug groups");
     Require(annotated_stems == raw_stems, "annotated captures must be trimmed by raw group stem");
     Require(detail_stems == raw_stems, "detail captures must be trimmed by raw group stem");
 
