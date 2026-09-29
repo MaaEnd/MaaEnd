@@ -230,8 +230,8 @@ struct SteeringRateState
     // same error is commanded over and over before any of it lands.
     double pending_turn_deg = 0.0;
     double pending_ref_heading_deg = 0.0;
-    // Sends still inside their own lifetime. The total above is capped at their sum, so a swallowed send expires
-    // on its own clock whatever is sent after it.
+    // Sends still inside their own lifetime. The total above is held between zero and their sum, so a swallowed
+    // send expires on its own clock whatever is sent after it, in either direction.
     struct InFlightTurn
     {
         double delta_deg = 0.0;

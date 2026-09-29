@@ -1923,10 +1923,8 @@ bool NavigationStateMachine::TickNavigate()
             for (const SteeringRateState::InFlightTurn& turn : steering_rate.in_flight) {
                 deliverable_deg += turn.delta_deg;
             }
-            const bool same_way = steering_rate.pending_turn_deg * deliverable_deg > 0.0;
-            if (same_way && std::abs(steering_rate.pending_turn_deg) > std::abs(deliverable_deg)) {
-                steering_rate.pending_turn_deg = deliverable_deg;
-            }
+            steering_rate.pending_turn_deg =
+                std::clamp(steering_rate.pending_turn_deg, std::min(0.0, deliverable_deg), std::max(0.0, deliverable_deg));
         }
     }
     steering_rate.pending_ref_heading_deg = current_heading;
