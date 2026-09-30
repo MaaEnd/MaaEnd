@@ -1560,43 +1560,6 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     return NavmeshSnap { .distance = entry->distance, .height = navmesh->planner.triangleHeight(entry->triangle) };
 }
 
-namespace
-{
-
-// Each zone's occluder scene is decoded once: the collision faces and their lookup trees run to hundreds of MB in a
-// large scene, while one plan asks thousands of lines. A failed decode is cached too, so no line rereads the file.
-std::shared_ptr<const navmesh::OccluderScene> LoadCachedOccluder(const std::filesystem::path& path, const std::string& zone_name)
-{
-    static std::mutex mutex;
-    static std::unordered_map<std::string, std::shared_ptr<const navmesh::OccluderScene>> cache;
-    const std::string cache_key = BuildNavmeshCacheKey(path, zone_name);
-
-    const std::lock_guard<std::mutex> lock(mutex);
-    if (const auto iter = cache.find(cache_key); iter != cache.end()) {
-        return iter->second;
-    }
-    std::shared_ptr<const navmesh::OccluderScene> scene;
-    std::vector<uint8_t> bytes;
-    const navmesh::BaseNavLoadResult read = navmesh::ReadNavFileBytes(path, &bytes);
-    if (read.status != navmesh::BaseNavLoadStatus::Success) {
-        LogError << "Failed to read the occluder pack." << VAR(path) << VAR(read.message);
-    }
-    else {
-        scene = navmesh::DecodeOccluderScene(bytes.data(), bytes.size(), zone_name);
-        if (!scene) {
-            LogError << "Failed to decode the occluder scene." << VAR(path) << VAR(zone_name) << VAR(bytes.size());
-        }
-        else {
-            LogInfo << "Occluder scene loaded." << VAR(zone_name) << VAR(scene->templates.size()) << VAR(scene->instances.size())
-                    << VAR(scene->blocks.size());
-        }
-    }
-    cache.emplace(cache_key, scene);
-    return scene;
-}
-
-}
-
 std::vector<std::vector<navmesh::OccluderHit>>
     NavmeshLineGroupBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<NavmeshAirLine>>& groups)
 {
@@ -1609,7 +1572,7 @@ std::vector<std::vector<navmesh::OccluderHit>>
         return blocks;
     }
     const std::filesystem::path occluder_path = navmesh::OccluderSidecarPath(ResolveNavmeshFile(param.navmesh_file));
-    const auto scene = LoadCachedOccluder(occluder_path, navmesh_zone);
+    const auto scene = navmesh::LoadOccluderScene(occluder_path, navmesh_zone);
     if (!scene) {
         // Without an occluder scene every line passes, which is looser than before. Warn loudly, since otherwise the only
         // symptom is ziplines appearing out of nowhere.
@@ -1648,7 +1611,7 @@ std::vector<std::vector<double>> NavmeshGroundHeights(
         return heights;
     }
     // A missing scene is already logged by the loader and warned about by the line test.
-    const auto scene = LoadCachedOccluder(navmesh::OccluderSidecarPath(ResolveNavmeshFile(param.navmesh_file)), navmesh_zone);
+    const auto scene = navmesh::LoadOccluderScene(navmesh::OccluderSidecarPath(ResolveNavmeshFile(param.navmesh_file)), navmesh_zone);
     if (!scene) {
         return heights;
     }

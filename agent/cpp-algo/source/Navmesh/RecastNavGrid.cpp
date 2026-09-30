@@ -102,6 +102,10 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
                 return false;
             }
         }
+        // 台沿下落交给调用方判。
+        if (st.fall && !st.fall(cid, cid + dy * nx + dx, h0, h1)) {
+            return false;
+        }
     }
     // 坡度口径以内两条支路结论一样: 立面按坡度放行, 平地按 UpAllow 放行而 UpAllow 恒不小于
     // 坡度口径。于是这一档不必去问是不是立面 —— 绝大多数边是平的, 省下的正是那两次叠层扫描。
