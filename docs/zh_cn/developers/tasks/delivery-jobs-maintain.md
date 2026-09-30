@@ -97,7 +97,7 @@ flowchart TD
 | # | 触发方式 | 经过的节点 | 何时走这条 |
 | --- | ------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------ |
 | 1 | 循环重入后命中入口 A「查看任务」 | `DeliveryJobsClickTransferJob` → `DeliveryJobsConfirmTaskTransfer` | 入口 A 启用且该仓储节点还有 `max_hit` 名额时 |
-| 2 | 调度申请界面识别到已有待运送货物 | `DeliveryJobsOngoingDelivery` → … → `DeliveryJobsTransferOngoingJob`（仅当该委托归属仓储节点的方式是「接取并转交」，其余方式走 `DeliveryJobsSkipOngoingDelivery`） | 手里的委托还没有交出去，又进了这个仓储节点的装箱/调度申请流程时 |
+| 2 | 调度申请界面识别到已有待运送货物 | `DeliveryJobsOngoingDelivery` → … → `DeliveryJobsTransferOngoingJob`（仅当该委托归属仓储节点的方式是「接取并转交」；「全自动送货」与「按报价处理」走 `DeliveryJobsAutoDelivery{DepotId}`，其余方式走 `DeliveryJobsSkipOngoingDelivery`） | 手里的委托还没有交出去，又进了这个仓储节点的装箱/调度申请流程时 |
 
 ### `DeliveryJobsEnter{Depot}PriceDeliveryJob`
 
@@ -137,6 +137,7 @@ flowchart TD
 - 这些覆盖由 option 直接改写 `DeliveryJobs{Depot}QuoteAtLeastMinimum` / `DeliveryJobs{Depot}QuoteBelowMinimum` 的 `next` 与 `anchor.DeliveryJobsGoToDepot`。「不处理」把 `next` 指向 `DeliveryJobsCloseRedistributionBid`，此时不经过 `DeliveryJobsBackToDepot`，`DeliveryJobsGoToDepot` 不参与。
 - `pipeline_override` 对 `anchor` 对象和数组 `next` 都是**整体替换**，覆盖时必须给全该字段，不要只写想改的那一项。
 - 报价 OCR 失败（`DeliveryJobsBidPriceRecognitionFailed`）直接 `StopTask` 并停在报价页，不猜、不自动接取。
+- **残留委托不走报价判断**：`DeliveryJobsOngoingDeliveryFor{Depot}.next` 被覆盖为 `DeliveryJobsAutoDelivery{Depot}`（无归属终点的仓储节点为 `DeliveryJobsSkipOngoingDelivery`），理由与影响见[残留送货任务](#残留送货任务)。
 
 ## 残留送货任务
 
@@ -149,18 +150,22 @@ flowchart TD
     Ensure --> Resolve["DeliveryJobsResolveOngoingDepot\nAnd(AutoDeliveryInDeliveryMissionDetail, AutoDeliveryCheckAreaText)\nGo: DeliveryJobsResolveOngoingDepotAction"]
     Resolve -.->|"运行时把 next 覆盖为 DeliveryJobsOngoingDeliveryFor{DepotId}"| For{{"DeliveryJobsOngoingDeliveryFor{DepotId}\n只覆盖 next（处理方式），不声明回跳落点"}}
     For -->|接取并转交| T["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode"]
-    For -->|全自动送货| A["DeliveryJobsAutoDelivery{DepotId} → DeliverByAutoDelivery → [Anchor]AfterAutoDelivery"]
-    For -->|其余四种| S["DeliveryJobsSkipOngoingDelivery → [Anchor]ReturnToDepotNode"]
+    For -->|全自动送货 / 按报价处理| A["DeliveryJobsAutoDelivery{DepotId} → DeliverByAutoDelivery → [Anchor]AfterAutoDelivery"]
+    For -->|其余三种| S["DeliveryJobsSkipOngoingDelivery → [Anchor]ReturnToDepotNode"]
 ```
 
 `DeliveryJobsResolveOngoingDepotAction` 用任务详情「当前区域」的 OCR 文本匹配仓储节点，把 `next` 覆盖为对应的分派节点。分派依据是**残留任务归属仓储节点**的处理方式，与当前正在遍历哪个仓储节点无关——残留任务可能来自上一个仓储节点，也可能来自本次根本没遍历到的节点：
 
 | 归属仓储节点的处理方式 | 去向 | 结果 |
-| ------------------------------- | ---------------------------------- | ------------------------------------------ |
+| ------------------------------------------- | ---------------------------------- | ------------------------------------------ |
 | 接取并转交 | `DeliveryJobsTransferOngoingJob` | 转交后回本地区仓储节点，继续地区循环 |
-| 全自动送货 | `DeliveryJobsAutoDelivery{DepotId}` | 送掉后回地区循环 |
-| 按报价处理 / 仅接取委托 / 仅装箱货物 | `DeliveryJobsSkipOngoingDelivery` | 退出任务界面，回本地区仓储节点继续遍历 |
+| 全自动送货 / 按报价处理 | `DeliveryJobsAutoDelivery{DepotId}` | 送掉后回地区循环 |
+| 仅接取委托 / 仅装箱货物 | `DeliveryJobsSkipOngoingDelivery` | 退出任务界面，回本地区仓储节点继续遍历 |
 | 不处理 | 同上（不覆盖分派节点，走模板默认） | 同上 |
+
+> [!NOTE]
+>
+> **「按报价处理」的残留委托不做报价判断，直接交给全自动送货。** 已接取的委托已经没有报价可看，而跳过它会一直挡着调度申请界面，后续仓储节点连新委托都接不了；`delivery_destinations.json` 里没有归属终点的仓储节点无处可送，这种仓储节点才退回 `DeliveryJobsSkipOngoingDelivery`（当前五个仓储节点都有终点，该分支只在新增无终点仓储节点时生效）。自动送货失败仍由公共调用节点 `DeliveryJobsDeliverByAutoDelivery` 的 `on_error` 处理：默认停止任务，打开「送货失败后自动转交任务」则转交后继续。
 
 任务详情里的区域名与仓储节点名在五种语言下逐字一致，Go 侧才能用区域 ID 直接拼出 `DeliveryJobsOngoingDeliveryFor{ID}` 这个节点名；这条恒等关系由 `model.mjs` 在生成时断言，两边不各写一套映射。Go 侧仓储节点名取自 `global.region.{DepotId}`，与节点名后缀同源。
 
@@ -287,7 +292,7 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 
 ## 已知边界
 
-- **「按报价处理」下每个仓储节点每次运行最多完成一次「达标 → 接取 → 转交」。** `DeliveryJobsEnter{Depot}PriceDeliveryJob` 带 `max_hit: 1`，而该方式把残留委托动作设成 `DeliveryJobsSkipOngoingDelivery`，于是第二条已接未转交的委托不会被再处理（「接取并转交」没有这个问题，它的残留动作是 `DeliveryJobsTransferOngoingJob`，第二条会走[两条转交路径](#两条转交路径)的第 2 条）。本条由节点配置推得，尚未实机确认。
+- **「按报价处理」下每个仓储节点每次运行最多经 `DeliveryJobsEnter{Depot}PriceDeliveryJob` 转交一次。** 该节点带 `max_hit: 1`，且只被 `DeliveryJobsReturnAndTransfer{Depot}` 调用；报价达标且动作选「接取并转交」时靠它完成这次转交。若这次没转成（报价动作选了「仅接取委托」、或该名额已被本次运行用掉），委托会作为残留任务在下次识别到「有待运送的货物」时交给 `DeliveryJobsAutoDelivery{Depot}` 送掉，不会长期占着调度申请界面——但代价是这条委托会真的被送完，而「全自动送货」只在有归属终点的仓储节点上可用，无终点的仓储节点仍走跳过。本条由节点配置推得，尚未实机确认。
 - `DeliveryJobsCheck{Depot}Cargo.expected` 的文本清单在 `depot-template.jsonc` 与 `task-template.mjs` 的 `ALL_CARGO_EXPECTED` / `PACK_CARGO_EXPECTED` 各有一份：option 覆盖总会生效，模板那份只在直接调试 Pipeline 时可见，**改一处要同步另一处**。
 - 报价阈值默认值 `119000` 同样在模板表达式与 option `default` 各有一份。
 

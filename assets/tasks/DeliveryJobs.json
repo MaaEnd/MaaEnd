@@ -164,7 +164,7 @@
                         },
                         "DeliveryJobsOngoingDeliveryForOriginiumSciencePark": {
                             "next": [
-                                "DeliveryJobsSkipOngoingDelivery"
+                                "DeliveryJobsAutoDeliveryOriginiumSciencePark"
                             ]
                         }
                     }
@@ -512,7 +512,7 @@
                         },
                         "DeliveryJobsOngoingDeliveryForOriginLodespring": {
                             "next": [
-                                "DeliveryJobsSkipOngoingDelivery"
+                                "DeliveryJobsAutoDeliveryOriginLodespring"
                             ]
                         }
                     }
@@ -860,7 +860,7 @@
                         },
                         "DeliveryJobsOngoingDeliveryForPowerPlateau": {
                             "next": [
-                                "DeliveryJobsSkipOngoingDelivery"
+                                "DeliveryJobsAutoDeliveryPowerPlateau"
                             ]
                         }
                     }
@@ -1235,7 +1235,7 @@
                         },
                         "DeliveryJobsOngoingDeliveryForWulingCity": {
                             "next": [
-                                "DeliveryJobsSkipOngoingDelivery"
+                                "DeliveryJobsAutoDeliveryWulingCity"
                             ]
                         }
                     }
@@ -1583,7 +1583,7 @@
                         },
                         "DeliveryJobsOngoingDeliveryForTestArea": {
                             "next": [
-                                "DeliveryJobsSkipOngoingDelivery"
+                                "DeliveryJobsAutoDeliveryTestArea"
                             ]
                         }
                     }
