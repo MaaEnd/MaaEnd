@@ -20,25 +20,7 @@
             ]
         },
         "next": [
-            "[JumpBack]CreditShoppingInitItemTemplates",
             "CreditShoppingScanItem"
         ]
-    },
-    "CreditShoppingInitItemTemplates": {
-        "desc": "把各档 attach 中启用的物品模板写入对应 TemplateMatch 节点",
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "CreditShoppingApplyItemTemplatesAction",
-        "custom_action_param": {
-            "targets": [
-                "CreditShoppingPriority1Item",
-                "CreditShoppingPriority2Item",
-                "CreditShoppingPriority3Item"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0
     }
 }

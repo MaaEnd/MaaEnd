@@ -1,0 +1,319 @@
+{
+    "CreditShoppingPriority3ItemArmsInspector": {
+        "desc": "武器检查单元。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemArmsINSPKit": {
+        "desc": "武器检查装置。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemArsenalTicket": {
+        "desc": "武库配额。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemCastDie": {
+        "desc": "强固模具。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemElementaryCognitiveCarrier": {
+        "desc": "初级认知载体。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemElementaryCombatRecord": {
+        "desc": "初级作战记录。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemIntermediateCombatRecord": {
+        "desc": "中级作战记录。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemHeavyCastDie": {
+        "desc": "重型强固模具。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemOroberyl": {
+        "desc": "嵌晶玉。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemProtodisk": {
+        "desc": "协议圆盘。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemProtoprism": {
+        "desc": "协议棱柱。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemProtohedron": {
+        "desc": "协议棱柱组。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemProtoset": {
+        "desc": "协议圆盘组。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3ItemTCreds": {
+        "desc": "折金票。优先购买3，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3Item": {
+        "desc": "优先购买3 物品。子节点各对应一个物品，默认不命中，由选项覆盖为模板匹配",
+        "recognition": "Or",
+        "any_of": [
+            "CreditShoppingPriority3ItemArmsInspector",
+            "CreditShoppingPriority3ItemArmsINSPKit",
+            "CreditShoppingPriority3ItemArsenalTicket",
+            "CreditShoppingPriority3ItemCastDie",
+            "CreditShoppingPriority3ItemElementaryCognitiveCarrier",
+            "CreditShoppingPriority3ItemElementaryCombatRecord",
+            "CreditShoppingPriority3ItemIntermediateCombatRecord",
+            "CreditShoppingPriority3ItemHeavyCastDie",
+            "CreditShoppingPriority3ItemOroberyl",
+            "CreditShoppingPriority3ItemProtodisk",
+            "CreditShoppingPriority3ItemProtoprism",
+            "CreditShoppingPriority3ItemProtohedron",
+            "CreditShoppingPriority3ItemProtoset",
+            "CreditShoppingPriority3ItemTCreds"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
