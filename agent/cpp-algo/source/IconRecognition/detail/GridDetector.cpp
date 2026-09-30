@@ -201,6 +201,14 @@ constexpr double kRewardsMinimumCardAspectRatio = 0.82;
 constexpr double kRewardsMaximumCardAspectRatio = 1.22;
 // 同一行卡片中心允许的纵向差异（720p 像素）；调大可能合并相邻行，调小可能拆散轻微错位的同一行。
 constexpr int kRewardsRowCenterTolerance = 24;
+// 送货卡片底色的 HSV 下界；空槽背景不满足该亮度条件。
+const cv::Scalar kShipmentCardHsvLower { 0, 0, 190 };
+// 限制卡片底色饱和度，排除彩色物品图标和 UI 高光。
+const cv::Scalar kShipmentCardHsvUpper { 179, 80, 255 };
+// 评分避开边框，降低相邻卡片和底部稀有度条的影响。
+constexpr int kShipmentCardScoreInset = 4;
+// 送货卡片的最低偏白背景覆盖率；低于该值视为空槽。
+constexpr double kShipmentMinimumCardBackgroundCoverage = 0.10;
 
 bool CoversImageCenter(const cv::Rect& bounds, const cv::Size& image_size)
 {
@@ -224,7 +232,11 @@ bool IsFormal(
     return visible_x >= kMinimumHorizontalVisibility && top_ok && bottom_ok;
 }
 
-GridLayout DetectSingleLattice(const cv::Mat& image, GridType type, const cv::Rect& roi)
+GridLayout DetectSingleLattice(
+    const cv::Mat& image,
+    GridType type,
+    const cv::Rect& roi,
+    std::optional<std::pair<double, double>> pitch_hint = std::nullopt)
 {
     const GridProfile profile = ProfileFor(type);
     const cv::Mat crop = image(roi);
@@ -247,16 +259,20 @@ GridLayout DetectSingleLattice(const cv::Mat& image, GridType type, const cv::Re
     gray.convertTo(gray, CV_32F, 1.0 / 255.0);
     const auto support_x = MedianProjection(gray, true);
     const auto support_y = MedianProjection(gray, false);
-    const int pitch_x = EstimatePeriod(
-        x_signal,
-        static_cast<int>(std::floor(profile.pitch_x)) - kSingleLatticePitchSearchRadius,
-        static_cast<int>(std::ceil(profile.pitch_x)) + kSingleLatticePitchSearchRadius);
-    const int pitch_y = EstimatePeriod(
-        y_signal,
-        static_cast<int>(std::floor(profile.pitch_y)) - kSingleLatticePitchSearchRadius,
-        static_cast<int>(std::ceil(profile.pitch_y)) + kSingleLatticePitchSearchRadius);
-    const auto pitch_range_x = std::pair { pitch_x - kSingleLatticePitchTolerance, pitch_x + kSingleLatticePitchTolerance };
-    const auto pitch_range_y = std::pair { pitch_y - kSingleLatticePitchTolerance, pitch_y + kSingleLatticePitchTolerance };
+    const int pitch_x = pitch_hint
+                            ? cvRound(pitch_hint->first)
+                            : EstimatePeriod(
+                                  x_signal,
+                                  static_cast<int>(std::floor(profile.pitch_x)) - kSingleLatticePitchSearchRadius,
+                                  static_cast<int>(std::ceil(profile.pitch_x)) + kSingleLatticePitchSearchRadius);
+    const int pitch_y = pitch_hint
+                            ? cvRound(pitch_hint->second)
+                            : EstimatePeriod(
+                                  y_signal,
+                                  static_cast<int>(std::floor(profile.pitch_y)) - kSingleLatticePitchSearchRadius,
+                                  static_cast<int>(std::ceil(profile.pitch_y)) + kSingleLatticePitchSearchRadius);
+    const std::pair<int, int> pitch_range_x { pitch_x - kSingleLatticePitchTolerance, pitch_x + kSingleLatticePitchTolerance };
+    const std::pair<int, int> pitch_range_y { pitch_y - kSingleLatticePitchTolerance, pitch_y + kSingleLatticePitchTolerance };
     const int expected_columns = std::max(profile.min_columns, (roi.width - profile.cell_size) / std::max(pitch_x, 1) + 1);
     const int expected_rows = std::max(profile.min_rows, (roi.height - profile.cell_size) / std::max(pitch_y, 1) + 1);
     const AxisSequence x_axis =
@@ -935,6 +951,56 @@ void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType
         y_starts.front(),
         x_starts.back() + layout.cell_size - x_starts.front(),
         y_starts.back() + layout.cell_size - y_starts.front());
+}
+
+double ShipmentCardBackgroundCoverage(const cv::Mat& image, const cv::Rect& cell)
+{
+    const cv::Rect clipped = cell & cv::Rect(0, 0, image.cols, image.rows);
+    if (clipped.empty()) {
+        return 0.0;
+    }
+    const int inset = std::min(kShipmentCardScoreInset, std::min(clipped.width, clipped.height) / 2);
+    const cv::Rect inner(clipped.x + inset, clipped.y + inset, clipped.width - inset * 2, clipped.height - inset * 2);
+    if (inner.empty()) {
+        return 0.0;
+    }
+    cv::Mat bgr;
+    if (image.channels() == 4) {
+        cv::cvtColor(image(inner), bgr, cv::COLOR_BGRA2BGR);
+    }
+    else if (image.channels() == 3) {
+        bgr = image(inner);
+    }
+    else {
+        cv::cvtColor(image(inner), bgr, cv::COLOR_GRAY2BGR);
+    }
+    cv::Mat hsv;
+    cv::cvtColor(bgr, hsv, cv::COLOR_BGR2HSV);
+    cv::Mat bright_low_saturation;
+    cv::inRange(hsv, kShipmentCardHsvLower, kShipmentCardHsvUpper, bright_low_saturation);
+    return static_cast<double>(cv::countNonZero(bright_low_saturation)) / inner.area();
+}
+
+GridLayout DetectShipmentGrid(const cv::Mat& image, const cv::Rect& roi, double source_grid_scale)
+{
+    const GridProfile profile = ProfileFor(GridType::Shipment);
+    GridLayout layout = DetectSingleLattice(image, GridType::Shipment, roi, std::pair { profile.pitch_x, profile.pitch_y });
+    if (layout.cells.empty()) {
+        return layout;
+    }
+    RefineCardVerticalPhase(image, roi, GridType::Shipment, source_grid_scale, layout);
+    std::vector<GridCell> occupied_cells;
+    occupied_cells.reserve(layout.cells.size());
+    for (const GridCell& cell : layout.cells) {
+        if (ShipmentCardBackgroundCoverage(image, cell.cell_box) >= kShipmentMinimumCardBackgroundCoverage) {
+            occupied_cells.push_back(cell);
+        }
+    }
+    // 白卡证据不足时保留完整晶格，避免异常主题或空屏被误判为无网格。
+    if (!occupied_cells.empty()) {
+        layout.cells = std::move(occupied_cells);
+    }
+    return layout;
 }
 
 GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase, int column_count, const GridProfile& profile)
@@ -2758,9 +2824,12 @@ GridDetection DetectGridNormalized(
             Append(result, BuildTransferLayout(image, roi, hints[index], index, type, texture_context));
         }
     }
+    else if (type == GridType::Shipment) {
+        Append(result, DetectShipmentGrid(image, roi, source_grid_scale));
+    }
     else {
         GridLayout layout = DetectSingleLattice(image, type, roi);
-        if (type == GridType::Trade || type == GridType::Valuables || type == GridType::Shipment) {
+        if (type == GridType::Trade || type == GridType::Valuables) {
             RefineCardVerticalPhase(image, roi, type, source_grid_scale, layout);
         }
         Append(result, std::move(layout));
