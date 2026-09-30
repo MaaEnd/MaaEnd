@@ -12,16 +12,23 @@ function toFlexibleEnglishRegex(text) {
     return `(?i)${escaped.replace(/\s+/g, "\\s*").replace(/-/g, "\\s*-\\s*")}`;
 }
 
-function buildExpectedFromLocaleMap(localeMap) {
+// 移动端 OCR 对拍照任务标题里的引号识别不稳定：可能认成别的字符，也可能整个丢掉。
+// 把引号放宽成「任意单字符、可缺省」，落在末尾的那一个直接去掉（后面没有内容可对齐）。
+// 匹配的是 escapeRegex 之后的文本：英文引号在这里是 \"，其余引号原样保留。
+const UNSTABLE_QUOTE_PATTERN = /\\"|["'“”‘’「」『』]/g;
+
+function toQuoteTolerantExpected(expected) {
+    return expected.replace(UNSTABLE_QUOTE_PATTERN, ".?").replace(/\.\?$/, "");
+}
+
+function buildExpectedFromLocaleMap(localeMap, {looseQuotes = false} = {}) {
     return LOCALES.map((locale) => {
         const value = localeMap?.[locale];
         if (!value) {
             return null;
         }
-        if (locale === "en_us") {
-            return toFlexibleEnglishRegex(value);
-        }
-        return value;
+        const expected = locale === "en_us" ? toFlexibleEnglishRegex(value) : value;
+        return looseQuotes ? toQuoteTolerantExpected(expected) : expected;
     }).filter(Boolean);
 }
 
@@ -97,7 +104,7 @@ export function buildRow(mission) {
         MapAssertRecognition: route.MapAssertRecognition,
         MapAssertParam: rawJson(route.MapAssertParam),
         ExpectedText: buildExpectedFromLocaleMap(LocalizedName),
-        InExpectedText: buildExpectedFromLocaleMap(ShotTargetName),
+        InExpectedText: buildExpectedFromLocaleMap(ShotTargetName, {looseQuotes: true}),
         OcrReplace: rawJson(route.Replace),
         TrackOrGoToNext: rawJson(TrackOrGoToNext),
         AfterTrackNext: rawJson(afterTrackNext),
