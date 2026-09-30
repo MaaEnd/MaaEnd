@@ -102,6 +102,9 @@ In addition to the 6 fields above, all other parameters can only be read from `c
 | `string` | **Node reference.** Reads that node's `recognition.param` as the recognition patch (no suffix detection; every string is resolved as a node name). |
 | `object` | **Recognition patch.** The object content is the target node's `recognition.param` key/value set. |
 
+> [!note]
+> The `recognition.param` read through a node reference must be non-empty. Referencing a node without recognition parameters (for example an action-only node) fails immediately instead of silently degrading to an empty patch.
+
 Example:
 
 ```jsonc
@@ -120,9 +123,11 @@ Example:
 Constraints and behavior:
 
 - **Recognition type cannot be replaced**: a patch only writes `recognition.param` and never writes `type`, so the target node keeps its original recognition algorithm and any unmentioned fields. If an Object contains `recognition` / `type` / `action` keys, the action fails immediately with an error instead of silently ignoring them.
+- **A patch must not be empty**: unless the field is unconfigured (key absent or `null`), the normalized result must be a non-empty patch. An empty patch fails immediately, so a target node can never silently fall back to the Pipeline's default full-screen ROI and turn a configuration mistake into a wrong recognition result.
+- **Buttons are required**: `IncreaseButton` / `DecreaseButton` must be a coordinate array or a non-empty recognition patch; omitting either fails immediately.
 - **Template-form buttons**: when `IncreaseButton` / `DecreaseButton` receive a String / Object, the template parameters are written to the `BetterSlidingIncreaseButton` / `BetterSlidingDecreaseButton` nodes, and the quantity node references those with `And all_of` and clicks the matched box. The patch defaults to `green_mask: true`, which can be overridden explicitly.
 - **Arrays are button-only**: passing an array for any parameter other than `IncreaseButton` / `DecreaseButton` fails immediately; a button array is coordinates, not a recognition patch.
-- **Filter and `color_filter` precedence**: `SliderQuantityFilter` / `AvailableQuantityFilter` are written to the corresponding built-in filter node and their node name is put into the quantity patch's `color_filter`; if the quantity patch already declares `color_filter`, the patch wins. No `color_filter` is written when the filter is not configured.
+- **Filter and `color_filter` precedence**: `SliderQuantityFilter` / `AvailableQuantityFilter` are written to the corresponding built-in filter node and their node name is put into the quantity patch's `color_filter`; if the quantity patch already declares `color_filter`, the patch wins (a warning is logged, since the built-in filter node is then overwritten without being referenced). No `color_filter` is written when the filter is not configured.
 - **A Filter's String reference should point to a ColorMatch node**: `color_filter` is resolved during recognition by node name and requires the node's recognition type to be ColorMatch; pointing at another type makes recognition fail. This is not validated at the parameter level, so make sure the referenced type is correct.
 - **`AvailableQuantityFilter` works standalone**: when `AvailableQuantity` is not provided at the same time, the filter parameters are still written to the built-in node, but `BetterSlidingGetAvailableQuantity` stays `enabled: false` (no warning).
 - **Quantity-mode criteria**: the presence of any filter parameter makes this a quantity-mode run (leaving swipe-only mode).

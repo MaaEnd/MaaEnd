@@ -41,11 +41,9 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 		return betterSlidingParamPresence{}, err
 	}
 
-	_, sliderQuantityPresent := rawKeys["SliderQuantity"]
-
 	return betterSlidingParamPresence{
 		TargetQuantity:                hasNonNullRawKey(rawKeys, "TargetQuantity"),
-		SliderQuantity:                sliderQuantityPresent,
+		SliderQuantity:                hasNonNullRawKey(rawKeys, "SliderQuantity"),
 		SliderQuantityFilter:          hasNonNullRawKey(rawKeys, "SliderQuantityFilter"),
 		AvailableQuantity:             hasNonNullRawKey(rawKeys, "AvailableQuantity"),
 		AvailableQuantityFilter:       hasNonNullRawKey(rawKeys, "AvailableQuantityFilter"),
@@ -212,7 +210,7 @@ func (a *BetterSlidingAction) normalizeActionParams(
 		return parsedBetterSlidingParams{}, false
 	}
 
-	increaseButton, err := resolveButtonTarget(ctx, params.IncreaseButton)
+	increaseButton, err := resolveButtonTarget(ctx, "IncreaseButton", params.IncreaseButton)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
@@ -222,7 +220,7 @@ func (a *BetterSlidingAction) normalizeActionParams(
 	}
 	parsed.increaseButton = increaseButton
 
-	decreaseButton, err := resolveButtonTarget(ctx, params.DecreaseButton)
+	decreaseButton, err := resolveButtonTarget(ctx, "DecreaseButton", params.DecreaseButton)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
@@ -264,7 +262,19 @@ func (a *BetterSlidingAction) normalizeActionParams(
 			Msg("invalid SliderQuantity")
 		return parsedBetterSlidingParams{}, false
 	}
-	applyColorFilter(sliderQuantityPatch, sliderQuantityFilterNode)
+	// 数量模式下 SliderQuantity 必填：空补丁会让节点沿用 Pipeline 默认的全屏 ROI，
+	// 把界面上的任意数字当成当前数量。
+	if len(sliderQuantityPatch) == 0 {
+		a.logger.Error().
+			Interface("slider_quantity", params.SliderQuantity).
+			Msg("SliderQuantity is required in quantity mode, expected a node reference or a param object")
+		return parsedBetterSlidingParams{}, false
+	}
+	a.warnUnlinkedColorFilter(
+		"SliderQuantity",
+		sliderQuantityFilterNode != "",
+		applyColorFilter(sliderQuantityPatch, sliderQuantityFilterNode),
+	)
 	parsed.sliderQuantityPatch = sliderQuantityPatch
 
 	// AvailableQuantityFilter 独立于 AvailableQuantity：单独配置时仍写入内建 Filter 节点，
@@ -293,7 +303,11 @@ func (a *BetterSlidingAction) normalizeActionParams(
 				Msg("invalid AvailableQuantity")
 			return parsedBetterSlidingParams{}, false
 		}
-		applyColorFilter(availableQuantityPatch, availableQuantityFilterNode)
+		a.warnUnlinkedColorFilter(
+			"AvailableQuantity",
+			availableQuantityFilterNode != "",
+			applyColorFilter(availableQuantityPatch, availableQuantityFilterNode),
+		)
 		parsed.availableQuantityPatch = availableQuantityPatch
 	}
 

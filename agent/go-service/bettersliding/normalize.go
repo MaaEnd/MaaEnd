@@ -2,6 +2,7 @@ package bettersliding
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -37,24 +38,34 @@ func normalizeButton(btn any) ([]int, error) {
 	}
 }
 
+// errEmptyRecognitionPatch 表示参数已配置，但归一后没有得到任何识别参数。
+// 若不报错，空补丁会让目标节点沿用 Pipeline 里的默认 ROI（通常为 [0,0,0,0] 全屏），
+// 把配置错误静默转成错误识别结果，因此必须显式失败。
+var errEmptyRecognitionPatch = errors.New("recognition param patch is empty")
+
 // resolveRecognitionParam 把 String|Object 归一为 recognition.param 补丁。
 //
 //   - String：节点引用，读取该节点的 recognition.param（绝不取 type / recognition）；
 //   - Object：直接作为补丁，禁止含 recognition / type / action 键；
 //   - nil：返回空补丁（表示该参数未配置）。
 //
-// 返回值恒为非 nil map，便于直接写入 override。
+// 除 nil 外，归一结果必须是非空补丁，否则返回 errEmptyRecognitionPatch。
 func resolveRecognitionParam(ctx *maa.Context, raw any) (map[string]any, error) {
 	if raw == nil {
 		return map[string]any{}, nil
 	}
 
+	var (
+		patch map[string]any
+		err   error
+	)
+
 	switch value := raw.(type) {
 	case string:
-		return resolveRecognitionParamFromNode(ctx, value)
+		patch, err = resolveRecognitionParamFromNode(ctx, value)
 
 	case map[string]any:
-		return validateRecognitionPatch(value)
+		patch, err = validateRecognitionPatch(value)
 
 	default:
 		return nil, fmt.Errorf(
@@ -62,6 +73,14 @@ func resolveRecognitionParam(ctx *maa.Context, raw any) (map[string]any, error) 
 			raw,
 		)
 	}
+	if err != nil {
+		return nil, err
+	}
+	if len(patch) == 0 {
+		return nil, errEmptyRecognitionPatch
+	}
+
+	return patch, nil
 }
 
 func resolveRecognitionParamFromNode(ctx *maa.Context, nodeName string) (map[string]any, error) {
@@ -108,33 +127,10 @@ func validateRecognitionPatch(patch map[string]any) (map[string]any, error) {
 	return patch, nil
 }
 
-// nodeLevelJSONKeys 是扁平节点写法中与识别参数无关的节点级字段。
-var nodeLevelJSONKeys = map[string]struct{}{
-	"recognition":         {},
-	"action":              {},
-	"next":                {},
-	"on_error":            {},
-	"anchor":              {},
-	"inverse":             {},
-	"enabled":             {},
-	"max_hit":             {},
-	"pre_delay":           {},
-	"post_delay":          {},
-	"pre_wait_freezes":    {},
-	"post_wait_freezes":   {},
-	"repeat":              {},
-	"repeat_delay":        {},
-	"repeat_wait_freezes": {},
-	"focus":               {},
-	"attach":              {},
-	"rate_limit":          {},
-	"timeout":             {},
-	"desc":                {},
-	"box_index":           {},
-}
-
 // extractRecognitionParam 从 GetNodeJSON 返回的节点 JSON 中取出 recognition.param。
-// 兼容 v2（recognition:{type,param}）与扁平（recognition:"OCR" + 顶层参数）两形态。
+// GetNodeJSON 经 MaaContextGetNodeData 走 PipelineDumper::dump，返回的始终是
+// recognition: {type, param} 形态（与 Pipeline 源文件写 v1 还是 v2 无关），
+// 因此这里只需解析该形态，不做扁平写法兼容。
 func extractRecognitionParam(raw string) (map[string]any, error) {
 	var node map[string]json.RawMessage
 	if err := json.Unmarshal([]byte(raw), &node); err != nil {
@@ -143,47 +139,23 @@ func extractRecognitionParam(raw string) (map[string]any, error) {
 
 	recognitionRaw, ok := node["recognition"]
 	if !ok || len(recognitionRaw) == 0 || string(recognitionRaw) == "null" {
-		return map[string]any{}, nil
+		return nil, fmt.Errorf("node has no recognition")
 	}
 
-	// 扁平写法：recognition 是识别类型字符串，参数平铺在节点顶层。
-	var recognitionType string
-	if err := json.Unmarshal(recognitionRaw, &recognitionType); err == nil {
-		return flatRecognitionParam(node)
-	}
-
+	// v2 形态要求 recognition 是对象；扁平写法的字符串类型会在此处解析失败。
 	var recognitionObject map[string]json.RawMessage
 	if err := json.Unmarshal(recognitionRaw, &recognitionObject); err != nil {
-		return nil, fmt.Errorf("unmarshal recognition: %w", err)
+		return nil, fmt.Errorf("unmarshal recognition, expected v2 object form: %w", err)
 	}
 
 	paramRaw, hasParam := recognitionObject["param"]
 	if !hasParam || len(paramRaw) == 0 || string(paramRaw) == "null" {
-		return map[string]any{}, nil
+		return nil, fmt.Errorf("node recognition has no param")
 	}
 
 	patch := map[string]any{}
 	if err := json.Unmarshal(paramRaw, &patch); err != nil {
 		return nil, fmt.Errorf("unmarshal recognition.param: %w", err)
-	}
-	if patch == nil {
-		patch = map[string]any{}
-	}
-
-	return patch, nil
-}
-
-func flatRecognitionParam(node map[string]json.RawMessage) (map[string]any, error) {
-	patch := make(map[string]any, len(node))
-	for key, value := range node {
-		if _, isNodeLevel := nodeLevelJSONKeys[key]; isNodeLevel {
-			continue
-		}
-		var decoded any
-		if err := json.Unmarshal(value, &decoded); err != nil {
-			return nil, fmt.Errorf("unmarshal node key %s: %w", key, err)
-		}
-		patch[key] = decoded
 	}
 
 	return patch, nil
@@ -200,38 +172,51 @@ func resolveFilterPatch(ctx *maa.Context, raw any, builtin string) (string, map[
 	if err != nil {
 		return "", nil, err
 	}
-	if len(patch) == 0 {
-		return "", nil, fmt.Errorf("filter recognition param patch is empty")
-	}
 
 	return builtin, patch, nil
 }
 
-// applyColorFilter 给 Quantity 的 OCR 补丁挂上 color_filter 节点名。
-// 补丁自身已声明 color_filter 时保持原值（补丁优先）；未配置 Filter 时不写入。
-func applyColorFilter(patch map[string]any, filterNode string) {
-	if filterNode == "" || len(patch) == 0 {
-		return
+// applyColorFilter 给 Quantity 的 OCR 补丁挂上 color_filter 节点名，并报告是否建立了关联。
+// 补丁自身已声明 color_filter 时保持原值（补丁优先），此时内建 Filter 节点不会被引用，返回 false。
+// 未配置 Filter 时无需关联，返回 false 且调用方不告警。
+func applyColorFilter(patch map[string]any, filterNode string) bool {
+	if filterNode == "" {
+		return false
 	}
 	if _, exists := patch["color_filter"]; exists {
-		return
+		return false
 	}
 
 	patch["color_filter"] = filterNode
+
+	return true
+}
+
+// warnUnlinkedColorFilter 在 Filter 已配置、但 Quantity 补丁自身声明了 color_filter 时告警：
+// 内建 Filter 节点会被覆写却无人引用，配置静默失效。
+func (a *BetterSlidingAction) warnUnlinkedColorFilter(fieldName string, filterConfigured bool, linked bool) {
+	if !filterConfigured || linked {
+		return
+	}
+
+	a.logger.Warn().
+		Str("field", fieldName).
+		Msg("color filter is configured but not linked, the quantity patch declares its own color_filter")
 }
 
 // resolveButtonTarget 归一化 IncreaseButton / DecreaseButton：
 // 数组为点击坐标（int[2|4]），String|Object 为模板识别补丁（默认 green_mask: true）。
-func resolveButtonTarget(ctx *maa.Context, raw any) (buttonTarget, error) {
+// 数量模式下两个按钮都必填，缺失或归一为空补丁都会显式报错。
+func resolveButtonTarget(ctx *maa.Context, fieldName string, raw any) (buttonTarget, error) {
 	if raw == nil {
-		return buttonTarget{}, nil
+		return buttonTarget{}, fmt.Errorf("%s is required", fieldName)
 	}
 
 	switch raw.(type) {
 	case []any, []int, []float64:
 		coordinates, err := normalizeButton(raw)
 		if err != nil {
-			return buttonTarget{}, err
+			return buttonTarget{}, fmt.Errorf("%s: %w", fieldName, err)
 		}
 
 		return buttonTarget{coordinates: coordinates}, nil
@@ -239,10 +224,7 @@ func resolveButtonTarget(ctx *maa.Context, raw any) (buttonTarget, error) {
 
 	patch, err := resolveRecognitionParam(ctx, raw)
 	if err != nil {
-		return buttonTarget{}, err
-	}
-	if len(patch) == 0 {
-		return buttonTarget{}, fmt.Errorf("button recognition param patch is empty")
+		return buttonTarget{}, fmt.Errorf("%s: %w", fieldName, err)
 	}
 	if _, has := patch["green_mask"]; !has {
 		patch["green_mask"] = defaultGreenMask
