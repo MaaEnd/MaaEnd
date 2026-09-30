@@ -286,6 +286,9 @@ struct OffRouteWedgeState
         }
         const auto blind = now - blind_since;
         since += blind;
+        if (last_replan_at != std::chrono::steady_clock::time_point {}) {
+            last_replan_at += blind;
+        }
         blind_since = {};
         return std::chrono::duration_cast<std::chrono::milliseconds>(blind).count();
     }

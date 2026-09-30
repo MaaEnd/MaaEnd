@@ -704,6 +704,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
 
     const navmesh::WorldPoint start { .x = position_->x, .y = position_->y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
+    runtime_state_.offroute.PauseAt(std::chrono::steady_clock::now());
     const auto route = PlanNavmeshRoute(
         param_,
         position_->zone_id,
