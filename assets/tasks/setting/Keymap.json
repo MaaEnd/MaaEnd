@@ -29,6 +29,11 @@
                     "name": "KeymapInteract",
                     "label": "$option.KeymapGeneral.inputs.KeymapInteract.label",
                     "default": "F"
+                },
+                {
+                    "name": "KeymapOpenMission",
+                    "label": "$option.KeymapGeneral.inputs.KeymapOpenMission.label",
+                    "default": "J"
                 }
             ],
             "pipeline_override": {
@@ -67,6 +72,9 @@
                 },
                 "ProtocolSpaceTouchExitTouchRetry": {
                     "key": "{KeymapInteract.primary}"
+                },
+                "AutoMissionOpenJournal": {
+                    "key": "{KeymapOpenMission.primary}"
                 }
             }
         },

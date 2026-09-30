@@ -235,5 +235,6 @@
     "ims.add_item_summary.title": "획득한 아이템:",
     "ims.expression_ok": "식 성립: %s",
     "ims.expression_short": "식 불성립: %s",
-    "ims.item_current": "현재 %s: %d"
+    "ims.item_current": "현재 %s: %d",
+    "automission.unknown_mission": "알 수 없는 임무 %s"
 }

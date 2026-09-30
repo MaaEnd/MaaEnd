@@ -235,5 +235,6 @@
     "ims.add_item_summary.title": "獲得したアイテム：",
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
-    "ims.item_current": "現在 %s：%d"
+    "ims.item_current": "現在 %s：%d",
+    "automission.unknown_mission": "未知の任務 %s"
 }

@@ -236,5 +236,6 @@
     "ims.add_item_summary.title": "获得以下物品：",
     "ims.expression_ok": "表达式成立：%s",
     "ims.expression_short": "表达式不成立：%s",
-    "ims.item_current": "当前 %s：%d"
+    "ims.item_current": "当前 %s：%d",
+    "automission.unknown_mission": "未知任务 %s"
 }

@@ -1,0 +1,93 @@
+{
+    "AutoMissionMain": {
+        "desc": "回到任意大世界后确认追踪任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionInWorld"
+        ]
+    },
+    "AutoMissionInWorld": {
+        "desc": "确认已在大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionTrackingIcon",
+            "AutoMissionNoTracking"
+        ]
+    },
+    "AutoMissionTrackingIcon": {
+        "desc": "左上角追踪图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            160,
+            300,
+            100
+        ],
+        "template": [
+            "AutoMission/ImportantMissionIcon.png",
+            "AutoMission/SecondaryMissionIcon.png",
+            "AutoMission/UrgentMissionIcon.png"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionOpenJournal"
+        ]
+    },
+    "AutoMissionNoTracking": {
+        "desc": "没有追踪任务时结束",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoMission.focus.no_tracking"
+        }
+    },
+    "AutoMissionOpenJournal": {
+        "desc": "按打开任务键",
+        "action": "ClickKey",
+        "key": 74,
+        "next": [
+            "AutoMissionJournalOpen"
+        ]
+    },
+    "AutoMissionJournalOpen": {
+        "desc": "确认已打开任务界面",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionMatchQuest"
+        ]
+    },
+    "AutoMissionMatchQuest": {
+        "desc": "读取当前任务标题和说明，并按前缀匹配任务缓存。命中后暂不继续操作",
+        "recognition": "Custom",
+        "custom_recognition": "AutoMissionMatchQuest",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

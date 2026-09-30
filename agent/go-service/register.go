@@ -7,6 +7,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoessence"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/automission"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockstaple"
@@ -101,6 +102,7 @@ func registerAll() {
 	autodelivery.Register()
 	deliveryjobs.Register()
 	autofight.Register()
+	automission.Register()
 	scenemanager.Register()
 	seizedeliveryjobs.Register()
 	autostockstaple.Register()

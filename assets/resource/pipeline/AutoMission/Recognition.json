@@ -1,0 +1,93 @@
+{
+    "AutoMissionTitle": {
+        "desc": "位置图标、标题色块，再在色块上 only_rec 读标题",
+        "recognition": "And",
+        "all_of": [
+            "AutoMissionLocationIcon",
+            "AutoMissionTitleColor",
+            {
+                "recognition": "OCR",
+                "roi": "AutoMissionTitleColor",
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        ]
+    },
+    "AutoMissionDescription": {
+        "desc": "位置图标、说明色块，再在色块上 only_rec 读说明",
+        "recognition": "And",
+        "all_of": [
+            "AutoMissionLocationIcon",
+            "AutoMissionDescriptionColor",
+            {
+                "recognition": "OCR",
+                "roi": "AutoMissionDescriptionColor",
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        ]
+    },
+    "AutoMissionLocationIcon": {
+        "desc": "任务面板上的位置图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            400,
+            55,
+            169,
+            108
+        ],
+        "template": "AutoMission/LocationIcon.png"
+    },
+    "AutoMissionTitleColor": {
+        "desc": "标题背景色块，相对位置图标。roi_offset、lower、upper 待补充",
+        "recognition": "ColorMatch",
+        "roi": "AutoMissionLocationIcon",
+        "roi_offset": [
+            // 待补充：色块相对位置图标，标题在图标上方
+            0,
+            0,
+            0,
+            0
+        ],
+        "lower": [
+            // 待补充
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            // 待补充
+            0,
+            0,
+            0
+        ],
+        "connected": true,
+        "count": 100
+    },
+    "AutoMissionDescriptionColor": {
+        "desc": "说明背景色块，相对位置图标。roi_offset、lower、upper 待补充",
+        "recognition": "ColorMatch",
+        "roi": "AutoMissionLocationIcon",
+        "roi_offset": [
+            // 待补充：色块相对位置图标，说明在图标下方
+            0,
+            0,
+            0,
+            0
+        ],
+        "lower": [
+            // 待补充
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            // 待补充
+            0,
+            0,
+            0
+        ],
+        "connected": true,
+        "count": 100
+    }
+}

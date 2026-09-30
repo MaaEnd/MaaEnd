@@ -3,7 +3,7 @@
         {
             "name": "AutoMission",
             "label": "$task.AutoMission.label",
-            "entry": "AutoMission",
+            "entry": "AutoMissionMain",
             "controller": [
                 "Win32-Front"
             ],
