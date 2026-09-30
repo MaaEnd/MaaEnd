@@ -14,8 +14,8 @@ function toFlexibleEnglishRegex(text) {
 
 // 移动端 OCR 对拍照任务标题里的引号识别不稳定：可能认成别的字符，也可能整个丢掉。
 // 把引号放宽成「任意单字符、可缺省」，落在末尾的那一个直接去掉（后面没有内容可对齐）。
-// 匹配的是 escapeRegex 之后的文本：英文引号在这里是 \"，其余引号原样保留。
-const UNSTABLE_QUOTE_PATTERN = /\\"|["'“”‘’「」『』]/g;
+// 英文已经过 escapeRegex，但它不转义引号，所以各语言的引号都按原字符匹配。
+const UNSTABLE_QUOTE_PATTERN = /["'“”‘’「」『』]/g;
 
 function toQuoteTolerantExpected(expected) {
     return expected.replace(UNSTABLE_QUOTE_PATTERN, ".?").replace(/\.\?$/, "");

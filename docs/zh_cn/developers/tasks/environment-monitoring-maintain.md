@@ -181,7 +181,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `CameraScanAction` | 公共镜头扫描动作；参数与扫描顺序固定在 `TakePhoto.json` 和 Go Service 中，不需要路线配置 |
 | `OcrReplace` | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断 |
 | `ExpectedText` | 由 `environment_monitoring.json` 的 `mission.names` 自动展开（5 语言，英文转柔性正则） |
-| `InExpectedText` | 由 `environment_monitoring.json` 的 `mission.shot_target_names` 自动展开；其中的引号与撇号统一放宽为可缺省的任意单字符 `.?`，避免移动端 OCR 认不出引号导致拍照标题匹配失败 |
+| `InExpectedText` | 由 `environment_monitoring.json` 的 `mission.shot_target_names` 自动展开；其中的引号与撇号统一放宽为可缺省的任意单字符 `.?`（位于末尾的直接去掉），避免移动端 OCR 认不出引号导致拍照标题匹配失败 |
 | `TrackOrGoToNext` / `AfterTrackNext` / `AfterAlreadyTrackedNext` | 由 `data.mjs` 根据路线是否完整及 `QuickTeleport` 自动决定：默认进入 `GoTo${Id}`；快捷传送时，开始追踪后等待任务地图，已追踪则先点击定位图标打开任务地图；未适配时进入 `${Id}NotAdapted` |
 | `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | 由 `data.mjs` 根据传送入口和路线类型自动决定：传送后直拍始终执行真实传送，配置 `Heading` 时先进入 `GoTo${Id}Move` 调整朝向，否则直接进入 `${Id}TakePhoto`；寻路路线传送后直接进入 `GoTo${Id}Move` |
 
