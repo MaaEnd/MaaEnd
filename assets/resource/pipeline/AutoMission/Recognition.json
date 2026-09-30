@@ -8,8 +8,7 @@
             {
                 "recognition": "OCR",
                 "roi": "AutoMissionTitleColor",
-                "only_rec": true,
-                "order_by": "Vertical"
+                "only_rec": true
             }
         ]
     },
@@ -43,26 +42,22 @@
         "recognition": "ColorMatch",
         "roi": "AutoMissionLocationIcon",
         "roi_offset": [
-            // 待补充：色块相对位置图标，标题在图标上方
-            0,
-            0,
-            0,
-            0
+            -15,
+            -30,
+            300,
+            8
         ],
         "lower": [
-            // 待补充
-            0,
-            0,
-            0
+            90, 
+            90, 
+            90
         ],
         "upper": [
-            // 待补充
-            0,
-            0,
-            0
+            255, 
+            255, 
+            255
         ],
-        "connected": true,
-        "count": 100
+        "count": 250
     },
     "AutoMissionDescriptionColor": {
         "desc": "说明背景色块，相对位置图标。roi_offset、lower、upper 待补充",
@@ -70,24 +65,21 @@
         "roi": "AutoMissionLocationIcon",
         "roi_offset": [
             // 待补充：色块相对位置图标，说明在图标下方
-            0,
-            0,
-            0,
-            0
+            25,
+            70,
+            300,
+            8
         ],
         "lower": [
-            // 待补充
-            0,
-            0,
-            0
+            90, 
+            90, 
+            90
         ],
         "upper": [
-            // 待补充
-            0,
-            0,
-            0
+            255, 
+            255, 
+            255
         ],
-        "connected": true,
-        "count": 100
+        "count": 250
     }
 }
