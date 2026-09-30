@@ -126,6 +126,7 @@
 - **补丁不得为空**：除字段未配置（键缺失或为 `null`）外，归一化结果必须是非空补丁。空补丁会直接报错，避免目标节点沿用 Pipeline 默认的全屏 ROI 把配置错误变成错误识别结果。
 - **按钮必填**：`IncreaseButton` / `DecreaseButton` 必须提供坐标数组或非空识别参数补丁，缺失即报错。
 - **按钮模板形态**：`IncreaseButton` / `DecreaseButton` 传 String / Object 时，模板参数写入 `BetterSlidingIncreaseButton` / `BetterSlidingDecreaseButton` 节点，数量节点以 `And all_of` 引用它并点击命中框。补丁默认补充 `green_mask: true`，可在补丁中显式覆盖。
+- **按钮按滑条端点一侧挑选**：方向已知且已识别到滑条起点框时，Custom 会自动为按钮补丁补上 `roi` / `order_by` / `index`，把匹配限定在滑条所在行（列）的端点一侧——「+」「−」都是白色圆形按钮，只差中间一笔，按分数常把「−」当成「+」。补丁里显式声明的 `roi` / `order_by` / `index` 优先，不会被覆盖；方向未知或起点缺失时保持按分数匹配。
 - **数组仅按钮可用**：除 `IncreaseButton` / `DecreaseButton` 外的参数写数组会直接报错；按钮数组是坐标而非识别补丁。
 - **Filter 与 `color_filter` 的优先级**：`SliderQuantityFilter` / `AvailableQuantityFilter` 会写入对应内建 Filter 节点，并把节点名填进 Quantity 补丁的 `color_filter`；若 Quantity 补丁自身已声明 `color_filter`，以补丁为准（此时会输出 Warn，提示内建 Filter 节点被覆写但无人引用）。未配置 Filter 时不写 `color_filter`。
 - **Filter 的 String 引用应指向 ColorMatch 节点**：`color_filter` 在识别阶段按节点名查找并要求其识别类型为 ColorMatch，指向其他类型会识别失败。参数层面不做校验，请自行保证引用类型正确。
