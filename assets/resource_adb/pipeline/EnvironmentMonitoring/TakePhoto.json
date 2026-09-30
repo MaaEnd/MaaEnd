@@ -5,25 +5,73 @@
     "EnterCameraModeClick": {
         "action": "Click"
     },
+    // 移动端没有 R 键：按住右侧工具键，轮盘按手指相对按键中心的方向选工具，松开确认
     "EnterCameraModeLongPress": {
         "action": "TouchDown",
+        // 只按在中心的死区里：偏出几个像素就会按方向预选别的工具（实测偏左下预选了盛装）
         "target": [
-            1163,
-            269,
-            23,
-            20
+            1176,
+            282,
+            4,
+            4
+        ],
+        "timeout": 5000,
+        // 轮盘开着就往下走：中心是「选择工具」最好；已经预选了某个工具时直接认拍照图标，
+        // 否则 InSelectTool 永远等不到，手指一直按着
+        "next": [
+            "EnterCameraModeInSelectTool",
+            "EnterCameraModeChooseCamera"
+        ],
+        "on_error": [
+            "EnterCameraModeReleaseOnError"
+        ],
+        "auto_up": true
+    },
+    "EnterCameraModeInSelectTool": {
+        "timeout": 5000,
+        "on_error": [
+            "EnterCameraModeReleaseOnError"
         ]
     },
     "EnterCameraModeChooseCamera": {
         "action": "TouchMove",
+        // 朝拍照图标方向（左上 45°）拖到扇区中线附近，离两侧边界都留足余量
         "target": [
-            1117,
-            214,
-            25,
-            23
+            1112,
+            218,
+            10,
+            10
+        ],
+        "timeout": 5000,
+        "on_error": [
+            "EnterCameraModeReleaseOnError"
         ]
     },
     "EnterCameraModeKeyUp": {
-        "action": "TouchUp"
+        // 游戏按帧读摇杆：拖动后几毫秒就松开，会落进同一帧，高亮还没切过去就按原选择取消了。
+        // 先确认中心不再是「选择工具」（游戏已经处理了这次拖动），再等画面稳住（高亮切换画完）才松开
+        "recognition": "And",
+        "all_of": [
+            "InSelectTool"
+        ],
+        "inverse": true,
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 3000
+        },
+        "action": "TouchUp",
+        "on_error": [
+            "EnterCameraModeReleaseOnError"
+        ]
+    },
+    "EnterCameraModeReleaseOnError": {
+        "desc": "进入拍照模式失败，松开按住的工具键；随后仍按失败结束，交给上层记录",
+        "pre_delay": 0,
+        "action": "TouchUp",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ]
     }
 }

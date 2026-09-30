@@ -205,7 +205,7 @@
                     "YellowConfirmButtonType1",
                     "YellowButtonConfirmText"
                 ],
-                "box_index": 1
+                "box_index": 0
             }
         },
         "pre_delay": 0,
@@ -335,7 +335,7 @@
         "rate_limit": 0
     },
     "GrowthChamberFindTargetBySeed": {
-        "desc": "[培养舱·培养] 点击有基核的培养对象（#1313 绕开：与 ByPlant 分步，不用 And 内 Or）",
+        "desc": "[培养舱·培养] 点击有基核的培养对象",
         "recognition": {
             "type": "And",
             "param": {

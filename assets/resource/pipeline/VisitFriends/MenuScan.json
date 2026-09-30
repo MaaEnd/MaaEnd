@@ -48,10 +48,9 @@
         "recognition": "Custom",
         "custom_recognition": "ExpendableRecognition",
         "custom_recognition_param": {
-            "candidate": "VisitFriendsRecognitionItemWithName",
+            "candidate": "VisitFriendsRecognitionItemWithPriorityRemark",
             "visited_node": "VisitFriendsMenuScanVisited",
-            "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)",
-            "whitelist": ""
+            "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)"
         }
     },
     "VisitFriendsMenuScanSelectFriendRemarkConsumable": {

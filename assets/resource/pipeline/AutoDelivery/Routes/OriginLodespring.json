@@ -1,6 +1,6 @@
 {
     "AutoDeliveryRouteDepotDomain1Lv006Depot1": {
-        "desc": "AutoDelivery 仓储路线：前往矿脉源区仓储节点（domain_1_lv006_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往矿脉源区仓储节点(domain_1_lv006_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -28,7 +28,8 @@
                     "target_deck_y": 74.57
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -42,7 +43,7 @@
         }
     },
     "AutoDeliveryRouteDepotDomain1Lv006Depot1WithZipline": {
-        "desc": "AutoDelivery 仓储路线：前往矿脉源区仓储节点，允许使用滑索（domain_1_lv006_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往矿脉源区仓储节点，允许使用滑索(domain_1_lv006_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -70,7 +71,8 @@
                     "target_deck_y": 74.57
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -84,7 +86,7 @@
         }
     },
     "AutoDeliveryRouteDepotRetryDomain1Lv006Depot1": {
-        "desc": "AutoDelivery 仓储站位修正路线：矿脉源区仓储节点（domain_1_lv006_depot_1）",
+        "desc": "AutoDelivery 仓储站位修正路线：矿脉源区仓储节点(domain_1_lv006_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -111,7 +113,8 @@
                     ],
                     "target_deck_y": 74.57
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -125,7 +128,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00601": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往马泰奥（deliver_target_map01_lv006_01）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往马泰奥(deliver_target_map01_lv006_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -217,7 +220,8 @@
                     "target_deck_y": 39.315
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -231,7 +235,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00601WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往马泰奥，允许使用滑索（deliver_target_map01_lv006_01）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往马泰奥，允许使用滑索(deliver_target_map01_lv006_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -323,7 +327,8 @@
                     "target_deck_y": 39.315
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -337,7 +342,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00601": {
-        "desc": "AutoDelivery 终点站位修正路线：马泰奥（deliver_target_map01_lv006_01）",
+        "desc": "AutoDelivery 终点站位修正路线：马泰奥(deliver_target_map01_lv006_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -364,7 +369,8 @@
                     ],
                     "target_deck_y": 39.315
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -378,7 +384,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00602": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往陆言（deliver_target_map01_lv006_02）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往陆言(deliver_target_map01_lv006_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -470,7 +476,8 @@
                     "target_deck_y": 34.228
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -484,7 +491,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00602WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往陆言，允许使用滑索（deliver_target_map01_lv006_02）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往陆言，允许使用滑索(deliver_target_map01_lv006_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -576,7 +583,8 @@
                     "target_deck_y": 34.228
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -590,7 +598,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00602": {
-        "desc": "AutoDelivery 终点站位修正路线：陆言（deliver_target_map01_lv006_02）",
+        "desc": "AutoDelivery 终点站位修正路线：陆言(deliver_target_map01_lv006_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -617,7 +625,8 @@
                     ],
                     "target_deck_y": 34.228
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -631,7 +640,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00603": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往莫莉（deliver_target_map01_lv006_03）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往莫莉(deliver_target_map01_lv006_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -723,7 +732,8 @@
                     "target_deck_y": 36.701
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -737,7 +747,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00603WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往莫莉，允许使用滑索（deliver_target_map01_lv006_03）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往莫莉，允许使用滑索(deliver_target_map01_lv006_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -829,7 +839,8 @@
                     "target_deck_y": 36.701
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -843,7 +854,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00603": {
-        "desc": "AutoDelivery 终点站位修正路线：莫莉（deliver_target_map01_lv006_03）",
+        "desc": "AutoDelivery 终点站位修正路线：莫莉(deliver_target_map01_lv006_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -870,7 +881,8 @@
                     ],
                     "target_deck_y": 36.701
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -884,7 +896,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle01": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往“不是废品佬”（deliver_target_map01_lv006_recycle_01）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往“不是废品佬”(deliver_target_map01_lv006_recycle_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -985,7 +997,8 @@
                     "target_deck_y": 41.441
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -999,7 +1012,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle01WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往“不是废品佬”，允许使用滑索（deliver_target_map01_lv006_recycle_01）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往“不是废品佬”，允许使用滑索(deliver_target_map01_lv006_recycle_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1100,7 +1113,8 @@
                     "target_deck_y": 41.441
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1114,7 +1128,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv006Recycle01": {
-        "desc": "AutoDelivery 终点站位修正路线：“不是废品佬”（deliver_target_map01_lv006_recycle_01）",
+        "desc": "AutoDelivery 终点站位修正路线：“不是废品佬”(deliver_target_map01_lv006_recycle_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1141,7 +1155,8 @@
                     ],
                     "target_deck_y": 41.441
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1155,7 +1170,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle03": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往采购-矿区医疗站模组（deliver_target_map01_lv006_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往采购-矿区医疗站模组(deliver_target_map01_lv006_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1256,7 +1271,8 @@
                     "target_deck_y": 36.255
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1270,7 +1286,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle03WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往采购-矿区医疗站模组，允许使用滑索（deliver_target_map01_lv006_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往采购-矿区医疗站模组，允许使用滑索(deliver_target_map01_lv006_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1371,7 +1387,8 @@
                     "target_deck_y": 36.255
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1385,7 +1402,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv006Recycle03": {
-        "desc": "AutoDelivery 终点站位修正路线：采购-矿区医疗站模组（deliver_target_map01_lv006_recycle_03）",
+        "desc": "AutoDelivery 终点站位修正路线：采购-矿区医疗站模组(deliver_target_map01_lv006_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1412,7 +1429,8 @@
                     ],
                     "target_deck_y": 36.255
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,

@@ -623,6 +623,7 @@ private:
 struct NaviParamInput
 {
     std::string map_name_;
+    std::string heading_source_ = "character";
     std::vector<NaviWaypointInput> path_;
     int64_t arrival_timeout_ = 60000;
     double sprint_threshold_ = 16.0;
@@ -659,6 +660,7 @@ struct NaviParamInput
         MEO_OPT MEO_KEY("map_name") map_name_,
         MEO_OPT MEO_KEY("path") path_,
         MEO_OPT MEO_KEY("arrival_timeout") arrival_timeout_,
+        MEO_OPT MEO_KEY("heading_source") heading_source_,
         MEO_OPT MEO_KEY("sprint_threshold") sprint_threshold_,
         MEO_OPT MEO_KEY("enable_local_driver") enable_local_driver_,
         MEO_OPT MEO_KEY("zip") zip_,
@@ -1161,7 +1163,13 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
         return false;
     }
 
+    if (input.heading_source_ != "character" && input.heading_source_ != "camera") {
+        LogError << "Invalid navigation heading_source." << VAR(input.heading_source_);
+        return false;
+    }
+
     NaviParam param = build_navi_param(input);
+    param.heading_source = input.heading_source_ == "camera" ? HeadingSource::Camera : HeadingSource::Character;
     std::string zone_context = param.map_name;
 
     if (input.has_path_) {

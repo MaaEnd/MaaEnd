@@ -74,5 +74,42 @@
                 ]
             }
         }
+    },
+    // 移动端排序按钮在 x≈215~300，比 PC 靠左；升/降序图标长得像，改读文字区分
+    "LevelUpOperatorSwitchAscending": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    200,
+                    620,
+                    120,
+                    60
+                ],
+                "expected": [
+                    "降序",
+                    "(?i)DESC",
+                    "降順"
+                ]
+            }
+        }
+    },
+    "LevelUpOperatorExitOperatorList": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    200,
+                    620,
+                    120,
+                    60
+                ],
+                "expected": [
+                    "升序",
+                    "(?i)ASC",
+                    "昇順"
+                ]
+            }
+        }
     }
 }

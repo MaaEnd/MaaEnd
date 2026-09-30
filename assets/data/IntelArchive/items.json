@@ -949,6 +949,115 @@
                 }
             ]
         },
+        "research_gm02m27": {
+            "id": "research_gm02m27",
+            "names": {
+                "zh_cn": "关于某科研城市的调查报告",
+                "zh_tw": "關於某科研城市的調查報告"
+            },
+            "page": "investigate",
+            "fileCategory": "investigate",
+            "tagIds": [
+                "investigate"
+            ],
+            "relatedItemIds": [
+                "paper_map02_research11_5",
+                "paper_map02_research11_6",
+                "paper_map02_research11_2",
+                "digital_map02_research11_14",
+                "paper_map02_research11_8",
+                "paper_map02_research11_9",
+                "paper_map02_research11_10",
+                "digital_map02_research11_12",
+                "paper_map02_research11_3",
+                "paper_map02_research11_4",
+                "paper_map02_research11_13",
+                "paper_map02_research11_7",
+                "paper_map02_research11_11"
+            ],
+            "order": 11,
+            "groups": [
+                {
+                    "id": "research_gm02m27_1",
+                    "names": {
+                        "zh_cn": "过往的人文风貌",
+                        "zh_tw": "過往的人文風貌"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research11_5",
+                            "pageId": "nar_paper_map02_research11_5_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research11_6",
+                            "pageId": "nar_paper_map02_research11_6_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research11_2",
+                            "pageId": "nar_paper_map02_research11_2_1"
+                        },
+                        {
+                            "itemId": "digital_map02_research11_14",
+                            "pageId": "nar_digital_map02_research11_14_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_gm02m27_2",
+                    "names": {
+                        "zh_cn": "研究者们的遗存",
+                        "zh_tw": "研究者們的遺存"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research11_8",
+                            "pageId": "nar_paper_map02_research11_8_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research11_9",
+                            "pageId": "nar_paper_map02_research11_9_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research11_10",
+                            "pageId": "nar_paper_map02_research11_10_1"
+                        },
+                        {
+                            "itemId": "digital_map02_research11_12",
+                            "pageId": "nar_digital_map02_research11_12_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_gm02m27_3",
+                    "names": {
+                        "zh_cn": "特大灾害的警示",
+                        "zh_tw": "特大災害的警示"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research11_3",
+                            "pageId": "nar_paper_map02_research11_3_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research11_4",
+                            "pageId": "nar_paper_map02_research11_4_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research11_13",
+                            "pageId": "nar_paper_map02_research11_13_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research11_7",
+                            "pageId": "nar_paper_map02_research11_7_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research11_11",
+                            "pageId": "nar_paper_map02_research11_11_1"
+                        }
+                    ]
+                }
+            ]
+        },
         "media_1": {
             "id": "media_1",
             "names": {
@@ -7310,6 +7419,236 @@
             ],
             "order": 201050025
         },
+        "paper_map02_research11_2": {
+            "id": "paper_map02_research11_2",
+            "names": {
+                "zh_cn": "城中风貌速览",
+                "zh_tw": "城中風貌速覽"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_2_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "城中风貌速览",
+                        "zh_tw": "城中風貌速覽"
+                    }
+                }
+            ],
+            "order": 201053004
+        },
+        "paper_map02_research11_3": {
+            "id": "paper_map02_research11_3",
+            "names": {
+                "zh_cn": "灾害的前兆",
+                "zh_tw": "災害的前兆"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_3_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "灾害的前兆",
+                        "zh_tw": "災害的前兆"
+                    }
+                }
+            ],
+            "order": 201053005
+        },
+        "paper_map02_research11_4": {
+            "id": "paper_map02_research11_4",
+            "names": {
+                "zh_cn": "《侵蚀潮灾害应急处理手册（节选）》",
+                "zh_tw": "《侵蝕潮災害緊急應變手冊（節選）》"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_4_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "《侵蚀潮灾害应急处理手册（节选）》",
+                        "zh_tw": "《侵蝕潮災害緊急應變手冊（節選）》"
+                    }
+                }
+            ],
+            "order": 201053006
+        },
+        "paper_map02_research11_5": {
+            "id": "paper_map02_research11_5",
+            "names": {
+                "zh_cn": "《遂明杂俎·饮食篇》节选",
+                "zh_tw": "《遂明雜俎·飲食篇》節選"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_5_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "《遂明杂俎·饮食篇》节选",
+                        "zh_tw": "《遂明雜俎·飲食篇》節選"
+                    }
+                }
+            ],
+            "order": 201053007
+        },
+        "paper_map02_research11_6": {
+            "id": "paper_map02_research11_6",
+            "names": {
+                "zh_cn": "《一份夹在书页里的信件》",
+                "zh_tw": "《一份夾在書頁裡的信件》"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_6_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "《一份夹在书页里的信件》",
+                        "zh_tw": "《一份夾在書頁裡的信件》"
+                    }
+                }
+            ],
+            "order": 201053008
+        },
+        "paper_map02_research11_7": {
+            "id": "paper_map02_research11_7",
+            "names": {
+                "zh_cn": "一页匆忙扯下的便签",
+                "zh_tw": "一頁匆忙撕下的便箋"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_7_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "一页匆忙扯下的便签",
+                        "zh_tw": "一頁匆忙撕下的便箋"
+                    }
+                }
+            ],
+            "order": 201053009
+        },
+        "paper_map02_research11_8": {
+            "id": "paper_map02_research11_8",
+            "names": {
+                "zh_cn": "《我的妈妈》",
+                "zh_tw": "《我的媽媽》"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_8_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "《我的妈妈》",
+                        "zh_tw": "《我的媽媽》"
+                    }
+                }
+            ],
+            "order": 201053010
+        },
+        "paper_map02_research11_9": {
+            "id": "paper_map02_research11_9",
+            "names": {
+                "zh_cn": "《第十四次试做型天师桩抗侵蚀实验数据简报》",
+                "zh_tw": "《第十四次試做型天師樁抗侵蝕實驗數據簡報》"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_9_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "《第十四次试做型天师桩抗侵蚀实验数据简报》",
+                        "zh_tw": "《第十四次試做型天師樁抗侵蝕實驗數據簡報》"
+                    }
+                }
+            ],
+            "order": 201053011
+        },
+        "paper_map02_research11_10": {
+            "id": "paper_map02_research11_10",
+            "names": {
+                "zh_cn": "疑似学徒留下的笔记",
+                "zh_tw": "疑似學徒留下的筆記"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_10_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "疑似学徒留下的笔记",
+                        "zh_tw": "疑似學徒留下的筆記"
+                    }
+                }
+            ],
+            "order": 201053012
+        },
+        "paper_map02_research11_13": {
+            "id": "paper_map02_research11_13",
+            "names": {
+                "zh_cn": "一张日记残页",
+                "zh_tw": "一張日記殘頁"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_13_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "一张日记残页",
+                        "zh_tw": "一張日記殘頁"
+                    }
+                }
+            ],
+            "order": 201053014
+        },
         "digital_sm1l1m4_1": {
             "id": "digital_sm1l1m4_1",
             "names": {
@@ -9084,6 +9423,75 @@
                 }
             ],
             "order": 201050019
+        },
+        "digital_map02_research11_14": {
+            "id": "digital_map02_research11_14",
+            "names": {
+                "zh_cn": "建城缘由考",
+                "zh_tw": "建城緣由考"
+            },
+            "page": "text",
+            "fileCategory": "digital",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_digital_map02_research11_14_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "建城缘由考",
+                        "zh_tw": "建城緣由考"
+                    }
+                }
+            ],
+            "order": 201053002
+        },
+        "digital_map02_research11_12": {
+            "id": "digital_map02_research11_12",
+            "names": {
+                "zh_cn": "醒时钟维修日志",
+                "zh_tw": "醒時鐘維修日誌"
+            },
+            "page": "text",
+            "fileCategory": "digital",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_digital_map02_research11_12_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "醒时钟检修日志",
+                        "zh_tw": "醒時鐘檢修日誌"
+                    }
+                }
+            ],
+            "order": 201053003
+        },
+        "paper_map02_research11_11": {
+            "id": "paper_map02_research11_11",
+            "names": {
+                "zh_cn": "遗留的紧急通信记录",
+                "zh_tw": "遺留的緊急通訊紀錄"
+            },
+            "page": "text",
+            "fileCategory": "digital",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research11_11_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "遗留的紧急通信记录",
+                        "zh_tw": "遺留的緊急通訊紀錄"
+                    }
+                }
+            ],
+            "order": 201053013
         },
         "collection_gm01m17": {
             "id": "collection_gm01m17",
@@ -11384,6 +11792,29 @@
                 }
             ],
             "order": 201053401
+        },
+        "report_map02_research11_1": {
+            "id": "report_map02_research11_1",
+            "names": {
+                "zh_cn": "有关“遂明”的调查报告",
+                "zh_tw": "有關「遂明」的調查報告"
+            },
+            "page": "document",
+            "fileCategory": "report",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_report_map02_research11_1_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "有关“遂明”的调查报告",
+                        "zh_tw": "有關「遂明」的調查報告"
+                    }
+                }
+            ],
+            "order": 201053001
         }
     }
 }

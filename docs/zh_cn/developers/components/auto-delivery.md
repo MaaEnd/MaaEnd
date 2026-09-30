@@ -169,10 +169,10 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 
 ### `walk_only` / `zipline_only`
 
-这两个字段覆盖一条主路线的滑索策略，二者互斥，同时声明时生成器直接报错：
+这两个字段覆盖一条主路线的滑索策略，二者互斥，同时声明时生成器直接报错。策略不改写生成节点的 `zip`：普通节点始终是 `zip: false`、`WithZipline` 节点始终是 `zip: true`，两个标记随运行时目录 `assets/data/AutoDelivery/catalog.json` 交给 Go，在分发路线节点时生效。节点名与参数因此永远一致，排查时不会看到 `WithZipline` 节点写着 `zip: false`：
 
-- `walk_only: true`：完整保留录制路径，禁止全局滑索规划跳过作者路点。生成器仍保留普通节点和 `WithZipline` 节点名，但两个节点都写 `"zip": false`，即用户全局启用滑索时仍严格按作者路径步行执行。
-- `zipline_only: true`：该目标只有坐滑索才到得了（如终点裴令容），没有可用的步行路线。两个节点都写 `"zip": true`，避免留下一条已知走不通的步行路线；运行时若用户选择步行送货（「送货时优先使用滑索」为关），Go 侧在 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 分发路线前直接输出红色提示说明原因并让动作失败，不会静默退化成步行走到不可达处再超时。
+- `walk_only: true`：完整保留录制路径，禁止全局滑索规划跳过作者路点。`AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 无论用户是否启用滑索都只分派普通节点，即用户启用滑索时仍严格按作者路径步行执行；该条目在映射里保留的滑索节点只用于单路线试跑。动作日志会带上 `walkOnly=true`。
+- `zipline_only: true`：该目标只有坐滑索才到得了（如终点裴令容），没有可用的步行路线。运行时若用户选择步行送货（「送货时优先使用滑索」为关），Go 侧在 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 分发路线前直接输出红色提示说明原因并让动作失败，不会静默退化成步行走到不可达处再超时。
 
 注意 `zip: true` 只表示允许 MapNavigator 在合适时使用滑索；未导入滑索坐标或滑索成本不占优时，导航仍可能选择步行。`zipline_only` 拦截的是「用户明确选择步行」这种配置错误，不保证导航规划一定采用滑索。
 

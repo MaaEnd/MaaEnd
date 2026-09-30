@@ -262,6 +262,9 @@
                         },
                         "ProtocolSpaceRewardUsePermit": {
                             "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackSingle": {
+                            "enabled": true
                         }
                     },
                     "option": [
@@ -285,6 +288,9 @@
                             "enabled": false
                         },
                         "ProtocolSpaceRewardUsePermit": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardFallbackSingle": {
                             "enabled": false
                         }
                     },
@@ -323,6 +329,9 @@
                     "pipeline_override": {
                         "ProtocolSpaceRewardUsePermit": {
                             "enabled": true
+                        },
+                        "ProtocolSpaceRewardFallbackSingle": {
+                            "enabled": true
                         }
                     },
                     "option": [
@@ -334,6 +343,9 @@
                     "label": "$option.ProtocolSpaceObtainModeClaim.cases.ObtainScaling1.label",
                     "pipeline_override": {
                         "ProtocolSpaceRewardUsePermit": {
+                            "enabled": false
+                        },
+                        "ProtocolSpaceRewardFallbackSingle": {
                             "enabled": false
                         }
                     },

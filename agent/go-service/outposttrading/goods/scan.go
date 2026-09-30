@@ -115,21 +115,39 @@ func buildStockPageItems(
 		usedNames[nameMatch.itemID] = struct{}{}
 		lowestCompleteNameBottom = max(lowestCompleteNameBottom, nameMatch.box.Y()+nameMatch.box.Height())
 		stockBox := stockCellBox(anchorBox, offsets.Quantity, bounds)
+		clickBox := stockCellBox(anchorBox, offsets.Click, bounds)
 		raw := collectStockQuantityText(ocrItems, stockBox)
 		quantity, ok := parseStockQuantity(raw)
 		source := "page_ocr"
+		var fallbackErr error
 		// 全页 OCR 的检测阶段可能漏掉较小的库存数字；只对缺失格子在同一帧精确识别一次。
 		if !ok && fallback != nil {
-			fallbackRaw, err := fallback(stockBox)
-			if err != nil {
-				return nil, fmt.Errorf("item %q stock fallback failed in %v: %w", nameMatch.itemID, stockBox, err)
+			var fallbackRaw string
+			fallbackRaw, fallbackErr = fallback(stockBox)
+			if fallbackErr == nil {
+				raw = fallbackRaw
+				quantity, ok = parseStockQuantity(raw)
 			}
-			raw = fallbackRaw
-			quantity, ok = parseStockQuantity(raw)
 			source = "only_rec_fallback"
 		}
 		if !ok {
-			return nil, fmt.Errorf("item %q stock text %q is invalid in %v", nameMatch.itemID, raw, stockBox)
+			// 单格读不出库存时按「库存未知」保留，与底部半截格子同样处理：
+			// 整页判失败会让选择与耗尽两个分支都无结果，只能等超时
+			log.Warn().
+				Err(fallbackErr).
+				Str("component", priorityItemRecognitionName).
+				Str("item_id", nameMatch.itemID).
+				Str("stock_ocr", raw).
+				Str("stock_ocr_source", source).
+				Interface("stock_box", stockBox).
+				Msg("goods cell stock unreadable, keep as unknown")
+			items = append(items, stockPageItem{
+				ItemID:     nameMatch.itemID,
+				StockBox:   stockBox,
+				ClickBox:   clickBox,
+				StockKnown: false,
+			})
+			continue
 		}
 		log.Debug().
 			Str("component", priorityItemRecognitionName).
@@ -144,7 +162,7 @@ func buildStockPageItems(
 		items = append(items, stockPageItem{
 			ItemID:     nameMatch.itemID,
 			StockBox:   stockBox,
-			ClickBox:   stockCellBox(anchorBox, offsets.Click, bounds),
+			ClickBox:   clickBox,
 			Quantity:   quantity,
 			StockKnown: true,
 		})

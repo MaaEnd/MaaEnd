@@ -29,7 +29,8 @@
         "rate_limit": 0,
         "next": [
             "AltClickRegionalDevelopmentButtonClick"
-        ]
+        ],
+        "auto_up": true
     },
     "AltClickRegionalDevelopmentButtonClick": {
         "desc": "使用 Alt + 点击大世界中的地区建设按钮（单击）",

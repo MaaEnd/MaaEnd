@@ -43,10 +43,10 @@ struct LocateOutput
     std::string mapName;
     double x = 0.0;
     double y = 0.0;
-    double rot = 0.0;
+    std::optional<double> rot;
     double locConf = 0.0;
-    double camRot = 0.0;
-    double camRotConf = 0.0;
+    std::optional<double> camRot;
+    std::optional<double> camRotConf;
     int latencyMs = 0;
 
     MEO_JSONIZATION(
@@ -79,10 +79,10 @@ struct MapLocateAssertLocationOutput
     std::string zoneId;
     double x = 0.0;
     double y = 0.0;
-    double rot = 0.0;
+    std::optional<double> rot;
     double locConf = 0.0;
-    double camRot = 0.0;
-    double camRotConf = 0.0;
+    std::optional<double> camRot;
+    std::optional<double> camRotConf;
     int latencyMs = 0;
     std::vector<double> target;
 
@@ -134,7 +134,16 @@ void WriteJsonDetail(MaaStringBuffer* out_detail, const T& payload)
         return;
     }
 
-    const std::string json_text = json::value(payload).dumps();
+    json::value detail = payload;
+    // MEO_OPT 只影响反序列化；输出时显式省略不可用朝向，不能用零或 null 代替。
+    if (!payload.rot.has_value()) {
+        detail.as_object().erase("rot");
+    }
+    if (!payload.camRot.has_value()) {
+        detail.as_object().erase("camRot");
+        detail.as_object().erase("camRotConf");
+    }
+    const std::string json_text = detail.dumps();
     MaaStringBufferSet(out_detail, json_text.c_str());
 }
 
@@ -143,6 +152,7 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     LocateOutput output;
     output.status = static_cast<int>(result.status);
     output.message = result.debugMessage;
+    output.rot = result.rot;
     if (!result.position.has_value()) {
         return output;
     }
@@ -151,7 +161,6 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     output.mapName = pos.zoneId;
     output.x = pos.x;
     output.y = pos.y;
-    output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
     if (result.camRot.has_value()) {
@@ -170,6 +179,7 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.message = result.debugMessage;
     output.zoneId = param.zone_id;
     output.target = param.target;
+    output.rot = result.rot;
     if (!result.position.has_value()) {
         return output;
     }
@@ -177,7 +187,6 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     const auto& pos = result.position.value();
     output.x = pos.x;
     output.y = pos.y;
-    output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
     if (result.camRot.has_value()) {

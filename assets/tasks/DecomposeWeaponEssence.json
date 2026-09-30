@@ -1,0 +1,80 @@
+{
+    "task": [
+        {
+            "name": "DecomposeWeaponEssence",
+            "label": "$task.DecomposeWeaponEssence.label",
+            "entry": "DecomposeWeaponEssenceStart",
+            "description": "$task.DecomposeWeaponEssence.description",
+            "option": [
+                "DecomposeWeaponEssenceThreshold"
+            ],
+            "controller": [
+                "ADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front"
+            ],
+            "group": [
+                "valuables_vault"
+            ]
+        }
+    ],
+    "option": {
+        "DecomposeWeaponEssenceThreshold": {
+            "type": "input",
+            "label": "$option.DecomposeWeaponEssenceThreshold.label",
+            "inputs": [
+                {
+                    "name": "DecomposeWeaponEssenceThreshold",
+                    "label": "$option.DecomposeWeaponEssenceThreshold.inputs.DecomposeWeaponEssenceThreshold.label",
+                    "pipeline_type": "int",
+                    "verify": "^(0|[1-9][0-9]{0,3})$",
+                    "default": "1800"
+                }
+            ],
+            "pipeline_override": {
+                "AutoEssenceCapacityOverflow": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{DecomposeWeaponEssenceThreshold} < {AutoEssenceCapacityCountOCR}",
+                                "focus_matched_resolved_expression": true
+                            }
+                        }
+                    }
+                },
+                "AutoEssenceCapacityEnough": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoEssenceCapacityCountOCR} <= {DecomposeWeaponEssenceThreshold}"
+                            }
+                        }
+                    }
+                },
+                "AutoEssenceCapacityCannotReach": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoEssenceCapacitySelectedCountOCR} == 0 && {DecomposeWeaponEssenceThreshold} < {AutoEssenceCapacityCountOCR}"
+                            }
+                        }
+                    }
+                },
+                "AutoEssenceCapacityNothingLeft": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoEssenceCapacitySelectedCountOCR} == 0 && {AutoEssenceCapacityCountOCR} <= {DecomposeWeaponEssenceThreshold}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

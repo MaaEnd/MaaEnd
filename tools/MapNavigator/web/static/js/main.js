@@ -4048,7 +4048,7 @@ class MapNavigatorApp {
   }
 
   // ==================================================================================
-  //  Pointer state machine (tk on_click / on_drag / on_release + right-button pan)
+  //  Pointer state machine (tk on_click / on_drag / on_release + middle/right-button pan)
   // ==================================================================================
 
   /**
@@ -4079,14 +4079,14 @@ class MapNavigatorApp {
   }
 
   /**
-   * Pointer-down entry of the interaction state machine. Right button always pans;
+   * Pointer-down entry of the interaction state machine. Middle and right buttons always pan;
    * left button dispatches on mode + active tool (pan / assert
    * rect / box select / insert candidate / node drag candidate).
    * @param {MouseEvent} e
    * @returns {void}
    */
   _onPointerDown(e) {
-    if (e.button === 2) {
+    if (e.button === 1 || e.button === 2) {
       e.preventDefault();
       const [x, y] = this._evtXY(e);
       this.isPanning = true;

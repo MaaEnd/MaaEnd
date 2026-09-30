@@ -10,6 +10,9 @@ namespace mapnavigator
 constexpr int32_t kWorkWidth = 1280;
 constexpr int32_t kWorkHeight = 720;
 
+// 镜头朝向模式下，常规导航接受读数的经验置信度门槛（含边界）。
+constexpr double kNavigationCameraMinConfidence = 0.3;
+
 // --- ActionWrapper Constants ---
 constexpr double kTurn360UnitsPerWidth = 2.23006;
 constexpr double kTurnDegreesPerCircle = 360.0;
@@ -17,7 +20,9 @@ constexpr double kPitchDegreesPerRange = 180.0;
 
 struct AdbTouchTurnProfile
 {
-    double default_units_per_degree = 5.0;
+    double default_units_per_degree = 3.0;
+    double default_pitch_units_per_degree =
+        default_units_per_degree * kTurnDegreesPerCircle * kWorkHeight / (kWorkWidth * kPitchDegreesPerRange);
     int32_t swipe_duration_ms = 70;
     int32_t post_swipe_settle_ms = 0;
     // 移动指令之后这段时间里的转向会被游戏吞掉: 摇杆状态刚变, 视角拖动还没被受理
@@ -25,8 +30,6 @@ struct AdbTouchTurnProfile
 };
 
 inline constexpr AdbTouchTurnProfile kAdbTouchTurnProfile {};
-constexpr double kAdbTurnScaleMinUnitsPerDegree = 1.0;
-constexpr double kAdbTurnScaleMaxUnitsPerDegree = 4.0;
 constexpr double kWin32TurnScaleMinUnitsPerDegree = 1.0;
 constexpr double kWin32TurnScaleMaxUnitsPerDegree = 50.0;
 
@@ -362,7 +365,7 @@ constexpr int32_t kZiplineMountSpotStallMs = 2000;
 static_assert(kZiplineMountSpotStallMs < kObstacleRecoveryMinTriggerMs);
 // 滑错索又滑回来之后, 同一跳最多再试这么多次, 用完就站在架子上等换路
 constexpr int32_t kZiplineHopRetryBudget = 2;
-// 下索键按完等定位稳定的基准时长: 两倍还不稳再按一次, 四倍还不稳当卡住
+// 下索键按完等人下来的基准时长: 两倍还没下来再按一次, 四倍还没下来当卡住
 constexpr int32_t kZiplineDismountTimeoutMs = 2000;
 // 落地定位对不上时给冷启动的时间, 到点还对不上这跳按丢失记
 constexpr int32_t kZiplineUnknownTimeoutMs = 8000;
@@ -418,7 +421,7 @@ constexpr int32_t kPipelineRoiBaseHeight = 720;
 // Every interactable raises the same prompt icon, so both kinds share this pre-filter. The threshold is loose on
 // purpose: it only decides whether the subtask is worth running, and the subtask recognizes again before acting.
 // These are the last resort: the shipped scan node below carries the same values, and a route may name its own.
-constexpr const char* kPromptIconRelativePath = "resource/image/RealTimeTask/AutoPick.png";
+constexpr const char* kPromptIconRelativePath = "RealTimeTask/AutoPick.png";
 constexpr double kPromptIconMatchThreshold = 0.75;
 // TemplateMatch node holding the interact pre-filter's roi/template/threshold, so a business whose prompt looks
 // different or sits elsewhere retargets it in JSON. Missing (old resources, new agent) -> the constants above.

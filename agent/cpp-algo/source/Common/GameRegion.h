@@ -1,5 +1,7 @@
 #pragma once
 
+#include <MaaFramework/MaaDef.h>
+
 namespace gamesetting
 {
 
@@ -15,5 +17,7 @@ enum class Region
 // Windows 使用 PROCESS_QUERY_LIMITED_INFORMATION + QueryFullProcessImageNameW，避免过高进程权限。
 // 成功结果会缓存；无法判定时返回 Region::Unknown。
 Region DetectGameRegion();
+
+Region DetectGameRegion(MaaController* controller);
 
 } // namespace gamesetting

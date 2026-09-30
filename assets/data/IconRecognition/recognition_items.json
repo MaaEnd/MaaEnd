@@ -8270,7 +8270,7 @@
         "storageKind": "ValuableDepot",
         "categoryType": "Weapon",
         "rarity": 6,
-        "iconId": "wpn_funnel_0008",
+        "iconId": "wpn_funnel_0010",
         "fluidIconId": ""
     },
     "wpn_funnel_0009": {
@@ -8288,7 +8288,7 @@
         "storageKind": "ValuableDepot",
         "categoryType": "Weapon",
         "rarity": 6,
-        "iconId": "wpn_funnel_0010",
+        "iconId": "wpn_funnel_0008",
         "fluidIconId": ""
     },
     "wpn_funnel_0011": {

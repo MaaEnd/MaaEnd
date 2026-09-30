@@ -223,7 +223,9 @@ pnpm test
 
 In this repository, `package.json` maps that command to `maa-tools test`, and CI runs the same command.
 
-Logs are written to:
+`maa-tools test` does not start agents, so it cannot test custom recognitions that agents provide. `MapLocateAssertLocation` location nodes are tested by a standalone Python runner instead: run `pnpm test:map-locate` or `uv run python tests/MapLocateAssertLocation/map_locate.py`. In CI this is the `map-locate-test` job. See the [location node screenshot test](../../../tests/MapLocateAssertLocation/README.md) for the case format, sample requirements, and prerequisites.
+
+Ordinary node test logs are written to:
 
 ```text
 tests/maatools/

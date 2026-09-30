@@ -57,7 +57,8 @@
         ],
         "on_error": [
             "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError"
-        ]
+        ],
+        "auto_up": true
     },
     "_AutoEcoFarmEnterCameraModeFallbackSelectTool": {
         "desc": "通用快捷键回退进入选择工具界面",

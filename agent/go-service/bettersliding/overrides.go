@@ -169,7 +169,64 @@ func buildMainInitializationOverride(
 	return override
 }
 
-func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int) map[string]any {
+// 坐标基准与 Pipeline 一致：720p
+const (
+	screenWidth  = 1280
+	screenHeight = 720
+)
+
+// buttonPlacement 把 Increase/Decrease 的模板匹配限定在滑条所在的那一行（列），并按轴向排序后
+// 取靠终点（Increase）或靠起点（Decrease）的那一个，不按分数挑：
+// 移动端「+」「−」都是白色圆形按钮，只差中间一笔，按分数常把「−」当成「+」
+type buttonPlacement struct {
+	roi     []int
+	orderBy string
+	index   int
+}
+
+// resolveButtonPlacement 由起点框与滑动方向推出按钮的筛选方式；方向未知或起点缺失时返回 nil，保持按分数匹配。
+// 「right」「up」时终点在右 / 上，「left」「down」时在左 / 下（与 buildSwipeEnd 一致）
+func resolveButtonPlacement(startBox []int, direction string, increase bool) *buttonPlacement {
+	if len(startBox) < 4 {
+		return nil
+	}
+	towardEndIsFirst := false
+	horizontal := true
+	switch direction {
+	case "right":
+	case "left":
+		towardEndIsFirst = true
+	case "up":
+		horizontal = false
+		towardEndIsFirst = true
+	case "down":
+		horizontal = false
+	default:
+		return nil
+	}
+
+	pickFirst := towardEndIsFirst == increase
+	index := -1
+	if pickFirst {
+		index = 0
+	}
+	if horizontal {
+		pad := startBox[3]
+		return &buttonPlacement{
+			roi:     []int{0, startBox[1] - pad, screenWidth, startBox[3] + 2*pad},
+			orderBy: "Horizontal",
+			index:   index,
+		}
+	}
+	pad := startBox[2]
+	return &buttonPlacement{
+		roi:     []int{startBox[0] - pad, 0, startBox[2] + 2*pad, screenHeight},
+		orderBy: "Vertical",
+		index:   index,
+	}
+}
+
+func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int, placement *buttonPlacement) map[string]any {
 	if nextNode != nodeBetterSlidingIncreaseQuantity && nextNode != nodeBetterSlidingDecreaseQuantity {
 		return map[string]any{}
 	}
@@ -180,7 +237,7 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 
 	if target.template != "" {
 		helperNode := resolveButtonHelperNode(nextNode)
-		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.template)
+		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.template, placement)
 		override[nextNode] = buildTemplateMatchButtonOverride(helperNode, repeat)
 		return override
 	}
@@ -197,8 +254,15 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 	return override
 }
 
-func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int) error {
-	if override := buildCheckQuantityBranchOverride(nextNode, target, repeat); len(override) > 0 {
+func overrideCheckQuantityBranch(
+	ctx *maa.Context,
+	currentNode string,
+	nextNode string,
+	target buttonTarget,
+	repeat int,
+	placement *buttonPlacement,
+) error {
+	if override := buildCheckQuantityBranchOverride(nextNode, target, repeat, placement); len(override) > 0 {
 		if err := ctx.OverridePipeline(override); err != nil {
 			return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
 		}
@@ -229,13 +293,19 @@ func buildNodeEnableOverride(nodeName string, enabled bool) map[string]any {
 	}
 }
 
-func buildTemplateMatchButtonHelperOverride(template string) map[string]any {
+func buildTemplateMatchButtonHelperOverride(template string, placement *buttonPlacement) map[string]any {
+	param := map[string]any{
+		"template":   []string{template},
+		"green_mask": defaultGreenMask,
+	}
+	if placement != nil {
+		param["roi"] = append([]int(nil), placement.roi...)
+		param["order_by"] = placement.orderBy
+		param["index"] = placement.index
+	}
 	return map[string]any{
 		"recognition": map[string]any{
-			"param": map[string]any{
-				"template":   []string{template},
-				"green_mask": defaultGreenMask,
-			},
+			"param": param,
 		},
 	}
 }

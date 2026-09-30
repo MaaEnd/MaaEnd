@@ -112,7 +112,7 @@ public:
     {
     }
 
-    ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes) override
+    ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes, bool force_global_search) override
     {
         ZiplineObservation obs;
         obs.at = std::chrono::steady_clock::now();
@@ -124,7 +124,7 @@ public:
                     maplocator::SearchHint { .zone_id = zone, .x = node.x, .y = node.y, .radius = kZiplineLandingHintRadiusWu });
             }
         }
-        if (ctx_.position_provider->Capture(ctx_.position, false, {}, hints)) {
+        if (ctx_.position_provider->Capture(ctx_.position, force_global_search, {}, hints)) {
             obs.fix = *ctx_.position;
         }
         return obs;
@@ -163,13 +163,16 @@ public:
     // 独立 Pipeline 节点通过相对鼠标移动承载实际输入, 不会像 Swipe 那样带一次左键按下/抬起。
     bool ResetPitchToMaximum() override
     {
+        const double reset_delta_deg =
+            kZiplinePitchMaximumElevationDeg + kZiplinePitchMaximumDepressionDeg + kZiplinePitchResetOvershootDeg;
+        const int units = static_cast<int>(std::lround(-reset_delta_deg * ctx_.action_wrapper->DefaultPitchUnitsPerDegree()));
+        if (ctx_.action_wrapper->uses_touch_backend()) {
+            return units != 0 && ctx_.action_wrapper->SendViewDeltaSync(0, units);
+        }
         if (ctx_.maa_context == nullptr) {
             LogWarn << "Zipline aim: no pipeline context to reset the pitch.";
             return false;
         }
-        const double reset_delta_deg =
-            kZiplinePitchMaximumElevationDeg + kZiplinePitchMaximumDepressionDeg + kZiplinePitchResetOvershootDeg;
-        const int units = static_cast<int>(std::lround(-reset_delta_deg * ctx_.action_wrapper->DefaultPitchUnitsPerDegree()));
         if (units == 0
             || !RunNodeAndReportHit(ctx_.maa_context, kZiplinePitchResetNode, kZiplinePitchResetNode, BuildPitchResetOverride(units))) {
             LogWarn << "Zipline aim: the pitch reset task did not complete." << VAR(kZiplinePitchResetNode) << VAR(units);
@@ -202,14 +205,10 @@ public:
     void FireLaunch() override
     {
         ctx_.motion_controller->SetForwardState(false);
-        ctx_.action_wrapper->ClickMouseLeftSync();
+        ctx_.action_wrapper->TriggerZiplineLaunchSync();
     }
 
-    void Dismount() override
-    {
-        ctx_.action_wrapper->MouseRightDownSync(kZiplineDismountHoldMs);
-        ctx_.action_wrapper->MouseRightUpSync(0);
-    }
+    void Dismount() override { ctx_.action_wrapper->TriggerZiplineDismountSync(kZiplineDismountHoldMs); }
 
     void Wait(int32_t ms) override { utils::SleepFor(ms); }
 

@@ -147,7 +147,7 @@
         "expected": [
             "拍摄念念家的桃树",
             "拍攝念念家的桃樹",
-            "(?i)Photo:\\s*Peach\\s*Tree\\s*at\\s*Babbles's\\s*Home",
+            "(?i)Photo:\\s*Peach\\s*Tree\\s*at\\s*Babbles.?s\\s*Home",
             "ネンネンの家にある桃の木の写真を撮る",
             "염념이네 복숭아나무를 촬영하기"
         ],

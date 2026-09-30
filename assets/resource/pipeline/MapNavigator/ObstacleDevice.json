@@ -33,7 +33,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 18 // Alt
+                "key": 18, // Alt
+                "auto_up": true
             }
         },
         "next": [
@@ -293,7 +294,7 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 300,
+        "post_delay": 600,
         "next": [
             "__MapNavigatorObstacleDevice_CancelMove"
         ]

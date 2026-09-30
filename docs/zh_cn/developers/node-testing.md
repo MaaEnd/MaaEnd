@@ -223,7 +223,9 @@ pnpm test
 
 当前仓库中的 `package.json` 会调用 `maa-tools test`，CI 也会执行同一条命令。
 
-测试日志默认输出到：
+`maa-tools test` 不启动 Agent，无法测试 Agent 提供的自定义识别。`MapLocateAssertLocation` 定位节点改用独立的 Python 执行器测试：运行 `pnpm test:map-locate`，或 `uv run python tests/MapLocateAssertLocation/map_locate.py`。CI 中对应的是 `map-locate-test` job。用例格式、样本要求和运行前提见[定位节点截图测试](../../../tests/MapLocateAssertLocation/README.md)。
+
+普通节点测试日志默认输出到：
 
 ```text
 tests/maatools/

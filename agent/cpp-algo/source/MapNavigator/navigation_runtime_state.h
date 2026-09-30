@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstddef>
+#include <deque>
 #include <limits>
 #include <optional>
 #include <string>
@@ -230,6 +231,16 @@ struct SteeringRateState
     double pending_turn_deg = 0.0;
     double pending_ref_heading_deg = 0.0;
 
+    // Sends still inside their own lifetime. The total above is held between zero and their sum, so a swallowed
+    // send expires on its own clock whatever is sent after it, in either direction.
+    struct InFlightTurn
+    {
+        double delta_deg = 0.0;
+        std::chrono::steady_clock::time_point sent_at {};
+    };
+
+    std::deque<InFlightTurn> in_flight;
+
     void Reset()
     {
         prev_heading_deg = 0.0;
@@ -243,6 +254,7 @@ struct SteeringRateState
         turn_latch_sign = 0;
         pending_turn_deg = 0.0;
         pending_ref_heading_deg = 0.0;
+        in_flight.clear();
     }
 };
 
@@ -274,6 +286,9 @@ struct OffRouteWedgeState
         }
         const auto blind = now - blind_since;
         since += blind;
+        if (last_replan_at != std::chrono::steady_clock::time_point {}) {
+            last_replan_at += blind;
+        }
         blind_since = {};
         return std::chrono::duration_cast<std::chrono::milliseconds>(blind).count();
     }

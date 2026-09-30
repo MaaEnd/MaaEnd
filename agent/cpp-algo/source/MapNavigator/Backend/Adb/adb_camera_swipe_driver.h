@@ -23,10 +23,11 @@ struct AdbCameraSwipeDriverConfig
 
     int turn_swipe_duration_ms = kAdbTouchTurnProfile.swipe_duration_ms;
 
-    int touch_down_hold_ms = 8;
+    // 游戏逐帧采样触点, 与按下或抬起同帧的位移会整步丢失; 两端停留要盖过负载高时的一帧
+    int touch_down_hold_ms = 100;
     int move_steps = 6;
     int move_step_delay_ms = 10;
-    int end_hold_ms = 30;
+    int end_hold_ms = 100;
 
     int post_swipe_settle_ms = kAdbTouchTurnProfile.post_swipe_settle_ms;
 };
@@ -50,8 +51,8 @@ private:
     };
 
     std::optional<ScreenGeometry> GetScreenGeometry() const;
-    bool ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx) const;
-    bool ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx) const;
+    bool ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
+    bool ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
     bool PostTouchDown(const cv::Point& point) const;
     bool PostTouchMove(const cv::Point& point) const;
     bool PostTouchUp() const;

@@ -26,7 +26,8 @@
         "rate_limit": 0,
         "next": [
             "AltClickProtosyncMenuButtonClick"
-        ]
+        ],
+        "auto_up": true
     },
     "AltClickProtosyncMenuButtonClick": {
         "desc": "使用 Alt + 点击大世界中的协议同步器按钮（单击）",

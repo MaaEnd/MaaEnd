@@ -122,7 +122,7 @@ enum class MountVerdict
     Unclear,
 };
 
-// 一帧观测。fix 只在定位到且不是 held 时有值, 朝向就是 fix 的角度
+// 一帧观测。fix 只在定位到、不是 held 且所选朝向有效时有值，朝向就是 fix 的角度。
 struct ZiplineObservation
 {
     std::optional<NaviPosition> fix;

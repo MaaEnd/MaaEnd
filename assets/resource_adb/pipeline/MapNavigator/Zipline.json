@@ -1,0 +1,68 @@
+{
+    "MapNavigatorZiplineMountScan": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    330,
+                    352,
+                    312
+                ],
+                "template": "MapNavigator/Zipline/InteractButton.png",
+                "threshold": 0.75
+            }
+        }
+    },
+    "MapNavigatorZiplineOnTowerHint": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    500,
+                                    588,
+                                    660,
+                                    58
+                                ],
+                                "expected": [
+                                    // "左右滑动屏幕选择前进目标" "向目标移动"
+                                    // @i18n-skip
+                                    "滑动屏幕",
+                                    "选择前进",
+                                    "前进目标",
+                                    "向目标",
+                                    "目标移动"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    1040,
+                                    606,
+                                    120,
+                                    38
+                                ],
+                                "expected": [
+                                    // "向目标移动"
+                                    // @i18n-skip
+                                    "向目标",
+                                    "目标移动"
+                                ],
+                                "only_rec": true
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

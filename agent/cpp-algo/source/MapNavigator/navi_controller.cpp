@@ -80,7 +80,7 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     NaviParam param = requested_param;
 
     ActionWrapper action_wrapper(ctx_);
-    PositionProvider position_provider(action_wrapper.GetCtrl(), maplocator::getOrInitLocator());
+    PositionProvider position_provider(action_wrapper.GetCtrl(), maplocator::getOrInitLocator(), param.heading_source);
     position_provider.ResetTracking();
     if (param.normalize_position_via_navmesh) {
         position_provider.SetPositionNormalizer([&param](NaviPosition& pos) { NormalizeLivePositionToBase(param, pos); });
@@ -92,13 +92,6 @@ bool NaviController::Navigate(const NaviParam& requested_param)
         const char* unsupported_reason = action_wrapper.unsupported_reason();
         LogError << "MapNavigator controller backend is unsupported." << VAR(controller_type) << VAR(unsupported_reason);
         return false;
-    }
-
-    // 触屏后端没有独立的鼠标左右键: 起滑那一下会打出攻击, 下索那一下会变成冲刺。
-    // 站在架子上做不成这两件事, 所以这类后端一律纯走路。
-    if (uses_touch_backend && param.zipline_enabled) {
-        LogWarn << "Zipline disabled: this backend has no mouse buttons to aim and launch with." << VAR(controller_type);
-        param.zipline_enabled = false;
     }
 
     const auto is_stopping = [&]() {

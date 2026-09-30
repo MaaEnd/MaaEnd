@@ -15,8 +15,8 @@ class IZiplineObserver
 {
 public:
     virtual ~IZiplineObserver() = default;
-    virtual ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes) = 0;
-    // 判定角色在架上还是在地面。仅在上索确认期间调用: 一次调用要跑识别, 开销高于一帧定位
+    virtual ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes, bool force_global_search) = 0;
+    // 判定角色在架上还是在地面。仅在上索与下索确认期间调用: 一次调用要跑识别, 开销高于一帧定位
     virtual MountVerdict CheckMounted() = 0;
     virtual void ResetTracking() = 0;
 };
@@ -89,7 +89,7 @@ private:
     StageResult TickRiding(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult TickLanded(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult Classify(IZiplineObserver& observer, IZiplineActuator& actuator, Clock::time_point now);
-    StageResult TickDismounting(const ZiplineObservation& obs, IZiplineActuator& actuator);
+    StageResult TickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult FailAim(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
     StageResult StartDismount(IZiplineActuator& actuator, StageResult exit, Clock::time_point now);
     StageResult Handoff(Clock::time_point now);

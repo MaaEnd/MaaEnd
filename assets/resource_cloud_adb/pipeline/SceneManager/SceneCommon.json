@@ -13,7 +13,8 @@
                 "any_of": [
                     "CloseButtonType1",
                     "ProtosyncMenuButton",
-                    "BackButton"
+                    "BackButton",
+                    "__ScenePrivateCloudBackPill"
                 ]
             }
         },
@@ -31,5 +32,25 @@
             }
         },
         "post_delay": 600
+    },
+    // 面板右上角「← 返回」胶囊（如售卖弹性物资的好友价格页）：本地 ADB 靠 BACK 键退出，云终末地只能点它
+    // 复用 AutoSell 的安卓模板，只取识别框，点击由 __ScenePrivateAnyExit 负责
+    "__ScenePrivateCloudBackPill": {
+        "desc": "云终末地：面板右上角「← 返回」胶囊按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    900,
+                    0,
+                    380,
+                    187
+                ],
+                "template": [
+                    "AutoSell/FriendsPricesBack.png"
+                ],
+                "threshold": 0.8
+            }
+        }
     }
 }

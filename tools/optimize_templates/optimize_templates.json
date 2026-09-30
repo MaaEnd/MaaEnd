@@ -2152,7 +2152,7 @@
     "resource/image/UI/Item/item_activity_xiranite_box": "1572e6db1513b875505a22c8c776a724d69739b275709e942ae65b8915d96f0d",
     "resource/image/UI/Item/item_gift_tundra_2": "36f3eca33e3771b062d5a4c3ecde227e13e5ae5883ef61cb5c4e90c22900bf0a",
     "resource/image/UI/Item/item_bottled_food_1": "d60dd246fe7c1a609412a8110f3859bc92c3f8d04f47206de12132ef0d08d427",
-    "resource/image/UI/Item/wpn_funnel_0010": "3baf36adca0477c38615d3cefebba37a8258456e834d45f8da348c9261bfeb3d",
+    "resource/image/UI/Item/wpn_funnel_0010": "f69ef060ad2e85da3040337c4aa029ce901aa534a04fdbf13216dfc074af62a4",
     "resource/image/UI/Item/item_case_wpn_selfselect_gahca_c_2": "53ee39ab2930ad405b38ca72a93c6c7446a0e8efb789ed17691ba0bdb65a6663",
     "resource/image/UI/Item/item_gacha_introletter_1_4_1": "f05b8c9c7a84935a17df2c1dfbfd3da375a961aeb09383820f2229c04ed792b1",
     "resource/image/UI/Item/item_case_bp_random_3": "565e06ab95b56c0683882265c2758923637ff9cb01b3d264519dc94301b31109",
@@ -2315,7 +2315,7 @@
     "resource/image/UI/Item/item_plant_moss_enr_powder_1": "eb38eb069af857c3d46562f27619d745cf9496a4433cb05e9687f9a119a152df",
     "resource/image/UI/Item/item_weekraid_key_8_d": "c0345a7bc5a3821967eaebc8092adfb37b3378fc672e5141961a8fa1ddf055a0",
     "resource/image/UI/Item/item_spaceship_exhibits_shanshantu": "09cadc5be0811681dae1489bd62bc384cfe33a1c06c67ef120e19548720c24d5",
-    "resource/image/UI/Item/wpn_funnel_0008": "f69ef060ad2e85da3040337c4aa029ce901aa534a04fdbf13216dfc074af62a4",
+    "resource/image/UI/Item/wpn_funnel_0008": "3baf36adca0477c38615d3cefebba37a8258456e834d45f8da348c9261bfeb3d",
     "resource/image/UI/Item/item_case_wpn_selfselect_bp_3": "e99ee7660aff23f069e4a5e697bbc0870f46270a8674531a893831b0fb485503",
     "resource/image/UI/Item/wpn_claym_0012": "8f12439b41f27eaf63c22d513c5e3c8f5574c5dab932ad12fb67b8693c183671",
     "resource/image/UI/Item/ticketgacha_special_single_lt_1_4_2": "7b0ea26a04ee5c482969e1439ad364f686b2c44f0b63b7b830f449fcc688bef2",
@@ -2342,5 +2342,8 @@
     "resource/image/SharedZiplineDelete/MapSharedZipLine": "f64337b650ab7e6b4158547ff37a830b78ff617e5b751f2ead06399db048166d",
     "resource/image/SeizeDeliveryJobs/DepotNodePage/ValleyIVToken": "6c9c901fb5e7e29f550f95bc6177b32f8f278ac90ee90c5ae515dc2c05617c8d",
     "resource/image/Common/Button/EndChallengeButton": "d11458035b1cd25788586aa89347702326ea1f7b63b3795ace07051fb58ca59e",
-    "resource/image/GiftOperator/Operators/Purrchena": "89c25d2fbbfea9795c6d1ef434904427b80ef08ac9281fe9007e969e5eecd115"
+    "resource/image/GiftOperator/Operators/Purrchena": "89c25d2fbbfea9795c6d1ef434904427b80ef08ac9281fe9007e969e5eecd115",
+    "resource/image/IconRecognition/Big/5/item_char_skill_crown": "74e13a7b570e9da9129e6c27b69006b9de74572cf9a28a567c696e22d0cd3ffc",
+    "resource/image/IconRecognition/Big/6/item_case_wpn_selfselect_bp_2": "13e07a696228b9a6673971d3eebb563a20cd6a04606bd05685f7f4c1c4c6181e",
+    "resource/image/AutoEssence/EssenceRecycle": "892d6ac1612704d16c1ab111aa48d2eba42d60da8dc675714a5df29f3c465993"
 }
