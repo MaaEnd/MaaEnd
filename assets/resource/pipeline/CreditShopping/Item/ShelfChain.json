@@ -1,0 +1,499 @@
+{
+    "CreditShoppingPriority1Item": {
+        "desc": "优先购买1物品模板。预写为信用点商店全部可购物品；attach 初始化会改写 template",
+        "recognition": "TemplateMatch",
+        "roi": [
+            70,
+            95,
+            1140,
+            415
+        ],
+        "template": [
+            "CreditShopping/Item/item_weapon_expcard_low.png",
+            "CreditShopping/Item/item_weapon_expcard_mid.png",
+            "CreditShopping/Item/item_gachabyproducts_weapongold.png",
+            "CreditShopping/Item/item_weapon_break_low.png",
+            "CreditShopping/Item/item_expcard_stage2_low.png",
+            "CreditShopping/Item/item_expcard_2_1.png",
+            "CreditShopping/Item/item_weapon_break_high.png",
+            "CreditShopping/Item/item_expcard_2_2.png",
+            "CreditShopping/Item/item_diamond.png",
+            "CreditShopping/Item/item_char_break_stage_1_2.png",
+            "CreditShopping/Item/item_char_skill_level_1_6.png",
+            "CreditShopping/Item/item_char_skill_level_7_12.png",
+            "CreditShopping/Item/item_char_break_stage_3_4.png",
+            "CreditShopping/Item/item_gold.png"
+        ],
+        "threshold": 0.7,
+        "green_mask": true,
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority2Item": {
+        "desc": "优先购买2物品模板。预写为信用点商店全部可购物品；attach 初始化会改写 template",
+        "recognition": "TemplateMatch",
+        "roi": [
+            70,
+            95,
+            1140,
+            415
+        ],
+        "template": [
+            "CreditShopping/Item/item_weapon_expcard_low.png",
+            "CreditShopping/Item/item_weapon_expcard_mid.png",
+            "CreditShopping/Item/item_gachabyproducts_weapongold.png",
+            "CreditShopping/Item/item_weapon_break_low.png",
+            "CreditShopping/Item/item_expcard_stage2_low.png",
+            "CreditShopping/Item/item_expcard_2_1.png",
+            "CreditShopping/Item/item_weapon_break_high.png",
+            "CreditShopping/Item/item_expcard_2_2.png",
+            "CreditShopping/Item/item_diamond.png",
+            "CreditShopping/Item/item_char_break_stage_1_2.png",
+            "CreditShopping/Item/item_char_skill_level_1_6.png",
+            "CreditShopping/Item/item_char_skill_level_7_12.png",
+            "CreditShopping/Item/item_char_break_stage_3_4.png",
+            "CreditShopping/Item/item_gold.png"
+        ],
+        "threshold": 0.7,
+        "green_mask": true,
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3Item": {
+        "desc": "优先购买3物品模板。预写为信用点商店全部可购物品；attach 初始化会改写 template",
+        "recognition": "TemplateMatch",
+        "roi": [
+            70,
+            95,
+            1140,
+            415
+        ],
+        "template": [
+            "CreditShopping/Item/item_weapon_expcard_low.png",
+            "CreditShopping/Item/item_weapon_expcard_mid.png",
+            "CreditShopping/Item/item_gachabyproducts_weapongold.png",
+            "CreditShopping/Item/item_weapon_break_low.png",
+            "CreditShopping/Item/item_expcard_stage2_low.png",
+            "CreditShopping/Item/item_expcard_2_1.png",
+            "CreditShopping/Item/item_weapon_break_high.png",
+            "CreditShopping/Item/item_expcard_2_2.png",
+            "CreditShopping/Item/item_diamond.png",
+            "CreditShopping/Item/item_char_break_stage_1_2.png",
+            "CreditShopping/Item/item_char_skill_level_1_6.png",
+            "CreditShopping/Item/item_char_skill_level_7_12.png",
+            "CreditShopping/Item/item_char_break_stage_3_4.png",
+            "CreditShopping/Item/item_gold.png"
+        ],
+        "threshold": 0.7,
+        "green_mask": true,
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingShelfAnyItem": {
+        "desc": "任意可买物品模板。不读购买白名单",
+        "recognition": "TemplateMatch",
+        "roi": [
+            70,
+            95,
+            1140,
+            415
+        ],
+        "template": [
+            "CreditShopping/Item/item_weapon_expcard_low.png",
+            "CreditShopping/Item/item_weapon_expcard_mid.png",
+            "CreditShopping/Item/item_gachabyproducts_weapongold.png",
+            "CreditShopping/Item/item_weapon_break_low.png",
+            "CreditShopping/Item/item_expcard_stage2_low.png",
+            "CreditShopping/Item/item_expcard_2_1.png",
+            "CreditShopping/Item/item_expcard_2_2.png",
+            "CreditShopping/Item/item_weapon_break_high.png",
+            "CreditShopping/Item/item_diamond.png",
+            "CreditShopping/Item/item_char_break_stage_1_2.png",
+            "CreditShopping/Item/item_char_skill_level_1_6.png",
+            "CreditShopping/Item/item_char_skill_level_7_12.png",
+            "CreditShopping/Item/item_char_break_stage_3_4.png",
+            "CreditShopping/Item/item_gold.png"
+        ],
+        "threshold": 0.7,
+        "green_mask": true,
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority1Discount": {
+        "desc": "优先购买1折扣。相对买得起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority1CanAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority2Discount": {
+        "desc": "优先购买2折扣。相对买得起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority2CanAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3Discount": {
+        "desc": "优先购买3折扣。相对买得起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority3CanAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority1DiscountCannotAfford": {
+        "desc": "优先购买1买不起时的折扣。相对买不起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority1CanNotAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority2DiscountCannotAfford": {
+        "desc": "优先购买2买不起时的折扣。相对买不起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority2CanNotAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3DiscountCannotAfford": {
+        "desc": "优先购买3买不起时的折扣。相对买不起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority3CanNotAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority1CanAfford": {
+        "desc": "优先购买1买得起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority1NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            70
+        ],
+        "upper": [
+            0,
+            2,
+            150
+        ],
+        "count": 30,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority2CanAfford": {
+        "desc": "优先购买2买得起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority2NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            70
+        ],
+        "upper": [
+            0,
+            2,
+            150
+        ],
+        "count": 30,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3CanAfford": {
+        "desc": "优先购买3买得起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority3NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            70
+        ],
+        "upper": [
+            0,
+            2,
+            150
+        ],
+        "count": 30,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority1CanNotAfford": {
+        "desc": "优先购买1买不起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority1NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "lower": [
+            200,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            150,
+            150
+        ],
+        "count": 20,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority2CanNotAfford": {
+        "desc": "优先购买2买不起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority2NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "lower": [
+            200,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            150,
+            150
+        ],
+        "count": 20,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3CanNotAfford": {
+        "desc": "优先购买3买不起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority3NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "lower": [
+            200,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            150,
+            150
+        ],
+        "count": 20,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority1NotSoldOut": {
+        "desc": "优先购买1未售罄。识别框与物品模板相同，不偏移",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority1Item",
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 1200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority2NotSoldOut": {
+        "desc": "优先购买2未售罄。识别框与物品模板相同，不偏移",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority2Item",
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 1200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingPriority3NotSoldOut": {
+        "desc": "优先购买3未售罄。识别框与物品模板相同，不偏移",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority3Item",
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 1200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingShelfAnyCanAfford": {
+        "desc": "任意物品买得起。相对未售罄框，偏移与三档购买相同",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingShelfAnyNotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            70
+        ],
+        "upper": [
+            0,
+            2,
+            150
+        ],
+        "count": 30,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CreditShoppingShelfAnyNotSoldOut": {
+        "desc": "任意物品未售罄。识别框与物品模板相同，不偏移",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingShelfAnyItem",
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 1200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

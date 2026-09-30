@@ -1,21 +1,20 @@
 {
     "CreditShoppingBuyPriority1": {
-        "desc": "优先购买1（选项：优先购买物品、折扣设置、是否检测信用点阈值）",
+        "desc": "优先购买1（选项：优先购买物品、折扣设置、是否检测信用点阈值）。点击物品图标格中心",
         "recognition": "And",
         "all_of": [
-            "CreditIcon",
-            "NotSoldOut",
-            "CanAfford",
-            "BuyFirstOCR_Expected",
-            "IsDiscountPriority1",
+            "CreditShoppingPriority1Item",
+            "CreditShoppingPriority1NotSoldOut",
+            "CreditShoppingPriority1CanAfford",
+            "CreditShoppingPriority1Discount",
             "CreditShoppingPriority1ReserveCreditGate"
         ],
-        "box_index": 4,
+        "box_index": 0,
         "pre_wait_freezes": 100,
         "action": "Click",
         "target_offset": [
-            -30,
-            70,
+            0,
+            0,
             0,
             0
         ],
@@ -25,22 +24,21 @@
         ]
     },
     "CreditShoppingBuyPriority2": {
-        "desc": "优先购买2（选项：普通购买3物品、折扣设置、是否检测信用点阈值）",
+        "desc": "优先购买2（选项：普通购买3物品、折扣设置、是否检测信用点阈值）。点击物品图标格中心",
         "recognition": "And",
         "all_of": [
-            "CreditIcon",
-            "NotSoldOut",
-            "CanAfford",
-            "Priority2OCR_Expected",
-            "IsDiscountPriority2",
+            "CreditShoppingPriority2Item",
+            "CreditShoppingPriority2NotSoldOut",
+            "CreditShoppingPriority2CanAfford",
+            "CreditShoppingPriority2Discount",
             "CreditShoppingPriority2ReserveCreditGate"
         ],
-        "box_index": 4,
+        "box_index": 0,
         "pre_wait_freezes": 100,
         "action": "Click",
         "target_offset": [
-            -30,
-            70,
+            0,
+            0,
             0,
             0
         ],
@@ -50,22 +48,21 @@
         ]
     },
     "CreditShoppingBuyPriority3": {
-        "desc": "优先购买3（选项：优先购买3物品、折扣设置、是否检测信用点阈值）",
+        "desc": "优先购买3（选项：优先购买3物品、折扣设置、是否检测信用点阈值）。点击物品图标格中心",
         "recognition": "And",
         "all_of": [
-            "CreditIcon",
-            "NotSoldOut",
-            "CanAfford",
-            "Priority3OCR_Expected",
-            "IsDiscountPriority3",
+            "CreditShoppingPriority3Item",
+            "CreditShoppingPriority3NotSoldOut",
+            "CreditShoppingPriority3CanAfford",
+            "CreditShoppingPriority3Discount",
             "CreditShoppingPriority3ReserveCreditGate"
         ],
-        "box_index": 4,
+        "box_index": 0,
         "pre_wait_freezes": 100,
         "action": "Click",
         "target_offset": [
-            -30,
-            70,
+            0,
+            0,
             0,
             0
         ],
@@ -78,13 +75,19 @@
         "desc": "强制购买剩余可购物品（选项：购买选项均未命中时操作=购买任意物品）",
         "recognition": "And",
         "all_of": [
-            "CreditIcon",
-            "NotSoldOut",
-            "CanAfford"
+            "CreditShoppingShelfAnyItem",
+            "CreditShoppingShelfAnyNotSoldOut",
+            "CreditShoppingShelfAnyCanAfford"
         ],
-        "box_index": 2,
+        "box_index": 0,
         "pre_wait_freezes": 100,
         "action": "Click",
+        "target_offset": [
+            0,
+            0,
+            0,
+            0
+        ],
         "next": [
             "CreditShoppingBuyItemBelowReserve",
             "CreditShoppingBuyFailed",
@@ -108,19 +111,9 @@
                             }
                         }
                     },
-                    {
-                        "recognition": {
-                            "type": "And",
-                            "param": {
-                                "all_of": [
-                                    "CreditIcon",
-                                    "NotSoldOut",
-                                    "CanAfford"
-                                ],
-                                "box_index": 2
-                            }
-                        }
-                    }
+                    "CreditShoppingShelfAnyItem",
+                    "CreditShoppingShelfAnyNotSoldOut",
+                    "CreditShoppingShelfAnyCanAfford"
                 ],
                 "box_index": 1
             }
@@ -145,19 +138,9 @@
             "param": {
                 "all_of": [
                     "RefreshUsedUp",
-                    {
-                        "recognition": {
-                            "type": "And",
-                            "param": {
-                                "all_of": [
-                                    "CreditIcon",
-                                    "NotSoldOut",
-                                    "CanAfford"
-                                ],
-                                "box_index": 2
-                            }
-                        }
-                    }
+                    "CreditShoppingShelfAnyItem",
+                    "CreditShoppingShelfAnyNotSoldOut",
+                    "CreditShoppingShelfAnyCanAfford"
                 ],
                 "box_index": 1
             }
