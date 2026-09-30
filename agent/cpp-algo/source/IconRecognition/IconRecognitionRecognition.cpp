@@ -11,6 +11,7 @@
 #include <meojson/json.hpp>
 
 #include "../utils.h"
+#include "CandidateAttach.h"
 #include "IconRecognizer.h"
 #include "detail/DebugCapture.h"
 #include "detail/GridProfiles.h"
@@ -199,6 +200,9 @@ MaaBool MAA_CALL IconRecognitionRun(
         request.grid_type = *parsed_grid_type;
         request.roi = cv::Rect(roi->x, roi->y, roi->width, roi->height);
         request.candidates = ReadCandidates(object);
+        if (const auto attach = TryReadNodeAttach(context, node_name)) {
+            MergeAttachIntoCandidates(request.candidates, *attach);
+        }
         request.grid_scale_hint = detail::GridScaleForControllerType(ControllerTypeFromContext(context));
         request.threshold = ReadDouble(object, "threshold", request.threshold);
         request.subpixel_threshold = ReadDouble(object, "subpixel_threshold", request.subpixel_threshold);

@@ -221,6 +221,18 @@ Valid `categoryType` values by storage kind:
 
 Wildcard forms include `Normal:*`, `ValuableDepot:*`, and `Isolate:*`. The wildcard is supported only for `categoryType`; `*:Ore` is not valid.
 
+### Node `attach` (union with `custom_recognition_param`)
+
+After parsing `custom_recognition_param`, the Custom entry reads the merged node `attach` through `MaaContextGetNodeData` (task options, `pipeline_override`, and so on) and **unions** it with the param candidate fields:
+
+- Keys that are catalog **item IDs** (for example `item_copper_ore`): `true` or a non-empty string enables that ID from attach; `false`, an empty string, an empty array, or omission means attach does not enable it.
+- Keys in **`storageKind:categoryType` form** (for example `Normal:Product`): `true` enables that category from attach; merged values are appended to `additional_item_filters` and combine with param `item_filters` / `item_ids` with OR semantics.
+- A candidate is disabled only when **neither** param nor attach enables it; `false` on attach does not remove an ID already listed in param `item_ids`.
+
+Attach keys used by other Custom components (`ready`, `visited`, `scrollbar_*`, `zip`, and similar) are ignored so they are not treated as item IDs.
+
+Go Service calls through `RunRecognitionDirect` do not read Pipeline node attach automatically; merge params in Go first if you need the same behavior there.
+
 ## Results and the Pipeline hit box
 
 `RecognitionResult` and Custom detail use the same structure:

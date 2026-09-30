@@ -221,6 +221,18 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 
 通配写法如 `Normal:*`、`ValuableDepot:*`、`Isolate:*`。通配符只用于 `categoryType`，不支持 `*:Ore`。
 
+### 节点 `attach`（与 `custom_recognition_param` 并集）
+
+Custom 入口在解析 `custom_recognition_param` 之后，会通过 `MaaContextGetNodeData` 读取当前节点上已合并的 `attach`（任务选项、`pipeline_override` 等写入的内容），并与 param 中的候选条件取**并集**：
+
+- 键名为 catalog 顶层 **物品 ID**（如 `item_copper_ore`）：`true` 或非空字符串表示从 attach 启用该 ID；`false`、空字符串、空数组或省略表示 attach 侧不启用。
+- 键名为 **`storageKind:categoryType` 分类**（如 `Normal:Product`）：`true` 表示从 attach 启用该分类；合并结果写入 `additional_item_filters`，与 param 里已有的 `item_filters` / `item_ids` 按 OR 语义叠加。
+- 仅当 param 与 attach **两侧都未启用**某物品或分类时，该候选才不参与识别；attach 中的 `false` 不会取消 param 里已声明的 `item_ids`。
+
+`ready`、`visited`、`scrollbar_*`、`zip` 等其它 Custom 组件使用的 attach 键会被忽略，避免误当成物品 ID。
+
+Go Service 通过 `RunRecognitionDirect` 调用时不会自动读取 Pipeline 节点 attach；若需要在 Go 侧复用相同语义，应在调用前自行合并参数。
+
 ## 返回值与 Pipeline 命中框
 
 `RecognitionResult` 与 Custom detail 使用相同结构：

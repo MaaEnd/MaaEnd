@@ -1,5 +1,6 @@
 #ifdef ICON_RECOGNITION_TEST_MAIN
 
+#include "../CandidateAttach.h"
 #include "../IconRecognizer.h"
 #include "../detail/CandidateSelector.h"
 #include "../detail/EdgeOcclusion.h"
@@ -713,6 +714,33 @@ void TestCatalogConcurrentLoadIsStable()
     Check(counts[0] == catalog.records().size() && counts[1] == catalog.records().size(), "concurrent catalog load must be complete");
 }
 
+void TestAttachCandidatesMergeWithCustomParamInOrMode()
+{
+    CandidateFilter candidates;
+    candidates.item_ids = { "from_param" };
+    candidates.item_filters = { "Normal:Ore" };
+
+    const json::object attach {
+        { "from_attach", true },
+        { "from_param", false },
+        { "disabled_attach", false },
+        { "empty_attach", "" },
+        { "Normal:Product", true },
+        { "ready", true },
+    };
+    MergeAttachIntoCandidates(candidates, attach);
+
+    Check(
+        candidates.item_ids == std::vector<std::string>({ "from_param", "from_attach" }),
+        "attach must union enabled item_ids with custom param without removing param-only ids");
+    Check(
+        candidates.item_filters == std::vector<std::string>({ "Normal:Ore" }),
+        "attach must not alter existing item_filters");
+    Check(
+        candidates.additional_item_filters == std::vector<std::string>({ "Normal:Product" }),
+        "attach group keys must merge as additional_item_filters");
+}
+
 } // namespace
 
 int main()
@@ -752,6 +780,7 @@ int main()
         TestCatalogUsesGameSortOrderBeforeItemId();
         TestCatalogRejectsNonBooleanRegionRestricted();
         TestCatalogConcurrentLoadIsStable();
+        TestAttachCandidatesMergeWithCustomParamInOrMode();
         std::cout << "IconRecognition small algorithm tests passed\n";
         return 0;
     }
