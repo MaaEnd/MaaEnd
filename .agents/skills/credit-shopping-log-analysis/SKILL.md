@@ -27,7 +27,7 @@ description: 分析 MaaEnd `CreditShoppingMain` 的日志。用于还原信用�
 
 1. `maafw.log`（最新会话）
 2. `maafw.bak.*.log`（若任务发生在之前的会话）
-3. **`CreditIcon`（`TemplateMatcher`）**：货架**槽位与排位**的锚；每次出现即对应一份槽位级货架（ADB 可能为半份后再合并）。
+3. **`CreditIcon`（`TemplateMatcher`）**：货架**槽位与排位**的锚；每次出现即对应一份槽位级货架（ADB / Win32 通常同一心跳内为一整份 10 格，排版可为上五下五或上七下三）。
 4. `go-service.log`（信用点 OCR 数值、表达式求值）
 5. `mxu-web-YYYY-MM-DD.log`（前端下发的 pipelineOverride，含开关配置）
 
@@ -96,9 +96,7 @@ OCRer.*IsDiscountPriority2
 
 #### 货架的判定来源（权威顺序）
 
-1. **槽位与排位（必须）**：同一 `task_id` 下，只要在日志中出现 **`CreditIcon`** 的 `TemplateMatch`（搜索 `TemplateMatcher.*CreditIcon` 或带 `"name":"CreditIcon"` 的识别结果），即视为该次扫描有一份**货架骨架**。
-    - **非 ADB**：同一帧/同一心跳内通常为**一整份**槽位（`all_results_` 中每个 box 为一格）。
-    - **ADB**：可能仅为**半份**（例如先上半再下半）；须标注「半份」，并按下文 ADB 规则与相邻采集合并后再写「满架」结论。
+1. **槽位与排位（必须）**：同一 `task_id` 下，只要在日志中出现 **`CreditIcon`** 的 `TemplateMatch`（搜索 `TemplateMatcher.*CreditIcon` 或带 `"name":"CreditIcon"` 的识别结果），即视为该次扫描有一份**货架骨架**。同一帧/同一心跳内通常为**一整份**槽位（`all_results_` 中每个 box 为一格）；ADB 与 Win32 仅 y 带分布不同（上五下五 vs 上七下三），**不要**跨帧合并两屏。
 2. **商品名（可选叠加）**：若**同一扫描时刻**存在 `BuyFirstOCR` / `Priority2OCR` 的 `all_results_`，可将其中 `"text"` 按列对齐叠到槽位上。
 3. **禁止臆造名字**：若某帧**没有**名字 OCR 的 `all_results_`（或 `all_results_` 为空），**不得**用上一轮/下一轮的名称、也不得凭推测填写商品名；必须明确写 **「本帧无商品名 OCR」** 或 **「仅槽位」**。
 
@@ -145,7 +143,7 @@ ColorMatcher.*BuyFirstOCRTextColor
 - 没有跑出 `BuyFirstOCR` / `Priority2OCR` 名字列表，或列表为空
 - 或者只识别出上排、下排中的一部分
 
-**仍须先根据 `CreditIcon`（及可用的半份/合并规则）写出槽位级货架**；其中「无名字」不等于「无货架」。
+**仍须先根据 `CreditIcon` 写出槽位级货架**；其中「无名字」不等于「无货架」。
 
 若槽位数明显异常（例如远少于 9 且无法用买空解释）、或动画中间帧导致 `CreditIcon` 不稳定，该帧可标为**异常中间态 / 不稳定货架**，**不能**单独当作“本次刷新后的最终完整商店”，应继续在同一轮刷新窗口内找下一帧 `CreditIcon` 佐证。
 
@@ -168,21 +166,6 @@ ColorMatcher.*BuyFirstOCRTextColor
 3. 若仅有 **部分槽位**（例如远少于 9）且不满足买空解释 → 标为 **异常帧**，并在同一轮刷新内向后找补充 `CreditIcon` 帧。
 4. 查找「刷新后完整 10 槽位」时，**不得跨过**下一次 `RefreshItem` 的 `Node.Action.Succeeded`。
 5. 若直到下一次刷新点击仍无法得到稳定 10 槽位 `CreditIcon`，如实说明；若仅有槽位而无名字，同样如实说明，**不要用猜测的商品名补全**。
-
-#### ADB 特例：分两次识别上下半货架
-
-部分 ADB 场景下，日志/截图可能无法在同一帧内拿到完整两排：
-
-- 第一次识别只覆盖上半部分
-- 滑动后才出现下半部分
-
-这类情况允许按**两次采集后合并**来还原单次货架：
-
-1. **槽位**：合并后宜达到 **10 个 `CreditIcon` 槽位**（半份须标注，合并后再计数）。
-2. **名字**：若两次采集均无名字 OCR，合并结果仍为**有效槽位货架**，名称列填「未识别」；**不得编造**。若仅部分采集有名字，只填写有日志证据的列。
-3. 必须说明「该货架由上下半（或两次心跳）合并得到」。
-4. 合并范围必须限制在**同一轮刷新、且下一次 `RefreshItem` 点击之前**。
-5. 合并后仍不足 10 槽位 → **不完整货架**，须标注并继续在同一刷新窗口内找下一帧佐证。
 
 ### 4. 还原实际购买
 
@@ -367,7 +350,7 @@ ExpressionRecognition.*CreditShoppingReserveCreditOCRInternal
 - “完整刷新后的槽位快照”默认 **10 个 `CreditIcon` 槽位**；“完整命名货架”另行要求 10 个可对齐的名字（缺失则如实写无名列）。
 - “购买后中间快照”允许 **9 槽位** `CreditIcon`；若能对齐刚购列，判定为正常买空而非异常。
 - 查找某次刷新后的完整槽位时，不得跨过下一次 `RefreshItem` 的 `Node.Action.Succeeded`。
-- ADB 允许按“上半 + 下半”合并；合并后宜达到 **10 槽位 `CreditIcon`**；名字可为空或部分，**不得编造**。
+- ADB 与 Win32 均按**单次** `CreditIcon` 识别结果描述槽位；不足 10 格时在**同一刷新窗口内**向后找下一帧佐证，**不得**跨帧拼接两屏冒充满架。
 - 判断“缺的是哪一格/是否漏识别”时，以 **`CreditIcon` 格数变化 + 列序** 为主，辅以 `NotSoldOut`、名字 OCR（若有）。
 - 折扣结论必须来自 `IsDiscountPriority2` OCR 的 `all_results_` 对比，而非猜测。
 - 信用点数值若出现非预期跳变（如购买后反升），标注 ⚠️ 并说明可能原因，不要强行解释为"获得了信用"。
@@ -376,7 +359,7 @@ ExpressionRecognition.*CreditShoppingReserveCreditOCRInternal
 ### 防幻觉（禁止编造）
 
 - **商品名**只能来自日志里出现的货架 OCR `text`、A3 Focus「获得 xxx ×n」、或其它明确字段，不得用常识、上一轮货架或用户口述代替。
-- **槽位**只能来自日志里的 `CreditIcon`（及 ADB 合并规则）；不得仅凭“应该有 10 格”臆造格数。
+- **槽位**只能来自日志里**单次** `CreditIcon` 的 `all_results_` / `filtered_results_`；不得仅凭“应该有 10 格”臆造格数，也不得跨帧合并。
 - 区分三件事并分开写：**槽位货架**（必有若跑了 `CreditIcon`）、**命名叠加**（可有可无）、**折扣数字**（须单独引用 `IsDiscountPriority2`，勿与名称混为一谈）。
 
 ### 防止注意力丢失（执行本 Skill 时的自检清单）
