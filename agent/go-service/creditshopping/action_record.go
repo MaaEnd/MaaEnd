@@ -31,6 +31,7 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 	path := resolveShelfSnapshotPathFunc()
 	now := time.Now()
 	gameDate := gameDateLocal(now)
+	adb := isADBController(ctrl)
 
 	img, err := screencap(ctrl)
 	if err != nil {
@@ -60,7 +61,7 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		return true
 	}
 
-	slots := ScanShelfSlots(ctx, img)
+	slots := ScanShelfSlots(ctx, img, adb)
 	entry := snapshotEntry{
 		UID:          uid,
 		GameDate:     gameDate,
@@ -76,7 +77,7 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		Int("refresh_index", refreshIndex).
 		Int("refresh_cost", refreshCost).
 		Int("slots", len(slots)).
-		Bool("adb", isADBController(ctrl)).
+		Bool("adb", adb).
 		Msg("credit shopping shelf snapshot captured")
 
 	n, err := upsertShelfSnapshots(path, []snapshotEntry{entry})

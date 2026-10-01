@@ -66,13 +66,15 @@ func scanShelfNameHits(ctx *maa.Context, img image.Image) []ocrNameHit {
 }
 
 // ScanShelfSlots 单次截图：按命中框 Y 分行、行内 X 排序赋 slot，不假定固定行宽。
-func ScanShelfSlots(ctx *maa.Context, img image.Image) []SlotRecord {
+func ScanShelfSlots(ctx *maa.Context, img image.Image, adb bool) []SlotRecord {
 	hits := scanShelfNameHits(ctx, img)
-	return buildSlotRecords(ctx, img, hits)
+	return buildSlotRecords(ctx, img, hits, adb)
 }
 
-func recordDiscountAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect) string {
-	override := recordItemDiscountPipelineOverride(nameBox)
+// adb 由调用方在 RecordShelfSnapshotsAction 中判定一次后传入；逐槽折扣 OCR 内不得再 GetController，
+// 否则 agent 侧会销毁上一轮返回的 controller 指针导致崩溃（见 upstream v2 #6133）。
+func recordDiscountAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect, adb bool) string {
+	override := recordItemDiscountPipelineOverride(nameBox, adb)
 	detail, err := ctx.RunRecognition(pipelineNodeRecordItemDiscount, img, override)
 	if err != nil || detail == nil || !detail.Hit {
 		return discountNone

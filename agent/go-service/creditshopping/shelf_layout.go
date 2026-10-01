@@ -77,7 +77,7 @@ func orderHitsByShelfPosition(hits []ocrNameHit) []ocrNameHit {
 	return out
 }
 
-func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit) []SlotRecord {
+func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, adb bool) []SlotRecord {
 	picked := orderHitsByShelfPosition(hits)
 	if len(picked) == 0 {
 		return nil
@@ -89,7 +89,7 @@ func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit) []Sl
 			Slot:     i,
 			Name:     name,
 			ID:       hit.ID,
-			Discount: recordDiscountAtNameBox(ctx, img, hit.Box),
+			Discount: recordDiscountAtNameBox(ctx, img, hit.Box, adb),
 		}
 		if rec.ID == "" {
 			itemID, matched := matchCreditItemID(name)
