@@ -1,5 +1,9 @@
 # Android 客户端
 
+> **先装依赖：** [Android 构建环境准备](../docs/zh_cn/developers/android-build-env.md)——那页讲要装什么、配什么、**哪些不用管，哪些会报错**。
+>
+> 配好了再回来看这页构建。不确定齐没齐，跑 `uv run tools/build_android_agents.py --check-env`。
+
 外壳是 [MaaFwApp](https://github.com/Aliothmoon/MaaFwApp) 子模块。资源和两个编译型 agent 用本仓库的树。
 
 MaaFwApp 只认 `agent.sourceDir/<abi>/jniLibs/lib*.so`，构建期由 `syncAgentJniLibs` 铺进 APK 的 `lib/<abi>/`。框架 `.so` 不走这条，由外壳自己的 `setup_maa_framework.py` 铺。
@@ -8,15 +12,19 @@ MaaFwApp 只认 `agent.sourceDir/<abi>/jniLibs/lib*.so`，构建期由 `syncAgen
 
 ```bash
 git submodule update --init --recursive
-python tools/build_android_agents.py
-python Android/MaaFwApp/scripts/setup_maa_framework.py --abi arm64-v8a --tag v5.14.0
+uv run tools/build_android_agents.py
+uv run Android/MaaFwApp/scripts/setup_maa_framework.py --abi arm64-v8a --tag v5.14.0
 ```
+
+> [!IMPORTANT]
+>
+> 两边的 MaaFramework 版本要一致：第一个脚本默认用 `v5.14.0`，第二个用 `--tag` 指定同一个值。写 `5.14.0`（不带 `v`）会 404。
 
 需要 x86_64（模拟器）或 universal 包时，两边都带上对应 ABI：
 
 ```bash
-python tools/build_android_agents.py --abi arm64-v8a --abi x86_64
-python Android/MaaFwApp/scripts/setup_maa_framework.py --abi all --tag v5.14.0
+uv run tools/build_android_agents.py --abi arm64-v8a --abi x86_64
+uv run Android/MaaFwApp/scripts/setup_maa_framework.py --abi all --tag v5.14.0
 ```
 
 并把 `local.properties` 的 `build.debugAbi` / `build.releaseAbi` 设成 `arm64-v8a,x86_64`。链接期 SDK 按 ABI 放在 `deps-android/<abi>`。
@@ -27,21 +35,30 @@ python Android/MaaFwApp/scripts/setup_maa_framework.py --abi all --tag v5.14.0
 sdk.dir=<Android SDK>
 pi.profile=../profile.yaml
 build.debugAbi=arm64-v8a
+build.releaseAbi=arm64-v8a
 ```
-
-Windows 上 NDK 认 `ANDROID_NDK_ROOT`（或 `ANDROID_HOME/ndk` 里最新一份）。CMake 要 ≥ 3.28，Android SDK 自带的 3.31+ 即可。Go 交叉编必须 `CGO_ENABLED=1`（`purego` 在 Android 上要 cgo 才能 `dlopen`）。
 
 ## 出包
 
 ```bash
 # 改了 go-service / cpp-algo
-python tools/build_android_agents.py
+uv run tools/build_android_agents.py
 
 # 已连接设备
 ./Android/MaaFwApp/gradlew -p Android/MaaFwApp :app:installDebug
 ```
 
 只改 `assets/` 里的任务 / 图，重新 `installDebug` 即可。
+
+产物位置：
+
+| 产物 | 路径 |
+| --------------------------------- | ------------------------------------------------------------ |
+| 两个 agent | `Android/agent-dist/<abi>/jniLibs/lib{cpp-algo,go-service}.so` |
+| 铺进外壳的框架 `.so` | `Android/MaaFwApp/app/src/main/jniLibs/<abi>/` |
+| APK | `Android/MaaFwApp/app/build/outputs/apk/debug/app-debug.apk` |
+
+都是构建产物，**不进 git**，出问题可以放心删掉重来。
 
 升外壳：
 

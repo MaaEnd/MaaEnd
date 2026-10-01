@@ -20,7 +20,7 @@ exclude:
   - data/ZmdMap/**
 
 # 出 agent（仓库根）：
-#   python tools/build_android_agents.py
+#   uv run tools/build_android_agents.py
 # 产物落到 Android/agent-dist/<abi>/jniLibs/lib*.so，由 MaaFwApp syncAgentJniLibs 进 APK。
 # 框架 .so 仍走 MaaFwApp 自己的 setup_maa_framework.py，不要往这里拷。
 agent:
