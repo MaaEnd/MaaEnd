@@ -1554,7 +1554,14 @@ bool NavigationStateMachine::TickNavigate()
             arrival_distance = std::min(arrival_distance, kZiplineRestandBandWu);
         }
     }
-    if (route.waypoint_distance <= arrival_distance) {
+    // 台沿下落的落点: 进圈时人可能还在台上, 沿下落方向越过它才算到
+    bool short_of_drop = false;
+    if (waypoint.drop_from) {
+        const double dx = waypoint.x - (*waypoint.drop_from)[0];
+        const double dy = waypoint.y - (*waypoint.drop_from)[1];
+        short_of_drop = (position_->x - waypoint.x) * dx + (position_->y - waypoint.y) * dy < 0.0;
+    }
+    if (route.waypoint_distance <= arrival_distance && !short_of_drop) {
         if (!route.startup_motion_confirmed) {
             LogDebug << "Arrival advance blocked before startup movement confirmed." << VAR(session_->current_node_idx())
                      << VAR(route.waypoint_distance) << VAR(arrival_distance) << VAR(route.progress_distance) << VAR(route.cross_track)

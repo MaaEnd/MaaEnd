@@ -155,6 +155,8 @@ struct Waypoint
     // NAVMESH only: height of the overlapping deck this waypoint sits on. Pins the goal span for the leg
     // ending here and the start span for the leg leaving it. Unset -> full span set, unchanged.
     std::optional<double> target_deck_y;
+    // 台沿下落的落点专用: 起跳点。沿起跳→落点方向越过本点才算到
+    std::optional<std::array<double, 2>> drop_from;
     // Authored path only: make this node a hard boundary between globally planned legs. Coordinate-bearing
     // movement nodes are optional route/action hints by default. HEADING is an explicit control command;
     // COLLECT and DIG are task-producing markers. Those three are intrinsic boundaries even without this flag.

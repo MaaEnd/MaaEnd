@@ -595,6 +595,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
     result.path.points = std::move(plan.points);
     result.path.clearance = std::move(plan.clearance);
     result.path.waypoints = std::move(plan.waypoints);
+    result.path.drops = std::move(plan.drops);
     result.cost = plan.length;
     if (out_diagnostic != nullptr) {
         out_diagnostic->start = request.start;
@@ -1751,6 +1752,17 @@ bool AppendGeneratedNavmeshWaypoints(
     const auto clearance_at = [&](size_t index) {
         return index < world_path.clearance.size() ? world_path.clearance[index] : 0.0;
     };
+    // 台沿下落的落点要越过才算到, 下一腿从下层起
+    const auto mark_drop = [&](size_t index) {
+        for (const navmesh::DropLanding& drop : world_path.drops) {
+            if (drop.index == index && index > 0) {
+                Waypoint& landing = out_path.back();
+                landing.strict_arrival = true;
+                landing.target_deck_y = drop.height;
+                landing.drop_from = std::array<double, 2> { world_path.points[index - 1].x, world_path.points[index - 1].y };
+            }
+        }
+    };
 
     if (emit_interior_corners) {
         for (size_t index = 1; index < loop_end; ++index) {
@@ -1758,6 +1770,7 @@ bool AppendGeneratedNavmeshWaypoints(
             out_path.emplace_back(point.x, point.y, ActionType::RUN);
             out_path.back().strict_arrival = false;
             out_path.back().corridor_clearance = clearance_at(index);
+            mark_drop(index);
         }
         if (include_goal && total >= 2) {
             const navmesh::WorldPoint& goal = world_path.points[total - 1];
@@ -1777,6 +1790,7 @@ bool AppendGeneratedNavmeshWaypoints(
         out_path.emplace_back(world_path.points[index].x, world_path.points[index].y, ActionType::RUN);
         out_path.back().strict_arrival = false;
         out_path.back().corridor_clearance = clearance_at(index);
+        mark_drop(index);
     };
     const auto restore_corners_to = [&](size_t anchor) {
         // 规划器自己拉直过的路线直接照抄下标。它那边看得到窗口挡线格图和起点所在面的高度,
@@ -1797,7 +1811,12 @@ bool AppendGeneratedNavmeshWaypoints(
         size_t cursor = prev;
         while (cursor + 1 < anchor) {
             size_t reach = cursor;
-            const size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+            size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+            for (const navmesh::DropLanding& drop : world_path.drops) {
+                if (drop.index > cursor && drop.index < reach_limit) {
+                    reach_limit = drop.index;
+                }
+            }
             double swallowed_clearance = std::numeric_limits<double>::infinity();
             while (reach < reach_limit) {
                 // A shortcut may not be tighter than the narrowest corridor point it swallows: that width is
@@ -1828,6 +1847,7 @@ bool AppendGeneratedNavmeshWaypoints(
         out_path.emplace_back(world_path.points[anchor].x, world_path.points[anchor].y, ActionType::RUN);
         out_path.back().strict_arrival = strict_arrival;
         out_path.back().corridor_clearance = clearance_at(anchor);
+        mark_drop(anchor);
         prev = anchor;
     };
 

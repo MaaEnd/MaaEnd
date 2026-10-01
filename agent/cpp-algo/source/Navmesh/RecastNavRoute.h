@@ -34,6 +34,7 @@ struct RecastPlanResult
     // 贪心拉直后的驱动航点下标(points 的下标,不含起点,末位恒为 points.size()-1)。
     // 空 = 该腿没有层预言机,拉直交给调用方。
     std::vector<size_t> waypoints;
+    std::vector<DropLanding> drops;
 
     // 规划各阶段的中间产物。每个数组恰好对应一段算法的出口, 看哪一段把线拐坏了就开哪一层。
     struct Debug
