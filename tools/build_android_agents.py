@@ -16,6 +16,7 @@ import argparse
 import json
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -106,7 +107,37 @@ def host_ndk_prebuilt() -> str:
     return "linux-x86_64"
 
 
-def find_ndk(explicit: str | None) -> Path:
+INSTALL_HINTS = {
+    "jdk": {
+        "Windows": "winget install Microsoft.OpenJDK.21",
+        "Darwin": "brew install openjdk",
+        "Linux": "apt install openjdk-21-jdk",
+    },
+    "cmake": {
+        "Windows": "winget install Kitware.CMake",
+        "Darwin": "brew install cmake",
+        "Linux": "apt install cmake",
+    },
+    "ninja": {
+        "Windows": "winget install Ninja-build.Ninja",
+        "Darwin": "brew install ninja",
+        "Linux": "apt install ninja-build",
+    },
+    "go": {
+        "Windows": "winget install GoLang.Go",
+        "Darwin": "brew install go",
+        "Linux": "https://go.dev/dl/",
+    },
+}
+
+
+def install_hint(tool: str) -> str:
+    """按当前平台给出安装命令，免得在 macOS 上提示 winget。"""
+    hints = INSTALL_HINTS[tool]
+    return hints.get(platform.system(), hints["Linux"])
+
+
+def find_ndk(explicit: str | None, *, fail: bool = True) -> Path | None:
     candidates: list[Path] = []
     if explicit:
         candidates.append(Path(explicit))
@@ -127,39 +158,132 @@ def find_ndk(explicit: str | None) -> Path:
         toolchain = path / "build" / "cmake" / "android.toolchain.cmake"
         if toolchain.is_file():
             return path.resolve()
+    if not fail:
+        return None
     die(
         "Android NDK not found. Set ANDROID_NDK_ROOT or pass --ndk. "
         "Need a complete NDK (build/cmake/android.toolchain.cmake)."
     )
 
 
-def find_cmake() -> Path:
+def cmake_candidates() -> list[Path]:
+    """按优先级列出候选 cmake：SDK 自带的（版本高的在前），再是 PATH 上的。"""
+    candidates: list[Path] = []
     sdk = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
-    extra: list[Path] = []
     if sdk:
         cmake_root = Path(sdk) / "cmake"
         if cmake_root.is_dir():
-            extra.extend(sorted(cmake_root.glob("*/bin/cmake.exe"), reverse=True))
-            extra.extend(sorted(cmake_root.glob("*/bin/cmake"), reverse=True))
+            candidates.extend(sorted(cmake_root.glob("*/bin/cmake.exe"), reverse=True))
+            candidates.extend(sorted(cmake_root.glob("*/bin/cmake"), reverse=True))
     which = shutil.which("cmake")
     if which:
-        extra.append(Path(which))
-    for path in extra:
+        candidates.append(Path(which))
+    return candidates
+
+
+def cmake_version(path: Path) -> list[int] | None:
+    """读 cmake --version 的版本号，读不出来返回 None。"""
+    try:
+        out = subprocess.check_output([str(path), "--version"], text=True)
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    first = out.splitlines()[0] if out else ""
+    # cmake version 3.31.6
+    parts = first.split()
+    if len(parts) < 3:
+        return None
+    nums = [int(x) for x in parts[-1].split("-")[0].split(".")[:3] if x.isdigit()]
+    return nums or None
+
+
+def newest_cmake() -> tuple[list[int], Path] | None:
+    """版本号最高的那个 cmake，只用于诊断“装了但太旧”。"""
+    newest: tuple[list[int], Path] | None = None
+    for path in cmake_candidates():
         if not path.is_file():
             continue
-        try:
-            out = subprocess.check_output([str(path), "--version"], text=True)
-        except (OSError, subprocess.CalledProcessError):
+        nums = cmake_version(path)
+        if nums and (newest is None or nums > newest[0]):
+            newest = (nums, path)
+    return newest
+
+
+def find_cmake(*, fail: bool = True) -> Path | None:
+    for path in cmake_candidates():
+        if not path.is_file():
             continue
-        first = out.splitlines()[0] if out else ""
-        # cmake version 3.31.6
-        parts = first.split()
-        if len(parts) >= 3:
-            ver = parts[-1].split("-")[0]
-            nums = [int(x) for x in ver.split(".")[:3] if x.isdigit()]
-            if nums >= [3, 28, 0]:
-                return path.resolve()
-    die("CMake >= 3.28 not found. Install one or use the Android SDK cmake package.")
+        nums = cmake_version(path)
+        if nums and nums >= [3, 28, 0]:
+            return path.resolve()
+    if not fail:
+        return None
+    newest = newest_cmake()
+    if newest:
+        nums, path = newest
+        version = ".".join(str(n) for n in nums)
+        die(
+            f"CMake >= 3.28 required, but the newest one found is {version} ({path}).\n"
+            f"  {install_hint('cmake')}\n"
+            '  Or: sdkmanager --install "cmake;3.31.6"'
+        )
+    die(f"CMake not found in PATH or <SDK>/cmake. {install_hint('cmake')}")
+
+
+def ninja_host_name() -> str:
+    return "ninja.exe" if os.name == "nt" else "ninja"
+
+
+def find_ninja(*, verbose: bool = True) -> Path | None:
+    """定位 ninja；CMake 的 Ninja 生成器只从 PATH 找它，找不到就直接配置失败。
+
+    优先 PATH，其次 Android SDK 自带的 cmake/<ver>/bin（Gradle 装 SDK 的 CMake 时会
+    顺带放一份），找到就把所在目录追加到 PATH，让后续 cmake --preset 能看见。
+    """
+    which = shutil.which("ninja")
+    if which:
+        return Path(which).resolve()
+
+    # SDK 自带一份（Gradle 装 SDK 的 CMake 时会顺带放进去），用 ANDROID_HOME 找
+    sdk_env = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
+    if not sdk_env:
+        return None
+    cmake_root = Path(sdk_env) / "cmake"
+    if not cmake_root.is_dir():
+        return None
+
+    for path in sorted(cmake_root.glob(f"*/bin/{ninja_host_name()}"), reverse=True):
+        if not path.is_file():
+            continue
+        append_path(path.parent)
+        if verbose:
+            log(f"[NINJA] {path.resolve()}")
+        return path.resolve()
+    return None
+
+
+def append_path(directory: Path) -> None:
+    """把目录追加到 PATH 末尾。
+
+    只做"兜底"：SDK 里的 cmake/<ver>/bin 同时含 cmake 与 ninja，但那份 CMake 通常
+    低于 3.28；前置会遮蔽用户自己装的 CMake，追加才不会。
+    """
+    current = os.environ.get("PATH", "")
+    entry = str(directory)
+    if entry not in current.split(os.pathsep):
+        os.environ["PATH"] = current + os.pathsep + entry
+
+
+def require_ninja() -> Path:
+    ninja = find_ninja()
+    if ninja:
+        return ninja
+    die(
+        "Ninja not found; CMake's \"Ninja Multi-Config\" generator needs it on PATH.\n"
+        f"  {install_hint('ninja')}\n"
+        "  Or install the Android SDK cmake package, which ships a ninja under "
+        "<SDK>/cmake/<version>/bin.\n"
+        "  See docs/zh_cn/developers/android-build-env.md#23-关于-ninja"
+    )
 
 
 def prepare_maadeps(abi: str) -> None:
@@ -312,6 +436,216 @@ def build_go(*, ndk: Path, abi: str, api: int, version: str, out_so: Path) -> No
     log(f"[OK] {out_so}")
 
 
+def _enable_windows_vt() -> bool:
+    """Windows 控制台默认不认 ANSI，得先打开 VT 处理。"""
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.windll.kernel32
+        handle = kernel32.GetStdHandle(-11)
+        mode = wintypes.DWORD()
+        if not kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
+            return False
+        return bool(kernel32.SetConsoleMode(handle, mode.value | 0x0004))
+    except Exception:
+        return False
+
+
+_color_enabled: bool | None = None
+
+
+def supports_color() -> bool:
+    global _color_enabled
+    if _color_enabled is None:
+        if os.environ.get("NO_COLOR") is not None:
+            _color_enabled = False
+        elif os.environ.get("FORCE_COLOR") is not None:
+            _color_enabled = True
+        elif not (hasattr(sys.stdout, "isatty") and sys.stdout.isatty()):
+            _color_enabled = False
+        elif os.name == "nt":
+            _color_enabled = _enable_windows_vt()
+        else:
+            _color_enabled = os.environ.get("TERM", "") not in ("", "dumb")
+    return _color_enabled
+
+
+RED = "\033[31m"
+GREEN = "\033[32m"
+DIM = "\033[2m"
+BOLD = "\033[1m"
+RESET = "\033[0m"
+
+
+def paint(text: str, color: str) -> str:
+    return f"{color}{text}{RESET}" if supports_color() else text
+
+
+def jdk_major(java: str) -> int | None:
+    """跑 java -version 读主版本；读不出来返回 None。
+
+    输出走 stderr，且 JDK 8 报的是 "1.8.0_471"（主版本在第二段）。
+    """
+    try:
+        out = subprocess.run(
+            [java, "-version"], capture_output=True, text=True, errors="replace", timeout=30
+        ).stderr
+    except (OSError, subprocess.SubprocessError):
+        return None
+    m = re.search(r'version "(\d+)(?:\.(\d+))?', out)
+    if not m:
+        return None
+    return int(m.group(2)) if m.group(1) == "1" and m.group(2) else int(m.group(1))
+
+
+def java_check() -> tuple[bool, str, str]:
+    """检查 java 是不是 17+，返回 (是否通过, 描述, 额外提示)。
+
+    Gradle 认 JAVA_HOME，没设才用 PATH 上的 java。JAVA_HOME 设了却指不到 java 时
+    直接报错、不回退：回退会拿 PATH 上另一个 JDK 判通过，把真正的配置问题盖掉。
+    """
+    java_home = os.environ.get("JAVA_HOME")
+    if java_home:
+        exe = Path(java_home) / "bin" / ("java.exe" if os.name == "nt" else "java")
+        if not exe.is_file():
+            return (
+                False,
+                f"JAVA_HOME points at {java_home}, but no java under {java_home}/bin",
+                f"fix JAVA_HOME, or install JDK 17+ ({install_hint('jdk')})",
+            )
+        active = exe
+    else:
+        which = shutil.which("java")
+        if not which:
+            return (
+                False,
+                "java not found and JAVA_HOME is not set",
+                f"install JDK 17+ ({install_hint('jdk')}), then set JAVA_HOME",
+            )
+        active = Path(which)
+
+    major = jdk_major(str(active))
+    if major is not None and major >= 17:
+        return True, f"{active} (JDK {major})", ""
+
+    detail = f"using JDK {major} ({active}), need 17+" if major else f"cannot read JDK version ({active})"
+    return False, detail, f"install JDK 17+ ({install_hint('jdk')}) and set JAVA_HOME to it"
+
+
+def check_environment(args: argparse.Namespace) -> int:
+    """逐项体检 Android 构建环境，只报告不安装。返回进程退出码。"""
+    log(paint("Android build environment check", BOLD))
+    log(paint(f"  {platform.system()} {platform.machine()}, python {platform.python_version()}", DIM))
+    log("")
+
+    passed: list[str] = []
+    problems: list[tuple[str, str, str]] = []  # (项目, 现状, 怎么修)
+
+    # JDK
+    good, detail, hint = java_check()
+    if good:
+        passed.append("JDK 17+")
+    else:
+        problems.append(("JDK 17+", detail, hint))
+
+    # Android SDK
+    sdk_env = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")
+    if not sdk_env:
+        problems.append((
+            "Android SDK",
+            "ANDROID_HOME / ANDROID_SDK_ROOT is not set",
+            "set ANDROID_HOME to your SDK root (the one containing platforms/ and build-tools/)",
+        ))
+    elif not Path(sdk_env).is_dir():
+        problems.append((
+            "Android SDK",
+            f"ANDROID_HOME points at {sdk_env}, which does not exist",
+            "fix ANDROID_HOME (the SDK root containing platforms/ and build-tools/)",
+        ))
+    else:
+        sdk = Path(sdk_env)
+        lacking = [p for p in ("platforms", "build-tools") if not any((sdk / p).glob("*"))]
+        if lacking:
+            problems.append((
+                "Android SDK components",
+                f"{sdk} is missing: {', '.join(lacking)}",
+                'sdkmanager --install "platforms;android-37.0" "build-tools;37.0.0"',
+            ))
+        else:
+            passed.append("Android SDK")
+
+    # NDK
+    if find_ndk(args.ndk, fail=False):
+        passed.append("Android NDK")
+    else:
+        problems.append((
+            "Android NDK",
+            "ANDROID_NDK_ROOT is not set (or points at an incomplete NDK)",
+            'sdkmanager --install "ndk;29.0.13599879", then set ANDROID_NDK_ROOT to it',
+        ))
+
+    # CMake
+    if find_cmake(fail=False):
+        passed.append("CMake >= 3.28")
+    else:
+        newest = newest_cmake()
+        if newest:
+            nums, path = newest
+            problems.append((
+                "CMake >= 3.28",
+                f"found {'.'.join(str(n) for n in nums)} ({path}), too old",
+                f"{install_hint('cmake')}, or sdkmanager --install \"cmake;3.31.6\"",
+            ))
+        else:
+            problems.append((
+                "CMake >= 3.28",
+                "not found in PATH or <SDK>/cmake",
+                f"{install_hint('cmake')}, or sdkmanager --install \"cmake;3.31.6\"",
+            ))
+
+    # Ninja
+    if find_ninja(verbose=False):
+        passed.append("Ninja")
+    else:
+        problems.append((
+            "Ninja",
+            "not found on PATH or <SDK>/cmake/*/bin",
+            f"{install_hint('ninja')}, or install the Android SDK cmake package",
+        ))
+
+    # Go
+    if shutil.which("go"):
+        passed.append("Go")
+    else:
+        problems.append(("Go", "not found", install_hint("go")))
+
+    # MaaUtils 子模块
+    if (ROOT / "agent" / "cpp-algo" / "MaaUtils" / "MaaUtils.cmake").is_file():
+        passed.append("MaaUtils submodule")
+    else:
+        problems.append((
+            "MaaUtils submodule",
+            "empty (only needed to build cpp-algo)",
+            "git submodule update --init --recursive",
+        ))
+
+    if problems:
+        for name, detail, fix in problems:
+            log(f"{paint('MISS', RED + BOLD)}  {paint(name, BOLD)}: {detail}")
+            log(f"      {paint('-> ' + fix, DIM)}")
+        log("")
+        log(paint(f"{len(problems)} problem(s) to fix", RED))
+        log(paint("guide: docs/zh_cn/developers/android-build-env.md", DIM))
+        if passed:
+            log(paint(f"already ok: {', '.join(passed)}", DIM))
+        return 1
+
+    log(paint(f"OK  environment ready: {', '.join(passed)}", GREEN))
+    log(paint("run: uv run tools/build_android_agents.py", DIM))
+    return 0
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build Android agents into MaaFwApp jniLibs layout")
     parser.add_argument("--ndk", help="Android NDK root")
@@ -341,11 +675,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-download", action="store_true")
     parser.add_argument("--skip-cpp", action="store_true")
     parser.add_argument("--skip-go", action="store_true")
+    parser.add_argument(
+        "--check-env",
+        action="store_true",
+        help="check the Android build environment and report what is missing, then exit",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    if args.check_env:
+        raise SystemExit(check_environment(args))
     if args.skip_cpp and args.skip_go:
         die("nothing to build")
 
@@ -356,8 +697,14 @@ def main() -> None:
     ndk = find_ndk(args.ndk)
     os.environ["ANDROID_NDK_ROOT"] = str(ndk)
     log(f"[NDK] {ndk}")
-    cmake = None if args.skip_cpp else find_cmake()
-    if cmake:
+
+    cmake = None
+    if not args.skip_cpp:
+        # 只有编 cpp-algo 才用 CMake，而 CMake 的 Ninja 生成器只从 PATH 找 ninja，
+        # 缺了会在配置阶段报一句很难懂的错。提前定位并兜底补进 PATH
+        # （其次选自 SDK 自带的 cmake/<ver>/bin）。--skip-cpp 时不该因此拦下构建。
+        require_ninja()
+        cmake = find_cmake()
         log(f"[CMAKE] {cmake}")
 
     out_dirs: list[Path] = []
