@@ -30,8 +30,12 @@ type maaControllerInfoDto struct {
 }
 
 func controlTypeFromPI() string {
-	switch strings.ToLower(strings.TrimSpace(pienv.ControllerType())) {
-	case CONTROL_TYPE_ADB:
+	return controlTypeFromPIType(pienv.ControllerType())
+}
+
+func controlTypeFromPIType(controllerType string) string {
+	switch strings.ToLower(strings.TrimSpace(controllerType)) {
+	case CONTROL_TYPE_ADB, controlTypeNativeAndroid, "playcover":
 		return CONTROL_TYPE_ADB
 	case CONTROL_TYPE_WIN32:
 		return CONTROL_TYPE_WIN32

@@ -2,6 +2,29 @@ package control
 
 import "testing"
 
+func TestControlTypeFromPIType(t *testing.T) {
+	cases := []struct {
+		name string
+		pi   string
+		want string
+	}{
+		{"adb normalized", "  AdB  ", CONTROL_TYPE_ADB},
+		{"native android", "NATIVE_ANDROID", CONTROL_TYPE_ADB},
+		{"playcover", "PlayCover", CONTROL_TYPE_ADB},
+		{"win32", " Win32 ", CONTROL_TYPE_WIN32},
+		{"macos", "MacOS", CONTROL_TYPE_MACOS},
+		{"linux", "LINUX", CONTROL_TYPE_LINUX},
+		{"unknown", "unknown", ""},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := controlTypeFromPIType(c.pi); got != c.want {
+				t.Fatalf("controlTypeFromPIType(%q) = %q, want %q", c.pi, got, c.want)
+			}
+		})
+	}
+}
+
 func TestControlTypeFromInfo(t *testing.T) {
 	cases := []struct {
 		name string
