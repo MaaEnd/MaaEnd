@@ -14,7 +14,7 @@
     [string]$Image,
     [ValidateSet("full", "left", "right", "split", "all")]
     [string]$Side = "full",
-    [ValidateRange(1, 64)]
+    [ValidateRange(1, 128)]
     [int]$Jobs,
     [string]$CMakePath,
     [string]$VsDevShellPath,
@@ -53,9 +53,9 @@ function Show-Usage {
   ./run-tests.ps1 -Task configure
   ./run-tests.ps1 -Task build
   ./run-tests.ps1 -Task quick
-  ./run-tests.ps1 -Task manual -All -Dataset <win32|adb> [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug] [-RecognizeRegionUnavailable]
-  ./run-tests.ps1 -Task manual -GridType <type> -Dataset <win32|adb> [-Image <basename>] [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug] [-RecognizeRegionUnavailable]
-  ./run-tests.ps1 -Task manual -Image <basename> -Dataset <win32|adb> [-UseLocalExpected] [-Jobs <1..64>] [-Debug] [-RecognizeRegionUnavailable]
+  ./run-tests.ps1 -Task manual -All -Dataset <win32|adb> [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..128>] [-Debug] [-RecognizeRegionUnavailable]
+  ./run-tests.ps1 -Task manual -GridType <type> -Dataset <win32|adb> [-Image <basename>] [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..128>] [-Debug] [-RecognizeRegionUnavailable]
+  ./run-tests.ps1 -Task manual -Image <basename> -Dataset <win32|adb> [-UseLocalExpected] [-Jobs <1..128>] [-Debug] [-RecognizeRegionUnavailable]
   ./run-tests.ps1 -Help|-h
 
 网格类型:
@@ -97,8 +97,8 @@ if (Test-Path -LiteralPath $localConfigPath -PathType Leaf) {
     }
     foreach ($key in $localConfig.Keys) {
         if ($key -eq "Jobs") {
-            if ($localConfig[$key] -isnot [int] -or $localConfig[$key] -lt 1 -or $localConfig[$key] -gt 64) {
-                throw "本地测试配置 Jobs 必须是 1..64 的整数"
+            if ($localConfig[$key] -isnot [int] -or $localConfig[$key] -lt 1 -or $localConfig[$key] -gt 128) {
+                throw "本地测试配置 Jobs 必须是 1..128 的整数"
             }
             continue
         }
