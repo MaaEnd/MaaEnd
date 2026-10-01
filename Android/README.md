@@ -44,7 +44,7 @@ build.releaseAbi=arm64-v8a
 # 改了 go-service / cpp-algo
 uv run tools/build_android_agents.py
 
-# 已连接设备
+# 已连接设备（Windows 用 .\Android\MaaFwApp\gradlew.bat）
 ./Android/MaaFwApp/gradlew -p Android/MaaFwApp :app:installDebug
 ```
 
