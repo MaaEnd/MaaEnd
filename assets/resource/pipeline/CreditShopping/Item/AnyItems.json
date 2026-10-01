@@ -15,10 +15,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemArmsINSPKit": {
         "desc": "武器检查装置。未勾选时不命中；选项覆盖为模板匹配",
@@ -36,10 +33,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemArsenalTicket": {
         "desc": "武库配额。未勾选时不命中；选项覆盖为模板匹配",
@@ -57,10 +51,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemCastDie": {
         "desc": "强固模具。未勾选时不命中；选项覆盖为模板匹配",
@@ -78,10 +69,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemElementaryCognitiveCarrier": {
         "desc": "初级认知载体。未勾选时不命中；选项覆盖为模板匹配",
@@ -99,10 +87,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemElementaryCombatRecord": {
         "desc": "初级作战记录。绿幕模板匹配，阈值 0.92",
@@ -116,10 +101,7 @@
         "template": "CreditShopping/Item/item_expcard_2_1.png",
         "green_mask": true,
         "threshold": 0.92,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "order_by": "Vertical"
     },
     "CreditShoppingAnyItemIntermediateCombatRecord": {
         "desc": "中级作战记录。绿幕模板匹配，阈值 0.92",
@@ -133,10 +115,7 @@
         "template": "CreditShopping/Item/item_expcard_2_2.png",
         "green_mask": true,
         "threshold": 0.92,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "order_by": "Vertical"
     },
     "CreditShoppingAnyItemHeavyCastDie": {
         "desc": "重型强固模具。未勾选时不命中；选项覆盖为模板匹配",
@@ -154,10 +133,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemOroberyl": {
         "desc": "嵌晶玉。未勾选时不命中；选项覆盖为模板匹配",
@@ -175,10 +151,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemProtodisk": {
         "desc": "协议圆盘。未勾选时不命中；选项覆盖为模板匹配",
@@ -196,10 +169,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemProtoprism": {
         "desc": "协议棱柱。未勾选时不命中；选项覆盖为模板匹配",
@@ -217,10 +187,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemProtohedron": {
         "desc": "协议棱柱组。未勾选时不命中；选项覆盖为模板匹配",
@@ -238,10 +205,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemProtoset": {
         "desc": "协议圆盘组。未勾选时不命中；选项覆盖为模板匹配",
@@ -259,10 +223,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingAnyItemTCreds": {
         "desc": "折金票。未勾选时不命中；选项覆盖为模板匹配",
@@ -280,10 +241,7 @@
         "upper": [
             0
         ],
-        "count": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "count": 2
     },
     "CreditShoppingShelfAnyItem": {
         "desc": "任意可买物品。子节点各对应一个物品，默认不命中，由选项覆盖为模板匹配",
@@ -303,9 +261,6 @@
             "CreditShoppingAnyItemProtohedron",
             "CreditShoppingAnyItemProtoset",
             "CreditShoppingAnyItemTCreds"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        ]
     }
 }
