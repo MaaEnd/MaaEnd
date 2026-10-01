@@ -251,12 +251,9 @@ void ZiplineRideMachine::Reset()
     settle_hits_ = 0;
     riding_entered_ = false;
     unknown_deadline_.reset();
-    yaw_gain_.reset();
     prev_heading_.reset();
     stable_heading_hits_ = 0;
     turn_pending_ = false;
-    turn_ref_heading_ = 0.0;
-    turn_cmd_deg_ = 0.0;
     turn_sent_at_ = {};
     dismount_presses_ = 0;
     dismount_stable_pos_.reset();
@@ -423,7 +420,6 @@ StageResult ZiplineRideMachine::TickOnTower(IZiplineActuator& actuator, Clock::t
         seed_elevation_deg_ = plan_.planned_elevation_deg;
         aim_bias_deg_ = AimBiasDeg();
     }
-    yaw_gain_.reset();
     prev_heading_.reset();
     stable_heading_hits_ = 0;
     turn_pending_ = false;
@@ -437,14 +433,12 @@ StageResult ZiplineRideMachine::TickOnTower(IZiplineActuator& actuator, Clock::t
     return {};
 }
 
-// 站在架子上瞄准。一次只发一个后端批次, 等朝向读数跟上并连着两帧一致再算剩余角; 第一批转完
-// 顺手量一次「发了多少转了多少」, 后面的 yaw 和俯仰都按这个增益缩放。对准后俯仰开环、左键起滑
+// 站在架子上瞄准。一次只发一个后端批次, 等朝向读数跟上并连着两帧一致再算剩余角。对准后俯仰开环、左键起滑
 StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
     if (StageElapsedMs(now) > kZiplineAimHeadingTimeoutMs) {
-        LogWarn << "zipline/aim/timeout" << VAR(returning_) << VAR(turn_pending_) << VAR(stable_heading_hits_)
-                << VAR(yaw_gain_.value_or(1.0));
+        LogWarn << "zipline/aim/timeout" << VAR(returning_) << VAR(turn_pending_) << VAR(stable_heading_hits_);
         return FailAim(actuator, "zipline/aim/timeout", now);
     }
     if (turn_pending_ && ElapsedMs(turn_sent_at_, now) < kWaitAfterFirstTurnMs) {
@@ -463,26 +457,16 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
         return {};
     }
 
-    if (turn_pending_) {
-        turn_pending_ = false;
-        const double achieved = NaviMath::NormalizeAngle(heading - turn_ref_heading_);
-        if (std::abs(turn_cmd_deg_) >= kZiplineAimGainMinTurnDeg && achieved * turn_cmd_deg_ > 0.0) {
-            yaw_gain_ = std::clamp(achieved / turn_cmd_deg_, kZiplineAimGainMin, kZiplineAimGainMax);
-        }
-        LogInfo << "zipline/aim/turned" << VAR(turn_cmd_deg_) << VAR(achieved) << VAR(yaw_gain_.value_or(1.0));
-    }
-    const double gain = yaw_gain_.value_or(1.0);
+    turn_pending_ = false;
 
     const double target_heading = NaviMath::CalcTargetRotation(obs.fix->x, obs.fix->y, target_.x, target_.y) + aim_bias_deg_;
     const double residual = NaviMath::NormalizeAngle(target_heading - heading);
     if (std::abs(residual) > kZiplineAimToleranceDeg) {
-        const std::optional<double> issued = actuator.TurnYaw(residual / gain);
+        const std::optional<double> issued = actuator.TurnYaw(residual);
         if (!issued) {
             return FailAim(actuator, "zipline/aim/turn_rejected", now);
         }
-        LogInfo << "zipline/aim/turn" << VAR(target_heading) << VAR(heading) << VAR(residual) << VAR(*issued) << VAR(gain);
-        turn_ref_heading_ = heading;
-        turn_cmd_deg_ = *issued;
+        LogInfo << "zipline/aim/turn" << VAR(target_heading) << VAR(heading) << VAR(residual) << VAR(*issued);
         turn_sent_at_ = now;
         turn_pending_ = true;
         stable_heading_hits_ = 0;
@@ -494,7 +478,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
     const double pitch_target = PitchTargetForAttempt(seed_elevation_deg_, pitch_tier_);
     const double pitch_delta = pitch_target - kZiplinePitchMaximumElevationDeg;
     if (std::abs(pitch_delta) >= 1.0) {
-        if (!actuator.TurnPitch(pitch_delta / gain)) {
+        if (!actuator.TurnPitch(pitch_delta)) {
             return FailAim(actuator, "zipline/aim/pitch_rejected", now);
         }
         actuator.Wait(kWaitAfterFirstTurnMs);
@@ -514,7 +498,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
     riding_entered_ = false;
     unknown_deadline_.reset();
     LogInfo << "zipline/fired" << VAR(returning_) << VAR(pitch_tier_) << VAR(heading) << VAR(target_heading) << VAR(pitch_target)
-            << VAR(gain) << VAR(record_.launches.size());
+            << VAR(record_.launches.size());
     EnterStage(ZiplineStage::Fired, fired_at);
     return {};
 }

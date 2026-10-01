@@ -21,7 +21,7 @@ void RecordTick(MaaContext* context, uint64_t tick_seq, int64_t now_ms, double h
 // 每次导航结束调一次。
 void EndRun(MaaContext* context);
 
-// 偏航度→输入单位要乘的系数，判决落地前恒为 1，之后跨线路一直生效。
+// 视角度→输入单位要乘的系数，偏航和俯仰共用。判决落地前恒为 1，之后跨线路一直生效。
 double TurnUnitsScale();
 
 } // namespace sensitivity
