@@ -21,7 +21,7 @@
 | [`jsonclean`](#jsonclean-jsonc-清洗) | 去掉注释 / 尾逗号 / BOM，变成严格 JSON | `resource`、`i18n`、各类配置加载 |
 | [`pienv`](#pienv-project-interface-环境) | 读取 `PI_*` 环境变量（语言、控制器、资源） | `i18n`、`iconqty`、启动期逻辑 |
 | [`resource`](#resource-资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
-| [`fsutil`](#fsutil-输出路径与原子写文件) | 持久化输出的路径基准；临时文件 + rename，避免半截写入 | 日志 / debug / 持久化缓存 |
+| [`fsutil`](#fsutil输出路径与原子写文件) | 持久化输出的路径基准；临时文件 + rename，避免半截写入 | 日志 / debug / 持久化缓存 |
 | [`levenshtein`](#levenshtein-编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
 | [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS、囤货、送货等扫格逻辑 |
 | [`iconqty`](#iconrecognition--iconqty) | 扫格 + 格内数量 OCR | IMS A2 / A3 |
