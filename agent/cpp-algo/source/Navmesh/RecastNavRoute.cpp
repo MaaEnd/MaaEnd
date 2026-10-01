@@ -976,7 +976,13 @@ void PullWaypoints(
         double swallowed = std::numeric_limits<double>::infinity();
         const std::optional<double> seed = cursor < dg.height.size() ? std::optional<double>(dg.height[cursor]) : std::nullopt;
         size_t reach = cursor;
-        const size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+        size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+        // 台沿下落的落点必须留成航点, 控制端靠它判下落
+        for (const DropLanding& drop : dg.drops) {
+            if (drop.index > cursor && drop.index < reach_limit) {
+                reach_limit = drop.index;
+            }
+        }
         while (reach < reach_limit) {
             const WorldPoint& a = pts[cursor];
             const WorldPoint& c = pts[reach + 1];
