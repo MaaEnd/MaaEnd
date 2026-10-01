@@ -7,6 +7,7 @@
 ```bash
 cd tools/pipeline-generate/BatchUseDetector
 pnpm exec maa-pipeline-generate --config BatchUseDetector-config.json
+pnpm exec maa-pipeline-generate --config BatchUseDetector-adb-config.json
 
 ## 新增/更新地区探测器和罗盘
 
