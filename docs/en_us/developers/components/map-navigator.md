@@ -177,7 +177,7 @@ Only `INTERACT` points can take these fields — on any other action they are ig
 - `COLLECT`: Collection point, upon precise arrival, synchronously trigger AutoCollect OCR + click, without exiting NaviController. See [Collection Semantics](#collection-semantics-collect--dig).
 - `DIG`: Digging point, same as `COLLECT`, but triggers a digging subtask. See [Collection Semantics](#collection-semantics-collect--dig).
 - `FIND`: Look for a target that exists only as a recognition box and walk up to it — turning the camera to search, stepping toward the box, done as soon as `find_stop` hits or the position reaches `find_arrive`. See [Finding and Approaching a Target](#finding-and-approaching-a-target-find).
-- `TRIGGER`: Route end point. The navigator keeps recognizing `trigger_node` while walking any leg of the route, and a hit anywhere completes the whole navigation. See [Ending on a Recognition Hit](#ending-on-a-recognition-hit-trigger).
+- `TRIGGER`: Route end point. The navigator recognizes `trigger_node` while walking and succeeds on the first hit. See [Ending on a Recognition Hit](#ending-on-a-recognition-hit-trigger).
 
 ##### **3. Strict Arrival Point**
 
@@ -925,44 +925,13 @@ Control node (search starts as soon as the point is reached):
 
 ## Ending on a Recognition Hit `TRIGGER`
 
-`TRIGGER` is a route end point that finishes on a recognition result. The navigator walks the route as usual while recognizing `trigger_node` at a fixed interval; the first hit stops the character and counts as success for the whole navigation. `MapNavigateAction` returns true and whatever follows the hit is left to the `next` of the outer Pipeline. Use it for end points where "this screen appeared" means "arrived": entering a story sequence or a dialog, a menu popping up, a prompt showing.
+`TRIGGER` goes at the end of a route and means "arrived once a certain screen shows up": a story sequence starting, a dialog or menu popping up, a prompt appearing.
 
-A hit has no precondition. Where the character is, how far it is from the coordinate and whether localization succeeds all play no part; recognition runs during the walking stage of every leg of the route (the stages that wait on a transfer, a zipline or a `FIND` are the exception). `target` only decides where to go while nothing hits: on reaching it the character stops and keeps recognizing for up to 15 seconds.
+The navigator recognizes `trigger_node` while it walks. On the first hit it stops, the whole navigation succeeds, and the outer Pipeline's `next` takes over. A hit counts wherever the character is, even halfway along the route. If nothing hits, the character walks to `target`, stops, and waits there for up to 15 seconds.
 
-The screen that hits often covers the minimap and causes a localization loss, so a route ending in `TRIGGER` changes two things:
+### Usage
 
-- recognition keeps running while localization is lost;
-- the blind unstick hop is held back while localization is lost, so its key presses cannot disturb the screen that just appeared. Global relocalization attempts and the 30-second localization-loss timeout stay as they are.
-
-### Fields
-
-| Field | Type | Description |
-| -------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trigger_node` | string | Recognition node whose hit completes the navigation. Only its recognition runs; its action and its `next` are never executed. Camel case `triggerNode` is accepted too |
-
-Rules:
-
-- Use the object form with a `target`. The array form `[x, y, "TRIGGER"]` cannot carry `trigger_node` and fails during parsing.
-- `TRIGGER` itself is an ordinary coordinate point: with ziplines off it walks straight toward `target` without pathfinding. For pathfinding, put a `NAVMESH` point with the same coordinate in front of it; a hit during that `NAVMESH` leg counts as success too.
-- It must be the last point of the route: a hit ends the navigation, so any point after it could never run. Placing it elsewhere, or leaving out `trigger_node`, fails the parameter parse.
-- `trigger_node` is written on the point only; there is no route-wide default.
-- `TRIGGER` is an intrinsic boundary node; zipline planning keeps it verbatim as the route end.
-
-> **Note**: `trigger_node` is recognized from the moment navigation starts, so it must hit only on arrival at the target. A hit on anything seen along the way ends the navigation early — for example a dialog or prompt that also pops up elsewhere on the route. Pick an element that belongs to the target alone and stays on screen once it appears. Place the coordinate where that screen is certain to appear; anywhere else can only wait out the 15 seconds and fail.
-
-### Completion and Failure
-
-- **Completion**: `trigger_node` hits while walking or while waiting on the point.
-- **Failure**:
-    - a missing node or a recognition call that errors fails immediately (`trigger_recognition_failed`) and is never treated as "no hit";
-    - 15 seconds of waiting on the point without a hit (`trigger_wait_timeout`);
-    - localization lost for more than 30 seconds on the way without a hit (`localization_lost_timeout`).
-
-While walking, recognition runs every 300 ms (`kTriggerProbeIntervalMs`) on the frame the locator already captured for that tick, with no extra screenshot; a screen that stays up for less than one interval may be missed. The wait on the point is bounded by `kTriggerWaitTimeoutMs`. Both live in `navi_config.h`; route authors do not configure them.
-
-### Example
-
-The `path` below pathfinds to the coordinate with `NAVMESH` and ends on `TRIGGER`. `MyTaskTriggerNode` is a placeholder; replace it with the business's own recognition node.
+Replace `MyTaskTriggerNode` with your own recognition node:
 
 ```json
 [
@@ -983,6 +952,26 @@ The `path` below pathfinds to the coordinate with `NAVMESH` and ends on `TRIGGER
     }
 ]
 ```
+
+- `trigger_node` (or `triggerNode`) names a recognition node. Only its recognition runs; its action and `next` never execute.
+- Use the object form and make it the last point of the route; anything else fails at parse time.
+- `TRIGGER` walks straight to `target`. For pathfinding, put a `NAVMESH` point with the same coordinate in front of it as in the example; a hit during that leg counts too.
+
+### Choosing the Node
+
+- Recognition starts the moment navigation starts, so pick a screen that only appears at the destination. A dialog or prompt that also shows up elsewhere on the route ends the navigation there.
+- Pick something that stays on screen for a while. Recognition runs every 300 ms and can miss a brief flash.
+- Put `target` where the screen is sure to appear; anywhere else just waits out the 15 seconds and fails.
+
+The hit screen often covers the minimap. The navigator loses its position then, but recognition keeps running and no unstick keys are pressed, so nothing disturbs the screen that just appeared.
+
+### Failure
+
+`MapNavigateAction` returns false when:
+
+- `trigger_node` does not exist or its recognition errors (fails immediately);
+- nothing hits after 15 seconds of waiting at `target`;
+- nothing hits and localization stays lost for more than 30 seconds.
 
 ### Related Files
 
