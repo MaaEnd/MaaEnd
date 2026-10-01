@@ -98,21 +98,23 @@ func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode
 	out := make([]SlotRecord, 0, len(picked))
 	for i, hit := range picked {
 		name := strings.TrimSpace(hit.Text)
-		itemID, matched := matchCreditItemID(name)
-		if !matched {
-			log.Warn().
-				Str("component", component).
-				Int("slot", start+i).
-				Str("name", name).
-				Msg("shelf scan: unmatched item name, record without id")
-		}
 		rec := SlotRecord{
 			Slot:     start + i,
 			Name:     name,
+			ID:       hit.ID,
 			Discount: recordDiscountAtNameBox(ctx, img, hit.Box),
 		}
-		if matched {
-			rec.ID = itemID
+		if rec.ID == "" {
+			itemID, matched := matchCreditItemID(name)
+			if !matched {
+				log.Warn().
+					Str("component", component).
+					Int("slot", start+i).
+					Str("name", name).
+					Msg("shelf scan: unmatched item name, record without id")
+			} else {
+				rec.ID = itemID
+			}
 		}
 		out = append(out, rec)
 	}

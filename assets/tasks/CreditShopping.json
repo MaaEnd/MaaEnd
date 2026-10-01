@@ -257,25 +257,18 @@
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "arsenal_ticket": [
-                                    "武库配额",
-                                    "武庫配額",
-                                    "Arsenal Ticket",
-                                    "武庫配給"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "arsenal_ticket": [
-                                    "武库配额",
-                                    "武庫配額",
-                                    "Arsenal Ticket",
-                                    "武庫配給"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemArsenalTicket": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -284,25 +277,18 @@
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemOroberyl": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_diamond.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -311,25 +297,18 @@
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "t_creds": [
-                                    "折金票",
-                                    "折金票",
-                                    "T-Creds",
-                                    "折金券"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "t_creds": [
-                                    "折金票",
-                                    "折金票",
-                                    "T-Creds",
-                                    "折金券"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemTCreds": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_gold.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -338,25 +317,18 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "elementary_cognitive_carrier": [
-                                    "初级认知载体",
-                                    "初級認知載體",
-                                    "Elementary Cognitive Carrier",
-                                    "初級認識媒体"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "elementary_cognitive_carrier": [
-                                    "初级认知载体",
-                                    "初級認知載體",
-                                    "Elementary Cognitive Carrier",
-                                    "初級認識媒体"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemElementaryCognitiveCarrier": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_expcard_stage2_low.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -365,25 +337,18 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "elementary_combat_record": [
-                                    "初级作战记录",
-                                    "初級作戰紀錄",
-                                    "Elementary Combat Record",
-                                    "初級作戦記録"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "elementary_combat_record": [
-                                    "初级作战记录",
-                                    "初級作戰紀錄",
-                                    "Elementary Combat Record",
-                                    "初級作戦記録"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemElementaryCombatRecord": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_expcard_2_1.png",
+                            "threshold": 0.92,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -392,25 +357,18 @@
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "intermediate_combat_record": [
-                                    "中级作战记录",
-                                    "中級作戰紀錄",
-                                    "Intermediate Combat Record",
-                                    "中級作戦記録"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "intermediate_combat_record": [
-                                    "中级作战记录",
-                                    "中級作戰紀錄",
-                                    "Intermediate Combat Record",
-                                    "中級作戦記録"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemIntermediateCombatRecord": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_expcard_2_2.png",
+                            "threshold": 0.92,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -419,25 +377,18 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "arms_inspector": [
-                                    "武器检查单元",
-                                    "武器檢查單元",
-                                    "Arms Inspector",
-                                    "武器検査ユニット"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "arms_inspector": [
-                                    "武器检查单元",
-                                    "武器檢查單元",
-                                    "Arms Inspector",
-                                    "武器検査ユニット"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemArmsInspector": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_expcard_low.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -446,25 +397,18 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemArmsINSPKit": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -473,25 +417,18 @@
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "cast_die": [
-                                    "强固模具",
-                                    "強固模具",
-                                    "Cast Die",
-                                    "硬質金型"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "cast_die": [
-                                    "强固模具",
-                                    "強固模具",
-                                    "Cast Die",
-                                    "硬質金型"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemCastDie": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_break_low.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -500,25 +437,18 @@
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "heavy_cast_die": [
-                                    "重型强固模具",
-                                    "重型強固模具",
-                                    "Heavy Cast Die",
-                                    "重硬質金型"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "heavy_cast_die": [
-                                    "重型强固模具",
-                                    "重型強固模具",
-                                    "Heavy Cast Die",
-                                    "重硬質金型"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemHeavyCastDie": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_break_high.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -527,25 +457,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "protodisk": [
-                                    "协议圆盘",
-                                    "協議圓盤",
-                                    "Protodisk",
-                                    "協約ディスク"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "protodisk": [
-                                    "协议圆盘",
-                                    "協議圓盤",
-                                    "Protodisk",
-                                    "協約ディスク"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemProtodisk": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -554,25 +477,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "protoset": [
-                                    "协议圆盘组",
-                                    "協議圓盤組",
-                                    "Protoset",
-                                    "協約ディスクセット"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "protoset": [
-                                    "协议圆盘组",
-                                    "協議圓盤組",
-                                    "Protoset",
-                                    "協約ディスクセット"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemProtoset": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -581,25 +497,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemProtoprism": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -608,25 +517,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "protohedron": [
-                                    "协议棱柱组",
-                                    "協議稜柱組",
-                                    "Protohedron",
-                                    "協約角柱セット"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "protohedron": [
-                                    "协议棱柱组",
-                                    "協議稜柱組",
-                                    "Protohedron",
-                                    "協約角柱セット"
-                                ]
-                            }
+                        "CreditShoppingPriority1ItemProtohedron": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 }
@@ -938,25 +840,18 @@
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "arsenal_ticket": [
-                                    "武库配额",
-                                    "武庫配額",
-                                    "Arsenal Ticket",
-                                    "武庫配給"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "arsenal_ticket": [
-                                    "武库配额",
-                                    "武庫配額",
-                                    "Arsenal Ticket",
-                                    "武庫配給"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemArsenalTicket": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -965,25 +860,18 @@
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemOroberyl": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_diamond.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -992,25 +880,18 @@
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "t_creds": [
-                                    "折金票",
-                                    "折金票",
-                                    "T-Creds",
-                                    "折金券"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "t_creds": [
-                                    "折金票",
-                                    "折金票",
-                                    "T-Creds",
-                                    "折金券"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemTCreds": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_gold.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1019,25 +900,18 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "elementary_cognitive_carrier": [
-                                    "初级认知载体",
-                                    "初級認知載體",
-                                    "Elementary Cognitive Carrier",
-                                    "初級認識媒体"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "elementary_cognitive_carrier": [
-                                    "初级认知载体",
-                                    "初級認知載體",
-                                    "Elementary Cognitive Carrier",
-                                    "初級認識媒体"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemElementaryCognitiveCarrier": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_expcard_stage2_low.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1046,25 +920,18 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "elementary_combat_record": [
-                                    "初级作战记录",
-                                    "初級作戰紀錄",
-                                    "Elementary Combat Record",
-                                    "初級作戦記録"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "elementary_combat_record": [
-                                    "初级作战记录",
-                                    "初級作戰紀錄",
-                                    "Elementary Combat Record",
-                                    "初級作戦記録"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemElementaryCombatRecord": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_expcard_2_1.png",
+                            "threshold": 0.92,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1073,25 +940,18 @@
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "intermediate_combat_record": [
-                                    "中级作战记录",
-                                    "中級作戰紀錄",
-                                    "Intermediate Combat Record",
-                                    "中級作戦記録"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "intermediate_combat_record": [
-                                    "中级作战记录",
-                                    "中級作戰紀錄",
-                                    "Intermediate Combat Record",
-                                    "中級作戦記録"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemIntermediateCombatRecord": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_expcard_2_2.png",
+                            "threshold": 0.92,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1100,25 +960,18 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "arms_inspector": [
-                                    "武器检查单元",
-                                    "武器檢查單元",
-                                    "Arms Inspector",
-                                    "武器検査ユニット"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "arms_inspector": [
-                                    "武器检查单元",
-                                    "武器檢查單元",
-                                    "Arms Inspector",
-                                    "武器検査ユニット"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemArmsInspector": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_expcard_low.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1127,25 +980,18 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemArmsINSPKit": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1154,25 +1000,18 @@
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "cast_die": [
-                                    "强固模具",
-                                    "強固模具",
-                                    "Cast Die",
-                                    "硬質金型"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "cast_die": [
-                                    "强固模具",
-                                    "強固模具",
-                                    "Cast Die",
-                                    "硬質金型"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemCastDie": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_break_low.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1181,25 +1020,18 @@
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "heavy_cast_die": [
-                                    "重型强固模具",
-                                    "重型強固模具",
-                                    "Heavy Cast Die",
-                                    "重硬質金型"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "heavy_cast_die": [
-                                    "重型强固模具",
-                                    "重型強固模具",
-                                    "Heavy Cast Die",
-                                    "重硬質金型"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemHeavyCastDie": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_break_high.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1208,25 +1040,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "protodisk": [
-                                    "协议圆盘",
-                                    "協議圓盤",
-                                    "Protodisk",
-                                    "協約ディスク"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "protodisk": [
-                                    "协议圆盘",
-                                    "協議圓盤",
-                                    "Protodisk",
-                                    "協約ディスク"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemProtodisk": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1235,25 +1060,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "protoset": [
-                                    "协议圆盘组",
-                                    "協議圓盤組",
-                                    "Protoset",
-                                    "協約ディスクセット"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "protoset": [
-                                    "协议圆盘组",
-                                    "協議圓盤組",
-                                    "Protoset",
-                                    "協約ディスクセット"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemProtoset": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1262,25 +1080,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemProtoprism": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1289,25 +1100,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
-                        "Priority2OCR": {
-                            "attach": {
-                                "protohedron": [
-                                    "协议棱柱组",
-                                    "協議稜柱組",
-                                    "Protohedron",
-                                    "協約角柱セット"
-                                ]
-                            }
-                        },
-                        "Priority2OCR_CanNotAfford": {
-                            "attach": {
-                                "protohedron": [
-                                    "协议棱柱组",
-                                    "協議稜柱組",
-                                    "Protohedron",
-                                    "協約角柱セット"
-                                ]
-                            }
+                        "CreditShoppingPriority2ItemProtohedron": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 }
@@ -1607,25 +1411,18 @@
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "arsenal_ticket": [
-                                    "武库配额",
-                                    "武庫配額",
-                                    "Arsenal Ticket",
-                                    "武庫配給"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "arsenal_ticket": [
-                                    "武库配额",
-                                    "武庫配額",
-                                    "Arsenal Ticket",
-                                    "武庫配給"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemArsenalTicket": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1634,25 +1431,18 @@
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemOroberyl": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_diamond.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1661,25 +1451,18 @@
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "t_creds": [
-                                    "折金票",
-                                    "折金票",
-                                    "T-Creds",
-                                    "折金券"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "t_creds": [
-                                    "折金票",
-                                    "折金票",
-                                    "T-Creds",
-                                    "折金券"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemTCreds": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_gold.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1688,25 +1471,18 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "elementary_cognitive_carrier": [
-                                    "初级认知载体",
-                                    "初級認知載體",
-                                    "Elementary Cognitive Carrier",
-                                    "初級認識媒体"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "elementary_cognitive_carrier": [
-                                    "初级认知载体",
-                                    "初級認知載體",
-                                    "Elementary Cognitive Carrier",
-                                    "初級認識媒体"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemElementaryCognitiveCarrier": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_expcard_stage2_low.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1715,25 +1491,18 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "elementary_combat_record": [
-                                    "初级作战记录",
-                                    "初級作戰紀錄",
-                                    "Elementary Combat Record",
-                                    "初級作戦記録"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "elementary_combat_record": [
-                                    "初级作战记录",
-                                    "初級作戰紀錄",
-                                    "Elementary Combat Record",
-                                    "初級作戦記録"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemElementaryCombatRecord": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_expcard_2_1.png",
+                            "threshold": 0.92,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1742,25 +1511,18 @@
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "intermediate_combat_record": [
-                                    "中级作战记录",
-                                    "中級作戰紀錄",
-                                    "Intermediate Combat Record",
-                                    "中級作戦記録"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "intermediate_combat_record": [
-                                    "中级作战记录",
-                                    "中級作戰紀錄",
-                                    "Intermediate Combat Record",
-                                    "中級作戦記録"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemIntermediateCombatRecord": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_expcard_2_2.png",
+                            "threshold": 0.92,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1769,25 +1531,18 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "arms_inspector": [
-                                    "武器检查单元",
-                                    "武器檢查單元",
-                                    "Arms Inspector",
-                                    "武器検査ユニット"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "arms_inspector": [
-                                    "武器检查单元",
-                                    "武器檢查單元",
-                                    "Arms Inspector",
-                                    "武器検査ユニット"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemArmsInspector": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_expcard_low.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1796,25 +1551,18 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemArmsINSPKit": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1823,25 +1571,18 @@
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "cast_die": [
-                                    "强固模具",
-                                    "強固模具",
-                                    "Cast Die",
-                                    "硬質金型"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "cast_die": [
-                                    "强固模具",
-                                    "強固模具",
-                                    "Cast Die",
-                                    "硬質金型"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemCastDie": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_break_low.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1850,25 +1591,18 @@
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "heavy_cast_die": [
-                                    "重型强固模具",
-                                    "重型強固模具",
-                                    "Heavy Cast Die",
-                                    "重硬質金型"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "heavy_cast_die": [
-                                    "重型强固模具",
-                                    "重型強固模具",
-                                    "Heavy Cast Die",
-                                    "重硬質金型"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemHeavyCastDie": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_weapon_break_high.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1877,25 +1611,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "protodisk": [
-                                    "协议圆盘",
-                                    "協議圓盤",
-                                    "Protodisk",
-                                    "協約ディスク"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "protodisk": [
-                                    "协议圆盘",
-                                    "協議圓盤",
-                                    "Protodisk",
-                                    "協約ディスク"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemProtodisk": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1904,25 +1631,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "protoset": [
-                                    "协议圆盘组",
-                                    "協議圓盤組",
-                                    "Protoset",
-                                    "協約ディスクセット"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "protoset": [
-                                    "协议圆盘组",
-                                    "協議圓盤組",
-                                    "Protoset",
-                                    "協約ディスクセット"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemProtoset": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1931,25 +1651,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemProtoprism": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 },
@@ -1958,25 +1671,18 @@
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
-                        "Priority3OCR": {
-                            "attach": {
-                                "protohedron": [
-                                    "协议棱柱组",
-                                    "協議稜柱組",
-                                    "Protohedron",
-                                    "協約角柱セット"
-                                ]
-                            }
-                        },
-                        "Priority3OCR_CanNotAfford": {
-                            "attach": {
-                                "protohedron": [
-                                    "协议棱柱组",
-                                    "協議稜柱組",
-                                    "Protohedron",
-                                    "協約角柱セット"
-                                ]
-                            }
+                        "CreditShoppingPriority3ItemProtohedron": {
+                            "recognition": "TemplateMatch",
+                            "roi": [
+                                70,
+                                95,
+                                1140,
+                                415
+                            ],
+                            "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
+                            "threshold": 0.7,
+                            "green_mask": true,
+                            "order_by": "Vertical"
                         }
                     }
                 }

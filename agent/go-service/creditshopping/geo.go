@@ -4,23 +4,11 @@ import maa "github.com/MaaXYZ/maa-framework-go/v4"
 
 const component = "creditshopping"
 
-// 与 assets/resource/pipeline/CreditShopping/record.json、
-// assets/resource_adb/pipeline/CreditShopping/record.json 中 RecordItemDiscount.roi_offset 保持一致。
-var (
-	recordItemDiscountROIOffsetPC  = maa.Rect{44, -170, 4, 4}
-	recordItemDiscountROIOffsetADB = maa.Rect{62, -213, -6, 7}
-)
+// 折扣 OCR 相对物品模板框，与未售罄到折扣的偏移一致。
+var recordItemDiscountROIOffset = maa.Rect{100, 2, -104, -140}
 
-func recordItemDiscountROIOffset(ctrl *maa.Controller) maa.Rect {
-	if isADBController(ctrl) {
-		return recordItemDiscountROIOffsetADB
-	}
-	return recordItemDiscountROIOffsetPC
-}
-
-// recordItemDiscountPipelineOverride 为单槽折扣 OCR 构造 pipeline override。
-func recordItemDiscountPipelineOverride(nameBox maa.Rect, ctrl *maa.Controller) map[string]any {
-	off := recordItemDiscountROIOffset(ctrl)
+func recordItemDiscountPipelineOverride(nameBox maa.Rect) map[string]any {
+	off := recordItemDiscountROIOffset
 	return map[string]any{
 		pipelineNodeRecordItemDiscount: map[string]any{
 			"roi":        nameBox,
