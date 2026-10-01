@@ -1,6 +1,8 @@
 #include "RecastNavRoute.h"
 
+#include "BaseNavGeometry.h"
 #include "NavParallel.h"
+#include "OccluderPack.h"
 #include "RecastNavBake.h"
 
 #include <algorithm>
@@ -9,6 +11,7 @@
 #include <chrono>
 #include <cmath>
 #include <limits>
+#include <map>
 #include <optional>
 #include <queue>
 #include <tuple>
@@ -30,6 +33,106 @@ double triHeightOf(const PolyMesh& mesh, int32_t t)
 
 // 净空截断的格数(含取整余量), 与 Clearance 的扫描半径同式。小窗档的可信余量要盖过它。
 constexpr int64_t kEdtCells = static_cast<int64_t>(kEdtCap / kCS) + 1;
+
+// 台沿下落用的角色尺寸 m。
+constexpr double kFallClimb = 0.39;
+constexpr double kFallHeight = 2.1;
+
+// 三角 t 上一点 p 的高。
+double triHeightAt(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
+{
+    const auto& tri = mesh.T[static_cast<size_t>(t)];
+    const WorldPoint a = mesh.v(tri[0]);
+    const WorldPoint b = mesh.v(tri[1]);
+    const WorldPoint c = mesh.v(tri[2]);
+    const double det = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
+    if (det == 0.0) {
+        return triHeightOf(mesh, t);
+    }
+    const double l0 = ((b.y - c.y) * (p.x - c.x) + (c.x - b.x) * (p.y - c.y)) / det;
+    const double l1 = ((c.y - a.y) * (p.x - c.x) + (a.x - c.x) * (p.y - c.y)) / det;
+    return l0 * mesh.h(tri[0]) + l1 * mesh.h(tri[1]) + (1.0 - l0 - l1) * mesh.h(tri[2]);
+}
+
+// 一格在可走面上对应的点与高, 找不到时返回空。
+std::optional<std::pair<WorldPoint, double>> meshPointAt(const ZoneClean& zc, const WorldPoint& p, double h)
+{
+    bool have = false;
+    std::pair<double, double> bk {};
+    std::pair<WorldPoint, double> best {};
+    for (const int32_t t : zc.mesh.trisNear(p, kCS)) {
+        if (zc.walkable[static_cast<size_t>(t)] == 0) {
+            continue;
+        }
+        const auto& tri = zc.mesh.T[static_cast<size_t>(t)];
+        // 跳过别的层
+        const double ha = zc.mesh.h(tri[0]);
+        const double hb = zc.mesh.h(tri[1]);
+        const double hc = zc.mesh.h(tri[2]);
+        if (std::fmin(ha, std::fmin(hb, hc)) > h + kDeckBand + 1e-6 || std::fmax(ha, std::fmax(hb, hc)) < h - kDeckBand - 1e-6) {
+            continue;
+        }
+        const WorldPoint q = detail::ClosestPointOnTriangle(p, { zc.mesh.v(tri[0]), zc.mesh.v(tri[1]), zc.mesh.v(tri[2]) });
+        const double dist = detail::Distance(q, p);
+        if (dist > kCS) {
+            continue;
+        }
+        const double y = triHeightAt(zc.mesh, t, q);
+        if (std::fabs(y - h) > kDeckBand) {
+            continue;
+        }
+        const std::pair<double, double> k { dist, std::fabs(y - h) };
+        if (!have || k < bk) {
+            have = true;
+            bk = k;
+            best = { q, y };
+        }
+    }
+    if (!have) {
+        return std::nullopt;
+    }
+    return best;
+}
+
+// 窗口里的台沿下落交给碰撞体判。
+std::function<bool(int64_t, int64_t, float, float)> FallGate(
+    std::shared_ptr<const OccluderScene> solid,
+    const ZoneClean& zc,
+    const std::array<float, 4>& tf,
+    double x0,
+    double y0,
+    int64_t nx)
+{
+    const double sx = tf[0];
+    const double tx = tf[1];
+    const double sy = tf[2];
+    const double ty = tf[3];
+    if (solid == nullptr || sx == 0.0 || sy == 0.0) {
+        return {};
+    }
+    auto memo = std::make_shared<std::map<std::tuple<int64_t, int64_t, float, float>, bool>>();
+    auto points = std::make_shared<std::map<std::pair<int64_t, float>, OccluderPoint>>();
+    return [solid = std::move(solid), zc = &zc, sx, tx, sy, ty, x0, y0, nx, memo, points](int64_t a, int64_t b, float ha, float hb) {
+        const auto key = std::make_tuple(a, b, ha, hb);
+        if (const auto it = memo->find(key); it != memo->end()) {
+            return it->second;
+        }
+        const auto at = [&](int64_t c, float h) {
+            const auto pk = std::make_pair(c, h);
+            if (const auto hit = points->find(pk); hit != points->end()) {
+                return hit->second;
+            }
+            const WorldPoint p { x0 + (static_cast<double>(c % nx) + 0.5) * kCS, y0 + (static_cast<double>(c / nx) + 0.5) * kCS };
+            const auto m = meshPointAt(*zc, p, static_cast<double>(h)).value_or(std::make_pair(p, static_cast<double>(h)));
+            const OccluderPoint q { .x = (m.first.x - tx) / sx, .y = m.second, .z = (ty - m.first.y) / sy };
+            points->emplace(pk, q);
+            return q;
+        };
+        const bool ok = !solid->dropBlocked(at(a, ha), at(b, hb), kFallClimb, kFallHeight);
+        memo->emplace(key, ok);
+        return ok;
+    };
+}
 
 struct WindowInfo
 {
@@ -2363,6 +2466,11 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
     }
 
+    // 台沿下落查碰撞体, 区没有碰撞体就照旧放行。
+    const BaseNavZone* pz = pack_.findZoneByName(zone_name);
+    const std::shared_ptr<const OccluderScene> solid =
+        pz != nullptr ? LoadOccluderScene(OccluderSidecarPath(pack_.path()), zone_name) : nullptr;
+
     // 端点接不上可走层的腿在全区图上就能判掉。全区核心是任何窗口内核心的超集,
     // 量出来的锚距是窗口里那把尺子的下界,过不了这道闸的腿换多大的窗口也接不上。
     const double zsa = coreAnchorPx(grid_, *gz, start);
@@ -2577,6 +2685,9 @@ RecastPlanResult RecastNavEngine::planLocked(
             }
             res.error = err.empty() ? "路线失败" : err;
             return res;
+        }
+        if (pz != nullptr) {
+            info->st3.fall = FallGate(solid, zc, pz->transform, x0, y0, nx);
         }
         RouteDiag dg;
         dg.margin = margin;

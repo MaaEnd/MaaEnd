@@ -44,9 +44,9 @@ constexpr char kHexDigits[] = "0123456789abcdef";
 
 std::filesystem::path salt_path()
 {
-    // go-service 的工作目录是 <install>，其 debug/record/random_salt.txt 与这里从
-    // <install>/agent/cpp-algo.exe 锚定出来的是同一个文件。
-    return get_exe_dir() / ".." / "debug" / "record" / "random_salt.txt";
+    // go-service 的工作目录是 <install>，其 debug/record/random_salt.txt 与这里经
+    // get_install_dir() 定位到的是同一个文件（桌面为 exe 上一级，Android 为工作目录）。
+    return get_install_dir() / "debug" / "record" / "random_salt.txt";
 }
 
 std::string trim(std::string value)

@@ -343,6 +343,9 @@ void TestControllerTypeSelectsKnownGridScale()
     const auto playcover = iconrecognition::detail::GridScaleForControllerType("PlayCover");
     Check(playcover && std::abs(*playcover - 1.25) <= 1e-6, "PlayCover controller must use the ADB grid scale");
 
+    const auto native_android = iconrecognition::detail::GridScaleForControllerType("native_android");
+    Check(native_android && std::abs(*native_android - 1.25) <= 1e-6, "Android native controller must use the ADB grid scale");
+
     const auto linux_scale = iconrecognition::detail::GridScaleForControllerType("linux");
     Check(linux_scale && std::abs(*linux_scale - 1.0) <= 1e-6, "Linux controller must use the standard grid scale");
 

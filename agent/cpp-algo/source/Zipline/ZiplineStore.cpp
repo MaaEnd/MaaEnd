@@ -38,7 +38,7 @@ std::string CurrentTimestamp()
 
 std::filesystem::path ZiplineStore::DefaultPath()
 {
-    return get_exe_dir() / ".." / "debug" / "record" / kRecordFileName;
+    return get_install_dir() / "debug" / "record" / kRecordFileName;
 }
 
 bool ZiplineStore::load(const std::filesystem::path& path)

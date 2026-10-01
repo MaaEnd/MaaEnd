@@ -93,8 +93,8 @@ private:
 
 // Directory containing the running executable. Resolve bundled resources against this rather than
 // the process current-working-directory: the CWD differs between dev and production, but resources
-// always ship at a fixed location relative to the binary. This is the single anchor used by every
-// resource lookup (MapLocator models, navmesh pack, ...).
+// always ship at a fixed location relative to the binary. Resource lookups go through
+// get_install_dir() below, which anchors on this except where the platform separates the two.
 inline std::filesystem::path get_exe_dir()
 {
 #ifdef _WIN32
@@ -112,6 +112,22 @@ inline std::filesystem::path get_exe_dir()
         return cwd;
     }
     return {};
+}
+
+// Install root: the directory holding resource/, data/, locales/ and debug/. On desktop the agent
+// ships in <root>/agent, so it is the executable's parent. On Android (MaaFwApp) the agent ELF lives
+// in the APK's read-only nativeLibraryDir while the resources are unpacked into the working
+// directory the host launches the agent in, so the CWD is the install root there.
+inline std::filesystem::path get_install_dir()
+{
+#ifdef __ANDROID__
+    std::error_code ec;
+    const std::filesystem::path cwd = std::filesystem::current_path(ec);
+    if (!ec && !cwd.empty()) {
+        return cwd;
+    }
+#endif
+    return get_exe_dir() / "..";
 }
 
 #ifdef _WIN32

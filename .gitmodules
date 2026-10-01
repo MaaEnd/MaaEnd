@@ -7,3 +7,7 @@
 [submodule "tests/MaaEndTestset"]
 	path = tests/MaaEndTestset
 	url = https://github.com/MaaEnd/MaaEndTestset
+[submodule "Android/MaaFwApp"]
+	path = Android/MaaFwApp
+	url = https://github.com/Aliothmoon/MaaFwApp.git
+	branch = main

@@ -12,7 +12,17 @@
 _✨ MAA 终末地小助手 ✨_
 <!-- prettier-ignore-end -->
 
-Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https://github.com/MistEO/MXU)
+[![Pipeline](https://img.shields.io/badge/Pipeline-%23876f69?logo=paddypower&logoColor=%23FFFFFF)](https://github.com/MaaXYZ/MaaFramework)
+[![C++](https://img.shields.io/badge/C%2B%2B-00599C?logo=cplusplus)](https://github.com/MaaEnd/MaaEnd/tree/v2/agent/cpp-algo)
+[![Go](https://img.shields.io/badge/Go-007d9c?logo=go)](https://github.com/MaaEnd/MaaEnd/tree/v2/agent/go-service)
+[![license](https://img.shields.io/github/license/MaaEnd/MaaEnd)](https://github.com/MaaEnd/MaaEnd/blob/v2/LICENSE)
+[![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android-blueviolet)](https://maaend.com/)
+[![release](https://img.shields.io/github/v/release/MaaEnd/MaaEnd?label=release)](https://github.com/MaaEnd/MaaEnd/releases)
+[![downloads](https://img.shields.io/github/downloads/MaaEnd/MaaEnd/latest/total)](https://github.com/MaaEnd/MaaEnd/releases/latest)
+[![stars](https://img.shields.io/github/stars/MaaEnd/MaaEnd?style=flat)](https://github.com/MaaEnd/MaaEnd/stargazers)
+[![commit activity](https://img.shields.io/github/commit-activity/m/MaaEnd/MaaEnd)](https://github.com/MaaEnd/MaaEnd/commits/v2)
+
+Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https://github.com/MistEO/MXU) & [MaaFwApp](https://github.com/Aliothmoon/MaaFwApp)
 
 绝赞开发中 🎉……
 

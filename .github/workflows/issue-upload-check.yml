@@ -37,7 +37,7 @@ jobs:
             // 检查是否包含上传相关的关键词
             const uploadFailedPattern = /Failed to upload/i;
             const uploadingPattern = /Uploading/i;
-            const uploadedLogsPattern = /(MaaEnd-logs-[^\s\])]+\.zip|(?:^|[\\/])maa(?:\.bak)?\.log)(?=$|[^A-Za-z0-9_.-])/i;
+            const uploadedLogsPattern = /((?:MaaEnd-logs-|maafw_logs_)[^\s\])]+\.zip|(?:^|[\\/])maa(?:\.bak)?\.log)(?=$|[^A-Za-z0-9_.-])/i;
             
             const hasUploadFailed = uploadFailedPattern.test(textToCheck);
             const hasUploading = uploadingPattern.test(textToCheck);

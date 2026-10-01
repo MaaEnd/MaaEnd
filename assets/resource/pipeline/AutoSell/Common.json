@@ -36,14 +36,14 @@
                     "interact_text": [
                         "物资调度终端",
                         "物資調度終端"
-                    ]
+                    ],
+                    "interact_rec": true
                 }
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellEnterStockRedistributionSuccess",
             "AutoSellPressStockRedistribution"
         ],
         "focus": {
@@ -57,7 +57,7 @@
         }
     },
     "AutoSellPressStockRedistribution": {
-        "desc": "寻路偶现走到目的地了不按，因此检查一下",
+        "desc": "寻路只确认交互提示，由本节点按交互键打开物资调度终端",
         "recognition": "OCR",
         "roi": [
             755,

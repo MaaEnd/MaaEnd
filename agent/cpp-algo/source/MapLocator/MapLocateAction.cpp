@@ -102,11 +102,11 @@ struct MapLocateAssertLocationOutput
         MEO_OPT target)
 };
 
-fs::path getExeDir()
+fs::path getInstallDir()
 {
     // Shared single-source resolution (see source/utils.h). Kept as a thin alias so MapLocator and
     // MapNavigator anchor resources identically.
-    return get_exe_dir();
+    return get_install_dir();
 }
 
 // 参数由 pipeline 提供，字段类型不由本模块保证。解析失败退回默认值，与不传参数同路。
@@ -282,7 +282,8 @@ bool UsesAdbMinimapRoi(std::string_view controller_type)
                });
     };
 
-    return equals_ignore_case("adb") || equals_ignore_case("playcover") || equals_ignore_case("play_cover");
+    return equals_ignore_case("adb") || equals_ignore_case("playcover") || equals_ignore_case("play_cover")
+           || equals_ignore_case("native_android");
 }
 
 bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const LocateOptions& options, LocateResult* out_result)
@@ -331,10 +332,10 @@ bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const 
 std::shared_ptr<MapLocator> getOrInitLocator()
 {
     static std::shared_ptr<MapLocator> locator = []() {
-        fs::path exeDir = getExeDir();
-        fs::path mapRoot = exeDir / ".." / "resource" / "image" / "MapLocator";
-        fs::path yoloModel = exeDir / ".." / "resource" / "model" / "map" / "cls.onnx";
-        fs::path cameraOrientationDir = exeDir / ".." / "resource" / "model" / "map" / "cameraorientation";
+        fs::path installDir = getInstallDir();
+        fs::path mapRoot = installDir / "resource" / "image" / "MapLocator";
+        fs::path yoloModel = installDir / "resource" / "model" / "map" / "cls.onnx";
+        fs::path cameraOrientationDir = installDir / "resource" / "model" / "map" / "cameraorientation";
         fs::path cameraOrientationPreprocessModel = cameraOrientationDir / "preprocess.onnx";
         fs::path cameraOrientationRefModel = cameraOrientationDir / "polar_with_ref.onnx";
 

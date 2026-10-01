@@ -130,6 +130,8 @@ struct SpanTable
     // 二分; 比逐格 4 字节的直查表小 30 倍。长度只到最大占用格, 表外一律当空格。
     std::vector<uint64_t> occ_bits;
     std::vector<int32_t> occ_rank;
+    // 台沿下落能不能跳: (出发格, 落点格, 出发高, 落点高)。空 = 不另判。
+    std::function<bool(int64_t, int64_t, float, float)> fall;
 
     int64_t nOcc() const { return cs.empty() ? 0 : static_cast<int64_t>(cs.size()) - 1; }
 

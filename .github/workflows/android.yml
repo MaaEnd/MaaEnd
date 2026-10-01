@@ -1,0 +1,336 @@
+name: build-android-apk
+
+# 正式版（v* tag）不在这里单独触发：由 install.yml 以 workflow_call 调用，APK 与桌面包一起进 Release
+on:
+  push:
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/android.yml"
+      - "Android/**"
+      - "agent/**"
+      - "tools/build_android_agents.py"
+  pull_request:
+    paths:
+      - ".github/workflows/android.yml"
+      - "Android/**"
+      - "agent/**"
+      - "tools/build_android_agents.py"
+  workflow_dispatch:
+    inputs:
+      assemble:
+        description: "debug 只出 arm64-v8a 调试包；release 出 universal / arm64-v8a / x86_64 三个包"
+        type: choice
+        options:
+          - debug
+          - release
+        default: debug
+      maafw_version:
+        description: "MaaFramework release tag，留空与 install.yml 一致取最新 release"
+        required: false
+        type: string
+        default: ""
+  workflow_call:
+    inputs:
+      assemble:
+        type: string
+        default: release
+      ref:
+        description: "构建的 git ref，留空取触发事件的 ref"
+        type: string
+        default: ""
+      tag:
+        description: "APK 文件名里的版本，留空按 git describe 计算"
+        type: string
+        default: ""
+      maafw_version:
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # agent 交叉编译用的 NDK；MaaFwApp 自身的 native 部分由 AGP 按其默认版本自动下载
+  AGENT_NDK_VERSION: "29.0.13599879"
+
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    outputs:
+      assemble: ${{ steps.mode.outputs.assemble }}
+      variants: ${{ steps.mode.outputs.variants }}
+      abis: ${{ steps.mode.outputs.abis }}
+      tag: ${{ steps.mode.outputs.tag }}
+      maafw_version: ${{ inputs.maafw_version || steps.maafw-latest-release.outputs.release }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - id: mode
+        env:
+          INPUT_ASSEMBLE: ${{ inputs.assemble }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          # 手动运行与 workflow_call 都带 assemble；push / PR 只出 debug
+          assemble="${INPUT_ASSEMBLE:-debug}"
+
+          # debug 只出 arm64-v8a 包（真机测试用），agent 也只编这一个 ABI；release 出 universal 与两个单 ABI 包
+          if [[ "$assemble" == release ]]; then
+            variants='["universal","arm64-v8a","x86_64"]'
+            abis='["arm64-v8a","x86_64"]'
+          else
+            variants='["arm64-v8a"]'
+            abis='["arm64-v8a"]'
+          fi
+
+          tag="${INPUT_TAG:-$(git describe --tags --match "v*" HEAD 2>/dev/null || git rev-parse --short HEAD)}"
+
+          echo "assemble=$assemble" | tee -a "$GITHUB_OUTPUT"
+          echo "variants=$variants" | tee -a "$GITHUB_OUTPUT"
+          echo "abis=$abis" | tee -a "$GITHUB_OUTPUT"
+          echo "tag=$tag" | tee -a "$GITHUB_OUTPUT"
+
+      # 与 install.yml 保持一致：取 MaaFramework 最新 release
+      - id: maafw-latest-release
+        if: inputs.maafw_version == ''
+        uses: step-security/github-action-get-latest-release@v0.8.2
+        with:
+          repository: MaaXYZ/MaaFramework
+          excludes: "draft"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  agents:
+    needs: meta
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: ${{ fromJSON(needs.meta.outputs.abis) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          persist-credentials: false
+
+      - name: Initialize MaaUtils submodule
+        run: git submodule update --init --depth 1 agent/cpp-algo/MaaUtils
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: agent/go-service/go.mod
+          cache-dependency-path: |
+            agent/go-service/go.mod
+            agent/go-service/go.sum
+
+      - name: Install native build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Install Android NDK
+        run: |
+          echo "y" | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$AGENT_NDK_VERSION" > /dev/null
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/$AGENT_NDK_VERSION" >> "$GITHUB_ENV"
+
+      - name: Cache MaaDeps
+        uses: actions/cache@v5
+        with:
+          path: agent/cpp-algo/MaaUtils/MaaDeps
+          key: maadeps-android-${{ matrix.abi }}-${{ hashFiles('tools/maadeps-download.py', 'agent/cpp-algo/MaaUtils/tools/maadeps_download.py') }}
+
+      - name: Build agents
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 外部输入经 env 传入，不直接拼进脚本
+          ABI: ${{ matrix.abi }}
+          MAAFW_VERSION: ${{ needs.meta.outputs.maafw_version }}
+          VERSION_TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          python3 tools/build_android_agents.py \
+            --ndk "$ANDROID_NDK_ROOT" \
+            --abi "$ABI" \
+            --maafw-version "$MAAFW_VERSION" \
+            --version "$VERSION_TAG"
+
+      - name: Validate agent ELF files
+        run: |
+          readelf="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+          machine=${{ matrix.abi == 'arm64-v8a' && 'AArch64' || 'X86-64' }}
+          for elf in Android/agent-dist/${{ matrix.abi }}/jniLibs/*.so; do
+            "$readelf" -h "$elf" | grep -q "Machine:.*$machine"
+            "$readelf" -l "$elf" | grep -q "/system/bin/linker64"
+            "$readelf" -d "$elf" | grep NEEDED
+          done
+
+      # 只含本 ABI，产物内布局为 <abi>/jniLibs/lib*.so，可直接合并进 agent-dist
+      - uses: actions/upload-artifact@v6
+        with:
+          name: agent-dist-${{ matrix.abi }}
+          path: Android/agent-dist
+          if-no-files-found: error
+          retention-days: 7
+
+  apk:
+    needs: [meta, agents]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJSON(needs.meta.outputs.variants) }}
+    env:
+      ASSEMBLE: ${{ needs.meta.outputs.assemble }}
+      ABIS: ${{ matrix.variant == 'universal' && 'arm64-v8a,x86_64' || matrix.variant }}
+    steps:
+      # 版本号取自最外层仓库的 git describe / 提交数，需要完整历史
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Initialize submodules
+        run: git submodule update --init --depth 1 Android/MaaFwApp assets/resource/model
+
+      # 临时：PI 的预设不能按控制器区分，桌面预设带不了只支持移动端的 AndroidOpenGame，
+      # 只在打 Android 包时把它插到这三个预设的第一个
+      - name: Prepend AndroidOpenGame to presets
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          for name in ("DailyFull", "QuickDaily", "RealtimeAssist"):
+              path = Path("assets/tasks/preset") / f"{name}.json"
+              data = json.loads(path.read_text(encoding="utf-8"))
+              for preset in data["preset"]:
+                  tasks = preset["task"]
+                  if not tasks or tasks[0]["name"] != "AndroidOpenGame":
+                      tasks.insert(0, {"name": "AndroidOpenGame"})
+                  print(f"{path}: {preset['name']} -> {[t['name'] for t in tasks[:3]]}")
+              path.write_text(json.dumps(data, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: "17"
+          distribution: temurin
+
+      - uses: android-actions/setup-android@v4
+
+      - name: Cache Gradle
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('Android/MaaFwApp/**/*.gradle.kts', 'Android/MaaFwApp/**/gradle-wrapper.properties', 'Android/MaaFwApp/**/libs.versions.toml') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: agent-dist-${{ matrix.variant == 'universal' && '*' || matrix.variant }}
+          path: Android/agent-dist
+          merge-multiple: true
+
+      - name: Deploy MaaFramework
+        working-directory: Android/MaaFwApp
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FW_ABI: ${{ matrix.variant == 'universal' && 'all' || matrix.variant }}
+          MAAFW_VERSION: ${{ needs.meta.outputs.maafw_version }}
+        run: |
+          python3 scripts/setup_maa_framework.py \
+            --abi "$FW_ABI" \
+            --tag "$MAAFW_VERSION"
+
+      - name: Write local.properties
+        working-directory: Android/MaaFwApp
+        run: |
+          {
+            echo "sdk.dir=${ANDROID_HOME}"
+            echo "pi.profile=../profile.yaml"
+            echo "build.debugAbi=${ABIS}"
+            echo "build.releaseAbi=${ABIS}"
+          } > local.properties
+          cat local.properties
+
+      - name: Decode keystore
+        id: keystore
+        if: env.ASSEMBLE == 'release'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [[ -z "$KEYSTORE_BASE64" ]]; then
+            echo "::warning::未配置 KEYSTORE_BASE64，release 包不签名"
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "path=$RUNNER_TEMP/release.jks" >> "$GITHUB_OUTPUT"
+
+      - name: Build APK
+        working-directory: Android/MaaFwApp
+        # 签名 Secret 只交给 release 构建
+        env:
+          KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
+          KEYSTORE_PASSWORD: ${{ env.ASSEMBLE == 'release' && secrets.KEYSTORE_PASSWORD || '' }}
+          KEY_ALIAS: ${{ env.ASSEMBLE == 'release' && secrets.KEY_ALIAS || '' }}
+          KEY_PASSWORD: ${{ env.ASSEMBLE == 'release' && secrets.KEY_PASSWORD || '' }}
+        run: |
+          chmod +x ./gradlew
+          if [[ "$ASSEMBLE" == release ]]; then
+            ./gradlew --no-daemon assembleRelease
+          else
+            ./gradlew --no-daemon assembleDebug
+          fi
+
+      # 与桌面包同一命名 MaaEnd-<os>-<arch>-<tag>，Release 与 Mirror酱 上传都按这个名字认包
+      # universal 包不能带 ABI 标记：应用内更新按资产名选包，带标记会绕过 universal 回退
+      - name: Rename APK
+        env:
+          VERSION_TAG: ${{ needs.meta.outputs.tag }}
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          dir="Android/MaaFwApp/app/build/outputs/apk/$ASSEMBLE"
+          count=$(find "$dir" -maxdepth 1 -name "*.apk" | wc -l)
+          if [[ "$count" -ne 1 ]]; then
+            echo "::error::预期恰好一个 APK，实际 $count 个"
+            exit 1
+          fi
+          name="MaaEnd-android-$VARIANT-${VERSION_TAG//\//-}"
+          [[ "$ASSEMBLE" == release ]] || name="$name-debug"
+          mv "$dir"/*.apk "$dir/$name.apk"
+          echo "APK_PATH=$dir/$name.apk" >> "$GITHUB_ENV"
+
+      - name: Check APK native libraries
+        run: |
+          IFS=, read -ra abis <<< "$ABIS"
+          for abi in "${abis[@]}"; do
+            for lib in libcpp-algo.so libgo-service.so libMaaFramework.so libMaaAgentServer.so; do
+              unzip -l "$APK_PATH" | grep -q "lib/$abi/$lib" || { echo "::error::$APK_PATH 缺少 lib/$abi/$lib"; exit 1; }
+            done
+          done
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: MaaEnd-android-${{ matrix.variant }}-${{ needs.meta.outputs.assemble }}
+          path: ${{ env.APK_PATH }}
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload R8 mapping
+        if: env.ASSEMBLE == 'release' && matrix.variant == 'universal'
+        uses: actions/upload-artifact@v6
+        with:
+          name: MaaEnd-android-mapping
+          path: Android/MaaFwApp/app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: error

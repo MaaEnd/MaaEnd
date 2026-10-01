@@ -23,9 +23,11 @@ inline bool EqualsIgnoreCase(std::string_view lhs, std::string_view rhs)
            });
 }
 
+// 走触控、用移动端 UI 的控制器。native_android 是 MaaFramework 的 Android 原生控制器（MaaFwApp 在手机上直接跑），
+// 画面与 ADB 连模拟器 / 手机看到的是同一套移动端界面，只是不经过 adb。
 inline bool IsAdbLikeControllerType(std::string_view controller_type)
 {
-    constexpr std::array<std::string_view, 3> kAdbLikeControllerTypes = { "adb", "playcover", "play_cover" };
+    constexpr std::array<std::string_view, 4> kAdbLikeControllerTypes = { "adb", "playcover", "play_cover", "native_android" };
     return std::ranges::any_of(kAdbLikeControllerTypes, [&](std::string_view candidate) {
         return EqualsIgnoreCase(controller_type, candidate);
     });
@@ -45,7 +47,7 @@ inline bool IsLinuxControllerType(std::string_view controller_type)
 // 顺序找, 基础资源永远排最后。云游戏与本地 ADB 在控制器类型上无法区分, 所以 resource_cloud_adb 不参与。
 inline std::vector<std::filesystem::path> ResourceImageRoots(std::string_view controller_type)
 {
-    const std::filesystem::path install_dir = std::filesystem::absolute(get_exe_dir() / "..");
+    const std::filesystem::path install_dir = std::filesystem::absolute(get_install_dir());
 
     std::vector<std::string> dirs;
     if (IsPlayCoverControllerType(controller_type)) {

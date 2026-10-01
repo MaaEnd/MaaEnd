@@ -68,6 +68,7 @@
 - **流程控制**：禁止在 Go 中编写大规模的业务流程，流程控制应交由 Pipeline JSON 负责。
 - **注册机制**：新增、重命名或删除自定义动作/识别时，需同步修改对应子包 `register.go`；新增或删除子包时，还需在 `registerAll()` 中接入或移除。
 - **参数极简**：新增或修改 Custom Recognition / Action 时，`custom_recognition_param` / `custom_action_param` 应尽可能简单——用户未明确要求的参数不要自行添加，避免擅自设计大量接口。
+- **句柄生命周期**：回调里的 `ctx` / `tasker` / `controller` / `resource` 只在本次回调内有效；同一回调内 `GetController()` / `GetResource()` 只调用一次并往下传，再次调用会使上一次返回的对象失效。详见 [Go Service 编写指南](.agents/skills/go-service-guide/SKILL.md) 的「句柄生命周期」一节。
 
 ### 3. Cpp Algo 规范
 

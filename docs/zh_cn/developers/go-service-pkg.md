@@ -225,6 +225,8 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 
 不要自己再 `os.Getenv("PI_...")` 散落解析。
 
+判断控制器类型一律用 `ControllerType()`，不要为此去取 controller 调 `GetInfo()`：同一回调里每多取一次 controller，之前拿到的那个就会失效（见[编码规范 · 回调里的句柄怎么用](./coding-standards.md#回调里的句柄怎么用)）。
+
 ### `resource`：资源文件定位与读取
 
 路径：`pkg/resource/`

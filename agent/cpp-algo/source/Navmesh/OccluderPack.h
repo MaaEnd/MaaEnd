@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -110,6 +111,9 @@ struct OccluderScene
     // the sign flipped under a mirroring placement. Meeting nothing leaves base.y. The result is kept within
     // base.y ± 1 m.
     double groundHeight(const OccluderPoint& base) const;
+
+    // Whether solid faces block dropping from `take` down to `land`.
+    bool dropBlocked(const OccluderPoint& take, const OccluderPoint& land, double climb, double height) const;
 };
 
 // Decodes only the scene of zone_name from the whole decompressed container. Returns nullptr on malformed bytes.
@@ -117,5 +121,8 @@ std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, si
 
 // The occluder pack beside a main pack: base.nav.gz -> base.occluder.gz.
 std::filesystem::path OccluderSidecarPath(const std::filesystem::path& main_pack);
+
+// The scene of zone_name in the occluder pack at path, loaded once and shared.
+std::shared_ptr<const OccluderScene> LoadOccluderScene(const std::filesystem::path& path, const std::string& zone_name);
 
 } // namespace navmesh

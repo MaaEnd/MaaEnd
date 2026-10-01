@@ -73,8 +73,8 @@ const std::unordered_map<std::string, std::string>& Messages()
 {
     static const std::unordered_map<std::string, std::string> messages = [] {
         std::unordered_map<std::string, std::string> loaded;
-        // 装在 assets/locales 下，安装后落到包根的 locales/，所以从 exe 往上一级找。
-        const std::filesystem::path dir = get_exe_dir() / ".." / kLocaleRelativeDir;
+        // 装在 assets/locales 下，安装后落到包根的 locales/，所以从安装根找。
+        const std::filesystem::path dir = get_install_dir() / kLocaleRelativeDir;
         const std::string lang = ResolveLanguage();
         // 先铺默认语言再覆盖目标语言，新加的 key 还没翻译时不至于变成裸 key。
         LoadInto(dir, kDefaultLang, loaded);
