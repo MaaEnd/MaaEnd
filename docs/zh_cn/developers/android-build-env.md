@@ -10,14 +10,13 @@
 
 ## 先看结论
 
-第一次配环境，只记两句话：
+第一次配环境，按顺序做三件事：
 
-| | 记住这个 |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ✅ **要做** | 装 6 样东西 → [第 1 节](#1-装这-6-样)　　配 3 个环境变量 → [第 2 节](#2-配这-3-个环境变量)　　跑一次体检 → [第 3 节](#3-跑一次体检) |
-| 🙅 **不用做** | Ninja、NDK 路径、`CGO_ENABLED` 这些脚本会自己处理，别手动配 → [第 4 节](#4-不用做的事) |
+1. 装 6 样东西 → [第 1 节](#1-装这-6-样)
+2. 配好 Android SDK 路径 → [第 2 节](#2-配-android-sdk-路径)
+3. 跑一次体检 → [第 3 节](#3-跑一次体检)
 
-**照着下面的命令抄就不会出错。** 万一报错，去 [第 5 节](#5-装依赖时的报错) 对号入座。
+**照着命令抄就不会出错。** 万一报错，去 [第 4 节](#4-装依赖时的报错) 对号入座。
 
 配完**务必重开终端**，已经开着的窗口读不到新变量。
 
@@ -73,8 +72,8 @@ sdkmanager --install "ndk;29.0.13599879"
 
 | 装法 | 命令 | 说明 |
 | ------------------ | ------------------------------------------- | ---------------------------------------------------- |
-| **用 SDK 的**（推荐） | `sdkmanager --install "cmake;3.31.6"` | 它 ≥ 3.28 够用，**而且包里自带 `ninja`，连 [第 4 节](#4-不用做的事) 里"不用单独装 Ninja"这条也一并对上** |
-| 装系统 CMake | Windows `winget install Kitware.CMake`；macOS `brew install cmake` | 也行，但要另外确认 Ninja |
+| **用 SDK 的**（推荐） | `sdkmanager --install "cmake;3.31.6"` | 它 ≥ 3.28 够用，**而且包里自带 `ninja`，不用再单独装** |
+| 装系统 CMake | Windows `winget install Kitware.CMake`；macOS `brew install cmake` | 也行，但 Ninja 要自己保证在 `PATH` 上 |
 
 脚本会先翻 `<SDK>/cmake/*`，再找 `PATH`，所以上面两种都认。
 
@@ -94,19 +93,19 @@ uv run tools/build_android_agents.py --check-env
 
 ---
 
-## 2. 配这 3 个环境变量
+## 2. 配 Android SDK 路径
 
-装完还得配环境变量——**这是最容易漏的一步**，脚本就是靠它们找工具的：
+**只有 SDK 路径是必须的**，另两个设了更稳：
 
-| 环境变量 | 指向 | 谁在用 |
-| ---------------- | --------------------------------------------- | ---------------------------- |
-| `JAVA_HOME` | JDK 根目录 | Gradle、`sdkmanager` |
-| `ANDROID_HOME` | Android SDK 根目录 | 找 NDK / CMake / Ninja |
-| `ANDROID_NDK_ROOT` | NDK 根目录（例如 `.../ndk/29.0.13599879`） | 交叉编译 agent |
+| 环境变量 | 必需？ | 指向 | 说明 |
+| ---------------------------------------- | ---------------- | --------------------------------------------- | -------------------------------------------------- |
+| `ANDROID_HOME` 或 `ANDROID_SDK_ROOT` | **必需**（二选一） | Android SDK 根目录 | 脚本靠它找 NDK / CMake / Ninja |
+| `ANDROID_NDK_ROOT` | 推荐 | NDK 根目录（例如 `.../ndk/29.0.13599879`） | 没设时脚本自己挑 `<SDK>/ndk` 里最新的 |
+| `JAVA_HOME` | 推荐 | JDK 根目录 | 没设时用 `PATH` 上的 `java`；装了多个 JDK 时建议设 |
 
 > [!WARNING]
 >
-> **光装好还不够，环境变量必须配上。** 最常见的现象是：依赖全都装了，但没设 `JAVA_HOME`，于是 `java` 落到 PATH 上某个旧的 JDK 8，构建时才报"JDK 太老"。体检只看环境变量和 PATH，不会去别的目录替你找——找不到就是你还没配。
+> **光装好还不够，SDK 路径必须配上。** 不配的话体检第一项就会报 `ANDROID_HOME / ANDROID_SDK_ROOT is not set`。
 
 ---
 
@@ -128,25 +127,15 @@ Android build environment check
 OK  environment ready: JDK 17+, Android SDK, Android NDK, CMake >= 3.28, Ninja, Go, MaaUtils submodule
 ```
 
+第二行是你自己的系统和 Python 版本（macOS 上会是 `Darwin arm64`），**不用和上面完全一致**。
+
+判断标准只有一条：出现 `OK  environment ready`。这一行里列的项目对所有人都一样。
+
 </details>
 
 ---
 
-## 4. 不用做的事
-
-下面这些**脚本会自己处理，别手动配**：
-
-| 不用做 | 为什么 |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| 单独装 Ninja | 装了 [1.2](#12-选一份-cmake) 里 SDK 的 CMake，脚本会自动去 `<SDK>/cmake/*/bin` 找 `ninja` 并补进本次构建的 `PATH` |
-| 配 `ANDROID_NDK_ROOT` 才能编 | 没设时脚本会去 `ANDROID_HOME/ndk` 里挑版本最高的一份（设了更稳，推荐设） |
-| 设 `CGO_ENABLED` / `GOOS` / `CC` | go-service 依赖 `purego`，Android 上必须开 cgo 才能 `dlopen`；脚本交叉编译时会连同这些一起设好 |
-| 管外壳那个 CMake 3.22.1 | Gradle 首次构建时自动下载 |
-| 装 Android Studio | 命令行工具就够 |
-
----
-
-## 5. 装依赖时的报错
+## 4. 装依赖时的报错
 
 ### `Warning: Failed to find package 'platforms;android-37'`
 
@@ -166,9 +155,7 @@ OK  environment ready: JDK 17+, Android SDK, Android NDK, CMake >= 3.28, Ninja, 
 
 > [!NOTE]
 >
-> 体检说 Ninja OK，但你自己敲 `ninja --version` 没输出——这是正常的，脚本找的是 `<SDK>/cmake/*/bin` 里那份，不在你的 `PATH` 里。以 [1.3](#13-检查点) 的体检结果为准，别自己加 `PATH`。
->
-> 真要手动加的话，**追加到末尾**：这个目录里 `cmake` 和 `ninja` 是在一起的，放前面会让那份 CMake 3.22.1 遮蔽你新装的版本，反而不满足 ≥ 3.28。
+> 体检说 Ninja OK、你手敲 `ninja --version` 却没输出，是正常的——脚本找的是 `<SDK>/cmake/*/bin` 里那份，不在 `PATH` 上，以体检结果为准。真要自己加就**追加到末尾**（放前面会让那份 CMake 3.22.1 遮蔽新装的版本）。
 
 ### `CMake >= 3.28 required, but the newest one found is 3.22.1`
 
