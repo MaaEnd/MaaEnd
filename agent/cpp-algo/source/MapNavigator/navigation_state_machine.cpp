@@ -1919,29 +1919,38 @@ bool NavigationStateMachine::TickNavigate()
         return walk_engaged ? base_ms * kWalkModeSlowFactor : base_ms;
     };
     const bool drops_turn_sends = motion_controller_->SteeringDropsTurnSends();
-    std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count() >= pending_lifetime_ms(turn.delta_deg);
-    });
-    if (steering_rate.pending_turn_deg != 0.0) {
-        const bool written_off = drops_turn_sends
-                                     ? steering_rate.in_flight.empty()
-                                     : std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count()
-                                           >= pending_lifetime_ms(steering_rate.cmd_delta_deg);
-        if (written_off) {
+    if (drops_turn_sends) {
+        std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count() >= pending_lifetime_ms(turn.delta_deg);
+        });
+        if (steering_rate.pending_turn_deg != 0.0) {
+            if (steering_rate.in_flight.empty()) {
+                steering_rate.pending_turn_deg = 0.0;
+            }
+            else {
+                const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
+                const double owed = std::abs(steering_rate.pending_turn_deg);
+                double negative_sent_deg = 0.0;
+                double positive_sent_deg = 0.0;
+                for (const SteeringRateState::InFlightTurn& turn : steering_rate.in_flight) {
+                    (turn.delta_deg < 0.0 ? negative_sent_deg : positive_sent_deg) += turn.delta_deg;
+                }
+                steering_rate.pending_turn_deg = std::clamp(
+                    std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed),
+                    negative_sent_deg,
+                    positive_sent_deg);
+            }
+        }
+    }
+    else if (steering_rate.pending_turn_deg != 0.0) {
+        const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
+        if (pending_age_ms >= pending_lifetime_ms(steering_rate.cmd_delta_deg)) {
             steering_rate.pending_turn_deg = 0.0;
         }
         else {
             const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
             const double owed = std::abs(steering_rate.pending_turn_deg);
             steering_rate.pending_turn_deg = std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed);
-            if (drops_turn_sends) {
-                double negative_sent_deg = 0.0;
-                double positive_sent_deg = 0.0;
-                for (const SteeringRateState::InFlightTurn& turn : steering_rate.in_flight) {
-                    (turn.delta_deg < 0.0 ? negative_sent_deg : positive_sent_deg) += turn.delta_deg;
-                }
-                steering_rate.pending_turn_deg = std::clamp(steering_rate.pending_turn_deg, negative_sent_deg, positive_sent_deg);
-            }
         }
     }
     steering_rate.pending_ref_heading_deg = current_heading;
@@ -1973,7 +1982,9 @@ bool NavigationStateMachine::TickNavigate()
         steering_rate.cmd_at = now;
         steering_rate.has_cmd = true;
         steering_rate.pending_turn_deg += issued_delta_deg;
-        steering_rate.in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
+        if (drops_turn_sends) {
+            steering_rate.in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
+        }
     }
     // 只有走到这里的拍才记账。在上面就返回的拍留下拍号缺口，估计器拿输入出口的账判断那拍有没有发过转向。
     const int64_t now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
