@@ -9,17 +9,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// 720p 货架槽位：一屏两行，上 7 槽、下 3 槽。
 const (
-	pcTopRowSlots    = 7
-	pcBottomRowSlots = 3
-	rowClusterGapY   = 80
-)
-
-type slotAssignMode int
-
-const (
-	slotAssignPC slotAssignMode = iota
+	// rowClusterGapY：相邻命中中心 Y 差超过此值（720p）则视为不同行。
+	rowClusterGapY = 80
+	// maxShelfSlots：信用商店单屏可见槽位上限。
+	maxShelfSlots = 10
 )
 
 func rectCenterY(r maa.Rect) int {
@@ -58,48 +52,41 @@ func clusterRowsByY(hits []ocrNameHit) [][]ocrNameHit {
 	return rows
 }
 
-func hitsForMode(hits []ocrNameHit, mode slotAssignMode) []ocrNameHit {
-	if len(hits) == 0 || mode != slotAssignPC {
+// orderHitsByShelfPosition 按屏幕阅读顺序排列：先上后下、同行从左到右；不假定 7+3 / 5+5。
+func orderHitsByShelfPosition(hits []ocrNameHit) []ocrNameHit {
+	rows := clusterRowsByY(hits)
+	if len(rows) == 0 {
 		return nil
 	}
-	rows := clusterRowsByY(hits)
-	return flattenRowLimits(rows, []int{pcTopRowSlots, pcBottomRowSlots})
-}
-
-func flattenRowLimits(rows [][]ocrNameHit, limits []int) []ocrNameHit {
-	var out []ocrNameHit
-	for i, lim := range limits {
-		if i >= len(rows) {
-			break
-		}
-		out = append(out, capHits(rows[i], lim)...)
+	n := 0
+	for _, row := range rows {
+		n += len(row)
+	}
+	out := make([]ocrNameHit, 0, n)
+	for _, row := range rows {
+		out = append(out, row...)
+	}
+	if len(out) > maxShelfSlots {
+		log.Warn().
+			Str("component", component).
+			Int("hits", len(out)).
+			Int("max", maxShelfSlots).
+			Msg("shelf layout: truncating extra hits on shelf")
+		out = out[:maxShelfSlots]
 	}
 	return out
 }
 
-func capHits(hits []ocrNameHit, max int) []ocrNameHit {
-	if max <= 0 || len(hits) <= max {
-		return hits
-	}
-	log.Warn().
-		Str("component", component).
-		Int("hits", len(hits)).
-		Int("max", max).
-		Msg("shelf layout: truncating extra hits in row")
-	return hits[:max]
-}
-
-func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode slotAssignMode) []SlotRecord {
-	picked := hitsForMode(hits, mode)
+func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit) []SlotRecord {
+	picked := orderHitsByShelfPosition(hits)
 	if len(picked) == 0 {
 		return nil
 	}
-	start := 0
 	out := make([]SlotRecord, 0, len(picked))
 	for i, hit := range picked {
 		name := strings.TrimSpace(hit.Text)
 		rec := SlotRecord{
-			Slot:     start + i,
+			Slot:     i,
 			Name:     name,
 			ID:       hit.ID,
 			Discount: recordDiscountAtNameBox(ctx, img, hit.Box),
@@ -109,7 +96,7 @@ func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode
 			if !matched {
 				log.Warn().
 					Str("component", component).
-					Int("slot", start+i).
+					Int("slot", i).
 					Str("name", name).
 					Msg("shelf scan: unmatched item name, record without id")
 			} else {

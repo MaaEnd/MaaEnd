@@ -65,10 +65,10 @@ func scanShelfNameHits(ctx *maa.Context, img image.Image) []ocrNameHit {
 	return hits
 }
 
-// ScanShelfSlotsPC 单次截图：按 Y 聚类为两排，上 7 槽（0–6）、下 3 槽（7–9），按 X 排序。
-func ScanShelfSlotsPC(ctx *maa.Context, img image.Image) []SlotRecord {
+// ScanShelfSlots 单次截图：按命中框 Y 分行、行内 X 排序赋 slot，不假定固定行宽。
+func ScanShelfSlots(ctx *maa.Context, img image.Image) []SlotRecord {
 	hits := scanShelfNameHits(ctx, img)
-	return buildSlotRecords(ctx, img, hits, slotAssignPC)
+	return buildSlotRecords(ctx, img, hits)
 }
 
 func recordDiscountAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect) string {

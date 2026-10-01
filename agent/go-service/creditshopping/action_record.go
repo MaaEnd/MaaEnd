@@ -60,7 +60,7 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		return true
 	}
 
-	slots := ScanShelfSlotsPC(ctx, img)
+	slots := ScanShelfSlots(ctx, img)
 	entry := snapshotEntry{
 		UID:          uid,
 		GameDate:     gameDate,
