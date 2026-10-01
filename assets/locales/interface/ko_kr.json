@@ -223,7 +223,7 @@
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "2배 수령 우선",
     "option.AutoUseSpMedication.label": "이성 부족 시",
     "option.AutoUseSpMedication.cases.EndTask.label": "작업 종료",
-    "option.AutoUseSpMedication.cases.UseMedication.label": "약품으로 회복",
+    "option.AutoUseSpMedication.cases.UseMedication.label": "기간 한정 약품으로 회복",
     "option.AutoEssenceRepeatCount.label": "반복 실행",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.label": "최대 반복 횟수",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.description": "1로 설정 시 반복하지 않음",

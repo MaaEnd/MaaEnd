@@ -223,7 +223,7 @@
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "2倍受け取り優先",
     "option.AutoUseSpMedication.label": "理智不足時",
     "option.AutoUseSpMedication.cases.EndTask.label": "タスクを終了",
-    "option.AutoUseSpMedication.cases.UseMedication.label": "薬剤で回復",
+    "option.AutoUseSpMedication.cases.UseMedication.label": "期間限定薬剤で回復",
     "option.AutoEssenceRepeatCount.label": "繰り返し実行",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.label": "最大ループ回数",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.description": "1に設定するとループしません",

@@ -227,7 +227,7 @@
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "Prefer Double Claim",
     "option.AutoUseSpMedication.label": "When Sanity Insufficient",
     "option.AutoUseSpMedication.cases.EndTask.label": "End Task",
-    "option.AutoUseSpMedication.cases.UseMedication.label": "Use Potion to Restore",
+    "option.AutoUseSpMedication.cases.UseMedication.label": "Use Limited-Time Potion to Restore",
     "option.AutoEssenceRepeatCount.label": "Loop Execution",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.label": "Max Loop Count",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.description": "Set to 1 for no loop",

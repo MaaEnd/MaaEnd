@@ -227,7 +227,7 @@
     "option.AutoEssenceObtainMode.cases.ObtainScaling2.label": "优先双倍领取",
     "option.AutoUseSpMedication.label": "理智不足时",
     "option.AutoUseSpMedication.cases.EndTask.label": "结束任务",
-    "option.AutoUseSpMedication.cases.UseMedication.label": "使用药剂恢复",
+    "option.AutoUseSpMedication.cases.UseMedication.label": "使用限时药剂恢复",
     "option.AutoEssenceRepeatCount.label": "循环执行",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.label": "最大循环次数",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.description": "设为 1 表示不循环",
