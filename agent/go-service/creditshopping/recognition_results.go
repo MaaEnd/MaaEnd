@@ -6,12 +6,6 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
-type ocrNameHit struct {
-	Box  maa.Rect
-	Text string
-	ID   string
-}
-
 func recognitionResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult {
 	if detail == nil || detail.Results == nil {
 		return nil
