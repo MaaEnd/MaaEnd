@@ -145,7 +145,7 @@ uv run map-navigator --port 9000 --no-browser
 }
 ```
 
-该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
+该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
 
 字段也接受驼峰写法 `targetTier`。`NAVMESH` 的未知层名保持兼容行为：记录告警并把目标当作 base 坐标；普通坐标点显式声明了不存在的层名时会直接失败，避免静默走向错误位置。
 
@@ -340,6 +340,7 @@ uv run map-navigator --port 9000 --no-browser
 | `COLLECT` | 采集：停止移动，触发 OCR 识别并点击采集，见[采集与挖掘](#采集与挖掘-collect--dig) |
 | `DIG` | 挖掘：停止移动，触发挖掘子任务，见[采集与挖掘](#采集与挖掘-collect--dig) |
 | `FIND` | 寻找并接近一个只有识别框的目标：转视角搜索、按框前进，命中 `find_stop` 或走到 `find_arrive` 附近即算到位，见[寻找并接近目标](#寻找并接近目标-find) |
+| `TRIGGER` | 路线终点：整条路线行进中持续识别 `trigger_node`，不论走到哪，命中即算整条导航成功，见[识别命中即结束](#识别命中即结束-trigger) |
 | `NAVMESH` | 从当前定位自动规划路线并移动到 `target`；必须使用上方对象格式 |
 | `TRANSFER` | 原地等待外力（剧情、传送等）将角色送至下一段，再从后续点继续 |
 | `PORTAL` | 过图点，触发后盲走一小段并等待区域切换 |
@@ -357,6 +358,7 @@ uv run map-navigator --port 9000 --no-browser
 - `HEADING`：调整朝向；
 - `COLLECT`、`DIG`：执行采集或挖掘任务。
 - `FIND`：寻找并接近识别框里的目标。
+- `TRIGGER`：路线终点，命中触发节点即结束导航。
 
 启用滑索时，如果其他节点也必须抵达并执行，请添加 `"required": true`。该节点会结束当前优化区间，后续路线从这里重新开始。数组格式没有该字段，因此必经点必须使用对象格式。
 
@@ -432,7 +434,7 @@ uv run map-navigator --port 9000 --no-browser
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 同样要导出后手写，工具只负责原样保留。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 与 `TRIGGER` 的 `trigger_node` 同样要导出后手写，工具只负责原样保留。
 
 ---
 
@@ -938,10 +940,81 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 
 ---
 
+## 识别命中即结束 `TRIGGER`
+
+`TRIGGER` 是以识别结果收尾的路线终点：导航照常沿路线行进，同时按固定间隔识别 `trigger_node`，一旦命中就停车并视为整条导航成功，`MapNavigateAction` 返回 true，命中之后的流程交给外层 Pipeline 的 `next` 处理。适用于「某个画面出现就说明到了」的终点，例如进入剧情或对话、弹出某个界面、出现某条提示。
+
+命中不设前提：与角色走到哪、离坐标多远、定位是否成功都无关，整条路线每一段的行进阶段都在识别（等待传送、滑索、`FIND` 这些动作阶段除外）。`target` 只决定一直未命中时走到哪里：到点后原地停下继续识别，最多等待 15 秒。
+
+命中画面常会盖住小地图、导致定位丢失，因此路线以 `TRIGGER` 收尾时有两处特殊处理：
+
+- 定位丢失期间识别照常进行；
+- 定位丢失期间暂停盲跳脱困，避免按键干扰刚出现的画面；全局重定位尝试与 30 秒定位丢失超时保持原样。
+
+### 配置项
+
+| 字段 | 类型 | 说明 |
+| -------------- | ------ | ------------------------------------------------------------------------------------------------------------ |
+| `trigger_node` | string | 识别节点名，命中即视为导航完成。导航只运行它的识别部分，从不执行它的动作或跳转它的 `next`。也接受驼峰写法 `triggerNode` |
+
+补充规则：
+
+- 必须使用对象格式并配置 `target`；数组形式 `[x, y, "TRIGGER"]` 无法携带 `trigger_node`，会在解析阶段失败。
+- `TRIGGER` 本身是普通坐标点，未启用滑索时直线走向 `target`，不做寻路。需要寻路时在它前面放一个同坐标的 `NAVMESH` 点，`NAVMESH` 那段路上命中同样算成功。
+- 只能作为路线的最后一个点，命中即结束导航，排在它后面的点永远无法执行；放在中间或缺少 `trigger_node` 时参数解析直接失败。
+- `trigger_node` 只写在点上，没有路线级默认值。
+- `TRIGGER` 属于固有边界节点，启用滑索规划时原样保留为路线终点。
+
+> **注意**：导航一开始 `trigger_node` 就在识别，所以它必须只在抵达目标时命中。沿途任何画面命中都会提前结束导航，例如选了路上其他位置也会弹出的对话框或提示。建议识别只属于目标处、且出现后稳定停留的元素。坐标应选在命中画面必然出现的位置，否则只能原地等满 15 秒后失败。
+
+### 完成与失败
+
+- **完成**：行进途中或到点等待时 `trigger_node` 命中。
+- **失败**：
+    - 节点不存在或识别调用报错时立即失败（`trigger_recognition_failed`），不按「未命中」处理；
+    - 到点后等待 15 秒仍未命中（`trigger_wait_timeout`）；
+    - 行进途中定位丢失超过 30 秒且一直未命中（`localization_lost_timeout`）。
+
+行进途中的识别间隔为 300 毫秒（`kTriggerProbeIntervalMs`），使用定位当拍已截取的画面，不额外截图；停留短于一个识别间隔的画面可能漏检。到点等待的上限为 `kTriggerWaitTimeoutMs`。两者均定义在 `navi_config.h`，路线作者无需配置。
+
+### 示例
+
+下列 `path` 先用 `NAVMESH` 寻路到坐标，再以 `TRIGGER` 收尾。`MyTaskTriggerNode` 为示例节点名，实际使用时需替换为业务自身的识别节点。
+
+```json
+[
+    {
+        "action": "NAVMESH",
+        "target": [
+            182.52,
+            173.4
+        ]
+    },
+    {
+        "action": "TRIGGER",
+        "target": [
+            182.52,
+            173.4
+        ],
+        "trigger_node": "MyTaskTriggerNode"
+    }
+]
+```
+
+### 相关文件
+
+| 文件 | 职责 | 何时需要修改 |
+| ----------------------------------------------------- | -------------------------------------------- | ------------------------ |
+| 业务自己的路线 JSON | `MapNavigateAction` 的 `path`、`TRIGGER` 点与 `trigger_node` | 新增触发终点、换识别节点 |
+| 业务自己的识别节点 | `trigger_node` 点名的节点 | 命中画面的 ROI、文本变化 |
+| `agent/cpp-algo/source/MapNavigator/trigger_action.cpp` | 行进途中的识别、到点等待 | 由 cpp-algo 维护者维护 |
+
+---
+
 ## 实践建议
 
 1. **首选 `NAVMESH`，需要语义再录制。** 纯移动路线在路径编辑器中手工打点并规划确认后即可复制；预览走不通的目标当场调整，不必等到运行时失败。只有含交互、过图等语义的路线才需要录制。
 2. **录制优于手写。** 实际走一遍通常比凭感觉填写坐标更准确；若录制时打点精度不足，可放慢移动速度。
 3. **保证起点状态稳定。** 录制前先调整好站位与视角，可显著减少后续的修点工作。
-4. **特殊动作点少而精。** 只在需要交互或切换区域的位置添加 `INTERACT`、`TRANSFER`、`PORTAL`；启用滑索后，必须执行的点应标记为 `required`。`HEADING`、`COLLECT`、`DIG`、`FIND` 始终保留。
+4. **特殊动作点少而精。** 只在需要交互或切换区域的位置添加 `INTERACT`、`TRANSFER`、`PORTAL`；启用滑索后，必须执行的点应标记为 `required`。`HEADING`、`COLLECT`、`DIG`、`FIND`、`TRIGGER` 始终保留。
 5. **跨区域路线务必检查过图点。** 自动补充的 `PORTAL` 仅是语义标注，不代表每个跨区域边界都天然合理。

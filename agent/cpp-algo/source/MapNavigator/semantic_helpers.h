@@ -2,6 +2,9 @@
 
 #include <chrono>
 #include <optional>
+#include <string>
+
+#include <MaaFramework/MaaDef.h>
 
 #include "semantic_nodes.h"
 
@@ -28,6 +31,22 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
 // 刹停、等读数不动了再重测，差得多就转向目标走一小步复测。返回是否已进到验收圈内；
 // 返回 false 只表示没能收拢（走不动/次数或时间用尽），点位照旧按判定圈算到达。
 bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint);
+
+// 调用成功与命中分开: 节点不存在或框架报错要当场判失败, 不能当成"没看见"
+struct NodeSighting
+{
+    bool hit = false;
+    MaaRect box {};
+};
+
+bool RunRecognitionNode(
+    MaaContext* context,
+    const std::string& node,
+    const std::string& pipeline_override,
+    const MaaImageBuffer* image,
+    NodeSighting* out_sighting);
+// 截图发不出去或没等到结果就直接空手而归: 读缓存会拿到旧帧, 调用方会照着过期画面走
+bool CaptureFreshFrame(MaaController* controller, MaaImageBuffer* buffer);
 
 } // namespace semantic_nodes
 

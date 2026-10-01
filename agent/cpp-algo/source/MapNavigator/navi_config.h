@@ -510,4 +510,9 @@ constexpr int32_t kFindMaxSteps = 48;
 constexpr int32_t kFindBudgetMs = 60000;
 static_assert(kFindStepSleepMs > kAdbTouchTurnProfile.action_quiet_period_ms, "find pacing must outlast the steering quiet period");
 
+// 行进中跑 trigger_node 的间隔
+constexpr int32_t kTriggerProbeIntervalMs = 300;
+// 到 TRIGGER 点仍未命中时原地等待的上限, 超时判失败
+constexpr int32_t kTriggerWaitTimeoutMs = 15000;
+
 } // namespace mapnavigator

@@ -29,6 +29,7 @@
 #include "semantic_nodes.h"
 #include "sensitivity_observer.h"
 #include "steering_controller.h"
+#include "trigger_action.h"
 #include "zipline_action.h"
 
 #include "../utils.h"
@@ -511,7 +512,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
         return TickNavigate();
     case NaviPhase::WaitTransfer:
     case NaviPhase::WaitZipline:
-    case NaviPhase::WaitFind: {
+    case NaviPhase::WaitFind:
+    case NaviPhase::WaitTrigger: {
         const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(
             BuildSemanticContext(
                 action_wrapper_,
@@ -658,7 +660,9 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     const bool unstick_cooling = loss.last_unstick_at != std::chrono::steady_clock::time_point {}
                                  && std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.last_unstick_at)
                                         < std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs);
-    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && !unstick_cooling) {
+    // TRIGGER 未命中时不盲跳: 小地图可能正被待命中的画面盖住, 按键会干扰它
+    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && !unstick_cooling
+        && !semantic_nodes::IsTriggerPending(*session_)) {
         loss.last_unstick_at = now;
         LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed.count());
         motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
@@ -1261,6 +1265,14 @@ bool NavigationStateMachine::TickNavigate()
     const bool position_captured = CaptureCurrentPosition(false);
     const int64_t capture_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - capture_started_at).count();
+    // 须在定位丢失分支之前: 待命中的画面可能盖住小地图
+    const semantic_nodes::Result trigger_result = semantic_nodes::ProbeTriggerWhileNavigating(semantic_ctx);
+    if (trigger_result.request_failure) {
+        return FailNavigation(trigger_result.failure_reason, trigger_result.failure_log_message, 0.0, 0.0, 0);
+    }
+    if (trigger_result.consumed) {
+        return true;
+    }
     if (!position_captured) {
         return HandleLocalizationLoss();
     }

@@ -6,7 +6,7 @@
  *   { x:number, y:number, action:number, actions:number[], zone:string, strict:boolean,
  *     required?:true, target_tier?:string, target_deck_y?:number,
  *     find_target?:string, find_text?:string[], find_stop?:string, find_arrive?:number[],
- *     auto_portal?:true, suppress_auto_portal?:true }
+ *     trigger_node?:string, auto_portal?:true, suppress_auto_portal?:true }
  * Invariant on `actions`: either `[RUN]` or a list of non-RUN/NONE actions; `action`
  * always mirrors the last element of the normalised chain.
  * @module model
@@ -28,6 +28,7 @@ export const ActionType = Object.freeze({
   DIG: 8,
   NAVMESH: 9,
   FIND: 10,
+  TRIGGER: 11,
 });
 
 const VALID_ACTION_INTS = new Set(Object.values(ActionType));
@@ -46,6 +47,7 @@ export const ACTION_COLORS = {
   [ActionType.DIG]: "#7c2d12",
   [ActionType.NAVMESH]: "#ffffff",
   [ActionType.FIND]: "#e11d48",
+  [ActionType.TRIGGER]: "#84cc16",
 };
 
 /** @type {Object<number,string>} display name per action. */
@@ -62,9 +64,10 @@ export const ACTION_NAMES = {
   [ActionType.DIG]: "Dig",
   [ActionType.NAVMESH]: "Navmesh",
   [ActionType.FIND]: "Find",
+  [ActionType.TRIGGER]: "Trigger",
 };
 
-/** @type {Object<number,string>} export token per action (RUN..FIND; NONE has none). */
+/** @type {Object<number,string>} export token per action (RUN..TRIGGER; NONE has none). */
 export const ACTION_TOKENS = {
   [ActionType.RUN]: "RUN",
   [ActionType.SPRINT]: "SPRINT",
@@ -77,6 +80,7 @@ export const ACTION_TOKENS = {
   [ActionType.DIG]: "DIG",
   [ActionType.NAVMESH]: "NAVMESH",
   [ActionType.FIND]: "FIND",
+  [ActionType.TRIGGER]: "TRIGGER",
 };
 
 /** @type {Object<string,number>} upper-case token → action int. */
@@ -93,9 +97,10 @@ export const ACTION_NAME_LOOKUP = {
   DIG: ActionType.DIG,
   NAVMESH: ActionType.NAVMESH,
   FIND: ActionType.FIND,
+  TRIGGER: ActionType.TRIGGER,
 };
 
-/** Actions shown in the UI dropdown, in order (RUN..FIND). */
+/** Actions shown in the UI dropdown, in order (RUN..TRIGGER). */
 export const ACTION_MENU_TYPES = [
   ActionType.RUN,
   ActionType.SPRINT,
@@ -108,6 +113,7 @@ export const ACTION_MENU_TYPES = [
   ActionType.DIG,
   ActionType.NAVMESH,
   ActionType.FIND,
+  ActionType.TRIGGER,
 ];
 
 /** @type {string[]} dropdown labels matching {@link ACTION_MENU_TYPES}. */
@@ -392,6 +398,14 @@ function findFieldsEqual(a, b) {
 }
 
 /**
+ * @param {PathPoint} point
+ * @returns {string}
+ */
+export function triggerNodeOf(point) {
+  return typeof point.trigger_node === "string" ? point.trigger_node.trim() : "";
+}
+
+/**
  * Keep `auto_portal`/`suppress_auto_portal` only while they still describe the
  * point's chain; drop otherwise. Mirrors `model._sync_portal_flags`.
  * @param {PathPoint} point
@@ -446,6 +460,8 @@ export function normalizePathPoints(points) {
     }
     if (Boolean(point.required)) np.required = true;
     Object.assign(np, findFieldsOf(point));
+    const triggerNode = triggerNodeOf(point);
+    if (triggerNode) np.trigger_node = triggerNode;
     if (Boolean(point.auto_portal)) np.auto_portal = true;
     if (Boolean(point.suppress_auto_portal)) np.suppress_auto_portal = true;
     syncPortalFlags(np);
@@ -502,7 +518,8 @@ export function normalizePathPoints(points) {
       Boolean(last.required) === Boolean(point.required) &&
       (last.target_tier || "") === (point.target_tier || "") &&
       last.target_deck_y === point.target_deck_y &&
-      findFieldsEqual(last, point)
+      findFieldsEqual(last, point) &&
+      triggerNodeOf(last) === triggerNodeOf(point)
     ) {
       const mergedAutoPortal = Boolean(last.auto_portal) || Boolean(point.auto_portal);
       const mergedSuppressed = Boolean(last.suppress_auto_portal) || Boolean(point.suppress_auto_portal);

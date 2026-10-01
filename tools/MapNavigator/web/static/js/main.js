@@ -58,6 +58,7 @@ import {
   getPointActions,
   matchTargetDeckHeight,
   normalizeZoneId,
+  triggerNodeOf,
 } from "./model.js";
 import {compactNumber, roundHalfEven} from "./rounding.js";
 import {initFeedback, setStatus} from "./ui/toast.js";
@@ -2576,6 +2577,8 @@ class MapNavigatorApp {
             ].filter(Boolean);
             details.push(["寻找", findBits.join(" · ")]);
           }
+          const triggerNode = triggerNodeOf(point);
+          if (triggerNode) details.push(["触发", triggerNode]);
         }
       } else if (selectedIndices.length > 1) {
         title = `已选择 ${selectedIndices.length} 个作者路点`;

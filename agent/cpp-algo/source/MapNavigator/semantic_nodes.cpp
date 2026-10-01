@@ -3,6 +3,7 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <string>
 #include <thread>
 
 #include <MaaFramework/MaaAPI.h>
@@ -17,6 +18,7 @@
 #include "position_provider.h"
 #include "semantic_helpers.h"
 #include "semantic_nodes.h"
+#include "trigger_action.h"
 #include "zipline_action.h"
 
 namespace mapnavigator
@@ -533,6 +535,51 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint)
     return false;
 }
 
+bool RunRecognitionNode(
+    MaaContext* context,
+    const std::string& node,
+    const std::string& pipeline_override,
+    const MaaImageBuffer* image,
+    NodeSighting* out_sighting)
+{
+    MaaTasker* tasker = MaaContextGetTasker(context);
+    if (tasker == nullptr) {
+        LogError << "Tasker is unavailable for recognition." << VAR(node);
+        return false;
+    }
+
+    const MaaRecoId reco_id = MaaContextRunRecognition(context, node.c_str(), pipeline_override.c_str(), image);
+    if (reco_id == MaaInvalidId) {
+        LogError << "Recognition failed to dispatch; check the node name and its params." << VAR(node);
+        return false;
+    }
+
+    MaaBool hit = 0;
+    MaaRect box {};
+    if (!MaaTaskerGetRecognitionDetail(tasker, reco_id, nullptr, nullptr, &hit, &box, nullptr, nullptr, nullptr)) {
+        LogError << "Recognition detail is unavailable." << VAR(node) << VAR(reco_id);
+        return false;
+    }
+
+    out_sighting->hit = hit != 0;
+    out_sighting->box = box;
+    return true;
+}
+
+bool CaptureFreshFrame(MaaController* controller, MaaImageBuffer* buffer)
+{
+    const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller);
+    if (screencap_id == MaaInvalidId) {
+        LogWarn << "Screencap request was not posted.";
+        return false;
+    }
+    if (MaaControllerWait(controller, screencap_id) != MaaStatus_Succeeded) {
+        LogWarn << "Screencap did not succeed." << VAR(screencap_id);
+        return false;
+    }
+    return MaaControllerCachedImage(controller, buffer) && !MaaImageBufferIsEmpty(buffer);
+}
+
 Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
 {
     if (phase == NaviPhase::WaitTransfer) {
@@ -543,6 +590,9 @@ Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
     }
     if (phase == NaviPhase::WaitFind) {
         return TickFindTarget(ctx);
+    }
+    if (phase == NaviPhase::WaitTrigger) {
+        return TickTriggerWait(ctx);
     }
     if (ctx.runtime_state->semantic.portal_transit_active) {
         return TickPortalTransit(ctx);
@@ -714,6 +764,8 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
         return ArriveDig(ctx, waypoint, node_idx, actual_distance);
     case ActionType::FIND:
         return ArriveFind(ctx, waypoint, actual_distance);
+    case ActionType::TRIGGER:
+        return ArriveTrigger(ctx, waypoint, actual_distance);
     case ActionType::INTERACT:
         return ArriveInteract(ctx, waypoint, node_idx, actual_distance);
     case ActionType::SPRINT:
