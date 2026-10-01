@@ -231,8 +231,8 @@ struct SteeringRateState
     double pending_turn_deg = 0.0;
     double pending_ref_heading_deg = 0.0;
 
-    // Sends still inside their own lifetime. The total above is held between zero and their sum, so a swallowed
-    // send expires on its own clock whatever is sent after it, in either direction.
+    // Sends still inside their own lifetime, kept when the transport can swallow a send. Each direction of the total
+    // above is bounded by its own sends; netting the two would cancel a fresh reversal.
     struct InFlightTurn
     {
         double delta_deg = 0.0;

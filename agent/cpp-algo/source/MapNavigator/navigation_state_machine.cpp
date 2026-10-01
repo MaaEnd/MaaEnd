@@ -1918,23 +1918,30 @@ bool NavigationStateMachine::TickNavigate()
         const int64_t base_ms = kSteeringPendingLifetimeMs + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
         return walk_engaged ? base_ms * kWalkModeSlowFactor : base_ms;
     };
+    const bool drops_turn_sends = motion_controller_->SteeringDropsTurnSends();
     std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
         return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count() >= pending_lifetime_ms(turn.delta_deg);
     });
     if (steering_rate.pending_turn_deg != 0.0) {
-        if (steering_rate.in_flight.empty()) {
+        const bool written_off = drops_turn_sends
+                                     ? steering_rate.in_flight.empty()
+                                     : std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count()
+                                           >= pending_lifetime_ms(steering_rate.cmd_delta_deg);
+        if (written_off) {
             steering_rate.pending_turn_deg = 0.0;
         }
         else {
             const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
             const double owed = std::abs(steering_rate.pending_turn_deg);
             steering_rate.pending_turn_deg = std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed);
-            double deliverable_deg = 0.0;
-            for (const SteeringRateState::InFlightTurn& turn : steering_rate.in_flight) {
-                deliverable_deg += turn.delta_deg;
+            if (drops_turn_sends) {
+                double negative_sent_deg = 0.0;
+                double positive_sent_deg = 0.0;
+                for (const SteeringRateState::InFlightTurn& turn : steering_rate.in_flight) {
+                    (turn.delta_deg < 0.0 ? negative_sent_deg : positive_sent_deg) += turn.delta_deg;
+                }
+                steering_rate.pending_turn_deg = std::clamp(steering_rate.pending_turn_deg, negative_sent_deg, positive_sent_deg);
             }
-            steering_rate.pending_turn_deg =
-                std::clamp(steering_rate.pending_turn_deg, std::min(0.0, deliverable_deg), std::max(0.0, deliverable_deg));
         }
     }
     steering_rate.pending_ref_heading_deg = current_heading;
@@ -1963,7 +1970,7 @@ bool NavigationStateMachine::TickNavigate()
     if (issued_delta_deg != 0.0) {
         steering_rate.cmd_heading_deg = current_heading;
         steering_rate.cmd_delta_deg = issued_delta_deg;
-        steering_rate.cmd_at = steer_sent_at;
+        steering_rate.cmd_at = now;
         steering_rate.has_cmd = true;
         steering_rate.pending_turn_deg += issued_delta_deg;
         steering_rate.in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
