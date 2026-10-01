@@ -282,7 +282,7 @@ def require_ninja() -> Path:
         f"  {install_hint('ninja')}\n"
         "  Or install the Android SDK cmake package, which ships a ninja under "
         "<SDK>/cmake/<version>/bin.\n"
-        "  See docs/zh_cn/developers/android-build-env.md#5-装依赖时的报错"
+        "  See docs/zh_cn/developers/android-build-env.md#4-装依赖时的报错"
     )
 
 
