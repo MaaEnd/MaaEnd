@@ -543,49 +543,11 @@
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
                     "pipeline_override": {
-                        "IsDiscountPriority1": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "BuyFirstOCR",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 6,
-                                    "lower": [
-                                        0
-                                    ],
-                                    "upper": [
-                                        255
-                                    ],
-                                    "count": 1
-                                }
-                            }
+                        "CreditShoppingPriority1Discount": {
+                            "recognition": "DirectHit"
                         },
-                        "IsDiscountPriority1_CanNotAfford": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "BuyFirstOCR_CanNotAfford",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 6,
-                                    "lower": [
-                                        0
-                                    ],
-                                    "upper": [
-                                        255
-                                    ],
-                                    "count": 1
-                                }
-                            }
+                        "CreditShoppingPriority1DiscountCannotAfford": {
+                            "recognition": "DirectHit"
                         }
                     }
                 },
@@ -593,7 +555,7 @@
                     "name": "-25%",
                     "label": "$option.DiscountValue.cases.-25%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority1": {
+                        "CreditShoppingPriority1Discount": {
                             "expected": [
                                 "99",
                                 "95",
@@ -602,7 +564,7 @@
                                 "25"
                             ]
                         },
-                        "IsDiscountPriority1_CanNotAfford": {
+                        "CreditShoppingPriority1DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95",
@@ -617,7 +579,7 @@
                     "name": "-50%",
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority1": {
+                        "CreditShoppingPriority1Discount": {
                             "expected": [
                                 "99",
                                 "95",
@@ -625,7 +587,7 @@
                                 "50"
                             ]
                         },
-                        "IsDiscountPriority1_CanNotAfford": {
+                        "CreditShoppingPriority1DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95",
@@ -639,14 +601,14 @@
                     "name": "-75%",
                     "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority1": {
+                        "CreditShoppingPriority1Discount": {
                             "expected": [
                                 "99",
                                 "95",
                                 "75"
                             ]
                         },
-                        "IsDiscountPriority1_CanNotAfford": {
+                        "CreditShoppingPriority1DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95",
@@ -659,13 +621,13 @@
                     "name": "-95%",
                     "label": "$option.DiscountValue.cases.-95%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority1": {
+                        "CreditShoppingPriority1Discount": {
                             "expected": [
                                 "99",
                                 "95"
                             ]
                         },
-                        "IsDiscountPriority1_CanNotAfford": {
+                        "CreditShoppingPriority1DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95"
@@ -677,12 +639,12 @@
                     "name": "-99%",
                     "label": "$option.DiscountValue.cases.-99%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority1": {
+                        "CreditShoppingPriority1Discount": {
                             "expected": [
                                 "99"
                             ]
                         },
-                        "IsDiscountPriority1_CanNotAfford": {
+                        "CreditShoppingPriority1DiscountCannotAfford": {
                             "expected": [
                                 "99"
                             ]
@@ -1126,49 +1088,11 @@
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
                     "pipeline_override": {
-                        "IsDiscountPriority2": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "Priority2OCR",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 6,
-                                    "lower": [
-                                        0
-                                    ],
-                                    "upper": [
-                                        255
-                                    ],
-                                    "count": 1
-                                }
-                            }
+                        "CreditShoppingPriority2Discount": {
+                            "recognition": "DirectHit"
                         },
-                        "IsDiscountPriority2_CanNotAfford": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "Priority2OCR_CanNotAfford",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 6,
-                                    "lower": [
-                                        0
-                                    ],
-                                    "upper": [
-                                        255
-                                    ],
-                                    "count": 1
-                                }
-                            }
+                        "CreditShoppingPriority2DiscountCannotAfford": {
+                            "recognition": "DirectHit"
                         }
                     }
                 },
@@ -1176,7 +1100,7 @@
                     "name": "-25%",
                     "label": "$option.DiscountValue.cases.-25%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority2": {
+                        "CreditShoppingPriority2Discount": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1185,7 +1109,7 @@
                                 "25"
                             ]
                         },
-                        "IsDiscountPriority2_CanNotAfford": {
+                        "CreditShoppingPriority2DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1200,7 +1124,7 @@
                     "name": "-50%",
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority2": {
+                        "CreditShoppingPriority2Discount": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1208,7 +1132,7 @@
                                 "50"
                             ]
                         },
-                        "IsDiscountPriority2_CanNotAfford": {
+                        "CreditShoppingPriority2DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1222,14 +1146,14 @@
                     "name": "-75%",
                     "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority2": {
+                        "CreditShoppingPriority2Discount": {
                             "expected": [
                                 "99",
                                 "95",
                                 "75"
                             ]
                         },
-                        "IsDiscountPriority2_CanNotAfford": {
+                        "CreditShoppingPriority2DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1242,13 +1166,13 @@
                     "name": "-95%",
                     "label": "$option.DiscountValue.cases.-95%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority2": {
+                        "CreditShoppingPriority2Discount": {
                             "expected": [
                                 "99",
                                 "95"
                             ]
                         },
-                        "IsDiscountPriority2_CanNotAfford": {
+                        "CreditShoppingPriority2DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95"
@@ -1260,12 +1184,12 @@
                     "name": "-99%",
                     "label": "$option.DiscountValue.cases.-99%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority2": {
+                        "CreditShoppingPriority2Discount": {
                             "expected": [
                                 "99"
                             ]
                         },
-                        "IsDiscountPriority2_CanNotAfford": {
+                        "CreditShoppingPriority2DiscountCannotAfford": {
                             "expected": [
                                 "99"
                             ]
@@ -1697,49 +1621,11 @@
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
                     "pipeline_override": {
-                        "IsDiscountPriority3": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "Priority3OCR",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 6,
-                                    "lower": [
-                                        0
-                                    ],
-                                    "upper": [
-                                        255
-                                    ],
-                                    "count": 1
-                                }
-                            }
+                        "CreditShoppingPriority3Discount": {
+                            "recognition": "DirectHit"
                         },
-                        "IsDiscountPriority3_CanNotAfford": {
-                            "recognition": {
-                                "type": "ColorMatch",
-                                "param": {
-                                    "roi": "Priority3OCR_CanNotAfford",
-                                    "roi_offset": [
-                                        62,
-                                        -172,
-                                        -34,
-                                        7
-                                    ],
-                                    "method": 6,
-                                    "lower": [
-                                        0
-                                    ],
-                                    "upper": [
-                                        255
-                                    ],
-                                    "count": 1
-                                }
-                            }
+                        "CreditShoppingPriority3DiscountCannotAfford": {
+                            "recognition": "DirectHit"
                         }
                     }
                 },
@@ -1747,7 +1633,7 @@
                     "name": "-25%",
                     "label": "$option.DiscountValue.cases.-25%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority3": {
+                        "CreditShoppingPriority3Discount": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1756,7 +1642,7 @@
                                 "25"
                             ]
                         },
-                        "IsDiscountPriority3_CanNotAfford": {
+                        "CreditShoppingPriority3DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1771,7 +1657,7 @@
                     "name": "-50%",
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority3": {
+                        "CreditShoppingPriority3Discount": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1779,7 +1665,7 @@
                                 "50"
                             ]
                         },
-                        "IsDiscountPriority3_CanNotAfford": {
+                        "CreditShoppingPriority3DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1793,14 +1679,14 @@
                     "name": "-75%",
                     "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority3": {
+                        "CreditShoppingPriority3Discount": {
                             "expected": [
                                 "99",
                                 "95",
                                 "75"
                             ]
                         },
-                        "IsDiscountPriority3_CanNotAfford": {
+                        "CreditShoppingPriority3DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95",
@@ -1813,13 +1699,13 @@
                     "name": "-95%",
                     "label": "$option.DiscountValue.cases.-95%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority3": {
+                        "CreditShoppingPriority3Discount": {
                             "expected": [
                                 "99",
                                 "95"
                             ]
                         },
-                        "IsDiscountPriority3_CanNotAfford": {
+                        "CreditShoppingPriority3DiscountCannotAfford": {
                             "expected": [
                                 "99",
                                 "95"
@@ -1831,12 +1717,12 @@
                     "name": "-99%",
                     "label": "$option.DiscountValue.cases.-99%.label",
                     "pipeline_override": {
-                        "IsDiscountPriority3": {
+                        "CreditShoppingPriority3Discount": {
                             "expected": [
                                 "99"
                             ]
                         },
-                        "IsDiscountPriority3_CanNotAfford": {
+                        "CreditShoppingPriority3DiscountCannotAfford": {
                             "expected": [
                                 "99"
                             ]
@@ -2026,11 +1912,11 @@
                                         "type": "And",
                                         "param": {
                                             "all_of": [
-                                                "CreditIcon",
-                                                "NotSoldOut",
-                                                "CanAfford"
+                                                "CreditShoppingShelfAnyItem",
+                                                "CreditShoppingShelfAnyNotSoldOut",
+                                                "CreditShoppingShelfAnyCanAfford"
                                             ],
-                                            "box_index": 2
+                                            "box_index": 0
                                         }
                                     }
                                 }
