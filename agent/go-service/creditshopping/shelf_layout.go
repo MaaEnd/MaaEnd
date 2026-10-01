@@ -152,7 +152,8 @@ func filterADBShelfNameHits(hits []ocrNameHit, mode slotAssignMode) []ocrNameHit
 }
 
 func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode slotAssignMode) []SlotRecord {
-	if mode == slotAssignADBTop || mode == slotAssignADBBottom {
+	adb := mode == slotAssignADBTop || mode == slotAssignADBBottom
+	if adb {
 		hits = filterADBShelfNameHits(hits, mode)
 	}
 	picked := hitsForMode(hits, mode)
@@ -174,7 +175,7 @@ func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode
 		rec := SlotRecord{
 			Slot:     start + i,
 			Name:     name,
-			Discount: recordDiscountAtNameBox(ctx, img, hit.Box),
+			Discount: recordDiscountAtNameBox(ctx, img, hit.Box, adb),
 		}
 		if matched {
 			rec.ID = itemID

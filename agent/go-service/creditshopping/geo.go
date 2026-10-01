@@ -11,16 +11,16 @@ var (
 	recordItemDiscountROIOffsetADB = maa.Rect{62, -213, -6, 7}
 )
 
-func recordItemDiscountROIOffset(ctrl *maa.Controller) maa.Rect {
-	if isADBController(ctrl) {
+func recordItemDiscountROIOffset(adb bool) maa.Rect {
+	if adb {
 		return recordItemDiscountROIOffsetADB
 	}
 	return recordItemDiscountROIOffsetPC
 }
 
 // recordItemDiscountPipelineOverride 为单槽折扣 OCR 构造 pipeline override。
-func recordItemDiscountPipelineOverride(nameBox maa.Rect, ctrl *maa.Controller) map[string]any {
-	off := recordItemDiscountROIOffset(ctrl)
+func recordItemDiscountPipelineOverride(nameBox maa.Rect, adb bool) map[string]any {
+	off := recordItemDiscountROIOffset(adb)
 	return map[string]any{
 		pipelineNodeRecordItemDiscount: map[string]any{
 			"roi":        nameBox,

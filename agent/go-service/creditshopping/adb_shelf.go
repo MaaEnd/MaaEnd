@@ -3,10 +3,8 @@ package creditshopping
 import (
 	"fmt"
 	"image"
-	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -21,8 +19,9 @@ const (
 	adbShelfSwipeWaitMs = 400
 )
 
-func isADBController(_ *maa.Controller) bool {
-	return strings.EqualFold(strings.TrimSpace(pienv.ControllerType()), "Adb")
+func isADBController(ctrl *maa.Controller) bool {
+	t, err := control.ResolveControlType(ctrl)
+	return err == nil && t == control.CONTROL_TYPE_ADB
 }
 
 func swipeShelfForADB(ctx *maa.Context, ctrl *maa.Controller, beginY, endY int) bool {
