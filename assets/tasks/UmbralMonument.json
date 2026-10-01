@@ -1,0 +1,52 @@
+{
+    "task": [
+        {
+            "name": "UmbralMonument",
+            "label": "$task.UmbralMonument.label",
+            "description": "$task.UmbralMonument.description",
+            "entry": "UmbralMonumentMain",
+            "option": [
+                "UmbralMonumentDifficulty",
+                "AutoFightSetting"
+            ],
+            "controller": [
+                "Win32-Front"
+            ],
+            "group": [
+                "other_menu"
+            ],
+            "pipeline_override": {
+                "AutoFight": {
+                    "attach": {
+                        "pause_exit_nodes": [
+                            "UmbralMonumentVictoryTitle",
+                            "UmbralMonumentFailure"
+                        ]
+                    }
+                }
+            }
+        }
+    ],
+    "option": {
+        "UmbralMonumentDifficulty": {
+            "type": "select",
+            "label": "$option.UmbralMonumentDifficulty.label",
+            "default_case": "Normal",
+            "cases": [
+                {
+                    "name": "Normal",
+                    "label": "$option.UmbralMonumentDifficulty.cases.Normal.label"
+                },
+                {
+                    "name": "NormalAndHard",
+                    "label": "$option.UmbralMonumentDifficulty.cases.NormalAndHard.label",
+                    "pipeline_override": {
+                        "UmbralMonumentHard": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

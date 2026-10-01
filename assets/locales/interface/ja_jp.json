@@ -1,4 +1,9 @@
 {
+    "task.UmbralMonument.label": "影拓丰碑",
+    "task.UmbralMonument.description": "全シーズンの未クリア通常ステージを攻略します。高難度も選択可能。失敗した難度は再挑戦せず、通常で失敗した場合は高難度もスキップします。現在の編成を使用。PC・簡体字中国語・16:9のみ対応。",
+    "option.UmbralMonumentDifficulty.label": "難易度",
+    "option.UmbralMonumentDifficulty.cases.Normal.label": "通常のみ",
+    "option.UmbralMonumentDifficulty.cases.NormalAndHard.label": "通常＋高難度",
     "option.ExportInventory.label": "基質の所持数を出力",
     "option.ExportInventory.description": "破棄マークのない無瑕基質を、ロック済みも含めてスキャンし、EssenceInventory.json に出力します。破棄マーク付きの基質は OCR を行わずスキップします。対応するすべての星4～6武器と照合し、マークは変更しません。有効時は他の絞り込み設定を非表示にします。無効にすると元の絞り込み設定が再表示されます。ゲーム言語は画面から自動判定します。",
     "global.region.ValleyIV": "第4谷地 (Valley IV)",

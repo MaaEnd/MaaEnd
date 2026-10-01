@@ -1,4 +1,9 @@
 {
+    "task.UmbralMonument.label": "影拓丰碑",
+    "task.UmbralMonument.description": "모든 시즌의 미완료 일반 스테이지를 진행하며 고난도도 선택할 수 있습니다. 실패한 난이도는 재도전하지 않으며 일반 실패 시 고난도도 건너뜁니다. 현재 편성을 사용합니다. PC·중국어 간체·16:9만 지원합니다.",
+    "option.UmbralMonumentDifficulty.label": "난이도",
+    "option.UmbralMonumentDifficulty.cases.Normal.label": "일반만",
+    "option.UmbralMonumentDifficulty.cases.NormalAndHard.label": "일반＋고난도",
     "option.ExportInventory.label": "기질 보유 현황 내보내기",
     "option.ExportInventory.description": "폐기 표시가 없는 무결 기질을 잠금 상태와 관계없이 스캔하여 EssenceInventory.json으로 내보냅니다. 폐기 표시된 기질은 OCR 없이 건너뜁니다. 지원되는 모든 4~6성 무기와 매칭하며 표시는 변경하지 않습니다. 활성화하면 다른 필터 옵션이 숨겨집니다. 비활성화하면 기존 필터 옵션이 다시 표시됩니다. 게임 언어는 화면에서 자동 감지합니다.",
     "global.region.ValleyIV": "제4 계곡 (Valley IV)",
