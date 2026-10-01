@@ -1,7 +1,6 @@
 package creditshopping
 
 import (
-	"image"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
@@ -13,7 +12,7 @@ const creditShoppingScanItemActionName = "CreditShoppingScanItemAction"
 
 // RecordShelfSnapshotsAction 信用点商店货架库存快照（best-effort，失败仅记日志，不阻断购物主流程）：
 //  1. 经 captureuid 获取 UID 与 RefreshCost，推断本地游戏日（04:00 切日）与第几次刷新；
-//  2. PC 一屏 7+3；ADB 两屏各一排（首屏 slot 0–5 含折扣，滑动后 slot 6–9 含折扣）；
+//  2. 一屏截图记录货架，不再滑动翻页；
 //  3. 以 uid + game_date + refresh_index 为键写入 JSON，键冲突则覆盖。
 type RecordShelfSnapshotsAction struct{}
 
@@ -33,25 +32,13 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 	now := time.Now()
 	gameDate := gameDateLocal(now)
 
-	var imgForMeta image.Image
-	var slots []SlotRecord
-	if isADBController(ctrl) {
-		first, err := screencap(ctrl)
-		if err != nil {
-			log.Error().Err(err).Str("component", component).Msg("record shelf adb: screencap failed")
-			return true
-		}
-		imgForMeta = first
-		slots = scanShelfSlotsADB(ctx, ctrl, first)
-	} else {
-		first, err := screencap(ctrl)
-		if err != nil {
-			log.Error().Err(err).Str("component", component).Msg("record shelf: screencap failed")
-			return true
-		}
-		imgForMeta = first
-		slots = ScanShelfSlotsPC(ctx, first)
+	first, err := screencap(ctrl)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("record shelf: screencap failed")
+		return true
 	}
+	imgForMeta := first
+	slots := ScanShelfSlotsPC(ctx, first)
 
 	uid, err := captureuid.Capture(ctx, ctrl, true, true, true, captureuid.OutputTypeHashed)
 	if err != nil {

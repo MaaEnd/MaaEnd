@@ -9,24 +9,17 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// 720p 货架槽位：PC 一屏两行 7+3；ADB 一屏仅见一排名称，需滑动后见另一排（上 6 + 下 4）。
+// 720p 货架槽位：一屏两行，上 7 槽、下 3 槽。
 const (
-	shelfSlotCount        = 10
-	pcTopRowSlots         = 7
-	pcBottomRowSlots      = 3
-	adbTopRowSlots        = 6
-	adbBottomRowSlots     = 4
-	adbBottomSlotStart    = 6
-	adbShelfNameRowSplitY = 400 // 首屏名称 Y<400；滑动后第二排名称 Y>=400
-	rowClusterGapY        = 80
+	pcTopRowSlots    = 7
+	pcBottomRowSlots = 3
+	rowClusterGapY   = 80
 )
 
 type slotAssignMode int
 
 const (
 	slotAssignPC slotAssignMode = iota
-	slotAssignADBTop
-	slotAssignADBBottom
 )
 
 func rectCenterY(r maa.Rect) int {
@@ -66,30 +59,11 @@ func clusterRowsByY(hits []ocrNameHit) [][]ocrNameHit {
 }
 
 func hitsForMode(hits []ocrNameHit, mode slotAssignMode) []ocrNameHit {
-	if len(hits) == 0 {
+	if len(hits) == 0 || mode != slotAssignPC {
 		return nil
 	}
 	rows := clusterRowsByY(hits)
-	switch mode {
-	case slotAssignPC:
-		return flattenRowLimits(rows, []int{pcTopRowSlots, pcBottomRowSlots})
-	case slotAssignADBTop:
-		// 首屏只见第一排名称与折扣；屏内仅一排，按 X 排序取前 6，不做 Y 聚类分行。
-		return capHits(sortHitsByX(hits), adbTopRowSlots)
-	case slotAssignADBBottom:
-		// 滑动后只见第二排名称与折扣；屏内仅一排，按 X 排序取前 4。
-		return capHits(sortHitsByX(hits), adbBottomRowSlots)
-	default:
-		return nil
-	}
-}
-
-func sortHitsByX(hits []ocrNameHit) []ocrNameHit {
-	sorted := append([]ocrNameHit(nil), hits...)
-	sort.Slice(sorted, func(i, j int) bool {
-		return sorted[i].Box[0] < sorted[j].Box[0]
-	})
-	return sorted
+	return flattenRowLimits(rows, []int{pcTopRowSlots, pcBottomRowSlots})
 }
 
 func flattenRowLimits(rows [][]ocrNameHit, limits []int) []ocrNameHit {
@@ -115,51 +89,12 @@ func capHits(hits []ocrNameHit, max int) []ocrNameHit {
 	return hits[:max]
 }
 
-func slotStartForMode(mode slotAssignMode) int {
-	switch mode {
-	case slotAssignADBBottom:
-		return adbBottomSlotStart
-	default:
-		return 0
-	}
-}
-
-func filterADBShelfNameHits(hits []ocrNameHit, mode slotAssignMode) []ocrNameHit {
-	out := make([]ocrNameHit, 0, len(hits))
-	for _, h := range hits {
-		y := h.Box[1]
-		keep := false
-		switch mode {
-		case slotAssignADBTop:
-			keep = y < adbShelfNameRowSplitY
-		case slotAssignADBBottom:
-			keep = y >= adbShelfNameRowSplitY
-		default:
-			keep = true
-		}
-		if keep {
-			out = append(out, h)
-			continue
-		}
-		log.Debug().
-			Str("component", component).
-			Str("ocr_text", h.Text).
-			Int("box_y", y).
-			Int("mode", int(mode)).
-			Msg("shelf layout adb: drop hit outside target row")
-	}
-	return out
-}
-
 func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode slotAssignMode) []SlotRecord {
-	if mode == slotAssignADBTop || mode == slotAssignADBBottom {
-		hits = filterADBShelfNameHits(hits, mode)
-	}
 	picked := hitsForMode(hits, mode)
 	if len(picked) == 0 {
 		return nil
 	}
-	start := slotStartForMode(mode)
+	start := 0
 	out := make([]SlotRecord, 0, len(picked))
 	for i, hit := range picked {
 		name := strings.TrimSpace(hit.Text)
@@ -180,25 +115,6 @@ func buildSlotRecords(ctx *maa.Context, img image.Image, hits []ocrNameHit, mode
 			rec.ID = itemID
 		}
 		out = append(out, rec)
-	}
-	return out
-}
-
-func mergeSlotRecordsByPosition(parts ...[]SlotRecord) []SlotRecord {
-	bySlot := make(map[int]SlotRecord, shelfSlotCount)
-	for _, part := range parts {
-		for _, s := range part {
-			if s.Slot < 0 || s.Slot >= shelfSlotCount {
-				continue
-			}
-			bySlot[s.Slot] = s
-		}
-	}
-	out := make([]SlotRecord, 0, len(bySlot))
-	for slot := 0; slot < shelfSlotCount; slot++ {
-		if s, ok := bySlot[slot]; ok {
-			out = append(out, s)
-		}
 	}
 	return out
 }

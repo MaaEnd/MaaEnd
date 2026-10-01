@@ -1,35 +1,4 @@
 {
-    "ADBSpecial": {
-        "desc": "ADB特殊流程,向上滑动一段",
-        "enabled": false,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    640,
-                    500
-                ],
-                "end": [
-                    640,
-                    300
-                ],
-                "duration": 500
-            }
-        },
-        "next": [
-            "AutoGetCredits",
-            "CreditShoppingBuyPriority1",
-            "CreditShoppingBuyPriority2",
-            "CreditShoppingBuyPriority3",
-            "CreditShoppingReserveCredit",
-            "CreditShoppingRefreshCountReached",
-            "CreditShoppingPrudentRefresh",
-            "CreditShoppingBuyBlacklist",
-            "CreditShippingCanNotToBuy",
-            "RefreshItem",
-            "CreditShoppingNothingToBuy"
-        ]
-    },
     "CreditShippingCanNotToBuy": {
         "desc": "刷新流程中无法购买（选项：没有可购买物品时=执行刷新）",
         "enabled": false,
