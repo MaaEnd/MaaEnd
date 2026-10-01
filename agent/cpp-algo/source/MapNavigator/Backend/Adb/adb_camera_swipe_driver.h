@@ -20,6 +20,8 @@ struct AdbCameraSwipeDriverConfig
     int origin_y_numerator = 1;
     int origin_y_denominator = 2;
     int origin_y_offset = -96;
+    // 中心对称起落, 单笔过长时按下点落进左侧摇杆区, 那一笔不转镜头
+    int max_stroke_dx = 270;
 
     int turn_swipe_duration_ms = kAdbTouchTurnProfile.swipe_duration_ms;
 
@@ -44,8 +46,6 @@ private:
     {
         cv::Size resolution {};
         cv::Point center {};
-        int left_limit = 0;
-        int right_limit = 0;
         int up_limit = 0;
         int down_limit = 0;
     };

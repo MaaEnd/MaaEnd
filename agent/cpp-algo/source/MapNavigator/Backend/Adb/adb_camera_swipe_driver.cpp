@@ -43,16 +43,18 @@ bool AdbCameraSwipeDriver::SwipeByPixels(int dx, int dy) const
         return false;
     }
 
-    int swipe_dx = std::clamp(dx, -geometry->left_limit, geometry->right_limit);
+    const int stroke_dx_limit = std::max(1, config_.max_stroke_dx);
+    int remaining_dx = dx;
     int remaining_dy = dy;
     do {
+        const int swipe_dx = std::clamp(remaining_dx, -stroke_dx_limit, stroke_dx_limit);
         const int swipe_dy = std::clamp(remaining_dy, -geometry->up_limit, geometry->down_limit);
         if (!ExecuteSwipe(*geometry, swipe_dx, swipe_dy)) {
             return false;
         }
-        swipe_dx = 0;
+        remaining_dx -= swipe_dx;
         remaining_dy -= swipe_dy;
-    } while (remaining_dy != 0);
+    } while (remaining_dx != 0 || remaining_dy != 0);
 
     return true;
 }
@@ -76,8 +78,6 @@ std::optional<AdbCameraSwipeDriver::ScreenGeometry> AdbCameraSwipeDriver::GetScr
     ScreenGeometry geometry;
     geometry.resolution = { kAdbTouchReferenceWidth, kAdbTouchReferenceHeight };
     geometry.center = center;
-    geometry.left_limit = std::max(1, center.x - safe_margin);
-    geometry.right_limit = std::max(1, (kAdbTouchReferenceWidth - 1 - safe_margin) - center.x);
     geometry.up_limit = std::max(1, center.y - safe_margin);
     geometry.down_limit = std::max(1, (kAdbTouchReferenceHeight - 1 - safe_margin) - center.y);
     return geometry;
