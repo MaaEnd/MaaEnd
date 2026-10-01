@@ -78,6 +78,7 @@ private:
     void EnterStage(ZiplineStage stage, Clock::time_point now);
     int64_t StageElapsedMs(Clock::time_point now) const;
     void CommitRecord(HopOutcome outcome, Clock::time_point now);
+    void CommitFailedReturn(HopOutcome outcome, Clock::time_point now);
     std::vector<ZiplineNodeRef> KnownNodes() const;
     double AimBiasDeg() const;
 
@@ -92,6 +93,7 @@ private:
     StageResult TickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult FailAim(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
     StageResult StartDismount(IZiplineActuator& actuator, StageResult exit, Clock::time_point now);
+    StageResult ParkForReplan(const ZiplineNodeRef& tower, Clock::time_point now);
     StageResult Handoff(Clock::time_point now);
 
     ZiplineStage stage_ = ZiplineStage::Idle;

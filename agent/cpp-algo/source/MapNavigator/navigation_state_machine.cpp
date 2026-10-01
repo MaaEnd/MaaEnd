@@ -933,24 +933,28 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     // 一侧, 沿途会撞上原本要用索越过的障碍。先回作者路线从当前位置重新展开, 判死的那一跳已记入
     // 账本, 规划会绕开它另选链路。
     bool rejoined = TryReplanRemainingAuthoredRoute("zipline_recovery_reexpand");
-    // 重展开失败才退回旧展开: 当前位置有可走面且不在架子上时, 它至少是一条经过规划的路径。
-    if (!rejoined && !on_tower && on_mesh) {
+    if (!rejoined && on_tower) {
+        LogWarn << "Zipline recovery could not re-expand from the tower; stepping down to retry from the ground." << VAR(elapsed_ms)
+                << VAR(position_->x) << VAR(position_->y);
+        semantic_nodes::LeaveZiplineTower(BuildSemanticContext(
+            action_wrapper_,
+            position_provider_,
+            session_,
+            motion_controller_,
+            action_executor_,
+            position_,
+            &runtime_state_,
+            maa_context_));
+        recovery.Begin(std::chrono::steady_clock::now());
+        return true;
+    }
+    // 重展开失败才退回旧展开: 当前位置有可走面时, 它至少是一条经过规划的路径。
+    if (!rejoined && on_mesh) {
         const std::optional<DynamicAnchor> anchor =
             ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
         rejoined = anchor && TryApplyDynamicOverlayToAnchor("zipline_recovery", anchor->first, anchor->second);
     }
     if (!rejoined) {
-        if (on_tower) {
-            semantic_nodes::LeaveZiplineTower(BuildSemanticContext(
-                action_wrapper_,
-                position_provider_,
-                session_,
-                motion_controller_,
-                action_executor_,
-                position_,
-                &runtime_state_,
-                maa_context_));
-        }
         return FailNavigation(
             "zipline_recovery_route_unavailable",
             "Zipline recovery found no reachable point in the remaining route and could not re-expand the authored route; "
@@ -1054,7 +1058,7 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
             position_,
             &runtime_state_,
             maa_context_);
-        if (semantic_nodes::CurrentHopStartsUnderfoot(ctx)) {
+        if (semantic_nodes::SkipToHopUnderfoot(ctx, reason)) {
             LogInfo << "Zipline recovery re-expanded the remaining authored route; the next hop leaves from this tower." << VAR(reason)
                     << VAR(slice_begin) << VAR(session_->current_path().size());
             return true;

@@ -292,6 +292,20 @@ void ZiplineRideMachine::CommitRecord(HopOutcome outcome, Clock::time_point now)
             << VAR(record_.wrong_rope_bearings_deg.size()) << VAR(ledger_.size());
 }
 
+// 规划器只按每条记录的两端封索, 回程索不单独记就会被重规划再派回去
+void ZiplineRideMachine::CommitFailedReturn(HopOutcome outcome, Clock::time_point now)
+{
+    ZiplineHopRecord record;
+    record.plan.mount = origin_;
+    record.plan.landing = plan_.mount;
+    record.outcome = outcome;
+    record.began_at = now;
+    record.ended_at = now;
+    ledger_.push_back(record);
+    LogWarn << "zipline/return/failed" << VAR(static_cast<int>(outcome)) << VAR(origin_.x) << VAR(origin_.y) << VAR(plan_.mount.x)
+            << VAR(plan_.mount.y) << VAR(ledger_.size());
+}
+
 // 分类和落地搜索先验用的全部已知节点: 这一跳两端、同架其它索的落点、途中发现的架子、账本里的架子。
 // 起点还额外按起滑时的实际定位放一份, 架子台面比节点像素大, 站偏一点也得认出是原地
 std::vector<ZiplineNodeRef> ZiplineRideMachine::KnownNodes() const
@@ -643,10 +657,7 @@ StageResult ZiplineRideMachine::Classify(IZiplineObserver& observer, IZiplineAct
             return {};
         }
         CommitRecord(HopOutcome::WrongRope, now);
-        parked_on_ = plan_.mount;
-        pending_exit_ = ReplanRequested { .still_on_tower = true, .on_tower = plan_.mount };
-        EnterStage(ZiplineStage::Handoff, now);
-        return Handoff(now);
+        return ParkForReplan(plan_.mount, now);
     }
     case LandingClass::AtOther:
     case LandingClass::AtStrayTower: {
@@ -661,7 +672,8 @@ StageResult ZiplineRideMachine::Classify(IZiplineObserver& observer, IZiplineAct
             return {};
         }
         CommitRecord(HopOutcome::WrongRope, now);
-        return StartDismount(actuator, ChainAbandoned { "zipline/return/off_target" }, now);
+        CommitFailedReturn(HopOutcome::WrongRope, now);
+        return ParkForReplan(reached, now);
     }
     case LandingClass::AtOrigin: {
         if (pitch_tier_ + 1 < kZiplineLaunchAttempts) {
@@ -671,15 +683,13 @@ StageResult ZiplineRideMachine::Classify(IZiplineObserver& observer, IZiplineAct
         }
         if (returning_) {
             CommitRecord(HopOutcome::WrongRope, now);
-            return StartDismount(actuator, ChainAbandoned { "zipline/return/no_launch" }, now);
+            CommitFailedReturn(HopOutcome::NoLaunch, now);
+            return ParkForReplan(origin_, now);
         }
         // 人根本没滑出去, 还站在上索架上。先下来再重规划要白付一次上索, 而重规划本身就会看新路线
         // 用不用得上脚下这根架子, 用不上时才下来
         CommitRecord(HopOutcome::NoLaunch, now);
-        parked_on_ = plan_.mount;
-        pending_exit_ = ReplanRequested { .still_on_tower = true, .on_tower = plan_.mount };
-        EnterStage(ZiplineStage::Handoff, now);
-        return Handoff(now);
+        return ParkForReplan(plan_.mount, now);
     }
     case LandingClass::Unknown: {
         if (!unknown_deadline_) {
@@ -746,6 +756,14 @@ StageResult ZiplineRideMachine::StartDismount(IZiplineActuator& actuator, StageR
     dismount_stable_hits_ = 0;
     EnterStage(ZiplineStage::Dismounting, now);
     return {};
+}
+
+StageResult ZiplineRideMachine::ParkForReplan(const ZiplineNodeRef& tower, Clock::time_point now)
+{
+    parked_on_ = tower;
+    pending_exit_ = ReplanRequested { .still_on_tower = true, .on_tower = tower };
+    EnterStage(ZiplineStage::Handoff, now);
+    return Handoff(now);
 }
 
 // 交回导航。这一跳的一切都清掉, 只留账本和「人还站在哪根架子上」

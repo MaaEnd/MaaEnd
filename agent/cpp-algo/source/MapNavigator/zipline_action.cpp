@@ -293,7 +293,7 @@ Result FinishHop(const Context& ctx, const HopCompleted& done)
         return result;
     }
     if (done.still_on_tower) {
-        if (CurrentHopStartsUnderfoot(ctx)) {
+        if (SkipToHopUnderfoot(ctx, "zipline_ride_complete")) {
             return StartZiplineHop(ctx, ctx.session->CurrentWaypoint(), 0.0);
         }
         // 规划说续跳, 路线却没接上同一根架子: 下来走
@@ -341,14 +341,28 @@ Result AdvanceMountSpot(const Context& ctx, const Waypoint& waypoint, const char
     return result;
 }
 
-bool CurrentHopStartsUnderfoot(const Context& ctx)
+bool SkipToHopUnderfoot(const Context& ctx, const char* reason)
 {
     const std::optional<ZiplineNodeRef> underfoot = ctx.runtime_state->zipline_ride.TowerUnderfoot();
-    if (!underfoot || !ctx.session->HasCurrentWaypoint()) {
+    if (!underfoot) {
         return false;
     }
-    const Waypoint& next = ctx.session->CurrentWaypoint();
-    return next.action == ActionType::ZIPLINE && next.zipline_hop && next.zipline_hop->mount.SameTower(*underfoot);
+    const std::vector<Waypoint>& path = ctx.session->current_path();
+    const size_t current = ctx.session->current_node_idx();
+    size_t hop = current;
+    while (hop < path.size() && path[hop].IsContinuousRun()) {
+        ++hop;
+    }
+    if (hop >= path.size() || path[hop].action != ActionType::ZIPLINE || !path[hop].zipline_hop
+        || !path[hop].zipline_hop->mount.SameTower(*underfoot)) {
+        return false;
+    }
+    if (hop > current) {
+        LogInfo << "Next hop leaves from the tower underfoot; skipping the walk to its stand point." << VAR(reason) << VAR(current)
+                << VAR(hop) << VAR(underfoot->x) << VAR(underfoot->y);
+        ctx.session->SkipPastWaypoint(hop - 1, reason);
+    }
+    return true;
 }
 
 Result AbandonZipline(const Context& ctx, const char* reason, const char* detail)
