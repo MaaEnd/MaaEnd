@@ -392,6 +392,17 @@
             "AutoSellFriendsPricesUnExpected"
         ]
     },
+    "AutoSellFriendsPricesBtwExpected": { // override into AutoSellFriendsPricesOpenSuccess.next via BtwAutoStockpileElasticGoodsEnable
+        "desc": "顺便售卖：不检查好友价格，直接进入售卖流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyBackToSellGoods"
+        ]
+    },
     "AutoSellFriendsPricesExpected": {
         "desc": "价格符合预期",
         "recognition": "Custom",

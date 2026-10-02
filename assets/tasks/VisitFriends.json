@@ -81,7 +81,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "VisitFriendsPriorityRemark"
+                        "VisitFriendsPriorityRemark",
+                        "BtwAutoStockpileElasticGoodsEnable"
                     ],
                     "pipeline_override": {
                         "VisitFriendsWaitFriendNameLoaded": {
@@ -209,6 +210,42 @@
                 "ProductionAssistMFGCabin",
                 "ProductionAssistGrowthChamber"
             ]
+        },
+        "BtwAutoStockpileElasticGoodsEnable": {
+            "type": "switch",
+            "label": "$option.BtwAutoStockpileElasticGoodsEnable.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "VisitFriendsEnterShipPriorityRemark": {
+                            "anchor": {
+                                "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": "VisitFriendsBtwAutoStockpileElasticGoods"
+                            }
+                        },
+                        "VisitFriendsBtwAutoStockpileElasticGoods": {
+                            "enabled": true
+                        },
+                        "AutoSellFriendsPricesOpenSuccess": {
+                            "next": [
+                                "AutoSellFriendsPricesBtwExpected"
+                            ]
+                        },
+                        "AutoSellFriendsPricesBtwExpected": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "VisitFriendsBtwAutoStockpileElasticGoods": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
         }
     }
 }

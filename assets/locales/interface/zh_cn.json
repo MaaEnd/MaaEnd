@@ -1294,6 +1294,7 @@
     "option.BatchDeleteFriendsInactiveDays.cases.Days60.label": "60 天",
     "option.BatchDeleteFriendsInactiveDays.cases.Days7.label": "7 天",
     "option.BatchDeleteFriendsInactiveDays.label": "未登录天数",
+    "option.BtwAutoStockpileElasticGoodsEnable.label": "每次拜访优先好友后顺便售卖弹性物资",
     "option.ClaimSimulationArea.label": "地区",
     "option.ClientVersion.cases.Bilibili.label": "B服",
     "option.ClientVersion.cases.CN.label": "官服",
