@@ -90,32 +90,40 @@
         "count": 2
     },
     "CreditShoppingPriority1ItemElementaryCombatRecord": {
-        "desc": "优先购买1，初级作战记录。绿幕模板匹配，阈值 0.92",
-        "recognition": "TemplateMatch",
+        "desc": "初级作战记录。优先购买1，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
         "roi": [
-            70,
-            95,
-            1140,
-            415
+            0,
+            0,
+            1,
+            1
         ],
-        "template": "CreditShopping/Item/item_expcard_2_1.png",
-        "green_mask": true,
-        "threshold": 0.92,
-        "order_by": "Vertical"
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2
     },
     "CreditShoppingPriority1ItemIntermediateCombatRecord": {
-        "desc": "优先购买1，中级作战记录。绿幕模板匹配，阈值 0.92",
-        "recognition": "TemplateMatch",
+        "desc": "中级作战记录。优先购买1，未勾选时不命中；选项覆盖为模板匹配",
+        "recognition": "ColorMatch",
         "roi": [
-            70,
-            95,
-            1140,
-            415
+            0,
+            0,
+            1,
+            1
         ],
-        "template": "CreditShopping/Item/item_expcard_2_2.png",
-        "green_mask": true,
-        "threshold": 0.92,
-        "order_by": "Vertical"
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            0
+        ],
+        "count": 2
     },
     "CreditShoppingPriority1ItemHeavyCastDie": {
         "desc": "重型强固模具。优先购买1，未勾选时不命中；选项覆盖为模板匹配",
