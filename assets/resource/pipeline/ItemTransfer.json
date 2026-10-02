@@ -565,13 +565,13 @@
         },
         "pre_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 154,
                 202,
                 585,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "[Anchor]ItemTransferCurrentRepoTransfer"
@@ -595,13 +595,13 @@
         },
         "pre_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 154,
                 202,
                 585,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "[Anchor]ItemTransferCurrentRepoTransfer"
@@ -724,13 +724,13 @@
         },
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 154,
                 202,
                 585,
                 291
-            ]
+            ],
+            "timeout": 3000
         }
     },
     "ItemTransferScrollUpwardRepo": {
@@ -747,13 +747,13 @@
         },
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 154,
                 202,
                 585,
                 291
-            ]
+            ],
+            "timeout": 3000
         }
     },
     "ItemTransferForwardItemNotFound": {
@@ -804,13 +804,13 @@
         ],
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 154,
                 202,
                 585,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "[Anchor]ItemTransferAfterRepoTransfer"
@@ -828,13 +828,13 @@
         ],
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 154,
                 202,
                 585,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "[Anchor]ItemTransferAfterRepoTransfer"
@@ -980,13 +980,13 @@
         },
         "pre_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 739,
                 202,
                 398,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "[Anchor]ItemTransferCurrentBagTransfer"
@@ -1010,13 +1010,13 @@
         },
         "pre_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 739,
                 202,
                 398,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "[Anchor]ItemTransferCurrentBagTransfer"
@@ -1139,13 +1139,13 @@
         },
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 739,
                 202,
                 398,
                 291
-            ]
+            ],
+            "timeout": 3000
         }
     },
     "ItemTransferScrollUpwardBag": {
@@ -1162,13 +1162,13 @@
         },
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 739,
                 202,
                 398,
                 291
-            ]
+            ],
+            "timeout": 3000
         }
     },
     "ItemTransferTransferForwardToRepo": {
@@ -1183,13 +1183,13 @@
         ],
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 739,
                 202,
                 398,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "[Anchor]ItemTransferAfterBagTransfer"
@@ -1207,13 +1207,13 @@
         ],
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 739,
                 202,
                 398,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "[Anchor]ItemTransferAfterBagTransfer"
@@ -1557,13 +1557,13 @@
         },
         "pre_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 739,
                 202,
                 398,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "ItemTransferTransferToRepoReturn"
@@ -1621,13 +1621,13 @@
         ],
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 739,
                 202,
                 398,
                 291
-            ]
+            ],
+            "timeout": 3000
         },
         "next": [
             "ItemTransferCheckIfFullReturn",

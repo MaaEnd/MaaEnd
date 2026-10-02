@@ -5,8 +5,8 @@
             "label": "$task.ZiplineImport.label",
             "entry": "ZiplineImportMain",
             "description": "$task.ZiplineImport.description",
-            "option": [
-                "ZiplineImportClearLogin"
+            "group": [
+                "open_world"
             ],
             "controller": [
                 "Linux-Gamescope",
@@ -16,8 +16,8 @@
                 "ADB",
                 "PlayCover"
             ],
-            "group": [
-                "open_world"
+            "option": [
+                "ZiplineImportClearLogin"
             ]
         }
     ],
@@ -30,7 +30,6 @@
                 "PlayCover"
             ],
             "label": "$option.ZiplineImportClearLogin.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -45,7 +44,8 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         }
     }
 }

@@ -5,8 +5,8 @@
             "label": "$task.EssenceFilter.label",
             "entry": "EssenceFilterMain",
             "description": "$task.EssenceFilter.description",
-            "option": [
-                "ExportInventory"
+            "group": [
+                "valuables_vault"
             ],
             "controller": [
                 "ADB",
@@ -19,8 +19,8 @@
                 "PlayCover",
                 "Win32-Front"
             ],
-            "group": [
-                "valuables_vault"
+            "option": [
+                "ExportInventory"
             ]
         }
     ],
@@ -29,7 +29,6 @@
             "type": "switch",
             "label": "$option.ExportInventory.label",
             "description": "$option.ExportInventory.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -72,12 +71,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SelectWeaponRarity": {
             "type": "switch",
             "label": "$option.SelectWeaponRarity.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -90,12 +89,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "Rarity6Weapon": {
             "type": "switch",
             "label": "$option.Rarity6Weapon.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -117,12 +116,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "Rarity5Weapon": {
             "type": "switch",
             "label": "$option.Rarity5Weapon.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -144,12 +143,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "Rarity4Weapon": {
             "type": "switch",
             "label": "$option.Rarity4Weapon.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -171,12 +170,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SelectEssence": {
             "type": "switch",
             "label": "$option.SelectEssence.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -188,12 +187,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "FlawlessEssence": {
             "type": "switch",
             "label": "$option.FlawlessEssence.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -225,12 +224,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "PureEssence": {
             "type": "switch",
             "label": "$option.PureEssence.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -262,13 +261,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SkipThumbLock": {
             "type": "switch",
             "label": "$option.SkipThumbLock.label",
             "description": "$option.SkipThumbLock.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -290,13 +289,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "SkipThumbDiscard": {
             "type": "switch",
             "label": "$option.SkipThumbDiscard.label",
             "description": "$option.SkipThumbDiscard.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -318,12 +317,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "SelectExtraRules": {
             "type": "switch",
             "label": "$option.SelectExtraRules.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -337,13 +336,13 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "KeepFuturePromising": {
             "type": "switch",
             "label": "$option.KeepFuturePromising.label",
             "description": "$option.KeepFuturePromising.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -369,13 +368,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "LockFuturePromising": {
             "type": "switch",
             "label": "$option.LockFuturePromising.label",
             "description": "$option.LockFuturePromising.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -397,7 +396,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "FuturePromisingMinTotal": {
             "type": "input",
@@ -408,9 +408,9 @@
                     "name": "FuturePromisingMinTotal",
                     "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
                     "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
+                    "default": "6",
                     "pipeline_type": "int",
-                    "verify": "^[3-9]$|^1[0-5]$",
-                    "default": "6"
+                    "verify": "^[3-9]$|^1[0-5]$"
                 }
             ],
             "pipeline_override": {
@@ -425,7 +425,6 @@
             "type": "switch",
             "label": "$option.KeepSlot3Level3Practical.label",
             "description": "$option.KeepSlot3Level3Practical.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -451,13 +450,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "LockSlot3Practical": {
             "type": "switch",
             "label": "$option.LockSlot3Practical.label",
             "description": "$option.LockSlot3Practical.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -479,7 +478,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "Slot3MinLevel": {
             "type": "input",
@@ -490,9 +490,9 @@
                     "name": "Slot3MinLevel",
                     "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
                     "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
+                    "default": "3",
                     "pipeline_type": "int",
-                    "verify": "^[1-3]$",
-                    "default": "3"
+                    "verify": "^[1-3]$"
                 }
             ],
             "pipeline_override": {
@@ -507,7 +507,6 @@
             "type": "switch",
             "label": "$option.DiscardUnmatched.label",
             "description": "$option.DiscardUnmatched.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -529,13 +528,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "ExportCalculatorScript": {
             "type": "switch",
             "label": "$option.ExportCalculatorScript.label",
             "description": "$option.ExportCalculatorScript.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -557,7 +556,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         }
     }
 }

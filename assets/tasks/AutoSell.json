@@ -4,6 +4,9 @@
             "name": "AutoSell",
             "label": "$task.AutoSell.label",
             "entry": "AutoSellMain",
+            "group": [
+                "regional_development"
+            ],
             "controller": [
                 "ADB",
                 "CloudADB",
@@ -17,9 +20,6 @@
                 "AutoSellValleyIV",
                 "AutoSellWuling",
                 "AutoSellPriceType"
-            ],
-            "group": [
-                "regional_development"
             ]
         }
     ],
@@ -27,10 +27,12 @@
         "AutoSellValleyIV": {
             "type": "switch",
             "label": "$global.region.ValleyIV",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "AutoSellTicketOverflowValleyIV"
+                    ],
                     "pipeline_override": {
                         "AutoSellScanValleyIVMain": {
                             "enabled": true
@@ -38,10 +40,7 @@
                         "AutoSellExecuteValleyIVMain": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoSellTicketOverflowValleyIV"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -54,15 +53,18 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoSellWuling": {
             "type": "switch",
             "label": "$global.region.Wuling",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "AutoSellTicketOverflowWuling"
+                    ],
                     "pipeline_override": {
                         "AutoSellScanWulingMain": {
                             "enabled": true
@@ -70,10 +72,7 @@
                         "AutoSellExecuteWulingMain": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoSellTicketOverflowWuling"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -86,12 +85,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoSellPriceType": {
             "type": "select",
             "label": "$option.AutoSellPriceType.label",
-            "default_case": "AutoSellPriceTypePerCategory",
             "cases": [
                 {
                     "name": "AutoSellPriceTypeGlobal",
@@ -107,7 +106,8 @@
                         "AutoSellPricePerCategory"
                     ]
                 }
-            ]
+            ],
+            "default_case": "AutoSellPriceTypePerCategory"
         },
         "AutoSellTicketOverflowValleyIV": {
             "type": "input",
@@ -116,9 +116,9 @@
                 {
                     "name": "AutoSellTicketOverflowValleyIVValue",
                     "label": "$option.inputs.AutoSellTicketOverflowValue.label",
+                    "default": "30000000",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "default": "30000000"
+                    "verify": "^\\d+$"
                 }
             ],
             "pipeline_override": {
@@ -137,9 +137,9 @@
                 {
                     "name": "AutoSellTicketOverflowWulingValue",
                     "label": "$option.inputs.AutoSellTicketOverflowValue.label",
+                    "default": "30000000",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "default": "30000000"
+                    "verify": "^\\d+$"
                 }
             ],
             "pipeline_override": {
@@ -158,9 +158,9 @@
                 {
                     "name": "AutoSellPriceGlobalValue",
                     "label": "$option.AutoSellPriceGlobal.inputs.AutoSellPriceGlobalValue.label",
+                    "default": "4600",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "default": "4600"
+                    "verify": "^\\d+$"
                 }
             ],
             "pipeline_override": {
@@ -189,23 +189,23 @@
                 {
                     "name": "AutoSellPricePerCategoryModeratePriceVolatilityValue",
                     "label": "$option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryModeratePriceVolatilityValue.label",
+                    "default": "4600",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "default": "4600"
+                    "verify": "^\\d+$"
                 },
                 {
                     "name": "AutoSellPricePerCategoryLargePriceVolatilityValue",
                     "label": "$option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryLargePriceVolatilityValue.label",
+                    "default": "5000",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "default": "5000"
+                    "verify": "^\\d+$"
                 },
                 {
                     "name": "AutoSellPricePerCategoryMassivePriceVolatilityValue",
                     "label": "$option.AutoSellPricePerCategory.inputs.AutoSellPricePerCategoryMassivePriceVolatilityValue.label",
+                    "default": "5300",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "default": "5300"
+                    "verify": "^\\d+$"
                 }
             ],
             "pipeline_override": {

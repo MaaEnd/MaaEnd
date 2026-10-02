@@ -5,6 +5,9 @@
             "label": "$task.PullCountCalculator.label",
             "entry": "PullCountCalculatorMain",
             "description": "$task.PullCountCalculator.description",
+            "group": [
+                "other_menu"
+            ],
             "controller": [
                 "ADB",
                 "CloudADB",
@@ -15,9 +18,6 @@
                 "MacOS-Front",
                 "PlayCover",
                 "Win32-Front"
-            ],
-            "group": [
-                "other_menu"
             ]
         }
     ]

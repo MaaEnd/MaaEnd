@@ -5,6 +5,9 @@
             "label": "$task.EnvironmentMonitoring.label",
             "entry": "EnvironmentMonitoringMain",
             "description": "$task.EnvironmentMonitoring.description",
+            "group": [
+                "regional_development"
+            ],
             "controller": [
                 "ADB",
                 "CloudADB",
@@ -13,9 +16,6 @@
                 "Linux-Wlroots",
                 "PlayCover",
                 "Win32-Front"
-            ],
-            "group": [
-                "regional_development"
             ]
         }
     ]

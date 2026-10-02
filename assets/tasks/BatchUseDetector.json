@@ -5,10 +5,8 @@
             "label": "$task.BatchUseDetector.label",
             "entry": "BatchUseDetectorMain",
             "description": "$task.BatchUseDetector.description",
-            "option": [
-                "BatchUseDetectorRegion",
-                "BatchUseDetectorCategory",
-                "BatchUseDetectorTimes"
+            "group": [
+                "valuables_vault"
             ],
             "controller": [
                 "ADB",
@@ -21,8 +19,10 @@
                 "PlayCover",
                 "Win32-Front"
             ],
-            "group": [
-                "valuables_vault"
+            "option": [
+                "BatchUseDetectorRegion",
+                "BatchUseDetectorCategory",
+                "BatchUseDetectorTimes"
             ]
         }
     ],
@@ -30,7 +30,6 @@
         "BatchUseDetectorRegion": {
             "type": "select",
             "label": "$task.BatchUseDetector.option.Region.label",
-            "default_case": "Wuling",
             "cases": [
                 {
                     "name": "Wuling",
@@ -50,12 +49,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Wuling"
         },
         "BatchUseDetectorCategory": {
             "type": "select",
             "label": "$task.BatchUseDetector.option.Category.label",
-            "default_case": "Detector",
             "cases": [
                 {
                     "name": "Detector",
@@ -81,7 +80,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Detector"
         },
         "BatchUseDetectorTimes": {
             "type": "input",

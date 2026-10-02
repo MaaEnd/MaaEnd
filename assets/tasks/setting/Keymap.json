@@ -1,24 +1,8 @@
 {
-    "setting": [
-        {
-            "name": "Keymap",
-            "label": "$option.Keymap.label",
-            "description": "$option.Keymap.description",
-            "default_expand": false,
-            "option": [
-                "KeymapGeneral",
-                "KeymapFight"
-            ]
-        }
-    ],
-    "global_option": [
-        "KeymapGeneral",
-        "KeymapFight"
-    ],
     "option": {
         "KeymapGeneral": {
-            "label": "$option.KeymapGeneral.label",
             "type": "hotkey",
+            "label": "$option.KeymapGeneral.label",
             "hotkeys": [
                 {
                     "name": "KeymapUseCurrentQuickTool",
@@ -71,8 +55,8 @@
             }
         },
         "KeymapFight": {
-            "label": "$option.KeymapFight.label",
             "type": "hotkey",
+            "label": "$option.KeymapFight.label",
             "hotkeys": [
                 {
                     "name": "KeymapFightCombo",
@@ -162,5 +146,21 @@
                 }
             }
         }
-    }
+    },
+    "global_option": [
+        "KeymapGeneral",
+        "KeymapFight"
+    ],
+    "setting": [
+        {
+            "name": "Keymap",
+            "label": "$option.Keymap.label",
+            "description": "$option.Keymap.description",
+            "option": [
+                "KeymapGeneral",
+                "KeymapFight"
+            ],
+            "default_expand": false
+        }
+    ]
 }

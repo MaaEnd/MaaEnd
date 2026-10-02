@@ -92,13 +92,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 825,
                 210,
                 280,
                 350
-            ],
-            "time": 200
+            ]
         }
     },
     "ProtocolSpaceOperationalManualScrollEnd": {

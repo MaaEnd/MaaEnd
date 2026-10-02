@@ -376,13 +376,13 @@
             }
         ],
         "pre_wait_freezes": {
+            "time": 100,
             "target": [
                 460,
                 260,
                 610,
                 310
-            ],
-            "time": 100
+            ]
         },
         "pre_delay": 0,
         "post_delay": 0,

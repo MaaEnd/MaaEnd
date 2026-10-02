@@ -55,13 +55,13 @@
         "desc": "A2 珍贵物品页识别（page_dedup=false，地区重建）。列表静止后识别；结束后优先 JumpBack 滑动增量，用尽后走 Lock",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 30,
                 80,
                 950,
                 560
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },
@@ -107,13 +107,13 @@
             }
         },
         "post_wait_freezes": {
+            "time": 300,
             "target": [
                 30,
                 80,
                 950,
                 560
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },
@@ -127,13 +127,13 @@
         "desc": "A2 珍贵物品页增量识别（page_dedup=true）。列表静止后识别；完成后空 next，经 JumpBack 回到 RunFull.next",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 30,
                 80,
                 950,
                 560
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },

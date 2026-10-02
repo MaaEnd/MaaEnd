@@ -5,6 +5,9 @@
             "label": "$task.Crafting.label",
             "entry": "CraftingStart",
             "description": "$task.Crafting.description",
+            "group": [
+                "backpack"
+            ],
             "controller": [
                 "ADB",
                 "CloudADB",
@@ -15,9 +18,6 @@
                 "MacOS-Front",
                 "PlayCover",
                 "Win32-Front"
-            ],
-            "group": [
-                "backpack"
             ]
         }
     ]

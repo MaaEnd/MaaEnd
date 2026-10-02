@@ -97,8 +97,8 @@
                 0,
                 0
             ],
-            "timeout": 3000,
-            "threshold": 0.98
+            "threshold": 0.98,
+            "timeout": 3000
         }, //这里识别到后得等画面稳定后才可以正常点击
         "pre_delay": 0,
         "action": "Click",

@@ -1,15 +1,5 @@
 {
     "interface_version": 2,
-    "name": "MaaEnd",
-    "description": "$description.file",
-    "version": "v0.1.0",
-    "contact": "$contact.file",
-    "license": "locales/LICENSE_SHORT.md",
-    "welcome": "https://end.maafw.com/anno.md",
-    "icon": "locales/MaaEnd-Tiny.png",
-    "github": "https://github.com/MaaEnd/MaaEnd",
-    "mirrorchyan_rid": "MaaEnd",
-    "mirrorchyan_multiplatform": true,
     "languages": {
         "zh_cn": "locales/interface/zh_cn.json",
         "zh_tw": "locales/interface/zh_tw.json",
@@ -17,6 +7,16 @@
         "ja_jp": "locales/interface/ja_jp.json",
         "ko_kr": "locales/interface/ko_kr.json"
     },
+    "name": "MaaEnd",
+    "icon": "locales/MaaEnd-Tiny.png",
+    "mirrorchyan_rid": "MaaEnd",
+    "mirrorchyan_multiplatform": true,
+    "github": "https://github.com/MaaEnd/MaaEnd",
+    "version": "v0.1.0",
+    "contact": "$contact.file",
+    "license": "locales/LICENSE_SHORT.md",
+    "welcome": "https://end.maafw.com/anno.md",
+    "description": "$description.file",
     "telemetry": {
         "sentry": {
             "dsn": "https://bd7fd739c3764eb264d3bfbb298cb56b@o4511806947065856.ingest.us.sentry.io/4511806958665728"
@@ -28,14 +28,14 @@
             "label": "$controller.Win32-Front.label",
             "description": "$controller.Win32-Front.description",
             "type": "Win32",
+            "permission_required": true,
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
                 "screencap": "ScreenDC",
                 "mouse": "Seize",
                 "keyboard": "Seize"
-            },
-            "permission_required": true
+            }
         },
         // Win32-Window-Background: 因游戏更新无法继续适配，已弃用
         // {
@@ -74,13 +74,13 @@
         {
             "name": "PlayCover",
             "type": "PlayCover",
-            "playcover": {
-                "uuid": "maa.playcover"
-            },
             "attach_resource_path": [
                 "./resource_adb",
                 "./resource_playcover"
-            ]
+            ],
+            "playcover": {
+                "uuid": "maa.playcover"
+            }
         },
         {
             "name": "Linux-Gamescope",
@@ -131,28 +131,28 @@
             "label": "$controller.MacOS-Front.label",
             "description": "$controller.MacOS-Front.description",
             "type": "MacOS",
+            "attach_resource_path": [
+                "./resource_macos"
+            ],
             "macos": {
                 "title_regex": "Endfield",
                 "screencap": "ScreenCaptureKit",
                 "input": "GlobalEvent"
-            },
-            "attach_resource_path": [
-                "./resource_macos"
-            ]
+            }
         },
         {
             "name": "MacOS-Background",
             "label": "$controller.MacOS-Background.label",
             "description": "$controller.MacOS-Background.description",
             "type": "MacOS",
+            "attach_resource_path": [
+                "./resource_macos"
+            ],
             "macos": {
                 "title_regex": "Endfield",
                 "screencap": "ScreenCaptureKit",
                 "input": "PostToPid"
-            },
-            "attach_resource_path": [
-                "./resource_macos"
-            ]
+            }
         }
     ],
     "resource": [

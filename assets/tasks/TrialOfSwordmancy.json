@@ -5,8 +5,8 @@
             "label": "$task.TrialOfSwordmancy.label",
             "entry": "TrialOfSwordmancyMain",
             "description": "$task.TrialOfSwordmancy.description",
-            "option": [
-                "TrialOfSwordmancyMode"
+            "group": [
+                "regional_development"
             ],
             "controller": [
                 "Linux-Gamescope",
@@ -14,8 +14,8 @@
                 "Linux-Wlroots",
                 "Win32-Front"
             ],
-            "group": [
-                "regional_development"
+            "option": [
+                "TrialOfSwordmancyMode"
             ]
         }
     ],
@@ -24,7 +24,6 @@
             "type": "select",
             "label": "$option.TrialOfSwordmancyMode.label",
             "description": "$option.TrialOfSwordmancyMode.description",
-            "default_case": "Daily",
             "cases": [
                 {
                     "name": "Daily",
@@ -82,13 +81,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Daily"
         },
         "TrialOfSwordmancyOverflow": {
             "type": "select",
             "label": "$option.TrialOfSwordmancyOverflow.label",
             "description": "$option.TrialOfSwordmancyOverflow.description",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -122,13 +121,13 @@
                         "TrialOfSwordmancyStopOnOverflow"
                     ]
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "TrialOfSwordmancyStopOnOverflow": {
             "type": "switch",
             "label": "$option.TrialOfSwordmancyStopOnOverflow.label",
             "description": "$option.TrialOfSwordmancyStopOnOverflow.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No"
@@ -141,28 +140,32 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "TrialOfSwordmancyAutoFight": {
             "type": "switch",
             "label": "$option.TrialOfSwordmancyAutoFight.label",
             "description": "$option.TrialOfSwordmancyAutoFight.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "No",
+                    "option": [
+                        "TrialOfSwordmancyReturnToWorld"
+                    ],
                     "pipeline_override": {
                         "TrialOfSwordmancyStartTrial": {
                             "action": "DoNothing",
                             "next": []
                         }
-                    },
-                    "option": [
-                        "TrialOfSwordmancyReturnToWorld"
-                    ]
+                    }
                 },
                 {
                     "name": "Yes",
+                    "option": [
+                        "AutoFightSetting",
+                        "TrialOfSwordmancyRecoverBeforeBattle"
+                    ],
                     "pipeline_override": {
                         "AutoFight": {
                             "attach": {
@@ -171,18 +174,14 @@
                                 ]
                             }
                         }
-                    },
-                    "option": [
-                        "AutoFightSetting",
-                        "TrialOfSwordmancyRecoverBeforeBattle"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "TrialOfSwordmancyRecoverBeforeBattle": {
             "type": "switch",
             "label": "$option.TrialOfSwordmancyRecoverBeforeBattle.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No"
@@ -197,12 +196,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "TrialOfSwordmancyReturnToWorld": {
             "type": "switch",
             "label": "$option.TrialOfSwordmancyReturnToWorld.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No"
@@ -217,7 +216,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         }
     }
 }

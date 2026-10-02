@@ -4,6 +4,9 @@
             "name": "StashBackpack",
             "label": "$task.StashBackpack.label",
             "entry": "StashBackpackMain",
+            "group": [
+                "backpack"
+            ],
             "controller": [
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
@@ -11,9 +14,6 @@
                 "MacOS-Background",
                 "MacOS-Front",
                 "Win32-Front"
-            ],
-            "group": [
-                "backpack"
             ],
             "option": [
                 "StashBackpackType"
@@ -24,18 +24,17 @@
         "StashBackpackSubTask": {
             "type": "switch",
             "label": "$task.StashBackpack.option.StashBackpackSubTask.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "StashBackpackType"
+                    ],
                     "pipeline_override": {
                         "StashBackpackMain": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "StashBackpackType"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -45,15 +44,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "StashBackpackType": {
             "type": "checkbox",
             "label": "$option.StashBackpackType.label",
-            "default_case": [
-                "StashBackpackQuick",
-                "StashBackpackUsableItemsLimited"
-            ],
             "cases": [
                 {
                     "name": "StashBackpackQuick",
@@ -73,6 +69,10 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "StashBackpackQuick",
+                "StashBackpackUsableItemsLimited"
             ]
         }
     }

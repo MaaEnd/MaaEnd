@@ -174,8 +174,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 16,
-                "auto_up": true
+                "auto_up": true,
+                "key": 16
             }
         },
         "post_delay": 50,
@@ -215,8 +215,8 @@
             }
         },
         "post_wait_freezes": {
-            "target": "StashBackpackUsableItemsLimitedDrag",
-            "time": 200
+            "time": 200,
+            "target": "StashBackpackUsableItemsLimitedDrag"
         },
         "post_delay": 0,
         "rate_limit": 0

@@ -962,13 +962,13 @@
             "보상 획득"
         ],
         "pre_wait_freezes": {
+            "time": 200,
             "target": [
                 300,
                 250,
                 750,
                 200
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "ProtocolSpaceRewardAddItemData",
@@ -979,13 +979,13 @@
         "desc": "协议空间领取奖励后：等奖励区静止（弹出动画结束），再 IMS A3 累加培养道具数量",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 528,
                 299,
                 222,
                 131
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },

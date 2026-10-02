@@ -4,7 +4,6 @@
             "type": "select",
             "label": "$option.AutoEssenceLocationSecondary.label",
             "description": "$option.AutoEssenceLocationSecondary.description",
-            "default_case": "s2_9",
             "cases": [
                 {
                     "name": "s2_9",
@@ -614,7 +613,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "s2_9"
         }
     }
 }

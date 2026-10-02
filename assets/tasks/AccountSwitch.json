@@ -5,14 +5,14 @@
             "label": "$task.AccountSwitch.label",
             "entry": "AccountSwitchStart",
             "description": "$task.AccountSwitch.description",
+            "group": [
+                "other_menu"
+            ],
             "controller": [
                 "Win32-Front"
             ],
             "option": [
                 "AccountSwitchMatchMode"
-            ],
-            "group": [
-                "other_menu"
             ]
         }
     ],
@@ -21,7 +21,6 @@
             "type": "select",
             "label": "$option.AccountSwitchMatchMode.label",
             "description": "$option.AccountSwitchMatchMode.description",
-            "default_case": "LastFourDigits",
             "cases": [
                 {
                     "name": "LastFourDigits",
@@ -47,7 +46,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "LastFourDigits"
         },
         "AccountSwitchLastFourDigits": {
             "type": "input",
@@ -57,9 +57,9 @@
                 {
                     "name": "LastFourDigits",
                     "label": "$option.AccountSwitchLastFourDigits.LastFourDigits.label",
+                    "default": "",
                     "pipeline_type": "string",
-                    "verify": "^\\d{4}$",
-                    "default": ""
+                    "verify": "^\\d{4}$"
                 }
             ],
             "pipeline_override": {
@@ -95,10 +95,10 @@
                 {
                     "name": "Email",
                     "label": "$option.AccountSwitchEmail.Email.label",
+                    "default": "",
                     "pipeline_type": "string",
                     "verify": "^[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]+\\*{5}[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]*@[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]+$",
-                    "pattern_msg": "$option.AccountSwitchEmail.Email.pattern_msg",
-                    "default": ""
+                    "pattern_msg": "$option.AccountSwitchEmail.Email.pattern_msg"
                 }
             ],
             "pipeline_override": {

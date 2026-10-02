@@ -5,6 +5,9 @@
             "label": "$task.BakerEntry.label",
             "entry": "BakerEntry",
             "description": "$task.BakerEntry.description",
+            "group": [
+                "other_menu"
+            ],
             "controller": [
                 "ADB",
                 "CloudADB",
@@ -15,9 +18,6 @@
                 "MacOS-Front",
                 "PlayCover",
                 "Win32-Front"
-            ],
-            "group": [
-                "other_menu"
             ]
         }
     ],

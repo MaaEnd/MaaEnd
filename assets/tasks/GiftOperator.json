@@ -5,10 +5,6 @@
             "label": "$task.GiftOperator.label",
             "entry": "GiftOperatorMain",
             "description": "$task.GiftOperator.description",
-            "option": [
-                "StashBackpackSubTask",
-                "OnlyReceiveGift"
-            ],
             "group": [
                 "dijiang_ship"
             ],
@@ -20,6 +16,10 @@
                 "Linux-Wlroots",
                 "PlayCover",
                 "Win32-Front"
+            ],
+            "option": [
+                "StashBackpackSubTask",
+                "OnlyReceiveGift"
             ]
         }
     ],
@@ -27,7 +27,6 @@
         "SelectOperator": {
             "type": "select",
             "label": "$option.SelectOperator.label",
-            "default_case": "Any",
             "description": "$option.SelectOperator.description",
             "cases": [
                 {
@@ -983,13 +982,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Any"
         },
         "OnlyReceiveGift": {
             "type": "switch",
             "label": "$option.OnlyReceiveGift.label",
             "description": "$option.OnlyReceiveGift.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -1036,13 +1035,13 @@
                     ],
                     "pipeline_override": {}
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "AcceptAllGifts": {
             "type": "switch",
             "label": "$option.AcceptAllGifts.label",
             "description": "$option.AcceptAllGifts.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -1058,7 +1057,8 @@
                     "name": "No",
                     "pipeline_override": {}
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "GiftCount": {
             "type": "input",
@@ -1069,9 +1069,9 @@
                     "name": "Count",
                     "label": "$option.GiftCount.inputs.Count.label",
                     "description": "$option.GiftCount.inputs.Count.description",
+                    "default": "1",
                     "pipeline_type": "int",
-                    "verify": "^[1-9]\\d*$",
-                    "default": "1"
+                    "verify": "^[1-9]\\d*$"
                 }
             ],
             "pipeline_override": {

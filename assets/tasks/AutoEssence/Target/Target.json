@@ -3,7 +3,6 @@
         "AutoEssenceWeaponTypeWand": {
             "type": "switch",
             "label": "$option.AutoEssenceWeaponTypeWand.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -14,11 +13,218 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoEssenceWeaponsWand": {
             "type": "checkbox",
             "label": "$option.AutoEssenceSelectWeapons.label",
+            "cases": [
+                {
+                    "name": "wpn_funnel_0008",
+                    "label": "$weapon.wpn_funnel_0008",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0008.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0013",
+                    "label": "$weapon.wpn_funnel_0013",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0013.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0015",
+                    "label": "$weapon.wpn_funnel_0015",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0015.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0018",
+                    "label": "$weapon.wpn_funnel_0018",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0018.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0018": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0010",
+                    "label": "$weapon.wpn_funnel_0010",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0010.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0011",
+                    "label": "$weapon.wpn_funnel_0011",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0011.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0016",
+                    "label": "$weapon.wpn_funnel_0016",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0016.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0017",
+                    "label": "$weapon.wpn_funnel_0017",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0017.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0009",
+                    "label": "$weapon.wpn_funnel_0009",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0009.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0009": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0006",
+                    "label": "$weapon.wpn_funnel_0006",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0006.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0019",
+                    "label": "$weapon.wpn_funnel_0019",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0019.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0019": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0020",
+                    "label": "$weapon.wpn_funnel_0020",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0020.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0020": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0012",
+                    "label": "$weapon.wpn_funnel_0012",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0012.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0005",
+                    "label": "$weapon.wpn_funnel_0005",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0005.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0005": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0004",
+                    "label": "$weapon.wpn_funnel_0004",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0004.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0007",
+                    "label": "$weapon.wpn_funnel_0007",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0007.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0014",
+                    "label": "$weapon.wpn_funnel_0014",
+                    "icon": "resource/image/UI/Item/wpn_funnel_0014.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_funnel_0014": true
+                            }
+                        }
+                    }
+                }
+            ],
             "default_case": [
                 "wpn_funnel_0008",
                 "wpn_funnel_0013",
@@ -32,218 +238,11 @@
                 "wpn_funnel_0006",
                 "wpn_funnel_0019",
                 "wpn_funnel_0020"
-            ],
-            "cases": [
-                {
-                    "name": "wpn_funnel_0008",
-                    "label": "$weapon.wpn_funnel_0008",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0008": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0008.png"
-                },
-                {
-                    "name": "wpn_funnel_0013",
-                    "label": "$weapon.wpn_funnel_0013",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0013": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0013.png"
-                },
-                {
-                    "name": "wpn_funnel_0015",
-                    "label": "$weapon.wpn_funnel_0015",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0015": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0015.png"
-                },
-                {
-                    "name": "wpn_funnel_0018",
-                    "label": "$weapon.wpn_funnel_0018",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0018": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0018.png"
-                },
-                {
-                    "name": "wpn_funnel_0010",
-                    "label": "$weapon.wpn_funnel_0010",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0010": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0010.png"
-                },
-                {
-                    "name": "wpn_funnel_0011",
-                    "label": "$weapon.wpn_funnel_0011",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0011": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0011.png"
-                },
-                {
-                    "name": "wpn_funnel_0016",
-                    "label": "$weapon.wpn_funnel_0016",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0016": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0016.png"
-                },
-                {
-                    "name": "wpn_funnel_0017",
-                    "label": "$weapon.wpn_funnel_0017",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0017": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0017.png"
-                },
-                {
-                    "name": "wpn_funnel_0009",
-                    "label": "$weapon.wpn_funnel_0009",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0009": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0009.png"
-                },
-                {
-                    "name": "wpn_funnel_0006",
-                    "label": "$weapon.wpn_funnel_0006",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0006": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0006.png"
-                },
-                {
-                    "name": "wpn_funnel_0019",
-                    "label": "$weapon.wpn_funnel_0019",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0019": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0019.png"
-                },
-                {
-                    "name": "wpn_funnel_0020",
-                    "label": "$weapon.wpn_funnel_0020",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0020": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0020.png"
-                },
-                {
-                    "name": "wpn_funnel_0012",
-                    "label": "$weapon.wpn_funnel_0012",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0012": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0012.png"
-                },
-                {
-                    "name": "wpn_funnel_0005",
-                    "label": "$weapon.wpn_funnel_0005",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0005": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0005.png"
-                },
-                {
-                    "name": "wpn_funnel_0004",
-                    "label": "$weapon.wpn_funnel_0004",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0004": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0004.png"
-                },
-                {
-                    "name": "wpn_funnel_0007",
-                    "label": "$weapon.wpn_funnel_0007",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0007": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0007.png"
-                },
-                {
-                    "name": "wpn_funnel_0014",
-                    "label": "$weapon.wpn_funnel_0014",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_funnel_0014": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_funnel_0014.png"
-                }
             ]
         },
         "AutoEssenceWeaponTypeSword": {
             "type": "switch",
             "label": "$option.AutoEssenceWeaponTypeSword.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -254,11 +253,218 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoEssenceWeaponsSword": {
             "type": "checkbox",
             "label": "$option.AutoEssenceSelectWeapons.label",
+            "cases": [
+                {
+                    "name": "wpn_sword_0010",
+                    "label": "$weapon.wpn_sword_0010",
+                    "icon": "resource/image/UI/Item/wpn_sword_0010.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0014",
+                    "label": "$weapon.wpn_sword_0014",
+                    "icon": "resource/image/UI/Item/wpn_sword_0014.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0014": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0016",
+                    "label": "$weapon.wpn_sword_0016",
+                    "icon": "resource/image/UI/Item/wpn_sword_0016.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0011",
+                    "label": "$weapon.wpn_sword_0011",
+                    "icon": "resource/image/UI/Item/wpn_sword_0011.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0017",
+                    "label": "$weapon.wpn_sword_0017",
+                    "icon": "resource/image/UI/Item/wpn_sword_0017.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0021",
+                    "label": "$weapon.wpn_sword_0021",
+                    "icon": "resource/image/UI/Item/wpn_sword_0021.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0021": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0022",
+                    "label": "$weapon.wpn_sword_0022",
+                    "icon": "resource/image/UI/Item/wpn_sword_0022.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0022": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0012",
+                    "label": "$weapon.wpn_sword_0012",
+                    "icon": "resource/image/UI/Item/wpn_sword_0012.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0006",
+                    "label": "$weapon.wpn_sword_0006",
+                    "icon": "resource/image/UI/Item/wpn_sword_0006.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0013",
+                    "label": "$weapon.wpn_sword_0013",
+                    "icon": "resource/image/UI/Item/wpn_sword_0013.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0026",
+                    "label": "$weapon.wpn_sword_0026",
+                    "icon": "resource/image/UI/Item/wpn_sword_0026.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0026": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0005",
+                    "label": "$weapon.wpn_sword_0005",
+                    "icon": "resource/image/UI/Item/wpn_sword_0005.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0005": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0007",
+                    "label": "$weapon.wpn_sword_0007",
+                    "icon": "resource/image/UI/Item/wpn_sword_0007.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0018",
+                    "label": "$weapon.wpn_sword_0018",
+                    "icon": "resource/image/UI/Item/wpn_sword_0018.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0018": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0015",
+                    "label": "$weapon.wpn_sword_0015",
+                    "icon": "resource/image/UI/Item/wpn_sword_0015.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0020",
+                    "label": "$weapon.wpn_sword_0020",
+                    "icon": "resource/image/UI/Item/wpn_sword_0020.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0020": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0019",
+                    "label": "$weapon.wpn_sword_0019",
+                    "icon": "resource/image/UI/Item/wpn_sword_0019.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0019": true
+                            }
+                        }
+                    }
+                }
+            ],
             "default_case": [
                 "wpn_sword_0010",
                 "wpn_sword_0014",
@@ -271,218 +477,11 @@
                 "wpn_sword_0006",
                 "wpn_sword_0013",
                 "wpn_sword_0026"
-            ],
-            "cases": [
-                {
-                    "name": "wpn_sword_0010",
-                    "label": "$weapon.wpn_sword_0010",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0010": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0010.png"
-                },
-                {
-                    "name": "wpn_sword_0014",
-                    "label": "$weapon.wpn_sword_0014",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0014": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0014.png"
-                },
-                {
-                    "name": "wpn_sword_0016",
-                    "label": "$weapon.wpn_sword_0016",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0016": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0016.png"
-                },
-                {
-                    "name": "wpn_sword_0011",
-                    "label": "$weapon.wpn_sword_0011",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0011": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0011.png"
-                },
-                {
-                    "name": "wpn_sword_0017",
-                    "label": "$weapon.wpn_sword_0017",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0017": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0017.png"
-                },
-                {
-                    "name": "wpn_sword_0021",
-                    "label": "$weapon.wpn_sword_0021",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0021": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0021.png"
-                },
-                {
-                    "name": "wpn_sword_0022",
-                    "label": "$weapon.wpn_sword_0022",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0022": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0022.png"
-                },
-                {
-                    "name": "wpn_sword_0012",
-                    "label": "$weapon.wpn_sword_0012",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0012": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0012.png"
-                },
-                {
-                    "name": "wpn_sword_0006",
-                    "label": "$weapon.wpn_sword_0006",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0006": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0006.png"
-                },
-                {
-                    "name": "wpn_sword_0013",
-                    "label": "$weapon.wpn_sword_0013",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0013": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0013.png"
-                },
-                {
-                    "name": "wpn_sword_0026",
-                    "label": "$weapon.wpn_sword_0026",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0026": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0026.png"
-                },
-                {
-                    "name": "wpn_sword_0005",
-                    "label": "$weapon.wpn_sword_0005",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0005": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0005.png"
-                },
-                {
-                    "name": "wpn_sword_0007",
-                    "label": "$weapon.wpn_sword_0007",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0007": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0007.png"
-                },
-                {
-                    "name": "wpn_sword_0018",
-                    "label": "$weapon.wpn_sword_0018",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0018": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0018.png"
-                },
-                {
-                    "name": "wpn_sword_0015",
-                    "label": "$weapon.wpn_sword_0015",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0015": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0015.png"
-                },
-                {
-                    "name": "wpn_sword_0020",
-                    "label": "$weapon.wpn_sword_0020",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0020": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0020.png"
-                },
-                {
-                    "name": "wpn_sword_0019",
-                    "label": "$weapon.wpn_sword_0019",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_sword_0019": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_sword_0019.png"
-                }
             ]
         },
         "AutoEssenceWeaponTypeLance": {
             "type": "switch",
             "label": "$option.AutoEssenceWeaponTypeLance.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -493,11 +492,134 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoEssenceWeaponsLance": {
             "type": "checkbox",
             "label": "$option.AutoEssenceSelectWeapons.label",
+            "cases": [
+                {
+                    "name": "wpn_lance_0007",
+                    "label": "$weapon.wpn_lance_0007",
+                    "icon": "resource/image/UI/Item/wpn_lance_0007.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0015",
+                    "label": "$weapon.wpn_lance_0015",
+                    "icon": "resource/image/UI/Item/wpn_lance_0015.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0012",
+                    "label": "$weapon.wpn_lance_0012",
+                    "icon": "resource/image/UI/Item/wpn_lance_0012.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0016",
+                    "label": "$weapon.wpn_lance_0016",
+                    "icon": "resource/image/UI/Item/wpn_lance_0016.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0010",
+                    "label": "$weapon.wpn_lance_0010",
+                    "icon": "resource/image/UI/Item/wpn_lance_0010.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0011",
+                    "label": "$weapon.wpn_lance_0011",
+                    "icon": "resource/image/UI/Item/wpn_lance_0011.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0014",
+                    "label": "$weapon.wpn_lance_0014",
+                    "icon": "resource/image/UI/Item/wpn_lance_0014.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0014": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0004",
+                    "label": "$weapon.wpn_lance_0004",
+                    "icon": "resource/image/UI/Item/wpn_lance_0004.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0006",
+                    "label": "$weapon.wpn_lance_0006",
+                    "icon": "resource/image/UI/Item/wpn_lance_0006.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0013",
+                    "label": "$weapon.wpn_lance_0013",
+                    "icon": "resource/image/UI/Item/wpn_lance_0013.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_lance_0013": true
+                            }
+                        }
+                    }
+                }
+            ],
             "default_case": [
                 "wpn_lance_0007",
                 "wpn_lance_0015",
@@ -506,134 +628,11 @@
                 "wpn_lance_0010",
                 "wpn_lance_0011",
                 "wpn_lance_0014"
-            ],
-            "cases": [
-                {
-                    "name": "wpn_lance_0007",
-                    "label": "$weapon.wpn_lance_0007",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0007": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0007.png"
-                },
-                {
-                    "name": "wpn_lance_0015",
-                    "label": "$weapon.wpn_lance_0015",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0015": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0015.png"
-                },
-                {
-                    "name": "wpn_lance_0012",
-                    "label": "$weapon.wpn_lance_0012",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0012": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0012.png"
-                },
-                {
-                    "name": "wpn_lance_0016",
-                    "label": "$weapon.wpn_lance_0016",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0016": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0016.png"
-                },
-                {
-                    "name": "wpn_lance_0010",
-                    "label": "$weapon.wpn_lance_0010",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0010": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0010.png"
-                },
-                {
-                    "name": "wpn_lance_0011",
-                    "label": "$weapon.wpn_lance_0011",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0011": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0011.png"
-                },
-                {
-                    "name": "wpn_lance_0014",
-                    "label": "$weapon.wpn_lance_0014",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0014": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0014.png"
-                },
-                {
-                    "name": "wpn_lance_0004",
-                    "label": "$weapon.wpn_lance_0004",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0004": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0004.png"
-                },
-                {
-                    "name": "wpn_lance_0006",
-                    "label": "$weapon.wpn_lance_0006",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0006": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0006.png"
-                },
-                {
-                    "name": "wpn_lance_0013",
-                    "label": "$weapon.wpn_lance_0013",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_lance_0013": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_lance_0013.png"
-                }
             ]
         },
         "AutoEssenceWeaponTypeClaymore": {
             "type": "switch",
             "label": "$option.AutoEssenceWeaponTypeClaymore.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -644,11 +643,146 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoEssenceWeaponsClaymore": {
             "type": "checkbox",
             "label": "$option.AutoEssenceSelectWeapons.label",
+            "cases": [
+                {
+                    "name": "wpn_claym_0017",
+                    "label": "$weapon.wpn_claym_0017",
+                    "icon": "resource/image/UI/Item/wpn_claym_0017.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0007",
+                    "label": "$weapon.wpn_claym_0007",
+                    "icon": "resource/image/UI/Item/wpn_claym_0007.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0004",
+                    "label": "$weapon.wpn_claym_0004",
+                    "icon": "resource/image/UI/Item/wpn_claym_0004.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0013",
+                    "label": "$weapon.wpn_claym_0013",
+                    "icon": "resource/image/UI/Item/wpn_claym_0013.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0016",
+                    "label": "$weapon.wpn_claym_0016",
+                    "icon": "resource/image/UI/Item/wpn_claym_0016.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0008",
+                    "label": "$weapon.wpn_claym_0008",
+                    "icon": "resource/image/UI/Item/wpn_claym_0008.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0006",
+                    "label": "$weapon.wpn_claym_0006",
+                    "icon": "resource/image/UI/Item/wpn_claym_0006.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0014",
+                    "label": "$weapon.wpn_claym_0014",
+                    "icon": "resource/image/UI/Item/wpn_claym_0014.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0014": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0011",
+                    "label": "$weapon.wpn_claym_0011",
+                    "icon": "resource/image/UI/Item/wpn_claym_0011.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0012",
+                    "label": "$weapon.wpn_claym_0012",
+                    "icon": "resource/image/UI/Item/wpn_claym_0012.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0015",
+                    "label": "$weapon.wpn_claym_0015",
+                    "icon": "resource/image/UI/Item/wpn_claym_0015.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0015": true
+                            }
+                        }
+                    }
+                }
+            ],
             "default_case": [
                 "wpn_claym_0017",
                 "wpn_claym_0007",
@@ -657,146 +791,11 @@
                 "wpn_claym_0016",
                 "wpn_claym_0008",
                 "wpn_claym_0006"
-            ],
-            "cases": [
-                {
-                    "name": "wpn_claym_0017",
-                    "label": "$weapon.wpn_claym_0017",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0017": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0017.png"
-                },
-                {
-                    "name": "wpn_claym_0007",
-                    "label": "$weapon.wpn_claym_0007",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0007": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0007.png"
-                },
-                {
-                    "name": "wpn_claym_0004",
-                    "label": "$weapon.wpn_claym_0004",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0004": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0004.png"
-                },
-                {
-                    "name": "wpn_claym_0013",
-                    "label": "$weapon.wpn_claym_0013",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0013": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0013.png"
-                },
-                {
-                    "name": "wpn_claym_0016",
-                    "label": "$weapon.wpn_claym_0016",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0016": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0016.png"
-                },
-                {
-                    "name": "wpn_claym_0008",
-                    "label": "$weapon.wpn_claym_0008",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0008": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0008.png"
-                },
-                {
-                    "name": "wpn_claym_0006",
-                    "label": "$weapon.wpn_claym_0006",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0006": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0006.png"
-                },
-                {
-                    "name": "wpn_claym_0014",
-                    "label": "$weapon.wpn_claym_0014",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0014": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0014.png"
-                },
-                {
-                    "name": "wpn_claym_0011",
-                    "label": "$weapon.wpn_claym_0011",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0011": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0011.png"
-                },
-                {
-                    "name": "wpn_claym_0012",
-                    "label": "$weapon.wpn_claym_0012",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0012": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0012.png"
-                },
-                {
-                    "name": "wpn_claym_0015",
-                    "label": "$weapon.wpn_claym_0015",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_claym_0015": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_claym_0015.png"
-                }
             ]
         },
         "AutoEssenceWeaponTypePistol": {
             "type": "switch",
             "label": "$option.AutoEssenceWeaponTypePistol.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -807,11 +806,122 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoEssenceWeaponsPistol": {
             "type": "checkbox",
             "label": "$option.AutoEssenceSelectWeapons.label",
+            "cases": [
+                {
+                    "name": "wpn_pistol_0005",
+                    "label": "$weapon.wpn_pistol_0005",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0005.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0005": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0011",
+                    "label": "$weapon.wpn_pistol_0011",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0011.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0009",
+                    "label": "$weapon.wpn_pistol_0009",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0009.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0009": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0007",
+                    "label": "$weapon.wpn_pistol_0007",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0007.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0008",
+                    "label": "$weapon.wpn_pistol_0008",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0008.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0010",
+                    "label": "$weapon.wpn_pistol_0010",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0010.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0004",
+                    "label": "$weapon.wpn_pistol_0004",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0004.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0006",
+                    "label": "$weapon.wpn_pistol_0006",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0006.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0012",
+                    "label": "$weapon.wpn_pistol_0012",
+                    "icon": "resource/image/UI/Item/wpn_pistol_0012.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_pistol_0012": true
+                            }
+                        }
+                    }
+                }
+            ],
             "default_case": [
                 "wpn_pistol_0005",
                 "wpn_pistol_0011",
@@ -819,116 +929,6 @@
                 "wpn_pistol_0007",
                 "wpn_pistol_0008",
                 "wpn_pistol_0010"
-            ],
-            "cases": [
-                {
-                    "name": "wpn_pistol_0005",
-                    "label": "$weapon.wpn_pistol_0005",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_pistol_0005": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_pistol_0005.png"
-                },
-                {
-                    "name": "wpn_pistol_0011",
-                    "label": "$weapon.wpn_pistol_0011",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_pistol_0011": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_pistol_0011.png"
-                },
-                {
-                    "name": "wpn_pistol_0009",
-                    "label": "$weapon.wpn_pistol_0009",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_pistol_0009": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_pistol_0009.png"
-                },
-                {
-                    "name": "wpn_pistol_0007",
-                    "label": "$weapon.wpn_pistol_0007",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_pistol_0007": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_pistol_0007.png"
-                },
-                {
-                    "name": "wpn_pistol_0008",
-                    "label": "$weapon.wpn_pistol_0008",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_pistol_0008": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_pistol_0008.png"
-                },
-                {
-                    "name": "wpn_pistol_0010",
-                    "label": "$weapon.wpn_pistol_0010",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_pistol_0010": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_pistol_0010.png"
-                },
-                {
-                    "name": "wpn_pistol_0004",
-                    "label": "$weapon.wpn_pistol_0004",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_pistol_0004": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_pistol_0004.png"
-                },
-                {
-                    "name": "wpn_pistol_0006",
-                    "label": "$weapon.wpn_pistol_0006",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_pistol_0006": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_pistol_0006.png"
-                },
-                {
-                    "name": "wpn_pistol_0012",
-                    "label": "$weapon.wpn_pistol_0012",
-                    "pipeline_override": {
-                        "AutoEssenceTargetPlan": {
-                            "attach": {
-                                "wpn_pistol_0012": true
-                            }
-                        }
-                    },
-                    "icon": "resource/image/UI/Item/wpn_pistol_0012.png"
-                }
             ]
         }
     }

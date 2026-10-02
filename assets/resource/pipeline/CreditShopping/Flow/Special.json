@@ -52,13 +52,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 500,
-            "timeout": 2000,
             "target": [
                 77,
                 101,
                 158,
                 178
-            ]
+            ],
+            "timeout": 2000
         },
         "next": [
             "CreditShoppingShopping",

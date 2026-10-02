@@ -5,14 +5,14 @@
             "label": "$task.WebEvent202605.label",
             "entry": "WebEvent202605_Entry",
             "description": "$task.WebEvent202605.description",
-            "option": [
-                "WebEvent202605MaxShot"
+            "group": [
+                "other_menu"
             ],
             "controller": [
                 "Win32-Front"
             ],
-            "group": [
-                "other_menu"
+            "option": [
+                "WebEvent202605MaxShot"
             ]
         }
     ],
@@ -24,9 +24,9 @@
                 {
                     "name": "MaxShot",
                     "label": "$option.WebEvent202605MaxShot.inputs.MaxShot.label",
+                    "default": "25",
                     "pipeline_type": "int",
-                    "verify": "^(?:[1-9]\\d{0,3})$",
-                    "default": "25"
+                    "verify": "^(?:[1-9]\\d{0,3})$"
                 }
             ],
             "pipeline_override": {

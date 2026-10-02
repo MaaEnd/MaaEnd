@@ -5,11 +5,8 @@
             "label": "$task.ProtocolSpace.label",
             "entry": "ProtocolSpaceSchedule",
             "description": "$task.ProtocolSpace.description",
-            "option": [
-                "ProtocolSpaceSchedule",
-                "AutoFightSetting",
-                "ProtocolSpaceTeamChoose",
-                "ProtocolSpaceMode"
+            "group": [
+                "sanity_sink"
             ],
             "controller": [
                 "Linux-Gamescope",
@@ -17,8 +14,11 @@
                 "Linux-Wlroots",
                 "Win32-Front"
             ],
-            "group": [
-                "sanity_sink"
+            "option": [
+                "ProtocolSpaceSchedule",
+                "AutoFightSetting",
+                "ProtocolSpaceTeamChoose",
+                "ProtocolSpaceMode"
             ]
         }
     ],
@@ -26,15 +26,6 @@
         "ProtocolSpaceSchedule": {
             "type": "checkbox",
             "label": "$option.TaskSchedule.label",
-            "default_case": [
-                "ProtocolSpaceScheduleMonday",
-                "ProtocolSpaceScheduleTuesday",
-                "ProtocolSpaceScheduleWednesday",
-                "ProtocolSpaceScheduleThursday",
-                "ProtocolSpaceScheduleFriday",
-                "ProtocolSpaceScheduleSaturday",
-                "ProtocolSpaceScheduleSunday"
-            ],
             "cases": [
                 {
                     "name": "ProtocolSpaceScheduleMonday",
@@ -113,6 +104,15 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "ProtocolSpaceScheduleMonday",
+                "ProtocolSpaceScheduleTuesday",
+                "ProtocolSpaceScheduleWednesday",
+                "ProtocolSpaceScheduleThursday",
+                "ProtocolSpaceScheduleFriday",
+                "ProtocolSpaceScheduleSaturday",
+                "ProtocolSpaceScheduleSunday"
             ]
         },
         "AutoFightSetting": {
@@ -137,7 +137,6 @@
         "ProtocolSpaceTeamChoose": {
             "type": "select",
             "label": "$option.ProtocolSpaceTeamChoose.label",
-            "default_case": "ProtocolSpaceTeamChooseDefault",
             "cases": [
                 {
                     "name": "ProtocolSpaceTeamChooseDefault",
@@ -203,14 +202,14 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "ProtocolSpaceTeamChooseDefault"
         },
         // 领取方式：按次数用三项（双倍/单倍/刷取）；目标库存固定领取，仅双倍/单倍。
         "ProtocolSpaceMode": {
             "type": "select",
             "label": "$option.ProtocolSpaceMode.label",
             "description": "$option.ProtocolSpaceMode.description",
-            "default_case": "ByCount",
             "cases": [
                 {
                     "name": "ByCount",
@@ -225,28 +224,31 @@
                 {
                     "name": "TargetInventory",
                     "label": "$option.ProtocolSpaceMode.case.TargetInventory.label",
+                    "option": [
+                        "ProtocolSpaceObtainModeClaim",
+                        "SupplyPlanLimits"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceScheduleEnabled": {
                             "next": [
                                 "SupplyPlanMain"
                             ]
                         }
-                    },
-                    "option": [
-                        "ProtocolSpaceObtainModeClaim",
-                        "SupplyPlanLimits"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "ByCount"
         },
         "ProtocolSpaceObtainMode": {
             "type": "select",
             "label": "$option.ProtocolSpaceObtainMode.label",
-            "default_case": "ObtainScaling2",
             "cases": [
                 {
                     "name": "ObtainScaling2",
                     "label": "$option.ProtocolSpaceObtainMode.cases.ObtainScaling2.label",
+                    "option": [
+                        "ProtocolSpaceUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceRewardSelectClaim": {
                             "enabled": true
@@ -266,14 +268,14 @@
                         "ProtocolSpaceRewardFallbackSingle": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "ProtocolSpaceUseSpMedication"
-                    ]
+                    }
                 },
                 {
                     "name": "ObtainScaling1",
                     "label": "$option.ProtocolSpaceObtainMode.cases.ObtainScaling1.label",
+                    "option": [
+                        "ProtocolSpaceUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceRewardSelectClaim": {
                             "enabled": true
@@ -293,10 +295,7 @@
                         "ProtocolSpaceRewardFallbackSingle": {
                             "enabled": false
                         }
-                    },
-                    "option": [
-                        "ProtocolSpaceUseSpMedication"
-                    ]
+                    }
                 },
                 {
                     "name": "Discard",
@@ -316,16 +315,19 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "ObtainScaling2"
         },
         "ProtocolSpaceObtainModeClaim": {
             "type": "select",
             "label": "$option.ProtocolSpaceObtainModeClaim.label",
-            "default_case": "ObtainScaling2",
             "cases": [
                 {
                     "name": "ObtainScaling2",
                     "label": "$option.ProtocolSpaceObtainModeClaim.cases.ObtainScaling2.label",
+                    "option": [
+                        "ProtocolSpaceUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceRewardUsePermit": {
                             "enabled": true
@@ -333,14 +335,14 @@
                         "ProtocolSpaceRewardFallbackSingle": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "ProtocolSpaceUseSpMedication"
-                    ]
+                    }
                 },
                 {
                     "name": "ObtainScaling1",
                     "label": "$option.ProtocolSpaceObtainModeClaim.cases.ObtainScaling1.label",
+                    "option": [
+                        "ProtocolSpaceUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceRewardUsePermit": {
                             "enabled": false
@@ -348,17 +350,14 @@
                         "ProtocolSpaceRewardFallbackSingle": {
                             "enabled": false
                         }
-                    },
-                    "option": [
-                        "ProtocolSpaceUseSpMedication"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "ObtainScaling2"
         },
         "ProtocolSpaceUseSpMedication": {
             "type": "select",
             "label": "$option.AutoUseSpMedication.label",
-            "default_case": "UseMedication",
             "cases": [
                 {
                     "name": "EndTask",
@@ -384,6 +383,9 @@
                 {
                     "name": "UseMedication",
                     "label": "$option.AutoUseSpMedication.cases.UseMedication.label",
+                    "option": [
+                        "ProtocolSpaceSpMedicationExpireWithinDays"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpacePopupSanityLowExit": {
                             "enabled": false
@@ -400,17 +402,14 @@
                         "ProtocolSpaceRewardClaimRestoreSanityUseMedication": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "ProtocolSpaceSpMedicationExpireWithinDays"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "UseMedication"
         },
         "ProtocolSpaceSpMedicationExpireWithinDays": {
-            "label": "$option.AutoUseSpMedicationExpireWithinDays.label",
             "type": "select",
-            "default_case": "Days3",
+            "label": "$option.AutoUseSpMedicationExpireWithinDays.label",
             "cases": [
                 {
                     "name": "All",
@@ -477,12 +476,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Days3"
         },
         "ProtocolSpaceSuccessCount": {
             "type": "select",
             "label": "$option.ProtocolSpaceSuccessCount.label",
-            "default_case": "ProtocolSpaceSuccessCountUnlimited",
             "cases": [
                 {
                     "name": "ProtocolSpaceSuccessCount1",
@@ -548,12 +547,12 @@
                     "name": "ProtocolSpaceSuccessCountUnlimited",
                     "label": "$option.ProtocolSpaceCountUnlimited.label"
                 }
-            ]
+            ],
+            "default_case": "ProtocolSpaceSuccessCountUnlimited"
         },
         "ProtocolSpaceFailedCount": {
             "type": "select",
             "label": "$option.ProtocolSpaceFailedCount.label",
-            "default_case": "ProtocolSpaceFailedCount3",
             "cases": [
                 {
                     "name": "ProtocolSpaceFailedCount1",
@@ -604,7 +603,8 @@
                     "name": "ProtocolSpaceFailedCountUnlimited",
                     "label": "$option.ProtocolSpaceCountUnlimited.label"
                 }
-            ]
+            ],
+            "default_case": "ProtocolSpaceFailedCount3"
         },
         "ProtocolSpaceTab": {
             "type": "select",
@@ -613,6 +613,10 @@
                 {
                     "name": "OperatorProgression",
                     "label": "$option.OperatorProgression.label",
+                    "option": [
+                        "OperatorProgression",
+                        "ProtocolSpaceLevel"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
                             "expected": [
@@ -627,15 +631,15 @@
                         "ProtocolSpaceOperationalManualScrollEnd": {
                             "template": "ProtocolSpace/SkillUp.png"
                         }
-                    },
-                    "option": [
-                        "OperatorProgression",
-                        "ProtocolSpaceLevel"
-                    ]
+                    }
                 },
                 {
                     "name": "WeaponProgression",
                     "label": "$option.WeaponProgression.label",
+                    "option": [
+                        "WeaponProgression",
+                        "ProtocolSpaceLevel"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
                             "expected": [
@@ -653,15 +657,14 @@
                                 "ProtocolSpace/WeaponTuneLow.png"
                             ]
                         }
-                    },
-                    "option": [
-                        "WeaponProgression",
-                        "ProtocolSpaceLevel"
-                    ]
+                    }
                 },
                 {
                     "name": "CrisisDrills",
                     "label": "$option.CrisisDrills.label",
+                    "option": [
+                        "CrisisDrills"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
                             "expected": [
@@ -679,17 +682,13 @@
                                 "ProtocolSpace/AdvancedProgression5Low.png"
                             ]
                         }
-                    },
-                    "option": [
-                        "CrisisDrills"
-                    ]
+                    }
                 }
             ]
         },
         "ProtocolSpaceLevel": {
             "type": "select",
             "label": "$option.ProtocolSpaceLevel.label",
-            "default_case": "ProtocolSpaceLevel05",
             "cases": [
                 {
                     "name": "ProtocolSpaceLevel01",
@@ -764,7 +763,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "ProtocolSpaceLevel05"
         },
         "OperatorProgression": {
             "type": "select",
@@ -773,6 +773,9 @@
                 {
                     "name": "OperatorEXP",
                     "label": "$option.OperatorProgression.OperatorEXP.label",
+                    "option": [
+                        "OperatorEXPRewardsSetOption"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
                             "template": [
@@ -780,14 +783,14 @@
                                 "ProtocolSpace/OperatorEXPLow.png"
                             ]
                         }
-                    },
-                    "option": [
-                        "OperatorEXPRewardsSetOption"
-                    ]
+                    }
                 },
                 {
                     "name": "Promotions",
                     "label": "$option.OperatorProgression.Promotions.label",
+                    "option": [
+                        "PromotionsRewardsSetOption"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
                             "template": [
@@ -795,10 +798,7 @@
                                 "ProtocolSpace/PromotionsLow.png"
                             ]
                         }
-                    },
-                    "option": [
-                        "PromotionsRewardsSetOption"
-                    ]
+                    }
                 },
                 {
                     "name": "T-Creds",
@@ -812,6 +812,9 @@
                 {
                     "name": "SkillUp",
                     "label": "$option.OperatorProgression.SkillUp.label",
+                    "option": [
+                        "SkillUpRewardsSetOption"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
                             "template": [
@@ -819,10 +822,7 @@
                                 "ProtocolSpace/SkillUpLow.png"
                             ]
                         }
-                    },
-                    "option": [
-                        "SkillUpRewardsSetOption"
-                    ]
+                    }
                 }
             ]
         },
@@ -842,6 +842,9 @@
                 {
                     "name": "WeaponTune",
                     "label": "$option.WeaponProgression.WeaponTune.label",
+                    "option": [
+                        "WeaponTuneRewardsSetOption"
+                    ],
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
                             "template": [
@@ -849,10 +852,7 @@
                                 "ProtocolSpace/WeaponTuneLow.png"
                             ]
                         }
-                    },
-                    "option": [
-                        "WeaponTuneRewardsSetOption"
-                    ]
+                    }
                 }
             ]
         },
@@ -1027,120 +1027,120 @@
                 {
                     "name": "SupplyPlanLimit_COGNITIVE_CARRIER_EXP",
                     "label": "$option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label",
-                    "pipeline_type": "int",
                     "default": "2100000",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_COMBAT_RECORD_EXP",
                     "label": "$option.SupplyPlanLimits.inputs.COMBAT_RECORD_EXP.label",
-                    "pipeline_type": "int",
                     "default": "1500000",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_PROTOSET",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOSET.label",
-                    "pipeline_type": "int",
                     "default": "120",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_PROTODISK",
                     "label": "$option.SupplyPlanLimits.inputs.PROTODISK.label",
-                    "pipeline_type": "int",
                     "default": "65",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_TRIPHASIC_NANOFLAKE",
                     "label": "$option.SupplyPlanLimits.inputs.TRIPHASIC_NANOFLAKE.label",
-                    "pipeline_type": "int",
                     "default": "260",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_QUADRANT_FITTING_FLUID",
                     "label": "$option.SupplyPlanLimits.inputs.QUADRANT_FITTING_FLUID.label",
-                    "pipeline_type": "int",
                     "default": "260",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_TACHYON_SCREENING_LATTICE",
                     "label": "$option.SupplyPlanLimits.inputs.TACHYON_SCREENING_LATTICE.label",
-                    "pipeline_type": "int",
                     "default": "260",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_D96_STEEL_SAMPLE_4",
                     "label": "$option.SupplyPlanLimits.inputs.D96_STEEL_SAMPLE_4.label",
-                    "pipeline_type": "int",
                     "default": "260",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE",
                     "label": "$option.SupplyPlanLimits.inputs.METADIASTIMA_PHOTOEMISSION_TUBE.label",
-                    "pipeline_type": "int",
                     "default": "40",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_PROTOHEDRON",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOHEDRON.label",
-                    "pipeline_type": "int",
                     "default": "1100",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_PROTOPRISM",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOPRISM.label",
-                    "pipeline_type": "int",
                     "default": "920",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_T_CREDS",
                     "label": "$option.SupplyPlanLimits.inputs.T_CREDS.label",
-                    "pipeline_type": "int",
                     "default": "3580000",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_WEAPON_EXP",
                     "label": "$option.SupplyPlanLimits.inputs.WEAPON_EXP.label",
-                    "pipeline_type": "int",
                     "default": "5000000",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_HEAVY_CAST_DIE",
                     "label": "$option.SupplyPlanLimits.inputs.HEAVY_CAST_DIE.label",
-                    "pipeline_type": "int",
                     "default": "100",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_CAST_DIE",
                     "label": "$option.SupplyPlanLimits.inputs.CAST_DIE.label",
-                    "pipeline_type": "int",
                     "default": "45",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 }
