@@ -212,6 +212,7 @@ function newRun(parsed, line, sourceName, index) {
     _observedWalk: [],
     _observedTail: null,
     _observedZone: "",
+    _pendingHop: null,
     _ziplineInFlight: false,
     _ziplineLastPosition: null,
   };
@@ -433,9 +434,22 @@ function pendingExecutionChain(run) {
   });
 }
 
-function addLaunch(run, line) {
-  startZiplineRide(run);
-  const landing = [numberValue(line, "landing.x"), numberValue(line, "landing.y")];
+function rememberZiplineHop(run, line) {
+  const landing = [numberValue(line, "plan_.landing.x"), numberValue(line, "plan_.landing.y")];
+  if (!landing.every(Number.isFinite)) return;
+  if (boolValue(line, "resume") === true && run._pendingHop) return;
+  run._pendingHop = {landing, fired: false, returning: false, launched: false};
+}
+
+function confirmZiplineLaunch(run) {
+  const hop = run._pendingHop;
+  if (!hop || !hop.fired || hop.returning || hop.launched) return;
+  addLaunch(run, "", hop.landing);
+  hop.launched = true;
+}
+
+function addLaunch(run, line, landing = [numberValue(line, "landing.x"), numberValue(line, "landing.y")]) {
+  if (!run._ziplineInFlight) startZiplineRide(run);
   if (!landing.every(Number.isFinite)) return;
   const chain = pendingExecutionChain(run);
   if (!chain) return;
@@ -445,11 +459,15 @@ function addLaunch(run, line) {
 function addLanding(run, line) {
   const chain = run.ziplines.find((candidate) => candidate.landed < candidate.launches.length);
   if (chain) {
-    const landing = [numberValue(line, "landing.x"), numberValue(line, "landing.y")];
+    const landing = [
+      numberValue(line, "done.at.x") ?? numberValue(line, "landing.x"),
+      numberValue(line, "done.at.y") ?? numberValue(line, "landing.y"),
+    ];
     chain.landings.push(landing.every(Number.isFinite) ? landing : chain.launches[chain.landed]);
     chain.landed += 1;
   }
   finishZiplineRide(run);
+  run._pendingHop = null;
 }
 
 function closeRun(run, line, succeeded) {
@@ -464,6 +482,7 @@ function closeRun(run, line, succeeded) {
   run.completed = succeeded === null && run.failure ? false : succeeded;
   delete run._pendingWalk;
   delete run._pendingPick;
+  delete run._pendingHop;
   delete run._fallbackZone;
   delete run._observedWalk;
   delete run._observedTail;
@@ -514,9 +533,21 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
       current.zone ||= valueOf(line, "navmesh_zone") || "";
     } else if (line.includes("Global authored route unavailable; replaying authored hints.")) {
       addDecision(current, "authored-replay", line, {text: "整段直达失败，回放作者路径并逐段规划"});
-    } else if (line.includes("Action: ZIPLINE launched toward the landing point.")) addLaunch(current, line);
-    else if (line.includes("Action: ZIPLINE ride landed.")) addLanding(current, line);
-    else if (line.includes("Action: ZIPLINE given up, recovering from a fresh position.")) {
+    } else if (line.includes("zipline/begin ")) rememberZiplineHop(current, line);
+    else if (line.includes("zipline/fired ")) {
+      if (current._pendingHop) {
+        current._pendingHop.fired = true;
+        current._pendingHop.returning = boolValue(line, "returning_") === true;
+      }
+      startZiplineRide(current);
+    } else if (line.includes("zipline/fired/riding ") || line.includes("zipline/fired/moved ")) {
+      confirmZiplineLaunch(current);
+    } else if (line.includes("zipline/fired/no_launch ")) finishZiplineRide(current);
+    else if (line.includes("Action: ZIPLINE launched toward the landing point.")) addLaunch(current, line);
+    else if (line.includes("Action: ZIPLINE ride landed.")) {
+      confirmZiplineLaunch(current);
+      addLanding(current, line);
+    } else if (line.includes("Action: ZIPLINE given up, recovering from a fresh position.")) {
       addZiplineIncident(current, line);
     }
 

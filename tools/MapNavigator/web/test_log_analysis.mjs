@@ -90,6 +90,101 @@ test("parses one selected zipline chain and its actual launches", () => {
   ]);
 });
 
+function modernHop(mount, landing, confirmation = "riding") {
+  return [
+    `zipline/begin [resume=false] [plan_.mount.x=${mount[0]}] [plan_.mount.y=${mount[1]}] [plan_.landing.x=${landing[0]}] [plan_.landing.y=${landing[1]}]`,
+    `Action: ZIPLINE hop started. [waypoint.zipline_hop->landing.x=${landing[0]}] [waypoint.zipline_hop->landing.y=${landing[1]}]`,
+    "zipline/fired [returning_=false] [record_.launches.size()=1]",
+    `zipline/fired/${confirmation} [elapsed_ms=500]`,
+  ];
+}
+
+test("parses stage-machine rides into actual zipline segments", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 3),
+      lines[3].replaceAll("mount.", "mount_spot."),
+      ...modernHop([955.5, 1777.5], [940.5, 1699.5]),
+      "Action: ZIPLINE ride landed. [done.at.x=940.6] [done.at.y=1699.4] [done.still_on_tower=true]",
+      ...modernHop([940.5, 1699.5], [957, 1653], "moved"),
+      "Action: ZIPLINE ride landed. [done.at.x=957] [done.at.y=1653] [done.still_on_tower=true]",
+      ...modernHop([957, 1653], [912, 1584]),
+      lines.at(-1),
+    ].join("\n"),
+  );
+  assert.deepEqual(logZiplineGeometry(run.ziplines[0]).actual, [
+    {from: [955.5, 1777.5], to: [940.5, 1699.5], landed: true},
+    {from: [940.5, 1699.5], to: [957, 1653], landed: true},
+    {from: [957, 1653], to: [912, 1584], landed: false},
+  ]);
+  assert.deepEqual(run.ziplines[0].landings, [
+    [940.6, 1699.4],
+    [957, 1653],
+  ]);
+});
+
+test("does not draw a hop that started but never left the tower", () => {
+  const [run] = parseMapNavigatorLog(
+    [...lines.slice(0, 4), ...modernHop([955.5, 1777.5], [940.5, 1699.5], "no_launch")].join("\n"),
+  );
+  assert.deepEqual(logZiplineGeometry(run.ziplines[0]).actual, []);
+});
+
+test("deduplicates movement confirmations and does not count return launches as forward hops", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 4),
+      ...modernHop([955.5, 1777.5], [940.5, 1699.5]),
+      "zipline/fired/moved [elapsed_ms=600]",
+      "zipline/fired [returning_=true] [record_.launches.size()=2]",
+      "zipline/fired/riding [elapsed_ms=500]",
+    ].join("\n"),
+  );
+  assert.deepEqual(run.ziplines[0].launches, [[940.5, 1699.5]]);
+});
+
+test("keeps measured walks separate from stage-machine rides", () => {
+  const hop = modernHop([955.5, 1777.5], [940.5, 1699.5]);
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 4),
+      position("2026-08-26 11:43:10.000", 950, 1780),
+      position("2026-08-26 11:43:11.000", 955.5, 1777.5),
+      ...hop.slice(0, 3),
+      position("2026-08-26 11:43:17.000", 940.5, 1699.5),
+      hop[3],
+      "Action: ZIPLINE ride landed. [done.at.x=940.5] [done.at.y=1699.5]",
+      position("2026-08-26 11:43:19.000", 942, 1697),
+    ].join("\n"),
+  );
+  assert.deepEqual(run.observedWalks, [
+    [
+      [950, 1780],
+      [955.5, 1777.5],
+    ],
+    [
+      [940.5, 1699.5],
+      [942, 1697],
+    ],
+  ]);
+  assert.equal(logZiplineGeometry(run.ziplines[0]).actual.length, 1);
+});
+
+test("preserves a confirmed launch when the same hop resumes", () => {
+  const hop = modernHop([955.5, 1777.5], [940.5, 1699.5]);
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 4),
+      ...hop,
+      hop[0].replace("resume=false", "resume=true"),
+      ...hop.slice(2),
+      "Action: ZIPLINE ride landed. [done.at.x=940.5] [done.at.y=1699.5]",
+    ].join("\n"),
+  );
+  assert.equal(run.ziplines[0].launches.length, 1);
+  assert.equal(run.ziplines[0].landed, 1);
+});
+
 test("associates the pseudonymous zipline account with a runtime log", () => {
   const accountLine =
     "[2026-08-26 11:42:20.500][INF][zipline_preference.cpp] ZiplineAccount: current game account selected [account_id=0123456789abcdef]";
