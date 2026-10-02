@@ -256,10 +256,10 @@
                         "CreditShoppingPriority1ItemArsenalTicket": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
                             "green_mask": true,
@@ -276,10 +276,10 @@
                         "CreditShoppingPriority1ItemOroberyl": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_diamond.png",
                             "green_mask": true,
@@ -296,10 +296,10 @@
                         "CreditShoppingPriority1ItemTCreds": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_gold.png",
                             "green_mask": true,
@@ -316,10 +316,10 @@
                         "CreditShoppingPriority1ItemElementaryCognitiveCarrier": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_expcard_stage2_low.png",
                             "green_mask": true,
@@ -336,10 +336,10 @@
                         "CreditShoppingPriority1ItemElementaryCombatRecord": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_1.png",
                             "green_mask": true,
@@ -356,10 +356,10 @@
                         "CreditShoppingPriority1ItemIntermediateCombatRecord": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_2.png",
                             "green_mask": true,
@@ -376,10 +376,10 @@
                         "CreditShoppingPriority1ItemArmsInspector": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_low.png",
                             "green_mask": true,
@@ -396,10 +396,10 @@
                         "CreditShoppingPriority1ItemArmsINSPKit": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
                             "green_mask": true,
@@ -416,10 +416,10 @@
                         "CreditShoppingPriority1ItemCastDie": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_low.png",
                             "green_mask": true,
@@ -436,10 +436,10 @@
                         "CreditShoppingPriority1ItemHeavyCastDie": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_high.png",
                             "green_mask": true,
@@ -456,10 +456,10 @@
                         "CreditShoppingPriority1ItemProtodisk": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
                             "green_mask": true,
@@ -476,10 +476,10 @@
                         "CreditShoppingPriority1ItemProtoset": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
                             "green_mask": true,
@@ -496,10 +496,10 @@
                         "CreditShoppingPriority1ItemProtoprism": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
                             "green_mask": true,
@@ -516,10 +516,10 @@
                         "CreditShoppingPriority1ItemProtohedron": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
                             "green_mask": true,
@@ -789,10 +789,10 @@
                         "CreditShoppingPriority2ItemArsenalTicket": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
                             "green_mask": true,
@@ -809,10 +809,10 @@
                         "CreditShoppingPriority2ItemOroberyl": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_diamond.png",
                             "green_mask": true,
@@ -829,10 +829,10 @@
                         "CreditShoppingPriority2ItemTCreds": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_gold.png",
                             "green_mask": true,
@@ -849,10 +849,10 @@
                         "CreditShoppingPriority2ItemElementaryCognitiveCarrier": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_expcard_stage2_low.png",
                             "green_mask": true,
@@ -869,10 +869,10 @@
                         "CreditShoppingPriority2ItemElementaryCombatRecord": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_1.png",
                             "green_mask": true,
@@ -889,10 +889,10 @@
                         "CreditShoppingPriority2ItemIntermediateCombatRecord": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_2.png",
                             "green_mask": true,
@@ -909,10 +909,10 @@
                         "CreditShoppingPriority2ItemArmsInspector": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_low.png",
                             "green_mask": true,
@@ -929,10 +929,10 @@
                         "CreditShoppingPriority2ItemArmsINSPKit": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
                             "green_mask": true,
@@ -949,10 +949,10 @@
                         "CreditShoppingPriority2ItemCastDie": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_low.png",
                             "green_mask": true,
@@ -969,10 +969,10 @@
                         "CreditShoppingPriority2ItemHeavyCastDie": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_high.png",
                             "green_mask": true,
@@ -989,10 +989,10 @@
                         "CreditShoppingPriority2ItemProtodisk": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
                             "green_mask": true,
@@ -1009,10 +1009,10 @@
                         "CreditShoppingPriority2ItemProtoset": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
                             "green_mask": true,
@@ -1029,10 +1029,10 @@
                         "CreditShoppingPriority2ItemProtoprism": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
                             "green_mask": true,
@@ -1049,10 +1049,10 @@
                         "CreditShoppingPriority2ItemProtohedron": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
                             "green_mask": true,
@@ -1334,10 +1334,10 @@
                         "CreditShoppingPriority3ItemArsenalTicket": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
                             "green_mask": true,
@@ -1354,10 +1354,10 @@
                         "CreditShoppingPriority3ItemOroberyl": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_diamond.png",
                             "green_mask": true,
@@ -1374,10 +1374,10 @@
                         "CreditShoppingPriority3ItemTCreds": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_gold.png",
                             "green_mask": true,
@@ -1394,10 +1394,10 @@
                         "CreditShoppingPriority3ItemElementaryCognitiveCarrier": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_expcard_stage2_low.png",
                             "green_mask": true,
@@ -1414,10 +1414,10 @@
                         "CreditShoppingPriority3ItemElementaryCombatRecord": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_1.png",
                             "green_mask": true,
@@ -1434,10 +1434,10 @@
                         "CreditShoppingPriority3ItemIntermediateCombatRecord": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_2.png",
                             "green_mask": true,
@@ -1454,10 +1454,10 @@
                         "CreditShoppingPriority3ItemArmsInspector": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_low.png",
                             "green_mask": true,
@@ -1474,10 +1474,10 @@
                         "CreditShoppingPriority3ItemArmsINSPKit": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
                             "green_mask": true,
@@ -1494,10 +1494,10 @@
                         "CreditShoppingPriority3ItemCastDie": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_low.png",
                             "green_mask": true,
@@ -1514,10 +1514,10 @@
                         "CreditShoppingPriority3ItemHeavyCastDie": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_high.png",
                             "green_mask": true,
@@ -1534,10 +1534,10 @@
                         "CreditShoppingPriority3ItemProtodisk": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
                             "green_mask": true,
@@ -1554,10 +1554,10 @@
                         "CreditShoppingPriority3ItemProtoset": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
                             "green_mask": true,
@@ -1574,10 +1574,10 @@
                         "CreditShoppingPriority3ItemProtoprism": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
                             "green_mask": true,
@@ -1594,10 +1594,10 @@
                         "CreditShoppingPriority3ItemProtohedron": {
                             "recognition": "TemplateMatch",
                             "roi": [
-                                70,
+                                38,
                                 95,
-                                1140,
-                                415
+                                1194,
+                                527
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
                             "green_mask": true,
