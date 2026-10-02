@@ -10,6 +10,7 @@
 #include <MaaFramework/Utility/MaaBuffer.h>
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/NoWarningCV.hpp>
+#include <MaaUtils/Platform.h>
 #include <meojson/json.hpp>
 
 #include "../../utils.h"
@@ -456,7 +457,7 @@ void TestGridDiagnosticsSerializeSelectionEvidence()
 
 void TestRecognizerPreloadsEveryRequestedTemplateSize()
 {
-    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    iconrecognition::IconRecognizer recognizer(MAA_NS::path(ICON_RECOGNITION_TEST_RUNTIME) / "data" / "IconRecognition");
     Require(recognizer.initialize(), "preload recognizer must initialize");
 
     iconrecognition::RecognitionRequest transfer;

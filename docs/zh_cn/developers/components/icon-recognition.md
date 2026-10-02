@@ -491,7 +491,7 @@ const iconrecognition::RecognitionResult result = recognizer.recognize(image, re
 
 ## Debug 输出
 
-`debug=true` 时，Custom 入口把本次识别保存到启动工作目录下的 `debug/vision/IconRecognition`：
+`debug=true` 时，Custom 入口把本次识别保存到用户数据目录下的 `debug/vision/IconRecognition`：
 
 - `raw/<stem>.png`：输入原图；
 - `annotated/<stem>.png`：ROI、格子、候选框和分数标注；

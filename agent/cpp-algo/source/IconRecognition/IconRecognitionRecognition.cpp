@@ -11,7 +11,7 @@
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
-#include "../Common/output_paths.h"
+#include "../Common/paths.h"
 #include "../utils.h"
 #include "IconRecognizer.h"
 #include "detail/Attach.h"
@@ -93,7 +93,7 @@ IconRecognizer& GetRecognizer()
     static std::once_flag flag;
     static std::unique_ptr<IconRecognizer> recognizer;
     std::call_once(flag, [] {
-        recognizer = std::make_unique<IconRecognizer>(get_install_dir() / "data" / "IconRecognition");
+        recognizer = std::make_unique<IconRecognizer>(common::InstallPath("data/IconRecognition"));
         recognizer->initialize();
     });
     return *recognizer;
@@ -135,7 +135,7 @@ void WriteDetail(MaaStringBuffer* buffer, const RecognitionResult& result)
 void SaveDebugCaptureBestEffort(const cv::Mat& image, const RecognitionResult& result, MaaTaskId task_id) noexcept
 {
     try {
-        const auto root = common::OutputPath("debug/vision/IconRecognition");
+        const auto root = common::UserDataPath("debug/vision/IconRecognition");
         if (!detail::SaveDebugCapture(root, image, result, static_cast<std::uint64_t>(task_id))) {
             LogWarn << "IconRecognition debug capture failed" << VAR(task_id) << VAR(root);
         }

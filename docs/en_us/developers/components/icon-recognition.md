@@ -491,7 +491,7 @@ The ID and filter fields in `request.candidates` correspond to the same-named Pi
 
 ## Debug output
 
-With `debug=true`, the Custom entry point writes the recognition under `debug/vision/IconRecognition` in the startup working directory:
+With `debug=true`, the Custom entry point writes the recognition under `debug/vision/IconRecognition` in the user data directory:
 
 - `raw/<stem>.png`: input image;
 - `annotated/<stem>.png`: ROI, cells, candidate boxes, and scores;

@@ -14,6 +14,7 @@
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
 
+#include "../../Common/paths.h"
 #include "../../Navmesh/BaseNavReader.h"
 #include "../../utils.h"
 #include "../navi_config.h"
@@ -217,16 +218,15 @@ NavmeshFuture
 std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path)
 {
     std::error_code ec;
-    const std::filesystem::path install_dir = get_install_dir();
-    const std::filesystem::path navmesh_dir = install_dir / "resource" / "model" / "map" / "navmesh";
+    const std::filesystem::path navmesh_dir = common::InstallPath("resource/model/map/navmesh");
 
     if (!configured_path.empty()) {
         const std::filesystem::path configured = MAA_NS::path(configured_path);
         if (configured.is_absolute()) {
             return configured;
         }
-        // 都找不到时返回 exe 相对路径, 报错才指向部署位置
-        const std::filesystem::path anchored = install_dir / configured;
+        // 都找不到时返回安装根目录相对路径, 报错才指向部署位置
+        const std::filesystem::path anchored = common::InstallPath(configured);
         if (std::filesystem::exists(anchored, ec) && !ec) {
             return anchored;
         }
@@ -254,7 +254,7 @@ std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path)
 
 std::filesystem::path NoGoTablePath()
 {
-    return get_install_dir() / kNoGoTableRelativePath;
+    return common::InstallPath(kNoGoTableRelativePath);
 }
 
 bool IsBaseNavZoneName(std::string_view zone_id)

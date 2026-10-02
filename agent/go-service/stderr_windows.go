@@ -12,7 +12,7 @@ import (
 )
 
 func redirectStderr() error {
-	debugDir := fsutil.OutputPath("debug")
+	debugDir := fsutil.UserDataPath("debug")
 	if err := os.MkdirAll(debugDir, 0755); err != nil {
 		return fmt.Errorf("mkdir debug: %w", err)
 	}

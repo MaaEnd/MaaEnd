@@ -10,6 +10,7 @@
 
 #include <MaaUtils/Logger.h>
 
+#include "../Common/paths.h"
 #include "../utils.h"
 
 namespace zipline
@@ -70,7 +71,7 @@ bool ZiplineFrame::accepts(const ZiplineMark& mark) const
 
 std::filesystem::path ZiplineFrames::DefaultPath()
 {
-    return get_install_dir() / kFramesRelativePath;
+    return common::InstallPath(kFramesRelativePath);
 }
 
 bool ZiplineFrames::load(const std::filesystem::path& path)

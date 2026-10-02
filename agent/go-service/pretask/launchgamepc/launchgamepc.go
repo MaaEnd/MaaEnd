@@ -421,10 +421,10 @@ func openLaunchURL(url string) error {
 }
 
 func initMaa() error {
-	// 与 agent.go 一致：默认取工作目录下的 maafw，宿主可用 MAAFW_BINARY_PATH 覆盖
+	// 与 agent.go 一致：宿主可用 MAAFW_BINARY_PATH 覆盖库目录
 	libDir := os.Getenv("MAAFW_BINARY_PATH")
 	if libDir == "" {
-		libDir = fsutil.OutputPath("maafw")
+		libDir = fsutil.InstallPath("maafw")
 	}
 	if err := maa.Init(
 		maa.WithLibDir(libDir),
@@ -433,7 +433,7 @@ func initMaa() error {
 	); err != nil {
 		return err
 	}
-	if err := maa.ConfigInitOption(fsutil.OutputPath(), "{}"); err != nil {
+	if err := maa.ConfigInitOption(fsutil.UserDataPath(), "{}"); err != nil {
 		log.Warn().
 			Err(err).
 			Str("component", component).
@@ -507,7 +507,7 @@ func runPipeline(hWnd unsafe.Pointer) error {
 		return err
 	}
 	defer res.Destroy()
-	resourceDir := fsutil.OutputPath("resource")
+	resourceDir := fsutil.InstallPath("resource")
 	if !res.PostBundle(resourceDir).Wait().Success() {
 		return fmt.Errorf("failed to load resource: %s", resourceDir)
 	}

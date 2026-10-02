@@ -14,7 +14,7 @@ There are **2 recognitions + 3 actions**:
 
 Codes `A1` / `A2` / `A3` and `R1` / `R2` only reflect implementation order, not priority. **A2 was the second action written, but it is the core of IMS.**
 
-On-disk path: `debug/record/IMS.json` (relative to the working directory go-service was started in, resolved by `fsutil.OutputPath`).
+On-disk path: `debug/record/IMS.json` (in the user data directory given by `PI_USER_DATA_DIR`, or the install root when the variable is absent; resolved by `fsutil.UserDataPath`).
 
 ---
 

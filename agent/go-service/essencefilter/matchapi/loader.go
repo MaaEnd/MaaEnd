@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 )
@@ -31,37 +32,9 @@ func findDefaultDataDir() (string, error) {
 		return "", errors.New("MAAEND_ESSENCEFILTER_DATA_DIR is set but invalid (missing EssenceFilter data files)")
 	}
 
-	// Try from working directory and its parents.
-	wd, err := os.Getwd()
-	if err == nil {
-		base := wd
-		for i := 0; i < 8; i++ {
-			cand := filepath.Join(base, "data", "EssenceFilter")
-			if hasEssenceFilterFiles(cand) {
-				return cand, nil
-			}
-			parent := filepath.Dir(base)
-			if parent == base {
-				break
-			}
-			base = parent
-		}
-	}
-
-	// Try from executable dir as a fallback.
-	if exePath, err2 := os.Executable(); err2 == nil {
-		base := filepath.Dir(exePath)
-		for i := 0; i < 8; i++ {
-			cand := filepath.Join(base, "data", "EssenceFilter")
-			if hasEssenceFilterFiles(cand) {
-				return cand, nil
-			}
-			parent := filepath.Dir(base)
-			if parent == base {
-				break
-			}
-			base = parent
-		}
+	dataDir := fsutil.InstallPath("data", "EssenceFilter")
+	if hasEssenceFilterFiles(dataDir) {
+		return dataDir, nil
 	}
 
 	return "", errors.New("cannot resolve default EssenceFilter data dir (expected data/EssenceFilter with matcher_config.json, skill_pools.json, weapons_output.json, locations.json)")
