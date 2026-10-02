@@ -51,6 +51,7 @@ const ZIPLINE_INCIDENT_TEXT = Object.freeze({
   zipline_rode_back: "滑索误乘回上索点",
   zipline_unreachable: "多次重规划后仍无法抵达上索点",
   zipline_recovery_timeout: "卡在滑索架旁，解卡超时后放弃滑索链",
+  zipline_replan_requested: "滑索阶段机请求重新规划路线",
 });
 
 function timestampOf(line) {
@@ -184,6 +185,61 @@ function authoredPath(path) {
   return result;
 }
 
+function newLogSegment(index, line, reason) {
+  return {
+    index,
+    timestamp: timestampOf(line),
+    endTimestamp: "",
+    reason,
+    walks: [],
+    observedWalks: [],
+    ziplines: [],
+    decisions: [],
+    incidents: [],
+  };
+}
+
+function appendLogItem(run, key, item) {
+  run[key].push(item);
+  run.segments.at(-1)[key].push(item);
+}
+
+function beginLogSegment(run, line, reason = "replan") {
+  finishZiplineRide(run, false);
+  flushObservedWalk(run);
+  if (run._pendingWalk?.decision === "pending") run._pendingWalk.decision = "walk";
+  run._pendingWalk = null;
+  run._pendingPick = null;
+  run._pendingHop = null;
+  run._executionStarted = false;
+  run.segments.at(-1).endTimestamp = timestampOf(line);
+  run.segments.push(newLogSegment(run.segments.length, line, reason));
+}
+
+function beginPlanning(run, line) {
+  const segment = run.segments.at(-1);
+  const hasExecution = run._executionStarted && (segment.observedWalks.length || run._observedWalk.length >= 2);
+  if (!run._planning && (hasExecution || segment.walks.length || segment.ziplines.length || segment.decisions.length)) {
+    beginLogSegment(run, line);
+  }
+  run._planning = true;
+  run._planBatch = run.segments.at(-1);
+}
+
+/** A single planning/execution interval; never combines geometry from different replans. */
+export function logRunSegment(run, index = 0) {
+  if (!run?.segments?.length) return run;
+  const segment = run.segments[index] || run.segments[0];
+  const terminal = segment.index === run.segments.length - 1;
+  return {
+    ...run,
+    ...segment,
+    id: `${run.id}:segment:${segment.index}`,
+    completed: terminal ? run.completed : null,
+    failure: terminal ? run.failure : null,
+  };
+}
+
 function newRun(parsed, line, sourceName, index) {
   const {request, param} = parsed;
   const path = authoredPath(param.path);
@@ -207,6 +263,10 @@ function newRun(parsed, line, sourceName, index) {
     incidents: [],
     failure: null,
     completed: null,
+    segments: [newLogSegment(0, line, "initial")],
+    _planning: true,
+    _executionStarted: false,
+    _planBatch: null,
     _pendingWalk: null,
     _pendingPick: null,
     _observedWalk: [],
@@ -227,7 +287,7 @@ function flushObservedWalk(run) {
       points.push(tail.point);
     }
   }
-  if (points.length >= 2) run.observedWalks.push(points);
+  if (points.length >= 2) appendLogItem(run, "observedWalks", points);
   run._observedWalk = [];
   run._observedTail = null;
   run._observedZone = "";
@@ -299,19 +359,19 @@ function addWalk(run, line) {
     decision: "pending",
     reason: "",
   };
-  run.walks.push(walk);
+  appendLogItem(run, "walks", walk);
   run._pendingWalk = walk;
   run.zone ||= valueOf(line, "state.navmesh_zone") || "";
 }
 
 function addDecision(run, kind, line, detail = {}) {
-  run.decisions.push({kind, timestamp: timestampOf(line), ...detail});
+  appendLogItem(run, "decisions", {kind, timestamp: timestampOf(line), ...detail});
 }
 
 function addZiplineIncident(run, line) {
   const reason = valueOf(line, "reason") || "";
   const position = [numberValue(line, "ctx.position->x"), numberValue(line, "ctx.position->y")];
-  run.incidents.push({
+  appendLogItem(run, "incidents", {
     kind: "zipline-abandoned",
     timestamp: timestampOf(line),
     reason,
@@ -406,10 +466,11 @@ function addZipline(run, line) {
     last: last.every(Number.isFinite) ? last : picked.last,
     baselineWalk,
     launches: [],
+    rides: [],
     landings: [],
     landed: 0,
   };
-  run.ziplines.push(chain);
+  appendLogItem(run, "ziplines", chain);
   run._pendingPick = null;
   addDecision(run, "zipline", line, {
     chainIndex: chain.chainIndex,
@@ -428,24 +489,76 @@ function addZipline(run, line) {
 }
 
 function pendingExecutionChain(run) {
-  return run.ziplines.find((chain) => {
+  return run.segments.at(-1).ziplines.find((chain) => {
     const expected = Number.isFinite(chain.towerCount) ? Math.max(1, chain.towerCount - 1) : Infinity;
     return chain.launches.length < expected;
   });
 }
 
 function rememberZiplineHop(run, line) {
+  run._planning = false;
+  run._executionStarted = true;
+  run._planBatch = null;
   const landing = [numberValue(line, "plan_.landing.x"), numberValue(line, "plan_.landing.y")];
-  if (!landing.every(Number.isFinite)) return;
+  const mount = [numberValue(line, "plan_.mount.x"), numberValue(line, "plan_.mount.y")];
+  if (!landing.every(Number.isFinite) || !mount.every(Number.isFinite)) return;
   if (boolValue(line, "resume") === true && run._pendingHop) return;
-  run._pendingHop = {landing, fired: false, returning: false, launched: false};
+  run._pendingHop = {
+    landing,
+    mount,
+    currentTower: mount,
+    chain: pendingExecutionChain(run),
+    launched: false,
+    flight: null,
+  };
+}
+
+function fireZipline(run, line) {
+  const hop = run._pendingHop;
+  if (hop) {
+    const returning = boolValue(line, "returning_") === true;
+    const target = returning ? hop.mount : hop.landing;
+    hop.flight = {
+      from: hop.currentTower,
+      to: target,
+      target,
+      timestamp: timestampOf(line),
+      returning,
+      landed: false,
+      confirmed: false,
+    };
+  }
+  startZiplineRide(run);
 }
 
 function confirmZiplineLaunch(run) {
   const hop = run._pendingHop;
-  if (!hop || !hop.fired || hop.returning || hop.launched) return;
-  addLaunch(run, "", hop.landing);
-  hop.launched = true;
+  const flight = hop?.flight;
+  if (!flight || flight.confirmed || !hop.chain) return;
+  flight.confirmed = true;
+  hop.chain.rides.push(flight);
+  if (!flight.returning && !hop.launched) {
+    hop.chain.launches.push(hop.landing);
+    hop.launched = true;
+  }
+}
+
+function classifyZiplineRide(run, line) {
+  const hop = run._pendingHop;
+  if (!hop?.flight) return;
+  const classification = numberValue(line, "static_cast<int>(landing)");
+  const reached = [numberValue(line, "reached.x"), numberValue(line, "reached.y")];
+  // AtTarget / AtOther / AtStrayTower have a known reached tower; Unknown's zero fields are not coordinates.
+  if (![1, 3, 4].includes(classification) || !reached.every(Number.isFinite)) {
+    finishZiplineRide(run);
+    return;
+  }
+  if (boolValue(line, "riding_entered_") === true) confirmZiplineLaunch(run);
+  hop.flight.to = reached;
+  hop.flight.landed = true;
+  hop.flight.offTarget = classification !== 1;
+  hop.currentTower = reached;
+  finishZiplineRide(run);
 }
 
 function addLaunch(run, line, landing = [numberValue(line, "landing.x"), numberValue(line, "landing.y")]) {
@@ -457,7 +570,9 @@ function addLaunch(run, line, landing = [numberValue(line, "landing.x"), numberV
 }
 
 function addLanding(run, line) {
-  const chain = run.ziplines.find((candidate) => candidate.landed < candidate.launches.length);
+  const hop = run._pendingHop;
+  const chain =
+    hop?.chain || run.segments.at(-1).ziplines.find((candidate) => candidate.landed < candidate.launches.length);
   if (chain) {
     const landing = [
       numberValue(line, "done.at.x") ?? numberValue(line, "landing.x"),
@@ -465,6 +580,12 @@ function addLanding(run, line) {
     ];
     chain.landings.push(landing.every(Number.isFinite) ? landing : chain.launches[chain.landed]);
     chain.landed += 1;
+    if (hop?.flight?.confirmed) {
+      hop.flight.landed = true;
+      hop.flight.to = landing.every(Number.isFinite) ? landing : hop.landing;
+      // Use the classified tower center when available, rather than its localization jitter.
+      if (!hop.flight.offTarget) hop.flight.to = hop.landing;
+    }
   }
   finishZiplineRide(run);
   run._pendingHop = null;
@@ -479,10 +600,14 @@ function closeRun(run, line, succeeded) {
   run._pendingPick = null;
   run.zone ||= run._fallbackZone;
   run.endTimestamp = timestampOf(line);
+  run.segments.at(-1).endTimestamp = run.endTimestamp;
   run.completed = succeeded === null && run.failure ? false : succeeded;
   delete run._pendingWalk;
   delete run._pendingPick;
   delete run._pendingHop;
+  delete run._planning;
+  delete run._executionStarted;
+  delete run._planBatch;
   delete run._fallbackZone;
   delete run._observedWalk;
   delete run._observedTail;
@@ -521,6 +646,21 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
       current.accountId = valueOf(line, "account_id") || "";
     }
 
+    if (
+      line.includes("NAVMESH generated path.") ||
+      line.includes("ZiplineRoute: picked") ||
+      line.includes("Global authored route unavailable; replaying authored hints.")
+    ) {
+      beginPlanning(current, line);
+    }
+    if (line.includes("NAVMESH route expansion finished.")) current._planning = false;
+    if (line.includes("Navigation route replaced.")) {
+      if (!current._planBatch) beginLogSegment(current, line);
+      current.segments.at(-1).reason = valueOf(line, "reason") || "replan";
+      current._planBatch = null;
+      current._planning = false;
+    }
+
     if (line.includes("PositionProvider::Capture") && line.includes("MapLocator")) {
       addObservedPosition(current, line);
     } else if (line.includes("NAVMESH generated path.")) addWalk(current, line);
@@ -534,17 +674,17 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
     } else if (line.includes("Global authored route unavailable; replaying authored hints.")) {
       addDecision(current, "authored-replay", line, {text: "整段直达失败，回放作者路径并逐段规划"});
     } else if (line.includes("zipline/begin ")) rememberZiplineHop(current, line);
-    else if (line.includes("zipline/fired ")) {
-      if (current._pendingHop) {
-        current._pendingHop.fired = true;
-        current._pendingHop.returning = boolValue(line, "returning_") === true;
-      }
-      startZiplineRide(current);
-    } else if (line.includes("zipline/fired/riding ") || line.includes("zipline/fired/moved ")) {
+    else if (line.includes("zipline/fired ")) fireZipline(current, line);
+    else if (line.includes("zipline/classified ")) classifyZiplineRide(current, line);
+    else if (line.includes("zipline/fired/riding ") || line.includes("zipline/fired/moved ")) {
       confirmZiplineLaunch(current);
     } else if (line.includes("zipline/fired/no_launch ")) finishZiplineRide(current);
-    else if (line.includes("Action: ZIPLINE launched toward the landing point.")) addLaunch(current, line);
-    else if (line.includes("Action: ZIPLINE ride landed.")) {
+    else if (line.includes("Action: ZIPLINE launched toward the landing point.")) {
+      current._planning = false;
+      current._executionStarted = true;
+      current._planBatch = null;
+      addLaunch(current, line);
+    } else if (line.includes("Action: ZIPLINE ride landed.")) {
       confirmZiplineLaunch(current);
       addLanding(current, line);
     } else if (line.includes("Action: ZIPLINE given up, recovering from a fresh position.")) {
@@ -552,6 +692,10 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
     }
 
     if (line.includes("Phase transition.")) {
+      if (line.includes("[to_phase_name=Navigate]") || line.includes("[to_phase_name=WaitZipline]"))
+        current._executionStarted = true;
+      current._planning = false;
+      current._planBatch = null;
       if (line.includes("[from_phase_name=WaitZipline]")) finishZiplineRide(current, false);
       if (line.includes("[to_phase_name=Failed]")) addFailureTransition(current, line);
     }
@@ -592,9 +736,12 @@ export function logRunPoints(run) {
  */
 export function logZiplineTowers(chain) {
   if (!chain) return [];
-  const points = normalizedTowerPoints([chain.mount, ...(chain.launches || []), chain.last]).filter(
-    (point, index, all) => index === 0 || pointDistance(point, all[index - 1]) > 1e-6,
-  );
+  const rides = chain.rides || [];
+  const points = normalizedTowerPoints(
+    rides.length
+      ? [chain.mount, ...rides.flatMap((ride) => [ride.from, ride.to, ride.target]), chain.last]
+      : [chain.mount, ...(chain.launches || []), chain.last],
+  ).filter((point, index, all) => !all.slice(0, index).some((previous) => pointDistance(point, previous) <= 1e-6));
 
   const launches = Array.isArray(chain.launches) ? chain.launches.length : 0;
   const landed = Number.isFinite(chain.landed) ? Math.max(0, chain.landed) : 0;
@@ -603,7 +750,11 @@ export function logZiplineTowers(chain) {
     index,
     point: point.slice(0, 2),
     height: point.length >= 3 ? point[2] : null,
-    confirmed: index <= furthestConfirmed,
+    confirmed: rides.length
+      ? rides.some(
+          (ride) => pointDistance(point, ride.from) <= 1e-6 || (ride.landed && pointDistance(point, ride.to) <= 1e-6),
+        )
+      : index <= furthestConfirmed,
   }));
 }
 
@@ -615,9 +766,15 @@ export function logZiplineTowers(chain) {
  */
 export function logZiplineGeometry(chain) {
   if (!chain) return {actual: [], estimated: []};
-  const actual = [];
+  const actual = (chain.rides || []).map((ride) => ({
+    from: ride.from,
+    to: ride.to,
+    landed: ride.landed,
+    ...(ride.returning ? {returning: true} : {}),
+    ...(ride.offTarget ? {offTarget: true} : {}),
+  }));
   let from = Array.isArray(chain.mount) ? chain.mount : null;
-  for (let i = 0; from && i < (chain.launches || []).length; i += 1) {
+  for (let i = 0; !chain.rides?.length && from && i < (chain.launches || []).length; i += 1) {
     const to = chain.launches[i];
     if (!Array.isArray(to)) continue;
     actual.push({from, to, landed: i < (chain.landed || 0)});

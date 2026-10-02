@@ -1413,6 +1413,22 @@ body.mode-log .sidebar-dock {
   display: flex;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+
+.log-ride-list {
+  margin: 0;
+  padding-left: 22px;
+  overflow-wrap: anywhere;
+}
+
+.log-ride-return {
+  color: #f59e0b;
+}
+
+.log-ride-miss {
+  color: #f87171;
 }
 
 .log-tower-state {
