@@ -77,6 +77,7 @@
     "pullcount.resource.oroberyl": "오로베릴",
     "pullcount.resource_read_success": "%s 읽기 성공: %d",
     "pullcount.error.invalid_params": "모집 횟수 계산 파라미터가 올바르지 않습니다",
+    "ziplineimport.android_unsupported": "Android에서는 아직 짚라인 좌표 가져오기를 지원하지 않습니다.",
     "ziplineimport.captured_done": "UID %s: 짚라인 가져오기 완료: %d개 맵, %d개 짚라인 랙 캡처",
     "ziplineimport.sign_in_hint": "방금 열린 브라우저 창에서 지도 페이지 오른쪽 상단의 「로그인」을 누른 뒤, 짚라인을 가져오거나 갱신할 게임 계정으로 로그인하십시오.",
     "ziplineimport.login_ok": "로그인 성공, 짚라인을 가져오는 중/갱신 중",

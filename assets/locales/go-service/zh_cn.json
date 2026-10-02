@@ -78,6 +78,7 @@
     "pullcount.resource.oroberyl": "嵌晶玉",
     "pullcount.resource_read_success": "%s读取成功：%d",
     "pullcount.error.invalid_params": "抽数计算参数无效",
+    "ziplineimport.android_unsupported": "Android 端暂不支持导入/更新滑索坐标",
     "ziplineimport.captured_done": "UID %s：滑索导入完成：已捕获 %d 张地图、共 %d 处滑索架",
     "ziplineimport.sign_in_hint": "请在弹出的浏览器窗口中，点击地图页面右上角「登录」，然后登录需要导入/更新滑索的游戏账号。",
     "ziplineimport.login_ok": "登录成功，正在导入/更新滑索",
