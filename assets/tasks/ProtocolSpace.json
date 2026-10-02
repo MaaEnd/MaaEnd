@@ -1025,6 +1025,30 @@
             "description": "$option.SupplyPlanLimits.description",
             "inputs": [
                 {
+                    "name": "SupplyPlanLimit_T_CREDS",
+                    "label": "$option.SupplyPlanLimits.inputs.T_CREDS.label",
+                    "default": "3580000",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "SupplyPlanLimit_PROTOHEDRON",
+                    "label": "$option.SupplyPlanLimits.inputs.PROTOHEDRON.label",
+                    "default": "1100",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "SupplyPlanLimit_PROTOPRISM",
+                    "label": "$option.SupplyPlanLimits.inputs.PROTOPRISM.label",
+                    "default": "920",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
                     "name": "SupplyPlanLimit_COGNITIVE_CARRIER_EXP",
                     "label": "$option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label",
                     "default": "2100000",
@@ -1052,6 +1076,30 @@
                     "name": "SupplyPlanLimit_PROTODISK",
                     "label": "$option.SupplyPlanLimits.inputs.PROTODISK.label",
                     "default": "65",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "SupplyPlanLimit_WEAPON_EXP",
+                    "label": "$option.SupplyPlanLimits.inputs.WEAPON_EXP.label",
+                    "default": "5000000",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "SupplyPlanLimit_HEAVY_CAST_DIE",
+                    "label": "$option.SupplyPlanLimits.inputs.HEAVY_CAST_DIE.label",
+                    "default": "100",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "SupplyPlanLimit_CAST_DIE",
+                    "label": "$option.SupplyPlanLimits.inputs.CAST_DIE.label",
+                    "default": "45",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
@@ -1092,54 +1140,6 @@
                     "name": "SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE",
                     "label": "$option.SupplyPlanLimits.inputs.METADIASTIMA_PHOTOEMISSION_TUBE.label",
                     "default": "40",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_PROTOHEDRON",
-                    "label": "$option.SupplyPlanLimits.inputs.PROTOHEDRON.label",
-                    "default": "1100",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_PROTOPRISM",
-                    "label": "$option.SupplyPlanLimits.inputs.PROTOPRISM.label",
-                    "default": "920",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_T_CREDS",
-                    "label": "$option.SupplyPlanLimits.inputs.T_CREDS.label",
-                    "default": "3580000",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_WEAPON_EXP",
-                    "label": "$option.SupplyPlanLimits.inputs.WEAPON_EXP.label",
-                    "default": "5000000",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_HEAVY_CAST_DIE",
-                    "label": "$option.SupplyPlanLimits.inputs.HEAVY_CAST_DIE.label",
-                    "default": "100",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
-                },
-                {
-                    "name": "SupplyPlanLimit_CAST_DIE",
-                    "label": "$option.SupplyPlanLimits.inputs.CAST_DIE.label",
-                    "default": "45",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
