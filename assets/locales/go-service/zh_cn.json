@@ -237,5 +237,6 @@
     "ims.expression_ok": "表达式成立：%s",
     "ims.expression_short": "表达式不成立：%s",
     "ims.item_current": "当前 %s：%d",
-    "automission.unknown_mission": "未知任务 %s"
+    "automission.unknown_mission": "未知任务 %s",
+    "automission.unsupported_critical": "暂不支持紧要任务"
 }

@@ -26,17 +26,30 @@ function localizedText(key) {
     };
 }
 
+function objectiveText(key) {
+    const text = localizedText(key);
+    const plain = (value) => String(value ?? "").replace(/<@[^>]*>/g, "").replace(/<\/>/g, "");
+    return {
+        key: text.key,
+        zh_cn: plain(text.zh_cn),
+        zh_tw: plain(text.zh_tw),
+    };
+}
+
 function emptyObjective(objective) {
     const description = objective?.description;
     const key = description && typeof description === "object" ? description.key : "";
-    return {
-        description: {
-            key: key ?? "",
-        },
-        trackingInfoList: [],
-        multiDescTrackingInfoList: [],
-        condition: {},
+    const result = {
+        description: objectiveText(key),
     };
+    if (objective?.useMultipleDescription) {
+        result.useMultipleDescription = true;
+        result.multipleDescription = (objective.multipleDescription ?? []).map((item) => objectiveText(item?.key));
+    }
+    result.trackingInfoList = [];
+    result.multiDescTrackingInfoList = [];
+    result.condition = {};
+    return result;
 }
 
 function extractQuest(quest) {

@@ -93,9 +93,11 @@
         ]
     },
     "AutoMissionMatchQuest": {
-        "desc": "读取当前任务标题和说明，并按前缀匹配任务缓存。命中后暂不继续操作",
+        "desc": "读取当前任务标题和步骤名称，定位子步骤后按追踪类型调用占位节点",
         "recognition": "Custom",
         "custom_recognition": "AutoMissionMatchQuest",
+        "action": "Custom",
+        "custom_action": "AutoMissionExecuteQuest",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0

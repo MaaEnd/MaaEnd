@@ -2,8 +2,8 @@ package automission
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
-	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -19,24 +19,20 @@ const (
 )
 
 // MatchQuestRecognition 分别运行标题与说明两个 And，
-// 从各自结果中取出 OCR 后按前缀匹配 missions.json；两者指向同一任务才算命中。
+// 标题按前缀匹配任务，说明只在该任务的步骤名称里按前缀匹配当前子步骤。
 type MatchQuestRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = &MatchQuestRecognition{}
 
 type matchDetail struct {
-	MissionID   string `json:"mission_id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	MissionID   string           `json:"mission_id"`
+	QuestID     string           `json:"quest_id"`
+	DescIndex   int              `json:"desc_index"`
+	Title       string           `json:"title"`
+	Description string           `json:"description"`
+	Candidates  []objectiveEntry `json:"candidates,omitempty"`
+	Tracks      []trackData      `json:"tracks"`
 }
-
-type unknownKey struct {
-	taskID int64
-	title  string
-}
-
-// 识别失败会被流水线反复重试，同一次任务里同一个标题只提示一次。
-var reportedUnknown sync.Map
 
 func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if ctx == nil || arg == nil || arg.Img == nil {
@@ -74,7 +70,18 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 			Str("component", componentName).
 			Str("title", title).
 			Msg("unknown mission title")
-		reportUnknown(ctx, arg.TaskID, title)
+		maafocus.Print(ctx, i18n.T("automission.unknown_mission", title))
+		return nil, false
+	}
+
+	// 主线任务异常情况较多，暂不支持
+	if importance, known := idx.importance[missionID]; known && importance == 0 {
+		log.Info().
+			Str("component", componentName).
+			Str("mission_id", missionID).
+			Str("title", title).
+			Msg("critical mission is not supported")
+		maafocus.Print(ctx, i18n.T("automission.unsupported_critical"))
 		return nil, false
 	}
 
@@ -99,22 +106,38 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
-	descMissionID, ok := lookupByPrefix(description, idx.descriptions)
-	if !ok || descMissionID != missionID {
+	hit, rest, ok := lookupObjective(description, idx.quests[missionID])
+	if !ok {
 		log.Warn().
 			Str("component", componentName).
 			Str("mission_id", missionID).
-			Str("description_mission_id", descMissionID).
 			Str("title", title).
 			Str("description", description).
-			Msg("description does not match title")
+			Msg("description does not match an objective")
 		return nil, false
 	}
+	if len(rest) > 0 {
+		log.Info().
+			Str("component", componentName).
+			Str("mission_id", missionID).
+			Str("quest_id", hit.QuestID).
+			Int("desc_index", hit.DescIndex).
+			Interface("candidates", rest).
+			Msg("objective text matches multiple quests, using the first")
+	}
 
+	tracks := hit.Tracks
+	if tracks == nil {
+		tracks = []trackData{}
+	}
 	payload, err := json.Marshal(matchDetail{
 		MissionID:   missionID,
+		QuestID:     hit.QuestID,
+		DescIndex:   hit.DescIndex,
 		Title:       title,
 		Description: description,
+		Candidates:  rest,
+		Tracks:      tracks,
 	})
 	if err != nil {
 		log.Error().Err(err).Str("component", componentName).Msg("marshal detail failed")
@@ -124,6 +147,8 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	log.Info().
 		Str("component", componentName).
 		Str("mission_id", missionID).
+		Str("quest_id", hit.QuestID).
+		Int("desc_index", hit.DescIndex).
 		Str("title", title).
 		Str("description", description).
 		Msg("mission matched")
@@ -132,13 +157,6 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		Box:    titleDetail.Box,
 		Detail: string(payload),
 	}, true
-}
-
-func reportUnknown(ctx *maa.Context, taskID int64, title string) {
-	if _, seen := reportedUnknown.LoadOrStore(unknownKey{taskID: taskID, title: title}, struct{}{}); seen {
-		return
-	}
-	maafocus.Print(ctx, i18n.T("automission.unknown_mission", title))
 }
 
 // lookupByPrefix 用 OCR 文本逐字加长的前缀在 entries 中收窄候选：
@@ -167,6 +185,64 @@ func lookupByPrefix(text string, entries []textEntry) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+// lookupObjective 在一个任务的步骤名称里按 OCR 前缀收窄。
+// 收窄到 0 条表示没找到，收窄到 1 条即命中。
+// 用完全文仍有多条时，按主线顺序取第一个子步骤，同一子步骤内取最小说明下标，其余作为候选返回。
+func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []objectiveEntry, bool) {
+	if quests == nil {
+		return objectiveEntry{}, nil, false
+	}
+	runes := []rune(strings.TrimSpace(text))
+	candidates := quests.objectives
+	for n := 1; n <= len(runes); n++ {
+		prefix := string(runes[:n])
+		narrowed := make([]objectiveEntry, 0, len(candidates))
+		for _, entry := range candidates {
+			for _, variant := range entry.variants {
+				if strings.HasPrefix(variant, prefix) {
+					narrowed = append(narrowed, entry)
+					break
+				}
+			}
+		}
+		candidates = narrowed
+
+		switch len(candidates) {
+		case 0:
+			return objectiveEntry{}, nil, false
+		case 1:
+			return candidates[0], nil, true
+		}
+	}
+	if len(candidates) == 0 {
+		return objectiveEntry{}, nil, false
+	}
+
+	sort.SliceStable(candidates, func(i, j int) bool {
+		return objectiveLess(candidates[i], candidates[j], quests.pathOrder)
+	})
+	return candidates[0], candidates[1:], true
+}
+
+// objectiveLess 不在主线上的子步骤排在主线之后。
+func objectiveLess(a, b objectiveEntry, pathOrder map[string]int) bool {
+	aOrder, aOnPath := pathOrder[a.QuestID]
+	if !aOnPath {
+		aOrder = len(pathOrder)
+	}
+	bOrder, bOnPath := pathOrder[b.QuestID]
+	if !bOnPath {
+		bOrder = len(pathOrder)
+	}
+	if aOrder != bOrder {
+		return aOrder < bOrder
+	}
+	if a.QuestID != b.QuestID {
+		return a.QuestID < b.QuestID
+	}
+	return a.DescIndex < b.DescIndex
 }
 
 // ocrText 在识别结果树中取第一段非空 OCR，只读 Filtered。
