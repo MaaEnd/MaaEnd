@@ -98,3 +98,74 @@ jobs:
             console.log(
               `Added labels to issue #${issue.number}: ${matchedLabels.join(', ')}`
             );
+
+      - name: Label client type from issue form
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const CLIENT_COLORS = {
+              'client: MXU': 'e36209',
+              'client: MaaFwApp': 'cd6fbe',
+            };
+
+            const clientLabelOf = (body) => {
+              // issue 表单渲染出的固定格式：`### 客户端类型` 标题，空行，再一行答案。
+              // 用行首 ### 锚定，避免正文里引用同一标题时误命中。
+              const match = (body || '').match(/^###[ \t]*客户端类型[ \t]*\r?\n+([^\r\n]+)/m);
+              if (!match) {
+                return null;
+              }
+
+              // 按关键词匹配而非完整选项文案，模板文案微调后依然可用。
+              const answer = match[1].trim().toLowerCase();
+              if (answer.includes('maafwapp')) {
+                return 'client: MaaFwApp';
+              }
+              if (answer.includes('mxu')) {
+                return 'client: MXU';
+              }
+              return null;
+            };
+
+            const issue = context.payload.issue;
+            const target = clientLabelOf(issue.body);
+            if (!target) {
+              console.log(`Issue #${issue.number} 未识别到客户端类型，跳过`);
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const current = (issue.labels || []).map((label) =>
+              typeof label === 'string' ? label : label.name
+            );
+            if (current.includes(target)) {
+              console.log(`Issue #${issue.number} 已有 ${target}，跳过`);
+              return;
+            }
+
+            // 标签被删除后自动补建，否则 addLabels 会直接 422。
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: target });
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+              console.log(`标签 ${target} 不存在，创建`);
+              await github.rest.issues.createLabel({
+                owner,
+                repo,
+                name: target,
+                color: CLIENT_COLORS[target],
+              });
+            }
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: issue.number,
+              labels: [target],
+            });
+
+            console.log(`Issue #${issue.number} 打上 ${target}`);
