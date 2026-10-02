@@ -90,6 +90,7 @@ class NavTestService:
         self._armed_path: list[Any] = []
         self._armed_kind = "route"
         self._armed_zip = False
+        self._armed_heading_source = "character"
         self._armed_account = ""
         self._tasker: Any = None
         self._resource: Any = None
@@ -230,6 +231,7 @@ class NavTestService:
         *,
         exported: bool = False,
         zip_enabled: bool = False,
+        heading_source: str = "character",
         assert_target: dict | None = None,
         zipline_account_id: str = "",
     ) -> None:
@@ -241,6 +243,8 @@ class NavTestService:
         滑索记录按游戏账号隔离, 勾了滑索就把页面选中的账号一并装上, 缺了它
         cpp 端认不出身份, 整条线退化成步行。
         """
+        if assert_target is None and heading_source not in ("character", "camera"):
+            raise ValueError("试跑朝向必须为 character 或 camera")
         if assert_target is not None:
             nodes = self._export_assert(assert_target)
             if nodes is None:
@@ -259,6 +263,7 @@ class NavTestService:
             self._armed_path = nodes
             self._armed_kind = kind
             self._armed_zip = bool(zip_enabled and kind == "route")
+            self._armed_heading_source = heading_source if kind == "route" else "character"
             self._armed_account = str(zipline_account_id or "")
         self._on_armed(len(nodes), kind)
 
@@ -289,6 +294,7 @@ class NavTestService:
                     points,
                     exported=bool(msg.get("exported")),
                     zip_enabled=bool(msg.get("zip")),
+                    heading_source=msg.get("heading_source", "character"),
                     zipline_account_id=str(msg.get("zipline_account_id") or ""),
                 )
             if kind == "run":
@@ -424,6 +430,7 @@ class NavTestService:
             path = list(self._armed_path)
             kind = self._armed_kind
             zip_enabled = self._armed_zip
+            heading_source = self._armed_heading_source
             account_id = self._armed_account
         if not path:
             return
@@ -446,7 +453,7 @@ class NavTestService:
             self._on_phase("preparing", "正在准备路线试跑…")
             self._on_status("● 试跑中 —— 按 F4 立即终止", "#ef4444")
             node_name = NODE_NAME
-            custom_action_param: dict[str, Any] = {"path": path}
+            custom_action_param: dict[str, Any] = {"path": path, "heading_source": heading_source}
             if zip_enabled:
                 custom_action_param["zip"] = True
             override = {

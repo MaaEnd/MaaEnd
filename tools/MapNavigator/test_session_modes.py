@@ -24,6 +24,7 @@ class SessionModesTest(unittest.TestCase):
             "path": path,
             "exported": True,
             "zip": True,
+            "heading_source": "camera",
             "config": {"kind": "win32"},
         }
         with patch.dict(
@@ -40,7 +41,9 @@ class SessionModesTest(unittest.TestCase):
             path,
             exported=True,
             zip_enabled=True,
+            heading_source="camera",
             assert_target=None,
+            zipline_account_id="",
         )
         service.start.assert_called_once_with(session_config)
 

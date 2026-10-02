@@ -613,6 +613,23 @@ body.mode-log .sidebar-dock {
   min-width: 0;
 }
 
+.navtest-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.navtest-heading .combo {
+  flex: 1;
+  min-width: 0;
+}
+
+body.mode-assert .navtest-heading {
+  display: none;
+}
+
 /* ===== 连接：折叠成一行状态，展开在原位撑开设置 ===== */
 .conn-pill {
   position: relative;

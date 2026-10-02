@@ -34,6 +34,7 @@ export class NavTestController {
   /**
    * @param {Object} opts
    *   @param {HTMLButtonElement} opts.btnRun
+   *   @param {HTMLSelectElement} [opts.headingSource]
    *   @param {HTMLButtonElement} opts.btnStop
    *   @param {HTMLElement} opts.armedLabel
    *   @param {HTMLElement} opts.overlay full-width running banner
@@ -49,6 +50,7 @@ export class NavTestController {
    */
   constructor(opts) {
     this.btnRun = opts.btnRun;
+    this.headingSource = opts.headingSource;
     this.btnStop = opts.btnStop;
     this.armedLabel = opts.armedLabel;
     this.overlay = opts.overlay;
@@ -78,6 +80,7 @@ export class NavTestController {
 
     this.btnRun.addEventListener("click", () => void this.run());
     this.btnStop.addEventListener("click", () => this.stop());
+    this.headingSource?.addEventListener("change", () => this.routeChanged());
     this.connection.onStatusChange((connected) => {
       this.connectionReady = connected;
       this._syncUi();
@@ -360,6 +363,9 @@ export class NavTestController {
       (live ? !this.connected : !this.connectionReady);
     this.btnStop.textContent = idle ? "结束会话 (F4)" : "终止试跑 (F4)";
     this.btnStop.disabled = !live || this._opening || this._closing;
+    if (this.headingSource) {
+      this.headingSource.disabled = this.disabled || this._opening || this._closing || this.running;
+    }
     if (!live) {
       const route = this.getRoute();
       if (this.disabled) {

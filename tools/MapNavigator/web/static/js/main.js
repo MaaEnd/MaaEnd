@@ -487,6 +487,7 @@ class MapNavigatorApp {
       panelConnection: $("panel-connection"),
       panelNavtest: $("panel-navtest"),
       btnNavtestRun: $("btn-navtest-run"),
+      navtestHeadingSource: $("navtest-heading-source"),
       btnNavtestStop: $("btn-navtest-stop"),
       navtestArmed: $("navtest-armed"),
       navtestPhase: $("navtest-phase"),
@@ -587,6 +588,7 @@ class MapNavigatorApp {
       });
       this.navtest = new NavTestController({
         btnRun: this.els.btnNavtestRun,
+        headingSource: this.els.navtestHeadingSource,
         btnStop: this.els.btnNavtestStop,
         armedLabel: this.els.navtestArmed,
         overlay: this.els.navtestOverlay,
@@ -6113,7 +6115,7 @@ class MapNavigatorApp {
   /**
    * What F3 runs: the editor's raw waypoints in EDIT, the assert frame in ASSERT (the
    * backend exports it into a MapLocateAssertLocation node), nothing in LOG.
-   * @returns {{path: Array, exported: boolean, zip: boolean, zipline_account_id: string, assert_target: ?Object}}
+   * @returns {{path: Array, exported: boolean, zip: boolean, zipline_account_id: string, heading_source?: string, assert_target?: ?Object}}
    */
   _navtestRoute() {
     if (this.state.mode === Mode.ASSERT) {
@@ -6135,6 +6137,7 @@ class MapNavigatorApp {
       exported: false,
       zip: this.els.chkEditZipline.checked,
       zipline_account_id: this.els.chkEditZipline.checked ? this.ziplineAccountId : "",
+      heading_source: this.els.navtestHeadingSource.value,
     };
   }
 

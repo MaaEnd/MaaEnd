@@ -125,6 +125,13 @@
               <button id="btn-stop" class="btn btn-danger" type="button" disabled>停止录制</button>
               <button id="btn-navtest-run" class="btn btn-primary" type="button" disabled>开始试跑 (F3)</button>
               <button id="btn-navtest-stop" class="btn btn-danger" type="button" disabled>终止试跑 (F4)</button>
+              <label class="navtest-heading" id="navtest-heading-label" for="navtest-heading-source">
+                试跑朝向
+                <select id="navtest-heading-source" class="combo">
+                  <option value="character">角色朝向</option>
+                  <option value="camera">镜头朝向</option>
+                </select>
+              </label>
               <span id="navtest-armed" class="navtest-armed">未装载路线</span>
               <span id="navtest-hotkey-note" class="hotkey-banner"><kbd>F3</kbd> 跑 <kbd>F4</kbd> 停</span>
             </div>

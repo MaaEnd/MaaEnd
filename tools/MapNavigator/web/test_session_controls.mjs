@@ -3,6 +3,7 @@ import {readFileSync} from "node:fs";
 import test from "node:test";
 import {runInNewContext} from "node:vm";
 
+import {NavTestSocket} from "./static/js/rpc.js";
 import {ConnectionPanel} from "./static/js/ui/connection.js";
 import {NavTestController} from "./static/js/ui/navtest.js";
 import {RecordingController} from "./static/js/ui/recording.js";
@@ -477,11 +478,17 @@ test("first navtest run follows the probe while a live session keeps its own sta
   const connection = new FakeConnection();
   const btnRun = new FakeButton();
   const btnStop = new FakeButton();
+  const headingSource = new FakeButton();
+  let onHeadingChange;
+  headingSource.addEventListener = (_event, listener) => {
+    onHeadingChange = listener;
+  };
   const armedLabel = {textContent: ""};
   const hotkeyNote = {innerHTML: "hotkeys", textContent: "", classList: fakeClassList()};
   const controller = new NavTestController({
     btnRun,
     btnStop,
+    headingSource,
     armedLabel,
     overlay: {hidden: true},
     hotkeyNote,
@@ -503,4 +510,31 @@ test("first navtest run follows the probe while a live session keeps its own sta
   controller.connected = true;
   connection.setConnected(false);
   assert.equal(btnRun.disabled, false);
+  let changed = false;
+  controller.routeChanged = () => {
+    changed = true;
+  };
+  onHeadingChange();
+  assert.equal(changed, true);
+  controller._handleMessage({type: "run_state", running: true});
+  assert.equal(headingSource.disabled, true);
+  controller._handleMessage({type: "run_state", running: false});
+  assert.equal(headingSource.disabled, false);
+});
+
+test("navtest socket carries heading source on start, arm and run", () => {
+  const socket = new NavTestSocket();
+  const messages = [];
+  socket._open = (message) => messages.push(message);
+  socket._send = (message) => messages.push(message);
+  const route = {path: [[1, 2]], heading_source: "camera"};
+  socket.start({kind: "win32"}, route);
+  socket.arm(route);
+  socket.run(route);
+  assert.deepEqual(
+    messages.map((message) => message.heading_source),
+    ["camera", "camera", "camera"],
+  );
+  socket.arm({path: [[1, 2]]});
+  assert.equal(messages.at(-1).heading_source, "character");
 });
