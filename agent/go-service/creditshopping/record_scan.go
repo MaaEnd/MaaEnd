@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	pipelineNodeCreditIcon         = "CreditIcon"
+	pipelineNodeRecordShelfSlot    = "CreditShoppingRecordShelfSlot"
 	pipelineNodeRecordItemDiscount = "RecordItemDiscount"
 	recordDiscountNone             = "None"
 )
@@ -26,11 +26,11 @@ func recordDiscountPipelineOverride(anchorBox maa.Rect) map[string]any {
 	}
 }
 
-// recordFindCreditIconSlots 用 CreditIcon 锚点确定货架格位（与购物链 ShelfBase 一致）。
-func recordFindCreditIconSlots(ctx *maa.Context, img image.Image) []maa.Rect {
-	detail, err := ctx.RunRecognition(pipelineNodeCreditIcon, img, nil)
+// recordFindShelfSlotBoxes 用 CreditShoppingRecordShelfSlot 锚点确定货架格位（与旧 CreditIcon 格位一致）。
+func recordFindShelfSlotBoxes(ctx *maa.Context, img image.Image) []maa.Rect {
+	detail, err := ctx.RunRecognition(pipelineNodeRecordShelfSlot, img, nil)
 	if err != nil || detail == nil || !detail.Hit {
-		log.Info().Str("component", component).Msg("record: CreditIcon miss")
+		log.Info().Str("component", component).Msg("record: shelf slot anchor miss")
 		return nil
 	}
 	boxes := make([]maa.Rect, 0, recordMaxShelfSlots)
@@ -42,7 +42,7 @@ func recordFindCreditIconSlots(ctx *maa.Context, img image.Image) []maa.Rect {
 		boxes = append(boxes, matched.Box)
 	}
 	if len(boxes) == 0 {
-		log.Info().Str("component", component).Msg("record: CreditIcon hit but no boxes")
+		log.Info().Str("component", component).Msg("record: shelf slot anchor hit but no boxes")
 		return nil
 	}
 	return recordOrderBoxesByPosition(boxes)
@@ -84,42 +84,53 @@ func recordRecognizeDiscountAt(ctx *maa.Context, img image.Image, anchorBox maa.
 	return text
 }
 
-// RecordShelfFromImage：CreditIcon 定 slot → 商品模板挂格 → 折扣 OCR（不写盘）。
+func recordAssembleSlotRecords(
+	slotBoxes []maa.Rect,
+	matched []itemPositionHit,
+	discountFor func(anchor maa.Rect) string,
+) []SlotRecord {
+	out := make([]SlotRecord, 0, len(slotBoxes))
+	for i, slotBox := range slotBoxes {
+		hit := matched[i]
+		discountBox := slotBox
+		name := recordSlotNameUnknown
+		id := recordSlotItemIDUnknown
+		if recordRectValid(hit.Box) {
+			discountBox = hit.Box
+			name = strings.TrimSpace(hit.Name)
+			id = hit.ID
+			if name != "" && id == "" {
+				itemID, ok := matchCreditItemID(name)
+				if !ok {
+					log.Warn().
+						Str("component", component).
+						Int("slot", i).
+						Str("name", name).
+						Msg("record: unmatched item name")
+				} else {
+					id = itemID
+				}
+			}
+		}
+		out = append(out, SlotRecord{
+			Slot:     i,
+			Name:     name,
+			ID:       id,
+			Discount: discountFor(discountBox),
+		})
+	}
+	return out
+}
+
+// RecordShelfFromImage：格位锚点定 slot → 物品模板挂格 → 未识别格写 unknown → 折扣 OCR（不写盘）。
 func RecordShelfFromImage(ctx *maa.Context, img image.Image) []SlotRecord {
-	slotBoxes := recordFindCreditIconSlots(ctx, img)
+	slotBoxes := recordFindShelfSlotBoxes(ctx, img)
 	if len(slotBoxes) == 0 {
 		return nil
 	}
 	itemHits := recordFindAllItemPositions(ctx, img)
 	matched := recordMatchItemsToSlots(slotBoxes, itemHits)
-
-	out := make([]SlotRecord, 0, len(slotBoxes))
-	for i, slotBox := range slotBoxes {
-		hit := matched[i]
-		discountBox := slotBox
-		if recordRectValid(hit.Box) {
-			discountBox = hit.Box
-		}
-		name := strings.TrimSpace(hit.Name)
-		rec := SlotRecord{
-			Slot:     i,
-			Name:     name,
-			ID:       hit.ID,
-			Discount: recordRecognizeDiscountAt(ctx, img, discountBox),
-		}
-		if name != "" && rec.ID == "" {
-			itemID, ok := matchCreditItemID(name)
-			if !ok {
-				log.Warn().
-					Str("component", component).
-					Int("slot", i).
-					Str("name", name).
-					Msg("record: unmatched item name")
-			} else {
-				rec.ID = itemID
-			}
-		}
-		out = append(out, rec)
-	}
-	return out
+	return recordAssembleSlotRecords(slotBoxes, matched, func(anchor maa.Rect) string {
+		return recordRecognizeDiscountAt(ctx, img, anchor)
+	})
 }

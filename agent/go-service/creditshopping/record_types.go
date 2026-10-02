@@ -2,7 +2,11 @@ package creditshopping
 
 import maa "github.com/MaaXYZ/maa-framework-go/v4"
 
-const component = "creditshopping"
+const (
+	component               = "creditshopping"
+	recordSlotNameUnknown   = "unknown"
+	recordSlotItemIDUnknown = "unknown"
+)
 
 // SlotRecord 是写入快照 JSON 的单格货架记录（slot 按屏幕位置排序，从 0 起）。
 type SlotRecord struct {

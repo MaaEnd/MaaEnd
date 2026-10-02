@@ -1,4 +1,19 @@
 {
+    "CreditShoppingRecordShelfSlot": {
+        "desc": "货架记录：格位锚点（信用点卡片图标，含售罄/未识别格）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            74,
+            103,
+            1131,
+            538
+        ],
+        "template": "CreditShopping/CreditIcon.png",
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "CreditShoppingRecordItemArmsInspector": {
         "desc": "武器检查单元。货架记录用，模板匹配始终开启",
         "recognition": "TemplateMatch",
@@ -9,8 +24,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_weapon_expcard_low.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -26,8 +41,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -43,8 +58,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -60,8 +75,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_weapon_break_low.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -77,8 +92,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_expcard_stage2_low.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -94,8 +109,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_expcard_2_1.png",
-        "threshold": 0.92,
         "green_mask": true,
+        "threshold": 0.92,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -111,8 +126,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_expcard_2_2.png",
-        "threshold": 0.92,
         "green_mask": true,
+        "threshold": 0.92,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -128,8 +143,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_weapon_break_high.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -145,8 +160,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_diamond.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -162,8 +177,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -179,8 +194,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -196,8 +211,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -213,8 +228,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
@@ -230,8 +245,8 @@
             415
         ],
         "template": "CreditShopping/Item/item_gold.png",
-        "threshold": 0.7,
         "green_mask": true,
+        "threshold": 0.7,
         "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,

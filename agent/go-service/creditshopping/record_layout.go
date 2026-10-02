@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	recordRowClusterGapY = 80
-	recordMaxShelfSlots  = 10
+	recordRowClusterGapY    = 80
+	recordMaxShelfSlots     = 10
+	recordSlotMatchColSlack = 24
+	recordSlotMatchRowSlack = 24
 )
 
 func recordRectCenter(r maa.Rect) (int, int) {
@@ -92,31 +94,66 @@ func recordOrderBoxesByPosition(boxes []maa.Rect) []maa.Rect {
 	return out
 }
 
-// recordMatchItemsToSlots 将商品模板命中按中心距离挂到 CreditIcon 槽位（每槽最多一件，每件最多占一槽）。
+func recordAbsInt(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+// recordHitBelongsToSlot 判定商品模板中心是否落在槽位锚框附近（同行 + 水平对齐，720p）。
+func recordHitBelongsToSlot(slot maa.Rect, hit itemPositionHit) bool {
+	if !recordRectValid(slot) || !recordRectValid(hit.Box) {
+		return false
+	}
+	scx, scy := recordRectCenter(slot)
+	icx, icy := recordRectCenter(hit.Box)
+	maxDx := slot[2]/2 + recordSlotMatchColSlack
+	maxDy := slot[3]/2 + recordSlotMatchRowSlack
+	return recordAbsInt(icx-scx) <= maxDx && recordAbsInt(icy-scy) <= maxDy
+}
+
+type recordSlotItemPair struct {
+	slotIdx int
+	itemIdx int
+	distSq  int
+}
+
+// recordMatchItemsToSlots 将商品模板命中挂到槽位锚框（每槽最多一件，每件最多占一槽；拒绝几何上不属于该槽的命中）。
 func recordMatchItemsToSlots(slotBoxes []maa.Rect, items []itemPositionHit) []itemPositionHit {
 	out := make([]itemPositionHit, len(slotBoxes))
-	used := make([]bool, len(items))
+	if len(slotBoxes) == 0 || len(items) == 0 {
+		return out
+	}
+	pairs := make([]recordSlotItemPair, 0, len(slotBoxes)*len(items))
 	for si, slot := range slotBoxes {
 		scx, scy := recordRectCenter(slot)
-		best := -1
-		bestDist := int(^uint(0) >> 1)
 		for ii, it := range items {
-			if used[ii] {
+			if !recordHitBelongsToSlot(slot, it) {
 				continue
 			}
 			icx, icy := recordRectCenter(it.Box)
 			dx := icx - scx
 			dy := icy - scy
-			d := dx*dx + dy*dy
-			if d < bestDist {
-				bestDist = d
-				best = ii
-			}
+			pairs = append(pairs, recordSlotItemPair{
+				slotIdx: si,
+				itemIdx: ii,
+				distSq:  dx*dx + dy*dy,
+			})
 		}
-		if best >= 0 {
-			used[best] = true
-			out[si] = items[best]
+	}
+	sort.Slice(pairs, func(i, j int) bool {
+		return pairs[i].distSq < pairs[j].distSq
+	})
+	slotUsed := make([]bool, len(slotBoxes))
+	itemUsed := make([]bool, len(items))
+	for _, p := range pairs {
+		if slotUsed[p.slotIdx] || itemUsed[p.itemIdx] {
+			continue
 		}
+		slotUsed[p.slotIdx] = true
+		itemUsed[p.itemIdx] = true
+		out[p.slotIdx] = items[p.itemIdx]
 	}
 	return out
 }

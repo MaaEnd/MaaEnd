@@ -262,8 +262,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -282,8 +282,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_diamond.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -302,8 +302,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_gold.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -322,8 +322,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_expcard_stage2_low.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -342,8 +342,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_1.png",
-                            "threshold": 0.92,
                             "green_mask": true,
+                            "threshold": 0.92,
                             "order_by": "Vertical"
                         }
                     }
@@ -362,8 +362,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_2.png",
-                            "threshold": 0.92,
                             "green_mask": true,
+                            "threshold": 0.92,
                             "order_by": "Vertical"
                         }
                     }
@@ -382,8 +382,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_low.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -402,8 +402,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -422,8 +422,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_low.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -442,8 +442,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_high.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -462,8 +462,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -482,8 +482,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -502,8 +502,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -522,8 +522,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -795,8 +795,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -815,8 +815,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_diamond.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -835,8 +835,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_gold.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -855,8 +855,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_expcard_stage2_low.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -875,8 +875,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_1.png",
-                            "threshold": 0.92,
                             "green_mask": true,
+                            "threshold": 0.92,
                             "order_by": "Vertical"
                         }
                     }
@@ -895,8 +895,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_2.png",
-                            "threshold": 0.92,
                             "green_mask": true,
+                            "threshold": 0.92,
                             "order_by": "Vertical"
                         }
                     }
@@ -915,8 +915,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_low.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -935,8 +935,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -955,8 +955,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_low.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -975,8 +975,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_high.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -995,8 +995,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1015,8 +1015,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1035,8 +1035,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1055,8 +1055,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1340,8 +1340,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1360,8 +1360,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_diamond.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1380,8 +1380,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_gold.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1400,8 +1400,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_expcard_stage2_low.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1420,8 +1420,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_1.png",
-                            "threshold": 0.92,
                             "green_mask": true,
+                            "threshold": 0.92,
                             "order_by": "Vertical"
                         }
                     }
@@ -1440,8 +1440,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_expcard_2_2.png",
-                            "threshold": 0.92,
                             "green_mask": true,
+                            "threshold": 0.92,
                             "order_by": "Vertical"
                         }
                     }
@@ -1460,8 +1460,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_low.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1480,8 +1480,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1500,8 +1500,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_low.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1520,8 +1520,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_weapon_break_high.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1540,8 +1540,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1560,8 +1560,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1580,8 +1580,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
@@ -1600,8 +1600,8 @@
                                 415
                             ],
                             "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
-                            "threshold": 0.7,
                             "green_mask": true,
+                            "threshold": 0.7,
                             "order_by": "Vertical"
                         }
                     }
