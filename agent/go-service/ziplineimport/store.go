@@ -1,4 +1,4 @@
-//go:build linux
+//go:build linux && !android
 
 package ziplineimport
 
@@ -9,6 +9,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 )
 
 // ziplineMark 是 Ziplines.json 里一条滑索记录。字段与 cpp-algo ZiplineStore 完全一致
@@ -51,9 +53,9 @@ func exeDir() string {
 	return "."
 }
 
-// defaultRecordPath: <exe>/../debug/record/Ziplines.json，与 cpp ZiplineStore::DefaultPath 相同。
+// defaultRecordPath anchors the record under the startup working directory.
 func defaultRecordPath() string {
-	return filepath.Join(exeDir(), "..", "debug", "record", "Ziplines.json")
+	return fsutil.OutputPath("debug", "record", "Ziplines.json")
 }
 
 // load 读取现有记录。文件不存在或为空返回空库且无错误；内容坏掉才返回错误（此时拒绝覆盖，

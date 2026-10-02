@@ -1,16 +1,16 @@
 {
     "pretask": {
+        "controller": [
+            "Win32-Front"
+        ],
         "exec": "agent/go-service",
         "args": [
             "--pretask",
             "GameSetting"
         ],
         "name": "GameSetting",
-        "description": "$pretask.GameSetting.description",
         "label": "$pretask.GameSetting.label",
-        "controller": [
-            "Win32-Front"
-        ],
+        "description": "$pretask.GameSetting.description",
         "option": [
             "GameSettingRegion",
             "GameSettingLanguage",
@@ -22,9 +22,8 @@
     },
     "option": {
         "GameSettingRegion": {
-            "label": "$option.GameSettingRegion.label",
             "type": "select",
-            "default_case": "CN",
+            "label": "$option.GameSettingRegion.label",
             "cases": [
                 {
                     "name": "CN",
@@ -34,12 +33,12 @@
                     "name": "Global",
                     "label": "$option.GameSettingRegion.cases.Global.label"
                 }
-            ]
+            ],
+            "default_case": "CN"
         },
         "GameSettingLanguage": {
-            "label": "$option.GameSettingLanguage.label",
             "type": "select",
-            "default_case": "Unchanged",
+            "label": "$option.GameSettingLanguage.label",
             "cases": [
                 {
                     "name": "Unchanged",
@@ -101,12 +100,12 @@
                     "name": "VN",
                     "label": "Tiếng Việt"
                 }
-            ]
+            ],
+            "default_case": "Unchanged"
         },
         "GameSettingDisplayType": {
-            "label": "$option.GameSettingDisplayType.label",
             "type": "select",
-            "default_case": "Window",
+            "label": "$option.GameSettingDisplayType.label",
             "cases": [
                 {
                     "name": "Window",
@@ -122,12 +121,12 @@
                         "GameSettingResolution"
                     ]
                 }
-            ]
+            ],
+            "default_case": "Window"
         },
         "GameSettingResolution": {
-            "label": "$option.GameSettingResolution.label",
             "type": "select",
-            "default_case": "1280x720",
+            "label": "$option.GameSettingResolution.label",
             "cases": [
                 {
                     "name": "1280x720"
@@ -138,12 +137,12 @@
                 {
                     "name": "2560x1440"
                 }
-            ]
+            ],
+            "default_case": "1280x720"
         },
         "GameSettingGraphicsQuality": {
-            "label": "$option.GameSettingGraphicsQuality.label",
             "type": "select",
-            "default_case": "Unchanged",
+            "label": "$option.GameSettingGraphicsQuality.label",
             "cases": [
                 {
                     "name": "Unchanged",
@@ -169,12 +168,12 @@
                     "name": "Ultra",
                     "label": "$option.GameSettingGraphicsQuality.cases.Ultra.label"
                 }
-            ]
+            ],
+            "default_case": "Unchanged"
         },
         "GameSettingFrameRate": {
-            "label": "$option.GameSettingFrameRate.label",
             "type": "select",
-            "default_case": "Unchanged",
+            "label": "$option.GameSettingFrameRate.label",
             "cases": [
                 {
                     "name": "Unchanged",
@@ -192,13 +191,13 @@
                     "name": "Fps120",
                     "label": "$option.GameSettingFrameRate.cases.Fps120.label"
                 }
-            ]
+            ],
+            "default_case": "Unchanged"
         },
         "GameSettingAutoHDR": {
             "type": "select",
             "label": "$option.GameSettingAutoHDR.label",
             "description": "$option.GameSettingAutoHDR.description",
-            "default_case": "Unchanged",
             "cases": [
                 {
                     "name": "Unchanged",
@@ -212,7 +211,8 @@
                     "name": "Enable",
                     "label": "$option.GameSettingAutoHDR.cases.Enable.label"
                 }
-            ]
+            ],
+            "default_case": "Unchanged"
         }
     }
 }

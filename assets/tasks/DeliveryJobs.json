@@ -5,12 +5,8 @@
             "label": "$task.DeliveryJobs.label",
             "entry": "DeliveryJobsMain",
             "description": "$task.DeliveryJobs.description",
-            "option": [
-                "ValleyIV",
-                "Wuling",
-                "PackCargoSelectItem",
-                "DeliveryJobsAutoDeliveryPreferZipline",
-                "DeliveryJobsOngoingDeliveryFallback"
+            "group": [
+                "regional_development"
             ],
             "controller": [
                 "ADB",
@@ -23,8 +19,12 @@
                 "PlayCover",
                 "Win32-Front"
             ],
-            "group": [
-                "regional_development"
+            "option": [
+                "ValleyIV",
+                "Wuling",
+                "PackCargoSelectItem",
+                "DeliveryJobsAutoDeliveryPreferZipline",
+                "DeliveryJobsOngoingDeliveryFallback"
             ]
         }
     ],
@@ -32,20 +32,19 @@
         "ValleyIV": {
             "type": "switch",
             "label": "$global.region.ValleyIV",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "DeliveryJobsValleyIV": {
-                            "enabled": true
-                        }
-                    },
                     "option": [
                         "OriginiumSciencePark",
                         "OriginLodespring",
                         "PowerPlateau"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "DeliveryJobsValleyIV": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No",
@@ -55,7 +54,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "OriginiumSciencePark": {
             "type": "select",
@@ -264,9 +264,9 @@
                     "name": "DeliveryJobsQuoteThresholdOriginiumScienceParkValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "default": "119000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
-                    "default": "119000",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
@@ -612,9 +612,9 @@
                     "name": "DeliveryJobsQuoteThresholdOriginLodespringValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "default": "119000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
-                    "default": "119000",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
@@ -960,9 +960,9 @@
                     "name": "DeliveryJobsQuoteThresholdPowerPlateauValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "default": "119000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
-                    "default": "119000",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
@@ -1104,19 +1104,18 @@
         "Wuling": {
             "type": "switch",
             "label": "$global.region.Wuling",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "WulingCity",
+                        "TestArea"
+                    ],
                     "pipeline_override": {
                         "DeliveryJobsWuling": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "WulingCity",
-                        "TestArea"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -1126,7 +1125,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "WulingCity": {
             "type": "select",
@@ -1335,9 +1335,9 @@
                     "name": "DeliveryJobsQuoteThresholdWulingCityValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "default": "119000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
-                    "default": "119000",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
@@ -1683,9 +1683,9 @@
                     "name": "DeliveryJobsQuoteThresholdTestAreaValue",
                     "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
                     "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "default": "119000",
                     "pipeline_type": "string",
                     "verify": "^\\d+$",
-                    "default": "119000",
                     "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
@@ -1828,7 +1828,6 @@
             "type": "switch",
             "label": "$task.AutoDeliveryPreferZipline.label",
             "description": "$task.AutoDeliveryPreferZipline.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No",
@@ -1860,13 +1859,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "DeliveryJobsOngoingDeliveryFallback": {
             "type": "switch",
             "label": "$task.DeliveryJobs.OngoingDeliveryFallback.label",
             "description": "$task.DeliveryJobs.OngoingDeliveryFallback.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No"
@@ -1881,7 +1880,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "PackCargoSelectItem": {
             "type": "switch",
@@ -1890,17 +1890,17 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "FillItemPrioritiesValleyIV",
+                        "FillItemPrioritiesWuling"
+                    ],
                     "pipeline_override": {
                         "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
                             "next": [
                                 "[Anchor]DeliveryJobsSelectPriorityItems"
                             ]
                         }
-                    },
-                    "option": [
-                        "FillItemPrioritiesValleyIV",
-                        "FillItemPrioritiesWuling"
-                    ]
+                    }
                 },
                 {
                     "name": "No"

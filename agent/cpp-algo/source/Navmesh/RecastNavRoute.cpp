@@ -14,6 +14,7 @@
 #include <map>
 #include <optional>
 #include <queue>
+#include <set>
 #include <tuple>
 
 #include <cstdio>
@@ -37,6 +38,7 @@ constexpr int64_t kEdtCells = static_cast<int64_t>(kEdtCap / kCS) + 1;
 // 台沿下落用的角色尺寸 m。
 constexpr double kFallClimb = 0.39;
 constexpr double kFallHeight = 2.1;
+constexpr double kFallRadius = 0.41;
 
 // 三角 t 上一点 p 的高。
 double triHeightAt(const PolyMesh& mesh, int32_t t, const WorldPoint& p)
@@ -151,6 +153,7 @@ struct WindowInfo
     std::vector<WorldPoint> segA;
     std::vector<WorldPoint> segB;
     double h0 = 0.0;
+    double fall_r = 0.0; // 角色半径 px, 0 = 落点不外推
     SpanTable st3;
     std::vector<uint8_t> vis3;
     std::vector<uint8_t> reach3;
@@ -166,10 +169,11 @@ struct RouteDiag
     std::string err;
     std::vector<std::string> warn;
     std::vector<double> clearance;
-    std::vector<double> height; // 逐点所在面的高度; 层预言机走不通时清空
+    std::vector<double> height;     // 逐点所在面的高度; 层预言机走不通时清空
     std::vector<size_t> waypoints;
+    std::vector<DropLanding> drops; // 台沿下落的落点
     bool crossed_barrier = false;
-    bool hop_barrier = false; // 端点接线的那一跳跨了禁行边
+    bool hop_barrier = false;       // 端点接线的那一跳跨了禁行边
     double snap_start = 0.0;
     double snap_goal = 0.0;
 
@@ -972,7 +976,13 @@ void PullWaypoints(
         double swallowed = std::numeric_limits<double>::infinity();
         const std::optional<double> seed = cursor < dg.height.size() ? std::optional<double>(dg.height[cursor]) : std::nullopt;
         size_t reach = cursor;
-        const size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+        size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+        // 台沿下落的落点必须留成航点, 控制端靠它判下落
+        for (const DropLanding& drop : dg.drops) {
+            if (drop.index > cursor && drop.index < reach_limit) {
+                reach_limit = drop.index;
+            }
+        }
         while (reach < reach_limit) {
             const WorldPoint& a = pts[cursor];
             const WorldPoint& c = pts[reach + 1];
@@ -994,6 +1004,160 @@ void PullWaypoints(
         cursor = reach;
     }
     dg.waypoints.push_back(anchor);
+}
+
+// 台沿下落的落点挪到下层上离上层可走面四个角色半径的地方: 一个是可走面让出的, 一个让人整个离开台沿,
+// 余下两个是余量。
+void PushDropLandings(
+    std::vector<WorldPoint>& pts,
+    std::vector<double>& hz,
+    RouteDiag& dg,
+    const SpanTable& st,
+    const Grid<float>& dist,
+    int64_t nx,
+    int64_t ny,
+    double x0,
+    double y0,
+    double radius,
+    const LayerOracle& lyo)
+{
+    const auto cell_of = [&](const WorldPoint& p) {
+        return std::make_pair(static_cast<int64_t>(std::floor((p.x - x0) / kCS)), static_cast<int64_t>(std::floor((p.y - y0) / kCS)));
+    };
+    // 格上与 h 差不过 kQH 的 span 里离 h 最近的那张的高
+    const auto span_h = [&](int64_t gx, int64_t gy, double h) -> std::optional<double> {
+        if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
+            return std::nullopt;
+        }
+        const int64_t j = st.j(gy * nx + gx);
+        if (j < 0) {
+            return std::nullopt;
+        }
+        std::optional<double> best;
+        for (int64_t k = st.cstart(j), ke = k + st.ccnt(j); k < ke; ++k) {
+            const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
+            if (std::fabs(v - h) <= kQH && (!best.has_value() || std::fabs(v - h) < std::fabs(*best - h))) {
+                best = v;
+            }
+        }
+        return best;
+    };
+    // 格上有没有高过 h 一个可攀爬高差、又不高过台沿 h_up 一个可攀爬高差的面
+    const auto upper_at = [&](int64_t gx, int64_t gy, double h, double h_up) {
+        if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
+            return false;
+        }
+        const int64_t j = st.j(gy * nx + gx);
+        if (j < 0) {
+            return false;
+        }
+        for (int64_t k = st.cstart(j), ke = k + st.ccnt(j); k < ke; ++k) {
+            const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
+            if (v > h + kClimb && v <= h_up + kClimb) {
+                return true;
+            }
+        }
+        return false;
+    };
+    // p 到这样的面多远, reach 以外记 reach
+    const auto upper_dist = [&](const WorldPoint& p, double h, double h_up, double reach) {
+        const auto [cx, cy] = cell_of(p);
+        const auto rc = static_cast<int64_t>(std::ceil(reach / kCS));
+        double best = reach;
+        for (int64_t gy = cy - rc; gy <= cy + rc; ++gy) {
+            for (int64_t gx = cx - rc; gx <= cx + rc; ++gx) {
+                const double qx = std::clamp(p.x, x0 + static_cast<double>(gx) * kCS, x0 + static_cast<double>(gx + 1) * kCS);
+                const double qy = std::clamp(p.y, y0 + static_cast<double>(gy) * kCS, y0 + static_cast<double>(gy + 1) * kCS);
+                const double d = std::hypot(qx - p.x, qy - p.y);
+                if (d < best && upper_at(gx, gy, h, h_up)) {
+                    best = d;
+                }
+            }
+        }
+        return best;
+    };
+    constexpr double kStep = kCS / 4.0;
+    for (size_t i = 1; i + 1 < pts.size(); ++i) {
+        const WorldPoint take = pts[i - 1];
+        const WorldPoint land = pts[i];
+        const double len = std::hypot(land.x - take.x, land.y - take.y);
+        if (hz[i - 1] - hz[i] <= kClimb || len <= 0.0) {
+            continue;
+        }
+        const double ux = (land.x - take.x) / len;
+        const double uy = (land.y - take.y) / len;
+        // 从起跳点顺着上层走, 断开处比落点高出一步以上才是台沿; 一路连着的是坡
+        double h_up = hz[i - 1];
+        bool edge = false;
+        for (double t = 0.0; t < len; t += kStep) {
+            const auto [gx, gy] = cell_of({ take.x + ux * t, take.y + uy * t });
+            const auto v = span_h(gx, gy, h_up);
+            if (!v.has_value()) {
+                edge = true;
+                break;
+            }
+            h_up = *v;
+        }
+        if (!edge || h_up - hz[i] <= kClimb) {
+            continue;
+        }
+        // 顺着下层从原落点往外找, 离原落点最近、四个角色半径内没有上层面、又能直走到下一点的
+        // 那一格就是新落点。只找到原落点八个角色半径为止, 找不到就取其中离上层面最远的那格。
+        // 直走只看下层逐格接不接得上: 挡线与立面都是平面的, 叠层处会连下层的弦一起挡。
+        double h_low = hz[i];
+        WorldPoint at = land;
+        double at_clr = -1.0;
+        const WorldPoint next = pts[i + 1];
+        const auto h_next = static_cast<float>(hz[i + 1]);
+        {
+            const auto [lx, ly] = cell_of(land);
+            const auto centre = [&](int64_t gx, int64_t gy) {
+                return WorldPoint { x0 + (static_cast<double>(gx) + 0.5) * kCS, y0 + (static_cast<double>(gy) + 0.5) * kCS };
+            };
+            using Node = std::tuple<double, int64_t, int64_t, double>;
+            std::priority_queue<Node, std::vector<Node>, std::greater<>> open;
+            std::set<std::pair<int64_t, int64_t>> seen { { lx, ly } };
+            if (const auto v = span_h(lx, ly, hz[i])) {
+                open.emplace(0.0, lx, ly, *v);
+            }
+            while (!open.empty()) {
+                const auto [d, gx, gy, h] = open.top();
+                open.pop();
+                const WorldPoint c = d == 0.0 ? land : centre(gx, gy);
+                if (d == 0.0 || lyo.ok(c, next, static_cast<float>(h), h_next)) {
+                    const double clr = upper_dist(c, h, h_up, 4.0 * radius);
+                    if (clr > at_clr) {
+                        at = c;
+                        h_low = h;
+                        at_clr = clr;
+                    }
+                    if (clr >= 4.0 * radius) {
+                        break;
+                    }
+                }
+                for (const auto& [dx, dy] : { std::pair { 1, 0 }, std::pair { -1, 0 }, std::pair { 0, 1 }, std::pair { 0, -1 } }) {
+                    const int64_t qx = gx + dx;
+                    const int64_t qy = gy + dy;
+                    const WorldPoint q = centre(qx, qy);
+                    const double dq = std::hypot(q.x - land.x, q.y - land.y);
+                    if (dq > 8.0 * radius || !seen.insert({ qx, qy }).second) {
+                        continue;
+                    }
+                    if (const auto v = span_h(qx, qy, h)) {
+                        open.emplace(dq, qx, qy, *v);
+                    }
+                }
+            }
+        }
+        dg.drops.push_back({ .index = i, .height = h_low });
+        if (at.x == land.x && at.y == land.y) {
+            continue;
+        }
+        const auto [ax, ay] = cell_of(at);
+        pts[i] = at;
+        hz[i] = h_low;
+        dg.clearance[i] = static_cast<double>(dist.at(ay, ax));
+    }
 }
 
 // 弦沿线的最小净空。取样与层走查同一套整数插值, 于是"弦经过哪些格"在两处判据里是同一个答案。
@@ -2236,24 +2400,40 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     }
     // 逐点所在面的高度:从起点那张 span 出发,沿线段链式游走,每步在游走到的候选里取与上一点最近的一张。
     // 起点高度是唯一的外部输入,后面全由它推出来,叠层处不会串到楼下那层。
-    if (lyo_p != nullptr && !out.empty()) {
+    const auto walk_heights = [&](bool fall) {
+        std::vector<double> hz;
+        if (lyo_p == nullptr || out.empty()) {
+            return hz;
+        }
         std::vector<float> cur { lyo_h };
-        dg.height.push_back(static_cast<double>(lyo_h));
+        hz.push_back(static_cast<double>(lyo_h));
         for (size_t i = 1; i < out.size(); ++i) {
-            const auto nxt = lyo_p->walk({ out[i - 1], out[i] }, cur);
+            const auto nxt = lyo_p->walk({ out[i - 1], out[i] }, cur, fall);
             if (!nxt.has_value() || nxt->empty()) {
-                dg.height.clear();
+                hz.clear();
                 break;
             }
             cur = *nxt;
-            const double ref = dg.height.back();
+            const double ref = hz.back();
             double nearest_h = static_cast<double>(cur.front());
             for (const float v : cur) {
                 if (std::fabs(static_cast<double>(v) - ref) < std::fabs(nearest_h - ref)) {
                     nearest_h = static_cast<double>(v);
                 }
             }
-            dg.height.push_back(nearest_h);
+            hz.push_back(nearest_h);
+        }
+        return hz;
+    };
+    dg.height = walk_heights(false);
+    if (info.fall_r > 0.0) {
+        // 带台沿下落的路线上面那遍走不通, 外推要的两侧面高放行下落再走一遍
+        std::vector<double> hz = dg.height.empty() ? walk_heights(true) : dg.height;
+        if (hz.size() == out.size()) {
+            PushDropLandings(out, hz, dg, st3, dist, nx, ny, x0, y0, info.fall_r, lyo);
+            if (!dg.height.empty()) {
+                dg.height = std::move(hz);
+            }
         }
     }
     PullWaypoints(out, dg, pl, zid, blk_gray, lyo_p != nullptr);
@@ -2688,6 +2868,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
         if (pz != nullptr) {
             info->st3.fall = FallGate(solid, zc, pz->transform, x0, y0, nx);
+            info->fall_r = kFallRadius * std::fabs(static_cast<double>(pz->transform[0]));
         }
         RouteDiag dg;
         dg.margin = margin;
@@ -2767,6 +2948,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         res.snap_start = dg.snap_start;
         res.snap_goal = dg.snap_goal;
         res.waypoints = std::move(dg.waypoints);
+        res.drops = std::move(dg.drops);
         dump();
         res.debug.planned_points = res.points;
         return res;

@@ -44,6 +44,8 @@ const char* NaviPhaseName(NaviPhase phase)
         return "WaitZipline";
     case NaviPhase::WaitFind:
         return "WaitFind";
+    case NaviPhase::WaitTrigger:
+        return "WaitTrigger";
     case NaviPhase::Finished:
         return "Finished";
     case NaviPhase::Failed:

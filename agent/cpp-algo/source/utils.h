@@ -114,7 +114,8 @@ inline std::filesystem::path get_exe_dir()
     return {};
 }
 
-// Install root: the directory holding resource/, data/, locales/ and debug/. On desktop the agent
+// Install root for read-only resource/, data/ and locales/. Persistent output uses
+// common::OutputPath instead. On desktop the agent
 // ships in <root>/agent, so it is the executable's parent. On Android (MaaFwApp) the agent ELF lives
 // in the APK's read-only nativeLibraryDir while the resources are unpacked into the working
 // directory the host launches the agent in, so the CWD is the install root there.

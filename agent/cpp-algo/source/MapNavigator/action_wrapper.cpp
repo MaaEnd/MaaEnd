@@ -41,13 +41,14 @@ const char* ActionWrapper::unsupported_reason() const
 
 double ActionWrapper::DefaultTurnUnitsPerDegree() const
 {
-    // 偏航度→单位只从这里过，校正系数只乘这一处。
+    // 偏航度→单位只从这里过，校正系数只乘这一处和下面的俯仰。
     return backend_->default_turn_units_per_degree() * sensitivity::TurnUnitsScale();
 }
 
 double ActionWrapper::DefaultPitchUnitsPerDegree() const
 {
-    return backend_->default_pitch_units_per_degree();
+    // 游戏里的视角灵敏度两个轴共用，偏航判出来的倍率俯仰照乘。
+    return backend_->default_pitch_units_per_degree() * sensitivity::TurnUnitsScale();
 }
 
 SteeringTransportProfile ActionWrapper::SteeringProfile() const

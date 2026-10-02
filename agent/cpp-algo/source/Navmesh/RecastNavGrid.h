@@ -477,7 +477,8 @@ public:
     // h 取起点高度或一组可达高度
     std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, float h) const;
 
-    std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h) const;
+    // fall: 往下多深都放行, 接不上的格也不判失败, 只为标出台沿下落两侧的面高
+    std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h, bool fall = false) const;
 
     bool ok(const WorldPoint& p, const WorldPoint& q, float h, float hq) const;
 

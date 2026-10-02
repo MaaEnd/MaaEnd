@@ -762,13 +762,13 @@
         // 只等「已选择」数字静止。整条底栏含滚动黄条，永远等不满，会空等默认 20 秒
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 1000,
             "target": [
                 0,
                 620,
                 250,
                 80
-            ]
+            ],
+            "timeout": 1000
         },
         "post_delay": 0,
         "rate_limit": 0,

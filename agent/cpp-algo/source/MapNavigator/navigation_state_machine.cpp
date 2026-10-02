@@ -29,6 +29,7 @@
 #include "semantic_nodes.h"
 #include "sensitivity_observer.h"
 #include "steering_controller.h"
+#include "trigger_action.h"
 #include "zipline_action.h"
 
 #include "../utils.h"
@@ -511,7 +512,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
         return TickNavigate();
     case NaviPhase::WaitTransfer:
     case NaviPhase::WaitZipline:
-    case NaviPhase::WaitFind: {
+    case NaviPhase::WaitFind:
+    case NaviPhase::WaitTrigger: {
         const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(
             BuildSemanticContext(
                 action_wrapper_,
@@ -658,7 +660,9 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     const bool unstick_cooling = loss.last_unstick_at != std::chrono::steady_clock::time_point {}
                                  && std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.last_unstick_at)
                                         < std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs);
-    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && !unstick_cooling) {
+    // TRIGGER 未命中时不盲跳: 小地图可能正被待命中的画面盖住, 按键会干扰它
+    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && !unstick_cooling
+        && !semantic_nodes::IsTriggerPending(*session_)) {
         loss.last_unstick_at = now;
         LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed.count());
         motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
@@ -933,24 +937,28 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     // 一侧, 沿途会撞上原本要用索越过的障碍。先回作者路线从当前位置重新展开, 判死的那一跳已记入
     // 账本, 规划会绕开它另选链路。
     bool rejoined = TryReplanRemainingAuthoredRoute("zipline_recovery_reexpand");
-    // 重展开失败才退回旧展开: 当前位置有可走面且不在架子上时, 它至少是一条经过规划的路径。
-    if (!rejoined && !on_tower && on_mesh) {
+    if (!rejoined && on_tower) {
+        LogWarn << "Zipline recovery could not re-expand from the tower; stepping down to retry from the ground." << VAR(elapsed_ms)
+                << VAR(position_->x) << VAR(position_->y);
+        semantic_nodes::LeaveZiplineTower(BuildSemanticContext(
+            action_wrapper_,
+            position_provider_,
+            session_,
+            motion_controller_,
+            action_executor_,
+            position_,
+            &runtime_state_,
+            maa_context_));
+        recovery.Begin(std::chrono::steady_clock::now());
+        return true;
+    }
+    // 重展开失败才退回旧展开: 当前位置有可走面时, 它至少是一条经过规划的路径。
+    if (!rejoined && on_mesh) {
         const std::optional<DynamicAnchor> anchor =
             ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
         rejoined = anchor && TryApplyDynamicOverlayToAnchor("zipline_recovery", anchor->first, anchor->second);
     }
     if (!rejoined) {
-        if (on_tower) {
-            semantic_nodes::LeaveZiplineTower(BuildSemanticContext(
-                action_wrapper_,
-                position_provider_,
-                session_,
-                motion_controller_,
-                action_executor_,
-                position_,
-                &runtime_state_,
-                maa_context_));
-        }
         return FailNavigation(
             "zipline_recovery_route_unavailable",
             "Zipline recovery found no reachable point in the remaining route and could not re-expand the authored route; "
@@ -1054,7 +1062,7 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
             position_,
             &runtime_state_,
             maa_context_);
-        if (semantic_nodes::CurrentHopStartsUnderfoot(ctx)) {
+        if (semantic_nodes::SkipToHopUnderfoot(ctx, reason)) {
             LogInfo << "Zipline recovery re-expanded the remaining authored route; the next hop leaves from this tower." << VAR(reason)
                     << VAR(slice_begin) << VAR(session_->current_path().size());
             return true;
@@ -1261,6 +1269,14 @@ bool NavigationStateMachine::TickNavigate()
     const bool position_captured = CaptureCurrentPosition(false);
     const int64_t capture_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - capture_started_at).count();
+    // 须在定位丢失分支之前: 待命中的画面可能盖住小地图
+    const semantic_nodes::Result trigger_result = semantic_nodes::ProbeTriggerWhileNavigating(semantic_ctx);
+    if (trigger_result.request_failure) {
+        return FailNavigation(trigger_result.failure_reason, trigger_result.failure_log_message, 0.0, 0.0, 0);
+    }
+    if (trigger_result.consumed) {
+        return true;
+    }
     if (!position_captured) {
         return HandleLocalizationLoss();
     }
@@ -1554,7 +1570,14 @@ bool NavigationStateMachine::TickNavigate()
             arrival_distance = std::min(arrival_distance, kZiplineRestandBandWu);
         }
     }
-    if (route.waypoint_distance <= arrival_distance) {
+    // 台沿下落的落点: 进圈时人可能还在台上, 沿下落方向越过它才算到
+    bool short_of_drop = false;
+    if (waypoint.drop_from) {
+        const double dx = waypoint.x - (*waypoint.drop_from)[0];
+        const double dy = waypoint.y - (*waypoint.drop_from)[1];
+        short_of_drop = (position_->x - waypoint.x) * dx + (position_->y - waypoint.y) * dy < 0.0;
+    }
+    if (route.waypoint_distance <= arrival_distance && !short_of_drop) {
         if (!route.startup_motion_confirmed) {
             LogDebug << "Arrival advance blocked before startup movement confirmed." << VAR(session_->current_node_idx())
                      << VAR(route.waypoint_distance) << VAR(arrival_distance) << VAR(route.progress_distance) << VAR(route.cross_track)
@@ -1918,23 +1941,37 @@ bool NavigationStateMachine::TickNavigate()
         const int64_t base_ms = kSteeringPendingLifetimeMs + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
         return walk_engaged ? base_ms * kWalkModeSlowFactor : base_ms;
     };
-    std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count() >= pending_lifetime_ms(turn.delta_deg);
-    });
-    if (steering_rate.pending_turn_deg != 0.0) {
-        if (steering_rate.in_flight.empty()) {
+    const bool drops_turn_sends = motion_controller_->SteeringDropsTurnSends();
+    if (drops_turn_sends) {
+        std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count() >= pending_lifetime_ms(turn.delta_deg);
+        });
+        if (steering_rate.pending_turn_deg != 0.0) {
+            if (steering_rate.in_flight.empty()) {
+                steering_rate.pending_turn_deg = 0.0;
+            }
+            else {
+                const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
+                const double owed = std::abs(steering_rate.pending_turn_deg);
+                double negative_sent_deg = 0.0;
+                double positive_sent_deg = 0.0;
+                for (const SteeringRateState::InFlightTurn& turn : steering_rate.in_flight) {
+                    (turn.delta_deg < 0.0 ? negative_sent_deg : positive_sent_deg) += turn.delta_deg;
+                }
+                steering_rate.pending_turn_deg =
+                    std::clamp(std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed), negative_sent_deg, positive_sent_deg);
+            }
+        }
+    }
+    else if (steering_rate.pending_turn_deg != 0.0) {
+        const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
+        if (pending_age_ms >= pending_lifetime_ms(steering_rate.cmd_delta_deg)) {
             steering_rate.pending_turn_deg = 0.0;
         }
         else {
             const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
             const double owed = std::abs(steering_rate.pending_turn_deg);
             steering_rate.pending_turn_deg = std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed);
-            double deliverable_deg = 0.0;
-            for (const SteeringRateState::InFlightTurn& turn : steering_rate.in_flight) {
-                deliverable_deg += turn.delta_deg;
-            }
-            steering_rate.pending_turn_deg =
-                std::clamp(steering_rate.pending_turn_deg, std::min(0.0, deliverable_deg), std::max(0.0, deliverable_deg));
         }
     }
     steering_rate.pending_ref_heading_deg = current_heading;
@@ -1963,10 +2000,12 @@ bool NavigationStateMachine::TickNavigate()
     if (issued_delta_deg != 0.0) {
         steering_rate.cmd_heading_deg = current_heading;
         steering_rate.cmd_delta_deg = issued_delta_deg;
-        steering_rate.cmd_at = steer_sent_at;
+        steering_rate.cmd_at = now;
         steering_rate.has_cmd = true;
         steering_rate.pending_turn_deg += issued_delta_deg;
-        steering_rate.in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
+        if (drops_turn_sends) {
+            steering_rate.in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
+        }
     }
     // 只有走到这里的拍才记账。在上面就返回的拍留下拍号缺口，估计器拿输入出口的账判断那拍有没有发过转向。
     const int64_t now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();

@@ -61,13 +61,13 @@
         ],
         "pre_delay": 0,
         "action": "KeyDown",
+        "auto_up": true,
         "key": 82, // R 0x52
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EnterCameraModeInSelectTool"
-        ],
-        "auto_up": true
+        ]
     },
     "EnterCameraModeInSelectTool": {
         "desc": "进入拍照模式，在选择工具界面中",

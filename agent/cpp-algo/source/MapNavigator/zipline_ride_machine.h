@@ -78,6 +78,7 @@ private:
     void EnterStage(ZiplineStage stage, Clock::time_point now);
     int64_t StageElapsedMs(Clock::time_point now) const;
     void CommitRecord(HopOutcome outcome, Clock::time_point now);
+    void CommitFailedReturn(HopOutcome outcome, Clock::time_point now);
     std::vector<ZiplineNodeRef> KnownNodes() const;
     double AimBiasDeg() const;
 
@@ -92,6 +93,7 @@ private:
     StageResult TickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult FailAim(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
     StageResult StartDismount(IZiplineActuator& actuator, StageResult exit, Clock::time_point now);
+    StageResult ParkForReplan(const ZiplineNodeRef& tower, Clock::time_point now);
     StageResult Handoff(Clock::time_point now);
 
     ZiplineStage stage_ = ZiplineStage::Idle;
@@ -123,13 +125,10 @@ private:
     bool riding_entered_ = false;
     std::optional<Clock::time_point> unknown_deadline_;
 
-    // 瞄准闭环: 一次只发一个批次, 等朝向读数跟上并稳定后再算剩余, 顺手估一次转向增益
-    std::optional<double> yaw_gain_;
+    // 瞄准闭环: 一次只发一个批次, 等朝向读数跟上并稳定后再算剩余
     std::optional<double> prev_heading_;
     int stable_heading_hits_ = 0;
     bool turn_pending_ = false;
-    double turn_ref_heading_ = 0.0;
-    double turn_cmd_deg_ = 0.0;
     Clock::time_point turn_sent_at_ {};
 
     int dismount_presses_ = 0;

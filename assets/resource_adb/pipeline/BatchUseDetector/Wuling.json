@@ -1,0 +1,42 @@
+{
+    "BatchUseDetectorFindWulingItem": {
+        "next": [
+            "BatchUseDetectorFindWulingDetector",
+            "BatchUseDetectorFindWulingCompass",
+            "[JumpBack]BatchUseDetectorSwipeNextPage",
+            "BatchUseDetectorFindNoItem"
+        ]
+    },
+    "BatchUseDetectorFindWulingDetector": {
+        "roi": [
+            100,
+            85,
+            790,
+            535
+        ]
+    },
+    "BatchUseDetectorConfirmWulingDetectorName": {
+        "roi": [
+            905,
+            76,
+            165,
+            40
+        ]
+    },
+    "BatchUseDetectorFindWulingCompass": {
+        "roi": [
+            100,
+            85,
+            790,
+            535
+        ]
+    },
+    "BatchUseDetectorConfirmWulingCompassName": {
+        "roi": [
+            905,
+            76,
+            165,
+            40
+        ]
+    }
+}

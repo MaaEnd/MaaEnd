@@ -14,6 +14,13 @@ struct WorldPoint
     double y = 0.0;
 };
 
+// 台沿下落的落点: points 下标与落点所在面的高, 起跳点是它前一个点
+struct DropLanding
+{
+    size_t index = 0;
+    double height = 0.0;
+};
+
 struct WorldPath
 {
     uint16_t zone_id = 0;
@@ -24,6 +31,7 @@ struct WorldPath
     // 规划器给的驱动航点下标(不含起点,末位恒为 points.size()-1); 为空则由航点侧自行拉直
     std::vector<size_t> waypoints;
     std::vector<size_t> segment_breaks;
+    std::vector<DropLanding> drops;
 };
 
 }

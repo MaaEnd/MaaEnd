@@ -4,8 +4,8 @@
             "name": "SwitchTeam",
             "label": "$task.SwitchTeam.label",
             "entry": "SwitchTeamMain",
-            "option": [
-                "SwitchTeamTeamChoose"
+            "group": [
+                "open_world"
             ],
             "controller": [
                 "ADB",
@@ -18,8 +18,8 @@
                 "PlayCover",
                 "Win32-Front"
             ],
-            "group": [
-                "open_world"
+            "option": [
+                "SwitchTeamTeamChoose"
             ]
         }
     ],
@@ -27,7 +27,6 @@
         "SwitchTeamTeamChoose": {
             "type": "select",
             "label": "$option.SwitchTeamTeamChoose.label",
-            "default_case": "SwitchTeamTeamChoose01",
             "cases": [
                 {
                     "name": "SwitchTeamTeamChoose01",
@@ -84,7 +83,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "SwitchTeamTeamChoose01"
         }
     }
 }

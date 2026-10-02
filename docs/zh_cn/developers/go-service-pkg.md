@@ -21,7 +21,7 @@
 | [`jsonclean`](#jsonclean-jsonc-清洗) | 去掉注释 / 尾逗号 / BOM，变成严格 JSON | `resource`、`i18n`、各类配置加载 |
 | [`pienv`](#pienv-project-interface-环境) | 读取 `PI_*` 环境变量（语言、控制器、资源） | `i18n`、`iconqty`、启动期逻辑 |
 | [`resource`](#resource-资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
-| [`fsutil`](#fsutil-原子写文件) | 临时文件 + rename，避免半截写入 | debug / 持久化缓存 |
+| [`fsutil`](#fsutil输出路径与原子写文件) | 持久化输出的路径基准；临时文件 + rename，避免半截写入 | 日志 / debug / 持久化缓存 |
 | [`levenshtein`](#levenshtein-编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
 | [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS、囤货、送货等扫格逻辑 |
 | [`iconqty`](#iconrecognition--iconqty) | 扫格 + 格内数量 OCR | IMS A2 / A3 |
@@ -236,11 +236,26 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 
 读商品表、据点数据等时用本包，不要写死 `install/...` 绝对路径。
 
-### `fsutil`：原子写文件
+### `fsutil`：输出路径与原子写文件
 
 路径：`pkg/fsutil/`
 
-`WriteFileAtomic(path, content, perm)`：同目录临时文件写完再 rename。适合 debug 落盘、可覆盖的缓存；**不保证掉电持久性**（不做目录 fsync）。
+**输出路径**：日志、调试截图、`debug/record/` 下的记录、导出文件等持久化输出，统一以**进程启动时的工作目录**为根，不依赖调用时的工作目录，也不依赖可执行文件位置。
+
+| 函数 | 用途 |
+| ----------------------- | ---------------------------------------------------------------- |
+| `StartupDir()` | 返回启动时捕获的工作目录及捕获错误；`main` 启动期检查一次，失败即退出 |
+| `OutputPath(parts...)` | 把相对路径拼到启动工作目录下，返回绝对路径 |
+
+```go
+path := fsutil.OutputPath("debug", "record", "IMS.json")
+```
+
+- 写文件、以及读回自己写出的文件，都走 `OutputPath`，保证读写同一位置；不要再写 `filepath.Join("debug", ...)` 这类相对路径。
+- 只用于**输出**。读取随包发布的 `resource/`、`data/`、`locales/` 用上面的 `resource` 包，临时文件用系统临时目录。
+- cpp-algo 侧对应 `common::OutputPath`（`source/Common/output_paths.h`），两边共用的文件（如 `debug/record/random_salt.txt`、`Ziplines.json`）靠同一基准对齐。
+
+**原子写**：`WriteFileAtomic(path, content, perm)`：同目录临时文件写完再 rename。适合 debug 落盘、可覆盖的缓存；**不保证掉电持久性**（不做目录 fsync）。
 
 ### `levenshtein`：编辑距离
 
@@ -288,6 +303,7 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 | 读带注释的 JSON 配置 | `jsonclean`（或经 `resource.ReadJsonResource`） |
 | 区分 Adb / Win32 | `pienv.ControllerType()` |
 | 扫背包格子并读数量 | `iconrecognition` + `iconqty` |
+| 决定日志 / 记录 / 导出文件写到哪 | `fsutil.OutputPath` |
 | 写文件不留半截内容 | `fsutil.WriteFileAtomic` |
 
 ## 相关文档

@@ -1,0 +1,46 @@
+{
+    "BatchUseDetectorMainProcessLoop": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "BatchUseDetectorSwipeNextPage"
+                    ]
+                }
+            }
+        }
+    },
+    "BatchUseDetectorSwipeNextPage": {
+        "desc": "物品列表往下滑约两行半，与上一屏留一行多重叠",
+        "max_hit": 10,
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    495,
+                    540
+                ],
+                "end": [
+                    495,
+                    210
+                ],
+                "end_hold": 200,
+                "duration": 400
+            }
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                100,
+                85,
+                790,
+                535
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

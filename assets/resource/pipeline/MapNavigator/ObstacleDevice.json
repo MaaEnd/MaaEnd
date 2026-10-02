@@ -33,8 +33,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 18, // Alt
-                "auto_up": true
+                "auto_up": true,
+                "key": 18 // Alt
             }
         },
         "next": [
@@ -245,13 +245,13 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 500,
             "target": [
                 520,
                 300,
                 240,
                 120
             ],
-            "time": 500,
             "timeout": 10000
         },
         "next": [
@@ -341,13 +341,13 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 500,
             "target": [
                 520,
                 300,
                 240,
                 120
             ],
-            "time": 500,
             "timeout": 10000
         },
         "next": [

@@ -145,7 +145,7 @@ uv run map-navigator --port 9000 --no-browser
 }
 ```
 
-该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
+该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
 
 字段也接受驼峰写法 `targetTier`。`NAVMESH` 的未知层名保持兼容行为：记录告警并把目标当作 base 坐标；普通坐标点显式声明了不存在的层名时会直接失败，避免静默走向错误位置。
 
@@ -340,6 +340,7 @@ uv run map-navigator --port 9000 --no-browser
 | `COLLECT` | 采集：停止移动，触发 OCR 识别并点击采集，见[采集与挖掘](#采集与挖掘-collect--dig) |
 | `DIG` | 挖掘：停止移动，触发挖掘子任务，见[采集与挖掘](#采集与挖掘-collect--dig) |
 | `FIND` | 寻找并接近一个只有识别框的目标：转视角搜索、按框前进，命中 `find_stop` 或走到 `find_arrive` 附近即算到位，见[寻找并接近目标](#寻找并接近目标-find) |
+| `TRIGGER` | 路线终点：边走边识别 `trigger_node`，命中就算导航成功，见[识别命中即结束](#识别命中即结束-trigger) |
 | `NAVMESH` | 从当前定位自动规划路线并移动到 `target`；必须使用上方对象格式 |
 | `TRANSFER` | 原地等待外力（剧情、传送等）将角色送至下一段，再从后续点继续 |
 | `PORTAL` | 过图点，触发后盲走一小段并等待区域切换 |
@@ -357,6 +358,7 @@ uv run map-navigator --port 9000 --no-browser
 - `HEADING`：调整朝向；
 - `COLLECT`、`DIG`：执行采集或挖掘任务。
 - `FIND`：寻找并接近识别框里的目标。
+- `TRIGGER`：路线终点，命中触发节点即结束导航。
 
 启用滑索时，如果其他节点也必须抵达并执行，请添加 `"required": true`。该节点会结束当前优化区间，后续路线从这里重新开始。数组格式没有该字段，因此必经点必须使用对象格式。
 
@@ -432,7 +434,7 @@ uv run map-navigator --port 9000 --no-browser
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 同样要导出后手写，工具只负责原样保留。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 与 `TRIGGER` 的 `trigger_node` 同样要导出后手写，工具只负责原样保留。
 
 ---
 
@@ -938,10 +940,70 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 
 ---
 
+## 识别命中即结束 `TRIGGER`
+
+`TRIGGER` 放在路线末尾，表示「看到某个画面就算到了」，比如进入剧情、弹出对话框或界面、出现某条提示。
+
+导航一边走一边识别 `trigger_node`，一命中就停下，整条导航算成功，后面交给外层 Pipeline 的 `next`。命中跟角色走到哪无关，走到半路命中也算成功。一直没命中的话，角色走到 `target` 停下，原地再等最多 15 秒。
+
+### 写法
+
+`MyTaskTriggerNode` 换成业务自己的识别节点：
+
+```json
+[
+    {
+        "action": "NAVMESH",
+        "target": [
+            182.52,
+            173.4
+        ]
+    },
+    {
+        "action": "TRIGGER",
+        "target": [
+            182.52,
+            173.4
+        ],
+        "trigger_node": "MyTaskTriggerNode"
+    }
+]
+```
+
+- `trigger_node`（也可写 `triggerNode`）填识别节点名。导航只跑它的识别，它的动作和 `next` 都不会执行。
+- 只能用对象格式，且必须是路线的最后一个点，否则参数解析直接报错。
+- `TRIGGER` 自己直线走向 `target`。要寻路就像示例这样在前面放一个同坐标的 `NAVMESH` 点，走这段时命中同样算成功。
+
+### 识别节点怎么选
+
+- 识别从出发就开始跑，所以要选只在目的地出现的画面。路上别处也会弹出的对话框或提示，会让导航在那里提前结束。
+- 画面要能停留一会儿。识别每 300 毫秒一次，一闪而过的画面可能漏掉。
+- `target` 放在画面一定会出现的地方，否则只能等满 15 秒后失败。
+
+命中的画面经常挡住小地图，导航这时认不出位置，但识别照常进行，也不会按键脱困，免得干扰刚出现的画面。
+
+### 失败的情况
+
+以下情况 `MapNavigateAction` 返回 false：
+
+- `trigger_node` 不存在或识别报错，立即失败；
+- 到了 `target` 等满 15 秒仍未命中；
+- 一直未命中，同时定位丢失超过 30 秒。
+
+### 相关文件
+
+| 文件 | 职责 | 何时需要修改 |
+| ----------------------------------------------------- | -------------------------------------------- | ------------------------ |
+| 业务自己的路线 JSON | `MapNavigateAction` 的 `path`、`TRIGGER` 点与 `trigger_node` | 新增触发终点、换识别节点 |
+| 业务自己的识别节点 | `trigger_node` 点名的节点 | 命中画面的 ROI、文本变化 |
+| `agent/cpp-algo/source/MapNavigator/trigger_action.cpp` | 行进途中的识别、到点等待 | 由 cpp-algo 维护者维护 |
+
+---
+
 ## 实践建议
 
 1. **首选 `NAVMESH`，需要语义再录制。** 纯移动路线在路径编辑器中手工打点并规划确认后即可复制；预览走不通的目标当场调整，不必等到运行时失败。只有含交互、过图等语义的路线才需要录制。
 2. **录制优于手写。** 实际走一遍通常比凭感觉填写坐标更准确；若录制时打点精度不足，可放慢移动速度。
 3. **保证起点状态稳定。** 录制前先调整好站位与视角，可显著减少后续的修点工作。
-4. **特殊动作点少而精。** 只在需要交互或切换区域的位置添加 `INTERACT`、`TRANSFER`、`PORTAL`；启用滑索后，必须执行的点应标记为 `required`。`HEADING`、`COLLECT`、`DIG`、`FIND` 始终保留。
+4. **特殊动作点少而精。** 只在需要交互或切换区域的位置添加 `INTERACT`、`TRANSFER`、`PORTAL`；启用滑索后，必须执行的点应标记为 `required`。`HEADING`、`COLLECT`、`DIG`、`FIND`、`TRIGGER` 始终保留。
 5. **跨区域路线务必检查过图点。** 自动补充的 `PORTAL` 仅是语义标注，不代表每个跨区域边界都天然合理。

@@ -1803,7 +1803,7 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
     return walk(pts, std::vector<float> { h });
 }
 
-std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h) const
+std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h, bool fall) const
 {
     std::vector<CellPt> cells;
     for (size_t i = 1; i < pts.size(); ++i) {
@@ -1842,17 +1842,47 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
         }
         nxt.clear();
         const double up = UpAllow(std::hypot(static_cast<double>(cells[i].x - pc.x), static_cast<double>(cells[i].y - pc.y))) + kQH;
+        // 与 RiseOk 同一条: 往前几格出发那层又回来, 脚下只是路面上一道缝, 不算台沿
+        const int64_t sx = (cells[i].x > pc.x) - (cells[i].x < pc.x);
+        const int64_t sy = (cells[i].y > pc.y) - (cells[i].y < pc.y);
+        const auto seam = [&](float c) {
+            for (int64_t s = 1; s <= kSeamCells; ++s) {
+                if (levelAt(*st_, nx_, ny_, pc.y * nx_ + pc.x, sx, sy, s, c, kClimb)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        bool over_seam = false;
         for (const float t : nb) {
             for (const float c : cur) {
                 const float dh = t - c;
-                if (static_cast<double>(dh) <= up && dh >= -static_cast<float>(kClimb)) {
+                if (static_cast<double>(dh) > up) {
+                    continue;
+                }
+                if (dh >= -static_cast<float>(kClimb)) {
+                    nxt.push_back(t);
+                    break;
+                }
+                if (fall) {
+                    if (seam(c)) {
+                        over_seam = true;
+                        continue;
+                    }
                     nxt.push_back(t);
                     break;
                 }
             }
         }
         if (nxt.empty()) {
-            return std::nullopt;
+            if (!fall) {
+                return std::nullopt;
+            }
+            // 缝: 出发那层留着跨过去。离网连接或头顶的面接不上: 这格的面全收进来, 原来的也留着
+            nxt = cur;
+            if (!over_seam) {
+                nxt.insert(nxt.end(), nb.begin(), nb.end());
+            }
         }
         cur = nxt;
         pc = cells[i];

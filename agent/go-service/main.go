@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"runtime/debug"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/parentwatch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
@@ -19,6 +20,10 @@ func main() {
 		debug.SetTraceback("crash")
 	}
 	debug.SetPanicOnFault(true)
+
+	if _, err := fsutil.StartupDir(); err != nil {
+		log.Fatal().Err(err).Msg("Failed to capture startup working directory")
+	}
 
 	logFile, err := initLogger()
 	if err != nil {
@@ -81,9 +86,5 @@ func main() {
 }
 
 func getCwd() string {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "."
-	}
-	return cwd
+	return fsutil.OutputPath()
 }

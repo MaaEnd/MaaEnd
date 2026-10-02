@@ -10,6 +10,9 @@
 - pnpm 10+
 - Go 1.25.6+
 
+> [!NOTE]
+> 上面这些只够跑桌面端。要出 Android 包，还得额外准备 JDK、Android SDK、NDK 和 Ninja，见 [Android 构建环境准备](./android-build-env.md)。
+
 ### 检查本地环境
 
 ```bash

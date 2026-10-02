@@ -11,6 +11,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -233,7 +234,7 @@ func saveExitImage(img image.Image, reason string) {
 	if img == nil {
 		return
 	}
-	dir := filepath.Join("debug", "autofight_exit")
+	dir := fsutil.OutputPath("debug", "autofight_exit")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		log.Debug().Err(err).Str("component", "AutoFight").Str("dir", dir).Msg("failed to create debug dir for exit image")
 		return

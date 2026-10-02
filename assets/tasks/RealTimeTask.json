@@ -5,6 +5,17 @@
             "label": "$task.RealTimeTask.label",
             "entry": "RealTimeTaskMain",
             "description": "$task.RealTimeTask.description",
+            "group": [
+                "realtime"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "MacOS-Background",
+                "MacOS-Front",
+                "Win32-Front"
+            ],
             "option": [
                 "SklandMap",
                 "VideoBrowser",
@@ -18,17 +29,6 @@
                 "AutoZipline",
                 "AutoPat",
                 "AutoTaskInterval"
-            ],
-            "controller": [
-                "Linux-Gamescope",
-                "Linux-ScreenCast",
-                "Linux-Wlroots",
-                "MacOS-Background",
-                "MacOS-Front",
-                "Win32-Front"
-            ],
-            "group": [
-                "realtime"
             ]
         }
     ],
@@ -37,7 +37,6 @@
             "type": "switch",
             "label": "$option.SklandMap.label",
             "description": "$option.SklandMap.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -62,7 +61,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SklandMapOpacity": {
             "type": "input",
@@ -72,8 +72,8 @@
                     "name": "SklandMapOpacityInt",
                     "label": "$option.WindowOpacity.label",
                     "description": "$option.WindowOpacity.description",
-                    "pipeline_type": "int",
                     "default": "100",
+                    "pipeline_type": "int",
                     "verify": "^(100|[1-9]?\\d)$"
                 }
             ],
@@ -89,7 +89,6 @@
             "type": "switch",
             "label": "$option.VideoBrowser.label",
             "description": "$option.VideoBrowser.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -115,7 +114,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "VideoBrowserURL": {
             "type": "input",
@@ -124,8 +124,8 @@
                 {
                     "name": "VideoBrowserURLString",
                     "label": "$option.VideoBrowserURL.label",
-                    "pipeline_type": "string",
-                    "default": "https://www.bilibili.com"
+                    "default": "https://www.bilibili.com",
+                    "pipeline_type": "string"
                 }
             ],
             "pipeline_override": {
@@ -144,8 +144,8 @@
                     "name": "VideoBrowserOpacityInt",
                     "label": "$option.WindowOpacity.label",
                     "description": "$option.WindowOpacity.description",
-                    "pipeline_type": "int",
                     "default": "100",
+                    "pipeline_type": "int",
                     "verify": "^(100|[1-9]?\\d)$"
                 }
             ],
@@ -163,16 +163,16 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "RealTimeAutoSkip": {
-                            "enabled": true
-                        }
-                    },
                     "option": [
                         "AutoSkipAll",
                         "AutoSkipChoose",
                         "AutoSkipNext"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "RealTimeAutoSkip": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No",
@@ -185,9 +185,9 @@
             ]
         },
         "AutoSkipAll": {
+            "type": "switch",
             "label": "$option.AutoSkipAll.label",
             "description": "$option.AutoSkipAll.description",
-            "type": "switch",
             "cases": [
                 {
                     "name": "Yes",
@@ -208,9 +208,9 @@
             ]
         },
         "AutoSkipChoose": {
+            "type": "switch",
             "label": "$option.AutoSkipChoose.label",
             "description": "$option.AutoSkipChoose.description",
-            "type": "switch",
             "cases": [
                 {
                     "name": "Yes",
@@ -231,9 +231,9 @@
             ]
         },
         "AutoSkipNext": {
+            "type": "switch",
             "label": "$option.AutoSkipNext.label",
             "description": "$option.AutoSkipNext.description",
-            "type": "switch",
             "cases": [
                 {
                     "name": "Yes",
@@ -256,37 +256,36 @@
         "AutoCloseInteraction": {
             "type": "switch",
             "label": "$option.AutoCloseInteraction.label",
-            "default_case": "No",
             "description": "$option.AutoCloseInteraction.description",
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "HandleTutorialGuide_RightUp": {
-                            "enabled": true
-                        },
-                        "HandleTutorialGuide_LeftUp": {
-                            "enabled": true
-                        },
-                        "HandleTutorialPaging": {
-                            "enabled": true
-                        },
-                        "HandleTutorialConfirm": {
-                            "enabled": true
-                        },
-                        "CheckAnywhere": {
-                            "enabled": true
-                        },
-                        "CheckSpecialInfoPanel": {
-                            "enabled": true
-                        }
-                    },
                     "option": [
                         "EnableTutorialGuide",
                         "EnableTutorialBook",
                         "EnableClickAnywhere",
                         "EnableCloseSpecialPanel"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialGuide_LeftUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialPaging": {
+                            "enabled": true
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": true
+                        },
+                        "CheckAnywhere": {
+                            "enabled": true
+                        },
+                        "CheckSpecialInfoPanel": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No",
@@ -311,13 +310,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EnableTutorialGuide": {
+            "type": "switch",
             "label": "$option.EnableTutorialGuide.label",
             "description": "$option.EnableTutorialGuide.description",
-            "type": "switch",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -341,13 +340,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EnableTutorialBook": {
+            "type": "switch",
             "label": "$option.EnableTutorialBook.label",
             "description": "$option.EnableTutorialBook.description",
-            "type": "switch",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -371,13 +370,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "EnableClickAnywhere": {
+            "type": "switch",
             "label": "$option.EnableClickAnywhere.label",
             "description": "$option.EnableClickAnywhere.description",
-            "type": "switch",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -395,13 +394,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "EnableCloseSpecialPanel": {
+            "type": "switch",
             "label": "$option.EnableCloseSpecialPanel.label",
             "description": "$option.EnableCloseSpecialPanel.description",
-            "type": "switch",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -419,7 +418,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoFight": {
             "type": "switch",
@@ -427,14 +427,14 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "AutoFightSettingFull"
+                    ],
                     "pipeline_override": {
                         "AutoFight": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoFightSettingFull"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -467,9 +467,8 @@
             ]
         },
         "AutoFightAttack": {
-            "label": "$option.AutoFightAttack.label",
             "type": "switch",
-            "default_case": "Yes",
+            "label": "$option.AutoFightAttack.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -491,12 +490,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoFightCombo": {
-            "label": "$option.AutoFightCombo.label",
             "type": "switch",
-            "default_case": "Yes",
+            "label": "$option.AutoFightCombo.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -518,12 +517,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoFightDodge": {
-            "label": "$option.AutoFightDodge.label",
             "type": "switch",
-            "default_case": "Yes",
+            "label": "$option.AutoFightDodge.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -548,13 +547,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoFightDodgeCompat": {
+            "type": "switch",
             "label": "$option.AutoFightDodgeCompat.label",
             "description": "$option.AutoFightDodgeCompat.description",
-            "type": "switch",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -576,12 +575,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "AutoFightAxis": {
-            "label": "$option.AutoFightAxis.label",
             "type": "switch",
-            "default_case": "No",
+            "label": "$option.AutoFightAxis.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -596,12 +595,12 @@
                         "AutoFightReserveSkillLevel"
                     ]
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "AutoFightAxisFullSetting": {
-            "label": "$option.AutoFightAxis.label",
             "type": "switch",
-            "default_case": "No",
+            "label": "$option.AutoFightAxis.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -618,19 +617,20 @@
                         "AutoFightEndSkill"
                     ]
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "AutoFightAxisData": {
+            "type": "input",
             "label": "$option.AutoFightAxisData.label",
             "description": "$option.AutoFightAxisData.description",
-            "type": "input",
             "inputs": [
                 {
                     "name": "AutoFightAxisCodeString",
                     "label": "$option.AutoFightAxisCodeString.label",
                     "description": "$option.AutoFightAxisCodeString.description",
-                    "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "pipeline_type": "string"
                 }
             ],
             "pipeline_override": {
@@ -642,10 +642,9 @@
             }
         },
         "AutoFightAxisSkipComboCooldown": {
+            "type": "switch",
             "label": "$option.AutoFightAxisSkipComboCooldown.label",
             "description": "$option.AutoFightAxisSkipComboCooldown.description",
-            "type": "switch",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -667,25 +666,25 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "AutoFightSkill": {
-            "label": "$option.AutoFightSkill.label",
             "type": "switch",
-            "default_case": "Yes",
+            "label": "$option.AutoFightSkill.label",
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "AutoFightReserveSkillLevel"
+                    ],
                     "pipeline_override": {
                         "AutoFight": {
                             "attach": {
                                 "enable_skill": true
                             }
                         }
-                    },
-                    "option": [
-                        "AutoFightReserveSkillLevel"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -697,12 +696,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoFightReserveSkillLevel": {
-            "label": "$option.AutoFightReserveSkillLevel.label",
             "type": "select",
-            "default_case": "1",
+            "label": "$option.AutoFightReserveSkillLevel.label",
             "cases": [
                 {
                     "name": "0",
@@ -716,36 +715,36 @@
                 },
                 {
                     "name": "1",
+                    "option": [
+                        "AutoFightBreakAccumulatingPower"
+                    ],
                     "pipeline_override": {
                         "AutoFight": {
                             "attach": {
                                 "reserve_skill_level": 1
                             }
                         }
-                    },
-                    "option": [
-                        "AutoFightBreakAccumulatingPower"
-                    ]
+                    }
                 },
                 {
                     "name": "2",
+                    "option": [
+                        "AutoFightBreakAccumulatingPower"
+                    ],
                     "pipeline_override": {
                         "AutoFight": {
                             "attach": {
                                 "reserve_skill_level": 2
                             }
                         }
-                    },
-                    "option": [
-                        "AutoFightBreakAccumulatingPower"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "1"
         },
         "AutoFightBreakAccumulatingPower": {
-            "label": "$option.AutoFightBreakAccumulatingPower.label",
             "type": "switch",
-            "default_case": "Yes",
+            "label": "$option.AutoFightBreakAccumulatingPower.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -767,12 +766,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoFightEndSkill": {
-            "label": "$option.AutoFightEndSkill.label",
             "type": "switch",
-            "default_case": "Yes",
+            "label": "$option.AutoFightEndSkill.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -794,12 +793,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoFightHealthDangerousSwitch": {
-            "label": "$option.AutoFightHealthDangerousSwitch.label",
             "type": "switch",
-            "default_case": "Yes",
+            "label": "$option.AutoFightHealthDangerousSwitch.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -821,13 +820,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoFightLockTarget": {
+            "type": "switch",
             "label": "$option.AutoFightLockTarget.label",
             "description": "$option.AutoFightLockTarget.description",
-            "type": "switch",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -849,11 +848,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoPick": {
-            "label": "$option.AutoPick.label",
             "type": "switch",
+            "label": "$option.AutoPick.label",
             "cases": [
                 {
                     "name": "No",
@@ -954,7 +954,6 @@
             "type": "select",
             "label": "$option.AutoTaskInterval.label",
             "description": "$option.AutoTaskInterval.description",
-            "default_case": "AutoTaskIntervalNormal",
             "cases": [
                 {
                     "name": "AutoTaskIntervalFast",
@@ -983,7 +982,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "AutoTaskIntervalNormal"
         },
         "AutoZipline": {
             "type": "switch",

@@ -5,8 +5,8 @@
             "label": "$task.ImportBluePrints.label",
             "entry": "ImportBluePrints",
             "description": "$task.ImportBluePrints.description",
-            "option": [
-                "ImportBluePrints"
+            "group": [
+                "open_world"
             ],
             "controller": [
                 "Linux-Gamescope",
@@ -16,8 +16,8 @@
                 "MacOS-Front",
                 "Win32-Front"
             ],
-            "group": [
-                "open_world"
+            "option": [
+                "ImportBluePrints"
             ]
         }
     ],

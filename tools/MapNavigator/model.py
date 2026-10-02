@@ -41,6 +41,7 @@ class PathPoint(TypedDict):
     find_text: NotRequired[list[str]]
     find_stop: NotRequired[str]
     find_arrive: NotRequired[list[float]]
+    trigger_node: NotRequired[str]
     auto_portal: NotRequired[bool]
     suppress_auto_portal: NotRequired[bool]
 
@@ -60,6 +61,7 @@ class ActionType(IntEnum):
     DIG = 8
     NAVMESH = 9
     FIND = 10
+    TRIGGER = 11
 
 
 ACTION_COLORS: dict[int, str] = {
@@ -75,6 +77,7 @@ ACTION_COLORS: dict[int, str] = {
     ActionType.DIG: "#a16207",
     ActionType.NAVMESH: "#14b8a6",
     ActionType.FIND: "#e11d48",
+    ActionType.TRIGGER: "#84cc16",
 }
 
 ACTION_NAMES: dict[int, str] = {
@@ -90,6 +93,7 @@ ACTION_NAMES: dict[int, str] = {
     ActionType.DIG: "Dig",
     ActionType.NAVMESH: "Navmesh",
     ActionType.FIND: "Find",
+    ActionType.TRIGGER: "Trigger",
 }
 
 ACTION_TOKENS: dict[int, str] = {
@@ -104,6 +108,7 @@ ACTION_TOKENS: dict[int, str] = {
     ActionType.DIG: "DIG",
     ActionType.NAVMESH: "NAVMESH",
     ActionType.FIND: "FIND",
+    ActionType.TRIGGER: "TRIGGER",
 }
 
 ACTION_NAME_LOOKUP: dict[str, int] = {
@@ -119,6 +124,7 @@ ACTION_NAME_LOOKUP: dict[str, int] = {
     "DIG": int(ActionType.DIG),
     "NAVMESH": int(ActionType.NAVMESH),
     "FIND": int(ActionType.FIND),
+    "TRIGGER": int(ActionType.TRIGGER),
 }
 ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.RUN,
@@ -132,6 +138,7 @@ ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.DIG,
     ActionType.NAVMESH,
     ActionType.FIND,
+    ActionType.TRIGGER,
 )
 ACTION_MENU_NAMES: tuple[str, ...] = tuple(ACTION_NAMES[action_type] for action_type in ACTION_MENU_TYPES)
 INVALID_ZONE_IDS = {"NONE", "NULL", "N/A"}
@@ -306,6 +313,11 @@ def _apply_find_fields(point: PathPoint, normalized: PathPoint) -> None:
         normalized[key] = value  # type: ignore[literal-required]
 
 
+def trigger_node_of(point: "PathPoint") -> str:
+    value = point.get("trigger_node", "")
+    return value.strip() if isinstance(value, str) else ""
+
+
 def _sync_portal_flags(point: PathPoint) -> None:
     if bool(point.get("auto_portal")) and get_point_actions(point) == [int(ActionType.PORTAL)]:
         point["auto_portal"] = True
@@ -353,6 +365,9 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
         if bool(point.get("required")):
             normalized_point["required"] = True
         _apply_find_fields(point, normalized_point)
+        trigger_node = trigger_node_of(point)
+        if trigger_node:
+            normalized_point["trigger_node"] = trigger_node
         if bool(point.get("auto_portal")):
             normalized_point["auto_portal"] = True
         if bool(point.get("suppress_auto_portal")):
@@ -401,6 +416,7 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
             and merged[-1].get("target_tier", "") == point.get("target_tier", "")
             and merged[-1].get("target_deck_y") == point.get("target_deck_y")
             and find_fields_of(merged[-1]) == find_fields_of(point)
+            and trigger_node_of(merged[-1]) == trigger_node_of(point)
         ):
             merged_auto_portal = bool(merged[-1].get("auto_portal")) or bool(point.get("auto_portal"))
             merged_suppressed = bool(merged[-1].get("suppress_auto_portal")) or bool(point.get("suppress_auto_portal"))

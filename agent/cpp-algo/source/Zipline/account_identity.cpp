@@ -27,7 +27,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../utils.h"
+#include "../Common/output_paths.h"
 
 namespace zipline
 {
@@ -44,9 +44,8 @@ constexpr char kHexDigits[] = "0123456789abcdef";
 
 std::filesystem::path salt_path()
 {
-    // go-service 的工作目录是 <install>，其 debug/record/random_salt.txt 与这里经
-    // get_install_dir() 定位到的是同一个文件（桌面为 exe 上一级，Android 为工作目录）。
-    return get_install_dir() / "debug" / "record" / "random_salt.txt";
+    // 与 go-service 共用启动工作目录下的盐文件。
+    return common::OutputPath("debug/record/random_salt.txt");
 }
 
 std::string trim(std::string value)

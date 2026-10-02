@@ -23,6 +23,8 @@ enum class NaviPhase
     // 找目标中。与滑索一样把卡死检测、绕障、重规划、预筛全挡在外面, 但理由不同: 这一段刻意不读小地图,
     // 镜头角与定位朝向解耦, 记账在退出时整体作废
     WaitFind,
+    // 站在 TRIGGER 点上等命中, 不读小地图
+    WaitTrigger,
     Finished,
     Failed,
 };

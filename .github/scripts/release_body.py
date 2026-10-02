@@ -21,24 +21,32 @@ MIRRORCHYAN_LINK = (
     "(https://mirrorchyan.com/zh/projects?rid=MaaEnd&source=maaend-release)"
 )
 
-# 列顺序即表格里的平台顺序
+# 列顺序即表格里的平台顺序；Android 不进架构表，见 android_lines
 PLATFORMS = [
     ("win", "Windows"),
-    ("android", "Android"),
     ("macos", "macOS"),
     ("linux", "Linux"),
 ]
 ROWS = [
-    ("x86_64", "x86-64 (64-bit)"),
+    ("x86_64", "x86-64"),
     ("aarch64", "AArch64 (ARM64)"),
 ]
 
-# Android 的 ABI 名落到哪一行；universal 两行都放
-ANDROID_ROW = {"x86_64": "x86_64", "arm64-v8a": "aarch64"}
+# Android 的单 ABI 包及其适用设备；序即没有 universal 包时主链接的回退顺序
+ANDROID_ABIS = [
+    ("arm64-v8a", "手机 / 平板"),
+    ("x86_64", "仅 x86 模拟器，手机无法安装"),
+]
 ANDROID_UNIVERSAL = "universal"
 
 LINK_TEXT = {"win": "ZIP", "macos": "DMG", "linux": "tar.gz"}
-MACOS_NOTE = {"x86_64": "Intel", "aarch64": "Apple Silicon"}
+# 链接后的设备提示，让不认识架构名的用户也能对上自己的机器
+CELL_NOTE = {
+    ("win", "x86_64"): "大多数电脑",
+    ("win", "aarch64"): "骁龙等 ARM 电脑",
+    ("macos", "x86_64"): "Intel",
+    ("macos", "aarch64"): "Apple Silicon",
+}
 
 
 def collect(artifacts: Path, tag: str):
@@ -49,6 +57,7 @@ def collect(artifacts: Path, tag: str):
     )
     platforms = {key for key, _ in PLATFORMS}
     rows = {key for key, _ in ROWS}
+    android_archs = {ANDROID_UNIVERSAL} | {abi for abi, _ in ANDROID_ABIS}
 
     found: dict[tuple[str, str], str] = {}
     unknown: list[str] = []
@@ -59,7 +68,7 @@ def collect(artifacts: Path, tag: str):
         platform = match["platform"] if match else None
         arch = match["arch"] if match else None
         if platform == "android":
-            known = arch == ANDROID_UNIVERSAL or arch in ANDROID_ROW
+            known = arch in android_archs
         else:
             known = platform in platforms and arch in rows
         if known:
@@ -69,26 +78,39 @@ def collect(artifacts: Path, tag: str):
     return found, unknown
 
 
+def android_lines(found: dict[tuple[str, str], str], link) -> list[str]:
+    """Android 只给一个主链接，单 ABI 包折叠起来。
+
+    放进架构表时手机用户会按「64-bit」对到 x86_64 那一行，下到装不上的包。
+    """
+    abis = [(abi, note, name) for abi, note in ANDROID_ABIS if (name := found.get(("android", abi)))]
+
+    if universal := found.get(("android", ANDROID_UNIVERSAL)):
+        lines = [f"**Android**：{link('下载 APK', universal)}（手机 / 平板 / 模拟器通用）"]
+    elif abis:
+        abi, note, name = abis.pop(0)
+        lines = [f"**Android**：{link('下载 APK', name)}（{abi}，{note}）"]
+    else:
+        return []
+
+    if abis:
+        lines += ["", "<details>", "<summary>其他 Android 安装包（按架构拆分，一般不需要）</summary>", ""]
+        lines += [f"- {link(abi, name)}：{note}" for abi, note, name in abis]
+        lines += ["", "</details>"]
+    return lines
+
+
 def build_table(found: dict[tuple[str, str], str], unknown: list[str], base_url: str) -> str:
     def link(text: str, name: str) -> str:
         return f"[{text}]({base_url}/{quote(name)})"
 
     def cell(platform: str, row: str) -> str:
-        if platform == "android":
-            parts = []
-            if universal := found.get(("android", ANDROID_UNIVERSAL)):
-                parts.append(f"{link('**Universal**', universal)}（通用）")
-            for abi, abi_row in ANDROID_ROW.items():
-                if abi_row == row and (name := found.get(("android", abi))):
-                    parts.append(link(abi, name))
-            return " · ".join(parts)
-
         name = found.get((platform, row))
         if not name:
             return ""
         text = link(LINK_TEXT[platform], name)
-        if platform == "macos":
-            text += f" ({MACOS_NOTE[row]})"
+        if note := CELL_NOTE.get((platform, row)):
+            text += f" ({note})"
         return text
 
     # 整个平台都没有产物时不留空列
@@ -101,8 +123,8 @@ def build_table(found: dict[tuple[str, str], str], unknown: list[str], base_url:
         for row, row_title in ROWS:
             cells = " | ".join(cell(key, row) for key, _ in columns)
             lines.append(f"| {row_title} | {cells} |")
-    if ("android", ANDROID_UNIVERSAL) in found:
-        lines += ["", "> Android 推荐下载 Universal 包，无需区分架构。"]
+    if android := android_lines(found, link):
+        lines += ["", *android]
     if unknown:
         lines += ["", "其他文件：" + " · ".join(link(name, name) for name in unknown)]
     lines += ["", MIRRORCHYAN_LINK]

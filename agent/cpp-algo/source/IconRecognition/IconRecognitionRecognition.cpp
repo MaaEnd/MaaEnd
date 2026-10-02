@@ -10,6 +10,7 @@
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
+#include "../Common/output_paths.h"
 #include "../utils.h"
 #include "IconRecognizer.h"
 #include "detail/DebugCapture.h"
@@ -132,7 +133,7 @@ void WriteDetail(MaaStringBuffer* buffer, const RecognitionResult& result)
 void SaveDebugCaptureBestEffort(const cv::Mat& image, const RecognitionResult& result, MaaTaskId task_id) noexcept
 {
     try {
-        const auto root = get_install_dir() / "debug" / "vision" / "IconRecognition";
+        const auto root = common::OutputPath("debug/vision/IconRecognition");
         if (!detail::SaveDebugCapture(root, image, result, static_cast<std::uint64_t>(task_id))) {
             LogWarn << "IconRecognition debug capture failed" << VAR(task_id) << VAR(root);
         }

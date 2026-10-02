@@ -15,6 +15,7 @@ struct SteeringTransportProfile
     double min_emit_delta_deg = 1.0;
     double max_batch_delta_deg = 18.0;
     int action_quiet_period_ms = 0;
+    bool drops_turn_sends = false;
 };
 
 class IInputBackend

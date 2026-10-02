@@ -99,13 +99,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -128,13 +128,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -156,13 +156,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -184,13 +184,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -213,13 +213,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -241,13 +241,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -269,13 +269,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -298,13 +298,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -326,13 +326,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -355,13 +355,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -384,13 +384,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",
@@ -412,13 +412,13 @@
         },
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "[JumpBack]SharedZiplineDeleteTeleportClick",

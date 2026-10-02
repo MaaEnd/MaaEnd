@@ -301,11 +301,6 @@ constexpr double kZiplineAimToleranceDeg = 6.0;
 // 上索后的稳定等待与全部水平修正共用这个截止时间。每次只发一个后端批次并等待真实反馈，
 // 避免大角度转向在上索动画尚未结束时一次性排入多条输入。
 constexpr int32_t kZiplineAimHeadingTimeoutMs = 6000;
-// 第一批转完量一次「发了多少转了多少」当增益, 后面的 yaw 和俯仰都按它缩放。太小的一批量不准,
-// 增益夹在这个范围里, 一帧读歪不至于把俯仰整个放飞
-constexpr double kZiplineAimGainMinTurnDeg = 5.0;
-constexpr double kZiplineAimGainMin = 0.5;
-constexpr double kZiplineAimGainMax = 2.0;
 // 落差够大时镜头得抬到索的仰角上才起得了滑。小地图读不到俯仰, 所以每次从地面登上滑索架后
 // 先通过 Pipeline 把镜头拉到上限, 将该硬限位记作 +90 度, 再从这个固定基准开环调整。连续滑索
 // 没有上下索动作, 直接沿用上一跳记住的俯仰。游戏的俯仰范围不对称: 仰角最多 90 度, 俯角最多 60 度。
@@ -509,5 +504,10 @@ constexpr int32_t kFindStepSleepMs = 120;
 constexpr int32_t kFindMaxSteps = 48;
 constexpr int32_t kFindBudgetMs = 60000;
 static_assert(kFindStepSleepMs > kAdbTouchTurnProfile.action_quiet_period_ms, "find pacing must outlast the steering quiet period");
+
+// 行进中跑 trigger_node 的间隔
+constexpr int32_t kTriggerProbeIntervalMs = 300;
+// 到 TRIGGER 点仍未命中时原地等待的上限, 超时判失败
+constexpr int32_t kTriggerWaitTimeoutMs = 15000;
 
 } // namespace mapnavigator

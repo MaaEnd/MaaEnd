@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -28,7 +29,7 @@ func (w *levelFilterWriter) WriteLevel(level zerolog.Level, p []byte) (n int, er
 }
 
 func initLogger() (*os.File, error) {
-	debugDir := filepath.Join(".", "debug")
+	debugDir := fsutil.OutputPath("debug")
 	if err := os.MkdirAll(debugDir, 0755); err != nil {
 		return nil, err
 	}
