@@ -61,6 +61,18 @@ test("suspending connection probes clears stale status-dot styles", () => {
   assert.equal(panel.isConnected(), false);
 });
 
+test("planning segment changes preserve the map view while run changes still fit it", () => {
+  const source = readFileSync(new URL("./static/js/main.js", import.meta.url), "utf8");
+  const runChange = source.match(/  _onLogRunChanged\(\) \{[\s\S]*?\n  \}/)?.[0] || "";
+  const segmentChange = source.match(/  _onLogSegmentChanged\([^\n]*\) \{[\s\S]*?\n  \}/)?.[0] || "";
+  const showRun = source.match(/  _showSelectedLogRun\([^\n]*\) \{[\s\S]*?\n  \}/)?.[0] || "";
+  assert.match(runChange, /_onLogSegmentChanged\(\{fit: true\}\)/);
+  assert.match(segmentChange, /fit = false/);
+  assert.match(segmentChange, /_showSelectedLogRun\(\{fit, preserveView: !fit\}\)/);
+  assert.match(showRun, /if \(opts\.preserveView\) \{\s*this\._paint\(\);\s*return;/);
+  assert.ok(showRun.indexOf("if (opts.preserveView)") < showRun.indexOf("this.els.displayZoneCombo.value = base.name"));
+});
+
 test("controls that need a live game session start disabled", () => {
   const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
   for (const id of ["btn-edit-locate", "btn-assert-locate", "btn-edit-start-locate", "btn-start", "btn-navtest-run"]) {

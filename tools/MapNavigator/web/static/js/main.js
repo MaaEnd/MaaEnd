@@ -5404,7 +5404,7 @@ class MapNavigatorApp {
     const nextRun = this.logRuns.find((run) => run._uiKey === key) || null;
     const index = nextRun?._uiKey === this.selectedLogRun?._uiKey ? this.selectedLogRun?.index || 0 : 0;
     this._populateLogSegments(nextRun, index);
-    this._onLogSegmentChanged();
+    this._onLogSegmentChanged({fit: true});
   }
 
   _populateLogSegments(run, selectedIndex = 0) {
@@ -5429,15 +5429,15 @@ class MapNavigatorApp {
     }
   }
 
-  _onLogSegmentChanged() {
+  _onLogSegmentChanged({fit = false} = {}) {
     const run = this.logRuns.find((entry) => entry._uiKey === this.els.logRunSelect.value) || null;
     this.selectedLogRun = logRunSegment(run, Number(this.els.logSegmentSelect.value) || 0);
     this.ziplineDistanceSelection = [];
     this.inspectedPoint = null;
-    this._showSelectedLogRun({fit: true});
+    this._showSelectedLogRun({fit, preserveView: !fit});
   }
 
-  /** @param {{fit?:boolean}} [opts] */
+  /** @param {{fit?:boolean,preserveView?:boolean}} [opts] */
   _showSelectedLogRun(opts = {}) {
     this._renderLogSummary();
     this._renderPointInspection();
@@ -5448,6 +5448,10 @@ class MapNavigatorApp {
       return;
     }
     if (this.state.mode !== Mode.LOG) return;
+    if (opts.preserveView) {
+      this._paint();
+      return;
+    }
     if (!this.field) {
       setStatus("运行记录已选择，等待 navmesh 区域表加载后显示底图。", "#3b82f6");
       this._paint();
