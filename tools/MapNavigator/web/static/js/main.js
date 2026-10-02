@@ -3024,7 +3024,7 @@ class MapNavigatorApp {
     const log = this._logAnalysisForDisplay();
     if (!log) return [];
     const points = [...log.authored];
-    for (const path of [...log.walks, ...log.observed, ...log.baselines]) points.push(...path);
+    for (const path of [...log.walks, ...log.observed, ...log.observedReplans, ...log.baselines]) points.push(...path);
     for (const segment of [...log.ziplines, ...log.estimates]) points.push(segment.from, segment.to);
     for (const tower of log.selectedTowers || []) points.push(tower.point);
     return points;
