@@ -409,9 +409,8 @@
             }
         ],
         "box_index": 1,
-        "pre_delay": 0,
+        "pre_wait_freezes": 100,
         "action": "Click",
-        "post_delay": 0,
         "next": [
             "VisitFriendsMenuAssistControlNexusSuccess"
         ]
@@ -484,9 +483,8 @@
             }
         ],
         "box_index": 1,
-        "pre_delay": 0,
+        "pre_wait_freezes": 100,
         "action": "Click",
-        "post_delay": 0,
         "next": [
             "VisitFriendsMenuAssistMFGCabin1Success"
         ]
@@ -558,9 +556,8 @@
             }
         ],
         "box_index": 1,
-        "pre_delay": 0,
+        "pre_wait_freezes": 100,
         "action": "Click",
-        "post_delay": 0,
         "next": [
             "VisitFriendsMenuAssistMFGCabin2Success"
         ]
@@ -660,9 +657,8 @@
             }
         ],
         "box_index": 1,
-        "pre_delay": 0,
+        "pre_wait_freezes": 100,
         "action": "Click",
-        "post_delay": 0,
         "next": [
             "SceneNoticeRewardsConfirm"
         ]
