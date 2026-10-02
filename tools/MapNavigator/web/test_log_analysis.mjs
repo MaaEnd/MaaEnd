@@ -378,6 +378,157 @@ test("frames author, walk, and zipline coordinates", () => {
   assert.ok(points.some(([x, y]) => x === 538.031 && y === 1250.27));
 });
 
+test("uses dashed connectors for the position jumps that trigger off-corridor soft replans", () => {
+  const softReplan = "NavRunController soft replan. [static_cast<int>(reason)=3] [anchor_index=17]";
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      position("2026-10-02 20:24:33.000", 1375, 1680),
+      position("2026-10-02 20:24:34.000", 1376, 1681),
+      position("2026-10-02 20:24:34.466", 1385.52, 1687.89),
+      `[2026-10-02 20:24:36.915][INF] ${softReplan}`,
+      position("2026-10-02 20:24:37.024", 1382.76, 1675.21),
+      `[2026-10-02 20:24:39.982][INF] ${softReplan}`,
+      position("2026-10-02 20:24:40.000", 1381, 1674),
+    ].join("\n"),
+  );
+  assert.equal(run.segments.length, 1);
+  assert.deepEqual(run.observedWalks, [
+    [
+      [1375, 1680],
+      [1376, 1681],
+    ],
+    [
+      [1382.76, 1675.21],
+      [1381, 1674],
+    ],
+  ]);
+  assert.deepEqual(run.observedReplans, [
+    {
+      timestamp: "2026-10-02 20:24:36.915",
+      points: [
+        [1376, 1681],
+        [1385.52, 1687.89],
+      ],
+    },
+    {
+      timestamp: "2026-10-02 20:24:39.982",
+      points: [
+        [1385.52, 1687.89],
+        [1382.76, 1675.21],
+      ],
+    },
+  ]);
+  assert.deepEqual(logRunSegment(run).observedReplans, run.observedReplans);
+  assert.ok(logRunPoints(run).some(([x, y]) => x === 1385.52 && y === 1687.89));
+});
+
+test("preserves exact consecutive fixes when replan edges fall below track simplification distance", () => {
+  const softReplan = "[2026-10-02 20:24:36.915][INF] NavRunController soft replan. [static_cast<int>(reason)=3]";
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      position("2026-10-02 20:24:33.000", 0, 0),
+      position("2026-10-02 20:24:34.000", 2, 0),
+      position("2026-10-02 20:24:35.000", 2.25, 0),
+      position("2026-10-02 20:24:36.000", 20, 0),
+      softReplan,
+      softReplan,
+      position("2026-10-02 20:24:37.000", 22, 0),
+    ].join("\n"),
+  );
+  assert.deepEqual(
+    run.observedReplans.map((entry) => entry.points),
+    [
+      [
+        [2.25, 0],
+        [20, 0],
+      ],
+    ],
+  );
+  assert.deepEqual(run.observedWalks, [
+    [
+      [0, 0],
+      [2, 0],
+      [2.25, 0],
+    ],
+    [
+      [20, 0],
+      [22, 0],
+    ],
+  ]);
+});
+
+test("does not draw replan connectors for other reasons or unchanged positions", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      position("2026-10-02 20:24:33.000", 0, 0),
+      position("2026-10-02 20:24:34.000", 2, 0),
+      "NavRunController soft replan. [static_cast<int>(reason)=1]",
+      "NavRunController soft replan. [static_cast<int>(reason)=4]",
+      position("2026-10-02 20:24:35.000", 2, 0),
+      "NavRunController soft replan. [static_cast<int>(reason)=3]",
+      position("2026-10-02 20:24:36.000", 4, 0),
+    ].join("\n"),
+  );
+  assert.deepEqual(run.observedReplans, []);
+  assert.deepEqual(run.observedWalks, [
+    [
+      [0, 0],
+      [2, 0],
+      [4, 0],
+    ],
+  ]);
+});
+
+test("does not bridge localization gaps, zone changes, or zipline flights with replan connectors", () => {
+  const softReplan = "NavRunController soft replan. [static_cast<int>(reason)=3]";
+  for (const boundary of [
+    position("2026-10-02 20:24:34.000", 0, 0, {status: 1}),
+    position("2026-10-02 20:24:34.000", 10, 0).replace("Wuling_Base", "ValleyIV_Base"),
+    "Action: ZIPLINE launched toward the landing point. [landing.x=10] [landing.y=0]",
+  ]) {
+    const [run] = parseMapNavigatorLog(
+      [
+        lines[0],
+        position("2026-10-02 20:24:33.000", 0, 0),
+        boundary,
+        softReplan,
+        position("2026-10-02 20:24:35.000", 12, 0),
+        softReplan,
+      ].join("\n"),
+    );
+    assert.deepEqual(run.observedReplans, [], boundary);
+  }
+});
+
+test("keeps replan connectors in their original planning segment", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      position("2026-10-02 20:24:33.000", 0, 0),
+      position("2026-10-02 20:24:34.000", 10, 0),
+      "NavRunController soft replan. [static_cast<int>(reason)=3]",
+      "Navigation route replaced. [reason=recovery]",
+      position("2026-10-02 20:24:35.000", 20, 0),
+      "NavRunController soft replan. [static_cast<int>(reason)=3]",
+      position("2026-10-02 20:24:36.000", 22, 0),
+    ].join("\n"),
+  );
+  assert.equal(run.segments.length, 2);
+  assert.deepEqual(
+    logRunSegment(run, 0).observedReplans.map((entry) => entry.points),
+    [
+      [
+        [0, 0],
+        [10, 0],
+      ],
+    ],
+  );
+  assert.deepEqual(logRunSegment(run, 1).observedReplans, []);
+});
+
 test("extracts measured ground tracks without connecting zipline rides", () => {
   const traceLines = [
     lines[0],

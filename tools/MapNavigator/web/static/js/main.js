@@ -2972,6 +2972,7 @@ class MapNavigatorApp {
       authored: displayPolyline(this._logAuthoredBasePoints()),
       walks: (run.walks || []).filter((walk) => walk.decision === "walk").map((walk) => displayPolyline(walk.points)),
       observed: (run.observedWalks || []).map(displayPolyline),
+      observedReplans: (run.observedReplans || []).map((replan) => displayPolyline(replan.points)),
       baselines: (run.walks || [])
         .filter((walk) => walk.decision === "baseline")
         .map((walk) => displayPolyline(walk.points)),

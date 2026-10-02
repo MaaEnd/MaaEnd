@@ -327,6 +327,9 @@ export class Overlay {
       for (const points of log.observed || []) {
         this._strokeLogPolyline(camera, points, {color: "#22c55e", width: 3.5});
       }
+      for (const points of log.observedReplans || []) {
+        this._strokeLogPolyline(camera, points, {color: "#94a3b8", width: 2, dash: [7, 5]});
+      }
     }
 
     if (log.showEstimates) {

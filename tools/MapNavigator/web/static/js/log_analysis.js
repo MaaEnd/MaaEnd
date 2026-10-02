@@ -193,6 +193,7 @@ function newLogSegment(index, line, reason) {
     reason,
     walks: [],
     observedWalks: [],
+    observedReplans: [],
     ziplines: [],
     decisions: [],
     incidents: [],
@@ -258,6 +259,7 @@ function newRun(parsed, line, sourceName, index) {
     authoredPoints: path.map((entry) => entry.point),
     walks: [],
     observedWalks: [],
+    observedReplans: [],
     ziplines: [],
     decisions: [],
     incidents: [],
@@ -271,6 +273,8 @@ function newRun(parsed, line, sourceName, index) {
     _pendingPick: null,
     _observedWalk: [],
     _observedTail: null,
+    _observedPrevious: null,
+    _observedTailStart: 0,
     _observedZone: "",
     _pendingHop: null,
     _ziplineInFlight: false,
@@ -290,6 +294,8 @@ function flushObservedWalk(run) {
   if (points.length >= 2) appendLogItem(run, "observedWalks", points);
   run._observedWalk = [];
   run._observedTail = null;
+  run._observedPrevious = null;
+  run._observedTailStart = 0;
   run._observedZone = "";
 }
 
@@ -298,11 +304,30 @@ function appendObservedPosition(run, sample) {
     flushObservedWalk(run);
   }
   run._observedZone ||= sample.zone;
+  run._observedPrevious = run._observedTail;
   run._observedTail = sample;
   const points = run._observedWalk;
+  run._observedTailStart = points.length;
   if (!points.length || pointDistance(points[points.length - 1], sample.point) >= OBSERVED_MIN_STEP) {
     points.push(sample.point);
   }
+}
+
+function markObservedReplan(run, line) {
+  if (numberValue(line, "static_cast<int>(reason)") !== 3 || run._ziplineInFlight) return;
+  const previous = run._observedPrevious;
+  const current = run._observedTail;
+  if (!previous || !current || pointDistance(previous.point, current.point) < 1e-6) return;
+
+  // The triggering position is logged before the replan; replace its incoming edge.
+  run._observedWalk.length = run._observedTailStart;
+  run._observedTail = previous;
+  flushObservedWalk(run);
+  appendLogItem(run, "observedReplans", {
+    timestamp: timestampOf(line),
+    points: [previous.point, current.point],
+  });
+  appendObservedPosition(run, current);
 }
 
 function addObservedPosition(run, line) {
@@ -611,6 +636,8 @@ function closeRun(run, line, succeeded) {
   delete run._fallbackZone;
   delete run._observedWalk;
   delete run._observedTail;
+  delete run._observedPrevious;
+  delete run._observedTailStart;
   delete run._observedZone;
   delete run._ziplineInFlight;
   delete run._ziplineLastPosition;
@@ -673,7 +700,8 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
       current.zone ||= valueOf(line, "navmesh_zone") || "";
     } else if (line.includes("Global authored route unavailable; replaying authored hints.")) {
       addDecision(current, "authored-replay", line, {text: "整段直达失败，回放作者路径并逐段规划"});
-    } else if (line.includes("zipline/begin ")) rememberZiplineHop(current, line);
+    } else if (line.includes("NavRunController soft replan.")) markObservedReplan(current, line);
+    else if (line.includes("zipline/begin ")) rememberZiplineHop(current, line);
     else if (line.includes("zipline/fired ")) fireZipline(current, line);
     else if (line.includes("zipline/classified ")) classifyZiplineRide(current, line);
     else if (line.includes("zipline/fired/riding ") || line.includes("zipline/fired/moved ")) {
@@ -719,6 +747,7 @@ export function logRunPoints(run) {
   const points = [...(run.authoredPoints || [])];
   for (const walk of run.walks || []) points.push(...walk.points);
   for (const walk of run.observedWalks || []) points.push(...walk);
+  for (const replan of run.observedReplans || []) points.push(...replan.points);
   for (const chain of run.ziplines || []) {
     if (Array.isArray(chain.mount)) points.push(chain.mount);
     if (Array.isArray(chain.last)) points.push(chain.last);

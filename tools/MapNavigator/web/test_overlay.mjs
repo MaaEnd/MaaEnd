@@ -78,6 +78,39 @@ test("collapses repeated zipline rides to two directional lines at every zoom le
   assert.equal(strokes.length, 0);
 });
 
+test("draws replan jumps as dashed measured-track edges under the observed layer toggle", () => {
+  const overlay = Object.create(Overlay.prototype);
+  const camera = new Camera();
+  const strokes = [];
+  overlay._strokeLogPolyline = (_view, points, style) => strokes.push({points, style});
+  const observed = [
+    [
+      [0, 0],
+      [2, 0],
+    ],
+    [
+      [20, 0],
+      [22, 0],
+    ],
+  ];
+  const observedReplans = [
+    [
+      [2, 0],
+      [20, 0],
+    ],
+  ];
+  overlay._drawLogAnalysis(camera, {showObserved: true, observed, observedReplans});
+  assert.deepEqual(
+    strokes.map((stroke) => stroke.points),
+    [...observed, ...observedReplans],
+  );
+  assert.ok(strokes.slice(0, 2).every((stroke) => !stroke.style.dash));
+  assert.deepEqual(strokes[2].style, {color: "#94a3b8", width: 2, dash: [7, 5]});
+  strokes.length = 0;
+  overlay._drawLogAnalysis(camera, {showObserved: false, observed, observedReplans});
+  assert.equal(strokes.length, 0);
+});
+
 test("draws the game-position reference marker in edit mode", () => {
   assert.deepEqual(renderWithMarker("edit", "editLocateHint"), [{x: 12, y: 34, label: "游戏当前位置", rot: 90}]);
 });
