@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
+import {runInNewContext} from "node:vm";
 
 import {ConnectionPanel} from "./static/js/ui/connection.js";
 import {NavTestController} from "./static/js/ui/navtest.js";
@@ -59,6 +60,47 @@ test("suspending connection probes clears stale status-dot styles", () => {
 
   assert.deepEqual(removed.sort(), ["connected", "connecting"]);
   assert.equal(panel.isConnected(), false);
+});
+
+test("planning segment changes preserve the map view while run changes still fit it", () => {
+  const source = readFileSync(new URL("./static/js/main.js", import.meta.url), "utf8");
+  const runChange = source.match(/  _onLogRunChanged\(\) \{[\s\S]*?\n  \}/)?.[0] || "";
+  const segmentChange = source.match(/  _onLogSegmentChanged\([^\n]*\) \{[\s\S]*?\n  \}/)?.[0] || "";
+  const showRun = source.match(/  _showSelectedLogRun\([^\n]*\) \{[\s\S]*?\n  \}/)?.[0] || "";
+  assert.match(runChange, /_onLogSegmentChanged\(\{fit: true\}\)/);
+  assert.match(segmentChange, /fit = false/);
+  assert.match(segmentChange, /_showSelectedLogRun\(\{fit, preserveView: !fit\}\)/);
+  assert.match(showRun, /if \(opts\.preserveView\) \{\s*this\._paint\(\);\s*return;/);
+  assert.ok(showRun.indexOf("if (opts.preserveView)") < showRun.indexOf("this.els.displayZoneCombo.value = base.name"));
+});
+
+test("log fit-view includes replan endpoints even without measured walking segments", () => {
+  const source = readFileSync(new URL("./static/js/main.js", import.meta.url), "utf8");
+  const method = source.match(/  _logDisplayPoints\(\) \{[\s\S]*?\n  \}/)?.[0];
+  assert.ok(method);
+  const app = runInNewContext(`({${method}})`);
+  app._logAnalysisForDisplay = () => ({
+    authored: [[1, 2]],
+    walks: [],
+    observed: [],
+    observedReplans: [
+      [
+        [10000, 10000],
+        [11000, 11000],
+      ],
+    ],
+    baselines: [],
+    ziplines: [],
+    estimates: [],
+    selectedTowers: [],
+  });
+  assert.deepEqual(Array.from(app._logDisplayPoints()), [
+    [1, 2],
+    [10000, 10000],
+    [11000, 11000],
+  ]);
+  app._logAnalysisForDisplay = () => null;
+  assert.deepEqual(Array.from(app._logDisplayPoints()), []);
 });
 
 test("controls that need a live game session start disabled", () => {

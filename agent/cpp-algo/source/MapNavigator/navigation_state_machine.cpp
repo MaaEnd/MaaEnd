@@ -299,6 +299,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const char* reason)
 {
     const size_t path_size = session->current_path().size();
+    const std::optional<double> walked_floor_y = session->WalkedFloorY(position);
     std::optional<DynamicAnchor> anchor;
     double anchor_cost = std::numeric_limits<double>::infinity();
     int plan_attempts = 0;
@@ -336,7 +337,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
             start,
             goal,
             waypoint.target_deck_y,
-            std::nullopt,
+            walked_floor_y,
             nullptr,
             nullptr,
             session->LandedTowerDeckY(position));
@@ -736,7 +737,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
             start,
             goal,
             anchor.target_deck_y,
-            std::nullopt,
+            session_->WalkedFloorY(*position_),
             nullptr,
             &runtime_state_.virtual_no_go,
             session_->LandedTowerDeckY(*position_));

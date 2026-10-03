@@ -39,7 +39,7 @@ import {
   zonePolys,
 } from "./nogo_zones.js";
 import {AppState, Mode} from "./state.js";
-import {logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
+import {logRunSegment, logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
 import {groupLogInputFiles, openZipArchive, selectMaaEndArchiveEntries} from "./log_archive.js";
 import {
   listZiplineAccounts,
@@ -501,6 +501,7 @@ class MapNavigatorApp {
       logImportMeta: $("log-import-meta"),
       logRunFilter: $("log-run-filter"),
       logRunSelect: $("log-run-select"),
+      logSegmentSelect: $("log-segment-select"),
       logShowAuthored: $("log-show-authored"),
       logShowWalk: $("log-show-walk"),
       logShowObserved: $("log-show-observed"),
@@ -1062,6 +1063,7 @@ class MapNavigatorApp {
     e.logFileInput.addEventListener("change", () => this._importLogFiles(e.logFileInput.files));
     e.logRunFilter.addEventListener("input", () => this._populateLogRunSelect());
     e.logRunSelect.addEventListener("change", () => this._onLogRunChanged());
+    e.logSegmentSelect.addEventListener("change", () => this._onLogSegmentChanged());
     e.logRunSelect.addEventListener(
       "wheel",
       (event) => {
@@ -2219,6 +2221,17 @@ class MapNavigatorApp {
     let labelIndex = 1;
     for (const chain of run.ziplines || []) {
       for (const tower of logZiplineTowers(chain)) {
+        const existing = selected.find(
+          (candidate) =>
+            Math.hypot(candidate.point[0] - tower.point[0], candidate.point[1] - tower.point[1]) <= 0.75 &&
+            (!Number.isFinite(candidate.height) ||
+              !Number.isFinite(tower.height) ||
+              Math.abs(candidate.height - tower.height) <= 0.75),
+        );
+        if (existing) {
+          existing.confirmed ||= tower.confirmed;
+          continue;
+        }
         let matchingRecord = null;
         let matchingDistance = Infinity;
         let matchingHeightDistance = Infinity;
@@ -2270,7 +2283,8 @@ class MapNavigatorApp {
     if (this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) {
       return `map:${this.ziplineAccountId}:${this._geometryZoneName(this._displayZoneId())}`;
     }
-    if (this.state.mode === Mode.LOG) return `log:${this.selectedLogRun?._uiKey || ""}`;
+    if (this.state.mode === Mode.LOG)
+      return `log:${this.selectedLogRun?._uiKey || ""}:${this.selectedLogRun?.index || 0}`;
     return "";
   }
 
@@ -2427,7 +2441,8 @@ class MapNavigatorApp {
                 ["来源", "运行日志"],
                 ["链 / 跳", `${chainIndex + 1} / ${hopIndex + 1}`],
                 ["端点", endpoint],
-                ["落地状态", segment.landed ? "已确认落地" : "未确认落地"],
+                ["方向", segment.returning ? "返程" : "正向"],
+                ["结果", segment.offTarget ? "滑错架" : segment.landed ? "已确认落地" : "未确认落地"],
                 ["底图坐标", pointText(point)],
               ],
             });
@@ -2939,7 +2954,11 @@ class MapNavigatorApp {
     for (const chain of run.ziplines || []) {
       const geometry = logZiplineGeometry(chain);
       for (const segment of geometry.actual) {
-        ziplines.push({...segment, from: displayPoint(segment.from), to: displayPoint(segment.to)});
+        ziplines.push({
+          ...segment,
+          from: displayPoint(segment.from),
+          to: displayPoint(segment.to),
+        });
       }
       for (const segment of geometry.estimated) {
         estimates.push({...segment, from: displayPoint(segment.from), to: displayPoint(segment.to)});
@@ -2953,6 +2972,7 @@ class MapNavigatorApp {
       authored: displayPolyline(this._logAuthoredBasePoints()),
       walks: (run.walks || []).filter((walk) => walk.decision === "walk").map((walk) => displayPolyline(walk.points)),
       observed: (run.observedWalks || []).map(displayPolyline),
+      observedReplans: (run.observedReplans || []).map((replan) => displayPolyline(replan.points)),
       baselines: (run.walks || [])
         .filter((walk) => walk.decision === "baseline")
         .map((walk) => displayPolyline(walk.points)),
@@ -3004,7 +3024,7 @@ class MapNavigatorApp {
     const log = this._logAnalysisForDisplay();
     if (!log) return [];
     const points = [...log.authored];
-    for (const path of [...log.walks, ...log.observed, ...log.baselines]) points.push(...path);
+    for (const path of [...log.walks, ...log.observed, ...log.observedReplans, ...log.baselines]) points.push(...path);
     for (const segment of [...log.ziplines, ...log.estimates]) points.push(segment.from, segment.to);
     for (const tower of log.selectedTowers || []) points.push(tower.point);
     return points;
@@ -5360,6 +5380,7 @@ class MapNavigatorApp {
       option.textContent = this.logRuns.length ? "没有匹配的运行记录" : "请先导入日志";
       combo.appendChild(option);
       this.selectedLogRun = null;
+      this._populateLogSegments(null);
       this.ziplineDistanceSelection = [];
       this.inspectedPoint = null;
       this._renderLogSummary();
@@ -5382,15 +5403,42 @@ class MapNavigatorApp {
   _onLogRunChanged() {
     const key = this.els.logRunSelect.value;
     const nextRun = this.logRuns.find((run) => run._uiKey === key) || null;
-    if (nextRun !== this.selectedLogRun) {
-      this.ziplineDistanceSelection = [];
-      this.inspectedPoint = null;
-    }
-    this.selectedLogRun = nextRun;
-    this._showSelectedLogRun({fit: true});
+    const index = nextRun?._uiKey === this.selectedLogRun?._uiKey ? this.selectedLogRun?.index || 0 : 0;
+    this._populateLogSegments(nextRun, index);
+    this._onLogSegmentChanged({fit: true});
   }
 
-  /** @param {{fit?:boolean}} [opts] */
+  _populateLogSegments(run, selectedIndex = 0) {
+    const combo = this.els.logSegmentSelect;
+    combo.textContent = "";
+    for (const segment of run?.segments || []) {
+      const option = document.createElement("option");
+      option.value = String(segment.index);
+      const reason =
+        segment.reason === "initial" ? "初始规划" : segment.reason === "replan" ? "重新规划" : segment.reason;
+      option.textContent = `${segment.index + 1} · ${reason} · ${segment.timestamp || "时间未知"}`;
+      option.title = option.textContent;
+      combo.appendChild(option);
+    }
+    combo.disabled = !run || (run.segments?.length || 0) <= 1;
+    if (combo.options.length) combo.value = String(selectedIndex);
+    else {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "暂无规划分段";
+      combo.appendChild(option);
+    }
+  }
+
+  _onLogSegmentChanged({fit = false} = {}) {
+    const run = this.logRuns.find((entry) => entry._uiKey === this.els.logRunSelect.value) || null;
+    this.selectedLogRun = logRunSegment(run, Number(this.els.logSegmentSelect.value) || 0);
+    this.ziplineDistanceSelection = [];
+    this.inspectedPoint = null;
+    this._showSelectedLogRun({fit, preserveView: !fit});
+  }
+
+  /** @param {{fit?:boolean,preserveView?:boolean}} [opts] */
   _showSelectedLogRun(opts = {}) {
     this._renderLogSummary();
     this._renderPointInspection();
@@ -5401,6 +5449,10 @@ class MapNavigatorApp {
       return;
     }
     if (this.state.mode !== Mode.LOG) return;
+    if (opts.preserveView) {
+      this._paint();
+      return;
+    }
     if (!this.field) {
       setStatus("运行记录已选择，等待 navmesh 区域表加载后显示底图。", "#3b82f6");
       this._paint();
@@ -5442,6 +5494,7 @@ class MapNavigatorApp {
     option.textContent = "请先导入日志";
     this.els.logRunSelect.appendChild(option);
     this.els.logImportMeta.textContent = "尚未导入日志";
+    this._populateLogSegments(null);
     this._renderLogSummary();
     this._renderPointInspection();
     this._renderZiplineDistance();
@@ -5542,10 +5595,20 @@ class MapNavigatorApp {
     const facts = document.createElement("div");
     facts.className = "log-run-facts";
     const towerData = this._logTowerData(run);
-    const result = run.completed === true ? "成功" : run.completed === false ? "失败" : "未记录结束";
-    const landed = (run.ziplines || []).reduce((sum, chain) => sum + (chain.landed || 0), 0);
-    const launched = (run.ziplines || []).reduce((sum, chain) => sum + (chain.launches || []).length, 0);
-    const ziplineFact = launched ? `滑索 ${landed}/${launched} 跳确认落地` : "无实际滑索发射";
+    const result =
+      run.index < (run.segments?.length || 1) - 1
+        ? "分段结束"
+        : run.completed === true
+          ? "成功"
+          : run.completed === false
+            ? "失败"
+            : "未记录结束";
+    const rides = (run.ziplines || []).flatMap((chain) => logZiplineGeometry(chain).actual);
+    const landed = rides.filter((ride) => ride.landed).length;
+    const returning = rides.filter((ride) => ride.returning).length;
+    const ziplineFact = rides.length
+      ? `滑行 ${landed}/${rides.length} 次确认落地 · 返程 ${returning} 次`
+      : "无实际滑索发射";
     const observedSegments = (run.observedWalks || []).length;
     const observedPoints = (run.observedWalks || []).reduce((sum, points) => sum + points.length, 0);
     const observedFact = observedPoints ? `实测地面轨迹 ${observedSegments} 段/${observedPoints} 点` : "无实测地面轨迹";
@@ -5586,6 +5649,22 @@ class MapNavigatorApp {
       }
     }
 
+    if (rides.length) {
+      const list = document.createElement("ol");
+      list.className = "log-ride-list";
+      const towerLabel = (point) =>
+        towerData.selected.find((tower) => Math.hypot(tower.point[0] - point[0], tower.point[1] - point[1]) <= 0.75)
+          ?.label || `[${point.map((value) => value.toFixed(2)).join(", ")}]`;
+      for (const ride of rides) {
+        const row = document.createElement("li");
+        row.className = ride.offTarget ? "log-ride-miss" : ride.returning ? "log-ride-return" : "";
+        const kind = ride.returning ? (ride.offTarget ? "返程滑错架" : "返程") : ride.offTarget ? "滑错架" : "正向";
+        row.textContent = `${towerLabel(ride.from)} → ${towerLabel(ride.to)} · ${kind} · ${ride.landed ? "已落地" : "落地未确认"}`;
+        list.appendChild(row);
+      }
+      host.appendChild(list);
+    }
+
     const decisions = run.decisions || [];
     if (!decisions.length) {
       const card = document.createElement("div");
@@ -5621,7 +5700,7 @@ class MapNavigatorApp {
         const detail = document.createElement("div");
         const towers = Number.isFinite(decision.towerCount) ? decision.towerCount : null;
         detail.textContent = towers
-          ? `选择滑索：${towers} 座滑索架，实际链长 ${Math.max(0, towers - 1)} 跳。`
+          ? `选择滑索：${towers} 座滑索架，规划链长 ${Math.max(0, towers - 1)} 跳。`
           : "选择滑索。";
         card.appendChild(detail);
       } else {

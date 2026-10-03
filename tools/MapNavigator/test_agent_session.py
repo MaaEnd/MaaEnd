@@ -23,6 +23,10 @@ class AgentSessionProcessTest(unittest.TestCase):
         connector.connect.return_value = Mock()
         process = Mock()
         process.poll.return_value = None
+        events: list[str] = []
+        resource.post_bundle.side_effect = lambda _path: events.append("base") or Mock(succeeded=True)
+        connector.attach_resource.side_effect = lambda _resource: events.append("overlay")
+        client.bind.side_effect = lambda _resource: events.append("bind")
 
         with (
             patch.object(agent_session, "CPP_AGENT_EXE", Path(__file__)),
@@ -32,7 +36,7 @@ class AgentSessionProcessTest(unittest.TestCase):
             patch.object(agent_session.subprocess, "Popen", return_value=process) as popen,
         ):
             session = AgentSession(runtime)
-            session.open(connector, agent_name="MapNavigatorTestAgent")
+            session.open(connector, agent_name="MapNavigatorTestAgent", resource_dirs=[Path("resource")])
             session.close()
 
         options = popen.call_args.kwargs
@@ -45,6 +49,11 @@ class AgentSessionProcessTest(unittest.TestCase):
         process.terminate.assert_called_once_with()
         process.wait.assert_called_once_with()
         connector.attach_resource.assert_called_once_with(resource)
+        self.assertEqual(events, ["base", "overlay", "bind"])
+
+    def test_go_service_uses_platform_executable_name(self) -> None:
+        expected_name = "go-service.exe" if os.name == "nt" else "go-service"
+        self.assertEqual(agent_session.GO_SERVICE_EXE, agent_session.AGENT_DIR / expected_name)
 
 
 if __name__ == "__main__":

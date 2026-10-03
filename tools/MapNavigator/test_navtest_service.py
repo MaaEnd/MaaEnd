@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from typing import Any
 
 from navtest_service import NODE_NAME, NavTestService
+from runtime import INSTALL_DIR
 
 
 class _Resource:
@@ -30,6 +31,12 @@ class NavTestServiceTest(unittest.TestCase):
             on_finished=lambda _succeeded, _reason, _kind: None,
             on_error=lambda _message: None,
             on_closed=lambda: None,
+        )
+
+    def test_position_log_is_relative_to_agent_startup_directory(self) -> None:
+        self.assertEqual(
+            NavTestService._position_log_path(),
+            INSTALL_DIR / "debug" / "cpp-algo" / "debug" / "maafw.log",
         )
 
     def test_passes_zip_option_to_map_navigate_action(self) -> None:

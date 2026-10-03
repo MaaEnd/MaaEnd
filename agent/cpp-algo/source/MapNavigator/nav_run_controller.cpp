@@ -468,7 +468,7 @@ bool NavRunController::buildPlan(
         start,
         goal,
         anchor.target_deck_y,
-        std::nullopt,
+        session.WalkedFloorY(position),
         nullptr,
         &runtime.virtual_no_go,
         session.LandedTowerDeckY(position));

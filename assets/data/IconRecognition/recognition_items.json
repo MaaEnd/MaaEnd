@@ -43,127 +43,6 @@
         "sortId1": -21,
         "sortId2": 504
     },
-    "item_activity_copper_poly": {
-        "name": "实验息壤铜锭",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 4,
-        "iconId": "item_activity_copper_poly",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -5
-    },
-    "item_activity_copper_poly_cmpt": {
-        "name": "实验息壤铜零件",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 4,
-        "iconId": "item_activity_copper_poly_cmpt",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -4
-    },
-    "item_activity_copper_poly_gas": {
-        "name": "实验息壤铜气",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 4,
-        "iconId": "item_activity_copper_poly_gas",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -6
-    },
-    "item_activity_copper_poly_tool": {
-        "name": "实验息壤铜骨骼",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 4,
-        "iconId": "item_activity_copper_poly_tool",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -3
-    },
-    "item_activity_copper_xiranite_tool": {
-        "name": "实验铜骨骼",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 3,
-        "iconId": "item_activity_copper_xiranite_tool",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -9
-    },
-    "item_activity_xiranite_box": {
-        "name": "实验龙泡泡外壳",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 3,
-        "iconId": "item_activity_xiranite_box",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -10
-    },
-    "item_activity_xiranite_enr_box": {
-        "name": "实验龙泡泡重壳",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 4,
-        "iconId": "item_activity_xiranite_enr_box",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -7
-    },
-    "item_activity_xiranite_enr_lung": {
-        "name": "重息壤龙泡泡",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 5,
-        "iconId": "item_activity_xiranite_enr_lung",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -1
-    },
-    "item_activity_xiranite_enr_nugget": {
-        "name": "实验重息壤块",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 4,
-        "iconId": "item_activity_xiranite_enr_nugget",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -8
-    },
-    "item_activity_xiranite_lung": {
-        "name": "息壤龙泡泡",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 4,
-        "iconId": "item_activity_xiranite_lung",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -2
-    },
-    "item_activity_xiranite_nugget": {
-        "name": "实验息壤块",
-        "category": "产物",
-        "storageKind": "Normal",
-        "categoryType": "Product",
-        "rarity": 3,
-        "iconId": "item_activity_xiranite_nugget",
-        "fluidIconId": "",
-        "sortId1": -80,
-        "sortId2": -11
-    },
     "item_adventureexp": {
         "name": "行动资历",
         "category": "独立资源",
@@ -1853,6 +1732,17 @@
         "fluidIconId": "",
         "sortId1": -31,
         "sortId2": 31
+    },
+    "item_charpotentialup_chr_0038_purrche": {
+        "name": "噗切娜的信物",
+        "category": "珍贵物品",
+        "storageKind": "ValuableDepot",
+        "categoryType": "CommercialItem",
+        "rarity": 5,
+        "iconId": "item_charpotentialup_chr_0038_purrche",
+        "fluidIconId": "",
+        "sortId1": -31,
+        "sortId2": 33
     },
     "item_charpotentialup_chr_9000_endmin": {
         "name": "管理员的信物",
@@ -8775,6 +8665,15 @@
         "categoryType": "Weapon",
         "rarity": 6,
         "iconId": "wpn_sword_0022",
+        "fluidIconId": ""
+    },
+    "wpn_sword_0023": {
+        "name": "点心时刻",
+        "category": "武器",
+        "storageKind": "ValuableDepot",
+        "categoryType": "Weapon",
+        "rarity": 5,
+        "iconId": "wpn_sword_0023",
         "fluidIconId": ""
     },
     "wpn_sword_0026": {

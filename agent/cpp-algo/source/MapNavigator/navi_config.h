@@ -298,6 +298,13 @@ constexpr int32_t kZiplineLaunchSettleMs = 400;
 // 瞄准精度只能在按左键之前保证: 按下去人就滑走了, 半空里没有跟随层能把方向修回来。走路那套
 // 40 度容差是靠跟随层善后才敢留的, 这里不能用
 constexpr double kZiplineAimToleranceDeg = 6.0;
+// 有邻架抢吸附时停点往远离它的一侧偏, 每滑错一次再加一档
+constexpr double kZiplineAimBiasStepDeg = 3.0;
+// 偏过头没吸住时偏置减半重按, 减到这以下改换俯仰档
+constexpr double kZiplineAimBiasMinDeg = 1.5;
+// 先在停点外侧这么远处压俯仰再横扫回来, 让目标先于邻架被瞄到
+constexpr double kZiplineAimSweepLeadDeg = 15.0;
+static_assert(kZiplineAimSweepLeadDeg > 2.0 * kZiplineAimToleranceDeg);
 // 上索后的稳定等待与全部水平修正共用这个截止时间。每次只发一个后端批次并等待真实反馈，
 // 避免大角度转向在上索动画尚未结束时一次性排入多条输入。
 constexpr int32_t kZiplineAimHeadingTimeoutMs = 6000;
@@ -393,8 +400,8 @@ constexpr const char* kCollectExitNode = "AutoCollectClickEnd";
 constexpr const char* kInteractEntryNode = "MapNavigatorInteractStart";
 constexpr const char* kInteractRecognitionNode = "MapNavigatorInteract";
 constexpr const char* kInteractExitNode = "MapNavigatorInteractEnd";
-// 上索走的也是这套三节点交互, 只是提示文字由节点自己带, 不由路线注入。
-// 确认上索另配一对: 只认图标, 不必为一次确认付 OCR 的钱。确认要的恰恰是「认不出」,
+// 上索走的也是这套三节点交互, 只是认的图标由节点自己带, 不由路线注入。
+// 确认上索另配一对。确认要的恰恰是「认不出」,
 // 所以照样得走 Start 节点 —— 直接派发识别节点会让认不出的那一趟耗满节点超时。
 constexpr const char* kZiplineMountEntryNode = "MapNavigatorZiplineMountStart";
 constexpr const char* kZiplineMountRecognitionNode = "MapNavigatorZiplineMount";

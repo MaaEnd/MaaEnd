@@ -73,8 +73,9 @@ bool ExpandNavmeshWaypoints(
     std::optional<double> start_deck_y = std::nullopt);
 NavmeshExpansionFailure CurrentNavmeshExpansionFailure();
 // The goal deck pins which overlapping walkable surface the route must stop on; unset keeps the full span
-// set. `start_floor_y` overrides which floor the start snaps onto, for the rare caller that actually knows
-// the height it is standing at (a zipline dismount); unset keeps the zone's dominant floor, unchanged.
+// set. `start_floor_y` overrides which floor the start snaps onto, for a caller that actually knows the
+// height it is standing at (a zipline dismount, or a mid-run replan from the route being walked); unset keeps
+// the zone's dominant floor, unchanged.
 // `no_go` is the navigation's virtual no-go discs; the ones stamped in `locator_zone` become walls.
 // `start_deck_y` is the exact height of the deck the start stands on (just landed on a zipline tower).
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(

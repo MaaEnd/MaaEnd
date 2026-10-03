@@ -154,6 +154,59 @@
             }
         }
     },
+    "__AutoEssenceRecoChooseOverrideEngraveNow": {
+        "desc": "战利品领取界面「进行刻写」区域文案（仅识别）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    41,
+                    358,
+                    394,
+                    212
+                ],
+                "expected": [
+                    "进行刻写",
+                    "刻寫",
+                    "Engrave Now",
+                    "刻印券を使用",
+                    "각인하기"
+                ]
+            }
+        }
+    },
+    "__AutoEssenceRecoEssenceOverrideOnToggle": {
+        "desc": "战利品领取界面刻写开关「开」态（仅识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    66,
+                    124,
+                    472,
+                    460
+                ],
+                "template": "AutoEssence/EssenceOverrideOn.png",
+                "order_by": "Score"
+            }
+        }
+    },
+    "__AutoEssenceRecoEssenceOverrideOffToggle": {
+        "desc": "战利品领取界面刻写开关「关」态（仅识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    66,
+                    124,
+                    472,
+                    460
+                ],
+                "template": "AutoEssence/EssenceOverrideOff.png",
+                "order_by": "Score"
+            }
+        }
+    },
     "__AutoEssenceLowSpDialog": {
         "desc": "识别体力不足弹窗的图标（仅识别）",
         "recognition": {

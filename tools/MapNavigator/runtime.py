@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ctypes
 import os
+import sys
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -104,6 +106,11 @@ def load_maa_runtime() -> MaaRuntime | None:
         from maa.toolkit import Toolkit
     except ImportError:
         Toolkit = None
+
+    # Linux 的控制单元通过 dlopen 加载。全局导出 Framework 的 RTTI, 避免
+    # libc++ 跨动态库 dynamic_cast 将支持相对移动的控制器误判为不支持。
+    if sys.platform == "linux" and (MAAFW_BIN_DIR / "libMaaFramework.so").exists():
+        ctypes.CDLL(str(MAAFW_BIN_DIR / "libMaaFramework.so"), mode=ctypes.RTLD_GLOBAL)
 
     return MaaRuntime(
         Library=Library,

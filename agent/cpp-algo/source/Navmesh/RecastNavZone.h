@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -95,7 +96,12 @@ public:
         double dist = 0.0;
     };
 
-    std::optional<SnapHit> snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const;
+    // accept 非空时只在它放行的面里挑, 入参是三角号与三角上离 p 最近的点
+    std::optional<SnapHit> snap(
+        const WorldPoint& p,
+        double radius,
+        std::optional<double> floor_y,
+        const std::function<bool(int32_t, const WorldPoint&)>& accept = {}) const;
     // 已知脚下那层的确切高度时用: 半径内先取与 deck_y 同层(kDeckBand 内)的面, 再按距离。
     std::optional<SnapHit> snapOnDeck(const WorldPoint& p, double radius, double deck_y) const;
 

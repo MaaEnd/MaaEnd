@@ -392,6 +392,8 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
         { "pulled_points", json::array() },
         { "assembled_points", json::array() },
         { "planned_points", json::array() },
+        { "planned_heights", json::array() },
+        { "planned_drops", json::array() },
         { "warnings", json::array() },
     };
     for (const auto& p : plan.debug.topology_cells) {
@@ -411,6 +413,12 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     }
     for (const auto& p : plan.debug.planned_points) {
         debug["planned_points"].as_array().emplace_back(json::array { p.x, p.y });
+    }
+    for (const double height : plan.heights) {
+        debug["planned_heights"].as_array().emplace_back(height);
+    }
+    for (const navmesh::DropLanding& drop : plan.drops) {
+        debug["planned_drops"].as_array().emplace_back(json::array { drop.index, drop.height });
     }
     for (const auto& warning : plan.debug.warnings) {
         debug["warnings"].as_array().emplace_back(warning);
