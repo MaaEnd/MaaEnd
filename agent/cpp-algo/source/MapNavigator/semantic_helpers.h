@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -20,7 +21,7 @@ void SelectPhaseForCurrentWaypoint(const Context& ctx, const char* reason);
 // 到一个点之后的公共收尾：记账、推进、按下一个点选相位
 Result CompleteArrival(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, const char* reason);
 // 只转镜头，不带前进脉冲。指令发不出去时返回 false。
-bool TurnToHeadingOnce(const Context& ctx, double heading_delta);
+bool TurnToHeadingOnce(const Context& ctx, double heading_delta, const std::function<bool()>& should_stop = {});
 // 连着读到两帧一致的朝向才算数。读不出来返回 false，此时 out_heading 不可用。
 bool CaptureStableHeading(const Context& ctx, double* out_heading);
 // 连续读取到 deadline；用于必须等待真实反馈的闭环动作。超时前没有稳定朝向时返回 false。
@@ -29,9 +30,9 @@ bool CaptureStableHeadingUntil(const Context& ctx, double* out_heading, std::chr
 bool CommitHeadingTurn(const Context& ctx, double heading_delta);
 // 复核转向结果并按需补一次。返回实际朝向；读不到稳定朝向时返回 fallback_heading。
 double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double fallback_heading);
-// 刹停、等读数不动了再重测，差得多就转向目标走一小步复测。返回是否已进到验收圈内；
-// 返回 false 只表示没能收拢（走不动/次数或时间用尽），点位照旧按判定圈算到达。
-bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint);
+// 停车后按有效镜头观测对齐，仅前进脉冲，停稳后验收。所有退出释放输入。
+// false 是非致命的未达标结果，调用方保留到点动作；取消时不得再执行动作。
+bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std::function<bool()>& should_stop);
 
 // 调用成功与命中分开: 节点不存在或框架报错要当场判失败, 不能当成"没看见"
 struct NodeSighting

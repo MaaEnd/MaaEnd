@@ -59,6 +59,8 @@ struct LocateOptions
     std::optional<double> camera_heading_prior;
     // 仅供 C++ 调用方控制；镜头朝向导航可关闭，不暴露为 Recognition 参数。
     bool reject_occluded_frames = true;
+    // 精确接近读取已通过现有校验的本帧匹配坐标，不使用静止锁定或 HOLD；不改变内部追踪。
+    bool precise_position = false;
 
     MEO_JSONIZATION(
         MEO_OPT loc_threshold,

@@ -74,24 +74,18 @@ constexpr int32_t kWalkResetReleaseMs = 120;
 constexpr double kSamePointActionChainDistance = 0.2;
 
 // --- Strict-Arrival Settle ---
-// The arrival band is a correction trigger, not an acceptance radius: entering it only means the residual is
-// worth walking off. Forward stays held the whole way through -- a view drag with the key released turns the
-// camera and leaves the character facing where it was. Every exit below accepts the point as it did before.
-constexpr double kStrictSettleAcceptBandWu = 0.5;
-constexpr int32_t kStrictSettleMaxCorrections = 4;
-constexpr int32_t kStrictSettleBudgetMs = 6000;
-// Retry budget for one usable fix: frames the locator held or blacked out are skipped rather than counted.
+// PR #4577 forward-pulse parameters, used 1:1 in navigation coordinates without scale compensation.
+// Stop, align the observed camera heading, pulse forward, then measure only after settling.
+constexpr double kStrictSettleStartStopDistance = 0.325;
+constexpr double kStrictSettleWalkSpeed = 1.2; // px/s; hold time = (residual - start/stop distance) / speed
+constexpr double kStrictSettleAcceptBandWu = 0.325;
+constexpr int32_t kStrictSettleStopWaitMs = 325;
+constexpr int32_t kStrictSettleMaxPulses = 3;
+constexpr int32_t kStrictSettleBudgetMs = 6000; // existing wall-clock bound, including turns and observations
 constexpr int32_t kStrictSettleFixIntervalMs = 120;
 constexpr int32_t kStrictSettleFixMaxFrames = 12;
-// A step shorter than the locator's stationary latch cannot be told apart from not having moved, so steps are
-// floored at it and two sub-latch steps in a row mean the step is not landing at all rather than landing short.
-constexpr double kStrictSettleMinStepWu = 0.6;
-constexpr double kStrictSettleStalledStepWu = 0.4;
-constexpr int32_t kStrictSettleStalledSteps = 2;
-// The first step runs open-loop at this length; its measured travel sizes the ones after it.
-constexpr int32_t kStrictSettleStepMs = 200;
-constexpr int32_t kStrictSettleMinStepMs = 120;
-constexpr int32_t kStrictSettleMaxStepMs = 450;
+constexpr double kStrictSettleHeadingToleranceDeg = 5.0; // observed camera alignment before pressing forward
+constexpr int32_t kStrictSettleMaxHeadingTurns = 3;      // bounds correction of dropped or inaccurate view commands
 
 // --- Navigation Mainline Constants ---
 constexpr int32_t kLocatorWaitMaxRetries = 100;

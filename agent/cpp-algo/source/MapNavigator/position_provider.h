@@ -27,6 +27,9 @@ public:
         const std::string& expected_zone_id,
         const std::vector<maplocator::SearchHint>& search_hints = {},
         std::optional<double> camera_heading_prior = std::nullopt);
+    // Uses a fresh, unstabilized match and confidence-checked camera heading for stopped arrival measurements.
+    // Does not change the heading source used by ordinary navigation captures.
+    bool captureForStrictGoal(NaviPosition* out_pos, const std::string& expected_zone_id);
     bool WaitForFix(
         NaviPosition* out_pos,
         const std::string& expected_zone_id,
@@ -48,6 +51,15 @@ public:
     void SetFrameObserver(std::function<void(const cv::Mat&)> observer);
 
 private:
+    bool captureImpl(
+        NaviPosition* out_pos,
+        bool force_global_search,
+        const std::string& expected_zone_id,
+        const std::vector<maplocator::SearchHint>& search_hints,
+        HeadingSource heading_source,
+        bool precise_position,
+        std::optional<double> camera_heading_prior = std::nullopt);
+
     MaaController* controller_;
     std::shared_ptr<maplocator::MapLocator> locator_;
     const HeadingSource heading_source_;
