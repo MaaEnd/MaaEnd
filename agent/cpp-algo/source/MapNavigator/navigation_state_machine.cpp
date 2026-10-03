@@ -287,6 +287,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const char* reason)
 {
     const size_t path_size = session->current_path().size();
+    const std::optional<double> walked_floor_y = session->WalkedFloorY(position);
     std::optional<DynamicAnchor> anchor;
     double anchor_cost = std::numeric_limits<double>::infinity();
     int plan_attempts = 0;
@@ -318,7 +319,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
         // 只钉终点: 够不到那张面的候选就不该被选中。第一个规划得通的点就是入口 ——
         // 再往后比价挑更近的, 等于在归属判定之后又做一次"就近吞点"。
         ++plan_attempts;
-        const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, waypoint.target_deck_y);
+        const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, waypoint.target_deck_y, walked_floor_y);
         if (route) {
             anchor_cost = route->cost;
             anchor = { *canonical_index, waypoint };
@@ -715,7 +716,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
         start,
         goal,
         anchor.target_deck_y,
-        std::nullopt,
+        session_->WalkedFloorY(*position_),
         nullptr,
         &runtime_state_.virtual_no_go);
     if (!route) {

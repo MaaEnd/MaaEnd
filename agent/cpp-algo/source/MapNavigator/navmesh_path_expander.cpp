@@ -484,8 +484,8 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     // floor (legacy single-floor behavior). A geometry / base / unknown zone yields the sentinel ->
     // floor-blind, byte-identical to the pre-floor behavior. Mirrors the python tool's floor_y_for(tier).
     //
-    // 起点高度只在调用方确实知道角色站在哪一层时才覆盖 —— 目前唯一的来源是滑索下索点，
-    // 它的高度是导入数据里带来的逐点真值。不传就还是按 zone 的主层走，逐位不变。
+    // 起点高度只在调用方确实知道角色站在哪一层时才覆盖 —— 来源是滑索下索点与运行中重规划时
+    // 人正走着的那段规划线。不传就还是按 zone 的主层走，逐位不变。
     const float zone_floor_y = pack.floorYForZoneName(locator_zone);
     request.start_floor_y = start_floor_y ? static_cast<float>(*start_floor_y) : zone_floor_y;
     // 终点兜底取 zone 主层而不是跟着起点走：起点被覆盖时那是「角色站在哪」，与终点该落在哪无关。
@@ -594,6 +594,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
     result.path.zone_name = request.zone_name;
     result.path.points = std::move(plan.points);
     result.path.clearance = std::move(plan.clearance);
+    result.path.heights = std::move(plan.heights);
     result.path.waypoints = std::move(plan.waypoints);
     result.path.drops = std::move(plan.drops);
     result.cost = plan.length;
@@ -1752,6 +1753,9 @@ bool AppendGeneratedNavmeshWaypoints(
     const auto clearance_at = [&](size_t index) {
         return index < world_path.clearance.size() ? world_path.clearance[index] : 0.0;
     };
+    const auto height_at = [&](size_t index) {
+        return index < world_path.heights.size() ? std::optional<double>(world_path.heights[index]) : std::nullopt;
+    };
     // 台沿下落的落点要越过才算到, 下一腿从下层起
     const auto mark_drop = [&](size_t index) {
         for (const navmesh::DropLanding& drop : world_path.drops) {
@@ -1770,12 +1774,14 @@ bool AppendGeneratedNavmeshWaypoints(
             out_path.emplace_back(point.x, point.y, ActionType::RUN);
             out_path.back().strict_arrival = false;
             out_path.back().corridor_clearance = clearance_at(index);
+            out_path.back().route_floor_y = height_at(index);
             mark_drop(index);
         }
         if (include_goal && total >= 2) {
             const navmesh::WorldPoint& goal = world_path.points[total - 1];
             out_path.emplace_back(goal.x, goal.y, ActionType::RUN);
             out_path.back().strict_arrival = true;
+            out_path.back().route_floor_y = height_at(total - 1);
         }
         return true;
     }
@@ -1790,6 +1796,7 @@ bool AppendGeneratedNavmeshWaypoints(
         out_path.emplace_back(world_path.points[index].x, world_path.points[index].y, ActionType::RUN);
         out_path.back().strict_arrival = false;
         out_path.back().corridor_clearance = clearance_at(index);
+        out_path.back().route_floor_y = height_at(index);
         mark_drop(index);
     };
     const auto restore_corners_to = [&](size_t anchor) {
@@ -1847,6 +1854,7 @@ bool AppendGeneratedNavmeshWaypoints(
         out_path.emplace_back(world_path.points[anchor].x, world_path.points[anchor].y, ActionType::RUN);
         out_path.back().strict_arrival = strict_arrival;
         out_path.back().corridor_clearance = clearance_at(anchor);
+        out_path.back().route_floor_y = height_at(anchor);
         mark_drop(anchor);
         prev = anchor;
     };

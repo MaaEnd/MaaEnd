@@ -160,6 +160,8 @@ struct Waypoint
     // NAVMESH only: height of the overlapping deck this waypoint sits on. Pins the goal span for the leg
     // ending here and the start span for the leg leaving it. Unset -> full span set, unchanged.
     std::optional<double> target_deck_y;
+    // navmesh 规划出的点专用: 规划线在这一点所在面的高, 运行中重规划用它定起点层
+    std::optional<double> route_floor_y;
     // 台沿下落的落点专用: 起跳点。沿起跳→落点方向越过本点才算到
     std::optional<std::array<double, 2>> drop_from;
     // Authored path only: make this node a hard boundary between globally planned legs. Coordinate-bearing

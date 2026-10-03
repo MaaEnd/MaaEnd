@@ -169,11 +169,12 @@ struct RouteDiag
     std::string err;
     std::vector<std::string> warn;
     std::vector<double> clearance;
-    std::vector<double> height;     // 逐点所在面的高度; 层预言机走不通时清空
+    std::vector<double> height;      // 逐点所在面的高度; 层预言机走不通时清空
+    std::vector<double> span_height; // 逐点取自搜索挑的那张面; 对不回父链时为空
     std::vector<size_t> waypoints;
-    std::vector<DropLanding> drops; // 台沿下落的落点
+    std::vector<DropLanding> drops;  // 台沿下落的落点
     bool crossed_barrier = false;
-    bool hop_barrier = false;       // 端点接线的那一跳跨了禁行边
+    bool hop_barrier = false;        // 端点接线的那一跳跨了禁行边
     double snap_start = 0.0;
     double snap_goal = 0.0;
 
@@ -471,6 +472,20 @@ struct GridPatch
     int64_t ny = 0;
 };
 
+// 起点种子 span: 先在起点格附近按 h0 挑; 起点离网时附近无体素, 退用按楼层吸附过的起点
+int64_t seedRec(const GridPatch& ps, const WorldPoint& s, const WorldPoint& s_snap, double h0, int64_t& gx, int64_t& gy)
+{
+    gx = static_cast<int64_t>((s.x - ps.x0) / kCS);
+    gy = static_cast<int64_t>((s.y - ps.y0) / kCS);
+    const int64_t rec = pickStartRec(ps.gw, ps.nx, ps.ny, gx, gy, h0);
+    if (rec >= 0) {
+        return rec;
+    }
+    gx = static_cast<int64_t>((s_snap.x - ps.x0) / kCS);
+    gy = static_cast<int64_t>((s_snap.y - ps.y0) / kCS);
+    return pickStartRec(ps.gw, ps.nx, ps.ny, gx, gy, h0);
+}
+
 // 确定本腿所走的类, 同时确定 span 可达域的种子(全局格号与高度)。由起点吸附半径内的可走 span 定类;
 // 终点声明了面时改由终点确定, 避免起点二维吸附落在屋顶而把路线拉到其他层。只读取两端吸附半径内的格,
 // 因此在覆盖这两处的任何一块格图上确定, 结果均相同: 先在小块上定类再按类开图, 与整区图逐位相同。
@@ -488,15 +503,9 @@ bool pickRegion(
     double& seed_h,
     std::string& err)
 {
-    int64_t gx = static_cast<int64_t>((s.x - ps.x0) / kCS);
-    int64_t gy = static_cast<int64_t>((s.y - ps.y0) / kCS);
-    int64_t start_rec = pickStartRec(ps.gw, ps.nx, ps.ny, gx, gy, h0);
-    if (start_rec < 0) {
-        // 起点离网时附近无体素, 退用按楼层吸附过的起点定种子
-        gx = static_cast<int64_t>((s_snap.x - ps.x0) / kCS);
-        gy = static_cast<int64_t>((s_snap.y - ps.y0) / kCS);
-        start_rec = pickStartRec(ps.gw, ps.nx, ps.ny, gx, gy, h0);
-    }
+    int64_t gx = 0;
+    int64_t gy = 0;
+    const int64_t start_rec = seedRec(ps, s, s_snap, h0, gx, gy);
     if (start_rec < 0) {
         err = "起点附近无可走体素 (gx=" + std::to_string(gx) + ",gy=" + std::to_string(gy) + ")";
         return false;
@@ -1078,29 +1087,43 @@ void PushDropLandings(
     };
     constexpr double kStep = kCS / 4.0;
     for (size_t i = 1; i + 1 < pts.size(); ++i) {
-        const WorldPoint take = pts[i - 1];
-        const WorldPoint land = pts[i];
-        const double len = std::hypot(land.x - take.x, land.y - take.y);
-        if (hz[i - 1] - hz[i] <= kClimb || len <= 0.0) {
+        if (hz[i - 1] - hz[i] <= kClimb || std::hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y) <= 0.0) {
             continue;
         }
-        const double ux = (land.x - take.x) / len;
-        const double uy = (land.y - take.y) / len;
-        // 从起跳点顺着上层走, 断开处比落点高出一步以上才是台沿; 一路连着的是坡
+        // 从起跳点顺着上层走, 断开处比落点高出一步以上才是台沿; 一路连着的是坡。上层铺过这一点就
+        // 顺着折线接着找, 断开处之后的点才是落点; 走回这层就不算下落。
         double h_up = hz[i - 1];
         bool edge = false;
-        for (double t = 0.0; t < len; t += kStep) {
-            const auto [gx, gy] = cell_of({ take.x + ux * t, take.y + uy * t });
-            const auto v = span_h(gx, gy, h_up);
-            if (!v.has_value()) {
-                edge = true;
+        std::vector<double> still_up;
+        size_t li = i;
+        for (; li + 1 < pts.size(); ++li) {
+            const WorldPoint take = pts[li - 1];
+            const WorldPoint land = pts[li];
+            const double len = std::hypot(land.x - take.x, land.y - take.y);
+            const double ux = len > 0.0 ? (land.x - take.x) / len : 0.0;
+            const double uy = len > 0.0 ? (land.y - take.y) / len : 0.0;
+            for (double t = 0.0; t < len; t += kStep) {
+                const auto [gx, gy] = cell_of({ take.x + ux * t, take.y + uy * t });
+                const auto v = span_h(gx, gy, h_up);
+                if (!v.has_value()) {
+                    edge = true;
+                    break;
+                }
+                h_up = *v;
+            }
+            if (edge || h_up - hz[li] <= kClimb) {
                 break;
             }
-            h_up = *v;
+            still_up.push_back(h_up);
         }
-        if (!edge || h_up - hz[i] <= kClimb) {
+        if (!edge || h_up - hz[li] <= kClimb) {
             continue;
         }
+        for (size_t k = i; k < li; ++k) {
+            hz[k] = still_up[k - i];
+        }
+        i = li;
+        const WorldPoint land = pts[i];
         // 顺着下层从原落点往外找, 离原落点最近、四个角色半径内没有上层面、又能直走到下一点的
         // 那一格就是新落点。只找到原落点八个角色半径为止, 找不到就取其中离上层面最远的那格。
         // 直走只看下层逐格接不接得上: 挡线与立面都是平面的, 叠层处会连下层的弦一起挡。
@@ -2382,6 +2405,24 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     }
     dg.assembled_points = out;
     dg.timing.assemble_ms = nowMs() - t_asm0;
+    // 中间点按顺序对回搜索父链, 取搜索给它挑的那张面; 只往前对, 叠层处不会对到另一遍上。
+    if (!hs.empty() && out.size() >= 2) {
+        size_t k = 0;
+        dg.span_height.push_back(static_cast<double>(hs.front()));
+        for (size_t i = 1; i + 1 < out.size(); ++i) {
+            while (k < dg.taut_points.size() && (dg.taut_points[k].x != out[i].x || dg.taut_points[k].y != out[i].y)) {
+                ++k;
+            }
+            if (k == dg.taut_points.size()) {
+                dg.span_height.clear();
+                break;
+            }
+            dg.span_height.push_back(static_cast<double>(hs[k]));
+        }
+        if (!dg.span_height.empty()) {
+            dg.span_height.push_back(static_cast<double>(hs.back()));
+        }
+    }
 
     const double t_lift0 = nowMs();
     // 抬升放在取直之后: 放前面的话抬起来的拐点让两侧更容易连通, 取直一刀就把它跳过去了。
@@ -2427,11 +2468,21 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     };
     dg.height = walk_heights(false);
     if (info.fall_r > 0.0) {
-        // 带台沿下落的路线上面那遍走不通, 外推要的两侧面高放行下落再走一遍
-        std::vector<double> hz = dg.height.empty() ? walk_heights(true) : dg.height;
+        // 判下落取搜索给每一点挑的面高, 放行下落的走查在叠层处会漂到楼下; 对不回父链时照旧。
+        const bool by_span = dg.span_height.size() == out.size();
+        std::vector<double> hz = by_span ? dg.span_height : dg.height.empty() ? walk_heights(true) : dg.height;
         if (hz.size() == out.size()) {
             PushDropLandings(out, hz, dg, st3, dist, nx, ny, x0, y0, info.fall_r, lyo);
-            if (!dg.height.empty()) {
+            if (by_span) {
+                // 挪过的落点换成下层那张面的高
+                for (size_t i = 0; i < dg.height.size(); ++i) {
+                    if (hz[i] != dg.span_height[i]) {
+                        dg.height[i] = hz[i];
+                    }
+                }
+                dg.span_height = std::move(hz);
+            }
+            else if (!dg.height.empty()) {
                 dg.height = std::move(hz);
             }
         }
@@ -2618,7 +2669,73 @@ RecastPlanResult RecastNavEngine::planLocked(
         goal_floor_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(goal_floor_y)) : std::nullopt;
     const std::optional<double> gdk =
         goal_deck_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(goal_deck_y)) : std::nullopt;
-    const auto ss = zc.snap(start, kSnapRadius, sfl);
+
+    // 规划范围是这条腿走的那一类占的格。按端点包围盒开窗、失败再逐档扩大的老做法有两处死结:
+    // 绕行只要落在盒外就等不到更大的窗口, 连通的腿被判成不连通; 升档又把每次失败的代价乘上档数。
+    // 类是可走面的连通片, 类外的格进不了规划图, 所以按类开图与铺满整区拿到的是同一张图 ——
+    // 绕多远都在图里, 而不必为区里另外几千个类白铺内存。
+    const auto loadPatch = [&](const WorldPoint& a, const WorldPoint& b, double pad, GridPatch& p) {
+        const auto r = static_cast<int64_t>(std::ceil(pad / kCS));
+        const int64_t ax = static_cast<int64_t>(std::floor(a.x / kCS));
+        const int64_t ay = static_cast<int64_t>(std::floor(a.y / kCS));
+        const int64_t bx = static_cast<int64_t>(std::floor(b.x / kCS));
+        const int64_t by = static_cast<int64_t>(std::floor(b.y / kCS));
+        const int64_t gx0 = std::min(ax, bx) - r;
+        const int64_t gy0 = std::min(ay, by) - r;
+        p.nx = std::max(ax, bx) + r - gx0 + 1;
+        p.ny = std::max(ay, by) + r - gy0 + 1;
+        p.x0 = static_cast<double>(gx0) * kCS;
+        p.y0 = static_cast<double>(gy0) * kCS;
+        size_t n_opn = 0;
+        const FieldsOpenRec* opn = fields_.opensOfZone(zc.zone_id, n_opn);
+        return loadGridWindow(grid_, *gz, nullptr, nullptr, opn, n_opn, gx0, gy0, p.nx, p.ny, p.gw);
+    };
+    // 定类只读取两端吸附半径内的格, 解开两个小块即可。
+    GridPatch ps;
+    GridPatch pg;
+    bool patched = false;
+    // 终点声明了面时先只吸种子格里有终点那一类面的面, 一张都没有再照旧吸。
+    std::function<bool(int32_t, const WorldPoint&)> seeds_in_deck_region;
+    uint32_t deck_region = 0;
+    if (gdk.has_value()) {
+        // 起点块盖住兜底吸附半径内任一吸附点再外扩一个定类半径
+        patched = loadPatch(start, start, kSnapFallbackRadius + kSnapRadius, ps) && loadPatch(goal, goal, kSnapRadius, pg);
+        const int64_t deck_rec = patched ? pickDeckRec(
+                                               pg.gw,
+                                               pg.nx,
+                                               pg.ny,
+                                               static_cast<int64_t>((goal.x - pg.x0) / kCS),
+                                               static_cast<int64_t>((goal.y - pg.y0) / kCS),
+                                               *gdk)
+                                         : -1;
+        if (deck_rec >= 0) {
+            deck_region = pg.gw.rec[static_cast<size_t>(deck_rec)].rid;
+            seeds_in_deck_region = [&](int32_t t, const WorldPoint& sp) {
+                int64_t gx = 0;
+                int64_t gy = 0;
+                const int64_t rec = seedRec(ps, start, sp, triHeightOf(zc.mesh, t), gx, gy);
+                if (rec < 0) {
+                    return false;
+                }
+                // 填洞格不算
+                const auto cell = static_cast<size_t>(ps.gw.rec[static_cast<size_t>(rec)].cell);
+                for (int64_t i = ps.gw.head[cell]; i >= 0; i = ps.gw.next[static_cast<size_t>(i)]) {
+                    const GridSpanRec& r = ps.gw.rec[static_cast<size_t>(i)];
+                    if (r.rid == deck_region && (r.flags & kGridFlagFill) == 0) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+        }
+    }
+    std::optional<ZoneClean::SnapHit> ss;
+    if (seeds_in_deck_region) {
+        ss = zc.snap(start, kSnapRadius, sfl, seeds_in_deck_region);
+    }
+    if (!ss.has_value()) {
+        ss = zc.snap(start, kSnapRadius, sfl);
+    }
     if (!ss.has_value()) {
         res.error = "起点不在网格附近";
         return res;
@@ -2662,30 +2779,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         return res;
     }
 
-    // 规划范围是这条腿走的那一类占的格。按端点包围盒开窗、失败再逐档扩大的老做法有两处死结:
-    // 绕行只要落在盒外就等不到更大的窗口, 连通的腿被判成不连通; 升档又把每次失败的代价乘上档数。
-    // 类是可走面的连通片, 类外的格进不了规划图, 所以按类开图与铺满整区拿到的是同一张图 ——
-    // 绕多远都在图里, 而不必为区里另外几千个类白铺内存。
-    const auto loadPatch = [&](const WorldPoint& a, const WorldPoint& b, double pad, GridPatch& p) {
-        const auto r = static_cast<int64_t>(std::ceil(pad / kCS));
-        const int64_t ax = static_cast<int64_t>(std::floor(a.x / kCS));
-        const int64_t ay = static_cast<int64_t>(std::floor(a.y / kCS));
-        const int64_t bx = static_cast<int64_t>(std::floor(b.x / kCS));
-        const int64_t by = static_cast<int64_t>(std::floor(b.y / kCS));
-        const int64_t gx0 = std::min(ax, bx) - r;
-        const int64_t gy0 = std::min(ay, by) - r;
-        p.nx = std::max(ax, bx) + r - gx0 + 1;
-        p.ny = std::max(ay, by) + r - gy0 + 1;
-        p.x0 = static_cast<double>(gx0) * kCS;
-        p.y0 = static_cast<double>(gy0) * kCS;
-        size_t n_opn = 0;
-        const FieldsOpenRec* opn = fields_.opensOfZone(zc.zone_id, n_opn);
-        return loadGridWindow(grid_, *gz, nullptr, nullptr, opn, n_opn, gx0, gy0, p.nx, p.ny, p.gw);
-    };
-    // 定类只读取两端吸附半径内的格, 解开两个小块即可。
-    GridPatch ps;
-    GridPatch pg;
-    if (!loadPatch(start, ss->point, kSnapRadius, ps) || (gdk.has_value() && !loadPatch(goal, goal, kSnapRadius, pg))) {
+    if (!patched && (!loadPatch(start, ss->point, kSnapRadius, ps) || (gdk.has_value() && !loadPatch(goal, goal, kSnapRadius, pg)))) {
         res.error = "预烘格图解不开";
         return res;
     }
@@ -2945,6 +3039,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
         res.warnings = dg.warn;
         res.clearance = dg.clearance;
+        res.heights = dg.span_height;
         res.snap_start = dg.snap_start;
         res.snap_goal = dg.snap_goal;
         res.waypoints = std::move(dg.waypoints);

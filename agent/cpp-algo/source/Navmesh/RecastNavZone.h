@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -95,7 +96,12 @@ public:
         double dist = 0.0;
     };
 
-    std::optional<SnapHit> snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const;
+    // accept 非空时只在它放行的面里挑, 入参是三角号与三角上离 p 最近的点
+    std::optional<SnapHit> snap(
+        const WorldPoint& p,
+        double radius,
+        std::optional<double> floor_y,
+        const std::function<bool(int32_t, const WorldPoint&)>& accept = {}) const;
 
     // 交还几何与逐三角的表。调用方保证之后不再读它们, 区号一类的标量照旧可用。
     void release();

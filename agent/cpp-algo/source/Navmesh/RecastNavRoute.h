@@ -27,6 +27,7 @@ struct RecastPlanResult
     bool no_go = false;
     std::vector<WorldPoint> points;
     std::vector<double> clearance; // 逐点通道半宽 px
+    std::vector<double> heights;   // 逐点所在面的高度; 没有层信息时为空
     double length = 0.0;
     std::vector<std::string> warnings;
     double snap_start = 0.0; // 起/终点到可走格锚点距离 px

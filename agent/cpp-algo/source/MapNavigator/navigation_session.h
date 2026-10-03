@@ -50,6 +50,8 @@ struct NavigationSession
     bool HasCurrentWaypoint() const;
     const Waypoint& CurrentWaypoint() const;
     const Waypoint& CurrentPathAt(size_t index) const;
+    // 人正走着的那段规划线在人所在处的面高; 没有时为空
+    std::optional<double> WalkedFloorY(const NaviPosition& position) const;
     std::optional<size_t> CanonicalIndexAtCurrent() const;
     std::optional<size_t> CanonicalIndexAtCurrentPath(size_t index) const;
 

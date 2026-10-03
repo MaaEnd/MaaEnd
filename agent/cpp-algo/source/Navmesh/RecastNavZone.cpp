@@ -504,7 +504,11 @@ void ZoneClean::release()
     walkable = std::vector<uint8_t>();
 }
 
-std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const
+std::optional<ZoneClean::SnapHit> ZoneClean::snap(
+    const WorldPoint& p,
+    double radius,
+    std::optional<double> floor_y,
+    const std::function<bool(int32_t, const WorldPoint&)>& accept) const
 {
     const double r = std::max(0.0, radius);
     const int nr = r >= kSnapFallbackRadius ? 1 : 2;
@@ -535,6 +539,9 @@ std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double ra
                 k = { delta <= static_cast<double>(kBaseNavFloorBand) ? 0.0 : 1.0, dist, delta, isl };
             }
             if (!have || k < bk) {
+                if (accept && !accept(t, sp)) {
+                    continue;
+                }
                 have = true;
                 bk = k;
                 best = { t, sp, dist };

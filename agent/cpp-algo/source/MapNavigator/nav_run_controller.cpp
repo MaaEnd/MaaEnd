@@ -454,8 +454,15 @@ bool NavRunController::buildPlan(
 
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    auto route =
-        PlanNavmeshRoute(param, position.zone_id, start, goal, anchor.target_deck_y, std::nullopt, nullptr, &runtime.virtual_no_go);
+    auto route = PlanNavmeshRoute(
+        param,
+        position.zone_id,
+        start,
+        goal,
+        anchor.target_deck_y,
+        session.WalkedFloorY(position),
+        nullptr,
+        &runtime.virtual_no_go);
     if (route && route->ok() && route->path.points.size() >= 2) {
         commit(std::move(route->path), false);
         return true;

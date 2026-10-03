@@ -222,6 +222,28 @@ const Waypoint& NavigationSession::CurrentPathAt(size_t index) const
     return current_path_[index];
 }
 
+std::optional<double> NavigationSession::WalkedFloorY(const NaviPosition& position) const
+{
+    if (!HasCurrentWaypoint()) {
+        return std::nullopt;
+    }
+    const Waypoint& to = current_path_[current_node_idx_];
+    // 只认紧挨着且带坐标的上一个点
+    const Waypoint* from =
+        current_node_idx_ > 0 && current_path_[current_node_idx_ - 1].HasPosition() ? &current_path_[current_node_idx_ - 1] : nullptr;
+    if (from == nullptr || !from->route_floor_y) {
+        return to.route_floor_y;
+    }
+    if (!to.HasPosition() || !to.route_floor_y) {
+        return from->route_floor_y;
+    }
+    const double dx = to.x - from->x;
+    const double dy = to.y - from->y;
+    const double len_sq = dx * dx + dy * dy;
+    const double t = len_sq > 0.0 ? std::clamp(((position.x - from->x) * dx + (position.y - from->y) * dy) / len_sq, 0.0, 1.0) : 1.0;
+    return *from->route_floor_y + t * (*to.route_floor_y - *from->route_floor_y);
+}
+
 std::optional<size_t> NavigationSession::CanonicalIndexAtCurrent() const
 {
     if (!RequireCurrentWaypoint("CanonicalIndexAtCurrent")) {
