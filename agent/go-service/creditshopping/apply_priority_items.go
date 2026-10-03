@@ -4,14 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
+	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-const creditShoppingApplyPriorityItemsActionName = "CreditShoppingApplyPriorityItemsAction"
+const (
+	creditShoppingApplyPriorityItemsActionName = "CreditShoppingApplyPriorityItemsAction"
+	creditShoppingApplyPriorityItemsNodeName   = "CreditShoppingApplyPriorityItems"
+)
 
-// ApplyPriorityItemsAction 将任务选项中的多选物品 ID 写入对应 PriorityN 子节点，并按用户顺序重写 Or 的 any_of。
+// ApplyPriorityItemsAction 将任务选项中的多选物品写成各档物品节点的模板列表和阈值列表。
 type ApplyPriorityItemsAction struct{}
 
 var _ maa.CustomActionRunner = (*ApplyPriorityItemsAction)(nil)
@@ -39,6 +43,7 @@ func (a *ApplyPriorityItemsAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 			return false
 		}
 	}
+	param = mergeApplyPriorityParamFromAttach(ctx, param)
 
 	patch := map[string]any{}
 	for level, ids := range map[int][]string{
@@ -99,31 +104,117 @@ func buildPriorityLevelOverride(level int, selectedIDs []string) (map[string]any
 		normalized = append(normalized, id)
 	}
 
-	selectedSet := make(map[string]struct{}, len(normalized))
-	for _, id := range normalized {
-		selectedSet[id] = struct{}{}
+	ordered := orderIDsByCase(normalized)
+	if len(ordered) == 0 {
+		return map[string]any{}, nil
 	}
+	return map[string]any{
+		priorityItemNodeName(level): priorityItemTemplateListOverride(ordered),
+	}, nil
+}
 
-	patch := map[string]any{}
-	for _, item := range priorityItemCatalog {
-		node := priorityItemNodeName(level, item.ID)
-		if _, ok := selectedSet[item.ID]; ok {
-			patch[node] = enabledPriorityItemOverride(item)
-		} else {
-			patch[node] = disabledPriorityItemOverride()
+func orderIDsByCase(ids []string) []string {
+	if len(ids) == 0 {
+		return nil
+	}
+	selected := make(map[string]struct{}, len(ids))
+	for _, id := range ids {
+		selected[id] = struct{}{}
+	}
+	out := make([]string, 0, len(selected))
+	for _, id := range priorityItemCaseOrder {
+		if _, ok := selected[id]; ok {
+			out = append(out, id)
 		}
 	}
+	return out
+}
 
-	anyOf := make([]string, 0, len(normalized))
-	for _, id := range normalized {
-		anyOf = append(anyOf, priorityItemNodeName(level, id))
+func mergeApplyPriorityParamFromAttach(ctx *maa.Context, param applyPriorityItemsParam) applyPriorityItemsParam {
+	if !applyPriorityParamEmpty(param) {
+		return param
 	}
-	patch[priorityItemOrNodeName(level)] = map[string]any{
-		"recognition": "Or",
-		"any_of":      anyOf,
+	fromAttach, ok := priorityItemsFromAttach(ctx, creditShoppingApplyPriorityItemsNodeName)
+	if !ok {
+		return param
+	}
+	return fromAttach
+}
+
+func applyPriorityParamEmpty(param applyPriorityItemsParam) bool {
+	return len(param.Priority1) == 0 && len(param.Priority2) == 0 && len(param.Priority3) == 0
+}
+
+func priorityItemsFromAttach(ctx *maa.Context, nodeName string) (applyPriorityItemsParam, bool) {
+	raw, err := ctx.GetNodeJSON(nodeName)
+	if err != nil || raw == "" {
+		return applyPriorityItemsParam{}, false
+	}
+	var node struct {
+		Attach map[string]json.RawMessage `json:"attach"`
+	}
+	if err := json.Unmarshal([]byte(raw), &node); err != nil || len(node.Attach) == 0 {
+		return applyPriorityItemsParam{}, false
 	}
 
-	return patch, nil
+	selected := map[int]map[string]struct{}{
+		1: {},
+		2: {},
+		3: {},
+	}
+	for key, rawValue := range node.Attach {
+		level, itemID, ok := parseAttachPriorityKey(key)
+		if !ok || !attachValueEnabled(rawValue) {
+			continue
+		}
+		selected[level][itemID] = struct{}{}
+	}
+
+	out := applyPriorityItemsParam{
+		Priority1: orderIDsByCase(mapKeys(selected[1])),
+		Priority2: orderIDsByCase(mapKeys(selected[2])),
+		Priority3: orderIDsByCase(mapKeys(selected[3])),
+	}
+	if applyPriorityParamEmpty(out) {
+		return applyPriorityItemsParam{}, false
+	}
+	return out, true
+}
+
+func parseAttachPriorityKey(key string) (level int, itemID string, ok bool) {
+	for lvl := 1; lvl <= 3; lvl++ {
+		prefix := fmt.Sprintf("priority%d__", lvl)
+		if rest, found := strings.CutPrefix(key, prefix); found && rest != "" {
+			return lvl, rest, true
+		}
+	}
+	return 0, "", false
+}
+
+func attachValueEnabled(raw json.RawMessage) bool {
+	if len(raw) == 0 || string(raw) == "null" {
+		return false
+	}
+	var asBool bool
+	if err := json.Unmarshal(raw, &asBool); err == nil {
+		return asBool
+	}
+	var asString string
+	if err := json.Unmarshal(raw, &asString); err == nil {
+		return strings.TrimSpace(asString) != "" && !strings.EqualFold(asString, "false")
+	}
+	return true
+}
+
+func mapKeys(set map[string]struct{}) []string {
+	if len(set) == 0 {
+		return nil
+	}
+	keys := make([]string, 0, len(set))
+	for key := range set {
+		keys = append(keys, key)
+	}
+	return keys
 }
 
 func patchKeys(patch map[string]any) []string {

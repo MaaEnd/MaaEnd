@@ -3,7 +3,7 @@
     "$defs": {
         "ApplyPriorityItemsParam": {
             "type": "object",
-            "description": "CreditShoppingApplyPriorityItemsAction：各优先购买档勾选物品 ID（与 CreditShoppingItems case 名一致），数组顺序即 Or any_of 顺序。",
+            "description": "CreditShoppingApplyPriorityItemsAction：各优先购买档勾选物品 ID（与 CreditShoppingItems case 名一致）。写入对应物品节点时按任务 cases 顺序排列模板列表。",
             "properties": {
                 "priority1": {
                     "type": "array",

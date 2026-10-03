@@ -9,6 +9,24 @@ type priorityItemTemplate struct {
 
 var priorityItemShelfROI = []int{38, 95, 1194, 527}
 
+// priorityItemCaseOrder 与 assets/tasks/CreditShopping.json 各档 Items checkbox cases 顺序一致。
+var priorityItemCaseOrder = []string{
+	"ArsenalTicket",
+	"Oroberyl",
+	"TCreds",
+	"ElementaryCognitiveCarrier",
+	"ElementaryCombatRecord",
+	"IntermediateCombatRecord",
+	"ArmsInspector",
+	"ArmsINSPKit",
+	"CastDie",
+	"HeavyCastDie",
+	"Protodisk",
+	"Protoset",
+	"Protoprism",
+	"Protohedron",
+}
+
 // priorityItemCatalog 与 CreditShoppingItems case 名一致，模板与 assets/tasks/CreditShopping.json 勾选 override 对齐。
 var priorityItemCatalog = []priorityItemTemplate{
 	{ID: "ArmsInspector", Template: "CreditShopping/Item/item_weapon_expcard_low.png", Threshold: 0.7},
@@ -36,11 +54,7 @@ func priorityItemByID(id string) (priorityItemTemplate, bool) {
 	return priorityItemTemplate{}, false
 }
 
-func priorityItemNodeName(level int, id string) string {
-	return "CreditShoppingPriority" + itoaLevel(level) + "Item" + id
-}
-
-func priorityItemOrNodeName(level int) string {
+func priorityItemNodeName(level int) string {
 	return "CreditShoppingPriority" + itoaLevel(level) + "Item"
 }
 
@@ -57,24 +71,23 @@ func itoaLevel(level int) string {
 	}
 }
 
-func disabledPriorityItemOverride() map[string]any {
-	return map[string]any{
-		"recognition": "ColorMatch",
-		"roi":         []int{0, 0, 1, 1},
-		"method":      6,
-		"lower":       []int{0},
-		"upper":       []int{0},
-		"count":       2,
+func priorityItemTemplateListOverride(ids []string) map[string]any {
+	templates := make([]string, 0, len(ids))
+	thresholds := make([]float64, 0, len(ids))
+	for _, id := range ids {
+		item, ok := priorityItemByID(id)
+		if !ok {
+			continue
+		}
+		templates = append(templates, item.Template)
+		thresholds = append(thresholds, item.Threshold)
 	}
-}
-
-func enabledPriorityItemOverride(item priorityItemTemplate) map[string]any {
 	return map[string]any{
 		"recognition": "TemplateMatch",
 		"roi":         priorityItemShelfROI,
-		"template":    item.Template,
+		"template":    templates,
+		"threshold":   thresholds,
 		"green_mask":  true,
-		"threshold":   item.Threshold,
 		"order_by":    "Vertical",
 	}
 }

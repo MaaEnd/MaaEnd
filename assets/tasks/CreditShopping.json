@@ -253,18 +253,10 @@
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemArsenalTicket": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__ArsenalTicket": "ArsenalTicket"
+                            }
                         }
                     }
                 },
@@ -273,18 +265,10 @@
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemOroberyl": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_diamond.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__Oroberyl": "Oroberyl"
+                            }
                         }
                     }
                 },
@@ -293,18 +277,10 @@
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemTCreds": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_gold.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__TCreds": "TCreds"
+                            }
                         }
                     }
                 },
@@ -313,18 +289,10 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemElementaryCognitiveCarrier": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_expcard_stage2_low.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__ElementaryCognitiveCarrier": "ElementaryCognitiveCarrier"
+                            }
                         }
                     }
                 },
@@ -333,18 +301,10 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemElementaryCombatRecord": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_expcard_2_1.png",
-                            "green_mask": true,
-                            "threshold": 0.92,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__ElementaryCombatRecord": "ElementaryCombatRecord"
+                            }
                         }
                     }
                 },
@@ -353,18 +313,10 @@
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemIntermediateCombatRecord": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_expcard_2_2.png",
-                            "green_mask": true,
-                            "threshold": 0.92,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__IntermediateCombatRecord": "IntermediateCombatRecord"
+                            }
                         }
                     }
                 },
@@ -373,18 +325,10 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemArmsInspector": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_expcard_low.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__ArmsInspector": "ArmsInspector"
+                            }
                         }
                     }
                 },
@@ -393,18 +337,10 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemArmsINSPKit": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__ArmsINSPKit": "ArmsINSPKit"
+                            }
                         }
                     }
                 },
@@ -413,18 +349,10 @@
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemCastDie": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_break_low.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__CastDie": "CastDie"
+                            }
                         }
                     }
                 },
@@ -433,18 +361,10 @@
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemHeavyCastDie": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_break_high.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__HeavyCastDie": "HeavyCastDie"
+                            }
                         }
                     }
                 },
@@ -453,18 +373,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemProtodisk": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__Protodisk": "Protodisk"
+                            }
                         }
                     }
                 },
@@ -473,18 +385,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemProtoset": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__Protoset": "Protoset"
+                            }
                         }
                     }
                 },
@@ -493,18 +397,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemProtoprism": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__Protoprism": "Protoprism"
+                            }
                         }
                     }
                 },
@@ -513,18 +409,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority1ItemProtohedron": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority1__Protohedron": "Protohedron"
+                            }
                         }
                     }
                 }
@@ -786,18 +674,10 @@
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemArsenalTicket": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__ArsenalTicket": "ArsenalTicket"
+                            }
                         }
                     }
                 },
@@ -806,18 +686,10 @@
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemOroberyl": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_diamond.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__Oroberyl": "Oroberyl"
+                            }
                         }
                     }
                 },
@@ -826,18 +698,10 @@
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemTCreds": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_gold.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__TCreds": "TCreds"
+                            }
                         }
                     }
                 },
@@ -846,18 +710,10 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemElementaryCognitiveCarrier": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_expcard_stage2_low.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__ElementaryCognitiveCarrier": "ElementaryCognitiveCarrier"
+                            }
                         }
                     }
                 },
@@ -866,18 +722,10 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemElementaryCombatRecord": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_expcard_2_1.png",
-                            "green_mask": true,
-                            "threshold": 0.92,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__ElementaryCombatRecord": "ElementaryCombatRecord"
+                            }
                         }
                     }
                 },
@@ -886,18 +734,10 @@
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemIntermediateCombatRecord": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_expcard_2_2.png",
-                            "green_mask": true,
-                            "threshold": 0.92,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__IntermediateCombatRecord": "IntermediateCombatRecord"
+                            }
                         }
                     }
                 },
@@ -906,18 +746,10 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemArmsInspector": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_expcard_low.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__ArmsInspector": "ArmsInspector"
+                            }
                         }
                     }
                 },
@@ -926,18 +758,10 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemArmsINSPKit": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__ArmsINSPKit": "ArmsINSPKit"
+                            }
                         }
                     }
                 },
@@ -946,18 +770,10 @@
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemCastDie": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_break_low.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__CastDie": "CastDie"
+                            }
                         }
                     }
                 },
@@ -966,18 +782,10 @@
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemHeavyCastDie": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_break_high.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__HeavyCastDie": "HeavyCastDie"
+                            }
                         }
                     }
                 },
@@ -986,18 +794,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemProtodisk": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__Protodisk": "Protodisk"
+                            }
                         }
                     }
                 },
@@ -1006,18 +806,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemProtoset": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__Protoset": "Protoset"
+                            }
                         }
                     }
                 },
@@ -1026,18 +818,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemProtoprism": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__Protoprism": "Protoprism"
+                            }
                         }
                     }
                 },
@@ -1046,18 +830,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority2ItemProtohedron": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority2__Protohedron": "Protohedron"
+                            }
                         }
                     }
                 }
@@ -1331,18 +1107,10 @@
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "icon": "resource/image/UI/Item/item_gachabyproducts_weapongold.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemArsenalTicket": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__ArsenalTicket": "ArsenalTicket"
+                            }
                         }
                     }
                 },
@@ -1351,18 +1119,10 @@
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "icon": "resource/image/UI/Item/item_diamond.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemOroberyl": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_diamond.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__Oroberyl": "Oroberyl"
+                            }
                         }
                     }
                 },
@@ -1371,18 +1131,10 @@
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "icon": "resource/image/UI/Item/item_gold.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemTCreds": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_gold.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__TCreds": "TCreds"
+                            }
                         }
                     }
                 },
@@ -1391,18 +1143,10 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage2_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemElementaryCognitiveCarrier": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_expcard_stage2_low.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__ElementaryCognitiveCarrier": "ElementaryCognitiveCarrier"
+                            }
                         }
                     }
                 },
@@ -1411,18 +1155,10 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemElementaryCombatRecord": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_expcard_2_1.png",
-                            "green_mask": true,
-                            "threshold": 0.92,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__ElementaryCombatRecord": "ElementaryCombatRecord"
+                            }
                         }
                     }
                 },
@@ -1431,18 +1167,10 @@
                     "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
                     "icon": "resource/image/UI/Item/item_expcard_stage1_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemIntermediateCombatRecord": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_expcard_2_2.png",
-                            "green_mask": true,
-                            "threshold": 0.92,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__IntermediateCombatRecord": "IntermediateCombatRecord"
+                            }
                         }
                     }
                 },
@@ -1451,18 +1179,10 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemArmsInspector": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_expcard_low.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__ArmsInspector": "ArmsInspector"
+                            }
                         }
                     }
                 },
@@ -1471,18 +1191,10 @@
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "icon": "resource/image/UI/Item/item_weapon_expcard_mid.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemArmsINSPKit": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__ArmsINSPKit": "ArmsINSPKit"
+                            }
                         }
                     }
                 },
@@ -1491,18 +1203,10 @@
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_low.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemCastDie": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_break_low.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__CastDie": "CastDie"
+                            }
                         }
                     }
                 },
@@ -1511,18 +1215,10 @@
                     "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
                     "icon": "resource/image/UI/Item/item_weapon_break_high.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemHeavyCastDie": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_weapon_break_high.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__HeavyCastDie": "HeavyCastDie"
+                            }
                         }
                     }
                 },
@@ -1531,18 +1227,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_1_2.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemProtodisk": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__Protodisk": "Protodisk"
+                            }
                         }
                     }
                 },
@@ -1551,18 +1239,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "icon": "resource/image/UI/Item/item_char_break_stage_3_4.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemProtoset": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__Protoset": "Protoset"
+                            }
                         }
                     }
                 },
@@ -1571,18 +1251,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_1_6.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemProtoprism": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__Protoprism": "Protoprism"
+                            }
                         }
                     }
                 },
@@ -1591,18 +1263,10 @@
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "icon": "resource/image/UI/Item/item_char_skill_level_7_12.png",
                     "pipeline_override": {
-                        "CreditShoppingPriority3ItemProtohedron": {
-                            "recognition": "TemplateMatch",
-                            "roi": [
-                                38,
-                                95,
-                                1194,
-                                527
-                            ],
-                            "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
-                            "green_mask": true,
-                            "threshold": 0.7,
-                            "order_by": "Vertical"
+                        "CreditShoppingApplyPriorityItems": {
+                            "attach": {
+                                "priority3__Protohedron": "Protohedron"
+                            }
                         }
                     }
                 }

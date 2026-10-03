@@ -1,6 +1,6 @@
 {
     "CreditShoppingApplyPriorityItems": {
-        "desc": "按任务参数将优先购买多选物品 override 到 PriorityN 子节点（Custom：CreditShoppingApplyPriorityItemsAction）",
+        "desc": "按任务勾选把各档物品节点覆盖为模板列表和阈值列表（Custom：CreditShoppingApplyPriorityItemsAction）",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "CreditShoppingApplyPriorityItemsAction",
