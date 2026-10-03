@@ -120,7 +120,12 @@ function buildDepotOption(depot) {
                     cargoEnabled: true,
                     cargoExpected: ALL_CARGO_EXPECTED,
                     bidAction: `DeliveryJobsDecide${depot.Id}Quote`,
-                    ongoingDeliveryAction: "DeliveryJobsSkipOngoingDelivery",
+                    // 报价只用于决定新委托怎么接；已接未转交的委托没有报价可判，跳过它会一直占着
+                    // 调度申请界面，挡住后续仓储节点。这里直接交给全自动送货把它清掉，
+                    // 没有归属终点（无处可送）的仓储节点才退回跳过。
+                    ongoingDeliveryAction: depot.AutoDeliverySupported
+                        ? `DeliveryJobsAutoDelivery${depot.Id}`
+                        : "DeliveryJobsSkipOngoingDelivery",
                 }),
             },
             {
