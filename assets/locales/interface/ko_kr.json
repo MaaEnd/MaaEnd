@@ -2167,6 +2167,7 @@
     "task.ItemTransfer.same_item_skipped": "가는 편과 돌아오는 편 아이템이 동일하여 양방향 이전을 건너뜁니다",
     "task.ItemTransfer.same_region_skipped": "목적지와 출발지 창고가 동일하여 건너뜁니다",
     "task.ItemTransfer.store_unverified": "현재 아이템이 창고에 보관되었는지 확인할 수 없어 태스크를 중지했습니다",
+    "task.Keymap.focus.interact_failed": "상호작용에 실패했습니다. 게임-설정-조작 과 MaaEnd-설정-작업 설정-키 바인딩 설정 이 일치하는지 확인해 주세요.",
     "task.OpenGame.focus.start_app_failed": "앱 실행에 실패했습니다",
     "task.OpenGame.focus.start_up_game_failed": "게임 시작에 실패했습니다",
     "task.OpenGame.focus.stuck_repair": "멈춤 상태 복구를 시도합니다",

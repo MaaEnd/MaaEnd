@@ -2167,6 +2167,7 @@
     "task.ItemTransfer.same_item_skipped": "去程物品與返程物品相同，已跳過雙向搬運",
     "task.ItemTransfer.same_region_skipped": "目的與來源倉庫相同，跳過",
     "task.ItemTransfer.store_unverified": "無法確認目前物品是否已存入倉庫，任務已停止",
+    "task.Keymap.focus.interact_failed": "互動失敗，請確認 遊戲-設定-按鍵 與 MaaEnd-設定-任務設定-按鍵綁定設定 保持一致",
     "task.OpenGame.focus.start_app_failed": "應用程式啟動失敗",
     "task.OpenGame.focus.start_up_game_failed": "啟動遊戲失敗",
     "task.OpenGame.focus.stuck_repair": "嘗試修復卡死",

@@ -682,7 +682,8 @@
             "ProtocolSpaceReward"
         ],
         "focus": {
-            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.open_reward"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.open_reward",
+            "Node.PipelineNode.Failed": "$task.Keymap.focus.interact_failed"
         }
     },
     "ProtocolSpaceReward": {
