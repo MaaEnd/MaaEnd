@@ -1696,6 +1696,7 @@
     "option.VideoBrowser.description": "動画を開いたら、ウェブページ全画面を選択してください。ゲームをウィンドウモードに切り替える必要があります。",
     "option.VideoBrowser.label": "動画再生",
     "option.VideoBrowserURL.label": "動画URL",
+    "option.VisitFriendsLimitVisits.label": "フレンドの訪問回数を制限",
     "option.VisitFriendsMaxVisits.inputs.MaxVisits.label": "最大訪問回数（1～999）",
     "option.VisitFriendsMaxVisits.label": "フレンド訪問回数の上限",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "プレイヤー名",

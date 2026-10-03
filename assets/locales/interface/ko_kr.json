@@ -1696,6 +1696,7 @@
     "option.VideoBrowser.description": "영상을 연 뒤 웹 페이지 전체 화면을 선택하세요. 게임을 창 모드로 전환해야 합니다.",
     "option.VideoBrowser.label": "동영상 재생",
     "option.VideoBrowserURL.label": "영상 URL",
+    "option.VisitFriendsLimitVisits.label": "친구 방문 횟수 제한",
     "option.VisitFriendsMaxVisits.inputs.MaxVisits.label": "최대 방문 횟수 (1~999)",
     "option.VisitFriendsMaxVisits.label": "친구 방문 횟수 제한",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "플레이어 이름",

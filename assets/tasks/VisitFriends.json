@@ -20,7 +20,7 @@
                 "Win32-Front"
             ],
             "option": [
-                "VisitFriendsMaxVisits",
+                "VisitFriendsLimitVisits",
                 "VisitFriendsRemark",
                 "VisitFriendsPriorityRemarkEnable",
                 "ProductionAssistControl"
@@ -28,6 +28,22 @@
         }
     ],
     "option": {
+        "VisitFriendsLimitVisits": {
+            "type": "switch",
+            "label": "$option.VisitFriendsLimitVisits.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "VisitFriendsMaxVisits"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
         "VisitFriendsMaxVisits": {
             "type": "input",
             "label": "$option.VisitFriendsMaxVisits.label",

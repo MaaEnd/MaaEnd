@@ -1,12 +1,11 @@
 {
     "VisitFriendsEnterShipBudget": {
-        "desc": "三条选友链路共用的拜访次数门禁；只在详情确认可拜访后计数",
-        "max_hit": 99,
+        "desc": "三条选友链路共用的拜访次数门禁；开启限制后由次数输入项设置 max_hit",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        // 三条选友链路共用本节点的 max_hit，限制总拜访次数。
+        // 默认不设置 max_hit；开启限制后，次数输入项覆盖本节点，三条链路共用总拜访次数上限。
         // 锚点在选友时记录对应的进船节点，计数后沿原链路继续，保留该链路的点击目标。
         "next": [
             "[Anchor]VisitFriendsEnterShipTarget"

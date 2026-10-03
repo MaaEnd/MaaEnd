@@ -1696,6 +1696,7 @@
     "option.VideoBrowser.description": "After opening the video, choose web full screen. The game must be in windowed mode.",
     "option.VideoBrowser.label": "Video playback",
     "option.VideoBrowserURL.label": "Video URL",
+    "option.VisitFriendsLimitVisits.label": "Limit friend visits",
     "option.VisitFriendsMaxVisits.inputs.MaxVisits.label": "Maximum visits (1 to 999)",
     "option.VisitFriendsMaxVisits.label": "Friend visit limit",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "Player name",
