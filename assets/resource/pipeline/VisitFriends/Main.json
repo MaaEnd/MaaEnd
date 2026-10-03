@@ -285,5 +285,25 @@
         "focus": {
             "Node.Action.Succeeded": "线索交换次数已满，已关闭线索交换检查与领取"
         }
+    },
+    "VisitFriendsBtwAutoStockpileElasticGoods": {
+        "desc": "拜访每个优先好友后指定好友出售弹性物资",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "AutoSellShipEnterStockRedistribution"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV"
+        ]
     }
 }

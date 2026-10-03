@@ -251,6 +251,160 @@
             "AutoSellSellGoodsOpenSuccess"
         ]
     },
+    "AutoSellStockRedistributionFirstItemOpenInFriends": {
+        "desc": "在好友物资调度界面打开第一个item",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "ticket",
+                "recognition": "TemplateMatch",
+                "roi": [0, 200, 1280, 500],
+                "template": [
+                    "AutoSell/SellTicketItemValleyIV.png",
+                    "AutoSell/SellTicketItemWuling.png"
+                ],
+                "threshold": 0.8,
+                "order_by": "Horizontal"
+            },
+            "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemGreenLineRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemNameRecRecognition"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [30, -50, -60, 0],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsOpenSuccess"
+        ]
+    },
+    "AutoSellBtwStockQuantityRecognition": {
+        "desc": "识别商品列表中的正库存数",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            315,
+            1280,
+            290
+        ],
+        "expected": [
+            "^拥有\\s*[1-9]\\d*$",
+            "^持有\\s*[1-9]\\d*$",
+            "(?i)^Owned\\s*[1-9]\\d*$",
+            "^総在庫\\s*[1-9]\\d*$"
+        ]
+    },
+    "AutoSellBtwValleyIVStockedItemOpen": {
+        "desc": "指定好友出售：点击四号谷地第一个库存数大于 0 的商品",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "region",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    600,
+                    150
+                ],
+                "template": [
+                    "AutoSell/StockRedistributionValleyIVChoose.png"
+                ],
+                "threshold": 0.9
+            },
+            "AutoSellBtwStockQuantityRecognition"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsOpenSuccess"
+        ]
+    },
+    "AutoSellBtwWulingStockedItemOpen": {
+        "desc": "指定好友出售：点击武陵第一个库存数大于 0 的商品",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "region",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    600,
+                    150
+                ],
+                "template": [
+                    "AutoSell/StockRedistributionWulingChoose.png"
+                ],
+                "threshold": 0.9
+            },
+            "AutoSellBtwStockQuantityRecognition"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            5,
+            5,
+            -10,
+            -10
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsOpenSuccess"
+        ]
+    },
+    "AutoSellBtwNoStockFinish": {
+        "desc": "指定好友出售：两个地区均无库存时结束本好友售卖",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsBtwAutoStockpileElasticGoods": {
+                    "enabled": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellBtwCloseSellPages"
+        ]
+    },
+    "AutoSellBtwCloseSellPages": {
+        "desc": "指定好友出售：依次关闭出售详情页和物资列表页",
+        "recognition": "Or",
+        "any_of": [
+            "InFriendsStockRedistributionSellGoods",
+            "InFriendsStockRedistribution"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": "CloseButtonType1",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellBtwCloseSellPages",
+            "VisitFriendsWorldShipExitToMenuFriends"
+        ]
+    },
     "AutoSellStockRedistributionItemOpenInRegionalDevelopment": {
         "desc": "在地区建设物资调度界面打开item",
         "recognition": "And",
@@ -290,6 +444,7 @@
         "rate_limit": 0,
         "next": [
             "AutoSellSellGoodsEmpty",
+            "AutoSellFriendsPricesBtwExpected",
             "AutoSellFriendsPricesOpen"
         ]
     },
@@ -392,6 +547,26 @@
             "AutoSellFriendsPricesUnExpected"
         ]
     },
+    "AutoSellFriendsPricesBtwExpected": {
+        "desc": "指定好友出售：不检查好友价格，直接进入售卖流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsBtwAutoStockpileElasticGoods": {
+                    "enabled": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess"
+        ]
+    },
     "AutoSellFriendsPricesExpected": {
         "desc": "价格符合预期",
         "recognition": "Custom",
@@ -486,6 +661,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoSellFriendsPricesExpectedBuyPlus",
             "AutoSellFriendsPricesExpectedNeedSlide",
             "AutoSellFriendsPricesExpectedBuyDirect"
         ]
@@ -526,6 +702,48 @@
         "rate_limit": 0,
         "next": [
             "AutoSellFriendsPricesExpectedBuySlide"
+        ]
+    },
+    "AutoSellFriendsPricesExpectedBuyPlus": {
+        "desc": "指定好友出售：最多出售 60 个",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods",
+            {
+                "sub_name": "increase",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    680,
+                    490,
+                    100,
+                    75
+                ],
+                "template": [
+                    "AutoStockpile/IncreaseButton.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.8
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "repeat": 59,
+        "repeat_delay": 50,
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                682,
+                512,
+                34,
+                26
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyClick"
         ]
     },
     "AutoSellFriendsPricesExpectedBuySlide": {

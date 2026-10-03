@@ -1294,6 +1294,7 @@
     "option.BatchDeleteFriendsInactiveDays.cases.Days60.label": "60일",
     "option.BatchDeleteFriendsInactiveDays.cases.Days7.label": "7일",
     "option.BatchDeleteFriendsInactiveDays.label": "미접속 일수",
+    "option.BtwAutoStockpileElasticGoodsEnable.label": "우선 친구를 방문할 때마다 변동 수요 물자를 겸해서 판매",
     "option.ClaimSimulationArea.label": "지역",
     "option.ClientVersion.cases.Bilibili.label": "Bilibili",
     "option.ClientVersion.cases.CN.label": "중국 서버",

@@ -81,7 +81,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "VisitFriendsPriorityRemark"
+                        "VisitFriendsPriorityRemark",
+                        "BtwAutoStockpileElasticGoodsEnable"
                     ],
                     "pipeline_override": {
                         "VisitFriendsWaitFriendNameLoaded": {
@@ -209,6 +210,86 @@
                 "ProductionAssistMFGCabin",
                 "ProductionAssistGrowthChamber"
             ]
+        },
+        "BtwAutoStockpileElasticGoodsEnable": {
+            "type": "switch",
+            "label": "$option.BtwAutoStockpileElasticGoodsEnable.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "VisitFriendsAssistFull": {
+                            "enabled": false
+                        },
+                        "VisitFriendsClueExchangeFull": {
+                            "enabled": false
+                        },
+                        "VisitFriendsFull": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanFriendsFull": {
+                            "enabled": false
+                        },
+                        "VisitFriendsCheckAssist": {
+                            "recognition": "DirectHit"
+                        },
+                        "VisitFriendsBtwAutoStockpileElasticGoods": {
+                            "enabled": true
+                        },
+                        "VisitFriendsCheckAssistPriorityRemark": {
+                            "action": "Custom",
+                            "custom_action": "PipelineOverrideAction",
+                            "custom_action_param": {
+                                "patch": {
+                                    "VisitFriendsBtwAutoStockpileElasticGoods": {
+                                        "enabled": true
+                                    }
+                                }
+                            }
+                        },
+                        "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV": {
+                            "next": [
+                                "AutoSellBtwValleyIVStockedItemOpen",
+                                "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling",
+                                "AutoSellStockRedistributionItemOpenInFriendsSwipe"
+                            ]
+                        },
+                        "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling": {
+                            "next": [
+                                "AutoSellBtwWulingStockedItemOpen",
+                                "AutoSellBtwNoStockFinish"
+                            ]
+                        },
+                        "AutoSellFriendsPricesExpectedBuyPlus": {
+                            "enabled": true
+                        },
+                        "AutoSellFriendsPricesBtwExpected": {
+                            "enabled": true
+                        },
+                        "AutoSellSellGoodsEmpty": {
+                            "next": [
+                                "AutoSellBtwNoStockFinish"
+                            ]
+                        },
+                        "VisitFriendsMenuTerminalExitToWorldShip": {
+                            "next": [
+                                "AutoSellBtwCloseSellPages",
+                                "[JumpBack]VisitFriendsBtwAutoStockpileElasticGoods",
+                                "VisitFriendsWorldShipExitToMenuFriends"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "VisitFriendsBtwAutoStockpileElasticGoods": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
         }
     }
 }
