@@ -237,6 +237,12 @@ std::optional<double> NavigationSession::WalkedFloorY(const NaviPosition& positi
     if (!to.HasPosition() || !to.route_floor_y) {
         return from->route_floor_y;
     }
+    // 台沿下落的落点不插值: 沿下落方向越过它之前算台上
+    if (to.drop_from) {
+        const double ddx = to.x - (*to.drop_from)[0];
+        const double ddy = to.y - (*to.drop_from)[1];
+        return (position.x - to.x) * ddx + (position.y - to.y) * ddy < 0.0 ? from->route_floor_y : to.route_floor_y;
+    }
     const double dx = to.x - from->x;
     const double dy = to.y - from->y;
     const double len_sq = dx * dx + dy * dy;

@@ -1015,6 +1015,26 @@ void PullWaypoints(
     dg.waypoints.push_back(anchor);
 }
 
+// 格上与 h 差不过 kQH 的 span 里离 h 最近的那张的高
+std::optional<double> spanNear(const SpanTable& st, int64_t nx, int64_t ny, int64_t gx, int64_t gy, double h)
+{
+    if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
+        return std::nullopt;
+    }
+    const int64_t j = st.j(gy * nx + gx);
+    if (j < 0) {
+        return std::nullopt;
+    }
+    std::optional<double> best;
+    for (int64_t k = st.cstart(j), ke = k + st.ccnt(j); k < ke; ++k) {
+        const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
+        if (std::fabs(v - h) <= kQH && (!best.has_value() || std::fabs(v - h) < std::fabs(*best - h))) {
+            best = v;
+        }
+    }
+    return best;
+}
+
 // 台沿下落的落点挪到下层上离上层可走面四个角色半径的地方: 一个是可走面让出的, 一个让人整个离开台沿,
 // 余下两个是余量。
 void PushDropLandings(
@@ -1033,23 +1053,8 @@ void PushDropLandings(
     const auto cell_of = [&](const WorldPoint& p) {
         return std::make_pair(static_cast<int64_t>(std::floor((p.x - x0) / kCS)), static_cast<int64_t>(std::floor((p.y - y0) / kCS)));
     };
-    // 格上与 h 差不过 kQH 的 span 里离 h 最近的那张的高
-    const auto span_h = [&](int64_t gx, int64_t gy, double h) -> std::optional<double> {
-        if (gx < 0 || gy < 0 || gx >= nx || gy >= ny) {
-            return std::nullopt;
-        }
-        const int64_t j = st.j(gy * nx + gx);
-        if (j < 0) {
-            return std::nullopt;
-        }
-        std::optional<double> best;
-        for (int64_t k = st.cstart(j), ke = k + st.ccnt(j); k < ke; ++k) {
-            const double v = static_cast<double>(st.sp_h[static_cast<size_t>(k)]);
-            if (std::fabs(v - h) <= kQH && (!best.has_value() || std::fabs(v - h) < std::fabs(*best - h))) {
-                best = v;
-            }
-        }
-        return best;
+    const auto span_h = [&](int64_t gx, int64_t gy, double h) {
+        return spanNear(st, nx, ny, gx, gy, h);
     };
     // 格上有没有高过 h 一个可攀爬高差、又不高过台沿 h_up 一个可攀爬高差的面
     const auto upper_at = [&](int64_t gx, int64_t gy, double h, double h_up) {
@@ -2431,6 +2436,24 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         const Blockers blk_hard(core_segs, std::nullopt);
         const Visibility vis_hard(&blk_hard, &lyo, faces, bn, nx, ny, x0, y0);
         LiftCorners(out, dist, x0, y0, vis_hard, lyo, lyo_h, kLiftMax);
+        // 挪过的拐点换成新格上同一张面的高, 找不到就整列不给
+        for (size_t i = 1; i + 1 < out.size() && dg.span_height.size() == out.size(); ++i) {
+            if (out[i].x == dg.assembled_points[i].x && out[i].y == dg.assembled_points[i].y) {
+                continue;
+            }
+            const auto v = spanNear(
+                st3,
+                nx,
+                ny,
+                static_cast<int64_t>(std::floor((out[i].x - x0) / kCS)),
+                static_cast<int64_t>(std::floor((out[i].y - y0) / kCS)),
+                dg.span_height[i]);
+            if (!v.has_value()) {
+                dg.span_height.clear();
+                break;
+            }
+            dg.span_height[i] = *v;
+        }
     }
     dg.timing.lift_ms = nowMs() - t_lift0;
     dg.clearance.reserve(out.size());
