@@ -84,6 +84,9 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "VisitFriendsEnterShipTarget": "VisitFriendsEnterShipPriorityRemark"
+        },
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
@@ -102,6 +105,9 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "VisitFriendsEnterShipTarget": "VisitFriendsEnterShipRemark"
+        },
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
@@ -119,6 +125,9 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "VisitFriendsEnterShipTarget": "VisitFriendsEnterShip"
+        },
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
@@ -137,7 +146,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsEnterShipPriorityRemark"
+            "VisitFriendsEnterShipBudget",
+            "VisitFriendsVisitLimitReached"
         ]
     },
     "VisitFriendsCheckAssistRemark": {
@@ -151,7 +161,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsEnterShipRemark"
+            "VisitFriendsEnterShipBudget",
+            "VisitFriendsVisitLimitReached"
         ]
     },
     "VisitFriendsMenuScanScrollFinish": {
@@ -316,8 +327,25 @@
         }
     },
     "VisitFriendsVisitLimitReached": {
-        "desc": "已达到设置的好友拜访次数上限，结束拜访",
-        "recognition": "DirectHit"
+        "desc": "已达到设置的好友拜访次数上限，关闭好友详情",
+        "recognition": "And",
+        "all_of": [
+            "GrayCancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsVisitLimitStop"
+        ]
+    },
+    "VisitFriendsVisitLimitStop": {
+        "desc": "拜访次数已达上限，结束任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0
     },
     "VisitFriendsMenuScanScrollList": {
         "desc": "列表未到底时向下滚动：ListComplete 未命中时落到本节点。滑动后 post_wait_freezes 等列表静止再回到扫描，否则惯性会被当成画面变化而无法判定到底",
@@ -349,7 +377,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "VisitFriendsEnterShip"
+            "VisitFriendsEnterShipBudget",
+            "VisitFriendsVisitLimitReached"
         ]
     },
     "VisitFriendsCheckAssistClueExchange": {

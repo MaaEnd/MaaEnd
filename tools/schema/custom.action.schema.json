@@ -87,7 +87,6 @@
                 "SyncItemData",
                 "TrialOfSwordmancy.Decide",
                 "UpdateItemQuantity",
-                "VisitFriendsCountAction",
                 "WebEvent202605Action",
                 "ZiplineImport",
                 "autoEcoFarmInterruptibleSleep",
@@ -97,27 +96,6 @@
         }
     },
     "allOf": [
-        {
-            "if": {
-                "properties": {
-                    "custom_action": { "const": "VisitFriendsCountAction" }
-                },
-                "required": ["custom_action"]
-            },
-            "then": {
-                "required": ["custom_action_param"],
-                "properties": {
-                    "custom_action_param": {
-                        "type": "object",
-                        "properties": {
-                            "max_visits": { "type": "integer", "minimum": 1 }
-                        },
-                        "required": ["max_visits"],
-                        "additionalProperties": false
-                    }
-                }
-            }
-        },
         {
             "if": {
                 "properties": {

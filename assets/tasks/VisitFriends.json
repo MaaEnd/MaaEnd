@@ -35,16 +35,14 @@
                 {
                     "name": "MaxVisits",
                     "label": "$option.VisitFriendsMaxVisits.inputs.MaxVisits.label",
-                    "default": "3",
+                    "default": "99",
                     "pipeline_type": "int",
                     "verify": "^[1-9]\\d{0,2}$"
                 }
             ],
             "pipeline_override": {
-                "VisitFriendsEnterFriendsListSuccess": {
-                    "custom_action_param": {
-                        "max_visits": "{MaxVisits}"
-                    }
+                "VisitFriendsEnterShipBudget": {
+                    "max_hit": "{MaxVisits}"
                 }
             }
         },

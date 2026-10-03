@@ -1,4 +1,15 @@
 {
+    "VisitFriendsEnterShipBudget": {
+        "desc": "三条选友链路共用的拜访次数门禁；只在详情确认可拜访后计数",
+        "max_hit": 99,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]VisitFriendsEnterShipTarget"
+        ]
+    },
     "VisitFriendsEnterShipPriorityRemark": {
         "desc": "白名单链路：点击进船按钮进入好友船（target 取自 PriorityRemark 的飞船框）",
         "action": "Click",
@@ -749,22 +760,14 @@
         ]
     },
     "VisitFriendsEnterFriendsListSuccess": {
-        "desc": "回到好友列表且列表项已加载后记录一次已完成拜访；达到上限后 MenuScan 结束",
+        "desc": "回到好友列表且列表项已加载（壳 ∧ 进船按钮 ∧ 好友名）；无 next，完成后 JumpBack 回 MenuScan",
         "recognition": "And",
         "all_of": [
             "InFriendsList",
             "VisitFriendsRecognitionItemWithNameForScroll"
         ],
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "VisitFriendsCountAction",
-        "custom_action_param": {
-            "max_visits": 3
-        },
         "post_delay": 0,
-        "rate_limit": 0,
-        "attach": {
-            "visits": 0
-        }
+        "rate_limit": 0
     }
 }
