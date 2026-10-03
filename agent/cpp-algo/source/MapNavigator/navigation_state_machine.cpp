@@ -78,6 +78,18 @@ double ArrivalBandForStartupBypass(const Waypoint& waypoint)
     return std::max(waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum), waypoint.Traits().commit_distance);
 }
 
+// 同步规划会卡住 tick: 先松开前进键, 规划这段时长不进任何无进展计时
+template <typename Plan>
+auto WithPlanningPause(MotionController* motion, NavigationRuntimeState* runtime, NavigationSession* session, Plan&& plan)
+{
+    const auto started_at = std::chrono::steady_clock::now();
+    motion->SetForwardState(false);
+    runtime->offroute.PauseAt(started_at);
+    auto result = plan();
+    session->ExcludeFromStallClocks(std::chrono::steady_clock::now() - started_at);
+    return result;
+}
+
 std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session, const NaviPosition& position, size_t start_index)
 {
     std::optional<DynamicAnchor> fallback;
@@ -318,7 +330,16 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
         // 只钉终点: 够不到那张面的候选就不该被选中。第一个规划得通的点就是入口 ——
         // 再往后比价挑更近的, 等于在归属判定之后又做一次"就近吞点"。
         ++plan_attempts;
-        const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, waypoint.target_deck_y);
+        const auto route = PlanNavmeshRoute(
+            param,
+            position.zone_id,
+            start,
+            goal,
+            waypoint.target_deck_y,
+            std::nullopt,
+            nullptr,
+            nullptr,
+            session->LandedTowerDeckY(position));
         if (route) {
             anchor_cost = route->cost;
             anchor = { *canonical_index, waypoint };
@@ -708,16 +729,18 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
 
     const navmesh::WorldPoint start { .x = position_->x, .y = position_->y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    runtime_state_.offroute.PauseAt(std::chrono::steady_clock::now());
-    const auto route = PlanNavmeshRoute(
-        param_,
-        position_->zone_id,
-        start,
-        goal,
-        anchor.target_deck_y,
-        std::nullopt,
-        nullptr,
-        &runtime_state_.virtual_no_go);
+    const auto route = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+        return PlanNavmeshRoute(
+            param_,
+            position_->zone_id,
+            start,
+            goal,
+            anchor.target_deck_y,
+            std::nullopt,
+            nullptr,
+            &runtime_state_.virtual_no_go,
+            session_->LandedTowerDeckY(*position_));
+    });
     if (!route) {
         return false;
     }
@@ -954,8 +977,9 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     }
     // 重展开失败才退回旧展开: 当前位置有可走面时, 它至少是一条经过规划的路径。
     if (!rejoined && on_mesh) {
-        const std::optional<DynamicAnchor> anchor =
-            ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
+        const std::optional<DynamicAnchor> anchor = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+            return ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
+        });
         rejoined = anchor && TryApplyDynamicOverlayToAnchor("zipline_recovery", anchor->first, anchor->second);
     }
     if (!rejoined) {
@@ -1032,8 +1056,17 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
     }
     replan_param.path.assign(authored.begin() + static_cast<std::ptrdiff_t>(slice_begin), authored.end());
     std::vector<Waypoint> replanned;
-    if (!ExpandNavmeshWaypoints(replan_param, *position_, should_stop_, replanned, nullptr, &runtime_state_.virtual_no_go)
-        || replanned.empty()) {
+    const bool expanded = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+        return ExpandNavmeshWaypoints(
+            replan_param,
+            *position_,
+            should_stop_,
+            replanned,
+            nullptr,
+            &runtime_state_.virtual_no_go,
+            session_->LandedTowerDeckY(*position_));
+    });
+    if (!expanded || replanned.empty()) {
         LogWarn << "Authored route replan failed to expand the remaining route." << VAR(reason) << VAR(slice_begin)
                 << VAR(replan_param.path.size());
         return false;
@@ -1070,7 +1103,9 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
         semantic_nodes::LeaveZiplineTower(ctx);
     }
 
-    const std::optional<DynamicAnchor> anchor = ResolveReachableNavmeshAnchor(param_, session_, *position_, 0, reason);
+    const std::optional<DynamicAnchor> anchor = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+        return ResolveReachableNavmeshAnchor(param_, session_, *position_, 0, reason);
+    });
     if (anchor) {
         TryApplyDynamicOverlayToAnchor(reason, anchor->first, anchor->second);
     }
@@ -1390,7 +1425,7 @@ bool NavigationStateMachine::TickNavigate()
         return true;
     }
 
-    const auto now = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
     const bool startup_grace_elapsed =
         runtime_state_.flow.navigate_started_at.time_since_epoch().count() > 0
         && std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.flow.navigate_started_at).count() >= 3000;
@@ -1425,11 +1460,24 @@ bool NavigationStateMachine::TickNavigate()
             }
             if (nav_run_anchor) {
                 nav_run_anchor_index = nav_run_anchor->first;
-                nav_run_result =
-                    nav_run_controller_
-                        .tick(session_, &runtime_state_, *position_, route, param_, nav_run_anchor->first, nav_run_anchor->second, now);
+                nav_run_result = nav_run_controller_.tick(
+                    session_,
+                    &runtime_state_,
+                    *position_,
+                    route,
+                    param_,
+                    nav_run_anchor->first,
+                    nav_run_anchor->second,
+                    now,
+                    [this] { motion_controller_->SetForwardState(false); });
             }
         }
+    }
+    // 规划期间人停着等, 这段时长不进任何无进展计时
+    if (nav_run_result.planning > std::chrono::steady_clock::duration::zero()) {
+        runtime_state_.offroute.PauseAt(now);
+        session_->ExcludeFromStallClocks(nav_run_result.planning);
+        now += nav_run_result.planning;
     }
 
     // NavMesh corridor steering can legitimately carry the agent far off the original serial

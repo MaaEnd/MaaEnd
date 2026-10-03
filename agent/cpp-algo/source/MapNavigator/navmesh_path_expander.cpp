@@ -59,6 +59,8 @@ struct NavmeshExpansionState
     navmesh::WorldPoint route_start;
     // 起点站在哪张面的证据，是 route_start 的伴生字段。只有整条链的头一腿能拿到它。
     std::optional<double> route_start_floor_y;
+    // 起点站着的那层的确切高度(人留在滑索架上换路时就是那根架子那层), 同样只属于头一腿。
+    std::optional<double> route_start_deck_y;
     std::string current_zone;
     std::string navmesh_zone;
     // 某一腿被虚拟禁区判掉。终态: 整条展开到此为止, 回放作者提示也只会再撞同一块禁区。
@@ -72,6 +74,7 @@ struct NavmeshExpansionState
     {
         route_start = point;
         route_start_floor_y.reset();
+        route_start_deck_y.reset();
     }
 };
 
@@ -461,7 +464,8 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     const std::vector<VirtualNoGoDisc>* no_go = nullptr,
     float goal_floor_y = navmesh::kBaseNavFloorYNone,
     std::optional<double> goal_deck_y = std::nullopt,
-    std::optional<double> start_floor_y = std::nullopt)
+    std::optional<double> start_floor_y = std::nullopt,
+    std::optional<double> start_deck_y = std::nullopt)
 {
     navmesh::BaseNavRouteRequest request;
     request.zone_name = navmesh_zone;
@@ -478,6 +482,9 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     // 终点声明决定停在哪张面; 起点站在哪张面由搜索自己按起点高度定
     if (goal_deck_y) {
         request.goal_deck_y = static_cast<float>(*goal_deck_y);
+    }
+    if (start_deck_y) {
+        request.start_deck_y = static_cast<float>(*start_deck_y);
     }
     // Per-endpoint floor: the start snaps onto the live locator tier's floor; the goal snaps onto its own
     // declared frame's floor when the caller supplies one (cross-tier targets), otherwise the same start
@@ -565,6 +572,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
         start_floor,
         goal_floor,
         request.goal_deck_y,
+        request.start_deck_y,
         request.no_go_discs,
         should_stop);
     result.gap_start = plan.debug.gap_start;
@@ -631,7 +639,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     const std::vector<VirtualNoGoDisc>* no_go,
     std::optional<double> goal_deck_y = std::nullopt,
     std::optional<double> start_floor_y = std::nullopt,
-    NavmeshRouteDiagnostic* out_diagnostic = nullptr)
+    NavmeshRouteDiagnostic* out_diagnostic = nullptr,
+    std::optional<double> start_deck_y = std::nullopt)
 {
     const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
     if (navmesh_zone.empty()) {
@@ -657,7 +666,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
         no_go,
         navmesh::kBaseNavFloorYNone,
         goal_deck_y,
-        start_floor_y);
+        start_floor_y,
+        start_deck_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
     const auto route_result = PlanCorridorRoute(*navmesh, request, {}, out_diagnostic);
     const int64_t plan_ms =
@@ -761,7 +771,8 @@ bool AppendBlindTargetFallback(
             state.no_go,
             goal_floor_y,
             std::nullopt,
-            state.route_start_floor_y);
+            state.route_start_floor_y,
+            state.route_start_deck_y);
         NavmeshRouteDiagnostic diagnostic;
         const auto route = PlanCorridorRoute(navmesh, request, should_stop, out_diagnostics == nullptr ? nullptr : &diagnostic);
         if (!route.ok() || route.path.points.empty()) {
@@ -816,7 +827,9 @@ bool AppendStartRecovery(
         return false;
     }
     const double radius = std::max(param.navmesh_snap_radius, kStartRecoveryMaxBlindWalk);
-    const auto entry = navmesh.planner.snap(zone->zone_id, request.start, radius, request.start_floor_y);
+    // 知道脚下那层的确切高度就按它挑层, 免得走去别层的最近点
+    const float floor_y = request.start_deck_y > navmesh::kBaseNavFloorYValidMin ? request.start_deck_y : request.start_floor_y;
+    const auto entry = navmesh.planner.snap(zone->zone_id, request.start, radius, floor_y);
     if (!entry) {
         LogWarn << "NAVMESH start recovery rejected: no mesh point within the blind-walk budget." << VAR(state.navmesh_zone)
                 << VAR(state.current_zone) << VAR(request.start.x) << VAR(request.start.y) << VAR(radius);
@@ -860,6 +873,7 @@ bool TryAppendZiplineLeg(
         walking_path,
         target.deck_y,
         state.route_start_floor_y,
+        state.route_start_deck_y,
         should_stop,
         out_diagnostics != nullptr);
     if (!route || route->approach.points.empty() || route->departure.points.empty() || route->towers.size() < 2) {
@@ -959,7 +973,8 @@ bool AppendNavmeshWaypoint(
         state.no_go,
         target.floor_y,
         target.deck_y,
-        state.route_start_floor_y);
+        state.route_start_floor_y,
+        state.route_start_deck_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
     NavmeshRouteDiagnostic route_diagnostic;
     auto route_result = PlanCorridorRoute(navmesh, request, should_stop, out_diagnostics == nullptr ? nullptr : &route_diagnostic);
@@ -1405,7 +1420,8 @@ bool ExpandNavmeshWaypoints(
     const std::function<bool()>& should_stop,
     std::vector<Waypoint>& out_path,
     std::vector<NavmeshRouteDiagnostic>* out_diagnostics,
-    const std::vector<VirtualNoGoDisc>* no_go)
+    const std::vector<VirtualNoGoDisc>* no_go,
+    std::optional<double> start_deck_y)
 {
     g_expansion_failure = {};
     if (out_diagnostics != nullptr) {
@@ -1432,6 +1448,7 @@ bool ExpandNavmeshWaypoints(
         return false;
     }
     state->no_go = no_go;
+    state->route_start_deck_y = start_deck_y;
 
     const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
     const auto expand_started_at = std::chrono::steady_clock::now();
@@ -1486,9 +1503,10 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     std::optional<double> goal_deck_y,
     std::optional<double> start_floor_y,
     NavmeshRouteDiagnostic* out_diagnostic,
-    const std::vector<VirtualNoGoDisc>* no_go)
+    const std::vector<VirtualNoGoDisc>* no_go,
+    std::optional<double> start_deck_y)
 {
-    return PlanNavmeshRouteImpl(param, locator_zone, start, goal, no_go, goal_deck_y, start_floor_y, out_diagnostic);
+    return PlanNavmeshRouteImpl(param, locator_zone, start, goal, no_go, goal_deck_y, start_floor_y, out_diagnostic, start_deck_y);
 }
 
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone)

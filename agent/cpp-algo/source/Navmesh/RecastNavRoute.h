@@ -92,6 +92,7 @@ public:
 
     // start/goal 各带楼层高度(<= kBaseNavFloorYValidMin ⇒ floor 盲吸附);
     // goal_deck_y = 终点所在重叠面的高度,选层用,与吸附用的 floor_y 是两件事;
+    // start_deck_y = 起点脚下那层的确切高度,给了就盖过 start_floor_y;
     // no_go_discs = 运行期虚拟禁区, 与作者禁区同口径盖格, 但端点落在里面照常规划;
     // should_stop = 外部取消,两档窗口之间查一次
     RecastPlanResult plan(
@@ -101,6 +102,7 @@ public:
         float start_floor_y = kBaseNavFloorYNone,
         float goal_floor_y = kBaseNavFloorYNone,
         float goal_deck_y = kBaseNavFloorYNone,
+        float start_deck_y = kBaseNavFloorYNone,
         const std::vector<BaseNavNoGoDisc>& no_go_discs = {},
         const std::function<bool()>& should_stop = {});
 
@@ -133,6 +135,7 @@ private:
         float start_floor_y,
         float goal_floor_y,
         float goal_deck_y,
+        float start_deck_y,
         const std::vector<BaseNavNoGoDisc>& no_go_discs,
         const std::function<bool()>& should_stop);
 

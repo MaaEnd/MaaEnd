@@ -71,6 +71,7 @@ ZiplineNodeRef ToNodeRef(const zipline::ZiplineNode& node);
 // 所以只能按 base 区名索引），locator_zone 是角色当下所在的区，决定起点吸到哪一层。
 //
 // start_floor_y 是调用方确知的角色所在面，只影响上索那一段的起点吸附；不传就按区的主层走。
+// start_deck_y 是起点站着那层的确切高度（人留在架子上换路），同样只用在上索那一段。
 std::optional<ZiplineRoute> PlanZiplineRoute(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -80,6 +81,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const navmesh::WorldPath* walking_path,
     std::optional<double> goal_deck_y,
     std::optional<double> start_floor_y,
+    std::optional<double> start_deck_y,
     const std::function<bool()>& should_stop,
     bool capture_diagnostics = false);
 

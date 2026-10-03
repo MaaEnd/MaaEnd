@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <limits>
 #include <optional>
 #include <string>
@@ -76,11 +77,15 @@ struct NavRunTickResult
     // tick. The state machine consumes these so the serial waypoint index keeps pace with
     // corridor progress even when the agent is far off the original waypoint line.
     size_t passed_run_waypoints = 0;
+    // Time this tick spent in synchronous planning, with the forward key released. The caller moves its
+    // no-progress clocks past it.
+    std::chrono::steady_clock::duration planning {};
 };
 
 class NavRunController
 {
 public:
+    // `halt` is called right before a synchronous plan, to release the forward key while the tick blocks.
     NavRunTickResult tick(
         NavigationSession* session,
         NavigationRuntimeState* runtime,
@@ -89,7 +94,8 @@ public:
         const NaviParam& param,
         size_t anchor_index,
         const Waypoint& anchor,
-        std::chrono::steady_clock::time_point now);
+        std::chrono::steady_clock::time_point now,
+        const std::function<void()>& halt);
 
     void invalidate();
 
@@ -104,7 +110,9 @@ private:
         size_t anchor_index,
         const Waypoint& anchor,
         NavRunReplanReason reason,
-        std::chrono::steady_clock::time_point now);
+        std::chrono::steady_clock::time_point now,
+        const std::function<void()>& halt,
+        std::chrono::steady_clock::duration& planning);
 
     NavRunReplanReason detectReplanTrigger(const RouteTrackingState& route, std::chrono::steady_clock::time_point now) const;
 

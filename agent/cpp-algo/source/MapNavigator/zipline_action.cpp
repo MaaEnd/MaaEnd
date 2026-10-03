@@ -242,6 +242,9 @@ Result DropChainAndRecover(const Context& ctx, const char* reason, const char* d
     if (dropped != 0) {
         ctx.session->SkipPastWaypoint(hop + dropped - 1, reason);
     }
+    if (stay_on_tower) {
+        ctx.session->NoteStandingTower(ctx.runtime_state->zipline_ride.TowerUnderfoot());
+    }
 
     LogWarn << "Action: ZIPLINE given up, recovering from a fresh position." << VAR(reason) << VAR(detail) << VAR(dropped)
             << VAR(stay_on_tower) << VAR(ctx.position->x) << VAR(ctx.position->y);

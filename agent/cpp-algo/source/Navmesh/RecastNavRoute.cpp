@@ -1287,12 +1287,14 @@ void LiftCorners(
 }
 
 // goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张
+// start_deck: 起点脚下那层的高度。不声明时起点取格里离吸附面最近的 span
 std::optional<std::vector<WorldPoint>> routeWindow(
     WindowInfo& info,
     const WorldPoint& s,
     const WorldPoint& g,
     RouteDiag& dg,
     std::optional<double> goal_deck,
+    std::optional<double> start_deck,
     const BaseNavPlanner& pl,
     uint16_t zid)
 {
@@ -1476,12 +1478,17 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         const int64_t v = atDeck(vs, *goal_deck);
         return v >= 0 ? std::vector<int64_t> { v } : std::vector<int64_t> {};
     };
+    // 起点声明同样是硬的
+    const auto startOf = [&](const std::vector<int64_t>& vs) {
+        return start_deck.has_value() ? atDeck(vs, *start_deck) : atSeedLayer(vs);
+    };
 
-    // 声明了终点面就按面吸附: 最近的可走格未必带着这张面, 吸上去 goalsOf 会交空集。同距再比
+    // 声明了端点面就按面吸附: 最近的可走格未必带着这张面, 吸上去 goalsOf/startOf 会落空。同距再比
     // 高度差, 让吸附结果跟 atDeck 选的那张 span 一致。
-    const auto nearGoal = [&](const std::vector<uint8_t>& use, const Mask& cells) -> std::pair<std::optional<CellPt>, double> {
-        if (!goal_deck.has_value()) {
-            return nearestCell(cells, gc);
+    const auto nearDeck = [&](const std::vector<uint8_t>& use, const Mask& cells, const CellPt& at, std::optional<double> deck)
+        -> std::pair<std::optional<CellPt>, double> {
+        if (!deck.has_value()) {
+            return nearestCell(cells, at);
         }
         bool have = false;
         int64_t bd = 0;
@@ -1491,14 +1498,14 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             if (use[i] == 0) {
                 continue;
             }
-            const double dh = std::fabs(static_cast<double>(st3.sp_h[i]) - *goal_deck);
+            const double dh = std::fabs(static_cast<double>(st3.sp_h[i]) - *deck);
             if (dh > kDeckBand) {
                 continue;
             }
             const int64_t cell = st3.sp_cell[i];
             const int64_t x = cell % nx;
             const int64_t y = cell / nx;
-            const int64_t d = (x - gc.x) * (x - gc.x) + (y - gc.y) * (y - gc.y);
+            const int64_t d = (x - at.x) * (x - at.x) + (y - at.y) * (y - at.y);
             if (!have || d < bd || (d == bd && dh < bh)) {
                 have = true;
                 bd = d;
@@ -1512,10 +1519,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return { bc, std::sqrt(static_cast<double>(bd)) * kCS };
     };
 
-    const auto snap0 = nearestCell(cw3, sc);
-    const auto snap1 = nearGoal(useW, cw3);
+    const auto snap0 = nearDeck(useW, cw3, sc, start_deck);
+    const auto snap1 = nearDeck(useW, cw3, gc, goal_deck);
     if (!snap0.first.has_value()) {
-        dg.err = "walk 掩膜为空";
+        dg.err = start_deck.has_value() ? "起点附近没有未封堵的声明面" : "walk 掩膜为空";
         return std::nullopt;
     }
     if (!snap1.first.has_value()) {
@@ -1799,7 +1806,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                 return std::nullopt;
             }
             const std::vector<int64_t> gs = goalsOf(pick(*ag_, use));
-            const int64_t sd = atSeedLayer(pick(*as_, use));
+            const int64_t sd = startOf(pick(*as_, use));
             if (as_->x == ag_->x && as_->y == ag_->y) {
                 if (!goal_deck.has_value()) {
                     return sd >= 0 ? std::optional<std::vector<int64_t>> { { sd } } : std::nullopt;
@@ -1842,7 +1849,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             return t;
         }
         // 格级搜索连 span 都不看, 退到这一级等于把选层交回给楼层盲的那一级
-        if (goal_deck.has_value()) {
+        if (goal_deck.has_value() || start_deck.has_value()) {
             return std::nullopt;
         }
         // 吸附锚点是硬可达的判定, 舒适选路无权改它: 够不着就报断开, 让基线并集那一轮接手
@@ -1965,7 +1972,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         std::vector<uint8_t> useC;
         Mask cc3;
         mk(info.core, useC, cc3);
-        const int64_t sd = atSeedLayer(pick(*as_, useC));
+        const int64_t sd = startOf(pick(*as_, useC));
         const std::vector<int64_t> gs = goalsOf(pick(*ag_, useC));
         if (sd < 0 || gs.empty()) {
             return;
@@ -2512,11 +2519,12 @@ RecastPlanResult RecastNavEngine::plan(
     float start_floor_y,
     float goal_floor_y,
     float goal_deck_y,
+    float start_deck_y,
     const std::vector<BaseNavNoGoDisc>& no_go_discs,
     const std::function<bool()>& should_stop)
 {
     const std::lock_guard<std::mutex> lock(mutex_);
-    return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, no_go_discs, should_stop);
+    return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, start_deck_y, no_go_discs, should_stop);
 }
 
 void RecastNavEngine::warm(const std::string& zone_name)
@@ -2586,6 +2594,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     float start_floor_y,
     float goal_floor_y,
     float goal_deck_y,
+    float start_deck_y,
     const std::vector<BaseNavNoGoDisc>& no_go_discs,
     const std::function<bool()>& should_stop)
 {
@@ -2618,7 +2627,9 @@ RecastPlanResult RecastNavEngine::planLocked(
         goal_floor_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(goal_floor_y)) : std::nullopt;
     const std::optional<double> gdk =
         goal_deck_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(goal_deck_y)) : std::nullopt;
-    const auto ss = zc.snap(start, kSnapRadius, sfl);
+    const std::optional<double> sdk =
+        start_deck_y > kBaseNavFloorYValidMin ? std::optional<double>(static_cast<double>(start_deck_y)) : std::nullopt;
+    const auto ss = sdk.has_value() ? zc.snapOnDeck(start, kSnapRadius, *sdk) : zc.snap(start, kSnapRadius, sfl);
     if (!ss.has_value()) {
         res.error = "起点不在网格附近";
         return res;
@@ -2873,7 +2884,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         RouteDiag dg;
         dg.margin = margin;
         dg.final = capped;
-        auto line = routeWindow(*info, start, goal, dg, gdk, planner_, zone_id);
+        auto line = routeWindow(*info, start, goal, dg, gdk, sdk, planner_, zone_id);
         // 封顶档就是最终答案, 与整类窗口同一套出口
         if (local && !capped) {
             std::string why;

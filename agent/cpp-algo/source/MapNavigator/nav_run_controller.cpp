@@ -403,8 +403,11 @@ bool NavRunController::buildPlan(
     size_t anchor_index,
     const Waypoint& anchor,
     NavRunReplanReason reason,
-    std::chrono::steady_clock::time_point now)
+    std::chrono::steady_clock::time_point now,
+    const std::function<void()>& halt,
+    std::chrono::steady_clock::duration& planning)
 {
+    planning = {};
     const auto commit = [&](navmesh::WorldPath path, bool literal) {
         plan_.valid = true;
         plan_.zone_id = position.zone_id;
@@ -454,8 +457,23 @@ bool NavRunController::buildPlan(
 
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    auto route =
-        PlanNavmeshRoute(param, position.zone_id, start, goal, anchor.target_deck_y, std::nullopt, nullptr, &runtime.virtual_no_go);
+    // 规划同步卡住 tick, 先松开前进键, 免得人闷头往前冲
+    if (halt) {
+        halt();
+    }
+    const auto plan_started_at = std::chrono::steady_clock::now();
+    auto route = PlanNavmeshRoute(
+        param,
+        position.zone_id,
+        start,
+        goal,
+        anchor.target_deck_y,
+        std::nullopt,
+        nullptr,
+        &runtime.virtual_no_go,
+        session.LandedTowerDeckY(position));
+    planning = std::chrono::steady_clock::now() - plan_started_at;
+    now += planning;
     if (route && route->ok() && route->path.points.size() >= 2) {
         commit(std::move(route->path), false);
         return true;
@@ -549,9 +567,18 @@ NavRunTickResult NavRunController::tick(
     const NaviParam& param,
     size_t anchor_index,
     const Waypoint& anchor,
-    std::chrono::steady_clock::time_point now)
+    std::chrono::steady_clock::time_point now,
+    const std::function<void()>& halt)
 {
     NavRunTickResult result;
+    // 规划耗时记进结果, 之后的计时都从规划结束算起
+    const auto build = [&](NavRunReplanReason reason) {
+        std::chrono::steady_clock::duration planning {};
+        const bool built = buildPlan(param, *session, *runtime, position, anchor_index, anchor, reason, now, halt, planning);
+        result.planning += planning;
+        now += planning;
+        return built;
+    };
 
     if (runtime->nav_run_dirty) {
         invalidate();
@@ -588,7 +615,7 @@ NavRunTickResult NavRunController::tick(
         if (failed_build_anchor_ == anchor_index && ElapsedMs(failed_build_at_, now) < kNavRunPlanFailureCooldownMs) {
             return result;
         }
-        if (!buildPlan(param, *session, *runtime, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
+        if (!build(NavRunReplanReason::AnchorChanged)) {
             failed_build_anchor_ = anchor_index;
             failed_build_at_ = now;
             return result;
@@ -604,6 +631,13 @@ NavRunTickResult NavRunController::tick(
         return result;
     }
     plan_.cursor = projection->edge_idx;
+    // 走到台沿下落那一段, 之后的重规划不再从落点架子那层起步
+    for (const navmesh::DropLanding& drop : plan_.path.drops) {
+        if (plan_.cursor + 1 >= drop.index) {
+            session->LeaveLandedTowerDeck();
+            break;
+        }
+    }
 
     const bool hard_off = projection->cross_track > kNavRunCrossTrackFailM;
     const bool soft_off = projection->cross_track > kNavRunCrossTrackWarnM;
@@ -622,9 +656,10 @@ NavRunTickResult NavRunController::tick(
         // hard_off skips cooldown but never bypasses the budget — once exhausted,
         // outer 3.5 s recovery handles the escalation.
         if (budget_left && (hard_off || cooldown_ready)) {
-            plan_.last_soft_replan_at = now;
             plan_.soft_replan_attempts += 1;
-            if (buildPlan(param, *session, *runtime, position, anchor_index, anchor, reason, now)) {
+            const bool built = build(reason);
+            plan_.last_soft_replan_at = now;
+            if (built) {
                 auto reprojected = ProjectOntoCorridor(plan_.path, plan_.cursor, position);
                 if (!reprojected) {
                     invalidate();

@@ -96,6 +96,8 @@ public:
     };
 
     std::optional<SnapHit> snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const;
+    // 已知脚下那层的确切高度时用: 半径内先取与 deck_y 同层(kDeckBand 内)的面, 再按距离。
+    std::optional<SnapHit> snapOnDeck(const WorldPoint& p, double radius, double deck_y) const;
 
     // 交还几何与逐三角的表。调用方保证之后不再读它们, 区号一类的标量照旧可用。
     void release();
