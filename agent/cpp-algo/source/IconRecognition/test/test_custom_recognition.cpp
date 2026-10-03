@@ -15,6 +15,7 @@
 #include "../../utils.h"
 #include "IconRecognitionRecognition.h"
 #include "IconRecognizer.h"
+#include "detail/Attach.h"
 #include "detail/RecognitionDiagnostics.h"
 
 namespace
@@ -133,6 +134,108 @@ json::object RunFailure(const MaaImageBuffer* image, const char* param, MaaRect&
 void RequireUntouched(const MaaRect& box)
 {
     Require(box.x == 101 && box.y == 202 && box.width == 303 && box.height == 404, "failed recognition must not write out_box");
+}
+
+void TestAttachOverridesSupportedArrays()
+{
+    for (const auto& [parameter, entries] : {
+             std::pair { "item_ids", json::array { "item_copper_ore", "item_iron_ore" } },
+             std::pair { "item_filters", json::array { "Normal:Ore", "Normal:Product" } },
+             std::pair { "additional_item_filters", json::array { "Normal:Ore", "Normal:Product" } },
+             std::pair { "excluded_item_ids", json::array { "item_copper_ore", "item_iron_ore" } },
+             std::pair { "item_recheck_filters", json::array { "Normal:Ore", "Normal:Product" } },
+         }) {
+        const json::object parameters { { parameter, json::array { entries.at(0) } } };
+        const std::string prefix = std::string("IconRecognition.") + parameter + ".";
+        const json::object data {
+            { "attach",
+              json::object {
+                  { prefix + entries.at(0).as_string(), true },
+                  { prefix + entries.at(1).as_string(), true },
+                  { prefix + "unselected", false },
+              } },
+        };
+        const auto output = iconrecognition::detail::ApplyAttach(parameters, data);
+        Require(
+            output.at(parameter).dumps() == json::value(entries).dumps(),
+            "attach must replace each supported array with all true entries");
+    }
+}
+
+void TestAttachPreservesDefaultArrays()
+{
+    const json::object parameters {
+        { "item_ids", json::array { "item_copper_ore" } },
+        { "item_filters", json::array { "Normal:Ore" } },
+    };
+    // 未配置或全部取消都应沿用默认值，而不是清空数组改变识别范围。
+    for (const auto& data : {
+             json::object {},
+             json::object { { "attach", json::object {} } },
+             json::object {
+                 { "attach",
+                   json::object {
+                       { "IconRecognition.item_ids.item_copper_ore", false },
+                       { "IconRecognition.item_ids.item_iron_ore", false },
+                       { "IconRecognition.item_filters.Normal:Ore", false },
+                   } },
+             },
+         }) {
+        const auto output = iconrecognition::detail::ApplyAttach(parameters, data);
+        Require(json::value(output).dumps() == json::value(parameters).dumps(), "absent or all-false attach flags must preserve defaults");
+    }
+}
+
+void TestAttachDoesNotModifyUnrelatedData()
+{
+    const json::object parameters {
+        { "item_ids", json::array { "item_copper_ore" } },
+        { "item_filters", json::array { "Normal:Ore" } },
+        { "threshold", 0.8 },
+    };
+    const json::object data {
+        { "attach",
+          json::object {
+              { "IconRecognition.item_ids.item_iron_ore", true },
+              { "OtherRecognition.item_ids.item_copper_ore", "not a boolean" },
+          } },
+    };
+    const auto original_parameters = json::value(parameters).dumps();
+    const auto original_data = json::value(data).dumps();
+    auto expected = parameters;
+    expected["item_ids"] = json::array { "item_iron_ore" };
+    const auto output = iconrecognition::detail::ApplyAttach(parameters, data);
+    Require(
+        json::value(output).dumps() == json::value(expected).dumps(),
+        "attach must ignore other namespaces and preserve unrelated parameters");
+    Require(json::value(parameters).dumps() == original_parameters, "attach must not mutate the original parameters");
+    Require(json::value(data).dumps() == original_data, "attach must not mutate the node data");
+}
+
+void TestMalformedAttachIsRejected()
+{
+    const json::object parameters { { "item_ids", json::array { "item_copper_ore" } } };
+    for (const auto& [attach, expected_message] : {
+             std::pair { json::value(json::array {}), "must be an object" },
+             std::pair { json::value(json::object { { "IconRecognition.item_ids", true } }), "IconRecognition.<parameter>.<entry>" },
+             std::pair { json::value(json::object { { "IconRecognition..item_iron_ore", true } }), "IconRecognition.<parameter>.<entry>" },
+             std::pair { json::value(json::object { { "IconRecognition.item_ids.", true } }), "IconRecognition.<parameter>.<entry>" },
+             std::pair { json::value(json::object { { "IconRecognition.threshold.0.8", true } }), "does not support parameter" },
+             std::pair { json::value(json::object { { "IconRecognition.item_ids.item_iron_ore", 1 } }), "must be booleans" },
+         }) {
+        const json::object data { { "attach", attach } };
+        bool rejected = false;
+        try {
+            iconrecognition::detail::ApplyAttach(parameters, data);
+        }
+        catch (const std::invalid_argument& error) {
+            rejected = true;
+            Require(
+                std::string_view(error.what()).find(expected_message) != std::string_view::npos,
+                "attach failure must identify the invalid configuration");
+        }
+        Require(rejected, "malformed attach configuration must be rejected");
+    }
 }
 
 // 参数校验只需要有效图像，直接读取测试集真实截图；路径由 CMake 注入，不依赖当前工作目录。
@@ -372,6 +475,10 @@ void TestRecognizerPreloadsEveryRequestedTemplateSize()
 int main()
 {
     try {
+        TestAttachOverridesSupportedArrays();
+        TestAttachPreservesDefaultArrays();
+        TestAttachDoesNotModifyUnrelatedData();
+        TestMalformedAttachIsRejected();
         TestEmptyImageWritesInvalidImageDetail();
         TestUnknownGridTypeIsRejected();
         TestRequiredParametersAreRejected();

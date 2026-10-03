@@ -8,29 +8,6 @@
 
 Pipeline 使用 `Custom` 识别，注册名固定为 `IconRecognition`。原生 `roi` 写在 `recognition.param.roi`，组件参数写在 `recognition.param.custom_recognition_param`；不要把 `roi` 放进组件参数。
 
-### 通过 attach 汇总数组选项
-
-多个 CheckBox 可以共同配置同一个物品识别节点的数组参数。每个选项在该节点的 attach 中写 `IconRecognition.<参数名>.<数组元素>`：选中写 true，取消写 false。识别器收集值为 true 的数组元素，**覆盖而非追加**对应参数；未配置该参数的标记或全部取消时，保留原参数。
-
-支持 item_ids、item_filters、additional_item_filters、excluded_item_ids、item_recheck_filters。非数组参数使用普通 pipeline_override。
-
-> IconRecognition 根据回调提供的节点名读取对应节点的 attach。And/Or 中的内联识别不一定对应独立节点，可能无法读取 attach，或因重名读到其他节点的数据。因此，使用 attach 时，请将物品识别定义为独立节点，并在 And/Or 中按节点名引用。
-
-```json
-{
-    "pipeline_override": {
-        "IconRecognitionFindItem": {
-            "attach": {
-                "IconRecognition.item_ids.item_copper_ore": true,
-                "IconRecognition.item_ids.item_iron_ore": false
-            }
-        }
-    }
-}
-```
-
-此例会将 item_ids 覆盖为 `["item_copper_ore"]`。
-
 ### 按物品 ID 查找位置
 
 `item_ids` 使用 [`assets/data/IconRecognition/recognition_items.json`](/assets/data/IconRecognition/recognition_items.json) 的顶层 key：
@@ -340,6 +317,97 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 <summary>single_roi 示例</summary>
 
 ![specific-roi-example](https://github.com/user-attachments/assets/76e7f9d0-ed4e-4feb-b1b4-afbc40ac6003)
+
+</details>
+
+## 通过 attach 汇总数组选项
+
+多个 CheckBox 可以通过 attach 共同配置物品识别的数组参数。各 case 在目标节点的 attach 中写入 `IconRecognition.<参数名>.<数组元素>: true`。识别时使用选中的配置覆盖对应数组；未选择时沿用节点原有配置。
+
+支持 item_ids、item_filters、additional_item_filters、excluded_item_ids、item_recheck_filters。非数组参数使用普通 pipeline_override。
+
+> 在 And/Or 中使用 attach 时，将物品识别定义为独立节点，并按节点名引用。
+
+<details>
+<summary>完整示例：通过两个勾选项选择背包矿石</summary>
+
+**Task 配置**
+
+```json
+{
+    "task": [
+        {
+            "name": "ScanBackpackOre",
+            "label": "识别背包矿石",
+            "entry": "ScanBackpackOre",
+            "option": [
+                "OreItems"
+            ]
+        }
+    ],
+    "option": {
+        "OreItems": {
+            "type": "checkbox",
+            "label": "选择矿石",
+            "default_case": [],
+            "cases": [
+                {
+                    "name": "CopperOre",
+                    "label": "赤铜矿",
+                    "pipeline_override": {
+                        "ScanBackpackOre": {
+                            "attach": {
+                                "IconRecognition.item_ids.item_copper_ore": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "IronOre",
+                    "label": "蓝铁矿",
+                    "pipeline_override": {
+                        "ScanBackpackOre": {
+                            "attach": {
+                                "IconRecognition.item_ids.item_iron_ore": true
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+
+**对应的 Pipeline**
+
+```json
+{
+    "ScanBackpackOre": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_filters": [
+                        "Normal:Ore"
+                    ]
+                },
+                "roi": [
+                    739,
+                    202,
+                    398,
+                    291
+                ]
+            }
+        },
+        "action": "DoNothing"
+    }
+}
+```
+
+勾选时按所选物品识别；未勾选时按 Pipeline 原配置识别背包侧矿石。
 
 </details>
 

@@ -181,9 +181,20 @@ MaaBool MAA_CALL IconRecognitionRun(
         json::object data;
         if (context != nullptr && node_name != nullptr && *node_name != '\0') {
             ScopedStringBuffer buffer;
+            // 分配失败不能视为缺少 attach，否则会静默使用原参数。
+            if (buffer.Get() == nullptr) {
+                RecognitionResult result;
+                result.has_grid_type = false;
+                result.error_code = "exception";
+                result.message = "Failed to allocate IconRecognition node data buffer";
+                WriteDetail(out_detail, result);
+                LogError << "IconRecognition failed" << VAR(result.message);
+                return MAA_FALSE;
+            }
             // 内联识别的 sub_name 不一定对应实体节点，此时没有 attach，仍使用传入的原参数。
             if (MaaContextGetNodeData(context, node_name, buffer.Get())) {
-                const auto parsed_data = json::parse(MaaStringBufferGet(buffer.Get()));
+                const char* raw = MaaStringBufferGet(buffer.Get());
+                const auto parsed_data = raw == nullptr ? std::optional<json::value> {} : json::parse(raw);
                 if (!parsed_data || !parsed_data->is_object()) {
                     RecognitionResult result;
                     result.has_grid_type = false;
