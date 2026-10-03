@@ -1224,16 +1224,13 @@
         "desc": "识别刻写选项是否已打开，识别到之后，点击它来关闭刻写",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    66,
-                    124,
-                    472,
-                    460
+                "all_of": [
+                    "__AutoEssenceRecoEssenceOverrideOnToggle",
+                    "__AutoEssenceRecoChooseOverrideEngraveNow"
                 ],
-                "template": "AutoEssence/EssenceOverrideOn.png",
-                "order_by": "Score"
+                "box_index": 0
             }
         },
         "action": {
@@ -1247,16 +1244,13 @@
         "desc": "识别刻写选项是否已关闭，识别到之后，点击它来开启刻写",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    66,
-                    124,
-                    472,
-                    460
+                "all_of": [
+                    "__AutoEssenceRecoEssenceOverrideOffToggle",
+                    "__AutoEssenceRecoChooseOverrideEngraveNow"
                 ],
-                "template": "AutoEssence/EssenceOverrideOff.png",
-                "order_by": "Score"
+                "box_index": 0
             }
         },
         "action": {
