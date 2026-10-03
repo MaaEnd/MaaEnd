@@ -1,0 +1,22 @@
+{
+    "CreditShoppingShelfAnyItem": {
+        "desc": "任意可买物品。复用 record.json 全物品模板（始终 TemplateMatch，不依赖购买选项）",
+        "recognition": "Or",
+        "any_of": [
+            "CreditShoppingRecordItemArmsInspector",
+            "CreditShoppingRecordItemArmsINSPKit",
+            "CreditShoppingRecordItemArsenalTicket",
+            "CreditShoppingRecordItemCastDie",
+            "CreditShoppingRecordItemElementaryCognitiveCarrier",
+            "CreditShoppingRecordItemElementaryCombatRecord",
+            "CreditShoppingRecordItemIntermediateCombatRecord",
+            "CreditShoppingRecordItemHeavyCastDie",
+            "CreditShoppingRecordItemOroberyl",
+            "CreditShoppingRecordItemProtodisk",
+            "CreditShoppingRecordItemProtoprism",
+            "CreditShoppingRecordItemProtohedron",
+            "CreditShoppingRecordItemProtoset",
+            "CreditShoppingRecordItemTCreds"
+        ]
+    }
+}

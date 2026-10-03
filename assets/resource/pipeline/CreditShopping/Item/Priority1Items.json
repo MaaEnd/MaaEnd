@@ -1,0 +1,16 @@
+{
+    "CreditShoppingPriority1Item": {
+        "desc": "优先购买1物品。模板与阈值由 CreditShoppingApplyPriorityItems 写入",
+        "recognition": "TemplateMatch",
+        "roi": [
+            38,
+            95,
+            1194,
+            527
+        ],
+        "template": "CreditShopping/Item/item_gold.png",
+        "green_mask": true,
+        "threshold": 0.7,
+        "order_by": "Vertical"
+    }
+}

@@ -1,16 +1,4 @@
 {
-    "ItemNameOCRLabelColor": {
-        "recognition": {
-            "param": {
-                "roi_offset": [
-                    -120,
-                    37,
-                    164,
-                    26
-                ]
-            }
-        }
-    },
     "RecordItemDiscount": {
         "roi_offset": [
             62,

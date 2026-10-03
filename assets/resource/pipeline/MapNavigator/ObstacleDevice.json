@@ -33,8 +33,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "auto_up": true,
-                "key": 18 // Alt
+                "key": 18, // Alt
+                "auto_up": true
             }
         },
         "next": [

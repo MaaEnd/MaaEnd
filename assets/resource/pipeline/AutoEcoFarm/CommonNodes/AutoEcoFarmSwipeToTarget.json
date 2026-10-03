@@ -194,8 +194,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "auto_up": true,
-                "key": 18 //alt键
+                "key": 18, //alt键
+                "auto_up": true
             }
         },
         "next": [
@@ -376,8 +376,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "auto_up": true,
-                "key": 18 //alt键
+                "key": 18, //alt键
+                "auto_up": true
             }
         },
         "next": [

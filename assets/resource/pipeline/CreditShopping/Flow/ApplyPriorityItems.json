@@ -1,0 +1,13 @@
+{
+    "CreditShoppingApplyPriorityItems": {
+        "desc": "按任务勾选把各档物品节点覆盖为模板列表和阈值列表（Custom：CreditShoppingApplyPriorityItemsAction）",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "CreditShoppingApplyPriorityItemsAction",
+        "next": [
+            "CreditShoppingInShop",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ]
+    }
+}
