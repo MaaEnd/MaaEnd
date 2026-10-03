@@ -8,6 +8,29 @@ Provide a Maa ROI in 1280x720 coordinates as `[x,y,width,height]`. Before captur
 
 Use the `Custom` recognition type with the fixed registration name `IconRecognition`. Put the native `roi` in `recognition.param.roi` and component fields in `recognition.param.custom_recognition_param`; do not put `roi` inside the component object.
 
+### Collect array options through attach
+
+Multiple CheckBoxes can configure an array parameter on the same IconRecognition node. Each option writes `IconRecognition.<parameter>.<array entry>` in that node's attach: true when selected and false when deselected. The component collects entries marked true and **replaces, rather than appends to**, the corresponding parameter. No flags for a parameter, or deselecting all its entries, leaves the original parameter unchanged.
+
+Supported arrays are item_ids, item_filters, additional_item_filters, excluded_item_ids, and item_recheck_filters. Use ordinary pipeline_override for non-array parameters.
+
+> IconRecognition reads a node's attach using the node name provided to its callback. An inline recognition in And/Or may not correspond to a standalone node, so attach may be unavailable or data from another node may be read if the names collide. Therefore, when using attach, define IconRecognition as a standalone node and reference it by node name in And/Or.
+
+```json
+{
+    "pipeline_override": {
+        "IconRecognitionFindItem": {
+            "attach": {
+                "IconRecognition.item_ids.item_copper_ore": true,
+                "IconRecognition.item_ids.item_iron_ore": false
+            }
+        }
+    }
+}
+```
+
+This example replaces item_ids with `["item_copper_ore"]`.
+
 ### Find an item by ID
 
 Use a top-level key from [`assets/data/IconRecognition/recognition_items.json`](/assets/data/IconRecognition/recognition_items.json) as the item ID:

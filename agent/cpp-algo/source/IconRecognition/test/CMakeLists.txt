@@ -55,6 +55,7 @@ add_executable(
     icon-recognition-custom-tests
     test_custom_recognition.cpp
     ../IconRecognitionRecognition.cpp
+    ../detail/Attach.cpp
 )
 target_compile_definitions(
     icon-recognition-custom-tests

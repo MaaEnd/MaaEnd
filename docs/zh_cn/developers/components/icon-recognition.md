@@ -8,6 +8,29 @@
 
 Pipeline 使用 `Custom` 识别，注册名固定为 `IconRecognition`。原生 `roi` 写在 `recognition.param.roi`，组件参数写在 `recognition.param.custom_recognition_param`；不要把 `roi` 放进组件参数。
 
+### 通过 attach 汇总数组选项
+
+多个 CheckBox 可以共同配置同一个物品识别节点的数组参数。每个选项在该节点的 attach 中写 `IconRecognition.<参数名>.<数组元素>`：选中写 true，取消写 false。识别器收集值为 true 的数组元素，**覆盖而非追加**对应参数；未配置该参数的标记或全部取消时，保留原参数。
+
+支持 item_ids、item_filters、additional_item_filters、excluded_item_ids、item_recheck_filters。非数组参数使用普通 pipeline_override。
+
+> IconRecognition 根据回调提供的节点名读取对应节点的 attach。And/Or 中的内联识别不一定对应独立节点，可能无法读取 attach，或因重名读到其他节点的数据。因此，使用 attach 时，请将物品识别定义为独立节点，并在 And/Or 中按节点名引用。
+
+```json
+{
+    "pipeline_override": {
+        "IconRecognitionFindItem": {
+            "attach": {
+                "IconRecognition.item_ids.item_copper_ore": true,
+                "IconRecognition.item_ids.item_iron_ore": false
+            }
+        }
+    }
+}
+```
+
+此例会将 item_ids 覆盖为 `["item_copper_ore"]`。
+
 ### 按物品 ID 查找位置
 
 `item_ids` 使用 [`assets/data/IconRecognition/recognition_items.json`](/assets/data/IconRecognition/recognition_items.json) 的顶层 key：
