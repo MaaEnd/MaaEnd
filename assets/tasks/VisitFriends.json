@@ -223,11 +223,18 @@
                                 "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": "VisitFriendsBtwAutoStockpileElasticGoods"
                             }
                         },
-                        "VisitFriendsBtwAutoStockpileElasticGoods": {
-                            "enabled": true
+                        "VisitFriendsClueExchangeCountZero": {
+                            "enabled": false
                         },
-                        "AutoSellFriendsPricesOpenSuccess": {
+                        "VisitFriendsBtwAutoStockpileElasticGoods": {
+                            "enabled": true,
                             "next": [
+                                "VisitFriendsBtwSellFirstItemOpen"
+                            ]
+                        },
+                        "AutoSellSellGoodsOpenSuccess": {
+                            "next": [
+                                "AutoSellSellGoodsEmpty",
                                 "AutoSellFriendsPricesBtwExpected"
                             ]
                         },

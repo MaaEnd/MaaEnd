@@ -207,6 +207,29 @@
                     "attach": {
                         "ready": false
                     }
+                },
+                "VisitFriendsClueExchangeCountZero": {
+                    "enabled": true
+                },
+                "VisitFriendsEnterShipPriorityRemark": {
+                    "anchor": {
+                        "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
+                    }
+                },
+                "VisitFriendsBtwAutoStockpileElasticGoods": {
+                    "enabled": false,
+                    "next": [
+                        "AutoSellStockRedistributionFirstItemOpenInFriends"
+                    ]
+                },
+                "AutoSellFriendsPricesOpenSuccess": {
+                    "next": [
+                        "AutoSellFriendsPricesExpected",
+                        "AutoSellFriendsPricesUnExpected"
+                    ]
+                },
+                "AutoSellFriendsPricesBtwExpected": {
+                    "enabled": false
                 }
             }
         },
@@ -244,6 +267,29 @@
                     "attach": {
                         "ready": false
                     }
+                },
+                "VisitFriendsClueExchangeCountZero": {
+                    "enabled": true
+                },
+                "VisitFriendsEnterShipPriorityRemark": {
+                    "anchor": {
+                        "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
+                    }
+                },
+                "VisitFriendsBtwAutoStockpileElasticGoods": {
+                    "enabled": false,
+                    "next": [
+                        "AutoSellStockRedistributionFirstItemOpenInFriends"
+                    ]
+                },
+                "AutoSellSellGoodsOpenSuccess": {
+                    "next": [
+                        "AutoSellSellGoodsEmpty",
+                        "AutoSellFriendsPricesOpen"
+                    ]
+                },
+                "AutoSellFriendsPricesBtwExpected": {
+                    "enabled": false
                 }
             }
         },

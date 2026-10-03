@@ -251,6 +251,36 @@
             "AutoSellSellGoodsOpenSuccess"
         ]
     },
+    "AutoSellStockRedistributionFirstItemOpenInFriends": {
+        "desc": "在好友物资调度界面打开第一个item",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "ticket",
+                "recognition": "TemplateMatch",
+                "roi": [0, 200, 1280, 500],
+                "template": [
+                    "AutoSell/SellTicketItemValleyIV.png",
+                    "AutoSell/SellTicketItemWuling.png"
+                ],
+                "threshold": 0.8,
+                "order_by": "Horizontal"
+            },
+            "AutoSellStockRedistributionItemOwnedRecognition",
+            "AutoSellStockRedistributionItemGreenLineRecognition",
+            "AutoSellStockRedistributionItemNameAreaRecognition",
+            "AutoSellStockRedistributionItemNameRecRecognition"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [30, -50, -60, 0],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellSellGoodsOpenSuccess"
+        ]
+    },
     "AutoSellStockRedistributionItemOpenInRegionalDevelopment": {
         "desc": "在地区建设物资调度界面打开item",
         "recognition": "And",
@@ -400,7 +430,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellFriendsPricesExpectedBuyBackToSellGoods"
+            "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess"
         ]
     },
     "AutoSellFriendsPricesExpected": {

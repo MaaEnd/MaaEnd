@@ -9,6 +9,9 @@
             -10,
             -10
         ],
+        "anchor": {
+            "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
+        },
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -17,9 +20,6 @@
                 500,
                 100
             ]
-        },
-        "anchor": {
-            "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
         },
         "next": [
             "VisitFriendsEnterShipConfirm"
@@ -44,9 +44,6 @@
                 100
             ]
         },
-        "anchor": {
-            "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
-        },
         "next": [
             "VisitFriendsEnterShipConfirm"
         ]
@@ -61,6 +58,9 @@
             -10,
             -10
         ],
+        "anchor": {
+            "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
+        },
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -69,9 +69,6 @@
                 500,
                 100
             ]
-        },
-        "anchor": {
-            "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
         },
         "next": [
             "VisitFriendsEnterShipConfirm"
@@ -703,6 +700,7 @@
         "pre_wait_freezes": 400,
         "action": "Click",
         "next": [
+            "[Anchor]VisitFriendsBtwAutoStockpileElasticGoodsAnchor",
             "VisitFriendsWorldShipExitToMenuFriends"
         ]
     },
@@ -766,9 +764,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]VisitFriendsBtwAutoStockpileElasticGoodsAnchor"
-        ]
+        "rate_limit": 0
     }
 }
