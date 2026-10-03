@@ -978,34 +978,6 @@ def _current_git_head_sha() -> str | None:
     return _git_output("rev-parse", "HEAD")
 
 
-def _describe_divergence(version: str | None) -> str | None:
-    """Return how far *version* lags behind HEAD, or None when unknown/fresh.
-
-    Without this a stale build is invisible: install reports success and the
-    user cannot tell the binary predates their checkout.
-    """
-    if not _is_git_sha(version):
-        return None
-    behind = _git_output("rev-list", "--count", f"{version}..HEAD")
-    if behind is None:
-        # Not an object in this checkout (e.g. a release tag).
-        return None
-    try:
-        count = int(behind)
-    except ValueError:
-        return None
-    if count <= 0:
-        return None
-    return str(count)
-
-
-def _warn_cpp_algo_divergence(version: str | None) -> None:
-    """Warn when the cpp-algo in use trails the current checkout."""
-    behind = _describe_divergence(version)
-    if behind:
-        print(Console.warn(t("wrn_cpp_algo_desync", version=(version or "")[:7], behind=behind)))
-
-
 def _is_git_sha(version: str | None) -> bool:
     """Return True if version looks like a short git SHA (7-40 hex chars)."""
     if not version:
@@ -1406,7 +1378,6 @@ def _find_cpp_algo_in_ci(
             ))
             if result[0] is not None:
                 return result
-            print(Console.info(t("inf_ci_artifact_tip_not_built", sha=tip[:7])))
 
         result = _search_runs(_install_yml_runs_url(
             branch=branch, event="push", status="success", per_page="20",
@@ -1516,7 +1487,6 @@ def install_cpp_algo(
             and ci_digest == local_digest
         ):
             print(Console.ok(t("inf_cpp_algo_digest_match", sha=ci_digest[:16])))
-            _warn_cpp_algo_divergence(local_version)
             return True, local_version, False
 
         if update_mode and cpp_algo_installed and ci_digest is None:
@@ -1531,7 +1501,6 @@ def install_cpp_algo(
         )
         if ci_should_skip:
             print(Console.ok(t("inf_cpp_algo_latest_version", version=local_version)))
-            _warn_cpp_algo_divergence(local_version)
             return True, local_version, False
 
         cache_dir = ensure_cache_dir()
@@ -1599,7 +1568,6 @@ def install_cpp_algo(
                             "cpp_algo": version_to_write,
                             "cpp_algo_sha256": ci_digest,
                         })
-                        _warn_cpp_algo_divergence(version_to_write)
                         return True, version_to_write, True
                 except PermissionError:
                     # User declined the retry prompt — release fallback would
