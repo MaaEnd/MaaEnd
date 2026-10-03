@@ -13,7 +13,6 @@ const (
 	recordRowClusterGapY    = 80
 	recordMaxShelfSlots     = 10
 	recordSlotMatchColSlack = 24
-	recordSlotMatchRowSlack = 24
 )
 
 // recordShelfLayout 货架骨架：上行格数 + 下行格数（720p 一屏内两行）。
@@ -122,16 +121,19 @@ func recordAbsInt(x int) int {
 	return x
 }
 
-// recordHitBelongsToSlot 判定商品模板中心是否落在槽位锚框附近（同行 + 水平对齐，720p）。
+// recordHitBelongsToSlot 判定信用点锚点是否落在该格商品模板框内（720p：锚点在格下方，商品框覆盖整格）。
 func recordHitBelongsToSlot(slot maa.Rect, hit itemPositionHit) bool {
 	if !recordRectValid(slot) || !recordRectValid(hit.Box) {
 		return false
 	}
 	scx, scy := recordRectCenter(slot)
-	icx, icy := recordRectCenter(hit.Box)
-	maxDx := slot[2]/2 + recordSlotMatchColSlack
-	maxDy := slot[3]/2 + recordSlotMatchRowSlack
-	return recordAbsInt(icx-scx) <= maxDx && recordAbsInt(icy-scy) <= maxDy
+	ib := hit.Box
+	s := recordSlotMatchColSlack
+	left := ib[0] - s
+	top := ib[1] - s
+	right := ib[0] + ib[2] + s
+	bottom := ib[1] + ib[3] + s
+	return scx >= left && scx <= right && scy >= top && scy <= bottom
 }
 
 type recordSlotItemPair struct {

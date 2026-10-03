@@ -47,34 +47,59 @@ func TestRecordOrderSlotBoxesByLayout(t *testing.T) {
 }
 
 func TestRecordMatchItemsToSlots(t *testing.T) {
-	t.Run("aligned pair", func(t *testing.T) {
+	t.Run("win32 log geometry", func(t *testing.T) {
 		slots := []maa.Rect{
-			box(100, 200),
-			box(200, 200),
+			{166, 240, 22, 21},
+			{327, 240, 22, 21},
+			{488, 240, 22, 21},
+			{649, 240, 22, 21},
+			{810, 240, 22, 21},
+			{970, 240, 22, 21},
+			{1131, 240, 22, 21},
+			{165, 446, 22, 21},
+			{326, 446, 22, 21},
+			{487, 446, 22, 21},
 		}
 		items := []itemPositionHit{
-			{Box: box(102, 205), Name: "A", ID: "A"},
-			{Box: box(198, 198), Name: "B", ID: "B"},
+			{Box: maa.Rect{82, 106, 150, 166}, Name: "武库配额", ID: "ArsenalTicket"},
+			{Box: maa.Rect{404, 312, 150, 166}, Name: "武器检查装置", ID: "ArmsINSPKit"},
+			{Box: maa.Rect{726, 106, 150, 166}, Name: "初级认知载体", ID: "ElementaryCognitiveCarrier"},
 		}
 		got := recordMatchItemsToSlots(slots, items)
-		if got[0].ID != "A" || got[1].ID != "B" {
-			t.Fatalf("match = %+v", got)
+		if got[0].ID != "ArsenalTicket" {
+			t.Fatalf("slot 0 = %+v", got[0])
+		}
+		if got[4].ID != "ElementaryCognitiveCarrier" {
+			t.Fatalf("slot 4 = %+v, want ElementaryCognitiveCarrier", got[4])
+		}
+		if got[9].ID != "ArmsINSPKit" {
+			t.Fatalf("slot 9 = %+v, want ArmsINSPKit", got[9])
 		}
 	})
 
 	t.Run("sparse single middle hit", func(t *testing.T) {
-		var slots []maa.Rect
-		for i := 0; i < 5; i++ {
-			slots = append(slots, box(100+i*80, 200))
+		slots := []maa.Rect{
+			{100, 400, 22, 21},
+			{180, 400, 22, 21},
+			{260, 400, 22, 21},
 		}
 		items := []itemPositionHit{
-			{Box: box(100+2*80+2, 205), Name: "M", ID: "M"},
+			{Box: maa.Rect{230, 280, 150, 166}, Name: "M", ID: "M"},
 		}
 		got := recordMatchItemsToSlots(slots, items)
-		for i, want := range []string{"", "", "M", "", ""} {
-			if got[i].ID != want {
-				t.Fatalf("slot %d ID = %q, want %q; full=%+v", i, got[i].ID, want, got)
-			}
+		if got[2].ID != "M" {
+			t.Fatalf("slot 2 = %+v, want M", got[2])
+		}
+	})
+
+	t.Run("reject far orphan hit", func(t *testing.T) {
+		slots := []maa.Rect{box(100, 200), box(200, 200)}
+		items := []itemPositionHit{
+			{Box: maa.Rect{900, 500, 150, 166}, Name: "X", ID: "X"},
+		}
+		got := recordMatchItemsToSlots(slots, items)
+		if got[0].ID != "" || got[1].ID != "" {
+			t.Fatalf("expected no assignment, got %+v", got)
 		}
 	})
 }
