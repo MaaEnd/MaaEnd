@@ -1193,6 +1193,63 @@ def _search_cpp_algo_runs(
     return _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
 
 
+def _branch_commit_shas(
+    auth_headers: dict[str, str],
+    branch: str,
+    limit: int,
+) -> list[str]:
+    """Return commit hashes on *branch* newest first, or [] if unavailable."""
+    try:
+        data = _github_api_get(
+            f"https://api.github.com/repos/{MAAEND_REPO}/commits?"
+            f"{urlencode({'sha': branch, 'per_page': str(limit)})}",
+            auth_headers,
+        )
+    except Exception:
+        # Best-effort: falling back to a branch listing is the caller's choice.
+        return []
+    if not isinstance(data, list):
+        return []
+    return [c["sha"] for c in data if isinstance(c, dict) and c.get("sha")]
+
+
+def _search_cpp_algo_by_commit(
+    auth_headers: dict[str, str],
+    branch: str,
+    tip: str,
+    artifact_name: str,
+    max_commits: int = 30,
+) -> tuple[str | None, str | None, str | None] | None:
+    """Return the newest cpp-algo build on *branch*, walking back from *tip*.
+
+    Listing runs by branch can return a wholly stale page whose newest entry is
+    months old, and sorting cannot repair that, so commits are asked about one
+    by one. Most commits have no run: a change that leaves the build inputs
+    alone does not trigger CI.
+
+    Returns None when the commit list could not be read, so the caller can tell
+    "no build this far back" apart from "could not look".
+    """
+    commits = _branch_commit_shas(auth_headers, branch, max_commits)
+    if not commits:
+        return None
+
+    def _probe(sha: str) -> tuple[str | None, str | None, str | None]:
+        return _search_cpp_algo_runs(
+            auth_headers,
+            _install_yml_runs_url(
+                head_sha=sha, event="push", status="success", per_page="5",
+            ),
+            artifact_name,
+        )
+
+    for sha in [tip] + [c for c in commits if c != tip]:
+        result = _probe(sha)
+        if result[0] is not None:
+            return result
+    return None, None, None
+
+
 def _find_cpp_algo_in_ci(
     auth_headers: dict[str, str] | None,
     pr_number: int | None = None,
@@ -1370,15 +1427,20 @@ def _find_cpp_algo_in_ci(
     # v2 is only push-triggered, and without the event filter forks that also
     # happen to have a branch named ``v2`` would leak their PR runs in here.
     if branch == MAIN_BRANCH:
-        # A wholly stale page cannot be fixed by sorting, so ask for the tip commit.
         tip = _remote_branch_tip(branch)
         if tip:
-            result = _search_runs(_install_yml_runs_url(
-                head_sha=tip, status="success", per_page="20",
-            ))
-            if result[0] is not None:
-                return result
+            walked = _search_cpp_algo_by_commit(
+                auth_headers, branch, tip, artifact_name,
+            )
+            if walked is not None:
+                if walked[0] is not None:
+                    return walked
+                print(Console.info(t("inf_ci_artifact_no_runs", branch=branch)))
+                print(Console.info(t("inf_ci_artifact_not_found")))
+                return None, None, None
 
+        # Only reached when the commit list is unavailable: a stale listing is
+        # still better than giving up.
         result = _search_runs(_install_yml_runs_url(
             branch=branch, event="push", status="success", per_page="20",
         ))
@@ -1424,11 +1486,11 @@ def _find_cpp_algo_in_ci(
     print(Console.warn(t("wrn_ci_artifact_branch_fallback", branch=branch)))
     main_tip = _remote_branch_tip(MAIN_BRANCH)
     if main_tip:
-        result = _search_runs(_install_yml_runs_url(
-            head_sha=main_tip, status="success", per_page="20",
-        ))
-        if result[0] is not None:
-            return result
+        walked = _search_cpp_algo_by_commit(
+            auth_headers, MAIN_BRANCH, main_tip, artifact_name,
+        )
+        if walked is not None and walked[0] is not None:
+            return walked
     result = _search_runs(_install_yml_runs_url(
         branch=MAIN_BRANCH, event="push", status="success", per_page="20",
     ))
