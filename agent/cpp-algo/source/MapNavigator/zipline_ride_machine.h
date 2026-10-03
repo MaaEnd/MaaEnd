@@ -80,7 +80,9 @@ private:
     void CommitRecord(HopOutcome outcome, Clock::time_point now);
     void CommitFailedReturn(HopOutcome outcome, Clock::time_point now);
     std::vector<ZiplineNodeRef> KnownNodes() const;
-    double AimBiasDeg() const;
+    std::vector<double> NeighborOffsetsDeg() const;
+    double FirstShotAimBiasDeg() const;
+    double EscalatedAimBiasDeg(double wrong_bearing_deg) const;
 
     StageResult TickMounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult Remount(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
@@ -107,7 +109,9 @@ private:
     ZiplineNodeRef origin_;
     ZiplineNodeRef target_;
     double seed_elevation_deg_ = 0.0;
+    // 去程停点相对落点方位的偏置, 一跳内跨发射保留
     double aim_bias_deg_ = 0.0;
+    bool pitch_lowered_ = false;
     int pitch_tier_ = 0;
     bool returning_ = false;
     int hop_retry_count_ = 0;
