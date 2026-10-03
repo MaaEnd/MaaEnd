@@ -234,35 +234,47 @@
                             "recognition": "DirectHit"
                         },
                         "VisitFriendsBtwAutoStockpileElasticGoods": {
-                            "enabled": true,
+                            "enabled": true
+                        },
+                        "VisitFriendsCheckAssistPriorityRemark": {
+                            "action": "Custom",
+                            "custom_action": "PipelineOverrideAction",
+                            "custom_action_param": {
+                                "patch": {
+                                    "VisitFriendsBtwAutoStockpileElasticGoods": {
+                                        "enabled": true
+                                    }
+                                }
+                            }
+                        },
+                        "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV": {
                             "next": [
-                                "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling"
+                                "AutoSellBtwValleyIVStockedItemOpen",
+                                "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling",
+                                "AutoSellStockRedistributionItemOpenInFriendsSwipe"
                             ]
                         },
                         "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling": {
                             "next": [
-                                "VisitFriendsBtwSellFirstItemOpen"
+                                "AutoSellBtwWulingStockedItemOpen",
+                                "AutoSellBtwNoStockFinish"
                             ]
                         },
-                        "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
-                            "next": [
-                                "AutoSellFriendsPricesExpectedBuyPlus",
-                                "AutoSellFriendsPricesExpectedBuyClick"
-                            ]
-                        },
-                        "AutoSellSellGoodsOpenSuccess": {
-                            "next": [
-                                "AutoSellSellGoodsEmpty",
-                                "AutoSellFriendsPricesBtwExpected"
-                            ]
+                        "AutoSellFriendsPricesExpectedBuyPlus": {
+                            "enabled": true
                         },
                         "AutoSellFriendsPricesBtwExpected": {
                             "enabled": true
                         },
+                        "AutoSellSellGoodsEmpty": {
+                            "next": [
+                                "AutoSellBtwNoStockFinish"
+                            ]
+                        },
                         "VisitFriendsMenuTerminalExitToWorldShip": {
                             "next": [
+                                "AutoSellBtwCloseSellPages",
                                 "[JumpBack]VisitFriendsBtwAutoStockpileElasticGoods",
-                                "SceneAnyEnterWorld",
                                 "VisitFriendsWorldShipExitToMenuFriends"
                             ]
                         }

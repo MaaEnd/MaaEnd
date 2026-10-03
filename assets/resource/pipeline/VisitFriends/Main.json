@@ -287,7 +287,7 @@
         }
     },
     "VisitFriendsBtwAutoStockpileElasticGoods": {
-        "desc": "拜访每个优先好友后顺便售卖弹性物资",
+        "desc": "拜访每个优先好友后指定好友出售弹性物资",
         "enabled": false,
         "pre_delay": 0,
         "action": {
@@ -303,36 +303,7 @@
         },
         "post_delay": 0,
         "next": [
-            "AutoSellStockRedistributionFirstItemOpenInFriends"
-        ]
-    },
-    "VisitFriendsBtwSellFirstItemOpen": {
-        "desc": "顺便售卖：点开第一个商品",
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            200,
-            1280,
-            500
-        ],
-        "template": [
-            "AutoSell/SellTicketItemValleyIV.png",
-            "AutoSell/SellTicketItemWuling.png"
-        ],
-        "threshold": 0.8,
-        "order_by": "Horizontal",
-        "box_index": 0,
-        "pre_delay": 0,
-        "action": "Click",
-        "target_offset": [
-            30,
-            -50,
-            -60,
-            0
-        ],
-        "post_delay": 0,
-        "next": [
-            "AutoSellSellGoodsOpenSuccess"
+            "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV"
         ]
     }
 }

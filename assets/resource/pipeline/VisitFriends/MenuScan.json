@@ -188,7 +188,7 @@
         }
     },
     "VisitFriendsBtwAutoStockpileElasticGoodsRestore": {
-        "desc": "恢复顺便售卖覆盖的所有节点",
+        "desc": "恢复指定好友出售覆盖的所有节点",
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -197,25 +197,33 @@
         "custom_action_param": {
             "patch": {
                 "VisitFriendsBtwAutoStockpileElasticGoods": {
-                    "enabled": false,
+                    "enabled": false
+                },
+                "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchValleyIV": {
                     "next": [
-                        "AutoSellStockRedistributionFirstItemOpenInFriends"
+                        "AutoSellStockRedistributionItemOpenInFriendsSwipe"
                     ]
                 },
-                "AutoSellSellGoodsOpenSuccess": {
+                "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling": {
                     "next": [
-                        "AutoSellSellGoodsEmpty",
-                        "AutoSellFriendsPricesOpen"
+                        "AutoSellTicketWulingOverflow",
+                        "AutoSellStockRedistributionItemOpenInFriends",
+                        "[Anchor]AutoSellStockRedistributionItemFailedToWulingAnchor"
                     ]
                 },
                 "AutoSellFriendsPricesBtwExpected": {
                     "enabled": false
                 },
-                "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
+                "AutoSellSellGoodsEmpty": {
                     "next": [
-                        "AutoSellFriendsPricesExpectedNeedSlide",
-                        "AutoSellFriendsPricesExpectedBuyDirect"
+                        "AutoSellFriendsPricesBackToView0"
                     ]
+                },
+                "AutoSellFriendsPricesExpectedBuyPlus": {
+                    "enabled": false
+                },
+                "VisitFriendsCheckAssistPriorityRemark": {
+                    "action": "DoNothing"
                 },
                 "VisitFriendsMenuTerminalExitToWorldShip": {
                     "next": [
@@ -250,7 +258,7 @@
             "VisitFriendsMenuScanRemarkFallbackReopen"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已恢复顺便售卖的所有覆盖"
+            "Node.Action.Succeeded": "已恢复指定好友出售的所有覆盖"
         }
     },
     "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
