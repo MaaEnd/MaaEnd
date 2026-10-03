@@ -1,0 +1,13 @@
+{
+    "CreditShoppingApplyPriorityItems": {
+        "desc": "按任务参数将优先购买多选物品 override 到 PriorityN 子节点（Custom：CreditShoppingApplyPriorityItemsAction）",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "CreditShoppingApplyPriorityItemsAction",
+        "next": [
+            "CreditShoppingInShop",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ]
+    }
+}

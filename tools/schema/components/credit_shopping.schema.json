@@ -1,0 +1,30 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "ApplyPriorityItemsParam": {
+            "type": "object",
+            "description": "CreditShoppingApplyPriorityItemsAction：各优先购买档勾选物品 ID（与 CreditShoppingItems case 名一致），数组顺序即 Or any_of 顺序。",
+            "properties": {
+                "priority1": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "priority2": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "priority3": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}
