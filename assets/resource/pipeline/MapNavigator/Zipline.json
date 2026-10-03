@@ -7,10 +7,11 @@
             "MapNavigatorZiplineMountRetryWaitFreezes"
         ]
     },
+    // 认图标不认字：这枚图标只挂在「登上滑索架」那一行，且不分客户端语言
     "MapNavigatorZiplineMountWaitFreezes": {
-        "desc": "上索：识别滑索架交互提示，并等待提示区域稳定",
+        "desc": "上索：识别登上滑索架的图标，并等待提示区域稳定",
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     755,
@@ -18,9 +19,8 @@
                     297,
                     312
                 ],
-                "expected": [
-                    "登上滑索架"
-                ]
+                "template": "MapNavigator/Zipline/InteractButton.png",
+                "threshold": 0.9
             }
         },
         "pre_wait_freezes": {
@@ -39,7 +39,7 @@
         ]
     },
     "MapNavigatorZiplineMountRetryWaitFreezes": {
-        "desc": "上索：首次 OCR 未命中时等待提示区域稳定，随后复核一次",
+        "desc": "上索：首次未命中时等待提示区域稳定，随后复核一次",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
             "time": 300,
@@ -58,7 +58,7 @@
         ]
     },
     "MapNavigatorZiplineMount": {
-        "desc": "上索：重新识别滑索架交互提示后按住 Alt 点击该提示",
+        "desc": "上索：重新识别登上滑索架的图标后按住 Alt 点击该图标",
         "recognition": "And",
         "all_of": [
             "MapNavigatorZiplineMountWaitFreezes"

@@ -393,8 +393,8 @@ constexpr const char* kCollectExitNode = "AutoCollectClickEnd";
 constexpr const char* kInteractEntryNode = "MapNavigatorInteractStart";
 constexpr const char* kInteractRecognitionNode = "MapNavigatorInteract";
 constexpr const char* kInteractExitNode = "MapNavigatorInteractEnd";
-// 上索走的也是这套三节点交互, 只是提示文字由节点自己带, 不由路线注入。
-// 确认上索另配一对: 只认图标, 不必为一次确认付 OCR 的钱。确认要的恰恰是「认不出」,
+// 上索走的也是这套三节点交互, 只是认的图标由节点自己带, 不由路线注入。
+// 确认上索另配一对。确认要的恰恰是「认不出」,
 // 所以照样得走 Start 节点 —— 直接派发识别节点会让认不出的那一趟耗满节点超时。
 constexpr const char* kZiplineMountEntryNode = "MapNavigatorZiplineMountStart";
 constexpr const char* kZiplineMountRecognitionNode = "MapNavigatorZiplineMount";

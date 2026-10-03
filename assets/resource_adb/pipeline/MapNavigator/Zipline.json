@@ -14,6 +14,21 @@
             }
         }
     },
+    "MapNavigatorZiplineMountWaitFreezes": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    330,
+                    352,
+                    312
+                ],
+                "template": "MapNavigator/Zipline/InteractButton.png",
+                "threshold": 0.9
+            }
+        }
+    },
     "MapNavigatorZiplineOnTowerHint": {
         "recognition": {
             "type": "Or",
