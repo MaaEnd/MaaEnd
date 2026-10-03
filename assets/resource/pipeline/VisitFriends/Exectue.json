@@ -9,9 +9,6 @@
             -10,
             -10
         ],
-        "anchor": {
-            "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
-        },
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -58,9 +55,6 @@
             -10,
             -10
         ],
-        "anchor": {
-            "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
-        },
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -700,7 +694,6 @@
         "pre_wait_freezes": 400,
         "action": "Click",
         "next": [
-            "[Anchor]VisitFriendsBtwAutoStockpileElasticGoodsAnchor",
             "VisitFriendsWorldShipExitToMenuFriends"
         ]
     },

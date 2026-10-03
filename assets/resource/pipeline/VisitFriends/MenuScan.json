@@ -187,6 +187,72 @@
             "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
         }
     },
+    "VisitFriendsBtwAutoStockpileElasticGoodsRestore": {
+        "desc": "恢复顺便售卖覆盖的所有节点",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsBtwAutoStockpileElasticGoods": {
+                    "enabled": false,
+                    "next": [
+                        "AutoSellStockRedistributionFirstItemOpenInFriends"
+                    ]
+                },
+                "AutoSellSellGoodsOpenSuccess": {
+                    "next": [
+                        "AutoSellSellGoodsEmpty",
+                        "AutoSellFriendsPricesOpen"
+                    ]
+                },
+                "AutoSellFriendsPricesBtwExpected": {
+                    "enabled": false
+                },
+                "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
+                    "next": [
+                        "AutoSellFriendsPricesExpectedNeedSlide",
+                        "AutoSellFriendsPricesExpectedBuyDirect"
+                    ]
+                },
+                "VisitFriendsMenuTerminalExitToWorldShip": {
+                    "next": [
+                        "VisitFriendsWorldShipExitToMenuFriends"
+                    ]
+                },
+                "VisitFriendsAssistFull": {
+                    "enabled": true
+                },
+                "VisitFriendsClueExchangeFull": {
+                    "enabled": true
+                },
+                "VisitFriendsFull": {
+                    "enabled": true
+                },
+                "VisitFriendsMenuScanFriendsFull": {
+                    "enabled": true
+                },
+                "VisitFriendsCheckAssist": {
+                    "recognition": "Or",
+                    "any_of": [
+                        "VisitFriendsCheckAssistClueExchange",
+                        "VisitFriendsCheckAssistControlNexus",
+                        "VisitFriendsCheckAssistMFGCabin",
+                        "VisitFriendsCheckAssistGrowthChamber"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanRemarkFallbackReopen"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已恢复顺便售卖的所有覆盖"
+        }
+    },
     "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
         "desc": "白名单扫完：关闭白名单链路，开启备注链路，清空滚动模板；max_hit=1",
         "enabled": false,
@@ -207,35 +273,12 @@
                     "attach": {
                         "ready": false
                     }
-                },
-                "VisitFriendsClueExchangeCountZero": {
-                    "enabled": true
-                },
-                "VisitFriendsEnterShipPriorityRemark": {
-                    "anchor": {
-                        "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
-                    }
-                },
-                "VisitFriendsBtwAutoStockpileElasticGoods": {
-                    "enabled": false,
-                    "next": [
-                        "AutoSellStockRedistributionFirstItemOpenInFriends"
-                    ]
-                },
-                "AutoSellFriendsPricesOpenSuccess": {
-                    "next": [
-                        "AutoSellFriendsPricesExpected",
-                        "AutoSellFriendsPricesUnExpected"
-                    ]
-                },
-                "AutoSellFriendsPricesBtwExpected": {
-                    "enabled": false
                 }
             }
         },
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenuScanRemarkFallbackReopen"
+            "VisitFriendsBtwAutoStockpileElasticGoodsRestore"
         ],
         "focus": {
             "Node.Action.Succeeded": "白名单已扫完，转为备注好友继续拜访"
@@ -267,35 +310,12 @@
                     "attach": {
                         "ready": false
                     }
-                },
-                "VisitFriendsClueExchangeCountZero": {
-                    "enabled": true
-                },
-                "VisitFriendsEnterShipPriorityRemark": {
-                    "anchor": {
-                        "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": ""
-                    }
-                },
-                "VisitFriendsBtwAutoStockpileElasticGoods": {
-                    "enabled": false,
-                    "next": [
-                        "AutoSellStockRedistributionFirstItemOpenInFriends"
-                    ]
-                },
-                "AutoSellSellGoodsOpenSuccess": {
-                    "next": [
-                        "AutoSellSellGoodsEmpty",
-                        "AutoSellFriendsPricesOpen"
-                    ]
-                },
-                "AutoSellFriendsPricesBtwExpected": {
-                    "enabled": false
                 }
             }
         },
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenuScanRemarkFallbackReopen"
+            "VisitFriendsBtwAutoStockpileElasticGoodsRestore"
         ],
         "focus": {
             "Node.Action.Succeeded": "白名单已扫完，重新打开列表并拜访任意好友"

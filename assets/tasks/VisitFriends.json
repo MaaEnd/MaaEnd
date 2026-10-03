@@ -218,18 +218,36 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "VisitFriendsEnterShipPriorityRemark": {
-                            "anchor": {
-                                "VisitFriendsBtwAutoStockpileElasticGoodsAnchor": "VisitFriendsBtwAutoStockpileElasticGoods"
-                            }
-                        },
-                        "VisitFriendsClueExchangeCountZero": {
+                        "VisitFriendsAssistFull": {
                             "enabled": false
+                        },
+                        "VisitFriendsClueExchangeFull": {
+                            "enabled": false
+                        },
+                        "VisitFriendsFull": {
+                            "enabled": false
+                        },
+                        "VisitFriendsMenuScanFriendsFull": {
+                            "enabled": false
+                        },
+                        "VisitFriendsCheckAssist": {
+                            "recognition": "DirectHit"
                         },
                         "VisitFriendsBtwAutoStockpileElasticGoods": {
                             "enabled": true,
                             "next": [
+                                "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling"
+                            ]
+                        },
+                        "AutoSellStockRedistributionItemOpenPrepareFriendsSwitchWuling": {
+                            "next": [
                                 "VisitFriendsBtwSellFirstItemOpen"
+                            ]
+                        },
+                        "AutoSellFriendsPricesExpectedBuyBackToSellGoodsSuccess": {
+                            "next": [
+                                "AutoSellFriendsPricesExpectedBuyPlus",
+                                "AutoSellFriendsPricesExpectedBuyClick"
                             ]
                         },
                         "AutoSellSellGoodsOpenSuccess": {
@@ -240,6 +258,13 @@
                         },
                         "AutoSellFriendsPricesBtwExpected": {
                             "enabled": true
+                        },
+                        "VisitFriendsMenuTerminalExitToWorldShip": {
+                            "next": [
+                                "[JumpBack]VisitFriendsBtwAutoStockpileElasticGoods",
+                                "SceneAnyEnterWorld",
+                                "VisitFriendsWorldShipExitToMenuFriends"
+                            ]
                         }
                     }
                 },

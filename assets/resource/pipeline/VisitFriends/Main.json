@@ -307,7 +307,7 @@
         ]
     },
     "VisitFriendsBtwSellFirstItemOpen": {
-        "desc": "顺便售卖：点开第一个 ticket 商品",
+        "desc": "顺便售卖：点开第一个商品",
         "recognition": "TemplateMatch",
         "roi": [
             0,

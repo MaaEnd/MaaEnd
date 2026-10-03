@@ -569,6 +569,38 @@
             "AutoSellFriendsPricesExpectedBuySlide"
         ]
     },
+    "AutoSellFriendsPricesExpectedBuyPlus": {
+        "desc": "顺便售卖：调整数量到 60 后售卖",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "BetterSliding",
+        "custom_action_param": {
+            "TargetQuantity": 60,
+            "SliderQuantity": {
+                "Box": [
+                    682,
+                    512,
+                    34,
+                    26
+                ],
+                "OnlyRec": true
+            },
+            "Direction": "right",
+            "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+            "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+            "FineTuneQuantity": true,
+//            "ClampTargetToSliderMax": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyClick"
+        ],
+        "on_error": [
+            "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    },
     "AutoSellFriendsPricesExpectedBuySlide": {
         "desc": "从好友价格界面返回到物资调度界面调整滑块",
         "recognition": "TemplateMatch",
