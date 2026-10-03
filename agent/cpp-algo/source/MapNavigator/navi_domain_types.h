@@ -76,7 +76,6 @@ struct ActionTraits
     bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 除 INTERACT 外只对线路明写 strict_arrival 的点
     bool walk_approach = false;      // 接近段允许切走路
     bool walk_at_startup = false;    // 起步位移还没确认也允许走路
-    bool settle_walking = false;     // 末端纠正前先切走路
     bool route_boundary = false;     // 全局规划分段的固有边界
     double commit_distance = 0.0;    // 判定圈下限 px, 0 = 不放宽
 };
@@ -112,7 +111,6 @@ constexpr ActionTraits TraitsOf(ActionType action)
             .settles_at_arrival = true,
             .walk_approach = true,
             .walk_at_startup = true,
-            .settle_walking = true,
             .route_boundary = true,
         };
     // 不设 strict_arrival：锚点只是「站这儿开始找」，收尾由视觉伺服完成
