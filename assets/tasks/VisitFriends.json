@@ -20,6 +20,7 @@
                 "Win32-Front"
             ],
             "option": [
+                "VisitFriendsMaxVisits",
                 "VisitFriendsRemark",
                 "VisitFriendsPriorityRemarkEnable",
                 "ProductionAssistControl"
@@ -27,6 +28,26 @@
         }
     ],
     "option": {
+        "VisitFriendsMaxVisits": {
+            "type": "input",
+            "label": "$option.VisitFriendsMaxVisits.label",
+            "inputs": [
+                {
+                    "name": "MaxVisits",
+                    "label": "$option.VisitFriendsMaxVisits.inputs.MaxVisits.label",
+                    "default": "3",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d{0,2}$"
+                }
+            ],
+            "pipeline_override": {
+                "VisitFriendsEnterFriendsListSuccess": {
+                    "custom_action_param": {
+                        "max_visits": "{MaxVisits}"
+                    }
+                }
+            }
+        },
         "VisitFriendsRemark": {
             "type": "switch",
             "label": "$option.VisitFriendsRemark.label",

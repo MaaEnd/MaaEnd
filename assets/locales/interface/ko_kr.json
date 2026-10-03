@@ -1696,6 +1696,8 @@
     "option.VideoBrowser.description": "영상을 연 뒤 웹 페이지 전체 화면을 선택하세요. 게임을 창 모드로 전환해야 합니다.",
     "option.VideoBrowser.label": "동영상 재생",
     "option.VideoBrowserURL.label": "영상 URL",
+    "option.VisitFriendsMaxVisits.inputs.MaxVisits.label": "최대 방문 횟수 (1~999)",
+    "option.VisitFriendsMaxVisits.label": "친구 방문 횟수 제한",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "플레이어 이름",
     "option.VisitFriendsPriorityRemark.label": "우선 방문 친구 (플레이어의 전체 이름 입력, 여러 개는 쉼표로 구분, 예: 박사#1001,관리자#1002).",
     "option.VisitFriendsPriorityRemarkEnable.label": "지정한 친구 우선 (메모가 있는 친구 방문보다 우선순위가 높음)",

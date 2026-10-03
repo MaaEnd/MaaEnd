@@ -1696,6 +1696,8 @@
     "option.VideoBrowser.description": "打开视频后选择网页全屏即可，需要将游戏切换为窗口化",
     "option.VideoBrowser.label": "视频播放",
     "option.VideoBrowserURL.label": "视频地址",
+    "option.VisitFriendsMaxVisits.inputs.MaxVisits.label": "最多拜访次数（1 到 999）",
+    "option.VisitFriendsMaxVisits.label": "拜访好友次数上限",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "玩家名",
     "option.VisitFriendsPriorityRemark.label": "优先拜访的好友（填玩家全名，多个用逗号分隔，如 博士#1001,管理员#1002）。",
     "option.VisitFriendsPriorityRemarkEnable.label": "优先拜访指定好友（优先级高于拜访备注好友）",

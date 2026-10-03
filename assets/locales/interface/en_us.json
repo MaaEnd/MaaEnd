@@ -1696,6 +1696,8 @@
     "option.VideoBrowser.description": "After opening the video, choose web full screen. The game must be in windowed mode.",
     "option.VideoBrowser.label": "Video playback",
     "option.VideoBrowserURL.label": "Video URL",
+    "option.VisitFriendsMaxVisits.inputs.MaxVisits.label": "Maximum visits (1 to 999)",
+    "option.VisitFriendsMaxVisits.label": "Friend visit limit",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "Player name",
     "option.VisitFriendsPriorityRemark.label": "Priority friends (enter the player's full name, comma-separated, e.g. Doctor#1001,Endmin#1002).",
     "option.VisitFriendsPriorityRemarkEnable.label": "Prioritize specified friends (higher priority than visiting friends with remarks)",

@@ -315,6 +315,10 @@
             "Node.Recognition.Succeeded": "拜访好友次数已满，停止拜访"
         }
     },
+    "VisitFriendsVisitLimitReached": {
+        "desc": "已达到设置的好友拜访次数上限，结束拜访",
+        "recognition": "DirectHit"
+    },
     "VisitFriendsMenuScanScrollList": {
         "desc": "列表未到底时向下滚动：ListComplete 未命中时落到本节点。滑动后 post_wait_freezes 等列表静止再回到扫描，否则惯性会被当成画面变化而无法判定到底",
         "recognition": "DirectHit",

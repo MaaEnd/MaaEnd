@@ -50,6 +50,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/processcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/taskfail"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/trialofswordmancy"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/visitfriends"
 	webevent202605 "github.com/MaaXYZ/MaaEnd/agent/go-service/webevent/202605"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ziplineimport"
 	"github.com/rs/zerolog/log"
@@ -103,6 +104,7 @@ func registerAll() {
 	autofight.Register()
 	scenemanager.Register()
 	seizedeliveryjobs.Register()
+	visitfriends.Register()
 	autostockstaple.Register()
 	autostockpile.Register()
 	ims.Register()

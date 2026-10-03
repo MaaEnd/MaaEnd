@@ -1696,6 +1696,8 @@
     "option.VideoBrowser.description": "開啟影片後選擇網頁全螢幕即可，需要將遊戲切換為視窗化",
     "option.VideoBrowser.label": "影片播放",
     "option.VideoBrowserURL.label": "影片網址",
+    "option.VisitFriendsMaxVisits.inputs.MaxVisits.label": "最多拜訪次數（1 到 999）",
+    "option.VisitFriendsMaxVisits.label": "拜訪好友次數上限",
     "option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label": "玩家名",
     "option.VisitFriendsPriorityRemark.label": "優先拜訪的好友（填玩家全名，多個用逗號分隔，如 博士#1001,管理員#1002）。",
     "option.VisitFriendsPriorityRemarkEnable.label": "優先指定好友（優先級高於拜訪備註好友）",
