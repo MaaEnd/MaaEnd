@@ -143,6 +143,8 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | `threshold` | number | 否 | `0.85` | 物品命中的最低最终分数，所有网格类型统一按该值判断 |
 | `subpixel_threshold` | number | 否 | `0.60` | 基础分达到该值但低于 `threshold` 时，在图标附近尝试更细的位置偏移 |
 | `deduplicate` | boolean | 否 | `false` | 同一个 `item_id` 命中多个格子时，只保留分数最高的一项 |
+| `order_by` | string | 否 | `"score"` | `score` 按分数降序；`natural` 按行从上到下、每行从左到右排列 |
+| `reverse` | boolean | 否 | `false` | 反转 `order_by` 确定的最终结果顺序，不影响识别、复核或去重 |
 | `debug` | boolean | 否 | `false` | 正常执行到结果汇总阶段时会收集网格和格子诊断；提前返回的 `invalid_image` 或 `exception` 可能不包含诊断。debug 控制性能计时和 Custom debug 文件写入 |
 
 - **`threshold` 与 `subpixel_threshold`**：阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。基础分低于 `subpixel_threshold` 时，组件认为当前候选明显不可靠，不再尝试更细的位置偏移，也不会把它放入 `matches`。基础分位于两个阈值之间时，组件会继续细化位置；只有最终分达到 `threshold`，并且没有被低纹理检查拒绝，结果才会返回。送货界面的数量条和贵重品库的头像区域会从模板匹配遮罩中排除，但不会绕过统一阈值。调整阈值前应先检查 ROI、画面稳定性和候选分类。
@@ -223,7 +225,7 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 
 ## 返回值与 Pipeline 命中框
 
-`RecognitionResult` 与 Custom detail 使用相同结构：
+C++ 直接调用与调试输出使用 `RecognitionResult`：
 
 | 字段 | 类型 | 说明 |
 | ---------------- | ------- | ---------------------------------------------- |
@@ -231,10 +233,10 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | `matched` | boolean | 是否至少有一个物品达到阈值并通过界面规则检查 |
 | `grid_type` | string | 本次请求的网格类型；参数解析前失败时可能不存在 |
 | `roi` | integer[4] | 请求 ROI，格式为 `[x,y,width,height]` |
-| `matches` | array | 实际返回给调用方的物品，按分数和位置排序 |
+| `matches` | array | 实际返回给调用方的物品，按 `order_by` 和 `reverse` 排序 |
 | `error` | object | 失败时出现，包含稳定的 `code` 和可读 `message` |
 
-`matches[]` 字段：
+`matches[]` 字段也用于 Custom 返回的每项 `detail`：
 
 | 字段 | 类型 | 说明 |
 | -------------------------------- | ------- | ----------------------------------------------------- |
@@ -250,9 +252,26 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | `region_unavailable` | boolean | 当前物品是否在当前地区不可用；仅为 `true` 时返回，普通命中省略 |
 | `row` / `column` | integer | 真实网格中的行列；`single_roi` 不返回 |
 
-结果先按 `score` 降序排列；同分时依次比较 `cell_box.y`、`cell_box.x` 和 `item_id`。`deduplicate=true` 时，每个 `item_id` 只保留排序后的第一项。
+结果默认按 `score` 降序排列；同分时依次比较 `cell_box.y`、`cell_box.x` 和 `item_id`。`deduplicate=true` 时，每个 `item_id` 只保留分数最高的一项。之后再应用 `natural` 排序和 `reverse`，因此改变输出顺序不会改变识别或去重结果。
 
-`matches` 非空时，Custom 返回 `MAA_TRUE`，Pipeline 使用的识别框 `out_box` 等于 `matches[0].cell_box`；`matches` 为空时返回 `MAA_FALSE`。MaaFramework 会把回调 detail 包装到外层 `all/filtered/best` 中：命中时完整组件结果位于 `best.detail`；未命中时 `best` 为 `null`，组件结果保留在 `all[0].detail`。
+Custom 成功时返回标准多结果格式，需要使用支持 MaaFramework PR #1535 协议的运行库：
+
+```jsonc
+{
+    "$filtered": [
+        {
+            "box": [154, 202, 88, 88],
+            "detail": {
+                "item_id": "item_copper_ore",
+                "cell_box": [154, 202, 88, 88]
+                // 其余物品字段同上表
+            }
+        }
+    ]
+}
+```
+
+每项 `box` 是该物品的 `cell_box`，`detail` 只包含该物品。框架将这些项放入 `all` 和 `filtered`，按节点的原生 `index` 选出 `best`（默认 `0`，负数从末尾计数），供后续 Pipeline 消费；成功时不再填充 `out_box`。没有物品时返回 `MAA_FALSE`，诊断保留在 `all[0].detail`，`best` 为 `null`。
 
 ### `error.code`
 
@@ -347,17 +366,24 @@ detail, err := ctx.RunRecognitionDirect(
     img,
 )
 
-parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
 if err != nil {
     return
 }
-for _, match := range parsed.Matches {
+parsed, err := iconrecognition.NewRecognitionDetail(detail)
+if err != nil {
+    return
+}
+matches, err := parsed.All().Matches()
+if err != nil {
+    return
+}
+for _, match := range matches {
     _ = match.CellBox
     _ = match.RegionUnavailable
 }
 ```
 
-`iconrecognition.ParseRecognitionDetail` 负责从 Maa 结果中选择 Custom detail：命中时读取 `Results.Best`，未命中时读取 `Results.All[0]`，调用方无需自行合并或去重结果桶。若已经取得 `CustomRecognitionResult.Detail` 字符串，也可以直接使用 `iconrecognition.ParseDetail`。
+`All()`、`Filter()`、`Best()` 分别读取框架的全部、筛选后和选中结果；`Base()` 返回原始框架结果。只有调用 `Matches()` 时才解析物品详情，不兼容旧的整体 `matches` 详情。失败详情以 `*iconrecognition.DetailError` 返回，可通过 `errors.As` 读取稳定错误码。
 
 ## C++ API 调用
 
