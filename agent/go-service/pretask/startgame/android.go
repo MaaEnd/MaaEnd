@@ -1,6 +1,7 @@
 package startgame
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -32,9 +33,9 @@ func androidIntent(version string) (string, error) {
 
 // startAndroidGame connects to the configured address with a temporary owned
 // controller. If connection fails, it attempts emulator startup, waits once,
-// and reconnects once. Success means the app-start job succeeded; cloud-game
+// and reconnects once. Success requires the app-start job and cleanup to succeed; cloud-game
 // button recognition and clicks are handled by the later OpenGame Pipeline.
-func startAndroidGame(opts launchOptions) error {
+func startAndroidGame(opts launchOptions) (retErr error) {
 	libDir := os.Getenv("MAAFW_BINARY_PATH")
 	if libDir == "" {
 		libDir = fsutil.OutputPath("maafw")
@@ -44,7 +45,7 @@ func startAndroidGame(opts launchOptions) error {
 	}
 	defer func() {
 		if err := maa.Release(); err != nil {
-			log.Warn().Err(err).Str("component", component).Msg("failed to release MaaFramework")
+			retErr = errors.Join(retErr, fmt.Errorf("release MaaFramework: %w", err))
 		}
 	}()
 
@@ -71,7 +72,11 @@ func startAndroidGame(opts launchOptions) error {
 		log.Info().Str("component", component).Str("address", opts.Address).
 			Msg("ADB connected, skipping emulator launch and wait")
 	}
-	defer controller.Destroy()
+	defer func() {
+		if err := controller.Destroy(); err != nil {
+			retErr = errors.Join(retErr, fmt.Errorf("destroy ADB controller: %w", err))
+		}
+	}()
 	if !controller.PostStartApp(opts.Intent).Wait().Success() {
 		return fmt.Errorf("start Android app %q on %q failed", opts.Intent, opts.Address)
 	}
