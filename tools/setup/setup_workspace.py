@@ -1227,24 +1227,26 @@ def _search_cpp_algo_by_commit(
     by one. Most commits have no run: a change that leaves the build inputs
     alone does not trigger CI.
 
-    Returns None when the commit list could not be read, so the caller can tell
-    "no build this far back" apart from "could not look".
+    Returns None when the search could not be carried out (commit list
+    unreadable, or a request failed), so the caller can tell "no build this
+    far back" apart from "could not look".
     """
     commits = _branch_commit_shas(auth_headers, branch, max_commits)
     if not commits:
         return None
 
-    def _probe(sha: str) -> tuple[str | None, str | None, str | None]:
-        return _search_cpp_algo_runs(
+    for sha in [tip] + [c for c in commits if c != tip]:
+        runs = _fetch_workflow_runs(
             auth_headers,
             _install_yml_runs_url(
                 head_sha=sha, event="push", status="success", per_page="5",
             ),
-            artifact_name,
         )
-
-    for sha in [tip] + [c for c in commits if c != tip]:
-        result = _probe(sha)
+        # A failed request means we cannot tell whether this commit has a
+        # build; probing on would report that failure as "not found".
+        if runs is None:
+            return None
+        result = _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
         if result[0] is not None:
             return result
     return None, None, None
@@ -1439,8 +1441,8 @@ def _find_cpp_algo_in_ci(
                 print(Console.info(t("inf_ci_artifact_not_found")))
                 return None, None, None
 
-        # Only reached when the commit list is unavailable: a stale listing is
-        # still better than giving up.
+        # Only reached when the walk could not run (commit list unreadable, or
+        # a request failed): a stale listing is still better than giving up.
         result = _search_runs(_install_yml_runs_url(
             branch=branch, event="push", status="success", per_page="20",
         ))
@@ -1489,8 +1491,14 @@ def _find_cpp_algo_in_ci(
         walked = _search_cpp_algo_by_commit(
             auth_headers, MAIN_BRANCH, main_tip, artifact_name,
         )
-        if walked is not None and walked[0] is not None:
-            return walked
+        # Same rule as the v2 path above: once the commit list was read, a
+        # miss is final — the branch listing can be a wholly stale page.
+        if walked is not None:
+            if walked[0] is not None:
+                return walked
+            print(Console.info(t("inf_ci_artifact_no_runs", branch=branch)))
+            print(Console.info(t("inf_ci_artifact_not_found")))
+            return None, None, None
     result = _search_runs(_install_yml_runs_url(
         branch=MAIN_BRANCH, event="push", status="success", per_page="20",
     ))
