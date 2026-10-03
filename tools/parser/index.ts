@@ -127,6 +127,42 @@ const customRecoParser: PropSelector = (name, param, utils) => {
   return result
 }
 
+// BetterSliding 中按「String=节点引用 / Object=识别参数补丁」解释的字段。
+const recognitionParamFields = [
+  'SwipeButton',
+  'SliderQuantity',
+  'SliderQuantityFilter',
+  'AvailableQuantity',
+  'AvailableQuantityFilter',
+]
+
+// 按钮字段额外接受 int[2|4] 坐标；数组不是模板或节点引用，直接忽略。
+const buttonParamFields = ['IncreaseButton', 'DecreaseButton']
+
+const tryAddRecognitionParamValue = (obj: ParserNode, utils: ParserUtils, result: PropSelectorResult[]) => {
+  if (utils.isString(obj)) {
+    tryAddTask(utils, result, obj)
+    return
+  }
+  for (const [, template] of utils.parseObject(obj)) {
+    tryAddTemplateRef(template, utils, result)
+    tryAddTemplateArray(template, utils, result)
+  }
+}
+
+const tryAddRecognitionParamFields = (
+  param: ParserNode,
+  utils: ParserUtils,
+  result: PropSelectorResult[],
+  fields: readonly string[],
+) => {
+  for (const [key, obj] of utils.parseObject(param)) {
+    if (fields.includes(key)) {
+      tryAddRecognitionParamValue(obj, utils, result)
+    }
+  }
+}
+
 const customActParser: PropSelector = (name, param, utils) => {
   const result: PropSelectorResult[] = []
 
@@ -134,7 +170,10 @@ const customActParser: PropSelector = (name, param, utils) => {
   if (name === 'autoEcoFarmOverrideTargetTemplate') {
     tryAddTemplateFields(param, utils, result, ['template'])
   } else if (name === 'BetterSliding') {
-    tryAddTemplateFields(param, utils, result, ['IncreaseButton', 'DecreaseButton', 'SwipeButton'])
+    // BetterSliding 的识别参数类字段统一为 String | Object：
+    // String 恒为节点引用（taskRef）；Object 内的 template 仍需按模板登记。
+    tryAddRecognitionParamFields(param, utils, result, recognitionParamFields)
+    tryAddRecognitionParamFields(param, utils, result, buttonParamFields)
   } else if (name === 'PipelineOverride' || name === 'PipelineOverrideAction') {
     tryAddPipelineOverrideTemplates(param, utils, result)
   }
