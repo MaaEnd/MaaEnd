@@ -84,6 +84,7 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        // 记录白名单链路的进船节点，供共享 max_hit 计数后继续执行本链路。
         "anchor": {
             "VisitFriendsEnterShipTarget": "VisitFriendsEnterShipPriorityRemark"
         },
@@ -105,6 +106,7 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        // 记录备注链路的进船节点，供共享 max_hit 计数后继续执行本链路。
         "anchor": {
             "VisitFriendsEnterShipTarget": "VisitFriendsEnterShipRemark"
         },
@@ -125,6 +127,7 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        // 记录普通链路的进船节点，供共享 max_hit 计数后继续执行本链路。
         "anchor": {
             "VisitFriendsEnterShipTarget": "VisitFriendsEnterShip"
         },

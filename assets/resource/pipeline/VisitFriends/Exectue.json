@@ -6,6 +6,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        // 三条选友链路共用本节点的 max_hit，限制总拜访次数。
+        // 锚点在选友时记录对应的进船节点，计数后沿原链路继续，保留该链路的点击目标。
         "next": [
             "[Anchor]VisitFriendsEnterShipTarget"
         ]
