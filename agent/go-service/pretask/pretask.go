@@ -4,11 +4,13 @@ import (
 	"os"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/startgame"
 	"github.com/rs/zerolog/log"
 )
 
 func init() {
 	Register("GameSetting", gamesetting.Run)
+	Register("StartGame", startgame.Run)
 }
 
 // Handler 是 pretask 的执行函数：成功返回 true，失败返回 false。

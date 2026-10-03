@@ -1,0 +1,87 @@
+{
+    // 在客户端正式连接控制器前启动程序；游戏内识别与点击由后续 Pipeline 处理。
+    "pretask": {
+        "exec": "agent/go-service",
+        "args": [
+            "--pretask",
+            "StartGame"
+        ],
+        "name": "StartGame",
+        "label": "$pretask.StartGame.label",
+        "description": "$pretask.StartGame.description",
+        "controller": [
+            "ADB",
+            "CloudADB",
+            "Win32-Front"
+        ],
+        "option": [
+            "StartGamePCPath",
+            "StartGameEmulatorPath",
+            "StartGameADB",
+            "ClientVersion",
+            "ClientVersionCloudLocked"
+        ]
+    },
+    "option": {
+        "StartGameEmulatorPath": {
+            "type": "input",
+            "controller": [
+                "ADB",
+                "CloudADB"
+            ],
+            "label": "$option.StartGameEmulatorPath.label",
+            "inputs": [
+                {
+                    "name": "Path",
+                    "label": "$option.StartGamePath.label",
+                    "default": ""
+                },
+                {
+                    "name": "Args",
+                    "label": "$option.StartGameArgs.label",
+                    "default": ""
+                }
+            ]
+        },
+        "StartGamePCPath": {
+            "type": "input",
+            "controller": [
+                "Win32-Front"
+            ],
+            "label": "$option.StartGamePCPath.label",
+            "inputs": [
+                {
+                    "name": "Path",
+                    "label": "$option.StartGamePath.label",
+                    "default": ""
+                },
+                {
+                    "name": "Args",
+                    "label": "$option.StartGameArgs.label",
+                    "default": ""
+                }
+            ]
+        },
+        "StartGameADB": {
+            "type": "input",
+            "controller": [
+                "ADB",
+                "CloudADB"
+            ],
+            "label": "$option.StartGameADB.label",
+            "inputs": [
+                {
+                    "name": "Address",
+                    "label": "$option.StartGameADB.Address.label",
+                    "default": ""
+                },
+                {
+                    "name": "WaitSeconds",
+                    "label": "$option.StartGameADB.WaitSeconds.label",
+                    "default": "30",
+                    "verify": "^\\d+$"
+                }
+            ]
+        }
+    }
+}

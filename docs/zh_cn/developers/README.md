@@ -55,6 +55,7 @@ flowchart TD
 | [节点测试](./node-testing.md) | 如何编写和运行节点测试，验证识别是否稳定命中 |
 | [Android 构建环境准备](./android-build-env.md) | JDK / Android SDK / NDK / Ninja 安装与环境变量（构建步骤见 `Android/README.md`） |
 | [Go Service `pkg/` 公共包](./go-service-pkg.md) | And 解包、条件计算、OCR 数值、i18n / focus / 资源读取等通用工具 |
+| [StartGame 启动游戏前置任务](./startgame-pretask.md) | PC / ADB 启动流程、参数解析、进程去重与运行边界 |
 | [Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/) | MaaFramework 官方 Pipeline 协议全文 |
 | [发版流程](./release-process.md) | 发版周期、分支模型、PR 往哪提、自动化说明 |
 
