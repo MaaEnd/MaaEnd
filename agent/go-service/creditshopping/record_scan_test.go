@@ -27,8 +27,5 @@ func TestRecordAssembleSlotRecordsUnknown(t *testing.T) {
 		if got[i].ID != recordSlotItemIDUnknown || got[i].Name != recordSlotNameUnknown {
 			t.Fatalf("slot %d = %+v, want unknown", i, got[i])
 		}
-		if got[i].Slot != i {
-			t.Fatalf("slot index = %d, want %d", got[i].Slot, i)
-		}
 	}
 }

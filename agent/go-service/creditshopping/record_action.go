@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -12,9 +13,9 @@ const creditShoppingScanItemActionName = "CreditShoppingScanItemAction"
 
 // RecordShelfSnapshotsAction 信用商店货架快照（best-effort，失败不阻断购物）：
 //  1. 截图并识别当日第几次刷新（RefreshCost）；
-//  2. 取 UID，查本地 JSON 是否已有 uid+game_date+refresh_index；有则直接结束（不跑 Icon/商品/折扣）；
-//  3. 尚无记录时再格位锚点定格 → 物品模板挂格（未识别写 unknown）→ 折扣 OCR → 追加写入（保留第一次）；
-//     识别失败（零槽位）不写入，避免占位后永久跳过重试。
+//  2. 取 UID，查本地 JSON 是否已有 uid+game_date+refresh_index；有则直接结束；
+//  3. 尚无记录时 CreditShoppingRecordShelfSlot 定骨架（Win32 7+3 / ADB 5+5）→ record 物品挂格（未识别 unknown）→ 折扣 OCR → 追加写入；
+//     锚点未命中时不写入，避免占位后永久跳过重试。
 type RecordShelfSnapshotsAction struct{}
 
 var _ maa.CustomActionRunner = (*RecordShelfSnapshotsAction)(nil)
@@ -62,7 +63,14 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		return true
 	}
 
-	slots := RecordShelfFromImage(ctx, img)
+	ctrlType, err := control.ResolveControlType(ctrl)
+	if err != nil {
+		log.Warn().Err(err).Str("component", component).Msg("record: controller type unknown, use Win32 7+3 layout")
+		ctrlType = control.CONTROL_TYPE_WIN32
+	}
+	layout := recordLayoutFromControlType(ctrlType)
+
+	slots := RecordShelfFromImage(ctx, img, layout)
 	if len(slots) == 0 {
 		log.Info().
 			Str("component", component).
@@ -70,7 +78,8 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 			Str("game_date", gameDate).
 			Int("refresh_index", refreshIndex).
 			Int("refresh_cost", refreshCost).
-			Msg("record: no shelf slots captured, skip persist")
+			Str("layout", recordLayoutLabel(layout)).
+			Msg("record: no shelf slot anchors, skip persist")
 		return true
 	}
 	entry := snapshotEntry{
@@ -88,6 +97,7 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		Int("refresh_index", refreshIndex).
 		Int("refresh_cost", refreshCost).
 		Int("slots", len(slots)).
+		Str("layout", recordLayoutLabel(layout)).
 		Msg("record: shelf captured")
 
 	n, err := upsertShelfSnapshots(path, []snapshotEntry{entry})

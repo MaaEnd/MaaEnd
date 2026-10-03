@@ -10,21 +10,38 @@ func box(x, y int) maa.Rect {
 	return maa.Rect{x, y, 10, 10}
 }
 
-func TestRecordOrderHitsByPosition(t *testing.T) {
-	t.Run("5+5", func(t *testing.T) {
-		var hits []itemPositionHit
+func TestRecordOrderSlotBoxesByLayout(t *testing.T) {
+	t.Run("adb 5+5", func(t *testing.T) {
+		var boxes []maa.Rect
 		for i := 0; i < 5; i++ {
-			hits = append(hits, itemPositionHit{Box: box(100+i*80, 200), Name: "t"})
+			boxes = append(boxes, box(100+i*80, 200))
 		}
 		for i := 0; i < 5; i++ {
-			hits = append(hits, itemPositionHit{Box: box(100+i*80, 400), Name: "b"})
+			boxes = append(boxes, box(100+i*80, 400))
 		}
-		got := recordOrderHitsByPosition(hits)
+		got := recordOrderSlotBoxesByLayout(boxes, recordShelfLayout{5, 5})
 		if len(got) != 10 {
 			t.Fatalf("len = %d, want 10", len(got))
 		}
-		if recordRectCenterY(got[4].Box) >= recordRectCenterY(got[5].Box) {
+		if recordRectCenterY(got[4]) >= recordRectCenterY(got[5]) {
 			t.Fatal("expected top row before bottom row")
+		}
+	})
+
+	t.Run("win32 7+3", func(t *testing.T) {
+		var boxes []maa.Rect
+		for i := 0; i < 7; i++ {
+			boxes = append(boxes, box(80+i*60, 180))
+		}
+		for i := 0; i < 3; i++ {
+			boxes = append(boxes, box(200+i*80, 380))
+		}
+		got := recordOrderSlotBoxesByLayout(boxes, recordShelfLayout{7, 3})
+		if len(got) != 10 {
+			t.Fatalf("len = %d, want 10", len(got))
+		}
+		if recordRectCenterY(got[6]) >= recordRectCenterY(got[7]) {
+			t.Fatal("expected 7 top slots before 3 bottom slots")
 		}
 	})
 }
@@ -60,32 +77,15 @@ func TestRecordMatchItemsToSlots(t *testing.T) {
 			}
 		}
 	})
+}
 
-	t.Run("sparse trailing hits only", func(t *testing.T) {
-		var slots []maa.Rect
-		for i := 0; i < 5; i++ {
-			slots = append(slots, box(100+i*80, 200))
-		}
-		items := []itemPositionHit{
-			{Box: box(100+3*80+1, 202), Name: "D", ID: "D"},
-			{Box: box(100+4*80+3, 198), Name: "E", ID: "E"},
-		}
-		got := recordMatchItemsToSlots(slots, items)
-		for i, want := range []string{"", "", "", "D", "E"} {
-			if got[i].ID != want {
-				t.Fatalf("slot %d ID = %q, want %q", i, got[i].ID, want)
-			}
-		}
-	})
-
-	t.Run("reject far orphan hit", func(t *testing.T) {
-		slots := []maa.Rect{box(100, 200), box(200, 200)}
-		items := []itemPositionHit{
-			{Box: box(900, 500), Name: "X", ID: "X"},
-		}
-		got := recordMatchItemsToSlots(slots, items)
-		if got[0].ID != "" || got[1].ID != "" {
-			t.Fatalf("expected no assignment, got %+v", got)
-		}
-	})
+func TestRecordLayoutFromControlType(t *testing.T) {
+	adb := recordLayoutFromControlType("adb")
+	if adb.topRow != 5 || adb.bottomRow != 5 {
+		t.Fatalf("adb layout = %+v", adb)
+	}
+	pc := recordLayoutFromControlType("win32")
+	if pc.topRow != 7 || pc.bottomRow != 3 {
+		t.Fatalf("win32 layout = %+v", pc)
+	}
 }

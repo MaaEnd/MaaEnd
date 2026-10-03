@@ -26,8 +26,7 @@ func recordDiscountPipelineOverride(anchorBox maa.Rect) map[string]any {
 	}
 }
 
-// recordFindShelfSlotBoxes 用 CreditShoppingRecordShelfSlot 锚点确定货架格位（与旧 CreditIcon 格位一致）。
-func recordFindShelfSlotBoxes(ctx *maa.Context, img image.Image) []maa.Rect {
+func recordFindShelfSlotBoxes(ctx *maa.Context, img image.Image, layout recordShelfLayout) []maa.Rect {
 	detail, err := ctx.RunRecognition(pipelineNodeRecordShelfSlot, img, nil)
 	if err != nil || detail == nil || !detail.Hit {
 		log.Info().Str("component", component).Msg("record: shelf slot anchor miss")
@@ -45,12 +44,12 @@ func recordFindShelfSlotBoxes(ctx *maa.Context, img image.Image) []maa.Rect {
 		log.Info().Str("component", component).Msg("record: shelf slot anchor hit but no boxes")
 		return nil
 	}
-	return recordOrderBoxesByPosition(boxes)
+	return recordOrderSlotBoxesByLayout(boxes, layout)
 }
 
-// recordFindAllItemPositions 对 catalog 中每种物品跑 TemplateMatch，收集屏上所有命中位置。
-func recordFindAllItemPositions(ctx *maa.Context, img image.Image) []itemPositionHit {
-	hits := make([]itemPositionHit, 0, len(recordCatalog))
+// recordCollectCatalogHits 对 record.json 各 CreditShoppingRecordItem* 节点跑 Pipeline 模板识别并汇总命中。
+func recordCollectCatalogHits(ctx *maa.Context, img image.Image) []itemPositionHit {
+	hits := make([]itemPositionHit, 0, recordMaxShelfSlots)
 	for _, item := range recordCatalog {
 		detail, err := ctx.RunRecognition(item.Node, img, nil)
 		if err != nil || detail == nil || !detail.Hit {
@@ -99,18 +98,6 @@ func recordAssembleSlotRecords(
 			discountBox = hit.Box
 			name = strings.TrimSpace(hit.Name)
 			id = hit.ID
-			if name != "" && id == "" {
-				itemID, ok := matchCreditItemID(name)
-				if !ok {
-					log.Warn().
-						Str("component", component).
-						Int("slot", i).
-						Str("name", name).
-						Msg("record: unmatched item name")
-				} else {
-					id = itemID
-				}
-			}
 		}
 		out = append(out, SlotRecord{
 			Slot:     i,
@@ -122,13 +109,13 @@ func recordAssembleSlotRecords(
 	return out
 }
 
-// RecordShelfFromImage：格位锚点定 slot → 物品模板挂格 → 未识别格写 unknown → 折扣 OCR（不写盘）。
-func RecordShelfFromImage(ctx *maa.Context, img image.Image) []SlotRecord {
-	slotBoxes := recordFindShelfSlotBoxes(ctx, img)
+// RecordShelfFromImage 槽位骨架（CreditShoppingRecordShelfSlot）+ record 物品模板挂格 + 折扣 OCR（不写盘）。
+func RecordShelfFromImage(ctx *maa.Context, img image.Image, layout recordShelfLayout) []SlotRecord {
+	slotBoxes := recordFindShelfSlotBoxes(ctx, img, layout)
 	if len(slotBoxes) == 0 {
 		return nil
 	}
-	itemHits := recordFindAllItemPositions(ctx, img)
+	itemHits := recordCollectCatalogHits(ctx, img)
 	matched := recordMatchItemsToSlots(slotBoxes, itemHits)
 	return recordAssembleSlotRecords(slotBoxes, matched, func(anchor maa.Rect) string {
 		return recordRecognizeDiscountAt(ctx, img, anchor)

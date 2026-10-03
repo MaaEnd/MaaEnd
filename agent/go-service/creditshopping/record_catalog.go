@@ -1,6 +1,6 @@
 package creditshopping
 
-// recordCatalog 货架记录用全物品模板（与 assets/.../CreditShopping/record.json 一致，不看购买选项）。
+// recordCatalog 货架记录用全物品 Pipeline 节点（与 record.json / CreditShoppingRecordAllItems 的 any_of 一致，不看购买选项）。
 var recordCatalog = []recordCatalogItem{
 	{Node: "CreditShoppingRecordItemArmsInspector", ID: "ArmsInspector", Name: "武器检查单元"},
 	{Node: "CreditShoppingRecordItemArmsINSPKit", ID: "ArmsINSPKit", Name: "武器检查装置"},
