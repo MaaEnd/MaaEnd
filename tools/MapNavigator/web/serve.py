@@ -1378,6 +1378,7 @@ def do_locate_once(runtime: Any, session_config: Any) -> dict[str, Any]:
         session.open(
             build_recording_connector(runtime, session_config),
             agent_name="MapLocatorOnceAgent",
+            resource_dirs=[RESOURCE_DIR] if session_config.kind == "linux" else None,
             pipeline_override={
                 "MapLocateNode": {"recognition": "Custom", "custom_recognition": "MapLocateRecognition"}
             },

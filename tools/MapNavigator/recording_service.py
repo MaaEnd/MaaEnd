@@ -12,7 +12,7 @@ from connection_models import RecordingSessionConfig
 from connectors import build_recording_connector
 import key_listener
 from model import ActionType, PathPoint, PathRecorder, normalize_zone_id
-from runtime import MaaRuntime
+from runtime import MaaRuntime, RESOURCE_DIR
 
 
 StatusCallback = Callable[[str, str], None]
@@ -152,6 +152,7 @@ class RecordingService:
             self._session.open(
                 build_recording_connector(self._runtime, self._session_config),
                 agent_name="MapLocatorAgent",
+                resource_dirs=[RESOURCE_DIR] if self._session_config.kind == "linux" else None,
                 pipeline_override={
                     "MapLocateNode": {"recognition": "Custom", "custom_recognition": "MapLocateRecognition"}
                 },
