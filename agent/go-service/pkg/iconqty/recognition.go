@@ -5,6 +5,7 @@
 package iconqty
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"strings"
@@ -169,7 +170,7 @@ func recognizeIcons(ctx *maa.Context, img image.Image, req Request) ([]iconrecog
 	if err != nil {
 		return nil, fmt.Errorf("run IconRecognition: %w", err)
 	}
-	parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
+	parsed, err := iconrecognition.NewRecognitionDetail(detail)
 	if err != nil {
 		if req.TolerateEmptyGrid && (detail == nil || !detail.Hit) {
 			log.Info().
@@ -181,12 +182,13 @@ func recognizeIcons(ctx *maa.Context, img image.Image, req Request) ([]iconrecog
 		}
 		return nil, err
 	}
-	if empty, hardErr := emptyMatches(parsed, req.TolerateEmptyGrid); hardErr != nil {
+	matches, matchErr := parsed.All().Matches()
+	if empty, hardErr := emptyMatches(matches, matchErr, req.TolerateEmptyGrid); hardErr != nil {
 		return nil, hardErr
 	} else if empty {
 		return nil, nil
 	}
-	return parsed.Matches, nil
+	return matches, nil
 }
 
 // emptyMatches reports whether IconRecognition returned no usable items.
@@ -194,14 +196,16 @@ func recognizeIcons(ctx *maa.Context, img image.Image, req Request) ([]iconrecog
 // only when tolerateEmptyGrid is set (A3): a missing catalog or a grid that
 // cannot be read must not block the close-rewards click. Other structured
 // errors stay hard failures.
-func emptyMatches(parsed iconrecognition.Detail, tolerateEmptyGrid bool) (empty bool, err error) {
-	code := iconrecognition.ErrorCode("")
-	message := ""
-	if parsed.Error != nil {
-		code = parsed.Error.Code
-		message = parsed.Error.Message
+func emptyMatches(matches []iconrecognition.Match, matchErr error, tolerateEmptyGrid bool) (empty bool, err error) {
+	if matchErr == nil {
+		return len(matches) == 0, nil
 	}
-	if code != "" && code != iconrecognition.ErrorCodeNoMatch {
+	var detailErr *iconrecognition.DetailError
+	if !errors.As(matchErr, &detailErr) {
+		return false, matchErr
+	}
+	code, message := detailErr.Code, detailErr.Message
+	if code != iconrecognition.ErrorCodeNoMatch {
 		if tolerateEmptyGrid && code == iconrecognition.ErrorCodeGridDetectionFailed {
 			log.Info().
 				Str("component", "iconqty").
@@ -220,8 +224,5 @@ func emptyMatches(parsed iconrecognition.Detail, tolerateEmptyGrid bool) (empty 
 		}
 		return false, fmt.Errorf("IconRecognition %s: %s", code, message)
 	}
-	if !parsed.Matched || len(parsed.Matches) == 0 {
-		return true, nil
-	}
-	return false, nil
+	return true, nil
 }
