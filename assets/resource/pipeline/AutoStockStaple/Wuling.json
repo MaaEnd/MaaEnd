@@ -34,18 +34,6 @@
             }
         }
     },
-    "AutoStockDiscountCompareWuling": {
-        "desc": "比较商品折扣与最低折扣阈值，武陵",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ExpressionRecognition",
-                "custom_recognition_param": {
-                    "expression": "{AutoStockInStapleItemDiscountsWuling} <= -50"
-                }
-            }
-        }
-    },
     "AutoStockTargetCanNotBuyWuling": {
         "desc": "识别目标调度券是否不可购买",
         "recognition": {
@@ -66,8 +54,7 @@
                 "all_of": [
                     "AutoStockInStapleItem",
                     "AutoStockInStapleItemName_Expected",
-                    "AutoStockInStapleItemDiscountsWuling",
-                    "AutoStockDiscountCompareWuling"
+                    "AutoStockInStapleItemDiscountsWuling"
                 ],
                 "box_index": 2
             }

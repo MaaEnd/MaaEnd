@@ -931,17 +931,6 @@
                                     ]
                                 }
                             }
-                        },
-                        "AutoStockBuyItemValleyIVTask": {
-                            "recognition": {
-                                "param": {
-                                    "all_of": [
-                                        "AutoStockInStapleItem",
-                                        "AutoStockInStapleItemName_Expected",
-                                        "AutoStockInStapleItemDiscountsValleyIV"
-                                    ]
-                                }
-                            }
                         }
                     }
                 },
@@ -949,12 +938,14 @@
                     "name": "-95%",
                     "label": "$option.DiscountValue.cases.-95%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareValleyIV": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -95"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -964,12 +955,15 @@
                     "name": "-90%",
                     "label": "$option.DiscountValue.cases.-90%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareValleyIV": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -90"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -979,12 +973,16 @@
                     "name": "-85%",
                     "label": "$option.DiscountValue.cases.-85%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareValleyIV": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -85"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -994,12 +992,17 @@
                     "name": "-80%",
                     "label": "$option.DiscountValue.cases.-80%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareValleyIV": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -80"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -1009,12 +1012,18 @@
                     "name": "-75%",
                     "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareValleyIV": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -75"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -1024,12 +1033,19 @@
                     "name": "-70%",
                     "label": "$option.DiscountValue.cases.-70%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareValleyIV": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -70"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -1039,12 +1055,20 @@
                     "name": "-65%",
                     "label": "$option.DiscountValue.cases.-65%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareValleyIV": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -65"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -1054,12 +1078,23 @@
                     "name": "-50%",
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareValleyIV": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsValleyIV} <= -50"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65",
+                                        "-60",
+                                        "-55",
+                                        "-50"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -2198,17 +2233,6 @@
                                     "order_by": "Vertical"
                                 }
                             }
-                        },
-                        "AutoStockBuyItemWulingTask": {
-                            "recognition": {
-                                "param": {
-                                    "all_of": [
-                                        "AutoStockInStapleItem",
-                                        "AutoStockInStapleItemName_Expected",
-                                        "AutoStockInStapleItemDiscountsWuling"
-                                    ]
-                                }
-                            }
                         }
                     }
                 },
@@ -2216,12 +2240,14 @@
                     "name": "-95%",
                     "label": "$option.DiscountValue.cases.-95%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareWuling": {
+                        "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsWuling} <= -95"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -2231,12 +2257,15 @@
                     "name": "-90%",
                     "label": "$option.DiscountValue.cases.-90%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareWuling": {
+                        "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsWuling} <= -90"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -2246,12 +2275,16 @@
                     "name": "-85%",
                     "label": "$option.DiscountValue.cases.-85%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareWuling": {
+                        "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsWuling} <= -85"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -2261,12 +2294,17 @@
                     "name": "-80%",
                     "label": "$option.DiscountValue.cases.-80%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareWuling": {
+                        "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsWuling} <= -80"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -2276,12 +2314,18 @@
                     "name": "-75%",
                     "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareWuling": {
+                        "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsWuling} <= -75"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -2291,12 +2335,19 @@
                     "name": "-70%",
                     "label": "$option.DiscountValue.cases.-70%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareWuling": {
+                        "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsWuling} <= -70"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -2306,12 +2357,20 @@
                     "name": "-65%",
                     "label": "$option.DiscountValue.cases.-65%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareWuling": {
+                        "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsWuling} <= -65"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
@@ -2321,12 +2380,23 @@
                     "name": "-50%",
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
-                        "AutoStockDiscountCompareWuling": {
+                        "AutoStockInStapleItemDiscountsWuling": {
                             "recognition": {
                                 "param": {
-                                    "custom_recognition_param": {
-                                        "expression": "{AutoStockInStapleItemDiscountsWuling} <= -50"
-                                    }
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65",
+                                        "-60",
+                                        "-55",
+                                        "-50"
+                                    ],
+                                    "order_by": "Expected"
                                 }
                             }
                         }
