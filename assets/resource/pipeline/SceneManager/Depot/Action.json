@@ -255,7 +255,7 @@
                 ]
             }
         },
-        "pre_delay": 0,
+        "pre_delay": 200,
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
