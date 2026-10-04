@@ -378,6 +378,7 @@ class MapNavigatorApp {
       btnPreviewMark: $("btn-preview-mark"),
       btnPreviewCopyCoord: $("btn-preview-copy-coord"),
       btnPreviewCopyNavmesh: $("btn-preview-copy-navmesh"),
+      coordinatePreviewDropdown: $("coordinate-preview-dropdown"),
       btnPrev: $("btn-prev"),
       btnNext: $("btn-next"),
       zoneLabel: $("zone-label"),
@@ -1007,11 +1008,15 @@ class MapNavigatorApp {
     e.editZiplineAccount.addEventListener("change", () => this._selectZiplineAccount(e.editZiplineAccount.value));
     e.btnMapLayers.addEventListener("click", (event) => {
       event.stopPropagation();
+      e.coordinatePreviewDropdown.open = false;
       this._setMapLayerPanelOpen(e.mapLayerPanel.hidden);
     });
     e.btnMapLayersClose.addEventListener("click", () => this._setMapLayerPanelOpen(false));
     e.mapLayerPanel.addEventListener("click", (event) => event.stopPropagation());
-    document.addEventListener("click", () => this._setMapLayerPanelOpen(false));
+    document.addEventListener("click", (event) => {
+      this._setMapLayerPanelOpen(false);
+      if (!e.coordinatePreviewDropdown.contains(event.target)) e.coordinatePreviewDropdown.open = false;
+    });
     e.mapShowBasemap.addEventListener("change", () =>
       this._setMapLayerVisible("showBasemap", e.mapShowBasemap.checked),
     );
@@ -6170,6 +6175,11 @@ class MapNavigatorApp {
    * @returns {void}
    */
   _onKeyDown(e) {
+    if (e.key === "Escape" && this.els.coordinatePreviewDropdown.open) {
+      this.els.coordinatePreviewDropdown.open = false;
+      e.preventDefault();
+      return;
+    }
     if (e.key === "Escape" && !this.els.mapLayerPanel.hidden) {
       this._setMapLayerPanelOpen(false);
       e.preventDefault();
@@ -7116,6 +7126,8 @@ class MapNavigatorApp {
     e.positionReadout.hidden = logWorkspace;
     e.toolRouteTest.hidden = mode !== Mode.EDIT;
     e.toolEditStart.hidden = mode !== Mode.EDIT;
+    e.coordinatePreviewDropdown.hidden = mode !== Mode.EDIT;
+    e.coordinatePreviewDropdown.open = false;
     if (this.connection) this.connection.setSuspended(logWorkspace);
 
     e.panelRecording.hidden = true;

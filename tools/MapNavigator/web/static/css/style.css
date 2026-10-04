@@ -1845,7 +1845,8 @@ canvas {
   color: var(--text-primary);
 }
 
-.btn-float.active {
+.btn-float.active,
+.coordinate-preview-dropdown[open] > summary {
   background: rgba(37, 99, 235, 0.26);
   color: #93c5fd;
   box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.38);
@@ -1934,6 +1935,19 @@ body.mode-assert #btn-select-assert-tier {
 .map-layer-dropdown {
   position: relative;
   display: flex;
+}
+
+.coordinate-preview-dropdown > summary {
+  list-style: none;
+}
+
+.coordinate-preview-dropdown > summary::-webkit-details-marker {
+  display: none;
+}
+
+.coordinate-preview-dropdown > .map-layer-panel {
+  right: 0;
+  left: auto;
 }
 
 /* 窄窄一列, 每个开关独占一行, 组间一条分隔线.
