@@ -12,22 +12,30 @@
         ]
     },
     "SupplyPlanSelectTarget": {
-        "desc": "仅在任务开始时选择当前库存/目标库存比例最低的物品；并列沿用调度顺序；开关控制全部达标后是否继续刷取",
+        "desc": "只在任务入口调用 IMS 比例判断，选定后由 PipelineOverride 固定本次调度目标",
         "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SupplyPlanSelectLowestRatio",
-                "custom_action_param": {
-                    "continue_after_target": false
-                }
-            }
-        },
+        "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SupplyPlanDispatch"
+            "SupplyPlanStopWhenAllTargetsMet",
+            "SupplyPlanSelect_T_CREDS",
+            "SupplyPlanSelect_PROTOHEDRON",
+            "SupplyPlanSelect_PROTOPRISM",
+            "SupplyPlanSelect_COGNITIVE_CARRIER_EXP",
+            "SupplyPlanSelect_COMBAT_RECORD_EXP",
+            "SupplyPlanSelect_PROTOSET",
+            "SupplyPlanSelect_PROTODISK",
+            "SupplyPlanSelect_WEAPON_EXP",
+            "SupplyPlanSelect_HEAVY_CAST_DIE",
+            "SupplyPlanSelect_CAST_DIE",
+            "SupplyPlanSelect_TRIPHASIC_NANOFLAKE",
+            "SupplyPlanSelect_QUADRANT_FITTING_FLUID",
+            "SupplyPlanSelect_TACHYON_SCREENING_LATTICE",
+            "SupplyPlanSelect_D96_STEEL_SAMPLE_4",
+            "SupplyPlanSelect_METADIASTIMA_PHOTOEMISSION_TUBE",
+            "SupplyPlanAllTargetsMet"
         ]
     },
     "SupplyPlanTargetComplete": {
@@ -40,29 +48,14 @@
         "next": []
     },
     "SupplyPlanDispatch": {
-        "desc": "目标选择器将 next 收敛为本次固定刷取物品；仅开关启用且全部达标时绕过库存停止条件；无有效目标则结束任务",
+        "desc": "入口选择节点将 next 覆盖为本次固定材料的继续刷取判断、库存不足判断及结束节点",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SupplyPlanInsufficient_T_CREDS",
-            "SupplyPlanInsufficient_PROTOHEDRON",
-            "SupplyPlanInsufficient_PROTOPRISM",
-            "SupplyPlanInsufficient_COGNITIVE_CARRIER_EXP",
-            "SupplyPlanInsufficient_COMBAT_RECORD_EXP",
-            "SupplyPlanInsufficient_PROTOSET",
-            "SupplyPlanInsufficient_PROTODISK",
-            "SupplyPlanInsufficient_WEAPON_EXP",
-            "SupplyPlanInsufficient_HEAVY_CAST_DIE",
-            "SupplyPlanInsufficient_CAST_DIE",
-            "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE",
-            "SupplyPlanInsufficient_QUADRANT_FITTING_FLUID",
-            "SupplyPlanInsufficient_TACHYON_SCREENING_LATTICE",
-            "SupplyPlanInsufficient_D96_STEEL_SAMPLE_4",
-            "SupplyPlanInsufficient_METADIASTIMA_PHOTOEMISSION_TUBE",
-            "SupplyPlanAllTargetsMet"
+            "SupplyPlanTargetComplete"
         ]
     },
     "SupplyPlanInsufficient_PROTOSET": {

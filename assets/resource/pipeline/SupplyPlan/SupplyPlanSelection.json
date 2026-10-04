@@ -1,0 +1,1046 @@
+{
+    // 仅在 SupplyPlanMain 入口选择一次，领奖后返回已固定的 SupplyPlanDispatch。
+    // 数量表达式由 ProtocolSpace 的 SupplyPlanLimits 注入并交给既有 IMS R1 求值。
+    // 比例比较采用 库存A * 目标B <= 库存B * 目标A；目标为 0 的项不参与比较。
+    // Select 节点固定目标，Continue 节点仅在开关开启且其余目标均达标时取消库存停止条件。
+    "SupplyPlanStopWhenAllTargetsMet": {
+        "desc": "继续刷取开关关闭时，全部达标则结束；数量表达式由 SupplyPlanLimits 注入",
+        "enabled": true,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanAllTargetsMet"
+        ]
+    },
+    "SupplyPlanSelect_T_CREDS": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_T_CREDS",
+                                "SupplyPlanInsufficient_T_CREDS",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_T_CREDS": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_T_CREDS": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_T_CREDS"
+        ]
+    },
+    "SupplyPlanSelect_PROTOHEDRON": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_PROTOHEDRON",
+                                "SupplyPlanInsufficient_PROTOHEDRON",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_PROTOHEDRON": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_PROTOHEDRON": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_PROTOHEDRON"
+        ]
+    },
+    "SupplyPlanSelect_PROTOPRISM": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_PROTOPRISM",
+                                "SupplyPlanInsufficient_PROTOPRISM",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_PROTOPRISM": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_PROTOPRISM": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_PROTOPRISM"
+        ]
+    },
+    "SupplyPlanSelect_COGNITIVE_CARRIER_EXP": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_COGNITIVE_CARRIER_EXP",
+                                "SupplyPlanInsufficient_COGNITIVE_CARRIER_EXP",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_COGNITIVE_CARRIER_EXP": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_COGNITIVE_CARRIER_EXP": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_COGNITIVE_CARRIER_EXP"
+        ]
+    },
+    "SupplyPlanSelect_COMBAT_RECORD_EXP": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_COMBAT_RECORD_EXP",
+                                "SupplyPlanInsufficient_COMBAT_RECORD_EXP",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_COMBAT_RECORD_EXP": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_COMBAT_RECORD_EXP": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_COMBAT_RECORD_EXP"
+        ]
+    },
+    "SupplyPlanSelect_PROTOSET": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_PROTOSET",
+                                "SupplyPlanInsufficient_PROTOSET",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_PROTOSET": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_PROTOSET": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_PROTOSET"
+        ]
+    },
+    "SupplyPlanSelect_PROTODISK": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_PROTODISK",
+                                "SupplyPlanInsufficient_PROTODISK",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_PROTODISK": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_PROTODISK": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_PROTODISK"
+        ]
+    },
+    "SupplyPlanSelect_WEAPON_EXP": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_WEAPON_EXP",
+                                "SupplyPlanInsufficient_WEAPON_EXP",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_WEAPON_EXP": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_WEAPON_EXP": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_WEAPON_EXP"
+        ]
+    },
+    "SupplyPlanSelect_HEAVY_CAST_DIE": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_HEAVY_CAST_DIE",
+                                "SupplyPlanInsufficient_HEAVY_CAST_DIE",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_HEAVY_CAST_DIE": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_HEAVY_CAST_DIE": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_HEAVY_CAST_DIE"
+        ]
+    },
+    "SupplyPlanSelect_CAST_DIE": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_CAST_DIE",
+                                "SupplyPlanInsufficient_CAST_DIE",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_CAST_DIE": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_CAST_DIE": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_CAST_DIE"
+        ]
+    },
+    "SupplyPlanSelect_TRIPHASIC_NANOFLAKE": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_TRIPHASIC_NANOFLAKE",
+                                "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_TRIPHASIC_NANOFLAKE": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_TRIPHASIC_NANOFLAKE": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_TRIPHASIC_NANOFLAKE"
+        ]
+    },
+    "SupplyPlanSelect_QUADRANT_FITTING_FLUID": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_QUADRANT_FITTING_FLUID",
+                                "SupplyPlanInsufficient_QUADRANT_FITTING_FLUID",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_QUADRANT_FITTING_FLUID": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_QUADRANT_FITTING_FLUID": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_QUADRANT_FITTING_FLUID"
+        ]
+    },
+    "SupplyPlanSelect_TACHYON_SCREENING_LATTICE": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_TACHYON_SCREENING_LATTICE",
+                                "SupplyPlanInsufficient_TACHYON_SCREENING_LATTICE",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_TACHYON_SCREENING_LATTICE": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_TACHYON_SCREENING_LATTICE": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_TACHYON_SCREENING_LATTICE"
+        ]
+    },
+    "SupplyPlanSelect_D96_STEEL_SAMPLE_4": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_D96_STEEL_SAMPLE_4",
+                                "SupplyPlanInsufficient_D96_STEEL_SAMPLE_4",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_D96_STEEL_SAMPLE_4": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_D96_STEEL_SAMPLE_4": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_D96_STEEL_SAMPLE_4"
+        ]
+    },
+    "SupplyPlanSelect_METADIASTIMA_PHOTOEMISSION_TUBE": {
+        "desc": "任务入口选择最低库存/目标比例；同率沿用 next 顺序；目标及比较式由 SupplyPlanLimits 注入",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanDispatch": {
+                            "next": [
+                                "SupplyPlanContinue_METADIASTIMA_PHOTOEMISSION_TUBE",
+                                "SupplyPlanInsufficient_METADIASTIMA_PHOTOEMISSION_TUBE",
+                                "SupplyPlanTargetComplete"
+                            ]
+                        }
+                    },
+                    "allow_next": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanDispatch"
+        ]
+    },
+    "SupplyPlanContinue_METADIASTIMA_PHOTOEMISSION_TUBE": {
+        "desc": "仅继续刷取开关开启且其余目标均达标时，取消当前材料的领奖达标停止条件",
+        "enabled": false,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "false"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SupplyPlanRewardItemMet_METADIASTIMA_PHOTOEMISSION_TUBE": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SupplyPlanOverride_METADIASTIMA_PHOTOEMISSION_TUBE"
+        ]
+    }
+}

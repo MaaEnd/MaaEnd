@@ -8,6 +8,5 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition("ItemQuantitySatisfied", &ItemQuantitySatisfied{})
 	maa.AgentServerRegisterCustomAction("AddItemData", &AddItemData{})
 	maa.AgentServerRegisterCustomAction("SyncItemData", &SyncItemData{})
-	maa.AgentServerRegisterCustomAction("SupplyPlanSelectLowestRatio", &SupplyPlanSelectLowestRatio{})
 	maa.AgentServerRegisterCustomAction("UpdateItemQuantity", &UpdateItemQuantity{})
 }

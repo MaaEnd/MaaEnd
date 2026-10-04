@@ -84,7 +84,6 @@
                 "RepeatUntilNotFoundAction",
                 "SceneManagerMenuListClickItemAction",
                 "SubTask",
-                "SupplyPlanSelectLowestRatio",
                 "SyncItemData",
                 "TrialOfSwordmancy.Decide",
                 "UpdateItemQuantity",
@@ -97,19 +96,6 @@
         }
     },
     "allOf": [
-        {
-            "if": {
-                "properties": {
-                    "custom_action": { "const": "SupplyPlanSelectLowestRatio" }
-                },
-                "required": [ "custom_action" ]
-            },
-            "then": {
-                "properties": {
-                    "custom_action_param": { "$ref": "./components/ims.schema.json#/$defs/SupplyPlanSelectLowestRatioParam" }
-                }
-            }
-        },
         {
             "if": {
                 "properties": {
