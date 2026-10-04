@@ -536,6 +536,10 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     case NaviPhase::WaitZipline:
     case NaviPhase::WaitFind:
     case NaviPhase::WaitTrigger: {
+        // 顶墙计数和设备命中只在 Navigate 里攒, 语义动作做完人可能已换了地方
+        runtime_state_.flow.motionless_hold_ticks = 0;
+        runtime_state_.flow.futile_forward_reasserts = 0;
+        device_recovery_.ForgetObservation();
         const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(
             BuildSemanticContext(
                 action_wrapper_,
