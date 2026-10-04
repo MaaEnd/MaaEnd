@@ -153,7 +153,26 @@ void SaveVisionCaptureBestEffort(MaaContext* context, const MaaImageBuffer* imag
         return;
     }
     try {
-        MaaContextRunRecognition(context, "SubTaskExampleStepOne", R"({"SubTaskExampleStepOne":{"roi":[0,0,1,1]}})", image);
+        // DirectHit 不生成 Vision draw，临时覆写为 1×1 ColorMatch 以触发截图保存。
+        MaaContextRunRecognition(
+            context,
+            "SubTaskExampleStepOne",
+            R"({
+                "SubTaskExampleStepOne": {
+                    "recognition": {
+                        "type": "ColorMatch",
+                        "param": {
+                            "roi": [0, 0, 1, 1],
+                            "method": 40,
+                            "lower": [0, 0, 0],
+                            "upper": [255, 255, 255],
+                            "connected": true,
+                            "count": 1
+                        }
+                    }
+                }
+            })",
+            image);
     }
     catch (...) {
     }
