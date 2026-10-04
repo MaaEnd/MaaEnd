@@ -373,6 +373,11 @@ class MapNavigatorApp {
       assertCopyFormat: $("assert-copy-format"),
       btnImport: $("btn-import"),
       btnEditReadClipboard: $("btn-edit-read-clipboard"),
+      previewCoordX: $("preview-coord-x"),
+      previewCoordY: $("preview-coord-y"),
+      btnPreviewMark: $("btn-preview-mark"),
+      btnPreviewCopyCoord: $("btn-preview-copy-coord"),
+      btnPreviewCopyNavmesh: $("btn-preview-copy-navmesh"),
       btnPrev: $("btn-prev"),
       btnNext: $("btn-next"),
       zoneLabel: $("zone-label"),
@@ -949,6 +954,15 @@ class MapNavigatorApp {
   /** Attach every DOM event listener (buttons, combos, tabs, canvas, keyboard). @returns {void} */
   _wireEvents() {
     const e = this.els;
+    e.btnPreviewMark.addEventListener("click", () => this._markPreviewCoordinate());
+    e.btnPreviewCopyCoord.addEventListener("click", () => this._copyPreviewPoint("coordinates"));
+    e.btnPreviewCopyNavmesh.addEventListener("click", () => this._copyPreviewPoint("navmesh"));
+    for (const entry of [e.previewCoordX, e.previewCoordY]) {
+      entry.addEventListener("paste", (event) => this._onPreviewCoordPaste(event));
+      entry.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") this._markPreviewCoordinate();
+      });
+    }
     e.btnCopyPath.addEventListener("click", () => this._copyPath());
     e.btnEditPlan.addEventListener("click", () => this._calculateEditPreview());
     e.btnEditPlanClear.addEventListener("click", () => {
@@ -3054,6 +3068,68 @@ class MapNavigatorApp {
       LEFT_PANEL_FIT_OFFSET,
     );
     this._paint();
+  }
+
+  /** Pasting a numeric JSON pair into either coordinate entry fills both. */
+  _onPreviewCoordPaste(event) {
+    let pair;
+    try {
+      pair = JSON.parse(event.clipboardData.getData("text/plain"));
+    } catch {
+      return;
+    }
+    if (!Array.isArray(pair) || pair.length !== 2 || !pair.every(Number.isFinite)) return;
+    event.preventDefault();
+    this.els.previewCoordX.value = String(pair[0]);
+    this.els.previewCoordY.value = String(pair[1]);
+  }
+
+  /** Reuse the read-only reference marker; inputs belong to the layer currently displayed. */
+  _markPreviewCoordinate() {
+    const values = [this.els.previewCoordX.value.trim(), this.els.previewCoordY.value.trim()];
+    const [x, y] = values.map(Number);
+    if (values.some((value) => !value) || ![x, y].every(Number.isFinite)) {
+      setStatus("请在 X / Y 两个框中各填一个有效数字。", "#ef4444");
+      return;
+    }
+    if (!this.field) {
+      setStatus("navmesh 尚未就绪。", "#f59e0b");
+      return;
+    }
+    const zoneId = this._activeDisplayTierId() ?? this._resolveZoneId(this._displayZoneId());
+    const endpoint = this._planningEndpoint(zoneId, x, y);
+    if (!endpoint) return;
+    this.editLocateHint = {...endpoint, rot: null, label: "坐标预览点"};
+    if (this._is3DView()) this._setViewMode("2d", {announce: false});
+    this._focusEditLocateHint();
+    setStatus(`已标出预览点: [${x}, ${y}]（${endpoint.positionZone}）。`, "#10b981");
+  }
+
+  /**
+   * Copy the visible reference point in its display frame, including a tier declaration for NAVMESH.
+   * @param {'coordinates'|'navmesh'} format
+   */
+  async _copyPreviewPoint(format) {
+    const hint = this.state.mode === Mode.EDIT ? this._editLocateHintForDisplay() : null;
+    if (!hint) {
+      setStatus("请先标出一个预览点或游戏当前位置。", "#f59e0b");
+      return;
+    }
+    const target = [compactNumber(hint.x), compactNumber(hint.y)];
+    let text = `[${target.join(", ")}]`;
+    if (format === "navmesh") {
+      const payload = {action: "NAVMESH", target};
+      const tierId = this._activeDisplayTierId();
+      if (tierId !== null) {
+        payload.target_tier = this.field.zoneById(tierId).name;
+      }
+      text = JSON.stringify(payload, null, 4);
+    }
+    const ok = await this._copyText(text);
+    setStatus(
+      ok ? `已复制预览点${format === "navmesh" ? " NAVMESH 目标" : "坐标"}。` : "复制失败，请重试。",
+      ok ? "#10b981" : "#ef4444",
+    );
   }
 
   /** MapLocator zone-frame heading → base-frame heading. @returns {?number} */
@@ -6314,7 +6390,7 @@ class MapNavigatorApp {
     });
   }
 
-  /** With no waypoint selected, C copies the quick test line, else the planning start. */
+  /** With no waypoint selected, C copies quick-test endpoints, then the planning start, then a reference point. */
   _copyPlanningEndpoints() {
     const fmt = (endpoint) => `[${compactNumber(endpoint.position[0])}, ${compactNumber(endpoint.position[1])}]`;
     const test = this.state.mode === Mode.EDIT ? this.quickRouteTest : null;
@@ -6330,6 +6406,9 @@ class MapNavigatorApp {
       const start = this._activeEditPreviewStart();
       text = fmt(start);
       status = `📋 已复制规划起点: ${text}  (zone: ${start.positionZone})`;
+    } else if (this.state.mode === Mode.EDIT && this._editLocateHintForDisplay()) {
+      this._copyPreviewPoint("coordinates");
+      return;
     } else {
       setStatus("请先选中一个点再按 C 复制坐标。", "#f59e0b");
       return;

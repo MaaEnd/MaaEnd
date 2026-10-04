@@ -817,6 +817,10 @@ body.mode-log .sidebar-dock {
   min-width: 0;
 }
 
+.preview-coordinates > .entry {
+  width: 0;
+}
+
 .sidebar-label {
   color: var(--text-secondary);
   font-size: 11px;
