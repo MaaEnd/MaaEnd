@@ -146,7 +146,8 @@ private:
     std::unordered_map<std::string, ZoneEntry> zones_;
     uint64_t zone_clock_ = 0;
     GridPack grid_;     // 包里的预烘格图,没有它就没法规划
-    FieldsPack fields_; // 旁包里的预烘场, 同样缺不得
+    // 旁包里的预烘场, 同样缺不得; 同一份旁包的各引擎共用。
+    std::shared_ptr<const FieldsPack> fields_ = std::make_shared<const FieldsPack>();
     NoGoTable nogo_;    // 虚拟禁区表, 缺了就是没有禁区
     std::string grid_error_;
 };

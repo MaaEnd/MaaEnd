@@ -5,6 +5,7 @@
 #include <bit>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <optional>
 #include <unordered_set>
 #include <vector>
@@ -274,6 +275,19 @@ struct EdgeBits
         return loc >= 0 && (v[static_cast<size_t>(loc >> 3)] & (1U << (loc & 7))) != 0;
     }
 
+    // 已知 b = a + dy·gnx + dx 时直接查槽, 宽度不同就走 has。
+    bool hasStep(int64_t a, int64_t b, int64_t dx, int64_t dy, int64_t gnx) const
+    {
+        if (gnx != nx) {
+            return has(a, b);
+        }
+        const int8_t s = kEdgeSlot[static_cast<size_t>((dy + 1) * 3 + dx + 1)];
+        if (s < 0) {
+            return false;
+        }
+        return (v[static_cast<size_t>((s & 8) != 0 ? b : a)] & (1U << (s & 7))) != 0;
+    }
+
     bool empty() const { return !any; }
 };
 
@@ -369,6 +383,7 @@ class Visibility;
 // 返回值恒为逐格路径, 拓扑判据按格读。corners 非空则另交出父链本身, 那才是几何要走的折线。
 // out_cost 非空则交出终点的累计代价; 单价恒 ≥1, 它就是路径格长的上界, 小窗验收拿它判搜索有没有碰边。
 // jumps 非空则另按 span 级跳边松弛: 跳边不做弦的祖父、不验视线, 铺回格时也不插值。
+// give_up_at: 逐格展开时弹出的 f 够到它就按走不通返回。
 std::optional<std::vector<int64_t>> SpanAstar(
     const SpanTable& st,
     const std::vector<uint8_t>& ok,
@@ -382,7 +397,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const Visibility* vis = nullptr,
     std::vector<int64_t>* corners = nullptr,
     double* out_cost = nullptr,
-    const JumpEdges* jumps = nullptr);
+    const JumpEdges* jumps = nullptr,
+    double give_up_at = std::numeric_limits<double>::infinity());
 
 Mask MedialAxis(const Grid<float>& dist, double lam);
 

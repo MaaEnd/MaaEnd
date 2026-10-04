@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <mutex>
 #include <tuple>
 #include <unordered_map>
 
@@ -530,6 +531,48 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
     }
     loaded_ = true;
     return true;
+}
+
+bool LoadSharedFieldsPack(
+    const std::filesystem::path& path,
+    const BaseNavPack& main,
+    const GridPack& grid,
+    std::shared_ptr<const FieldsPack>& out,
+    std::string& err)
+{
+    std::string key;
+    std::error_code ec;
+    const std::filesystem::path abs = std::filesystem::absolute(path, ec).lexically_normal();
+    if (!ec) {
+        const uintmax_t size = std::filesystem::file_size(abs, ec);
+        if (!ec) {
+            const auto mtime = std::filesystem::last_write_time(abs, ec);
+            if (!ec) {
+                const auto ticks = mtime.time_since_epoch().count();
+                key = MAA_NS::path_to_utf8_string(abs) + '\n' + std::to_string(size) + '\n'
+                      + std::string(reinterpret_cast<const char*>(&ticks), sizeof(ticks)) + '\n' + std::to_string(main.buildHash())
+                      + '\n' + std::to_string(main.fileFnv());
+            }
+        }
+    }
+    static std::mutex mutex;
+    static std::unordered_map<std::string, std::weak_ptr<const FieldsPack>> cache;
+    const std::lock_guard lock(mutex);
+    if (!key.empty()) {
+        if (const auto it = cache.find(key); it != cache.end()) {
+            if (std::shared_ptr<const FieldsPack> hit = it->second.lock()) {
+                out = std::move(hit);
+                return true;
+            }
+        }
+    }
+    auto fresh = std::make_shared<FieldsPack>();
+    const bool ok = fresh->load(path, main, grid, err);
+    if (ok && !key.empty()) {
+        cache[key] = fresh;
+    }
+    out = std::move(fresh);
+    return ok;
 }
 
 const FieldsZoneDir* FieldsPack::findZone(const std::string& name) const
