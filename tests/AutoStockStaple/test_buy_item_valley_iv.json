@@ -1,0 +1,16 @@
+{
+    "configs": {
+        "name": "(Win32-官服)购买稳定物资-四号谷地购买识别",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "稳定需求物资列表-应命中带-50%的谷地刻写券购买节点",
+            "image": "四号谷地_稳定需求物资_谷地刻写券_-50.png",
+            "hits": [
+                "AutoStockBuyItemValleyIVTask"
+            ]
+        }
+    ]
+}
