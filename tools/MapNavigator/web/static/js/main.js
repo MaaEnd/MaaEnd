@@ -961,7 +961,7 @@ class MapNavigatorApp {
     for (const entry of [e.previewCoordX, e.previewCoordY]) {
       entry.addEventListener("paste", (event) => this._onPreviewCoordPaste(event));
       entry.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") this._markPreviewCoordinate();
+        if (event.key === "Enter" && !event.isComposing && event.keyCode !== 229) this._markPreviewCoordinate();
       });
     }
     e.btnCopyPath.addEventListener("click", () => this._copyPath());
