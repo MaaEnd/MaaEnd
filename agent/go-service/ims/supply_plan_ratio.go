@@ -21,14 +21,16 @@ type supplyPlanCandidate struct {
 }
 
 type supplyPlanSelection struct {
-	name    string
-	current int
-	target  int
+	name                string
+	current             int
+	target              int
+	continueAfterTarget bool
 }
 
-// SupplyPlanSelectLowestRatio selects one understocked material at task start.
+// SupplyPlanSelectLowestRatio selects the lowest-ratio material at task start.
 // It reuses the configured IMS expressions, including weighted experience, and
 // limits the dispatch list to that material for the rest of the current task.
+// Once all targets are met, farming continues until sanity is insufficient.
 type SupplyPlanSelectLowestRatio struct{}
 
 // Run implements maa.CustomActionRunner.
@@ -59,6 +61,25 @@ func (a *SupplyPlanSelectLowestRatio) Run(ctx *maa.Context, _ *maa.CustomActionA
 	next := []maa.NextItem{{Name: "SupplyPlanAllTargetsMet"}}
 	if selection.name != "" {
 		next = []maa.NextItem{{Name: selection.name}, {Name: "SupplyPlanTargetComplete"}}
+		if selection.continueAfterTarget {
+			// Enter the existing material setup directly, even if already stocked.
+			node, err := ctx.GetNode(selection.name)
+			if err != nil {
+				log.Error().Err(err).Str("component", componentSupplyPlanSelectLowestRatio).
+					Msg("failed to read selected material setup")
+				return false
+			}
+			next = node.Next
+			// Keep the existing reward/repeat flow after the last target is met.
+			rewardMet := strings.Replace(selection.name, "SupplyPlanInsufficient_", "SupplyPlanRewardItemMet_", 1)
+			if err := ctx.OverridePipeline(map[string]any{
+				rewardMet: map[string]any{"enabled": false},
+			}); err != nil {
+				log.Error().Err(err).Str("component", componentSupplyPlanSelectLowestRatio).
+					Msg("failed to enable farming beyond inventory target")
+				return false
+			}
+		}
 	}
 	if err := ctx.OverrideNext("SupplyPlanDispatch", next); err != nil {
 		log.Error().Err(err).Str("component", componentSupplyPlanSelectLowestRatio).
@@ -67,6 +88,7 @@ func (a *SupplyPlanSelectLowestRatio) Run(ctx *maa.Context, _ *maa.CustomActionA
 	}
 	log.Info().Str("component", componentSupplyPlanSelectLowestRatio).
 		Str("node", selection.name).Int("current", selection.current).Int("target", selection.target).
+		Bool("continue_after_target", selection.continueAfterTarget).
 		Msg("selected fixed inventory target for this task")
 	return true
 }
@@ -112,22 +134,29 @@ func readSupplyPlanCandidates(ctx *maa.Context) ([]supplyPlanCandidate, error) {
 func selectSupplyPlanTarget(candidates []supplyPlanCandidate, items map[string]int) (supplyPlanSelection, error) {
 	var selected supplyPlanSelection
 	var lowest *big.Rat
+	understocked := 0
 	for _, candidate := range candidates {
 		current, target, err := supplyPlanQuantities(candidate.expression, items)
 		if err != nil {
 			return supplyPlanSelection{}, fmt.Errorf("%s: %w", candidate.name, err)
 		}
-		if target <= 0 || current >= target {
+		if target <= 0 {
 			continue
+		}
+		if current < target {
+			understocked++
 		}
 		// Exact fractions avoid truncating every unfinished ratio to zero or
 		// overflowing a cross multiplication for large inventory targets.
 		ratio := big.NewRat(int64(current), int64(target))
 		if lowest == nil || ratio.Cmp(lowest) < 0 {
 			lowest = ratio
-			selected = supplyPlanSelection{candidate.name, current, target}
+			selected = supplyPlanSelection{name: candidate.name, current: current, target: target}
 		}
 	}
+	// When at most one material is understocked, meeting the selected target
+	// satisfies the whole plan. Continue that material without another scan.
+	selected.continueAfterTarget = selected.name != "" && understocked <= 1
 	return selected, nil
 }
 
