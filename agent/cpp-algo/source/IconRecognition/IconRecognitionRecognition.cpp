@@ -153,7 +153,7 @@ void SaveVisionCaptureBestEffort(MaaContext* context, const MaaImageBuffer* imag
         return;
     }
     try {
-        MaaContextRunRecognitionDirect(context, "DirectHit", R"({"roi":[0,0,1,1]})", image);
+        MaaContextRunRecognition(context, "SubTaskExampleStepOne", R"({"SubTaskExampleStepOne":{"roi":[0,0,1,1]}})", image);
     }
     catch (...) {
     }
