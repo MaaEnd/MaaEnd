@@ -978,34 +978,6 @@ def _current_git_head_sha() -> str | None:
     return _git_output("rev-parse", "HEAD")
 
 
-def _describe_divergence(version: str | None) -> str | None:
-    """Return how far *version* lags behind HEAD, or None when unknown/fresh.
-
-    Without this a stale build is invisible: install reports success and the
-    user cannot tell the binary predates their checkout.
-    """
-    if not _is_git_sha(version):
-        return None
-    behind = _git_output("rev-list", "--count", f"{version}..HEAD")
-    if behind is None:
-        # Not an object in this checkout (e.g. a release tag).
-        return None
-    try:
-        count = int(behind)
-    except ValueError:
-        return None
-    if count <= 0:
-        return None
-    return str(count)
-
-
-def _warn_cpp_algo_divergence(version: str | None) -> None:
-    """Warn when the cpp-algo in use trails the current checkout."""
-    behind = _describe_divergence(version)
-    if behind:
-        print(Console.warn(t("wrn_cpp_algo_desync", version=(version or "")[:7], behind=behind)))
-
-
 def _is_git_sha(version: str | None) -> bool:
     """Return True if version looks like a short git SHA (7-40 hex chars)."""
     if not version:
@@ -1221,6 +1193,65 @@ def _search_cpp_algo_runs(
     return _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
 
 
+def _branch_commit_shas(
+    auth_headers: dict[str, str],
+    branch: str,
+    limit: int,
+) -> list[str]:
+    """Return commit hashes on *branch* newest first, or [] if unavailable."""
+    try:
+        data = _github_api_get(
+            f"https://api.github.com/repos/{MAAEND_REPO}/commits?"
+            f"{urlencode({'sha': branch, 'per_page': str(limit)})}",
+            auth_headers,
+        )
+    except Exception:
+        # Best-effort: falling back to a branch listing is the caller's choice.
+        return []
+    if not isinstance(data, list):
+        return []
+    return [c["sha"] for c in data if isinstance(c, dict) and c.get("sha")]
+
+
+def _search_cpp_algo_by_commit(
+    auth_headers: dict[str, str],
+    branch: str,
+    tip: str,
+    artifact_name: str,
+    max_commits: int = 30,
+) -> tuple[str | None, str | None, str | None] | None:
+    """Return the newest cpp-algo build on *branch*, walking back from *tip*.
+
+    Listing runs by branch can return a wholly stale page whose newest entry is
+    months old, and sorting cannot repair that, so commits are asked about one
+    by one. Most commits have no run: a change that leaves the build inputs
+    alone does not trigger CI.
+
+    Returns None when the search could not be carried out (commit list
+    unreadable, or a request failed), so the caller can tell "no build this
+    far back" apart from "could not look".
+    """
+    commits = _branch_commit_shas(auth_headers, branch, max_commits)
+    if not commits:
+        return None
+
+    for sha in [tip] + [c for c in commits if c != tip]:
+        runs = _fetch_workflow_runs(
+            auth_headers,
+            _install_yml_runs_url(
+                head_sha=sha, event="push", status="success", per_page="5",
+            ),
+        )
+        # A failed request means we cannot tell whether this commit has a
+        # build; probing on would report that failure as "not found".
+        if runs is None:
+            return None
+        result = _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
+        if result[0] is not None:
+            return result
+    return None, None, None
+
+
 def _find_cpp_algo_in_ci(
     auth_headers: dict[str, str] | None,
     pr_number: int | None = None,
@@ -1398,16 +1429,20 @@ def _find_cpp_algo_in_ci(
     # v2 is only push-triggered, and without the event filter forks that also
     # happen to have a branch named ``v2`` would leak their PR runs in here.
     if branch == MAIN_BRANCH:
-        # A wholly stale page cannot be fixed by sorting, so ask for the tip commit.
         tip = _remote_branch_tip(branch)
         if tip:
-            result = _search_runs(_install_yml_runs_url(
-                head_sha=tip, status="success", per_page="20",
-            ))
-            if result[0] is not None:
-                return result
-            print(Console.info(t("inf_ci_artifact_tip_not_built", sha=tip[:7])))
+            walked = _search_cpp_algo_by_commit(
+                auth_headers, branch, tip, artifact_name,
+            )
+            if walked is not None:
+                if walked[0] is not None:
+                    return walked
+                print(Console.info(t("inf_ci_artifact_no_runs", branch=branch)))
+                print(Console.info(t("inf_ci_artifact_not_found")))
+                return None, None, None
 
+        # Only reached when the walk could not run (commit list unreadable, or
+        # a request failed): a stale listing is still better than giving up.
         result = _search_runs(_install_yml_runs_url(
             branch=branch, event="push", status="success", per_page="20",
         ))
@@ -1453,11 +1488,17 @@ def _find_cpp_algo_in_ci(
     print(Console.warn(t("wrn_ci_artifact_branch_fallback", branch=branch)))
     main_tip = _remote_branch_tip(MAIN_BRANCH)
     if main_tip:
-        result = _search_runs(_install_yml_runs_url(
-            head_sha=main_tip, status="success", per_page="20",
-        ))
-        if result[0] is not None:
-            return result
+        walked = _search_cpp_algo_by_commit(
+            auth_headers, MAIN_BRANCH, main_tip, artifact_name,
+        )
+        # Same rule as the v2 path above: once the commit list was read, a
+        # miss is final — the branch listing can be a wholly stale page.
+        if walked is not None:
+            if walked[0] is not None:
+                return walked
+            print(Console.info(t("inf_ci_artifact_no_runs", branch=branch)))
+            print(Console.info(t("inf_ci_artifact_not_found")))
+            return None, None, None
     result = _search_runs(_install_yml_runs_url(
         branch=MAIN_BRANCH, event="push", status="success", per_page="20",
     ))
@@ -1516,7 +1557,6 @@ def install_cpp_algo(
             and ci_digest == local_digest
         ):
             print(Console.ok(t("inf_cpp_algo_digest_match", sha=ci_digest[:16])))
-            _warn_cpp_algo_divergence(local_version)
             return True, local_version, False
 
         if update_mode and cpp_algo_installed and ci_digest is None:
@@ -1531,7 +1571,6 @@ def install_cpp_algo(
         )
         if ci_should_skip:
             print(Console.ok(t("inf_cpp_algo_latest_version", version=local_version)))
-            _warn_cpp_algo_divergence(local_version)
             return True, local_version, False
 
         cache_dir = ensure_cache_dir()
@@ -1599,7 +1638,6 @@ def install_cpp_algo(
                             "cpp_algo": version_to_write,
                             "cpp_algo_sha256": ci_digest,
                         })
-                        _warn_cpp_algo_divergence(version_to_write)
                         return True, version_to_write, True
                 except PermissionError:
                     # User declined the retry prompt — release fallback would
