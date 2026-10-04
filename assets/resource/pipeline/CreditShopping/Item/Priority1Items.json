@@ -1,16 +1,25 @@
 {
     "CreditShoppingPriority1Item": {
-        "desc": "优先购买1物品。模板与阈值由 CreditShoppingApplyPriorityItems 写入",
-        "recognition": "TemplateMatch",
+        "desc": "优先购买1物品。item_ids 由 CreditShoppingApplyPriorityItems 写入",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "credit_trade",
+            "item_ids": [
+                "item_gold"
+            ],
+            "order_by": "natural",
+            "deduplicate": true
+        },
         "roi": [
-            38,
+            70,
             95,
-            1194,
-            527
+            1140,
+            415
         ],
-        "template": "CreditShopping/Item/item_gold.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical"
+        "index": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

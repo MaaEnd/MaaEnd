@@ -23,7 +23,7 @@ type itemPositionHit struct {
 }
 
 type recordCatalogItem struct {
-	Node string
-	ID   string
-	Name string
+	ID                string
+	Name              string
+	RecognitionItemID string
 }

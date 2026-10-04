@@ -15,7 +15,7 @@ const (
 	creditShoppingApplyPriorityItemsNodeName   = "CreditShoppingApplyPriorityItems"
 )
 
-// ApplyPriorityItemsAction 将任务选项中的多选物品写成各档物品节点的模板列表和阈值列表。
+// ApplyPriorityItemsAction 将任务选项中的多选物品写成各档 IconRecognition 节点的 item_ids。
 type ApplyPriorityItemsAction struct{}
 
 var _ maa.CustomActionRunner = (*ApplyPriorityItemsAction)(nil)
@@ -109,7 +109,7 @@ func buildPriorityLevelOverride(level int, selectedIDs []string) (map[string]any
 		return map[string]any{}, nil
 	}
 	return map[string]any{
-		priorityItemNodeName(level): priorityItemTemplateListOverride(ordered),
+		priorityItemNodeName(level): priorityItemIconRecognitionOverride(ordered),
 	}, nil
 }
 

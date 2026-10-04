@@ -4,14 +4,16 @@ import (
 	"image"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const (
-	pipelineNodeRecordShelfSlot    = "CreditShoppingRecordShelfSlot"
-	pipelineNodeRecordItemDiscount = "RecordItemDiscount"
-	recordDiscountNone             = "None"
+	pipelineNodeRecordShelfSlot     = "CreditShoppingRecordShelfSlot"
+	pipelineNodeRecordCatalogItems  = "CreditShoppingRecordCatalogItems"
+	pipelineNodeRecordItemDiscount  = "RecordItemDiscount"
+	recordDiscountNone              = "None"
 )
 
 func recordRectValid(r maa.Rect) bool {
@@ -47,25 +49,49 @@ func recordFindShelfSlotBoxes(ctx *maa.Context, img image.Image, layout recordSh
 	return recordOrderSlotBoxesByLayout(boxes, layout)
 }
 
-// recordCollectCatalogHits 对 record.json 各 CreditShoppingRecordItem* 节点跑 Pipeline 模板识别并汇总命中。
-func recordCollectCatalogHits(ctx *maa.Context, img image.Image) []itemPositionHit {
-	hits := make([]itemPositionHit, 0, recordMaxShelfSlots)
+func recordCatalogItemByCaseID(caseID string) (recordCatalogItem, bool) {
 	for _, item := range recordCatalog {
-		detail, err := ctx.RunRecognition(item.Node, img, nil)
-		if err != nil || detail == nil || !detail.Hit {
+		if item.ID == caseID {
+			return item, true
+		}
+	}
+	return recordCatalogItem{}, false
+}
+
+// recordCollectCatalogHits 对 CreditShoppingRecordCatalogItems 跑 IconRecognition 并汇总命中。
+func recordCollectCatalogHits(ctx *maa.Context, img image.Image) []itemPositionHit {
+	detail, err := ctx.RunRecognition(pipelineNodeRecordCatalogItems, img, nil)
+	if err != nil || detail == nil || !detail.Hit {
+		return nil
+	}
+	parsed, err := iconrecognition.NewRecognitionDetail(detail)
+	if err != nil {
+		log.Warn().Err(err).Str("component", component).Msg("record: parse IconRecognition detail failed")
+		return nil
+	}
+	matches, err := iconrecognition.CollectMatches(parsed.All(), parsed.Filter(), parsed.Best())
+	if err != nil {
+		log.Warn().Err(err).Str("component", component).Msg("record: IconRecognition matches failed")
+		return nil
+	}
+	hits := make([]itemPositionHit, 0, len(matches))
+	for _, match := range matches {
+		if !recordRectValid(match.CellBox) {
 			continue
 		}
-		for _, result := range recognitionResults(detail) {
-			matched, ok := result.AsTemplateMatch()
-			if !ok || matched == nil || !recordRectValid(matched.Box) {
-				continue
-			}
-			hits = append(hits, itemPositionHit{
-				Box:  matched.Box,
-				Name: item.Name,
-				ID:   item.ID,
-			})
+		caseID, ok := creditCaseIDFromRecognitionItemID(match.ItemID)
+		if !ok {
+			continue
 		}
+		catalog, ok := recordCatalogItemByCaseID(caseID)
+		if !ok {
+			continue
+		}
+		hits = append(hits, itemPositionHit{
+			Box:  match.CellBox,
+			Name: catalog.Name,
+			ID:   catalog.ID,
+		})
 	}
 	return hits
 }
@@ -109,7 +135,7 @@ func recordAssembleSlotRecords(
 	return out
 }
 
-// RecordShelfFromImage 槽位骨架（CreditShoppingRecordShelfSlot）+ record 物品模板挂格 + 折扣 OCR（不写盘）。
+// RecordShelfFromImage 槽位骨架（CreditShoppingRecordShelfSlot）+ IconRecognition 挂格 + 折扣 OCR（不写盘）。
 func RecordShelfFromImage(ctx *maa.Context, img image.Image, layout recordShelfLayout) []SlotRecord {
 	slotBoxes := recordFindShelfSlotBoxes(ctx, img, layout)
 	if len(slotBoxes) == 0 {

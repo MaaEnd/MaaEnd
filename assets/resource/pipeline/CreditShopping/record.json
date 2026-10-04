@@ -14,269 +14,78 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "CreditShoppingRecordItemArmsInspector": {
-        "desc": "武器检查单元。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
+    "CreditShoppingRecordCatalogItems": {
+        "desc": "货架记录与任意购买：信用交易所全 catalog IconRecognition（始终开启，不看购买选项）",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "credit_trade",
+            "item_ids": [
+                "item_weapon_expcard_low",
+                "item_weapon_expcard_mid",
+                "item_gachabyproducts_weapongold",
+                "item_weapon_break_low",
+                "item_expcard_stage2_low",
+                "item_expcard_2_1",
+                "item_expcard_2_2",
+                "item_weapon_break_high",
+                "item_diamond",
+                "item_char_break_stage_1_2",
+                "item_char_skill_level_1_6",
+                "item_char_skill_level_7_12",
+                "item_char_break_stage_3_4",
+                "item_gold"
+            ],
+            "order_by": "natural",
+            "deduplicate": true
+        },
         "roi": [
-            38,
+            70,
             95,
-            1194,
-            527
+            1140,
+            415
         ],
-        "template": "CreditShopping/Item/item_weapon_expcard_low.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemArmsINSPKit": {
-        "desc": "武器检查装置。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_weapon_expcard_mid.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemArsenalTicket": {
-        "desc": "武库配额。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_gachabyproducts_weapongold.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemCastDie": {
-        "desc": "强固模具。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_weapon_break_low.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemElementaryCognitiveCarrier": {
-        "desc": "初级认知载体。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_expcard_stage2_low.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemElementaryCombatRecord": {
-        "desc": "初级作战记录。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_expcard_2_1.png",
-        "green_mask": true,
-        "threshold": 0.92,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemIntermediateCombatRecord": {
-        "desc": "中级作战记录。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_expcard_2_2.png",
-        "green_mask": true,
-        "threshold": 0.92,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemHeavyCastDie": {
-        "desc": "重型强固模具。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_weapon_break_high.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemOroberyl": {
-        "desc": "嵌晶玉。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_diamond.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemProtodisk": {
-        "desc": "协议圆盘。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_char_break_stage_1_2.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemProtoprism": {
-        "desc": "协议棱柱。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_char_skill_level_1_6.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemProtohedron": {
-        "desc": "协议棱柱组。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_char_skill_level_7_12.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemProtoset": {
-        "desc": "协议圆盘组。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_char_break_stage_3_4.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "CreditShoppingRecordItemTCreds": {
-        "desc": "折金票。货架记录用，模板匹配始终开启",
-        "recognition": "TemplateMatch",
-        "roi": [
-            38,
-            95,
-            1194,
-            527
-        ],
-        "template": "CreditShopping/Item/item_gold.png",
-        "green_mask": true,
-        "threshold": 0.7,
-        "order_by": "Vertical",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
     "CreditShoppingRecordAllItems": {
-        "desc": "货架记录：全部物品模板均开启",
-        "recognition": "Or",
-        "any_of": [
-            "CreditShoppingRecordItemArmsInspector",
-            "CreditShoppingRecordItemArmsINSPKit",
-            "CreditShoppingRecordItemArsenalTicket",
-            "CreditShoppingRecordItemCastDie",
-            "CreditShoppingRecordItemElementaryCognitiveCarrier",
-            "CreditShoppingRecordItemElementaryCombatRecord",
-            "CreditShoppingRecordItemIntermediateCombatRecord",
-            "CreditShoppingRecordItemHeavyCastDie",
-            "CreditShoppingRecordItemOroberyl",
-            "CreditShoppingRecordItemProtodisk",
-            "CreditShoppingRecordItemProtoprism",
-            "CreditShoppingRecordItemProtohedron",
-            "CreditShoppingRecordItemProtoset",
-            "CreditShoppingRecordItemTCreds"
+        "desc": "货架记录：全部物品识别（兼容别名，等同 CreditShoppingRecordCatalogItems）",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "credit_trade",
+            "item_ids": [
+                "item_weapon_expcard_low",
+                "item_weapon_expcard_mid",
+                "item_gachabyproducts_weapongold",
+                "item_weapon_break_low",
+                "item_expcard_stage2_low",
+                "item_expcard_2_1",
+                "item_expcard_2_2",
+                "item_weapon_break_high",
+                "item_diamond",
+                "item_char_break_stage_1_2",
+                "item_char_skill_level_1_6",
+                "item_char_skill_level_7_12",
+                "item_char_break_stage_3_4",
+                "item_gold"
+            ],
+            "order_by": "natural",
+            "deduplicate": true
+        },
+        "roi": [
+            70,
+            95,
+            1140,
+            415
         ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
     "RecordItemDiscount": {
-        "desc": "货架槽位折扣力度（相对物品模板框）",
+        "desc": "货架槽位折扣力度（相对物品识别框）",
         "recognition": "OCR",
         "roi": [
             0,

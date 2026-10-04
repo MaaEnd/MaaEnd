@@ -2,7 +2,7 @@ package creditshopping
 
 import "testing"
 
-func TestBuildPriorityLevelOverrideTemplateList(t *testing.T) {
+func TestBuildPriorityLevelOverrideIconRecognition(t *testing.T) {
 	patch, err := buildPriorityLevelOverride(2, []string{"Protohedron", "ArmsINSPKit", "Protohedron"})
 	if err != nil {
 		t.Fatal(err)
@@ -15,16 +15,22 @@ func TestBuildPriorityLevelOverrideTemplateList(t *testing.T) {
 	if !ok {
 		t.Fatal("missing CreditShoppingPriority2Item")
 	}
-	if node["recognition"] != "TemplateMatch" {
+	if node["recognition"] != "Custom" {
 		t.Fatalf("recognition %v", node["recognition"])
 	}
-	assertStringList(t, node["template"], []string{
-		"CreditShopping/Item/item_weapon_expcard_mid.png",
-		"CreditShopping/Item/item_char_skill_level_7_12.png",
+	if node["custom_recognition"] != "IconRecognition" {
+		t.Fatalf("custom_recognition %v", node["custom_recognition"])
+	}
+	param, ok := node["custom_recognition_param"].(map[string]any)
+	if !ok {
+		t.Fatal("missing custom_recognition_param")
+	}
+	assertStringList(t, param["item_ids"], []string{
+		"item_weapon_expcard_mid",
+		"item_char_skill_level_7_12",
 	})
-	thresholds, ok := node["threshold"].([]float64)
-	if !ok || len(thresholds) != 2 || thresholds[0] != 0.7 || thresholds[1] != 0.7 {
-		t.Fatalf("threshold %#v", node["threshold"])
+	if param["grid_type"] != "credit_trade" || param["order_by"] != "natural" {
+		t.Fatalf("param %#v", param)
 	}
 }
 

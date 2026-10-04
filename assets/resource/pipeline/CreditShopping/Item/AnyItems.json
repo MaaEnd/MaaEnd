@@ -1,22 +1,38 @@
 {
     "CreditShoppingShelfAnyItem": {
-        "desc": "任意可买物品。复用 record.json 全物品模板（始终 TemplateMatch，不依赖购买选项）",
-        "recognition": "Or",
-        "any_of": [
-            "CreditShoppingRecordItemArmsInspector",
-            "CreditShoppingRecordItemArmsINSPKit",
-            "CreditShoppingRecordItemArsenalTicket",
-            "CreditShoppingRecordItemCastDie",
-            "CreditShoppingRecordItemElementaryCognitiveCarrier",
-            "CreditShoppingRecordItemElementaryCombatRecord",
-            "CreditShoppingRecordItemIntermediateCombatRecord",
-            "CreditShoppingRecordItemHeavyCastDie",
-            "CreditShoppingRecordItemOroberyl",
-            "CreditShoppingRecordItemProtodisk",
-            "CreditShoppingRecordItemProtoprism",
-            "CreditShoppingRecordItemProtohedron",
-            "CreditShoppingRecordItemProtoset",
-            "CreditShoppingRecordItemTCreds"
-        ]
+        "desc": "任意可买物品。IconRecognition 全 catalog，按货架自然顺序取首格（index 0）",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "credit_trade",
+            "item_ids": [
+                "item_weapon_expcard_low",
+                "item_weapon_expcard_mid",
+                "item_gachabyproducts_weapongold",
+                "item_weapon_break_low",
+                "item_expcard_stage2_low",
+                "item_expcard_2_1",
+                "item_expcard_2_2",
+                "item_weapon_break_high",
+                "item_diamond",
+                "item_char_break_stage_1_2",
+                "item_char_skill_level_1_6",
+                "item_char_skill_level_7_12",
+                "item_char_break_stage_3_4",
+                "item_gold"
+            ],
+            "order_by": "natural",
+            "deduplicate": true
+        },
+        "roi": [
+            70,
+            95,
+            1140,
+            415
+        ],
+        "index": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
