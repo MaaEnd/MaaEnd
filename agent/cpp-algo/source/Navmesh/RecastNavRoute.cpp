@@ -21,8 +21,10 @@
 #include <cstdio>
 #include <cstdlib>
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 #include <malloc/malloc.h>
+#elif defined(_WIN32)
+#include <malloc.h>
 #endif
 
 namespace navmesh::recast
@@ -2721,9 +2723,11 @@ RecastPlanResult RecastNavEngine::plan(
 {
     const std::lock_guard<std::mutex> lock(mutex_);
     RecastPlanResult res = planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, start_deck_y, no_go_discs, should_stop);
-#ifdef __APPLE__
     // 规划完把空闲页还给系统。
+#if defined(__APPLE__)
     malloc_zone_pressure_relief(nullptr, 0);
+#elif defined(_WIN32)
+    _heapmin();
 #endif
     return res;
 }
