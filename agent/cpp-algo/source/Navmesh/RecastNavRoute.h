@@ -149,6 +149,7 @@ private:
     FieldsPack fields_; // 旁包里的预烘场, 同样缺不得
     NoGoTable nogo_;    // 虚拟禁区表, 缺了就是没有禁区
     std::string grid_error_;
+    bool hopping_ = false; // 正在规划跨类下落的两段, 它们自己不再往下接
 };
 
 }
