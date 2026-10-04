@@ -1019,6 +1019,7 @@
                 }
             ]
         },
+        // 单项上限 3000000000：任意两项取满时乘积仍小于 int64，完成率交叉相乘不会回绕。
         "SupplyPlanLimits": {
             "type": "input",
             "label": "$option.SupplyPlanLimits.label",
@@ -1029,7 +1030,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.T_CREDS.label",
                     "default": "3580000",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1037,7 +1038,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.PROTOHEDRON.label",
                     "default": "1100",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1045,7 +1046,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.PROTOPRISM.label",
                     "default": "920",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1053,7 +1054,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label",
                     "default": "2100000",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1061,7 +1062,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.COMBAT_RECORD_EXP.label",
                     "default": "1500000",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1069,7 +1070,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.PROTOSET.label",
                     "default": "120",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1077,7 +1078,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.PROTODISK.label",
                     "default": "65",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1085,7 +1086,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.WEAPON_EXP.label",
                     "default": "5000000",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1093,7 +1094,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.HEAVY_CAST_DIE.label",
                     "default": "100",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1101,7 +1102,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.CAST_DIE.label",
                     "default": "45",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1109,7 +1110,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.TRIPHASIC_NANOFLAKE.label",
                     "default": "260",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1117,7 +1118,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.QUADRANT_FITTING_FLUID.label",
                     "default": "260",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1125,7 +1126,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.TACHYON_SCREENING_LATTICE.label",
                     "default": "260",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1133,7 +1134,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.D96_STEEL_SAMPLE_4.label",
                     "default": "260",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
@@ -1141,7 +1142,7 @@
                     "label": "$option.SupplyPlanLimits.inputs.METADIASTIMA_PHOTOEMISSION_TUBE.label",
                     "default": "40",
                     "pipeline_type": "string",
-                    "verify": "^\\d+$",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 }
             ],
