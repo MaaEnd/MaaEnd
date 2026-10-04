@@ -1657,7 +1657,7 @@
     "option.SupplyPlanLimits.inputs.T_CREDS.label": "![](resource/image/UI/Item/item_gold.png) T-Creds",
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) Weapon EXP",
     "option.SupplyPlanLimits.label": "Training Material Targets",
-    "option.SupplyPlanLimits.pattern_msg": "Enter a non-negative integer",
+    "option.SupplyPlanLimits.pattern_msg": "Enter an integer from 0 to 99999999",
     "option.SwitchTeamTeamChoose.label": "Select Team",
     "option.TaskSchedule.label": "Execution cycle (game time)",
     "option.TaskScheduleFriday.label": "Friday",

@@ -1657,7 +1657,7 @@
     "option.SupplyPlanLimits.inputs.T_CREDS.label": "![](resource/image/UI/Item/item_gold.png) 折金票",
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) 武器经验",
     "option.SupplyPlanLimits.label": "培养道具目标",
-    "option.SupplyPlanLimits.pattern_msg": "请输入非负整数",
+    "option.SupplyPlanLimits.pattern_msg": "请输入 0 至 99999999 的整数",
     "option.SwitchTeamTeamChoose.label": "选择队伍",
     "option.TaskSchedule.label": "执行周期(游戏时间)",
     "option.TaskScheduleFriday.label": "周五",

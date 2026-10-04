@@ -1657,7 +1657,7 @@
     "option.SupplyPlanLimits.inputs.T_CREDS.label": "![](resource/image/UI/Item/item_gold.png) 탈로시안 화폐",
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) 무기 경험",
     "option.SupplyPlanLimits.label": "육성 재료 목표",
-    "option.SupplyPlanLimits.pattern_msg": "0 이상의 정수를 입력하세요",
+    "option.SupplyPlanLimits.pattern_msg": "0부터 99999999까지의 정수를 입력하세요",
     "option.SwitchTeamTeamChoose.label": "팀 선택",
     "option.TaskSchedule.label": "실행 주기(게임 시간)",
     "option.TaskScheduleFriday.label": "금요일에 실행",

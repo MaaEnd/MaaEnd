@@ -8,7 +8,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"math/big"
 	"regexp"
 	"strconv"
 	"strings"
@@ -72,22 +71,13 @@ func ResolvePlaceholders(expression string, resolve ResolveFunc) (string, map[st
 }
 
 // Evaluate parses and evaluates a boolean or integer expression.
-// Integer arithmetic uses arbitrary precision so intermediate values cannot overflow.
-// A final integer result is clamped to the platform int range.
 // Callers that need a recognition hit must assert the result is bool.
 func Evaluate(expression string) (any, error) {
 	parsed, err := parser.ParseExpr(expression)
 	if err != nil {
 		return nil, err
 	}
-	result, err := evaluateAST(parsed)
-	if err != nil {
-		return nil, err
-	}
-	if intValue, ok := result.(*big.Int); ok {
-		return ParseIntLiteral(intValue.String())
-	}
-	return result, nil
+	return evaluateAST(parsed)
 }
 
 func evaluateAST(expr ast.Expr) (any, error) {
@@ -96,11 +86,7 @@ func evaluateAST(expr ast.Expr) (any, error) {
 		if node.Kind != token.INT {
 			return nil, fmt.Errorf("unsupported literal kind %s", node.Kind.String())
 		}
-		value, ok := new(big.Int).SetString(node.Value, 10)
-		if !ok {
-			return nil, fmt.Errorf("invalid integer literal %q", node.Value)
-		}
-		return value, nil
+		return ParseIntLiteral(node.Value)
 	case *ast.ParenExpr:
 		return evaluateAST(node.X)
 	case *ast.UnaryExpr:
@@ -110,17 +96,17 @@ func evaluateAST(expr ast.Expr) (any, error) {
 		}
 		switch node.Op {
 		case token.ADD:
-			intValue, ok := value.(*big.Int)
+			intValue, ok := value.(int)
 			if !ok {
 				return nil, fmt.Errorf("operator + expects int, got %T", value)
 			}
 			return intValue, nil
 		case token.SUB:
-			intValue, ok := value.(*big.Int)
+			intValue, ok := value.(int)
 			if !ok {
 				return nil, fmt.Errorf("operator - expects int, got %T", value)
 			}
-			return new(big.Int).Neg(intValue), nil
+			return -intValue, nil
 		case token.NOT:
 			boolValue, ok := value.(bool)
 			if !ok {
@@ -155,41 +141,41 @@ func evaluateBinary(left any, right any, op token.Token) (any, error) {
 		}
 		switch op {
 		case token.ADD:
-			return new(big.Int).Add(leftInt, rightInt), nil
+			return leftInt + rightInt, nil
 		case token.SUB:
-			return new(big.Int).Sub(leftInt, rightInt), nil
+			return leftInt - rightInt, nil
 		case token.MUL:
-			return new(big.Int).Mul(leftInt, rightInt), nil
+			return leftInt * rightInt, nil
 		case token.QUO:
-			if rightInt.Sign() == 0 {
+			if rightInt == 0 {
 				return nil, fmt.Errorf("division by zero")
 			}
-			return new(big.Int).Quo(leftInt, rightInt), nil
+			return leftInt / rightInt, nil
 		case token.REM:
-			if rightInt.Sign() == 0 {
+			if rightInt == 0 {
 				return nil, fmt.Errorf("division by zero")
 			}
-			return new(big.Int).Rem(leftInt, rightInt), nil
+			return leftInt % rightInt, nil
 		case token.LSS:
-			return leftInt.Cmp(rightInt) < 0, nil
+			return leftInt < rightInt, nil
 		case token.LEQ:
-			return leftInt.Cmp(rightInt) <= 0, nil
+			return leftInt <= rightInt, nil
 		case token.GTR:
-			return leftInt.Cmp(rightInt) > 0, nil
+			return leftInt > rightInt, nil
 		case token.GEQ:
-			return leftInt.Cmp(rightInt) >= 0, nil
+			return leftInt >= rightInt, nil
 		}
 	case token.EQL, token.NEQ:
 		switch leftValue := left.(type) {
-		case *big.Int:
-			rightValue, ok := right.(*big.Int)
+		case int:
+			rightValue, ok := right.(int)
 			if !ok {
 				return nil, fmt.Errorf("operator %s expects same-type operands, got %T and %T", op.String(), left, right)
 			}
 			if op == token.EQL {
-				return leftValue.Cmp(rightValue) == 0, nil
+				return leftValue == rightValue, nil
 			}
-			return leftValue.Cmp(rightValue) != 0, nil
+			return leftValue != rightValue, nil
 		case bool:
 			rightValue, ok := right.(bool)
 			if !ok {
@@ -216,14 +202,14 @@ func evaluateBinary(left any, right any, op token.Token) (any, error) {
 	return nil, fmt.Errorf("unsupported binary operator %s", op.String())
 }
 
-func requireInts(left any, right any, op token.Token) (*big.Int, *big.Int, error) {
-	leftInt, ok := left.(*big.Int)
+func requireInts(left any, right any, op token.Token) (int, int, error) {
+	leftInt, ok := left.(int)
 	if !ok {
-		return nil, nil, fmt.Errorf("operator %s expects int operands, got %T and %T", op.String(), left, right)
+		return 0, 0, fmt.Errorf("operator %s expects int operands, got %T and %T", op.String(), left, right)
 	}
-	rightInt, ok := right.(*big.Int)
+	rightInt, ok := right.(int)
 	if !ok {
-		return nil, nil, fmt.Errorf("operator %s expects int operands, got %T and %T", op.String(), left, right)
+		return 0, 0, fmt.Errorf("operator %s expects int operands, got %T and %T", op.String(), left, right)
 	}
 	return leftInt, rightInt, nil
 }

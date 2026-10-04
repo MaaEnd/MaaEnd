@@ -1657,7 +1657,7 @@
     "option.SupplyPlanLimits.inputs.T_CREDS.label": "![](resource/image/UI/Item/item_gold.png) 折金券",
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) 武器経験",
     "option.SupplyPlanLimits.label": "育成素材目標",
-    "option.SupplyPlanLimits.pattern_msg": "0 以上の整数を入力してください",
+    "option.SupplyPlanLimits.pattern_msg": "0～99999999 の整数を入力してください",
     "option.SwitchTeamTeamChoose.label": "チーム選択",
     "option.TaskSchedule.label": "実行周期(ゲーム時間)",
     "option.TaskScheduleFriday.label": "金曜に実行",
