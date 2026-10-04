@@ -3345,6 +3345,11 @@ RecastPlanResult RecastNavEngine::planLocked(
                     r.debug.timing.total_ms = nowMs() - t_all0;
                     return r;
                 }
+                // 试跳点途中取消的, 照取消报
+                if (should_stop && should_stop()) {
+                    res.error = "规划已取消";
+                    return res;
+                }
             }
             // 两端都已过全区核心闸, 端点确实在可走面上, 差的是从起点出发的可达域够不着它。图铺满了
             // 整区, 这就是最终结论。
