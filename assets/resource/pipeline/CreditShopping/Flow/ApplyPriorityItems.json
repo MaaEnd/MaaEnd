@@ -4,6 +4,7 @@
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "CreditShoppingApplyPriorityItemsAction",
+        "custom_action_param": {},
         "next": [
             "CreditShoppingInShop",
             "CreditShoppingCheckShopPage",
