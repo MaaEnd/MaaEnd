@@ -1188,6 +1188,10 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 if (ok[static_cast<size_t>(v)] == 0) {
                     continue;
                 }
+                // 已关闭的 span 不再松弛: 弹出时它会因已关闭被跳过, 改写后的弦就验不到视线
+                if (vis != nullptr && closed[static_cast<size_t>(v)] != 0) {
+                    continue;
+                }
                 const float hv = st.sp_h[static_cast<size_t>(v)];
                 const bool fall = static_cast<double>(hu) - static_cast<double>(hv) > kClimb;
                 if (faceblk && !fall) {
@@ -1214,6 +1218,9 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 const int64_t v = je.dst;
                 const int64_t cv = st.sp_cell[static_cast<size_t>(v)];
                 if (ok[static_cast<size_t>(v)] == 0 || ok2.v[static_cast<size_t>(cv)] == 0) {
+                    continue;
+                }
+                if (vis != nullptr && closed[static_cast<size_t>(v)] != 0) {
                     continue;
                 }
                 const double nd = d0 + static_cast<double>(je.cost);
