@@ -84,6 +84,7 @@
                 "RepeatUntilNotFoundAction",
                 "SceneManagerMenuListClickItemAction",
                 "SubTask",
+                "SupplyPlanSelectLowestRatio",
                 "SyncItemData",
                 "TrialOfSwordmancy.Decide",
                 "UpdateItemQuantity",

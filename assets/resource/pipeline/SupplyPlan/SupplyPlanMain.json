@@ -1,6 +1,6 @@
 {
     "SupplyPlanMain": {
-        "desc": "补给计划入口：主动调用 A2（同 Resource 内仅首次真正扫库）后进入调度",
+        "desc": "补给计划入口：调用 A2 后按库存完成比例选择本次任务的固定刷取目标",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -8,11 +8,36 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]SyncItemData",
+            "SupplyPlanSelectTarget"
+        ]
+    },
+    "SupplyPlanSelectTarget": {
+        "desc": "仅在任务开始时选择当前库存/目标库存比例最低的未达标物品；并列沿用调度顺序",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SupplyPlanSelectLowestRatio"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "SupplyPlanDispatch"
         ]
     },
+    "SupplyPlanTargetComplete": {
+        "desc": "本次选择的材料已达到目标库存，结束任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
     "SupplyPlanDispatch": {
-        "desc": "一级调度：优先刷协议空间未达标物品；全部达标则结束任务",
+        "desc": "目标选择器将 next 收敛为本次固定刷取物品及结束节点；全部达标则直接结束任务",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
