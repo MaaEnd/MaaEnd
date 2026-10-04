@@ -12,13 +12,16 @@
         ]
     },
     "SupplyPlanSelectTarget": {
-        "desc": "仅在任务开始时选择当前库存/目标库存比例最低的物品；并列沿用调度顺序；全部达标后继续固定刷取",
+        "desc": "仅在任务开始时选择当前库存/目标库存比例最低的物品；并列沿用调度顺序；开关控制全部达标后是否继续刷取",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "SupplyPlanSelectLowestRatio"
+                "custom_action": "SupplyPlanSelectLowestRatio",
+                "custom_action_param": {
+                    "continue_after_target": false
+                }
             }
         },
         "post_delay": 0,
@@ -37,7 +40,7 @@
         "next": []
     },
     "SupplyPlanDispatch": {
-        "desc": "目标选择器将 next 收敛为本次固定刷取物品；全部达标后绕过库存停止条件；无有效目标则结束任务",
+        "desc": "目标选择器将 next 收敛为本次固定刷取物品；仅开关启用且全部达标时绕过库存停止条件；无有效目标则结束任务",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",

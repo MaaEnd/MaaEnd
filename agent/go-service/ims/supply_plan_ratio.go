@@ -27,16 +27,26 @@ type supplyPlanSelection struct {
 	continueAfterTarget bool
 }
 
+type supplyPlanSelectLowestRatioParam struct {
+	ContinueAfterTarget bool `json:"continue_after_target"`
+}
+
 // SupplyPlanSelectLowestRatio selects the lowest-ratio material at task start.
 // It reuses the configured IMS expressions, including weighted experience, and
 // limits the dispatch list to that material for the rest of the current task.
-// Once all targets are met, farming continues until sanity is insufficient.
+// With continue_after_target enabled, farming continues once all targets are met.
 type SupplyPlanSelectLowestRatio struct{}
 
 // Run implements maa.CustomActionRunner.
-func (a *SupplyPlanSelectLowestRatio) Run(ctx *maa.Context, _ *maa.CustomActionArg) bool {
-	if ctx == nil {
-		log.Error().Str("component", componentSupplyPlanSelectLowestRatio).Msg("context is nil")
+func (a *SupplyPlanSelectLowestRatio) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if ctx == nil || arg == nil {
+		log.Error().Str("component", componentSupplyPlanSelectLowestRatio).Msg("nil context or arg")
+		return false
+	}
+	params, err := parseSupplyPlanSelectLowestRatioParam(arg.CustomActionParam)
+	if err != nil {
+		log.Error().Err(err).Str("component", componentSupplyPlanSelectLowestRatio).
+			Msg("failed to parse target selection params")
 		return false
 	}
 	if err := ensureHydrated(); err != nil {
@@ -52,7 +62,7 @@ func (a *SupplyPlanSelectLowestRatio) Run(ctx *maa.Context, _ *maa.CustomActionA
 		return false
 	}
 
-	selection, err := selectSupplyPlanTarget(candidates, globalCache.itemsCopy())
+	selection, err := selectSupplyPlanTarget(candidates, globalCache.itemsCopy(), params.ContinueAfterTarget)
 	if err != nil {
 		log.Error().Err(err).Str("component", componentSupplyPlanSelectLowestRatio).
 			Msg("failed to select inventory target")
@@ -93,6 +103,15 @@ func (a *SupplyPlanSelectLowestRatio) Run(ctx *maa.Context, _ *maa.CustomActionA
 	return true
 }
 
+func parseSupplyPlanSelectLowestRatioParam(raw string) (supplyPlanSelectLowestRatioParam, error) {
+	var params supplyPlanSelectLowestRatioParam
+	if strings.TrimSpace(raw) == "" {
+		return params, nil
+	}
+	err := json.Unmarshal([]byte(raw), &params)
+	return params, err
+}
+
 // readSupplyPlanCandidates reads expressions after the task's input overrides.
 // Keeping the dispatch list and R1 nodes as the source avoids a second item map.
 func readSupplyPlanCandidates(ctx *maa.Context) ([]supplyPlanCandidate, error) {
@@ -131,7 +150,7 @@ func readSupplyPlanCandidates(ctx *maa.Context) ([]supplyPlanCandidate, error) {
 }
 
 // selectSupplyPlanTarget preserves candidate order when ratios are equal.
-func selectSupplyPlanTarget(candidates []supplyPlanCandidate, items map[string]int) (supplyPlanSelection, error) {
+func selectSupplyPlanTarget(candidates []supplyPlanCandidate, items map[string]int, continueAfterTarget bool) (supplyPlanSelection, error) {
 	var selected supplyPlanSelection
 	var lowest *big.Rat
 	understocked := 0
@@ -140,7 +159,7 @@ func selectSupplyPlanTarget(candidates []supplyPlanCandidate, items map[string]i
 		if err != nil {
 			return supplyPlanSelection{}, fmt.Errorf("%s: %w", candidate.name, err)
 		}
-		if target <= 0 {
+		if target <= 0 || (!continueAfterTarget && current >= target) {
 			continue
 		}
 		if current < target {
@@ -156,7 +175,7 @@ func selectSupplyPlanTarget(candidates []supplyPlanCandidate, items map[string]i
 	}
 	// When at most one material is understocked, meeting the selected target
 	// satisfies the whole plan. Continue that material without another scan.
-	selected.continueAfterTarget = selected.name != "" && understocked <= 1
+	selected.continueAfterTarget = continueAfterTarget && selected.name != "" && understocked <= 1
 	return selected, nil
 }
 

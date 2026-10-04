@@ -3,6 +3,16 @@
     "title": "IMS Component Schema",
     "description": "Parameter definitions for IMS (Item Management System) custom recognitions/actions. Referenced by custom.recognition.schema.json / custom.action.schema.json.",
     "$defs": {
+        "SupplyPlanSelectLowestRatioParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "continue_after_target": {
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
         "AddItemDataParam": {
             "type": "object",
             "title": "AddItemData Param",

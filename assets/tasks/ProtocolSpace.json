@@ -226,6 +226,7 @@
                     "label": "$option.ProtocolSpaceMode.case.TargetInventory.label",
                     "option": [
                         "ProtocolSpaceObtainModeClaim",
+                        "SupplyPlanContinueAfterTarget",
                         "SupplyPlanLimits"
                     ],
                     "pipeline_override": {
@@ -1018,6 +1019,41 @@
                     }
                 }
             ]
+        },
+        "SupplyPlanContinueAfterTarget": {
+            "type": "switch",
+            "label": "$option.SupplyPlanContinueAfterTarget.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SupplyPlanSelectTarget": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "continue_after_target": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SupplyPlanSelectTarget": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "continue_after_target": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
         },
         "SupplyPlanLimits": {
             "type": "input",

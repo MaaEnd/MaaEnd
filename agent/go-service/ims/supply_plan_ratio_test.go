@@ -11,6 +11,7 @@ func TestSelectSupplyPlanTarget(t *testing.T) {
 		candidates          []supplyPlanCandidate
 		items               map[string]int
 		want                string
+		allowSurplus        bool
 		continueAfterTarget bool
 	}{
 		{
@@ -58,6 +59,7 @@ func TestSelectSupplyPlanTarget(t *testing.T) {
 			},
 			items:               map[string]int{"met": 10, "exceeded": 11, "needed": 50},
 			want:                "needed",
+			allowSurplus:        true,
 			continueAfterTarget: true,
 		},
 		{
@@ -74,6 +76,7 @@ func TestSelectSupplyPlanTarget(t *testing.T) {
 			candidates:          []supplyPlanCandidate{{"gold", "{gold}>=1000"}, {"skill", "{skill}>=100"}},
 			items:               map[string]int{"gold": 1000, "skill": 100},
 			want:                "gold",
+			allowSurplus:        true,
 			continueAfterTarget: true,
 		},
 		{
@@ -81,6 +84,7 @@ func TestSelectSupplyPlanTarget(t *testing.T) {
 			candidates:          []supplyPlanCandidate{{"gold", "{gold}>=1000"}, {"skill", "{skill}>=100"}},
 			items:               map[string]int{"gold": 1200, "skill": 101},
 			want:                "skill",
+			allowSurplus:        true,
 			continueAfterTarget: true,
 		},
 		{
@@ -92,6 +96,7 @@ func TestSelectSupplyPlanTarget(t *testing.T) {
 			},
 			items:               map[string]int{"gold": 1200, "high": 1, "mid": 10, "low": 1},
 			want:                "experience",
+			allowSurplus:        true,
 			continueAfterTarget: true,
 		},
 		{
@@ -101,17 +106,39 @@ func TestSelectSupplyPlanTarget(t *testing.T) {
 				{"skill", "{skill}>=100"},
 				{"met", "{met}>=10"},
 			},
-			items: map[string]int{"gold": 900, "skill": 10, "met": 12},
-			want:  "skill",
+			items:        map[string]int{"gold": 900, "skill": 10, "met": 12},
+			want:         "skill",
+			allowSurplus: true,
+		},
+		{
+			name:       "surplus disabled ends when all targets are exactly met",
+			candidates: []supplyPlanCandidate{{"gold", "{gold}>=1000"}, {"skill", "{skill}>=100"}},
+			items:      map[string]int{"gold": 1000, "skill": 100},
+		},
+		{
+			name:       "surplus disabled ends when all targets are exceeded",
+			candidates: []supplyPlanCandidate{{"gold", "{gold}>=1000"}, {"skill", "{skill}>=100"}},
+			items:      map[string]int{"gold": 1200, "skill": 101},
+		},
+		{
+			name:       "surplus disabled stops the last unmet material at its target",
+			candidates: []supplyPlanCandidate{{"gold", "{gold}>=1000"}, {"skill", "{skill}>=100"}},
+			items:      map[string]int{"gold": 1200, "skill": 90},
+			want:       "skill",
 		},
 		{
 			name:       "all targets disabled",
 			candidates: []supplyPlanCandidate{{"gold", "{gold}>=0"}},
 		},
+		{
+			name:         "surplus enabled still excludes zero targets",
+			candidates:   []supplyPlanCandidate{{"gold", "{gold}>=0"}},
+			allowSurplus: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := selectSupplyPlanTarget(tt.candidates, tt.items)
+			got, err := selectSupplyPlanTarget(tt.candidates, tt.items, tt.allowSurplus)
 			if err != nil || got.name != tt.want || got.continueAfterTarget != tt.continueAfterTarget {
 				t.Fatalf("selection = %+v, err = %v; want %q, continueAfterTarget = %v",
 					got, err, tt.want, tt.continueAfterTarget)
@@ -133,7 +160,7 @@ func TestSelectSupplyPlanTargetLargeRatios(t *testing.T) {
 	}
 	selection, err := selectSupplyPlanTarget(candidates, map[string]int{
 		"first": int(target - 1), "second": int(target - 2),
-	})
+	}, false)
 	if err != nil || selection.name != "second" {
 		t.Fatalf("selection = %+v, err = %v; want second", selection, err)
 	}
@@ -142,9 +169,35 @@ func TestSelectSupplyPlanTargetLargeRatios(t *testing.T) {
 func TestSelectSupplyPlanTargetInvalidExpression(t *testing.T) {
 	for _, expression := range []string{"", "{gold}>10", "{gold}>=true", "{gold}>=1/0", "{gold}>=not_a_number"} {
 		t.Run(expression, func(t *testing.T) {
-			_, err := selectSupplyPlanTarget([]supplyPlanCandidate{{"gold", expression}}, nil)
+			_, err := selectSupplyPlanTarget([]supplyPlanCandidate{{"gold", expression}}, nil, false)
 			if err == nil {
 				t.Fatal("invalid target expression must fail instead of choosing an arbitrary material")
+			}
+		})
+	}
+}
+
+func TestParseSupplyPlanSelectLowestRatioParam(t *testing.T) {
+	for _, tt := range []struct {
+		raw  string
+		want bool
+	}{
+		{"", false},
+		{"{}", false},
+		{`{"continue_after_target":false}`, false},
+		{`{"continue_after_target":true}`, true},
+	} {
+		t.Run(tt.raw, func(t *testing.T) {
+			params, err := parseSupplyPlanSelectLowestRatioParam(tt.raw)
+			if err != nil || params.ContinueAfterTarget != tt.want {
+				t.Fatalf("params = %+v, err = %v; want continue_after_target = %v", params, err, tt.want)
+			}
+		})
+	}
+	for _, raw := range []string{"{", `{"continue_after_target":"true"}`} {
+		t.Run(raw, func(t *testing.T) {
+			if _, err := parseSupplyPlanSelectLowestRatioParam(raw); err == nil {
+				t.Fatal("invalid switch parameter must fail")
 			}
 		})
 	}
