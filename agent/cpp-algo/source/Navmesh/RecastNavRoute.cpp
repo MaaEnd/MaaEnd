@@ -3424,7 +3424,7 @@ RecastPlanResult RecastNavEngine::planLocked(
                 pq = GridPatch {};
                 std::vector<DropHop> hops;
                 if (peer != region) {
-                    const std::vector<uint32_t> peer3 = PeerSpans(grid_, *gz, fields_, *fzd, zone_id, *info, peer);
+                    const std::vector<uint32_t> peer3 = PeerSpans(grid_, *gz, *fields_, *fzd, zone_id, *info, peer);
                     if (!peer3.empty()) {
                         hops = CrossDropHops(*info, peer3, start, goal);
                     }
