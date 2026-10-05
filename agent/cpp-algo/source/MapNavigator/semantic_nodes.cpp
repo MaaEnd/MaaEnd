@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
@@ -20,6 +21,8 @@
 #include "semantic_nodes.h"
 #include "trigger_action.h"
 #include "zipline_action.h"
+
+#include "../utils.h"
 
 namespace mapnavigator
 {
@@ -564,6 +567,50 @@ bool RunRecognitionNode(
     out_sighting->hit = hit != 0;
     out_sighting->box = box;
     return true;
+}
+
+std::optional<std::vector<std::string>>
+    RunTaskForCompletedNodes(MaaContext* context, const char* entry, const std::string& pipeline_override)
+{
+    MaaTasker* tasker = MaaContextGetTasker(context);
+    if (tasker == nullptr) {
+        return std::nullopt;
+    }
+    const MaaTaskId task_id = MaaContextRunTask(context, entry, pipeline_override.c_str());
+    if (task_id == MaaInvalidId) {
+        LogWarn << "Subtask failed to dispatch." << VAR(entry);
+        return std::nullopt;
+    }
+
+    ScopedStringBuffer entry_name;
+    MaaSize node_count = 0;
+    MaaStatus status = MaaStatus_Invalid;
+    if (entry_name.Get() == nullptr || !MaaTaskerGetTaskDetail(tasker, task_id, entry_name.Get(), nullptr, &node_count, &status)) {
+        return std::nullopt;
+    }
+    std::vector<std::string> completed_nodes;
+    if (node_count == 0) {
+        return completed_nodes;
+    }
+    std::vector<MaaNodeId> node_ids(node_count);
+    if (!MaaTaskerGetTaskDetail(tasker, task_id, entry_name.Get(), node_ids.data(), &node_count, &status)) {
+        return std::nullopt;
+    }
+
+    for (const MaaNodeId node_id : node_ids) {
+        ScopedStringBuffer node_name;
+        MaaRecoId reco_id = 0;
+        MaaActId action_id = 0;
+        MaaBool completed = 0;
+        if (node_name.Get() == nullptr || !MaaTaskerGetNodeDetail(tasker, node_id, node_name.Get(), &reco_id, &action_id, &completed)) {
+            continue;
+        }
+        const char* raw = MaaStringBufferGet(node_name.Get());
+        if (raw != nullptr && completed != 0) {
+            completed_nodes.emplace_back(raw);
+        }
+    }
+    return completed_nodes;
 }
 
 bool CaptureFreshFrame(MaaController* controller, MaaImageBuffer* buffer)

@@ -501,6 +501,11 @@ constexpr const char* kObstacleDeviceEntry = "MapNavigatorObstacleDevice";
 constexpr const char* kObstacleDeviceProbeNode = "__MapNavigatorObstacleDevice_InteractPre";
 constexpr const char* kObstacleDeviceTemplateRelativePath = "resource/image/MapNavigator/ObstacleDevice/InteractButton.png";
 constexpr double kObstacleDeviceMatchThreshold = 0.65;
+// The pick-up subtask ends on the move click; the walk-out entry for that dialog runs with forward held.
+constexpr const char* kObstacleDeviceMoveNode = "__MapNavigatorObstacleDevice_MoveDevice";
+constexpr const char* kObstacleAicCoreMoveNode = "__MapNavigatorObstacleDevice_MoveAICCore";
+constexpr const char* kObstacleDeviceWalkOutEntry = "MapNavigatorObstacleDeviceWalkOut";
+constexpr const char* kObstacleAicCoreWalkOutEntry = "MapNavigatorObstacleDeviceWalkOutAICCore";
 // One attempt per anchor: the subtask's own timeouts can spend ~15s of the kDynamicRecoveryTotalTimeoutMs
 // budget, and whatever is left has to still cover jump -> detour -> unstick.
 constexpr int32_t kRecoveryDeviceAttempts = 1;
