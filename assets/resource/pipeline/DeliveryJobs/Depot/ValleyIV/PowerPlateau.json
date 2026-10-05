@@ -113,11 +113,8 @@
         ]
     },
     "DeliveryJobsOngoingDeliveryForPowerPlateau": {
-        "desc": "按供能高地的处理方式处理已有的待运送货物；next 由该仓储节点的处理方式覆盖。转交不可用时会降级把这条残留委托送掉，所以这里要声明送货完成后的回跳落点",
+        "desc": "按供能高地的处理方式处理已有的待运送货物；next 由该仓储节点的处理方式覆盖，不声明回跳落点",
         "pre_delay": 0,
-        "anchor": {
-            "DeliveryJobsAfterAutoDelivery": "DeliveryJobsValleyIVLoop"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

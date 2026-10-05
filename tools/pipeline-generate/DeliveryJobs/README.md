@@ -87,7 +87,7 @@ DeliveryJobsOngoingDeliveryFallback                    switch  覆盖 DeliveryJo
 | `PackCargoOnly` | `buildModeOverride` | 只启用货物入口；`cargoExpected=PACK_CARGO_EXPECTED`（不含「查看报价」）；`bidAction=DeliveryJobsCloseRedistributionBid`；`ongoingDeliveryAction=DeliveryJobsSkipOngoingDelivery` |
 | `Disabled` | `buildModeOverride` | 两个入口 `enabled: false`，不覆盖其余节点 |
 
-`buildModeOverride()` 的 `deliveryEnabled` / `cargoEnabled` 落到 `DeliveryJobsEnter{DepotId}DeliveryJob` / `DeliveryJobsEnter{DepotId}Cargo` 的 `enabled`；`cargoEnabled` 为真时还会覆盖 `DeliveryJobsCheck{DepotId}Cargo.expected` 与分派节点 `DeliveryJobsOngoingDeliveryFor{DepotId}.next`——分派节点的覆盖只给 `next`，模板里它固定声明的 `DeliveryJobsAfterAutoDelivery`（残留委托转交不可用时降级送货的回跳落点）不会被覆盖掉。
+`buildModeOverride()` 的 `deliveryEnabled` / `cargoEnabled` 落到 `DeliveryJobsEnter{DepotId}DeliveryJob` / `DeliveryJobsEnter{DepotId}Cargo` 的 `enabled`；`cargoEnabled` 为真时还会覆盖 `DeliveryJobsCheck{DepotId}Cargo.expected` 与分派节点 `DeliveryJobsOngoingDeliveryFor{DepotId}.next`（只给 `next`，不改这个节点的锚点声明）。
 
 > [!IMPORTANT]
 >
