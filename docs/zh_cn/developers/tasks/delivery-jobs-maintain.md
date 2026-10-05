@@ -169,6 +169,8 @@ flowchart TD
 > **「按报价处理」的残留委托不做报价判断，直接交给全自动送货。** 已接取的委托已经没有报价可看，而跳过它会一直挡着调度申请界面，后续仓储节点连新委托都接不了；`delivery_destinations.json` 里没有归属终点的仓储节点无处可送，这种仓储节点才退回 `DeliveryJobsSkipOngoingDelivery`（当前五个仓储节点都有终点，该分支只在新增无终点仓储节点时生效）。自动送货失败仍由公共调用节点 `DeliveryJobsDeliverByAutoDelivery` 的 `on_error` 处理：默认停止任务，打开「送货失败后自动转交任务」则转交后继续。
 >
 > **转交不可用时不再直接失败退出。** 「接取并转交」的残留委托如果来自**抢委托**（🏍️抢委托送货），游戏不允许再转交：任务详情里没有「转交运送委托」，只有「开始追踪」。`DeliveryJobsTransferUnavailable` 会改把这条委托送掉：走 `DeliveryJobsDeliverOngoingByAutoDelivery`，失败即停止任务、只输出失败原因，**不会再回到转交**——否则「转交不可用 → 送货 → 送货失败 → 转交（开关开启时的 `on_error`）」会互相打转。普通接取的委托不受这条影响（即使货物已经在手上也照样能转交），所以这不是「货在手上」的通用兜底，而是抢委托这条路特有的分支。这条规则与抢委托任务对身上已有委托的处理同源：`SeizeDeliveryJobsHandleOngoingJob` 的 `next` 同样是「有转交按钮就转交，没有就交给后处理选项」。
+>
+> **判断「能不能转交」之前必须先让页面稳定。** 转交按钮在不在，同时决定「转交」和「送掉」两个去向：页面还在渲染时先判，会把本该转交的委托当成抢来的直接送掉。所以 `DeliveryJobsTransferOngoingJob` 之后先过 `DeliveryJobsWaitMissionDetailForTransfer`（`And(AutoDeliveryInDeliveryMissionDetail)` + 详情区域 `pre_wait_freezes 200ms`），稳定后才进「点击转交 / 没有按钮」的分支——这与入口 A 边上那个门节点 `DeliveryJobsWait{Depot}DeliveryMissionDetail` 是同一个思路。
 
 任务详情里的区域名与仓储节点名在五种语言下逐字一致，Go 侧才能用区域 ID 直接拼出 `DeliveryJobsOngoingDeliveryFor{ID}` 这个节点名；这条恒等关系由 `model.mjs` 在生成时断言，两边不各写一套映射。Go 侧仓储节点名取自 `global.region.{DepotId}`，与节点名后缀同源。
 
