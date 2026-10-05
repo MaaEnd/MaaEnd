@@ -126,7 +126,7 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState&
     const std::optional<std::vector<std::string>> handled =
         semantic_nodes::RunTaskForCompletedNodes(maa_context_, kObstacleDeviceEntry, "{}");
     if (!handled) {
-        LogWarn << "Blocking-device subtask did not run.";
+        LogWarn << "Blocking-device subtask result unavailable.";
         return DeviceRemovalOutcome::StillPinned;
     }
     if (const char* walk_out = WalkOutEntryFor(*handled); walk_out != nullptr) {
@@ -134,6 +134,7 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState&
         motion_controller_->ReassertForward();
         if (MaaContextRunTask(maa_context_, walk_out, "{}") == MaaInvalidId) {
             LogWarn << "Blocking-device walk-out did not run." << VAR(walk_out);
+            return DeviceRemovalOutcome::StillPinned;
         }
     }
 

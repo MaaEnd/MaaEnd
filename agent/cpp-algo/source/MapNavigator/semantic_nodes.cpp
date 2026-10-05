@@ -603,7 +603,7 @@ std::optional<std::vector<std::string>>
         MaaActId action_id = 0;
         MaaBool completed = 0;
         if (node_name.Get() == nullptr || !MaaTaskerGetNodeDetail(tasker, node_id, node_name.Get(), &reco_id, &action_id, &completed)) {
-            continue;
+            return std::nullopt;
         }
         const char* raw = MaaStringBufferGet(node_name.Get());
         if (raw != nullptr && completed != 0) {
