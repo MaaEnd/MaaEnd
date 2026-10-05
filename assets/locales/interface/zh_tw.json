@@ -2049,7 +2049,7 @@
     "task.DeliveryJobs.OngoingDeliveryFallback.description": "全自動送貨失敗時自動將當前任務轉交給他人，並繼續處理後續委託；關閉時失敗即停止整個任務。",
     "task.DeliveryJobs.OngoingDeliveryFallback.label": "送貨失敗後自動轉交任務",
     "task.DeliveryJobs.OngoingDeliverySkipped": "🚚 該送貨任務所屬的倉儲節點不處理它，已略過並回到倉儲節點繼續巡覽",
-    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 搶來的送貨委託不能轉交，改為自動送貨",
+    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 搶來的送貨委託不能轉交，準備自動送貨",
     "task.DeliveryJobs.OngoingDeliveryTransferred": "🚚 依該送貨任務所屬倉儲節點的設定轉交它",
     "task.DeliveryJobs.PackCargoSelectItem.description": "是否依優先級填入指定貨物。啟用後每個地區可設定 1 至 4 個貨物；目前貨物不足時會依序嘗試後續貨物。",
     "task.DeliveryJobs.PackCargoSelectItem.label": "填入指定貨物",

@@ -2049,7 +2049,7 @@
     "task.DeliveryJobs.OngoingDeliveryFallback.description": "Automatically transfers the current job to another courier when fully automatic delivery fails, then continues with the remaining commissions. When disabled, a failure stops the whole task.",
     "task.DeliveryJobs.OngoingDeliveryFallback.label": "Auto-transfer job after delivery fails",
     "task.DeliveryJobs.OngoingDeliverySkipped": "🚚 The depot node this delivery job belongs to does not handle it, so it was skipped and the run continued at the depot node.",
-    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 A commission taken via Accept Commission cannot be transferred, so it is delivered automatically instead.",
+    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 A commission taken via Accept Commission cannot be transferred; preparing to deliver it automatically.",
     "task.DeliveryJobs.OngoingDeliveryTransferred": "🚚 Transferring it according to the setting of the depot node this delivery job belongs to.",
     "task.DeliveryJobs.PackCargoSelectItem.description": "Pack specific goods by priority. Each region can configure one to four goods; if the current good is insufficient, the remaining goods are tried in order.",
     "task.DeliveryJobs.PackCargoSelectItem.label": "Fill Specific Goods",

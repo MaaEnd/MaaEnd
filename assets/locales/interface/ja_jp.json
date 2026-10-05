@@ -2049,7 +2049,7 @@
     "task.DeliveryJobs.OngoingDeliveryFallback.description": "全自動配達が失敗した時、現在の任務を自動的に別の配達員に委託し、以降の依頼処理を続行します。オフの場合は失敗でタスク全体を停止します。",
     "task.DeliveryJobs.OngoingDeliveryFallback.label": "配達失敗後に任務を自動で委託",
     "task.DeliveryJobs.OngoingDeliverySkipped": "🚚 この配達任務が属する倉庫拠点では処理しないため、スキップして倉庫拠点に戻り探索を続行します",
-    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 依頼受注で受けた配達依頼は転送できないため、代わりに自動配達します",
+    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 依頼受注で受けた配達依頼は転送できないため、自動配達の準備をします",
     "task.DeliveryJobs.OngoingDeliveryTransferred": "🚚 この配達任務が属する倉庫拠点の設定に従って転送します",
     "task.DeliveryJobs.PackCargoSelectItem.description": "指定貨物を優先度順に積み込みます。地域ごとに 1～4 個の貨物を設定でき、現在の貨物が不足した場合は後続の貨物を順番に試します。",
     "task.DeliveryJobs.PackCargoSelectItem.label": "指定貨物を補充",

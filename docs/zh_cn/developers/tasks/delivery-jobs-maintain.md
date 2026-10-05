@@ -188,7 +188,7 @@ flowchart TD
 | `DeliveryJobsSkipOngoingDelivery` | 🚚 该送货任务所属的仓储节点不处理它，已跳过并回到仓储节点继续遍历 | `task.DeliveryJobs.OngoingDeliverySkipped`（interface locale） |
 | `DeliveryJobsDeliverByAutoDelivery`（动作失败） | 🚚 自动送货未能送达 | `task.DeliveryJobs.AutoDeliveryFailed`（interface locale） |
 | `DeliveryJobsTransferOngoingJob` | 🚚 按该送货任务所属仓储节点的设置转交它 | `task.DeliveryJobs.OngoingDeliveryTransferred`（interface locale） |
-| `DeliveryJobsTransferUnavailable` | 🚚 抢来的送货委托不能转交，改为自动送货 | `task.DeliveryJobs.OngoingDeliveryTransferUnavailable`（interface locale） |
+| `DeliveryJobsTransferUnavailable` | 🚚 抢来的送货委托不能转交，准备自动送货 | `task.DeliveryJobs.OngoingDeliveryTransferUnavailable`（interface locale） |
 | `DeliveryJobsDeliverOngoingByAutoDelivery`（动作失败） | 🚚 自动送货未能送达 | `task.DeliveryJobs.AutoDeliveryFailed`（interface locale） |
 
 检测由 `DeliveryJobsOngoingDelivery` 在识别到提示文案时输出，归属由 Go 侧在解析出区域后输出，两个出口各自说明自己采取的行为；每条只说该步骤新增的信息。自动送货的失败原因挂在公共调用节点的动作失败上，开关开或关都会提示，开关只决定失败后是否转交；开关只作用于 `DeliveryJobsDeliverByAutoDelivery`，降级路径 `DeliveryJobsDeliverOngoingByAutoDelivery` 不读这个开关。
@@ -203,7 +203,7 @@ flowchart TD
     AutoD{{"DeliveryJobsAutoDelivery{Depot}\n设 AfterAutoDelivery = 本地区循环\n设 ReturnToDepotNode = 本地区仓储节点场景"}} --> ByAuto["DeliveryJobsDeliverByAutoDelivery\nSubTask AutoDelivery（strict）\n失败时输出「自动送货未能送达」"]
     ByAuto -->|成功| Done{"[Anchor]DeliveryJobsAfterAutoDelivery\n回到本地区循环节点"}
     ByAuto -->|"失败：开关关闭（默认）"| Stop["停止整个任务"]
-    ByAuto -->|"失败：开关开启（on_error）"| TOng["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode\n（点不到按钮时同样改为送掉，见「残留送货任务」）"]
+    ByAuto -->|"失败：开关开启（on_error）"| TOng["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode\n（点不到按钮时同样直接送掉，见「残留送货任务」）"]
 ```
 
 「全自动送货」只在 `delivery_destinations.json` 中有归属终点的仓储节点上提供——没有终点的仓储节点无处可送，仓储节点处理方式与两侧报价动作都不给出这个选项。
