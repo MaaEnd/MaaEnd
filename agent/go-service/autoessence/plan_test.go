@@ -66,6 +66,22 @@ func TestSelectBestPlanCoversMissing(t *testing.T) {
 	}
 }
 
+func TestLocationKeysCoverLocations(t *testing.T) {
+	engine, err := matchapi.NewEngineFromDirWithLocale(testDataDir(t), "CN")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(engine.Locations()) == 0 {
+		t.Fatal("expected locations")
+	}
+	for _, loc := range engine.Locations() {
+		key, ok := LocationKeyByName(loc.Name)
+		if !ok || key == "" {
+			t.Errorf("missing location key for %s", loc.Name)
+		}
+	}
+}
+
 func TestSelectBestPlanNilWhenNoMissing(t *testing.T) {
 	engine, err := matchapi.NewEngineFromDirWithLocale(testDataDir(t), "CN")
 	if err != nil {
