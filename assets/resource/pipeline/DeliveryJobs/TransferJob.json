@@ -62,7 +62,10 @@
         "rate_limit": 0,
         "next": [
             "[Anchor]DeliveryJobsReturnToDepotNode"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryTransferUnavailable"
+        }
     },
     "DeliveryJobsClickTransferJob": {
         "desc": "单击转交任务",

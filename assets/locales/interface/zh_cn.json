@@ -2049,6 +2049,7 @@
     "task.DeliveryJobs.OngoingDeliveryFallback.description": "全自动送货失败时自动将当前任务转交给他人，并继续处理后续委托；关闭时失败即停止整个任务。",
     "task.DeliveryJobs.OngoingDeliveryFallback.label": "送货失败后自动转交任务",
     "task.DeliveryJobs.OngoingDeliverySkipped": "🚚 该送货任务所属的仓储节点不处理它，已跳过并回到仓储节点继续遍历",
+    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 货物已在手上时游戏不提供转交，已跳过这条送货任务并回到仓储节点继续遍历",
     "task.DeliveryJobs.OngoingDeliveryTransferred": "🚚 按该送货任务所属仓储节点的设置转交它",
     "task.DeliveryJobs.PackCargoSelectItem.description": "是否按优先级填入指定货物。启用后每个地区可设置 1 至 4 个货物；当前货物不足时会依次尝试后续货物。",
     "task.DeliveryJobs.PackCargoSelectItem.label": "填入指定货物",
