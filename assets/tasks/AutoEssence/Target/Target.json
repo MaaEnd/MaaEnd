@@ -223,6 +223,18 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "wpn_sword_0023",
+                    "label": "$weapon.wpn_sword_0023",
+                    "icon": "resource/image/UI/Item/wpn_sword_0023.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0023": true
+                            }
+                        }
+                    }
                 }
             ],
             "default_case": [
