@@ -75,15 +75,15 @@
         "rate_limit": 0,
         "next": [
             "DeliveryJobsClickTransferJob",
-            "DeliveryJobsTransferUnavailable"
+            // 兜底：判断与点击两次识别不一致时直接送掉，不再输出「抢来的」提示
+            "DeliveryJobsDeliverOngoingByAutoDelivery"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryTransferred"
         }
     },
-    // 这条委托不能转交（抢来的委托游戏里没有「转交运送委托」，详情里只有「开始追踪」；
-    // 转交流程里点不到按钮时也兜底走这里）。一律把这条残留委托送掉；送不掉就停止任务
-    // 并输出失败提示，绝不再回到转交，避免与送货互相打转
+    // 这条委托不能转交：抢来的委托游戏里没有「转交运送委托」，详情里只有「开始追踪」。
+    // 一律把这条残留委托送掉；送不掉就停止任务并输出失败提示，绝不再回到转交，避免与送货互相打转
     "DeliveryJobsTransferUnavailable": {
         "desc": "这条委托不能转交时改为把它送掉（失败即停止任务）",
         "recognition": "DirectHit",
