@@ -20,5 +20,30 @@
         "focus": {
             "Node.Action.Failed": "$task.DeliveryJobs.AutoDeliveryFailed"
         }
+    },
+    // 残留委托（手里已有待运送货物）专用的送货调用节点。
+    // 与 DeliveryJobsDeliverByAutoDelivery 的唯一区别是没有 on_error：送货失败就直接停止任务，
+    // 不再回到 DeliveryJobsTransferOngoingJob——否则「转交不可用 → 送货 → 送货失败 → 转交」会互相打转。
+    "DeliveryJobsDeliverOngoingByAutoDelivery": {
+        "desc": "把残留委托送掉；失败即停止任务，不再回到转交",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDelivery"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsAfterAutoDelivery"
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.DeliveryJobs.AutoDeliveryFailed"
+        }
     }
 }

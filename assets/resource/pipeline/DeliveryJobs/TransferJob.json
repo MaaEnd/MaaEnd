@@ -52,16 +52,17 @@
             "DeliveryJobsTransferUnavailable"
         ]
     },
-    // 货物已在手上（例如抢单后已取货）时游戏不提供「转交运送委托」，此时不点按钮、也不终止整个任务
+    // 货物已在手上（例如抢单后已取货）时游戏不提供「转交运送委托」，
+    // 此时把这条残留委托送掉；送不掉就停止任务，绝不再回到转交，避免与送货互相打转
     "DeliveryJobsTransferUnavailable": {
-        "desc": "任务界面上没有转交按钮时跳过这条委托并回仓储节点",
+        "desc": "任务界面上没有转交按钮时改为把这条残留委托送掉",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[Anchor]DeliveryJobsReturnToDepotNode"
+            "DeliveryJobsDeliverOngoingByAutoDelivery"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryTransferUnavailable"
