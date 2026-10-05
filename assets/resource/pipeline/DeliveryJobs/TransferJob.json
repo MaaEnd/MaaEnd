@@ -19,11 +19,50 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsClickTransferJob"
+            "DeliveryJobsWaitMissionDetailForTransfer"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryTransferred"
         }
+    },
+    // 打开送货任务详情后先等界面稳定，再判断有没有「转交运送委托」按钮。
+    // 组件里的 AutoDeliveryInDeliveryMissionDetail 只保证「已在任务界面且选中送货任务」，
+    // 右侧详情此时可能还在渲染；不等稳定就找按钮，会把慢一拍的界面误判成「没有按钮」。
+    "DeliveryJobsWaitMissionDetailForTransfer": {
+        "desc": "等待送货任务详情界面稳定后再判断转交按钮",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail"
+        ],
+        // 等待区域与组件里 AutoDeliveryInDeliveryMissionDetail 的等待区域相同
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                417,
+                51,
+                547,
+                279
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob",
+            "DeliveryJobsTransferUnavailable"
+        ]
+    },
+    // 货物已在手上（例如抢单后已取货）时游戏不提供「转交运送委托」，此时不点按钮、也不终止整个任务
+    "DeliveryJobsTransferUnavailable": {
+        "desc": "任务界面上没有转交按钮时跳过这条委托并回仓储节点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsReturnToDepotNode"
+        ]
     },
     "DeliveryJobsClickTransferJob": {
         "desc": "单击转交任务",
