@@ -162,6 +162,54 @@ func TestBuildEngraveOverride(t *testing.T) {
 	}
 }
 
+func TestEngraveOCRExpectedKeepsArtsIntensityUILabel(t *testing.T) {
+	skillExpectedCache = nil
+	if err := loadSkillExpected(testDataDir(t)); err != nil {
+		t.Fatal(err)
+	}
+	got, err := expectedForSkill(2, 6)
+	if err != nil {
+		t.Fatal(err)
+	}
+	hasUI := false
+	hasCanonical := false
+	for _, s := range got {
+		if s == "源石技艺提升" {
+			hasUI = true
+		}
+		if s == "源石技艺强度" {
+			hasCanonical = true
+		}
+	}
+	if !hasUI || !hasCanonical {
+		t.Fatalf("OCR expected must include both 源石技艺提升 and 源石技艺强度, got %v", got)
+	}
+
+	plan := &FarmPlan{
+		LocationKey: "VFOriginLodespring",
+		Slot1IDs:    [3]int{1, 2, 3},
+		FixedSlot:   2,
+		FixedID:     6,
+		FixedName:   "源石技艺强度",
+	}
+	patch, err := buildEngravePipelineOverride(plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, node := range []string{"AutoEssenceSelectEngraveBonusCondition", "AutoEssenceEngraveCondition2OCR"} {
+		entry := patch[node].(map[string]any)
+		param := entry["recognition"].(map[string]any)["param"].(map[string]any)
+		expected := param["expected"].([]string)
+		joined := map[string]bool{}
+		for _, s := range expected {
+			joined[s] = true
+		}
+		if !joined["源石技艺提升"] || !joined["源石技艺强度"] {
+			t.Fatalf("%s expected must keep UI label and canonical name, got %v", node, expected)
+		}
+	}
+}
+
 func TestEngraveOCRExpectedUsesUltimateGainNotULT(t *testing.T) {
 	skillExpectedCache = nil
 	if err := loadSkillExpected(testDataDir(t)); err != nil {
