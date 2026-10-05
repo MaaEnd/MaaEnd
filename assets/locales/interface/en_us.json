@@ -284,6 +284,8 @@
     "option.ManufacturingStage.description": "Controls whether the Manufacturing Cabin stage is executed.",
     "option.GrowthChamberStage.label": "Growth Chamber",
     "option.GrowthChamberStage.description": "Controls whether the Growth Chamber stage is executed.",
+    "option.ClueSendCustomize.label": "Customize Clue Sending",
+    "option.ClueSendCustomize.description": "When enabled, you can customize the rules for sending clues; when disabled, the default behavior is used: keep up to 2 of each clue type and send at most 3 clues.",
     "option.ClueSend.label": "Send excess clues",
     "option.ClueSend.MaxClueSend.label": "Max clues to send",
     "option.ClueStockLimit.label": "Per-clue stock limit",

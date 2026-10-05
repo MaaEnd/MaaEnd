@@ -284,6 +284,8 @@
     "option.ManufacturingStage.description": "控制是否執行製造艙階段。",
     "option.GrowthChamberStage.label": "培養艙",
     "option.GrowthChamberStage.description": "控制是否執行培養艙階段。",
+    "option.ClueSendCustomize.label": "自定義贈送線索",
+    "option.ClueSendCustomize.description": "開啟後可自定義贈送線索的規則；關閉時使用預設行為：每種線索最多保留 2 個，且最多贈送 3 次。",
     "option.ClueSend.label": "溢出後贈送線索",
     "option.ClueSend.MaxClueSend.label": "指定最大贈送數量",
     "option.ClueStockLimit.label": "單種線索庫存上限",

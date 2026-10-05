@@ -280,6 +280,8 @@
     "option.ManufacturingStage.description": "제조실 단계를 실행할지 여부를 설정합니다.",
     "option.GrowthChamberStage.label": "배양실",
     "option.GrowthChamberStage.description": "배양실 단계를 실행할지 여부를 설정합니다.",
+    "option.ClueSendCustomize.label": "단서 선물하기 설정 사용자 지정",
+    "option.ClueSendCustomize.description": "활성화하면 단서 선물 규칙을 사용자 지정할 수 있습니다. 비활성화하면 기본 설정(각 단서 유형별로 최대 2개 보유, 최대 3회 선물 가능)이 적용됩니다.",
     "option.ClueSend.label": "초과한 단서를 선물",
     "option.ClueSend.MaxClueSend.label": "최대 선물 개수 지정",
     "option.ClueStockLimit.label": "단서 종류별 보유 상한",

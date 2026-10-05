@@ -397,6 +397,36 @@
                 }
             ]
         },
+        "CustomClueSend": {
+            "type": "checkbox",
+            "label": "$option.ClueSendCustomize.label",
+            "description": "$option.ClueSendCustomize.description"
+            // "default_case": "No",
+            // "cases": [
+            //     {
+            //         "name": "Yes",
+            //         "pipeline_override": {
+            //             "ReceptionRoomSendCluesSelectClues": {
+            //                 "max_hit": 999
+            //             },
+            //             "ClueItemCount": {
+            //                 "expected": "^(?:[1-9]|[1-9]\\d+)$"
+            //             }
+            //         }
+            //     },
+            //     {
+            //         "name": "No",
+            //         "pipeline_override": {
+            //             "ReceptionRoomSendCluesSelectClues": {
+            //                 "max_hit": 3
+            //             },
+            //             "ClueItemCount": {
+            //                 "expected": "^(?:[3-9]|[1-9]\\d+)$"
+            //             }
+            //         }
+            //     }
+            // ]
+        },
         "SelectToGrow": {
             "type": "select",
             "label": "$option.SelectToGrow.label",

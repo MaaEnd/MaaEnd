@@ -284,6 +284,8 @@
     "option.ManufacturingStage.description": "控制是否执行制造舱阶段。",
     "option.GrowthChamberStage.label": "培养舱",
     "option.GrowthChamberStage.description": "控制是否执行培养舱阶段。",
+    "option.ClueSendCustomize.label": "自定义赠送线索",
+    "option.ClueSendCustomize.description": "开启后可自定义赠送线索的规则；关闭时使用默认行为：每种线索最多保留 2 个，且最多赠送 3 次。",
     "option.ClueSend.label": "溢出后赠送线索",
     "option.ClueSend.MaxClueSend.label": "指定最大赠送次数",
     "option.ClueStockLimit.label": "单种线索库存上限",
