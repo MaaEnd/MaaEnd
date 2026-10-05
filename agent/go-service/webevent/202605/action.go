@@ -91,7 +91,7 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	maafocus.Print(ctx, fmt.Sprintf("- 截图与响应延迟：%.2fms", avgLatencySeconds*1000))
 
 	// Estimate object speed
-	speed, err := getSpeed(ctx, time.Duration(speedObserveSec)*time.Second)
+	speed, err := getSpeed(controller, time.Duration(speedObserveSec)*time.Second)
 	if err != nil {
 		log.Error().Err(err).Str("component", "WebEvent202605").Msg("failed to estimate object speed")
 		return false
@@ -129,7 +129,7 @@ func (a *WebEvent202605Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			return false
 		}
 
-		hit, err := predict(ctx, avgLatencySeconds, speed, predictTolerance)
+		hit, err := predict(controller, avgLatencySeconds, speed, predictTolerance)
 		if err != nil {
 			hit = false
 		} else {
@@ -233,22 +233,14 @@ func getPosition(img image.Image) (float64, error) {
 	return position, nil
 }
 
-func getSpeed(ctx *maa.Context, duration time.Duration) (float64, error) {
-	if ctx == nil {
-		return 0, fmt.Errorf("context is nil")
+// getSpeed 用调用方传入的 controller，不自己再取：agent 侧每次 GetController 都会销毁上一次返回的对象，
+// 这里再取一次，Run 手里那个 controller 就成了悬空指针。predict 同理。
+func getSpeed(controller *maa.Controller, duration time.Duration) (float64, error) {
+	if controller == nil {
+		return 0, fmt.Errorf("controller is nil")
 	}
 	if duration <= 0 {
 		return 0, fmt.Errorf("duration must be positive")
-	}
-
-	tasker := ctx.GetTasker()
-	if tasker == nil {
-		return 0, fmt.Errorf("tasker is nil")
-	}
-
-	controller := tasker.GetController()
-	if controller == nil {
-		return 0, fmt.Errorf("controller is nil")
 	}
 
 	deadline := time.Now().Add(duration)
@@ -297,25 +289,15 @@ func getSpeed(ctx *maa.Context, duration time.Duration) (float64, error) {
 	return maxSpeed, nil
 }
 
-func predict(ctx *maa.Context, screenLatency float64, speed float64, tolerance float64) (bool, error) {
-	if ctx == nil {
-		return false, fmt.Errorf("context is nil")
+func predict(controller *maa.Controller, screenLatency float64, speed float64, tolerance float64) (bool, error) {
+	if controller == nil {
+		return false, fmt.Errorf("controller is nil")
 	}
 	if screenLatency <= 0 {
 		return false, fmt.Errorf("screenLatency must be positive")
 	}
 	if tolerance < 0 {
 		return false, fmt.Errorf("tolerance must be non-negative")
-	}
-
-	tasker := ctx.GetTasker()
-	if tasker == nil {
-		return false, fmt.Errorf("tasker is nil")
-	}
-
-	controller := tasker.GetController()
-	if controller == nil {
-		return false, fmt.Errorf("controller is nil")
 	}
 
 	controller.PostScreencap().Wait()

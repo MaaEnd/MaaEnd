@@ -1,24 +1,9 @@
 {
-    "setting": [
-        {
-            "name": "Zipline",
-            "label": "$option.Zipline.label",
-            "description": "$option.Zipline.description",
-            "default_expand": false,
-            "option": [
-                "ZiplineRouting"
-            ]
-        }
-    ],
-    "global_option": [
-        "ZiplineRouting"
-    ],
     "option": {
         "ZiplineRouting": {
             "type": "select",
             "label": "$option.ZiplineRouting.label",
             "description": "$option.ZiplineRouting.description",
-            "default_case": "Auto",
             "cases": [
                 {
                     "name": "Auto",
@@ -54,7 +39,22 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Auto"
         }
-    }
+    },
+    "global_option": [
+        "ZiplineRouting"
+    ],
+    "setting": [
+        {
+            "name": "Zipline",
+            "label": "$option.Zipline.label",
+            "description": "$option.Zipline.description",
+            "option": [
+                "ZiplineRouting"
+            ],
+            "default_expand": false
+        }
+    ]
 }

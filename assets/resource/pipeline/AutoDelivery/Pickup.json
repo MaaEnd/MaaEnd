@@ -25,22 +25,6 @@
             "AutoDeliveryQuickTeleport"
         ]
     },
-    "AutoDeliveryCancelTrackingBeforeNavigateDepot": {
-        "desc": "在任务界面取消当前送货任务追踪，避免追踪图标干扰仓储寻路",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckCancelCurrentJobTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCheckTrackingGoneBeforeNavigateDepot"
-        ]
-    },
     "AutoDeliveryCheckFetchGoodsButton": {
         "desc": "在仓储节点前识别取货图标，并等待交互提示区域稳定",
         "recognition": "TemplateMatch",
@@ -67,36 +51,6 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryFetchGoodsButton"
-        ]
-    },
-    "AutoDeliveryCheckTrackingAlreadyOffBeforeNavigateDepot": {
-        "desc": "确认前往仓储节点前当前任务已经未追踪",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckStartTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryReturnWorldAndNavigateDepot"
-        ]
-    },
-    "AutoDeliveryCheckTrackingGoneBeforeNavigateDepot": {
-        "desc": "在送货任务详情中确认前往仓储节点前开始追踪按钮已经出现",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckStartTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryReturnWorldAndNavigateDepot"
         ]
     },
     "AutoDeliveryFetchGoods": {
@@ -155,7 +109,7 @@
         "rate_limit": 0,
         "next": [
             "[Anchor]AutoDeliveryAfterQuickTeleport",
-            "AutoDeliveryPrepareNavigateDepot"
+            "AutoDeliveryNavigateDepot"
         ]
     },
     "AutoDeliveryNavigateDepot": {
@@ -207,25 +161,6 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryRecognizeDestination"
-        ]
-    },
-    "AutoDeliveryPrepareNavigateDepot": {
-        "desc": "快速传送后进入任务界面并选中送货任务，取消追踪后再前往仓储节点",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoDeliveryEnsureDeliveryMissionSelected"
-            ],
-            "continue": false,
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCancelTrackingBeforeNavigateDepot",
-            "AutoDeliveryCheckTrackingAlreadyOffBeforeNavigateDepot"
         ]
     },
     "AutoDeliveryQuickTeleport": {
@@ -293,24 +228,6 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryCheckFetchGoodsButton"
-        ]
-    },
-    "AutoDeliveryReturnWorldAndNavigateDepot": {
-        "desc": "确认任务未追踪后返回大世界并前往已识别的仓储节点",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneAnyEnterWorld"
-            ],
-            "continue": false,
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryNavigateDepot"
         ]
     },
     "AutoDeliverySearchFetchGoodsButton": {

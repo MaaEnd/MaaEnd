@@ -39,7 +39,7 @@ import {
   zonePolys,
 } from "./nogo_zones.js";
 import {AppState, Mode} from "./state.js";
-import {logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
+import {logRunSegment, logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
 import {groupLogInputFiles, openZipArchive, selectMaaEndArchiveEntries} from "./log_archive.js";
 import {
   listZiplineAccounts,
@@ -58,6 +58,7 @@ import {
   getPointActions,
   matchTargetDeckHeight,
   normalizeZoneId,
+  triggerNodeOf,
 } from "./model.js";
 import {compactNumber, roundHalfEven} from "./rounding.js";
 import {initFeedback, setStatus} from "./ui/toast.js";
@@ -372,6 +373,12 @@ class MapNavigatorApp {
       assertCopyFormat: $("assert-copy-format"),
       btnImport: $("btn-import"),
       btnEditReadClipboard: $("btn-edit-read-clipboard"),
+      previewCoordX: $("preview-coord-x"),
+      previewCoordY: $("preview-coord-y"),
+      btnPreviewMark: $("btn-preview-mark"),
+      btnPreviewCopyCoord: $("btn-preview-copy-coord"),
+      btnPreviewCopyNavmesh: $("btn-preview-copy-navmesh"),
+      coordinatePreviewDropdown: $("coordinate-preview-dropdown"),
       btnPrev: $("btn-prev"),
       btnNext: $("btn-next"),
       zoneLabel: $("zone-label"),
@@ -500,6 +507,7 @@ class MapNavigatorApp {
       logImportMeta: $("log-import-meta"),
       logRunFilter: $("log-run-filter"),
       logRunSelect: $("log-run-select"),
+      logSegmentSelect: $("log-segment-select"),
       logShowAuthored: $("log-show-authored"),
       logShowWalk: $("log-show-walk"),
       logShowObserved: $("log-show-observed"),
@@ -947,6 +955,15 @@ class MapNavigatorApp {
   /** Attach every DOM event listener (buttons, combos, tabs, canvas, keyboard). @returns {void} */
   _wireEvents() {
     const e = this.els;
+    e.btnPreviewMark.addEventListener("click", () => this._markPreviewCoordinate());
+    e.btnPreviewCopyCoord.addEventListener("click", () => this._copyPreviewPoint("coordinates"));
+    e.btnPreviewCopyNavmesh.addEventListener("click", () => this._copyPreviewPoint("navmesh"));
+    for (const entry of [e.previewCoordX, e.previewCoordY]) {
+      entry.addEventListener("paste", (event) => this._onPreviewCoordPaste(event));
+      entry.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.isComposing && event.keyCode !== 229) this._markPreviewCoordinate();
+      });
+    }
     e.btnCopyPath.addEventListener("click", () => this._copyPath());
     e.btnEditPlan.addEventListener("click", () => this._calculateEditPreview());
     e.btnEditPlanClear.addEventListener("click", () => {
@@ -991,11 +1008,15 @@ class MapNavigatorApp {
     e.editZiplineAccount.addEventListener("change", () => this._selectZiplineAccount(e.editZiplineAccount.value));
     e.btnMapLayers.addEventListener("click", (event) => {
       event.stopPropagation();
+      e.coordinatePreviewDropdown.open = false;
       this._setMapLayerPanelOpen(e.mapLayerPanel.hidden);
     });
     e.btnMapLayersClose.addEventListener("click", () => this._setMapLayerPanelOpen(false));
     e.mapLayerPanel.addEventListener("click", (event) => event.stopPropagation());
-    document.addEventListener("click", () => this._setMapLayerPanelOpen(false));
+    document.addEventListener("click", (event) => {
+      this._setMapLayerPanelOpen(false);
+      if (!e.coordinatePreviewDropdown.contains(event.target)) e.coordinatePreviewDropdown.open = false;
+    });
     e.mapShowBasemap.addEventListener("change", () =>
       this._setMapLayerVisible("showBasemap", e.mapShowBasemap.checked),
     );
@@ -1061,6 +1082,7 @@ class MapNavigatorApp {
     e.logFileInput.addEventListener("change", () => this._importLogFiles(e.logFileInput.files));
     e.logRunFilter.addEventListener("input", () => this._populateLogRunSelect());
     e.logRunSelect.addEventListener("change", () => this._onLogRunChanged());
+    e.logSegmentSelect.addEventListener("change", () => this._onLogSegmentChanged());
     e.logRunSelect.addEventListener(
       "wheel",
       (event) => {
@@ -2218,6 +2240,17 @@ class MapNavigatorApp {
     let labelIndex = 1;
     for (const chain of run.ziplines || []) {
       for (const tower of logZiplineTowers(chain)) {
+        const existing = selected.find(
+          (candidate) =>
+            Math.hypot(candidate.point[0] - tower.point[0], candidate.point[1] - tower.point[1]) <= 0.75 &&
+            (!Number.isFinite(candidate.height) ||
+              !Number.isFinite(tower.height) ||
+              Math.abs(candidate.height - tower.height) <= 0.75),
+        );
+        if (existing) {
+          existing.confirmed ||= tower.confirmed;
+          continue;
+        }
         let matchingRecord = null;
         let matchingDistance = Infinity;
         let matchingHeightDistance = Infinity;
@@ -2269,7 +2302,8 @@ class MapNavigatorApp {
     if (this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) {
       return `map:${this.ziplineAccountId}:${this._geometryZoneName(this._displayZoneId())}`;
     }
-    if (this.state.mode === Mode.LOG) return `log:${this.selectedLogRun?._uiKey || ""}`;
+    if (this.state.mode === Mode.LOG)
+      return `log:${this.selectedLogRun?._uiKey || ""}:${this.selectedLogRun?.index || 0}`;
     return "";
   }
 
@@ -2426,7 +2460,8 @@ class MapNavigatorApp {
                 ["来源", "运行日志"],
                 ["链 / 跳", `${chainIndex + 1} / ${hopIndex + 1}`],
                 ["端点", endpoint],
-                ["落地状态", segment.landed ? "已确认落地" : "未确认落地"],
+                ["方向", segment.returning ? "返程" : "正向"],
+                ["结果", segment.offTarget ? "滑错架" : segment.landed ? "已确认落地" : "未确认落地"],
                 ["底图坐标", pointText(point)],
               ],
             });
@@ -2576,6 +2611,8 @@ class MapNavigatorApp {
             ].filter(Boolean);
             details.push(["寻找", findBits.join(" · ")]);
           }
+          const triggerNode = triggerNodeOf(point);
+          if (triggerNode) details.push(["触发", triggerNode]);
         }
       } else if (selectedIndices.length > 1) {
         title = `已选择 ${selectedIndices.length} 个作者路点`;
@@ -2936,7 +2973,11 @@ class MapNavigatorApp {
     for (const chain of run.ziplines || []) {
       const geometry = logZiplineGeometry(chain);
       for (const segment of geometry.actual) {
-        ziplines.push({...segment, from: displayPoint(segment.from), to: displayPoint(segment.to)});
+        ziplines.push({
+          ...segment,
+          from: displayPoint(segment.from),
+          to: displayPoint(segment.to),
+        });
       }
       for (const segment of geometry.estimated) {
         estimates.push({...segment, from: displayPoint(segment.from), to: displayPoint(segment.to)});
@@ -2950,6 +2991,7 @@ class MapNavigatorApp {
       authored: displayPolyline(this._logAuthoredBasePoints()),
       walks: (run.walks || []).filter((walk) => walk.decision === "walk").map((walk) => displayPolyline(walk.points)),
       observed: (run.observedWalks || []).map(displayPolyline),
+      observedReplans: (run.observedReplans || []).map((replan) => displayPolyline(replan.points)),
       baselines: (run.walks || [])
         .filter((walk) => walk.decision === "baseline")
         .map((walk) => displayPolyline(walk.points)),
@@ -3001,7 +3043,7 @@ class MapNavigatorApp {
     const log = this._logAnalysisForDisplay();
     if (!log) return [];
     const points = [...log.authored];
-    for (const path of [...log.walks, ...log.observed, ...log.baselines]) points.push(...path);
+    for (const path of [...log.walks, ...log.observed, ...log.observedReplans, ...log.baselines]) points.push(...path);
     for (const segment of [...log.ziplines, ...log.estimates]) points.push(segment.from, segment.to);
     for (const tower of log.selectedTowers || []) points.push(tower.point);
     return points;
@@ -3031,6 +3073,68 @@ class MapNavigatorApp {
       LEFT_PANEL_FIT_OFFSET,
     );
     this._paint();
+  }
+
+  /** Pasting a numeric JSON pair into either coordinate entry fills both. */
+  _onPreviewCoordPaste(event) {
+    let pair;
+    try {
+      pair = JSON.parse(event.clipboardData.getData("text/plain"));
+    } catch {
+      return;
+    }
+    if (!Array.isArray(pair) || pair.length !== 2 || !pair.every(Number.isFinite)) return;
+    event.preventDefault();
+    this.els.previewCoordX.value = String(pair[0]);
+    this.els.previewCoordY.value = String(pair[1]);
+  }
+
+  /** Reuse the read-only reference marker; inputs belong to the layer currently displayed. */
+  _markPreviewCoordinate() {
+    const values = [this.els.previewCoordX.value.trim(), this.els.previewCoordY.value.trim()];
+    const [x, y] = values.map(Number);
+    if (values.some((value) => !value) || ![x, y].every(Number.isFinite)) {
+      setStatus("请在 X / Y 两个框中各填一个有效数字。", "#ef4444");
+      return;
+    }
+    if (!this.field) {
+      setStatus("navmesh 尚未就绪。", "#f59e0b");
+      return;
+    }
+    const zoneId = this._activeDisplayTierId() ?? this._resolveZoneId(this._displayZoneId());
+    const endpoint = this._planningEndpoint(zoneId, x, y);
+    if (!endpoint) return;
+    this.editLocateHint = {...endpoint, rot: null, label: "坐标预览点"};
+    if (this._is3DView()) this._setViewMode("2d", {announce: false});
+    this._focusEditLocateHint();
+    setStatus(`已标出预览点: [${x}, ${y}]（${endpoint.positionZone}）。`, "#10b981");
+  }
+
+  /**
+   * Copy the visible reference point in its display frame, including a tier declaration for NAVMESH.
+   * @param {'coordinates'|'navmesh'} format
+   */
+  async _copyPreviewPoint(format) {
+    const hint = this.state.mode === Mode.EDIT ? this._editLocateHintForDisplay() : null;
+    if (!hint) {
+      setStatus("请先标出一个预览点或游戏当前位置。", "#f59e0b");
+      return;
+    }
+    const target = [compactNumber(hint.x), compactNumber(hint.y)];
+    let text = `[${target.join(", ")}]`;
+    if (format === "navmesh") {
+      const payload = {action: "NAVMESH", target};
+      const tierId = this._activeDisplayTierId();
+      if (tierId !== null) {
+        payload.target_tier = this.field.zoneById(tierId).name;
+      }
+      text = JSON.stringify(payload, null, 4);
+    }
+    const ok = await this._copyText(text);
+    setStatus(
+      ok ? `已复制预览点${format === "navmesh" ? " NAVMESH 目标" : "坐标"}。` : "复制失败，请重试。",
+      ok ? "#10b981" : "#ef4444",
+    );
   }
 
   /** MapLocator zone-frame heading → base-frame heading. @returns {?number} */
@@ -4048,7 +4152,7 @@ class MapNavigatorApp {
   }
 
   // ==================================================================================
-  //  Pointer state machine (tk on_click / on_drag / on_release + right-button pan)
+  //  Pointer state machine (tk on_click / on_drag / on_release + middle/right-button pan)
   // ==================================================================================
 
   /**
@@ -4079,14 +4183,14 @@ class MapNavigatorApp {
   }
 
   /**
-   * Pointer-down entry of the interaction state machine. Right button always pans;
+   * Pointer-down entry of the interaction state machine. Middle and right buttons always pan;
    * left button dispatches on mode + active tool (pan / assert
    * rect / box select / insert candidate / node drag candidate).
    * @param {MouseEvent} e
    * @returns {void}
    */
   _onPointerDown(e) {
-    if (e.button === 2) {
+    if (e.button === 1 || e.button === 2) {
       e.preventDefault();
       const [x, y] = this._evtXY(e);
       this.isPanning = true;
@@ -5357,6 +5461,7 @@ class MapNavigatorApp {
       option.textContent = this.logRuns.length ? "没有匹配的运行记录" : "请先导入日志";
       combo.appendChild(option);
       this.selectedLogRun = null;
+      this._populateLogSegments(null);
       this.ziplineDistanceSelection = [];
       this.inspectedPoint = null;
       this._renderLogSummary();
@@ -5379,15 +5484,42 @@ class MapNavigatorApp {
   _onLogRunChanged() {
     const key = this.els.logRunSelect.value;
     const nextRun = this.logRuns.find((run) => run._uiKey === key) || null;
-    if (nextRun !== this.selectedLogRun) {
-      this.ziplineDistanceSelection = [];
-      this.inspectedPoint = null;
-    }
-    this.selectedLogRun = nextRun;
-    this._showSelectedLogRun({fit: true});
+    const index = nextRun?._uiKey === this.selectedLogRun?._uiKey ? this.selectedLogRun?.index || 0 : 0;
+    this._populateLogSegments(nextRun, index);
+    this._onLogSegmentChanged({fit: true});
   }
 
-  /** @param {{fit?:boolean}} [opts] */
+  _populateLogSegments(run, selectedIndex = 0) {
+    const combo = this.els.logSegmentSelect;
+    combo.textContent = "";
+    for (const segment of run?.segments || []) {
+      const option = document.createElement("option");
+      option.value = String(segment.index);
+      const reason =
+        segment.reason === "initial" ? "初始规划" : segment.reason === "replan" ? "重新规划" : segment.reason;
+      option.textContent = `${segment.index + 1} · ${reason} · ${segment.timestamp || "时间未知"}`;
+      option.title = option.textContent;
+      combo.appendChild(option);
+    }
+    combo.disabled = !run || (run.segments?.length || 0) <= 1;
+    if (combo.options.length) combo.value = String(selectedIndex);
+    else {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "暂无规划分段";
+      combo.appendChild(option);
+    }
+  }
+
+  _onLogSegmentChanged({fit = false} = {}) {
+    const run = this.logRuns.find((entry) => entry._uiKey === this.els.logRunSelect.value) || null;
+    this.selectedLogRun = logRunSegment(run, Number(this.els.logSegmentSelect.value) || 0);
+    this.ziplineDistanceSelection = [];
+    this.inspectedPoint = null;
+    this._showSelectedLogRun({fit, preserveView: !fit});
+  }
+
+  /** @param {{fit?:boolean,preserveView?:boolean}} [opts] */
   _showSelectedLogRun(opts = {}) {
     this._renderLogSummary();
     this._renderPointInspection();
@@ -5398,6 +5530,10 @@ class MapNavigatorApp {
       return;
     }
     if (this.state.mode !== Mode.LOG) return;
+    if (opts.preserveView) {
+      this._paint();
+      return;
+    }
     if (!this.field) {
       setStatus("运行记录已选择，等待 navmesh 区域表加载后显示底图。", "#3b82f6");
       this._paint();
@@ -5439,6 +5575,7 @@ class MapNavigatorApp {
     option.textContent = "请先导入日志";
     this.els.logRunSelect.appendChild(option);
     this.els.logImportMeta.textContent = "尚未导入日志";
+    this._populateLogSegments(null);
     this._renderLogSummary();
     this._renderPointInspection();
     this._renderZiplineDistance();
@@ -5539,10 +5676,20 @@ class MapNavigatorApp {
     const facts = document.createElement("div");
     facts.className = "log-run-facts";
     const towerData = this._logTowerData(run);
-    const result = run.completed === true ? "成功" : run.completed === false ? "失败" : "未记录结束";
-    const landed = (run.ziplines || []).reduce((sum, chain) => sum + (chain.landed || 0), 0);
-    const launched = (run.ziplines || []).reduce((sum, chain) => sum + (chain.launches || []).length, 0);
-    const ziplineFact = launched ? `滑索 ${landed}/${launched} 跳确认落地` : "无实际滑索发射";
+    const result =
+      run.index < (run.segments?.length || 1) - 1
+        ? "分段结束"
+        : run.completed === true
+          ? "成功"
+          : run.completed === false
+            ? "失败"
+            : "未记录结束";
+    const rides = (run.ziplines || []).flatMap((chain) => logZiplineGeometry(chain).actual);
+    const landed = rides.filter((ride) => ride.landed).length;
+    const returning = rides.filter((ride) => ride.returning).length;
+    const ziplineFact = rides.length
+      ? `滑行 ${landed}/${rides.length} 次确认落地 · 返程 ${returning} 次`
+      : "无实际滑索发射";
     const observedSegments = (run.observedWalks || []).length;
     const observedPoints = (run.observedWalks || []).reduce((sum, points) => sum + points.length, 0);
     const observedFact = observedPoints ? `实测地面轨迹 ${observedSegments} 段/${observedPoints} 点` : "无实测地面轨迹";
@@ -5583,6 +5730,22 @@ class MapNavigatorApp {
       }
     }
 
+    if (rides.length) {
+      const list = document.createElement("ol");
+      list.className = "log-ride-list";
+      const towerLabel = (point) =>
+        towerData.selected.find((tower) => Math.hypot(tower.point[0] - point[0], tower.point[1] - point[1]) <= 0.75)
+          ?.label || `[${point.map((value) => value.toFixed(2)).join(", ")}]`;
+      for (const ride of rides) {
+        const row = document.createElement("li");
+        row.className = ride.offTarget ? "log-ride-miss" : ride.returning ? "log-ride-return" : "";
+        const kind = ride.returning ? (ride.offTarget ? "返程滑错架" : "返程") : ride.offTarget ? "滑错架" : "正向";
+        row.textContent = `${towerLabel(ride.from)} → ${towerLabel(ride.to)} · ${kind} · ${ride.landed ? "已落地" : "落地未确认"}`;
+        list.appendChild(row);
+      }
+      host.appendChild(list);
+    }
+
     const decisions = run.decisions || [];
     if (!decisions.length) {
       const card = document.createElement("div");
@@ -5618,7 +5781,7 @@ class MapNavigatorApp {
         const detail = document.createElement("div");
         const towers = Number.isFinite(decision.towerCount) ? decision.towerCount : null;
         detail.textContent = towers
-          ? `选择滑索：${towers} 座滑索架，实际链长 ${Math.max(0, towers - 1)} 跳。`
+          ? `选择滑索：${towers} 座滑索架，规划链长 ${Math.max(0, towers - 1)} 跳。`
           : "选择滑索。";
         card.appendChild(detail);
       } else {
@@ -6012,6 +6175,11 @@ class MapNavigatorApp {
    * @returns {void}
    */
   _onKeyDown(e) {
+    if (e.key === "Escape" && this.els.coordinatePreviewDropdown.open) {
+      this.els.coordinatePreviewDropdown.open = false;
+      e.preventDefault();
+      return;
+    }
     if (e.key === "Escape" && !this.els.mapLayerPanel.hidden) {
       this._setMapLayerPanelOpen(false);
       e.preventDefault();
@@ -6232,7 +6400,7 @@ class MapNavigatorApp {
     });
   }
 
-  /** With no waypoint selected, C copies the quick test line, else the planning start. */
+  /** With no waypoint selected, C copies quick-test endpoints, then the planning start, then a reference point. */
   _copyPlanningEndpoints() {
     const fmt = (endpoint) => `[${compactNumber(endpoint.position[0])}, ${compactNumber(endpoint.position[1])}]`;
     const test = this.state.mode === Mode.EDIT ? this.quickRouteTest : null;
@@ -6248,6 +6416,9 @@ class MapNavigatorApp {
       const start = this._activeEditPreviewStart();
       text = fmt(start);
       status = `📋 已复制规划起点: ${text}  (zone: ${start.positionZone})`;
+    } else if (this.state.mode === Mode.EDIT && this._editLocateHintForDisplay()) {
+      this._copyPreviewPoint("coordinates");
+      return;
     } else {
       setStatus("请先选中一个点再按 C 复制坐标。", "#f59e0b");
       return;
@@ -6955,6 +7126,8 @@ class MapNavigatorApp {
     e.positionReadout.hidden = logWorkspace;
     e.toolRouteTest.hidden = mode !== Mode.EDIT;
     e.toolEditStart.hidden = mode !== Mode.EDIT;
+    e.coordinatePreviewDropdown.hidden = mode !== Mode.EDIT;
+    e.coordinatePreviewDropdown.open = false;
     if (this.connection) this.connection.setSuspended(logWorkspace);
 
     e.panelRecording.hidden = true;

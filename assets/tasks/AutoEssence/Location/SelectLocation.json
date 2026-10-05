@@ -4,165 +4,165 @@
             "type": "select",
             "label": "$option.AutoEssenceSelectLocation.label",
             "description": "$option.AutoEssenceSelectLocation.description",
-            "default_case": "VFTheHub",
             "cases": [
                 {
                     "name": "VFTheHub",
                     "label": "$global.region.TheHub",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_VFTheHub"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_VFTheHub": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_VFTheHub"
-                    ]
+                    }
                 },
                 {
                     "name": "VFOriginiumSciencePark",
                     "label": "$global.region.OriginiumSciencePark",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_VFOriginiumSciencePark"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_VFOriginiumSciencePark": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_VFOriginiumSciencePark"
-                    ]
+                    }
                 },
                 {
                     "name": "VFOriginLodespring",
                     "label": "$global.region.OriginLodespring",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_VFOriginLodespring"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_VFOriginLodespring": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_VFOriginLodespring"
-                    ]
+                    }
                 },
                 {
                     "name": "VFPowerPlateau",
                     "label": "$global.region.PowerPlateau",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_VFPowerPlateau"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_VFPowerPlateau": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_VFPowerPlateau"
-                    ]
+                    }
                 },
                 {
                     "name": "WLWulingCity",
                     "label": "$global.region.WulingCity",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_WLWulingCity"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLWulingCity": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_WLWulingCity"
-                    ]
+                    }
                 },
                 {
                     "name": "WLQingboStockade",
                     "label": "$global.region.QingboStockade",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_WLQingboStockade"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLQingboStockade": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_WLQingboStockade"
-                    ]
+                    }
                 },
                 {
                     "name": "WLMarkerStone",
                     "label": "$global.region.MarkerStone",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_WLMarkerStone"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLMarkerStone": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_WLMarkerStone"
-                    ]
+                    }
                 },
                 {
                     "name": "WLTestArea",
                     "label": "$global.region.TestArea",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_WLTestArea"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLTestArea": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_WLTestArea"
-                    ]
+                    }
                 },
                 {
                     "name": "WLSwordVaultDale",
                     "label": "$global.region.SwordVaultDale",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_WLSwordVaultDale"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLSwordVaultDale": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_WLSwordVaultDale"
-                    ]
+                    }
                 },
                 {
                     "name": "WLYinglungPass",
                     "label": "$global.region.YinglungPass",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_WLYinglungPass"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLYinglungPass": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_WLYinglungPass"
-                    ]
+                    }
                 },
                 {
                     "name": "WLNorthWulingExclusionZone",
                     "label": "$global.region.NorthWulingExclusionZone",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_WLNorthWulingExclusionZone"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_WLNorthWulingExclusionZone"
-                    ]
+                    }
                 },
                 {
                     "name": "WLSnowyForest",
                     "label": "$global.region.SnowyForest",
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSecondary_WLSnowyForest"
+                    ],
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLSnowyForest": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceLocationSlot1",
-                        "AutoEssenceLocationSecondary_WLSnowyForest"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "VFTheHub"
         }
     }
 }

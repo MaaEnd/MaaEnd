@@ -19,11 +19,15 @@
 #include <windows.h>
 
 #include <bcrypt.h>
+#elif defined(__APPLE__)
+#include <stdlib.h>
+
+#include <CommonCrypto/CommonDigest.h>
 #endif
 
 #include <MaaUtils/Logger.h>
 
-#include "../utils.h"
+#include "../Common/output_paths.h"
 
 namespace zipline
 {
@@ -33,15 +37,15 @@ namespace
 
 constexpr size_t kMinUidDigits = 8;
 constexpr size_t kMaxUidDigits = 12;
+constexpr size_t kSaltBytes = 16;
 constexpr size_t kSha256Bytes = 32;
 constexpr size_t kAccountIdHexLength = 16;
 constexpr char kHexDigits[] = "0123456789abcdef";
 
 std::filesystem::path salt_path()
 {
-    // go-service 的工作目录是 <install>，其 debug/record/random_salt.txt 与这里从
-    // <install>/agent/cpp-algo.exe 锚定出来的是同一个文件。
-    return get_exe_dir() / ".." / "debug" / "record" / "random_salt.txt";
+    // 与 go-service 共用启动工作目录下的盐文件。
+    return common::OutputPath("debug/record/random_salt.txt");
 }
 
 std::string trim(std::string value)
@@ -66,6 +70,20 @@ std::string hex(const std::array<unsigned char, Size>& bytes)
     return out;
 }
 
+bool fill_random(std::array<unsigned char, kSaltBytes>& bytes)
+{
+#ifdef _WIN32
+    return BCryptGenRandom(nullptr, bytes.data(), static_cast<ULONG>(bytes.size()), BCRYPT_USE_SYSTEM_PREFERRED_RNG) >= 0;
+#elif defined(__APPLE__)
+    arc4random_buf(bytes.data(), bytes.size());
+    return true;
+#else
+    (void)bytes;
+    LogError << "ZiplineAccount: account hashing is unavailable on this platform";
+    return false;
+#endif
+}
+
 std::optional<std::string> load_or_create_salt()
 {
     const std::filesystem::path path = salt_path();
@@ -79,10 +97,8 @@ std::optional<std::string> load_or_create_salt()
         }
     }
 
-#ifdef _WIN32
-    constexpr size_t kSaltBytes = 16;
     std::array<unsigned char, kSaltBytes> bytes {};
-    if (BCryptGenRandom(nullptr, bytes.data(), static_cast<ULONG>(bytes.size()), BCRYPT_USE_SYSTEM_PREFERRED_RNG) < 0) {
+    if (!fill_random(bytes)) {
         LogError << "ZiplineAccount: failed to generate random salt";
         return std::nullopt;
     }
@@ -105,10 +121,6 @@ std::optional<std::string> load_or_create_salt()
         return std::nullopt;
     }
     return salt;
-#else
-    LogError << "ZiplineAccount: account hashing is unavailable on this platform";
-    return std::nullopt;
-#endif
 }
 
 std::optional<std::array<unsigned char, kSha256Bytes>> sha256(std::string_view input)
@@ -135,6 +147,10 @@ std::optional<std::array<unsigned char, kSha256Bytes>> sha256(std::string_view i
         LogError << "ZiplineAccount: SHA-256 failed";
         return std::nullopt;
     }
+    return digest;
+#elif defined(__APPLE__)
+    std::array<unsigned char, kSha256Bytes> digest {};
+    CC_SHA256(input.data(), static_cast<CC_LONG>(input.size()), digest.data());
     return digest;
 #else
     (void)input;

@@ -13,7 +13,9 @@
                 "any_of": [
                     "CloseButtonType1",
                     "ProtosyncMenuButton",
-                    "BackButton"
+                    "BackButton",
+                    "__ScenePrivateCloudBackPill",
+                    "__ScenePrivateCloudClickToContinue"
                 ]
             }
         },
@@ -31,5 +33,47 @@
             }
         },
         "post_delay": 600
+    },
+    // 面板右上角「← 返回」胶囊（如售卖弹性物资的好友价格页）：本地 ADB 靠 BACK 键退出，云终末地只能点它
+    // 复用 AutoSell 的安卓模板，只取识别框，点击由 __ScenePrivateAnyExit 负责
+    "__ScenePrivateCloudBackPill": {
+        "desc": "云终末地：面板右上角「← 返回」胶囊按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    900,
+                    0,
+                    380,
+                    187
+                ],
+                "template": [
+                    "AutoSell/FriendsPricesBack.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    // 底部「点击屏幕继续」的结算弹窗（如转交委托开始运送后的「获得调度券」）：画面上没有 X 和返回键，只能点它
+    "__ScenePrivateCloudClickToContinue": {
+        "desc": "云终末地：底部「点击屏幕继续」提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    440,
+                    630,
+                    400,
+                    90
+                ],
+                "expected": [
+                    "点击屏幕继续",
+                    "按任意處繼續",
+                    "(?i)Click\\s*to\\s*continue",
+                    "クリックして続行",
+                    "화면을 눌러 계속하기"
+                ]
+            }
+        }
     }
 }

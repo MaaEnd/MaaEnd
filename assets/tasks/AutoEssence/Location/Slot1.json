@@ -4,13 +4,6 @@
             "type": "checkbox",
             "label": "$option.AutoEssenceLocationSlot1.label",
             "description": "$option.AutoEssenceLocationSlot1.description",
-            "min_count": 3,
-            "max_count": 3,
-            "default_case": [
-                "s1_2",
-                "s1_3",
-                "s1_4"
-            ],
             "cases": [
                 {
                     "name": "s1_1",
@@ -210,7 +203,14 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": [
+                "s1_2",
+                "s1_3",
+                "s1_4"
+            ],
+            "min_count": 3,
+            "max_count": 3
         }
     }
 }

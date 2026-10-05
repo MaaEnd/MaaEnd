@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -147,7 +148,7 @@ func saveLabelDebugImage(label string, img image.Image, boxes []maa.Rect) {
 	if img == nil {
 		return
 	}
-	dir := filepath.Join("debug", "autofight_label")
+	dir := fsutil.OutputPath("debug", "autofight_label")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		log.Debug().Err(err).Str("component", "AutoFight").Str("dir", dir).Msg("failed to create debug dir for label image")
 		return

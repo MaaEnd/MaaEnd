@@ -33,6 +33,7 @@
         "action": {
             "type": "KeyDown",
             "param": {
+                "auto_up": true,
                 "key": 18 // Alt
             }
         },
@@ -61,7 +62,7 @@
         // 设备框内容淡入慢：实测点击后 0.79s 时按钮只有 0.53~0.65 认不出，1.28s 已到 0.97。
         // 等淡入结束再看，否则会落到兜底的关闭按钮上，框刚开就被关掉。
         "post_delay": 1000,
-        "timeout": 5000,
+        "timeout": 1000,
         "rate_limit": 500,
         "next": [
             "__MapNavigatorObstacleDevice_DeleteDevice",
@@ -244,13 +245,13 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 500,
             "target": [
                 520,
                 300,
                 240,
                 120
             ],
-            "time": 500,
             "timeout": 10000
         },
         "next": [
@@ -293,7 +294,7 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 300,
+        "post_delay": 600,
         "next": [
             "__MapNavigatorObstacleDevice_CancelMove"
         ]
@@ -340,13 +341,13 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 500,
             "target": [
                 520,
                 300,
                 240,
                 120
             ],
-            "time": 500,
             "timeout": 10000
         },
         "next": [

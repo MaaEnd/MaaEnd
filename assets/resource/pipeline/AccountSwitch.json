@@ -23,6 +23,7 @@
             }
         },
         "next": [
+            "[JumpBack]__ScenePrivateCloseLoginAnnouncement",
             "__AccountSwitchClickLogout",
             "__AccountSwitchAtLoginScreenDialogShow",
             "__AccountSwitchAtLoginScreen"

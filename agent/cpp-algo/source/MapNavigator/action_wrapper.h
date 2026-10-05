@@ -41,6 +41,9 @@ public:
     void MouseRightDownSync(int delay_millis);
     void MouseRightUpSync(int delay_millis);
 
+    void TriggerZiplineLaunchSync();
+    void TriggerZiplineDismountSync(int hold_millis);
+
     bool SendViewDeltaSync(int dx, int dy);
 
 private:

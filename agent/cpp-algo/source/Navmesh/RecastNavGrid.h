@@ -5,6 +5,7 @@
 #include <bit>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <optional>
 #include <unordered_set>
 #include <vector>
@@ -17,7 +18,9 @@ namespace navmesh::recast
 {
 
 inline constexpr double kCS = 0.25;             // 体素边长 px
-inline constexpr double kClimb = 3.0;           // 相邻格可连通最大高差 px
+inline constexpr double kClimb = 3.0;           // 相邻格可向上连通最大高差 px
+inline constexpr double kDrop = 1.0e9;          // 相邻格可向下连通最大落差 px, 角色无摔落伤害所以不设实际上限
+inline constexpr int64_t kSeamCells = 4;        // 下落前探格数: 出发那层在这么多格内回来即路面上一道缝
 inline constexpr double kSlope = 1.0;           // 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面
 inline constexpr double kStepUp = 0.5;          // 可直接迈上的台阶高 px, 是角色属性所以不跟体素边长挂钩
 inline constexpr double kBumpUp = 1.25;         // 跨过路面窄凸起/浅坑允许的抬升 px, 仅在落差不延伸时生效
@@ -128,6 +131,8 @@ struct SpanTable
     // 二分; 比逐格 4 字节的直查表小 30 倍。长度只到最大占用格, 表外一律当空格。
     std::vector<uint64_t> occ_bits;
     std::vector<int32_t> occ_rank;
+    // 台沿下落能不能跳: (出发格, 落点格, 出发高, 落点高)。空 = 不另判。
+    std::function<bool(int64_t, int64_t, float, float)> fall;
 
     int64_t nOcc() const { return cs.empty() ? 0 : static_cast<int64_t>(cs.size()) - 1; }
 
@@ -270,6 +275,19 @@ struct EdgeBits
         return loc >= 0 && (v[static_cast<size_t>(loc >> 3)] & (1U << (loc & 7))) != 0;
     }
 
+    // 已知 b = a + dy·gnx + dx 时直接查槽, 宽度不同就走 has。
+    bool hasStep(int64_t a, int64_t b, int64_t dx, int64_t dy, int64_t gnx) const
+    {
+        if (gnx != nx) {
+            return has(a, b);
+        }
+        const int8_t s = kEdgeSlot[static_cast<size_t>((dy + 1) * 3 + dx + 1)];
+        if (s < 0) {
+            return false;
+        }
+        return (v[static_cast<size_t>((s & 8) != 0 ? b : a)] & (1U << (s & 7))) != 0;
+    }
+
     bool empty() const { return !any; }
 };
 
@@ -365,6 +383,7 @@ class Visibility;
 // 返回值恒为逐格路径, 拓扑判据按格读。corners 非空则另交出父链本身, 那才是几何要走的折线。
 // out_cost 非空则交出终点的累计代价; 单价恒 ≥1, 它就是路径格长的上界, 小窗验收拿它判搜索有没有碰边。
 // jumps 非空则另按 span 级跳边松弛: 跳边不做弦的祖父、不验视线, 铺回格时也不插值。
+// give_up_at: 逐格展开时弹出的 f 够到它就按走不通返回。
 std::optional<std::vector<int64_t>> SpanAstar(
     const SpanTable& st,
     const std::vector<uint8_t>& ok,
@@ -378,7 +397,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const Visibility* vis = nullptr,
     std::vector<int64_t>* corners = nullptr,
     double* out_cost = nullptr,
-    const JumpEdges* jumps = nullptr);
+    const JumpEdges* jumps = nullptr,
+    double give_up_at = std::numeric_limits<double>::infinity());
 
 Mask MedialAxis(const Grid<float>& dist, double lam);
 
@@ -473,7 +493,8 @@ public:
     // h 取起点高度或一组可达高度
     std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, float h) const;
 
-    std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h) const;
+    // fall: 往下多深都放行, 接不上的格也不判失败, 只为标出台沿下落两侧的面高
+    std::optional<std::vector<float>> walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h, bool fall = false) const;
 
     bool ok(const WorldPoint& p, const WorldPoint& q, float h, float hq) const;
 

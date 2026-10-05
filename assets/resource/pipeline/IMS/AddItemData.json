@@ -27,13 +27,13 @@
             }
         },
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 528,
                 299,
                 222,
                 131
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },

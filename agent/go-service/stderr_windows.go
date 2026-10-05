@@ -7,11 +7,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"golang.org/x/sys/windows"
 )
 
 func redirectStderr() error {
-	debugDir := filepath.Join(".", "debug")
+	debugDir := fsutil.OutputPath("debug")
 	if err := os.MkdirAll(debugDir, 0755); err != nil {
 		return fmt.Errorf("mkdir debug: %w", err)
 	}

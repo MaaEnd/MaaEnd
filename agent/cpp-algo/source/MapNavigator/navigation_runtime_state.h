@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstddef>
+#include <deque>
 #include <limits>
 #include <optional>
 #include <string>
@@ -131,6 +132,18 @@ struct FindState
     }
 };
 
+struct TriggerState
+{
+    std::chrono::steady_clock::time_point last_probe_at {};
+    std::chrono::steady_clock::time_point wait_started_at {};
+
+    void Reset()
+    {
+        last_probe_at = {};
+        wait_started_at = {};
+    }
+};
+
 // Recovery ladder position (device removal -> jump -> navmesh detour -> physical unstick), keyed on the
 // corridor anchor the agent is stuck against. Top-level so a dynamic replan, which renumbers the path and
 // clears the DynamicRecoveryState episode, cannot rewind it; cleared only by a genuine escape, a waypoint
@@ -230,6 +243,16 @@ struct SteeringRateState
     double pending_turn_deg = 0.0;
     double pending_ref_heading_deg = 0.0;
 
+    // Sends still inside their own lifetime, kept when the transport can swallow a send. Each direction of the total
+    // above is bounded by its own sends; netting the two would cancel a fresh reversal.
+    struct InFlightTurn
+    {
+        double delta_deg = 0.0;
+        std::chrono::steady_clock::time_point sent_at {};
+    };
+
+    std::deque<InFlightTurn> in_flight;
+
     void Reset()
     {
         prev_heading_deg = 0.0;
@@ -243,6 +266,7 @@ struct SteeringRateState
         turn_latch_sign = 0;
         pending_turn_deg = 0.0;
         pending_ref_heading_deg = 0.0;
+        in_flight.clear();
     }
 };
 
@@ -253,13 +277,39 @@ struct OffRouteWedgeState
 {
     std::chrono::steady_clock::time_point since {};
     std::chrono::steady_clock::time_point last_replan_at {};
+    // First blind tick (localization loss, river-fall recovery) since the watchdog last ran. Those ticks return before
+    // the watchdog and cannot move route progress, so the next watchdog tick shifts `since` past the whole gap.
+    std::chrono::steady_clock::time_point blind_since {};
     double best_distance = std::numeric_limits<double>::max();
     bool active = false;
+
+    void PauseAt(const std::chrono::steady_clock::time_point& now)
+    {
+        if (active && blind_since == std::chrono::steady_clock::time_point {}) {
+            blind_since = now;
+        }
+    }
+
+    // Returns the blind milliseconds taken off the clock, zero when there was no pause.
+    int64_t ResumeAt(const std::chrono::steady_clock::time_point& now)
+    {
+        if (blind_since == std::chrono::steady_clock::time_point {}) {
+            return 0;
+        }
+        const auto blind = now - blind_since;
+        since += blind;
+        if (last_replan_at != std::chrono::steady_clock::time_point {}) {
+            last_replan_at += blind;
+        }
+        blind_since = {};
+        return std::chrono::duration_cast<std::chrono::milliseconds>(blind).count();
+    }
 
     void Reset()
     {
         since = {};
         last_replan_at = {};
+        blind_since = {};
         best_distance = std::numeric_limits<double>::max();
         active = false;
     }
@@ -406,6 +456,8 @@ struct NavigationRuntimeState
     CrossTierEscapeState cross_tier_escape;
     // FIND 的进度。按点计: 推进点位或重开导航就清, 步数预算与开始时刻都只属于当前这个 FIND 点
     FindState find;
+    // 只由 BeginNavigation 清, 推进点位不重置识别节拍
+    TriggerState trigger;
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
     // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
     ZiplineApproachState zipline_approach;
@@ -457,6 +509,7 @@ struct NavigationRuntimeState
         zipline_approach.Reset();
         zipline_recovery.Reset();
         find.Reset();
+        trigger.Reset();
         zipline_ride.ResetNavigation();
         virtual_no_go.clear();
         progress_identity.Reset();

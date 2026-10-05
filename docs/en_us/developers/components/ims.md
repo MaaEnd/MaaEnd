@@ -14,7 +14,7 @@ There are **2 recognitions + 3 actions**:
 
 Codes `A1` / `A2` / `A3` and `R1` / `R2` only reflect implementation order, not priority. **A2 was the second action written, but it is the core of IMS.**
 
-On-disk path: `./debug/record/IMS.json` (relative to the run directory).
+On-disk path: `debug/record/IMS.json` (relative to the working directory go-service was started in, resolved by `fsutil.OutputPath`).
 
 Cache keys and recognition IDs use [IconRecognition](./icon-recognition.md) catalog top-level keys (for example `item_char_break_stage_1_2`). Display names use `iconRecognition.name.*` only (interface locales, merged at go-service startup). Shop OCR writes `item_originium_recharge` (the pipeline node remains `ORIGEOMETRY_NUMBER`).
 
@@ -156,7 +156,7 @@ A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`,
 | Typical screen | Valuables (`valuables`) | Rewards popup (`rewards`) |
 | Establishes ready | Yes | No |
 
-If IMS was never initialized (`hasData=false`), A3 still recognizes and prints one HTML Focus summary, skips cache write, and returns success so Pipeline can close the rewards UI. An empty rewards grid (`no_match` / `grid_detection_failed`) and a failed disk hydrate are also considered a success: A3 must not block the close-rewards next node. Same-ID stacks are merged into one row in the summary (template `ims.add_item_summary`, with icons); no IMS init banner.
+If IMS was never initialized (`hasData=false`), A3 still recognizes and prints one HTML Focus summary, skips cache write, and returns success so Pipeline can close the rewards UI. An empty rewards grid (`no_match` / `grid_detection_failed`) and a failed disk hydrate are also considered a success. An IconRecognition `exception`, and a missing `recognition_items.json` while resolving `item_ids`, are logged and treated as an empty grid, so the close-rewards click still runs. Illegal parameters (unparseable JSON, empty or duplicate entries, unknown `item_id`) still fail the action. A3 must not block the close-rewards next node. Same-ID stacks are merged into one row in the summary (template `ims.add_item_summary`, with icons); no IMS init banner.
 
 > Use `pre_wait_freezes` on the reward area before A3. Reference: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
 

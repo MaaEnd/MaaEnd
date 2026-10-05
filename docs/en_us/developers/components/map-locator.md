@@ -38,11 +38,13 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 | `message` | Failure reason or debug information |
 | `mapName` | (On success) The localized zone name, e.g., `map01_lv001` |
 | `x` / `y` | (On success) Global pixel coordinates |
-| `rot` | (On success) Orientation yaw angle, 0°–360°, north as zero |
+| `rot` | Character orientation recognized in the current frame, in `[0°, 360°)`, north as zero; omitted when unavailable and may be present even when localization fails |
 | `camRot` | Camera orientation, 0°–360°, north as zero; carried only by frames with a successful localization (see [How Localization Works](#how-localization-works)). Unrelated to `rot` (the character orientation) |
-| `camRotConf` | Confidence of the camera orientation |
+| `camRotConf` | Confidence of the camera orientation; present or omitted together with `camRot` |
 | `locConf` | Confidence score of this hit, for reference when tuning parameters |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
+
+Successful localization does not guarantee an available orientation. Callers must check that the orientation fields they need are present.
 
 `status` values:
 
@@ -114,9 +116,9 @@ There are no optional parameters. The assertion always forces a global search an
 | `message` | Localization log or failure reason |
 | `zoneId` | The target zone name required by this assertion |
 | `x` / `y` | (On success) Global pixel coordinates returned by the locator |
-| `rot` | (On success) Orientation yaw angle |
+| `rot` | Character orientation, with the same semantics as `MapLocateRecognition` |
 | `camRot` | Camera orientation, same value and source as `camRot` in `MapLocateRecognition` |
-| `camRotConf` | Confidence of the camera orientation |
+| `camRotConf` | Confidence of the camera orientation; present or omitted together with `camRot` |
 | `locConf` | Confidence score of this hit |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 | `target` | Echoes the `[x, y, w, h]` rectangle used for this assertion |

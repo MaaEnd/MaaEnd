@@ -40,6 +40,7 @@
             "map": "map01",
             "route_node": "AutoDeliveryRouteDepotDomain1Lv007Depot1",
             "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv007Depot1WithZipline",
+            "walk_only": true,
             "retry_route_node": "AutoDeliveryRouteDepotRetryDomain1Lv007Depot1"
         },
         {
@@ -68,6 +69,7 @@
             "map": "map02",
             "route_node": "AutoDeliveryRouteDepotDomain2Lv005Depot1",
             "zip_route_node": "AutoDeliveryRouteDepotDomain2Lv005Depot1WithZipline",
+            "walk_only": true,
             "retry_route_node": "AutoDeliveryRouteDepotRetryDomain2Lv005Depot1"
         }
     ],
@@ -304,6 +306,7 @@
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00603",
             "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00603WithZipline",
+            "verify_name": true,
             "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00603"
         },
         {

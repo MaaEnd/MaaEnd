@@ -362,6 +362,15 @@ GridResult DetectGrid(const cv::Mat& image, const GridDetectOptions& options)
         options.lockedSegmentTolerance,
         result.minColWidth);
     std::vector<Segment> darkColSegments = DetectColsFromDarkSeparators(result.binary, options);
+    if (options.lockedColWidth <= 0 && !darkColSegments.empty()) {
+        darkColSegments = FilterSmallSegments(
+            darkColSegments,
+            options.minKeptSegmentRatio,
+            colSum.cols,
+            0,
+            options.lockedSegmentTolerance,
+            result.minColWidth);
+    }
     if (!darkColSegments.empty()) {
         colSegments = darkColSegments;
     }

@@ -6,12 +6,15 @@
 #include <mutex>
 #include <stdexcept>
 
+#include <MaaFramework/Instance/MaaContext.h>
 #include <MaaFramework/Utility/MaaBuffer.h>
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
+#include "../Common/output_paths.h"
 #include "../utils.h"
 #include "IconRecognizer.h"
+#include "detail/Attach.h"
 #include "detail/DebugCapture.h"
 #include "detail/GridProfiles.h"
 
@@ -90,7 +93,7 @@ IconRecognizer& GetRecognizer()
     static std::once_flag flag;
     static std::unique_ptr<IconRecognizer> recognizer;
     std::call_once(flag, [] {
-        recognizer = std::make_unique<IconRecognizer>(get_exe_dir() / ".." / "data" / "IconRecognition");
+        recognizer = std::make_unique<IconRecognizer>(get_install_dir() / "data" / "IconRecognition");
         recognizer->initialize();
     });
     return *recognizer;
@@ -132,7 +135,7 @@ void WriteDetail(MaaStringBuffer* buffer, const RecognitionResult& result)
 void SaveDebugCaptureBestEffort(const cv::Mat& image, const RecognitionResult& result, MaaTaskId task_id) noexcept
 {
     try {
-        const auto root = get_exe_dir() / ".." / "debug" / "vision" / "IconRecognition";
+        const auto root = common::OutputPath("debug/vision/IconRecognition");
         if (!detail::SaveDebugCapture(root, image, result, static_cast<std::uint64_t>(task_id))) {
             LogWarn << "IconRecognition debug capture failed" << VAR(task_id) << VAR(root);
         }
@@ -145,12 +148,43 @@ void SaveDebugCaptureBestEffort(const cv::Mat& image, const RecognitionResult& r
     }
 }
 
+void SaveVisionCaptureBestEffort(MaaContext* context, const MaaImageBuffer* image) noexcept
+{
+    if (context == nullptr || image == nullptr || MaaImageBufferIsEmpty(image)) {
+        return;
+    }
+    try {
+        // DirectHit 不生成 Vision draw，临时覆写为 1×1 ColorMatch 以触发截图保存。
+        MaaContextRunRecognition(
+            context,
+            "SubTaskExampleStepOne",
+            R"({
+                "SubTaskExampleStepOne": {
+                    "recognition": {
+                        "type": "ColorMatch",
+                        "param": {
+                            "roi": [0, 0, 1, 1],
+                            "method": 40,
+                            "lower": [0, 0, 0],
+                            "upper": [255, 255, 255],
+                            "connected": true,
+                            "count": 1
+                        }
+                    }
+                }
+            })",
+            image);
+    }
+    catch (...) {
+    }
+}
+
 } // namespace
 
 MaaBool MAA_CALL IconRecognitionRun(
     MaaContext* context,
     [[maybe_unused]] MaaTaskId task_id,
-    [[maybe_unused]] const char* node_name,
+    const char* node_name,
     [[maybe_unused]] const char* custom_recognition_name,
     const char* custom_recognition_param,
     const MaaImageBuffer* image,
@@ -176,7 +210,36 @@ MaaBool MAA_CALL IconRecognitionRun(
         if (!parsed || !parsed->is_object()) {
             throw std::invalid_argument("IconRecognition custom param must be a JSON object");
         }
-        const auto& object = parsed->as_object();
+        json::object data;
+        if (context != nullptr && node_name != nullptr && *node_name != '\0') {
+            ScopedStringBuffer buffer;
+            // 分配失败不能视为缺少 attach，否则会静默使用原参数。
+            if (buffer.Get() == nullptr) {
+                RecognitionResult result;
+                result.has_grid_type = false;
+                result.error_code = "exception";
+                result.message = "Failed to allocate IconRecognition node data buffer";
+                WriteDetail(out_detail, result);
+                LogError << "IconRecognition failed" << VAR(result.message);
+                return MAA_FALSE;
+            }
+            // 内联识别的 sub_name 不一定对应实体节点，此时没有 attach，仍使用传入的原参数。
+            if (MaaContextGetNodeData(context, node_name, buffer.Get())) {
+                const char* raw = MaaStringBufferGet(buffer.Get());
+                const auto parsed_data = raw == nullptr ? std::optional<json::value> {} : json::parse(raw);
+                if (!parsed_data || !parsed_data->is_object()) {
+                    RecognitionResult result;
+                    result.has_grid_type = false;
+                    result.error_code = "invalid_argument";
+                    result.message = "IconRecognition calling node data must be an object";
+                    WriteDetail(out_detail, result);
+                    LogError << "IconRecognition rejected invalid input" << VAR(result.message);
+                    return MAA_FALSE;
+                }
+                data = parsed_data->as_object();
+            }
+        }
+        const auto object = detail::ApplyAttach(parsed->as_object(), data);
         if (!object.contains("grid_type")) {
             throw std::invalid_argument("IconRecognition grid_type is required");
         }
@@ -205,6 +268,7 @@ MaaBool MAA_CALL IconRecognitionRun(
         request.deduplicate = ReadBool(object, "deduplicate", request.deduplicate);
         request.recognize_region_unavailable = ReadBool(object, "recognize_region_unavailable", request.recognize_region_unavailable);
         request.debug = debug;
+        SaveVisionCaptureBestEffort(context, image);
         RecognitionResult result = GetRecognizer().recognize(to_mat(image), request);
         if (debug) {
             SaveDebugCaptureBestEffort(to_mat(image), result, task_id);

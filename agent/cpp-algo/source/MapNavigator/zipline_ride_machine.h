@@ -15,8 +15,8 @@ class IZiplineObserver
 {
 public:
     virtual ~IZiplineObserver() = default;
-    virtual ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes) = 0;
-    // 判定角色在架上还是在地面。仅在上索确认期间调用: 一次调用要跑识别, 开销高于一帧定位
+    virtual ZiplineObservation Observe(const std::vector<ZiplineNodeRef>& hint_nodes, bool force_global_search) = 0;
+    // 判定角色在架上还是在地面。仅在上索与下索确认期间调用: 一次调用要跑识别, 开销高于一帧定位
     virtual MountVerdict CheckMounted() = 0;
     virtual void ResetTracking() = 0;
 };
@@ -78,8 +78,11 @@ private:
     void EnterStage(ZiplineStage stage, Clock::time_point now);
     int64_t StageElapsedMs(Clock::time_point now) const;
     void CommitRecord(HopOutcome outcome, Clock::time_point now);
+    void CommitFailedReturn(HopOutcome outcome, Clock::time_point now);
     std::vector<ZiplineNodeRef> KnownNodes() const;
-    double AimBiasDeg() const;
+    std::vector<double> NeighborOffsetsDeg() const;
+    double FirstShotAimBiasDeg() const;
+    double EscalatedAimBiasDeg(double wrong_bearing_deg) const;
 
     StageResult TickMounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult Remount(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
@@ -89,9 +92,10 @@ private:
     StageResult TickRiding(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult TickLanded(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult Classify(IZiplineObserver& observer, IZiplineActuator& actuator, Clock::time_point now);
-    StageResult TickDismounting(const ZiplineObservation& obs, IZiplineActuator& actuator);
+    StageResult TickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult FailAim(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
     StageResult StartDismount(IZiplineActuator& actuator, StageResult exit, Clock::time_point now);
+    StageResult ParkForReplan(const ZiplineNodeRef& tower, Clock::time_point now);
     StageResult Handoff(Clock::time_point now);
 
     ZiplineStage stage_ = ZiplineStage::Idle;
@@ -105,7 +109,9 @@ private:
     ZiplineNodeRef origin_;
     ZiplineNodeRef target_;
     double seed_elevation_deg_ = 0.0;
+    // 去程停点相对落点方位的偏置, 一跳内跨发射保留
     double aim_bias_deg_ = 0.0;
+    bool pitch_lowered_ = false;
     int pitch_tier_ = 0;
     bool returning_ = false;
     int hop_retry_count_ = 0;
@@ -123,13 +129,10 @@ private:
     bool riding_entered_ = false;
     std::optional<Clock::time_point> unknown_deadline_;
 
-    // 瞄准闭环: 一次只发一个批次, 等朝向读数跟上并稳定后再算剩余, 顺手估一次转向增益
-    std::optional<double> yaw_gain_;
+    // 瞄准闭环: 一次只发一个批次, 等朝向读数跟上并稳定后再算剩余
     std::optional<double> prev_heading_;
     int stable_heading_hits_ = 0;
     bool turn_pending_ = false;
-    double turn_ref_heading_ = 0.0;
-    double turn_cmd_deg_ = 0.0;
     Clock::time_point turn_sent_at_ {};
 
     int dismount_presses_ = 0;

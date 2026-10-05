@@ -20,7 +20,7 @@ const (
 )
 
 func isADBController(ctrl *maa.Controller) bool {
-	t, err := control.GetControlType(ctrl)
+	t, err := control.ResolveControlType(ctrl)
 	return err == nil && t == control.CONTROL_TYPE_ADB
 }
 

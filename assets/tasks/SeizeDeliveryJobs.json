@@ -2,9 +2,18 @@
     "task": [
         {
             "name": "SeizeDeliveryJobs",
-            "description": "$task.SeizeDeliveryJobs.description",
             "label": "$task.SeizeDeliveryJobs.label",
             "entry": "SeizeDeliveryJobsCheckOngoingJob",
+            "description": "$task.SeizeDeliveryJobs.description",
+            "group": [
+                "regional_development"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
+            ],
             "pipeline_override": {
                 "AutoDeliveryDeliveryMissionNotFound": {
                     "anchor": {
@@ -17,15 +26,6 @@
                 "SeizeDeliveryJobsRefreshLimit",
                 "SeizeDeliveryJobsCommissionSource",
                 "SeizeDeliveryJobsPostProcessing"
-            ],
-            "controller": [
-                "Linux-Gamescope",
-                "Linux-ScreenCast",
-                "Linux-Wlroots",
-                "Win32-Front"
-            ],
-            "group": [
-                "regional_development"
             ]
         }
     ],
@@ -40,8 +40,8 @@
                     "label": "$task.SeizeDeliveryJobsReward.inputs.Reward.label",
                     "default": "15.9",
                     "pipeline_type": "string",
-                    "pattern_msg": "$task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg",
-                    "verify": "^\\d+(\\.\\d+)?$"
+                    "verify": "^\\d+(\\.\\d+)?$",
+                    "pattern_msg": "$task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg"
                 }
             ],
             "pipeline_override": {
@@ -54,7 +54,6 @@
         },
         "SeizeDeliveryJobsCommissionSource": {
             "type": "select",
-            "default_case": "Unlimited",
             "label": "$task.SeizeDeliveryJobsCommissionSource.label",
             "cases": [
                 {
@@ -419,11 +418,11 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Unlimited"
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -449,17 +448,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsDeliveryPointWulingCity": {
             "type": "checkbox",
             "label": "$task.SeizeDeliveryJobsDeliveryPointWulingCity.label",
-            "default_case": [
-                "Owl",
-                "MaterialResearchInstitute",
-                "Observatory",
-                "TechProductionOffice"
-            ],
             "cases": [
                 {
                     "name": "Owl",
@@ -497,11 +491,16 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "Owl",
+                "MaterialResearchInstitute",
+                "Observatory",
+                "TechProductionOffice"
             ]
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointUnlimited": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -528,11 +527,11 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointAllUnlimited": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -562,11 +561,11 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointValleyIVUnlimited": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -594,11 +593,11 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsPostProcessing": {
             "type": "select",
-            "default_case": "Disable",
             "label": "$task.SeizeDeliveryJobsPostProcessing.label",
             "description": "$task.SeizeDeliveryJobsPostProcessing.description",
             "cases": [
@@ -651,13 +650,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Disable"
         },
         "SeizeDeliveryJobsPostDepartureRiskAcknowledgement": {
             "type": "switch",
             "label": "$task.AutoDeliveryRiskAcknowledgement.label",
             "description": "$task.AutoDeliveryRiskAcknowledgement.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No",
@@ -670,13 +669,13 @@
                 {
                     "name": "Yes"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsPostDeparturePreferZipline": {
             "type": "switch",
             "label": "$task.AutoDeliveryPreferZipline.label",
             "description": "$task.AutoDeliveryPreferZipline.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No",
@@ -708,7 +707,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsRefreshLimit": {
             "type": "input",
@@ -731,7 +731,6 @@
         },
         "SeizeDeliveryJobsRepeatCount": {
             "type": "select",
-            "default_case": "3",
             "label": "$task.SeizeDeliveryJobsRepeatCount.label",
             "description": "$task.SeizeDeliveryJobsRepeatCount.description",
             "cases": [
@@ -762,11 +761,11 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "3"
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointTestArea": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -792,16 +791,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsDeliveryPointTestArea": {
             "type": "checkbox",
             "label": "$task.SeizeDeliveryJobsDeliveryPointTestArea.label",
-            "default_case": [
-                "No1TypeCAnchorArea",
-                "No3TypeCAnchorArea",
-                "JingweiFieldArea"
-            ],
             "cases": [
                 {
                     "name": "No1TypeCAnchorArea",
@@ -830,11 +825,15 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "No1TypeCAnchorArea",
+                "No3TypeCAnchorArea",
+                "JingweiFieldArea"
             ]
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointOriginiumSciencePark": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -860,18 +859,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsDeliveryPointOriginiumSciencePark": {
             "type": "checkbox",
             "label": "$task.SeizeDeliveryJobsDeliveryPointOriginiumSciencePark.label",
-            "default_case": [
-                "DeliverTargetMap01Lv00501",
-                "DeliverTargetMap01Lv00502",
-                "DeliverTargetMap01Lv00503",
-                "DeliverTargetMap01Lv005Recycle02",
-                "DeliverTargetMap01Lv005Recycle03"
-            ],
             "cases": [
                 {
                     "name": "DeliverTargetMap01Lv00501",
@@ -918,11 +911,17 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "DeliverTargetMap01Lv00501",
+                "DeliverTargetMap01Lv00502",
+                "DeliverTargetMap01Lv00503",
+                "DeliverTargetMap01Lv005Recycle02",
+                "DeliverTargetMap01Lv005Recycle03"
             ]
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointOriginLodespring": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -948,18 +947,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsDeliveryPointOriginLodespring": {
             "type": "checkbox",
             "label": "$task.SeizeDeliveryJobsDeliveryPointOriginLodespring.label",
-            "default_case": [
-                "DeliverTargetMap01Lv00601",
-                "DeliverTargetMap01Lv00602",
-                "DeliverTargetMap01Lv00603",
-                "DeliverTargetMap01Lv006Recycle01",
-                "DeliverTargetMap01Lv006Recycle03"
-            ],
             "cases": [
                 {
                     "name": "DeliverTargetMap01Lv00601",
@@ -1006,11 +999,17 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "DeliverTargetMap01Lv00601",
+                "DeliverTargetMap01Lv00602",
+                "DeliverTargetMap01Lv00603",
+                "DeliverTargetMap01Lv006Recycle01",
+                "DeliverTargetMap01Lv006Recycle03"
             ]
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointPowerPlateau": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -1036,18 +1035,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsDeliveryPointPowerPlateau": {
             "type": "checkbox",
             "label": "$task.SeizeDeliveryJobsDeliveryPointPowerPlateau.label",
-            "default_case": [
-                "DeliverTargetMap01Lv00701",
-                "DeliverTargetMap01Lv00702",
-                "DeliverTargetMap01Lv00703",
-                "DeliverTargetMap01Lv007Recycle02",
-                "DeliverTargetMap01Lv007Recycle03"
-            ],
             "cases": [
                 {
                     "name": "DeliverTargetMap01Lv00701",
@@ -1094,6 +1087,13 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "DeliverTargetMap01Lv00701",
+                "DeliverTargetMap01Lv00702",
+                "DeliverTargetMap01Lv00703",
+                "DeliverTargetMap01Lv007Recycle02",
+                "DeliverTargetMap01Lv007Recycle03"
             ]
         }
     }

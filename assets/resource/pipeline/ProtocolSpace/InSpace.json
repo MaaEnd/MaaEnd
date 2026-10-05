@@ -682,7 +682,8 @@
             "ProtocolSpaceReward"
         ],
         "focus": {
-            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.open_reward"
+            "Node.Action.Succeeded": "$task.ProtocolSpace.focus.open_reward",
+            "Node.PipelineNode.Failed": "$task.Keymap.focus.interact_failed"
         }
     },
     "ProtocolSpaceReward": {
@@ -849,7 +850,7 @@
         "inverse": true,
         "next": [
             "ProtocolSpaceRewardClaimRestoreSanityUseMedication",
-            "ProtocolSpaceSanityLowExitToWorld"
+            "ProtocolSpaceRewardClaimRestoreSanityNoMedication"
         ]
     },
     "ProtocolSpaceRewardClaimRestoreSanityUseMedication": {
@@ -857,12 +858,80 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "ProtocolSpaceSanityLowExitToWorld",
+            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "ProtocolSpaceRewardClaimRestoreSanityNoMedication",
             "AutoUseSpMedicationInPrepareFinishUseAnchor": "ProtocolSpaceRewardClaim"
         },
         "post_delay": 0,
         "next": [
             "AutoUseSpMedicationInPrepareWithAnchor"
+        ]
+    },
+    "ProtocolSpaceRewardClaimRestoreSanityNoMedication": {
+        "desc": "理智不足且未补充理智：双倍模式回退单倍领取，否则收工",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceRewardFallbackSingle",
+            "ProtocolSpaceSanityLowExitToWorld"
+        ]
+    },
+    "ProtocolSpaceRewardFallbackSingle": {
+        "desc": "双倍领取理智不足，切换为不使用许可的单倍领取（默认关闭；仅双倍领取选项启用）",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceRewardDontUsePermit"
+        ],
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardFallbackSingleClaim"
+        ]
+    },
+    "ProtocolSpaceRewardFallbackSingleClaim": {
+        "desc": "回退单倍后点击领取",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardFallbackSingleRestoreSanity",
+            "ProtocolSpaceRewardClaimSuccess"
+        ]
+    },
+    "ProtocolSpaceRewardFallbackSingleRestoreSanity": {
+        "desc": "单倍领取仍理智不足，关闭恢复理智窗口后收工",
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationDialogText",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -400,
+                    100,
+                    400,
+                    260
+                ],
+                "template": "Common/Button/CloseButtonType4.png"
+            }
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardFallbackSingleRestoreSanityDisappear"
+        ]
+    },
+    "ProtocolSpaceRewardFallbackSingleRestoreSanityDisappear": {
+        "desc": "确认恢复理智窗口已关闭",
+        "recognition": "And",
+        "all_of": [
+            "AutoUseSpMedicationDialogText"
+        ],
+        "inverse": true,
+        "next": [
+            "ProtocolSpaceSanityLowExitToWorld"
         ]
     },
     "ProtocolSpaceSanityLowExitToWorld": {
@@ -894,13 +963,13 @@
             "보상 획득"
         ],
         "pre_wait_freezes": {
+            "time": 200,
             "target": [
                 300,
                 250,
                 750,
                 200
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "ProtocolSpaceRewardAddItemData",
@@ -911,13 +980,13 @@
         "desc": "协议空间领取奖励后：等奖励区静止（弹出动画结束），再 IMS A3 累加培养道具数量",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 528,
                 299,
                 222,
                 131
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },

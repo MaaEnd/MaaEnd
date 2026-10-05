@@ -15,8 +15,9 @@ namespace mapnavigator
 class PositionProvider
 {
 public:
-    PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator);
+    PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator, HeadingSource heading_source);
 
+    // Succeeds only when both position and the configured heading are usable.
     // search_hints: 调用方知道人大概在哪时（滑索落点等）交给定位器多搜几个小窗，见 SearchHint。
     bool Capture(
         NaviPosition* out_pos,
@@ -46,6 +47,7 @@ public:
 private:
     MaaController* controller_;
     std::shared_ptr<maplocator::MapLocator> locator_;
+    const HeadingSource heading_source_;
     std::function<void(NaviPosition&)> position_normalizer_;
     std::function<void(const cv::Mat&)> frame_observer_;
     bool uses_adb_minimap_roi_ = false;

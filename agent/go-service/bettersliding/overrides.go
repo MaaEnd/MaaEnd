@@ -75,16 +75,17 @@ func buildResetSwipeOverride(direction string, enabled bool) (map[string]any, er
 	}, nil
 }
 
+// buildMainInitializationOverride 把参数补丁落到各自 Helper 节点：
+// 补丁只写 recognition.param，不写 type，框架按「同类型继承」保留原节点类型与未提及字段。
+// 空补丁表示该参数未配置，不产生 override。
 func buildMainInitializationOverride(
 	end []int,
-	sliderQuantityBox []int,
-	availableQuantityBox []int,
+	swipeButtonPatch map[string]any,
+	sliderQuantityPatch map[string]any,
+	sliderQuantityFilterPatch map[string]any,
+	availableQuantityPatch map[string]any,
+	availableQuantityFilterPatch map[string]any,
 	availableQuantityExplicit bool,
-	sliderQuantityFilter *quantityFilterParam,
-	availableQuantityFilter *quantityFilterParam,
-	sliderQuantityOnlyRec bool,
-	availableQuantityOnlyRec bool,
-	swipeButton string,
 ) map[string]any {
 	override := map[string]any{
 		nodeBetterSlidingSwipeToMax: map[string]any{
@@ -99,66 +100,26 @@ func buildMainInitializationOverride(
 		},
 	}
 
-	if swipeButton != "" {
-		override[nodeBetterSlidingSwipeButton] = map[string]any{
-			"recognition": map[string]any{
-				"param": map[string]any{
-					"template":   []string{swipeButton},
-					"green_mask": defaultGreenMask,
-				},
-			},
-		}
+	if len(swipeButtonPatch) > 0 {
+		override[nodeBetterSlidingSwipeButton] = buildRecognitionParamOverride(swipeButtonPatch)
 	}
 
-	if len(sliderQuantityBox) == 0 {
-		return override
+	if len(sliderQuantityFilterPatch) > 0 {
+		override[nodeBetterSlidingSliderQuantityFilter] = buildRecognitionParamOverride(sliderQuantityFilterPatch)
 	}
 
-	sliderQuantityParam := map[string]any{
-		"roi":      append([]int(nil), sliderQuantityBox...),
-		"only_rec": sliderQuantityOnlyRec,
-	}
-	if sliderQuantityFilter != nil {
-		sliderQuantityParam["color_filter"] = nodeBetterSlidingSliderQuantityFilter
-		override[nodeBetterSlidingSliderQuantityFilter] = map[string]any{
-			"recognition": map[string]any{
-				"param": map[string]any{
-					"method": sliderQuantityFilter.Method,
-					"lower":  [][]int{append([]int(nil), sliderQuantityFilter.Lower...)},
-					"upper":  [][]int{append([]int(nil), sliderQuantityFilter.Upper...)},
-				},
-			},
-		}
+	if len(sliderQuantityPatch) > 0 {
+		override[nodeBetterSlidingGetSliderQuantity] = buildRecognitionParamOverride(sliderQuantityPatch)
 	}
 
-	override[nodeBetterSlidingGetSliderQuantity] = map[string]any{
-		"recognition": map[string]any{
-			"param": sliderQuantityParam,
-		},
+	if len(availableQuantityFilterPatch) > 0 {
+		override[nodeBetterSlidingAvailableQuantityFilter] = buildRecognitionParamOverride(availableQuantityFilterPatch)
 	}
 
 	if availableQuantityExplicit {
-		availableQuantityParam := map[string]any{
-			"roi":      append([]int(nil), availableQuantityBox...),
-			"only_rec": availableQuantityOnlyRec,
-		}
-		if availableQuantityFilter != nil {
-			availableQuantityParam["color_filter"] = nodeBetterSlidingAvailableQuantityFilter
-			override[nodeBetterSlidingAvailableQuantityFilter] = map[string]any{
-				"recognition": map[string]any{
-					"param": map[string]any{
-						"method": availableQuantityFilter.Method,
-						"lower":  [][]int{append([]int(nil), availableQuantityFilter.Lower...)},
-						"upper":  [][]int{append([]int(nil), availableQuantityFilter.Upper...)},
-					},
-				},
-			}
-		}
 		override[nodeBetterSlidingGetAvailableQuantity] = map[string]any{
-			"enabled": true,
-			"recognition": map[string]any{
-				"param": availableQuantityParam,
-			},
+			"enabled":     true,
+			"recognition": map[string]any{"param": availableQuantityPatch},
 		}
 	} else {
 		override[nodeBetterSlidingGetAvailableQuantity] = map[string]any{
@@ -169,7 +130,75 @@ func buildMainInitializationOverride(
 	return override
 }
 
-func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int) map[string]any {
+func buildRecognitionParamOverride(patch map[string]any) map[string]any {
+	return map[string]any{
+		"recognition": map[string]any{
+			"param": patch,
+		},
+	}
+}
+
+// 坐标基准与 Pipeline 一致：720p
+const (
+	screenWidth  = 1280
+	screenHeight = 720
+)
+
+// buttonPlacement 把 Increase/Decrease 的模板匹配限定在滑条所在的那一行（列），并按轴向排序后
+// 取靠终点（Increase）或靠起点（Decrease）的那一个，不按分数挑：
+// 移动端「+」「−」都是白色圆形按钮，只差中间一笔，按分数常把「−」当成「+」
+type buttonPlacement struct {
+	roi     []int
+	orderBy string
+	index   int
+}
+
+// resolveButtonPlacement 由起点框与滑动方向推出按钮的筛选方式；方向未知或起点缺失时返回 nil，保持按分数匹配。
+// 「right」「up」时终点在右 / 上，「left」「down」时在左 / 下（与 buildSwipeEnd 一致）
+func resolveButtonPlacement(startBox []int, direction string, increase bool) *buttonPlacement {
+	if len(startBox) < 4 {
+		return nil
+	}
+	towardEndIsFirst := false
+	horizontal := true
+	switch direction {
+	case "right":
+	case "left":
+		towardEndIsFirst = true
+	case "up":
+		horizontal = false
+		towardEndIsFirst = true
+	case "down":
+		horizontal = false
+	default:
+		return nil
+	}
+
+	pickFirst := towardEndIsFirst == increase
+	index := -1
+	if pickFirst {
+		index = 0
+	}
+	if horizontal {
+		pad := startBox[3]
+		return &buttonPlacement{
+			roi:     []int{0, startBox[1] - pad, screenWidth, startBox[3] + 2*pad},
+			orderBy: "Horizontal",
+			index:   index,
+		}
+	}
+	pad := startBox[2]
+	return &buttonPlacement{
+		roi:     []int{startBox[0] - pad, 0, startBox[2] + 2*pad, screenHeight},
+		orderBy: "Vertical",
+		index:   index,
+	}
+}
+
+// buildCheckQuantityBranchOverride 把按钮补丁与位置筛选一起落到 Helper 节点。
+// placement 非空时由 resolveButtonPlacement 补上 roi / order_by / index，
+// 让「+」「−」在方向已知时按端点一侧挑选，而不是按分数挑。
+func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int, placement *buttonPlacement) map[string]any {
 	if nextNode != nodeBetterSlidingIncreaseQuantity && nextNode != nodeBetterSlidingDecreaseQuantity {
 		return map[string]any{}
 	}
@@ -178,9 +207,9 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 
 	repeat = clampClickRepeat(repeat)
 
-	if target.template != "" {
+	if len(target.patch) > 0 {
 		helperNode := resolveButtonHelperNode(nextNode)
-		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.template)
+		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.patch, placement)
 		override[nextNode] = buildTemplateMatchButtonOverride(helperNode, repeat)
 		return override
 	}
@@ -197,8 +226,15 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 	return override
 }
 
-func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int) error {
-	if override := buildCheckQuantityBranchOverride(nextNode, target, repeat); len(override) > 0 {
+func overrideCheckQuantityBranch(
+	ctx *maa.Context,
+	currentNode string,
+	nextNode string,
+	target buttonTarget,
+	repeat int,
+	placement *buttonPlacement,
+) error {
+	if override := buildCheckQuantityBranchOverride(nextNode, target, repeat, placement); len(override) > 0 {
 		if err := ctx.OverridePipeline(override); err != nil {
 			return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
 		}
@@ -229,13 +265,32 @@ func buildNodeEnableOverride(nodeName string, enabled bool) map[string]any {
 	}
 }
 
-func buildTemplateMatchButtonHelperOverride(template string) map[string]any {
+// buildTemplateMatchButtonHelperOverride 把按钮识别参数补丁落到 Helper 节点。
+// green_mask 由调用方在 normalize 阶段注入，这里只透传补丁本身。
+// placement 非空时补上补丁未声明的 roi / order_by / index，把匹配限定在滑条所在行（列）
+// 的端点一侧：移动端「+」「−」都是白色圆形按钮，只差中间一笔，按分数常把「−」当成「+」。
+// 补丁里显式写死的字段以调用方配置为准，不覆盖。
+func buildTemplateMatchButtonHelperOverride(patch map[string]any, placement *buttonPlacement) map[string]any {
+	param := make(map[string]any, len(patch)+3)
+	for key, value := range patch {
+		param[key] = value
+	}
+
+	if placement != nil {
+		if _, has := param["roi"]; !has {
+			param["roi"] = append([]int(nil), placement.roi...)
+		}
+		if _, has := param["order_by"]; !has {
+			param["order_by"] = placement.orderBy
+		}
+		if _, has := param["index"]; !has {
+			param["index"] = placement.index
+		}
+	}
+
 	return map[string]any{
 		"recognition": map[string]any{
-			"param": map[string]any{
-				"template":   []string{template},
-				"green_mask": defaultGreenMask,
-			},
+			"param": param,
 		},
 	}
 }

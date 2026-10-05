@@ -73,7 +73,7 @@ bool ZiplineFrame::accepts(const ZiplineMark& mark) const
 
 std::filesystem::path ZiplineFrames::DefaultPath()
 {
-    return get_exe_dir() / ".." / kFramesRelativePath;
+    return get_install_dir() / kFramesRelativePath;
 }
 
 bool ZiplineFrames::load(const std::filesystem::path& path)

@@ -66,7 +66,7 @@ target_include_directories(cpp-algo
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${MAA_PRIVATE_INC} ${MAA_PUBLIC_INC})
 
 target_link_libraries(cpp-algo
-    PRIVATE icon-recognition-core grid-tracker MaaUtils MaaFramework::MaaToolkit MaaAgentServer::MaaAgentServer
+    PRIVATE icon-recognition-core grid-tracker MaaUtils MaaAgentServer::MaaAgentServer
     PRIVATE Boost::system ${OpenCV_LIBS} ONNXRuntime::ONNXRuntime ZLIB::ZLIB)
 
 if(LINUX)
@@ -91,6 +91,17 @@ if(WIN32)
 
     install(IMPORTED_RUNTIME_ARTIFACTS WebView2::WebView2
         RUNTIME DESTINATION agent)
+endif()
+
+if(APPLE)
+    set(cpp_algo_objcxx_src
+        ${CMAKE_CURRENT_SOURCE_DIR}/Common/MacAppHost.mm
+        ${CMAKE_CURRENT_SOURCE_DIR}/Common/WebKitWindow.mm
+    )
+    target_sources(cpp-algo PRIVATE ${cpp_algo_objcxx_src})
+    set_source_files_properties(${cpp_algo_objcxx_src} PROPERTIES COMPILE_OPTIONS -fobjc-arc)
+    target_link_libraries(cpp-algo PRIVATE "-framework Cocoa" "-framework WebKit")
+    target_compile_definitions(cpp-algo PRIVATE MAAEND_HAVE_WEBKIT)
 endif()
 
 add_dependencies(cpp-algo MaaUtils)

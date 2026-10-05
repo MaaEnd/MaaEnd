@@ -63,6 +63,25 @@
             270
         ]
     },
+    "AutoDeliveryCheckSubmitGoodsName": {
+        "roi": [
+            720,
+            349,
+            240,
+            270
+        ]
+    },
+    "AutoDeliveryCheckSubmitGoodsTarget": {
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                720,
+                349,
+                240,
+                270
+            ]
+        }
+    },
     "AutoDeliveryScrollMissionList": {
         "post_wait_freezes": {
             "time": 300,

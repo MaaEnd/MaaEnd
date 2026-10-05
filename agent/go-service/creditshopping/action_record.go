@@ -35,7 +35,8 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 
 	var imgForMeta image.Image
 	var slots []SlotRecord
-	if isADBController(ctrl) {
+	adb := isADBController(ctrl)
+	if adb {
 		first, err := screencap(ctrl)
 		if err != nil {
 			log.Error().Err(err).Str("component", component).Msg("record shelf adb: screencap failed")
@@ -74,7 +75,7 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		Int("refresh_index", refreshIndex).
 		Int("refresh_cost", refreshCost).
 		Int("slots", len(slots)).
-		Bool("adb", isADBController(ctrl)).
+		Bool("adb", adb).
 		Msg("credit shopping shelf snapshot captured")
 
 	n, err := upsertShelfSnapshots(path, []snapshotEntry{entry})

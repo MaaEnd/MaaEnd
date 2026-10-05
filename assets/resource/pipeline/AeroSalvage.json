@@ -70,7 +70,7 @@
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType1",
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 0,
         "pre_delay": 0,

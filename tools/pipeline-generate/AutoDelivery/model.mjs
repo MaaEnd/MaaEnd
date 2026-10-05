@@ -37,6 +37,8 @@ function readRouteModeFlag(value, label, key) {
 // walk_only 与 zipline_only 是对同一条主路线滑索策略的两个相反约束：
 // walk_only 在用户启用滑索时仍走作者录制的步行路线；zipline_only 表示步行根本到不了，
 // 用户选择步行时运行时必须报错而不是静默退化成一条走不通的路线。两者同时声明无解。
+// 两个标记随运行时目录交给 Go，在分发路线节点时生效；生成节点上的 zip 保持各自的节点语义，
+// 所以映射条目必须带上标记，Go 才发现得了这条路线不能用滑索变体。
 function readRouteMode(override, label) {
     const walkOnly = readRouteModeFlag(override?.walk_only, label, "walk_only");
     const ziplineOnly = readRouteModeFlag(override?.zipline_only, label, "zipline_only");
@@ -69,6 +71,22 @@ function readOffset(value, label) {
     }
     if (value[0] === 0 && value[1] === 0) {
         throw new Error(`[AutoDelivery] ${label}.offset 是全零偏移，没有作用对象`);
+    }
+    return value;
+}
+
+// 交货图标模板只有十几像素，目标周围还有别的角色时，图标匹配可能命中别人的交互提示。
+// verify_name 让到达判定额外复核交互提示中的角色名，只有提示里出现该终点的名称才算到位；
+// 提示文本随游戏语言变化，运行时用目录里的五语言名称匹配。
+function readVerifyName(value, label, kind) {
+    if (value === undefined) {
+        return false;
+    }
+    if (typeof value !== "boolean") {
+        throw new TypeError(`[AutoDelivery] ${label}.verify_name 必须是布尔值`);
+    }
+    if (value && kind !== "npc") {
+        throw new Error(`[AutoDelivery] ${label}.verify_name 只支持 NPC 终点，${kind} 终点的交互提示不显示终点名称`);
     }
     return value;
 }
@@ -348,6 +366,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
         const override = destinationOverrides.get(id);
         assertAutoGenerationOverrideUsed(override, `终点 ${id}`);
         const {walkOnly, ziplineOnly} = readRouteMode(override, `终点 ${id}`);
+        const verifyName = readVerifyName(override?.verify_name, `终点 ${id}`, source.kind);
         const yaw = readYawOverride(override?.yaw, `终点 ${id}`);
         const offset = readOffset(override?.offset, `终点 ${id}`);
         const withApproachPoint = source.kind === "recycle_bin";
@@ -397,6 +416,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             retryPath,
             walkOnly,
             ziplineOnly,
+            verifyName,
             routeNode: buildRouteNode("Destination", id),
             zipRouteNode: buildRouteNode("Destination", id, true),
             retryRouteNode: buildRouteNode("DestinationRetry", id),
@@ -424,6 +444,7 @@ export const runtimeCatalog = {
         map: item.map,
         route_node: item.routeNode,
         zip_route_node: item.zipRouteNode,
+        ...(item.walkOnly ? {walk_only: true} : {}),
         ...(item.ziplineOnly ? {zipline_only: true} : {}),
         ...(item.retryRouteNode ? {retry_route_node: item.retryRouteNode} : {}),
     })),
@@ -437,7 +458,9 @@ export const runtimeCatalog = {
         area: item.area,
         route_node: item.routeNode,
         zip_route_node: item.zipRouteNode,
+        ...(item.walkOnly ? {walk_only: true} : {}),
         ...(item.ziplineOnly ? {zipline_only: true} : {}),
+        ...(item.verifyName ? {verify_name: true} : {}),
         ...(item.retryRouteNode ? {retry_route_node: item.retryRouteNode} : {}),
     })),
 };

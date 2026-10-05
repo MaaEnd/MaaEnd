@@ -185,13 +185,13 @@
             }
         },
         "pre_wait_freezes": {
+            "time": 800,
             "target": [
                 70,
                 80,
                 70,
                 60
             ],
-            "time": 800,
             "timeout": 2000
         },
         "pre_delay": 0,
@@ -335,13 +335,13 @@
         "action": "LongPress",
         "duration": 2000,
         "post_wait_freezes": {
+            "time": 400,
             "target": [
                 -100,
                 0,
                 100,
                 100
-            ],
-            "time": 400
+            ]
         }
     },
     "__ScenePrivateMapFilterClear": {
@@ -354,6 +354,7 @@
             120
         ],
         "template": "SceneManager/MapFilterNotChoose.png",
+        "threshold": 0.8,
         "action": "Click",
         "post_wait_freezes": 200,
         "next": [

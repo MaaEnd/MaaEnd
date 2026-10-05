@@ -59,6 +59,8 @@ struct NavmeshExpansionState
     navmesh::WorldPoint route_start;
     // 起点站在哪张面的证据，是 route_start 的伴生字段。只有整条链的头一腿能拿到它。
     std::optional<double> route_start_floor_y;
+    // 起点站着的那层的确切高度(人留在滑索架上换路时就是那根架子那层), 同样只属于头一腿。
+    std::optional<double> route_start_deck_y;
     std::string current_zone;
     std::string navmesh_zone;
     // 某一腿被虚拟禁区判掉。终态: 整条展开到此为止, 回放作者提示也只会再撞同一块禁区。
@@ -72,6 +74,7 @@ struct NavmeshExpansionState
     {
         route_start = point;
         route_start_floor_y.reset();
+        route_start_deck_y.reset();
     }
 };
 
@@ -231,8 +234,8 @@ std::optional<std::filesystem::path> FindExistingFromParents(const std::filesyst
 std::filesystem::path ResolveNavmeshFile(const std::string& configured_path)
 {
     std::error_code ec;
-    const std::filesystem::path exe_dir = get_exe_dir();
-    const std::filesystem::path navmesh_dir = exe_dir / ".." / "resource" / "model" / "map" / "navmesh";
+    const std::filesystem::path install_dir = get_install_dir();
+    const std::filesystem::path navmesh_dir = install_dir / "resource" / "model" / "map" / "navmesh";
 
     if (!configured_path.empty()) {
         const std::filesystem::path configured = MAA_NS::path(configured_path);
@@ -243,7 +246,7 @@ std::filesystem::path ResolveNavmeshFile(const std::string& configured_path)
         // CWD-walk for dev. If it exists nowhere, we intentionally return the exe-anchored path rather
         // than the bare relative one so a not-found diagnostic names the deployed location instead of a
         // CWD-relative path that only resolves in dev.
-        const std::filesystem::path anchored = exe_dir / ".." / configured;
+        const std::filesystem::path anchored = install_dir / configured;
         if (std::filesystem::exists(anchored, ec) && !ec) {
             return anchored;
         }
@@ -461,7 +464,8 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     const std::vector<VirtualNoGoDisc>* no_go = nullptr,
     float goal_floor_y = navmesh::kBaseNavFloorYNone,
     std::optional<double> goal_deck_y = std::nullopt,
-    std::optional<double> start_floor_y = std::nullopt)
+    std::optional<double> start_floor_y = std::nullopt,
+    std::optional<double> start_deck_y = std::nullopt)
 {
     navmesh::BaseNavRouteRequest request;
     request.zone_name = navmesh_zone;
@@ -479,13 +483,16 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     if (goal_deck_y) {
         request.goal_deck_y = static_cast<float>(*goal_deck_y);
     }
+    if (start_deck_y) {
+        request.start_deck_y = static_cast<float>(*start_deck_y);
+    }
     // Per-endpoint floor: the start snaps onto the live locator tier's floor; the goal snaps onto its own
     // declared frame's floor when the caller supplies one (cross-tier targets), otherwise the same start
     // floor (legacy single-floor behavior). A geometry / base / unknown zone yields the sentinel ->
     // floor-blind, byte-identical to the pre-floor behavior. Mirrors the python tool's floor_y_for(tier).
     //
-    // 起点高度只在调用方确实知道角色站在哪一层时才覆盖 —— 目前唯一的来源是滑索下索点，
-    // 它的高度是导入数据里带来的逐点真值。不传就还是按 zone 的主层走，逐位不变。
+    // 起点高度只在调用方确实知道角色站在哪一层时才覆盖 —— 来源是滑索下索点与运行中重规划时
+    // 人正走着的那段规划线。不传就还是按 zone 的主层走，逐位不变。
     const float zone_floor_y = pack.floorYForZoneName(locator_zone);
     request.start_floor_y = start_floor_y ? static_cast<float>(*start_floor_y) : zone_floor_y;
     // 终点兜底取 zone 主层而不是跟着起点走：起点被覆盖时那是「角色站在哪」，与终点该落在哪无关。
@@ -565,6 +572,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
         start_floor,
         goal_floor,
         request.goal_deck_y,
+        request.start_deck_y,
         request.no_go_discs,
         should_stop);
     result.gap_start = plan.debug.gap_start;
@@ -594,7 +602,9 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
     result.path.zone_name = request.zone_name;
     result.path.points = std::move(plan.points);
     result.path.clearance = std::move(plan.clearance);
+    result.path.heights = std::move(plan.heights);
     result.path.waypoints = std::move(plan.waypoints);
+    result.path.drops = std::move(plan.drops);
     result.cost = plan.length;
     if (out_diagnostic != nullptr) {
         out_diagnostic->start = request.start;
@@ -630,7 +640,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     const std::vector<VirtualNoGoDisc>* no_go,
     std::optional<double> goal_deck_y = std::nullopt,
     std::optional<double> start_floor_y = std::nullopt,
-    NavmeshRouteDiagnostic* out_diagnostic = nullptr)
+    NavmeshRouteDiagnostic* out_diagnostic = nullptr,
+    std::optional<double> start_deck_y = std::nullopt)
 {
     const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
     if (navmesh_zone.empty()) {
@@ -656,7 +667,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
         no_go,
         navmesh::kBaseNavFloorYNone,
         goal_deck_y,
-        start_floor_y);
+        start_floor_y,
+        start_deck_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
     const auto route_result = PlanCorridorRoute(*navmesh, request, {}, out_diagnostic);
     const int64_t plan_ms =
@@ -760,7 +772,8 @@ bool AppendBlindTargetFallback(
             state.no_go,
             goal_floor_y,
             std::nullopt,
-            state.route_start_floor_y);
+            state.route_start_floor_y,
+            state.route_start_deck_y);
         NavmeshRouteDiagnostic diagnostic;
         const auto route = PlanCorridorRoute(navmesh, request, should_stop, out_diagnostics == nullptr ? nullptr : &diagnostic);
         if (!route.ok() || route.path.points.empty()) {
@@ -815,7 +828,9 @@ bool AppendStartRecovery(
         return false;
     }
     const double radius = std::max(param.navmesh_snap_radius, kStartRecoveryMaxBlindWalk);
-    const auto entry = navmesh.planner.snap(zone->zone_id, request.start, radius, request.start_floor_y);
+    // 知道脚下那层的确切高度就按它挑层, 免得走去别层的最近点
+    const float floor_y = request.start_deck_y > navmesh::kBaseNavFloorYValidMin ? request.start_deck_y : request.start_floor_y;
+    const auto entry = navmesh.planner.snap(zone->zone_id, request.start, radius, floor_y);
     if (!entry) {
         LogWarn << "NAVMESH start recovery rejected: no mesh point within the blind-walk budget." << VAR(state.navmesh_zone)
                 << VAR(state.current_zone) << VAR(request.start.x) << VAR(request.start.y) << VAR(radius);
@@ -859,6 +874,7 @@ bool TryAppendZiplineLeg(
         walking_path,
         target.deck_y,
         state.route_start_floor_y,
+        state.route_start_deck_y,
         should_stop,
         out_diagnostics != nullptr);
     if (!route || route->approach.points.empty() || route->departure.points.empty() || route->towers.size() < 2) {
@@ -958,7 +974,8 @@ bool AppendNavmeshWaypoint(
         state.no_go,
         target.floor_y,
         target.deck_y,
-        state.route_start_floor_y);
+        state.route_start_floor_y,
+        state.route_start_deck_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
     NavmeshRouteDiagnostic route_diagnostic;
     auto route_result = PlanCorridorRoute(navmesh, request, should_stop, out_diagnostics == nullptr ? nullptr : &route_diagnostic);
@@ -1350,7 +1367,7 @@ std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path)
 
 std::filesystem::path NoGoTablePath()
 {
-    return get_exe_dir() / ".." / kNoGoTableRelativePath;
+    return get_install_dir() / kNoGoTableRelativePath;
 }
 
 void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos)
@@ -1404,7 +1421,8 @@ bool ExpandNavmeshWaypoints(
     const std::function<bool()>& should_stop,
     std::vector<Waypoint>& out_path,
     std::vector<NavmeshRouteDiagnostic>* out_diagnostics,
-    const std::vector<VirtualNoGoDisc>* no_go)
+    const std::vector<VirtualNoGoDisc>* no_go,
+    std::optional<double> start_deck_y)
 {
     g_expansion_failure = {};
     if (out_diagnostics != nullptr) {
@@ -1431,6 +1449,7 @@ bool ExpandNavmeshWaypoints(
         return false;
     }
     state->no_go = no_go;
+    state->route_start_deck_y = start_deck_y;
 
     const std::filesystem::path navmesh_path = ResolveNavmeshFile(param.navmesh_file);
     const auto expand_started_at = std::chrono::steady_clock::now();
@@ -1485,9 +1504,10 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     std::optional<double> goal_deck_y,
     std::optional<double> start_floor_y,
     NavmeshRouteDiagnostic* out_diagnostic,
-    const std::vector<VirtualNoGoDisc>* no_go)
+    const std::vector<VirtualNoGoDisc>* no_go,
+    std::optional<double> start_deck_y)
 {
-    return PlanNavmeshRouteImpl(param, locator_zone, start, goal, no_go, goal_deck_y, start_floor_y, out_diagnostic);
+    return PlanNavmeshRouteImpl(param, locator_zone, start, goal, no_go, goal_deck_y, start_floor_y, out_diagnostic, start_deck_y);
 }
 
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone)
@@ -1560,43 +1580,6 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     return NavmeshSnap { .distance = entry->distance, .height = navmesh->planner.triangleHeight(entry->triangle) };
 }
 
-namespace
-{
-
-// Each zone's occluder scene is decoded once: the collision faces and their lookup trees run to hundreds of MB in a
-// large scene, while one plan asks thousands of lines. A failed decode is cached too, so no line rereads the file.
-std::shared_ptr<const navmesh::OccluderScene> LoadCachedOccluder(const std::filesystem::path& path, const std::string& zone_name)
-{
-    static std::mutex mutex;
-    static std::unordered_map<std::string, std::shared_ptr<const navmesh::OccluderScene>> cache;
-    const std::string cache_key = BuildNavmeshCacheKey(path, zone_name);
-
-    const std::lock_guard<std::mutex> lock(mutex);
-    if (const auto iter = cache.find(cache_key); iter != cache.end()) {
-        return iter->second;
-    }
-    std::shared_ptr<const navmesh::OccluderScene> scene;
-    std::vector<uint8_t> bytes;
-    const navmesh::BaseNavLoadResult read = navmesh::ReadNavFileBytes(path, &bytes);
-    if (read.status != navmesh::BaseNavLoadStatus::Success) {
-        LogError << "Failed to read the occluder pack." << VAR(path) << VAR(read.message);
-    }
-    else {
-        scene = navmesh::DecodeOccluderScene(bytes.data(), bytes.size(), zone_name);
-        if (!scene) {
-            LogError << "Failed to decode the occluder scene." << VAR(path) << VAR(zone_name) << VAR(bytes.size());
-        }
-        else {
-            LogInfo << "Occluder scene loaded." << VAR(zone_name) << VAR(scene->templates.size()) << VAR(scene->instances.size())
-                    << VAR(scene->blocks.size());
-        }
-    }
-    cache.emplace(cache_key, scene);
-    return scene;
-}
-
-}
-
 std::vector<std::vector<navmesh::OccluderHit>>
     NavmeshLineGroupBlocks(const NaviParam& param, const std::string& locator_zone, const std::vector<std::vector<NavmeshAirLine>>& groups)
 {
@@ -1609,7 +1592,7 @@ std::vector<std::vector<navmesh::OccluderHit>>
         return blocks;
     }
     const std::filesystem::path occluder_path = navmesh::OccluderSidecarPath(ResolveNavmeshFile(param.navmesh_file));
-    const auto scene = LoadCachedOccluder(occluder_path, navmesh_zone);
+    const auto scene = navmesh::LoadOccluderScene(occluder_path, navmesh_zone);
     if (!scene) {
         // Without an occluder scene every line passes, which is looser than before. Warn loudly, since otherwise the only
         // symptom is ziplines appearing out of nowhere.
@@ -1630,6 +1613,34 @@ std::vector<std::vector<navmesh::OccluderHit>>
         blocks[index] = std::move(hits);
     }
     return blocks;
+}
+
+std::vector<std::vector<double>> NavmeshGroundHeights(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const std::vector<std::vector<navmesh::OccluderPoint>>& bases)
+{
+    std::vector<std::vector<double>> heights(bases.size());
+    for (size_t index = 0; index < bases.size(); ++index) {
+        for (const navmesh::OccluderPoint& base : bases[index]) {
+            heights[index].push_back(base.y);
+        }
+    }
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    if (navmesh_zone.empty()) {
+        return heights;
+    }
+    // A missing scene is already logged by the loader and warned about by the line test.
+    const auto scene = navmesh::LoadOccluderScene(navmesh::OccluderSidecarPath(ResolveNavmeshFile(param.navmesh_file)), navmesh_zone);
+    if (!scene) {
+        return heights;
+    }
+    for (size_t index = 0; index < bases.size(); ++index) {
+        for (size_t k = 0; k < bases[index].size(); ++k) {
+            heights[index][k] = scene->groundHeight(bases[index][k]);
+        }
+    }
+    return heights;
 }
 
 std::vector<std::vector<uint32_t>>
@@ -1760,6 +1771,20 @@ bool AppendGeneratedNavmeshWaypoints(
     const auto clearance_at = [&](size_t index) {
         return index < world_path.clearance.size() ? world_path.clearance[index] : 0.0;
     };
+    const auto height_at = [&](size_t index) {
+        return index < world_path.heights.size() ? std::optional<double>(world_path.heights[index]) : std::nullopt;
+    };
+    // 台沿下落的落点要越过才算到, 下一腿从下层起
+    const auto mark_drop = [&](size_t index) {
+        for (const navmesh::DropLanding& drop : world_path.drops) {
+            if (drop.index == index && index > 0) {
+                Waypoint& landing = out_path.back();
+                landing.strict_arrival = true;
+                landing.target_deck_y = drop.height;
+                landing.drop_from = std::array<double, 2> { world_path.points[index - 1].x, world_path.points[index - 1].y };
+            }
+        }
+    };
 
     if (emit_interior_corners) {
         for (size_t index = 1; index < loop_end; ++index) {
@@ -1767,11 +1792,14 @@ bool AppendGeneratedNavmeshWaypoints(
             out_path.emplace_back(point.x, point.y, ActionType::RUN);
             out_path.back().strict_arrival = false;
             out_path.back().corridor_clearance = clearance_at(index);
+            out_path.back().route_floor_y = height_at(index);
+            mark_drop(index);
         }
         if (include_goal && total >= 2) {
             const navmesh::WorldPoint& goal = world_path.points[total - 1];
             out_path.emplace_back(goal.x, goal.y, ActionType::RUN);
             out_path.back().strict_arrival = true;
+            out_path.back().route_floor_y = height_at(total - 1);
         }
         return true;
     }
@@ -1786,6 +1814,8 @@ bool AppendGeneratedNavmeshWaypoints(
         out_path.emplace_back(world_path.points[index].x, world_path.points[index].y, ActionType::RUN);
         out_path.back().strict_arrival = false;
         out_path.back().corridor_clearance = clearance_at(index);
+        out_path.back().route_floor_y = height_at(index);
+        mark_drop(index);
     };
     const auto restore_corners_to = [&](size_t anchor) {
         // 规划器自己拉直过的路线直接照抄下标。它那边看得到窗口挡线格图和起点所在面的高度,
@@ -1806,7 +1836,12 @@ bool AppendGeneratedNavmeshWaypoints(
         size_t cursor = prev;
         while (cursor + 1 < anchor) {
             size_t reach = cursor;
-            const size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+            size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+            for (const navmesh::DropLanding& drop : world_path.drops) {
+                if (drop.index > cursor && drop.index < reach_limit) {
+                    reach_limit = drop.index;
+                }
+            }
             double swallowed_clearance = std::numeric_limits<double>::infinity();
             while (reach < reach_limit) {
                 // A shortcut may not be tighter than the narrowest corridor point it swallows: that width is
@@ -1837,6 +1872,8 @@ bool AppendGeneratedNavmeshWaypoints(
         out_path.emplace_back(world_path.points[anchor].x, world_path.points[anchor].y, ActionType::RUN);
         out_path.back().strict_arrival = strict_arrival;
         out_path.back().corridor_clearance = clearance_at(anchor);
+        out_path.back().route_floor_y = height_at(anchor);
+        mark_drop(anchor);
         prev = anchor;
     };
 

@@ -1,6 +1,7 @@
 package ims
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -9,6 +10,10 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/rs/zerolog/log"
 )
+
+// errRecognitionCatalogUnavailable marks a missing, unreadable, or empty
+// recognition_items.json. A3 logs it and continues; A2 still fails the sync.
+var errRecognitionCatalogUnavailable = errors.New("IconRecognition catalog unavailable")
 
 const recognitionItemsResourcePath = "data/IconRecognition/recognition_items.json"
 
@@ -41,7 +46,7 @@ func loadRecognitionItems() (map[string]recognitionItemMeta, error) {
 		path := recognitionItemsPathFunc()
 		var raw map[string]recognitionItemMeta
 		if err := resource.ReadJsonResource(path, &raw); err != nil {
-			recognitionItemsErr = fmt.Errorf("load IconRecognition catalog %s: %w", path, err)
+			recognitionItemsErr = fmt.Errorf("%w: load IconRecognition catalog %s: %w", errRecognitionCatalogUnavailable, path, err)
 			log.Error().
 				Err(recognitionItemsErr).
 				Str("path", path).
@@ -49,7 +54,7 @@ func loadRecognitionItems() (map[string]recognitionItemMeta, error) {
 			return
 		}
 		if len(raw) == 0 {
-			recognitionItemsErr = fmt.Errorf("IconRecognition catalog %s is empty", path)
+			recognitionItemsErr = fmt.Errorf("%w: IconRecognition catalog %s is empty", errRecognitionCatalogUnavailable, path)
 			return
 		}
 		recognitionItemsCache = raw
@@ -62,7 +67,7 @@ func loadRecognitionItems() (map[string]recognitionItemMeta, error) {
 		return nil, recognitionItemsErr
 	}
 	if recognitionItemsCache == nil {
-		return nil, fmt.Errorf("IconRecognition catalog not loaded")
+		return nil, fmt.Errorf("%w: IconRecognition catalog not loaded", errRecognitionCatalogUnavailable)
 	}
 	return recognitionItemsCache, nil
 }

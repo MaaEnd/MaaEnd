@@ -1,0 +1,53 @@
+name: go-check
+
+on:
+  push:
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/go-check.yml"
+      - "agent/go-service/**"
+      - "assets/data/EssenceFilter/**"
+  pull_request:
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/go-check.yml"
+      - "agent/go-service/**"
+      - "assets/data/EssenceFilter/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  go-service:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agent/go-service
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          show-progress: false
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: "agent/go-service/go.mod"
+          cache-dependency-path: |
+            agent/go-service/go.mod
+            agent/go-service/go.sum
+
+      # go-service 不依赖 cgo，可在同一台机器上按各桌面平台做静态检查。
+      - name: Run go vet
+        run: |
+          for os in linux windows darwin; do
+            echo "::group::GOOS=$os"
+            GOOS=$os go vet ./...
+            echo "::endgroup::"
+          done
+
+      - name: Run go test
+        run: go test ./...

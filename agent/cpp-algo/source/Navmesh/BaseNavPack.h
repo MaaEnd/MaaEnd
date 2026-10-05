@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -139,7 +140,8 @@ struct BaseNavSection
 {
     std::array<char, 4> tag { ' ', ' ', ' ', ' ' };
     uint32_t flags = 0;
-    std::vector<uint8_t> bytes;
+    // 只有要活过载入的段才有字节, 其余为空。内容相同的段共用一份。
+    std::shared_ptr<const std::vector<uint8_t>> bytes;
 };
 
 class BaseNavPack;

@@ -122,8 +122,7 @@ LONG WINAPI OnUnhandledException(EXCEPTION_POINTERS* exception_pointers)
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-// abort() 走 __fastfail，不经过用户态异常分发，所以转储得在这里自己写。
-// 写完直接 _exit：再往下走会重新进入 abort，二次终止只会丢掉刚写的现场。
+// 写完直接 _exit：再往下走会重新进入 terminate，二次终止只会丢掉刚写的现场。
 [[noreturn]] void OnTerminate()
 {
     if (!g_dumping.test_and_set()) {
@@ -133,10 +132,11 @@ LONG WINAPI OnUnhandledException(EXCEPTION_POINTERS* exception_pointers)
     _exit(kCrashExitCode);
 }
 
+// abort 常见于父进程退出后 std::exit 的收尾，没有独立崩溃栈，不写转储。
+// 直接 _exit：信号处理函数返回后 CRT 会再次 abort。
 [[noreturn]] void OnAbortSignal(int)
 {
     if (!g_dumping.test_and_set()) {
-        WriteDump(nullptr);
         LogError << "Process aborted.";
     }
     _exit(kCrashExitCode);

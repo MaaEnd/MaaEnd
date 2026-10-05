@@ -19,7 +19,7 @@ from connection_models import RecordingSessionConfig
 from connectors import build_recording_connector
 from json_import import export_assert_location_node, export_path_nodes
 import key_listener
-from runtime import MaaRuntime
+from runtime import INSTALL_DIR, MaaRuntime
 
 
 StatusCallback = Callable[[str, str], None]
@@ -110,15 +110,7 @@ class NavTestService:
 
     @staticmethod
     def _position_log_path() -> Path:
-        return (
-            Path(__file__).resolve().parents[2]
-            / "install"
-            / "agent"
-            / "debug"
-            / "cpp-algo"
-            / "debug"
-            / "maafw.log"
-        )
+        return INSTALL_DIR / "debug" / "cpp-algo" / "debug" / "maafw.log"
 
     @staticmethod
     def _latest_zipline_account() -> str:

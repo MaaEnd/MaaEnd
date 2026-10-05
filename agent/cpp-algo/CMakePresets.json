@@ -72,6 +72,34 @@
             }
         },
         {
+            "name": "NinjaMulti Android arm64",
+            "displayName": "Ninja MultiConfig Android arm64",
+            "description": "Ninja MultiConfig Android arm64",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build/android/arm64-v8a",
+            "toolchainFile": "$env{ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake",
+            "cacheVariables": {
+                "ANDROID_ABI": "arm64-v8a",
+                "ANDROID_PLATFORM": "android-23",
+                "MAADEPS_TRIPLET": "maa-arm64-android",
+                "DEPS_DIR": "${sourceDir}/../../deps-android/arm64-v8a"
+            }
+        },
+        {
+            "name": "NinjaMulti Android x64",
+            "displayName": "Ninja MultiConfig Android x64",
+            "description": "Ninja MultiConfig Android x64",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build/android/x86_64",
+            "toolchainFile": "$env{ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake",
+            "cacheVariables": {
+                "ANDROID_ABI": "x86_64",
+                "ANDROID_PLATFORM": "android-23",
+                "MAADEPS_TRIPLET": "maa-x64-android",
+                "DEPS_DIR": "${sourceDir}/../../deps-android/x86_64"
+            }
+        },
+        {
             "name": "MSVC 2026",
             "displayName": "MSVC 2026",
             "description": "MSVC 2026",
@@ -150,6 +178,22 @@
             "displayName": "Ninja MultiConfig Linux arm64 RelWithDebInfo",
             "description": "Ninja MultiConfig Linux arm64 RelWithDebInfo",
             "configurePreset": "NinjaMulti Linux arm64",
+            "configuration": "RelWithDebInfo",
+            "jobs": 16
+        },
+        {
+            "name": "NinjaMulti Android arm64 - RelWithDebInfo",
+            "displayName": "Ninja MultiConfig Android arm64 RelWithDebInfo",
+            "description": "Ninja MultiConfig Android arm64 RelWithDebInfo",
+            "configurePreset": "NinjaMulti Android arm64",
+            "configuration": "RelWithDebInfo",
+            "jobs": 16
+        },
+        {
+            "name": "NinjaMulti Android x64 - RelWithDebInfo",
+            "displayName": "Ninja MultiConfig Android x64 RelWithDebInfo",
+            "description": "Ninja MultiConfig Android x64 RelWithDebInfo",
+            "configurePreset": "NinjaMulti Android x64",
             "configuration": "RelWithDebInfo",
             "jobs": 16
         },

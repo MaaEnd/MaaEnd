@@ -42,6 +42,14 @@
             }
         }
     },
+    "AutoEssenceCapacityCloseValuables": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 53
+            }
+        }
+    },
     "AutoPickFalls": {
         "action": {
             "type": "ClickKey",
@@ -51,6 +59,14 @@
         }
     },
     "AutoPickInteractive": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
+            }
+        }
+    },
+    "AutoSellPressStockRedistribution": {
         "action": {
             "type": "ClickKey",
             "param": {

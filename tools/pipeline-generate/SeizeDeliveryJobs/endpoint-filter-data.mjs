@@ -74,7 +74,7 @@ export const endpointEntries = [...destinations]
             EndpointId: endpoint,
             DestinationId: destination.id,
             Names: names,
-            Desc: `「${names.zh_cn}」送货终点（${destination.id}）：candidates 候选开关，命中后前往接取`,
+            Desc: `「${names.zh_cn}」送货终点(${destination.id})：candidates 候选开关，命中后前往接取`,
             AreaId: destination.areaId,
             MapId: destination.map,
             AreaName: destination.area.zh_cn,

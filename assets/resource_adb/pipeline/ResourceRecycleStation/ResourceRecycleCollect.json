@@ -1,0 +1,110 @@
+{
+    "ResourceRecycleClickCollectPromptWuling": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    205,
+                    55,
+                    170,
+                    50
+                ]
+            }
+        }
+    },
+    "ResourceRecycleClickCollectPromptValleyIV": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    205,
+                    55,
+                    170,
+                    50
+                ]
+            }
+        }
+    },
+    "ResourceRecycleCheckStation": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    40,
+                    98,
+                    335,
+                    245
+                ]
+            }
+        }
+    },
+    "ResourceRecycleCheckLimitWuling": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    40,
+                    98,
+                    335,
+                    245
+                ]
+            }
+        },
+        "action": {
+            "param": {
+                "begin": [
+                    200,
+                    325
+                ],
+                "end": [
+                    200,
+                    105
+                ]
+            }
+        }
+    },
+    "ResourceRecycleCheckLimitValleyIV": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    40,
+                    98,
+                    335,
+                    245
+                ]
+            }
+        },
+        "action": {
+            "param": {
+                "begin": [
+                    200,
+                    325
+                ],
+                "end": [
+                    200,
+                    105
+                ]
+            }
+        }
+    },
+    "ResourceRecycleCheckEmpty": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    40,
+                    98,
+                    335,
+                    245
+                ]
+            }
+        }
+    },
+    "ResourceRecycleClickCollectBtn": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    868,
+                    505,
+                    372,
+                    70
+                ]
+            }
+        }
+    }
+}

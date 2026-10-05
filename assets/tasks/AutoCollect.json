@@ -5,8 +5,12 @@
             "label": "$task.AutoCollect.label",
             "entry": "AutoCollectSchedule",
             "description": "$task.AutoCollect.description",
+            "group": [
+                "open_world"
+            ],
             "controller": [
                 "ADB",
+                "CloudADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -19,9 +23,6 @@
                 "AutoCollectWuling",
                 "AutoCollectMode",
                 "AutoCollectStashBackpackSubTask"
-            ],
-            "group": [
-                "open_world"
             ]
         }
     ],
@@ -29,15 +30,6 @@
         "AutoCollectSchedule": {
             "type": "checkbox",
             "label": "$option.TaskSchedule.label",
-            "default_case": [
-                "AutoCollectScheduleMonday",
-                "AutoCollectScheduleTuesday",
-                "AutoCollectScheduleWednesday",
-                "AutoCollectScheduleThursday",
-                "AutoCollectScheduleFriday",
-                "AutoCollectScheduleSaturday",
-                "AutoCollectScheduleSunday"
-            ],
             "cases": [
                 {
                     "name": "AutoCollectScheduleMonday",
@@ -116,23 +108,31 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "AutoCollectScheduleMonday",
+                "AutoCollectScheduleTuesday",
+                "AutoCollectScheduleWednesday",
+                "AutoCollectScheduleThursday",
+                "AutoCollectScheduleFriday",
+                "AutoCollectScheduleSaturday",
+                "AutoCollectScheduleSunday"
             ]
         },
         "AutoCollectStashBackpackSubTask": {
             "type": "switch",
             "label": "$task.AutoCollect.option.AutoCollectStashBackpackSubTask.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "StashBackpackType"
+                    ],
                     "pipeline_override": {
                         "StashBackpackMain": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "StashBackpackType"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -142,7 +142,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoCollectMode": {
             "type": "select",
@@ -154,7 +155,6 @@
             ],
             "label": "$option.AutoCollectMode.label",
             "description": "$option.AutoCollectMode.description",
-            "default_case": "Always",
             "cases": [
                 {
                     "name": "Always",
@@ -163,6 +163,9 @@
                 {
                     "name": "TargetInventory",
                     "label": "$option.AutoCollectMode.case.TargetInventory.label",
+                    "option": [
+                        "AutoCollectTargetInventory"
+                    ],
                     "pipeline_override": {
                         "AutoCollectInventoryResetSnapshot": {
                             "enabled": true
@@ -392,12 +395,10 @@
                         "AutoCollectCommonRoute8SubSkipped": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoCollectTargetInventory"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "Always"
         },
         "AutoCollectTargetInventory": {
             "type": "input",
@@ -413,208 +414,208 @@
                 {
                     "name": "AutoCollectLimit_Route1",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_2_1.label",
-                    "pipeline_type": "int",
                     "default": "252",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route2",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_2_2.label",
-                    "pipeline_type": "int",
                     "default": "252",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route3",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_1_3.label",
-                    "pipeline_type": "int",
                     "default": "64",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route4",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_1_2.label",
-                    "pipeline_type": "int",
                     "default": "64",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route5",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_1_1.label",
-                    "pipeline_type": "int",
                     "default": "12",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route6",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_1_1.label",
-                    "pipeline_type": "int",
                     "default": "12",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route7Bloodcap",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_2_1.label",
-                    "pipeline_type": "int",
                     "default": "32",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route7Wulingstone",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_2_2.label",
-                    "pipeline_type": "int",
                     "default": "32",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route8",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_2_2.label",
-                    "pipeline_type": "int",
                     "default": "32",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route9",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_2_1.label",
-                    "pipeline_type": "int",
                     "default": "32",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route10",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_1_3.label",
-                    "pipeline_type": "int",
                     "default": "20",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route11",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_1_3.label",
-                    "pipeline_type": "int",
                     "default": "20",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route12",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_1_2.label",
-                    "pipeline_type": "int",
                     "default": "20",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route13",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_1_2.label",
-                    "pipeline_type": "int",
                     "default": "20",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route14",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_1_1.label",
-                    "pipeline_type": "int",
                     "default": "48",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route15",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_crylplant_2_3.label",
-                    "pipeline_type": "int",
                     "default": "252",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route16",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_spcstone_2_3.label",
-                    "pipeline_type": "int",
                     "default": "32",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_Route17",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_mushroom_2_3.label",
-                    "pipeline_type": "int",
                     "default": "32",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute1",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_moss_spc_1.label",
-                    "pipeline_type": "int",
                     "default": "0",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute2",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_moss_spc_2.label",
-                    "pipeline_type": "int",
                     "default": "0",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute3",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_tundra_insect_2.label",
-                    "pipeline_type": "int",
                     "default": "0",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute4",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_tundra_insect_1.label",
-                    "pipeline_type": "int",
                     "default": "0",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute5",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_grass_spc_1.label",
-                    "pipeline_type": "int",
                     "default": "0",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute6",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_sp_3.label",
-                    "pipeline_type": "int",
                     "default": "0",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute7",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_grass_spc_2.label",
-                    "pipeline_type": "int",
                     "default": "0",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 },
                 {
                     "name": "AutoCollectLimit_CommonRoute8",
                     "label": "$option.AutoCollectTargetInventory.inputs.item_plant_sp_4.label",
-                    "pipeline_type": "int",
                     "default": "0",
+                    "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
                 }
@@ -1075,7 +1076,6 @@
         "AutoCollectValleyIV": {
             "type": "switch",
             "label": "$option.AutoCollectValleyIV.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -1087,18 +1087,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoCollectValleyIVRareRoutes": {
             "type": "checkbox",
             "label": "$option.AutoCollectValleyIVRareRoutes.label",
-            "default_case": [
-                "Route4",
-                "Route5",
-                "Route6",
-                "Route13",
-                "Route14"
-            ],
             "cases": [
                 {
                     "name": "Route4",
@@ -1160,15 +1154,18 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "Route4",
+                "Route5",
+                "Route6",
+                "Route13",
+                "Route14"
             ]
         },
         "AutoCollectValleyIVCommonRoutes": {
             "type": "checkbox",
             "label": "$option.AutoCollectValleyIVCommonRoutes.label",
-            "default_case": [
-                "CommonRoute1",
-                "CommonRoute2"
-            ],
             "cases": [
                 {
                     "name": "CommonRoute1",
@@ -1194,12 +1191,15 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "CommonRoute1",
+                "CommonRoute2"
             ]
         },
         "AutoCollectWuling": {
             "type": "switch",
             "label": "$option.AutoCollectWuling.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -1211,25 +1211,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoCollectWulingRareRoutes": {
             "type": "checkbox",
             "label": "$option.AutoCollectWulingRareRoutes.label",
-            "default_case": [
-                "Route1",
-                "Route2",
-                "Route3",
-                "Route7",
-                "Route8",
-                "Route9",
-                "Route10",
-                "Route11",
-                "Route12",
-                "Route15",
-                "Route16",
-                "Route17"
-            ],
             "cases": [
                 {
                     "name": "Route1",
@@ -1375,19 +1362,25 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "Route1",
+                "Route2",
+                "Route3",
+                "Route7",
+                "Route8",
+                "Route9",
+                "Route10",
+                "Route11",
+                "Route12",
+                "Route15",
+                "Route16",
+                "Route17"
             ]
         },
         "AutoCollectWulingCommonRoutes": {
             "type": "checkbox",
             "label": "$option.AutoCollectWulingCommonRoutes.label",
-            "default_case": [
-                "CommonRoute3",
-                "CommonRoute4",
-                "CommonRoute5",
-                "CommonRoute6",
-                "CommonRoute7",
-                "CommonRoute8"
-            ],
             "cases": [
                 {
                     "name": "CommonRoute3",
@@ -1461,6 +1454,14 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "CommonRoute3",
+                "CommonRoute4",
+                "CommonRoute5",
+                "CommonRoute6",
+                "CommonRoute7",
+                "CommonRoute8"
             ]
         }
     }

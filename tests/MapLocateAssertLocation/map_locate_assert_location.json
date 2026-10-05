@@ -1,0 +1,166 @@
+{
+    "configs": {
+        "name": "自动采集定位断言（正例）",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "image": "自动采集_普通路线1_定位点1.png",
+            "hits": [
+                "AutoCollectCommonRoute1AssertLocation1",
+                "AutoCollectCommonRoute2AssertLocation1",
+                "AutoCollectRoute14AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_普通路线3_定位点1.png",
+            "hits": [
+                "AutoCollectCommonRoute3AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_普通路线4_定位点1.png",
+            "hits": [
+                "AutoCollectCommonRoute4AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_普通路线5_定位点1.png",
+            "hits": [
+                "AutoCollectCommonRoute5AssertLocation1",
+                "AutoCollectCommonRoute7AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_普通路线6_定位点1.png",
+            "hits": [
+                "AutoCollectCommonRoute6AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_普通路线6_定位点2.png",
+            "hits": [
+                "AutoCollectCommonRoute6AssertLocation2"
+            ]
+        },
+        {
+            "image": "自动采集_普通路线8_定位点1.png",
+            "hits": [
+                "AutoCollectCommonRoute8AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_路线1_定位点.png",
+            "hits": [
+                "AutoCollectRoute1AssertLocation"
+            ]
+        },
+        {
+            "image": "自动采集_路线10_定位点1.png",
+            "hits": [
+                "AutoCollectRoute10AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_路线10_定位点2.png",
+            "hits": [
+                "AutoCollectRoute10AssertLocation2"
+            ]
+        },
+        {
+            "image": "自动采集_路线10_定位点3.png",
+            "hits": [
+                "AutoCollectRoute10AssertLocation3"
+            ]
+        },
+        {
+            "image": "自动采集_路线11_定位点1.png",
+            "hits": [
+                "AutoCollectRoute11AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_路线12_定位点1.png",
+            "hits": [
+                "AutoCollectRoute12AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_路线12_定位点2.png",
+            "hits": [
+                "AutoCollectRoute12AssertLocation2"
+            ]
+        },
+        {
+            "image": "自动采集_路线13_定位点1.png",
+            "hits": [
+                "AutoCollectRoute13AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_路线14_定位点2.png",
+            "hits": [
+                "AutoCollectRoute14AssertLocation2"
+            ]
+        },
+        {
+            "image": "自动采集_路线15_定位点.png",
+            "hits": [
+                "AutoCollectRoute15AssertLocation"
+            ]
+        },
+        {
+            "image": "自动采集_路线16_定位点.png",
+            "hits": [
+                "AutoCollectRoute16AssertLocation"
+            ]
+        },
+        {
+            "image": "自动采集_路线2_定位点.png",
+            "hits": [
+                "AutoCollectRoute2AssertLocation"
+            ]
+        },
+        {
+            "image": "自动采集_路线3_定位点.png",
+            "hits": [
+                "AutoCollectRoute3AssertLocation",
+                "AutoCollectRoute8AssertLocation1",
+                "AutoCollectRoute9AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_路线4_定位点.png",
+            "hits": [
+                "AutoCollectRoute4AssertLocation"
+            ]
+        },
+        {
+            "image": "自动采集_路线5_定位点.png",
+            "hits": [
+                "AutoCollectRoute5AssertLocation",
+                "AutoCollectRoute6AssertLocation"
+            ]
+        },
+        {
+            "image": "自动采集_路线7_定位点1.png",
+            "hits": [
+                "AutoCollectRoute7AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_路线7_定位点2.png",
+            "hits": [
+                "AutoCollectRoute7AssertLocation2",
+                "AutoCollectRoute7AssertLocation4"
+            ]
+        },
+        {
+            "image": "自动采集_路线8_定位点2.png",
+            "hits": [
+                "AutoCollectRoute8AssertLocation2"
+            ]
+        }
+    ]
+}

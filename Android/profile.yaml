@@ -1,0 +1,49 @@
+# Android 打包配方。相对路径相对本文件。
+# assets 指向仓库的 assets/；改任务 / agent 不用再设环境变量。
+
+assets: ../assets
+
+include:
+  - interface.json
+  - tasks/**
+  - resource/**
+  - resource_adb/**
+  - resource_cloud_adb/**
+  - data/**
+  - locales/**
+
+# exclude 只从上面 include 的目录里再剔除，写不在 include 里的目录没有作用
+exclude:
+  # ProtocolSpace 只支持桌面控制器；MaaFramework 按需加载模型，缺失不影响资源加载
+  - resource/model/detect/ProtocolSpace/**
+  # 没有任何 agent / pipeline 读取
+  - data/ZmdMap/**
+
+# 出 agent（仓库根）：
+#   uv run tools/build_android_agents.py
+# 产物落到 Android/agent-dist/<abi>/jniLibs/lib*.so，由 MaaFwApp syncAgentJniLibs 进 APK。
+# 框架 .so 仍走 MaaFwApp 自己的 setup_maa_framework.py，不要往这里拷。
+agent:
+  sourceDir: agent-dist
+  runtimes:
+    - location: nativeLibs
+      executable: libgo-service.so
+      name: go-service
+      env:
+        LD_LIBRARY_PATH: "{nativeLibs}"
+        MAAFW_BINARY_PATH: "{nativeLibs}"
+    - location: nativeLibs
+      executable: libcpp-algo.so
+      name: cpp-algo
+      env:
+        LD_LIBRARY_PATH: "{nativeLibs}"
+        MAAFW_BINARY_PATH: "{nativeLibs}"
+
+app:
+  id: maaend
+  label: MaaEnd
+  icon: ../assets/locales/MaaEnd-Tiny.png
+
+# Mirror酱 上 APK 单独发布为 MaaEnd_exec；interface.json 的 mirrorchyan_rid（MaaEnd）是桌面包
+update:
+  mirrorchyanRid: MaaEnd_exec

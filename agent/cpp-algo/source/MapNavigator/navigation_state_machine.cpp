@@ -29,6 +29,7 @@
 #include "semantic_nodes.h"
 #include "sensitivity_observer.h"
 #include "steering_controller.h"
+#include "trigger_action.h"
 #include "zipline_action.h"
 
 #include "../utils.h"
@@ -75,6 +76,18 @@ bool IsRequiredSemanticAnchor(const Waypoint& waypoint)
 double ArrivalBandForStartupBypass(const Waypoint& waypoint)
 {
     return std::max(waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum), waypoint.Traits().commit_distance);
+}
+
+// 同步规划会卡住 tick: 先松开前进键, 规划这段时长不进任何无进展计时
+template <typename Plan>
+auto WithPlanningPause(MotionController* motion, NavigationRuntimeState* runtime, NavigationSession* session, Plan&& plan)
+{
+    const auto started_at = std::chrono::steady_clock::now();
+    motion->SetForwardState(false);
+    runtime->offroute.PauseAt(started_at);
+    auto result = plan();
+    session->ExcludeFromStallClocks(std::chrono::steady_clock::now() - started_at);
+    return result;
 }
 
 std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session, const NaviPosition& position, size_t start_index)
@@ -286,6 +299,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const char* reason)
 {
     const size_t path_size = session->current_path().size();
+    const std::optional<double> walked_floor_y = session->WalkedFloorY(position);
     std::optional<DynamicAnchor> anchor;
     double anchor_cost = std::numeric_limits<double>::infinity();
     int plan_attempts = 0;
@@ -317,7 +331,16 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
         // 只钉终点: 够不到那张面的候选就不该被选中。第一个规划得通的点就是入口 ——
         // 再往后比价挑更近的, 等于在归属判定之后又做一次"就近吞点"。
         ++plan_attempts;
-        const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, waypoint.target_deck_y);
+        const auto route = PlanNavmeshRoute(
+            param,
+            position.zone_id,
+            start,
+            goal,
+            waypoint.target_deck_y,
+            walked_floor_y,
+            nullptr,
+            nullptr,
+            session->LandedTowerDeckY(position));
         if (route) {
             anchor_cost = route->cost;
             anchor = { *canonical_index, waypoint };
@@ -511,7 +534,12 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
         return TickNavigate();
     case NaviPhase::WaitTransfer:
     case NaviPhase::WaitZipline:
-    case NaviPhase::WaitFind: {
+    case NaviPhase::WaitFind:
+    case NaviPhase::WaitTrigger: {
+        // 顶墙计数和设备命中只在 Navigate 里攒, 语义动作做完人可能已换了地方
+        runtime_state_.flow.motionless_hold_ticks = 0;
+        runtime_state_.flow.futile_forward_reasserts = 0;
+        device_recovery_.ForgetObservation();
         const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(
             BuildSemanticContext(
                 action_wrapper_,
@@ -584,6 +612,7 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     if (loss.started_at == std::chrono::steady_clock::time_point {}) {
         loss.started_at = now;
     }
+    runtime_state_.offroute.PauseAt(now);
     // River-fall discriminator: a black capture during a loss = fell in water (the locator folds it into a
     // generic TrackingLost). Latch it so the re-acquire below can arm recovery. See navigator-river-fall.
     if (position_provider_->LastCaptureWasBlackScreen()) {
@@ -657,7 +686,9 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     const bool unstick_cooling = loss.last_unstick_at != std::chrono::steady_clock::time_point {}
                                  && std::chrono::duration_cast<std::chrono::milliseconds>(now - loss.last_unstick_at)
                                         < std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs);
-    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && !unstick_cooling) {
+    // TRIGGER 未命中时不盲跳: 小地图可能正被待命中的画面盖住, 按键会干扰它
+    if (loss_elapsed >= std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs) && !unstick_cooling
+        && !semantic_nodes::IsTriggerPending(*session_)) {
         loss.last_unstick_at = now;
         LogInfo << "Localization lost; blind unstick hop issued." << VAR(loss_elapsed.count());
         motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
@@ -703,15 +734,18 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
 
     const navmesh::WorldPoint start { .x = position_->x, .y = position_->y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    const auto route = PlanNavmeshRoute(
-        param_,
-        position_->zone_id,
-        start,
-        goal,
-        anchor.target_deck_y,
-        std::nullopt,
-        nullptr,
-        &runtime_state_.virtual_no_go);
+    const auto route = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+        return PlanNavmeshRoute(
+            param_,
+            position_->zone_id,
+            start,
+            goal,
+            anchor.target_deck_y,
+            session_->WalkedFloorY(*position_),
+            nullptr,
+            &runtime_state_.virtual_no_go,
+            session_->LandedTowerDeckY(*position_));
+    });
     if (!route) {
         return false;
     }
@@ -931,24 +965,29 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     // 一侧, 沿途会撞上原本要用索越过的障碍。先回作者路线从当前位置重新展开, 判死的那一跳已记入
     // 账本, 规划会绕开它另选链路。
     bool rejoined = TryReplanRemainingAuthoredRoute("zipline_recovery_reexpand");
-    // 重展开失败才退回旧展开: 当前位置有可走面且不在架子上时, 它至少是一条经过规划的路径。
-    if (!rejoined && !on_tower && on_mesh) {
-        const std::optional<DynamicAnchor> anchor =
-            ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
+    if (!rejoined && on_tower) {
+        LogWarn << "Zipline recovery could not re-expand from the tower; stepping down to retry from the ground." << VAR(elapsed_ms)
+                << VAR(position_->x) << VAR(position_->y);
+        semantic_nodes::LeaveZiplineTower(BuildSemanticContext(
+            action_wrapper_,
+            position_provider_,
+            session_,
+            motion_controller_,
+            action_executor_,
+            position_,
+            &runtime_state_,
+            maa_context_));
+        recovery.Begin(std::chrono::steady_clock::now());
+        return true;
+    }
+    // 重展开失败才退回旧展开: 当前位置有可走面时, 它至少是一条经过规划的路径。
+    if (!rejoined && on_mesh) {
+        const std::optional<DynamicAnchor> anchor = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+            return ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
+        });
         rejoined = anchor && TryApplyDynamicOverlayToAnchor("zipline_recovery", anchor->first, anchor->second);
     }
     if (!rejoined) {
-        if (on_tower) {
-            semantic_nodes::LeaveZiplineTower(BuildSemanticContext(
-                action_wrapper_,
-                position_provider_,
-                session_,
-                motion_controller_,
-                action_executor_,
-                position_,
-                &runtime_state_,
-                maa_context_));
-        }
         return FailNavigation(
             "zipline_recovery_route_unavailable",
             "Zipline recovery found no reachable point in the remaining route and could not re-expand the authored route; "
@@ -1022,8 +1061,17 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
     }
     replan_param.path.assign(authored.begin() + static_cast<std::ptrdiff_t>(slice_begin), authored.end());
     std::vector<Waypoint> replanned;
-    if (!ExpandNavmeshWaypoints(replan_param, *position_, should_stop_, replanned, nullptr, &runtime_state_.virtual_no_go)
-        || replanned.empty()) {
+    const bool expanded = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+        return ExpandNavmeshWaypoints(
+            replan_param,
+            *position_,
+            should_stop_,
+            replanned,
+            nullptr,
+            &runtime_state_.virtual_no_go,
+            session_->LandedTowerDeckY(*position_));
+    });
+    if (!expanded || replanned.empty()) {
         LogWarn << "Authored route replan failed to expand the remaining route." << VAR(reason) << VAR(slice_begin)
                 << VAR(replan_param.path.size());
         return false;
@@ -1052,7 +1100,7 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
             position_,
             &runtime_state_,
             maa_context_);
-        if (semantic_nodes::CurrentHopStartsUnderfoot(ctx)) {
+        if (semantic_nodes::SkipToHopUnderfoot(ctx, reason)) {
             LogInfo << "Zipline recovery re-expanded the remaining authored route; the next hop leaves from this tower." << VAR(reason)
                     << VAR(slice_begin) << VAR(session_->current_path().size());
             return true;
@@ -1060,7 +1108,9 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
         semantic_nodes::LeaveZiplineTower(ctx);
     }
 
-    const std::optional<DynamicAnchor> anchor = ResolveReachableNavmeshAnchor(param_, session_, *position_, 0, reason);
+    const std::optional<DynamicAnchor> anchor = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+        return ResolveReachableNavmeshAnchor(param_, session_, *position_, 0, reason);
+    });
     if (anchor) {
         TryApplyDynamicOverlayToAnchor(reason, anchor->first, anchor->second);
     }
@@ -1259,6 +1309,14 @@ bool NavigationStateMachine::TickNavigate()
     const bool position_captured = CaptureCurrentPosition(false);
     const int64_t capture_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - capture_started_at).count();
+    // 须在定位丢失分支之前: 待命中的画面可能盖住小地图
+    const semantic_nodes::Result trigger_result = semantic_nodes::ProbeTriggerWhileNavigating(semantic_ctx);
+    if (trigger_result.request_failure) {
+        return FailNavigation(trigger_result.failure_reason, trigger_result.failure_log_message, 0.0, 0.0, 0);
+    }
+    if (trigger_result.consumed) {
+        return true;
+    }
     if (!position_captured) {
         return HandleLocalizationLoss();
     }
@@ -1319,7 +1377,10 @@ bool NavigationStateMachine::TickNavigate()
     // 紧随其后的 HEADING 转身也从对齐后的镜头起算。
     if (runtime_state_.camera_align_pending) {
         runtime_state_.camera_align_pending = false;
-        semantic_nodes::AlignCameraToCharacterOnce(semantic_ctx);
+        semantic_nodes::AlignCameraToHeadingOnce(semantic_ctx);
+        if (!position_->valid) {
+            return HandleLocalizationLoss();
+        }
     }
 
     if (runtime_state_.cross_tier_escape.active) {
@@ -1350,6 +1411,9 @@ bool NavigationStateMachine::TickNavigate()
     if (inline_semantic_result.stay_in_current_tick) {
         return true;
     }
+    if (!position_->valid) {
+        return HandleLocalizationLoss();
+    }
     if (!session_->HasCurrentWaypoint()) {
         session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
         return true;
@@ -1366,7 +1430,7 @@ bool NavigationStateMachine::TickNavigate()
         return true;
     }
 
-    const auto now = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
     const bool startup_grace_elapsed =
         runtime_state_.flow.navigate_started_at.time_since_epoch().count() > 0
         && std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.flow.navigate_started_at).count() >= 3000;
@@ -1401,11 +1465,24 @@ bool NavigationStateMachine::TickNavigate()
             }
             if (nav_run_anchor) {
                 nav_run_anchor_index = nav_run_anchor->first;
-                nav_run_result =
-                    nav_run_controller_
-                        .tick(session_, &runtime_state_, *position_, route, param_, nav_run_anchor->first, nav_run_anchor->second, now);
+                nav_run_result = nav_run_controller_.tick(
+                    session_,
+                    &runtime_state_,
+                    *position_,
+                    route,
+                    param_,
+                    nav_run_anchor->first,
+                    nav_run_anchor->second,
+                    now,
+                    [this] { motion_controller_->SetForwardState(false); });
             }
         }
+    }
+    // 规划期间人停着等, 这段时长不进任何无进展计时
+    if (nav_run_result.planning > std::chrono::steady_clock::duration::zero()) {
+        runtime_state_.offroute.PauseAt(now);
+        session_->ExcludeFromStallClocks(nav_run_result.planning);
+        now += nav_run_result.planning;
     }
 
     // NavMesh corridor steering can legitimately carry the agent far off the original serial
@@ -1546,7 +1623,14 @@ bool NavigationStateMachine::TickNavigate()
             arrival_distance = std::min(arrival_distance, kZiplineRestandBandWu);
         }
     }
-    if (route.waypoint_distance <= arrival_distance) {
+    // 台沿下落的落点: 进圈时人可能还在台上, 沿下落方向越过它才算到
+    bool short_of_drop = false;
+    if (waypoint.drop_from) {
+        const double dx = waypoint.x - (*waypoint.drop_from)[0];
+        const double dy = waypoint.y - (*waypoint.drop_from)[1];
+        short_of_drop = (position_->x - waypoint.x) * dx + (position_->y - waypoint.y) * dy < 0.0;
+    }
+    if (route.waypoint_distance <= arrival_distance && !short_of_drop) {
         if (!route.startup_motion_confirmed) {
             LogDebug << "Arrival advance blocked before startup movement confirmed." << VAR(session_->current_node_idx())
                      << VAR(route.waypoint_distance) << VAR(arrival_distance) << VAR(route.progress_distance) << VAR(route.cross_track)
@@ -1564,6 +1648,9 @@ bool NavigationStateMachine::TickNavigate()
                     semantic_nodes::SettleAtStrictGoal(semantic_ctx, waypoint);
                     // 收尾里的转镜头没走操舵那条路, 在途转角账认不出来, 清掉重新起算
                     runtime_state_.steering_rate.Reset();
+                    if (!position_->valid) {
+                        return HandleLocalizationLoss();
+                    }
                 }
                 // 走路买的是接近段和收尾的精度, 到点就还回去: 跳跃、冲刺这些动作照旧在慢跑态下执行
                 walk_mode_.Request(false);
@@ -1584,6 +1671,7 @@ bool NavigationStateMachine::TickNavigate()
 
     if (runtime_state_.river_fall.pending) {
         RiverFallRecoveryState& rf = runtime_state_.river_fall;
+        runtime_state_.offroute.PauseAt(now);
         if (session_->HardStalledMs(now) > kRiverFallRecoveryTimeoutMs) {
             return FailNavigation(
                 "river_fall_recovery_timeout",
@@ -1635,6 +1723,10 @@ bool NavigationStateMachine::TickNavigate()
     if (session_->phase() == NaviPhase::Navigate && waypoint.IsContinuousRun() && !route.on_route && std::isfinite(route.cross_track)
         && !runtime_state_.cross_tier_escape.active) {
         OffRouteWedgeState& wedge = runtime_state_.offroute;
+        if (const int64_t blind_ms = wedge.ResumeAt(now); blind_ms > 0) {
+            LogInfo << "Off-route wedge clock resumed after a blind stretch." << VAR(blind_ms) << VAR(route.progress_distance)
+                    << VAR(wedge.best_distance);
+        }
         const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
         if (!wedge.active || route.progress_distance + progress_epsilon < wedge.best_distance) {
             wedge.active = true;
@@ -1892,16 +1984,41 @@ bool NavigationStateMachine::TickNavigate()
     // an unpaid debt expires, so a swallowed drag can never leave steering suppressed against a turn never coming.
     // Walking turns at about half rate: a jogging-sized lifetime expires mid-turn and the loop re-commands it.
     SteeringRateState& steering_rate = runtime_state_.steering_rate;
-    // The floor covers one batch; a tick that spends several sweeps further and takes correspondingly longer to
-    // land, so add time for the part beyond the first batch. A debt written off mid-sweep makes the loop command
-    // the remainder a second time, which overshoots by whatever was still in flight and then hunts back.
-    const double extra_sweep_deg = std::max(0.0, std::abs(steering_rate.cmd_delta_deg) - motion_controller_->SteeringBatchCapDeg());
-    const int64_t base_pending_lifetime_ms =
-        kSteeringPendingLifetimeMs + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
-    const int64_t pending_lifetime_ms = walk_mode_.engaged() ? base_pending_lifetime_ms * kWalkModeSlowFactor : base_pending_lifetime_ms;
-    if (steering_rate.pending_turn_deg != 0.0) {
+    const double batch_cap_deg = motion_controller_->SteeringBatchCapDeg();
+    const bool walk_engaged = walk_mode_.engaged();
+    const auto pending_lifetime_ms = [&](double delta_deg) {
+        // The floor covers one batch; a tick that spends several sweeps further and takes correspondingly longer to
+        // land, so add time for the part beyond the first batch. A debt written off mid-sweep makes the loop command
+        // the remainder a second time, which overshoots by whatever was still in flight and then hunts back.
+        const double extra_sweep_deg = std::max(0.0, std::abs(delta_deg) - batch_cap_deg);
+        const int64_t base_ms = kSteeringPendingLifetimeMs + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
+        return walk_engaged ? base_ms * kWalkModeSlowFactor : base_ms;
+    };
+    const bool drops_turn_sends = motion_controller_->SteeringDropsTurnSends();
+    if (drops_turn_sends) {
+        std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count() >= pending_lifetime_ms(turn.delta_deg);
+        });
+        if (steering_rate.pending_turn_deg != 0.0) {
+            if (steering_rate.in_flight.empty()) {
+                steering_rate.pending_turn_deg = 0.0;
+            }
+            else {
+                const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
+                const double owed = std::abs(steering_rate.pending_turn_deg);
+                double negative_sent_deg = 0.0;
+                double positive_sent_deg = 0.0;
+                for (const SteeringRateState::InFlightTurn& turn : steering_rate.in_flight) {
+                    (turn.delta_deg < 0.0 ? negative_sent_deg : positive_sent_deg) += turn.delta_deg;
+                }
+                steering_rate.pending_turn_deg =
+                    std::clamp(std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed), negative_sent_deg, positive_sent_deg);
+            }
+        }
+    }
+    else if (steering_rate.pending_turn_deg != 0.0) {
         const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
-        if (pending_age_ms >= pending_lifetime_ms) {
+        if (pending_age_ms >= pending_lifetime_ms(steering_rate.cmd_delta_deg)) {
             steering_rate.pending_turn_deg = 0.0;
         }
         else {
@@ -1924,6 +2041,8 @@ bool NavigationStateMachine::TickNavigate()
 
     double issued_delta_deg = 0.0;
     int64_t steer_send_ms = 0;
+    // Lifetimes start at the send: a tick that replans before getting here can outlast a whole lifetime.
+    const auto steer_sent_at = std::chrono::steady_clock::now();
     if (steering.issued) {
         const TurnCommandResult steering_result = motion_controller_->ApplySteering(steering.yaw_delta_deg, tick_gap_ms);
         steer_send_ms = steering_result.send_ms;
@@ -1937,6 +2056,9 @@ bool NavigationStateMachine::TickNavigate()
         steering_rate.cmd_at = now;
         steering_rate.has_cmd = true;
         steering_rate.pending_turn_deg += issued_delta_deg;
+        if (drops_turn_sends) {
+            steering_rate.in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
+        }
     }
     // 只有走到这里的拍才记账。在上面就返回的拍留下拍号缺口，估计器拿输入出口的账判断那拍有没有发过转向。
     const int64_t now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();

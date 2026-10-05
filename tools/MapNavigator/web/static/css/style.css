@@ -817,6 +817,10 @@ body.mode-log .sidebar-dock {
   min-width: 0;
 }
 
+.preview-coordinates > .entry {
+  width: 0;
+}
+
 .sidebar-label {
   color: var(--text-secondary);
   font-size: 11px;
@@ -1413,6 +1417,22 @@ body.mode-log .sidebar-dock {
   display: flex;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+
+.log-ride-list {
+  margin: 0;
+  padding-left: 22px;
+  overflow-wrap: anywhere;
+}
+
+.log-ride-return {
+  color: #f59e0b;
+}
+
+.log-ride-miss {
+  color: #f87171;
 }
 
 .log-tower-state {
@@ -1825,7 +1845,8 @@ canvas {
   color: var(--text-primary);
 }
 
-.btn-float.active {
+.btn-float.active,
+.coordinate-preview-dropdown[open] > summary {
   background: rgba(37, 99, 235, 0.26);
   color: #93c5fd;
   box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.38);
@@ -1914,6 +1935,19 @@ body.mode-assert #btn-select-assert-tier {
 .map-layer-dropdown {
   position: relative;
   display: flex;
+}
+
+.coordinate-preview-dropdown > summary {
+  list-style: none;
+}
+
+.coordinate-preview-dropdown > summary::-webkit-details-marker {
+  display: none;
+}
+
+.coordinate-preview-dropdown > .map-layer-panel {
+  right: 0;
+  left: auto;
 }
 
 /* 窄窄一列, 每个开关独占一行, 组间一条分隔线.

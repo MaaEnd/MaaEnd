@@ -391,6 +391,16 @@ bool read_find_spec(const json::value& input, NaviFindSpec& out_spec)
     return true;
 }
 
+struct NaviTriggerInput
+{
+    std::string trigger_node_;
+    std::string triggerNode_;
+
+    MEO_FROMJSON(MEO_OPT MEO_KEY("trigger_node") trigger_node_, MEO_OPT MEO_KEY("triggerNode") triggerNode_)
+
+    const std::string& node() const { return trigger_node_.empty() ? triggerNode_ : trigger_node_; }
+};
+
 struct NaviWaypointInput
 {
     double x_ = 0.0;
@@ -407,6 +417,7 @@ struct NaviWaypointInput
     std::string find_stop_;
     std::optional<std::array<double, 2>> find_arrive_;
     bool find_source_conflict_ = false;
+    std::string trigger_node_;
     std::optional<double> target_deck_y_;
     bool strict_arrival_ = false;
     bool required_ = false;
@@ -459,7 +470,12 @@ struct NaviWaypointInput
             return false;
         }
 
-        fromObject(object_input, interact_spec, find_spec);
+        NaviTriggerInput trigger_input;
+        if (!trigger_input.from_json(input)) {
+            return false;
+        }
+
+        fromObject(object_input, interact_spec, find_spec, trigger_input);
         return true;
     }
 
@@ -500,7 +516,11 @@ private:
         return true;
     }
 
-    void fromObject(const NaviWaypointObjectInput& object_input, const NaviInteractSpec& interact_spec, const NaviFindSpec& find_spec)
+    void fromObject(
+        const NaviWaypointObjectInput& object_input,
+        const NaviInteractSpec& interact_spec,
+        const NaviFindSpec& find_spec,
+        const NaviTriggerInput& trigger_input)
     {
         appendActions(object_input.action_);
         appendActions(object_input.actions_);
@@ -516,6 +536,7 @@ private:
         find_stop_ = find_spec.stop_node;
         find_arrive_ = find_spec.arrive;
         find_source_conflict_ = find_spec.conflicting_source;
+        trigger_node_ = trigger_input.node();
         target_deck_y_ = resolveTargetDeckY(object_input);
         strict_arrival_ = resolveStrictArrival(object_input);
         required_ = object_input.required_;
@@ -623,6 +644,7 @@ private:
 struct NaviParamInput
 {
     std::string map_name_;
+    std::string heading_source_ = "character";
     std::vector<NaviWaypointInput> path_;
     int64_t arrival_timeout_ = 60000;
     double sprint_threshold_ = 16.0;
@@ -659,6 +681,7 @@ struct NaviParamInput
         MEO_OPT MEO_KEY("map_name") map_name_,
         MEO_OPT MEO_KEY("path") path_,
         MEO_OPT MEO_KEY("arrival_timeout") arrival_timeout_,
+        MEO_OPT MEO_KEY("heading_source") heading_source_,
         MEO_OPT MEO_KEY("sprint_threshold") sprint_threshold_,
         MEO_OPT MEO_KEY("enable_local_driver") enable_local_driver_,
         MEO_OPT MEO_KEY("zip") zip_,
@@ -917,6 +940,39 @@ bool validate_find_points(const std::vector<Waypoint>& waypoints)
     return ok;
 }
 
+void apply_trigger_node(const std::string& trigger_node, std::vector<Waypoint>& waypoints, size_t from_index)
+{
+    if (trigger_node.empty()) {
+        return;
+    }
+    for (size_t index = from_index; index < waypoints.size(); ++index) {
+        if (waypoints[index].action == ActionType::TRIGGER) {
+            waypoints[index].trigger_node = trigger_node;
+        }
+    }
+}
+
+bool validate_trigger_points(const std::vector<Waypoint>& waypoints)
+{
+    bool ok = true;
+    for (size_t index = 0; index < waypoints.size(); ++index) {
+        const Waypoint& waypoint = waypoints[index];
+        if (waypoint.action != ActionType::TRIGGER) {
+            continue;
+        }
+        if (waypoint.trigger_node.empty()) {
+            LogError << "TRIGGER waypoint has no trigger_node; nothing tells it the navigation is done." << VAR(index);
+            ok = false;
+        }
+        if (index + 1 != waypoints.size()) {
+            LogError << "TRIGGER waypoint must be the last point; a hit ends the navigation and the rest would never run." << VAR(index)
+                     << VAR(waypoints.size());
+            ok = false;
+        }
+    }
+    return ok;
+}
+
 // Runs after the route-wide defaults land, so a point holding only the scan node is not flagged. The pre-filter
 // only decides when to stop; with no text there is nothing to confirm, so the point falls back to plain INTERACT.
 void warn_scan_without_text(const std::vector<Waypoint>& waypoints)
@@ -962,6 +1018,17 @@ void warn_unusable_find_fields(const NaviWaypointInput& input)
             << VAR(input.find_text_.size()) << VAR(input.find_stop_);
 }
 
+void warn_unusable_trigger_fields(const NaviWaypointInput& input)
+{
+    if (input.trigger_node_.empty()) {
+        return;
+    }
+    if (std::find(input.actions_.begin(), input.actions_.end(), ActionType::TRIGGER) != input.actions_.end()) {
+        return;
+    }
+    LogWarn << "Waypoint carries trigger_node without a TRIGGER action; it does nothing here." << VAR(input.trigger_node_);
+}
+
 // 只有它真是 FIND 点时冲突才值得拒掉整条路线, 写在别的动作上降级成告警
 bool reject_conflicting_find_fields(const NaviWaypointInput& input)
 {
@@ -987,6 +1054,7 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
 {
     warn_unusable_interact_fields(input);
     warn_unusable_find_fields(input);
+    warn_unusable_trigger_fields(input);
     if (!reject_conflicting_find_fields(input)) {
         return false;
     }
@@ -1100,6 +1168,7 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         apply_interact_rec(input.interact_rec_, out_waypoints, first_expanded);
         // 数组形 [x, y, "FIND"] 会走到这里: 坐标有了, 找什么仍要由点上或路线顶层的 find_* 补
         apply_find_fields(input, out_waypoints, first_expanded);
+        apply_trigger_node(input.trigger_node_, out_waypoints, first_expanded);
         if (!zone_id.empty()) {
             zone_context = zone_id;
         }
@@ -1161,7 +1230,13 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
         return false;
     }
 
+    if (input.heading_source_ != "character" && input.heading_source_ != "camera") {
+        LogError << "Invalid navigation heading_source." << VAR(input.heading_source_);
+        return false;
+    }
+
     NaviParam param = build_navi_param(input);
+    param.heading_source = input.heading_source_ == "camera" ? HeadingSource::Camera : HeadingSource::Character;
     std::string zone_context = param.map_name;
 
     if (input.has_path_) {
@@ -1192,7 +1267,7 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
         LogWarn << "Route sets both find_target and find_text but carries no FIND point; they do nothing here." << VAR(caller_name_text)
                 << VAR(route_find.target_node) << VAR(route_find.texts.size());
     }
-    if (!validate_find_points(param.path)) {
+    if (!validate_find_points(param.path) || !validate_trigger_points(param.path)) {
         return false;
     }
 

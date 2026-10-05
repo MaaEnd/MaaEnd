@@ -43,11 +43,11 @@
                     202
                 ],
                 "expected": [
+                    // @i18n-skip
                     "自动登出",
                     "自動登出",
-                    "Logged out",
-                    "自動的にロ",
-                    "장시간 활동"
+                    "数据即将更新",
+                    "數據即將更新"
                 ]
             },
             "YellowConfirmButtonType1"

@@ -8,6 +8,16 @@ body:
         📖 **提交前请阅读 [问题反馈指南](https://github.com/MaaEnd/MaaEnd/blob/v2/docs/zh_cn/users/troubleshooting.md)。**  
         ⚠️ **请先更新到最新版本的 MaaEnd，确认问题是否仍然存在后再提交 Issue。**
 
+  - type: dropdown
+    id: client
+    attributes:
+      label: 客户端类型
+      options:
+        - MXU（Windows / macOS / Linux）
+        - MaaFwApp（Android）
+    validations:
+      required: true
+
   - type: textarea
     id: description
     attributes:
@@ -26,8 +36,9 @@ body:
     attributes:
       label: 日志文件
       description: |
-        💡 点击界面上“运行日志”右上角的 🗄️ 导出日志文件。  
-        ⚠️ **请将上传导出后的 `MaaEnd-logs-xxx.zip` 文件** ⚠️  
+        💡 MXU：点击界面上“运行日志”右上角的 🗄️ 导出日志文件。
+        💡 MaaFwApp：在“设置”中点击“导出日志”。
+        ⚠️ **请将上传导出后的 `MaaEnd-logs-xxx.zip`（MaaFwApp 为 `maafw_logs_xxx.zip`）文件** ⚠️
         ⚠️ **上传失败可上传到任意一个用户群，并在下方提供用户群名称、群文件名称** ⚠️  
         ❌ 不要复制文字发送。  
         ❌ 不要截图日志。

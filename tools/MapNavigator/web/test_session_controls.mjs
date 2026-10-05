@@ -1,10 +1,138 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
+import {runInNewContext} from "node:vm";
 
 import {ConnectionPanel} from "./static/js/ui/connection.js";
 import {NavTestController} from "./static/js/ui/navtest.js";
 import {RecordingController} from "./static/js/ui/recording.js";
+import {NavmeshField} from "./static/js/navmesh_field.js";
+import {Mode} from "./static/js/state.js";
+import {normalizeZoneId} from "./static/js/model.js";
+import {compactNumber} from "./static/js/rounding.js";
+
+function coordinatePreviewApp() {
+  const source = readFileSync(new URL("./static/js/main.js", import.meta.url), "utf8");
+  const names = [
+    "_onPreviewCoordPaste",
+    "_markPreviewCoordinate",
+    "_copyPreviewPoint",
+    "_planningEndpoint",
+    "_editLocateHintForDisplay",
+    "_copyCoordKey",
+    "_copyPlanningEndpoints",
+  ];
+  const methods = names.map(
+    (name) => source.match(new RegExp(`  (?:async )?${name}\\([^\\n]*\\) \\{[\\s\\S]*?\\n  \\}`))[0],
+  );
+  const app = runInNewContext(`({${methods.join(",\n")}})`, {Mode, compactNumber, normalizeZoneId, setStatus() {}});
+  app.field = new NavmeshField([
+    {zone_id: 1, name: "Wuling_Base", is_tier: false, geometry_zone_id: 1},
+    {zone_id: 2, name: "Wuling_L4_328", is_tier: true, geometry_zone_id: 1, transform: [2, 100, 3, -30]},
+    {zone_id: 3, name: "ValleyIV_Base", is_tier: false, geometry_zone_id: 3},
+  ]);
+  app.displayZoneId = 1;
+  app.state = {mode: Mode.EDIT, points: [], selectedIndices: new Set(), zoneState: {currentSegmentIdx: 0}};
+  app.els = {previewCoordX: {value: ""}, previewCoordY: {value: ""}};
+  app._displayTierZoneId = () => app.displayZoneId;
+  app._displayZoneId = () => app.field.zoneById(app.displayZoneId).name;
+  app._resolveZoneId = (name) => app.field.zoneByName(name)?.zone_id ?? NaN;
+  app._activeDisplayTierId = () => (app.field.isTier(app.displayZoneId) ? app.displayZoneId : null);
+  app._pointToBase = (id, x, y) => (app.field.isTier(id) ? app.field.tierToBase(id, x, y) : [x, y]);
+  app._baseToDisplay = (x, y) =>
+    app.field.isTier(app.displayZoneId) ? app.field.baseToTier(app.displayZoneId, x, y) : [x, y];
+  app._headingBaseToDisplay = () => null;
+  app._focusEditLocateHint = () => {};
+  app._is3DView = () => false;
+  app._activeEditPreviewStart = () => null;
+  app._copyText = async (text) => {
+    app.copied = text;
+    return true;
+  };
+  return app;
+}
+
+test("coordinate-pair paste fills both entries and leaves ordinary or malformed input alone", () => {
+  const app = coordinatePreviewApp();
+  for (const text of ["12.5", "broken", "[]", "[1]", "[1, 2, 3]", '["1", 2]', "[null, 2]", "[1e999, 2]"]) {
+    app._onPreviewCoordPaste({clipboardData: {getData: () => text}, preventDefault: () => assert.fail(text)});
+    assert.equal(app.els.previewCoordX.value, "");
+    assert.equal(app.els.previewCoordY.value, "");
+  }
+  let prevented = false;
+  app._onPreviewCoordPaste({clipboardData: {getData: () => "[0, -12.5]"}, preventDefault: () => (prevented = true)});
+  assert.equal(prevented, true);
+  assert.equal(app.els.previewCoordX.value, "0");
+  assert.equal(app.els.previewCoordY.value, "-12.5");
+});
+
+test("invalid coordinates and an unloaded map preserve the previous reference point", () => {
+  const app = coordinatePreviewApp();
+  const previous = {x: 1, y: 2};
+  app.editLocateHint = previous;
+  for (const [x, y] of [
+    ["", "2"],
+    ["1", " "],
+    ["NaN", "2"],
+    ["1", "Infinity"],
+  ]) {
+    app.els.previewCoordX.value = x;
+    app.els.previewCoordY.value = y;
+    app._markPreviewCoordinate();
+    assert.equal(app.editLocateHint, previous);
+  }
+  app.field = null;
+  app.els.previewCoordX.value = "1";
+  app.els.previewCoordY.value = "2";
+  app._markPreviewCoordinate();
+  assert.equal(app.editLocateHint, previous);
+});
+
+test("tier preview coordinates project for display and copy back with their tier without authoring a waypoint", async () => {
+  const app = coordinatePreviewApp();
+  app.displayZoneId = 2;
+  app.els.previewCoordX.value = "0";
+  app.els.previewCoordY.value = "-12.5";
+  app._markPreviewCoordinate();
+  assert.equal(app.editLocateHint.x, 100);
+  assert.equal(app.editLocateHint.y, -67.5);
+  assert.equal(app.state.points.length, 0);
+  await app._copyPreviewPoint("coordinates");
+  assert.equal(app.copied, "[0, -12.5]");
+  await app._copyPreviewPoint("navmesh");
+  assert.deepEqual(JSON.parse(app.copied), {action: "NAVMESH", target: [0, -12.5], target_tier: "Wuling_L4_328"});
+
+  app.displayZoneId = 1;
+  await app._copyPreviewPoint("navmesh");
+  assert.deepEqual(JSON.parse(app.copied), {action: "NAVMESH", target: [100, -67.5]});
+});
+
+test("game-position references copy in the displayed tier and cannot be copied from another basemap", async () => {
+  const app = coordinatePreviewApp();
+  app.editLocateHint = {x: 124, y: 30, geometryZoneId: 1, rot: 90, label: "游戏当前位置"};
+  app.displayZoneId = 2;
+  await app._copyPreviewPoint("navmesh");
+  assert.deepEqual(JSON.parse(app.copied), {action: "NAVMESH", target: [12, 20], target_tier: "Wuling_L4_328"});
+  delete app.copied;
+  app.displayZoneId = 3;
+  await app._copyPreviewPoint("coordinates");
+  assert.equal(app.copied, undefined);
+});
+
+test("C copies a preview reference when no authored point or planning endpoint takes precedence", async () => {
+  const app = coordinatePreviewApp();
+  app.editLocateHint = {x: 12.5, y: 30, geometryZoneId: 1, rot: null, label: "坐标预览点"};
+  app._copyCoordKey();
+  assert.equal(app.copied, "[12.5, 30]");
+  app.quickRouteTest = {start: {position: [1, 2], positionZone: "Wuling_Base"}, goal: {position: [3, 4]}};
+  app._copyCoordKey();
+  assert.equal(app.copied, "[1, 2],\n[3, 4]");
+  app.state.points = [{x: 5, y: 6, zone: "Wuling_Base"}];
+  app.state.selectedIndices.add(0);
+  app.state.zonePointGlobalIndices = () => [0];
+  app._copyCoordKey();
+  assert.equal(app.copied, "[5, 6]");
+});
 
 class FakeButton {
   constructor() {
@@ -59,6 +187,47 @@ test("suspending connection probes clears stale status-dot styles", () => {
 
   assert.deepEqual(removed.sort(), ["connected", "connecting"]);
   assert.equal(panel.isConnected(), false);
+});
+
+test("planning segment changes preserve the map view while run changes still fit it", () => {
+  const source = readFileSync(new URL("./static/js/main.js", import.meta.url), "utf8");
+  const runChange = source.match(/  _onLogRunChanged\(\) \{[\s\S]*?\n  \}/)?.[0] || "";
+  const segmentChange = source.match(/  _onLogSegmentChanged\([^\n]*\) \{[\s\S]*?\n  \}/)?.[0] || "";
+  const showRun = source.match(/  _showSelectedLogRun\([^\n]*\) \{[\s\S]*?\n  \}/)?.[0] || "";
+  assert.match(runChange, /_onLogSegmentChanged\(\{fit: true\}\)/);
+  assert.match(segmentChange, /fit = false/);
+  assert.match(segmentChange, /_showSelectedLogRun\(\{fit, preserveView: !fit\}\)/);
+  assert.match(showRun, /if \(opts\.preserveView\) \{\s*this\._paint\(\);\s*return;/);
+  assert.ok(showRun.indexOf("if (opts.preserveView)") < showRun.indexOf("this.els.displayZoneCombo.value = base.name"));
+});
+
+test("log fit-view includes replan endpoints even without measured walking segments", () => {
+  const source = readFileSync(new URL("./static/js/main.js", import.meta.url), "utf8");
+  const method = source.match(/  _logDisplayPoints\(\) \{[\s\S]*?\n  \}/)?.[0];
+  assert.ok(method);
+  const app = runInNewContext(`({${method}})`);
+  app._logAnalysisForDisplay = () => ({
+    authored: [[1, 2]],
+    walks: [],
+    observed: [],
+    observedReplans: [
+      [
+        [10000, 10000],
+        [11000, 11000],
+      ],
+    ],
+    baselines: [],
+    ziplines: [],
+    estimates: [],
+    selectedTowers: [],
+  });
+  assert.deepEqual(Array.from(app._logDisplayPoints()), [
+    [1, 2],
+    [10000, 10000],
+    [11000, 11000],
+  ]);
+  app._logAnalysisForDisplay = () => null;
+  assert.deepEqual(Array.from(app._logDisplayPoints()), []);
 });
 
 test("controls that need a live game session start disabled", () => {

@@ -48,10 +48,9 @@
         "recognition": "Custom",
         "custom_recognition": "ExpendableRecognition",
         "custom_recognition_param": {
-            "candidate": "VisitFriendsRecognitionItemWithName",
+            "candidate": "VisitFriendsRecognitionItemWithPriorityRemark",
             "visited_node": "VisitFriendsMenuScanVisited",
-            "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)",
-            "whitelist": ""
+            "key_regex": "(?:[（(])?([^（(）)]*\\#\\d+)"
         }
     },
     "VisitFriendsMenuScanSelectFriendRemarkConsumable": {
@@ -85,6 +84,10 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        // 记录白名单链路的进船节点，供共享 max_hit 计数后继续执行本链路。
+        "anchor": {
+            "VisitFriendsEnterShipTarget": "VisitFriendsEnterShipPriorityRemark"
+        },
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
@@ -103,6 +106,10 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        // 记录备注链路的进船节点，供共享 max_hit 计数后继续执行本链路。
+        "anchor": {
+            "VisitFriendsEnterShipTarget": "VisitFriendsEnterShipRemark"
+        },
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
@@ -120,6 +127,10 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        // 记录普通链路的进船节点，供共享 max_hit 计数后继续执行本链路。
+        "anchor": {
+            "VisitFriendsEnterShipTarget": "VisitFriendsEnterShip"
+        },
         "post_wait_freezes": 200,
         "post_delay": 0,
         "next": [
@@ -138,7 +149,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsEnterShipPriorityRemark"
+            "VisitFriendsEnterShipBudget",
+            "VisitFriendsVisitLimitReached"
         ]
     },
     "VisitFriendsCheckAssistRemark": {
@@ -152,7 +164,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "VisitFriendsEnterShipRemark"
+            "VisitFriendsEnterShipBudget",
+            "VisitFriendsVisitLimitReached"
         ]
     },
     "VisitFriendsMenuScanScrollFinish": {
@@ -316,6 +329,27 @@
             "Node.Recognition.Succeeded": "拜访好友次数已满，停止拜访"
         }
     },
+    "VisitFriendsVisitLimitReached": {
+        "desc": "已达到设置的好友拜访次数上限，关闭好友详情",
+        "recognition": "And",
+        "all_of": [
+            "GrayCancelButton"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsVisitLimitStop"
+        ]
+    },
+    "VisitFriendsVisitLimitStop": {
+        "desc": "拜访次数已达上限，结束任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0
+    },
     "VisitFriendsMenuScanScrollList": {
         "desc": "列表未到底时向下滚动：ListComplete 未命中时落到本节点。滑动后 post_wait_freezes 等列表静止再回到扫描，否则惯性会被当成画面变化而无法判定到底",
         "recognition": "DirectHit",
@@ -346,7 +380,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "VisitFriendsEnterShip"
+            "VisitFriendsEnterShipBudget",
+            "VisitFriendsVisitLimitReached"
         ]
     },
     "VisitFriendsCheckAssistClueExchange": {

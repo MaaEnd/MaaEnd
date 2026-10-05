@@ -6,8 +6,8 @@
             "label": "$task.PuzzleSolver.label",
             "entry": "PuzzleSolverMain",
             "description": "$task.PuzzleSolver.description",
-            "option": [
-                "PuzzleSolverMode"
+            "group": [
+                "open_world"
             ],
             "controller": [
                 "Linux-Gamescope",
@@ -15,8 +15,8 @@
                 "Linux-Wlroots",
                 "Win32-Front"
             ],
-            "group": [
-                "open_world"
+            "option": [
+                "PuzzleSolverMode"
             ]
         }
     ],

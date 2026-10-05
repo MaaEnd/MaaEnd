@@ -42,7 +42,7 @@ void ObstacleDeviceRecovery::Start(const cv::Rect& base_roi)
         return;
     }
 
-    const std::filesystem::path template_path = std::filesystem::absolute(get_exe_dir() / ".." / kObstacleDeviceTemplateRelativePath);
+    const std::filesystem::path template_path = std::filesystem::absolute(get_install_dir() / kObstacleDeviceTemplateRelativePath);
     const cv::Mat button_template = MAA_NS::imread(template_path, cv::IMREAD_GRAYSCALE);
     if (button_template.empty()) {
         LogWarn << "Blocking-device probe not started: interact button template not loaded."

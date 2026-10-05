@@ -87,6 +87,17 @@ test("FIND fields survive normalization and keep distinct specs apart", () => {
   assert.equal(normalizePathPoints([makePoint(ActionType.FIND, {find_arrive: [1]})])[0].find_arrive, undefined);
 });
 
+test("TRIGGER node survives normalization and keeps distinct nodes apart", () => {
+  const normalized = normalizePathPoints([
+    makePoint(ActionType.TRIGGER, {trigger_node: " MyTaskTriggerNode "}),
+    makePoint(ActionType.TRIGGER, {trigger_node: "OtherNode"}),
+  ]);
+
+  assert.equal(normalized.length, 2);
+  assert.equal(normalized[0].trigger_node, "MyTaskTriggerNode");
+  assert.equal(normalizePathPoints([makePoint(ActionType.TRIGGER, {trigger_node: 1})])[0].trigger_node, undefined);
+});
+
 test("selected NAVMESH target deck participates in undo, redo, and clear", () => {
   const state = new AppState();
   state.setPoints([makePoint(ActionType.NAVMESH, {target_deck_y: 100.5})]);

@@ -468,6 +468,11 @@
                 <option value="">请先导入日志</option>
               </select>
 
+              <label class="sidebar-label" for="log-segment-select">规划分段</label>
+              <select id="log-segment-select" class="combo log-run-select" disabled>
+                <option value="">暂无规划分段</option>
+              </select>
+
               <div id="log-decision-summary" class="log-decision-summary" aria-live="polite">
                 导入日志后，这里会列出每段的成本计算和选择原因。
               </div>
@@ -770,6 +775,55 @@
                 </svg>
               </button>
               <div class="controls-divider"></div>
+              <details id="coordinate-preview-dropdown" class="map-layer-dropdown coordinate-preview-dropdown" hidden>
+                <summary
+                  class="btn btn-float btn-float-text"
+                  role="button"
+                  title="坐标预览"
+                  aria-label="坐标预览"
+                  aria-controls="coordinate-preview-panel">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round">
+                    <circle cx="12" cy="12" r="6"></circle>
+                    <path d="M12 2v5M12 17v5M2 12h5M17 12h5"></path>
+                  </svg>
+                  <span>坐标</span>
+                  <span class="btn-caret" aria-hidden="true"></span>
+                </summary>
+                <div id="coordinate-preview-panel" class="map-layer-panel" role="group" aria-label="坐标预览">
+                  <span class="map-layer-group-title">坐标预览</span>
+                  <div class="sidebar-row select-row preview-coordinates">
+                    <input
+                      id="preview-coord-x"
+                      class="entry"
+                      type="text"
+                      inputmode="decimal"
+                      placeholder="X"
+                      aria-label="预览点 X 坐标"
+                      title="当前底图/层级的 X 坐标；可粘贴 [x, y]" />
+                    <input
+                      id="preview-coord-y"
+                      class="entry"
+                      type="text"
+                      inputmode="decimal"
+                      placeholder="Y"
+                      aria-label="预览点 Y 坐标"
+                      title="当前底图/层级的 Y 坐标；可粘贴 [x, y]" />
+                    <button id="btn-preview-mark" class="btn btn-secondary btn-sm" type="button">标点</button>
+                  </div>
+                  <div class="sidebar-hint">使用当前底图/层级坐标，可粘贴 [x, y]；标点不加入路线。</div>
+                  <div class="io-row io-row-2">
+                    <button id="btn-preview-copy-coord" class="btn btn-secondary" type="button">复制坐标</button>
+                    <button id="btn-preview-copy-navmesh" class="btn btn-secondary" type="button">复制 NAVMESH</button>
+                  </div>
+                </div>
+              </details>
               <!-- 图层：按钮与它的下拉浮层是一体的，浮层从按钮正下方展开，三维视图里同样可用 -->
               <div class="map-layer-dropdown">
                 <button

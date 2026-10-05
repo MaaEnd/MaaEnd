@@ -5,8 +5,12 @@
             "label": "$task.ReadAllWiki.label",
             "entry": "WikiReadAll",
             "description": "$task.ReadAllWiki.description",
+            "group": [
+                "other_menu"
+            ],
             "controller": [
                 "ADB",
+                "CloudADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -14,9 +18,6 @@
                 "MacOS-Front",
                 "PlayCover",
                 "Win32-Front"
-            ],
-            "group": [
-                "other_menu"
             ]
         }
     ],

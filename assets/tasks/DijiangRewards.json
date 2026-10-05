@@ -5,12 +5,8 @@
             "label": "$task.DijiangRewards.label",
             "entry": "DijiangRewards",
             "description": "$task.DijiangRewards.description",
-            "option": [
-                "AutoStartExchange",
-                "StageTaskSetting",
-                "ClueSetting",
-                "QuickGiveDuplicateClues",
-                "SelectToGrow"
+            "group": [
+                "dijiang_ship"
             ],
             "controller": [
                 "ADB",
@@ -23,8 +19,12 @@
                 "PlayCover",
                 "Win32-Front"
             ],
-            "group": [
-                "dijiang_ship"
+            "option": [
+                "AutoStartExchange",
+                "StageTaskSetting",
+                "ClueSetting",
+                "QuickGiveDuplicateClues",
+                "SelectToGrow"
             ]
         }
     ],
@@ -33,7 +33,6 @@
             "type": "switch",
             "label": "$option.AutoStartExchange.label",
             "description": "$option.AutoStartExchange.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -60,13 +59,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "WaitExchangeBeforeStart": {
             "type": "switch",
             "label": "$option.WaitExchangeBeforeStart.label",
             "description": "$option.WaitExchangeBeforeStart.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -93,7 +92,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "WaitExchangeBeforeStartThreshold": {
             "type": "input",
@@ -104,10 +104,10 @@
                     "name": "WaitExchangeBeforeStartMinutes",
                     "label": "$option.WaitExchangeBeforeStartThreshold.label",
                     "description": "$option.WaitExchangeBeforeStartThreshold.description",
+                    "default": "5",
                     "pipeline_type": "int",
                     "verify": "^(?:[1-9]|[1-9]\\d|[1-9]\\d{2}|1[01]\\d{2}|1200)$",
-                    "pattern_msg": "$option.WaitExchangeBeforeStartThreshold.inputs.WaitExchangeBeforeStartMinutes.pattern_msg",
-                    "default": "5"
+                    "pattern_msg": "$option.WaitExchangeBeforeStartThreshold.inputs.WaitExchangeBeforeStartMinutes.pattern_msg"
                 }
             ],
             "pipeline_override": {
@@ -136,7 +136,6 @@
             "type": "switch",
             "label": "$option.StageTaskSetting.label",
             "description": "$option.StageTaskSetting.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -151,13 +150,13 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "FastCollect": {
             "type": "switch",
             "label": "$option.FastCollect.label",
             "description": "$option.FastCollect.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -181,13 +180,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "RecoveryEmotionStage": {
             "type": "switch",
             "label": "$option.RecoveryEmotionStage.label",
             "description": "$option.RecoveryEmotionStage.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -205,13 +204,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "ReceptionRoomStage": {
             "type": "switch",
             "label": "$option.ReceptionRoomStage.label",
             "description": "$option.ReceptionRoomStage.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -229,13 +228,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "ManufacturingStage": {
             "type": "switch",
             "label": "$option.ManufacturingStage.label",
             "description": "$option.ManufacturingStage.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -253,13 +252,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "GrowthChamberStage": {
             "type": "switch",
             "label": "$option.GrowthChamberStage.label",
             "description": "$option.GrowthChamberStage.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -277,13 +276,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "ClueSetting": {
             "type": "switch",
             "label": "$option.ClueSetting.label",
             "description": "$option.ClueSetting.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -304,13 +303,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SendCluesDirect": {
             "type": "switch",
             "label": "$option.SendCluesDirect.label",
             "description": "$option.SendCluesDirect.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -328,13 +327,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "QuickGiveDuplicateClues": {
             "type": "switch",
             "label": "$option.QuickGiveDuplicateClues.label",
             "description": "$option.QuickGiveDuplicateClues.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -352,7 +351,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "ClueSend": {
             "type": "input",
@@ -361,8 +361,8 @@
                 {
                     "name": "MaxClueSend",
                     "label": "$option.ClueSend.MaxClueSend.label",
-                    "pipeline_type": "int",
-                    "default": "3"
+                    "default": "3",
+                    "pipeline_type": "int"
                 }
             ],
             "pipeline_override": {
@@ -375,7 +375,6 @@
             "type": "select",
             "label": "$option.ClueStockLimit.label",
             "description": "$option.ClueStockLimit.description",
-            "default_case": "2",
             "cases": [
                 {
                     "name": "1",
@@ -395,13 +394,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "2"
         },
         "SelectToGrow": {
             "type": "select",
             "label": "$option.SelectToGrow.label",
             "description": "$option.SelectToGrow.description",
-            "default_case": "Any",
             "cases": [
                 {
                     "name": "DoNothing",
@@ -437,32 +436,13 @@
                         "SortOrder"
                     ]
                 }
-            ]
+            ],
+            "default_case": "Any"
         },
         "SelectToGrowItems": {
             "type": "checkbox",
             "label": "$option.SelectToGrowItems.label",
             "description": "$option.SelectToGrowItems.description",
-            "default_case": [
-                "Wulingstone",
-                "Igneosite",
-                "FalseAggela",
-                "BlightedJadeleaf",
-                "Cosmagaric",
-                "Bloodcap",
-                "Umbronyx",
-                "Auronyx",
-                "Kalkonyx",
-                "Vitrodendra",
-                "Chrysodendra",
-                "Kalkodendra",
-                "RubyBolete",
-                "RedBolete",
-                "PinkBolete",
-                "TalosCap",
-                "CrimsonSpearleaf",
-                "Protocolith"
-            ],
             "cases": [
                 {
                     "name": "Wulingstone",
@@ -788,13 +768,32 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "Wulingstone",
+                "Igneosite",
+                "FalseAggela",
+                "BlightedJadeleaf",
+                "Cosmagaric",
+                "Bloodcap",
+                "Umbronyx",
+                "Auronyx",
+                "Kalkonyx",
+                "Vitrodendra",
+                "Chrysodendra",
+                "Kalkodendra",
+                "RubyBolete",
+                "RedBolete",
+                "PinkBolete",
+                "TalosCap",
+                "CrimsonSpearleaf",
+                "Protocolith"
             ]
         },
         "AutoExtractSeed": {
             "type": "switch",
             "label": "$option.AutoExtrachSeed.label",
             "description": "$option.AutoExtrachSeed.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -821,12 +820,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "SortBy": {
             "type": "select",
             "label": "$option.SortBy.label",
-            "default_case": "Default",
             "cases": [
                 {
                     "name": "Default",
@@ -955,12 +954,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Default"
         },
         "SortOrder": {
             "type": "select",
             "label": "$option.SortOrder.label",
-            "default_case": "ASC",
             "cases": [
                 {
                     "name": "ASC",
@@ -992,7 +991,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "ASC"
         }
     }
 }

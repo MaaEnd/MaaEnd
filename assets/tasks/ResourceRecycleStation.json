@@ -5,19 +5,22 @@
             "label": "$task.ResourceRecycleStation.label",
             "entry": "ResourceRecycleStationStart",
             "description": "$task.ResourceRecycleStation.description",
-            "option": [
-                "ResourceRecycleStationRegion"
+            "group": [
+                "open_world"
             ],
             "controller": [
+                "ADB",
+                "CloudADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
                 "MacOS-Background",
                 "MacOS-Front",
+                "PlayCover",
                 "Win32-Front"
             ],
-            "group": [
-                "open_world"
+            "option": [
+                "ResourceRecycleStationRegion"
             ]
         }
     ],
@@ -25,10 +28,6 @@
         "ResourceRecycleStationRegion": {
             "type": "checkbox",
             "label": "$option.ResourceRecycleStationRegion.label",
-            "default_case": [
-                "Wuling",
-                "ValleyIV"
-            ],
             "cases": [
                 {
                     "name": "Wuling",
@@ -48,6 +47,10 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "Wuling",
+                "ValleyIV"
             ]
         }
     }

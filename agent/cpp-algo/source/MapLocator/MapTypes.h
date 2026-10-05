@@ -17,7 +17,7 @@ struct MapPosition
     double y = 0.0;
     double score = 0.0;
     int sliceIndex = 0;
-    double angle = 0.0;
+    double angle = 0.0; // 当前帧角色朝向，负值表示未识别到；定位成功不保证朝向可用。
     long long latencyMs = 0;
 };
 
@@ -51,6 +51,8 @@ struct LocateOptions
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
     std::string expected_zone_id;     // 非空时仅接受该区域的定位结果
     std::vector<SearchHint> search_hints;
+    // 仅供 C++ 调用方控制；镜头朝向导航可关闭，不暴露为 Recognition 参数。
+    bool reject_occluded_frames = true;
 
     MEO_JSONIZATION(
         MEO_OPT loc_threshold,
@@ -84,8 +86,9 @@ struct LocateResult
 {
     LocateStatus status;
     std::optional<MapPosition> position;
-    std::string debugMessage; // 用于向 Pipeline 输出日志
+    std::string debugMessage;  // 用于向 Pipeline 输出日志
     std::optional<CameraOrientation> camRot;
+    std::optional<double> rot; // 当前帧角色朝向，不依赖位置是否识别成功。
 };
 
 enum class GlobalSearchMode

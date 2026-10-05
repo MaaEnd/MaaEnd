@@ -124,11 +124,11 @@ std::optional<std::filesystem::path> resolve_essence_image_path(const std::strin
     }
 
     const std::filesystem::path configured = MAA_NS::path(configured_path);
-    const std::filesystem::path executable_dir = get_exe_dir();
+    const std::filesystem::path install_dir = get_install_dir();
     const std::vector<std::filesystem::path> candidates = {
         configured,
         std::filesystem::path("assets") / configured,
-        executable_dir.parent_path() / configured,
+        install_dir / configured,
     };
 
     for (const std::filesystem::path& path : candidates) {

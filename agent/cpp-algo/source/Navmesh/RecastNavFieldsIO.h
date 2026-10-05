@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -159,5 +160,13 @@ private:
     std::vector<FieldsOpenRec> opens_;
     std::vector<FieldsLinkZone> open_zones_;
 };
+
+// 同一旁包配同一主包的各引擎共用一份 FieldsPack。返回值同 load。
+bool LoadSharedFieldsPack(
+    const std::filesystem::path& path,
+    const BaseNavPack& main,
+    const GridPack& grid,
+    std::shared_ptr<const FieldsPack>& out,
+    std::string& err);
 
 }

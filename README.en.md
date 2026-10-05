@@ -12,7 +12,17 @@
 _✨ MAA Helper for The End ✨_
 <!-- prettier-ignore-end -->
 
-Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https://github.com/MistEO/MXU)
+[![Pipeline](https://img.shields.io/badge/Pipeline-%23876f69?logo=paddypower&logoColor=%23FFFFFF)](https://github.com/MaaXYZ/MaaFramework)
+[![C++](https://img.shields.io/badge/C%2B%2B-00599C?logo=cplusplus)](https://github.com/MaaEnd/MaaEnd/tree/v2/agent/cpp-algo)
+[![Go](https://img.shields.io/badge/Go-007d9c?logo=go)](https://github.com/MaaEnd/MaaEnd/tree/v2/agent/go-service)
+[![license](https://img.shields.io/github/license/MaaEnd/MaaEnd)](https://github.com/MaaEnd/MaaEnd/blob/v2/LICENSE)
+[![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android-blueviolet)](https://maaend.com/)
+[![release](https://img.shields.io/github/v/release/MaaEnd/MaaEnd?label=release)](https://github.com/MaaEnd/MaaEnd/releases)
+[![downloads](https://img.shields.io/github/downloads/MaaEnd/MaaEnd/latest/total)](https://github.com/MaaEnd/MaaEnd/releases/latest)
+[![stars](https://img.shields.io/github/stars/MaaEnd/MaaEnd?style=flat)](https://github.com/MaaEnd/MaaEnd/stargazers)
+[![commit activity](https://img.shields.io/github/commit-activity/m/MaaEnd/MaaEnd)](https://github.com/MaaEnd/MaaEnd/commits/v2)
+
+Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https://github.com/MistEO/MXU) & [MaaFwApp](https://github.com/Aliothmoon/MaaFwApp)
 
 Actively under development 🎉…
 
@@ -96,7 +106,7 @@ Thanks to [zmdmap](https://zmdmap.com/) for providing information support to Maa
 
 Come hang out and chat with everyone:
 
-- 💬 **User QQ Group**: [1062010346](https://qm.qq.com/q/Ui2ufchIIe)  
+- 💬 **User QQ Group**: [1097256935](https://qm.qq.com/q/rAj53B5V4s)  
   For usage questions, feature requests, and casual chatting.
 - 👨‍💻 **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   Dedicated to development discussion. (For general usage questions, please go to the user group above.)

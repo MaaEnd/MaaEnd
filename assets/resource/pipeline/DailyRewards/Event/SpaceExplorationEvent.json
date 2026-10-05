@@ -7,13 +7,13 @@
             "DailyEventUnreadSpaceExplorationEventTitle"
         ],
         "pre_wait_freezes": {
+            "time": 200,
             "target": [
                 -200,
                 0,
                 200,
                 200
-            ],
-            "time": 200
+            ]
         },
         "pre_delay": 0,
         "post_delay": 0,

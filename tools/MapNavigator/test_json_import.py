@@ -234,6 +234,45 @@ class ExportPathNodesTest(unittest.TestCase):
             point["find_arrive"] = malformed  # type: ignore[typeddict-item]
             self.assertNotIn("find_arrive", normalize_path_points([point])[0])
 
+    def test_preserves_trigger_node_on_import_and_export(self) -> None:
+        routes = discover_path_routes(
+            {
+                "path": [
+                    {
+                        "action": "TRIGGER",
+                        "target": [
+                            1242.04,
+                            773.41,
+                        ],
+                        "triggerNode": "MyTaskTriggerNode",
+                    }
+                ]
+            }
+        )
+
+        self.assertEqual(routes[0][0]["trigger_node"], "MyTaskTriggerNode")
+        self.assertEqual(
+            export_path_nodes(routes[0]),
+            [
+                {
+                    "action": "TRIGGER",
+                    "target": [
+                        1242.04,
+                        773.41,
+                    ],
+                    "trigger_node": "MyTaskTriggerNode",
+                }
+            ],
+        )
+
+    def test_does_not_merge_same_coordinate_with_different_trigger_nodes(self) -> None:
+        first = make_point(ActionType.TRIGGER)
+        first["trigger_node"] = "NodeA"
+        second = make_point(ActionType.TRIGGER)
+        second["trigger_node"] = "NodeB"
+
+        self.assertEqual(len(normalize_path_points([first, second])), 2)
+
     def test_exports_required_recorded_action_as_object(self) -> None:
         nodes = export_path_nodes([make_point(ActionType.TRANSFER, required=True)])
 

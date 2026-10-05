@@ -11,7 +11,15 @@ import subprocess
 import time
 from typing import Any, Protocol
 
-from runtime import AGENT_DIR, CPP_AGENT_EXE, MAAFW_BIN_DIR, MaaRuntime, get_agent_env, new_agent_id
+from runtime import (
+    AGENT_DIR,
+    CPP_AGENT_EXE,
+    INSTALL_DIR,
+    MAAFW_BIN_DIR,
+    MaaRuntime,
+    get_agent_env,
+    new_agent_id,
+)
 
 # Agent 起来到能接受连接的等待时间。
 BOOT_WAIT_SECONDS = 2.0
@@ -19,7 +27,7 @@ BOOT_WAIT_SECONDS = 2.0
 # go-service: 正式包的第二个 agent。挂索链 MapNavigatorZiplineMount 的
 # custom_action=AutoAltClickAction (按住 Alt 点击交互提示) 注册在这里,
 # 缺了它 OCR 识别到提示也点不了。与 cpp-algo 同一 Resource, 双 client 并挂。
-GO_SERVICE_EXE = AGENT_DIR / "go-service.exe"
+GO_SERVICE_EXE = AGENT_DIR / ("go-service.exe" if os.name == "nt" else "go-service")
 
 
 def _agent_process_options() -> dict[str, Any]:
@@ -75,7 +83,7 @@ class AgentSession:
         print(f"Starting Agent process: {CPP_AGENT_EXE} {agent_id}")
         self._process = subprocess.Popen(
             [str(CPP_AGENT_EXE), agent_id],
-            cwd=str(AGENT_DIR),
+            cwd=str(INSTALL_DIR),
             env=get_agent_env(),
             **_agent_process_options(),
         )
@@ -83,7 +91,9 @@ class AgentSession:
         print(f"Waiting {BOOT_WAIT_SECONDS}s for Agent to boot...")
         time.sleep(BOOT_WAIT_SECONDS)
         if self._process.poll() is not None:
-            raise RuntimeError(f"Agent 启动失败，进程已退出，返回码: {self._process.returncode}")
+            raise RuntimeError(
+                f"Agent 启动失败，进程已退出，返回码: {self._process.returncode}"
+            )
 
         print("Opening runtime library...")
         try:
@@ -98,7 +108,6 @@ class AgentSession:
 
         print("Connecting AgentClient...")
         resource = self._runtime.Resource()
-        connector.attach_resource(resource)
         # 资源目录 (pipeline/OCR 模型等) 在 bind 给 agent 前挂上。滑索挂索链
         # (MapNavigatorZiplineMount*) 是正式包 pipeline 节点, cpp 端到达塔脚后要
         # GetNodeData 读扫描配置、RunTask 跑挂索任务 —— 没有这份资源就只会走路上索提示。
@@ -108,6 +117,8 @@ class AgentSession:
             job.wait()
             if not job.succeeded:
                 raise RuntimeError(f"资源目录装载失败: {resource_dir}")
+        # 平台资源最后装载, 确保其中的同名节点覆盖基础资源。
+        connector.attach_resource(resource)
         client = self._runtime.AgentClient(identifier=agent_id)
         client.bind(resource)
         client.connect()

@@ -33,24 +33,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCancelCurrentJobTracking",
-            "AutoDeliveryCheckCurrentJobTrackingAlreadyOff"
-        ]
-    },
-    "AutoDeliveryCancelCurrentJobTracking": {
-        "desc": "送货前取消当前任务追踪，避免任务追踪图标干扰 MapNavigator 寻路",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckCancelCurrentJobTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCheckCurrentJobTrackingGone"
+            "AutoDeliveryReturnWorldAndNavigateDestination"
         ]
     },
     "AutoDeliveryCheckCancelCurrentJobTrackingButton": {
@@ -68,36 +51,6 @@
         ],
         "order_by": "Score"
     },
-    "AutoDeliveryCheckCurrentJobTrackingAlreadyOff": {
-        "desc": "确认当前任务已经未追踪",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckStartTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryReturnWorldAndNavigateDestination"
-        ]
-    },
-    "AutoDeliveryCheckCurrentJobTrackingGone": {
-        "desc": "在送货任务详情中确认开始追踪按钮已经出现",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckStartTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryReturnWorldAndNavigateDestination"
-        ]
-    },
     "AutoDeliveryCheckSkipChatButton": {
         "recognition": "TemplateMatch",
         "roi": [
@@ -112,7 +65,7 @@
         "order_by": "Score"
     },
     "AutoDeliveryCheckSubmitGoodsButton": {
-        "desc": "在送货目标附近识别交货图标，并等待交互提示区域稳定",
+        "desc": "在送货目标附近识别交货图标",
         "recognition": "TemplateMatch",
         "roi": [
             760,
@@ -125,7 +78,26 @@
             "AutoDelivery/SubmitGoods2.png" // 非 NPC 交货图标
         ],
         "threshold": 0.9,
-        "order_by": "Score",
+        "order_by": "Score"
+    },
+    "AutoDeliveryCheckSubmitGoodsName": {
+        "desc": "识别送货目标交互提示中的文本，由 Go 按当前终点的名称注入 expected 复核",
+        "recognition": "OCR",
+        "roi": [
+            763,
+            349,
+            195,
+            270
+        ],
+        "only_rec": false,
+        "order_by": "Horizontal"
+    },
+    "AutoDeliveryCheckSubmitGoodsTarget": {
+        "desc": "确认已站在送货目标前：交货图标命中，需要名称复核时交互提示中的名称也要命中",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryCheckSubmitGoodsButton"
+        ],
         "pre_wait_freezes": {
             "time": 300,
             "target": [
@@ -150,13 +122,13 @@
         ],
         "box_index": 0,
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 528,
                 299,
                 222,
                 131
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },
@@ -219,7 +191,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckSubmitGoodsButton",
+            "AutoDeliveryCheckSubmitGoodsTarget",
             "AutoDeliverySearchSubmitGoodsButton"
         ],
         "focus": {
@@ -234,25 +206,6 @@
         "attach": {
             "zip": false
         }
-    },
-    "AutoDeliveryPrepareNavigateDestination": {
-        "desc": "通过大地图确认资源回收站后返回任务界面并选中送货任务，以便取消追踪再开始寻路",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoDeliveryEnsureDeliveryMissionSelected"
-            ],
-            "continue": false,
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCancelCurrentJobTracking",
-            "AutoDeliveryCheckCurrentJobTrackingAlreadyOff"
-        ]
     },
     "AutoDeliveryRetryNavigateDestination": {
         "desc": "动态调用送货目标配置的一次性站位修正路线；无重试路线时不启用",
@@ -272,11 +225,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckSubmitGoodsButton"
+            "AutoDeliveryCheckSubmitGoodsTarget"
         ]
     },
     "AutoDeliveryReturnWorldAndNavigateDestination": {
-        "desc": "确认任务未追踪后返回大世界并前往已识别的送货目标",
+        "desc": "返回大世界并前往已识别的送货目标",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -294,19 +247,19 @@
         ]
     },
     "AutoDeliverySearchSubmitGoodsButton": {
-        "desc": "到达送货目标后未找到交货按钮时，环绕微调站位并持续查找按钮",
+        "desc": "到达送货目标后未确认站在目标前时，环绕微调站位并持续查找目标",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "CharacterSearchAction",
         "custom_action_param": {
             "wait_nodes": [
-                "AutoDeliveryCheckSubmitGoodsButton"
+                "AutoDeliveryCheckSubmitGoodsTarget"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckSubmitGoodsButton"
+            "AutoDeliveryCheckSubmitGoodsTarget"
         ],
         "on_error": [
             "AutoDeliveryRetryNavigateDestination"
@@ -387,13 +340,13 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
+            "time": 500,
             "target": [
                 520,
                 300,
                 240,
                 120
             ],
-            "time": 500,
             "timeout": 10000
         },
         "post_delay": 0,
@@ -429,7 +382,7 @@
         "desc": "在送货目标附近识别交互按钮并提交货物",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCheckSubmitGoodsButton"
+            "AutoDeliveryCheckSubmitGoodsTarget"
         ],
         "pre_delay": 0,
         "action": "Custom",

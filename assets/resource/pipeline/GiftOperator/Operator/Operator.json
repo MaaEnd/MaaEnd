@@ -1199,5 +1199,45 @@
         "next": [
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
+    },
+    "GiftOperatorSelect_Purrchena": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Purrchena.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "噗切娜",
+                                "噗切娜",
+                                "Purrchena",
+                                "プチエナ",
+                                "푸치나"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
     }
 }

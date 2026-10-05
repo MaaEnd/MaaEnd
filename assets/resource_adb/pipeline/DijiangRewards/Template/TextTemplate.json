@@ -14,5 +14,13 @@
             152,
             92
         ]
+    },
+    "ClueItemCountColor": {
+        "roi_offset": [
+            103,
+            -15,
+            80,
+            36
+        ]
     }
 }

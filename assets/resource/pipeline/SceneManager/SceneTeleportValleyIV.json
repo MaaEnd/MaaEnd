@@ -67,6 +67,74 @@
             }
         }
     },
+    "__ScenePrivateMapValleyIVEnterValleyIVValleyPass0": {
+        "desc": "在地图界面找锚点 (谷地通道 markInstId=200001240)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                129.7,
+                542.8
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__ScenePrivateMapValleyIVEnterValleyIVAburreyQuarry0": {
+        "desc": "在地图界面找锚点 (阿伯莉采石场 markInstId=300001865)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                886.2,
+                1032.0
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     // 下方所有节点是基于目标匹配的旧版实现
     "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try1": {
         "desc": "在地图界面找锚点",
@@ -926,104 +994,39 @@
             "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
         ]
     },
-    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring3Try1": {
-        "desc": "在地图界面找锚点",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/ValleyIV/OriginLodespring3Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
+    "__ScenePrivateMapValleyIVEnterValleyIVOriginLodespring3": {
+        "desc": "在地图界面找锚点 (矿脉源区-矿区医疗站)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                1100.6,
+                457.3
             ]
         },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring3Try2": {
-        "desc": "在地图界面找锚点",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/ValleyIV/OriginLodespring3Bottom.png"
-        ],
-        "threshold": 0.9,
+        "pre_delay": 0,
         "action": "Click",
-        "target_offset": [
-            40,
-            -60,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring3Try3": {
-        "desc": "在地图界面找锚点",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ],
-        "template": [
-            "SceneManager/ValleyIV/OriginLodespring3Right.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            -60,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring4Try1": {
         "desc": "在地图界面找锚点",
@@ -1421,103 +1424,38 @@
             "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
         ]
     },
-    "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau3Try1": {
-        "desc": "在地图界面找锚点",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/ValleyIV/PowerPlateau3Center.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
+    "__ScenePrivateMapValleyIVEnterValleyIVPowerPlateau3": {
+        "desc": "在地图界面找锚点 (供能高地-疏散区)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                649.8,
+                382.1
             ]
         },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau3Try2": {
-        "desc": "在地图界面找锚点",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            520
-        ],
-        "template": [
-            "SceneManager/ValleyIV/PowerPlateau3Left.png"
-        ],
-        "threshold": 0.9,
+        "pre_delay": 0,
         "action": "Click",
-        "target_offset": [
-            140,
-            40,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
-    },
-    "__ScenePrivateMapUnknownEnterWorldValleyIVPowerPlateau3Try3": {
-        "desc": "在地图界面找锚点",
-        "recognition": "TemplateMatch",
-        "roi": [
-            100,
-            100,
-            1080,
-            420
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ],
-        "template": [
-            "SceneManager/ValleyIV/PowerPlateau3Top.png"
-        ],
-        "threshold": 0.9,
-        "action": "Click",
-        "target_offset": [
-            40,
-            140,
-            -80,
-            -80
-        ],
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ]
-        },
-        "next": [
-            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
-        ]
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     }
 }

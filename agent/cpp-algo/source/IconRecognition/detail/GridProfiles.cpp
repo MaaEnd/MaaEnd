@@ -632,9 +632,10 @@ std::optional<double> GridScaleForControllerType(std::string_view controller_typ
         return std::ranges::any_of(candidates, equals_ignore_case);
     };
     // Linux 与 MacOS 暂按标准桌面 profile 处理；这些别名尚无独立截图数据验证。
-    constexpr std::array<std::string_view, 4> kStandardControllerTypes { "Win32", "Linux", "MacOS" };
+    constexpr std::array<std::string_view, 3> kStandardControllerTypes { "Win32", "Linux", "MacOS" };
     // CloudADB 的 MaaController type 是 Adb，因此放大 profile 会自然覆盖 CloudADB；PlayCover 暂沿用该 profile。
-    constexpr std::array<std::string_view, 2> kAdbControllerTypes { "Adb", "PlayCover" };
+    // native_android 是手机上直接跑的 Android 原生控制器，与 ADB 是同一套移动端界面。
+    constexpr std::array<std::string_view, 3> kAdbControllerTypes { "Adb", "PlayCover", "native_android" };
     if (matches_any(kAdbControllerTypes)) {
         return kAdbControllerGridScale;
     }

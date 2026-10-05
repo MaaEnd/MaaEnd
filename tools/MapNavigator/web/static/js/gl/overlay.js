@@ -327,6 +327,9 @@ export class Overlay {
       for (const points of log.observed || []) {
         this._strokeLogPolyline(camera, points, {color: "#22c55e", width: 3.5});
       }
+      for (const points of log.observedReplans || []) {
+        this._strokeLogPolyline(camera, points, {color: "#94a3b8", width: 2, dash: [7, 5]});
+      }
     }
 
     if (log.showEstimates) {
@@ -343,18 +346,48 @@ export class Overlay {
     }
 
     if (log.showZipline) {
+      const groups = new Map();
       for (const segment of log.ziplines || []) {
-        const color = segment.landed ? "#22d3ee" : "#f59e0b";
-        this._strokeLogPolyline(camera, [segment.from, segment.to], {
-          color,
-          width: 4,
-          dash: segment.landed ? [] : [7, 5],
-        });
-        this._drawLogArrow(camera, segment.from, segment.to, color);
-        if (!segment.landed) {
+        const endpoints = [segment.from, segment.to].map((point) => point.map((value) => value.toFixed(2)).join(","));
+        const key = [...endpoints].sort().join("|");
+        if (!groups.has(key)) groups.set(key, new Map());
+        const directions = groups.get(key);
+        const existing = directions.get(endpoints[0]);
+        if (existing) {
+          existing.landed ||= segment.landed;
+          existing.offTarget ||= segment.offTarget;
+          existing.returning ||= segment.returning;
+        } else directions.set(endpoints[0], {...segment});
+      }
+      for (const directions of groups.values()) {
+        for (const segment of directions.values()) {
+          const color = segment.offTarget
+            ? "#f87171"
+            : segment.returning
+              ? "#f59e0b"
+              : segment.landed
+                ? "#22d3ee"
+                : "#f59e0b";
           const [ax, ay] = camera.worldToCanvas(segment.from[0], segment.from[1]);
           const [bx, by] = camera.worldToCanvas(segment.to[0], segment.to[1]);
-          this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 10, "已发射，未确认落地", color);
+          const length = Math.hypot(bx - ax, by - ay);
+          if (!Number.isFinite(length) || length < 1e-6) continue;
+          // Separate directions slightly; shrink the gap when zoomed out, never by ride count.
+          const offset = directions.size === 2 ? Math.min(3, length / 8) : 0;
+          const dx = (-(by - ay) / length) * offset;
+          const dy = ((bx - ax) / length) * offset;
+          const shifted = {
+            worldToCanvas: (x, y) => {
+              const [cx, cy] = camera.worldToCanvas(x, y);
+              return [cx + dx, cy + dy];
+            },
+          };
+          this._strokeLogPolyline(shifted, [segment.from, segment.to], {
+            color,
+            width: 2.5,
+            dash: segment.landed ? [] : [7, 5],
+          });
+          this._drawLogArrow(shifted, segment.from, segment.to, color);
         }
       }
     }

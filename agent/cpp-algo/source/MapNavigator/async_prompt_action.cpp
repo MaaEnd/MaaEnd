@@ -2,15 +2,18 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/ImageIo.h>
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
+#include "controller_type_utils.h"
 #include "motion_controller.h"
 #include "navi_math.h"
 #include "navigation_session.h"
@@ -94,10 +97,12 @@ PromptScanProfile DefaultScanProfile(
     profile = PromptScanProfile {};
     profile.base_roi = fallback_roi;
     profile.threshold = kPromptIconMatchThreshold;
-    const std::filesystem::path icon_path = std::filesystem::absolute(get_exe_dir() / ".." / kPromptIconRelativePath);
-    profile.templ = MAA_NS::imread(icon_path, cv::IMREAD_GRAYSCALE);
+    const std::vector<std::filesystem::path> roots = ResourceImageRoots(controller_type);
+    if (const std::optional<std::filesystem::path> icon_path = ResolveResourceImage(roots, kPromptIconRelativePath)) {
+        profile.templ = MAA_NS::imread(*icon_path, cv::IMREAD_GRAYSCALE);
+    }
     if (profile.templ.empty()) {
-        LogError << "Prompt icon template not loaded." << VAR(spec.tag) << VAR(MAA_NS::path_to_utf8_string(icon_path));
+        LogError << "Prompt icon template not loaded." << VAR(spec.tag) << VAR(kPromptIconRelativePath) << VAR(DescribeRoots(roots));
     }
     return profile;
 }

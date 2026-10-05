@@ -1,6 +1,6 @@
 {
     "AutoDeliveryFindRecycleBin${DestinationNodeId}": {
-        "desc": "在${AreaName}大地图的指定坐标确认资源回收站图标（${DestinationId}）",
+        "desc": "在${AreaName}大地图的指定坐标确认资源回收站图标(${DestinationId})",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
@@ -17,7 +17,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryPrepareNavigateDestination"
+            "AutoDeliveryReturnWorldAndNavigateDestination"
         ]
     }
 }

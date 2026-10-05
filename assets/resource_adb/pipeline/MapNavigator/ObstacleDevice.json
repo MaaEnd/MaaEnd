@@ -1,0 +1,115 @@
+{
+    "__MapNavigatorObstacleDevice_InteractPre": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    720,
+                    330,
+                    332,
+                    312
+                ]
+            }
+        },
+        "action": {
+            "type": "DoNothing"
+        }
+    },
+    "__MapNavigatorObstacleDevice_InteractPost": {
+        "action": {
+            "type": "DoNothing"
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsInFactoryDeviceDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1000,
+                    30,
+                    280,
+                    200
+                ]
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsDeleteSharedDeviceButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    714,
+                    62,
+                    248,
+                    223
+                ]
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsMoveDeviceButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    710,
+                    60,
+                    250,
+                    225
+                ]
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsInBagDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    714,
+                    0,
+                    161,
+                    161
+                ]
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsCloseBagDialogButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1148,
+                    0,
+                    132,
+                    161
+                ]
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_CancelMove": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CancelButton"
+                ],
+                "box_index": 0
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "__MapNavigatorObstacleDevice_CloseUnknownDeviceDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1148,
+                    0,
+                    132,
+                    161
+                ]
+            }
+        }
+    }
+}

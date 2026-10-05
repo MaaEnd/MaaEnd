@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -15,8 +16,12 @@ func runAgent(identifier string) {
 		Str("identifier", identifier).
 		Msg("Starting agent server")
 
-	// MAA DLL 位于工作目录下的 maafw 子目录
-	libDir := filepath.Join(getCwd(), "maafw")
+	// MAA DLL 默认位于工作目录下的 maafw 子目录；Android（MaaFwApp）等宿主通过
+	// MAAFW_BINARY_PATH 指定库目录，与 MaaFramework Python 绑定的约定一致
+	libDir := os.Getenv("MAAFW_BINARY_PATH")
+	if libDir == "" {
+		libDir = filepath.Join(getCwd(), "maafw")
+	}
 	log.Info().
 		Str("libDir", libDir).
 		Msg("Initializing MAA framework")

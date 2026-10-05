@@ -126,6 +126,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | `destinations` | `yaw` | 覆盖回收站主路线接近点与自动重试路线使用的朝向角；NPC 主路线仍为单个终点 |
 | `destinations` | `offset` | 微调自动生成的终点导航落点（底图像素偏移） |
 | `destinations` | `walk_only` / `zipline_only` | 覆盖该终点主路线的滑索策略，见下节；二者互斥 |
+| `destinations` | `verify_name` | 到达终点后用 OCR 复核世界交互提示中的角色名，见下节；仅支持 NPC 终点 |
 
 终点目录中的 `area` 取自 `LevelDescTable.showName`，对应任务详情页实际显示的关卡名称，而不是地区建设中的仓储节点名称。普通收货任务按 `buyerName` 匹配终点；`kind` 为 `recycle_bin` 的回收站任务不显示买家名，改为匹配完整 `mission`。同一区域存在多个相同回收站文案时保持歧义失败，不静默选择可能错误的终点。
 
@@ -168,12 +169,22 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 
 ### `walk_only` / `zipline_only`
 
-这两个字段覆盖一条主路线的滑索策略，二者互斥，同时声明时生成器直接报错：
+这两个字段覆盖一条主路线的滑索策略，二者互斥，同时声明时生成器直接报错。策略不改写生成节点的 `zip`：普通节点始终是 `zip: false`、`WithZipline` 节点始终是 `zip: true`，两个标记随运行时目录 `assets/data/AutoDelivery/catalog.json` 交给 Go，在分发路线节点时生效。节点名与参数因此永远一致，排查时不会看到 `WithZipline` 节点写着 `zip: false`：
 
-- `walk_only: true`：完整保留录制路径，禁止全局滑索规划跳过作者路点。生成器仍保留普通节点和 `WithZipline` 节点名，但两个节点都写 `"zip": false`，即用户全局启用滑索时仍严格按作者路径步行执行。
-- `zipline_only: true`：该目标只有坐滑索才到得了（如终点裴令容），没有可用的步行路线。两个节点都写 `"zip": true`，避免留下一条已知走不通的步行路线；运行时若用户选择步行送货（「送货时优先使用滑索」为关），Go 侧在 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 分发路线前直接输出红色提示说明原因并让动作失败，不会静默退化成步行走到不可达处再超时。
+- `walk_only: true`：完整保留录制路径，禁止全局滑索规划跳过作者路点。`AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 无论用户是否启用滑索都只分派普通节点，即用户启用滑索时仍严格按作者路径步行执行；该条目在映射里保留的滑索节点只用于单路线试跑。动作日志会带上 `walkOnly=true`。
+- `zipline_only: true`：该目标只有坐滑索才到得了（如终点裴令容），没有可用的步行路线。运行时若用户选择步行送货（「送货时优先使用滑索」为关），Go 侧在 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 分发路线前直接输出红色提示说明原因并让动作失败，不会静默退化成步行走到不可达处再超时。
 
 注意 `zip: true` 只表示允许 MapNavigator 在合适时使用滑索；未导入滑索坐标或滑索成本不占优时，导航仍可能选择步行。`zipline_only` 拦截的是「用户明确选择步行」这种配置错误，不保证导航规划一定采用滑索。
+
+### `verify_name`
+
+交货图标模板只有十几像素，目标周围还有别的角色时，模板匹配可能命中别人的交互提示。`verify_name: true` 让「已站在送货目标前」的判定在图标之外再复核一次交互提示中的文本：
+
+- 世界交互提示把目标名称渲染在图标旁的提示区域里（NPC 显示角色名，如「赵昭」），这块提示区域和交货图标共用同一片 ROI，因此名称识别跟随控制器覆盖同步生效；
+- Go 侧解析出终点后，把该终点的五语言名称注入 `AutoDeliveryCheckSubmitGoodsName` 的 `expected`，并把 `AutoDeliveryCheckSubmitGoodsTarget` 的 `all_of` 扩成「交货图标 + 名称复核」；未开启的终点 `all_of` 只保留交货图标，行为与过去一致；
+- 名称不命中时按「未到位」处理：先由 `CharacterSearchAction` 环绕寻找，再执行一次站位修正路线，最终失败，而不是把货物交给提示里的另一个角色。
+
+只在确认过会被周围角色干扰的 NPC 终点上开启。资源回收站与仓储节点的提示文本不显示终点名称，生成器与运行时都会拒绝这类终点开启该选项（`kind` 必须为 `npc`）。
 
 ### 验证
 
