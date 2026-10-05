@@ -10,7 +10,8 @@
                 "StageTaskSetting",
                 "ClueSetting",
                 "QuickGiveDuplicateClues",
-                "SelectToGrow"
+                "SelectToGrow",
+                "CustomClueSend"
             ],
             "controller": [
                 "ADB",
@@ -400,32 +401,109 @@
         "CustomClueSend": {
             "type": "checkbox",
             "label": "$option.ClueSendCustomize.label",
-            "description": "$option.ClueSendCustomize.description"
-            // "default_case": "No",
-            // "cases": [
-            //     {
-            //         "name": "Yes",
-            //         "pipeline_override": {
-            //             "ReceptionRoomSendCluesSelectClues": {
-            //                 "max_hit": 999
-            //             },
-            //             "ClueItemCount": {
-            //                 "expected": "^(?:[1-9]|[1-9]\\d+)$"
-            //             }
-            //         }
-            //     },
-            //     {
-            //         "name": "No",
-            //         "pipeline_override": {
-            //             "ReceptionRoomSendCluesSelectClues": {
-            //                 "max_hit": 3
-            //             },
-            //             "ClueItemCount": {
-            //                 "expected": "^(?:[3-9]|[1-9]\\d+)$"
-            //             }
-            //         }
-            //     }
-            // ]
+            "description": "$option.ClueSendCustomize.description",
+            "default_case": [
+                "UWST",
+                "TGCC",
+                "HAS",
+                "SteelOath",
+                "Tranquility",
+                "Sesqa",
+                "Hannabit"
+            ],
+            "cases": [
+                {
+                    "name": "UWST",
+                    "label": "$option.ClueSendCustomize.cases.UWST.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue001.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesSelectClues": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesCustomSelectUWST": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "TGCC",
+                    "label": "$option.ClueSendCustomize.cases.TGCC.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue002.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesSelectClues": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesCustomSelectTGCC": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "HAS",
+                    "label": "$option.ClueSendCustomize.cases.HAS.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue003.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesSelectClues": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesCustomSelectHAS": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "SteelOath",
+                    "label": "$option.ClueSendCustomize.cases.SteelOath.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue004.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesSelectClues": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesCustomSelectSteelOath": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Tranquility",
+                    "label": "$option.ClueSendCustomize.cases.Tranquility.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue005.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesSelectClues": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesCustomSelectTranquility": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Hannabit",
+                    "label": "$option.ClueSendCustomize.cases.Hannabit.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue007.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesSelectClues": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesCustomSelectHannabit": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Sesqa",
+                    "label": "$option.ClueSendCustomize.cases.Sesqa.label",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue006.png",
+                    "pipeline_override": {
+                        "ReceptionRoomSendCluesSelectClues": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesCustomSelectSesqa": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
         },
         "SelectToGrow": {
             "type": "select",

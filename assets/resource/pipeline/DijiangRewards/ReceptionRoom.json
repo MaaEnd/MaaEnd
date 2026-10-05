@@ -1399,6 +1399,250 @@
             "ReceptionRoomSendCluesClickSend"
         ]
     },
+    "ReceptionRoomSendCluesCustomSelectUWST": {
+        "desc": "[会客室·线索] 自定义赠送：匹配联盟工团线索图标并赠送",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue001.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendCluesCustomSelectTGCC": {
+        "desc": "[会客室·线索] 自定义赠送：匹配环塔商会线索图标并赠送",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue002.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendCluesCustomSelectHAS": {
+        "desc": "[会客室·线索] 自定义赠送：匹配宏山科学院线索图标并赠送",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue003.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendCluesCustomSelectSteelOath": {
+        "desc": "[会客室·线索] 自定义赠送：匹配铁誓军线索图标并赠送",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue004.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendCluesCustomSelectTranquility": {
+        "desc": "[会客室·线索] 自定义赠送：匹配寂语修会线索图标并赠送",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue005.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendCluesCustomSelectHannabit": {
+        "desc": "[会客室·线索] 自定义赠送：匹配众生长地线索图标并赠送",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue006.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
+    "ReceptionRoomSendCluesCustomSelectSesqa": {
+        "desc": "[会客室·线索] 自定义赠送：匹配塞什卡线索图标并赠送",
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue007.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1128,
+                0,
+                83,
+                42
+            ]
+        },
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
+    },
     "ReceptionRoomSendCluesClickSend": {
         "desc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
         "recognition": {
@@ -1636,6 +1880,13 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]ReceptionRoomSendCluesQuickGiveDuplicates",
+            "[JumpBack]ReceptionRoomSendCluesCustomSelectUWST",
+            "[JumpBack]ReceptionRoomSendCluesCustomSelectTGCC",
+            "[JumpBack]ReceptionRoomSendCluesCustomSelectHAS",
+            "[JumpBack]ReceptionRoomSendCluesCustomSelectSteelOath",
+            "[JumpBack]ReceptionRoomSendCluesCustomSelectTranquility",
+            "[JumpBack]ReceptionRoomSendCluesCustomSelectSesqa",
+            "[JumpBack]ReceptionRoomSendCluesCustomSelectHannabit",
             "[JumpBack]ReceptionRoomSendCluesSelectClues",
             "[JumpBack]ReceptionRoomSendCluesSwipe",
             "ReceptionRoomSendExit"
