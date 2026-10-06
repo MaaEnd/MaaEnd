@@ -631,7 +631,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 			if params.EnableEndSkill && hasEnemyTarget {
 				if len(endSkillFull) > 0 {
-					screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
+					screenAnalyzer.MarkLabelUsed(endSkillFullLabel())
 					for _, idx := range endSkillFull {
 						if idx >= 5-characterCount {
 							op := idx + characterCount - 4
@@ -711,7 +711,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 								executeAt: time.Now(),
 								action:    endSkillAction(op),
 							})
-							screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
+							screenAnalyzer.MarkLabelUsed(endSkillFullLabel())
 							timeline.PopFrontAction()
 						}
 					case "skill":

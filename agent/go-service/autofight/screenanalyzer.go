@@ -25,6 +25,7 @@ const (
 	LabelCharacterLevel           = "CharacterLevel"
 	LabelCharacterSelect          = "CharacterSelect"
 	LabelEndSkillFull             = "EndSkillFull"
+	LabelEndSkillFullADB          = "EndSkillFullADB"
 	LabelEnemyAccumPower          = "EnemyAccumulatingPower"
 	LabelEnemyBossHealth          = "EnemyBossHealth"
 	LabelEnemyDodge               = "EnemyDodge"
@@ -380,6 +381,16 @@ func endSkillRegion(idx int) maa.Rect {
 	return winEndSkillRegions[idx]
 }
 
+// endSkillFullLabel 返回当前控制器下"终结技已就绪"的 label。
+// 移动端与 PC 端的终结技图标不同，模型分成 EndSkillFullADB / EndSkillFull 两个类别，
+// 识别区域与 label 必须成套使用，否则就绪状态会识别不到或无法标记为已消费。
+func endSkillFullLabel() string {
+	if mobileFightLayout() {
+		return LabelEndSkillFullADB
+	}
+	return LabelEndSkillFull
+}
+
 func boxIntersects(a, b maa.Rect) bool {
 	return a[0] < b[0]+b[2] && b[0] < a[0]+a[2] &&
 		a[1] < b[1]+b[3] && b[1] < a[1]+a[3]
@@ -406,8 +417,9 @@ func (sa *ScreenAnalyzer) latestLabelBox(label string, n int) (maa.Rect, bool) {
 
 func (sa *ScreenAnalyzer) GetEndSkillFull(unused bool) []int {
 	result := make([]int, 0, 4)
+	label := endSkillFullLabel()
 	for idx := 1; idx <= 4; idx++ {
-		if sa.hasLabelInFrames(LabelEndSkillFull, 5, unused, endSkillRegion(idx-1)) {
+		if sa.hasLabelInFrames(label, 5, unused, endSkillRegion(idx-1)) {
 			result = append(result, idx)
 		}
 	}
