@@ -19,8 +19,8 @@
             80,
             80
         ],
-        "auto_up": true,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionAttackTouchUp": {
         "pre_delay": 0,
@@ -85,9 +85,9 @@
         "desc": "alt按键",
         "pre_delay": 0,
         "action": "KeyDown",
-        "auto_up": true,
         "key": 18,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionEndSkillAltKeyUp": {
         "desc": "alt按键",
@@ -100,9 +100,9 @@
         "desc": "S键",
         "pre_delay": 0,
         "action": "KeyDown",
-        "auto_up": true,
         "key": 83,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionMoveBackKeyUp": {
         "desc": "S键",
@@ -115,9 +115,9 @@
         "desc": "W键",
         "pre_delay": 0,
         "action": "KeyDown",
-        "auto_up": true,
         "key": 87,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionMoveForwardKeyUp": {
         "desc": "W键",
@@ -130,9 +130,9 @@
         "desc": "A键",
         "pre_delay": 0,
         "action": "KeyDown",
-        "auto_up": true,
         "key": 65,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionMoveLeftKeyUp": {
         "desc": "A键",
@@ -145,9 +145,9 @@
         "desc": "D键",
         "pre_delay": 0,
         "action": "KeyDown",
-        "auto_up": true,
         "key": 68,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionMoveRightKeyUp": {
         "desc": "D键",
@@ -155,6 +155,34 @@
         "action": "KeyUp",
         "key": 68,
         "post_delay": 0
+    },
+    "__AutoFightActionMoveForwardStick": {
+        "desc": "Win32 无需拖摇杆",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoFightActionMoveBackStick": {
+        "desc": "Win32 无需拖摇杆",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoFightActionMoveLeftStick": {
+        "desc": "Win32 无需拖摇杆",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoFightActionMoveRightStick": {
+        "desc": "Win32 无需拖摇杆",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__AutoFightActionEndSkillOperators1": {
         "pre_delay": 0,
