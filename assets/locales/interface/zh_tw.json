@@ -1726,6 +1726,8 @@
     "resource.CN.label": "通用資源（目前僅簡中支援較好）",
     "task.AccountSwitch.description": "自動登出目前帳號並切換到指定帳號（國服按手機號、國際服按電子郵件匹配）",
     "task.AccountSwitch.label": "🔑自動切換帳號",
+    "task.AdbAutoFightTest.description": "請先進入戰鬥再開啟。識別到戰鬥介面後自動普攻、技能、連攜、終結技、閃避和鎖定，用來檢查 ADB 點擊與識別。一場戰鬥結束後任務停止。",
+    "task.AdbAutoFightTest.label": "🧪ADB戰鬥測試",
     "task.AeroSalvage.description": "自動放置所有氣球並保持平衡。請在浮空回收介面內開啟任務",
     "task.AeroSalvage.label": "🎈浮空回收",
     "task.AndroidOpenGame.description": "安卓端打開遊戲，需先手動打開模擬器",

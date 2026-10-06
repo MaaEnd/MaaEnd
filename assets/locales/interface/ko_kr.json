@@ -1726,6 +1726,8 @@
     "resource.CN.label": "공통 리소스 (현재 간체 중국어만 잘 지원됨)",
     "task.AccountSwitch.description": "현재 계정에서 로그아웃하고 지정한 계정으로 전환합니다(중국 서버는 전화번호, 글로벌 서버는 이메일로 매칭)",
     "task.AccountSwitch.label": "🔑자동 계정 전환",
+    "task.AdbAutoFightTest.description": "전투에 들어간 뒤 시작하세요. 전투 화면을 인식하면 평타, 스킬, 연계, 필살기, 회피, 잠금을 자동으로 실행해 ADB 터치와 인식을 확인합니다. 전투가 끝나면 작업이 멈춥니다.",
+    "task.AdbAutoFightTest.label": "🧪ADB 전투 테스트",
     "task.AeroSalvage.description": "모든 풍선을 자동으로 배치하고 균형을 유지합니다. 부유 회수 화면에서 작업을 시작해 주세요.",
     "task.AeroSalvage.label": "🎈부유 회수",
     "task.AndroidOpenGame.description": "Android에서 게임을 실행합니다. 먼저 에뮬레이터를 수동으로 실행해 주세요.",

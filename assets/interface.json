@@ -278,6 +278,7 @@
         "tasks/CreditShopping.json",
         "tasks/AccountSwitch.json",
         // "tasks/DevTest.json", // mxu测试用
+        "tasks/AdbAutoFightTest.json",
         // "tasks/WebEvent202605.json", // 该活动已关闭
         "tasks/AndroidOpenGame.json",
         "tasks/CloseGame.json",

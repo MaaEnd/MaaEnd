@@ -1,0 +1,18 @@
+{
+    "task": [
+        {
+            "name": "AdbAutoFightTest",
+            "label": "$task.AdbAutoFightTest.label",
+            "entry": "AdbAutoFightTest",
+            "description": "$task.AdbAutoFightTest.description",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "ADB",
+                "CloudADB",
+                "PlayCover"
+            ]
+        }
+    ]
+}

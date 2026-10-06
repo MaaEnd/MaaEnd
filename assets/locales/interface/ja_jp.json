@@ -1726,6 +1726,8 @@
     "resource.CN.label": "共通リソース（現在は簡体字中国語のみサポートが良好）",
     "task.AccountSwitch.description": "現在のアカウントからログアウトし、指定アカウントに切り替えます（中国サーバーは電話番号、グローバルサーバーはメールアドレスで照合）",
     "task.AccountSwitch.label": "🔑自動アカウント切替",
+    "task.AdbAutoFightTest.description": "戦闘に入ってから開始してください。戦闘画面を認識すると、通常攻撃・スキル・連携・終結スキル・回避・ロックを自動で行い、ADB のタップと認識を確認します。戦闘が終わるとタスクは停止します。",
+    "task.AdbAutoFightTest.label": "🧪ADB戦闘テスト",
     "task.AeroSalvage.description": "すべての気球を自動で配置し、バランスを維持します。浮遊回収画面でタスクを開始してください。",
     "task.AeroSalvage.label": "🎈浮遊回収",
     "task.AndroidOpenGame.description": "Androidでゲームを起動します。事前にエミュレーターを手動で起動してください。",
