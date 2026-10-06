@@ -51,6 +51,8 @@ struct LocateOptions
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
     std::string expected_zone_id;     // 非空时仅接受该区域的定位结果
     std::vector<SearchHint> search_hints;
+    // 镜头方位角先验（北为 0 度）；仅在预期方向存在真实双峰候选时消歧。
+    std::optional<double> expected_camera_heading;
     // 仅供 C++ 调用方控制；镜头朝向导航可关闭，不暴露为 Recognition 参数。
     bool reject_occluded_frames = true;
 
@@ -60,7 +62,8 @@ struct LocateOptions
         MEO_OPT force_global_search,
         MEO_OPT max_lost_frames,
         MEO_OPT expected_zone_id,
-        MEO_OPT search_hints)
+        MEO_OPT search_hints,
+        MEO_OPT expected_camera_heading)
 };
 
 // --- 返回结果枚举与封装 ---

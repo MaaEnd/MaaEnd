@@ -23,7 +23,8 @@ public:
         NaviPosition* out_pos,
         bool force_global_search,
         const std::string& expected_zone_id,
-        const std::vector<maplocator::SearchHint>& search_hints = {});
+        const std::vector<maplocator::SearchHint>& search_hints = {},
+        std::optional<double> expected_camera_heading = std::nullopt);
     bool WaitForFix(
         NaviPosition* out_pos,
         const std::string& expected_zone_id,

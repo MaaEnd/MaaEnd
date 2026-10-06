@@ -27,6 +27,7 @@
                 "ListCompleteRecognition",
                 "MapFind",
                 "MapLocateAssertLocation",
+                "MapLocateRecognition",
                 "MapNavmeshQuery",
                 "OutpostTradingCurrentBestOperator",
                 "OutpostTradingCurrentGoods",
@@ -458,6 +459,28 @@
                 "required": [ "custom_recognition_param" ],
                 "properties": {
                     "custom_recognition_param": { "$ref": "./components/world_map.schema.json#/$defs/MapFindParam" }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "MapLocateRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "properties": {
+                            "expected_camera_heading": {
+                                "type": "number",
+                                "minimum": 0,
+                                "exclusiveMaximum": 360
+                            }
+                        }
+                    }
                 }
             }
         },

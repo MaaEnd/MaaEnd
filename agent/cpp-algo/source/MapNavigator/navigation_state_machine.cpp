@@ -566,7 +566,15 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
 
 bool NavigationStateMachine::CaptureCurrentPosition(bool force_global_search)
 {
-    const bool captured = position_provider_->Capture(position_, force_global_search, session_->current_zone_id());
+    std::optional<double> expected_camera_heading;
+    const auto& steering_rate = runtime_state_.steering_rate;
+    // A turn command is not an observation; keep captures unhinted while a turn is pending.
+    if (!force_global_search && param_.heading_source == HeadingSource::Camera && position_->valid && steering_rate.has_prev
+        && steering_rate.pending_turn_deg == 0.0 && session_->phase() == NaviPhase::Navigate) {
+        expected_camera_heading = position_->angle;
+    }
+    const bool captured =
+        position_provider_->Capture(position_, force_global_search, session_->current_zone_id(), {}, expected_camera_heading);
     UpdateDwellWatchdog(captured);
     return captured;
 }

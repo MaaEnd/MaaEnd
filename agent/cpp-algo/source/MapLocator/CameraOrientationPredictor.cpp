@@ -1,3 +1,5 @@
+#include "CameraOrientationPredictor.h"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -8,8 +10,6 @@
 
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
-
-#include "CameraOrientationPredictor.h"
 
 namespace maplocator
 {
@@ -24,6 +24,9 @@ constexpr const char* kClassifierOutputName = "pmf";
 
 // PMF 解码的定峰窗口半径（bin）：argmax 后在该窗口内按概率加权求圆均值。
 constexpr int kRefineRadius = 5;
+// 典型峰高为 [0.1, 0.2)，低于 0.02 的信号不作为峰；次峰至少为主峰的五分之一。
+constexpr float kMinPeakHeight = 0.02f;
+constexpr float kSecondaryPeakRatio = 0.2f;
 
 // 参考资产缺失或非 BGRA 时的占位输入：1x1 全 0 BGRA。采样窗不可能落在这块资产里，
 // 参考条带据此全为「参考缺失」。
@@ -88,11 +91,12 @@ std::optional<CameraOrientation> CameraOrientationPredictor::predict(
     double x,
     double y,
     double scale,
-    const std::string& zoneId)
+    const std::string& zoneId,
+    std::optional<double> expected_camera_heading)
 {
     const bool assetUsable = !referenceAsset.empty() && referenceAsset.channels() == 4 && referenceAsset.isContinuous();
     const cv::Mat& asset = assetUsable ? referenceAsset : kUnavailableAsset;
-    return infer(minimap, asset, x, y, scale, zoneId);
+    return infer(minimap, asset, x, y, scale, zoneId, expected_camera_heading);
 }
 
 std::optional<CameraOrientation> CameraOrientationPredictor::infer(
@@ -101,7 +105,8 @@ std::optional<CameraOrientation> CameraOrientationPredictor::infer(
     double x,
     double y,
     double scale,
-    const std::string& zoneId)
+    const std::string& zoneId,
+    std::optional<double> expected_camera_heading)
 {
     std::lock_guard<std::mutex> lock(predictMutex);
 
@@ -223,7 +228,7 @@ std::optional<CameraOrientation> CameraOrientationPredictor::infer(
 
         const float* pmf = outputTensors.front().GetTensorData<float>();
         const size_t count = outputTensors.front().GetTensorTypeAndShapeInfo().GetElementCount();
-        return decodePmf(pmf, count);
+        return decodePmf(pmf, count, expected_camera_heading);
     }
     catch (const Ort::Exception& e) {
         LogError << "CameraOrientation: inference failed" << VAR(zoneId) << VAR(e.what());
@@ -231,7 +236,8 @@ std::optional<CameraOrientation> CameraOrientationPredictor::infer(
     }
 }
 
-std::optional<CameraOrientation> CameraOrientationPredictor::decodePmf(const float* pmf, size_t count) const
+std::optional<CameraOrientation>
+    CameraOrientationPredictor::decodePmf(const float* pmf, size_t count, std::optional<double> expected_camera_heading) const
 {
     if (pmf == nullptr || count == 0) {
         LogError << "CameraOrientation: unexpected pmf size" << VAR(count);
@@ -240,6 +246,10 @@ std::optional<CameraOrientation> CameraOrientationPredictor::decodePmf(const flo
 
     // 分类器契约是均匀方位 bin（列 j = 方位角 j 度）；bin 数从输出张量读出，不复刻条带几何。
     const double radianPerBin = 2.0 * std::numbers::pi / static_cast<double>(count);
+    if (std::any_of(pmf, pmf + count, [](float value) { return !std::isfinite(value) || value < 0.0f; })) {
+        LogError << "CameraOrientation: invalid pmf values";
+        return std::nullopt;
+    }
 
     // 全 bin 方向向量（方向 = bin 方位角，长度 = 概率）合成，用于置信度。
     double resultantSin = 0.0;
@@ -257,14 +267,64 @@ std::optional<CameraOrientation> CameraOrientationPredictor::decodePmf(const flo
         }
     }
 
-    // argmax ±kRefineRadius 窗口内按 pmf 加权圆均值；接缝两侧靠取模跨 0/360。
+    const size_t primary_center = center;
+    bool used_expected_heading = false;
+    if (expected_camera_heading && std::isfinite(*expected_camera_heading)) {
+        const double expected = std::fmod(std::fmod(*expected_camera_heading, 360.0) + 360.0, 360.0);
+        const double expected_bin = expected * static_cast<double>(count) / 360.0;
+        const size_t expected_index = static_cast<size_t>(std::llround(expected_bin)) % count;
+        // 先验只消歧，不凭空制造方向；预期位置本身也必须有足够信号。
+        if (pmf[expected_index] >= kMinPeakHeight) {
+            const auto circular_distance = [count](double a, double b) {
+                const double distance = std::abs(a - b);
+                return std::min(distance, static_cast<double>(count) - distance);
+            };
+            double nearest_distance = circular_distance(static_cast<double>(center), expected_bin);
+            bool has_secondary_peak = false;
+            for (size_t j = 0; j < count; ++j) {
+                if (pmf[j] < kMinPeakHeight || pmf[j] < pmf[primary_center] * kSecondaryPeakRatio
+                    || circular_distance(static_cast<double>(j), static_cast<double>(primary_center)) <= 2 * kRefineRadius) {
+                    continue;
+                }
+                // 相邻肩部不重复计峰；平台只取上升沿，跨接缝同样按圆周判断。
+                if (pmf[j] <= pmf[(j + count - 1) % count] || pmf[j] < pmf[(j + 1) % count]) {
+                    continue;
+                }
+                bool local_maximum = true;
+                for (int offset = -kRefineRadius; offset <= kRefineRadius; ++offset) {
+                    const size_t col = static_cast<size_t>(
+                        (static_cast<long long>(j) + offset % static_cast<long long>(count) + static_cast<long long>(count))
+                        % static_cast<long long>(count));
+                    if (pmf[col] > pmf[j]) {
+                        local_maximum = false;
+                        break;
+                    }
+                }
+                if (!local_maximum) {
+                    continue;
+                }
+                has_secondary_peak = true;
+                const double distance = circular_distance(static_cast<double>(j), expected_bin);
+                if (distance < nearest_distance) {
+                    center = j;
+                    nearest_distance = distance;
+                }
+            }
+            used_expected_heading = has_secondary_peak;
+        }
+    }
+
+    // 所选峰 ±kRefineRadius 窗口内按 pmf 加权圆均值；接缝两侧靠取模跨 0/360。
     double windowSin = 0.0;
     double windowCos = 0.0;
+    double window_mass = 0.0;
     for (int offset = -kRefineRadius; offset <= kRefineRadius; ++offset) {
-        const long long col = (static_cast<long long>(center) + offset + static_cast<long long>(count)) % static_cast<long long>(count);
+        const long long col = (static_cast<long long>(center) + offset % static_cast<long long>(count) + static_cast<long long>(count))
+                              % static_cast<long long>(count);
         const double theta = static_cast<double>(col) * radianPerBin;
         windowSin += pmf[col] * std::sin(theta);
         windowCos += pmf[col] * std::cos(theta);
+        window_mass += pmf[col];
     }
 
     double decoded = std::atan2(windowSin, windowCos) * (180.0 / std::numbers::pi);
@@ -279,13 +339,17 @@ std::optional<CameraOrientation> CameraOrientationPredictor::decodePmf(const flo
     const double resultantAngle = std::atan2(resultantSin, resultantCos) * (180.0 / std::numbers::pi);
     const double resultantLength = std::hypot(resultantSin, resultantCos);
     const double alignmentCos = std::cos(std::abs(decoded - resultantAngle) * (std::numbers::pi / 180.0));
-    const double confidence = std::clamp(resultantLength * alignmentCos, 0.0, 1.0);
-    if (alignmentCos < 0.0) {
+    // 先验已在真实双峰间消歧时，置信度衡量所选峰内部的集中程度，避免另一峰把它抵消。
+    const double confidence = used_expected_heading && window_mass > 0.0
+                                  ? std::clamp(std::hypot(windowSin, windowCos) / window_mass, 0.0, 1.0)
+                                  : std::clamp(resultantLength * alignmentCos, 0.0, 1.0);
+    if (!used_expected_heading && alignmentCos < 0.0) {
         LogWarn << "CameraOrientation: decoded direction diverges from resultant" << VAR(decoded) << VAR(resultantAngle);
     }
 
     LogTrace << "CameraOrientation pmf:" << std::vector<float>(pmf, pmf + count);
-    LogDebug << "CameraOrientation:" << VAR(decoded) << VAR(confidence) << VAR(center);
+    LogDebug << "CameraOrientation:" << VAR(decoded) << VAR(confidence) << VAR(center) << VAR(primary_center) << VAR(used_expected_heading)
+             << VAR(expected_camera_heading);
 
     return CameraOrientation { .rot = decoded, .confidence = confidence };
 }
