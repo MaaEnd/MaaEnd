@@ -39,16 +39,20 @@ type autoFightAttach struct {
 var screenAnalyzer = NewScreenAnalyzer()
 
 func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
-	box, ok := screenAnalyzer.GetCharacterSelectBox()
-	if !ok {
-		return false
+	var override map[string]any
+	if !mobileFightLayout() {
+		box, ok := screenAnalyzer.GetCharacterSelectBox()
+		if !ok {
+			return false
+		}
+		override = map[string]any{
+			"__AutoFightRecognitionCharactorLevelShow": map[string]any{
+				"roi":        []int{box[0], box[1], box[2], box[3]},
+				"roi_offset": []int{-25, box[3] + 35, 20, 4},
+			},
+		}
 	}
-	detail, err := ctx.RunRecognition("__AutoFightRecognitionCharactorLevelShow", img, map[string]any{
-		"__AutoFightRecognitionCharactorLevelShow": map[string]any{
-			"roi":        []int{box[0], box[1], box[2], box[3]},
-			"roi_offset": []int{-25, box[3] + 35, 20, 4},
-		},
-	})
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionCharactorLevelShow", img, override)
 	if err != nil || detail == nil {
 		log.Error().Err(err).Str("component", "AutoFight").Msg("failed to run recognition for character level show")
 		return false
@@ -800,18 +804,22 @@ func drainActionQueue(ctx *maa.Context) {
 			ctx.RunAction("__AutoFightActionSwitchCharacterOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionMoveBack:
 			ctx.RunAction("__AutoFightActionMoveBackKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionMoveBackStick", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveBackKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionMoveForward:
 			ctx.RunAction("__AutoFightActionMoveForwardKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionMoveForwardStick", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveForwardKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionMoveLeft:
 			ctx.RunAction("__AutoFightActionMoveLeftKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionMoveLeftStick", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveLeftKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionMoveRight:
 			ctx.RunAction("__AutoFightActionMoveRightKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionMoveRightStick", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveRightKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		}

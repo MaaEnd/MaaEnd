@@ -1,8 +1,8 @@
 {
     // ADB 触屏覆盖。Win32 仍走 assets/resource/pipeline/AutoFight/Action.json 的键鼠。
     // 普攻单独占触点 4，整场按住；点按占触点 2，避免抬起普攻。
-    // 走位触点 0：先在摇杆中心 (195, 551) 按下，再拖到寻路步行落点，闪避后松开。
-    // 落点对齐 CharacterController：前 (195, 536)、后 (195, 566)、左 (180, 551)、右 (210, 551)。
+    // 走位触点 0：TouchDown 中心 (195, 551)，TouchMove 到步行落点，KeyUp 才 TouchUp。
+    // 闪避用触点 2。落点：前 (195, 536)、后 (195, 566)、左 (180, 551)、右 (210, 551)。
     "__AutoFightActionAttackClick": {
         "desc": "ADB 普攻点按",
         "pre_delay": 0,
