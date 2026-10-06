@@ -1639,7 +1639,7 @@
     "option.StashBackpackQuick.label": "Quick stash",
     "option.StashBackpackType.label": "Stash method",
     "option.StashBackpackUsableItemsLimited.label": "Stash usable items (≤4)",
-    "option.SupplyPlanLimits.description": "Set targets for training materials. EXP categories use converted experience; others use item counts. 0 excludes from this run; the task ends when all targets are met.",
+    "option.SupplyPlanLimits.description": "Set targets for training materials. EXP categories use converted experience; others use item counts. 0 excludes from this run; the task ends when all targets are met. Each value is at most 3000000000.",
     "option.SupplyPlanLimits.inputs.CAST_DIE.label": "![](resource/image/UI/Item/item_weapon_break_low.png) Cast Die",
     "option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label": "![](resource/image/UI/Item/item_expcard_stage2_high.png) Cognitive Carrier EXP",
     "option.SupplyPlanLimits.inputs.COMBAT_RECORD_EXP.label": "![](resource/image/UI/Item/item_expcard_stage1_high.png) Combat Record EXP",
@@ -1656,7 +1656,7 @@
     "option.SupplyPlanLimits.inputs.T_CREDS.label": "![](resource/image/UI/Item/item_gold.png) T-Creds",
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) Weapon EXP",
     "option.SupplyPlanLimits.label": "Training Material Targets",
-    "option.SupplyPlanLimits.pattern_msg": "Enter a non-negative integer",
+    "option.SupplyPlanLimits.pattern_msg": "Enter an integer from 0 to 3000000000",
     "option.SwitchTeamTeamChoose.label": "Select Team",
     "option.TaskSchedule.label": "Execution cycle (game time)",
     "option.TaskScheduleFriday.label": "Friday",
@@ -2051,6 +2051,7 @@
     "task.DeliveryJobs.OngoingDeliveryFallback.description": "Automatically transfers the current job to another courier when fully automatic delivery fails, then continues with the remaining commissions. When disabled, a failure stops the whole task.",
     "task.DeliveryJobs.OngoingDeliveryFallback.label": "Auto-transfer job after delivery fails",
     "task.DeliveryJobs.OngoingDeliverySkipped": "🚚 The depot node this delivery job belongs to does not handle it, so it was skipped and the run continued at the depot node.",
+    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 A commission taken via Accept Commission cannot be transferred; preparing to deliver it automatically.",
     "task.DeliveryJobs.OngoingDeliveryTransferred": "🚚 Transferring it according to the setting of the depot node this delivery job belongs to.",
     "task.DeliveryJobs.PackCargoSelectItem.description": "Pack specific goods by priority. Each region can configure one to four goods; if the current good is insufficient, the remaining goods are tried in order.",
     "task.DeliveryJobs.PackCargoSelectItem.label": "Fill Specific Goods",
@@ -2511,5 +2512,6 @@
     "weapon.wpn_sword_0020": "★5 Finchaser 3.0",
     "weapon.wpn_sword_0021": "★6 Grand Vision",
     "weapon.wpn_sword_0022": "★6 Lupine Scarlet",
+    "weapon.wpn_sword_0023": "★5 Dessert Moment",
     "weapon.wpn_sword_0026": "★6 Farsight"
 }

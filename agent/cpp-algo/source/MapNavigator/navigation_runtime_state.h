@@ -6,7 +6,9 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <vector>
 
+#include "../Navmesh/NavmeshTypes.h"
 #include "navi_domain_types.h"
 #include "prompt_scan_profile.h"
 #include "zipline_ride_machine.h"
@@ -62,6 +64,15 @@ struct FlowState
     int32_t futile_forward_reasserts = 0;
     NaviPosition last_steer_position {};
     bool has_last_steer_position = false;
+    // Recent intervals between steering ticks: how long a sent turn waits before a tick can see it land. The
+    // entry gap above cannot stand in for it, since a tick that follows an early-return one is short however
+    // slow the loop is.
+    std::vector<int64_t> steer_periods_ms;
+    std::chrono::steady_clock::time_point last_steer_tick_at {};
+    // Vertex of the last bend braked for, so each bend is braked for once and a stop short of it is not repeated.
+    std::optional<navmesh::WorldPoint> braked_corner;
+    // That bend is still the next one ahead: walk the rest of the way in (UpdateWalkMode).
+    bool corner_walk = false;
 };
 
 struct SemanticState
@@ -520,6 +531,10 @@ struct NavigationRuntimeState
         flow.navigate_started_at = now;
         flow.last_auto_sprint_time = {};
         flow.last_tick_started_at = {};
+        flow.steer_periods_ms.clear();
+        flow.last_steer_tick_at = {};
+        flow.braked_corner.reset();
+        flow.corner_walk = false;
     }
 
     void OnWaypointAdvance()

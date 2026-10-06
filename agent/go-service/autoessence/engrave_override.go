@@ -30,6 +30,19 @@ var ocrENDisplayOverrides = map[string]string{
 	"2:11": "Ultimate Gain",
 }
 
+// ocrUIDisplayAliases adds in-game engraving labels that are not substrings of skill_pools names.
+// Target mode must keep both: the selection UI shows "源石技艺提升", while skill_pools stores "源石技艺强度".
+// Replacing the canonical name would miss the other surface. Same list as location pipeline_override for s2_6.
+var ocrUIDisplayAliases = map[string][]string{
+	"2:6": {
+		"源石技艺提升",
+		"源石技藝提升",
+		"アーツ強度UP",
+		"오리지늄 아츠 강도 증가",
+		"오리지늄 아츠 강도",
+	},
+}
+
 func skillCacheKey(slot, id int) string {
 	return fmt.Sprintf("%d:%d", slot, id)
 }
@@ -65,7 +78,11 @@ func ocrExpectedNames(slot int, e skillPoolEntryJSON) []string {
 	if override, ok := ocrENDisplayOverrides[skillCacheKey(slot, e.ID)]; ok {
 		en = override
 	}
-	return uniqueNonEmpty(e.CN, e.TC, en, e.JP, e.KR)
+	names := []string{e.CN, e.TC, en, e.JP, e.KR}
+	if extra, ok := ocrUIDisplayAliases[skillCacheKey(slot, e.ID)]; ok {
+		names = append(names, extra...)
+	}
+	return uniqueNonEmpty(names...)
 }
 
 func uniqueNonEmpty(vals ...string) []string {

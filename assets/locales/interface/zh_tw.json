@@ -1639,7 +1639,7 @@
     "option.StashBackpackQuick.label": "一鍵存放",
     "option.StashBackpackType.label": "存放方式",
     "option.StashBackpackUsableItemsLimited.label": "存放≤4個可用道具",
-    "option.SupplyPlanLimits.description": "為各培養道具設定目標。經驗類按折算經驗填寫，其餘按件數。填 0 表示不納入本輪規劃；全部達標後結束任務。",
+    "option.SupplyPlanLimits.description": "為各培養道具設定目標。經驗類按折算經驗填寫，其餘按件數。填 0 表示不納入本輪規劃；全部達標後結束任務。單項不超過 3000000000。",
     "option.SupplyPlanLimits.inputs.CAST_DIE.label": "![](resource/image/UI/Item/item_weapon_break_low.png) 強固模具",
     "option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label": "![](resource/image/UI/Item/item_expcard_stage2_high.png) 認知載體經驗",
     "option.SupplyPlanLimits.inputs.COMBAT_RECORD_EXP.label": "![](resource/image/UI/Item/item_expcard_stage1_high.png) 作戰紀錄經驗",
@@ -1656,7 +1656,7 @@
     "option.SupplyPlanLimits.inputs.T_CREDS.label": "![](resource/image/UI/Item/item_gold.png) 折金票",
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) 武器經驗",
     "option.SupplyPlanLimits.label": "培養道具目標",
-    "option.SupplyPlanLimits.pattern_msg": "請輸入非負整數",
+    "option.SupplyPlanLimits.pattern_msg": "請輸入 0 到 3000000000 的整數",
     "option.SwitchTeamTeamChoose.label": "選擇隊伍",
     "option.TaskSchedule.label": "執行週期(遊戲時間)",
     "option.TaskScheduleFriday.label": "週五",
@@ -2051,6 +2051,7 @@
     "task.DeliveryJobs.OngoingDeliveryFallback.description": "全自動送貨失敗時自動將當前任務轉交給他人，並繼續處理後續委託；關閉時失敗即停止整個任務。",
     "task.DeliveryJobs.OngoingDeliveryFallback.label": "送貨失敗後自動轉交任務",
     "task.DeliveryJobs.OngoingDeliverySkipped": "🚚 該送貨任務所屬的倉儲節點不處理它，已略過並回到倉儲節點繼續巡覽",
+    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 搶來的送貨委託不能轉交，準備自動送貨",
     "task.DeliveryJobs.OngoingDeliveryTransferred": "🚚 依該送貨任務所屬倉儲節點的設定轉交它",
     "task.DeliveryJobs.PackCargoSelectItem.description": "是否依優先級填入指定貨物。啟用後每個地區可設定 1 至 4 個貨物；目前貨物不足時會依序嘗試後續貨物。",
     "task.DeliveryJobs.PackCargoSelectItem.label": "填入指定貨物",
@@ -2511,5 +2512,6 @@
     "weapon.wpn_sword_0020": "★5 逐鱗3.0",
     "weapon.wpn_sword_0021": "★6 宏願",
     "weapon.wpn_sword_0022": "★6 狼之緋",
+    "weapon.wpn_sword_0023": "★5 點心時刻",
     "weapon.wpn_sword_0026": "★6 遙望"
 }

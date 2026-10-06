@@ -245,6 +245,7 @@
         "tasks/AeroSalvage.json",
         // group: sanity_sink
         "tasks/AutoEssence/AutoEssence.json",
+        "tasks/AutoEssence/Location/ChooseLocation.json",
         "tasks/AutoEssence/Location/SelectLocation.json",
         "tasks/AutoEssence/Location/Slot1.json",
         "tasks/AutoEssence/Location/VFTheHub.json",

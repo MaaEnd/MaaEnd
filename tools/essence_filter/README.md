@@ -75,3 +75,16 @@ uv run tools/essence_filter/build_locations.py
 - `secAttrTermNames` 作为 slot2 来源：先去后缀（`伤害提升`/`效率提升`/`强度提升`/`提升`），再按别名映射（如 `源石技艺` -> `源石技艺强度`、`终结技` -> `终结技充能`）。
 - `skillTermNames` 作为 slot3 来源：按中文名直接匹配。
 - 输出格式保持不变：`name`、`slot2_ids`、`slot3_ids`、`slot2`、`slot3`。
+
+## build_autoessence_tasks.py
+
+从 `weapons_output.json`、`skill_pools.json`、`locations.json` 生成基质刷取的目标模式和地区模式。
+
+```bash
+uv run tools/essence_filter/build_autoessence_tasks.py
+```
+
+- 目标模式只收录 5、6 星武器，按稀有度从高到低、武器 ID 升序排列，6 星作为默认勾选。
+- 武器图标写成 `resource/image/UI/Item/<武器 ID>.png`。这个路径对应已发布的 UI 图标，不使用站点 `weapons.json` 里的 `icon_path`。缺少对应 PNG 时生成失败。
+- 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区中文名到节点 key 的对照在 `agent/go-service/autoessence/locations.go`。新地区要先补上这条对照和 `RegionNodes` 下的节点，再运行生成器。
+- 武器显示名 `★稀有度 名称` 会同步到五份 interface locale。词条显示名仍使用已有的 `option.AutoEssenceSkill.*`，缺文案时生成失败。

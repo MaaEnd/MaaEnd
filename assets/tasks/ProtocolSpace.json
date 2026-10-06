@@ -1019,6 +1019,7 @@
                 }
             ]
         },
+        // 单项上限 3000000000：任意两项取满时乘积仍小于 int64，完成率交叉相乘不会回绕。
         "SupplyPlanLimits": {
             "type": "input",
             "label": "$option.SupplyPlanLimits.label",
@@ -1028,129 +1029,130 @@
                     "name": "SupplyPlanLimit_T_CREDS",
                     "label": "$option.SupplyPlanLimits.inputs.T_CREDS.label",
                     "default": "3580000",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_PROTOHEDRON",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOHEDRON.label",
                     "default": "1100",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_PROTOPRISM",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOPRISM.label",
                     "default": "920",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_COGNITIVE_CARRIER_EXP",
                     "label": "$option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label",
                     "default": "2100000",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_COMBAT_RECORD_EXP",
                     "label": "$option.SupplyPlanLimits.inputs.COMBAT_RECORD_EXP.label",
                     "default": "1500000",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_PROTOSET",
                     "label": "$option.SupplyPlanLimits.inputs.PROTOSET.label",
                     "default": "120",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_PROTODISK",
                     "label": "$option.SupplyPlanLimits.inputs.PROTODISK.label",
                     "default": "65",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_WEAPON_EXP",
                     "label": "$option.SupplyPlanLimits.inputs.WEAPON_EXP.label",
                     "default": "5000000",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_HEAVY_CAST_DIE",
                     "label": "$option.SupplyPlanLimits.inputs.HEAVY_CAST_DIE.label",
                     "default": "100",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_CAST_DIE",
                     "label": "$option.SupplyPlanLimits.inputs.CAST_DIE.label",
                     "default": "45",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_TRIPHASIC_NANOFLAKE",
                     "label": "$option.SupplyPlanLimits.inputs.TRIPHASIC_NANOFLAKE.label",
                     "default": "260",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_QUADRANT_FITTING_FLUID",
                     "label": "$option.SupplyPlanLimits.inputs.QUADRANT_FITTING_FLUID.label",
                     "default": "260",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_TACHYON_SCREENING_LATTICE",
                     "label": "$option.SupplyPlanLimits.inputs.TACHYON_SCREENING_LATTICE.label",
                     "default": "260",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_D96_STEEL_SAMPLE_4",
                     "label": "$option.SupplyPlanLimits.inputs.D96_STEEL_SAMPLE_4.label",
                     "default": "260",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 },
                 {
                     "name": "SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE",
                     "label": "$option.SupplyPlanLimits.inputs.METADIASTIMA_PHOTOEMISSION_TUBE.label",
                     "default": "40",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
+                    "pipeline_type": "string",
+                    "verify": "^(0|[1-9][0-9]{0,8}|[12][0-9]{9}|3000000000)$",
                     "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
                 }
             ],
             "pipeline_override": {
+                // 未达标，且对其余物品交叉相乘后完成率不更高；完成率相同则调度 next 顺序决胜。
                 "SupplyPlanInsufficient_COGNITIVE_CARRIER_EXP": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)>={SupplyPlanLimit_COGNITIVE_CARRIER_EXP}"
+                                "expression": "({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)<{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}&&({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}"
                             }
                         }
                     }
@@ -1159,7 +1161,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)>={SupplyPlanLimit_COMBAT_RECORD_EXP}"
+                                "expression": "({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)<{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_COMBAT_RECORD_EXP}&&({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_COMBAT_RECORD_EXP}"
                             }
                         }
                     }
@@ -1168,7 +1170,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_char_break_stage_3_4}>={SupplyPlanLimit_PROTOSET}"
+                                "expression": "{item_char_break_stage_3_4}<{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_PROTOSET}&&{item_char_break_stage_3_4}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_PROTOSET}"
                             }
                         }
                     }
@@ -1177,7 +1179,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_char_break_stage_1_2}>={SupplyPlanLimit_PROTODISK}"
+                                "expression": "{item_char_break_stage_1_2}<{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_PROTODISK}&&{item_char_break_stage_1_2}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_PROTODISK}"
                             }
                         }
                     }
@@ -1186,7 +1188,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_char_skill_specialize_5}>={SupplyPlanLimit_TRIPHASIC_NANOFLAKE}"
+                                "expression": "{item_char_skill_specialize_5}<{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}&&{item_char_skill_specialize_5}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}"
                             }
                         }
                     }
@@ -1195,7 +1197,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_char_skill_specialize_4}>={SupplyPlanLimit_QUADRANT_FITTING_FLUID}"
+                                "expression": "{item_char_skill_specialize_4}<{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}&&{item_char_skill_specialize_4}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}"
                             }
                         }
                     }
@@ -1204,7 +1206,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_char_skill_specialize_3}>={SupplyPlanLimit_TACHYON_SCREENING_LATTICE}"
+                                "expression": "{item_char_skill_specialize_3}<{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}&&{item_char_skill_specialize_3}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}"
                             }
                         }
                     }
@@ -1213,7 +1215,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_char_skill_specialize_2}>={SupplyPlanLimit_D96_STEEL_SAMPLE_4}"
+                                "expression": "{item_char_skill_specialize_2}<{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}&&{item_char_skill_specialize_2}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}"
                             }
                         }
                     }
@@ -1222,7 +1224,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_char_skill_specialize_1}>={SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}"
+                                "expression": "{item_char_skill_specialize_1}<{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}&&{item_char_skill_specialize_1}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}"
                             }
                         }
                     }
@@ -1231,7 +1233,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_char_skill_level_7_12}>={SupplyPlanLimit_PROTOHEDRON}"
+                                "expression": "{item_char_skill_level_7_12}<{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_PROTOHEDRON}&&{item_char_skill_level_7_12}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_PROTOHEDRON}"
                             }
                         }
                     }
@@ -1240,7 +1242,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_char_skill_level_1_6}>={SupplyPlanLimit_PROTOPRISM}"
+                                "expression": "{item_char_skill_level_1_6}<{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_PROTOPRISM}&&{item_char_skill_level_1_6}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_PROTOPRISM}"
                             }
                         }
                     }
@@ -1249,7 +1251,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_gold}>={SupplyPlanLimit_T_CREDS}"
+                                "expression": "{item_gold}<{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_T_CREDS}&&{item_gold}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_T_CREDS}"
                             }
                         }
                     }
@@ -1258,7 +1260,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)>={SupplyPlanLimit_WEAPON_EXP}"
+                                "expression": "({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)<{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_WEAPON_EXP}&&({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_WEAPON_EXP}"
                             }
                         }
                     }
@@ -1267,7 +1269,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_weapon_break_high}>={SupplyPlanLimit_HEAVY_CAST_DIE}"
+                                "expression": "{item_weapon_break_high}<{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_CAST_DIE}<={item_weapon_break_low}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_HEAVY_CAST_DIE}&&{item_weapon_break_high}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_HEAVY_CAST_DIE}"
                             }
                         }
                     }
@@ -1276,7 +1278,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{item_weapon_break_low}>={SupplyPlanLimit_CAST_DIE}"
+                                "expression": "{item_weapon_break_low}<{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_T_CREDS}<={item_gold}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_PROTOHEDRON}<={item_char_skill_level_7_12}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_PROTOPRISM}<={item_char_skill_level_1_6}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_COGNITIVE_CARRIER_EXP}<=({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_COMBAT_RECORD_EXP}<=({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_PROTOSET}<={item_char_break_stage_3_4}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_PROTODISK}<={item_char_break_stage_1_2}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_WEAPON_EXP}<=({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_HEAVY_CAST_DIE}<={item_weapon_break_high}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_TRIPHASIC_NANOFLAKE}<={item_char_skill_specialize_5}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_QUADRANT_FITTING_FLUID}<={item_char_skill_specialize_4}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_TACHYON_SCREENING_LATTICE}<={item_char_skill_specialize_3}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_D96_STEEL_SAMPLE_4}<={item_char_skill_specialize_2}*{SupplyPlanLimit_CAST_DIE}&&{item_weapon_break_low}*{SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}<={item_char_skill_specialize_1}*{SupplyPlanLimit_CAST_DIE}"
                             }
                         }
                     }

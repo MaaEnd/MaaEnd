@@ -3,6 +3,7 @@
 #include <chrono>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <MaaFramework/MaaDef.h>
 
@@ -45,6 +46,9 @@ bool RunRecognitionNode(
     const std::string& pipeline_override,
     const MaaImageBuffer* image,
     NodeSighting* out_sighting);
+// 交回子任务里识别命中且动作做完的节点名; 派发失败或读不到任务详情返回 std::nullopt
+std::optional<std::vector<std::string>>
+    RunTaskForCompletedNodes(MaaContext* context, const char* entry, const std::string& pipeline_override);
 // 截图发不出去或没等到结果就直接空手而归: 读缓存会拿到旧帧, 调用方会照着过期画面走
 bool CaptureFreshFrame(MaaController* controller, MaaImageBuffer* buffer);
 

@@ -10,7 +10,7 @@
                     270,
                     290
                 ],
-                "template": "AutoEssence/EssenceTrigger.png",
+                "template": "AdbOnly/AutoEssence/EssenceTrigger.png",
                 "green_mask": true,
                 "threshold": 0.75
             }
@@ -53,7 +53,7 @@
                     290,
                     320
                 ],
-                "template": "AutoEssence/EssenceObtain.png",
+                "template": "AdbOnly/AutoEssence/EssenceObtain.png",
                 "green_mask": true,
                 "threshold": 0.55,
                 "order_by": "Score"

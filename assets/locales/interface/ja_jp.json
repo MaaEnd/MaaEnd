@@ -1639,7 +1639,7 @@
     "option.StashBackpackQuick.label": "ワンタップ収納",
     "option.StashBackpackType.label": "収納方式",
     "option.StashBackpackUsableItemsLimited.label": "4個以下の使用可能アイテムを収納",
-    "option.SupplyPlanLimits.description": "各育成素材の目標を設定します。経験系は換算経験、それ以外は個数で入力。0 はこの周回に含めません。すべて達成で終了します。",
+    "option.SupplyPlanLimits.description": "各育成素材の目標を設定します。経験系は換算経験、それ以外は個数で入力。0 はこの周回に含めません。すべて達成で終了します。各項目は 3000000000 以下です。",
     "option.SupplyPlanLimits.inputs.CAST_DIE.label": "![](resource/image/UI/Item/item_weapon_break_low.png) 硬質金型",
     "option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label": "![](resource/image/UI/Item/item_expcard_stage2_high.png) 認識媒体経験",
     "option.SupplyPlanLimits.inputs.COMBAT_RECORD_EXP.label": "![](resource/image/UI/Item/item_expcard_stage1_high.png) 作戦記録経験",
@@ -1656,7 +1656,7 @@
     "option.SupplyPlanLimits.inputs.T_CREDS.label": "![](resource/image/UI/Item/item_gold.png) 折金券",
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) 武器経験",
     "option.SupplyPlanLimits.label": "育成素材目標",
-    "option.SupplyPlanLimits.pattern_msg": "0 以上の整数を入力してください",
+    "option.SupplyPlanLimits.pattern_msg": "0 から 3000000000 までの整数を入力してください",
     "option.SwitchTeamTeamChoose.label": "チーム選択",
     "option.TaskSchedule.label": "実行周期(ゲーム時間)",
     "option.TaskScheduleFriday.label": "金曜に実行",
@@ -2051,6 +2051,7 @@
     "task.DeliveryJobs.OngoingDeliveryFallback.description": "全自動配達が失敗した時、現在の任務を自動的に別の配達員に委託し、以降の依頼処理を続行します。オフの場合は失敗でタスク全体を停止します。",
     "task.DeliveryJobs.OngoingDeliveryFallback.label": "配達失敗後に任務を自動で委託",
     "task.DeliveryJobs.OngoingDeliverySkipped": "🚚 この配達任務が属する倉庫拠点では処理しないため、スキップして倉庫拠点に戻り探索を続行します",
+    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 依頼受注で受けた配達依頼は転送できないため、自動配達の準備をします",
     "task.DeliveryJobs.OngoingDeliveryTransferred": "🚚 この配達任務が属する倉庫拠点の設定に従って転送します",
     "task.DeliveryJobs.PackCargoSelectItem.description": "指定貨物を優先度順に積み込みます。地域ごとに 1～4 個の貨物を設定でき、現在の貨物が不足した場合は後続の貨物を順番に試します。",
     "task.DeliveryJobs.PackCargoSelectItem.label": "指定貨物を補充",
@@ -2511,5 +2512,6 @@
     "weapon.wpn_sword_0020": "★5 フィンチェイサー3.0",
     "weapon.wpn_sword_0021": "★6 大願",
     "weapon.wpn_sword_0022": "★6 狼緋",
+    "weapon.wpn_sword_0023": "★5 スイーツタイム",
     "weapon.wpn_sword_0026": "★6 ファーサイト"
 }

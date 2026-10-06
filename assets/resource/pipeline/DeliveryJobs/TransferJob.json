@@ -3,7 +3,62 @@
     // 打开送货任务详情由 DeliveryJobsTransferOngoingJob 完成，进入它的入口有两个：
     // 装箱时发现残留委托（DeliveryJobsOngoingDeliveryFor* 分派而来）、
     // 自动送货失败（DeliveryJobsDeliverByAutoDelivery 的 on_error）。
-    // 本文件负责：点击转交任务 -> 确认转交任务 -> 按 DeliveryJobsReturnToDepotNode 跳转
+    // 本文件负责：判断这条委托能不能转交 -> 点击转交任务 -> 确认转交任务 -> 按 DeliveryJobsReturnToDepotNode 跳转。
+    // 「能不能转交」在残留委托一进任务详情时就先判断（DeliveryJobsEnsureOngoingDeliveryMission 之后）：
+    // 抢来的委托游戏不允许转交，不看仓储节点配置、一律送掉；转交流程内部只保留一次同样的兜底。
+    // 判断前先等界面稳定：按钮在不在同时决定「按配置处理」和「一律送掉」，
+    // 界面还在渲染时先判，会把本该转交的委托当成抢来的直接送掉。
+    "DeliveryJobsWaitOngoingMissionDetail": {
+        "desc": "等送货任务详情稳定后判断这条残留委托能不能转交",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail"
+        ],
+        // 等待区域与组件里 AutoDeliveryInDeliveryMissionDetail 的等待区域相同
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                417,
+                51,
+                547,
+                279
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsCheckTransferJobAvailable",
+            "DeliveryJobsTransferUnavailable"
+        ]
+    },
+    // 有「转交运送委托」按钮 => 这条委托是「接取并转交」接下来的，按它归属仓储节点的配置处理；
+    // 没有 => 抢委托抢来的，游戏不允许转交，下一跳直接送掉
+    "DeliveryJobsCheckTransferJobAvailable": {
+        "desc": "识别任务详情里有没有「转交运送委托」按钮，区分转交委托与抢来的委托",
+        "recognition": "OCR",
+        "roi": [
+            366,
+            620,
+            372,
+            63
+        ],
+        "expected": [
+            "转交运送委托",
+            "轉交運送委託",
+            "(?i)Transfer\\s*Delivery\\s*Job",
+            "外部委託",
+            "(?i)Transfer\\s*Job",
+            "운송 의뢰 위탁"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResolveOngoingDepot"
+        ]
+    },
     "DeliveryJobsTransferOngoingJob": {
         "desc": "进入任务界面选中送货任务，再转交它",
         "pre_delay": 0,
@@ -19,28 +74,36 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsClickTransferJob"
+            "DeliveryJobsClickTransferJob",
+            // 兜底：判断与点击两次识别不一致时直接送掉，不再输出「抢来的」提示
+            "DeliveryJobsDeliverOngoingByAutoDelivery"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryTransferred"
         }
     },
+    // 这条委托不能转交：抢来的委托游戏里没有「转交运送委托」，详情里只有「开始追踪」。
+    // 一律把这条残留委托送掉；送不掉就停止任务并输出失败提示，绝不再回到转交，避免与送货互相打转
+    "DeliveryJobsTransferUnavailable": {
+        "desc": "这条委托不能转交时改为把它送掉（失败即停止任务）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsDeliverOngoingByAutoDelivery"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDeliveryTransferUnavailable"
+        }
+    },
     "DeliveryJobsClickTransferJob": {
         "desc": "单击转交任务",
-        "recognition": "OCR",
-        "roi": [
-            366,
-            620,
-            372,
-            63
-        ],
-        "expected": [
-            "转交运送委托",
-            "轉交運送委託",
-            "(?i)Transfer\\s*Delivery\\s*Job",
-            "外部委託",
-            "(?i)Transfer\\s*Job",
-            "운송 의뢰 위탁"
+        "recognition": "And",
+        // 与 DeliveryJobsCheckTransferJobAvailable 共用同一份识别，改识别文本只改那一处
+        "all_of": [
+            "DeliveryJobsCheckTransferJobAvailable"
         ],
         "pre_delay": 0,
         "action": "Click",

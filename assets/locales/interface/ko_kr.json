@@ -1639,7 +1639,7 @@
     "option.StashBackpackQuick.label": "원클릭 보관",
     "option.StashBackpackType.label": "보관 방식",
     "option.StashBackpackUsableItemsLimited.label": "4개 이하 사용 가능 아이템 보관",
-    "option.SupplyPlanLimits.description": "각 육성 재료 목표를 설정합니다. 경험류는 환산 경험, 그 외는 개수로 입력합니다. 0은 이번 계획에서 제외하며, 모두 달성하면 종료합니다.",
+    "option.SupplyPlanLimits.description": "각 육성 재료 목표를 설정합니다. 경험류는 환산 경험, 그 외는 개수로 입력합니다. 0은 이번 계획에서 제외하며, 모두 달성하면 종료합니다. 항목마다 3000000000 이하여야 합니다.",
     "option.SupplyPlanLimits.inputs.CAST_DIE.label": "![](resource/image/UI/Item/item_weapon_break_low.png) 모형 틀",
     "option.SupplyPlanLimits.inputs.COGNITIVE_CARRIER_EXP.label": "![](resource/image/UI/Item/item_expcard_stage2_high.png) 인지 매개체 경험",
     "option.SupplyPlanLimits.inputs.COMBAT_RECORD_EXP.label": "![](resource/image/UI/Item/item_expcard_stage1_high.png) 작전 기록 경험",
@@ -1656,7 +1656,7 @@
     "option.SupplyPlanLimits.inputs.T_CREDS.label": "![](resource/image/UI/Item/item_gold.png) 탈로시안 화폐",
     "option.SupplyPlanLimits.inputs.WEAPON_EXP.label": "![](resource/image/UI/Item/item_weapon_expcard_high.png) 무기 경험",
     "option.SupplyPlanLimits.label": "육성 재료 목표",
-    "option.SupplyPlanLimits.pattern_msg": "0 이상의 정수를 입력하세요",
+    "option.SupplyPlanLimits.pattern_msg": "0 이상 3000000000 이하의 정수를 입력하세요",
     "option.SwitchTeamTeamChoose.label": "팀 선택",
     "option.TaskSchedule.label": "실행 주기(게임 시간)",
     "option.TaskScheduleFriday.label": "금요일에 실행",
@@ -2051,6 +2051,7 @@
     "task.DeliveryJobs.OngoingDeliveryFallback.description": "완전 자동 배송이 실패할 때 현재 임무를 다른 배달원에게 자동으로 위탁하고 남은 의뢰 처리를 계속합니다. 꺼져 있으면 실패 시 전체 작업을 중지합니다.",
     "task.DeliveryJobs.OngoingDeliveryFallback.label": "배송 실패 후 임무 자동 위탁",
     "task.DeliveryJobs.OngoingDeliverySkipped": "🚚 이 배달 임무가 속한 창고 거점에서 처리하지 않으므로 건너뛰고 창고 거점으로 돌아가 순회를 계속합니다",
+    "task.DeliveryJobs.OngoingDeliveryTransferUnavailable": "🚚 의뢰 수락으로 받은 배송 의뢰는 전달할 수 없으므로 자동 배송을 준비합니다",
     "task.DeliveryJobs.OngoingDeliveryTransferred": "🚚 이 배달 임무가 속한 창고 거점 설정에 따라 전달합니다",
     "task.DeliveryJobs.PackCargoSelectItem.description": "지정 화물을 우선순위에 따라 적재합니다. 지역마다 1~4개의 화물을 설정할 수 있으며, 현재 화물이 부족하면 다음 화물을 순서대로 시도합니다.",
     "task.DeliveryJobs.PackCargoSelectItem.label": "지정 화물 채우기",
@@ -2511,5 +2512,6 @@
     "weapon.wpn_sword_0020": "★5 린수를 찾아서 3.0",
     "weapon.wpn_sword_0021": "★6 장대한 염원",
     "weapon.wpn_sword_0022": "★6 늑대의 혈흔",
+    "weapon.wpn_sword_0023": "★5 간식 시간",
     "weapon.wpn_sword_0026": "★6 조망"
 }

@@ -9,7 +9,7 @@
                     352,
                     312
                 ],
-                "template": "MapNavigator/Zipline/InteractButton.png",
+                "template": "AdbOnly/MapNavigator/Zipline/InteractButton.png",
                 "threshold": 0.75
             }
         }
@@ -24,7 +24,7 @@
                     352,
                     312
                 ],
-                "template": "MapNavigator/Zipline/InteractButton.png",
+                "template": "AdbOnly/MapNavigator/Zipline/InteractButton.png",
                 "threshold": 0.9
             }
         }

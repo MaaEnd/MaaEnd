@@ -57,6 +57,16 @@ struct NavRunPlan
     int soft_replan_attempts = 0;
 };
 
+// A bend sharp enough to hold the aim at: corridor distance from the projection to its vertex, the turn accumulated
+// from the current leg, and how far before the vertex the aim may start leading into it.
+struct SharpCorner
+{
+    double distance = 0.0;
+    double turn_deg = 0.0;
+    double lead_distance = 0.0;
+    navmesh::WorldPoint point {};
+};
+
 struct NavRunTickResult
 {
     bool has_corridor_heading = false;
@@ -72,6 +82,10 @@ struct NavRunTickResult
     // it never mixes two yardsticks; remaining_to_anchor is corridor arc length and must not be mixed in.
     double straight_to_anchor = std::numeric_limits<double>::infinity();
     double upcoming_turn_deg = 0.0;
+    // The first such bend within kCornerBrakeScanM, if any.
+    std::optional<SharpCorner> corner;
+    // Corridor distance the agent covers per tick, once enough fixes have been seen to estimate it.
+    std::optional<double> step_per_tick;
     NavRunReplanReason replanned_with = NavRunReplanReason::None;
     // Upcoming continuous-RUN session waypoints the corridor has carried the agent past this
     // tick. The state machine consumes these so the serial waypoint index keeps pace with
@@ -116,8 +130,8 @@ private:
 
     NavRunReplanReason detectReplanTrigger(const RouteTrackingState& route, std::chrono::steady_clock::time_point now) const;
 
-    double chooseLookaheadDistance(const RouteTrackingState& route) const;
-    double chooseTurnCommitDistance(double lookahead_distance) const;
+    double chooseLookaheadDistance(const RouteTrackingState& route, std::optional<double> step) const;
+    double chooseTurnCommitDistance(double lookahead_distance, std::optional<double> step) const;
 
     void recordSpeedSample(const NaviPosition& position, std::chrono::steady_clock::time_point now);
 

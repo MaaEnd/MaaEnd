@@ -39,6 +39,17 @@ agent:
         LD_LIBRARY_PATH: "{nativeLibs}"
         MAAFW_BINARY_PATH: "{nativeLibs}"
 
+# 后台模式虚拟屏只给 720P：资源都按 1280x720 画面截取，游戏在 1920x1080 下把界面画小约 8%（与 dpi 无关），
+# 缩回 720P 后按钮对不上模板，进不了菜单（#6154）。之前选过 1080P 的用户会自动回到这一档
+display:
+  # 前台模式在手机主屏上跑，分辨率和比例对不上资源
+  foreground: false
+  presets:
+    - label: 720P
+      width: 1280
+      height: 720
+      dpi: 240
+
 app:
   id: maaend
   label: MaaEnd

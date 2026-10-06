@@ -1,5 +1,6 @@
 {
     "ShutterButton": {
+        "template": "AdbOnly/Common/Button/ShutterButton.png",
         "threshold": 0.7
     }
 }

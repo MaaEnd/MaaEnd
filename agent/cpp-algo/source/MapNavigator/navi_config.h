@@ -121,6 +121,30 @@ constexpr int32_t kSteeringRateReferenceMs = 100;
 // plus the time one per-drag-capped command takes to sweep; a tick that spends several batches sweeps further,
 // so the caller adds time for the part beyond the first. Yaw rate measured on device from single-command turns.
 constexpr int64_t kSteeringPendingLifetimeMs = 600;
+// The same lifetime counted in steering ticks, whichever is longer: a turn only shows up in a fix a tick or more
+// after it was sent, and on a ~650ms phone loop the wall-clock lifetime expired before any tick could see it land.
+// The period is the median of the last few steering-tick intervals, each capped so one stretched by a recovery
+// cannot hold a swallowed drag's debt.
+constexpr int64_t kSteeringPendingLifetimeTicks = 2;
+constexpr int64_t kSteerPeriodMaxSampleMs = 1000;
+constexpr size_t kSteerPeriodWindow = 8;
+// A loop this slow (a healthy one is ~110ms; the latency detector calls 280ms slow) turns this far or more in place
+// instead of while running.
+constexpr int64_t kSlowLoopPivotPeriodMs = 300;
+constexpr double kSlowLoopPivotTurnDeg = 45.0;
+// Before the loop period is known, the first turn this big is made standing.
+constexpr double kStartupPivotTurnDeg = 90.0;
+// Running, the character arrow and the camera agree to within about 10 degrees (logged on device). Further apart than
+// this, the arrow is still swinging round to a camera that was just turned, and steering follows the camera.
+constexpr double kSteerArrowLagCameraDeg = 30.0;
+// On a slow loop a narrow corner reached at running speed is overrun by the time the turn lands (three units past a
+// pillar-bridge corner on device), so brake once per bend when it is within this many ticks of travel and the aim
+// cannot lead into it from further out. Bends are found within kCornerBrakeScanM by the aim hold's own turn budget
+// (kNavRunLookaheadTurnBudgetDeg): a corner drawn as two short kinks breaks that budget well before either kink alone.
+constexpr double kCornerBrakeLeadTicks = 2.0;
+constexpr double kCornerBrakeScanM = 8.0;
+// The same bend can come back a little moved after a replan; anything this close to one already braked for is it.
+constexpr double kCornerBrakeLatchRadiusM = 1.5;
 constexpr double kYawRateDegPerSec = 320.0;
 // Turn batches one tick may spend, and so the ceiling on how far one tick turns. Spending them on the angle the
 // command asks for rather than on how long the tick was lets a reversal finish in three ticks instead of seven,
@@ -477,6 +501,11 @@ constexpr const char* kObstacleDeviceEntry = "MapNavigatorObstacleDevice";
 constexpr const char* kObstacleDeviceProbeNode = "__MapNavigatorObstacleDevice_InteractPre";
 constexpr const char* kObstacleDeviceTemplateRelativePath = "resource/image/MapNavigator/ObstacleDevice/InteractButton.png";
 constexpr double kObstacleDeviceMatchThreshold = 0.65;
+// The pick-up subtask ends on the move click; the walk-out entry for that dialog runs with forward held.
+constexpr const char* kObstacleDeviceMoveNode = "__MapNavigatorObstacleDevice_MoveDevice";
+constexpr const char* kObstacleAicCoreMoveNode = "__MapNavigatorObstacleDevice_MoveAICCore";
+constexpr const char* kObstacleDeviceWalkOutEntry = "MapNavigatorObstacleDeviceWalkOut";
+constexpr const char* kObstacleAicCoreWalkOutEntry = "MapNavigatorObstacleDeviceWalkOutAICCore";
 // One attempt per anchor: the subtask's own timeouts can spend ~15s of the kDynamicRecoveryTotalTimeoutMs
 // budget, and whatever is left has to still cover jump -> detour -> unstick.
 constexpr int32_t kRecoveryDeviceAttempts = 1;

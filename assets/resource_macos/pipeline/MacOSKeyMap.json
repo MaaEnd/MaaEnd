@@ -42,6 +42,14 @@
             }
         }
     },
+    "AutoCollectDigSpace": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 49
+            }
+        }
+    },
     "AutoEssenceCapacityCloseValuables": {
         "action": {
             "type": "ClickKey",

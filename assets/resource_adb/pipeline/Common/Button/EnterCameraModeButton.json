@@ -1,5 +1,6 @@
 {
     "EnterCameraModeButton": {
+        "template": "AdbOnly/Common/Button/EnterCameraModeButton.png",
         "threshold": 0.7,
         "action": "Click"
     }
