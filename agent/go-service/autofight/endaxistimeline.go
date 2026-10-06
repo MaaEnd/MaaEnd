@@ -12,9 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
-	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -75,7 +72,7 @@ type timelineRootRaw struct {
 //
 //	t := NewEndAxisTimeline()
 //	t.SetTimelineCode(code)
-//	if t.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energy, skipComboCooldown) {
+//	if t.SelectScenario(characterCount, comboFull, endSkillFull, energy, skipComboCooldown) {
 //	    for !t.ActionFinish() {
 //	        if a, ok := t.FrontAction(); ok {
 //	            // ... 在外部执行该动作 ...
@@ -186,17 +183,18 @@ func decodeEndAxisShareCode(code string) ([]byte, error) {
 //
 // 匹配规则：
 //  1. 若 skipComboCooldown 为 false，且 1..characterCount 任一角色不在 characterComboFull 中
-//     （即有人连携没满），直接返回 false，不进入 scenario 匹配，并通过 maafocus.PrintThrottle（3s）
-//     输出"等待连携技冷却完成"的提示；
+//     （即有人连携没满），直接返回 false，不进入 scenario 匹配，并把决策面板置为
+//     "等待连携技冷却完成"；
 //  2. 对每个 scenario，逐个 track i ∈ [0, characterCount) 检查：若该 track 含 type==ultimate
 //     的 action，则对应角色编号 i+1 必须在 endSkillFull 列表中；任一项不满足则跳过该
-//     scenario，并通过 maafocus.PrintThrottle（3s）输出"终结技未充能完毕"的提示；
+//     scenario，并把决策面板置为"跳过方案 <名称>：终结技未充能完毕"；
 //  3. scenario 内若没有任何 type==ultimate / skill / battleSkill 的 action（即没有可派发的动作），
-//     也跳过该 scenario，并通过 maafocus.PrintThrottle（3s）输出"没有战技或终结技"的提示；
-//  4. 所有 scenario 都不满足时返回 false。
+//     也跳过该 scenario，并把决策面板置为"跳过方案 <名称>：没有战技或终结技"；
+//  4. 所有 scenario 都不满足时返回 false，并把决策面板置为"没有可用排轴方案"。
 //
-// 选中 scenario 时通过 maafocus.Print 输出多语言提示；跳过提示限频，ctx 为 nil 时仅记录日志。
-func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterCount int, characterComboFull, endSkillFull []int, energyLevel int, skipComboCooldown bool) bool {
+// 选中 scenario 时把决策面板置为"采用排轴：<名称>"。选中的与跳过的都属于"当前在做什么"，
+// 一律进面板；逐条可追溯性由 flushDecision 里的 debug 日志保证（go-service.log）。
+func (t *EndAxisTimeline) SelectScenario(characterCount int, characterComboFull, endSkillFull []int, energyLevel int, skipComboCooldown bool) bool {
 	t.reset()
 
 	if t.root == nil {
@@ -211,7 +209,7 @@ func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterCount int, c
 					Str("step", "SelectScenario").
 					Int("waitingOperator", op).
 					Msg("combo not ready for all operators")
-				maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.waiting_combo_cooldown"))
+				setDecision(decisionWaitCombo)
 				return false
 			}
 		}
@@ -226,7 +224,7 @@ func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterCount int, c
 				Str("scenarioId", sc.ID).
 				Str("scenarioName", sc.Name).
 				Msg("scenario skipped: ultimate gauge not full")
-			maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.scenario_skipped_endskill", sc.Name))
+			setDecision(decisionTimelineSkipEndSkill, sc.Name)
 			continue
 		}
 
@@ -238,7 +236,7 @@ func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterCount int, c
 				Str("scenarioId", sc.ID).
 				Str("scenarioName", sc.Name).
 				Msg("scenario skipped: no skill/ultimate actions")
-			maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.scenario_skipped_no_action", sc.Name))
+			setDecision(decisionTimelineSkipNoAction, sc.Name)
 			continue
 		}
 
@@ -260,7 +258,7 @@ func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterCount int, c
 			Int("endFrame", t.endFrame).
 			Int("energyLevel", energyLevel).
 			Msg("scenario selected")
-		maafocus.Print(ctx, i18n.T("autofight.endaxis.scenario_selected", sc.Name))
+		setDecision(decisionTimelineSelected, sc.Name)
 		return true
 	}
 
@@ -269,7 +267,7 @@ func (t *EndAxisTimeline) SelectScenario(ctx *maa.Context, characterCount int, c
 		Str("step", "SelectScenario").
 		Int("scenarioCount", len(t.root.ScenarioList)).
 		Msg("no matching scenario")
-	maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.no_matching_scenario"))
+	setDecision(decisionTimelineNoMatch)
 	return false
 }
 

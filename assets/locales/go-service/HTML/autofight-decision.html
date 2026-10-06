@@ -1,0 +1,22 @@
+<div
+    class="autofight-decision"
+    style="
+        background: #ffffff;
+        color: #222222;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #e6e0f5;
+        max-width: 400px;
+    ">
+    <style>
+        div:has(.autofight-decision):has(~ div .autofight-decision) {
+            display: none !important;
+        }
+        div:has(.autofight-decision):has(~ div .autofight-decision-exit) {
+            display: none !important;
+        }
+    </style>
+    <div style="font-size: 0.85em; color: #6b5b95">{{t "title"}}</div>
+    <div style="font-size: 1.1em; font-weight: 600; color: #3b2d6b">{{.Decision}}</div>
+    {{if .Secondary}}<div style="font-size: 0.8em; color: #8a86a8">{{.Secondary}}</div>{{end}}
+</div>

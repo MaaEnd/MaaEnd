@@ -393,6 +393,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	var lockTargetStage lockStage
 	lastDodgeAt = time.Now()
 	lastAttackReassert = time.Now()
+	resetDecision()
 	firstNoLockIteration := true
 	characterCount := -1
 	skillCycleIndex := 1
@@ -440,8 +441,14 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				result = true
 				break
 			}
+			setDecision(decisionPaused)
+			setDecisionContext(decisionContextText(characterCount, params.EnableLockTarget))
+			flushDecision(ctx)
 			continue
 		}
+
+		// 本帧默认决策：没有触发任何特殊状态时，面板显示持续输出中
+		setDecision(decisionAttack)
 
 		// 退出判定
 		comboFull := screenAnalyzer.GetCharacterComboFull()
@@ -522,7 +529,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				firstNoLockIteration = false
 				// 5秒内没有闪避/冲刺则向前冲刺一次，防止怪跑远
 				if time.Since(lastDodgeAt) >= 5*time.Second {
-					maafocus.Print(ctx, i18n.T("autofight.approach_enemy"))
+					setDecision(decisionApproach)
 					enqueueAction(fightAction{
 						executeAt: time.Now().Add(time.Millisecond),
 						action:    ActionMoveForward,
@@ -543,7 +550,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				case elapsed < 3*time.Second:
 					if firstNoLockIteration {
 						if lockTargetStage < lockStageInitial {
-							maafocus.Print(ctx, i18n.T("autofight.start_combat_lock_target"))
+							setDecision(decisionLock)
 							enqueueAction(fightAction{
 								executeAt: time.Now().Add(time.Millisecond),
 								action:    ActionLockTarget,
@@ -553,7 +560,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					}
 				case elapsed < 6*time.Second:
 					if lockTargetStage < lockStageRetry {
-						maafocus.Print(ctx, i18n.T("autofight.lock_target"))
+						setDecision(decisionLock)
 						enqueueAction(fightAction{
 							executeAt: time.Now().Add(time.Millisecond),
 							action:    ActionLockTarget,
@@ -567,25 +574,25 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 						facingRight := screenAnalyzer.GetEnemyFacingRight()
 						switch {
 						case facingBack:
-							maafocus.Print(ctx, i18n.T("autofight.move_back"))
+							setDecision(decisionMoveBack)
 							enqueueAction(fightAction{
 								executeAt: time.Now().Add(time.Millisecond),
 								action:    ActionMoveBack,
 							})
 						case facingLeft:
-							maafocus.Print(ctx, i18n.T("autofight.move_left"))
+							setDecision(decisionMoveLeft)
 							enqueueAction(fightAction{
 								executeAt: time.Now().Add(time.Millisecond),
 								action:    ActionMoveLeft,
 							})
 						case facingRight:
-							maafocus.Print(ctx, i18n.T("autofight.move_right"))
+							setDecision(decisionMoveRight)
 							enqueueAction(fightAction{
 								executeAt: time.Now().Add(time.Millisecond),
 								action:    ActionMoveRight,
 							})
 						default:
-							maafocus.Print(ctx, i18n.T("autofight.move_forward"))
+							setDecision(decisionMoveForward)
 							enqueueAction(fightAction{
 								executeAt: time.Now().Add(time.Millisecond),
 								action:    ActionMoveForward,
@@ -633,6 +640,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		energyLevel := screenAnalyzer.GetEnergyLevel(true)
 		if timeline == nil {
 			if params.EnableCombo && screenAnalyzer.GetCharacterComboActive() {
+				setDecision(decisionCombo)
 				enqueueAction(fightAction{
 					executeAt: time.Now(),
 					action:    ActionCombo,
@@ -645,6 +653,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					for _, idx := range endSkillFull {
 						if idx >= 5-characterCount {
 							op := idx + characterCount - 4
+							setDecision(decisionEndSkill, op)
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    endSkillAction(op),
@@ -656,7 +665,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			}
 			if params.EnableSkill && energyLevel >= 1 {
 				if params.EnableBreakAccumulatingPower && screenAnalyzer.GetEnemyAccumulatingPower(true) {
-					maafocus.Print(ctx, i18n.T("autofight.enemy_accumulating_power"))
+					setDecision(decisionBreakPower)
 					op := skillCycleIndex
 					if characterCount > 0 {
 						op = ((op - 1) % characterCount) + 1
@@ -676,6 +685,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					if characterCount > 0 {
 						op = ((op - 1) % characterCount) + 1
 					}
+					setDecision(decisionSkill, op)
 					enqueueAction(fightAction{
 						executeAt: time.Now(),
 						action:    skillAction(op),
@@ -686,12 +696,13 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			}
 		} else {
 			if hasEnemyTarget && timeline.ActionFinish() {
-				maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.retry_timeline"))
-				timeline.SelectScenario(ctx, characterCount, comboFull, endSkillFull, energyLevel, params.SkipComboCooldown)
+				setDecision(decisionTimelineRetry)
+				timeline.SelectScenario(characterCount, comboFull, endSkillFull, energyLevel, params.SkipComboCooldown)
 			}
 
 			if screenAnalyzer.GetCharacterComboActive() && !timeline.ActionFinish() {
 				if screenAnalyzer.GetCharacterComboActive() {
+					setDecision(decisionCombo)
 					enqueueAction(fightAction{
 						executeAt: time.Now(),
 						action:    ActionCombo,
@@ -717,6 +728,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					switch action.Type {
 					case "ultimate":
 						if slices.Contains(endSkillFull, screenSlot) && hasEnemyTarget {
+							setDecision(decisionEndSkill, op)
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    endSkillAction(op),
@@ -726,6 +738,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 						}
 					case "skill":
 						if energyLevel >= 1 && hasEnemyTarget {
+							setDecision(decisionSkill, op)
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    skillAction(op),
@@ -737,6 +750,10 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				}
 			}
 		}
+
+		// 本帧决策面板：文案有变化才输出一条新的面板块
+		setDecisionContext(decisionContextText(characterCount, params.EnableLockTarget))
+		flushDecision(ctx)
 
 		// ADB 断触兜底：按住中的普攻触点被模拟器层面的中断掐断后不会自行恢复，
 		// 按周期补按一次。PC 端的按住是键鼠状态，不需要也不应该重按。
@@ -750,6 +767,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 		drainActionQueue(ctx)
 	}
+	reportDecisionExit()
 	if params.EnableAttack {
 		ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
 	}
