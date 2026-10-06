@@ -24,9 +24,9 @@ constexpr const char* kClassifierOutputName = "pmf";
 
 // PMF 解码的定峰窗口半径（bin）：argmax 后在该窗口内按概率加权求圆均值。
 constexpr int kRefineRadius = 5;
-// 典型峰高为 [0.1, 0.2)，低于 0.02 的信号不作为峰；次峰至少为主峰的五分之一。
-constexpr float kMinPeakHeight = 0.02f;
-constexpr float kSecondaryPeakRatio = 0.2f;
+// 典型峰高为 [0.1, 0.2)，候选峰顶至少为 0.005 且不低于主峰的 5%。
+constexpr float kMinPeakHeight = 0.005f;
+constexpr float kSecondaryPeakRatio = 0.05f;
 
 // 参考资产缺失或非 BGRA 时的占位输入：1x1 全 0 BGRA。采样窗不可能落在这块资产里，
 // 参考条带据此全为「参考缺失」。
@@ -272,45 +272,52 @@ std::optional<CameraOrientation>
     if (expected_camera_heading && std::isfinite(*expected_camera_heading)) {
         const double expected = std::fmod(std::fmod(*expected_camera_heading, 360.0) + 360.0, 360.0);
         const double expected_bin = expected * static_cast<double>(count) / 360.0;
-        const size_t expected_index = static_cast<size_t>(std::llround(expected_bin)) % count;
-        // 先验只消歧，不凭空制造方向；预期位置本身也必须有足够信号。
-        if (pmf[expected_index] >= kMinPeakHeight) {
-            const auto circular_distance = [count](double a, double b) {
-                const double distance = std::abs(a - b);
-                return std::min(distance, static_cast<double>(count) - distance);
-            };
-            double nearest_distance = circular_distance(static_cast<double>(center), expected_bin);
-            bool has_secondary_peak = false;
-            for (size_t j = 0; j < count; ++j) {
-                if (pmf[j] < kMinPeakHeight || pmf[j] < pmf[primary_center] * kSecondaryPeakRatio
-                    || circular_distance(static_cast<double>(j), static_cast<double>(primary_center)) <= 2 * kRefineRadius) {
-                    continue;
-                }
-                // 相邻肩部不重复计峰；平台只取上升沿，跨接缝同样按圆周判断。
-                if (pmf[j] <= pmf[(j + count - 1) % count] || pmf[j] < pmf[(j + 1) % count]) {
-                    continue;
-                }
-                bool local_maximum = true;
-                for (int offset = -kRefineRadius; offset <= kRefineRadius; ++offset) {
-                    const size_t col = static_cast<size_t>(
-                        (static_cast<long long>(j) + offset % static_cast<long long>(count) + static_cast<long long>(count))
-                        % static_cast<long long>(count));
-                    if (pmf[col] > pmf[j]) {
-                        local_maximum = false;
-                        break;
-                    }
-                }
-                if (!local_maximum) {
-                    continue;
-                }
-                has_secondary_peak = true;
-                const double distance = circular_distance(static_cast<double>(j), expected_bin);
-                if (distance < nearest_distance) {
-                    center = j;
-                    nearest_distance = distance;
+        const auto circular_distance = [count](double a, double b) {
+            const double distance = std::abs(a - b);
+            return std::min(distance, static_cast<double>(count) - distance);
+        };
+        size_t expected_peak = primary_center;
+        double nearest_distance = static_cast<double>(kRefineRadius) + 1.0;
+        bool has_expected_peak = false;
+        bool has_secondary_peak = false;
+        for (size_t j = 0; j < count; ++j) {
+            // 绝对和相对高度都检查峰顶，不检查预期角度处的信号。
+            if (pmf[j] < kMinPeakHeight || pmf[j] < pmf[primary_center] * kSecondaryPeakRatio) {
+                continue;
+            }
+            const double primary_distance = circular_distance(static_cast<double>(j), static_cast<double>(primary_center));
+            if (j != primary_center && primary_distance <= 2 * kRefineRadius) {
+                continue;
+            }
+            // 相邻肩部不重复计峰；平台只取上升沿，跨接缝同样按圆周判断。
+            if (pmf[j] <= pmf[(j + count - 1) % count] || pmf[j] < pmf[(j + 1) % count]) {
+                continue;
+            }
+            bool local_maximum = true;
+            for (int offset = -kRefineRadius; offset <= kRefineRadius; ++offset) {
+                const size_t col = static_cast<size_t>(
+                    (static_cast<long long>(j) + offset % static_cast<long long>(count) + static_cast<long long>(count))
+                    % static_cast<long long>(count));
+                if (pmf[col] > pmf[j]) {
+                    local_maximum = false;
+                    break;
                 }
             }
-            used_expected_heading = has_secondary_peak;
+            if (!local_maximum) {
+                continue;
+            }
+            has_secondary_peak = has_secondary_peak || primary_distance > 2 * kRefineRadius;
+            // 仅关联现有精修窗口范围内的峰，不能将远处的“最近峰”当作预期方向的峰。
+            const double distance = circular_distance(static_cast<double>(j), expected_bin);
+            if (distance <= kRefineRadius && distance < nearest_distance) {
+                expected_peak = j;
+                nearest_distance = distance;
+                has_expected_peak = true;
+            }
+        }
+        if (has_secondary_peak && has_expected_peak) {
+            center = expected_peak;
+            used_expected_heading = true;
         }
     }
 
