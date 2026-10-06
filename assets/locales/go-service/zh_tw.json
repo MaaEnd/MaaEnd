@@ -11,7 +11,7 @@
     "autoecofarm.no_results": "未識別到結果",
     "autofight.adjust_view": "調整視角",
     "autofight.approach_enemy": "靠近敵人",
-    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">戰鬥識別平均耗時 %d ms，會導致釋放技能不及時，請在遊戲設定中降低畫質、解析度，減少裝置負載，並檢查工作管理員 GPU 佔用是否過高</span>",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">戰鬥識別平均耗時 %d ms，會導致釋放技能不及時，請在遊戲設定中降低畫質、解析度、幀率，減少裝置負載，並檢查工作管理員 GPU 佔用是否過高</span>",
     "autofight.character_count": "共 %d 名幹員參戰",
     "autofight.endaxis.no_matching_scenario": "當前終結技狀態沒有可用排軸，需添加更多方案",
     "autofight.endaxis.retry_timeline": "嘗試新一輪排軸",

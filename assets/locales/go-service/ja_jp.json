@@ -11,7 +11,7 @@
     "autoecofarm.no_results": "結果を認識できませんでした",
     "autofight.adjust_view": "視点を調整",
     "autofight.approach_enemy": "敵に接近",
-    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">戦闘認識の平均処理時間は %d ms です。スキル発動が遅れる原因になります。ゲーム設定で画質・解像度を下げてデバイスの負荷を減らし、タスクマネージャーでGPU使用率が高くないか確認してください</span>",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">戦闘認識の平均処理時間は %d ms です。スキル発動が遅れる原因になります。ゲーム設定で画質・解像度・フレームレートを下げてデバイスの負荷を減らし、タスクマネージャーでGPU使用率が高くないか確認してください</span>",
     "autofight.character_count": "オペレーター %d 名が参戦中",
     "autofight.endaxis.no_matching_scenario": "現在の終結技状態に使用可能な軸取りがありません。プランを追加してください",
     "autofight.endaxis.retry_timeline": "新しい軸取りラウンドを試みます",

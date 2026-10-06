@@ -11,7 +11,7 @@
     "autoecofarm.no_results": "No results recognized",
     "autofight.adjust_view": "Adjusting view",
     "autofight.approach_enemy": "Approaching enemy",
-    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">Combat recognition averages %d ms, which may delay skill casting. Lower graphics quality and resolution in game settings to reduce device load, and check Task Manager for high GPU usage.</span>",
+    "autofight.capture_slow": "<span style=\"color: red; font-weight: bold;\">Combat recognition averages %d ms, which may delay skill casting. Lower graphics quality, resolution, and frame rate in game settings to reduce device load, and check Task Manager for high GPU usage.</span>",
     "autofight.character_count": "%d operators in combat",
     "autofight.endaxis.no_matching_scenario": "No timeline plan available for current ultimate state; add more plans",
     "autofight.endaxis.retry_timeline": "Trying a new timeline round",
