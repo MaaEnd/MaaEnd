@@ -26,7 +26,7 @@
     "__AutoFightRecognitionScreenTest": {
         "desc": "使用onnx模型整体识别",
         "recognition": "NeuralNetworkDetect",
-        "model": "AutoFight/autofightv12.onnx",
+        "model": "AutoFight/autofightv13.onnx",
         "next": [
             "__AutoFightRecognitionScreenTest"
         ]
