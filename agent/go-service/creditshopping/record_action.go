@@ -1,0 +1,110 @@
+package creditshopping
+
+import (
+	"time"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
+)
+
+const creditShoppingScanItemActionName = "CreditShoppingScanItemAction"
+
+// RecordShelfSnapshotsAction 信用商店货架快照（best-effort，失败不阻断购物）：
+//  1. 截图并识别当日第几次刷新（RefreshCost）；
+//  2. 取 UID，查本地 JSON 是否已有 uid+game_date+refresh_index；有则直接结束；
+//  3. 尚无记录时 CreditShoppingRecordShelfSlot 定骨架（Win32 7+3 / ADB 5+5）→ record 物品挂格（未识别 unknown）→ 折扣 OCR → 追加写入；
+//     锚点未命中时不写入，避免占位后永久跳过重试。
+type RecordShelfSnapshotsAction struct{}
+
+var _ maa.CustomActionRunner = (*RecordShelfSnapshotsAction)(nil)
+
+func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if ctx == nil || ctx.GetTasker() == nil {
+		log.Error().Str("component", component).Msg("record: nil context or tasker")
+		return false
+	}
+	ctrl := ctx.GetTasker().GetController()
+	if ctrl == nil {
+		log.Error().Str("component", component).Msg("record: nil controller")
+		return false
+	}
+	path := resolveShelfSnapshotPathFunc()
+	now := time.Now()
+	gameDate := gameDateLocal(now)
+
+	img, err := recordScreencap(ctrl)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("record: screencap failed")
+		return true
+	}
+
+	refreshIndex, refreshCost := resolveRefreshIndex(ctx, img)
+
+	uid, err := captureuid.Capture(ctx, ctrl, true, true, true, captureuid.OutputTypeHashed)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("record: uid capture failed")
+		return true
+	}
+	exists, err := shelfSnapshotExists(path, uid, gameDate, refreshIndex)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Str("path", path).Msg("record: read snapshot failed")
+		return true
+	}
+	if exists {
+		log.Info().
+			Str("component", component).
+			Str("uid", uid).
+			Str("game_date", gameDate).
+			Int("refresh_index", refreshIndex).
+			Int("refresh_cost", refreshCost).
+			Msg("record: snapshot already exists, skip")
+		return true
+	}
+
+	ctrlType, err := control.ResolveControlType(ctrl)
+	if err != nil {
+		log.Warn().Err(err).Str("component", component).Msg("record: controller type unknown, use Win32 7+3 layout")
+		ctrlType = control.CONTROL_TYPE_WIN32
+	}
+	layout := recordLayoutFromControlType(ctrlType)
+
+	slots := RecordShelfFromImage(ctx, img, layout)
+	if len(slots) == 0 {
+		log.Info().
+			Str("component", component).
+			Str("uid", uid).
+			Str("game_date", gameDate).
+			Int("refresh_index", refreshIndex).
+			Int("refresh_cost", refreshCost).
+			Str("layout", recordLayoutLabel(layout)).
+			Msg("record: no shelf slot anchors, skip persist")
+		return true
+	}
+	entry := snapshotEntry{
+		UID:          uid,
+		GameDate:     gameDate,
+		RefreshIndex: refreshIndex,
+		RefreshCost:  refreshCost,
+		UTCTime:      now.UTC().Format(time.RFC3339),
+		Slots:        slots,
+	}
+	log.Info().
+		Str("component", component).
+		Str("uid", uid).
+		Str("game_date", gameDate).
+		Int("refresh_index", refreshIndex).
+		Int("refresh_cost", refreshCost).
+		Int("slots", len(slots)).
+		Str("layout", recordLayoutLabel(layout)).
+		Msg("record: shelf captured")
+
+	n, err := upsertShelfSnapshots(path, []snapshotEntry{entry})
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Str("path", path).Msg("record: write failed")
+		return true
+	}
+	logSnapshotSaved(path, n)
+	return true
+}

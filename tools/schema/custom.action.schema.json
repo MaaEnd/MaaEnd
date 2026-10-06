@@ -43,6 +43,7 @@
                 "CaptureUid",
                 "ClearHitCount",
                 "CloseGameAction",
+                "CreditShoppingApplyPriorityItemsAction",
                 "CreditShoppingScanItemAction",
                 "DeliveryJobsResolveOngoingDepotAction",
                 "ERROR",
@@ -337,6 +338,20 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilNotFoundParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "CreditShoppingApplyPriorityItemsAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/credit_shopping.schema.json#/$defs/ApplyPriorityItemsParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

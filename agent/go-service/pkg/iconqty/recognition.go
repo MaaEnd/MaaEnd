@@ -194,7 +194,7 @@ func recognizeIcons(ctx *maa.Context, img image.Image, req Request) ([]iconrecog
 // only when tolerateEmptyGrid is set (A3): a missing catalog or a grid that
 // cannot be read must not block the close-rewards click. Other structured
 // errors stay hard failures.
-func emptyMatches(parsed iconrecognition.Detail, tolerateEmptyGrid bool) (empty bool, err error) {
+func emptyMatches(parsed iconrecognition.LegacyDetail, tolerateEmptyGrid bool) (empty bool, err error) {
 	code := iconrecognition.ErrorCode("")
 	message := ""
 	if parsed.Error != nil {

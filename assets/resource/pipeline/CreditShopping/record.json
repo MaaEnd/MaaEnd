@@ -1,89 +1,103 @@
 {
-    "ItemNameOCRLabelColor": {
-        "desc": "物品名称标签颜色（相对 CreditIcon）",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "CreditIcon",
-                "roi_offset": [
-                    -95,
-                    30,
-                    130,
-                    28
-                ],
-                "method": 6,
-                "lower": [
-                    0
-                ],
-                "upper": [
-                    160
-                ],
-                "connected": true,
-                "count": 1500,
-                "order_by": "Area"
-            }
-        }
-    },
-    "ItemNameOCRTextColor": {
-        "desc": "物品名称文字颜色",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "ItemNameOCRLabelColor",
-                "method": 6,
-                "lower": [
-                    200
-                ],
-                "upper": [
-                    255
-                ],
-                "count": 10,
-                "order_by": "Vertical"
-            }
-        }
-    },
-    "ItemNameOCR": {
-        "desc": "物品名称（相对 CreditIcon，不依赖售罄/买得起状态）",
-        "recognition": "OCR",
-        "roi": "ItemNameOCRTextColor",
-        "roi_offset": [
-            -2,
-            -2,
-            4,
-            4
+    "CreditShoppingRecordShelfSlot": {
+        "desc": "货架记录：格位锚点（信用点卡片图标，含售罄/未识别格）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            38,
+            95,
+            1194,
+            527
         ],
-        "expected": ".*",
-        "only_rec": true,
-        "order_by": "Vertical"
+        "template": "CreditShopping/CreditIcon.png",
+        "order_by": "Vertical",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
-    "ItemNameOCR_Expected": {
-        "desc": "物品名称识别（label → 文字色 → OCR）",
-        "recognition": "And",
-        "all_of": [
-            "ItemNameOCRLabelColor",
-            "ItemNameOCRTextColor",
-            "ItemNameOCR"
+    "CreditShoppingRecordCatalogItems": {
+        "desc": "货架记录与任意购买：信用交易所全 catalog IconRecognition（始终开启，不看购买选项）",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "credit_trade",
+            "item_ids": [
+                "item_weapon_expcard_low",
+                "item_weapon_expcard_mid",
+                "item_gachabyproducts_weapongold",
+                "item_weapon_break_low",
+                "item_expcard_stage2_low",
+                "item_expcard_2_1",
+                "item_expcard_2_2",
+                "item_weapon_break_high",
+                "item_diamond",
+                "item_char_break_stage_1_2",
+                "item_char_skill_level_1_6",
+                "item_char_skill_level_7_12",
+                "item_char_break_stage_3_4",
+                "item_gold"
+            ],
+            "order_by": "natural",
+            "deduplicate": true
+        },
+        "roi": [
+            70,
+            95,
+            1140,
+            415
         ],
-        "box_index": 2
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
-    "RecordItemName": {
-        "desc": "货架槽位物品名称（CreditIcon 锚定 + 名称 OCR）",
-        "recognition": "And",
-        "all_of": [
-            "CreditIcon",
-            "ItemNameOCR_Expected"
+    "CreditShoppingRecordAllItems": {
+        "desc": "货架记录：全部物品识别（兼容别名，等同 CreditShoppingRecordCatalogItems）",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "credit_trade",
+            "item_ids": [
+                "item_weapon_expcard_low",
+                "item_weapon_expcard_mid",
+                "item_gachabyproducts_weapongold",
+                "item_weapon_break_low",
+                "item_expcard_stage2_low",
+                "item_expcard_2_1",
+                "item_expcard_2_2",
+                "item_weapon_break_high",
+                "item_diamond",
+                "item_char_break_stage_1_2",
+                "item_char_skill_level_1_6",
+                "item_char_skill_level_7_12",
+                "item_char_break_stage_3_4",
+                "item_gold"
+            ],
+            "order_by": "natural",
+            "deduplicate": true
+        },
+        "roi": [
+            70,
+            95,
+            1140,
+            415
         ],
-        "box_index": 1
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "RecordItemDiscount": {
-        "desc": "货架槽位折扣力度（相对物品名称）",
+        "desc": "货架槽位折扣力度（相对物品识别框）",
         "recognition": "OCR",
-        "roi": "ItemNameOCR",
+        "roi": [
+            0,
+            0,
+            150,
+            166
+        ],
         "roi_offset": [
-            44,
-            -170,
-            4,
-            4
+            100,
+            2,
+            -104,
+            -140
         ],
         "expected": [
             "95",
@@ -93,6 +107,9 @@
             "25"
         ],
         "only_rec": true,
-        "order_by": "Expected"
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

@@ -15,7 +15,6 @@
             4,
             4
         ],
-        "auto_up": true,
         "timeout": 5000,
         // 轮盘开着就往下走：中心是「选择工具」最好；已经预选了某个工具时直接认拍照图标，
         // 否则 InSelectTool 永远等不到，手指一直按着
@@ -25,7 +24,8 @@
         ],
         "on_error": [
             "EnterCameraModeReleaseOnError"
-        ]
+        ],
+        "auto_up": true
     },
     "EnterCameraModeInSelectTool": {
         "timeout": 5000,

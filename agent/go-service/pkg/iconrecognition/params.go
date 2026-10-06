@@ -24,6 +24,14 @@ const (
 // CustomRecognitionName 是 Maa Pipeline 注册的 IconRecognition 名称。
 const CustomRecognitionName = "IconRecognition"
 
+// ResultOrder 是 IconRecognition 识别结果的输出顺序。
+type ResultOrder string
+
+const (
+	ResultOrderScore   ResultOrder = "score"
+	ResultOrderNatural ResultOrder = "natural"
+)
+
 // Params 是 IconRecognition custom_recognition_param 的公共表示。
 // 候选 ID、基础/附加/排除条件和反查过滤器是否必填由具体调用场景决定。
 type Params struct {
@@ -37,6 +45,8 @@ type Params struct {
 	Threshold                  *float64     `json:"threshold,omitempty"`
 	SubpixelThreshold          *float64     `json:"subpixel_threshold,omitempty"`
 	Deduplicate                *bool        `json:"deduplicate,omitempty"`
+	OrderBy                    ResultOrder  `json:"order_by,omitempty"`
+	Reverse                    *bool        `json:"reverse,omitempty"`
 	Debug                      *bool        `json:"debug,omitempty"`
 }
 
@@ -126,6 +136,20 @@ func WithSubpixelThreshold(threshold float64) Option {
 func WithDeduplicate(deduplicate bool) Option {
 	return func(params *Params) {
 		params.Deduplicate = pointerOf(deduplicate)
+	}
+}
+
+// WithOrderBy 配置识别结果的最终输出顺序。
+func WithOrderBy(order ResultOrder) Option {
+	return func(params *Params) {
+		params.OrderBy = order
+	}
+}
+
+// WithReverse 配置是否反转最终输出顺序。
+func WithReverse(reverse bool) Option {
+	return func(params *Params) {
+		params.Reverse = pointerOf(reverse)
 	}
 }
 

@@ -174,8 +174,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "auto_up": true,
-                "key": 16
+                "key": 16,
+                "auto_up": true
             }
         },
         "post_delay": 50,

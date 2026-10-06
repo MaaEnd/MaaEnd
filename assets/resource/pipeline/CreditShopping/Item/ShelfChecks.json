@@ -1,0 +1,320 @@
+{
+    "CreditShoppingPriority1Discount": {
+        "desc": "优先购买1折扣。相对买得起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority1CanAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "CreditShoppingPriority2Discount": {
+        "desc": "优先购买2折扣。相对买得起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority2CanAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "CreditShoppingPriority3Discount": {
+        "desc": "优先购买3折扣。相对买得起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority3CanAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "CreditShoppingPriority1DiscountCannotAfford": {
+        "desc": "优先购买1买不起时的折扣。相对买不起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority1CanNotAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "CreditShoppingPriority2DiscountCannotAfford": {
+        "desc": "优先购买2买不起时的折扣。相对买不起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority2CanNotAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "CreditShoppingPriority3DiscountCannotAfford": {
+        "desc": "优先购买3买不起时的折扣。相对买不起框，预写为 75% 及以上",
+        "recognition": "OCR",
+        "roi": "CreditShoppingPriority3CanNotAfford",
+        "roi_offset": [
+            8,
+            -130,
+            -12,
+            2
+        ],
+        "expected": [
+            "99",
+            "95",
+            "75"
+        ],
+        "only_rec": true,
+        "order_by": "Expected"
+    },
+    "CreditShoppingPriority1CanAfford": {
+        "desc": "优先购买1买得起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority1NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            70
+        ],
+        "upper": [
+            0,
+            2,
+            150
+        ],
+        "count": 30
+    },
+    "CreditShoppingPriority2CanAfford": {
+        "desc": "优先购买2买得起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority2NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            70
+        ],
+        "upper": [
+            0,
+            2,
+            150
+        ],
+        "count": 30
+    },
+    "CreditShoppingPriority3CanAfford": {
+        "desc": "优先购买3买得起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority3NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            70
+        ],
+        "upper": [
+            0,
+            2,
+            150
+        ],
+        "count": 30
+    },
+    "CreditShoppingPriority1CanNotAfford": {
+        "desc": "优先购买1买不起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority1NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "lower": [
+            200,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            150,
+            150
+        ],
+        "count": 20
+    },
+    "CreditShoppingPriority2CanNotAfford": {
+        "desc": "优先购买2买不起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority2NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "lower": [
+            200,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            150,
+            150
+        ],
+        "count": 20
+    },
+    "CreditShoppingPriority3CanNotAfford": {
+        "desc": "优先购买3买不起。相对未售罄框",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority3NotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "lower": [
+            200,
+            0,
+            0
+        ],
+        "upper": [
+            255,
+            150,
+            150
+        ],
+        "count": 20
+    },
+    "CreditShoppingPriority1NotSoldOut": {
+        "desc": "优先购买1未售罄。识别框与物品模板相同，不偏移",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority1Item",
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 1200
+    },
+    "CreditShoppingPriority2NotSoldOut": {
+        "desc": "优先购买2未售罄。识别框与物品模板相同，不偏移",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority2Item",
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 1200
+    },
+    "CreditShoppingPriority3NotSoldOut": {
+        "desc": "优先购买3未售罄。识别框与物品模板相同，不偏移",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingPriority3Item",
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 1200
+    },
+    "CreditShoppingShelfAnyCanAfford": {
+        "desc": "任意物品买得起。相对未售罄框，偏移与三档购买相同",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingShelfAnyNotSoldOut",
+        "roi_offset": [
+            92,
+            132,
+            -92,
+            -142
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            70
+        ],
+        "upper": [
+            0,
+            2,
+            150
+        ],
+        "count": 30
+    },
+    "CreditShoppingShelfAnyNotSoldOut": {
+        "desc": "任意物品未售罄。识别框与物品模板相同，不偏移",
+        "recognition": "ColorMatch",
+        "roi": "CreditShoppingShelfAnyItem",
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 1200
+    }
+}
