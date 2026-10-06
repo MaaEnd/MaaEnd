@@ -354,6 +354,35 @@ navmesh::WorldPath BuildAuthoredSpanPolyline(const NavigationSession& session, s
     return poly;
 }
 
+// 从台子边跳下: 人离起跳点还有一段距离就算到达, 这时人常常还站在台上; 只剩落点一个目标会停下来重新规划。
+// 人还在起跳点的到达范围内、没越过落点时, 把起跳点放回路线开头, 按出发时那条线走下去。
+bool PrependDropTopWhileShort(
+    navmesh::WorldPath& authored,
+    const NavigationSession& session,
+    const Waypoint& anchor,
+    const NaviPosition& position)
+{
+    const size_t current = session.current_node_idx();
+    if (authored.points.size() != 1 || !anchor.drop_from || current == 0) {
+        return false;
+    }
+    const Waypoint& top = session.current_path()[current - 1];
+    const double top_x = (*anchor.drop_from)[0];
+    const double top_y = (*anchor.drop_from)[1];
+    if (!top.IsContinuousRun() || top.x != top_x || top.y != top_y) {
+        return false;
+    }
+    const bool short_of_drop = (position.x - anchor.x) * (anchor.x - top_x) + (position.y - anchor.y) * (anchor.y - top_y) < 0.0;
+    if (!short_of_drop || std::hypot(position.x - top_x, position.y - top_y) > top.ArrivalBand(kMeasurementDefaultPositionQuantum)) {
+        return false;
+    }
+    authored.points.insert(authored.points.begin(), { .x = top_x, .y = top_y });
+    if (!authored.clearance.empty() || top.corridor_clearance > 0.0) {
+        authored.clearance = { top.corridor_clearance, anchor.corridor_clearance };
+    }
+    return true;
+}
+
 // Cut the line back to where the agent actually stands on it, dropping what is already behind.
 // The span always begins at the session's current waypoint, but a waypoint only counts as reached once
 // the agent enters a band about a pixel wide, so a pass a pixel wide of it leaves the span starting
@@ -454,6 +483,9 @@ bool NavRunController::buildPlan(
     };
 
     navmesh::WorldPath authored = BuildAuthoredSpanPolyline(session, anchor_index);
+    if (PrependDropTopWhileShort(authored, session, anchor, position)) {
+        LogDebug << "NavRunController drop top kept on span." << VAR(anchor_index) << VAR(position.x) << VAR(position.y);
+    }
     const bool has_authored = authored.points.size() >= 2;
     const size_t authored_points = authored.points.size();
     const bool on_authored_line = has_authored && TrimAuthoredSpanToAgent(authored, position);
