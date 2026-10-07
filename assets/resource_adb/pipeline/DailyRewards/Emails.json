@@ -1,0 +1,91 @@
+{
+    // 手机端邮件图标比 PC 模板大约 25%，PC 模板只有 0.6 分；左上角图标数会变，邮件可能排到 x 400 以后
+    // 模板只认信封（背景和未读点涂绿），未读与否看右上角的橙色点；刚进大世界显示地名时 HUD 半透明，点的亮度只有 100 左右
+    "DailyEmailHasUnreadMessage": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "DailyEmailIcon",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            0,
+                            0,
+                            520,
+                            80
+                        ],
+                        "template": "AdbOnly/CheckEmail/email.png",
+                        "green_mask": true
+                    },
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "DailyEmailIcon",
+                        "roi_offset": [
+                            22,
+                            -10,
+                            -17,
+                            -12
+                        ],
+                        "method": 40,
+                        "lower": [
+                            5,
+                            150,
+                            60
+                        ],
+                        "upper": [
+                            25,
+                            255,
+                            255
+                        ],
+                        "count": 30
+                    }
+                ],
+                "box_index": 0
+            }
+        }
+    },
+    "DailyEmailNoUnreadMessage": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "DailyEmailIcon",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            0,
+                            0,
+                            520,
+                            80
+                        ],
+                        "template": "AdbOnly/CheckEmail/email.png",
+                        "green_mask": true
+                    },
+                    {
+                        "recognition": "ColorMatch",
+                        "roi": "DailyEmailIcon",
+                        "roi_offset": [
+                            22,
+                            -10,
+                            -17,
+                            -12
+                        ],
+                        "method": 40,
+                        "lower": [
+                            5,
+                            150,
+                            60
+                        ],
+                        "upper": [
+                            25,
+                            255,
+                            255
+                        ],
+                        "count": 30
+                    }
+                ]
+            }
+        }
+    }
+}
