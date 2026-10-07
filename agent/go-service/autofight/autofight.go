@@ -824,22 +824,18 @@ func drainActionQueue(ctx *maa.Context) {
 			ctx.RunAction("__AutoFightActionSwitchCharacterOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionMoveBack:
 			ctx.RunAction("__AutoFightActionMoveBackKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionMoveBackStick", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveBackKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionMoveForward:
 			ctx.RunAction("__AutoFightActionMoveForwardKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionMoveForwardStick", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveForwardKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionMoveLeft:
 			ctx.RunAction("__AutoFightActionMoveLeftKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionMoveLeftStick", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveLeftKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionMoveRight:
 			ctx.RunAction("__AutoFightActionMoveRightKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
-			ctx.RunAction("__AutoFightActionMoveRightStick", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveRightKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionReassertAttack:

@@ -156,34 +156,6 @@
         "key": 68,
         "post_delay": 0
     },
-    "__AutoFightActionMoveForwardStick": {
-        "desc": "Win32 无需拖摇杆",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "__AutoFightActionMoveBackStick": {
-        "desc": "Win32 无需拖摇杆",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "__AutoFightActionMoveLeftStick": {
-        "desc": "Win32 无需拖摇杆",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "__AutoFightActionMoveRightStick": {
-        "desc": "Win32 无需拖摇杆",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "__AutoFightActionEndSkillOperators1": {
         "pre_delay": 0,
         "action": "LongPressKey",

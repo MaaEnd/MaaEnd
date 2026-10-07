@@ -1,7 +1,7 @@
 {
     // ADB 触屏覆盖。Win32 仍走 assets/resource/pipeline/AutoFight/Action.json 的键鼠。
     // 普攻单独占触点 4，整场按住；点按占触点 2，避免抬起普攻。
-    // 走位触点 0：TouchDown 中心 (195, 551)，TouchMove 到步行落点，KeyUp 才 TouchUp。
+    // 走位触点 0：直接 TouchDown 到步行落点（游戏按绝对位置解释触点，无需先按中心再拖），KeyUp 才 TouchUp。
     // 闪避用触点 2。落点：前 (195, 536)、后 (195, 566)、左 (180, 551)、右 (210, 551)。
     // 切人用触点 2：点按四个干员头像 (913, 110)、(1004, 110)、(1102, 109)、(1196, 111)，实际间距约 91~98px，非 adbCharacterRegions 的 100px 等距。
     "__AutoFightActionAttackClick": {
@@ -238,23 +238,9 @@
         "post_delay": 0
     },
     "__AutoFightActionMoveForwardKeyDown": {
-        "desc": "ADB 按下摇杆中心",
+        "desc": "ADB 摇杆向前",
         "pre_delay": 0,
         "action": "TouchDown",
-        "target": [
-            195,
-            551,
-            1,
-            1
-        ],
-        "contact": 0,
-        "post_delay": 0,
-        "auto_up": true
-    },
-    "__AutoFightActionMoveForwardStick": {
-        "desc": "ADB 摇杆拖向前",
-        "pre_delay": 0,
-        "action": "TouchMove",
         "target": [
             195,
             536,
@@ -262,7 +248,8 @@
             1
         ],
         "contact": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionMoveForwardKeyUp": {
         "desc": "ADB 松开摇杆",
@@ -272,23 +259,9 @@
         "post_delay": 0
     },
     "__AutoFightActionMoveBackKeyDown": {
-        "desc": "ADB 按下摇杆中心",
+        "desc": "ADB 摇杆向后",
         "pre_delay": 0,
         "action": "TouchDown",
-        "target": [
-            195,
-            551,
-            1,
-            1
-        ],
-        "contact": 0,
-        "post_delay": 0,
-        "auto_up": true
-    },
-    "__AutoFightActionMoveBackStick": {
-        "desc": "ADB 摇杆拖向后",
-        "pre_delay": 0,
-        "action": "TouchMove",
         "target": [
             195,
             566,
@@ -296,7 +269,8 @@
             1
         ],
         "contact": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionMoveBackKeyUp": {
         "desc": "ADB 松开摇杆",
@@ -306,23 +280,9 @@
         "post_delay": 0
     },
     "__AutoFightActionMoveLeftKeyDown": {
-        "desc": "ADB 按下摇杆中心",
+        "desc": "ADB 摇杆向左",
         "pre_delay": 0,
         "action": "TouchDown",
-        "target": [
-            195,
-            551,
-            1,
-            1
-        ],
-        "contact": 0,
-        "post_delay": 0,
-        "auto_up": true
-    },
-    "__AutoFightActionMoveLeftStick": {
-        "desc": "ADB 摇杆拖向左",
-        "pre_delay": 0,
-        "action": "TouchMove",
         "target": [
             180,
             551,
@@ -330,7 +290,8 @@
             1
         ],
         "contact": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionMoveLeftKeyUp": {
         "desc": "ADB 松开摇杆",
@@ -340,23 +301,9 @@
         "post_delay": 0
     },
     "__AutoFightActionMoveRightKeyDown": {
-        "desc": "ADB 按下摇杆中心",
+        "desc": "ADB 摇杆向右",
         "pre_delay": 0,
         "action": "TouchDown",
-        "target": [
-            195,
-            551,
-            1,
-            1
-        ],
-        "contact": 0,
-        "post_delay": 0,
-        "auto_up": true
-    },
-    "__AutoFightActionMoveRightStick": {
-        "desc": "ADB 摇杆拖向右",
-        "pre_delay": 0,
-        "action": "TouchMove",
         "target": [
             210,
             551,
@@ -364,7 +311,8 @@
             1
         ],
         "contact": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "auto_up": true
     },
     "__AutoFightActionMoveRightKeyUp": {
         "desc": "ADB 松开摇杆",
