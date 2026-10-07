@@ -1125,8 +1125,25 @@
         }
     },
     "AutoEssenceClickObtainButton": {
-        "desc": "识别并点击领取奖励的大世界按钮（Alt 点击；此节点默认开启）",
+        "desc": "识别领取奖励的大世界按钮，等待队友捡起物品避免交互坐标变动",
         "enabled": true,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEssenceRecoEssenceObtainButton",
+                    "__AutoEssenceRecoEssenceObtainText"
+                ],
+                "box_index": 1
+            }
+        },
+        "post_delay": 2000,
+        "next": [
+            "AutoEssenceClickObtainButtonRecheck"
+        ]
+    },
+    "AutoEssenceClickObtainButtonRecheck": {
+        "desc": "再次识别领取奖励按钮，命中后 Alt 点击",
         "recognition": {
             "type": "And",
             "param": {
@@ -1143,7 +1160,6 @@
                 "custom_action": "AutoAltClickAction"
             }
         },
-        "timeout": 2000,
         "next": [
             "AutoEssenceMistakeFactoryDevice",
             "AutoEssenceChooseScalingPre"

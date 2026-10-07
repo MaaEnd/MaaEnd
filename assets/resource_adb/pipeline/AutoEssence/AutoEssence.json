@@ -43,7 +43,25 @@
         }
     },
     "AutoEssenceClickObtainButton": {
-        "desc": "正式识别并点击领取奖励的大世界按钮（ADB）",
+        "desc": "识别领取奖励的大世界按钮（ADB）；等待与复检流程沿用主 Pipeline",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    660,
+                    280,
+                    290,
+                    320
+                ],
+                "template": "AdbOnly/AutoEssence/EssenceObtain.png",
+                "green_mask": true,
+                "threshold": 0.55,
+                "order_by": "Score"
+            }
+        }
+    },
+    "AutoEssenceClickObtainButtonRecheck": {
+        "desc": "再次识别领取奖励按钮并 Alt 点击（ADB）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
