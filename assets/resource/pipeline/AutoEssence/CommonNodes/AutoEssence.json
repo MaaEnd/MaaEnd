@@ -585,6 +585,33 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoEssenceFindAttributeSelectionSuccess"
+        ]
+    },
+    "AutoEssenceFindAttributeSelectionSuccess": {
+        "desc": "确认进入属性选择界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "预刻写属性",
+                    "預刻寫屬性",
+                    "(?i)Pre\\s*-\\s*Engrave\\s*Stats",
+                    "刻印指定効果",
+                    "사전 각인 속성"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "[JumpBack]AutoEssenceClickGrayAttributeOption",
             "AutoEssenceNoGrayAttributeOption"
         ]
