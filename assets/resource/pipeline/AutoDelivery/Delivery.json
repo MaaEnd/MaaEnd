@@ -337,7 +337,7 @@
             "AutoDeliveryCheckSkipChatButton"
         ],
         "box_index": 1,
-        "pre_delay": 0,
+        "pre_delay": 80, // 等一帧
         "action": "Click",
         "post_wait_freezes": {
             "time": 500,
