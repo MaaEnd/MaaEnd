@@ -1412,12 +1412,16 @@ std::vector<uint32_t> PeerSpans(
 
 // 候选跳点, 判据与类内下落同一套 (RiseOk 的接缝前探与碰撞体闸)。peer3 逐 span 记落脚那一类的分量号,
 // 0 = 不是那一类的可走面。同一分量只留离两端直线最近的一处: 从同一分量出发能到的地方相同。
+// 起跳处和类内的线一样离障碍留出 kClrPref: 沿台沿往两侧各还连着这么长才收, 整段不够长只收正中。
 std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uint32_t>& peer3, const WorldPoint& s, const WorldPoint& g)
 {
     const SpanTable& st = info.st3;
     const int64_t nx = info.nx;
     const auto centre = [&](int64_t c) {
         return WorldPoint { info.x0 + (static_cast<double>(c % nx) + 0.5) * kCS, info.y0 + (static_cast<double>(c / nx) + 0.5) * kCS };
+    };
+    const auto dirOf = [](int dx, int dy) {
+        return dx == 1 ? 0 : dx == -1 ? 1 : dy == 1 ? 2 : 3;
     };
 
     struct Cand
@@ -1430,6 +1434,8 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
     };
 
     std::vector<Cand> cand;
+    // (格, 跳下方向, 落进哪一分量)
+    std::set<std::tuple<int64_t, int, uint32_t>> edge;
     ForEachCrossDrop(info, [&](int64_t u, int64_t cu, int64_t cv, int dx, int dy, int64_t k) {
         if (peer3[static_cast<size_t>(k)] == 0
             || !RiseOk(st, nx, info.ny, cu, dx, dy, st.sp_h[static_cast<size_t>(u)], st.sp_h[static_cast<size_t>(k)])) {
@@ -1438,7 +1444,57 @@ std::vector<DropHop> CrossDropHops(const WindowInfo& info, const std::vector<uin
         const WorldPoint a = centre(cu);
         const WorldPoint b = centre(cv);
         cand.push_back({ std::hypot(a.x - s.x, a.y - s.y) + std::hypot(b.x - g.x, b.y - g.y), u, k, dx, dy });
+        edge.emplace(cu, dirOf(dx, dy), peer3[static_cast<size_t>(k)]);
     });
+    const int64_t need = static_cast<int64_t>(std::ceil(kClrPref / kCS));
+    // 沿台沿往 (sx, sy) 一侧还连着几格, 数到 need + 1 为止。下一格可前后错开一格: 斜的台沿是一级级台阶。
+    const auto along = [&](int64_t c, int dx, int dy, int sx, int sy, uint32_t comp) {
+        const int d = dirOf(dx, dy);
+        int64_t x = c % nx;
+        int64_t y = c / nx;
+        int64_t n = 0;
+        while (n <= need) {
+            bool next = false;
+            for (const int off : { 0, 1, -1 }) {
+                const int64_t qx = x + sx + off * dx;
+                const int64_t qy = y + sy + off * dy;
+                if (qx >= 0 && qy >= 0 && qx < nx && qy < info.ny && edge.contains({ qy * nx + qx, d, comp })) {
+                    x = qx;
+                    y = qy;
+                    next = true;
+                    break;
+                }
+            }
+            if (!next) {
+                break;
+            }
+            ++n;
+        }
+        return n;
+    };
+    // 某一分量一处都不够宽时照旧全收, 不因此丢掉这一分量
+    std::vector<uint8_t> tight(cand.size(), 0);
+    std::set<uint32_t> roomy;
+    for (size_t i = 0; i < cand.size(); ++i) {
+        const Cand& c = cand[i];
+        const int64_t cu = st.sp_cell[static_cast<size_t>(c.u)];
+        const uint32_t comp = peer3[static_cast<size_t>(c.v)];
+        const int64_t l = along(cu, c.dx, c.dy, -c.dy, c.dx, comp);
+        const int64_t r = along(cu, c.dx, c.dy, c.dy, -c.dx, comp);
+        tight[i] = std::min(l, r) < need && std::abs(l - r) > 1;
+        if (!tight[i]) {
+            roomy.insert(comp);
+        }
+    }
+    {
+        size_t w = 0;
+        for (size_t i = 0; i < cand.size(); ++i) {
+            if (!tight[i] || !roomy.contains(peer3[static_cast<size_t>(cand[i].v)])) {
+                cand[w++] = cand[i];
+            }
+        }
+        cand.resize(w);
+    }
     std::sort(cand.begin(), cand.end(), [](const Cand& p, const Cand& q) {
         return std::tie(p.score, p.u, p.v) < std::tie(q.score, q.u, q.v);
     });
