@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 
 #include "MaaFramework/MaaAPI.h"
@@ -46,8 +47,15 @@ public:
 
     bool SendViewDeltaSync(int dx, int dy);
 
+    // 朝向纪元：单调计数「自上次取位以来镜头可能被动过」的事件。yaw 指令（SendViewDeltaSync）与相位切换
+    // 各推高一次，取位成功时记下当时的值；只有记下的纪元仍等于当前纪元，那一拍的镜头朝向才允许当先验用。
+    // 它回答的是「这还是一份没被指令动过的观测吗」，不回答「先验有多可信」。
+    uint64_t heading_epoch() const { return heading_epoch_; }
+    void NoteHeadingDisturbed() { ++heading_epoch_; }
+
 private:
     std::unique_ptr<IInputBackend> backend_;
+    uint64_t heading_epoch_ = 0;
 };
 
 } // namespace mapnavigator

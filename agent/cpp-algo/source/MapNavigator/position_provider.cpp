@@ -72,7 +72,7 @@ bool PositionProvider::Capture(
     bool force_global_search,
     const std::string& expected_zone_id,
     const std::vector<maplocator::SearchHint>& search_hints,
-    std::optional<double> expected_camera_heading)
+    std::optional<double> camera_heading_prior)
 {
     if (out_pos == nullptr) {
         return false;
@@ -107,7 +107,7 @@ bool PositionProvider::Capture(
     options.reject_occluded_frames = heading_source_ != HeadingSource::Camera;
     options.expected_zone_id = expected_zone_id;
     options.search_hints = search_hints;
-    options.expected_camera_heading = expected_camera_heading;
+    options.camera_heading_prior = camera_heading_prior;
 
     const auto locate_result = locator_->locate(minimap, options);
     const auto locate_done_at = std::chrono::steady_clock::now();

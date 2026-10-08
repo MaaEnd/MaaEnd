@@ -523,6 +523,12 @@ bool NavigationStateMachine::Bootstrap()
 
 bool NavigationStateMachine::TickPhase(NaviPhase phase)
 {
+    // 相位切换等于把镜头交给了别的流程（滑索、找目标、传送），此前那一拍记下的观测不再算「没被指令动过」。
+    // 挂在这里而不是各条转向路径上：绕过 ActionWrapper 的开环转向（滑索俯仰的 pipeline 旁路等）也一并作废。
+    if (!last_tick_phase_ || *last_tick_phase_ != phase) {
+        last_tick_phase_ = phase;
+        action_wrapper_->NoteHeadingDisturbed();
+    }
     // Ahead of every early return, so no branch or phase can strand the game in walking mode.
     UpdateWalkMode(phase);
 
@@ -566,15 +572,24 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
 
 bool NavigationStateMachine::CaptureCurrentPosition(bool force_global_search)
 {
-    std::optional<double> expected_camera_heading;
-    const auto& steering_rate = runtime_state_.steering_rate;
-    // A turn command is not an observation; keep captures unhinted while a turn is pending.
-    if (!force_global_search && param_.heading_source == HeadingSource::Camera && position_->valid && steering_rate.has_prev
-        && steering_rate.pending_turn_deg == 0.0 && session_->phase() == NaviPhase::Navigate) {
-        expected_camera_heading = position_->angle;
-    }
+    // 先验是一次观测，不是一条指令：只有「上一拍成功取位记下的纪元 == 当前纪元」才说明自那次识别以来
+    // 镜头没被任何 yaw 指令动过。转过的角度大不大、落没落地都不必再判——任何 yaw 指令都会推高纪元。
+    const uint64_t heading_epoch = action_wrapper_->heading_epoch();
+    const bool prior_usable = !force_global_search && param_.heading_source == HeadingSource::Camera && position_->valid
+                              && prior_observation_epoch_ && *prior_observation_epoch_ == heading_epoch
+                              && session_->phase() == NaviPhase::Navigate;
+    const std::optional<double> camera_heading_prior = prior_usable ? std::optional<double>(position_->angle) : std::nullopt;
     const bool captured =
-        position_provider_->Capture(position_, force_global_search, session_->current_zone_id(), {}, expected_camera_heading);
+        position_provider_->Capture(position_, force_global_search, session_->current_zone_id(), {}, camera_heading_prior);
+    if (captured) {
+        // 纪录取的是取位前读到的值：这一拍后面再发的转向不该让这次观测提前作废，下一拍自会挡住它。
+        prior_observation_epoch_ = heading_epoch;
+        consecutive_prior_uses_ = camera_heading_prior ? consecutive_prior_uses_ + 1 : 0;
+        LogDebug << "MapNavigator camera heading prior" << VAR(camera_heading_prior.value_or(-1.0)) << VAR(consecutive_prior_uses_);
+    }
+    else {
+        consecutive_prior_uses_ = 0;
+    }
     UpdateDwellWatchdog(captured);
     return captured;
 }

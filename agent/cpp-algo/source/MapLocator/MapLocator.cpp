@@ -1832,7 +1832,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
             result.position->y,
             ZoneTemplateScale(zoneId),
             zoneId,
-            options.expected_camera_heading);
+            options.camera_heading_prior);
         return result;
     };
     // 箭头不可见时，小地图可能被横幅遮挡；在匹配及更新追踪状态前拒帧。

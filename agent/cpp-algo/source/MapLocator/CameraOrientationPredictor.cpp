@@ -24,7 +24,9 @@ constexpr const char* kClassifierOutputName = "pmf";
 
 // PMF 解码的定峰窗口半径（bin）：argmax 后在该窗口内按概率加权求圆均值。
 constexpr int kRefineRadius = 5;
-// 典型峰高为 [0.1, 0.2)，候选峰顶至少为 0.005 且不低于主峰的 5%。
+// 候选峰的两条门限只用来把噪声排除在候选之外，不做「次峰要够高才算数」的判断：正确识别的非主峰
+// 信号低于 0.001，而真双峰的峰高差距可以很极端。典型峰高为 [0.1, 0.2)，5% 相对门限落在 0.005~0.01：
+// 低于主峰 5% 的次模（例如主峰 0.15、次峰 0.006）按现行门限不算合格次峰，先验在这类帧上不启用。
 constexpr float kMinPeakHeight = 0.005f;
 constexpr float kSecondaryPeakRatio = 0.05f;
 
@@ -92,11 +94,11 @@ std::optional<CameraOrientation> CameraOrientationPredictor::predict(
     double y,
     double scale,
     const std::string& zoneId,
-    std::optional<double> expected_camera_heading)
+    std::optional<double> camera_heading_prior)
 {
     const bool assetUsable = !referenceAsset.empty() && referenceAsset.channels() == 4 && referenceAsset.isContinuous();
     const cv::Mat& asset = assetUsable ? referenceAsset : kUnavailableAsset;
-    return infer(minimap, asset, x, y, scale, zoneId, expected_camera_heading);
+    return infer(minimap, asset, x, y, scale, zoneId, camera_heading_prior);
 }
 
 std::optional<CameraOrientation> CameraOrientationPredictor::infer(
@@ -106,7 +108,7 @@ std::optional<CameraOrientation> CameraOrientationPredictor::infer(
     double y,
     double scale,
     const std::string& zoneId,
-    std::optional<double> expected_camera_heading)
+    std::optional<double> camera_heading_prior)
 {
     std::lock_guard<std::mutex> lock(predictMutex);
 
@@ -228,7 +230,7 @@ std::optional<CameraOrientation> CameraOrientationPredictor::infer(
 
         const float* pmf = outputTensors.front().GetTensorData<float>();
         const size_t count = outputTensors.front().GetTensorTypeAndShapeInfo().GetElementCount();
-        return decodePmf(pmf, count, expected_camera_heading);
+        return decodePmf(pmf, count, camera_heading_prior);
     }
     catch (const Ort::Exception& e) {
         LogError << "CameraOrientation: inference failed" << VAR(zoneId) << VAR(e.what());
@@ -237,7 +239,7 @@ std::optional<CameraOrientation> CameraOrientationPredictor::infer(
 }
 
 std::optional<CameraOrientation>
-    CameraOrientationPredictor::decodePmf(const float* pmf, size_t count, std::optional<double> expected_camera_heading) const
+    CameraOrientationPredictor::decodePmf(const float* pmf, size_t count, std::optional<double> camera_heading_prior) const
 {
     if (pmf == nullptr || count == 0) {
         LogError << "CameraOrientation: unexpected pmf size" << VAR(count);
@@ -268,20 +270,20 @@ std::optional<CameraOrientation>
     }
 
     const size_t primary_center = center;
-    bool used_expected_heading = false;
-    if (expected_camera_heading && std::isfinite(*expected_camera_heading)) {
-        const double expected = std::fmod(std::fmod(*expected_camera_heading, 360.0) + 360.0, 360.0);
-        const double expected_bin = expected * static_cast<double>(count) / 360.0;
+    bool used_prior = false;
+    if (camera_heading_prior && std::isfinite(*camera_heading_prior)) {
+        const double prior = std::fmod(std::fmod(*camera_heading_prior, 360.0) + 360.0, 360.0);
+        const double prior_bin = prior * static_cast<double>(count) / 360.0;
         const auto circular_distance = [count](double a, double b) {
             const double distance = std::abs(a - b);
             return std::min(distance, static_cast<double>(count) - distance);
         };
-        size_t expected_peak = primary_center;
+        size_t prior_peak = primary_center;
         double nearest_distance = static_cast<double>(kRefineRadius) + 1.0;
-        bool has_expected_peak = false;
+        bool has_prior_peak = false;
         bool has_secondary_peak = false;
         for (size_t j = 0; j < count; ++j) {
-            // 绝对和相对高度都检查峰顶，不检查预期角度处的信号。
+            // 绝对和相对高度都检查峰顶，不检查先验角度处的信号。
             if (pmf[j] < kMinPeakHeight || pmf[j] < pmf[primary_center] * kSecondaryPeakRatio) {
                 continue;
             }
@@ -307,17 +309,18 @@ std::optional<CameraOrientation>
                 continue;
             }
             has_secondary_peak = has_secondary_peak || primary_distance > 2 * kRefineRadius;
-            // 仅关联现有精修窗口范围内的峰，不能将远处的“最近峰”当作预期方向的峰。
-            const double distance = circular_distance(static_cast<double>(j), expected_bin);
+            // 仅关联现有精修窗口范围内的峰，不能将远处的“最近峰”当作先验方向的峰。
+            const double distance = circular_distance(static_cast<double>(j), prior_bin);
             if (distance <= kRefineRadius && distance < nearest_distance) {
-                expected_peak = j;
+                prior_peak = j;
                 nearest_distance = distance;
-                has_expected_peak = true;
+                has_prior_peak = true;
             }
         }
-        if (has_secondary_peak && has_expected_peak) {
-            center = expected_peak;
-            used_expected_heading = true;
+        // 次峰间隔没有保证，故不设对跖前提：只要求先验落在某个合格峰的精修窗内。
+        if (has_secondary_peak && has_prior_peak) {
+            center = prior_peak;
+            used_prior = true;
         }
     }
 
@@ -347,16 +350,16 @@ std::optional<CameraOrientation>
     const double resultantLength = std::hypot(resultantSin, resultantCos);
     const double alignmentCos = std::cos(std::abs(decoded - resultantAngle) * (std::numbers::pi / 180.0));
     // 先验已在真实双峰间消歧时，置信度衡量所选峰内部的集中程度，避免另一峰把它抵消。
-    const double confidence = used_expected_heading && window_mass > 0.0
+    const double confidence = used_prior && window_mass > 0.0
                                   ? std::clamp(std::hypot(windowSin, windowCos) / window_mass, 0.0, 1.0)
                                   : std::clamp(resultantLength * alignmentCos, 0.0, 1.0);
-    if (!used_expected_heading && alignmentCos < 0.0) {
+    if (!used_prior && alignmentCos < 0.0) {
         LogWarn << "CameraOrientation: decoded direction diverges from resultant" << VAR(decoded) << VAR(resultantAngle);
     }
 
     LogTrace << "CameraOrientation pmf:" << std::vector<float>(pmf, pmf + count);
-    LogDebug << "CameraOrientation:" << VAR(decoded) << VAR(confidence) << VAR(center) << VAR(primary_center) << VAR(used_expected_heading)
-             << VAR(expected_camera_heading);
+    LogDebug << "CameraOrientation:" << VAR(decoded) << VAR(confidence) << VAR(center) << VAR(primary_center) << VAR(used_prior)
+             << VAR(camera_heading_prior);
 
     return CameraOrientation { .rot = decoded, .confidence = confidence };
 }
