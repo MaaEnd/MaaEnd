@@ -1,4 +1,10 @@
 {
+    "ProtocolSpaceTouchExitMoveToTarget": {
+        "custom_action_param": {
+            "align_threshold": 120,
+            "far_target_width": 0
+        }
+    },
     "ProtocolSpaceTouchExitTouch": {
         "action": {
             "type": "Custom",
