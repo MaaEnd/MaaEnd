@@ -141,6 +141,30 @@
                     }
                 },
                 {
+                    "name": "wpn_sword_0024",
+                    "label": "$weapon.wpn_sword_0024",
+                    "icon": "resource/image/UI/Item/wpn_sword_0024.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0024": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0025",
+                    "label": "$weapon.wpn_sword_0025",
+                    "icon": "resource/image/UI/Item/wpn_sword_0025.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_sword_0025": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "wpn_sword_0026",
                     "label": "$weapon.wpn_sword_0026",
                     "icon": "resource/image/UI/Item/wpn_sword_0026.png",
@@ -248,6 +272,8 @@
                 "wpn_sword_0017",
                 "wpn_sword_0021",
                 "wpn_sword_0022",
+                "wpn_sword_0024",
+                "wpn_sword_0025",
                 "wpn_sword_0026"
             ]
         },
@@ -356,6 +382,30 @@
                     }
                 },
                 {
+                    "name": "wpn_claym_0018",
+                    "label": "$weapon.wpn_claym_0018",
+                    "icon": "resource/image/UI/Item/wpn_claym_0018.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0018": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0019",
+                    "label": "$weapon.wpn_claym_0019",
+                    "icon": "resource/image/UI/Item/wpn_claym_0019.png",
+                    "pipeline_override": {
+                        "AutoEssenceTargetPlan": {
+                            "attach": {
+                                "wpn_claym_0019": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "wpn_claym_0011",
                     "label": "$weapon.wpn_claym_0011",
                     "icon": "resource/image/UI/Item/wpn_claym_0011.png",
@@ -411,7 +461,9 @@
                 "wpn_claym_0008",
                 "wpn_claym_0013",
                 "wpn_claym_0016",
-                "wpn_claym_0017"
+                "wpn_claym_0017",
+                "wpn_claym_0018",
+                "wpn_claym_0019"
             ]
         },
         "AutoEssenceWeaponTypePistol": {
