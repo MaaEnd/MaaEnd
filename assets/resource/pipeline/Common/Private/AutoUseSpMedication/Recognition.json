@@ -20,7 +20,7 @@
                 "roi_offset": [
                     100,
                     -10,
-                    40,
+                    50,
                     20
                 ],
                 "template": "AutoUseSpMedication/AddButton.png"
