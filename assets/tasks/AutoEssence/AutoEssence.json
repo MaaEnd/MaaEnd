@@ -8,8 +8,6 @@
                 "sanity_sink"
             ],
             "controller": [
-                "ADB",
-                "CloudADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
