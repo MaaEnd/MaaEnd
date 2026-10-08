@@ -29,8 +29,8 @@
                 "roi": [
                     0,
                     0,
-                    291,
-                    354
+                    300,
+                    500
                 ],
                 "template": [
                     "ProtocolSpace/LevelCompleted.png",
@@ -59,7 +59,7 @@
         "desc": "在普通协议空间准备界面，选择奖励",
         "recognition": "OCR",
         "roi": [
-            780,
+            600,
             500,
             500,
             150
@@ -93,10 +93,10 @@
         "desc": "在普通协议空间准备界面，选择奖励AB",
         "recognition": "OCR",
         "roi": [
-            240,
-            200,
-            200,
-            350
+            150,
+            150,
+            290,
+            400
         ],
         "expected": [
             "A"
@@ -142,7 +142,7 @@
             300,
             200
         ],
-        "template": "ProtocolSpace/RewardClose.png",
+        "template": "Common/Button/CloseButtonType4.png",
         "threshold": 0.9,
         "action": "Click",
         "next": [

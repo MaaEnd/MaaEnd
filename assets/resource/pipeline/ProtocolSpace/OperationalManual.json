@@ -30,9 +30,9 @@
         "recognition": "OCR",
         "roi": [
             150,
-            100,
+            50,
             1000,
-            100
+            150
         ],
         "expected": [
             "索引",
@@ -55,9 +55,9 @@
         "desc": "在行动手册界面，切换到协议空间对应标签页",
         "recognition": "OCR",
         "roi": [
-            160,
+            60,
             190,
-            250,
+            350,
             430
         ],
         "expected": [
@@ -108,7 +108,7 @@
             400,
             180,
             200,
-            430
+            500
         ],
         "template": "ProtocolSpace/SkillUp.png",
         "threshold": 0.9,
@@ -123,12 +123,13 @@
             400,
             180,
             200,
-            430
+            500
         ],
         "template": "ProtocolSpace/OperatorEXP.png",
         "threshold": 0.9
     },
     "ProtocolSpaceEnterButtonEnableRecognition": {
+        "desc": "找协议空间入口已解锁按钮",
         "recognition": "OCR",
         "roi": "ProtocolSpaceFindTargetRecognition",
         "roi_offset": [
@@ -143,6 +144,7 @@
         ]
     },
     "ProtocolSpaceEnterButtonDisableRecognition": {
+        "desc": "找协议空间入口未解锁按钮",
         "recognition": "OCR",
         "roi": "ProtocolSpaceFindTargetRecognition",
         "roi_offset": [
@@ -156,33 +158,35 @@
             "View"
         ]
     },
+    "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEntryColor": {
+        "desc": "在当前页面找协议空间入口的颜色特征",
+        "recognition": "ColorMatch",
+        "roi": "ProtocolSpaceFindTargetRecognition",
+        "roi_offset": [
+            300,
+            -50,
+            150,
+            0
+        ],
+        "lower": [
+            30,
+            30,
+            30
+        ],
+        "upper": [
+            70,
+            70,
+            70
+        ],
+        "count": 500
+    },
     "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable": {
         "desc": "在当前页面找普通协议空间入口，未开启",
         "recognition": "And",
         "all_of": [
             "ProtocolSpaceFindTargetRecognition",
             "ProtocolSpaceEnterButtonDisableRecognition",
-            {
-                "recognition": "ColorMatch",
-                "roi": "ProtocolSpaceFindTargetRecognition",
-                "roi_offset": [
-                    300,
-                    -50,
-                    150,
-                    0
-                ],
-                "lower": [
-                    30,
-                    30,
-                    30
-                ],
-                "upper": [
-                    70,
-                    70,
-                    70
-                ],
-                "count:": 500
-            }
+            "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEntryColor"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.ProtocolSpace.focus.not_open"
@@ -194,27 +198,7 @@
         "all_of": [
             "ProtocolSpaceFindTargetRecognition",
             "ProtocolSpaceEnterButtonEnableRecognition",
-            {
-                "recognition": "ColorMatch",
-                "roi": "ProtocolSpaceFindTargetRecognition",
-                "roi_offset": [
-                    300,
-                    -50,
-                    150,
-                    0
-                ],
-                "lower": [
-                    30,
-                    30,
-                    30
-                ],
-                "upper": [
-                    70,
-                    70,
-                    70
-                ],
-                "count:": 500
-            }
+            "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEntryColor"
         ],
         "box_index": 1,
         "action": "Click",
@@ -222,33 +206,35 @@
             "ProtocolSpaceNormalPrepareEnter"
         ]
     },
+    "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEntryColor": {
+        "desc": "在当前页面找协议空间入口危境在现的颜色特征",
+        "recognition": "ColorMatch",
+        "roi": "ProtocolSpaceFindTargetRecognition",
+        "roi_offset": [
+            300,
+            -50,
+            150,
+            0
+        ],
+        "lower": [
+            180,
+            5,
+            45
+        ],
+        "upper": [
+            255,
+            40,
+            65
+        ],
+        "count": 500
+    },
     "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable": {
         "desc": "在当前页面找深潜协议空间入口，未开启",
         "recognition": "And",
         "all_of": [
             "ProtocolSpaceFindTargetRecognition",
             "ProtocolSpaceEnterButtonEnableRecognition",
-            {
-                "recognition": "ColorMatch",
-                "roi": "ProtocolSpaceFindTargetRecognition",
-                "roi_offset": [
-                    300,
-                    -50,
-                    150,
-                    0
-                ],
-                "lower": [
-                    180,
-                    5,
-                    45
-                ],
-                "upper": [
-                    255,
-                    40,
-                    65
-                ],
-                "count:": 500
-            }
+            "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEntryColor"
         ],
         "box_index": 1,
         "focus": {
@@ -261,27 +247,7 @@
         "all_of": [
             "ProtocolSpaceFindTargetRecognition",
             "ProtocolSpaceEnterButtonEnableRecognition",
-            {
-                "recognition": "ColorMatch",
-                "roi": "ProtocolSpaceFindTargetRecognition",
-                "roi_offset": [
-                    300,
-                    -50,
-                    150,
-                    0
-                ],
-                "lower": [
-                    180,
-                    5,
-                    45
-                ],
-                "upper": [
-                    255,
-                    40,
-                    65
-                ],
-                "count:": 500
-            }
+            "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEntryColor"
         ],
         "box_index": 1,
         "action": "Click",

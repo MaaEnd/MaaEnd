@@ -4,20 +4,7 @@
         "recognition": "Or",
         "any_of": [
             "WhiteConfirmButtonType1",
-            {
-                "recognition": "OCR",
-                "roi": [
-                    -250,
-                    -150,
-                    250,
-                    150
-                ],
-                "expected": [
-                    "进入",
-                    "進入",
-                    "Enter"
-                ]
-            }
+            "ProtocolSpaceEnterSpaceText"
         ],
         "pre_delay": 0,
         "action": {
@@ -36,25 +23,27 @@
             "ProtocolSpaceEnterSpace"
         ]
     },
+    "ProtocolSpaceEnterSpaceText": {
+        "desc": "识别进入协议空间按钮文本",
+        "recognition": "OCR",
+        "roi": [
+            -250,
+            -150,
+            250,
+            150
+        ],
+        "expected": [
+            "进入",
+            "進入",
+            "Enter"
+        ]
+    },
     "ProtocolSpaceEnterSpace": {
         "desc": "进入协议空间",
         "recognition": "And",
         "all_of": [
             "WhiteConfirmButtonType1",
-            {
-                "recognition": "OCR",
-                "roi": [
-                    -250,
-                    -150,
-                    250,
-                    150
-                ],
-                "expected": [
-                    "进入",
-                    "進入",
-                    "Enter"
-                ]
-            }
+            "ProtocolSpaceEnterSpaceText"
         ],
         "box_index": 1,
         "pre_wait_freezes": 100,
@@ -109,9 +98,9 @@
         "recognition": "OCR",
         "roi": [
             0,
-            -60,
+            -70,
             500,
-            35
+            45
         ],
         "expected": [
             "01"
@@ -152,7 +141,7 @@
         }
     },
     "ProtocolSpacePopupSanityLowExit": {
-        "desc": "弹出理智不足，退出任务",
+        "desc": "弹出理智不足",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -178,19 +167,7 @@
         "recognition": "And",
         "all_of": [
             "CancelButton",
-            {
-                "recognition": "OCR",
-                "roi": [
-                    279,
-                    295,
-                    310,
-                    40
-                ],
-                "expected": [
-                    "理智不足",
-                    "Insufficient Sanity"
-                ]
-            }
+            "ProtocolSpacePopupSanityLowExit"
         ],
         "box_index": 0,
         "action": "Click",
@@ -221,19 +198,7 @@
         "desc": "弹出理智不足，继续下一轮",
         "recognition": "And",
         "all_of": [
-            {
-                "recognition": "OCR",
-                "roi": [
-                    279,
-                    295,
-                    310,
-                    40
-                ],
-                "expected": [
-                    "理智不足",
-                    "Insufficient Sanity"
-                ]
-            },
+            "ProtocolSpacePopupSanityLowExit",
             "YellowConfirmButtonType1"
         ],
         "box_index": 1,
@@ -250,20 +215,7 @@
         "recognition": "Or",
         "any_of": [
             "YellowConfirmButtonType2",
-            {
-                "recognition": "OCR",
-                "roi": [
-                    -250,
-                    -150,
-                    250,
-                    150
-                ],
-                "expected": [
-                    "进入",
-                    "進入",
-                    "Enter"
-                ]
-            }
+            "ProtocolSpaceEnterSpaceText"
         ],
         "pre_wait_freezes": 400,
         "action": "Custom",
@@ -544,7 +496,7 @@
         "roi": [
             0,
             200,
-            160,
+            360,
             120
         ],
         "template": "ProtocolSpace/SpaceResart.png",

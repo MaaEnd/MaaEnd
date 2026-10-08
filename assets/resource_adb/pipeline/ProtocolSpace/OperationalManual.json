@@ -1,0 +1,34 @@
+{
+    "ProtocolSpaceEnterButtonEnableRecognition": {
+        "roi_offset": [
+            600,
+            0,
+            150,
+            0
+        ]
+    },
+    "ProtocolSpaceEnterButtonDisableRecognition": {
+        "roi_offset": [
+            600,
+            0,
+            150,
+            0
+        ]
+    },
+    "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEntryColor": {
+        "roi_offset": [
+            400,
+            -50,
+            150,
+            0
+        ]
+    },
+    "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEntryColor": {
+        "roi_offset": [
+            400,
+            -50,
+            150,
+            0
+        ]
+    }
+}
