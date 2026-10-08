@@ -852,6 +852,30 @@ bool AppendStartRecovery(
     return true;
 }
 
+// 下索前要朝的那一点: 下索段里第一个离落点够远的规划步行点。整段都比这个距离更近时朝它的
+// 末端(那时末端就是这个区间的目标), 除非它压根压在同一格上 —— 下索点即终点时那个补点正是
+// 这样, 此时没有可朝的方向。阈值取行走侧自己用的最小瞄准距离: 更近的点, 定位误差折算出来的
+// 方位就是噪声, 两者是同一个 atan(offset / reach)
+std::optional<ZiplineMountSpot> PickExitAimPoint(
+    const std::vector<Waypoint>& out_path,
+    size_t departure_index,
+    const ZiplineNodeRef& dismount)
+{
+    std::optional<ZiplineMountSpot> farthest;
+    double farthest_distance = 0.0;
+    for (size_t index = departure_index; index < out_path.size(); ++index) {
+        const double distance = std::hypot(out_path[index].x - dismount.x, out_path[index].y - dismount.y);
+        if (distance >= kNavRunAimReachMinM) {
+            return ZiplineMountSpot { .x = out_path[index].x, .y = out_path[index].y };
+        }
+        if (distance > farthest_distance) {
+            farthest_distance = distance;
+            farthest = ZiplineMountSpot { .x = out_path[index].x, .y = out_path[index].y };
+        }
+    }
+    return farthest;
+}
+
 // walking 非空时，滑索只在严格更省时顶替走路；为空时，滑索尝试桥接纯步行不连通的
 // 起终两侧可走面。这里不改目的地也不改到达声明：换的只是走法，终点面仍钉在末点上。
 bool TryAppendZiplineLeg(
@@ -925,6 +949,10 @@ bool TryAppendZiplineLeg(
         out_path.back().zipline_hop = hop_plan;
     }
 
+    // 链尾那一跳: 下索前要朝的下一点从下索段里取, 参考点是这一跳的落点。注意下面那个 landing
+    // 变量是下索段的末端(也是下一段的起点), 不是落点
+    const size_t last_hop_index = out_path.size() - 1;
+    const ZiplineNodeRef dismount = out_path[last_hop_index].zipline_hop->landing;
     const size_t departure_index = out_path.size();
     const navmesh::WorldPoint landing = route->departure.points.back();
     AppendGeneratedNavmeshWaypoints(route->departure, out_path, true, false, &navmesh.planner, route->departure.zone_id);
@@ -933,6 +961,7 @@ bool TryAppendZiplineLeg(
         out_path.emplace_back(landing.x, landing.y, ActionType::RUN);
         out_path.back().strict_arrival = true;
     }
+    out_path[last_hop_index].zipline_hop->exit_aim = PickExitAimPoint(out_path, departure_index, dismount);
     if (target.deck_y) {
         out_path.back().target_deck_y = target.deck_y;
     }

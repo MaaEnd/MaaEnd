@@ -332,6 +332,13 @@ static_assert(kZiplineAimSweepLeadDeg > 2.0 * kZiplineAimToleranceDeg);
 // 上索后的稳定等待与全部水平修正共用这个截止时间。每次只发一个后端批次并等待真实反馈，
 // 避免大角度转向在上索动画尚未结束时一次性排入多条输入。
 constexpr int32_t kZiplineAimHeadingTimeoutMs = 6000;
+// 下索前把朝向摆到下一段走路方向的容差。下索动作自带一段沿按键那刻朝向的动量，所以这个角是
+// 走路方向上的偏差：走路自身的操舵容差是 40 度，而架上闭环已证明能到 6 度，取中间这一档
+constexpr double kZiplineExitAimToleranceDeg = 15.0;
+// 离索朝向的预算随初始残差放大。后端单批上限 18 度、每批之间要等读数跟上，180 度要十批左右，
+// 固定预算恰好会在「落下来正好背对」这种最该救的场合超时
+constexpr int32_t kZiplineExitAimBudgetBaseMs = 1500;
+constexpr double kZiplineExitAimBudgetPerDegMs = 45.0;
 // 落差够大时镜头得抬到索的仰角上才起得了滑。小地图读不到俯仰, 所以每次从地面登上滑索架后
 // 先通过 Pipeline 把镜头拉到上限, 将该硬限位记作 +90 度, 再从这个固定基准开环调整。连续滑索
 // 没有上下索动作, 直接沿用上一跳记住的俯仰。游戏的俯仰范围不对称: 仰角最多 90 度, 俯角最多 60 度。
