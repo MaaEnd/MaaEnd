@@ -86,13 +86,17 @@
                             "zone_id": "ValleyIV_L6_109"
                         },
                         {
-                            "action": "RUN",
+                            "action": "INTERACT",
                             "target": [
                                 97.7,
                                 180.36
                             ],
                             "target_tier": "ValleyIV_L6_109",
-                            "strict_arrival": true
+                            "strict_arrival": true,
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_rec": true
                         }
                     ]
                 }

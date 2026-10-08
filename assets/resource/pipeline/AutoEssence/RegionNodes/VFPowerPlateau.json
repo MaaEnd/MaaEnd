@@ -88,6 +88,17 @@
                                 600.48,
                                 141.36
                             ]
+                        },
+                        {
+                            "action": "INTERACT",
+                            "target": [
+                                600.48,
+                                141.36
+                            ],
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_rec": true
                         }
                     ]
                 }

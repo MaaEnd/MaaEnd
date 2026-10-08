@@ -113,11 +113,18 @@
                             "action": "ZONE",
                             "zone_id": "Wuling_Base"
                         },
-                        [
-                            1458.88,
-                            1097.57,
-                            true
-                        ]
+                        {
+                            "action": "INTERACT",
+                            "target": [
+                                1458.88,
+                                1097.57
+                            ],
+                            "strict_arrival": true,
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_rec": true
+                        }
                     ]
                 }
             }

@@ -49,11 +49,18 @@
                                 2376.68
                             ]
                         },
-                        [
-                            1250.36,
-                            2386.24,
-                            true
-                        ]
+                        {
+                            "action": "INTERACT",
+                            "target": [
+                                1250.36,
+                                2386.24
+                            ],
+                            "strict_arrival": true,
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_rec": true
+                        }
                     ]
                 }
             }

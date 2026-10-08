@@ -80,13 +80,17 @@
                             "zone_id": "Wuling_L5_321"
                         },
                         {
-                            "action": "RUN",
+                            "action": "INTERACT",
                             "target": [
                                 78.86,
                                 95.64
                             ],
                             "target_tier": "Wuling_L5_321",
-                            "strict_arrival": true
+                            "strict_arrival": true,
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_rec": true
                         }
                     ]
                 }

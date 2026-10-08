@@ -133,6 +133,36 @@
             }
         }
     },
+    "__AutoEssenceRecoApproachInteractText": {
+        "desc": "走向激发点时边走边认的交互提示文字表，只给寻路读取 expected",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                "expected": [
+                    // @i18n-skip
+                    // 激发 / 领取奖励 / 放弃奖励并重置
+                    "激发",
+                    "觸發",
+                    "Trigger",
+                    "トリガー",
+                    "领取",
+                    "領取",
+                    "Claim",
+                    "報酬",
+                    "放弃|重置",
+                    "放棄|重置",
+                    "Abandon|Reset",
+                    "受取せず|にリセット"
+                ]
+            }
+        }
+    },
     "__AutoEssenceRecoEngravePermitInsufficient": {
         "desc": "识别刻写券不足弹窗文案（仅识别）",
         "recognition": {
