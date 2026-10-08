@@ -143,7 +143,6 @@
             200
         ],
         "template": "Common/Button/CloseButtonType4.png",
-        "threshold": 0.9,
         "action": "Click",
         "next": [
             "ProtocolSpaceEnterSpacePrepare"

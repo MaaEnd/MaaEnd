@@ -70,5 +70,22 @@
         ],
         "contact": 2,
         "post_delay": 0
+    },
+    "__CharacterControllerDeltaSwipeAction": {
+        "desc": "ADB 镜头旋转：真实按下的触摸拖动",
+        "only_hover": false,
+        "contact": 1
+    },
+    "__CharacterControllerDeltaClickCenterAction": {
+        "desc": "ADB 无 Alt 悬停模式，空动作",
+        "action": "DoNothing"
+    },
+    "__CharacterControllerDeltaAltKeyDownAction": {
+        "desc": "ADB 无 Alt 键，空动作",
+        "action": "DoNothing"
+    },
+    "__CharacterControllerDeltaAltKeyUpAction": {
+        "desc": "ADB 无 Alt 键，空动作",
+        "action": "DoNothing"
     }
 }
