@@ -2542,7 +2542,9 @@ bool NavigationStateMachine::TryRunPromptSubtaskWhileWalking(const RouteTracking
 
     const std::array<AsyncPromptAction*, 2> prompts = PromptActions();
     for (size_t index = 0; index < prompts.size(); ++index) {
-        if (!prompts[index]->TryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->current_node_idx())) {
+        const PromptTriggerOutcome outcome =
+            prompts[index]->TryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->current_node_idx());
+        if (outcome == PromptTriggerOutcome::NotTriggered) {
             continue;
         }
         // 屏幕上一次只弹一个提示, 一次观测只值一次停车: 清掉另一类的闩, 免得同一个提示被停两次
@@ -2551,7 +2553,7 @@ bool NavigationStateMachine::TryRunPromptSubtaskWhileWalking(const RouteTracking
                 prompts[other]->ForgetDetection();
             }
         }
-        if (prompts[index]->spec().CompletesWaypointOnTrigger()) {
+        if (outcome == PromptTriggerOutcome::Recognized && prompts[index]->spec().CompletesWaypointOnTrigger()) {
             CompleteWaypointAfterPromptTrigger();
         }
         return true;
@@ -2580,7 +2582,7 @@ void NavigationStateMachine::CompleteWaypointAfterPromptTrigger()
 }
 
 // 最后一个点被吃掉的同一拍路线就结束、扫描器随即销毁, 行进中的检测没机会报第二次, 所以收尾单独给一个窗口。
-// 放在成功判定之后, 这里失败不该翻掉跑成功的线路。只服务共用表那类: 点名目标的那类每个点必定恰好跑一次。
+// 放在成功判定之后, 这里失败不该翻掉跑成功的线路。只服务共用表那类: 点名目标的那类每个点不是行进中认中, 就是到点时自己认过。
 void NavigationStateMachine::TryRunPromptSubtaskAtRouteTail()
 {
     if (maa_context_ == nullptr || should_stop_() || session_->phase() != NaviPhase::Finished) {

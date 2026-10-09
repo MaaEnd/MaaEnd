@@ -73,7 +73,7 @@ enum class ActionType
 struct ActionTraits
 {
     bool strict_arrival = false;     // 到点必须精确停住, 线路上的 strict_arrival 只能再加严
-    bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 只对线路明写 strict_arrival 的点
+    bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 除 INTERACT 外只对线路明写 strict_arrival 的点
     bool walk_approach = false;      // 接近段允许切走路
     bool walk_at_startup = false;    // 起步位移还没确认也允许走路
     bool settle_walking = false;     // 末端纠正前先切走路
@@ -93,7 +93,7 @@ constexpr ActionTraits TraitsOf(ActionType action)
     case ActionType::FIGHT:
         return { .strict_arrival = true, .settles_at_arrival = true };
     case ActionType::INTERACT:
-        return { .strict_arrival = true, .walk_approach = true };
+        return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
     case ActionType::TRANSFER:
         return { .strict_arrival = true, .settles_at_arrival = true };
     case ActionType::PORTAL:
@@ -177,8 +177,8 @@ struct Waypoint
     // INTERACT 专用: 行进预筛读 roi/template/threshold 的 TemplateMatch 节点, 留给提示长得不一样的业务;
     // 留空用出厂那份
     std::string interact_scan;
-    // INTERACT 专用: rec 模式, 只认提示不按键。判定圈、行进中提示停车都照旧, 按不按、按哪个留给业务侧决定。
-    // 写在路线顶层是整条路线的默认, 点上只能开不能关
+    // INTERACT 专用: rec 模式, 只认提示不按键。判定圈、行进中提示停车都照旧, 按不按、按哪个留给业务侧决定;
+    // 到点纠正后仍认不出提示判导航失败。写在路线顶层是整条路线的默认, 点上只能开不能关
     bool interact_rec;
     // FIND 专用：目标识别节点名，与 find_text 二选一
     std::string find_target;
@@ -227,8 +227,18 @@ struct Waypoint
 
     bool RequiresStrictArrival() const { return has_position && (strict_arrival || Traits().strict_arrival); }
 
-    // 末端纠正到位才验收的点, 只认线路明写的 strict_arrival
-    bool SettlesAtArrival() const { return has_position && authored_strict_arrival && Traits().settles_at_arrival; }
+    // 末端纠正到位才验收的点: INTERACT 不看线路写没写 strict_arrival, 异步那种认不出提示才在到点处理里纠正;
+    // 其余只认线路明写的 strict_arrival
+    bool SettlesAtArrival() const
+    {
+        if (!has_position || !Traits().settles_at_arrival) {
+            return false;
+        }
+        if (action == ActionType::INTERACT) {
+            return !IsAsyncInteract();
+        }
+        return authored_strict_arrival;
+    }
 
     // 顺着走过去就算数的点: 走廊跟随、经过即推进都只对这种点生效
     bool IsContinuousRun() const { return has_position && action == ActionType::RUN && !RequiresStrictArrival(); }
