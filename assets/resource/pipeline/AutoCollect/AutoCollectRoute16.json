@@ -34,26 +34,11 @@
         },
         "action": "DoNothing",
         "next": [
-            "AutoCollectRoute16GotoInteractSub"
-        ]
-    },
-    "AutoCollectRoute16GotoInteractSub": {
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute16GotoInteract",
-                "AutoCollectRoute16FindButtonUsing"
-            ],
-            "continue": false,
-            "strict": true
-        },
-        "next": [
-            "AutoCollectRoute16Goto"
+            "AutoCollectRoute16GotoInteract"
         ]
     },
     "AutoCollectRoute16GotoInteract": {
-        "desc": "前往交互点",
+        "desc": "前往滑索并上索",
         "action": {
             "type": "Custom",
             "param": {
@@ -70,11 +55,26 @@
                                 1502,
                                 538.13
                             ]
+                        },
+                        {
+                            "action": "INTERACT",
+                            "target": [
+                                1502,
+                                538.13
+                            ],
+                            "interact_text": [
+                                "使用",
+                                "(?i)Interact",
+                                "사용"
+                            ]
                         }
                     ]
                 }
             }
         },
+        "next": [
+            "AutoCollectRoute16Goto"
+        ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -82,35 +82,6 @@
             "Node.Action.Failed": {
                 "trace": true
             }
-        }
-    },
-    "AutoCollectRoute16FindButtonUsing": {
-        "desc": "点击使用按钮",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    850,
-                    455,
-                    144,
-                    54
-                ],
-                "expected": [
-                    "使用",
-                    "Interact"
-                ]
-            }
-        },
-        "pre_wait_freezes": 300,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
-        "timeout": 3000,
-        "focus": {
-            "Node.Recognition.Succeeded": "使用交互设施"
         }
     },
     "AutoCollectRoute16Goto": {
