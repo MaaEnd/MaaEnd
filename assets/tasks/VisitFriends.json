@@ -262,6 +262,9 @@
                         "VisitFriendsFull": {
                             "enabled": false
                         },
+                        "VisitFriendsCheckAssistBtwSell": {
+                            "enabled": true
+                        },
                         "VisitFriendsShipEnterStockRedistribution": {
                             "enabled": true
                         }

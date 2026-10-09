@@ -216,6 +216,9 @@
                 "VisitFriendsFull": {
                     "enabled": true
                 },
+                "VisitFriendsCheckAssistBtwSell": {
+                    "enabled": false
+                },
                 "VisitFriendsShipEnterStockRedistribution": {
                     "enabled": false
                 }
@@ -389,7 +392,8 @@
             "VisitFriendsCheckAssistClueExchange",
             "VisitFriendsCheckAssistControlNexus",
             "VisitFriendsCheckAssistMFGCabin",
-            "VisitFriendsCheckAssistGrowthChamber"
+            "VisitFriendsCheckAssistGrowthChamber",
+            "VisitFriendsCheckAssistBtwSell"
         ],
         "pre_wait_freezes": 100,
         "pre_delay": 0,
@@ -469,6 +473,13 @@
             255
         ],
         "count": 2
+    },
+    "VisitFriendsCheckAssistBtwSell": {
+        "desc": "顺便出售：跳过可访问资源检查，白名单好友全部进船；默认关闭，由 BtwAutoStockpileElasticGoodsEnable 开启",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "VisitFriendsMenuScanDetailClose": {
         "desc": "关闭好友船详情",
