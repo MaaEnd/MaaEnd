@@ -386,8 +386,17 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "AutoAltClickAction",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "AutoDeliveryInChatDialog",
+                "AutoDeliveryCloseRewardDialog"
+            ],
+            "repeat_count": 5
+        },
         "post_delay": 0,
+        "timeout": 6000,
         "rate_limit": 0,
         "next": [
             "AutoDeliveryCheckSkipChatReady",
