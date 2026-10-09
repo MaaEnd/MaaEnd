@@ -768,13 +768,26 @@ Result ArriveDig(const Context& ctx, const Waypoint& waypoint, const std::option
 
 Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance)
 {
-    // 到点兜底: 跑一次行进中那套权威识别, 没认出提示就当这里没东西可交互, 照样推进
+    // 到点兜底: 跑一次行进中那套权威识别, 没认出提示就纠正到点上再认一次; 还认不出时 rec 判失败,
+    // 否则当这里没东西可交互, 照样推进
     if (waypoint.IsAsyncInteract() && ctx.maa_context != nullptr) {
         StopMotionAndCommitment(ctx);
         LogInfo << "Action: INTERACT reached, running the authoritative recognition." << VAR(actual_distance)
                 << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan) << VAR(waypoint.interact_rec);
-        RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+        bool recognized = RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+        if (!recognized && waypoint.HasPosition() && waypoint.Traits().settles_at_arrival) {
+            LogInfo << "Action: INTERACT prompt missed, settling onto the point before recognizing again." << VAR(actual_distance);
+            SettleAtStrictGoal(ctx, waypoint);
+            ctx.runtime_state->steering_rate.Reset();
+            recognized = RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+        }
         ctx.runtime_state->route.Reset();
+        if (!recognized && waypoint.interact_rec) {
+            LogWarn << "Action: INTERACT prompt still missing in rec mode." << VAR(actual_distance) << VAR(waypoint.interact_text_node);
+            return { .request_failure = true,
+                     .failure_reason = "interact_prompt_missing",
+                     .failure_log_message = "Interact prompt not recognized after settling onto the point." };
+        }
         return CompleteArrival(ctx, waypoint, node_idx, "async_interact_completed");
     }
 

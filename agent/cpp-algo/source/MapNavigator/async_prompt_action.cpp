@@ -19,6 +19,7 @@
 #include "navigation_session.h"
 #include "prompt_scan_profile.h"
 #include "roi_template_scanner.h"
+#include "semantic_helpers.h"
 
 #include "../utils.h"
 
@@ -109,19 +110,21 @@ PromptScanProfile DefaultScanProfile(
 
 } // namespace
 
-void RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
+bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
 {
     if (context == nullptr) {
-        return;
+        return false;
     }
 
     const std::string pipeline_override = BuildRunOverride(spec, expected, rec);
-    const MaaTaskId sub_id = MaaContextRunTask(context, spec.entry_node, pipeline_override.c_str());
-    if (sub_id == MaaInvalidId) {
-        LogWarn << "Prompt subtask failed to dispatch." << VAR(spec.tag) << VAR(spec.entry_node);
-        return;
+    const std::optional<std::vector<std::string>> completed =
+        semantic_nodes::RunTaskForCompletedNodes(context, spec.entry_node, pipeline_override);
+    if (!completed) {
+        LogWarn << "Prompt subtask produced no result." << VAR(spec.tag) << VAR(spec.entry_node);
+        return false;
     }
     utils::SleepFor(kPromptPostSleepMs);
+    return std::any_of(completed->begin(), completed->end(), [&spec](const std::string& name) { return name == spec.recognition_node; });
 }
 
 AsyncPromptAction::AsyncPromptAction(
@@ -216,15 +219,16 @@ double AsyncPromptAction::NearestDistanceSq() const
     return nearest_sq;
 }
 
-bool AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controller, double waypoint_distance, size_t node_idx)
+PromptTriggerOutcome
+    AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controller, double waypoint_distance, size_t node_idx)
 {
     if (context_ == nullptr || !started_ || motion_controller == nullptr) {
-        return false;
+        return PromptTriggerOutcome::NotTriggered;
     }
 
     const auto now = std::chrono::steady_clock::now();
     if (last_trigger_at_.time_since_epoch().count() != 0 && now - last_trigger_at_ < std::chrono::milliseconds(kPromptScanIntervalMs)) {
-        return false;
+        return PromptTriggerOutcome::NotTriggered;
     }
 
     // 提示图标是全局的, 路过任何可交互物都会闪, 所以只在自家语义点附近才动手, 带宽同走路模式的激活带。
@@ -232,7 +236,7 @@ bool AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controll
     bool rec = false;
     bool in_band = false;
     if (spec_.text_from_route) {
-        // 这一下命中就把点算走完, 所以还要求正走向的就是它: 蹭到别家的提示会静默消掉本点
+        // 认中就把点算走完, 所以还要求正走向的就是它: 认中别家的同名提示会静默消掉本点
         const Waypoint* waypoint = CurrentWaypointOfThisKind();
         EnsureScannerFor(waypoint);
         in_band = waypoint != nullptr && waypoint_distance <= kPromptTriggerBandWu;
@@ -248,9 +252,9 @@ bool AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controll
     }
 
     // 无论带内带外都读闩: 带外看到的提示当场作废, 否则跨进带内的第一拍就拿老观测开火, 而那时本点的提示还没弹。
-    // 松预筛停不死整条线: 点名目标那类每次误停花掉自己一个点, 共用表那类两次停车之间照样往前挪。
+    // 松预筛停不死整条线: 误停认不出就不吃点, 两类都在两次停车之间照样往前挪。
     if (!ConsumeDetection() || !in_band) {
-        return false; // 后台没报, 这一拍零成本
+        return PromptTriggerOutcome::NotTriggered; // 后台没报, 这一拍零成本
     }
 
     last_trigger_at_ = now;
@@ -258,8 +262,11 @@ bool AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controll
             << VAR(rec);
     motion_controller->SetForwardState(false);
     utils::SleepFor(kStopWaitMs);
-    RunPromptSubtask(context_, spec_, expected, rec);
-    return true;
+    if (!RunPromptSubtask(context_, spec_, expected, rec)) {
+        LogInfo << "Async prompt not confirmed — resuming the walk." << VAR(spec_.tag) << VAR(waypoint_distance) << VAR(node_idx);
+        return PromptTriggerOutcome::Missed;
+    }
+    return PromptTriggerOutcome::Recognized;
 }
 
 bool AsyncPromptAction::TryTriggerAtRouteTail()
