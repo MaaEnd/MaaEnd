@@ -1,0 +1,17 @@
+{
+    "configs": {
+        "name": "环境监测（ADB 委托列表）",
+        "resource": "官服",
+        "controller": "ADB"
+    },
+    "cases": [
+        {
+            "name": "城郊监测终端：吐虫长股兽可接取，码头水车与七彩鳞已收录",
+            "image": "武陵_地区建设_环境监测终端_城郊监测终端_吐虫长股兽可接取.png",
+            "hits": [
+                "InflatedAndGlowingBugspittingLankybeastJob",
+                "AcceptInflatedAndGlowingBugspittingLankybeast"
+            ]
+        }
+    ]
+}
