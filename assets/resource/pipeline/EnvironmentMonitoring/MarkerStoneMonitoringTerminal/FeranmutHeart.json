@@ -82,10 +82,10 @@
         "recognition": "TemplateMatch",
         "roi": "CheckFeranmutHeartText",
         "roi_offset": [
-            -18,
+            -20,
             0,
             0,
-            28
+            50
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
         "threshold": 0.8,
