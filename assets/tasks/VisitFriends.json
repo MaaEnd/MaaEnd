@@ -116,7 +116,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "VisitFriendsPriorityRemark"
+                        "VisitFriendsPriorityRemark",
+                        "BtwAutoStockpileElasticGoodsEnable"
                     ],
                     "pipeline_override": {
                         "VisitFriendsWaitFriendNameLoaded": {
@@ -243,6 +244,66 @@
                 "ProductionAssistControlNexus",
                 "ProductionAssistMFGCabin",
                 "ProductionAssistGrowthChamber"
+            ]
+        },
+        "BtwAutoStockpileElasticGoodsEnable": {
+            "type": "switch",
+            "label": "$option.BtwAutoStockpileElasticGoodsEnable.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "BtwAutoStockpileSellableArea"
+                    ],
+                    "pipeline_override": {
+                        "VisitFriendsAssistFull": {
+                            "enabled": false
+                        },
+                        "VisitFriendsFull": {
+                            "enabled": false
+                        },
+                        "VisitFriendsShipEnterStockRedistribution": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "VisitFriendsShipEnterStockRedistribution": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
+        "BtwAutoStockpileSellableArea": {
+            "type": "checkbox",
+            "label": "$option.BtwAutoStockpileSellableArea.label",
+            "cases": [
+                {
+                    "name": "BtwValleyIV",
+                    "label": "$option.BtwAutoStockpileSellableArea.BtwValleyIV.label",
+                    "pipeline_override": {
+                        "VisitFriendsBtwSellValleyIVSwitch": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "BtwWuling",
+                    "label": "$option.BtwAutoStockpileSellableArea.BtwWuling.label",
+                    "pipeline_override": {
+                        "VisitFriendsBtwSellWulingSwitch": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ],
+            "default_case": [
+                "BtwValleyIV",
+                "BtwWuling"
             ]
         }
     }

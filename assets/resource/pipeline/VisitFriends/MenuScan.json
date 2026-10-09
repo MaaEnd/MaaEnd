@@ -7,7 +7,7 @@
             "[JumpBack]VisitFriendsAssistFullInit",
             "[JumpBack]VisitFriendsAssistFull",
             "[JumpBack]VisitFriendsClueExchangeFull",
-            "VisitFriendsMenuScanFriendsFull",
+            "VisitFriendsFull",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpenPriorityRemark",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpenRemark",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
@@ -201,6 +201,34 @@
             "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
         }
     },
+    "VisitFriendsBtwSellRestore": {
+        "desc": "恢复顺便出售覆盖的所有节点",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsAssistFull": {
+                    "enabled": true
+                },
+                "VisitFriendsFull": {
+                    "enabled": true
+                },
+                "VisitFriendsShipEnterStockRedistribution": {
+                    "enabled": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanRemarkFallbackReopen"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已恢复顺便出售的所有覆盖"
+        }
+    },
     "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
         "desc": "白名单扫完：关闭白名单链路，开启备注链路，清空滚动模板；max_hit=1",
         "enabled": false,
@@ -226,7 +254,7 @@
         },
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenuScanRemarkFallbackReopen"
+            "VisitFriendsBtwSellRestore"
         ],
         "focus": {
             "Node.Action.Succeeded": "白名单已扫完，转为备注好友继续拜访"
@@ -263,7 +291,7 @@
         },
         "post_delay": 0,
         "next": [
-            "VisitFriendsMenuScanRemarkFallbackReopen"
+            "VisitFriendsBtwSellRestore"
         ],
         "focus": {
             "Node.Action.Succeeded": "白名单已扫完，重新打开列表并拜访任意好友"
@@ -315,19 +343,6 @@
         "next": [
             "VisitFriendsMenu"
         ]
-    },
-    "VisitFriendsMenuScanFriendsFull": {
-        "desc": "拜访好友已达到上限：助力次数与线索交换次数均归零",
-        "recognition": "And",
-        "all_of": [
-            "VisitFriendsAssistCountZero",
-            "VisitFriendsClueExchangeCountZero"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "拜访好友次数已满，停止拜访"
-        }
     },
     "VisitFriendsVisitLimitReached": {
         "desc": "已达到设置的好友拜访次数上限，关闭好友详情",
