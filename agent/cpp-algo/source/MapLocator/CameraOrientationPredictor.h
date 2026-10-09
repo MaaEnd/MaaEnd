@@ -1,10 +1,12 @@
 #pragma once
 
+#include <cstddef>
 #include <memory>
 #include <mutex>
-#include <onnxruntime/onnxruntime_cxx_api.h>
 #include <optional>
 #include <string>
+
+#include <onnxruntime/onnxruntime_cxx_api.h>
 
 #include <MaaUtils/NoWarningCV.hpp>
 
@@ -38,22 +40,36 @@ public:
     // referenceAsset 为 zone 底图（BGRA）；缺失或非 BGRA 时以全透明占位资产喂入。
     // (x, y) 为定位结果，scale 为 ZoneTemplateScale(zoneId)。模型未加载、输入不
     // 合法或推理失败时返回 std::nullopt。
-    std::optional<CameraOrientation>
-        predict(const cv::Mat& minimap, const cv::Mat& referenceAsset, double x, double y, double scale, const std::string& zoneId);
+    // camera_heading_prior 为预期镜头方位角（北为 0 度）。它是观测而非指令：调用方
+    // 只能传上一次成功识别到的镜头方位角，且必须确认自此没有任何转向指令。
+    std::optional<CameraOrientation> predict(
+        const cv::Mat& minimap,
+        const cv::Mat& referenceAsset,
+        double x,
+        double y,
+        double scale,
+        const std::string& zoneId,
+        std::optional<double> camera_heading_prior = std::nullopt);
 
     // 前处理图与参考配对分类器同时可用才允许推理。
     bool isLoaded() const { return isPreprocessModelLoaded_ && isRefModelLoaded_; }
 
 private:
-    std::optional<CameraOrientation>
-        infer(const cv::Mat& minimap, const cv::Mat& asset, double x, double y, double scale, const std::string& zoneId);
+    std::optional<CameraOrientation> infer(
+        const cv::Mat& minimap,
+        const cv::Mat& asset,
+        double x,
+        double y,
+        double scale,
+        const std::string& zoneId,
+        std::optional<double> camera_heading_prior);
     bool loadSession(
         const std::string& modelPath,
         const char* tag,
         const Ort::SessionOptions& options,
         std::unique_ptr<Ort::Session>* out_session);
 
-    std::optional<CameraOrientation> decodePmf(const float* pmf, size_t count) const;
+    std::optional<CameraOrientation> decodePmf(const float* pmf, size_t count, std::optional<double> camera_heading_prior) const;
 
     std::unique_ptr<Ort::Env> ortEnv;
     std::unique_ptr<Ort::Session> preprocessSession;

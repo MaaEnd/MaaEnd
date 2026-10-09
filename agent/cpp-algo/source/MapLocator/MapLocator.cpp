@@ -1825,8 +1825,14 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         }
         const auto zoneIt = zones.find(zoneId);
         const cv::Mat referenceAsset = zoneIt != zones.end() ? zoneIt->second : cv::Mat();
-        result.camRot = orientationPredictor
-                            ->predict(minimap, referenceAsset, result.position->x, result.position->y, ZoneTemplateScale(zoneId), zoneId);
+        result.camRot = orientationPredictor->predict(
+            minimap,
+            referenceAsset,
+            result.position->x,
+            result.position->y,
+            ZoneTemplateScale(zoneId),
+            zoneId,
+            options.camera_heading_prior);
         return result;
     };
     // 箭头不可见时，小地图可能被横幅遮挡；在匹配及更新追踪状态前拒帧。

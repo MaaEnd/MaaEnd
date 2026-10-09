@@ -27,6 +27,7 @@
                 "ListCompleteRecognition",
                 "MapFind",
                 "MapLocateAssertLocation",
+                "MapLocateRecognition",
                 "MapNavmeshQuery",
                 "OutpostTradingCurrentBestOperator",
                 "OutpostTradingCurrentGoods",
