@@ -97,6 +97,9 @@
         "next": [
             "AutoEssenceDispatcher"
         ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
+        ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",
             "Node.Action.Succeeded": {
