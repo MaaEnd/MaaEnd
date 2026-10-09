@@ -2,6 +2,7 @@
 
 #include <array>
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -123,6 +124,12 @@ private:
     NavigationRuntimeState runtime_state_ {};
     NavRunController nav_run_controller_ {};
     std::chrono::steady_clock::time_point last_global_relocalize_at_ {};
+    // 上一次由本机成功取位时记下的朝向纪元；没有观测过就是空，先验不可用。
+    std::optional<uint64_t> prior_observation_epoch_;
+    // 上一拍的相位。相位切换会把镜头交给别的流程，那一刻记下的观测不再算「没被指令动过」。
+    std::optional<NaviPhase> last_tick_phase_;
+    // 连续多少拍用了先验。链式本身不越权（纪元保证先验永远来自没被指令动过的观测），留着只为诊断。
+    int consecutive_prior_uses_ = 0;
 
     // Two instances of one flow; they differ only in the pipeline node names and who supplies the text.
     AsyncPromptAction collect_prompt_;
