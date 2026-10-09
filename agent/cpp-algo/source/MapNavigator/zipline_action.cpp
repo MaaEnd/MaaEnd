@@ -265,6 +265,7 @@ Result FinishHop(const Context& ctx, const HopCompleted& done)
         // 规划说续跳, 路线却没接上同一根架子: 下来走
         LeaveZiplineTower(ctx);
     }
+    ctx.runtime_state->dynamic_replan_requested = true;
     SelectPhaseForCurrentWaypoint(ctx, "zipline_ride_complete");
     return result;
 }
