@@ -238,7 +238,13 @@
             "DailyTaskComplete"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.DailyActivityFullWarning.warning"
+            "Node.Recognition.Succeeded": {
+                "content": "$option.DailyActivityFullWarning.warning",
+                "display": [
+                    "log",
+                    "notification"
+                ]
+            }
         }
     },
     "DailyTaskCheckActivityStatus": {
