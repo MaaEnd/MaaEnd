@@ -1,6 +1,7 @@
 {
     "RecoveryEmotionMain": {
         "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
+        "enabled": false,
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -53,7 +54,7 @@
                 "expected": [
                     "生产助力",
                     "生產助力",
-                    "(?i)Production\\s*Assist",
+                    "Production Assist",
                     "生産サポート",
                     "생산 지원"
                 ]
@@ -73,12 +74,8 @@
                 ],
                 "expected": [
                     "今日助力好友",
-                    "(?i)Assists\\s*Today",
+                    "Assists Today",
                     "本日のサポート記録",
-                    "干员心情已满，无法使用助力",
-                    "幹員心情已滿，無法使用助力",
-                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
-                    "オペレーターは体力が十分なため、サポートできません",
                     "오늘 지원한 친구"
                 ]
             }
@@ -98,7 +95,7 @@
                 "expected": [
                     "选择待恢复心情的干员",
                     "選擇待恢復心情的幹員",
-                    "(?i)Select\\s*operator\\s*awaiting\\s*mood\\s*recovery",
+                    "Select operator awaiting mood recovery",
                     "対象オペレーターを選んでください"
                 ]
             }
@@ -149,41 +146,6 @@
             "RecoveryEmotionView2In"
         ]
     },
-    "RecoveryEmotionFull": {
-        "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    416,
-                    65,
-                    428,
-                    119
-                ],
-                "expected": [
-                    "干员心情已满，无法使用助力",
-                    "幹員心情已滿，無法使用助力",
-                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
-                    "オペレーターは体力が十分なため、サポートできません",
-                    "Selected operator is at max mood",
-                    "No recovery required",
-                    "干员心情已满",
-                    "幹員心情已滿",
-                    "无法使用助力",
-                    "無法使用助力"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RecoveryEmotionExitView2ToView1"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_full_prompt_failed"
-        }
-    },
     "RecoveryEmotionView2In": {
         "desc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员",
         "recognition": "And",
@@ -203,70 +165,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RecoveryEmotionSelectLowEmotion"
+            "RecoveryEmotionEnableSecondSelection",
+            "RecoveryEmotionOperator1"
         ]
     },
-    "RecoveryEmotionSelectLowEmotion": {
-        "desc": "[恢复心情·操作] 识别干员（信赖图标）并点击",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    467,
-                    236,
-                    620,
-                    282
-                ],
-                "template": [
-                    "GiftOperator/TrustIcon.png"
-                ],
-                "order_by": "Vertical"
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
-        "rate_limit": 0,
-        "next": [
-            // "RecoveryEmotionFull",
-            //"RecoveryEmotionCouldNotAssist",
-            "RecoveryEmotionSelectLowEmotion2"
-        ]
-    },
-    "RecoveryEmotionSelectLowEmotion2": {
-        "desc": "[恢复心情·操作] 识别第二位干员（信赖图标）并点击",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    467,
-                    236,
-                    620,
-                    282
-                ],
-                "template": [
-                    "GiftOperator/TrustIcon.png"
-                ],
-                "order_by": "Vertical",
-                "index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
-        "rate_limit": 0,
-        "next": [
-            // "RecoveryEmotionFull",
-            "RecoveryEmotionCouldNotAssist",
-            "RecoveryEmotionExitView2ToView1"
-        ]
-    },
-    "RecoveryEmotionCouldNotAssist": {
-        "desc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，点击确认",
+    "RecoveryEmotionEnableSecondSelection": {
+        "desc": "识别当前可用点数为 2 时启用第二名查找",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -277,20 +181,1252 @@
                     17
                 ],
                 "expected": [
-                    "1",
                     "2"
                 ],
                 "only_rec": true
             }
         },
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "RecoveryEmotionContinueAfterFirst": {
+                            "enabled": true
+                        }
+                    }
+                }
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "RecoveryEmotionOperator1"
+        ]
+    },
+    "RecoveryEmotionOperator1": {
+        "desc": "检查当前页第 1 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    541,
+                    317,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator2"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator2": {
+        "desc": "检查当前页第 2 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    632,
+                    317,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator3"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator3": {
+        "desc": "检查当前页第 3 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    722,
+                    317,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator4"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator4": {
+        "desc": "检查当前页第 4 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    813,
+                    317,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator5"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator5": {
+        "desc": "检查当前页第 5 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    903,
+                    317,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator6"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator6": {
+        "desc": "检查当前页第 6 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    994,
+                    317,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator7"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator7": {
+        "desc": "检查当前页第 7 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    541,
+                    455,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator8"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator8": {
+        "desc": "检查当前页第 8 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    632,
+                    455,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator9"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator9": {
+        "desc": "检查当前页第 9 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    722,
+                    455,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator10"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator10": {
+        "desc": "检查当前页第 10 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    813,
+                    455,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator11"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator11": {
+        "desc": "检查当前页第 11 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    903,
+                    455,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionOperator12"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionOperator12": {
+        "desc": "检查当前页第 12 位干员的标签，并记录下一位",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": [
+                    994,
+                    455,
+                    80,
+                    16
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionNextOperator": {
+                            "next": [
+                                "RecoveryEmotionNextPage"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": "RecoveryEmotionCurrentOperator",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScanOperator"
+        ]
+    },
+    "RecoveryEmotionScanOperator": {
+        "desc": "按当前单张标签判断舱室；制造舱 II 先于 I，避免 I 匹配 II 的前缀",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionCabinManufacturingII",
+            "RecoveryEmotionCabinManufacturingI",
+            "RecoveryEmotionCabinControlNexus",
+            "RecoveryEmotionCabinReceptionRoom",
+            "RecoveryEmotionCabinGrowthChamberI",
+            "RecoveryEmotionNextOperator"
+        ]
+    },
+    "RecoveryEmotionControlNexusBand": {
+        "desc": "总控中枢蓝色色带，使用宽 HSV 范围",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                "method": 40,
+                "lower": [
+                    85,
+                    40,
+                    40
+                ],
+                "upper": [
+                    115,
+                    255,
+                    255
+                ],
+                "count": 400
+            }
+        }
+    },
+    "RecoveryEmotionReceptionRoomBand": {
+        "desc": "会客室紫色色带，使用宽 HSV 范围",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                "method": 40,
+                "lower": [
+                    116,
+                    40,
+                    40
+                ],
+                "upper": [
+                    155,
+                    255,
+                    255
+                ],
+                "count": 400
+            }
+        }
+    },
+    "RecoveryEmotionGrowthChamberBand": {
+        "desc": "培养舱绿色色带，使用宽 HSV 范围",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                "method": 40,
+                "lower": [
+                    35,
+                    40,
+                    40
+                ],
+                "upper": [
+                    84,
+                    255,
+                    255
+                ],
+                "count": 400
+            }
+        }
+    },
+    "RecoveryEmotionManufacturingBand": {
+        "desc": "制造舱黄色色带，I/II 共用颜色并由名称区分",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                "method": 40,
+                "lower": [
+                    15,
+                    40,
+                    40
+                ],
+                "upper": [
+                    34,
+                    255,
+                    255
+                ],
+                "count": 400
+            }
+        }
+    },
+    "RecoveryEmotionControlNexusName": {
+        "desc": "识别总控中枢的完整舱室名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                "expected": [
+                    "总控中枢",
+                    "總控中樞",
+                    "総合制御中枢",
+                    "Master Control Nexus",
+                    "MASTER CONTROL NEXUS",
+                    "master control nexus",
+                    "Control Nexus",
+                    "CONTROL NEXUS",
+                    "control nexus",
+                    "制御中枢",
+                    "마스터 컨트롤 넥서스"
+                ],
+                "only_rec": true,
+                "threshold": 0.15
+            }
+        }
+    },
+    "RecoveryEmotionReceptionRoomName": {
+        "desc": "识别会客室的完整舱室名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                "expected": [
+                    "会客室",
+                    "會客室",
+                    "Reception Room",
+                    "RECEPTION ROOM",
+                    "reception room",
+                    "応接室",
+                    "접견실"
+                ],
+                "only_rec": true,
+                "threshold": 0.15
+            }
+        }
+    },
+    "RecoveryEmotionGrowthChamberIName": {
+        "desc": "识别培养舱 I 的完整舱室名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                // 完整原文：培养舱 I；保留编号 I 常见的 1 OCR 变体，仍匹配完整舱名。
+                "expected": [
+                    // @i18n-skip
+                    "培养舱 I",
+                    "培养舱I",
+                    "培养舱Ⅰ",
+                    "培养舱1",
+                    "培養艙 I",
+                    "培養艙I",
+                    "培養艙Ⅰ",
+                    "培養艙1",
+                    "GROWTH CHAMBER I",
+                    "GROWTH CHAMBERI",
+                    "Growth Chamber I",
+                    "Growth ChamberI",
+                    "growth chamber i",
+                    "growth chamberi"
+                ],
+                "only_rec": true,
+                "threshold": 0.15
+            }
+        }
+    },
+    "RecoveryEmotionManufacturingIName": {
+        "desc": "识别制造舱 I 的完整舱室名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                // 完整原文：制造舱 I；保留编号 I 常见的 1 OCR 变体，仍匹配完整舱名。
+                "expected": [
+                    // @i18n-skip
+                    "制造舱 I",
+                    "制造舱I",
+                    "制造舱Ⅰ",
+                    "制造舱1",
+                    "製造艙 I",
+                    "製造艙I",
+                    "製造艙Ⅰ",
+                    "MFG CABIN I",
+                    "MFG CABINI",
+                    "Mfg Cabin I",
+                    "Mfg Cabini",
+                    "mfg cabin i",
+                    "mfg cabini"
+                ],
+                "only_rec": false,
+                "threshold": 0.15
+            }
+        }
+    },
+    "RecoveryEmotionManufacturingIIName": {
+        "desc": "识别制造舱 II 的完整舱室名称",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                "expected": [
+                    "制造舱 II",
+                    "制造舱II",
+                    "制造舱Ⅱ",
+                    "製造艙 II",
+                    "製造艙II",
+                    "製造艙Ⅱ",
+                    "MFG CABIN II",
+                    "MFG CABINII",
+                    "Mfg Cabin II",
+                    "Mfg CabinII",
+                    "mfg cabin ii",
+                    "mfg cabinii"
+                ],
+                "only_rec": false,
+                "threshold": 0.15
+            }
+        }
+    },
+    "RecoveryEmotionCabinControlNexus": {
+        "desc": "颜色或完整名称命中后，按舱室选项选择或继续下一位",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "RecoveryEmotionControlNexusBand",
+                    "RecoveryEmotionControlNexusName"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionNextOperator"
+        ]
+    },
+    "RecoveryEmotionCabinReceptionRoom": {
+        "desc": "颜色或完整名称命中后，按舱室选项选择或继续下一位",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "RecoveryEmotionReceptionRoomBand",
+                    "RecoveryEmotionReceptionRoomName"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionNextOperator"
+        ]
+    },
+    "RecoveryEmotionCabinGrowthChamberI": {
+        "desc": "颜色或完整名称命中后，按舱室选项选择或继续下一位",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "RecoveryEmotionGrowthChamberBand",
+                    "RecoveryEmotionGrowthChamberIName"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionNextOperator"
+        ]
+    },
+    "RecoveryEmotionCabinManufacturingI": {
+        "desc": "黄色色带与包含 I/II 的完整舱名共同命中后，按舱室选项处理",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "RecoveryEmotionManufacturingBand",
+                    "RecoveryEmotionManufacturingIName"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionNextOperator"
+        ]
+    },
+    "RecoveryEmotionCabinManufacturingII": {
+        "desc": "黄色色带与包含 I/II 的完整舱名共同命中后，按舱室选项处理",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "RecoveryEmotionManufacturingBand",
+                    "RecoveryEmotionManufacturingIIName"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionNextOperator"
+        ]
+    },
+    "RecoveryEmotionSelectCurrentOperator": {
+        "desc": "在当前卡片头像中部的固定单点选中干员",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "[Anchor]RecoveryEmotionCurrentOperator",
+                "target_offset": [
+                    39,
+                    -36,
+                    -79,
+                    -15
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                540,
+                240,
+                540,
+                280
+            ],
+            "timeout": 1500
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionCurrentOperatorSelected",
+            "RecoveryEmotionNextOperator"
+        ]
+    },
+    "RecoveryEmotionCurrentOperatorSelected": {
+        "desc": "识别当前卡片右上角的黄色选中标记，成功后进入名次切换或确认",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionCurrentOperator",
+                "roi_offset": [
+                    57,
+                    -72,
+                    -56,
+                    8
+                ],
+                "method": 40,
+                "lower": [
+                    15,
+                    40,
+                    40
+                ],
+                "upper": [
+                    34,
+                    255,
+                    255
+                ],
+                "count": 288
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionContinueAfterFirst",
             "RecoveryEmotionConfirm"
         ]
     },
+    "RecoveryEmotionContinueAfterFirst": {
+        "desc": "可用点数为 2 时，首名选中后切换到第二名阶段并继续下一位",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "allow_next": true,
+                    "patch": {
+                        "RecoveryEmotionContinueAfterFirst": {
+                            "enabled": false
+                        },
+                        "RecoveryEmotionEndSearch": {
+                            "next": [
+                                "RecoveryEmotionConfirm"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionNextOperator"
+        ]
+    },
+    "RecoveryEmotionNextOperator": {
+        "desc": "继续当前卡片后面的下一位干员",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "RecoveryEmotionNextPage": {
+        "desc": "当前页 12 位检查完毕，记录滑条顶部位置后开始上划",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1077,
+                    240,
+                    12,
+                    280
+                ],
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTop.png",
+                "method": 10001,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "anchor": "RecoveryEmotionScrollbarPosition",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScrollToNextOperators"
+        ]
+    },
+    "RecoveryEmotionScrollToNextOperators": {
+        "desc": "[恢复心情·滚动] 第一次上划后比较滑条位置",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    806,
+                    460,
+                    1,
+                    1
+                ],
+                "end": [
+                    [
+                        806,
+                        460
+                    ],
+                    [
+                        806,
+                        452
+                    ],
+                    [
+                        806,
+                        176
+                    ]
+                ],
+                "end_hold": [
+                    100,
+                    100,
+                    1000
+                ],
+                "duration": [
+                    10,
+                    10,
+                    400
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                540,
+                240,
+                540,
+                280
+            ],
+            "timeout": 1500
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScrollbarUnchanged1",
+            "RecoveryEmotionScrollbarMoved"
+        ]
+    },
+    "RecoveryEmotionScrollAttempt2": {
+        "desc": "[恢复心情·滚动] 滑条第一次未移动后再次上划",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    806,
+                    460,
+                    1,
+                    1
+                ],
+                "end": [
+                    [
+                        806,
+                        460
+                    ],
+                    [
+                        806,
+                        452
+                    ],
+                    [
+                        806,
+                        176
+                    ]
+                ],
+                "end_hold": [
+                    100,
+                    100,
+                    1000
+                ],
+                "duration": [
+                    10,
+                    10,
+                    400
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                540,
+                240,
+                540,
+                280
+            ],
+            "timeout": 1500
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScrollbarUnchanged2",
+            "RecoveryEmotionScrollbarMoved"
+        ]
+    },
+    "RecoveryEmotionScrollAttempt3": {
+        "desc": "[恢复心情·滚动] 滑条连续两次未移动后进行第三次上划",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    806,
+                    460,
+                    1,
+                    1
+                ],
+                "end": [
+                    [
+                        806,
+                        460
+                    ],
+                    [
+                        806,
+                        452
+                    ],
+                    [
+                        806,
+                        176
+                    ]
+                ],
+                "end_hold": [
+                    100,
+                    100,
+                    1000
+                ],
+                "duration": [
+                    10,
+                    10,
+                    400
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                540,
+                240,
+                540,
+                280
+            ],
+            "timeout": 1500
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScrollbarUnchanged3",
+            "RecoveryEmotionScrollbarMoved"
+        ]
+    },
+    "RecoveryEmotionScrollbarUnchanged1": {
+        "desc": "第一次上划后滑条顶部偏移不超过 3 px，记录当前位置后继续第二次上划",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionScrollbarPosition",
+                "roi_offset": [
+                    0,
+                    -3,
+                    0,
+                    6
+                ],
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTop.png",
+                "method": 10001,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "anchor": "RecoveryEmotionScrollbarPosition",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScrollAttempt2"
+        ]
+    },
+    "RecoveryEmotionScrollbarUnchanged2": {
+        "desc": "第二次上划后滑条顶部偏移不超过 3 px，记录当前位置后继续第三次上划",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionScrollbarPosition",
+                "roi_offset": [
+                    0,
+                    -3,
+                    0,
+                    6
+                ],
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTop.png",
+                "method": 10001,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "anchor": "RecoveryEmotionScrollbarPosition",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionScrollAttempt3"
+        ]
+    },
+    "RecoveryEmotionScrollbarUnchanged3": {
+        "desc": "第三次上划后滑条顶部偏移仍不超过 3 px，结束当前查找阶段",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "[Anchor]RecoveryEmotionScrollbarPosition",
+                "roi_offset": [
+                    0,
+                    -3,
+                    0,
+                    6
+                ],
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTop.png",
+                "method": 10001,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionEndSearch"
+        ]
+    },
+    "RecoveryEmotionScrollbarMoved": {
+        "desc": "滑条顶部超出前一次记录位置上下 3 px，定位当前位置后扫描新页第一位",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1077,
+                    240,
+                    12,
+                    280
+                ],
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTop.png",
+                "method": 10001,
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionOperator1"
+        ]
+    },
+    "RecoveryEmotionEndSearch": {
+        "desc": "结束当前查找阶段，首名未找到时返回并关闭助力窗口",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionNoTargetExitView2ToView1"
+        ]
+    },
+    "RecoveryEmotionNoTargetExitView2ToView1": {
+        "desc": "[恢复心情·未找到首名] 返回到助力第一页，为关闭助力窗口做准备",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    980,
+                    102,
+                    187,
+                    82
+                ],
+                "template": [
+                    "ClaimDijiangRewards/back.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionNoTargetExitView1ToControlNexus"
+        ]
+    },
+    "RecoveryEmotionNoTargetExitView1ToControlNexus": {
+        "desc": "[恢复心情·未找到首名] 关闭助力窗口并返回总控中枢后提示未找到干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "RecoveryEmotionAssistView1Label",
+                    "CloseButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InDijiangControlNexus"
+        ],
+        "focus": {
+            "Node.PipelineNode.Succeeded": "$task.DijiangRewards.focus.recovery_emotion_operator_not_found"
+        }
+    },
     "RecoveryEmotionConfirm": {
+        "desc": "确认已选干员并进入原有助力窗口收尾流程",
         "recognition": {
             "type": "And",
             "param": {
@@ -328,32 +1464,6 @@
         "rate_limit": 0,
         "next": [
             "InDijiangControlNexus"
-        ]
-    },
-    "RecoveryEmotionExitView2ToView1": {
-        "desc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    980,
-                    102,
-                    187,
-                    82
-                ],
-                "template": [
-                    "ClaimDijiangRewards/back.png"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "RecoveryEmotionExitView1ToControlNexus"
         ]
     }
 }

@@ -190,11 +190,9 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "RecoveryEmotionMain": {
-                            "enabled": true
-                        }
-                    }
+                    "option": [
+                        "RecoveryEmotionCabins"
+                    ]
                 },
                 {
                     "name": "No",
@@ -206,6 +204,89 @@
                 }
             ],
             "default_case": "Yes"
+        },
+        "RecoveryEmotionCabins": {
+            "type": "checkbox",
+            "label": "$option.RecoveryEmotionCabins.label",
+            "cases": [
+                {
+                    "name": "ControlNexus",
+                    "label": "$option.RecoveryEmotionCabins.cases.ControlNexus.label",
+                    "pipeline_override": {
+                        "RecoveryEmotionMain": {
+                            "enabled": true
+                        },
+                        "RecoveryEmotionCabinControlNexus": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ReceptionRoom",
+                    "label": "$option.RecoveryEmotionCabins.cases.ReceptionRoom.label",
+                    "pipeline_override": {
+                        "RecoveryEmotionMain": {
+                            "enabled": true
+                        },
+                        "RecoveryEmotionCabinReceptionRoom": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ManufacturingI",
+                    "label": "$option.RecoveryEmotionCabins.cases.ManufacturingI.label",
+                    "pipeline_override": {
+                        "RecoveryEmotionMain": {
+                            "enabled": true
+                        },
+                        "RecoveryEmotionCabinManufacturingI": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ManufacturingII",
+                    "label": "$option.RecoveryEmotionCabins.cases.ManufacturingII.label",
+                    "pipeline_override": {
+                        "RecoveryEmotionMain": {
+                            "enabled": true
+                        },
+                        "RecoveryEmotionCabinManufacturingII": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "GrowthChamberI",
+                    "label": "$option.RecoveryEmotionCabins.cases.GrowthChamberI.label",
+                    "pipeline_override": {
+                        "RecoveryEmotionMain": {
+                            "enabled": true
+                        },
+                        "RecoveryEmotionCabinGrowthChamberI": {
+                            "next": [
+                                "RecoveryEmotionSelectCurrentOperator"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": [
+                "ControlNexus",
+                "ReceptionRoom",
+                "ManufacturingI",
+                "ManufacturingII",
+                "GrowthChamberI"
+            ]
         },
         "ReceptionRoomStage": {
             "type": "switch",

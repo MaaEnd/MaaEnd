@@ -46,9 +46,9 @@ Controlled by the `StageTaskSetting` → `FastCollect` switch, disabled by defau
 
 ### Recover Mood
 
-`RecoveryEmotionMain` triggers only once per central hub scan (`max_hit: 1`).
+`RecoveryEmotionCabins` defaults to all five cabins; deselecting all skips this stage. Following the game's ascending mood order, each page checks the fixed cabin labels of 12 operators from left to right, then top to bottom. Control Nexus, Reception Room, and Growth Chamber match by their color or full name. Manufacturing Cabins require yellow and the full cabin name containing I/II, checking II first. Unassigned cards are skipped while scanning continues.
 
-Operator selection logic: Click the first operator on the left → check if mood is full or remaining attempts are 0 → if both are false, click the second operator on the left → finish and return to the central hub.
+The available assist points determine whether one or two operators are selected. After each click, a fixed offset from the current cabin label locates the top-right yellow selection marker. A match continues selection or proceeds to confirmation; otherwise, scanning continues with the next operator. The list scrolls only after the current page is exhausted. Each swipe holds the starting point, initiates dragging, moves past two rows, and holds the endpoint for 1 second. The scrollbar's top position is compared before and after each scroll, treating a vertical shift of up to 3 px as unchanged. Three consecutive unchanged positions end the search; a larger shift resumes scanning on the new page and resets the count. Selected operators are confirmed before returning to the Control Nexus. If no first operator is found, the assist window is closed, the pipeline returns to the Control Nexus, and a not-found notice is shown.
 
 ### Reception Room
 

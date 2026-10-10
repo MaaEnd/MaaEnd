@@ -1,18 +1,346 @@
 {
-    "RecoveryEmotionTrustIcon": {
-        "roi": [
-            499,
-            203,
-            700,
-            365
-        ]
+    "RecoveryEmotionOperator1": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    516,
+                    306,
+                    100,
+                    18
+                ]
+            }
+        }
     },
-    "RecoveryEmotionCouldNotAssist": {
-        "roi": [
-            1166,
-            164,
-            22,
-            23
-        ]
+    "RecoveryEmotionOperator2": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    629,
+                    306,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator3": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    743,
+                    306,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator4": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    856,
+                    306,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator5": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    969,
+                    306,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator6": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1083,
+                    306,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator7": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    516,
+                    479,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator8": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    629,
+                    479,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator9": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    743,
+                    479,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator10": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    856,
+                    479,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator11": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    969,
+                    479,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionOperator12": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1083,
+                    479,
+                    100,
+                    18
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionSelectCurrentOperator": {
+        "action": {
+            "param": {
+                "target_offset": [
+                    49,
+                    -45,
+                    -99,
+                    -17
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                516,
+                216,
+                678,
+                340
+            ]
+        }
+    },
+    "RecoveryEmotionCurrentOperatorSelected": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    72,
+                    -91,
+                    -70,
+                    12
+                ],
+                "count": 450
+            }
+        }
+    },
+    "RecoveryEmotionScrollToNextOperators": {
+        "action": {
+            "param": {
+                "begin": [
+                    806,
+                    500
+                ],
+                "end": [
+                    [
+                        806,
+                        500
+                    ],
+                    [
+                        806,
+                        452
+                    ],
+                    [
+                        806,
+                        106
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                516,
+                216,
+                678,
+                340
+            ]
+        }
+    },
+    "RecoveryEmotionScrollAttempt2": {
+        "action": {
+            "param": {
+                "begin": [
+                    806,
+                    500
+                ],
+                "end": [
+                    [
+                        806,
+                        500
+                    ],
+                    [
+                        806,
+                        452
+                    ],
+                    [
+                        806,
+                        106
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                516,
+                216,
+                678,
+                340
+            ]
+        }
+    },
+    "RecoveryEmotionScrollAttempt3": {
+        "action": {
+            "param": {
+                "begin": [
+                    806,
+                    500
+                ],
+                "end": [
+                    [
+                        806,
+                        500
+                    ],
+                    [
+                        806,
+                        452
+                    ],
+                    [
+                        806,
+                        106
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                516,
+                216,
+                678,
+                340
+            ]
+        }
+    },
+    "RecoveryEmotionNextPage": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1186,
+                    211,
+                    14,
+                    347
+                ],
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTopADB.png"
+            }
+        }
+    },
+    "RecoveryEmotionScrollbarUnchanged1": {
+        "recognition": {
+            "param": {
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTopADB.png"
+            }
+        }
+    },
+    "RecoveryEmotionScrollbarUnchanged2": {
+        "recognition": {
+            "param": {
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTopADB.png"
+            }
+        }
+    },
+    "RecoveryEmotionScrollbarUnchanged3": {
+        "recognition": {
+            "param": {
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTopADB.png"
+            }
+        }
+    },
+    "RecoveryEmotionScrollbarMoved": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1186,
+                    211,
+                    14,
+                    347
+                ],
+                "template": "ClaimDijiangRewards/RecoveryEmotionScrollbarTopADB.png"
+            }
+        }
+    },
+    "RecoveryEmotionNoTargetExitView2ToView1": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1090,
+                    60,
+                    160,
+                    55
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionEnableSecondSelection": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    1166,
+                    164,
+                    22,
+                    23
+                ]
+            }
+        }
     }
 }
