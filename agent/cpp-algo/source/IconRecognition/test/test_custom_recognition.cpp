@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <MaaFramework/Utility/MaaBuffer.h>
@@ -336,6 +337,9 @@ void TestMalformedScalarParametersAreRejected()
              std::pair { R"({"grid_type":"single_roi","debug":"bad"})", "debug" },
              std::pair { R"({"grid_type":"transfer","deduplicate":"bad"})", "deduplicate" },
              std::pair { R"({"grid_type":"single_roi","recognize_region_unavailable":"bad"})", "recognize_region_unavailable" },
+             std::pair { R"({"grid_type":"transfer","order_by":1})", "order_by" },
+             std::pair { R"({"grid_type":"transfer","order_by":"bad"})", "order_by" },
+             std::pair { R"({"grid_type":"transfer","reverse":"bad"})", "reverse" },
          }) {
         MaaRect out_box { 101, 202, 303, 404 };
         const auto detail = RunFailure(image.get(), param, out_box);
@@ -370,29 +374,57 @@ void TestSuccessfulTransferRecognitionUsesPrimaryCellBox()
     Require(!pixels.empty(), "real contract screenshot must be readable");
     image.set(pixels);
     const MaaRect roi { 154, 202, 983, 291 };
-    MaaRect out_box { 0, 0, 0, 0 };
-    StringBuffer detail;
-    const MaaBool matched = iconrecognition::IconRecognitionRun(
-        nullptr,
-        0,
-        "IconRecognitionTest",
-        "IconRecognition",
-        R"({"grid_type":"transfer"})",
-        image.get(),
-        &roi,
-        nullptr,
-        &out_box,
-        detail.get());
-    Require(matched, "representative transfer screenshot must match");
-    const auto object = detail.detail();
-    Require(object.contains("matched") && object.at("matched").as_boolean(), "successful detail must report matched=true");
-    Require(object.contains("matches") && !object.at("matches").as_array().empty(), "successful detail must contain matches");
-    const auto& cell_box = object.at("matches").as_array().at(0).as_object().at("cell_box").as_array();
-    Require(cell_box.size() == 4, "successful match cell_box must contain four components");
-    Require(out_box.x == cell_box.at(0).as_integer(), "out_box.x must equal the primary cell box");
-    Require(out_box.y == cell_box.at(1).as_integer(), "out_box.y must equal the primary cell box");
-    Require(out_box.width == cell_box.at(2).as_integer(), "out_box.width must equal the primary cell box");
-    Require(out_box.height == cell_box.at(3).as_integer(), "out_box.height must equal the primary cell box");
+    for (const char* param : {
+             R"({"grid_type":"transfer"})",
+             R"({"grid_type":"transfer","order_by":"natural"})",
+             R"({"grid_type":"transfer","order_by":"natural","reverse":true})",
+         }) {
+        MaaRect out_box { 101, 202, 303, 404 };
+        StringBuffer detail;
+        const MaaBool matched = iconrecognition::IconRecognitionRun(
+            nullptr,
+            0,
+            "IconRecognitionTest",
+            "IconRecognition",
+            param,
+            image.get(),
+            &roi,
+            nullptr,
+            &out_box,
+            detail.get());
+        Require(matched, "representative transfer screenshot must match");
+        RequireUntouched(out_box);
+        const auto object = detail.detail();
+        Require(!object.contains("matches"), "successful callback must not retain the old aggregate payload");
+        Require(
+            object.contains("$filtered") && !object.at("$filtered").as_array().empty(),
+            "successful detail must contain filtered results");
+        const auto& filtered = object.at("$filtered").as_array();
+        const bool natural = std::string_view(param).find("natural") != std::string_view::npos;
+        const bool reverse = std::string_view(param).find("reverse") != std::string_view::npos;
+        for (std::size_t index = 0; index < filtered.size(); ++index) {
+            const auto& entry = filtered.at(index).as_object();
+            const auto& item = entry.at("detail").as_object();
+            Require(entry.at("box").dumps() == item.at("cell_box").dumps(), "each result box must equal its own cell_box");
+            Require(item.contains("item_id") && !item.contains("matches"), "each result must carry exactly one item detail");
+            if (index == 0) {
+                continue;
+            }
+            const auto& previous = filtered.at(index - 1).as_object().at("detail").as_object();
+            if (natural) {
+                const auto current_position = std::pair { item.at("row").as_integer(), item.at("column").as_integer() };
+                const auto previous_position = std::pair { previous.at("row").as_integer(), previous.at("column").as_integer() };
+                Require(
+                    reverse ? current_position <= previous_position : previous_position <= current_position,
+                    "natural ordering must follow grid rows and columns");
+            }
+            else {
+                Require(
+                    previous.at("score").as_double() >= item.at("score").as_double(),
+                    "default ordering must preserve descending scores");
+            }
+        }
+    }
 }
 
 void TestSuccessfulSingleRoiRecognitionHonorsRecheckFilters()
@@ -402,7 +434,7 @@ void TestSuccessfulSingleRoiRecognitionHonorsRecheckFilters()
     Require(!pixels.empty(), "real single ROI screenshot must be readable");
     image.set(pixels);
     const MaaRect roi { 1177, 450, 54, 54 };
-    MaaRect out_box { 0, 0, 0, 0 };
+    MaaRect out_box { 101, 202, 303, 404 };
     StringBuffer detail;
     const MaaBool matched = iconrecognition::IconRecognitionRun(
         nullptr,
@@ -417,12 +449,12 @@ void TestSuccessfulSingleRoiRecognitionHonorsRecheckFilters()
         detail.get());
     Require(matched, "single ROI screenshot must pass the candidate recheck");
     const auto object = detail.detail();
-    Require(object.contains("matches") && object.at("matches").as_array().size() == 1, "single ROI must contain one match");
-    const auto& cell_box = object.at("matches").as_array().at(0).as_object().at("cell_box").as_array();
-    Require(
-        out_box.x == cell_box.at(0).as_integer() && out_box.y == cell_box.at(1).as_integer() && out_box.width == cell_box.at(2).as_integer()
-            && out_box.height == cell_box.at(3).as_integer(),
-        "single ROI out_box must use the matched cell");
+    Require(object.contains("$filtered") && object.at("$filtered").as_array().size() == 1, "single ROI must contain one filtered result");
+    const auto& entry = object.at("$filtered").as_array().at(0).as_object();
+    const auto& item = entry.at("detail").as_object();
+    Require(entry.at("box").dumps() == item.at("cell_box").dumps(), "single ROI result must use its matched cell");
+    Require(item.at("item_id").as_string() == "item_proc_battery_3", "candidate recheck must preserve the requested item");
+    RequireUntouched(out_box);
 }
 
 void TestGridDiagnosticsSerializeSelectionEvidence()
