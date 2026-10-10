@@ -184,10 +184,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringPhotoSettingsOpenned"
+            "EnvironmentMonitoringPhotoSettingsOpened"
         ]
     },
-    "EnvironmentMonitoringPhotoSettingsOpenned": {
+    "EnvironmentMonitoringPhotoSettingsOpened": {
         "desc": "拍照目标未达成，画面设置已打开",
         "recognition": "TemplateMatch",
         "roi": [
@@ -196,7 +196,7 @@
             400,
             250
         ],
-        "template": "EnvironmentMonitoring/ArrorUp.png",
+        "template": "EnvironmentMonitoring/ArrowUp.png",
         "threshold": 0.8,
         "order_by": "Score",
         "pre_delay": 0,
