@@ -1416,6 +1416,8 @@
     "option.CrisisDrills.AdvancedProgression4.label": "고급 양성 Ⅳ (정합용 유체)",
     "option.CrisisDrills.AdvancedProgression5.label": "고급 양성 Ⅴ (3상 나노 플레이크 칩)",
     "option.CrisisDrills.label": "위경 예연",
+    "option.DailyActivityFullWarning.label": "활동도 100 미만 경고",
+    "option.DailyActivityFullWarning.warning": "<span style=\"color: red; font-weight: bold;\">오늘 활동도가 100 미만입니다. 일일 보상 수령 상황을 확인하거나 작업 설정과 순서를 조정하십시오!</span>",
     "option.DailyClaimDeliveryJobsRewards.label": "위탁 의뢰 보상",
     "option.DailyEmailRewards.label": "우편/임시 보관함 보상",
     "option.DailyEventRewards.label": "이벤트 보상",

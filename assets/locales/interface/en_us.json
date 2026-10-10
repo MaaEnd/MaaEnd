@@ -1416,6 +1416,8 @@
     "option.CrisisDrills.AdvancedProgression4.label": "Advanced Progression Ⅳ (Quadrant Fitting Fluid)",
     "option.CrisisDrills.AdvancedProgression5.label": "Advanced Progression Ⅴ (Triphasic Nanoflake)",
     "option.CrisisDrills.label": "Peril Drills",
+    "option.DailyActivityFullWarning.label": "Warn when activity below 100",
+    "option.DailyActivityFullWarning.warning": "<span style=\"color: red; font-weight: bold;\">Daily activity is below 100 today. Please check daily reward claiming, or adjust task settings and order!</span>",
     "option.DailyClaimDeliveryJobsRewards.label": "Transferred Job Rewards",
     "option.DailyEmailRewards.label": "Mail/Temporary Storage Rewards",
     "option.DailyEventRewards.label": "Event Rewards",
