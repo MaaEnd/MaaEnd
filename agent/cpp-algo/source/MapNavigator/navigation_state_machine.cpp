@@ -1674,23 +1674,31 @@ bool NavigationStateMachine::TickNavigate()
                      << VAR(route.projection_anchor);
         }
         else {
-            // 严判点的判定圈只当纠正触发: 进圈后按残差转向目标接着走回去, 全程不松前进键。滑索和传送门
-            // 有各自的站位与提交距离, 判定圈被放宽或收紧的那几种情况要的也正是原来的宽松判定, 都不介入。
+            // 严判圈只触发精确接近: 停车、静止对齐镜头、前进脉冲、停稳验收。
+            // 滑索和传送门有各自的站位与提交距离，保持原启用范围。
             if (waypoint.SettlesAtArrival()) {
                 if (route.waypoint_distance <= route.arrival_band) {
-                    // 这一拍的位移可能直接跨过步行进带; 要走路纠正的点必须先进入步行再挪动。
-                    if (waypoint.Traits().settle_walking) {
-                        walk_mode_.Request(true);
-                    }
-                    semantic_nodes::SettleAtStrictGoal(semantic_ctx, waypoint);
-                    // 收尾里的转镜头没走操舵那条路, 在途转角账认不出来, 清掉重新起算
+                    // 这一拍可能直接跨过步行进带；先停车，再为所有精确接近点进入步行。
+                    semantic_nodes::StopMotionAndCommitment(semantic_ctx);
+                    walk_mode_.Request(true);
+                    const bool settled = semantic_nodes::SettleAtStrictGoal(semantic_ctx, waypoint, should_stop_);
+                    // 静止转镜头没有走操舵路径，清除在途转角记账。
                     runtime_state_.steering_rate.Reset();
-                    if (!position_->valid) {
-                        return HandleLocalizationLoss();
+                    if (should_stop_()) {
+                        walk_mode_.Request(false);
+                        return true;
+                    }
+                    if (!settled) {
+                        LogWarn << "Strict arrival correction incomplete; arrival action remains non-fatal."
+                                << VAR(session_->current_node_idx()) << VAR(position_->valid);
                     }
                 }
                 // 走路买的是接近段和收尾的精度, 到点就还回去: 跳跃、冲刺这些动作照旧在慢跑态下执行
                 walk_mode_.Request(false);
+            }
+            // 恢复步行模式可能同步等待控制器，期间收到取消也不得再派发到点动作。
+            if (should_stop_()) {
+                return true;
             }
 
             // A plain corridor waypoint needs nothing beyond the advance, so the tick goes on to steer on this same fix:
