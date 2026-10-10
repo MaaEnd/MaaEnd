@@ -28,7 +28,8 @@
         },
         "next": [
             "GiftOperatorClickContact",
-            "[JumpBack]GiftOperatorGoAheadContact"
+            "GiftOperatorGoAheadContact",
+            "[Anchor]GiftOperatorNavigationFailurePhase"
         ]
     },
     "GiftOperatorShiftToRun": {

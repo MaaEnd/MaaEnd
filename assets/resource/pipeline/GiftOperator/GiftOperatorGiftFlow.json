@@ -66,57 +66,8 @@
             }
         }
     },
-    "GiftOperatorBranchReceive": {
-        "desc": "分支2：干员给你送礼，点击领取",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    900,
-                    334,
-                    350,
-                    318
-                ],
-                "expected": [
-                    "收下礼物",
-                    "收下禮物",
-                    "(?i)Accept\\s*gift",
-                    "プレゼントを受け取る",
-                    "收下"
-                ]
-            }
-        },
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                1008,
-                474,
-                84,
-                38
-            ],
-            "timeout": 3000
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "RepeatUntilFoundAction",
-                "custom_action_param": {
-                    "action": "Click",
-                    "wait_nodes": [
-                        "GiftOperatorReceiveDialog",
-                        "GiftOperatorBagFull"
-                    ]
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorReceiveDialog",
-            "GiftOperatorBagFull"
-        ]
-    },
     "GiftOperatorClickGift": {
-        "desc": "选择礼物",
+        "desc": "每次只选一件，等待收益预览稳定后重新读取选数和累计环",
         "recognition": {
             "type": "And",
             "param": {
@@ -127,10 +78,24 @@
                 "box_index": 1
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1205,
+                267,
+                49,
+                25
+            ],
+            "timeout": 2000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
+            "GiftOperatorDailyLimitToast",
             "GiftOperatorGiftSelected"
         ]
     },
@@ -178,13 +143,15 @@
         }
     },
     "GiftOperatorConfirmGift": {
-        "desc": "点击赠送按钮",
+        "desc": "只有黄色确认按钮、完整文字与正数已选礼物均确认后才提交",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "YellowButtonBackground",
-                    "GiftOperatorConfirmGiftText"
+                    "GiftOperatorConfirmGiftText",
+                    "GiftOperatorGiftSelectedLabelColor",
+                    "GiftOperatorGiftSelectedText"
                 ],
                 "box_index": 1
             }
@@ -199,7 +166,7 @@
         "next": [
             "[JumpBack]GiftOperatorConfirmDialog",
             "[JumpBack]GiftOperatorGiftDialog",
-            "GiftOperatorLeave"
+            "GiftOperatorSendLeaveAfterSubmit"
         ]
     },
     "GiftOperatorConfirmDialog": {
@@ -306,26 +273,29 @@
         }
     },
     "GiftOperatorGiftSelectedText": {
-        "desc": "选中礼物文字",
+        "desc": "选中标签内的完整礼物件数；逐标签求和由选礼识别器处理",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "GiftOperatorGiftSelectedTextColor",
+                "roi": "GiftOperatorGiftSelectedLabelColor",
                 "roi_offset": [
-                    -2,
-                    -2,
-                    4,
-                    4
+                    31,
+                    0,
+                    -31,
+                    -18
                 ],
                 "expected": [
-                    "\\d+"
+                    "^[1-9]\\d*$"
                 ],
                 "only_rec": true
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GiftOperatorGiftSelected": {
-        "desc": "确认礼物已选中",
+        "desc": "黄色选中标签出现后读取实际选数；不得只凭颜色继续连点",
         "recognition": {
             "type": "And",
             "param": {
@@ -336,8 +306,11 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GiftOperatorConfirmGift"
+            "GiftOperatorSendSelectionProgress"
         ]
     },
     "GiftOperatorGiftUILabelColor": {
@@ -431,140 +404,11 @@
             }
         },
         "next": [
-            "GiftOperatorGiftFull",
-            "GiftOperatorClickGift"
-        ]
-    },
-    "GiftOperatorGiftFull": {
-        "desc": "赠送已满",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1035,
-                    375,
-                    222,
-                    130
-                ],
-                "expected": [
-                    // @i18n-skip 请明天再来吧
-                    "明天",
-                    "tomorrow",
-                    "明日",
-                    "내일"
-                ]
-            }
-        },
-        "next": [
-            "GiftOperatorGiftFullLeave"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.GiftOperator.focus.gift_full"
-        }
-    },
-    "GiftOperatorGiftFullLeave": {
-        "desc": "赠送已满点右上角叉离开送礼界面",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseButtonType1"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 3000
-        },
-        "next": [
-            "[JumpBack]GiftOperatorGiftDialog",
-            "[JumpBack]GiftOperatorLeave",
-            "GiftOperatorGiftFullBackInWorld"
-        ]
-    },
-    "GiftOperatorGiftFullBackInWorld": {
-        "desc": "确认对话结束已返回帝江号大世界",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InDijiangWorld"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GiftOperatorGiftFullRetry",
-            "GiftOperatorGiftFullFail"
-        ]
-    },
-    "GiftOperatorGiftFullRetry": {
-        "desc": "赠送已满重试入口",
-        "max_hit": 5,
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GiftOperatorEntry"
-        ]
-    },
-    "GiftOperatorGiftFullFail": {
-        "desc": "重试五次也只能找到送满的干员，正常失败",
-        "pre_delay": 0,
-        "action": "StopTask", // 已经确定是都送满了，不是 Bug 不需要报错
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Action.Starting": "$task.GiftOperator.focus.gift_full_fail"
-        }
-    },
-    "GiftOperatorReceiveDialog": {
-        "desc": "领取成功后跳过对话，回到对话流程。",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    603,
-                    646,
-                    75,
-                    74
-                ],
-                "template": [
-                    "RealTimeTask/AutoSkipNext2.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 1000,
-            "target": [
-                831,
-                403,
-                161,
-                176
-            ],
-            "timeout": 2000
-        },
-        "next": [
-            "GiftOperatorWaitChat",
-            "[JumpBack]GiftOperatorMoveAhead",
-            "GiftOperatorSkipDialog",
-            "GiftOperatorBranchGift",
-            "GiftOperatorLeave",
-            // "GiftOperatorMoveRetry",
-            "GiftOperatorMoveFail"
+            "[Anchor]GiftOperatorGiftScreenPhase"
         ]
     },
     "GiftOperatorSkipDialog": {
-        "desc": "跳过对话，然后判断赠送 / 收礼分支。next 含自身以便未跳转时重试一次点击",
+        "desc": "送礼前跳过对话，只等待赠送礼物选项",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -604,8 +448,933 @@
         },
         "next": [
             "GiftOperatorBranchGift",
-            "GiftOperatorBranchReceive",
             "GiftOperatorSkipDialog"
         ]
+    },
+    "GiftOperatorSendMain": {
+        "desc": "送礼入口：初始化人数与成功名单，每轮只召唤一位干员",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GiftOperatorSessionAction",
+                "custom_action_param": {
+                    "operation": "init",
+                    "count": 1
+                }
+            }
+        },
+        "anchor": {
+            "GiftOperatorSelectPhase": "GiftOperatorSendListToTop",
+            "GiftOperatorWaitChatPhase": "GiftOperatorWaitChat",
+            "GiftOperatorGiftScreenPhase": "GiftOperatorSendObserveBefore",
+            "GiftOperatorGiftExitPhase": "GiftOperatorSendBackInWorld"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendRoundEntry"
+        ],
+        "attach": {
+            "target_rings": 3
+        }
+    },
+    "GiftOperatorSendSelect": {
+        "desc": "选择未成功送礼且未排除的干员；完整扫描无候选后结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendCandidate",
+            "GiftOperatorSendListComplete",
+            "[JumpBack]GiftOperatorSendSwipe"
+        ]
+    },
+    "GiftOperatorSendCloseContact": {
+        "desc": "可用送礼对象耗尽，关闭联络界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorCheckContact",
+                    "CloseButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendExhaustedBackInWorld"
+        ]
+    },
+    "GiftOperatorSendBackInWorld": {
+        "desc": "本轮结束，确认回世界后判断剩余送礼人数",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendContinue",
+            "GiftOperatorSendFinished"
+        ]
+    },
+    "GiftOperatorSendRoundEntry": {
+        "desc": "开始下一位干员，只重置列表扫描，不清空成功人数与排除名单",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorSendListComplete": {
+                            "attach": {
+                                "ready": false
+                            }
+                        },
+                        "GiftOperatorSendListTopComplete": {
+                            "attach": {
+                                "ready": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "GiftOperatorGiftScreenPhase": "GiftOperatorSendObserveBefore",
+            "GiftOperatorGiftExitPhase": "GiftOperatorSendBackInWorld",
+            "GiftOperatorSendCandidatePhase": "GiftOperatorSendSelect"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftOperatorSendListToTop": {
+        "desc": "按选项排序，并将联络列表回到顶部",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GiftOperatorContacSortOrder",
+            "[JumpBack]GiftOperatorContacSortBy",
+            "GiftOperatorSendListTopComplete",
+            "[JumpBack]GiftOperatorSendSwipeToTop"
+        ]
+    },
+    "GiftOperatorSendListTopComplete": {
+        "desc": "送礼列表已到顶部",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "roi": [
+                    546,
+                    181,
+                    550,
+                    309
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]GiftOperatorSendCandidatePhase"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "GiftOperatorSendSwipeToTop": {
+        "desc": "上滑回到送礼列表顶部",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    310,
+                    187
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "Operator Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    600,
+                    300
+                ],
+                "end": [
+                    600,
+                    400
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                546,
+                181,
+                550,
+                309
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorSendCandidate": {
+        "desc": "固定名单或通用信赖标记选择单人，记录身份后再点击",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "GiftOperatorCandidateRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GiftOperatorSessionAction",
+                "custom_action_param": {
+                    "operation": "reserve"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendClickCandidate"
+        ],
+        "attach": {
+            "operators": [
+                "GiftOperatorSelect_Perlica",
+                "GiftOperatorSelect_Yvonne",
+                "GiftOperatorSelect_Ardelia",
+                "GiftOperatorSelect_Gilberta",
+                "GiftOperatorSelect_ChenQianyu",
+                "GiftOperatorSelect_Wulfgard",
+                "GiftOperatorSelect_Antal",
+                "GiftOperatorSelect_Xaihi",
+                "GiftOperatorSelect_Lifeng",
+                "GiftOperatorSelect_Catcher",
+                "GiftOperatorSelect_Arclight",
+                "GiftOperatorSelect_Avywenna",
+                "GiftOperatorSelect_Laevatain",
+                "GiftOperatorSelect_Alesh",
+                "GiftOperatorSelect_Pogranichnik",
+                "GiftOperatorSelect_LastRite",
+                "GiftOperatorSelect_Ember",
+                "GiftOperatorSelect_Snowshine",
+                "GiftOperatorSelect_DaPan",
+                "GiftOperatorSelect_Fluorite",
+                "GiftOperatorSelect_Akekuri",
+                "GiftOperatorSelect_Estella",
+                "GiftOperatorSelect_Rossi",
+                "GiftOperatorSelect_Tangtang",
+                "GiftOperatorSelect_ZhuangFangyi",
+                "GiftOperatorSelect_MiFu",
+                "GiftOperatorSelect_Camille",
+                "GiftOperatorSelect_Arcane",
+                "GiftOperatorSelect_Liino",
+                "GiftOperatorSelect_Typhoeus",
+                "GiftOperatorSelect_Purrchena"
+            ],
+            "templates": [],
+            "generic": false
+        }
+    },
+    "GiftOperatorSendClickCandidate": {
+        "desc": "重新识别本轮同一干员头像后点击",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "GiftOperatorCandidateRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    45,
+                    39,
+                    -58,
+                    -51
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendSelectSuccess"
+        ]
+    },
+    "GiftOperatorSendListComplete": {
+        "desc": "滑动前后列表不再变化，已扫描完可用送礼对象",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "roi": [
+                    546,
+                    181,
+                    550,
+                    309
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendCloseContact"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "GiftOperatorSendSwipe": {
+        "desc": "送礼列表翻页，稳定后继续排除已成功和已满的干员",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    310,
+                    187
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "Operator Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    600,
+                    400
+                ],
+                "end": [
+                    [
+                        600,
+                        300
+                    ],
+                    [
+                        300,
+                        300
+                    ]
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                546,
+                181,
+                550,
+                309
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorSendObserveBefore": {
+        "desc": "进入送礼界面时记录真实累计环进度，不能把预览当已送礼",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "GiftOperatorGiftStatusRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GiftOperatorSessionAction",
+                "custom_action_param": {
+                    "operation": "observe_before"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendWrongRecipient",
+            "GiftOperatorSendAlreadyFull",
+            "GiftOperatorSendCanGift"
+        ]
+    },
+    "GiftOperatorSendAlreadyFull": {
+        "desc": "进入时已满信赖或达到所选累计环数，排除但不扣送礼人数",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GiftOperatorSessionAction",
+                "custom_action_param": {
+                    "operation": "reject"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendCloseGiftUI"
+        ]
+    },
+    "GiftOperatorSendCanGift": {
+        "desc": "初始累计环未达目标，开始逐件选礼并核对数量变化",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorClickGift"
+        ]
+    },
+    "GiftOperatorSendLeaveAfterSubmit": {
+        "desc": "提交礼物后识别离开选项，返回世界以重新验证同一干员",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorLeave"
+                ]
+            }
+        },
+        "pre_wait_freezes": 300,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendSubmittedBackInWorld",
+            "GiftOperatorSendPostSubmitDialog"
+        ]
+    },
+    "GiftOperatorSendPostSubmitDialog": {
+        "desc": "提交后继续对话，直到可离开并确认返回世界",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorGiftDialog"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendSubmittedBackInWorld",
+            "GiftOperatorSendLeaveAfterSubmit",
+            "GiftOperatorSendPostSubmitDialog"
+        ]
+    },
+    "GiftOperatorSendSubmittedBackInWorld": {
+        "desc": "确认提交后已回世界；切换到验证阶段，再进入同一干员送礼界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "GiftOperatorBack"
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "GiftOperatorGiftScreenPhase": "GiftOperatorSendVerify"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorWaitChat"
+        ]
+    },
+    "GiftOperatorSendVerify": {
+        "desc": "重新进入同一人界面，真实环进度达到目标且增加才扣人数；总信赖满200也可完成",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "GiftOperatorGiftStatusRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GiftOperatorSessionAction",
+                "custom_action_param": {
+                    "operation": "observe_after"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendCloseGiftUI"
+        ]
+    },
+    "GiftOperatorSendCloseGiftUI": {
+        "desc": "验证或排除后识别叉号关闭送礼界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorGiftUI",
+                    "CloseButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GiftOperatorGiftDialog",
+            "[JumpBack]GiftOperatorLeave",
+            "[Anchor]GiftOperatorGiftExitPhase"
+        ]
+    },
+    "GiftOperatorSendContinue": {
+        "desc": "剩余送礼人数大于零，继续选择新的干员",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendRoundEntry"
+        ]
+    },
+    "GiftOperatorSendFinished": {
+        "desc": "已完成送礼人数或可用对象耗尽，结束送礼阶段",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GiftOperatorSessionAction",
+                "custom_action_param": {
+                    "operation": "finish"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorSendExhaustedBackInWorld": {
+        "desc": "对象耗尽后确认回世界，结束送礼阶段",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendFinished"
+        ]
+    },
+    "GiftOperatorGiftTrust": {
+        "desc": "送礼界面右侧当前信赖百分比",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1190,
+                    229,
+                    80,
+                    42
+                ],
+                "expected": [
+                    // 信赖百分比完整文本，范围 0%–200%
+                    // @i18n-skip
+                    "^(?:\\d|[1-9]\\d|1\\d{2}|200)%$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorDailyLimitText": {
+        "desc": "右侧完整每日赠礼上限说明；仅重新进入后的变化可证明本次完成",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorDailyLimitFirstLine",
+                    "GiftOperatorDailyLimitSecondLine"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorDailyLimitToast": {
+        "desc": "游戏拒绝继续选礼，提交已有选择；成功仍须送后核验",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    450,
+                    98,
+                    390,
+                    49
+                ],
+                "expected": [
+                    "\\[今日赠礼可提升的信赖\\]已达上限，无法选择更多"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorConfirmGift"
+        ]
+    },
+    "GiftOperatorDailyLimitFirstLine": {
+        "desc": "每日上限固定说明的实际换行，合并两行验证完整原文",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1040,
+                    389,
+                    224,
+                    52
+                ],
+                "expected": [
+                    // 完整原文：[今日赠礼可提升的信赖]已达上限，请明天再来吧
+                    // 实测 OCR 将固定说明分为两行，两个节点必须同时命中。
+                    // @i18n-skip
+                    "^\\[今日赠礼可提升的信赖\\]已达上$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorDailyLimitSecondLine": {
+        "desc": "每日上限固定说明的实际换行，合并两行验证完整原文",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1040,
+                    389,
+                    224,
+                    52
+                ],
+                "expected": [
+                    // 完整原文：[今日赠礼可提升的信赖]已达上限，请明天再来吧
+                    // @i18n-skip
+                    "^限，请明天再来吧$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorSendSelectSuccess": {
+        "desc": "确认本轮只有一位干员被选中",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSelectSpecifiedOpSuccess"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "GiftOperatorSendCandidatePhase": "GiftOperatorSendRecallSelect"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendSetGenericDialoguePhase",
+            "GiftOperatorConfirmSelect"
+        ]
+    },
+    "GiftOperatorSendSetGenericDialoguePhase": {
+        "desc": "未知干员通过现场对话姓名寻找，赠礼界面再核对运行时头像",
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "GiftOperatorWaitChatPhase": "GiftOperatorSendFindDialogue"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ]
+    },
+    "GiftOperatorSendFindDialogue": {
+        "desc": "现场读取可交互干员姓名，跳过本轮误遇及已完成的对象",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "GiftOperatorDialogueRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GiftOperatorSessionAction",
+                "custom_action_param": {
+                    "operation": "identify"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorWaitChat"
+        ]
+    },
+    "GiftOperatorSendWrongRecipient": {
+        "desc": "当前头像不是召集对象，只避开这条对话，不排除待送礼候选",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GiftOperatorSessionAction",
+                "custom_action_param": {
+                    "operation": "skip_dialogue"
+                }
+            }
+        },
+        "anchor": {
+            "GiftOperatorGiftExitPhase": "GiftOperatorSendWrongBackInWorld"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendCloseGiftUI"
+        ]
+    },
+    "GiftOperatorSendWrongBackInWorld": {
+        "desc": "误遇对象离场后继续寻找本轮目标，保留临时头像与剩余人数",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "GiftOperatorGiftExitPhase": "GiftOperatorSendBackInWorld"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorFindCalledOperator"
+        ]
+    },
+    "GiftOperatorGiftName": {
+        "desc": "确认赠礼界面后读取任意干员姓名",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorGiftUI",
+                    "GiftOperatorGiftNameText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorGiftNameText": {
+        "desc": "赠礼界面右上当前干员姓名，现场读取，不使用维护名单",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1040,
+                    128,
+                    217,
+                    32
+                ],
+                "expected": [
+                    // 现场读取任意完整干员姓名，无固定原文
+                    // @i18n-skip
+                    ".+"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorSendSelectionProgress": {
+        "desc": "确认总选数已增加，读取预览环并决定继续选礼或提交",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "GiftOperatorGiftSelectionRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "GiftOperatorSessionAction",
+                "custom_action_param": {
+                    "operation": "observe_selection"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendSelectionReady",
+            "GiftOperatorSendSelectionMore"
+        ]
+    },
+    "GiftOperatorSendSelectionReady": {
+        "desc": "预览已达到所选环数或总信赖上限，确认赠送",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorConfirmGift"
+        ]
+    },
+    "GiftOperatorSendSelectionMore": {
+        "desc": "数量与预览已重新确认，累计环未达目标，选择下一件",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorClickGift"
+        ]
+    },
+    "GiftOperatorGiftTier": {
+        "desc": "今日赠礼收益档位：高为未满第一环，中为已满一环，低为已满两环",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1205,
+                    267,
+                    49,
+                    25
+                ],
+                "expected": [
+                    "高",
+                    "中",
+                    "低"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorSendRecallSelect": {
+        "desc": "传送后重新召集本轮已保留对象，复用 Pending 识别而不重新预留候选",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorSendClickCandidate",
+            "GiftOperatorSendRecallListComplete",
+            "[JumpBack]GiftOperatorSendSwipe"
+        ]
+    },
+    "GiftOperatorSendRecallListComplete": {
+        "desc": "扫描完列表仍未找到本轮待送礼对象，保留会话并报错结束",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "roi": [
+                    546,
+                    181,
+                    550,
+                    309
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GiftOperatorMoveFail"
+        ],
+        "attach": {
+            "ready": false
+        }
     }
 }

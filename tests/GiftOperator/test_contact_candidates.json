@@ -1,0 +1,40 @@
+{
+    "configs": {
+        "name": "干员联络与收礼后原地恢复",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "噗切娜信赖101：通用信赖图标与联络界面正例，大世界反例",
+            "image": "帝江号_干员联络_噗切纳信赖101.png",
+            "hits": [
+                {
+                    "node": "GiftOperatorCheckContact",
+                    "box": [
+                        177,
+                        131,
+                        84,
+                        18
+                    ]
+                },
+                "GiftOperatorTrustIcon"
+            ]
+        },
+        {
+            "name": "收礼后原地恢复：大世界正例，联络界面反例",
+            "image": "帝江号_干员联络_收礼后原地恢复.png",
+            "hits": [
+                {
+                    "node": "GiftOperatorInDijiang0",
+                    "box": [
+                        272,
+                        21,
+                        30,
+                        31
+                    ]
+                }
+            ]
+        }
+    ]
+}

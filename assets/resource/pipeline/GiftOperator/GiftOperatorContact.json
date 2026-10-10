@@ -28,13 +28,7 @@
             ]
         },
         "next": [
-            "[JumpBack]GiftOperatorContacSortOrder",
-            "[JumpBack]GiftOperatorContacSortBy",
-            "GiftOperatorSelectOp1",
-            "GiftOperatorSelectSpecifiedOp",
-            "GiftOperatorSelectGiftOp",
-            "[JumpBack]GiftOperatorSwipe", //滑动两次后会关闭
-            "GiftOperatorNoOperatorCanSelect" //落入无可选干员界面
+            "[Anchor]GiftOperatorSelectPhase"
         ]
     },
     "GiftOperatorNoOperatorCanSelect": {
@@ -96,71 +90,6 @@
                 ]
             }
         }
-    },
-    "GiftOperatorSelectGiftOp": {
-        "desc": "选择有礼物的干员",
-        "enabled": false,
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    546,
-                    181,
-                    550,
-                    309
-                ],
-                "template": [
-                    "GiftOperator/Gift.png",
-                    "GiftOperator/Gift_2.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    40,
-                    0,
-                    0,
-                    0
-                ]
-            }
-        },
-        "next": [
-            //每一个节点命中后,将GiftOperatorName覆盖为对应干员名字
-            "GiftOperatorSelect_Akekuri",
-            "GiftOperatorSelect_Alesh",
-            "GiftOperatorSelect_Antal",
-            "GiftOperatorSelect_Arcane",
-            "GiftOperatorSelect_Arclight",
-            "GiftOperatorSelect_Ardelia",
-            "GiftOperatorSelect_Avywenna",
-            "GiftOperatorSelect_Camille",
-            "GiftOperatorSelect_Catcher",
-            "GiftOperatorSelect_ChenQianyu",
-            "GiftOperatorSelect_DaPan",
-            "GiftOperatorSelect_Ember",
-            "GiftOperatorSelect_Estella",
-            "GiftOperatorSelect_Fluorite",
-            "GiftOperatorSelect_Gilberta",
-            "GiftOperatorSelect_Laevatain",
-            "GiftOperatorSelect_LastRite",
-            "GiftOperatorSelect_Lifeng",
-            "GiftOperatorSelect_Liino",
-            "GiftOperatorSelect_MiFu",
-            "GiftOperatorSelect_Perlica",
-            "GiftOperatorSelect_Pogranichnik",
-            "GiftOperatorSelect_Purrchena",
-            "GiftOperatorSelect_Rossi",
-            "GiftOperatorSelect_Snowshine",
-            "GiftOperatorSelect_Tangtang",
-            "GiftOperatorSelect_Typhoeus",
-            "GiftOperatorSelect_Wulfgard",
-            "GiftOperatorSelect_Xaihi",
-            "GiftOperatorSelect_Yvonne",
-            "GiftOperatorSelect_ZhuangFangyi"
-        ]
     },
     "GiftOperatorSelectSpecifiedOp": {
         "desc": "选择指定干员",
@@ -461,6 +390,9 @@
         "next": [
             "GiftOperatorCheckContact",
             "[JumpBack]GiftOperatorClickContact_reply"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
         ]
     },
     "GiftOperatorClickContact_reply": {
@@ -505,10 +437,7 @@
             "param": {}
         },
         "next": [
-            "GiftOperatorWaitChat",
-            "[JumpBack]GiftOperatorMoveAhead",
-            // "GiftOperatorMoveRetry",
-            "GiftOperatorMoveFail"
+            "GiftOperatorFindCalledOperator"
         ]
     },
     "GiftOperatorTrustIcon": {
@@ -716,9 +645,10 @@
             "timeout": 3000
         },
         "next": [
+            "GiftOperatorBranchGift",
             "GiftOperatorSkipDialog",
             "[JumpBack]GiftOperatorBack",
-            "GiftOperatorWaitChat" //防止干员突然走过来导致选项位置变化点击丢失
+            "GiftOperatorWaitChat"
         ]
     },
     "GiftOperatorBack": {
@@ -730,5 +660,16 @@
                 "key": 83
             }
         }
+    },
+    "GiftOperatorFindCalledOperator": {
+        "desc": "每次站位修正后重新找本轮干员，失败按本轮寻路起点分派",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]GiftOperatorWaitChatPhase",
+            "GiftOperatorMoveAhead",
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ]
     }
 }

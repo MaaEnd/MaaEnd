@@ -35,6 +35,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/deliveryjobs"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/giftoperator"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/intelarchive"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
@@ -94,6 +95,7 @@ func registerAll() {
 	puzzle.Register()
 	bettersliding.Register()
 	essencefilter.Register()
+	giftoperator.Register()
 	autoessence.Register()
 	dijiangrewards.Register()
 	batchaddfriends.Register()

@@ -1,0 +1,141 @@
+{
+    "configs": {
+        "name": "赠送干员礼物：选中标签内的完整数量",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "预选74件：低档与所选数量，每日上限反例",
+            "image": "帝江号_赠送礼物_预选74件_低.png",
+            "hits": [
+                {
+                    "node": "GiftOperatorGiftSelectedLabelColor",
+                    "box": [
+                        132,
+                        522,
+                        68,
+                        38
+                    ]
+                },
+                {
+                    "node": "GiftOperatorGiftSelectedText",
+                    "box": [
+                        163,
+                        522,
+                        37,
+                        20
+                    ]
+                },
+                {
+                    "node": "GiftOperatorClickGift",
+                    "box": [
+                        160,
+                        599,
+                        40,
+                        18
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "预选29件：中档与所选数量，每日上限反例",
+            "image": "帝江号_赠送礼物_预选29件_中.png",
+            "hits": [
+                {
+                    "node": "GiftOperatorGiftSelectedLabelColor",
+                    "box": [
+                        132,
+                        522,
+                        68,
+                        38
+                    ]
+                },
+                {
+                    "node": "GiftOperatorGiftSelectedText",
+                    "box": [
+                        163,
+                        522,
+                        37,
+                        20
+                    ]
+                },
+                {
+                    "node": "GiftOperatorClickGift",
+                    "box": [
+                        160,
+                        599,
+                        40,
+                        18
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "预选28件：高档与所选数量，每日上限反例",
+            "image": "帝江号_赠送礼物_预选28件_高.png",
+            "hits": [
+                {
+                    "node": "GiftOperatorGiftSelectedLabelColor",
+                    "box": [
+                        132,
+                        522,
+                        68,
+                        38
+                    ]
+                },
+                {
+                    "node": "GiftOperatorGiftSelectedText",
+                    "box": [
+                        163,
+                        522,
+                        37,
+                        20
+                    ]
+                },
+                {
+                    "node": "GiftOperatorClickGift",
+                    "box": [
+                        160,
+                        599,
+                        40,
+                        18
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "预选59件：低档与所选数量，每日上限反例",
+            "image": "帝江号_赠送礼物_预选59件_低.png",
+            "hits": [
+                {
+                    "node": "GiftOperatorGiftSelectedLabelColor",
+                    "box": [
+                        132,
+                        522,
+                        68,
+                        38
+                    ]
+                },
+                {
+                    "node": "GiftOperatorGiftSelectedText",
+                    "box": [
+                        163,
+                        522,
+                        37,
+                        20
+                    ]
+                },
+                {
+                    "node": "GiftOperatorClickGift",
+                    "box": [
+                        160,
+                        599,
+                        40,
+                        18
+                    ]
+                }
+            ]
+        }
+    ]
+}

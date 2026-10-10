@@ -21,13 +21,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            //"GiftOperatorMoveResetBackward",
             "GiftOperatorTurnEast",
-            //"GiftOperatorMoveLocation3Move",
             "GiftOperatorTurnNorthwest",
             "GiftOperatorTurnNorthByWest",
             "GiftOperatorTurnWest",
-            "GiftOperatorTurnSoutheast"
+            "GiftOperatorTurnSoutheast",
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
         ]
     },
     "GiftOperatorMoveResetBackward": {
@@ -59,14 +61,27 @@
         "rate_limit": 0
     },
     "GiftOperatorMoveRetry": {
-        "desc": "寻路失败重试",
-        "max_hit": 5,
+        "desc": "本轮未从传送点出发时，传送舰桥后重走一次完整路线",
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldDijiang0",
+                "GiftOperatorClearHitCount",
+                "GiftOperatorResetContactScan"
+            ]
+        },
+        "anchor": {
+            "GiftOperatorNavigationFailurePhase": "GiftOperatorMoveFail"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorEntry"
+            "GiftOperatorInDijiang0"
+        ],
+        "on_error": [
+            "GiftOperatorMoveFail"
         ],
         "focus": {
             "Node.Action.Starting": "$task.GiftOperator.focus.move_retry"
@@ -104,6 +119,12 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "GiftOperatorFindCalledOperator"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -175,6 +196,12 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "GiftOperatorFindCalledOperator"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -205,6 +232,12 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "GiftOperatorFindCalledOperator"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -276,6 +309,12 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "GiftOperatorFindCalledOperator"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -306,6 +345,12 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "GiftOperatorFindCalledOperator"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -386,8 +431,11 @@
         },
         // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [
-            "GiftOperatorClickContact"
-            //"[JumpBack]GiftOperatorGoAheadContact"
+            "GiftOperatorClickContact",
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
         ],
         // "on_error": [
         //     "GiftOperatorMoveBackward"
@@ -414,8 +462,7 @@
             "GiftOperatorClickContact"
         ],
         "on_error": [
-            "GiftOperatorMoveRetry",
-            "GiftOperatorMoveFail"
+            "[Anchor]GiftOperatorNavigationFailurePhase"
         ]
     },
     "GiftOperatorGoAheadContact": {
@@ -439,6 +486,14 @@
                 }
             }
         },
+        "next": [
+            "GiftOperatorClickContact",
+            "GiftOperatorGoAheadContact",
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -473,8 +528,7 @@
             "GiftOperatorMoveSC"
         ],
         "on_error": [
-            "GiftOperatorMoveRetry",
-            "GiftOperatorMoveFail"
+            "[Anchor]GiftOperatorNavigationFailurePhase"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -508,7 +562,11 @@
         },
         // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [
-            "GiftOperatorClickContact"
+            "GiftOperatorClickContact",
+            "[Anchor]GiftOperatorNavigationFailurePhase"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
         ],
         // "on_error": [
         //     "GiftOperatorMoveBackward"
@@ -533,6 +591,9 @@
         "post_delay": 500,
         "next": [
             "GiftOperatorMove"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
         ]
     },
     "GiftOperatorShiftToRunSC": {
@@ -546,6 +607,9 @@
         "post_delay": 500,
         "next": [
             "GiftOperatorMoveSCAway"
+        ],
+        "on_error": [
+            "[Anchor]GiftOperatorNavigationFailurePhase"
         ]
     }
 }

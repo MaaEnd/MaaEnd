@@ -58,6 +58,7 @@
 				"FailureCollectorReset",
                 "FalseAction",
                 "FocusOCRAction",
+                "GiftOperatorSessionAction",
                 "ImageCheckSetResultAction",
                 "ImportBluePrintsEnterCodeAction",
                 "ImportBluePrintsFinishAction",
@@ -96,6 +97,44 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "custom_action": { "const": "GiftOperatorSessionAction" }
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "operation": {
+                                "enum": [
+                                    "init",
+                                    "reserve",
+                                    "identify",
+                                    "skip_dialogue",
+                                    "observe_before",
+                                    "observe_after",
+                                    "observe_selection",
+                                    "reject",
+                                    "finish"
+                                ]
+                            },
+                            "count": { "type": "integer", "minimum": 1 }
+                        },
+                        "required": ["operation"],
+                        "additionalProperties": false,
+                        "if": {
+                            "properties": { "operation": { "const": "init" } }
+                        },
+                        "else": { "not": { "required": ["count"] } }
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
         {
             "if": {
                 "properties": {

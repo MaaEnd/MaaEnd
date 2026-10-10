@@ -1,0 +1,153 @@
+{
+    "configs": {
+        "name": "赠送干员礼物：档位、所选数量、信赖与今日上限",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "101% 信赖与今日上限，选择提示反例",
+            "image": "帝江号_赠送礼物_今日信赖上限.png",
+            "hits": [
+                "GiftOperatorGiftUI",
+                "GiftOperatorSendCloseGiftUI",
+                "GiftOperatorGiftTrust",
+                "GiftOperatorDailyLimitText",
+                "GiftOperatorGiftName"
+            ]
+        },
+        {
+            "name": "101% 信赖与今日上限，选择提示正例",
+            "image": "帝江号_赠送礼物_今日信赖上限_选择提示.png",
+            "hits": [
+                "GiftOperatorGiftUI",
+                "GiftOperatorSendCloseGiftUI",
+                "GiftOperatorGiftTrust",
+                "GiftOperatorDailyLimitText",
+                "GiftOperatorDailyLimitToast",
+                "GiftOperatorGiftName"
+            ]
+        },
+        {
+            "name": "联络列表反例：赠礼界面姓名、信赖与每日上限均不应命中",
+            "image": "帝江号_干员联络_噗切纳信赖101.png",
+            "hits": []
+        },
+        {
+            "name": "预选74件：低档与所选数量，每日上限反例",
+            "image": "帝江号_赠送礼物_预选74件_低.png",
+            "hits": [
+                "GiftOperatorGiftUI",
+                "GiftOperatorSendCloseGiftUI",
+                "GiftOperatorGiftTrust",
+                "GiftOperatorGiftName",
+                {
+                    "node": "GiftOperatorGiftTier",
+                    "box": [
+                        1205,
+                        267,
+                        49,
+                        25
+                    ]
+                },
+                {
+                    "node": "GiftOperatorGiftSelectedLabelColor",
+                    "box": [
+                        132,
+                        522,
+                        68,
+                        38
+                    ]
+                },
+                "GiftOperatorConfirmGift"
+            ]
+        },
+        {
+            "name": "预选29件：中档与所选数量，每日上限反例",
+            "image": "帝江号_赠送礼物_预选29件_中.png",
+            "hits": [
+                "GiftOperatorGiftUI",
+                "GiftOperatorSendCloseGiftUI",
+                "GiftOperatorGiftTrust",
+                "GiftOperatorGiftName",
+                {
+                    "node": "GiftOperatorGiftTier",
+                    "box": [
+                        1205,
+                        267,
+                        49,
+                        25
+                    ]
+                },
+                {
+                    "node": "GiftOperatorGiftSelectedLabelColor",
+                    "box": [
+                        132,
+                        522,
+                        68,
+                        38
+                    ]
+                },
+                "GiftOperatorConfirmGift"
+            ]
+        },
+        {
+            "name": "预选28件：高档与所选数量，每日上限反例",
+            "image": "帝江号_赠送礼物_预选28件_高.png",
+            "hits": [
+                "GiftOperatorGiftUI",
+                "GiftOperatorSendCloseGiftUI",
+                "GiftOperatorGiftTrust",
+                "GiftOperatorGiftName",
+                {
+                    "node": "GiftOperatorGiftTier",
+                    "box": [
+                        1205,
+                        267,
+                        49,
+                        25
+                    ]
+                },
+                {
+                    "node": "GiftOperatorGiftSelectedLabelColor",
+                    "box": [
+                        132,
+                        522,
+                        68,
+                        38
+                    ]
+                },
+                "GiftOperatorConfirmGift"
+            ]
+        },
+        {
+            "name": "预选59件：低档与所选数量，每日上限反例",
+            "image": "帝江号_赠送礼物_预选59件_低.png",
+            "hits": [
+                "GiftOperatorGiftUI",
+                "GiftOperatorSendCloseGiftUI",
+                "GiftOperatorGiftTrust",
+                "GiftOperatorGiftName",
+                {
+                    "node": "GiftOperatorGiftTier",
+                    "box": [
+                        1205,
+                        267,
+                        49,
+                        25
+                    ]
+                },
+                {
+                    "node": "GiftOperatorGiftSelectedLabelColor",
+                    "box": [
+                        132,
+                        522,
+                        68,
+                        38
+                    ]
+                },
+                "GiftOperatorConfirmGift"
+            ]
+        }
+    ]
+}
