@@ -4,7 +4,7 @@
 // 例： node tools/pipeline-generate/run-all.mjs OutpostTrading
 
 import {spawnSync} from "node:child_process";
-import {existsSync, readdirSync, readFileSync, rmSync, statSync} from "node:fs";
+import {existsSync, lstatSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync} from "node:fs";
 import {basename, dirname, isAbsolute, relative, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 
@@ -76,10 +76,11 @@ for (const config of configs) {
     const configDir = dirname(config);
     const configName = basename(config);
     const configLabel = `${subdir}/${relative(targetDir, config).replaceAll("\\", "/")}`;
+    let output;
 
     console.log(`\n[run-all] ${configLabel}`);
     // task / merged 模式默认都是「读旧文件 + 合并」，老 key 不会自动清理。
-    // 生成前先把目标文件删掉，确保产物只反映当前数据源。
+    // 生成前先保存原文件再删除，确保成功产物只反映当前数据源；失败时恢复。
     // 仅删 outputFile 指向的单文件，避免把整个 outputDir 里其他人维护的文件误清。
     try {
         const cfg = JSON.parse(readFileSync(config, "utf8"));
@@ -90,7 +91,12 @@ for (const config of configs) {
                 console.error(`[run-all] outputFile escapes repo root: ${outFile} (config: ${configLabel})`);
                 process.exit(1);
             }
-            if (existsSync(outFile)) {
+            const outStat = lstatSync(outFile, {throwIfNoEntry: false});
+            if (outStat && !outStat.isFile()) {
+                throw new Error(`outputFile is not a regular file: ${outFile}`);
+            }
+            output = {path: outFile, original: outStat ? readFileSync(outFile) : null};
+            if (outStat) {
                 rmSync(outFile);
                 console.log(`[run-all] removed stale ${outFile}`);
             }
@@ -100,12 +106,39 @@ for (const config of configs) {
         process.exit(1);
     }
 
-    const result = spawnSync(process.execPath, [bin, "--config", configName], {
-        cwd: configDir,
-        stdio: "inherit",
-    });
-    if (result.status !== 0) {
-        console.error(`[run-all] failed on ${configLabel} (exit ${result.status})`);
-        process.exit(result.status ?? 1);
+    let result;
+    try {
+        result = spawnSync(
+            process.execPath,
+            [
+                bin,
+                "--config",
+                configName,
+            ],
+            {
+                cwd: configDir,
+                stdio: "inherit",
+            },
+        );
+    } catch (error) {
+        result = {error};
+    }
+    if (result.error || result.signal || result.status !== 0) {
+        const reason = result.error?.message || (result.signal ? `signal ${result.signal}` : `exit ${result.status}`);
+        console.error(`[run-all] failed on ${configLabel} (${reason})`);
+        if (output) {
+            try {
+                if (output.original === null) {
+                    rmSync(output.path, {force: true});
+                } else {
+                    writeFileSync(output.path, output.original);
+                }
+                console.log(`[run-all] restored previous output state: ${output.path}`);
+            } catch (error) {
+                console.error(`[run-all] failed to restore ${output.path}: ${error.message}`);
+                process.exit(1);
+            }
+        }
+        process.exit(result.status || 1);
     }
 }
