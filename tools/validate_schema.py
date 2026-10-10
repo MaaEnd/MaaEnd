@@ -39,18 +39,23 @@ def strip_jsonc_comments(text):
                 i += 1
             elif i + 1 < len(text) and text[i : i + 2] == "//":
                 # 单行注释，跳到行尾
-                while i < len(text) and text[i] != "\n":
-                    i += 1
-                if i < len(text):
-                    result.append("\n")  # 保留换行
+                result.append(" ")
+                i += 2
+                while i < len(text) and text[i] not in "\r\n":
                     i += 1
             elif i + 1 < len(text) and text[i : i + 2] == "/*":
                 # 多行注释，跳到 */
+                comment_start = i
+                result.append(" ")  # 注释是空白，不能拼接两侧的 JSON token
                 i += 2
                 while i + 1 < len(text) and text[i : i + 2] != "*/":
-                    if text[i] == "\n":
-                        result.append("\n")  # 保留换行以维持行号
+                    if text[i] in "\r\n":
+                        result.append(text[i])  # 保留换行以维持行号
                     i += 1
+                if i + 1 >= len(text):
+                    raise json.JSONDecodeError(
+                        "Unterminated block comment", text, comment_start
+                    )
                 i += 2  # 跳过 */
             else:
                 result.append(char)
