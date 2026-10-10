@@ -423,6 +423,17 @@ struct ZiplineApproachState
     }
 };
 
+// 到点认过一次没认出提示的交互点。周围别的可交互物占着焦点时原地再认还是同一个答案, 所以收紧判定圈接着往点上走。
+// 身份同样记 canonical 下标
+struct InteractApproachState
+{
+    std::optional<size_t> prompt_missed_node;
+
+    bool PromptMissedAt(const std::optional<size_t>& node) const { return node.has_value() && prompt_missed_node == node; }
+
+    void Reset() { prompt_missed_node.reset(); }
+};
+
 // 退索恢复必须重新取得位置所有权。滑行中的快速位移和小地图遮挡可能让最后一帧落在远处的相似
 // 纹理上；ResetTracking 之后用贴近 navmesh 的连续新定位重新确认，再允许状态机规划接回剩余路线。
 struct ZiplineRecoveryState
@@ -472,6 +483,7 @@ struct NavigationRuntimeState
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
     // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
     ZiplineApproachState zipline_approach;
+    InteractApproachState interact_approach;
     ZiplineRecoveryState zipline_recovery;
     // 正在滑的这一跳和这趟导航每一跳的账本。账本跨越丢链和重规划, 只由 BeginNavigation 清
     ZiplineRideMachine zipline_ride;
@@ -518,6 +530,7 @@ struct NavigationRuntimeState
         dwell.Reset();
         cross_tier_escape.Reset();
         zipline_approach.Reset();
+        interact_approach.Reset();
         zipline_recovery.Reset();
         find.Reset();
         trigger.Reset();

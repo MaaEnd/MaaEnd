@@ -768,25 +768,32 @@ Result ArriveDig(const Context& ctx, const Waypoint& waypoint, const std::option
 
 Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance)
 {
-    // 到点兜底: 跑一次行进中那套权威识别, 没认出提示就纠正到点上再认一次; 还认不出时 rec 判失败,
+    // 到点兜底: 跑一次行进中那套权威识别, 没认出提示就交回导航走到点上再认一次; 还认不出时 rec 判失败,
     // 否则当这里没东西可交互, 照样推进
     if (waypoint.IsAsyncInteract() && ctx.maa_context != nullptr) {
         StopMotionAndCommitment(ctx);
         LogInfo << "Action: INTERACT reached, running the authoritative recognition." << VAR(actual_distance)
                 << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan) << VAR(waypoint.interact_rec);
-        bool recognized = RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
-        if (!recognized && waypoint.HasPosition() && waypoint.Traits().settles_at_arrival) {
-            LogInfo << "Action: INTERACT prompt missed, settling onto the point before recognizing again." << VAR(actual_distance);
-            SettleAtStrictGoal(ctx, waypoint);
-            ctx.runtime_state->steering_rate.Reset();
-            recognized = RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+        const bool recognized = RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+        InteractApproachState& approach = ctx.runtime_state->interact_approach;
+        if (!recognized && waypoint.HasPosition() && node_idx && !approach.PromptMissedAt(node_idx)
+            && actual_distance > kStrictSettleAcceptBandWu) {
+            approach.prompt_missed_node = node_idx;
+            // 起步按已确认算: 否则要先挪够起步距离才放行到点判定, 走路模式也开不了, 剩下这一两个单位就是小跑冲过去的
+            ctx.runtime_state->route.Reset();
+            ctx.runtime_state->route.startup_anchor_pos = *ctx.position;
+            ctx.runtime_state->route.startup_anchor_initialized = true;
+            ctx.runtime_state->route.startup_motion_confirmed = true;
+            ctx.session->ResetHardProgress();
+            LogInfo << "Action: INTERACT prompt missed, walking on onto the point." << VAR(actual_distance) << VAR(*node_idx);
+            return { .consumed = true };
         }
         ctx.runtime_state->route.Reset();
         if (!recognized && waypoint.interact_rec) {
             LogWarn << "Action: INTERACT prompt still missing in rec mode." << VAR(actual_distance) << VAR(waypoint.interact_text_node);
             return { .request_failure = true,
                      .failure_reason = "interact_prompt_missing",
-                     .failure_log_message = "Interact prompt not recognized after settling onto the point." };
+                     .failure_log_message = "Interact prompt not recognized on the point." };
         }
         return CompleteArrival(ctx, waypoint, node_idx, "async_interact_completed");
     }

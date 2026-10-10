@@ -1660,6 +1660,11 @@ bool NavigationStateMachine::TickNavigate()
             arrival_distance = std::min(arrival_distance, kZiplineRestandBandWu);
         }
     }
+    // 交互点到点认空过一次: 收紧到站上点才再认, 走过去照常边走边转。真收不拢同样放回去, 别多出一种卡死
+    if (waypoint.IsAsyncInteract() && runtime_state_.interact_approach.PromptMissedAt(session_->CurrentAbsoluteNodeIndex())
+        && session_->HardStalledMs(now) <= kCollectArrivalRelaxMs) {
+        arrival_distance = std::min(arrival_distance, kStrictSettleAcceptBandWu);
+    }
     // 台沿下落的落点: 进圈时人可能还在台上, 沿下落方向越过它才算到
     bool short_of_drop = false;
     if (waypoint.drop_from) {
