@@ -2,9 +2,13 @@ package closegame
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"os"
+	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	gamesetting "github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
@@ -135,16 +139,75 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	killedAny := false
-	for _, p := range procs {
-		name, err := p.Name()
-		if err != nil || !strings.EqualFold(name, "Endfield.exe") {
-			continue
-		}
+	if runtime.GOOS == "linux" {
+		selfPID := int32(os.Getpid())
 
-		killedAny = true
-		if err := p.Kill(); err != nil {
-			log.Error().Err(err).Msg("CloseGameAction failed to kill Endfield.exe")
-			return false
+		for _, p := range procs {
+			name, err := p.Name()
+			if err != nil || !strings.EqualFold(name, "Endfield.exe") {
+				continue
+			}
+
+			root := p
+			cur := p
+			for {
+				parent, err := cur.Parent()
+				if err != nil || parent == nil {
+					break
+				}
+				parentName, err := parent.Name()
+				if err != nil {
+					break
+				}
+				if strings.EqualFold(parentName, "gamescope") {
+					root = parent
+					selfProc, err := process.NewProcess(selfPID)
+					for err == nil && selfProc != nil {
+						if selfProc.Pid == parent.Pid {
+							root = cur
+							log.Info().Msg("CloseGameAction: gamescope is the session compositor, killing its child tree instead")
+							break
+						}
+						if selfProc.Pid <= 1 {
+							break
+						}
+						selfProc, err = selfProc.Parent()
+					}
+					break
+				}
+				cur = parent
+			}
+
+			queue := []*process.Process{root}
+			for len(queue) > 0 {
+				cur := queue[0]
+				queue = queue[1:]
+				if children, err := cur.Children(); err == nil {
+					queue = append(queue, children...)
+				}
+				if cur.Pid != selfPID {
+					if err := cur.Kill(); err != nil && !errors.Is(err, syscall.ESRCH) {
+						log.Error().Err(err).Msg("CloseGameAction failed to kill gamescope process tree")
+						return false
+					}
+				}
+			}
+
+			killedAny = true
+			break
+		}
+	} else {
+		for _, p := range procs {
+			name, err := p.Name()
+			if err != nil || !strings.EqualFold(name, "Endfield.exe") {
+				continue
+			}
+
+			killedAny = true
+			if err := p.Kill(); err != nil {
+				log.Error().Err(err).Msg("CloseGameAction failed to kill Endfield.exe")
+				return false
+			}
 		}
 	}
 
