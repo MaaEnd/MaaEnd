@@ -6,7 +6,7 @@
 //   --force  忽略本地版本缓存，强制重新下载
 //   --cache-bust  等价于 --force，并在下载数据文件时追加时间戳参数，绕过远端缓存
 
-import {mkdirSync, readFileSync, writeFileSync} from "node:fs";
+import {mkdirSync, readFileSync, rmSync, writeFileSync} from "node:fs";
 import {resolve} from "node:path";
 import {dataDir} from "./utils/paths.mjs";
 
@@ -37,14 +37,75 @@ function readCachedVersion() {
 }
 
 function isDataCached() {
+    if (!readCachedVersion()) {
+        return false;
+    }
     return DATA_FILES.every((file) => {
         try {
-            readFileSync(resolve(dataDir, file), "utf8");
+            JSON.parse(readFileSync(resolve(dataDir, file), "utf8"));
             return true;
         } catch {
             return false;
         }
     });
+}
+
+class CacheUpdateError extends Error {}
+
+function writeCache(downloads, version) {
+    let entries;
+    try {
+        mkdirSync(dataDir, {recursive: true});
+        entries = [
+            ...downloads,
+            [
+                VERSION_FILE,
+                version,
+            ],
+        ].map(
+            ([
+                file,
+                content,
+            ]) => {
+                const path = resolve(dataDir, file);
+                let previous;
+                try {
+                    previous = readFileSync(path);
+                } catch (error) {
+                    if (error.code !== "ENOENT") {
+                        throw error;
+                    }
+                }
+                return {path, content, previous};
+            },
+        );
+    } catch (error) {
+        throw new CacheUpdateError(`缓存更新准备失败: ${error.message}`);
+    }
+
+    const touched = [];
+    try {
+        for (const entry of entries) {
+            // 写入可能在截断文件后失败，必须先登记才能恢复该文件。
+            touched.push(entry);
+            writeFileSync(entry.path, entry.content, "utf8");
+        }
+    } catch (error) {
+        const restoreErrors = [];
+        for (const entry of touched.reverse()) {
+            try {
+                if (entry.previous === undefined) {
+                    rmSync(entry.path, {force: true});
+                } else {
+                    writeFileSync(entry.path, entry.previous);
+                }
+            } catch (restoreError) {
+                restoreErrors.push(`${entry.path}: ${restoreError.message}`);
+            }
+        }
+        const restoration = restoreErrors.length ? `缓存恢复失败: ${restoreErrors.join("; ")}` : "已恢复更新前的缓存";
+        throw new CacheUpdateError(`缓存写入失败: ${error.message}；${restoration}`);
+    }
 }
 
 async function fetchLatestVersion() {
@@ -61,7 +122,7 @@ async function fetchLatestVersion() {
 }
 
 async function fetchAndCache(version) {
-    mkdirSync(dataDir, {recursive: true});
+    const downloads = [];
 
     for (const file of DATA_FILES) {
         const url = new URL(`${DATA_BASE_URL}/${file}`);
@@ -80,11 +141,21 @@ async function fetchAndCache(version) {
             typeof value === "number" ? JSON.rawJSON(context.source) : value,
         );
         const formattedData = `${JSON.stringify(data, null, 4)}\n`;
-        writeFileSync(resolve(dataDir, file), formattedData, "utf8");
-        console.log(`[fetch-data] 已缓存 ${file} (${(Buffer.byteLength(formattedData) / 1024).toFixed(0)} KB)`);
+        downloads.push([
+            file,
+            formattedData,
+        ]);
     }
 
-    writeFileSync(resolve(dataDir, VERSION_FILE), version, "utf8");
+    // 六份数据全部下载并解析后才更新缓存，版本文件最后写入。
+    // 回滚处理普通写入失败，不保证进程中断或并发更新时的整体原子性。
+    writeCache(downloads, version);
+    for (const [
+        file,
+        content,
+    ] of downloads) {
+        console.log(`[fetch-data] 已缓存 ${file} (${(Buffer.byteLength(content) / 1024).toFixed(0)} KB)`);
+    }
 }
 
 async function main() {
@@ -119,6 +190,9 @@ async function main() {
 
 main().catch((error) => {
     console.error(`[fetch-data] ${error.message}`);
+    if (error instanceof CacheUpdateError) {
+        process.exit(1);
+    }
     if (!isDataCached()) {
         console.error("[fetch-data] 无可用本地缓存，请检查网络连接后重试。");
         process.exit(1);
