@@ -9,6 +9,8 @@ on:
       - "assets/**"
       - "!assets/resource/model"
       - "tools/schema/**"
+      - "tools/validate_schema.py"
+      - "tools/test_validate_schema.py"
       - "package.json"
       - "maatools.config.mts"
       - "pyproject.toml"
@@ -22,6 +24,8 @@ on:
       - "assets/**"
       - "!assets/resource/model"
       - "tools/schema/**"
+      - "tools/validate_schema.py"
+      - "tools/test_validate_schema.py"
       - "package.json"
       - "maatools.config.mts"
       - "pyproject.toml"
@@ -56,6 +60,9 @@ jobs:
         run: |
           pnpm i
           pnpm run check
+
+      - name: Test JSON Schema validator
+        run: uv run --frozen --only-group schema python -m unittest discover -s tools -p test_validate_schema.py -v
 
       - name: Validate JSON Schema
         run: uv run --frozen --only-group schema tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks
