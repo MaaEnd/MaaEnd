@@ -6,7 +6,37 @@ from pathlib import Path
 
 import json5
 
+if __package__:
+    from .setup.path_utils import is_directory_link
+else:
+    from setup.path_utils import is_directory_link
+
+
+def validate_pipeline_paths(resource_dir: Path) -> None:
+    """拒绝链接路径，避免合并和清理发布资源时修改开发目录。"""
+    # 仅补全绝对路径，不 resolve；否则会丢失原路径中的链接信息。
+    pipeline_dir = resource_dir.absolute() / "pipeline"
+    for path in (pipeline_dir, *pipeline_dir.parents):
+        if is_directory_link(path):
+            raise RuntimeError(f"拒绝合并链接路径: {path}，请先使用 --ci 复制资源")
+
+    def check_children(dir_path: Path) -> None:
+        for item in sorted(dir_path.iterdir()):
+            # 在 is_dir/exists 之前检查，也拒绝文件链接和失效链接。
+            if is_directory_link(item):
+                raise RuntimeError(f"拒绝合并链接路径: {item}，请先使用 --ci 复制资源")
+            if item.is_dir():
+                check_children(item)
+
+    if pipeline_dir.is_dir():
+        try:
+            check_children(pipeline_dir)
+        except OSError as error:
+            raise RuntimeError(f"检查 {pipeline_dir} 时出错: {error}") from error
+
+
 def merge_pipeline(resource_dir: Path) -> None:
+    validate_pipeline_paths(resource_dir)
     pipeline_dir = resource_dir / "pipeline"
     if not pipeline_dir.is_dir():
         print(f"  跳过: {pipeline_dir} 不存在", flush=True)
@@ -70,6 +100,9 @@ def main():
         sys.exit(1)
 
     try:
+        # 先检查全部资源，避免处理后续链接资源前已经修改了正常资源。
+        for resource_path in resource_dirs:
+            validate_pipeline_paths(resource_path)
         for resource_path in resource_dirs:
             print(f"\n处理: {resource_path}", flush=True)
             print("=" * 50, flush=True)
