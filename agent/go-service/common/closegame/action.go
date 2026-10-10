@@ -161,6 +161,18 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 				if strings.EqualFold(parentName, "gamescope") {
 					root = parent
+					selfProc, err := process.NewProcess(selfPID)
+					for err == nil && selfProc != nil {
+						if selfProc.Pid == parent.Pid {
+							root = cur
+							log.Info().Msg("CloseGameAction: gamescope is the session compositor, killing its child tree instead")
+							break
+						}
+						if selfProc.Pid <= 1 {
+							break
+						}
+						selfProc, err = selfProc.Parent()
+					}
 					break
 				}
 				cur = parent
