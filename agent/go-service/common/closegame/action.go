@@ -220,11 +220,6 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Info().Msg("CloseGameAction: Endfield.exe not running")
 	}
 
-	if runtime.GOOS != "windows" {
-		log.Info().Str("goos", runtime.GOOS).Msg("CloseGameAction: skip game settings (windows only)")
-		return true
-	}
-
 	if !params.ApplyGameSetting {
 		log.Info().Msg("CloseGameAction: skip game settings")
 		return true
