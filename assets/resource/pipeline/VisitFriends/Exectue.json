@@ -806,7 +806,7 @@
         ]
     },
     "VisitFriendsBtwSellValleyIVSwitch": {
-        "desc": "顺便出售：切换到四号谷地（BtwAutoStockpileSellableArea 勾选后开启）",
+        "desc": "顺便出售：切换到四号谷地",
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
@@ -866,7 +866,7 @@
         ]
     },
     "VisitFriendsBtwSellWulingSwitch": {
-        "desc": "顺便出售：切换到武陵（BtwAutoStockpileSellableArea 勾选后开启）",
+        "desc": "顺便出售：切换到武陵",
         "enabled": false,
         "recognition": "TemplateMatch",
         "roi": [
