@@ -2,9 +2,13 @@ package closegame
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"os"
+	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	gamesetting "github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
@@ -135,16 +139,63 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	killedAny := false
-	for _, p := range procs {
-		name, err := p.Name()
-		if err != nil || !strings.EqualFold(name, "Endfield.exe") {
-			continue
-		}
+	if runtime.GOOS == "linux" {
+		selfPID := int32(os.Getpid())
 
-		killedAny = true
-		if err := p.Kill(); err != nil {
-			log.Error().Err(err).Msg("CloseGameAction failed to kill Endfield.exe")
-			return false
+		for _, p := range procs {
+			name, err := p.Name()
+			if err != nil || !strings.EqualFold(name, "Endfield.exe") {
+				continue
+			}
+
+			root := p
+			cur := p
+			for {
+				parent, err := cur.Parent()
+				if err != nil || parent == nil {
+					break
+				}
+				parentName, err := parent.Name()
+				if err != nil {
+					break
+				}
+				if strings.EqualFold(parentName, "gamescope") {
+					root = parent
+					break
+				}
+				cur = parent
+			}
+
+			queue := []*process.Process{root}
+			for len(queue) > 0 {
+				cur := queue[0]
+				queue = queue[1:]
+				if children, err := cur.Children(); err == nil {
+					queue = append(queue, children...)
+				}
+				if cur.Pid != selfPID {
+					if err := cur.Kill(); err != nil && !errors.Is(err, syscall.ESRCH) {
+						log.Error().Err(err).Msg("CloseGameAction failed to kill gamescope process tree")
+						return false
+					}
+				}
+			}
+
+			killedAny = true
+			break
+		}
+	} else {
+		for _, p := range procs {
+			name, err := p.Name()
+			if err != nil || !strings.EqualFold(name, "Endfield.exe") {
+				continue
+			}
+
+			killedAny = true
+			if err := p.Kill(); err != nil {
+				log.Error().Err(err).Msg("CloseGameAction failed to kill Endfield.exe")
+				return false
+			}
 		}
 	}
 
@@ -155,6 +206,11 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 	} else {
 		log.Info().Msg("CloseGameAction: Endfield.exe not running")
+	}
+
+	if runtime.GOOS != "windows" {
+		log.Info().Str("goos", runtime.GOOS).Msg("CloseGameAction: skip game settings (windows only)")
+		return true
 	}
 
 	if !params.ApplyGameSetting {
