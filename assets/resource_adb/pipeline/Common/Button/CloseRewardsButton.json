@@ -1,8 +1,10 @@
 {
     "DectedCloseRewardsImage": {
+        "template": "AdbOnly/Common/Button/CloseRewardImage.png",
         "threshold": 0.7
     },
     "__CloseRewardsButtonStable": {
+        "template": "AdbOnly/Common/Button/CloseRewardButton.png",
         "threshold": 0.7
     },
     "__CloseRewardsButtonHover": {

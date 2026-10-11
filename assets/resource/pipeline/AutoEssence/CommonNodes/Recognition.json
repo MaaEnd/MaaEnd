@@ -133,6 +133,36 @@
             }
         }
     },
+    "__AutoEssenceRecoApproachInteractText": {
+        "desc": "走向激发点时边走边认的交互提示文字表，只给寻路读取 expected",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                "expected": [
+                    // @i18n-skip
+                    // 激发 / 领取奖励 / 放弃奖励并重置
+                    "激发",
+                    "觸發",
+                    "Trigger",
+                    "トリガー",
+                    "领取",
+                    "領取",
+                    "Claim",
+                    "報酬",
+                    "放弃|重置",
+                    "放棄|重置",
+                    "Abandon|Reset",
+                    "受取せず|にリセット"
+                ]
+            }
+        }
+    },
     "__AutoEssenceRecoEngravePermitInsufficient": {
         "desc": "识别刻写券不足弹窗文案（仅识别）",
         "recognition": {
@@ -151,6 +181,59 @@
                     "該当地域の刻印券が不足しているため、刻印指定は適用されませんが、続行しますか？",
                     "해당 지역 각인권이 부족하여 이번 도전에서는 사전 각인이 적용되지 않습니다. 정말 이대로 도전을 시작하시겠습니까?"
                 ]
+            }
+        }
+    },
+    "__AutoEssenceRecoChooseOverrideEngraveNow": {
+        "desc": "战利品领取界面「进行刻写」区域文案（仅识别）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    41,
+                    358,
+                    394,
+                    212
+                ],
+                "expected": [
+                    "进行刻写",
+                    "刻寫",
+                    "Engrave Now",
+                    "刻印券を使用",
+                    "각인하기"
+                ]
+            }
+        }
+    },
+    "__AutoEssenceRecoEssenceOverrideOnToggle": {
+        "desc": "战利品领取界面刻写开关「开」态（仅识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    66,
+                    124,
+                    472,
+                    460
+                ],
+                "template": "AutoEssence/EssenceOverrideOn.png",
+                "order_by": "Score"
+            }
+        }
+    },
+    "__AutoEssenceRecoEssenceOverrideOffToggle": {
+        "desc": "战利品领取界面刻写开关「关」态（仅识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    66,
+                    124,
+                    472,
+                    460
+                ],
+                "template": "AutoEssence/EssenceOverrideOff.png",
+                "order_by": "Score"
             }
         }
     },

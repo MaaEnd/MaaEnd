@@ -38,17 +38,16 @@
         ]
     },
     "SupplyPlanInsufficient_PROTOSET": {
-        "desc": "协议圆盘组 库存未达目标则进入对应协议空间刷取",
+        "desc": "协议圆盘组 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_char_break_stage_3_4}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -145,17 +144,16 @@
         }
     },
     "SupplyPlanInsufficient_PROTODISK": {
-        "desc": "协议圆盘 库存未达目标则进入对应协议空间刷取",
+        "desc": "协议圆盘 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_char_break_stage_1_2}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -252,17 +250,16 @@
         }
     },
     "SupplyPlanInsufficient_TRIPHASIC_NANOFLAKE": {
-        "desc": "三相纳米片 库存未达目标则进入对应协议空间刷取",
+        "desc": "三相纳米片 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_char_skill_specialize_5}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -347,17 +344,16 @@
         }
     },
     "SupplyPlanInsufficient_QUADRANT_FITTING_FLUID": {
-        "desc": "象限拟合液 库存未达目标则进入对应协议空间刷取",
+        "desc": "象限拟合液 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_char_skill_specialize_4}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -442,17 +438,16 @@
         }
     },
     "SupplyPlanInsufficient_TACHYON_SCREENING_LATTICE": {
-        "desc": "快子遴捡晶格 库存未达目标则进入对应协议空间刷取",
+        "desc": "快子遴捡晶格 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_char_skill_specialize_3}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -537,17 +532,16 @@
         }
     },
     "SupplyPlanInsufficient_D96_STEEL_SAMPLE_4": {
-        "desc": "D96钢样品四 库存未达目标则进入对应协议空间刷取",
+        "desc": "D96钢样品四 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_char_skill_specialize_2}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -632,17 +626,16 @@
         }
     },
     "SupplyPlanInsufficient_METADIASTIMA_PHOTOEMISSION_TUBE": {
-        "desc": "超距辉映管 库存未达目标则进入对应协议空间刷取",
+        "desc": "超距辉映管 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_char_skill_specialize_1}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -727,17 +720,16 @@
         }
     },
     "SupplyPlanInsufficient_PROTOHEDRON": {
-        "desc": "协议棱柱组 库存未达目标则进入对应协议空间刷取",
+        "desc": "协议棱柱组 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_char_skill_level_7_12}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -834,17 +826,16 @@
         }
     },
     "SupplyPlanInsufficient_PROTOPRISM": {
-        "desc": "协议棱柱 库存未达目标则进入对应协议空间刷取",
+        "desc": "协议棱柱 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_char_skill_level_1_6}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -941,17 +932,16 @@
         }
     },
     "SupplyPlanInsufficient_T_CREDS": {
-        "desc": "折金票 库存未达目标则进入对应协议空间刷取",
+        "desc": "折金票 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_gold}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -1040,17 +1030,16 @@
         }
     },
     "SupplyPlanInsufficient_HEAVY_CAST_DIE": {
-        "desc": "重型强固模具 库存未达目标则进入对应协议空间刷取",
+        "desc": "重型强固模具 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_weapon_break_high}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -1150,17 +1139,16 @@
         }
     },
     "SupplyPlanInsufficient_CAST_DIE": {
-        "desc": "强固模具 库存未达目标则进入对应协议空间刷取",
+        "desc": "强固模具 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{item_weapon_break_low}>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -1573,17 +1561,16 @@
         }
     },
     "SupplyPlanInsufficient_COGNITIVE_CARRIER_EXP": {
-        "desc": "认知载体经验 库存未达目标则进入对应协议空间刷取",
+        "desc": "认知载体经验 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -1702,17 +1689,16 @@
         }
     },
     "SupplyPlanInsufficient_COMBAT_RECORD_EXP": {
-        "desc": "作战记录经验 库存未达目标则进入对应协议空间刷取",
+        "desc": "作战记录经验 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
@@ -1831,17 +1817,16 @@
         }
     },
     "SupplyPlanInsufficient_WEAPON_EXP": {
-        "desc": "武器经验 库存未达目标则进入对应协议空间刷取",
+        "desc": "武器经验 未达标且完成率最低则进入刷取",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)>=0"
+                    "expression": "0>1"
                 }
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,

@@ -352,6 +352,7 @@ void TestControllerTypeSelectsKnownGridScale()
     const auto macos = iconrecognition::detail::GridScaleForControllerType("MacOS");
     Check(macos && std::abs(*macos - 1.0) <= 1e-6, "MacOS controller must use the standard grid scale");
     Check(!iconrecognition::detail::GridScaleForControllerType("Unknown"), "unknown controllers must keep image-based fallback");
+    Check(!iconrecognition::detail::GridScaleForControllerType(""), "missing controller type must keep image-based fallback");
 }
 
 void TestValuablesCardExtentUsesScaledProfileOcclusionPolicy()

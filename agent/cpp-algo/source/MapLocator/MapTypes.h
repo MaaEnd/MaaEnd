@@ -25,8 +25,7 @@ struct MapLocatorConfig
 {
     std::string mapResourceDir;
     std::string yoloModelPath;
-    // 摄像机朝向两图工件：前处理图 + 参考配对分类器；路径为空表示未部署该图。
-    std::string cameraOrientationPreprocessModelPath;
+    // 摄像机朝向参考配对分类器；路径为空表示未部署。预处理由 C++ 执行，不需要模型文件。
     std::string cameraOrientationRefModelPath;
     int yoloThreads = 1;
 };
@@ -51,6 +50,12 @@ struct LocateOptions
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
     std::string expected_zone_id;     // 非空时仅接受该区域的定位结果
     std::vector<SearchHint> search_hints;
+    // 镜头方位角先验（北为 0 度）；只在预期方向存在真实双峰候选时消歧。
+    // 仅供 C++ 调用方控制，不暴露为 Recognition 参数：它必须是一次观测，取值只能是「上一次成功识别到的
+    // 镜头方位角」。由 MapNavigator 在镜头朝向导航、Navigate 相位、且自那次观测以来没有任何转向指令时
+    // 填入（见 NavigationStateMachine::CaptureCurrentPosition 的朝向纪元判据），不能用目标角度或未落地的
+    // 转向量推算——那是指令，不是观测。
+    std::optional<double> camera_heading_prior;
     // 仅供 C++ 调用方控制；镜头朝向导航可关闭，不暴露为 Recognition 参数。
     bool reject_occluded_frames = true;
 

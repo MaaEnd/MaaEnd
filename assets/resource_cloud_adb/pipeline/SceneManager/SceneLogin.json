@@ -12,8 +12,8 @@
                     276
                 ],
                 "template": [
-                    "SceneManager/News.png",
-                    "SceneManager/NewsWithRedDot.png"
+                    "AdbOnly/SceneManager/News.png",
+                    "AdbOnly/SceneManager/NewsWithRedDot.png"
                 ]
             }
         }

@@ -71,7 +71,8 @@ bool PositionProvider::Capture(
     NaviPosition* out_pos,
     bool force_global_search,
     const std::string& expected_zone_id,
-    const std::vector<maplocator::SearchHint>& search_hints)
+    const std::vector<maplocator::SearchHint>& search_hints,
+    std::optional<double> camera_heading_prior)
 {
     if (out_pos == nullptr) {
         return false;
@@ -106,6 +107,7 @@ bool PositionProvider::Capture(
     options.reject_occluded_frames = heading_source_ != HeadingSource::Camera;
     options.expected_zone_id = expected_zone_id;
     options.search_hints = search_hints;
+    options.camera_heading_prior = camera_heading_prior;
 
     const auto locate_result = locator_->locate(minimap, options);
     const auto locate_done_at = std::chrono::steady_clock::now();
@@ -125,12 +127,14 @@ bool PositionProvider::Capture(
         return false;
     }
 
+    // An unsure camera reading is never the heading source, and on the touch backends never steered on either.
+    const std::optional<double> confident_camera = locate_result.camRot && std::isfinite(locate_result.camRot->confidence)
+                                                           && locate_result.camRot->confidence >= kNavigationCameraMinConfidence
+                                                       ? std::optional<double>(locate_result.camRot->rot)
+                                                       : std::nullopt;
     std::optional<double> heading = locate_result.rot;
     if (heading_source_ == HeadingSource::Camera) {
-        heading = locate_result.camRot && std::isfinite(locate_result.camRot->confidence)
-                          && locate_result.camRot->confidence >= kNavigationCameraMinConfidence
-                      ? std::optional<double>(locate_result.camRot->rot)
-                      : std::nullopt;
+        heading = confident_camera;
     }
     if (!heading || !std::isfinite(*heading) || *heading < 0.0 || *heading >= 360.0) {
         return false;
@@ -148,7 +152,9 @@ bool PositionProvider::Capture(
     out_pos->angle = *heading;
     out_pos->score = locate_result.position->score;
     out_pos->zone_id = locate_result.position->zoneId;
-    out_pos->camera_angle = locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt;
+    // Only the touch backends steer on the camera; the desktop backends keep passing the raw reading, as before.
+    out_pos->camera_angle =
+        uses_adb_minimap_roi_ ? confident_camera : (locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt);
     out_pos->valid = true;
     out_pos->timestamp = capture_started_at;
 

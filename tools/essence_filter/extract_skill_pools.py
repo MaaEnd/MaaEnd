@@ -238,6 +238,7 @@ def build_skill_pools(
 def write_skill_pools(path: Path, data: Dict) -> None:
     with path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+        f.write("\n")
 
 
 def main() -> int:

@@ -15,6 +15,8 @@ namespace
 // 慢拍要占过半才算这一窗慢；置信下界压过这条线，才谈得上「大多数拍都超时」。
 constexpr double kSlowTickMajority = 0.5;
 
+} // namespace
+
 int64_t Median(const std::vector<int64_t>& samples)
 {
     if (samples.empty()) {
@@ -25,8 +27,6 @@ int64_t Median(const std::vector<int64_t>& samples)
     std::nth_element(sorted.begin(), sorted.begin() + static_cast<std::ptrdiff_t>(mid), sorted.end());
     return sorted[mid];
 }
-
-} // namespace
 
 double WilsonLowerBound(int64_t hits, int64_t total, double z)
 {

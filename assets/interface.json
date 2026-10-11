@@ -245,6 +245,7 @@
         "tasks/AeroSalvage.json",
         // group: sanity_sink
         "tasks/AutoEssence/AutoEssence.json",
+        "tasks/AutoEssence/Location/ChooseLocation.json",
         "tasks/AutoEssence/Location/SelectLocation.json",
         "tasks/AutoEssence/Location/Slot1.json",
         "tasks/AutoEssence/Location/VFTheHub.json",
@@ -278,6 +279,7 @@
         "tasks/CreditShopping.json",
         "tasks/AccountSwitch.json",
         // "tasks/DevTest.json", // mxu测试用
+        // "tasks/AdbAutoFightTest.json", // 🧪战斗测试，暂不上架
         // "tasks/WebEvent202605.json", // 该活动已关闭
         "tasks/AndroidOpenGame.json",
         "tasks/CloseGame.json",

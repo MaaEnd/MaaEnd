@@ -39,16 +39,20 @@ type autoFightAttach struct {
 var screenAnalyzer = NewScreenAnalyzer()
 
 func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
-	box, ok := screenAnalyzer.GetCharacterSelectBox()
-	if !ok {
-		return false
+	var override map[string]any
+	if !mobileFightLayout() {
+		box, ok := screenAnalyzer.GetCharacterSelectBox()
+		if !ok {
+			return false
+		}
+		override = map[string]any{
+			"__AutoFightRecognitionCharactorLevelShow": map[string]any{
+				"roi":        []int{box[0], box[1], box[2], box[3]},
+				"roi_offset": []int{-25, box[3] + 35, 20, 4},
+			},
+		}
 	}
-	detail, err := ctx.RunRecognition("__AutoFightRecognitionCharactorLevelShow", img, map[string]any{
-		"__AutoFightRecognitionCharactorLevelShow": map[string]any{
-			"roi":        []int{box[0], box[1], box[2], box[3]},
-			"roi_offset": []int{-25, box[3] + 35, 20, 4},
-		},
-	})
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionCharactorLevelShow", img, override)
 	if err != nil || detail == nil {
 		log.Error().Err(err).Str("component", "AutoFight").Msg("failed to run recognition for character level show")
 		return false
@@ -263,6 +267,11 @@ const (
 	lockStageRecover lockStage = 2
 )
 
+// attackReassertInterval 是 ADB 普攻的补按周期。ADB 的普攻靠整场按住的触点流维持，
+// 模拟器层面的中断（例如拖动模拟器窗口）会把它掐断且不会自行恢复；周期补按把
+// "整场失去普攻"压缩成最多丢失这个时长。PC 端按住的是键鼠状态，不参与补按。
+const attackReassertInterval = 5 * time.Second
+
 type ActionType int
 
 const (
@@ -287,6 +296,9 @@ const (
 	ActionMoveForward
 	ActionMoveLeft
 	ActionMoveRight
+	// ActionReassertAttack 先抬起再按下普攻触点，用于补回被外部掐断的按住状态。
+	// 必须留在末尾：上面的战技 / 终结技 / 切人分组靠 skillAction 等函数做下标加法。
+	ActionReassertAttack
 )
 
 func skillAction(idx int) ActionType {
@@ -377,8 +389,10 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	var pauseStart time.Time
 	var lastLevelShowCheck time.Time
 	var noLockStart time.Time
+	var lastAttackReassert time.Time
 	var lockTargetStage lockStage
 	lastDodgeAt = time.Now()
+	lastAttackReassert = time.Now()
 	firstNoLockIteration := true
 	characterCount := -1
 	skillCycleIndex := 1
@@ -627,7 +641,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 			if params.EnableEndSkill && hasEnemyTarget {
 				if len(endSkillFull) > 0 {
-					screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
+					screenAnalyzer.MarkLabelUsed(endSkillFullLabel())
 					for _, idx := range endSkillFull {
 						if idx >= 5-characterCount {
 							op := idx + characterCount - 4
@@ -707,7 +721,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 								executeAt: time.Now(),
 								action:    endSkillAction(op),
 							})
-							screenAnalyzer.MarkLabelUsed(LabelEndSkillFull)
+							screenAnalyzer.MarkLabelUsed(endSkillFullLabel())
 							timeline.PopFrontAction()
 						}
 					case "skill":
@@ -722,6 +736,16 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 					}
 				}
 			}
+		}
+
+		// ADB 断触兜底：按住中的普攻触点被模拟器层面的中断掐断后不会自行恢复，
+		// 按周期补按一次。PC 端的按住是键鼠状态，不需要也不应该重按。
+		if params.EnableAttack && mobileFightLayout() && time.Since(lastAttackReassert) >= attackReassertInterval {
+			lastAttackReassert = time.Now()
+			enqueueAction(fightAction{
+				executeAt: time.Now(),
+				action:    ActionReassertAttack,
+			})
 		}
 
 		drainActionQueue(ctx)
@@ -814,6 +838,11 @@ func drainActionQueue(ctx *maa.Context) {
 			ctx.RunAction("__AutoFightActionMoveRightKeyDown", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 			ctx.RunAction("__AutoFightActionMoveRightKeyUp", maa.Rect{600, 320, 80, 80}, "", nil)
+		case ActionReassertAttack:
+			// 先抬起再按下：对已经按住的触点重复 TouchDown 在后端行为不一致，
+			// 而触点已断时 TouchUp 只是空操作，错误无需处理。
+			ctx.RunAction("__AutoFightActionAttackTouchUp", maa.Rect{600, 320, 80, 80}, "", nil)
+			ctx.RunAction("__AutoFightActionAttackTouchDown", maa.Rect{600, 320, 80, 80}, "", nil)
 		}
 	}
 }

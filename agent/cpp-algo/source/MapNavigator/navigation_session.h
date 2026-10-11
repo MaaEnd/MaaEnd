@@ -50,6 +50,8 @@ struct NavigationSession
     bool HasCurrentWaypoint() const;
     const Waypoint& CurrentWaypoint() const;
     const Waypoint& CurrentPathAt(size_t index) const;
+    // 人正走着的那段规划线在人所在处的面高; 没有时为空
+    std::optional<double> WalkedFloorY(const NaviPosition& position) const;
     std::optional<size_t> CanonicalIndexAtCurrent() const;
     std::optional<size_t> CanonicalIndexAtCurrentPath(size_t index) const;
 
@@ -75,6 +77,15 @@ struct NavigationSession
     void ObserveHardProgress(size_t target_key, double actual_distance, const std::chrono::steady_clock::time_point& now);
     int64_t HardStalledMs(const std::chrono::steady_clock::time_point& now) const;
     void ResetHardProgress();
+    // 同步规划期间人停着等, 两只无进展表都往后挪这段时长, 规划耗时不算卡住
+    void ExcludeFromStallClocks(std::chrono::steady_clock::duration paused);
+
+    // 刚滑完一跳或留在架子上等换路、人还在那根架子圈内、也没走下台沿时, 架子所在那层的高度; 其余情况为空
+    std::optional<double> LandedTowerDeckY(const NaviPosition& position) const;
+    // 沿规划走到了台沿下落那一段, 落点架子那层不再是脚下的层; 航点前进时清掉
+    void LeaveLandedTowerDeck();
+    // 滑索把人留在架子上等换路: 换路后航点下标归零, 推不出人站在哪根架子上, 由这里记着; 航点前进时清掉
+    void NoteStandingTower(const std::optional<ZiplineNodeRef>& tower);
 
     void ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos);
     // 整条换路：旧的展开路径连同 canonical 索引一起作废，终点判定按新路线尾部重算。
@@ -96,6 +107,8 @@ private:
     bool success_ = false;
     bool route_tail_consumed_ = false;
     bool final_arrival_evidence_ = false;
+    bool left_landed_deck_ = false;
+    std::optional<ZiplineNodeRef> standing_tower_;
 
     size_t progress_waypoint_idx_ = std::numeric_limits<size_t>::max();
     double best_distance_to_target_ = std::numeric_limits<double>::max();

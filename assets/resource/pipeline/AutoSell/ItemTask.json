@@ -528,6 +528,47 @@
             "AutoSellFriendsPricesExpectedBuySlide"
         ]
     },
+    "AutoSellFriendsPricesExpectedBuyPlus": {
+        "desc": "指定好友出售：最多出售 60 个",
+        "recognition": "And",
+        "all_of": [
+            "InFriendsStockRedistributionSellGoods",
+            {
+                "sub_name": "increase",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    680,
+                    490,
+                    100,
+                    75
+                ],
+                "template": [
+                    "AutoStockpile/IncreaseButton.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.8
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "repeat": 59,
+        "repeat_delay": 50,
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                682,
+                512,
+                34,
+                26
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellFriendsPricesExpectedBuyClick"
+        ]
+    },
     "AutoSellFriendsPricesExpectedBuySlide": {
         "desc": "从好友价格界面返回到物资调度界面调整滑块",
         "recognition": "TemplateMatch",

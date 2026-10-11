@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
@@ -20,6 +21,8 @@
 #include "semantic_nodes.h"
 #include "trigger_action.h"
 #include "zipline_action.h"
+
+#include "../utils.h"
 
 namespace mapnavigator
 {
@@ -566,6 +569,50 @@ bool RunRecognitionNode(
     return true;
 }
 
+std::optional<std::vector<std::string>>
+    RunTaskForCompletedNodes(MaaContext* context, const char* entry, const std::string& pipeline_override)
+{
+    MaaTasker* tasker = MaaContextGetTasker(context);
+    if (tasker == nullptr) {
+        return std::nullopt;
+    }
+    const MaaTaskId task_id = MaaContextRunTask(context, entry, pipeline_override.c_str());
+    if (task_id == MaaInvalidId) {
+        LogWarn << "Subtask failed to dispatch." << VAR(entry);
+        return std::nullopt;
+    }
+
+    ScopedStringBuffer entry_name;
+    MaaSize node_count = 0;
+    MaaStatus status = MaaStatus_Invalid;
+    if (entry_name.Get() == nullptr || !MaaTaskerGetTaskDetail(tasker, task_id, entry_name.Get(), nullptr, &node_count, &status)) {
+        return std::nullopt;
+    }
+    std::vector<std::string> completed_nodes;
+    if (node_count == 0) {
+        return completed_nodes;
+    }
+    std::vector<MaaNodeId> node_ids(node_count);
+    if (!MaaTaskerGetTaskDetail(tasker, task_id, entry_name.Get(), node_ids.data(), &node_count, &status)) {
+        return std::nullopt;
+    }
+
+    for (const MaaNodeId node_id : node_ids) {
+        ScopedStringBuffer node_name;
+        MaaRecoId reco_id = 0;
+        MaaActId action_id = 0;
+        MaaBool completed = 0;
+        if (node_name.Get() == nullptr || !MaaTaskerGetNodeDetail(tasker, node_id, node_name.Get(), &reco_id, &action_id, &completed)) {
+            return std::nullopt;
+        }
+        const char* raw = MaaStringBufferGet(node_name.Get());
+        if (raw != nullptr && completed != 0) {
+            completed_nodes.emplace_back(raw);
+        }
+    }
+    return completed_nodes;
+}
+
 bool CaptureFreshFrame(MaaController* controller, MaaImageBuffer* buffer)
 {
     const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller);
@@ -721,13 +768,33 @@ Result ArriveDig(const Context& ctx, const Waypoint& waypoint, const std::option
 
 Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance)
 {
-    // 到点兜底: 跑一次行进中那套权威识别, 没认出提示就当这里没东西可交互, 照样推进
+    // 到点兜底: 跑一次行进中那套权威识别, 没认出提示就交回导航走到点上再认一次; 还认不出时 rec 判失败,
+    // 否则当这里没东西可交互, 照样推进
     if (waypoint.IsAsyncInteract() && ctx.maa_context != nullptr) {
         StopMotionAndCommitment(ctx);
         LogInfo << "Action: INTERACT reached, running the authoritative recognition." << VAR(actual_distance)
                 << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan) << VAR(waypoint.interact_rec);
-        RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+        const bool recognized = RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+        InteractApproachState& approach = ctx.runtime_state->interact_approach;
+        if (!recognized && waypoint.HasPosition() && node_idx && !approach.PromptMissedAt(node_idx)
+            && actual_distance > kStrictSettleAcceptBandWu) {
+            approach.prompt_missed_node = node_idx;
+            // 起步按已确认算: 否则要先挪够起步距离才放行到点判定, 走路模式也开不了, 剩下这一两个单位就是小跑冲过去的
+            ctx.runtime_state->route.Reset();
+            ctx.runtime_state->route.startup_anchor_pos = *ctx.position;
+            ctx.runtime_state->route.startup_anchor_initialized = true;
+            ctx.runtime_state->route.startup_motion_confirmed = true;
+            ctx.session->ResetHardProgress();
+            LogInfo << "Action: INTERACT prompt missed, walking on onto the point." << VAR(actual_distance) << VAR(*node_idx);
+            return { .consumed = true };
+        }
         ctx.runtime_state->route.Reset();
+        if (!recognized && waypoint.interact_rec) {
+            LogWarn << "Action: INTERACT prompt still missing in rec mode." << VAR(actual_distance) << VAR(waypoint.interact_text_node);
+            return { .request_failure = true,
+                     .failure_reason = "interact_prompt_missing",
+                     .failure_log_message = "Interact prompt not recognized on the point." };
+        }
         return CompleteArrival(ctx, waypoint, node_idx, "async_interact_completed");
     }
 

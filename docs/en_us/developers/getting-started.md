@@ -47,7 +47,7 @@ pnpm install
 >
 > When neither is specified, the build is chosen as follows:
 >
-> - **The `v2` main branch**: the successful push build for the newest `v2` commit.
+> - **The `v2` main branch**: the most recent successful push build on `v2` (if the newest commit did not trigger CI, earlier commits are checked in order).
 > - **Any other branch**: the current commit, then the branch name, then the PR resolved from the current commit, then `v2`. A local branch name often differs from its remote (e.g. `pr-4945` is really `feat/android-agent-ci`), so the commit is used as the primary key.
 > - Falling back to `v2` prints a warning: it means you are running `v2`'s agent rather than this branch's build. Pass `--cpp-algo-run <ID>` to pin this branch's artifact.
 

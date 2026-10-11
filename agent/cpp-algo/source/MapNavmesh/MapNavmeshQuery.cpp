@@ -345,7 +345,9 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     const navmesh::WorldPoint start { .x = param.start[0], .y = param.start[1] };
     const navmesh::WorldPoint goal { .x = param.goal[0], .y = param.goal[1] };
     const float floor_y = FloorOrNone(param.floor_y);
-    const auto plan = context.engine->plan(zone->name, start, goal, floor_y, floor_y, FloorOrNone(param.goal_deck_y), {}, {});
+    const auto plan =
+        context.engine
+            ->plan(zone->name, start, goal, floor_y, floor_y, FloorOrNone(param.goal_deck_y), navmesh::kBaseNavFloorYNone, {}, {});
 
     if (!plan.ok) {
         // 失败时带上两端的离网探针，调用方才能标出是哪个点掉在网格外。
@@ -391,6 +393,8 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
         { "pulled_points", json::array() },
         { "assembled_points", json::array() },
         { "planned_points", json::array() },
+        { "planned_heights", json::array() },
+        { "planned_drops", json::array() },
         { "warnings", json::array() },
     };
     for (const auto& p : plan.debug.topology_cells) {
@@ -410,6 +414,12 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     }
     for (const auto& p : plan.debug.planned_points) {
         debug["planned_points"].as_array().emplace_back(json::array { p.x, p.y });
+    }
+    for (const double height : plan.heights) {
+        debug["planned_heights"].as_array().emplace_back(height);
+    }
+    for (const navmesh::DropLanding& drop : plan.drops) {
+        debug["planned_drops"].as_array().emplace_back(json::array { drop.index, drop.height });
     }
     for (const auto& warning : plan.debug.warnings) {
         debug["warnings"].as_array().emplace_back(warning);

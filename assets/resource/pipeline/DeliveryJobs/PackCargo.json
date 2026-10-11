@@ -331,6 +331,26 @@
         "rate_limit": 0,
         "next": [
             "DeliveryJobsFillToMaxNextStep",
+            "DeliveryJobsRecheckCargoFilledAfterSettle"
+        ]
+    },
+    // 卡顿时点完填满，第一帧进度条可能还没涨到顶；没认出装满先等进度条停下再看一次
+    "DeliveryJobsRecheckCargoFilledAfterSettle": {
+        "desc": "等装箱进度条停下后再检查是否装满",
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1194,
+                139,
+                86,
+                320
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillToMaxNextStep",
             "[Anchor]DeliveryJobsNextPriority"
         ]
     },
@@ -524,7 +544,7 @@
         }
     },
     "DeliveryJobsEnsureOngoingDeliveryMission": {
-        "desc": "进入任务界面并选中残留的送货任务，供后续解析它所属的仓储节点",
+        "desc": "进入任务界面并选中残留的送货任务，交给转交判断",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -538,7 +558,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsResolveOngoingDepot"
+            "DeliveryJobsWaitOngoingMissionDetail"
         ]
     },
     "DeliveryJobsResolveOngoingDepot": {

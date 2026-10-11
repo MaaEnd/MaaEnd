@@ -9,8 +9,23 @@
                     352,
                     312
                 ],
-                "template": "MapNavigator/Zipline/InteractButton.png",
+                "template": "AdbOnly/MapNavigator/Zipline/InteractButton.png",
                 "threshold": 0.75
+            }
+        }
+    },
+    "MapNavigatorZiplineMountWaitFreezes": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    330,
+                    352,
+                    312
+                ],
+                "template": "AdbOnly/MapNavigator/Zipline/InteractButton.png",
+                "threshold": 0.9
             }
         }
     },

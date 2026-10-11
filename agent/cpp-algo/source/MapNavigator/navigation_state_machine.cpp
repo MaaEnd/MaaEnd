@@ -78,6 +78,18 @@ double ArrivalBandForStartupBypass(const Waypoint& waypoint)
     return std::max(waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum), waypoint.Traits().commit_distance);
 }
 
+// 同步规划会卡住 tick: 先松开前进键, 规划这段时长不进任何无进展计时
+template <typename Plan>
+auto WithPlanningPause(MotionController* motion, NavigationRuntimeState* runtime, NavigationSession* session, Plan&& plan)
+{
+    const auto started_at = std::chrono::steady_clock::now();
+    motion->SetForwardState(false);
+    runtime->offroute.PauseAt(started_at);
+    auto result = plan();
+    session->ExcludeFromStallClocks(std::chrono::steady_clock::now() - started_at);
+    return result;
+}
+
 std::optional<DynamicAnchor> ResolveCurrentAnchorFrom(NavigationSession* session, const NaviPosition& position, size_t start_index)
 {
     std::optional<DynamicAnchor> fallback;
@@ -287,6 +299,7 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
     const char* reason)
 {
     const size_t path_size = session->current_path().size();
+    const std::optional<double> walked_floor_y = session->WalkedFloorY(position);
     std::optional<DynamicAnchor> anchor;
     double anchor_cost = std::numeric_limits<double>::infinity();
     int plan_attempts = 0;
@@ -318,7 +331,16 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
         // 只钉终点: 够不到那张面的候选就不该被选中。第一个规划得通的点就是入口 ——
         // 再往后比价挑更近的, 等于在归属判定之后又做一次"就近吞点"。
         ++plan_attempts;
-        const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, waypoint.target_deck_y);
+        const auto route = PlanNavmeshRoute(
+            param,
+            position.zone_id,
+            start,
+            goal,
+            waypoint.target_deck_y,
+            walked_floor_y,
+            nullptr,
+            nullptr,
+            session->LandedTowerDeckY(position));
         if (route) {
             anchor_cost = route->cost;
             anchor = { *canonical_index, waypoint };
@@ -501,6 +523,12 @@ bool NavigationStateMachine::Bootstrap()
 
 bool NavigationStateMachine::TickPhase(NaviPhase phase)
 {
+    // 相位切换等于把镜头交给了别的流程（滑索、找目标、传送），此前那一拍记下的观测不再算「没被指令动过」。
+    // 挂在这里而不是各条转向路径上：绕过 ActionWrapper 的开环转向（滑索俯仰的 pipeline 旁路等）也一并作废。
+    if (!last_tick_phase_ || *last_tick_phase_ != phase) {
+        last_tick_phase_ = phase;
+        action_wrapper_->NoteHeadingDisturbed();
+    }
     // Ahead of every early return, so no branch or phase can strand the game in walking mode.
     UpdateWalkMode(phase);
 
@@ -514,6 +542,10 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     case NaviPhase::WaitZipline:
     case NaviPhase::WaitFind:
     case NaviPhase::WaitTrigger: {
+        // 顶墙计数和设备命中只在 Navigate 里攒, 语义动作做完人可能已换了地方
+        runtime_state_.flow.motionless_hold_ticks = 0;
+        runtime_state_.flow.futile_forward_reasserts = 0;
+        device_recovery_.ForgetObservation();
         const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(
             BuildSemanticContext(
                 action_wrapper_,
@@ -540,7 +572,24 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
 
 bool NavigationStateMachine::CaptureCurrentPosition(bool force_global_search)
 {
-    const bool captured = position_provider_->Capture(position_, force_global_search, session_->current_zone_id());
+    // 先验是一次观测，不是一条指令：只有「上一拍成功取位记下的纪元 == 当前纪元」才说明自那次识别以来
+    // 镜头没被任何 yaw 指令动过。转过的角度大不大、落没落地都不必再判——任何 yaw 指令都会推高纪元。
+    const uint64_t heading_epoch = action_wrapper_->heading_epoch();
+    const bool prior_usable = !force_global_search && param_.heading_source == HeadingSource::Camera && position_->valid
+                              && prior_observation_epoch_ && *prior_observation_epoch_ == heading_epoch
+                              && session_->phase() == NaviPhase::Navigate;
+    const std::optional<double> camera_heading_prior = prior_usable ? std::optional<double>(position_->angle) : std::nullopt;
+    const bool captured =
+        position_provider_->Capture(position_, force_global_search, session_->current_zone_id(), {}, camera_heading_prior);
+    if (captured) {
+        // 纪录取的是取位前读到的值：这一拍后面再发的转向不该让这次观测提前作废，下一拍自会挡住它。
+        prior_observation_epoch_ = heading_epoch;
+        consecutive_prior_uses_ = camera_heading_prior ? consecutive_prior_uses_ + 1 : 0;
+        LogDebug << "MapNavigator camera heading prior" << VAR(camera_heading_prior.value_or(-1.0)) << VAR(consecutive_prior_uses_);
+    }
+    else {
+        consecutive_prior_uses_ = 0;
+    }
     UpdateDwellWatchdog(captured);
     return captured;
 }
@@ -708,16 +757,18 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
 
     const navmesh::WorldPoint start { .x = position_->x, .y = position_->y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    runtime_state_.offroute.PauseAt(std::chrono::steady_clock::now());
-    const auto route = PlanNavmeshRoute(
-        param_,
-        position_->zone_id,
-        start,
-        goal,
-        anchor.target_deck_y,
-        std::nullopt,
-        nullptr,
-        &runtime_state_.virtual_no_go);
+    const auto route = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+        return PlanNavmeshRoute(
+            param_,
+            position_->zone_id,
+            start,
+            goal,
+            anchor.target_deck_y,
+            session_->WalkedFloorY(*position_),
+            nullptr,
+            &runtime_state_.virtual_no_go,
+            session_->LandedTowerDeckY(*position_));
+    });
     if (!route) {
         return false;
     }
@@ -954,8 +1005,9 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     }
     // 重展开失败才退回旧展开: 当前位置有可走面时, 它至少是一条经过规划的路径。
     if (!rejoined && on_mesh) {
-        const std::optional<DynamicAnchor> anchor =
-            ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
+        const std::optional<DynamicAnchor> anchor = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+            return ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
+        });
         rejoined = anchor && TryApplyDynamicOverlayToAnchor("zipline_recovery", anchor->first, anchor->second);
     }
     if (!rejoined) {
@@ -1032,8 +1084,17 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
     }
     replan_param.path.assign(authored.begin() + static_cast<std::ptrdiff_t>(slice_begin), authored.end());
     std::vector<Waypoint> replanned;
-    if (!ExpandNavmeshWaypoints(replan_param, *position_, should_stop_, replanned, nullptr, &runtime_state_.virtual_no_go)
-        || replanned.empty()) {
+    const bool expanded = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+        return ExpandNavmeshWaypoints(
+            replan_param,
+            *position_,
+            should_stop_,
+            replanned,
+            nullptr,
+            &runtime_state_.virtual_no_go,
+            session_->LandedTowerDeckY(*position_));
+    });
+    if (!expanded || replanned.empty()) {
         LogWarn << "Authored route replan failed to expand the remaining route." << VAR(reason) << VAR(slice_begin)
                 << VAR(replan_param.path.size());
         return false;
@@ -1070,7 +1131,9 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
         semantic_nodes::LeaveZiplineTower(ctx);
     }
 
-    const std::optional<DynamicAnchor> anchor = ResolveReachableNavmeshAnchor(param_, session_, *position_, 0, reason);
+    const std::optional<DynamicAnchor> anchor = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
+        return ResolveReachableNavmeshAnchor(param_, session_, *position_, 0, reason);
+    });
     if (anchor) {
         TryApplyDynamicOverlayToAnchor(reason, anchor->first, anchor->second);
     }
@@ -1390,11 +1453,25 @@ bool NavigationStateMachine::TickNavigate()
         return true;
     }
 
-    const auto now = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
     const bool startup_grace_elapsed =
         runtime_state_.flow.navigate_started_at.time_since_epoch().count() > 0
         && std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.flow.navigate_started_at).count() >= 3000;
     const double current_heading = NaviMath::NormalizeAngle(position_->angle);
+    // Everything added for a slow loop below (camera steering, the same-tick waypoint pass, pivots, corner braking and
+    // the tick-based pending lifetime) is kept to the touch backends: desktop input (Win32) is fast and settled, so it
+    // keeps the original behaviour until an issue there calls for any of it.
+    const bool drops_turn_sends = motion_controller_->SteeringDropsTurnSends();
+    // A turn swings the camera at once, but the character arrow only follows once the character runs: standing, it does
+    // not move at all, and just after forward is pressed it is still swinging round. Steering on the stale arrow reads
+    // the turn as never landed and sends it again, far past the corner, so steer on the camera in both cases. Forward
+    // has not changed since this tick's frame was taken.
+    const bool arrow_lags_camera =
+        position_->camera_angle.has_value()
+        && std::abs(NaviMath::NormalizeAngle(*position_->camera_angle - position_->angle)) > kSteerArrowLagCameraDeg;
+    const bool steering_on_camera =
+        drops_turn_sends && (arrow_lags_camera || (position_->camera_angle.has_value() && !motion_controller_->IsMovingForward()));
+    const double steer_heading = steering_on_camera ? NaviMath::NormalizeAngle(*position_->camera_angle) : current_heading;
     const bool degraded_fix = position_provider_->LastCaptureWasBlackScreen() || !position_->valid;
     // Gap between the screencap this tick's fix came from and the decision below: the locate itself plus the work
     // in between. Every successful capture restamps, so this only measures the current tick's own latency.
@@ -1425,11 +1502,24 @@ bool NavigationStateMachine::TickNavigate()
             }
             if (nav_run_anchor) {
                 nav_run_anchor_index = nav_run_anchor->first;
-                nav_run_result =
-                    nav_run_controller_
-                        .tick(session_, &runtime_state_, *position_, route, param_, nav_run_anchor->first, nav_run_anchor->second, now);
+                nav_run_result = nav_run_controller_.tick(
+                    session_,
+                    &runtime_state_,
+                    *position_,
+                    route,
+                    param_,
+                    nav_run_anchor->first,
+                    nav_run_anchor->second,
+                    now,
+                    [this] { motion_controller_->SetForwardState(false); });
             }
         }
+    }
+    // 规划期间人停着等, 这段时长不进任何无进展计时
+    if (nav_run_result.planning > std::chrono::steady_clock::duration::zero()) {
+        runtime_state_.offroute.PauseAt(now);
+        session_->ExcludeFromStallClocks(nav_run_result.planning);
+        now += nav_run_result.planning;
     }
 
     // NavMesh corridor steering can legitimately carry the agent far off the original serial
@@ -1512,7 +1602,7 @@ bool NavigationStateMachine::TickNavigate()
         return true;
     }
 
-    const Waypoint waypoint = session_->CurrentWaypoint();
+    Waypoint waypoint = session_->CurrentWaypoint();
     if (TryRunPromptSubtaskWhileWalking(route)) {
         return true;
     }
@@ -1570,6 +1660,11 @@ bool NavigationStateMachine::TickNavigate()
             arrival_distance = std::min(arrival_distance, kZiplineRestandBandWu);
         }
     }
+    // 交互点到点认空过一次: 收紧到站上点才再认, 走过去照常边走边转。真收不拢同样放回去, 别多出一种卡死
+    if (waypoint.IsAsyncInteract() && runtime_state_.interact_approach.PromptMissedAt(session_->CurrentAbsoluteNodeIndex())
+        && session_->HardStalledMs(now) <= kCollectArrivalRelaxMs) {
+        arrival_distance = std::min(arrival_distance, kStrictSettleAcceptBandWu);
+    }
     // 台沿下落的落点: 进圈时人可能还在台上, 沿下落方向越过它才算到
     bool short_of_drop = false;
     if (waypoint.drop_from) {
@@ -1603,16 +1698,34 @@ bool NavigationStateMachine::TickNavigate()
                 walk_mode_.Request(false);
             }
 
-            const semantic_nodes::Result arrival_result = semantic_nodes::HandleArrival(semantic_ctx, waypoint, route.waypoint_distance);
-            if (arrival_result.request_failure) {
-                return FailNavigation(
-                    arrival_result.failure_reason,
-                    arrival_result.failure_log_message,
-                    route.waypoint_distance,
-                    0.0,
-                    stalled_ms);
-            }
-            return true;
+            // A plain corridor waypoint needs nothing beyond the advance, so the tick goes on to steer on this same fix:
+            // ending it there ran the agent blind for a tick per waypoint, and a corner drawn as two close waypoints was
+            // overrun before the turn was sent. One that wants more (a prompt, a zipline, a strict or drop arrival)
+            // still gets a tick of its own.
+            do {
+                const semantic_nodes::Result arrival_result =
+                    semantic_nodes::HandleArrival(semantic_ctx, waypoint, route.waypoint_distance);
+                if (arrival_result.request_failure) {
+                    return FailNavigation(
+                        arrival_result.failure_reason,
+                        arrival_result.failure_log_message,
+                        route.waypoint_distance,
+                        0.0,
+                        stalled_ms);
+                }
+                if (!drops_turn_sends || !waypoint.IsContinuousRun() || session_->phase() != NaviPhase::Navigate
+                    || !session_->HasCurrentWaypoint()) {
+                    return true;
+                }
+                route = RouteTracker::Update(session_, &runtime_state_.route, *position_);
+                waypoint = session_->CurrentWaypoint();
+                if (!route.valid || !waypoint.IsContinuousRun() || waypoint.drop_from) {
+                    return true;
+                }
+                arrival_distance = std::max(route.arrival_band, waypoint.Traits().commit_distance);
+            } while (route.waypoint_distance <= arrival_distance && route.startup_motion_confirmed);
+            LogDebug << "Passed corridor waypoints; steering on this fix." << VAR(session_->current_node_idx())
+                     << VAR(route.waypoint_distance) << VAR(arrival_distance);
         }
     }
 
@@ -1890,7 +2003,7 @@ bool NavigationStateMachine::TickNavigate()
     double turn_residual_deg = 0.0;
     int64_t turn_elapsed_ms = 0;
     if (runtime_state_.steering_rate.has_cmd) {
-        turn_achieved_deg = NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.cmd_heading_deg);
+        turn_achieved_deg = NaviMath::NormalizeAngle(steer_heading - runtime_state_.steering_rate.cmd_heading_deg);
         turn_residual_deg = NaviMath::NormalizeAngle(turn_achieved_deg - runtime_state_.steering_rate.cmd_delta_deg);
         turn_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.cmd_at).count();
     }
@@ -1902,7 +2015,7 @@ bool NavigationStateMachine::TickNavigate()
     int64_t heading_rate_gap_ms = 0;
     uint64_t heading_rate_gap_ticks = 0;
     if (runtime_state_.steering_rate.has_prev) {
-        heading_rate_raw_delta_deg = NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.prev_heading_deg);
+        heading_rate_raw_delta_deg = NaviMath::NormalizeAngle(steer_heading - runtime_state_.steering_rate.prev_heading_deg);
         heading_rate_gap_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.at).count();
         heading_rate_gap_ticks = tick_seq - runtime_state_.steering_rate.at_tick;
         const bool heading_changed = std::abs(heading_rate_raw_delta_deg) > kSteeringHeadingChangeEpsilonDeg;
@@ -1914,13 +2027,13 @@ bool NavigationStateMachine::TickNavigate()
                 heading_rate_raw_delta_deg * static_cast<double>(kSteeringRateReferenceMs) / static_cast<double>(heading_rate_gap_ms);
         }
         if (heading_changed) {
-            runtime_state_.steering_rate.prev_heading_deg = current_heading;
+            runtime_state_.steering_rate.prev_heading_deg = steer_heading;
             runtime_state_.steering_rate.at = now;
             runtime_state_.steering_rate.at_tick = tick_seq;
         }
     }
     else {
-        runtime_state_.steering_rate.prev_heading_deg = current_heading;
+        runtime_state_.steering_rate.prev_heading_deg = steer_heading;
         runtime_state_.steering_rate.at = now;
         runtime_state_.steering_rate.at_tick = tick_seq;
         runtime_state_.steering_rate.has_prev = true;
@@ -1931,6 +2044,19 @@ bool NavigationStateMachine::TickNavigate()
     // an unpaid debt expires, so a swallowed drag can never leave steering suppressed against a turn never coming.
     // Walking turns at about half rate: a jogging-sized lifetime expires mid-turn and the loop re-commands it.
     SteeringRateState& steering_rate = runtime_state_.steering_rate;
+    FlowState& flow = runtime_state_.flow;
+    if (flow.last_steer_tick_at.time_since_epoch().count() > 0) {
+        const int64_t period_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - flow.last_steer_tick_at).count();
+        flow.steer_periods_ms.push_back(std::min(period_ms, kSteerPeriodMaxSampleMs));
+        if (flow.steer_periods_ms.size() > kSteerPeriodWindow) {
+            flow.steer_periods_ms.erase(flow.steer_periods_ms.begin());
+        }
+    }
+    flow.last_steer_tick_at = now;
+    // Unknown until the second steering tick of a navigation.
+    const std::optional<int64_t> steer_period_ms =
+        flow.steer_periods_ms.empty() ? std::nullopt : std::optional<int64_t>(latency::Median(flow.steer_periods_ms));
+    const bool slow_loop = drops_turn_sends && steer_period_ms.has_value() && *steer_period_ms >= kSlowLoopPivotPeriodMs;
     const double batch_cap_deg = motion_controller_->SteeringBatchCapDeg();
     const bool walk_engaged = walk_mode_.engaged();
     const auto pending_lifetime_ms = [&](double delta_deg) {
@@ -1938,10 +2064,12 @@ bool NavigationStateMachine::TickNavigate()
         // land, so add time for the part beyond the first batch. A debt written off mid-sweep makes the loop command
         // the remainder a second time, which overshoots by whatever was still in flight and then hunts back.
         const double extra_sweep_deg = std::max(0.0, std::abs(delta_deg) - batch_cap_deg);
-        const int64_t base_ms = kSteeringPendingLifetimeMs + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
+        const int64_t floor_ms = drops_turn_sends
+                                     ? std::max(kSteeringPendingLifetimeMs, kSteeringPendingLifetimeTicks * steer_period_ms.value_or(0))
+                                     : kSteeringPendingLifetimeMs;
+        const int64_t base_ms = floor_ms + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
         return walk_engaged ? base_ms * kWalkModeSlowFactor : base_ms;
     };
-    const bool drops_turn_sends = motion_controller_->SteeringDropsTurnSends();
     if (drops_turn_sends) {
         std::erase_if(steering_rate.in_flight, [&](const SteeringRateState::InFlightTurn& turn) {
             return std::chrono::duration_cast<std::chrono::milliseconds>(now - turn.sent_at).count() >= pending_lifetime_ms(turn.delta_deg);
@@ -1951,7 +2079,7 @@ bool NavigationStateMachine::TickNavigate()
                 steering_rate.pending_turn_deg = 0.0;
             }
             else {
-                const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
+                const double landed = NaviMath::NormalizeAngle(steer_heading - steering_rate.pending_ref_heading_deg);
                 const double owed = std::abs(steering_rate.pending_turn_deg);
                 double negative_sent_deg = 0.0;
                 double positive_sent_deg = 0.0;
@@ -1969,14 +2097,14 @@ bool NavigationStateMachine::TickNavigate()
             steering_rate.pending_turn_deg = 0.0;
         }
         else {
-            const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
+            const double landed = NaviMath::NormalizeAngle(steer_heading - steering_rate.pending_ref_heading_deg);
             const double owed = std::abs(steering_rate.pending_turn_deg);
             steering_rate.pending_turn_deg = std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed);
         }
     }
-    steering_rate.pending_ref_heading_deg = current_heading;
+    steering_rate.pending_ref_heading_deg = steer_heading;
 
-    const double heading_error = NaviMath::NormalizeAngle(effective_route_heading - current_heading);
+    const double heading_error = NaviMath::NormalizeAngle(effective_route_heading - steer_heading);
     const SteeringCommand steering = SteeringController::Update(
         heading_error,
         heading_rate_deg,
@@ -1984,7 +2112,40 @@ bool NavigationStateMachine::TickNavigate()
         steering_rate.turn_latch_sign,
         steering_rate.pending_turn_deg);
 
-    motion_controller_->SetForwardState(true);
+    // On a slow loop a big turn takes a whole tick to land while the character keeps running the old way, so a
+    // sharp corner on a ledge is overrun into the water before the new heading is seen. Turn those in place; the
+    // next tick presses forward again. A fast loop lands the turn within a stride and keeps running through it.
+    // Before the period is known the agent is just starting off, so only a turn nearly sideways or behind waits.
+    const double turn_abs_deg = std::abs(steering.yaw_delta_deg);
+    const bool pivot_in_place =
+        drops_turn_sends && steering.issued
+        && (steer_period_ms.has_value() ? slow_loop && turn_abs_deg >= kSlowLoopPivotTurnDeg : turn_abs_deg >= kStartupPivotTurnDeg);
+    // The pivot only starts once the aim has swung past the vertex, and at a narrow bend the aim is held on the vertex
+    // until the agent is all but on it: on a slow loop that is a tick and more too late. Stop short instead, once per
+    // bend, then walk up to the vertex and turn there in place.
+    bool corner_brake = false;
+    const std::optional<SharpCorner>& corner = nav_run_result.corner;
+    const auto ahead_is_braked_corner = [&] {
+        return corner && flow.braked_corner
+               && std::hypot(corner->point.x - flow.braked_corner->x, corner->point.y - flow.braked_corner->y) <= kCornerBrakeLatchRadiusM;
+    };
+    if (slow_loop && corner && nav_run_result.step_per_tick) {
+        const double stop_distance = *nav_run_result.step_per_tick * kCornerBrakeLeadTicks;
+        corner_brake = !ahead_is_braked_corner() && corner->distance <= stop_distance && corner->lead_distance < stop_distance;
+        if (corner_brake) {
+            flow.braked_corner = corner->point;
+            LogInfo << "Braking before a sharp corner." << VAR(corner->distance) << VAR(corner->turn_deg) << VAR(corner->lead_distance)
+                    << VAR(stop_distance) << VAR(corner->point.x) << VAR(corner->point.y);
+        }
+    }
+    // One braked tick only slides the agent part of the way in; with forward back on it ran on past the vertex at full
+    // speed and into the water (on device). Walk until the bend is behind, so the pivot at the vertex starts slow.
+    if (const bool corner_walk = ahead_is_braked_corner(); corner_walk != flow.corner_walk) {
+        flow.corner_walk = corner_walk;
+        LogInfo << (corner_walk ? "Walking into a braked corner." : "Braked corner behind; walking ends.") << VAR(position_->x)
+                << VAR(position_->y);
+    }
+    motion_controller_->SetForwardState(!pivot_in_place && !corner_brake);
 
     double issued_delta_deg = 0.0;
     int64_t steer_send_ms = 0;
@@ -1998,7 +2159,7 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
     if (issued_delta_deg != 0.0) {
-        steering_rate.cmd_heading_deg = current_heading;
+        steering_rate.cmd_heading_deg = steer_heading;
         steering_rate.cmd_delta_deg = issued_delta_deg;
         steering_rate.cmd_at = now;
         steering_rate.has_cmd = true;
@@ -2009,7 +2170,7 @@ bool NavigationStateMachine::TickNavigate()
     }
     // 只有走到这里的拍才记账。在上面就返回的拍留下拍号缺口，估计器拿输入出口的账判断那拍有没有发过转向。
     const int64_t now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-    sensitivity::RecordTick(maa_context_, tick_seq, now_ms, current_heading, issued_delta_deg, degraded_fix);
+    sensitivity::RecordTick(maa_context_, tick_seq, now_ms, steer_heading, issued_delta_deg, degraded_fix);
 
     // Closed the loop on the forward hold: the keydown goes out once on the transition, so a swallowed one
     // strands the agent aimed correctly and walking nowhere until an obstacle recovery notices seconds later.
@@ -2017,7 +2178,6 @@ bool NavigationStateMachine::TickNavigate()
     // down once recovery is active: it owns the movement keys from then on, its cooldown ticks fall through to
     // here, and a release/re-press dropped between two of its jump pulses would fight it. That leaves this the
     // early window only — kObstacleRecoveryMinTriggerMs away, which is the whole point of it.
-    FlowState& flow = runtime_state_.flow;
     const bool moved = flow.has_last_steer_position
                        && std::hypot(position_->x - flow.last_steer_position.x, position_->y - flow.last_steer_position.y)
                               > kMeasurementDefaultPositionQuantum;
@@ -2061,13 +2221,19 @@ bool NavigationStateMachine::TickNavigate()
 
     const int64_t tick_compute_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - tick_started_at).count();
-    LogDebug << "TickNavigate steering decision." << VAR(tick_seq) << VAR(current_heading) << VAR(route.route_heading)
-             << VAR(effective_route_heading) << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track)
-             << VAR(nav_run_result.upcoming_turn_deg) << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg)
-             << VAR(heading_rate_gap_ms) << VAR(heading_rate_gap_ticks) << VAR(heading_error) << VAR(steering.yaw_delta_deg)
-             << VAR(issued_delta_deg) << VAR(turn_achieved_deg) << VAR(turn_residual_deg) << VAR(turn_elapsed_ms)
-             << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(capture_ms) << VAR(fix_age_ms)
-             << VAR(tick_gap_ms) << VAR(tick_compute_ms);
+    // -1 when there is no bend in reach or no speed estimate yet.
+    const double corner_distance = corner ? corner->distance : -1.0;
+    const double corner_turn_deg = corner ? corner->turn_deg : -1.0;
+    const double corner_lead_distance = corner ? corner->lead_distance : -1.0;
+    const double step_per_tick = nav_run_result.step_per_tick.value_or(-1.0);
+    LogDebug << "TickNavigate steering decision." << VAR(tick_seq) << VAR(current_heading) << VAR(steer_heading) << VAR(steering_on_camera)
+             << VAR(arrow_lags_camera) << VAR(route.route_heading) << VAR(effective_route_heading)
+             << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track) << VAR(nav_run_result.upcoming_turn_deg)
+             << VAR(corner_distance) << VAR(corner_turn_deg) << VAR(corner_lead_distance) << VAR(step_per_tick) << VAR(corner_brake)
+             << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg) << VAR(heading_rate_gap_ms) << VAR(heading_rate_gap_ticks)
+             << VAR(heading_error) << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(turn_achieved_deg)
+             << VAR(turn_residual_deg) << VAR(turn_elapsed_ms) << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix)
+             << VAR(capture_ms) << VAR(fix_age_ms) << VAR(tick_gap_ms) << VAR(tick_compute_ms);
 
     // 只有走到这里的拍才是完整的常规导航拍，语义节点、恢复、丢定位在上面就提前 return 了。
     latency::RecordStage(latency::Stage::Other, std::max<int64_t>(0, tick_compute_ms - capture_ms - steer_send_ms));
@@ -2340,8 +2506,15 @@ void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
         return;
     }
 
-    PromptDistance nearest = NearestPromptDistance();
     const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
+    // Walking into a bend braked for (the corner brake in TickNavigate), whatever the prompt approach says.
+    if (phase == NaviPhase::Navigate && position_->valid && !recovering && !runtime_state_.river_fall.pending
+        && runtime_state_.flow.corner_walk) {
+        walk_mode_.Request(true);
+        return;
+    }
+
+    PromptDistance nearest = NearestPromptDistance();
     const bool has_waypoint = session_->HasCurrentWaypoint();
     const ActionTraits traits = has_waypoint ? session_->CurrentWaypoint().Traits() : ActionTraits {};
     const bool plain_approach = traits.walk_approach;
@@ -2397,7 +2570,9 @@ bool NavigationStateMachine::TryRunPromptSubtaskWhileWalking(const RouteTracking
 
     const std::array<AsyncPromptAction*, 2> prompts = PromptActions();
     for (size_t index = 0; index < prompts.size(); ++index) {
-        if (!prompts[index]->TryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->current_node_idx())) {
+        const PromptTriggerOutcome outcome =
+            prompts[index]->TryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->current_node_idx());
+        if (outcome == PromptTriggerOutcome::NotTriggered) {
             continue;
         }
         // 屏幕上一次只弹一个提示, 一次观测只值一次停车: 清掉另一类的闩, 免得同一个提示被停两次
@@ -2406,7 +2581,7 @@ bool NavigationStateMachine::TryRunPromptSubtaskWhileWalking(const RouteTracking
                 prompts[other]->ForgetDetection();
             }
         }
-        if (prompts[index]->spec().CompletesWaypointOnTrigger()) {
+        if (outcome == PromptTriggerOutcome::Recognized && prompts[index]->spec().CompletesWaypointOnTrigger()) {
             CompleteWaypointAfterPromptTrigger();
         }
         return true;
@@ -2435,7 +2610,7 @@ void NavigationStateMachine::CompleteWaypointAfterPromptTrigger()
 }
 
 // 最后一个点被吃掉的同一拍路线就结束、扫描器随即销毁, 行进中的检测没机会报第二次, 所以收尾单独给一个窗口。
-// 放在成功判定之后, 这里失败不该翻掉跑成功的线路。只服务共用表那类: 点名目标的那类每个点必定恰好跑一次。
+// 放在成功判定之后, 这里失败不该翻掉跑成功的线路。只服务共用表那类: 点名目标的那类每个点不是行进中认中, 就是到点时自己认过。
 void NavigationStateMachine::TryRunPromptSubtaskAtRouteTail()
 {
     if (maa_context_ == nullptr || should_stop_() || session_->phase() != NaviPhase::Finished) {

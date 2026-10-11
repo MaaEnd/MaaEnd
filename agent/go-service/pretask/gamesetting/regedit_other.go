@@ -96,6 +96,21 @@ func GetVideoFullScreen() (uint32, error) {
 	return 0, ErrUnsupported
 }
 
+// IsVideoFullScreen 在非 Windows 平台不可用。
+func IsVideoFullScreen() (bool, error) {
+	return false, ErrUnsupported
+}
+
+// GetResolvedVideoResolutionWidth 在非 Windows 平台不可用。
+func GetResolvedVideoResolutionWidth() (uint32, error) {
+	return 0, ErrUnsupported
+}
+
+// GetResolvedVideoResolutionHeight 在非 Windows 平台不可用。
+func GetResolvedVideoResolutionHeight() (uint32, error) {
+	return 0, ErrUnsupported
+}
+
 func SetVideoFullScreen(_ uint32) error {
 	return ErrUnsupported
 }

@@ -41,29 +41,12 @@
                     // 不要补 ZONE：路线跨 L5_322 / L5_321 两层，打完后人停在 L5_321，首点 ZONE 校验必定失败
                     "path": [
                         {
-                            "action": "RUN",
-                            "target": [
-                                225.66,
-                                94.04
-                            ],
-                            "target_tier": "Wuling_L5_322"
-                        },
-                        {
-                            "action": "RUN",
-                            "target": [
-                                119.26,
-                                95.21
-                            ],
-                            "target_tier": "Wuling_L5_321"
-                        },
-                        {
-                            "action": "RUN",
+                            "action": "NAVMESH",
                             "target": [
                                 86.12,
                                 95.53
                             ],
-                            "target_tier": "Wuling_L5_321",
-                            "strict_arrival": true
+                            "target_tier": "Wuling_L5_321"
                         }
                     ]
                 }
@@ -97,13 +80,17 @@
                             "zone_id": "Wuling_L5_321"
                         },
                         {
-                            "action": "RUN",
+                            "action": "INTERACT",
                             "target": [
                                 78.86,
                                 95.64
                             ],
                             "target_tier": "Wuling_L5_321",
-                            "strict_arrival": true
+                            "strict_arrival": true,
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_rec": true
                         }
                     ]
                 }
@@ -112,6 +99,9 @@
         "post_delay": 1500,
         "next": [
             "AutoEssenceDispatcher"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

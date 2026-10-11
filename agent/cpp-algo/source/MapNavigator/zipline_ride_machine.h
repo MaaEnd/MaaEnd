@@ -80,7 +80,20 @@ private:
     void CommitRecord(HopOutcome outcome, Clock::time_point now);
     void CommitFailedReturn(HopOutcome outcome, Clock::time_point now);
     std::vector<ZiplineNodeRef> KnownNodes() const;
-    double AimBiasDeg() const;
+    std::vector<double> NeighborOffsetsDeg() const;
+    double FirstShotAimBiasDeg() const;
+    double EscalatedAimBiasDeg(double wrong_bearing_deg) const;
+
+    // 闭环转向的共用部件: 稳定读数、记账、发一个批次。链条瞄准与离索朝向走的是同一套,
+    // 区别只在对准之后做什么
+    std::optional<double> SettledHeading(const ZiplineObservation& obs);
+    void ResetStableHeading();
+    std::optional<double> IssueYawTurn(IZiplineActuator& actuator, double residual, Clock::time_point now);
+    // 离索朝向: 初始残差定预算, 摆正或到点都回到同一条下索路径
+    StageResult StartExitAim(const HopCompleted& done, Clock::time_point now);
+    double ResidualToExitAim() const;
+    int32_t ExitAimBudgetMs(double residual) const;
+    StageResult LeaveTowerAfterAim(IZiplineActuator& actuator, Clock::time_point now);
 
     StageResult TickMounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult Remount(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
@@ -89,6 +102,7 @@ private:
     StageResult TickFired(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult TickRiding(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult TickLanded(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
+    StageResult TickExitAiming(const ZiplineObservation& obs, IZiplineActuator& actuator);
     StageResult Classify(IZiplineObserver& observer, IZiplineActuator& actuator, Clock::time_point now);
     StageResult TickDismounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
     StageResult FailAim(IZiplineActuator& actuator, const char* reason, Clock::time_point now);
@@ -107,7 +121,9 @@ private:
     ZiplineNodeRef origin_;
     ZiplineNodeRef target_;
     double seed_elevation_deg_ = 0.0;
+    // 去程停点相对落点方位的偏置, 一跳内跨发射保留
     double aim_bias_deg_ = 0.0;
+    bool pitch_lowered_ = false;
     int pitch_tier_ = 0;
     bool returning_ = false;
     int hop_retry_count_ = 0;
@@ -130,6 +146,10 @@ private:
     int stable_heading_hits_ = 0;
     bool turn_pending_ = false;
     Clock::time_point turn_sent_at_ {};
+
+    // 离索朝向要朝的点与这一段按初始残差放大的预算。只有链尾那一跳带目标, 经调用方确认后才进这一段
+    ZiplineMountSpot exit_aim_;
+    int32_t exit_aim_budget_ms_ = 0;
 
     int dismount_presses_ = 0;
     std::optional<NaviPosition> dismount_stable_pos_;

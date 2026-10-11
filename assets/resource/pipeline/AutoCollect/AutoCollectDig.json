@@ -1,11 +1,11 @@
 {
     "AutoCollectDigStart": {
         "next": [
-            "AutoCollectDig"
+            "AutoCollectDigFirst"
         ]
     },
-    "AutoCollectDig": {
-        "desc": "无条件点击两次后结束",
+    "AutoCollectDigFirst": {
+        "desc": "无条件攻击",
         "recognition": "DirectHit",
         "action": {
             "type": "Click",
@@ -18,18 +18,40 @@
                 ]
             }
         },
-        "repeat": 2,
-        "repeat_delay": 500,
+        "next": [
+            "AutoCollectDigSpace"
+        ]
+    },
+    "AutoCollectDigSpace": {
+        "pre_delay": 100,
+        "action": "ClickKey",
+        "key": 32,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectDig"
+        ]
+    },
+    "AutoCollectDig": {
+        "desc": "无条件攻击",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    640,
+                    360,
+                    1,
+                    1
+                ]
+            }
+        },
         "next": [
             "AutoCollectDigEnd"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "执行挖掘点击"
-        }
+        ]
     },
     //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
     "AutoCollectDigEnd": {
-        "pre_delay": 0,
+        "pre_delay": 300,
         "post_delay": 0
     }
 }

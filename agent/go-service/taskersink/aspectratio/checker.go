@@ -211,6 +211,10 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		return
 	}
 
+	if c.stopIfFullscreenIllegal(tasker, controllerDisplay, detail) {
+		return
+	}
+
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
@@ -400,6 +404,75 @@ func sendAltEnterWindows(controller *maa.Controller) (resolutionReader, error) {
 
 var sendAltEnterWindowsImpl = func(*maa.Controller) (resolutionReader, error) {
 	return nil, fmt.Errorf("Alt+Enter is only supported on Windows")
+}
+
+// stopIfFullscreenIllegal 在 PC 全屏时校验游戏设置里的分辨率。
+// 全屏截图是显示器尺寸，不能代表游戏内分辨率；读不到注册表时交给截图检测。
+func (c *AspectRatioChecker) stopIfFullscreenIllegal(tasker *maa.Tasker, controllerDisplay string, detail maa.TaskerTaskDetail) bool {
+	if runtime.GOOS != "windows" {
+		return false
+	}
+
+	fullscreen, err := gamesetting.IsVideoFullScreen()
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Msg("Failed to read fullscreen game setting, falling back to screenshot check")
+		return false
+	}
+	if !fullscreen {
+		return false
+	}
+
+	width, err := gamesetting.GetResolvedVideoResolutionWidth()
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Msg("Failed to read game setting resolution width, falling back to screenshot check")
+		return false
+	}
+	height, err := gamesetting.GetResolvedVideoResolutionHeight()
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Uint64("task_id", detail.TaskID).
+			Str("entry", detail.Entry).
+			Msg("Failed to read game setting resolution height, falling back to screenshot check")
+		return false
+	}
+
+	aspectRatioOK, minResolutionOK, resolutionOK, scaledW, scaledH := isNonADBResolutionOK(int32(width), int32(height))
+	log.Debug().
+		Uint64("task_id", detail.TaskID).
+		Str("entry", detail.Entry).
+		Uint32("width", width).
+		Uint32("height", height).
+		Int("scaled_width", scaledW).
+		Int("scaled_height", scaledH).
+		Bool("aspect_ratio_ok", aspectRatioOK).
+		Bool("min_resolution_ok", minResolutionOK).
+		Msg("Checked fullscreen game setting resolution")
+	if resolutionOK {
+		return false
+	}
+
+	log.Error().
+		Uint64("task_id", detail.TaskID).
+		Str("entry", detail.Entry).
+		Bool("stop_task", true).
+		Uint32("width", width).
+		Uint32("height", height).
+		Int("scaled_width", scaledW).
+		Int("scaled_height", scaledH).
+		Bool("aspect_ratio_ok", aspectRatioOK).
+		Bool("min_resolution_ok", minResolutionOK).
+		Msg("fullscreen game setting resolution check failed")
+	c.stopWithWarning(tasker, controllerDisplay, int(width), int(height), i18n.T("tasker.aspect_ratio_warning.full_screen_setting_ratio"))
+	return true
 }
 
 func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDisplay string, width, height int, followUpLines ...string) {

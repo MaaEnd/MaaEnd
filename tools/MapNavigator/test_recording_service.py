@@ -3,9 +3,13 @@ from __future__ import annotations
 import time
 import unittest
 from types import SimpleNamespace
+from unittest.mock import Mock, patch
+
+import recording_service
 
 from connection_models import RecordingSessionConfig
 from recording_service import RecordingService, parse_live_position
+from runtime import RESOURCE_DIR
 
 
 def _tasker_with_detail(detail: dict) -> SimpleNamespace:
@@ -49,6 +53,24 @@ class ParseLivePositionTest(unittest.TestCase):
 
 
 class RecordingServicePositionTest(unittest.TestCase):
+    def test_linux_recording_loads_base_resource_before_overlay(self) -> None:
+        errors = []
+        service = RecordingService(
+            runtime=SimpleNamespace(),
+            on_status=lambda _text, _color: None,
+            on_finished=lambda _points: None,
+            on_error=errors.append,
+        )
+        service._session_config = RecordingSessionConfig(kind="linux")
+        service._session = Mock()
+        with patch.object(recording_service.key_listener, "start"):
+            service._run()
+        self.assertEqual(errors, [])
+        self.assertEqual(
+            service._session.open.call_args.kwargs.get("resource_dirs"),
+            [RESOURCE_DIR],
+        )
+
     def test_updates_snapshot_and_throttles_ui_events(self) -> None:
         positions = []
         statuses = []

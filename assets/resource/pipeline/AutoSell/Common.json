@@ -76,7 +76,10 @@
         "rate_limit": 0,
         "next": [
             "AutoSellEnterStockRedistributionSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.Keymap.focus.interact_failed"
+        }
     },
     "AutoSellEnterStockRedistributionSuccess": {
         "desc": "成功进入物资调度页面",

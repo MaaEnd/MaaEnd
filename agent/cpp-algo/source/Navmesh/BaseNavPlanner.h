@@ -47,6 +47,9 @@ struct BaseNavRouteRequest
     // Height of the overlapping deck the goal sits on. floor_y steers the snap; this steers which span the
     // search must stop on. Unset -> the search keeps its full span set.
     float goal_deck_y = kBaseNavFloorYNone;
+    // Height of the deck the start stands on, set only when it is known exactly (just landed on a zipline
+    // tower). The start snaps onto the surface nearest that height instead of the nearest surface.
+    float start_deck_y = kBaseNavFloorYNone;
 };
 
 enum class BaseNavRouteStatus

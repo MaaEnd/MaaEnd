@@ -57,9 +57,19 @@
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+                    ]
+                }
+            }
+        },
         "next": [
-            "AutoStockInStapleValleyIV",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIVStockRedistribution"
+            "AutoStockInStapleValleyIV"
         ]
     },
     "InStockStaple": {
@@ -87,9 +97,19 @@
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+                    ]
+                }
+            }
+        },
         "next": [
-            "AutoStockInStapleWuling",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentWulingStockRedistribution"
+            "AutoStockInStapleWuling"
         ]
     },
     "AutoStockStapleDone": {

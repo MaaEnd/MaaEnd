@@ -110,7 +110,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 来和大家一起玩耍吧！
 
-- 💬 **用户 QQ 群**: [1097256935](https://qm.qq.com/q/rAj53B5V4s)  
+- 💬 **用户 QQ 群**: [1082597011](https://qm.qq.com/q/F4FjKxkCRy)  
   使用问题、功能建议、闲聊摸鱼，欢迎来撩~
 - 👨‍💻 **开发 QQ 群**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   这是干活群，欢迎开发者加入一起造轮子！（仅限技术讨论，使用问题请去用户群哦）

@@ -134,6 +134,10 @@ bool ActionWrapper::SendViewDeltaSync(int dx, int dy)
     if (sent && dx != 0 && units_per_degree > 0.0) {
         sensitivity::NoteTurnIssued(static_cast<double>(dx) / units_per_degree);
     }
+    // 偏离判 sent：一次没送成功的拖拽可能已经动了视角，宁可让下一拍用不上先验。
+    if (dx != 0) {
+        NoteHeadingDisturbed();
+    }
     return sent;
 }
 

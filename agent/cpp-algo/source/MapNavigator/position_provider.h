@@ -19,11 +19,14 @@ public:
 
     // Succeeds only when both position and the configured heading are usable.
     // search_hints: 调用方知道人大概在哪时（滑索落点等）交给定位器多搜几个小窗，见 SearchHint。
+    // camera_heading_prior: 预期镜头方位角（北为 0 度）。它是观测而非指令，只允许传上一次成功识别到的
+    // 镜头方位角，且调用方必须确认自此没有任何转向指令——判据见 NavigationStateMachine 的朝向纪元。
     bool Capture(
         NaviPosition* out_pos,
         bool force_global_search,
         const std::string& expected_zone_id,
-        const std::vector<maplocator::SearchHint>& search_hints = {});
+        const std::vector<maplocator::SearchHint>& search_hints = {},
+        std::optional<double> camera_heading_prior = std::nullopt);
     bool WaitForFix(
         NaviPosition* out_pos,
         const std::string& expected_zone_id,

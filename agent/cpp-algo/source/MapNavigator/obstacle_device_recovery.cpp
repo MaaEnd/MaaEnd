@@ -2,6 +2,9 @@
 
 #include <cmath>
 #include <filesystem>
+#include <optional>
+#include <string>
+#include <vector>
 
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/ImageIo.h>
@@ -14,11 +17,30 @@
 #include "position_provider.h"
 #include "roi_template_scanner.h"
 #include "route_tracker.h"
+#include "semantic_helpers.h"
 
 #include "../utils.h"
 
 namespace mapnavigator
 {
+
+namespace
+{
+
+const char* WalkOutEntryFor(const std::vector<std::string>& handled)
+{
+    for (const std::string& node : handled) {
+        if (node == kObstacleDeviceMoveNode) {
+            return kObstacleDeviceWalkOutEntry;
+        }
+        if (node == kObstacleAicCoreMoveNode) {
+            return kObstacleAicCoreWalkOutEntry;
+        }
+    }
+    return nullptr;
+}
+
+} // namespace
 
 ObstacleDeviceRecovery::ObstacleDeviceRecovery(
     MaaContext* maa_context,
@@ -99,12 +121,21 @@ DeviceRemovalOutcome ObstacleDeviceRecovery::TryRemove(const RouteTrackingState&
 
     const NaviPosition move_start = *position_;
     LogInfo << "Dynamic recovery carrying off the blocking device." << VAR(route.waypoint_distance);
-    // Forward has to be held across the subtask: it picks the device up, and the agent must walk out from
-    // under it before the subtask drops it again, or the device lands back in the way.
-    motion_controller_->ReassertForward();
-    if (MaaContextRunTask(maa_context_, kObstacleDeviceEntry, "{}") == MaaInvalidId) {
-        LogWarn << "Blocking-device subtask did not run.";
+    // A click while walking lands on whatever prompt row has scrolled under it, so stand still until the move click.
+    motion_controller_->SetForwardState(false);
+    const std::optional<std::vector<std::string>> handled =
+        semantic_nodes::RunTaskForCompletedNodes(maa_context_, kObstacleDeviceEntry, "{}");
+    if (!handled) {
+        LogWarn << "Blocking-device subtask result unavailable.";
         return DeviceRemovalOutcome::StillPinned;
+    }
+    if (const char* walk_out = WalkOutEntryFor(*handled); walk_out != nullptr) {
+        // The carried device lands back where it was, so walk out from under it before it is put down.
+        motion_controller_->ReassertForward();
+        if (MaaContextRunTask(maa_context_, walk_out, "{}") == MaaInvalidId) {
+            LogWarn << "Blocking-device walk-out did not run." << VAR(walk_out);
+            return DeviceRemovalOutcome::StillPinned;
+        }
     }
 
     if (!position_provider_->Capture(position_, false, session_->current_zone_id()) || position_provider_->LastCaptureWasBlackScreen()

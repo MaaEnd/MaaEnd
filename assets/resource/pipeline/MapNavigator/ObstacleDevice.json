@@ -3,6 +3,30 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "__MapNavigatorObstacleDevice_WaitFreezes",
+            "__MapNavigatorObstacleDevice_NoHit"
+        ]
+    },
+    // 停步后等提示框静止再重认一次，认不中直接收尾
+    "__MapNavigatorObstacleDevice_WaitFreezes": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__MapNavigatorObstacleDevice_InteractPre"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": true,
+            "rate_limit": 100,
+            "timeout": 1000
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "__MapNavigatorObstacleDevice_InteractPre",
             "__MapNavigatorObstacleDevice_NoHit"
         ]
@@ -294,10 +318,8 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 600,
-        "next": [
-            "__MapNavigatorObstacleDevice_CancelMove"
-        ]
+        // 点下「移动」就收尾，导航按住前进后再跑 MapNavigatorObstacleDeviceWalkOut
+        "post_delay": 0
     },
     "__MapNavigatorObstacleDevice_MoveAICCore": {
         "recognition": {
@@ -313,7 +335,22 @@
         "action": {
             "type": "Click"
         },
+        // 点下「移动」就收尾，导航按住前进后再跑 MapNavigatorObstacleDeviceWalkOutAICCore
+        "post_delay": 0
+    },
+    // 导航按住前进时调起，走出设备范围后再放回
+    "MapNavigatorObstacleDeviceWalkOut": {
+        "pre_delay": 0,
+        "post_delay": 600,
+        "timeout": 1000,
+        "next": [
+            "__MapNavigatorObstacleDevice_CancelMove"
+        ]
+    },
+    "MapNavigatorObstacleDeviceWalkOutAICCore": {
+        "pre_delay": 0,
         "post_delay": 1350,
+        "timeout": 1000,
         "next": [
             "__MapNavigatorObstacleDevice_CancelMove"
         ]

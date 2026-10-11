@@ -27,6 +27,9 @@ struct AdbCameraSwipeDriverConfig
 
     // 游戏逐帧采样触点, 与按下或抬起同帧的位移会整步丢失; 两端停留要盖过负载高时的一帧
     int touch_down_hold_ms = 100;
+    // 手指离按下点不超过起拖阈值时游戏不认拖动, 阈值内的位移整段作废, 丢多少随帧率和步长变;
+    // 第一步直接移出阈值 (PlayCover 上约 10px), 余量留给阈值换算到参考坐标更大的设备
+    int drag_start_lead = 32;
     int move_steps = 6;
     int move_step_delay_ms = 10;
     int end_hold_ms = 100;

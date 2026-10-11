@@ -222,6 +222,34 @@ const Waypoint& NavigationSession::CurrentPathAt(size_t index) const
     return current_path_[index];
 }
 
+std::optional<double> NavigationSession::WalkedFloorY(const NaviPosition& position) const
+{
+    if (!HasCurrentWaypoint()) {
+        return std::nullopt;
+    }
+    const Waypoint& to = current_path_[current_node_idx_];
+    // 只认紧挨着且带坐标的上一个点
+    const Waypoint* from =
+        current_node_idx_ > 0 && current_path_[current_node_idx_ - 1].HasPosition() ? &current_path_[current_node_idx_ - 1] : nullptr;
+    if (from == nullptr || !from->route_floor_y) {
+        return to.route_floor_y;
+    }
+    if (!to.HasPosition() || !to.route_floor_y) {
+        return from->route_floor_y;
+    }
+    // 台沿下落的落点不插值: 沿下落方向越过它之前算台上
+    if (to.drop_from) {
+        const double ddx = to.x - (*to.drop_from)[0];
+        const double ddy = to.y - (*to.drop_from)[1];
+        return (position.x - to.x) * ddx + (position.y - to.y) * ddy < 0.0 ? from->route_floor_y : to.route_floor_y;
+    }
+    const double dx = to.x - from->x;
+    const double dy = to.y - from->y;
+    const double len_sq = dx * dx + dy * dy;
+    const double t = len_sq > 0.0 ? std::clamp(((position.x - from->x) * dx + (position.y - from->y) * dy) / len_sq, 0.0, 1.0) : 1.0;
+    return *from->route_floor_y + t * (*to.route_floor_y - *from->route_floor_y);
+}
+
 std::optional<size_t> NavigationSession::CanonicalIndexAtCurrent() const
 {
     if (!RequireCurrentWaypoint("CanonicalIndexAtCurrent")) {
@@ -257,6 +285,8 @@ void NavigationSession::AdvanceToNextWaypoint(const char* reason)
         return;
     }
     ++current_node_idx_;
+    left_landed_deck_ = false;
+    standing_tower_.reset();
     ResetProgress();
     ResetHardProgress();
 }
@@ -278,6 +308,8 @@ void NavigationSession::SkipPastWaypoint(size_t waypoint_idx, const char* reason
     }
     assert(waypoint_idx >= current_node_idx_ && "SkipPastWaypoint cannot move backward.");
     current_node_idx_ = waypoint_idx + 1;
+    left_landed_deck_ = false;
+    standing_tower_.reset();
     ResetProgress();
     ResetHardProgress();
 }
@@ -368,6 +400,47 @@ void NavigationSession::ResetHardProgress()
     hard_best_distance_ = std::numeric_limits<double>::max();
     hard_last_progress_time_ = {};
     hard_progress_initialized_ = false;
+}
+
+void NavigationSession::ExcludeFromStallClocks(std::chrono::steady_clock::duration paused)
+{
+    if (paused <= std::chrono::steady_clock::duration::zero()) {
+        return;
+    }
+    if (progress_initialized_ && last_progress_time_.time_since_epoch().count() != 0) {
+        last_progress_time_ += paused;
+    }
+    if (hard_progress_initialized_ && hard_last_progress_time_.time_since_epoch().count() != 0) {
+        hard_last_progress_time_ += paused;
+    }
+}
+
+std::optional<double> NavigationSession::LandedTowerDeckY(const NaviPosition& position) const
+{
+    if (left_landed_deck_) {
+        return std::nullopt;
+    }
+    const ZiplineNodeRef* tower = standing_tower_ ? &*standing_tower_ : nullptr;
+    if (tower == nullptr && current_node_idx_ != 0 && current_node_idx_ <= current_path_.size()) {
+        const Waypoint& hop = current_path_[current_node_idx_ - 1];
+        if (hop.action == ActionType::ZIPLINE && hop.zipline_hop) {
+            tower = &hop.zipline_hop->landing;
+        }
+    }
+    if (tower == nullptr || !tower->has_world || std::hypot(position.x - tower->x, position.y - tower->y) >= kZiplineLandingBandWu) {
+        return std::nullopt;
+    }
+    return tower->height;
+}
+
+void NavigationSession::LeaveLandedTowerDeck()
+{
+    left_landed_deck_ = true;
+}
+
+void NavigationSession::NoteStandingTower(const std::optional<ZiplineNodeRef>& tower)
+{
+    standing_tower_ = tower;
 }
 
 void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos)

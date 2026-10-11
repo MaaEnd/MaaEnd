@@ -232,6 +232,39 @@ navmesh::WorldPoint
     return path.points.back();
 }
 
+// The first vertex within kCornerBrakeScanM where the aim hold in LookaheadOnCorridor would wait: the corridor has
+// bent more than kNavRunLookaheadTurnBudgetDeg away from the leg the agent is on. Unlike the hold it does not lift
+// once the lead covers the vertex, so the brake can still see a bend the aim has already started into.
+std::optional<SharpCorner> NextSharpCorner(const navmesh::WorldPath& path, const CorridorProjection& projection, double commit_distance)
+{
+    if (path.points.size() < 3 || projection.edge_idx + 1 >= path.points.size()) {
+        return std::nullopt;
+    }
+    const size_t num_edges = path.points.size() - 1;
+    const navmesh::WorldPoint& edge_start = path.points[projection.edge_idx];
+    const navmesh::WorldPoint& edge_end = path.points[projection.edge_idx + 1];
+    const double base_heading = NaviMath::CalcTargetRotation(edge_start.x, edge_start.y, edge_end.x, edge_end.y);
+    double travelled = std::hypot(edge_end.x - projection.point.x, edge_end.y - projection.point.y);
+    for (size_t edge = projection.edge_idx + 1; edge < num_edges && travelled <= kCornerBrakeScanM; ++edge) {
+        const navmesh::WorldPoint& a = path.points[edge];
+        const navmesh::WorldPoint& b = path.points[edge + 1];
+        const double len = std::hypot(b.x - a.x, b.y - a.y);
+        if (len >= kNavRunCorridorEdgeMinM) {
+            const double turn = std::abs(NaviMath::NormalizeAngle(NaviMath::CalcTargetRotation(a.x, a.y, b.x, b.y) - base_heading));
+            if (turn > kNavRunLookaheadTurnBudgetDeg) {
+                return SharpCorner {
+                    .distance = travelled,
+                    .turn_deg = turn,
+                    .lead_distance = CornerCommitDistance(path, edge, turn, commit_distance),
+                    .point = a,
+                };
+            }
+        }
+        travelled += len;
+    }
+    return std::nullopt;
+}
+
 double CorridorAimHeading(const NaviPosition& position, const navmesh::WorldPoint& anchor, const navmesh::WorldPoint& lookahead)
 {
     const double dx = lookahead.x - anchor.x;
@@ -321,6 +354,35 @@ navmesh::WorldPath BuildAuthoredSpanPolyline(const NavigationSession& session, s
     return poly;
 }
 
+// 从台子边跳下: 人离起跳点还有一段距离就算到达, 这时人常常还站在台上; 只剩落点一个目标会停下来重新规划。
+// 人还在起跳点的到达范围内、没越过落点时, 把起跳点放回路线开头, 按出发时那条线走下去。
+bool PrependDropTopWhileShort(
+    navmesh::WorldPath& authored,
+    const NavigationSession& session,
+    const Waypoint& anchor,
+    const NaviPosition& position)
+{
+    const size_t current = session.current_node_idx();
+    if (authored.points.size() != 1 || !anchor.drop_from || current == 0) {
+        return false;
+    }
+    const Waypoint& top = session.current_path()[current - 1];
+    const double top_x = (*anchor.drop_from)[0];
+    const double top_y = (*anchor.drop_from)[1];
+    if (!top.IsContinuousRun() || top.x != top_x || top.y != top_y) {
+        return false;
+    }
+    const bool short_of_drop = (position.x - anchor.x) * (anchor.x - top_x) + (position.y - anchor.y) * (anchor.y - top_y) < 0.0;
+    if (!short_of_drop || std::hypot(position.x - top_x, position.y - top_y) > top.ArrivalBand(kMeasurementDefaultPositionQuantum)) {
+        return false;
+    }
+    authored.points.insert(authored.points.begin(), { .x = top_x, .y = top_y });
+    if (!authored.clearance.empty() || top.corridor_clearance > 0.0) {
+        authored.clearance = { top.corridor_clearance, anchor.corridor_clearance };
+    }
+    return true;
+}
+
 // Cut the line back to where the agent actually stands on it, dropping what is already behind.
 // The span always begins at the session's current waypoint, but a waypoint only counts as reached once
 // the agent enters a band about a pixel wide, so a pass a pixel wide of it leaves the span starting
@@ -403,8 +465,11 @@ bool NavRunController::buildPlan(
     size_t anchor_index,
     const Waypoint& anchor,
     NavRunReplanReason reason,
-    std::chrono::steady_clock::time_point now)
+    std::chrono::steady_clock::time_point now,
+    const std::function<void()>& halt,
+    std::chrono::steady_clock::duration& planning)
 {
+    planning = {};
     const auto commit = [&](navmesh::WorldPath path, bool literal) {
         plan_.valid = true;
         plan_.zone_id = position.zone_id;
@@ -418,6 +483,9 @@ bool NavRunController::buildPlan(
     };
 
     navmesh::WorldPath authored = BuildAuthoredSpanPolyline(session, anchor_index);
+    if (PrependDropTopWhileShort(authored, session, anchor, position)) {
+        LogDebug << "NavRunController drop top kept on span." << VAR(anchor_index) << VAR(position.x) << VAR(position.y);
+    }
     const bool has_authored = authored.points.size() >= 2;
     const size_t authored_points = authored.points.size();
     const bool on_authored_line = has_authored && TrimAuthoredSpanToAgent(authored, position);
@@ -454,8 +522,23 @@ bool NavRunController::buildPlan(
 
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
-    auto route =
-        PlanNavmeshRoute(param, position.zone_id, start, goal, anchor.target_deck_y, std::nullopt, nullptr, &runtime.virtual_no_go);
+    // 规划同步卡住 tick, 先松开前进键, 免得人闷头往前冲
+    if (halt) {
+        halt();
+    }
+    const auto plan_started_at = std::chrono::steady_clock::now();
+    auto route = PlanNavmeshRoute(
+        param,
+        position.zone_id,
+        start,
+        goal,
+        anchor.target_deck_y,
+        session.WalkedFloorY(position),
+        nullptr,
+        &runtime.virtual_no_go,
+        session.LandedTowerDeckY(position));
+    planning = std::chrono::steady_clock::now() - plan_started_at;
+    now += planning;
     if (route && route->ok() && route->path.points.size() >= 2) {
         commit(std::move(route->path), false);
         return true;
@@ -514,21 +597,19 @@ std::optional<double> NavRunController::estimateStepPerTick() const
     return arc / static_cast<double>(newest.tick_seq - speed_samples_[oldest].tick_seq);
 }
 
-double NavRunController::chooseLookaheadDistance(const RouteTrackingState& route) const
+double NavRunController::chooseLookaheadDistance(const RouteTrackingState& route, std::optional<double> step) const
 {
     if (!route.startup_motion_confirmed) {
         return kNavRunLookaheadLowSpeedM;
     }
-    const std::optional<double> step = estimateStepPerTick();
     if (!step) {
         return kNavRunLookaheadLowSpeedM;
     }
     return std::clamp(kNavRunLookaheadPreviewTicks * *step, kNavRunLookaheadMinM, kNavRunLookaheadMaxM);
 }
 
-double NavRunController::chooseTurnCommitDistance(double lookahead_distance) const
+double NavRunController::chooseTurnCommitDistance(double lookahead_distance, std::optional<double> step) const
 {
-    const std::optional<double> step = estimateStepPerTick();
     const double by_speed = step ? kNavRunTurnCommitTicks * *step : kNavRunLookaheadMinM;
     return std::clamp(by_speed, kNavRunLookaheadMinM, lookahead_distance);
 }
@@ -549,9 +630,18 @@ NavRunTickResult NavRunController::tick(
     const NaviParam& param,
     size_t anchor_index,
     const Waypoint& anchor,
-    std::chrono::steady_clock::time_point now)
+    std::chrono::steady_clock::time_point now,
+    const std::function<void()>& halt)
 {
     NavRunTickResult result;
+    // 规划耗时记进结果, 之后的计时都从规划结束算起
+    const auto build = [&](NavRunReplanReason reason) {
+        std::chrono::steady_clock::duration planning {};
+        const bool built = buildPlan(param, *session, *runtime, position, anchor_index, anchor, reason, now, halt, planning);
+        result.planning += planning;
+        now += planning;
+        return built;
+    };
 
     if (runtime->nav_run_dirty) {
         invalidate();
@@ -588,7 +678,7 @@ NavRunTickResult NavRunController::tick(
         if (failed_build_anchor_ == anchor_index && ElapsedMs(failed_build_at_, now) < kNavRunPlanFailureCooldownMs) {
             return result;
         }
-        if (!buildPlan(param, *session, *runtime, position, anchor_index, anchor, NavRunReplanReason::AnchorChanged, now)) {
+        if (!build(NavRunReplanReason::AnchorChanged)) {
             failed_build_anchor_ = anchor_index;
             failed_build_at_ = now;
             return result;
@@ -604,6 +694,13 @@ NavRunTickResult NavRunController::tick(
         return result;
     }
     plan_.cursor = projection->edge_idx;
+    // 走到台沿下落那一段, 之后的重规划不再从落点架子那层起步
+    for (const navmesh::DropLanding& drop : plan_.path.drops) {
+        if (plan_.cursor + 1 >= drop.index) {
+            session->LeaveLandedTowerDeck();
+            break;
+        }
+    }
 
     const bool hard_off = projection->cross_track > kNavRunCrossTrackFailM;
     const bool soft_off = projection->cross_track > kNavRunCrossTrackWarnM;
@@ -622,9 +719,10 @@ NavRunTickResult NavRunController::tick(
         // hard_off skips cooldown but never bypasses the budget — once exhausted,
         // outer 3.5 s recovery handles the escalation.
         if (budget_left && (hard_off || cooldown_ready)) {
-            plan_.last_soft_replan_at = now;
             plan_.soft_replan_attempts += 1;
-            if (buildPlan(param, *session, *runtime, position, anchor_index, anchor, reason, now)) {
+            const bool built = build(reason);
+            plan_.last_soft_replan_at = now;
+            if (built) {
                 auto reprojected = ProjectOntoCorridor(plan_.path, plan_.cursor, position);
                 if (!reprojected) {
                     invalidate();
@@ -654,10 +752,13 @@ NavRunTickResult NavRunController::tick(
     }
 
     const double upcoming_turn = UpcomingCorridorTurnDeg(plan_.path, *projection, kNavRunUpcomingTurnLookaheadM);
-    const double lookahead_distance = chooseLookaheadDistance(route);
-    const navmesh::WorldPoint lookahead =
-        LookaheadOnCorridor(plan_.path, *projection, lookahead_distance, chooseTurnCommitDistance(lookahead_distance));
+    const std::optional<double> step = estimateStepPerTick();
+    const double lookahead_distance = chooseLookaheadDistance(route, step);
+    const double turn_commit_distance = chooseTurnCommitDistance(lookahead_distance, step);
+    const navmesh::WorldPoint lookahead = LookaheadOnCorridor(plan_.path, *projection, lookahead_distance, turn_commit_distance);
     const double corridor_heading = CorridorAimHeading(position, projection->point, lookahead);
+    result.step_per_tick = step;
+    result.corner = NextSharpCorner(plan_.path, *projection, turn_commit_distance);
 
     result.has_corridor_heading = true;
     result.corridor_heading = corridor_heading;

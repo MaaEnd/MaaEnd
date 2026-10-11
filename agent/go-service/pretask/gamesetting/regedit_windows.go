@@ -366,6 +366,42 @@ func setRegistryPath(region string) error {
 	return nil
 }
 
+func useResolvedRegistryPath() error {
+	region, err := ResolveRegion()
+	if err != nil {
+		return err
+	}
+	return setRegistryPath(region)
+}
+
+// IsVideoFullScreen 按当前区服读取是否全屏。video_full_screen 为 1 时返回 true。
+func IsVideoFullScreen() (bool, error) {
+	if err := useResolvedRegistryPath(); err != nil {
+		return false, err
+	}
+	fullScreen, err := GetVideoFullScreen()
+	if err != nil {
+		return false, err
+	}
+	return fullScreen == videoFullScreenOn, nil
+}
+
+// GetResolvedVideoResolutionWidth 按当前区服读取游戏设置分辨率宽度。
+func GetResolvedVideoResolutionWidth() (uint32, error) {
+	if err := useResolvedRegistryPath(); err != nil {
+		return 0, err
+	}
+	return GetVideoResolutionWidth()
+}
+
+// GetResolvedVideoResolutionHeight 按当前区服读取游戏设置分辨率高度。
+func GetResolvedVideoResolutionHeight() (uint32, error) {
+	if err := useResolvedRegistryPath(); err != nil {
+		return 0, err
+	}
+	return GetVideoResolutionHeight()
+}
+
 // Apply 按 ResolveRegion 选定注册表路径，并写入游戏显示相关项。
 // 调用前若游戏未运行，须先 SetRegion；否则无法自动判区。
 func Apply(displayType, resolution string) bool {
