@@ -271,6 +271,7 @@ void ZiplineRideMachine::Reset()
     riding_entered_ = false;
     unknown_deadline_.reset();
     ResetStableHeading();
+    yaw_response_ratio_.reset();
     exit_aim_ = {};
     exit_aim_budget_ms_ = 0;
     dismount_presses_ = 0;
@@ -480,6 +481,7 @@ StageResult ZiplineRideMachine::TickOnTower(IZiplineActuator& actuator, Clock::t
         seed_elevation_deg_ = plan_.planned_elevation_deg;
     }
     ResetStableHeading();
+    yaw_response_ratio_.reset();
     pitch_lowered_ = false;
     // 俯仰读不回来, 每次发射前都先拉到上限, 从这个已知位置开环往下调
     if (!actuator.ResetPitchToMaximum()) {
@@ -517,12 +519,26 @@ void ZiplineRideMachine::ResetStableHeading()
     turn_sent_at_ = {};
 }
 
-std::optional<double> ZiplineRideMachine::IssueYawTurn(IZiplineActuator& actuator, double residual, Clock::time_point now)
+void ZiplineRideMachine::NoteTurnResponse(double heading)
 {
-    const std::optional<double> issued = actuator.TurnYaw(residual);
+    if (!turn_pending_ || std::abs(turn_cmd_deg_) < kZiplineAimResponseMinCmdDeg) {
+        return;
+    }
+    const double achieved = NaviMath::NormalizeAngle(heading - turn_ref_heading_);
+    if (achieved * turn_cmd_deg_ <= 0.0) {
+        return;
+    }
+    yaw_response_ratio_ = std::clamp(achieved / turn_cmd_deg_, 1.0, kZiplineAimResponseRatioMax);
+}
+
+std::optional<double> ZiplineRideMachine::IssueYawTurn(IZiplineActuator& actuator, double heading, double residual, Clock::time_point now)
+{
+    const std::optional<double> issued = actuator.TurnYaw(residual / yaw_response_ratio_.value_or(1.0));
     if (!issued) {
         return std::nullopt;
     }
+    turn_ref_heading_ = heading;
+    turn_cmd_deg_ = *issued;
     turn_sent_at_ = now;
     turn_pending_ = true;
     stable_heading_hits_ = 0;
@@ -546,7 +562,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
         return {};
     }
     const double heading = *settled;
-
+    NoteTurnResponse(heading);
     turn_pending_ = false;
 
     const double bias = returning_ ? 0.0 : aim_bias_deg_;
@@ -555,11 +571,13 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
                                   + (sweep_pending ? std::copysign(kZiplineAimSweepLeadDeg, bias) : 0.0);
     const double residual = NaviMath::NormalizeAngle(target_heading - heading);
     if (std::abs(residual) > kZiplineAimToleranceDeg) {
-        const std::optional<double> issued = IssueYawTurn(actuator, residual, now);
+        const std::optional<double> issued = IssueYawTurn(actuator, heading, residual, now);
         if (!issued) {
             return FailAim(actuator, "zipline/aim/turn_rejected", now);
         }
-        LogInfo << "zipline/aim/turn" << VAR(target_heading) << VAR(heading) << VAR(residual) << VAR(*issued) << VAR(pitch_lowered_);
+        const double response_ratio = yaw_response_ratio_.value_or(1.0);
+        LogInfo << "zipline/aim/turn" << VAR(target_heading) << VAR(heading) << VAR(residual) << VAR(*issued) << VAR(response_ratio)
+                << VAR(pitch_lowered_);
         return {};
     }
 
@@ -704,18 +722,20 @@ StageResult ZiplineRideMachine::TickExitAiming(const ZiplineObservation& obs, IZ
     if (!settled) {
         return {};
     }
+    const double heading = *settled;
+    NoteTurnResponse(heading);
     turn_pending_ = false;
 
-    const double heading = *settled;
     const double target_heading = NaviMath::CalcTargetRotation(obs.fix->x, obs.fix->y, exit_aim_.x, exit_aim_.y);
     const double residual = NaviMath::NormalizeAngle(target_heading - heading);
     if (std::abs(residual) > kZiplineExitAimToleranceDeg) {
-        const std::optional<double> issued = IssueYawTurn(actuator, residual, now);
+        const std::optional<double> issued = IssueYawTurn(actuator, heading, residual, now);
         if (!issued) {
             LogWarn << "zipline/exit_aim/turn_rejected" << VAR(target_heading) << VAR(heading) << VAR(residual);
             return LeaveTowerAfterAim(actuator, now);
         }
-        LogInfo << "zipline/exit_aim/turn" << VAR(target_heading) << VAR(heading) << VAR(residual) << VAR(*issued);
+        const double response_ratio = yaw_response_ratio_.value_or(1.0);
+        LogInfo << "zipline/exit_aim/turn" << VAR(target_heading) << VAR(heading) << VAR(residual) << VAR(*issued) << VAR(response_ratio);
         return {};
     }
     LogInfo << "zipline/exit_aim/aligned" << VAR(target_heading) << VAR(heading) << VAR(residual) << VAR(StageElapsedMs(now));
@@ -740,6 +760,7 @@ int32_t ZiplineRideMachine::ExitAimBudgetMs(double residual) const
 StageResult ZiplineRideMachine::StartExitAim(const HopCompleted& done, Clock::time_point now)
 {
     ResetStableHeading();
+    yaw_response_ratio_.reset();
     exit_aim_ = *plan_.exit_aim;
     exit_aim_budget_ms_ = ExitAimBudgetMs(ResidualToExitAim());
     pending_exit_ = done;

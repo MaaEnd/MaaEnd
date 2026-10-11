@@ -88,7 +88,8 @@ private:
     // 区别只在对准之后做什么
     std::optional<double> SettledHeading(const ZiplineObservation& obs);
     void ResetStableHeading();
-    std::optional<double> IssueYawTurn(IZiplineActuator& actuator, double residual, Clock::time_point now);
+    void NoteTurnResponse(double heading);
+    std::optional<double> IssueYawTurn(IZiplineActuator& actuator, double heading, double residual, Clock::time_point now);
     // 离索朝向: 初始残差定预算, 摆正或到点都回到同一条下索路径
     StageResult StartExitAim(const HopCompleted& done, Clock::time_point now);
     double ResidualToExitAim() const;
@@ -146,6 +147,11 @@ private:
     int stable_heading_hits_ = 0;
     bool turn_pending_ = false;
     Clock::time_point turn_sent_at_ {};
+    // 上一批发出时的朝向与指令量
+    double turn_ref_heading_ = 0.0;
+    double turn_cmd_deg_ = 0.0;
+    // 这次瞄准里量到的实际转角与指令之比，不小于 1
+    std::optional<double> yaw_response_ratio_;
 
     // 离索朝向要朝的点与这一段按初始残差放大的预算。只有链尾那一跳带目标, 经调用方确认后才进这一段
     ZiplineMountSpot exit_aim_;

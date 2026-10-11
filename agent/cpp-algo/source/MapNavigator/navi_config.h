@@ -332,6 +332,11 @@ static_assert(kZiplineAimSweepLeadDeg > 2.0 * kZiplineAimToleranceDeg);
 // 上索后的稳定等待与全部水平修正共用这个截止时间。每次只发一个后端批次并等待真实反馈，
 // 避免大角度转向在上索动画尚未结束时一次性排入多条输入。
 constexpr int32_t kZiplineAimHeadingTimeoutMs = 6000;
+// 架上准星靠近索时，小批转向会被游戏多带一截，全量补剩余角就会在目标两侧来回。
+// 每批量一次实际转角与指令之比，之后的批次按它缩小；比值小于 1 不放大，超过上限按上限算
+constexpr double kZiplineAimResponseRatioMax = 3.0;
+// 指令小于这个角时读数噪声占比太大，不拿来量比值
+constexpr double kZiplineAimResponseMinCmdDeg = 2.0;
 // 下索前把朝向摆到下一段走路方向的容差。下索动作自带一段沿按键那刻朝向的动量，所以这个角是
 // 走路方向上的偏差：走路自身的操舵容差是 40 度，而架上闭环已证明能到 6 度，取中间这一档
 constexpr double kZiplineExitAimToleranceDeg = 15.0;
