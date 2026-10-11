@@ -47,8 +47,9 @@ LandingClass ClassifyLanding(
     bool riding_entered,
     ZiplineNodeRef* reached);
 
-// 一跳滑索从上索按键到交还导航的阶段机。按键后先确认已上架, 再放开俯仰与左键; 此后只依据定位:
-// 起滑后连续定位失败即判定在滑行, 定位恢复并停稳即判定落地, 落点归属由分类决定。
+// 一跳滑索从上索按键到交还导航的阶段机。按键后先确认已上架, 再把俯仰压到本档目标角、做水平闭环
+// 对准、按左键; 此后只依据定位: 起滑后连续定位失败即判定在滑行, 定位恢复并停稳即判定落地,
+// 落点归属由分类决定。
 // 每跳的发射与结果记进账本, 规划器据此排掉滑不动/滑错的索
 class ZiplineRideMachine
 {
@@ -122,9 +123,13 @@ private:
     ZiplineNodeRef origin_;
     ZiplineNodeRef target_;
     double seed_elevation_deg_ = 0.0;
+    // 本档压到的俯仰角。TickOnTower 压到位时记下, 发射后的日志据此还原当时姿态
+    double pitch_target_deg_ = 0.0;
     // 去程停点相对落点方位的偏置, 一跳内跨发射保留
     double aim_bias_deg_ = 0.0;
-    bool pitch_lowered_ = false;
+    // 带偏置的那一跳是否已先在停点外侧瞄过一趟。俯仰先压、再进水平闭环, 所以这一趟由瞄准相位自己
+    // 走完, 横扫回正之后不再回外侧
+    bool lead_done_ = false;
     int pitch_tier_ = 0;
     bool returning_ = false;
     int hop_retry_count_ = 0;

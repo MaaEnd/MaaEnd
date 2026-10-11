@@ -255,8 +255,9 @@ void ZiplineRideMachine::Reset()
     origin_ = {};
     target_ = {};
     seed_elevation_deg_ = 0.0;
+    pitch_target_deg_ = 0.0;
     aim_bias_deg_ = 0.0;
-    pitch_lowered_ = false;
+    lead_done_ = false;
     pitch_tier_ = 0;
     returning_ = false;
     hop_retry_count_ = 0;
@@ -480,16 +481,28 @@ StageResult ZiplineRideMachine::TickOnTower(IZiplineActuator& actuator, Clock::t
         target_ = plan_.landing;
         seed_elevation_deg_ = plan_.planned_elevation_deg;
     }
-    ResetStableHeading();
     yaw_response_ratio_.reset();
-    pitch_lowered_ = false;
-    // 俯仰读不回来, 每次发射前都先拉到上限, 从这个已知位置开环往下调
+    lead_done_ = false;
+    // 俯仰读不回来, 每次发射前都先拉到上限, 从这个已知位置开环往下调。
+    // 顺序是先压俯仰再对准: 按左键之前最后一个动作就是一次经过闭环验证的朝向, 而不是一次开环俯仰;
+    // 转向比值的样本也取自发射时的镜头姿态, 不用从俯仰上限的姿态外推
     if (!actuator.ResetPitchToMaximum()) {
         return FailAim(actuator, "zipline/aim/pitch_reset_failed", now);
     }
-    LogInfo << "zipline/on_tower" << VAR(returning_) << VAR(pitch_tier_) << VAR(seed_elevation_deg_) << VAR(aim_bias_deg_) << VAR(target_.x)
-            << VAR(target_.y);
-    EnterStage(returning_ ? ZiplineStage::ReturnAiming : ZiplineStage::Aiming, now);
+    pitch_target_deg_ = PitchTargetForAttempt(seed_elevation_deg_, pitch_tier_);
+    const double pitch_delta = pitch_target_deg_ - kZiplinePitchMaximumElevationDeg;
+    if (std::abs(pitch_delta) >= 1.0) {
+        if (!actuator.TurnPitch(pitch_delta)) {
+            return FailAim(actuator, "zipline/aim/pitch_rejected", now);
+        }
+        // 这一下是回绝对硬限位的相对位移, 等它落定再开始读朝向, 免得把俯仰的余量当成对准环的第一批
+        actuator.Wait(kWaitAfterFirstTurnMs);
+    }
+    ResetStableHeading();
+    LogInfo << "zipline/on_tower" << VAR(returning_) << VAR(pitch_tier_) << VAR(seed_elevation_deg_) << VAR(pitch_target_deg_)
+            << VAR(aim_bias_deg_) << VAR(target_.x) << VAR(target_.y);
+    // 俯仰那几步是阻塞的, 计时从它们之后算起: kZiplineAimHeadingTimeoutMs 只留给水平闭环
+    EnterStage(returning_ ? ZiplineStage::ReturnAiming : ZiplineStage::Aiming, Clock::now());
     return {};
 }
 
@@ -546,7 +559,9 @@ std::optional<double> ZiplineRideMachine::IssueYawTurn(IZiplineActuator& actuato
     return issued;
 }
 
-// 站在架子上瞄准。一次只发一个后端批次, 等朝向读数跟上并连着两帧一致再算剩余角。对准后俯仰开环、左键起滑
+// 站在架子上对准。俯仰已由 TickOnTower 压到本档目标角, 这里只做水平闭环: 一次只发一个后端批次,
+// 等朝向读数跟上并连着两帧一致再算剩余角, 对准即按左键起滑 —— 按左键前最后动过的是被闭环验证过的
+// 朝向。带偏置的那一跳先在停点外侧瞄住、再横扫回正: 让目标先于邻架被瞄到靠的是最后这段接近方向
 StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
@@ -566,9 +581,9 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
     turn_pending_ = false;
 
     const double bias = returning_ ? 0.0 : aim_bias_deg_;
-    const bool sweep_pending = bias != 0.0 && !pitch_lowered_;
+    const bool lead_pass = bias != 0.0 && !lead_done_;
     const double target_heading = NaviMath::CalcTargetRotation(obs.fix->x, obs.fix->y, target_.x, target_.y) + bias
-                                  + (sweep_pending ? std::copysign(kZiplineAimSweepLeadDeg, bias) : 0.0);
+                                  + (lead_pass ? std::copysign(kZiplineAimSweepLeadDeg, bias) : 0.0);
     const double residual = NaviMath::NormalizeAngle(target_heading - heading);
     if (std::abs(residual) > kZiplineAimToleranceDeg) {
         const std::optional<double> issued = IssueYawTurn(actuator, heading, residual, now);
@@ -577,29 +592,19 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
         }
         const double response_ratio = yaw_response_ratio_.value_or(1.0);
         LogInfo << "zipline/aim/turn" << VAR(target_heading) << VAR(heading) << VAR(residual) << VAR(*issued) << VAR(response_ratio)
-                << VAR(pitch_lowered_);
+                << VAR(lead_done_);
+        return {};
+    }
+    if (lead_pass) {
+        // 外侧这一趟到位了。从这里横扫回停点: 新一段闭环, 重新计时
+        lead_done_ = true;
+        LogInfo << "zipline/aim/sweep" << VAR(target_heading) << VAR(heading) << VAR(bias);
+        stage_entered_at_ = Clock::now();
+        ResetStableHeading();
         return {};
     }
 
-    // 对准了。镜头此刻在俯仰上限, 从那里开环调到这一档的目标角
-    const double pitch_target = PitchTargetForAttempt(seed_elevation_deg_, pitch_tier_);
-    if (!pitch_lowered_) {
-        const double pitch_delta = pitch_target - kZiplinePitchMaximumElevationDeg;
-        if (std::abs(pitch_delta) >= 1.0) {
-            if (!actuator.TurnPitch(pitch_delta)) {
-                return FailAim(actuator, "zipline/aim/pitch_rejected", now);
-            }
-            actuator.Wait(kWaitAfterFirstTurnMs);
-        }
-        pitch_lowered_ = true;
-        if (sweep_pending) {
-            LogInfo << "zipline/aim/sweep" << VAR(target_heading) << VAR(heading) << VAR(bias) << VAR(pitch_target);
-            // 横扫是新一段闭环, 重新计时
-            stage_entered_at_ = Clock::now();
-            ResetStableHeading();
-            return {};
-        }
-    }
+    // 对准了。俯仰早在 TickOnTower 就压到本档, 起滑就是对着这个方向按一下左键
     actuator.FireLaunch();
     const auto fired_at = Clock::now();
     record_.launches.push_back(ZiplineLaunch {
@@ -615,7 +620,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
     riding_entered_ = false;
     unknown_deadline_.reset();
     LogInfo << "zipline/fired" << VAR(returning_) << VAR(pitch_tier_) << VAR(heading) << VAR(target_heading) << VAR(bias)
-            << VAR(pitch_target) << VAR(record_.launches.size());
+            << VAR(pitch_target_deg_) << VAR(record_.launches.size());
     EnterStage(ZiplineStage::Fired, fired_at);
     return {};
 }

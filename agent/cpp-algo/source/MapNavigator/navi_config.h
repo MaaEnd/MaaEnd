@@ -326,11 +326,11 @@ constexpr double kZiplineAimToleranceDeg = 6.0;
 constexpr double kZiplineAimBiasStepDeg = 3.0;
 // 偏过头没吸住时偏置减半重按, 减到这以下改换俯仰档
 constexpr double kZiplineAimBiasMinDeg = 1.5;
-// 先在停点外侧这么远处压俯仰再横扫回来, 让目标先于邻架被瞄到
+// 俯仰压好之后先在停点外侧这么远处瞄住、再横扫回正, 让目标先于邻架被瞄到
 constexpr double kZiplineAimSweepLeadDeg = 15.0;
 static_assert(kZiplineAimSweepLeadDeg > 2.0 * kZiplineAimToleranceDeg);
-// 上索后的稳定等待与全部水平修正共用这个截止时间。每次只发一个后端批次并等待真实反馈，
-// 避免大角度转向在上索动画尚未结束时一次性排入多条输入。
+// 上索后的稳定等待与全部水平修正共用这个截止时间; 俯仰不在此限, 它在进本相位前已由 TickOnTower 压好。
+// 每次只发一个后端批次并等待真实反馈，避免大角度转向在上索动画尚未结束时一次性排入多条输入。
 constexpr int32_t kZiplineAimHeadingTimeoutMs = 6000;
 // 架上准星靠近索时，小批转向会被游戏多带一截，全量补剩余角就会在目标两侧来回。
 // 每批量一次实际转角与指令之比，之后的批次按它缩小；比值小于 1 不放大，超过上限按上限算
@@ -345,7 +345,8 @@ constexpr double kZiplineExitAimToleranceDeg = 15.0;
 constexpr int32_t kZiplineExitAimBudgetBaseMs = 1500;
 constexpr double kZiplineExitAimBudgetPerDegMs = 45.0;
 // 落差够大时镜头得抬到索的仰角上才起得了滑。小地图读不到俯仰, 所以每次从地面登上滑索架后
-// 先通过 Pipeline 把镜头拉到上限, 将该硬限位记作 +90 度, 再从这个固定基准开环调整。连续滑索
+// 先通过 Pipeline 把镜头拉到上限, 将该硬限位记作 +90 度, 再从这个固定基准开环压到本档目标角,
+// 之后才进水平闭环: 按左键之前最后动过的是被闭环验证过的朝向, 而不是一次开环俯仰。连续滑索
 // 没有上下索动作, 直接沿用上一跳记住的俯仰。游戏的俯仰范围不对称: 仰角最多 90 度, 俯角最多 60 度。
 constexpr double kZiplinePitchDeadbandDeg = 8.0;
 constexpr double kZiplinePitchMaximumElevationDeg = 90.0;
