@@ -1,0 +1,50 @@
+{
+    "InventoryBagScrollUpward": {
+        "desc": "背包向上滚动一次；调用方负责等待画面稳定和判断是否到边界",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": 180,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InventoryBagScrollDownward": {
+        "desc": "背包向下滚动一次；调用方负责等待画面稳定和判断是否到边界",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": -180,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InventoryRepoScrollUpward": {
+        "desc": "仓库向上滚动一次；调用方负责等待画面稳定和判断是否到边界",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            640,
+            350
+        ],
+        "dy": 180,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InventoryRepoScrollDownward": {
+        "desc": "仓库向下滚动一次；调用方负责等待画面稳定和判断是否到边界",
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            640,
+            350
+        ],
+        "dy": -180,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

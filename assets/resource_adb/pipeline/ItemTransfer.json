@@ -1,4 +1,132 @@
 {
+    "ItemTransferFindForwardItemInRepo": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    },
+    "ItemTransferTransferForwardToBag": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    20,
+                    20,
+                    -40,
+                    -40
+                ]
+            }
+        }
+    },
+    "ItemTransferFindForwardItemInBag": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    780,
+                    160,
+                    470,
+                    370
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "ItemTransferTransferForwardToRepo": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    20,
+                    20,
+                    -40,
+                    -40
+                ]
+            }
+        }
+    },
+    "ItemTransferFindReturnItemInRepo": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    },
+    "ItemTransferTransferReturnToBag": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    20,
+                    20,
+                    -40,
+                    -40
+                ]
+            }
+        }
+    },
+    "ItemTransferFindReturnItemInBag": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    780,
+                    160,
+                    470,
+                    370
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "ItemTransferTransferReturnToRepo": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    20,
+                    20,
+                    -40,
+                    -40
+                ]
+            }
+        }
+    },
     "ItemTransferRepoTopReached": {
         "roi": [
             732,
@@ -14,6 +142,26 @@
             5,
             262
         ]
+    },
+    "ItemTransferScrollUpwardRepo": {
+        "post_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    },
+    "ItemTransferScrollDownwardRepo": {
+        "post_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
     },
     "ItemTransferBagTopReached": {
         "roi": [
@@ -31,106 +179,76 @@
             255
         ]
     },
-    "ItemTransferScrollDownwardRepo": {
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    640,
-                    480
-                ],
-                "end": [
-                    640,
-                    260
-                ],
-                "end_hold": 200,
-                "duration": 400
-            }
-        }
-    },
-    "ItemTransferScrollUpwardRepo": {
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    640,
-                    260
-                ],
-                "end": [
-                    640,
-                    480
-                ],
-                "end_hold": 200,
-                "duration": 400
-            }
+    "ItemTransferScrollUpwardBag": {
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
         }
     },
     "ItemTransferScrollDownwardBag": {
-        "action": {
-            "type": "Swipe",
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "ItemTransferClickQuickStashReturn": {
+        "roi": [
+            840,
+            530,
+            190,
+            53
+        ]
+    },
+    "ItemTransferForwardQuantityOCR": {
+        "recognition": {
             "param": {
-                "begin": [
-                    1000,
-                    480
-                ],
-                "end": [
-                    1000,
-                    260
-                ],
-                "end_hold": 200,
-                "duration": 400
+                "roi_offset": [
+                    0,
+                    58,
+                    0,
+                    -58
+                ]
             }
         }
     },
-    "ItemTransferScrollUpwardBag": {
-        "action": {
-            "type": "Swipe",
+    "ItemTransferReturnQuantityOCR": {
+        "recognition": {
             "param": {
-                "begin": [
-                    1000,
-                    260
-                ],
-                "end": [
-                    1000,
-                    480
-                ],
-                "end_hold": 200,
-                "duration": 400
+                "roi_offset": [
+                    0,
+                    58,
+                    0,
+                    -58
+                ]
             }
         }
     },
-    "ItemTransferScrollDownwardBagReturn": {
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    1000,
-                    480
-                ],
-                "end": [
-                    1000,
-                    260
-                ],
-                "end_hold": 200,
-                "duration": 400
-            }
+    "ItemTransferRunRepoTransfer": {
+        "post_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
         }
     },
-    "ItemTransferScrollUpwardBagReturn": {
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    1000,
-                    260
-                ],
-                "end": [
-                    1000,
-                    480
-                ],
-                "end_hold": 200,
-                "duration": 400
-            }
+    "ItemTransferRunBagTransfer": {
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
         }
     }
 }

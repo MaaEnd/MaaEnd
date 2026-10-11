@@ -1,0 +1,193 @@
+{
+    "InventoryTransferAll": {
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferAllBeginAction"
+        ]
+    },
+    "__InventoryTransferAllBeginAction": {
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": "[Anchor]InventoryTransferSource"
+            }
+        },
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 17,
+        "anchor": {
+            "__InventoryTransferSource": "__InventoryTransferAllBeginAction",
+            "__InventoryTransferEnd": "__InventoryTransferAllEndAction",
+            "__InventoryTransferErrorEnd": "__InventoryTransferAllErrorEndAction"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferClickAction"
+        ],
+        "on_error": [
+            "__InventoryTransferAllErrorEndAction"
+        ]
+    },
+    "__InventoryTransferAllEndAction": {
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 17,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "on_error": [
+            "__InventoryTransferAllErrorEndAction"
+        ]
+    },
+    "__InventoryTransferAllErrorEndAction": {
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 17,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferFailed"
+        ]
+    },
+    "InventoryTransferStack": {
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferStackBeginAction"
+        ]
+    },
+    "__InventoryTransferStackBeginAction": {
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": "[Anchor]InventoryTransferSource"
+            }
+        },
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 16,
+        "anchor": {
+            "__InventoryTransferSource": "__InventoryTransferStackBeginAction",
+            "__InventoryTransferEnd": "__InventoryTransferStackEndAction",
+            "__InventoryTransferErrorEnd": "__InventoryTransferStackErrorEndAction"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferClickAction"
+        ],
+        "on_error": [
+            "__InventoryTransferStackErrorEndAction"
+        ]
+    },
+    "__InventoryTransferStackEndAction": {
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 16,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "on_error": [
+            "__InventoryTransferStackErrorEndAction"
+        ]
+    },
+    "__InventoryTransferStackErrorEndAction": {
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 16,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferFailed"
+        ]
+    },
+    "InventoryTransferHalf": {
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferHalfBeginAction"
+        ]
+    },
+    "__InventoryTransferHalfBeginAction": {
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": "[Anchor]InventoryTransferSource"
+            }
+        },
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "auto_up": true,
+        "key": 18,
+        "anchor": {
+            "__InventoryTransferSource": "__InventoryTransferHalfBeginAction",
+            "__InventoryTransferEnd": "__InventoryTransferHalfEndAction",
+            "__InventoryTransferErrorEnd": "__InventoryTransferHalfErrorEndAction"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferClickAction"
+        ],
+        "on_error": [
+            "__InventoryTransferHalfErrorEndAction"
+        ]
+    },
+    "__InventoryTransferHalfEndAction": {
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 18,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "on_error": [
+            "__InventoryTransferHalfErrorEndAction"
+        ]
+    },
+    "__InventoryTransferHalfErrorEndAction": {
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 18,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferFailed"
+        ]
+    },
+    "__InventoryTransferClickAction": {
+        "pre_delay": 400,
+        "action": "Click",
+        "target": "[Anchor]__InventoryTransferSource",
+        "post_delay": 100,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__InventoryTransferEnd"
+        ],
+        "on_error": [
+            "[Anchor]__InventoryTransferErrorEnd"
+        ]
+    },
+    "__InventoryTransferFailed": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InventoryMoveRepoItemToBag": {
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": "[Anchor]InventoryMoveSource",
+        "end": "[Anchor]InventoryMoveDestination",
+        "duration": 400,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
