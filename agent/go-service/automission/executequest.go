@@ -7,14 +7,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const executeComponent = "AutoMissionExecuteQuest"
+const (
+	executeComponent    = "AutoMissionExecuteQuest"
+	npcProxyNode        = "AutoMissionNpcProxy"
+	npcProxyInWorldNode = "AutoMissionNpcProxyInWorld"
+)
 
 var _ maa.CustomActionRunner = &ExecuteQuestAction{}
 
 // trackingNodes 把解包追踪类型对应到占位 Pipeline 节点。
 var trackingNodes = map[string]string{
 	"MissionAreaTrackingInfo": "AutoMissionMissionArea",
-	"NpcProxyTrackingInfo":    "AutoMissionNpcProxy",
+	"NpcProxyTrackingInfo":    npcProxyNode,
 	"PosTrackingInfo":         "AutoMissionPos",
 	"EntityTrackingInfo":      "AutoMissionEntity",
 	"JumpToUITrackingInfo":    "AutoMissionJumpToUI",
@@ -55,7 +59,46 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	}
 	event.Str("node", node).Msg("dispatch quest track")
 
-	taskDetail, err := ctx.RunTask(node)
+	var (
+		taskDetail *maa.TaskDetail
+		err        error
+	)
+	if node == npcProxyNode {
+		if track.ZoneID == "" || track.X == nil || track.Y == nil {
+			log.Warn().
+				Str("component", executeComponent).
+				Str("zone_id", track.ZoneID).
+				Bool("has_x", track.X != nil).
+				Bool("has_y", track.Y != nil).
+				Msg("npc proxy track missing zone or position")
+			return false
+		}
+		log.Info().
+			Str("component", executeComponent).
+			Str("node", npcProxyInWorldNode).
+			Str("zone_id", track.ZoneID).
+			Float64("x", *track.X).
+			Float64("y", *track.Y).
+			Msg("npc proxy navigate target")
+		taskDetail, err = ctx.RunTask(node, map[string]any{
+			npcProxyInWorldNode: map[string]any{
+				"custom_action_param": map[string]any{
+					"path": []any{
+						map[string]any{
+							"action":  "ZONE",
+							"zone_id": track.ZoneID,
+						},
+						map[string]any{
+							"action": "NAVMESH",
+							"target": []float64{*track.X, *track.Y},
+						},
+					},
+				},
+			},
+		})
+	} else {
+		taskDetail, err = ctx.RunTask(node)
+	}
 	if err != nil || taskDetail == nil || !taskDetail.Status.Success() {
 		log.Warn().
 			Err(err).
