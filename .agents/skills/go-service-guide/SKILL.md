@@ -83,6 +83,45 @@ var _ maa.TaskerEventSink         = &MySink{}
 var _ maa.ContextEventSink        = &MySink{}
 ```
 
+## 句柄生命周期（maa-framework-go v4.0.0-beta.19 起）
+
+回调（Custom 的 `Run`、EventSink 的各方法）里拿到的 `*maa.Context`、`*maa.Tasker`、`*maa.Controller`、`*maa.Resource` 都是**借用视图**，必须遵守：
+
+- **只在本次回调内使用。** 回调返回后 `ctx.GetTasker()` / `ctx.Clone()` 返回 `nil`，其余方法返回 `maa.ErrClosed`。禁止存进包级变量或跨回调存活的结构体，禁止交给回调返回后仍在运行的 goroutine。
+- **同一回调内 controller / resource 只取一次，取到后往下传。** `Tasker.GetController()` / `GetResource()` 每调用一次，agent 侧就会销毁上一次返回的对象；继续使用旧对象是释放后使用，表现为 go-service 随机崩溃。辅助函数需要 controller 时接收 `*maa.Controller` 参数，不要自己再从 `ctx` 取。
+- **`PostXxx()` 返回的 Job 紧接着 `.Wait()`。** Job 绑定在取它的那个 controller 上，不要隔着另一次 `GetController()` 再等。
+- **取到后先判空。** 与客户端断连等情况下 `GetTasker()` / `GetController()` / `GetResource()` 返回 `nil`；绑定的回调里没有 `recover`，空指针 panic 会直接结束 go-service 进程。
+- **不要对借用视图调用 `Destroy()`**，也不要把它们传给 `BindResource` / `BindController`，二者都返回 `maa.ErrBorrowed`。
+- **判断控制器类型用 `pienv.ControllerType()` / `pienv.ControllerName()`。** 不要为此去取 controller 调 `GetInfo()`；`GetInfo()` 只在需要窗口句柄等 PI 没有的信息时使用。
+- **识别未命中返回 `nil, false`。** 返回非 nil 的 result 时，即使第二个返回值为 `false`，`Box` 与 `Detail` 也会交给 MaaFramework 写进识别详情；只有确实要带诊断信息时才这么做。
+
+```go
+// ❌ 辅助函数里又取了一次，Run 手里的 ctrl 随即失效
+func (a *MyAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+    ctrl := ctx.GetTasker().GetController()
+    img := capture(ctx)         // 内部再次 ctx.GetTasker().GetController()
+    ctrl.PostClick(x, y).Wait() // 释放后使用
+    return img != nil
+}
+
+// ✅ 入口取一次并判空，往下传
+func (a *MyAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+    tasker := ctx.GetTasker()
+    if tasker == nil {
+        return false
+    }
+    ctrl := tasker.GetController()
+    if ctrl == nil {
+        return false
+    }
+    img := capture(ctrl)
+    ctrl.PostClick(x, y).Wait()
+    return img != nil
+}
+```
+
+`ctx.RunTask` 等触发的嵌套 Custom 回调有各自独立的 `ctx`，不受外层持有的 controller 影响，反之亦然。
+
 ## 文件管理
 
 - 一个 Custom 组件的实现尽量集中在单个文件。
@@ -236,6 +275,9 @@ func (s *MySink) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, detail 
 - [ ] Recognition 注册名变化已同步到 `tools/schema/custom.recognition.schema.json` 的 `enum`
 - [ ] 参数变化已同步到上述文件或 `tools/schema/components/`，删除内容已清理旧规则和 `$ref`
 - [ ] 编译期接口校验在类型定义文件中
+- [ ] 回调内 controller / resource 只取一次并已判空，辅助函数通过参数接收，不自行再取
+- [ ] 没有把 `ctx` / `tasker` / `controller` / `resource` 留到回调返回之后使用
+- [ ] 识别未命中返回 `nil, false`
 - [ ] zerolog 链式写法，无 `log.Printf`，上下文不拼进 Msg
 - [ ] 导出符号有注释
 - [ ] 无大规模流程代码——流程由 Pipeline 驱动
@@ -251,3 +293,4 @@ func (s *MySink) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, detail 
 - 公共工具包：`docs/zh_cn/developers/go-service-pkg.md`（`pkg/recogtarget`、`boolexpr`、`ocrnum`、`i18n` 等）
 - Pipeline 协议：[MaaFramework PipelineProtocol](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/en_us/3.1-PipelineProtocol.md)
 - Go binding：`vendor/github.com/MaaXYZ/maa-framework-go/v4/`
+- Go binding beta.19 迁移指南：[v4.0.0-beta.19.md](https://github.com/MaaXYZ/maa-framework-go/blob/v4.0.0-beta.19/docs/migration/v4.0.0-beta.19.md)

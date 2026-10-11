@@ -4,5 +4,14 @@
         "all_of": [
             "CheckMenuListText"
         ]
+    },
+    // 移动端背包标题比 PC 靠上，「背包」文字在图标右侧 y≈75~100
+    "CheckBackpackText": {
+        "roi": [
+            760,
+            55,
+            200,
+            70
+        ]
     }
 }

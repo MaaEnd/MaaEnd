@@ -33,24 +33,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCancelCurrentJobTracking",
-            "AutoDeliveryCheckCurrentJobTrackingAlreadyOff"
-        ]
-    },
-    "AutoDeliveryCancelCurrentJobTracking": {
-        "desc": "送货前取消当前任务追踪，避免任务追踪图标干扰 MapNavigator 寻路",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckCancelCurrentJobTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCheckCurrentJobTrackingGone"
+            "AutoDeliveryReturnWorldAndNavigateDestination"
         ]
     },
     "AutoDeliveryCheckCancelCurrentJobTrackingButton": {
@@ -67,36 +50,6 @@
             "Common/Button/CancelButtonType2Hover.png"
         ],
         "order_by": "Score"
-    },
-    "AutoDeliveryCheckCurrentJobTrackingAlreadyOff": {
-        "desc": "确认当前任务已经未追踪",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckStartTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryReturnWorldAndNavigateDestination"
-        ]
-    },
-    "AutoDeliveryCheckCurrentJobTrackingGone": {
-        "desc": "在送货任务详情中确认开始追踪按钮已经出现",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckStartTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryReturnWorldAndNavigateDestination"
-        ]
     },
     "AutoDeliveryCheckSkipChatButton": {
         "recognition": "TemplateMatch",
@@ -169,13 +122,13 @@
         ],
         "box_index": 0,
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 528,
                 299,
                 222,
                 131
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },
@@ -254,25 +207,6 @@
             "zip": false
         }
     },
-    "AutoDeliveryPrepareNavigateDestination": {
-        "desc": "通过大地图确认资源回收站后返回任务界面并选中送货任务，以便取消追踪再开始寻路",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoDeliveryEnsureDeliveryMissionSelected"
-            ],
-            "continue": false,
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCancelCurrentJobTracking",
-            "AutoDeliveryCheckCurrentJobTrackingAlreadyOff"
-        ]
-    },
     "AutoDeliveryRetryNavigateDestination": {
         "desc": "动态调用送货目标配置的一次性站位修正路线；无重试路线时不启用",
         "enabled": false,
@@ -295,7 +229,7 @@
         ]
     },
     "AutoDeliveryReturnWorldAndNavigateDestination": {
-        "desc": "确认任务未追踪后返回大世界并前往已识别的送货目标",
+        "desc": "返回大世界并前往已识别的送货目标",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -403,16 +337,16 @@
             "AutoDeliveryCheckSkipChatButton"
         ],
         "box_index": 1,
-        "pre_delay": 0,
+        "pre_delay": 80, // 等一帧
         "action": "Click",
         "post_wait_freezes": {
+            "time": 500,
             "target": [
                 520,
                 300,
                 240,
                 120
             ],
-            "time": 500,
             "timeout": 10000
         },
         "post_delay": 0,
@@ -452,8 +386,17 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "AutoAltClickAction",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "AutoDeliveryInChatDialog",
+                "AutoDeliveryCloseRewardDialog"
+            ],
+            "repeat_count": 5
+        },
         "post_delay": 0,
+        "timeout": 6000,
         "rate_limit": 0,
         "next": [
             "AutoDeliveryCheckSkipChatReady",

@@ -5,14 +5,14 @@
             "label": "$task.CloseGamePC.label",
             "entry": "CloseGamePC",
             "description": "$task.CloseGamePC.description",
-            "option": [
-                "CloseGamePCApplyGameSetting"
+            "group": [
+                "other_menu"
             ],
             "controller": [
                 "Win32-Front"
             ],
-            "group": [
-                "other_menu"
+            "option": [
+                "CloseGamePCApplyGameSetting"
             ]
         }
     ],
@@ -20,7 +20,6 @@
         "CloseGamePCApplyGameSetting": {
             "type": "switch",
             "label": "$option.CloseGamePCApplyGameSetting.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -50,12 +49,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "CloseGamePCGameSettingRegion": {
             "type": "select",
             "label": "$option.GameSettingRegion.label",
-            "default_case": "CN",
             "cases": [
                 {
                     "name": "CN",
@@ -79,13 +78,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "CN"
         },
         "CloseGamePCGameSettingLanguage": {
             "type": "select",
             "label": "$option.GameSettingLanguage.label",
             "description": "$option.CloseGamePCGameSettingLanguage.description",
-            "default_case": "Unchanged",
             "cases": [
                 {
                     "name": "Unchanged",
@@ -252,12 +251,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Unchanged"
         },
         "CloseGamePCGameSettingDisplayType": {
             "type": "select",
             "label": "$option.GameSettingDisplayType.label",
-            "default_case": "Window",
             "cases": [
                 {
                     "name": "Window",
@@ -287,7 +286,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Window"
         },
         "CloseGamePCGameSettingResolution": {
             "type": "input",
@@ -296,16 +296,16 @@
                 {
                     "name": "CloseGamePCGameSettingResolutionWidth",
                     "label": "$option.CloseGamePCGameSettingResolutionWidth.label",
+                    "default": "1280",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "default": "1280"
+                    "verify": "^\\d+$"
                 },
                 {
                     "name": "CloseGamePCGameSettingResolutionHeight",
                     "label": "$option.CloseGamePCGameSettingResolutionHeight.label",
+                    "default": "720",
                     "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "default": "720"
+                    "verify": "^\\d+$"
                 }
             ],
             "pipeline_override": {
@@ -320,7 +320,6 @@
         "CloseGamePCGameSettingGraphicsQuality": {
             "type": "select",
             "label": "$option.CloseGamePCGameSettingGraphicsQuality.label",
-            "default_case": "Unchanged",
             "cases": [
                 {
                     "name": "Unchanged",
@@ -388,12 +387,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Unchanged"
         },
         "CloseGamePCGameSettingFrameRate": {
             "type": "select",
             "label": "$option.CloseGamePCGameSettingFrameRate.label",
-            "default_case": "Unchanged",
             "cases": [
                 {
                     "name": "Unchanged",
@@ -439,13 +438,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Unchanged"
         },
         "CloseGamePCAutoHDR": {
             "type": "select",
             "label": "$option.CloseGamePCAutoHDR.label",
             "description": "$option.GameSettingAutoHDR.description",
-            "default_case": "Unchanged",
             "cases": [
                 {
                     "name": "Unchanged",
@@ -480,7 +479,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Unchanged"
         }
     }
 }

@@ -82,9 +82,10 @@ type ControlAdaptor interface {
 }
 
 // NewControlAdaptor creates a new ControlAdaptor instance.
-// The implementation type is determined by the controller info obtained from the Maa Controller.
+// The implementation type is determined by the PI controller type when the client provides it,
+// and by the controller info obtained from the Maa Controller otherwise.
 func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (ControlAdaptor, error) {
-	controlType, err := GetControlType(ctrl)
+	controlType, err := ResolveControlType(ctrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get control type: %w", err)
 	}

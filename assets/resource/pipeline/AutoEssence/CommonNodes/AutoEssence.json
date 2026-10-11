@@ -585,6 +585,42 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoEssenceFindAttributeSelectionSuccess"
+        ]
+    },
+    "AutoEssenceFindAttributeSelectionSuccess": {
+        "desc": "确认进入属性选择界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "预刻写属性",
+                    "預刻寫屬性",
+                    "(?i)Pre\\s*-\\s*Engrave\\s*Stats",
+                    "刻印指定効果",
+                    "사전 각인 속성"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                34,
+                66,
+                917,
+                198
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "[JumpBack]AutoEssenceClickGrayAttributeOption",
             "AutoEssenceNoGrayAttributeOption"
         ]
@@ -1089,8 +1125,25 @@
         }
     },
     "AutoEssenceClickObtainButton": {
-        "desc": "识别并点击领取奖励的大世界按钮（Alt 点击；此节点默认开启）",
+        "desc": "识别领取奖励的大世界按钮，等待队友捡起物品避免交互坐标变动",
         "enabled": true,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEssenceRecoEssenceObtainButton",
+                    "__AutoEssenceRecoEssenceObtainText"
+                ],
+                "box_index": 1
+            }
+        },
+        "post_delay": 2000,
+        "next": [
+            "AutoEssenceClickObtainButtonRecheck"
+        ]
+    },
+    "AutoEssenceClickObtainButtonRecheck": {
+        "desc": "再次识别领取奖励按钮，命中后 Alt 点击",
         "recognition": {
             "type": "And",
             "param": {
@@ -1107,7 +1160,6 @@
                 "custom_action": "AutoAltClickAction"
             }
         },
-        "timeout": 2000,
         "next": [
             "AutoEssenceMistakeFactoryDevice",
             "AutoEssenceChooseScalingPre"
@@ -1132,7 +1184,14 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "AutoEssenceMistakeFactoryDevice",
+                        "AutoEssenceConfirmDiscard"
+                    ]
+                }
             }
         },
         "timeout": 2000,
@@ -1224,16 +1283,13 @@
         "desc": "识别刻写选项是否已打开，识别到之后，点击它来关闭刻写",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    66,
-                    124,
-                    472,
-                    460
+                "all_of": [
+                    "__AutoEssenceRecoEssenceOverrideOnToggle",
+                    "__AutoEssenceRecoChooseOverrideEngraveNow"
                 ],
-                "template": "AutoEssence/EssenceOverrideOn.png",
-                "order_by": "Score"
+                "box_index": 0
             }
         },
         "action": {
@@ -1247,16 +1303,13 @@
         "desc": "识别刻写选项是否已关闭，识别到之后，点击它来开启刻写",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    66,
-                    124,
-                    472,
-                    460
+                "all_of": [
+                    "__AutoEssenceRecoEssenceOverrideOffToggle",
+                    "__AutoEssenceRecoChooseOverrideEngraveNow"
                 ],
-                "template": "AutoEssence/EssenceOverrideOff.png",
-                "order_by": "Score"
+                "box_index": 0
             }
         },
         "action": {

@@ -106,6 +106,37 @@ For example, in a product purchase task, Go Service only does price comparison, 
 In one sentence: **Pipeline manages the process, Go manages the difficulties.**  
 _Unnecessary Go logic greatly increases code complexity, making it extremely difficult for the next developer to develop and debug, and very challenging for cross-platform adaptation._
 
+### Using Handles Inside Callbacks
+
+Since maa-framework-go v4.0.0-beta.19, the `ctx`, `tasker`, `controller`, and `resource` you get inside a Custom `Run` or an EventSink method are only **borrowed**. Misusing them does not fail at compile time; it fails at runtime:
+
+- **Use them only within the current callback.** They all become invalid once the callback returns (`ctx.GetTasker()` returns `nil`, other methods return `maa.ErrClosed`). Do not store them in package-level variables or hand them to a goroutine that keeps running after the callback returns.
+- **Get the controller once per callback and pass it down.** Every call to `GetController()` destroys the object returned by the previous call; using the old one is a use-after-free and crashes go-service at random. The same applies to `GetResource()`. If a helper needs the controller, give it a `*maa.Controller` parameter instead of fetching it from `ctx` again.
+- **Check for nil before use.** `GetTasker()` / `GetController()` return `nil` when the client has disconnected, and a nil-pointer panic inside a callback terminates the whole go-service process.
+- **Use `pienv.ControllerType()` to tell controller types apart.** Do not fetch the controller and call `GetInfo()` just for that.
+- **Return `nil, false` when a recognition does not match.** If you return a non-nil result, its `Box` and `Detail` are written into the recognition detail even on a miss.
+
+```go
+// ❌ capture fetches the controller again, which invalidates the ctrl held by Run
+ctrl := ctx.GetTasker().GetController()
+img := capture(ctx)
+ctrl.PostClick(x, y).Wait()
+
+// ✅ fetch once at the entry point, check for nil, pass it down
+tasker := ctx.GetTasker()
+if tasker == nil {
+    return false
+}
+ctrl := tasker.GetController()
+if ctrl == nil {
+    return false
+}
+img := capture(ctrl)
+ctrl.PostClick(x, y).Wait()
+```
+
+See the "句柄生命周期" section of the [Go Service guide](../../../.agents/skills/go-service-guide/SKILL.md) for the full rules, and the [maa-framework-go beta.19 migration guide](https://github.com/MaaXYZ/maa-framework-go/blob/v4.0.0-beta.19/docs/migration/v4.0.0-beta.19.md) for the binding-side changes.
+
 ## Cpp Algo Standards
 
 Cpp Algo supports native OpenCV and ONNX Runtime, but it is only recommended for implementing individual recognition algorithms. Various business logic like operations is recommended to be written using Go Service.

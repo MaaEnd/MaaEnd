@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -342,14 +343,15 @@ func logCalculatorResult(ctx *maa.Context, st *RunState) {
 		"Sections":           sections,
 	})
 	LogMXUHTML(ctx, planHTML)
-	if err := writePlanRecommendHTMLFile(planRecommendHTMLPath, planHTML); err != nil {
+	path := fsutil.OutputPath(planRecommendHTMLPath)
+	if err := writePlanRecommendHTMLFile(path, planHTML); err != nil {
 		log.Warn().
 			Str("component", "EssenceFilter").
-			Str("path", planRecommendHTMLPath).
+			Str("path", path).
 			Err(err).
 			Msg("failed to write EssencePlan.html")
 		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.focus.plan.html_save_failed",
-			html.EscapeString(planRecommendHTMLPath),
+			html.EscapeString(path),
 			html.EscapeString(err.Error()),
 		))
 	} else {

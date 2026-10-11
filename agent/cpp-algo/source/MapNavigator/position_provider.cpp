@@ -1,4 +1,5 @@
 #include <chrono>
+#include <cmath>
 
 #include <MaaUtils/Logger.h>
 
@@ -6,6 +7,7 @@
 #include "MapNavigator/controller_info_utils.h"
 #include "controller_type_utils.h"
 #include "latency_observer.h"
+#include "navi_config.h"
 #include "navi_math.h"
 #include "position_provider.h"
 
@@ -52,9 +54,10 @@ bool IsBlackScreen(const cv::Mat& image)
 
 } // namespace
 
-PositionProvider::PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator)
+PositionProvider::PositionProvider(MaaController* controller, std::shared_ptr<maplocator::MapLocator> locator, HeadingSource heading_source)
     : controller_(controller)
     , locator_(std::move(locator))
+    , heading_source_(heading_source)
     , uses_adb_minimap_roi_(IsAdbLikeControllerType(DetectControllerType(controller_)))
 {
 }
@@ -68,12 +71,14 @@ bool PositionProvider::Capture(
     NaviPosition* out_pos,
     bool force_global_search,
     const std::string& expected_zone_id,
-    const std::vector<maplocator::SearchHint>& search_hints)
+    const std::vector<maplocator::SearchHint>& search_hints,
+    std::optional<double> camera_heading_prior)
 {
     if (out_pos == nullptr) {
         return false;
     }
 
+    out_pos->valid = false;
     last_capture_was_black_screen_ = false;
     const auto capture_started_at = std::chrono::steady_clock::now();
 
@@ -99,15 +104,16 @@ bool PositionProvider::Capture(
 
     maplocator::LocateOptions options;
     options.force_global_search = force_global_search;
+    options.reject_occluded_frames = heading_source_ != HeadingSource::Camera;
     options.expected_zone_id = expected_zone_id;
     options.search_hints = search_hints;
+    options.camera_heading_prior = camera_heading_prior;
 
     const auto locate_result = locator_->locate(minimap, options);
     const auto locate_done_at = std::chrono::steady_clock::now();
     const int status = static_cast<int>(locate_result.status);
     if (locate_result.position) {
         const auto& position = *locate_result.position;
-        // camRot/camRotConf 只进日志，不参与任何判据。
         const double cam_rot = locate_result.camRot ? locate_result.camRot->rot : -1.0;
         const double cam_rot_conf = locate_result.camRot ? locate_result.camRot->confidence : -1.0;
         LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << VAR(position.zoneId) << VAR(position.x)
@@ -121,6 +127,19 @@ bool PositionProvider::Capture(
         return false;
     }
 
+    // An unsure camera reading is never the heading source, and on the touch backends never steered on either.
+    const std::optional<double> confident_camera = locate_result.camRot && std::isfinite(locate_result.camRot->confidence)
+                                                           && locate_result.camRot->confidence >= kNavigationCameraMinConfidence
+                                                       ? std::optional<double>(locate_result.camRot->rot)
+                                                       : std::nullopt;
+    std::optional<double> heading = locate_result.rot;
+    if (heading_source_ == HeadingSource::Camera) {
+        heading = confident_camera;
+    }
+    if (!heading || !std::isfinite(*heading) || *heading < 0.0 || *heading >= 360.0) {
+        return false;
+    }
+
     // 只统计整套走通的取位；全局搜索本来就比逐帧跟踪慢，算进去会把它的耗时当成机器常态。
     if (!force_global_search) {
         latency::RecordStage(latency::Stage::Screencap, ElapsedMs(capture_started_at, screencap_done_at));
@@ -130,10 +149,12 @@ bool PositionProvider::Capture(
 
     out_pos->x = locate_result.position->x;
     out_pos->y = locate_result.position->y;
-    out_pos->angle = locate_result.position->angle;
+    out_pos->angle = *heading;
     out_pos->score = locate_result.position->score;
     out_pos->zone_id = locate_result.position->zoneId;
-    out_pos->camera_angle = locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt;
+    // Only the touch backends steer on the camera; the desktop backends keep passing the raw reading, as before.
+    out_pos->camera_angle =
+        uses_adb_minimap_roi_ ? confident_camera : (locate_result.camRot ? std::optional<double>(locate_result.camRot->rot) : std::nullopt);
     out_pos->valid = true;
     out_pos->timestamp = capture_started_at;
 

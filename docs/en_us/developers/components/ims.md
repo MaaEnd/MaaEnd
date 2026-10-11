@@ -14,7 +14,7 @@ There are **2 recognitions + 3 actions**:
 
 Codes `A1` / `A2` / `A3` and `R1` / `R2` only reflect implementation order, not priority. **A2 was the second action written, but it is the core of IMS.**
 
-On-disk path: `./debug/record/IMS.json` (relative to the run directory).
+On-disk path: `debug/record/IMS.json` (relative to the working directory go-service was started in, resolved by `fsutil.OutputPath`).
 
 Cache keys and recognition IDs use [IconRecognition](./icon-recognition.md) catalog top-level keys (for example `item_char_break_stage_1_2`). Display names use `iconRecognition.name.*` only (interface locales, merged at go-service startup). Shop OCR writes `item_originium_recharge` (the pipeline node remains `ORIGEOMETRY_NUMBER`).
 

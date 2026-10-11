@@ -3,7 +3,9 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
@@ -17,7 +19,10 @@
 #include "position_provider.h"
 #include "semantic_helpers.h"
 #include "semantic_nodes.h"
+#include "trigger_action.h"
 #include "zipline_action.h"
+
+#include "../utils.h"
 
 namespace mapnavigator
 {
@@ -274,6 +279,10 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
         if (!ctx.session->HasCurrentWaypoint()) {
             ctx.session->NoteRouteTailConsumed(*ctx.position, "heading_route_consumed");
         }
+        // 复核失败仍按既有语义完成当前节点；后续节点等下一拍重新取位，避免使用缺失的朝向。
+        if (!ctx.position->valid) {
+            break;
+        }
     }
 
     result.consumed = consumed;
@@ -309,6 +318,7 @@ bool CaptureStableHeadingImpl(const Context& ctx, double* out_heading, const Can
             utils::SleepFor(kHeadingStableReadIntervalMs);
         }
         if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
+            previous.reset();
             continue;
         }
         const double current = NaviMath::NormalizeAngle(ctx.position->angle);
@@ -349,41 +359,32 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
     return true;
 }
 
-// 起步前把镜头对到角色朝向: 按 W 走的是镜头方向, 控制环却拿角色箭头当反馈量, 两者差 ε 度时第一步
-// 就偏 ε 度冲出去。camera_angle 为空即整段跳过。刻意不跟前进脉冲: 要的就是角色朝向不动、只有镜头转。
+// 起步前把镜头对到导航使用的朝向，避免按 W 时偏离控制环的反馈方向。
+// 镜头模式下两者本就相同。刻意不跟前进脉冲，只转镜头。
 // 调用方保证 ctx.position 是刚取的一帧, 且此刻人已站定。
-void AlignCameraToCharacterOnce(const Context& ctx)
+void AlignCameraToHeadingOnce(const Context& ctx)
 {
     if (!ctx.position->camera_angle.has_value()) {
         LogInfo << "Camera align skipped: no camera orientation.";
         return;
     }
 
-    const double character_heading = ctx.position->angle;
+    const double heading = ctx.position->angle;
     const double camera_before = *ctx.position->camera_angle;
-    const double delta = NaviMath::CalcDeltaRotation(camera_before, character_heading);
+    const double delta = NaviMath::CalcDeltaRotation(camera_before, heading);
     if (std::abs(delta) < kCameraAlignMinDegrees) {
-        LogInfo << "Camera already aligned." << VAR(character_heading) << VAR(camera_before) << VAR(delta);
+        LogInfo << "Camera already aligned." << VAR(heading) << VAR(camera_before) << VAR(delta);
         return;
     }
     if (!TurnToHeadingOnce(ctx, delta)) {
-        LogWarn << "Camera align turn not sent." << VAR(character_heading) << VAR(camera_before) << VAR(delta);
+        LogWarn << "Camera align turn not sent." << VAR(heading) << VAR(camera_before) << VAR(delta);
         return;
     }
     utils::SleepFor(kWaitAfterFirstTurnMs);
 
-    // 补读一帧记进日志: camera_after 看对齐是收敛还是背离, character_after 用来分辨镜头转了还是人跟着
-    // 一起转了。读到什么都不重试、不拦截。
-    double camera_after = -1.0;
-    double character_after = -1.0;
-    if (ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())) {
-        character_after = ctx.position->angle;
-        if (ctx.position->camera_angle) {
-            camera_after = *ctx.position->camera_angle;
-        }
-    }
-    LogInfo << "Camera aligned to character heading." << VAR(character_heading) << VAR(camera_before) << VAR(delta) << VAR(camera_after)
-            << VAR(character_after);
+    // 补读一帧确认观测可用；失败时由调用方转入定位恢复。
+    const bool captured = ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id());
+    LogInfo << "Camera aligned to navigation heading." << VAR(heading) << VAR(camera_before) << VAR(delta) << VAR(captured);
 }
 
 bool CaptureStableHeading(const Context& ctx, double* out_heading)
@@ -537,6 +538,95 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint)
     return false;
 }
 
+bool RunRecognitionNode(
+    MaaContext* context,
+    const std::string& node,
+    const std::string& pipeline_override,
+    const MaaImageBuffer* image,
+    NodeSighting* out_sighting)
+{
+    MaaTasker* tasker = MaaContextGetTasker(context);
+    if (tasker == nullptr) {
+        LogError << "Tasker is unavailable for recognition." << VAR(node);
+        return false;
+    }
+
+    const MaaRecoId reco_id = MaaContextRunRecognition(context, node.c_str(), pipeline_override.c_str(), image);
+    if (reco_id == MaaInvalidId) {
+        LogError << "Recognition failed to dispatch; check the node name and its params." << VAR(node);
+        return false;
+    }
+
+    MaaBool hit = 0;
+    MaaRect box {};
+    if (!MaaTaskerGetRecognitionDetail(tasker, reco_id, nullptr, nullptr, &hit, &box, nullptr, nullptr, nullptr)) {
+        LogError << "Recognition detail is unavailable." << VAR(node) << VAR(reco_id);
+        return false;
+    }
+
+    out_sighting->hit = hit != 0;
+    out_sighting->box = box;
+    return true;
+}
+
+std::optional<std::vector<std::string>>
+    RunTaskForCompletedNodes(MaaContext* context, const char* entry, const std::string& pipeline_override)
+{
+    MaaTasker* tasker = MaaContextGetTasker(context);
+    if (tasker == nullptr) {
+        return std::nullopt;
+    }
+    const MaaTaskId task_id = MaaContextRunTask(context, entry, pipeline_override.c_str());
+    if (task_id == MaaInvalidId) {
+        LogWarn << "Subtask failed to dispatch." << VAR(entry);
+        return std::nullopt;
+    }
+
+    ScopedStringBuffer entry_name;
+    MaaSize node_count = 0;
+    MaaStatus status = MaaStatus_Invalid;
+    if (entry_name.Get() == nullptr || !MaaTaskerGetTaskDetail(tasker, task_id, entry_name.Get(), nullptr, &node_count, &status)) {
+        return std::nullopt;
+    }
+    std::vector<std::string> completed_nodes;
+    if (node_count == 0) {
+        return completed_nodes;
+    }
+    std::vector<MaaNodeId> node_ids(node_count);
+    if (!MaaTaskerGetTaskDetail(tasker, task_id, entry_name.Get(), node_ids.data(), &node_count, &status)) {
+        return std::nullopt;
+    }
+
+    for (const MaaNodeId node_id : node_ids) {
+        ScopedStringBuffer node_name;
+        MaaRecoId reco_id = 0;
+        MaaActId action_id = 0;
+        MaaBool completed = 0;
+        if (node_name.Get() == nullptr || !MaaTaskerGetNodeDetail(tasker, node_id, node_name.Get(), &reco_id, &action_id, &completed)) {
+            return std::nullopt;
+        }
+        const char* raw = MaaStringBufferGet(node_name.Get());
+        if (raw != nullptr && completed != 0) {
+            completed_nodes.emplace_back(raw);
+        }
+    }
+    return completed_nodes;
+}
+
+bool CaptureFreshFrame(MaaController* controller, MaaImageBuffer* buffer)
+{
+    const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller);
+    if (screencap_id == MaaInvalidId) {
+        LogWarn << "Screencap request was not posted.";
+        return false;
+    }
+    if (MaaControllerWait(controller, screencap_id) != MaaStatus_Succeeded) {
+        LogWarn << "Screencap did not succeed." << VAR(screencap_id);
+        return false;
+    }
+    return MaaControllerCachedImage(controller, buffer) && !MaaImageBufferIsEmpty(buffer);
+}
+
 Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
 {
     if (phase == NaviPhase::WaitTransfer) {
@@ -547,6 +637,9 @@ Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
     }
     if (phase == NaviPhase::WaitFind) {
         return TickFindTarget(ctx);
+    }
+    if (phase == NaviPhase::WaitTrigger) {
+        return TickTriggerWait(ctx);
     }
     if (ctx.runtime_state->semantic.portal_transit_active) {
         return TickPortalTransit(ctx);
@@ -675,13 +768,33 @@ Result ArriveDig(const Context& ctx, const Waypoint& waypoint, const std::option
 
 Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::optional<size_t>& node_idx, double actual_distance)
 {
-    // 到点兜底: 跑一次行进中那套权威识别, 没认出提示就当这里没东西可交互, 照样推进
+    // 到点兜底: 跑一次行进中那套权威识别, 没认出提示就交回导航走到点上再认一次; 还认不出时 rec 判失败,
+    // 否则当这里没东西可交互, 照样推进
     if (waypoint.IsAsyncInteract() && ctx.maa_context != nullptr) {
         StopMotionAndCommitment(ctx);
         LogInfo << "Action: INTERACT reached, running the authoritative recognition." << VAR(actual_distance)
                 << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan) << VAR(waypoint.interact_rec);
-        RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+        const bool recognized = RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
+        InteractApproachState& approach = ctx.runtime_state->interact_approach;
+        if (!recognized && waypoint.HasPosition() && node_idx && !approach.PromptMissedAt(node_idx)
+            && actual_distance > kStrictSettleAcceptBandWu) {
+            approach.prompt_missed_node = node_idx;
+            // 起步按已确认算: 否则要先挪够起步距离才放行到点判定, 走路模式也开不了, 剩下这一两个单位就是小跑冲过去的
+            ctx.runtime_state->route.Reset();
+            ctx.runtime_state->route.startup_anchor_pos = *ctx.position;
+            ctx.runtime_state->route.startup_anchor_initialized = true;
+            ctx.runtime_state->route.startup_motion_confirmed = true;
+            ctx.session->ResetHardProgress();
+            LogInfo << "Action: INTERACT prompt missed, walking on onto the point." << VAR(actual_distance) << VAR(*node_idx);
+            return { .consumed = true };
+        }
         ctx.runtime_state->route.Reset();
+        if (!recognized && waypoint.interact_rec) {
+            LogWarn << "Action: INTERACT prompt still missing in rec mode." << VAR(actual_distance) << VAR(waypoint.interact_text_node);
+            return { .request_failure = true,
+                     .failure_reason = "interact_prompt_missing",
+                     .failure_log_message = "Interact prompt not recognized on the point." };
+        }
         return CompleteArrival(ctx, waypoint, node_idx, "async_interact_completed");
     }
 
@@ -718,6 +831,8 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
         return ArriveDig(ctx, waypoint, node_idx, actual_distance);
     case ActionType::FIND:
         return ArriveFind(ctx, waypoint, actual_distance);
+    case ActionType::TRIGGER:
+        return ArriveTrigger(ctx, waypoint, actual_distance);
     case ActionType::INTERACT:
         return ArriveInteract(ctx, waypoint, node_idx, actual_distance);
     case ActionType::SPRINT:

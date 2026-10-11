@@ -64,10 +64,18 @@ inline constexpr AsyncPromptActionSpec kInteractPromptSpec {
     .text_from_route = true,
 };
 
-// Runs one prompt subtask and waits out the settle after it. expected replaces the recognition node's authored text
-// list for this one run; nullptr or empty leaves the node's own table in place. rec swaps the node's own action out
-// for DoNothing, so the run only recognizes and the caller's pipeline decides what to press.
-void RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec);
+// Runs one prompt subtask and waits out the settle after it, returning whether the recognition node hit. expected
+// replaces the recognition node's authored text list for this one run; nullptr or empty leaves the node's own table in
+// place. rec swaps the node's own action out for DoNothing, so the run only recognizes and the caller's pipeline
+// decides what to press.
+bool RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec);
+
+enum class PromptTriggerOutcome
+{
+    NotTriggered,
+    Missed,
+    Recognized,
+};
 
 // Owns one kind's pre-filter and pacing. A route without this kind of point costs one bool check per tick.
 class AsyncPromptAction
@@ -98,9 +106,9 @@ public:
     // Squared distance to the nearest point of this kind; -1 when not armed, unlocalized, or none are left.
     double NearestDistanceSq() const;
 
-    // Stops for the authoritative recognition. true = the tick was spent, and a route-named kind's waypoint is
-    // now walked (see CompletesWaypointOnTrigger).
-    bool TryTriggerWhileWalking(MotionController* motion_controller, double waypoint_distance, size_t node_idx);
+    // Stops for the authoritative recognition. Anything but NotTriggered means the tick was spent; only Recognized
+    // lets a route-named kind count its waypoint as walked (see CompletesWaypointOnTrigger).
+    PromptTriggerOutcome TryTriggerWhileWalking(MotionController* motion_controller, double waypoint_distance, size_t node_idx);
     // Not paced: the caller stands still at the route tail and gives this its own window.
     bool TryTriggerAtRouteTail();
 

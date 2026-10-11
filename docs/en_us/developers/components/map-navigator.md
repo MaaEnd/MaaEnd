@@ -177,6 +177,7 @@ Only `INTERACT` points can take these fields — on any other action they are ig
 - `COLLECT`: Collection point, upon precise arrival, synchronously trigger AutoCollect OCR + click, without exiting NaviController. See [Collection Semantics](#collection-semantics-collect--dig).
 - `DIG`: Digging point, same as `COLLECT`, but triggers a digging subtask. See [Collection Semantics](#collection-semantics-collect--dig).
 - `FIND`: Look for a target that exists only as a recognition box and walk up to it — turning the camera to search, stepping toward the box, done as soon as `find_stop` hits or the position reaches `find_arrive`. See [Finding and Approaching a Target](#finding-and-approaching-a-target-find).
+- `TRIGGER`: Route end point. The navigator recognizes `trigger_node` while walking and succeeds on the first hit. See [Ending on a Recognition Hit](#ending-on-a-recognition-hit-trigger).
 
 ##### **3. Strict Arrival Point**
 
@@ -275,7 +276,7 @@ When the target point is on a specific **tier (layered map)**, each tier is a **
 - `target_tier`: The **area name** of that layer, i.e., the name part after `:` in the `id:name` of the tier dropdown in the GUI.
 - At runtime, the affine transformation baked into the `.nav` for that tier is used to automatically project `target` back to the base coordinate system (using the same mirroring logic as automatic normalization of the starting point localization), and snap the landing point according to that tier's floor height.
 - This is the only thing needed to go to a tier: **a single node with `target` + `target_tier` is enough**. No additional `ZONE` node is needed, no intermediate points need to be added, and no manual coordinate adjustment is required.
-- Positioned ordinary actions (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND`) and target-based `HEADING` accept the same `target` + `target_tier` object form. Unlike `NAVMESH`, this declaration does not imply navigation or a zone transition; it only projects that one coordinate before execution.
+- Positioned ordinary actions (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER`) and target-based `HEADING` accept the same `target` + `target_tier` object form. Unlike `NAVMESH`, this declaration does not imply navigation or a zone transition; it only projects that one coordinate before execution.
 - The field also supports camelCase `targetTier`. An unknown tier on `NAVMESH` keeps the compatibility behavior of logging a warning and treating the target as base coordinates. An explicitly tagged ordinary point fails instead of silently moving toward the wrong location.
 
 ###### Overlapping Deck Target: `target_deck_y`
@@ -407,7 +408,7 @@ It supports:
 Official-map imports derive a pseudonymous account identity from the `/map/mark/list` `roleId`; game runs derive the same identity from the UID captured once during scene initialization. Runtime planning filters by account before map. Legacy records without an account field are not attributed at import time: when zipline navigation runs, the current account claims them — if that account has no records of its own yet, the legacy coordinates are attributed to it wholesale and persisted in place, so nothing has to be imported again after an upgrade; if the account already has records of its own, nothing is claimed, so two sets of coordinates never mix and then silently go wrong after an account switch. A successful claim is announced to the user; see `ZiplineStore::claimLegacyRecords`. Offline route preview cannot read the in-game UID, so the planning account selector lists imported pseudonymous identities, defaults to the most recently imported one, and remembers the browser choice. The choice also filters the current installation's zipline tower layer, but is never copied into route parameters and never overrides the account detected during a live run. Log analysis still filters snapshots by the account identity recorded in the matching run. Windows imports run in the cpp-algo embedded browser; on Linux, `agent/go-service/ziplineimport` captures the same endpoint through a local restricted MITM proxy, derives the account identity from the request URL's `roleId`, and stores records under `(account_id, map_id)` as well; an import that sees more than one `roleId` is rejected as a whole. Windows always clears the embedded browser site session before each import; Linux uses a throwaway Firefox profile on every import, so the session is never kept either.
 
 An additional note is that the current GUI editor round-trips coordinate path points, their optional `target_tier`, and `ZONE` declarations derived from area information. Untagged points keep the legacy array export, while tagged points use the `target` object form.
-Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like `NAVMESH` are not regular point editing objects in the GUI. It is recommended to manually add back or maintain `HEADING` after exporting the `path`, while `NAVMESH` can be directly generated using `Copy NAVMESH`. A `FIND` point can be placed like an ordinary coordinate point, but its `find_target` / `find_text` / `find_stop` / `find_arrive` fields are written by hand after exporting — the editor only preserves them.
+Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like `NAVMESH` are not regular point editing objects in the GUI. It is recommended to manually add back or maintain `HEADING` after exporting the `path`, while `NAVMESH` can be directly generated using `Copy NAVMESH`. A `FIND` point can be placed like an ordinary coordinate point, but its `find_target` / `find_text` / `find_stop` / `find_arrive` fields are written by hand after exporting — the editor only preserves them. The same holds for the `trigger_node` of a `TRIGGER` point.
 
 ### Running Method
 
@@ -516,7 +517,7 @@ Next, directly handle the details in the GUI.
 - `Coordinate Tier`: Declare which tier basemap the selected point's coordinate was authored on. Leaving it empty keeps the legacy coordinate behavior; it does not modify `ZONE`.
 - `🗑`: Delete the currently selected point.
 
-The current action dropdown targets coordinate point actions, commonly edited to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND`.
+The current action dropdown targets coordinate point actions, commonly edited to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER`.
 Non-coordinate control nodes like `HEADING` are not part of this GUI action chain.
 
 **Undo/Redo:**
@@ -919,3 +920,63 @@ Control node (search starts as soon as the point is reached):
 | The business's own recognition nodes | The nodes named by `find_target` / `find_stop` | The ROI or the text of the target or prompt changes |
 | `assets/resource/pipeline/MapNavigator/Find.json` | The built-in OCR node `MapNavigatorFind` used for inline text; called per frame by the navigator and never dispatched on its own | The default ROI for inline text |
 | `agent/cpp-algo/source/MapNavigator/find_action.cpp` | The search and approach implementation and the bookkeeping it clears on the way out | Maintained by cpp-algo developers, tuned against a live client |
+
+---
+
+## Ending on a Recognition Hit `TRIGGER`
+
+`TRIGGER` goes at the end of a route and means "arrived once a certain screen shows up": a story sequence starting, a dialog or menu popping up, a prompt appearing.
+
+The navigator recognizes `trigger_node` while it walks. On the first hit it stops, the whole navigation succeeds, and the outer Pipeline's `next` takes over. A hit counts wherever the character is, even halfway along the route. If nothing hits, the character walks to `target`, stops, and waits there for up to 15 seconds.
+
+### Usage
+
+Replace `MyTaskTriggerNode` with your own recognition node:
+
+```json
+[
+    {
+        "action": "NAVMESH",
+        "target": [
+            182.52,
+            173.4
+        ]
+    },
+    {
+        "action": "TRIGGER",
+        "target": [
+            182.52,
+            173.4
+        ],
+        "trigger_node": "MyTaskTriggerNode"
+    }
+]
+```
+
+- `trigger_node` (or `triggerNode`) names a recognition node. Only its recognition runs; its action and `next` never execute.
+- Use the object form and make it the last point of the route; anything else fails at parse time.
+- `TRIGGER` walks straight to `target`. For pathfinding, put a `NAVMESH` point with the same coordinate in front of it as in the example; a hit during that leg counts too.
+
+### Choosing the Node
+
+- Recognition starts the moment navigation starts, so pick a screen that only appears at the destination. A dialog or prompt that also shows up elsewhere on the route ends the navigation there.
+- Pick something that stays on screen for a while. Recognition runs every 300 ms and can miss a brief flash.
+- Put `target` where the screen is sure to appear; anywhere else just waits out the 15 seconds and fails.
+
+The hit screen often covers the minimap. The navigator loses its position then, but recognition keeps running and no unstick keys are pressed, so nothing disturbs the screen that just appeared.
+
+### Failure
+
+`MapNavigateAction` returns false when:
+
+- `trigger_node` does not exist or its recognition errors (fails immediately);
+- nothing hits after 15 seconds of waiting at `target`;
+- nothing hits and localization stays lost for more than 30 seconds.
+
+### Related Files
+
+| File | Responsibility | When Changes Are Needed |
+| ----------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------- |
+| The business's own route JSON | The `MapNavigateAction` path, the `TRIGGER` point and its `trigger_node` | Add a trigger end point, change the node |
+| The business's own recognition nodes | The node named by `trigger_node` | The ROI or the text of the hit screen changes |
+| `agent/cpp-algo/source/MapNavigator/trigger_action.cpp` | Recognition on the way and the wait on the point | Maintained by cpp-algo developers |

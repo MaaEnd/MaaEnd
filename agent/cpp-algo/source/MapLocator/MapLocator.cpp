@@ -719,7 +719,7 @@ public:
 
     bool getIsInitialized() const { return isInitialized; }
 
-    LocateResult locate(const cv::Mat& minimap, const LocateOptions& options);
+    LocateResult locate(const cv::Mat& minimap, const LocateOptions& options, const std::shared_future<double>& angle_future);
     YoloCoarseResult predictCoarse(const cv::Mat& minimap) const;
     void resetTrackingState();
     std::optional<MapPosition> getLastKnownPos() const;
@@ -811,8 +811,8 @@ private:
     std::uint64_t activeFrameId = 0;
 
     // 小地图被遮挡的起始时刻，未遮挡时为默认值；超时放行后置位以免重复打日志
-    TimePoint occludedSince {};
-    bool occlusionTimedOut = false;
+    TimePoint occluded_since_ {};
+    bool occlusion_timed_out_ = false;
 
     std::vector<MapPosition> coldStartBuffer;
     std::optional<MapPosition> stablePosition;
@@ -860,13 +860,10 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
         zoneClassifier = std::make_unique<YoloPredictor>(config.yoloModelPath, matchCfg.yoloConfThreshold, config.yoloThreads);
     }
 
-    // 摄像机朝向两图工件：前处理图 + 参考配对分类器。推理是本阶段的主要开销，故用 2 个
-    // intra-op 线程并行，缩短同步帧追加的定位延迟；两图齐备时预测器才可用。
-    if (!config.cameraOrientationPreprocessModelPath.empty() || !config.cameraOrientationRefModelPath.empty()) {
-        orientationPredictor = std::make_unique<CameraOrientationPredictor>(
-            config.cameraOrientationPreprocessModelPath,
-            config.cameraOrientationRefModelPath,
-            2);
+    // 摄像机朝向：预处理在 C++ 里执行，参考配对分类器的推理是本阶段的主要开销，故用 2 个
+    // intra-op 线程并行，缩短同步帧追加的定位延迟。
+    if (!config.cameraOrientationRefModelPath.empty()) {
+        orientationPredictor = std::make_unique<CameraOrientationPredictor>(config.cameraOrientationRefModelPath, 2);
     }
 
     isInitialized = true;
@@ -1798,7 +1795,7 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     return finishGlobalSearchCandidates(std::move(candidates), outBestRaw);
 }
 
-LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOptions& options)
+LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOptions& options, const std::shared_future<double>& angle_future)
 {
     const auto now = std::chrono::steady_clock::now();
     activeFrameId = ++frameId;
@@ -1813,9 +1810,6 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         zoneClassifier->SetConfThreshold(options.yolo_threshold);
     }
 
-    std::future<double> angleFuture = std::async(std::launch::async, [&minimap]() { return InferYellowArrowRotation(minimap); });
-    std::optional<double> resolvedAngle;
-
     // camRot 由参考配对模型同步推理；它需要 (x, y, zone)，定位失败帧没有参考可采。
     auto attachCamRot = [&](LocateResult&& result) -> LocateResult {
         if (!orientationPredictor || !orientationPredictor->isLoaded() || !result.position.has_value()) {
@@ -1828,39 +1822,37 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         }
         const auto zoneIt = zones.find(zoneId);
         const cv::Mat referenceAsset = zoneIt != zones.end() ? zoneIt->second : cv::Mat();
-        result.camRot = orientationPredictor
-                            ->predict(minimap, referenceAsset, result.position->x, result.position->y, ZoneTemplateScale(zoneId), zoneId);
+        result.camRot = orientationPredictor->predict(
+            minimap,
+            referenceAsset,
+            result.position->x,
+            result.position->y,
+            ZoneTemplateScale(zoneId),
+            zoneId,
+            options.camera_heading_prior);
         return result;
     };
-    auto resolveAngle = [&]() -> double {
-        if (!resolvedAngle.has_value()) {
-            resolvedAngle = angleFuture.get();
-        }
-        return *resolvedAngle;
-    };
-
-    // 角色箭头画在小地图最上层，正常一定看得见；看不见只能是有东西整个盖住了小地图。
-    // 这种帧的匹配分数面已被遮挡重塑，最高峰可能落在别处，所以整帧作废让上层原地等它散开
-    // （拿不到位置时导航本来就会停步重试），超时后改为放行，避免长期遮挡处彻底卡死。
-    if (resolveAngle() < 0.0) {
-        if (occludedSince == TimePoint {}) {
-            occludedSince = now;
-            occlusionTimedOut = false;
+    // 箭头不可见时，小地图可能被横幅遮挡；在匹配及更新追踪状态前拒帧。
+    // 超时放行以免长期遮挡处卡死；镜头朝向导航由调用方显式跳过此拦截。
+    if (options.reject_occluded_frames && angle_future.get() < 0.0) {
+        if (occluded_since_ == TimePoint {}) {
+            occluded_since_ = now;
+            occlusion_timed_out_ = false;
             LogWarn << "Minimap occluded: character arrow not visible; holding until it clears.";
         }
-        if (now - occludedSince < std::chrono::milliseconds(kOcclusionRejectTimeoutMs)) {
+        if (now - occluded_since_ < std::chrono::milliseconds(kOcclusionRejectTimeoutMs)) {
             return LocateResult { .status = LocateStatus::ScreenBlocked, .debugMessage = "Minimap occluded: arrow not visible." };
         }
-        if (!occlusionTimedOut) {
-            occlusionTimedOut = true;
+        if (!occlusion_timed_out_) {
+            occlusion_timed_out_ = true;
             LogWarn << "Minimap occlusion outlasted the reject timeout; locating on occluded frames again.";
         }
     }
     else {
-        occludedSince = {};
+        occluded_since_ = {};
+        occlusion_timed_out_ = false;
     }
 
-    std::optional<YoloCoarseResult> angleGuardCoarse;
     FrameTemplateFeatureCache featureCache;
     std::optional<AsyncYoloHandle> sameFrameYolo;
     const std::string expectedZoneSelector = options.expected_zone_id;
@@ -1967,12 +1959,11 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
             periodicYoloRefreshPerformed,
             slowPathSignal)) {
         if (trackingResult->position.has_value()) {
-            trackingResult->position->angle = resolveAngle();
+            trackingResult->position->angle = angle_future.get();
         }
         return attachCamRot(std::move(*trackingResult));
     }
 
-    const double inferredAngle = resolveAngle();
     auto predictCurrentFrameCoarse = [&]() {
         if (frameSearchCoordinator) {
             return frameSearchCoordinator->getCoarse();
@@ -1982,14 +1973,8 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         }
         return predictCoarse(minimap);
     };
-    if (inferredAngle < 0.0) {
-        angleGuardCoarse = predictCurrentFrameCoarse();
-        LogInfo << "Angle inference failed; forcing synchronous YOLO refresh." << VAR(angleGuardCoarse->valid)
-                << VAR(angleGuardCoarse->is_none) << VAR(angleGuardCoarse->zone_id);
-    }
-
     std::string targetZoneId = expectedZoneId;
-    const YoloCoarseResult coarse = angleGuardCoarse.has_value() ? *angleGuardCoarse : predictCurrentFrameCoarse();
+    const YoloCoarseResult coarse = predictCurrentFrameCoarse();
     if (coarse.valid && coarse.is_none) {
         return LocateResult {
             .status = LocateStatus::TrackingLost,
@@ -2132,7 +2117,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     }
 
     currentZoneId = globalResult->zoneId;
-    globalResult->angle = inferredAngle;
+    globalResult->angle = angle_future.get();
     MapPosition accepted = acceptPosition(*globalResult, now);
     return attachCamRot(LocateResult { .status = LocateStatus::Success, .position = accepted, .debugMessage = "Global Search Success" });
 }
@@ -2144,7 +2129,8 @@ void MapLocator::Impl::resetTrackingState()
         motionTracker->clearVelocity();
     }
     currentZoneId = "";
-    occludedSince = {};
+    occluded_since_ = {};
+    occlusion_timed_out_ = false;
     coldStartBuffer.clear();
     stablePosition.reset();
     arbiterRejectedPrimary.reset();
@@ -2183,7 +2169,16 @@ bool MapLocator::isInitialized() const
 LocateResult MapLocator::locate(const cv::Mat& minimap, const LocateOptions& options)
 {
     auto start = std::chrono::high_resolution_clock::now();
-    LocateResult res = pimpl->locate(minimap, options);
+    // 角色朝向独立识别，在统一出口汇总，位置识别提前失败时也不丢弃本帧朝向。
+    const auto angle_future = std::async(std::launch::async, [&minimap]() { return InferYellowArrowRotation(minimap); }).share();
+    LocateResult res = pimpl->locate(minimap, options, angle_future);
+    const double angle = angle_future.get();
+    if (std::isfinite(angle) && angle >= 0.0) {
+        res.rot = angle;
+    }
+    if (res.position.has_value()) {
+        res.position->angle = res.rot.value_or(-1.0);
+    }
     auto end = std::chrono::high_resolution_clock::now();
     const long long latencyMs = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     if (res.position.has_value()) {

@@ -27,6 +27,7 @@ struct RecastPlanResult
     bool no_go = false;
     std::vector<WorldPoint> points;
     std::vector<double> clearance; // 逐点通道半宽 px
+    std::vector<double> heights;   // 逐点所在面的高度; 没有层信息时为空
     double length = 0.0;
     std::vector<std::string> warnings;
     double snap_start = 0.0; // 起/终点到可走格锚点距离 px
@@ -34,6 +35,7 @@ struct RecastPlanResult
     // 贪心拉直后的驱动航点下标(points 的下标,不含起点,末位恒为 points.size()-1)。
     // 空 = 该腿没有层预言机,拉直交给调用方。
     std::vector<size_t> waypoints;
+    std::vector<DropLanding> drops;
 
     // 规划各阶段的中间产物。每个数组恰好对应一段算法的出口, 看哪一段把线拐坏了就开哪一层。
     struct Debug
@@ -91,6 +93,7 @@ public:
 
     // start/goal 各带楼层高度(<= kBaseNavFloorYValidMin ⇒ floor 盲吸附);
     // goal_deck_y = 终点所在重叠面的高度,选层用,与吸附用的 floor_y 是两件事;
+    // start_deck_y = 起点脚下那层的确切高度,给了就盖过 start_floor_y;
     // no_go_discs = 运行期虚拟禁区, 与作者禁区同口径盖格, 但端点落在里面照常规划;
     // should_stop = 外部取消,两档窗口之间查一次
     RecastPlanResult plan(
@@ -100,6 +103,7 @@ public:
         float start_floor_y = kBaseNavFloorYNone,
         float goal_floor_y = kBaseNavFloorYNone,
         float goal_deck_y = kBaseNavFloorYNone,
+        float start_deck_y = kBaseNavFloorYNone,
         const std::vector<BaseNavNoGoDisc>& no_go_discs = {},
         const std::function<bool()>& should_stop = {});
 
@@ -132,6 +136,7 @@ private:
         float start_floor_y,
         float goal_floor_y,
         float goal_deck_y,
+        float start_deck_y,
         const std::vector<BaseNavNoGoDisc>& no_go_discs,
         const std::function<bool()>& should_stop);
 
@@ -140,10 +145,12 @@ private:
     std::mutex mutex_;
     std::unordered_map<std::string, ZoneEntry> zones_;
     uint64_t zone_clock_ = 0;
-    GridPack grid_;     // 包里的预烘格图,没有它就没法规划
-    FieldsPack fields_; // 旁包里的预烘场, 同样缺不得
-    NoGoTable nogo_;    // 虚拟禁区表, 缺了就是没有禁区
+    GridPack grid_; // 包里的预烘格图,没有它就没法规划
+    // 旁包里的预烘场, 同样缺不得; 同一份旁包的各引擎共用。
+    std::shared_ptr<const FieldsPack> fields_ = std::make_shared<const FieldsPack>();
+    NoGoTable nogo_;       // 虚拟禁区表, 缺了就是没有禁区
     std::string grid_error_;
+    bool hopping_ = false; // 正在规划跨类下落的两段, 它们自己不再往下接
 };
 
 }

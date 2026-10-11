@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -19,8 +20,6 @@ import (
 )
 
 const component = "captureuid"
-
-const saltPath = "debug/record/random_salt.txt"
 
 // OutputType 表示 CaptureUid 捕获结果的输出格式。
 type OutputType string
@@ -259,7 +258,7 @@ func extractAllDigits(s string) string {
 }
 
 func loadOrCreateSalt() (string, error) {
-	path := saltPath
+	path := fsutil.OutputPath("debug", "record", "random_salt.txt")
 	data, err := os.ReadFile(path)
 	if err == nil && len(strings.TrimSpace(string(data))) > 0 {
 		return strings.TrimSpace(string(data)), nil
@@ -281,10 +280,10 @@ func loadOrCreateSalt() (string, error) {
 }
 
 func captureErr(allowUnknown bool, format string, args ...any) (string, error) {
+	err := fmt.Errorf(format, args...)
 	if allowUnknown {
-		msg := fmt.Sprintf(format, args...)
-		log.Warn().Str("component", component).Str("reason", msg).Msg("uid capture failed, returning unknown")
+		log.Warn().Str("component", component).Str("reason", err.Error()).Msg("uid capture failed, returning unknown")
 		return "unknown", nil
 	}
-	return "", fmt.Errorf(format, args...)
+	return "", err
 }

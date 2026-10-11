@@ -14,6 +14,7 @@
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]SceneNoticeRewardsUpgrade",
             "[JumpBack]SceneNoticeRewardsConfirm",
+            "[JumpBack]__ScenePrivateLoginMonthlyPassConfirm",
             "[JumpBack]__ScenePrivateWorldSpaceExit",
             "[JumpBack]__ScenePrivateWorldStorySkip",
             "[JumpBack]__ScenePrivateLoggedOutConfirm",
@@ -90,14 +91,14 @@
         },
         "pre_wait_freezes": {
             "time": 300,
-            "threshold": 0.97,
-            "timeout": 1500,
             "target": [
                 528,
                 299,
                 222,
                 131
-            ]
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
         },
         "pre_delay": 0,
         "action": {
@@ -131,13 +132,13 @@
         },
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 2000,
             "target": [
                 500,
                 0,
                 280,
                 200
-            ]
+            ],
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -160,14 +161,14 @@
         },
         "pre_wait_freezes": {
             "time": 300,
-            "threshold": 0.97,
-            "timeout": 1500,
             "target": [
                 528,
                 299,
                 222,
                 131
-            ]
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
         },
         "pre_delay": 0,
         "action": {
@@ -201,13 +202,13 @@
         },
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 2000,
             "target": [
                 500,
                 0,
                 280,
                 200
-            ]
+            ],
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -267,13 +268,13 @@
         "action": "LongPress",
         "duration": 2000,
         "post_wait_freezes": {
+            "time": 400,
             "target": [
                 -100,
                 0,
                 100,
                 100
-            ],
-            "time": 400
+            ]
         }
     },
     "SceneMapLayerSwitchToMain": {

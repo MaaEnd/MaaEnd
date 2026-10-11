@@ -113,6 +113,37 @@ Go Service 仅用于处理 Pipeline 难以实现的复杂图像算法或特殊�
 一句话：**Pipeline 管流程，Go 管难点。**
 _没有必要的 Go 逻辑会大大增加代码复杂度，造成下一位开发者开发调试极其困难、跨平台适配十分艰难_
 
+### 回调里的句柄怎么用
+
+从 maa-framework-go v4.0.0-beta.19 起，Custom 的 `Run`、EventSink 各方法里拿到的 `ctx`、`tasker`、`controller`、`resource` 都只是**借用**，用错了不会编译报错，而是运行时出问题：
+
+- **只在本次回调内用。** 回调返回后这些对象全部失效（`ctx.GetTasker()` 返回 `nil`，其余方法返回 `maa.ErrClosed`）。不要存进包级变量，不要交给回调返回后还在跑的 goroutine。
+- **一次回调里 controller 只取一次，取到后往下传。** 每调用一次 `GetController()`，上一次拿到的那个就被销毁了，再用它是释放后使用，go-service 会随机崩溃。`GetResource()` 同理。辅助函数需要 controller 就加一个 `*maa.Controller` 参数，不要自己再从 `ctx` 取。
+- **取到后先判空。** 与客户端断连时 `GetTasker()` / `GetController()` 会返回 `nil`，而回调里的空指针 panic 会直接结束整个 go-service 进程。
+- **判断控制器类型用 `pienv.ControllerType()`**，不要为此去取 controller 调 `GetInfo()`。
+- **识别未命中返回 `nil, false`。** 返回了非 nil 的结果，即使未命中，`Box` 和 `Detail` 也会写进识别详情。
+
+```go
+// ❌ capture 内部又取了一次 controller，Run 手里的 ctrl 随即失效
+ctrl := ctx.GetTasker().GetController()
+img := capture(ctx)
+ctrl.PostClick(x, y).Wait()
+
+// ✅ 入口取一次并判空，往下传
+tasker := ctx.GetTasker()
+if tasker == nil {
+    return false
+}
+ctrl := tasker.GetController()
+if ctrl == nil {
+    return false
+}
+img := capture(ctrl)
+ctrl.PostClick(x, y).Wait()
+```
+
+完整规则见 [Go Service 编写指南](../../../.agents/skills/go-service-guide/SKILL.md) 的「句柄生命周期」一节，绑定侧的变更见 [maa-framework-go beta.19 迁移指南](https://github.com/MaaXYZ/maa-framework-go/blob/v4.0.0-beta.19/docs/migration/v4.0.0-beta.19.md)。
+
 ## Cpp Algo 规范
 
 Cpp Algo 支持原生 OpenCV 和 ONNX Runtime，但仅推荐用于实现单个识别算法。各类操作等业务逻辑推荐用 Go Service 编写。

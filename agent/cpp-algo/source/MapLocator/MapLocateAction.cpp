@@ -43,10 +43,10 @@ struct LocateOutput
     std::string mapName;
     double x = 0.0;
     double y = 0.0;
-    double rot = 0.0;
+    std::optional<double> rot;
     double locConf = 0.0;
-    double camRot = 0.0;
-    double camRotConf = 0.0;
+    std::optional<double> camRot;
+    std::optional<double> camRotConf;
     int latencyMs = 0;
 
     MEO_JSONIZATION(
@@ -79,10 +79,10 @@ struct MapLocateAssertLocationOutput
     std::string zoneId;
     double x = 0.0;
     double y = 0.0;
-    double rot = 0.0;
+    std::optional<double> rot;
     double locConf = 0.0;
-    double camRot = 0.0;
-    double camRotConf = 0.0;
+    std::optional<double> camRot;
+    std::optional<double> camRotConf;
     int latencyMs = 0;
     std::vector<double> target;
 
@@ -102,11 +102,11 @@ struct MapLocateAssertLocationOutput
         MEO_OPT target)
 };
 
-fs::path getExeDir()
+fs::path getInstallDir()
 {
     // Shared single-source resolution (see source/utils.h). Kept as a thin alias so MapLocator and
     // MapNavigator anchor resources identically.
-    return get_exe_dir();
+    return get_install_dir();
 }
 
 // 参数由 pipeline 提供，字段类型不由本模块保证。解析失败退回默认值，与不传参数同路。
@@ -134,7 +134,16 @@ void WriteJsonDetail(MaaStringBuffer* out_detail, const T& payload)
         return;
     }
 
-    const std::string json_text = json::value(payload).dumps();
+    json::value detail = payload;
+    // MEO_OPT 只影响反序列化；输出时显式省略不可用朝向，不能用零或 null 代替。
+    if (!payload.rot.has_value()) {
+        detail.as_object().erase("rot");
+    }
+    if (!payload.camRot.has_value()) {
+        detail.as_object().erase("camRot");
+        detail.as_object().erase("camRotConf");
+    }
+    const std::string json_text = detail.dumps();
     MaaStringBufferSet(out_detail, json_text.c_str());
 }
 
@@ -143,6 +152,7 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     LocateOutput output;
     output.status = static_cast<int>(result.status);
     output.message = result.debugMessage;
+    output.rot = result.rot;
     if (!result.position.has_value()) {
         return output;
     }
@@ -151,7 +161,6 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     output.mapName = pos.zoneId;
     output.x = pos.x;
     output.y = pos.y;
-    output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
     if (result.camRot.has_value()) {
@@ -170,6 +179,7 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.message = result.debugMessage;
     output.zoneId = param.zone_id;
     output.target = param.target;
+    output.rot = result.rot;
     if (!result.position.has_value()) {
         return output;
     }
@@ -177,7 +187,6 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     const auto& pos = result.position.value();
     output.x = pos.x;
     output.y = pos.y;
-    output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
     if (result.camRot.has_value()) {
@@ -273,7 +282,8 @@ bool UsesAdbMinimapRoi(std::string_view controller_type)
                });
     };
 
-    return equals_ignore_case("adb") || equals_ignore_case("playcover") || equals_ignore_case("play_cover");
+    return equals_ignore_case("adb") || equals_ignore_case("playcover") || equals_ignore_case("play_cover")
+           || equals_ignore_case("native_android");
 }
 
 bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const LocateOptions& options, LocateResult* out_result)
@@ -322,31 +332,25 @@ bool TryLocateOnMinimap(MaaContext* context, const MaaImageBuffer* image, const 
 std::shared_ptr<MapLocator> getOrInitLocator()
 {
     static std::shared_ptr<MapLocator> locator = []() {
-        fs::path exeDir = getExeDir();
-        fs::path mapRoot = exeDir / ".." / "resource" / "image" / "MapLocator";
-        fs::path yoloModel = exeDir / ".." / "resource" / "model" / "map" / "cls.onnx";
-        fs::path cameraOrientationDir = exeDir / ".." / "resource" / "model" / "map" / "cameraorientation";
-        fs::path cameraOrientationPreprocessModel = cameraOrientationDir / "preprocess.onnx";
+        fs::path installDir = getInstallDir();
+        fs::path mapRoot = installDir / "resource" / "image" / "MapLocator";
+        fs::path yoloModel = installDir / "resource" / "model" / "map" / "cls.onnx";
+        fs::path cameraOrientationDir = installDir / "resource" / "model" / "map" / "cameraorientation";
         fs::path cameraOrientationRefModel = cameraOrientationDir / "polar_with_ref.onnx";
 
         std::string mapRootStr = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));
         std::string yoloModelStr = fs::exists(yoloModel) ? MAA_NS::path_to_utf8_string(fs::absolute(yoloModel)) : "";
-        std::string cameraOrientationPreprocessModelStr =
-            fs::exists(cameraOrientationPreprocessModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationPreprocessModel)) : "";
         std::string cameraOrientationRefModelStr =
             fs::exists(cameraOrientationRefModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationRefModel)) : "";
 
         LogInfo << "Auto-init: mapRoot=" << mapRootStr;
         LogInfo << "Auto-init: yoloModel=" << (yoloModelStr.empty() ? "(not found)" : yoloModelStr);
-        LogInfo << "Auto-init: cameraOrientationPreprocessModel="
-                << (cameraOrientationPreprocessModelStr.empty() ? "(not found)" : cameraOrientationPreprocessModelStr);
         LogInfo << "Auto-init: cameraOrientationRefModel="
                 << (cameraOrientationRefModelStr.empty() ? "(not found)" : cameraOrientationRefModelStr);
 
         MapLocatorConfig cfg;
         cfg.mapResourceDir = mapRootStr;
         cfg.yoloModelPath = yoloModelStr;
-        cfg.cameraOrientationPreprocessModelPath = cameraOrientationPreprocessModelStr;
         cfg.cameraOrientationRefModelPath = cameraOrientationRefModelStr;
         const unsigned hardwareThreads = std::thread::hardware_concurrency();
         cfg.yoloThreads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);

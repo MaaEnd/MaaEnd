@@ -247,6 +247,17 @@
                                 957.93,
                                 1401.58
                             ]
+                        },
+                        {
+                            "action": "INTERACT",
+                            "target": [
+                                957.93,
+                                1401.58
+                            ],
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_rec": true
                         }
                     ]
                 }
@@ -255,6 +266,9 @@
         "post_delay": 1500,
         "next": [
             "AutoEssenceDispatcher"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

@@ -30,6 +30,8 @@ public:
     // The transport's per-drag cap, which is the angle the pending-turn floor is sized to cover.
     double SteeringBatchCapDeg() const { return steering_profile_.max_batch_delta_deg; }
 
+    bool SteeringDropsTurnSends() const { return steering_profile_.drops_turn_sends; }
+
 private:
     bool ActionProducesTranslation(LocalDriverAction action) const;
     bool ActionMovesForward(LocalDriverAction action) const;

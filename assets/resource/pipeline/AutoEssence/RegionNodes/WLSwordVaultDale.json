@@ -77,11 +77,18 @@
                             "action": "ZONE",
                             "zone_id": "Wuling_Base"
                         },
-                        [
-                            1641.94,
-                            2702.1,
-                            true
-                        ]
+                        {
+                            "action": "INTERACT",
+                            "target": [
+                                1641.94,
+                                2702.1
+                            ],
+                            "strict_arrival": true,
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_rec": true
+                        }
                     ]
                 }
             }
@@ -89,6 +96,9 @@
         "post_delay": 1500,
         "next": [
             "AutoEssenceDispatcher"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

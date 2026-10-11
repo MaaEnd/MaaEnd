@@ -201,6 +201,22 @@ constexpr double kRewardsMinimumCardAspectRatio = 0.82;
 constexpr double kRewardsMaximumCardAspectRatio = 1.22;
 // 同一行卡片中心允许的纵向差异（720p 像素）；调大可能合并相邻行，调小可能拆散轻微错位的同一行。
 constexpr int kRewardsRowCenterTolerance = 24;
+// 送货卡片底色的 HSV 下界；空槽背景不满足该亮度条件。
+const cv::Scalar kShipmentCardHsvLower { 0, 0, 190 };
+// 限制卡片底色饱和度，排除彩色物品图标和 UI 高光。
+const cv::Scalar kShipmentCardHsvUpper { 179, 80, 255 };
+// 评分避开边框，降低相邻卡片和底部稀有度条的影响。
+constexpr int kShipmentCardScoreInset = 4;
+// 保留图标和黄色选框的遮挡余量；白底只作佐证，卡片尺寸还须由左右边界证明。
+constexpr double kShipmentMinimumCardBackgroundCoverage = 0.10;
+// 左右白卡边界的内外亮色覆盖率差；选中框可削弱边界，仍需证明卡片宽度，而非白底内的任意裁块。
+constexpr double kShipmentMinimumSideContrast = 0.20;
+// 归一化后色带和白卡宽度实测为 61..64px；容忍圆角及选中框，不接受错误缩放产生的宽卡片。
+constexpr int kShipmentCardWidthTolerance = 4;
+// 白底不包含底部色带；轮廓须覆盖卡片的可见高度，底部裁切沿用已有可见性规则。
+constexpr double kShipmentMinimumWhiteCardHeightRatio = 0.85;
+// 仅闭合白底中的细小裂缝，避免将相邻卡片及选中框连为一个候选。
+constexpr int kShipmentCardClosingSize = 3;
 
 bool CoversImageCenter(const cv::Rect& bounds, const cv::Size& image_size)
 {
@@ -255,8 +271,8 @@ GridLayout DetectSingleLattice(const cv::Mat& image, GridType type, const cv::Re
         y_signal,
         static_cast<int>(std::floor(profile.pitch_y)) - kSingleLatticePitchSearchRadius,
         static_cast<int>(std::ceil(profile.pitch_y)) + kSingleLatticePitchSearchRadius);
-    const auto pitch_range_x = std::pair { pitch_x - kSingleLatticePitchTolerance, pitch_x + kSingleLatticePitchTolerance };
-    const auto pitch_range_y = std::pair { pitch_y - kSingleLatticePitchTolerance, pitch_y + kSingleLatticePitchTolerance };
+    const std::pair<int, int> pitch_range_x { pitch_x - kSingleLatticePitchTolerance, pitch_x + kSingleLatticePitchTolerance };
+    const std::pair<int, int> pitch_range_y { pitch_y - kSingleLatticePitchTolerance, pitch_y + kSingleLatticePitchTolerance };
     const int expected_columns = std::max(profile.min_columns, (roi.width - profile.cell_size) / std::max(pitch_x, 1) + 1);
     const int expected_rows = std::max(profile.min_rows, (roi.height - profile.cell_size) / std::max(pitch_y, 1) + 1);
     const AxisSequence x_axis =
@@ -935,6 +951,154 @@ void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType
         y_starts.front(),
         x_starts.back() + layout.cell_size - x_starts.front(),
         y_starts.back() + layout.cell_size - y_starts.front());
+}
+
+bool HasShipmentCardBackground(const cv::Mat& bright, const cv::Rect& cell)
+{
+    const cv::Rect bounds(0, 0, bright.cols, bright.rows);
+    if ((cell & bounds) != cell) {
+        return false;
+    }
+    const int inset = kShipmentCardScoreInset;
+    const cv::Rect inner(cell.x + inset, cell.y + inset, cell.width - inset * 2, cell.height - inset * 2);
+    const auto coverage = [&](const cv::Rect& region) {
+        const cv::Rect clipped = region & bounds;
+        return clipped.empty() ? 0.0 : static_cast<double>(cv::countNonZero(bright(clipped))) / clipped.area();
+    };
+    if (coverage(inner) < kShipmentMinimumCardBackgroundCoverage) {
+        return false;
+    }
+    const int side_width = inset - 1;
+    // 页眉可能遮住顶部而保留色带；按已有顶部可见性容差查左右白边，避开 ADB 黄色数量选框。
+    const int top_height = cvCeil(cell.height * (1.0 - kDefaultMinimumTopVisibility));
+    const double top = (coverage(cv::Rect(cell.x + 1, cell.y, side_width, top_height))
+                        + coverage(cv::Rect(cell.x + cell.width - inset, cell.y, side_width, top_height)))
+                       * 0.5;
+    // 圆角和缩放量化可能只保留一侧的少量白边；此处判断存在性，完整边界强度由下方侧边检查负责。
+    if (top <= 0.0) {
+        return false;
+    }
+    const int side_height = cell.height - inset * 3;
+    const double left = coverage(cv::Rect(cell.x + 1, cell.y + inset, side_width, side_height))
+                        - coverage(cv::Rect(cell.x - side_width, cell.y + inset, side_width, side_height));
+    const double right = coverage(cv::Rect(cell.x + cell.width - inset, cell.y + inset, side_width, side_height))
+                         - coverage(cv::Rect(cell.x + cell.width, cell.y + inset, side_width, side_height));
+    return (left + right) * 0.5 >= kShipmentMinimumSideContrast;
+}
+
+std::optional<RegularAxisFit> FitShipmentAxis(const std::vector<cv::Rect>& cards, bool horizontal, const GridProfile& profile, int extent)
+{
+    std::vector<int> positions;
+    for (const cv::Rect& card : cards) {
+        positions.push_back(horizontal ? card.x : card.y);
+    }
+    std::ranges::sort(positions);
+    std::vector<LatticeObservation> observations;
+    // 同一列/行的色带与白底边缘可有 1..2px 量化差，先合并成观测，不改变背包公共拟合器的聚类容差。
+    for (std::size_t begin = 0; begin < positions.size();) {
+        std::size_t end = begin + 1;
+        while (end < positions.size() && positions[end] - positions[begin] <= kMaximumRegularAxisResidual) {
+            ++end;
+        }
+        const double position = std::accumulate(positions.begin() + begin, positions.begin() + end, 0.0) / (end - begin);
+        observations.push_back({ position, static_cast<double>(end - begin), true });
+        begin = end;
+    }
+    const double pitch = horizontal ? profile.pitch_x : profile.pitch_y;
+    return FitRegularAxis(
+        observations,
+        std::max(1, extent / profile.cell_size + 1),
+        { pitch - kSingleLatticePitchTolerance, pitch + kSingleLatticePitchTolerance },
+        pitch,
+        kSingleLatticePitchTolerance);
+}
+
+GridLayout DetectShipmentGrid(const cv::Mat& image, const cv::Rect& roi)
+{
+    const GridProfile profile = ProfileFor(GridType::Shipment);
+    const cv::Rect search_roi = cv::Rect(
+                                    roi.x - profile.cell_size,
+                                    roi.y - profile.cell_size,
+                                    roi.width + profile.cell_size * 2,
+                                    roi.height + profile.cell_size * 2)
+                                & cv::Rect(0, 0, image.cols, image.rows);
+    const cv::Mat crop = image(search_roi);
+    cv::Mat bgr;
+    if (crop.channels() == 4) {
+        cv::cvtColor(crop, bgr, cv::COLOR_BGRA2BGR);
+    }
+    else {
+        bgr = crop;
+    }
+    cv::Mat hsv;
+    cv::cvtColor(bgr, hsv, cv::COLOR_BGR2HSV);
+    cv::Mat bright;
+    cv::inRange(hsv, kShipmentCardHsvLower, kShipmentCardHsvUpper, bright);
+    std::vector<cv::Rect> cards;
+    const auto add_card = [&](const cv::Rect& local_cell) {
+        const cv::Rect cell(local_cell.tl() + search_roi.tl(), local_cell.size());
+        if (IsFormal(cell, roi) && HasShipmentCardBackground(bright, local_cell)) {
+            cards.push_back(cell);
+        }
+    };
+    // 色带下边界反推真实顶部；保留 ROI 外的局部上下文，不能把被裁切的顶部挪到 ROI 内。
+    for (const auto& strip : DetectTrustedRarityStrips(crop, profile.cell_size)) {
+        if (std::abs(strip.box.width - profile.cell_size) <= kShipmentCardWidthTolerance) {
+            add_card(cv::Rect(strip.box.x, strip.box.y + strip.box.height - profile.cell_size, profile.cell_size, profile.cell_size));
+        }
+    }
+    // 灰条或色带被遮挡时，完整白卡边界仍可直接定位；不复制背包的灰条特殊处理和空槽补全。
+    cv::Mat closed;
+    cv::morphologyEx(
+        bright,
+        closed,
+        cv::MORPH_CLOSE,
+        cv::getStructuringElement(cv::MORPH_RECT, cv::Size(kShipmentCardClosingSize, kShipmentCardClosingSize)));
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(closed, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+    for (const auto& contour : contours) {
+        const cv::Rect box = cv::boundingRect(contour);
+        const int visible_height = std::min(profile.cell_size, roi.y + roi.height - search_roi.y - box.y);
+        const cv::Rect cell(box.tl(), cv::Size(profile.cell_size, profile.cell_size));
+        // 选中框或光标可改变白底外轮廓；同一张卡片已有色带定位时，不让较弱轮廓反过来干扰轴拟合。
+        const bool already_located = std::ranges::any_of(cards, [&](const cv::Rect& card) {
+            return cell.contains(card.tl() - search_roi.tl() + cv::Point(profile.cell_size / 2, profile.cell_size / 2));
+        });
+        if (std::abs(box.width - profile.cell_size) <= kShipmentCardWidthTolerance
+            && box.height >= visible_height * kShipmentMinimumWhiteCardHeightRatio
+            && box.height <= profile.cell_size + kShipmentCardWidthTolerance && !already_located) {
+            add_card(cell);
+        }
+    }
+    const auto x_axis = FitShipmentAxis(cards, true, profile, roi.width);
+    const auto y_axis = FitShipmentAxis(cards, false, profile, roi.height);
+    if (!x_axis || !y_axis) {
+        return {};
+    }
+    GridLayout layout;
+    layout.cell_size = profile.cell_size;
+    layout.pitch_x = x_axis->pitch;
+    layout.pitch_y = y_axis->pitch;
+    layout.columns = x_axis->maximum_index + 1;
+    layout.rows = y_axis->maximum_index + 1;
+    std::set<std::pair<int, int>> occupied;
+    for (const cv::Rect& card : cards) {
+        const int column = cvRound((card.x - x_axis->origin) / x_axis->pitch);
+        const int row = cvRound((card.y - y_axis->origin) / y_axis->pitch);
+        const cv::Rect cell(
+            cvRound(x_axis->origin + column * x_axis->pitch),
+            cvRound(y_axis->origin + row * y_axis->pitch),
+            profile.cell_size,
+            profile.cell_size);
+        if (IsFormal(cell, roi) && occupied.emplace(row, column).second) {
+            layout.cells.push_back({ 0, row, column, cell });
+            layout.bounds = layout.bounds.empty() ? cell : layout.bounds | cell;
+        }
+    }
+    std::ranges::sort(layout.cells, [](const GridCell& left, const GridCell& right) {
+        return std::pair { left.row, left.column } < std::pair { right.row, right.column };
+    });
+    return layout;
 }
 
 GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase, int column_count, const GridProfile& profile)
@@ -2758,9 +2922,12 @@ GridDetection DetectGridNormalized(
             Append(result, BuildTransferLayout(image, roi, hints[index], index, type, texture_context));
         }
     }
+    else if (type == GridType::Shipment) {
+        Append(result, DetectShipmentGrid(image, roi));
+    }
     else {
         GridLayout layout = DetectSingleLattice(image, type, roi);
-        if (type == GridType::Trade || type == GridType::Valuables || type == GridType::Shipment) {
+        if (type == GridType::Trade || type == GridType::Valuables) {
             RefineCardVerticalPhase(image, roi, type, source_grid_scale, layout);
         }
         Append(result, std::move(layout));

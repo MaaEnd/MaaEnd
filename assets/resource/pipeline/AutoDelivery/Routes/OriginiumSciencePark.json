@@ -1,6 +1,6 @@
 {
     "AutoDeliveryRouteDepotDomain1Lv005Depot1": {
-        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点（domain_1_lv005_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点(domain_1_lv005_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -28,7 +28,8 @@
                     "target_deck_y": 93.098
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -42,7 +43,7 @@
         }
     },
     "AutoDeliveryRouteDepotDomain1Lv005Depot1WithZipline": {
-        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点，允许使用滑索（domain_1_lv005_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点，允许使用滑索(domain_1_lv005_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -70,7 +71,8 @@
                     "target_deck_y": 93.098
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -84,7 +86,7 @@
         }
     },
     "AutoDeliveryRouteDepotRetryDomain1Lv005Depot1": {
-        "desc": "AutoDelivery 仓储站位修正路线：源石研究园仓储节点（domain_1_lv005_depot_1）",
+        "desc": "AutoDelivery 仓储站位修正路线：源石研究园仓储节点(domain_1_lv005_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -111,7 +113,8 @@
                     ],
                     "target_deck_y": 93.098
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -125,7 +128,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00501": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格（deliver_target_map01_lv005_01）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格(deliver_target_map01_lv005_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -144,7 +147,8 @@
                     "target_deck_y": 90.519
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -158,7 +162,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00501WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格，允许使用滑索（deliver_target_map01_lv005_01）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格，允许使用滑索(deliver_target_map01_lv005_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -177,7 +181,8 @@
                     "target_deck_y": 90.519
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -191,7 +196,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00501": {
-        "desc": "AutoDelivery 终点站位修正路线：英格（deliver_target_map01_lv005_01）",
+        "desc": "AutoDelivery 终点站位修正路线：英格(deliver_target_map01_lv005_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -218,7 +223,8 @@
                     ],
                     "target_deck_y": 90.519
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -232,7 +238,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00502": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特（deliver_target_map01_lv005_02）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特(deliver_target_map01_lv005_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -267,7 +273,8 @@
                     "target_deck_y": 87.27
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -281,7 +288,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00502WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特，允许使用滑索（deliver_target_map01_lv005_02）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特，允许使用滑索(deliver_target_map01_lv005_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -316,7 +323,8 @@
                     "target_deck_y": 87.27
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -330,7 +338,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00502": {
-        "desc": "AutoDelivery 终点站位修正路线：基特（deliver_target_map01_lv005_02）",
+        "desc": "AutoDelivery 终点站位修正路线：基特(deliver_target_map01_lv005_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -357,7 +365,8 @@
                     ],
                     "target_deck_y": 87.394
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -371,7 +380,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00503": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜（deliver_target_map01_lv005_03）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜(deliver_target_map01_lv005_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -390,7 +399,8 @@
                     "target_deck_y": 95.898
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -404,7 +414,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00503WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜，允许使用滑索（deliver_target_map01_lv005_03）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜，允许使用滑索(deliver_target_map01_lv005_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -423,7 +433,8 @@
                     "target_deck_y": 95.898
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -437,7 +448,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00503": {
-        "desc": "AutoDelivery 终点站位修正路线：嘉娜（deliver_target_map01_lv005_03）",
+        "desc": "AutoDelivery 终点站位修正路线：嘉娜(deliver_target_map01_lv005_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -464,7 +475,8 @@
                     ],
                     "target_deck_y": 95.898
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -478,7 +490,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle02": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽（deliver_target_map01_lv005_recycle_02）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽(deliver_target_map01_lv005_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -506,7 +518,8 @@
                     "target_deck_y": 87.331
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -520,7 +533,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle02WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽，允许使用滑索（deliver_target_map01_lv005_recycle_02）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽，允许使用滑索(deliver_target_map01_lv005_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -548,7 +561,8 @@
                     "target_deck_y": 87.331
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -562,7 +576,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv005Recycle02": {
-        "desc": "AutoDelivery 终点站位修正路线：学术复读羽兽（deliver_target_map01_lv005_recycle_02）",
+        "desc": "AutoDelivery 终点站位修正路线：学术复读羽兽(deliver_target_map01_lv005_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -589,7 +603,8 @@
                     ],
                     "target_deck_y": 87.331
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -603,7 +618,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle03": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组（deliver_target_map01_lv005_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组(deliver_target_map01_lv005_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -631,7 +646,8 @@
                     "target_deck_y": 96.809
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -645,7 +661,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle03WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组，允许使用滑索（deliver_target_map01_lv005_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组，允许使用滑索(deliver_target_map01_lv005_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -673,7 +689,8 @@
                     "target_deck_y": 96.809
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -687,7 +704,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv005Recycle03": {
-        "desc": "AutoDelivery 终点站位修正路线：采购-醇化合物工厂模组（deliver_target_map01_lv005_recycle_03）",
+        "desc": "AutoDelivery 终点站位修正路线：采购-醇化合物工厂模组(deliver_target_map01_lv005_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -714,7 +731,8 @@
                     ],
                     "target_deck_y": 96.809
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,

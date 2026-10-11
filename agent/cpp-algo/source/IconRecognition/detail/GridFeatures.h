@@ -19,6 +19,5 @@ double Percentile(std::vector<float> values, double percentile);
 std::vector<float> RobustProjection(const cv::Mat& values, bool x_axis);
 std::vector<float> AggregateSigned(const cv::Mat& values, bool x_axis);
 std::vector<float> MedianProjection(const cv::Mat& values, bool x_axis);
-double GridOccupancyScore(const cv::Mat& image, const GridLayout& layout);
 
 } // namespace iconrecognition::detail

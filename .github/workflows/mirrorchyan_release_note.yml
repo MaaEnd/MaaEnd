@@ -10,7 +10,37 @@ on:
     types: [edited]
 
 jobs:
+  # Release 正文顶部的下载表只给 GitHub 页面看，传给 Mirror酱 的更新说明里剔掉
+  release_note:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'MaaEnd' }}
+    outputs:
+      tag: ${{ steps.note.outputs.tag }}
+      note: ${{ steps.note.outputs.note }}
+
+    steps:
+      - id: note
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          # 未指定 tag 时取最新的非草稿 release
+          if [[ -z "$TAG" ]]; then
+            TAG=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --limit 1 --json tagName -q '.[0].tagName')
+          fi
+          # 标记与 .github/scripts/release_body.py 保持一致
+          note=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body -q .body \
+            | perl -0pe 's/<!-- downloads:start -->.*?<!-- downloads:end -->\s*//s')
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          {
+            echo "note<<__RELEASE_NOTE_EOF__"
+            echo "$note"
+            echo "__RELEASE_NOTE_EOF__"
+          } >> "$GITHUB_OUTPUT"
+
   mirrorchyan:
+    needs: release_note
     runs-on: ubuntu-latest
     if: ${{ github.repository_owner == 'MaaEnd' }}
 
@@ -19,7 +49,8 @@ jobs:
         uses: MirrorChyan/release-note-action@v1
         with:
           mirrorchyan_rid: MaaEnd
-          version_name: ${{ inputs.tag }}
+          version_name: ${{ needs.release_note.outputs.tag }}
+          release_note: ${{ needs.release_note.outputs.note }}
 
           owner: MaaEnd
           repo: MaaEnd
@@ -27,6 +58,7 @@ jobs:
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
 
   mirrorchyan_exec:
+    needs: release_note
     runs-on: ubuntu-latest
     if: ${{ github.repository_owner == 'MaaEnd' }}
 
@@ -35,7 +67,8 @@ jobs:
         uses: MirrorChyan/release-note-action@v1
         with:
           mirrorchyan_rid: MaaEnd_exec
-          version_name: ${{ inputs.tag }}
+          version_name: ${{ needs.release_note.outputs.tag }}
+          release_note: ${{ needs.release_note.outputs.note }}
 
           owner: MaaEnd
           repo: MaaEnd

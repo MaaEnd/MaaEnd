@@ -115,9 +115,10 @@ func (a *AutoDeliveryResolveDepotAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		Str("depot", route.ID).
 		Str("areaText", areaText).
 		Str("map", route.Map).
-		Str("routeNode", selectRouteNode(route.RouteNode, route.ZipRouteNode, options.Zip)).
+		Str("routeNode", selectRouteNode(route.RouteNode, route.ZipRouteNode, options.Zip, route.WalkOnly)).
 		Str("retryRouteNode", route.RetryRouteNode).
 		Bool("zip", options.Zip).
+		Bool("walkOnly", route.WalkOnly).
 		Msg("configured delivery depot navigation")
 	return true
 }
@@ -127,7 +128,7 @@ func buildDepotNavigationOverride(route depot, zip bool) map[string]any {
 		navigateDepotNode: map[string]any{
 			"custom_action": "SubTask",
 			"custom_action_param": map[string]any{
-				"sub": []string{selectRouteNode(route.RouteNode, route.ZipRouteNode, zip)},
+				"sub": []string{selectRouteNode(route.RouteNode, route.ZipRouteNode, zip, route.WalkOnly)},
 			},
 		},
 		retryNavigateDepotNode: map[string]any{
@@ -146,8 +147,10 @@ func buildDepotNavigationOverride(route depot, zip bool) map[string]any {
 	return override
 }
 
-func selectRouteNode(routeNode string, zipRouteNode string, zip bool) string {
-	if zip {
+// selectRouteNode 按滑索策略挑主路线节点。walk_only 的路线在映射里就不允许用滑索变体：
+// 全局滑索规划会跳过作者录制的必经路点，用户启用滑索时也只能走普通节点。
+func selectRouteNode(routeNode string, zipRouteNode string, zip bool, walkOnly bool) string {
+	if zip && !walkOnly {
 		return zipRouteNode
 	}
 	return routeNode

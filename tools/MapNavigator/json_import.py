@@ -21,6 +21,7 @@ from model import (
     get_point_actions,
     normalize_path_points,
     normalize_zone_id,
+    trigger_node_of,
     try_parse_action_type,
 )
 
@@ -34,6 +35,7 @@ FIND_TARGET_KEYS = ("find_target", "findTarget")
 FIND_TEXT_KEYS = ("find_text", "findText")
 FIND_STOP_KEYS = ("find_stop", "findStop")
 FIND_ARRIVE_KEYS = ("find_arrive", "findArrive")
+TRIGGER_NODE_KEYS = ("trigger_node", "triggerNode")
 CONTROL_ACTION_NAMES = {"HEADING", "ZONE"}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = PROJECT_ROOT / "assets"
@@ -267,6 +269,7 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
         target_tier = normalize_zone_id(point.get("target_tier", ""))
         target_deck_y = point.get("target_deck_y")
         find_fields = find_fields_of(point)
+        trigger_node = trigger_node_of(point)
         for action in get_point_actions(point):
             target = [_compact_number(point["x"]), _compact_number(point["y"])]
             if action == int(ActionType.NAVMESH):
@@ -292,6 +295,17 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
                 if required:
                     find_node["required"] = True
                 exported_nodes.append(find_node)
+                continue
+
+            if action == int(ActionType.TRIGGER) and trigger_node:
+                trigger_export: dict[str, Any] = {"action": "TRIGGER", "target": target, "trigger_node": trigger_node}
+                if target_tier:
+                    trigger_export["target_tier"] = target_tier
+                if strict_arrival:
+                    trigger_export["strict"] = True
+                if required:
+                    trigger_export["required"] = True
+                exported_nodes.append(trigger_export)
                 continue
 
             if target_tier or required:
@@ -660,6 +674,12 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
         point["target_deck_y"] = target_deck_y
     for key, value in _resolve_find_fields(node).items():
         point[key] = value  # type: ignore[literal-required]
+    for trigger_key in TRIGGER_NODE_KEYS:
+        if trigger_key in node:
+            trigger_node = trigger_node_of({"trigger_node": node.get(trigger_key)})  # type: ignore[typeddict-item]
+            if trigger_node:
+                point["trigger_node"] = trigger_node
+            break
     return point
 
 

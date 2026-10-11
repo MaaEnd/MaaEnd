@@ -668,11 +668,29 @@ jobs:
           OUTPUT: CHANGES.md
           GITHUB_REPO: ${{ github.repository }}
 
+  # 正式版的 Android APK：与桌面包同一 tag、同一 MaaFramework 版本，一起进 Release
+  android:
+    if: ${{ needs.meta.outputs.is_release == 'true' }}
+    needs: meta
+    uses: ./.github/workflows/android.yml
+    with:
+      assemble: release
+      ref: ${{ github.event.inputs.ref || github.ref }}
+      tag: ${{ needs.meta.outputs.tag }}
+      maafw_version: ${{ needs.meta.outputs.maafw_version }}
+    secrets: inherit
+
   release:
     if: ${{ needs.meta.outputs.is_release == 'true' }}
-    needs: [meta, package_linux_tarball, package_macos_dmg, package_win_zip, changelog]
+    needs: [meta, package_linux_tarball, package_macos_dmg, package_win_zip, changelog, android]
     runs-on: ubuntu-latest
     steps:
+      # 只取生成 Release 正文的脚本
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/scripts
+          show-progress: false
+
       - uses: actions/download-artifact@v7
         with:
           pattern: MaaEnd-*-zip
@@ -686,6 +704,11 @@ jobs:
       - uses: actions/download-artifact@v7
         with:
           pattern: MaaEnd-*-dmg
+          path: artifacts
+
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: MaaEnd-android-*-release
           path: artifacts
 
       - name: Prepare release artifacts
@@ -714,15 +737,30 @@ jobs:
               mv "$f" "MaaEnd-${arch}-${{ needs.meta.outputs.tag }}.dmg"
             fi
           done
+          # APK 在 android.yml 里已按最终文件名命名，只需移出 artifact 目录
+          mv MaaEnd-android-*-release/*.apk .
           # 清理空目录
           rm -rf MaaEnd-*/
           ls -la
+
+      # 正文 = 下载表 + 更新日志；下载表按 artifacts 里实际要上传的文件生成
+      - name: Build release body
+        env:
+          CHANGELOG: ${{ needs.changelog.outputs.release_body }}
+        run: |
+          printf '%s\n' "$CHANGELOG" > "$RUNNER_TEMP/changelog.md"
+          python3 .github/scripts/release_body.py \
+            --artifacts artifacts \
+            --tag "${{ needs.meta.outputs.tag }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --changelog "$RUNNER_TEMP/changelog.md" \
+            --output "$RUNNER_TEMP/release_body.md"
 
       - uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*
           tag_name: ${{ needs.meta.outputs.tag }}
-          body: ${{ needs.changelog.outputs.release_body }}
+          body_path: ${{ runner.temp }}/release_body.md
           draft: false
           prerelease: ${{ needs.meta.outputs.is_prerelease == 'true' }}
 

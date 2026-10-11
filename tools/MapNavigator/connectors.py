@@ -150,24 +150,27 @@ class LinuxRecordingConnector(RecordingConnector):
             raise RuntimeError("未选定 gamescope 实例 (缺少 EIS socket 路径)。")
 
         # screencap_method/input_method 枚举与 assets/interface.json 的 Linux-Gamescope
-        # 控制器条目保持一致 (4 = PipeWire / 4 = Libei)。MapNavigator 录制只截图不投递
-        # 按键, input 对录制无实际影响, 但连接器不应自创与项目约定不同的取值。
+        # 控制器条目保持一致 (4 = PipeWire / 4 = Libei)。试跑的导航器使用 Win32
+        # 虚拟键码, 因此必须启用键码转换。
         controller = self._runtime.LinuxController(
             {
                 "screencap_method": 4,
                 "input_method": 4,
                 "pw_node_id": pw_node_id,
                 "eis_socket_path": eis_socket_path,
+                "use_win32_vk_code": True,
             }
         )
         controller.post_connection().wait()
         return controller
 
     def attach_resource(self, resource: Any) -> None:
-        attach_path = getattr(resource, "post_path", None)
-        if callable(attach_path) and RESOURCE_LINUX_DIR.exists():
+        if RESOURCE_LINUX_DIR.exists():
             try:
-                attach_path(str(RESOURCE_LINUX_DIR)).wait()
+                job = resource.post_bundle(str(RESOURCE_LINUX_DIR))
+                job.wait()
+                if not job.succeeded:
+                    raise RuntimeError("资源装载未成功。")
             except Exception as exc:
                 raise RuntimeError(f"附加 Linux 资源失败: {exc}") from exc
 

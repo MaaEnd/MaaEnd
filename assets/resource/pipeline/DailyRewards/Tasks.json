@@ -48,6 +48,7 @@
             "[JumpBack]DailyTaskClaimSingleReward",
             "[JumpBack]DailyTaskClaimActivityRewards",
             "DailyTaskCheckActivityStatus",
+            "DailyTaskActivityFullCheck",
             "DailyTaskComplete"
         ]
     },
@@ -210,6 +211,41 @@
         "next": [
             "DailyTaskComplete"
         ]
+    },
+    "DailyTaskActivityFullCheck": {
+        "desc": "领取完活跃度奖励后检查活跃度是否满100，未满则输出红色告警",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    330,
+                    520,
+                    500,
+                    100
+                ],
+                "expected": [
+                    "今日活跃度已达上限",
+                    "今日活躍度已達上限",
+                    "(?i)Daily\\s*Activity\\s*Points\\s*Maxed",
+                    "上限到達"
+                ]
+            }
+        },
+        "inverse": true,
+        "action": "DoNothing",
+        "next": [
+            "DailyTaskComplete"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "$option.DailyActivityFullWarning.warning",
+                "display": [
+                    "log",
+                    "notification"
+                ]
+            }
+        }
     },
     "DailyTaskCheckActivityStatus": {
         "desc": "检查活跃度是否完成",

@@ -37,11 +37,8 @@
             "param": {
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
+                    // 不要补 ZONE：路线从 ValleyIV_Base 跨到 L6_109，打完后人停在 L6_109，首点 ZONE 校验必定失败
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
-                        },
                         {
                             "action": "NAVMESH",
                             "target": [
@@ -89,13 +86,17 @@
                             "zone_id": "ValleyIV_L6_109"
                         },
                         {
-                            "action": "RUN",
+                            "action": "INTERACT",
                             "target": [
                                 97.7,
                                 180.36
                             ],
                             "target_tier": "ValleyIV_L6_109",
-                            "strict_arrival": true
+                            "strict_arrival": true,
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_rec": true
                         }
                     ]
                 }
@@ -104,6 +105,9 @@
         "post_delay": 1500,
         "next": [
             "AutoEssenceDispatcher"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

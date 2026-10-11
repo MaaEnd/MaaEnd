@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   logRunPoints,
+  logRunSegment,
   logZiplineGeometry,
   logZiplineTowers,
   parseMapNavigatorLog,
@@ -87,6 +88,200 @@ test("parses one selected zipline chain and its actual launches", () => {
     {index: 1, point: [940.5, 1699.5], height: null, confirmed: true},
     {index: 2, point: [957, 1653], height: null, confirmed: true},
     {index: 3, point: [912, 1584], height: null, confirmed: true},
+  ]);
+});
+
+function modernHop(mount, landing, confirmation = "riding") {
+  return [
+    `zipline/begin [resume=false] [plan_.mount.x=${mount[0]}] [plan_.mount.y=${mount[1]}] [plan_.landing.x=${landing[0]}] [plan_.landing.y=${landing[1]}]`,
+    `Action: ZIPLINE hop started. [waypoint.zipline_hop->landing.x=${landing[0]}] [waypoint.zipline_hop->landing.y=${landing[1]}]`,
+    "zipline/fired [returning_=false] [record_.launches.size()=1]",
+    `zipline/fired/${confirmation} [elapsed_ms=500]`,
+  ];
+}
+
+test("parses stage-machine rides into actual zipline segments", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 3),
+      lines[3].replaceAll("mount.", "mount_spot."),
+      ...modernHop([955.5, 1777.5], [940.5, 1699.5]),
+      "Action: ZIPLINE ride landed. [done.at.x=940.6] [done.at.y=1699.4] [done.still_on_tower=true]",
+      ...modernHop([940.5, 1699.5], [957, 1653], "moved"),
+      "Action: ZIPLINE ride landed. [done.at.x=957] [done.at.y=1653] [done.still_on_tower=true]",
+      ...modernHop([957, 1653], [912, 1584]),
+      lines.at(-1),
+    ].join("\n"),
+  );
+  assert.deepEqual(logZiplineGeometry(run.ziplines[0]).actual, [
+    {from: [955.5, 1777.5], to: [940.5, 1699.5], landed: true},
+    {from: [940.5, 1699.5], to: [957, 1653], landed: true},
+    {from: [957, 1653], to: [912, 1584], landed: false},
+  ]);
+  assert.deepEqual(run.ziplines[0].landings, [
+    [940.6, 1699.4],
+    [957, 1653],
+  ]);
+});
+
+test("does not draw a hop that started but never left the tower", () => {
+  const [run] = parseMapNavigatorLog(
+    [...lines.slice(0, 4), ...modernHop([955.5, 1777.5], [940.5, 1699.5], "no_launch")].join("\n"),
+  );
+  assert.deepEqual(logZiplineGeometry(run.ziplines[0]).actual, []);
+});
+
+test("deduplicates movement confirmations and does not count return launches as forward hops", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 4),
+      ...modernHop([955.5, 1777.5], [940.5, 1699.5]),
+      "zipline/fired/moved [elapsed_ms=600]",
+      "zipline/fired [returning_=true] [record_.launches.size()=2]",
+      "zipline/fired/riding [elapsed_ms=500]",
+    ].join("\n"),
+  );
+  assert.deepEqual(run.ziplines[0].launches, [[940.5, 1699.5]]);
+});
+
+test("keeps measured walks separate from stage-machine rides", () => {
+  const hop = modernHop([955.5, 1777.5], [940.5, 1699.5]);
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 4),
+      position("2026-08-26 11:43:10.000", 950, 1780),
+      position("2026-08-26 11:43:11.000", 955.5, 1777.5),
+      ...hop.slice(0, 3),
+      position("2026-08-26 11:43:17.000", 940.5, 1699.5),
+      hop[3],
+      "Action: ZIPLINE ride landed. [done.at.x=940.5] [done.at.y=1699.5]",
+      position("2026-08-26 11:43:19.000", 942, 1697),
+    ].join("\n"),
+  );
+  assert.deepEqual(run.observedWalks, [
+    [
+      [950, 1780],
+      [955.5, 1777.5],
+    ],
+    [
+      [940.5, 1699.5],
+      [942, 1697],
+    ],
+  ]);
+  assert.equal(logZiplineGeometry(run.ziplines[0]).actual.length, 1);
+});
+
+test("preserves a confirmed launch when the same hop resumes", () => {
+  const hop = modernHop([955.5, 1777.5], [940.5, 1699.5]);
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 4),
+      ...hop,
+      hop[0].replace("resume=false", "resume=true"),
+      ...hop.slice(2),
+      "Action: ZIPLINE ride landed. [done.at.x=940.5] [done.at.y=1699.5]",
+    ].join("\n"),
+  );
+  assert.equal(run.ziplines[0].launches.length, 1);
+  assert.equal(run.ziplines[0].landed, 1);
+});
+
+test("keeps wrong-rope, return, and retry rides in execution order", () => {
+  const hop = modernHop([955.5, 1777.5], [940.5, 1699.5]);
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 4),
+      ...hop,
+      "zipline/classified [static_cast<int>(landing)=3] [returning_=false] [riding_entered_=true] [reached.x=957] [reached.y=1653]",
+      "zipline/on_tower [returning_=true] [target_.x=955.5] [target_.y=1777.5]",
+      "zipline/fired [returning_=true] [record_.launches.size()=2]",
+      "zipline/fired/riding [elapsed_ms=500]",
+      "zipline/classified [static_cast<int>(landing)=1] [returning_=true] [riding_entered_=true] [reached.x=955.5] [reached.y=1777.5]",
+      "zipline/on_tower [returning_=false] [target_.x=940.5] [target_.y=1699.5]",
+      ...hop.slice(2),
+      "Action: ZIPLINE ride landed. [done.at.x=940.5] [done.at.y=1699.5]",
+    ].join("\n"),
+  );
+  assert.deepEqual(logZiplineGeometry(run.ziplines[0]).actual, [
+    {from: [955.5, 1777.5], to: [957, 1653], landed: true, offTarget: true},
+    {from: [957, 1653], to: [955.5, 1777.5], landed: true, returning: true},
+    {from: [955.5, 1777.5], to: [940.5, 1699.5], landed: true},
+  ]);
+  const towers = logZiplineTowers(run.ziplines[0]);
+  assert.equal(towers.filter((tower) => tower.point[0] === 955.5).length, 1);
+  assert.ok(towers.find((tower) => tower.point[0] === 957).confirmed);
+});
+
+test("separates re-expanded plans before route replacement and associates execution with the new chain", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      ...lines.slice(0, 4),
+      "NAVMESH route expansion finished.",
+      ...modernHop([955.5, 1777.5], [940.5, 1699.5]),
+      "Action: ZIPLINE given up, recovering from a fresh position. [reason=zipline_replan_requested]",
+      ...lines.slice(1, 4),
+      "NAVMESH route expansion finished.",
+      "Navigation route replaced. [reason=zipline_recovery_reexpand]",
+      "NAVMESH route planned. [navmesh_zone=map02base]",
+      "NavRunController soft replan. [static_cast<int>(reason)=1]",
+      ...modernHop([955.5, 1777.5], [940.5, 1699.5]),
+      "Action: ZIPLINE ride landed. [done.at.x=940.5] [done.at.y=1699.5]",
+      lines.at(-1),
+    ].join("\n"),
+  );
+  assert.equal(run.segments.length, 2);
+  const first = logRunSegment(run, 0);
+  const second = logRunSegment(run, 1);
+  assert.equal(first.ziplines.length, 1);
+  assert.equal(second.ziplines.length, 1);
+  assert.equal(first.ziplines[0].landed, 0);
+  assert.equal(second.ziplines[0].landed, 1);
+  assert.equal(first.walks.length, 1);
+  assert.equal(second.walks.length, 1);
+  assert.equal(first.incidents.length, 1);
+  assert.equal(second.incidents.length, 0);
+  assert.equal(second.reason, "zipline_recovery_reexpand");
+  assert.equal(second.completed, true);
+  assert.equal(first.completed, null);
+  assert.notEqual(first.id, second.id);
+});
+
+test("does not create an empty segment for initialization before the first plan", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      "Phase transition. [from_phase_name=Init] [to_phase_name=Navigate] [reason=start]",
+      ...lines.slice(1, 4),
+      "NAVMESH route expansion finished.",
+    ].join("\n"),
+  );
+  assert.equal(run.segments.length, 1);
+  assert.equal(logRunSegment(run).walks.length, 1);
+});
+
+test("starts a measured-walk segment when the runtime replaces a route without planning geometry", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      position("2026-08-26 11:43:10.000", 950, 1780),
+      position("2026-08-26 11:43:11.000", 955.5, 1777.5),
+      "Navigation route replaced. [reason=dynamic_replan]",
+      position("2026-08-26 11:43:12.000", 955.5, 1777.5),
+      position("2026-08-26 11:43:13.000", 957, 1780),
+    ].join("\n"),
+  );
+  assert.equal(run.segments.length, 2);
+  assert.deepEqual(logRunSegment(run, 0).observedWalks, [
+    [
+      [950, 1780],
+      [955.5, 1777.5],
+    ],
+  ]);
+  assert.deepEqual(logRunSegment(run, 1).observedWalks, [
+    [
+      [955.5, 1777.5],
+      [957, 1780],
+    ],
   ]);
 });
 
@@ -181,6 +376,157 @@ test("frames author, walk, and zipline coordinates", () => {
   const points = logRunPoints(run);
   assert.ok(points.some(([x, y]) => x === 955.5 && y === 1777.5));
   assert.ok(points.some(([x, y]) => x === 538.031 && y === 1250.27));
+});
+
+test("uses dashed connectors for the position jumps that trigger off-corridor soft replans", () => {
+  const softReplan = "NavRunController soft replan. [static_cast<int>(reason)=3] [anchor_index=17]";
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      position("2026-10-02 20:24:33.000", 1375, 1680),
+      position("2026-10-02 20:24:34.000", 1376, 1681),
+      position("2026-10-02 20:24:34.466", 1385.52, 1687.89),
+      `[2026-10-02 20:24:36.915][INF] ${softReplan}`,
+      position("2026-10-02 20:24:37.024", 1382.76, 1675.21),
+      `[2026-10-02 20:24:39.982][INF] ${softReplan}`,
+      position("2026-10-02 20:24:40.000", 1381, 1674),
+    ].join("\n"),
+  );
+  assert.equal(run.segments.length, 1);
+  assert.deepEqual(run.observedWalks, [
+    [
+      [1375, 1680],
+      [1376, 1681],
+    ],
+    [
+      [1382.76, 1675.21],
+      [1381, 1674],
+    ],
+  ]);
+  assert.deepEqual(run.observedReplans, [
+    {
+      timestamp: "2026-10-02 20:24:36.915",
+      points: [
+        [1376, 1681],
+        [1385.52, 1687.89],
+      ],
+    },
+    {
+      timestamp: "2026-10-02 20:24:39.982",
+      points: [
+        [1385.52, 1687.89],
+        [1382.76, 1675.21],
+      ],
+    },
+  ]);
+  assert.deepEqual(logRunSegment(run).observedReplans, run.observedReplans);
+  assert.ok(logRunPoints(run).some(([x, y]) => x === 1385.52 && y === 1687.89));
+});
+
+test("preserves exact consecutive fixes when replan edges fall below track simplification distance", () => {
+  const softReplan = "[2026-10-02 20:24:36.915][INF] NavRunController soft replan. [static_cast<int>(reason)=3]";
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      position("2026-10-02 20:24:33.000", 0, 0),
+      position("2026-10-02 20:24:34.000", 2, 0),
+      position("2026-10-02 20:24:35.000", 2.25, 0),
+      position("2026-10-02 20:24:36.000", 20, 0),
+      softReplan,
+      softReplan,
+      position("2026-10-02 20:24:37.000", 22, 0),
+    ].join("\n"),
+  );
+  assert.deepEqual(
+    run.observedReplans.map((entry) => entry.points),
+    [
+      [
+        [2.25, 0],
+        [20, 0],
+      ],
+    ],
+  );
+  assert.deepEqual(run.observedWalks, [
+    [
+      [0, 0],
+      [2, 0],
+      [2.25, 0],
+    ],
+    [
+      [20, 0],
+      [22, 0],
+    ],
+  ]);
+});
+
+test("does not draw replan connectors for other reasons or unchanged positions", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      position("2026-10-02 20:24:33.000", 0, 0),
+      position("2026-10-02 20:24:34.000", 2, 0),
+      "NavRunController soft replan. [static_cast<int>(reason)=1]",
+      "NavRunController soft replan. [static_cast<int>(reason)=4]",
+      position("2026-10-02 20:24:35.000", 2, 0),
+      "NavRunController soft replan. [static_cast<int>(reason)=3]",
+      position("2026-10-02 20:24:36.000", 4, 0),
+    ].join("\n"),
+  );
+  assert.deepEqual(run.observedReplans, []);
+  assert.deepEqual(run.observedWalks, [
+    [
+      [0, 0],
+      [2, 0],
+      [4, 0],
+    ],
+  ]);
+});
+
+test("does not bridge localization gaps, zone changes, or zipline flights with replan connectors", () => {
+  const softReplan = "NavRunController soft replan. [static_cast<int>(reason)=3]";
+  for (const boundary of [
+    position("2026-10-02 20:24:34.000", 0, 0, {status: 1}),
+    position("2026-10-02 20:24:34.000", 10, 0).replace("Wuling_Base", "ValleyIV_Base"),
+    "Action: ZIPLINE launched toward the landing point. [landing.x=10] [landing.y=0]",
+  ]) {
+    const [run] = parseMapNavigatorLog(
+      [
+        lines[0],
+        position("2026-10-02 20:24:33.000", 0, 0),
+        boundary,
+        softReplan,
+        position("2026-10-02 20:24:35.000", 12, 0),
+        softReplan,
+      ].join("\n"),
+    );
+    assert.deepEqual(run.observedReplans, [], boundary);
+  }
+});
+
+test("keeps replan connectors in their original planning segment", () => {
+  const [run] = parseMapNavigatorLog(
+    [
+      lines[0],
+      position("2026-10-02 20:24:33.000", 0, 0),
+      position("2026-10-02 20:24:34.000", 10, 0),
+      "NavRunController soft replan. [static_cast<int>(reason)=3]",
+      "Navigation route replaced. [reason=recovery]",
+      position("2026-10-02 20:24:35.000", 20, 0),
+      "NavRunController soft replan. [static_cast<int>(reason)=3]",
+      position("2026-10-02 20:24:36.000", 22, 0),
+    ].join("\n"),
+  );
+  assert.equal(run.segments.length, 2);
+  assert.deepEqual(
+    logRunSegment(run, 0).observedReplans.map((entry) => entry.points),
+    [
+      [
+        [0, 0],
+        [10, 0],
+      ],
+    ],
+  );
+  assert.deepEqual(logRunSegment(run, 1).observedReplans, []);
 });
 
 test("extracts measured ground tracks without connecting zipline rides", () => {

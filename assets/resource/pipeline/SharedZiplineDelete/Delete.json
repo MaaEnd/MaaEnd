@@ -54,13 +54,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 50,
                 200,
                 150,
                 200
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "SharedZiplineDeleteFilterSelectZipline"
@@ -130,13 +130,13 @@
         "method": 10001,
         "inverse": true,
         "pre_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "SharedZiplineDeleteChooseZipline",
@@ -161,13 +161,13 @@
         "green_mask": true,
         "action": "Click",
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         },
         "next": [
             "SharedZiplineDeleteChooseZipline",
@@ -192,13 +192,13 @@
         "action": "ClickKey",
         "key": 27, // Esc
         "post_wait_freezes": {
+            "time": 100,
             "target": [
                 -200,
                 -200,
                 200,
                 200
-            ],
-            "time": 100
+            ]
         }
     },
     "SharedZiplineDeleteChooseTeleport": {

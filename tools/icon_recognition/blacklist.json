@@ -19,7 +19,30 @@
                 // 实验息壤零件
                 "item_activity_xiranite_cmpt",
                 // 实验息壤瓶
-                "item_activity_xiranite_bottle"
+                "item_activity_xiranite_bottle",
+                // 龙泡泡活动专用产物及合成中间产物，不参与通用物品识别。
+                // 息壤龙泡泡
+                "item_activity_xiranite_lung",
+                // 重息壤龙泡泡
+                "item_activity_xiranite_enr_lung",
+                // 实验龙泡泡外壳
+                "item_activity_xiranite_box",
+                // 实验龙泡泡重壳
+                "item_activity_xiranite_enr_box",
+                // 实验铜骨骼
+                "item_activity_copper_xiranite_tool",
+                // 实验息壤铜骨骼
+                "item_activity_copper_poly_tool",
+                // 实验息壤块
+                "item_activity_xiranite_nugget",
+                // 实验重息壤块
+                "item_activity_xiranite_enr_nugget",
+                // 实验息壤铜锭
+                "item_activity_copper_poly",
+                // 实验息壤铜零件
+                "item_activity_copper_poly_cmpt",
+                // 实验息壤铜气
+                "item_activity_copper_poly_gas"
             ]
         },
         {

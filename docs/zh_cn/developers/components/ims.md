@@ -14,7 +14,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具的数�
 
 代号 `A1` / `A2` / `A3`、`R1` / `R2` 只表示实现顺序，不表示优先级。其中 **A2 虽是第二个写的动作，却是整个 IMS 的核心**。
 
-落盘路径：`./debug/record/IMS.json`（相对运行目录）。
+落盘路径：`debug/record/IMS.json`（相对 go-service 启动时的工作目录，由 `fsutil.OutputPath` 解析）。
 
 ---
 

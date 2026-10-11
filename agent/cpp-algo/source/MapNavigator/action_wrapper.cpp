@@ -41,13 +41,14 @@ const char* ActionWrapper::unsupported_reason() const
 
 double ActionWrapper::DefaultTurnUnitsPerDegree() const
 {
-    // 偏航度→单位只从这里过，校正系数只乘这一处。
+    // 偏航度→单位只从这里过，校正系数只乘这一处和下面的俯仰。
     return backend_->default_turn_units_per_degree() * sensitivity::TurnUnitsScale();
 }
 
 double ActionWrapper::DefaultPitchUnitsPerDegree() const
 {
-    return backend_->default_pitch_units_per_degree();
+    // 游戏里的视角灵敏度两个轴共用，偏航判出来的倍率俯仰照乘。
+    return backend_->default_pitch_units_per_degree() * sensitivity::TurnUnitsScale();
 }
 
 SteeringTransportProfile ActionWrapper::SteeringProfile() const
@@ -115,6 +116,16 @@ void ActionWrapper::MouseRightUpSync(int delay_millis)
     backend_->MouseRightUpSync(delay_millis);
 }
 
+void ActionWrapper::TriggerZiplineLaunchSync()
+{
+    backend_->TriggerZiplineLaunchSync();
+}
+
+void ActionWrapper::TriggerZiplineDismountSync(int hold_millis)
+{
+    backend_->TriggerZiplineDismountSync(hold_millis);
+}
+
 bool ActionWrapper::SendViewDeltaSync(int dx, int dy)
 {
     const bool sent = backend_->SendViewDeltaSync(dx, dy);
@@ -122,6 +133,10 @@ bool ActionWrapper::SendViewDeltaSync(int dx, int dy)
     const double units_per_degree = DefaultTurnUnitsPerDegree();
     if (sent && dx != 0 && units_per_degree > 0.0) {
         sensitivity::NoteTurnIssued(static_cast<double>(dx) / units_per_degree);
+    }
+    // 偏离判 sent：一次没送成功的拖拽可能已经动了视角，宁可让下一拍用不上先验。
+    if (dx != 0) {
+        NoteHeadingDisturbed();
     }
     return sent;
 }

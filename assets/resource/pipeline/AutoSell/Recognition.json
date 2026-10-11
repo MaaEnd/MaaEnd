@@ -286,5 +286,21 @@
             }
         ],
         "box_index": 2
+    },
+    "AutoSellBtwStockQuantityRecognition": {
+        "desc": "识别商品列表中的正库存数",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            315,
+            1280,
+            290
+        ],
+        "expected": [
+            "^拥有\\s*[1-9]\\d*$",
+            "^持有\\s*[1-9]\\d*$",
+            "(?i)^Owned\\s*[1-9]\\d*$",
+            "^総在庫\\s*[1-9]\\d*$"
+        ]
     }
 }

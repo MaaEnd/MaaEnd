@@ -5,6 +5,9 @@
             "label": "$task.AutoStockpile.label",
             "entry": "AutoStockpileMain",
             "description": "$task.AutoStockpile.description",
+            "group": [
+                "regional_development"
+            ],
             "controller": [
                 "ADB",
                 "CloudADB",
@@ -15,9 +18,6 @@
                 "MacOS-Front",
                 "PlayCover",
                 "Win32-Front"
-            ],
-            "group": [
-                "regional_development"
             ],
             "option": [
                 "AutoStockpileServerTime",
@@ -33,7 +33,6 @@
             "type": "select",
             "label": "$task.AutoStockpile.option.AutoStockpileServerTime.label",
             "description": "$task.AutoStockpile.option.AutoStockpileServerTime.description",
-            "default_case": "CN_UTC_PLUS_8",
             "cases": [
                 {
                     "name": "CN_UTC_PLUS_8",
@@ -79,13 +78,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "CN_UTC_PLUS_8"
         },
         "AutoStockpileAllowDataUpload": {
             "type": "switch",
             "label": "$task.AutoStockpile.option.AutoStockpileAllowDataUpload.label",
             "description": "$task.AutoStockpile.option.AutoStockpileAllowDataUpload.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -119,12 +118,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoStockpileElasticValleyIV": {
             "type": "switch",
             "label": "$task.AutoStockpile.option.AutoStockpileElasticValleyIV.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -137,12 +136,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoStockpileElasticWuling": {
             "type": "switch",
             "label": "$task.AutoStockpile.option.AutoStockpileElasticWuling.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -155,13 +154,13 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoStockpileMinBuy": {
             "type": "switch",
             "label": "$task.AutoStockpile.option.AutoStockpileMinBuy.label",
             "description": "$task.AutoStockpile.option.AutoStockpileMinBuy.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -176,7 +175,8 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         }
     }
 }

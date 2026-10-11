@@ -125,14 +125,25 @@
             "param": {
                 "roi": "AutoStockInStapleItemName",
                 "roi_offset": [
-                    39,
-                    -212,
-                    25,
-                    63
+                    41,
+                    -178,
+                    52,
+                    34
                 ],
                 "expected": [
-                    "-?\\d{1,2}"
-                ]
+                    "-99",
+                    "-95",
+                    "-90",
+                    "-85",
+                    "-80",
+                    "-75",
+                    "-70",
+                    "-65",
+                    "-60",
+                    "-55",
+                    "-50"
+                ],
+                "order_by": "Expected"
             }
         }
     },
@@ -143,14 +154,25 @@
             "param": {
                 "roi": "AutoStockInStapleItemName",
                 "roi_offset": [
-                    39,
-                    -212,
-                    25,
-                    63
+                    41,
+                    -178,
+                    52,
+                    34
                 ],
                 "expected": [
-                    "-?\\d{1,2}"
-                ]
+                    "-99",
+                    "-95",
+                    "-90",
+                    "-85",
+                    "-80",
+                    "-75",
+                    "-70",
+                    "-65",
+                    "-60",
+                    "-55",
+                    "-50"
+                ],
+                "order_by": "Expected"
             }
         }
     },
@@ -230,39 +252,43 @@
                 "custom_action": "BetterSliding",
                 "custom_action_param": {
                     "ClampTargetToSliderMax": true,
-                    "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                    "DecreaseButton": {
+                        "template": "AutoStockpile/DecreaseButton.png"
+                    },
                     "Direction": "right",
-                    "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                    "IncreaseButton": {
+                        "template": "AutoStockpile/IncreaseButton.png"
+                    },
                     "SliderQuantity": {
-                        "Box": [
+                        "roi": [
                             375,
                             508,
                             36,
                             24
                         ],
-                        "OnlyRec": true
+                        "only_rec": true
                     }
                     //"SliderQuantity": {
-                    //    "Box": [
+                    //    "roi": [
                     //        375,
                     //        508,
                     //        36,
                     //        24
                     //    ],
-                    //    "Filter": {
-                    //        "lower": [
-                    //            28,
-                    //            100,
-                    //            100
-                    //        ],
-                    //        "upper": [
-                    //            28,
-                    //            255,
-                    //            255
-                    //        ],
-                    //        "method": 40
-                    //    },
-                    //    "OnlyRec": true
+                    //    "only_rec": true
+                    //},
+                    //"SliderQuantityFilter": {
+                    //    "lower": [
+                    //        28,
+                    //        100,
+                    //        100
+                    //    ],
+                    //    "upper": [
+                    //        28,
+                    //        255,
+                    //        255
+                    //    ],
+                    //    "method": 40
                     //}
                 }
             }

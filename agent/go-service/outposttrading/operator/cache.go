@@ -14,6 +14,7 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/outposttrading/internal/selectiondata"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 )
 
 const (
@@ -64,7 +65,7 @@ func currentOutpostTradingCacheUID() string {
 
 // defaultOutpostTradingCachePath 返回运行记录目录中的统一缓存文件路径。
 func defaultOutpostTradingCachePath() string {
-	return filepath.Join("debug", "record", outpostTradingCacheFileName)
+	return fsutil.OutputPath("debug", "record", outpostTradingCacheFileName)
 }
 
 // readOutpostTradingCache 读取并规范化缓存。

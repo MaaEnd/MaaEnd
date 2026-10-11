@@ -43,7 +43,13 @@ pnpm install
 | `--cpp-algo-pr <N>` | Download cpp-algo from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
 | `--cpp-algo-run <ID>` | Download cpp-algo from a specified workflow run ID |
 
-> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. If neither is specified, the script selects a successful CI build for the current checkout branch. On the protected `v2` branch it only uses the latest push build; on other branches it first matches the current commit so it does not accidentally use `v2`'s cpp-algo.
+> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. Both are explicit instructions and are used as given.
+>
+> When neither is specified, the build is chosen as follows:
+>
+> - **The `v2` main branch**: the most recent successful push build on `v2` (if the newest commit did not trigger CI, earlier commits are checked in order).
+> - **Any other branch**: the current commit, then the branch name, then the PR resolved from the current commit, then `v2`. A local branch name often differs from its remote (e.g. `pr-4945` is really `feat/android-agent-ci`), so the commit is used as the primary key.
+> - Falling back to `v2` prints a warning: it means you are running `v2`'s agent rather than this branch's build. Pass `--cpp-algo-run <ID>` to pin this branch's artifact.
 
 ### Editor (Recommended)
 

@@ -32,13 +32,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -64,13 +64,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -96,13 +96,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -131,13 +131,13 @@
             "__ScenePrivateMapSwipeToStep1Anchor": ""
         },
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -163,13 +163,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -195,13 +195,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -227,13 +227,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -262,13 +262,13 @@
             "__ScenePrivateMapSwipeToStep2Anchor": ""
         },
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -294,13 +294,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -326,13 +326,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -358,13 +358,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -393,13 +393,13 @@
             "__ScenePrivateMapSwipeToStep3Anchor": ""
         },
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -425,13 +425,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -457,13 +457,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -489,13 +489,13 @@
         ],
         "end_hold": 200,
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",
@@ -524,13 +524,13 @@
             "__ScenePrivateMapSwipeToStep4Anchor": ""
         },
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 600,
                 300,
                 100,
                 100
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "[Anchor]__ScenePrivateMapUnknownEnterWorldAnchorTry1",

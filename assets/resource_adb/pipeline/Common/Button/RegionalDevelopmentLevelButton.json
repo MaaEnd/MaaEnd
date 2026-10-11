@@ -1,5 +1,6 @@
 {
     "__RegionalDevelopmentLevelButton": {
+        "template": "AdbOnly/Common/Button/RegionalDevelopmentLevelButton.png",
         "threshold": 0.7
     },
     "__RegionalDevelopmentLevelButtonHover": {

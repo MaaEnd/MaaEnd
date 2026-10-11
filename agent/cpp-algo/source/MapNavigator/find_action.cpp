@@ -31,44 +31,6 @@ namespace semantic_nodes
 namespace
 {
 
-// 调用成功与命中分开: 节点不存在或框架报错要当场判失败, 不能当成"没看见"
-struct FindSighting
-{
-    bool hit = false;
-    MaaRect box {};
-};
-
-bool RunFindNode(
-    MaaContext* context,
-    const std::string& node,
-    const std::string& pipeline_override,
-    const MaaImageBuffer* image,
-    FindSighting* out_sighting)
-{
-    MaaTasker* tasker = MaaContextGetTasker(context);
-    if (tasker == nullptr) {
-        LogError << "FIND: tasker is unavailable." << VAR(node);
-        return false;
-    }
-
-    const MaaRecoId reco_id = MaaContextRunRecognition(context, node.c_str(), pipeline_override.c_str(), image);
-    if (reco_id == MaaInvalidId) {
-        LogError << "FIND: recognition failed to dispatch; check the node name and its params." << VAR(node);
-        return false;
-    }
-
-    MaaBool hit = 0;
-    MaaRect box {};
-    if (!MaaTaskerGetRecognitionDetail(tasker, reco_id, nullptr, nullptr, &hit, &box, nullptr, nullptr, nullptr)) {
-        LogError << "FIND: recognition detail is unavailable." << VAR(node) << VAR(reco_id);
-        return false;
-    }
-
-    out_sighting->hit = hit != 0;
-    out_sighting->box = box;
-    return true;
-}
-
 // 内联文本注入内置节点: roi 与阈值留给 pipeline, 只换 expected
 std::string BuildInlineTextOverride(const std::vector<std::string>& texts)
 {
@@ -86,21 +48,6 @@ std::string BuildInlineTextOverride(const std::vector<std::string>& texts)
     json::object root;
     root[kFindInlineOcrNode] = std::move(node);
     return json::value(std::move(root)).dumps();
-}
-
-// 截图发不出去或没等到结果就直接空手而归: 读缓存会拿到旧帧, FIND 会照着过期画面走
-bool CaptureFindFrame(MaaController* controller, ScopedImageBuffer* buffer)
-{
-    const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller);
-    if (screencap_id == MaaInvalidId) {
-        LogWarn << "FIND: screencap request was not posted.";
-        return false;
-    }
-    if (MaaControllerWait(controller, screencap_id) != MaaStatus_Succeeded) {
-        LogWarn << "FIND: screencap did not succeed." << VAR(screencap_id);
-        return false;
-    }
-    return MaaControllerCachedImage(controller, buffer->Get()) && !MaaImageBufferIsEmpty(buffer->Get());
 }
 
 // 只在调用内用, 不做拷贝: MaaImageBuffer 的像素在下一帧截图前都有效
@@ -269,7 +216,7 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(kFindStopProbeWindowMs);
     while (ctx.motion_controller->IsMovingForward() && std::chrono::steady_clock::now() < deadline) {
         ScopedImageBuffer probe;
-        if (!CaptureFindFrame(controller, &probe)) {
+        if (!CaptureFreshFrame(controller, probe.Get())) {
             break; // 抓不到就收手, 下一拍再盯
         }
         bool flagged = true;
@@ -290,8 +237,8 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
         // 命中先站住: 权威确认也要时间, 走着确认会多滑出去一段
         ctx.motion_controller->SetForwardState(false);
         utils::SleepFor(kStopWaitMs);
-        FindSighting sighting {};
-        if (!RunFindNode(ctx.maa_context, waypoint.find_stop, "{}", probe.Get(), &sighting)) {
+        NodeSighting sighting {};
+        if (!RunRecognitionNode(ctx.maa_context, waypoint.find_stop, "{}", probe.Get(), &sighting)) {
             return FailFind(ctx, "find_recognition_failed", "FIND stop node failed to recognize.");
         }
         if (sighting.hit) {
@@ -368,7 +315,7 @@ Result TickFindTarget(const Context& ctx)
 
     MaaController* controller = ctx.action_wrapper->GetCtrl();
     ScopedImageBuffer image;
-    if (controller == nullptr || !CaptureFindFrame(controller, &image)) {
+    if (controller == nullptr || !CaptureFreshFrame(controller, image.Get())) {
         // 看不清就先站住空转这一拍, 别照着上一帧继续走; 步数预算兜住连续失败
         ctx.motion_controller->SetForwardState(false);
         LogWarn << "FIND: screencap failed, holding this step empty." << VAR(find.steps);
@@ -377,8 +324,8 @@ Result TickFindTarget(const Context& ctx)
     }
 
     if (!waypoint.find_stop.empty()) {
-        FindSighting stop_sighting {};
-        if (!RunFindNode(ctx.maa_context, waypoint.find_stop, "{}", image.Get(), &stop_sighting)) {
+        NodeSighting stop_sighting {};
+        if (!RunRecognitionNode(ctx.maa_context, waypoint.find_stop, "{}", image.Get(), &stop_sighting)) {
             return FailFind(ctx, "find_recognition_failed", "FIND stop node failed to recognize.");
         }
         if (stop_sighting.hit) {
@@ -402,8 +349,8 @@ Result TickFindTarget(const Context& ctx)
     const std::string target_node = inline_text ? std::string(kFindInlineOcrNode) : waypoint.find_target;
     const std::string target_override = inline_text ? BuildInlineTextOverride(waypoint.find_text) : std::string("{}");
 
-    FindSighting target_sighting {};
-    if (!RunFindNode(ctx.maa_context, target_node, target_override, image.Get(), &target_sighting)) {
+    NodeSighting target_sighting {};
+    if (!RunRecognitionNode(ctx.maa_context, target_node, target_override, image.Get(), &target_sighting)) {
         return FailFind(ctx, "find_recognition_failed", "FIND target node failed to recognize.");
     }
     if (!target_sighting.hit) {

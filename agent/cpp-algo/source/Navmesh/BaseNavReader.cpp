@@ -7,10 +7,13 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <memory>
+#include <mutex>
 #include <optional>
 #include <set>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -672,6 +675,28 @@ BaseNavLoadResult ReadNavFileBytes(const std::filesystem::path& path, std::vecto
     return {};
 }
 
+namespace
+{
+
+// 同一份主包按区载入几次时共用格图段字节。
+std::shared_ptr<const std::vector<uint8_t>> SharedSectionBytes(uint64_t file_fnv, const uint8_t* at, size_t size)
+{
+    static std::mutex mutex;
+    static std::unordered_map<uint64_t, std::weak_ptr<const std::vector<uint8_t>>> cache;
+    const std::lock_guard lock(mutex);
+    if (const auto it = cache.find(file_fnv); it != cache.end()) {
+        std::shared_ptr<const std::vector<uint8_t>> hit = it->second.lock();
+        if (hit != nullptr && hit->size() == size && (size == 0 || std::memcmp(hit->data(), at, size) == 0)) {
+            return hit;
+        }
+    }
+    auto fresh = std::make_shared<const std::vector<uint8_t>>(at, at + size);
+    cache[file_fnv] = fresh;
+    return fresh;
+}
+
+}
+
 BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string_view zone_name)
 {
     std::vector<uint8_t> file_bytes;
@@ -747,7 +772,7 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         const uint8_t* at = file_bytes.data() + offset;
         section_raw.emplace_back(at, static_cast<size_t>(size));
         if (std::memcmp(sec.tag.data(), kGridSectionTag, 4) == 0) {
-            sec.bytes.assign(at, at + size);
+            sec.bytes = SharedSectionBytes(file_fnv, at, static_cast<size_t>(size));
         }
         sections.push_back(std::move(sec));
     }

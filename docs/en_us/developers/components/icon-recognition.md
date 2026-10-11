@@ -320,6 +320,97 @@ All three cases return `MAA_FALSE`, but they do not mean the same thing. `invali
 
 </details>
 
+## Collect array options through attach
+
+Multiple CheckBoxes can use attach to configure IconRecognition array parameters together. Each case writes `IconRecognition.<parameter>.<array entry>: true` in the target node's attach. Selected entries replace the corresponding array; selecting nothing keeps the node's original configuration.
+
+Supported arrays are item_ids, item_filters, additional_item_filters, excluded_item_ids, and item_recheck_filters. Use ordinary pipeline_override for non-array parameters.
+
+> When using attach in And/Or, define IconRecognition as a standalone node and reference it by node name.
+
+<details>
+<summary>Full example: select backpack ores with two checkboxes</summary>
+
+**Task configuration**
+
+```json
+{
+    "task": [
+        {
+            "name": "ScanBackpackOre",
+            "label": "Recognize backpack ores",
+            "entry": "ScanBackpackOre",
+            "option": [
+                "OreItems"
+            ]
+        }
+    ],
+    "option": {
+        "OreItems": {
+            "type": "checkbox",
+            "label": "Select ores",
+            "default_case": [],
+            "cases": [
+                {
+                    "name": "CopperOre",
+                    "label": "Copper ore",
+                    "pipeline_override": {
+                        "ScanBackpackOre": {
+                            "attach": {
+                                "IconRecognition.item_ids.item_copper_ore": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "IronOre",
+                    "label": "Iron ore",
+                    "pipeline_override": {
+                        "ScanBackpackOre": {
+                            "attach": {
+                                "IconRecognition.item_ids.item_iron_ore": true
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+
+**Matching Pipeline**
+
+```json
+{
+    "ScanBackpackOre": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_filters": [
+                        "Normal:Ore"
+                    ]
+                },
+                "roi": [
+                    739,
+                    202,
+                    398,
+                    291
+                ]
+            }
+        },
+        "action": "DoNothing"
+    }
+}
+```
+
+Selecting either or both items restricts recognition to the selected ores. With neither selected, the Pipeline's original configuration recognizes ores on the backpack side.
+
+</details>
+
 ## Go Service
 
 Go services call the `IconRecognition` registration through `ctx.RunRecognitionDirect`. Set the native ROI through `CustomRecognitionParam.ROI` and keep component-specific fields in `CustomRecognitionParam.CustomRecognitionParam`:

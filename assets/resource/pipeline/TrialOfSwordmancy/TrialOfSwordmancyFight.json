@@ -187,7 +187,7 @@
         "desc": "战斗结束",
         "recognition": "And",
         "all_of": [
-            "WhiteConfirmButtonType1"
+            "TrialOfSwordmancyFightFinishButton"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -224,13 +224,13 @@
             "CancelButton"
         ],
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 528,
                 299,
                 222,
                 131
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },
