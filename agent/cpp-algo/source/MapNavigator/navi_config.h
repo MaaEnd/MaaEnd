@@ -78,9 +78,13 @@ constexpr double kSamePointActionChainDistance = 0.2;
 constexpr double kStrictSettleAcceptBandWu = 0.5;
 constexpr int32_t kStrictSettleMaxPulses = 3;
 // Settled = this many consecutive reads all within this distance of the first one. Measured against the first read
-// rather than the previous one, so a slow slide cannot pass as standing still.
-constexpr double kStrictSettleStillWu = 0.1;
+// rather than the previous one, so a slow slide cannot pass as standing still. Raw reads of a character standing still
+// flip between sub-pixel values about 0.027 apart; the distance is twice that.
+constexpr double kStrictSettleStillWu = 0.05;
 constexpr int32_t kStrictSettleStillReads = 3;
+// The character keeps moving for up to about a second after the key is released; a pulse is only started when that
+// slide and the settle reads still fit in the budget.
+constexpr int32_t kStrictSettleSlideMs = 1000;
 // Pulse length comes only from hold-to-travel pairs measured in this process. Until the first pair exists, a short
 // probe is sent: falling short costs one more pulse, overshooting can cost the whole budget.
 constexpr int32_t kStrictSettleProbeHoldMs = 150;

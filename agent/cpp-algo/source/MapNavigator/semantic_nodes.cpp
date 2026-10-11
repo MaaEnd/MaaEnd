@@ -663,7 +663,8 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std:
         }
 
         const int hold_ms = PlanPulseHoldMs(residual);
-        const auto settle_reserve = std::chrono::milliseconds(hold_ms + kStrictSettleStillReads * kStrictSettleFixIntervalMs);
+        const auto settle_reserve =
+            std::chrono::milliseconds(hold_ms + kStrictSettleSlideMs + kStrictSettleStillReads * kStrictSettleFixIntervalMs);
         if (should_stop() || std::chrono::steady_clock::now() + settle_reserve >= deadline) {
             return incomplete(should_stop() ? "cancelled" : "budget_exhausted");
         }
