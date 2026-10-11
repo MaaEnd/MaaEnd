@@ -11,7 +11,7 @@ const executeComponent = "AutoMissionExecuteQuest"
 
 var _ maa.CustomActionRunner = &ExecuteQuestAction{}
 
-// trackingNodes 把解包追踪类型对应到占位 Pipeline 节点，这些节点尚未编写。
+// trackingNodes 把解包追踪类型对应到占位 Pipeline 节点。
 var trackingNodes = map[string]string{
 	"MissionAreaTrackingInfo": "AutoMissionMissionArea",
 	"NpcProxyTrackingInfo":    "AutoMissionNpcProxy",
@@ -55,7 +55,8 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	}
 	event.Str("node", node).Msg("dispatch quest track")
 
-	if _, err := ctx.RunTask(node); err != nil {
+	taskDetail, err := ctx.RunTask(node)
+	if err != nil || taskDetail == nil || !taskDetail.Status.Success() {
 		log.Warn().
 			Err(err).
 			Str("component", executeComponent).

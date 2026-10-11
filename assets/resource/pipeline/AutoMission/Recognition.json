@@ -13,10 +13,11 @@
         ]
     },
     "AutoMissionDescription": {
-        "desc": "位置图标、说明色块，再在色块上 only_rec 读说明",
+        "desc": "位置图标、说明图标、说明色块，再在色块上 only_rec 读说明",
         "recognition": "And",
         "all_of": [
             "AutoMissionLocationIcon",
+            "AutoMissionDescriptionIcon",
             "AutoMissionDescriptionColor",
             {
                 "recognition": "OCR",
@@ -59,15 +60,27 @@
         ],
         "count": 250
     },
-    "AutoMissionDescriptionColor": {
-        "desc": "说明背景色块，相对位置图标。roi_offset、lower、upper 待补充",
-        "recognition": "ColorMatch",
+    "AutoMissionDescriptionIcon": {
+        "desc": "描述文本前方的色块，不同任务Y轴位置不一样",
+        "recognition": "TemplateMatch",
         "roi": "AutoMissionLocationIcon",
         "roi_offset": [
-            25,
-            70,
+            -15,
+            40,
+            40,
+            80
+        ],
+        "template": "AutoMission/DescriptionIcon.png"
+    },
+    "AutoMissionDescriptionColor": {
+        "desc": "说明背景色块，相对说明图标。roi_offset 待补充",
+        "recognition": "ColorMatch",
+        "roi": "AutoMissionDescriptionIcon",
+        "roi_offset": [
+            28, 
+            -5, 
             300,
-            8
+            10
         ],
         // 包含白色和黄色文字
         "lower": [

@@ -98,8 +98,8 @@
         "custom_recognition": "AutoMissionMatchQuest",
         "action": "Custom",
         "custom_action": "AutoMissionExecuteQuest",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        "next": [
+            "AutoMissionMain"
+        ]
     }
 }
