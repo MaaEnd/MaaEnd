@@ -16,12 +16,13 @@ type missionText struct {
 }
 
 type trackData struct {
-	Type       string   `json:"type"`
-	ZoneID     string   `json:"zone_id,omitempty"`
-	X          *float64 `json:"x,omitempty"`
-	Y          *float64 `json:"y,omitempty"`
-	PhaseID    string   `json:"phase_id,omitempty"`
-	Components []string `json:"components,omitempty"`
+	Type       string      `json:"type"`
+	ZoneID     string      `json:"zone_id,omitempty"`
+	X          *float64    `json:"x,omitempty"`
+	Y          *float64    `json:"y,omitempty"`
+	PhaseID    string      `json:"phase_id,omitempty"`
+	Components []string    `json:"components,omitempty"`
+	NpcName    missionText `json:"npcName,omitempty"`
 }
 
 type trackingBlock struct {

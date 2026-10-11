@@ -198,7 +198,7 @@ func lookupByPrefix(text string, entries []textEntry) (string, bool) {
 
 // lookupObjective 在一个任务的步骤名称里按 OCR 前缀收窄。
 // 收窄到 0 条表示没找到，收窄到 1 条即命中。
-// 用完全文仍有多条时返回这些 quest_id。
+// 用完全文仍有多条时，若全部都是单条 SnsTrackingInfo 则取第一条；否则返回这些 quest_id。
 func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []string, bool) {
 	text = strings.TrimSpace(text)
 	if quests == nil {
@@ -245,12 +245,36 @@ func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []stri
 	for i, entry := range candidates {
 		questIDs[i] = entry.QuestID
 	}
+	if singleSnsTracking(candidates) {
+		log.Info().
+			Str("component", componentName).
+			Str("text", text).
+			Str("quest_id", candidates[0].QuestID).
+			Int("desc_index", candidates[0].DescIndex).
+			Strs("quest_ids", questIDs).
+			Msg("ambiguous sns objectives share one tracking step")
+		return candidates[0], nil, true
+	}
 	log.Warn().
 		Str("component", componentName).
 		Str("text", text).
 		Strs("quest_ids", questIDs).
 		Msg("objective lookup ambiguous")
 	return objectiveEntry{}, questIDs, false
+}
+
+// singleSnsTracking 判断这些同名步骤是否都能走同一条 SNS 流程。
+// SnsTrackingInfo 没有坐标，多条之间没有可区分的下一步。
+func singleSnsTracking(entries []objectiveEntry) bool {
+	if len(entries) == 0 {
+		return false
+	}
+	for _, entry := range entries {
+		if len(entry.Tracks) != 1 || entry.Tracks[0].Type != "SnsTrackingInfo" {
+			return false
+		}
+	}
+	return true
 }
 
 // comparableText 去掉整段文本中的每一处中点类分隔符，供前缀比较使用。

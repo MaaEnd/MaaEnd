@@ -1,4 +1,4 @@
-import {mkdirSync, readdirSync, readFileSync, writeFileSync} from "node:fs";
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 
@@ -26,66 +26,110 @@ function localizedText(key) {
     };
 }
 
-function objectiveText(key) {
+const proxyTable = JSON.parse(
+    readFileSync(resolve(endfieldDataRoot, "Json/GameplayConfig/NpcProxyTable.json"), "utf8"),
+);
+const proxyById = new Map();
+for (const row of Object.values(proxyTable.dataTable ?? {})) {
+    if (row && typeof row.proxyId === "string" && row.proxyId) {
+        proxyById.set(row.proxyId, row);
+    }
+}
+const proxyEx = JSON.parse(
+    readFileSync(resolve(endfieldDataRoot, "Json/GameplayConfig/NpcProxyExDataTable.json"), "utf8"),
+);
+const proxyInfoData = proxyEx.proxyInfoData ?? {};
+const npcTemplateGroup = JSON.parse(
+    readFileSync(resolve(endfieldDataRoot, "TableCfg/NpcTemplateGroupTable.json"), "utf8"),
+);
+
+// 改写名优先；否则用模板组 name。简繁都空时不写 npcName。
+function npcNameForProxy(proxyId) {
+    const row = proxyById.get(proxyId);
+    const overrideKey = row?.ifOverrideNpcName ? (row.overrideNpcNameId?.key ?? "") : "";
+    const nameId = proxyInfoData[proxyId]?.npcNameId ?? "";
+    const key = overrideKey || npcTemplateGroup[nameId]?.name || "";
+    if (!key) {
+        return null;
+    }
     const text = localizedText(key);
-    const plain = (value) => String(value ?? "").replace(/<@[^>]*>/g, "").replace(/<\/>/g, "");
-    return {
-        key: text.key,
-        zh_cn: plain(text.zh_cn),
-        zh_tw: plain(text.zh_tw),
-    };
-}
-
-function emptyObjective(objective) {
-    const description = objective?.description;
-    const key = description && typeof description === "object" ? description.key : "";
-    const result = {
-        description: objectiveText(key),
-    };
-    if (objective?.useMultipleDescription) {
-        result.useMultipleDescription = true;
-        result.multipleDescription = (objective.multipleDescription ?? []).map((item) => objectiveText(item?.key));
+    if (!text.zh_cn && !text.zh_tw) {
+        return null;
     }
-    result.trackingInfoList = [];
-    result.multiDescTrackingInfoList = [];
-    result.condition = {};
-    return result;
+    return text;
 }
 
-function extractQuest(quest) {
-    return {
-        questId: quest.questId ?? "",
-        prevQuestIdList: Array.isArray(quest.prevQuestIdList) ? quest.prevQuestIdList : [],
-        flowIndex: quest.flowIndex ?? 0,
-        objectiveList: (quest.objectiveList ?? []).map(emptyObjective),
-    };
-}
-
-const missions = {};
-for (const name of readdirSync(missionDir)) {
-    if (!name.endsWith(".json") || name.endsWith("_meta.json")) {
-        continue;
+function attachList(dstTracks, srcTracks, stats) {
+    if (!Array.isArray(dstTracks) || !Array.isArray(srcTracks) || dstTracks.length !== srcTracks.length) {
+        stats.mismatch += 1;
+        return;
     }
-    const mission = JSON.parse(readFileSync(resolve(missionDir, name), "utf8"));
-    const missionId = mission.missionId ?? name.slice(0, -".json".length);
-    const questDic = {};
-    for (const [questId, quest] of Object.entries(mission.questDic ?? {})) {
-        questDic[questId] = extractQuest(quest);
+    for (let i = 0; i < dstTracks.length; i++) {
+        const dst = dstTracks[i];
+        if (dst?.type !== "NpcProxyTrackingInfo") {
+            continue;
+        }
+        stats.npc += 1;
+        const name = npcNameForProxy(srcTracks[i]?.npcProxyId);
+        if (!name) {
+            delete dst.npcName;
+            stats.empty += 1;
+            continue;
+        }
+        dst.npcName = name;
+        stats.written += 1;
     }
-    missions[missionId] = {
-        missionId,
-        missionName: localizedText(mission.missionName?.key),
-        missionDescription: localizedText(mission.missionDescription?.key),
-        mainPathQuests: Array.isArray(mission.mainPathQuests) ? mission.mainPathQuests : [],
-        questDic,
-    };
 }
 
-const ordered = {};
-for (const missionId of Object.keys(missions).sort()) {
-    ordered[missionId] = missions[missionId];
+function attachObjective(dstObjective, srcObjective, stats) {
+    attachList(dstObjective?.trackingInfoList, srcObjective?.trackingInfoList, stats);
+    const dstMulti = dstObjective?.multiDescTrackingInfoList ?? [];
+    const srcMulti = srcObjective?.multiDescTrackingInfoList ?? [];
+    if (dstMulti.length !== srcMulti.length) {
+        stats.mismatch += 1;
+        return;
+    }
+    for (let i = 0; i < dstMulti.length; i++) {
+        attachList(dstMulti[i]?.actualList, srcMulti[i]?.actualList, stats);
+    }
 }
 
+// 坐标已在 missions.json 里，这里只按解包追踪下标补 NpcProxy 的名字。
+function attachNpcNames(missions) {
+    const stats = {npc: 0, written: 0, empty: 0, mismatch: 0, missingMission: 0};
+    for (const [missionId, mission] of Object.entries(missions)) {
+        const sourcePath = resolve(missionDir, `${mission.missionId || missionId}.json`);
+        if (!existsSync(sourcePath)) {
+            stats.missingMission += 1;
+            continue;
+        }
+        const source = JSON.parse(readFileSync(sourcePath, "utf8"));
+        for (const [questId, quest] of Object.entries(mission.questDic ?? {})) {
+            const srcQuest = source.questDic?.[questId];
+            if (!srcQuest) {
+                continue;
+            }
+            const dstObjectives = quest.objectiveList ?? [];
+            const srcObjectives = srcQuest.objectiveList ?? [];
+            if (dstObjectives.length !== srcObjectives.length) {
+                stats.mismatch += 1;
+                continue;
+            }
+            for (let i = 0; i < dstObjectives.length; i++) {
+                attachObjective(dstObjectives[i], srcObjectives[i], stats);
+            }
+        }
+    }
+    return stats;
+}
+
+if (!existsSync(outputPath)) {
+    throw new Error(`[AutoMission] 缺少已有任务数据：${outputPath}`);
+}
+const missions = JSON.parse(readFileSync(outputPath, "utf8"));
+const stats = attachNpcNames(missions);
 mkdirSync(dirname(outputPath), {recursive: true});
-writeFileSync(outputPath, `${JSON.stringify(ordered, null, 4)}\n`, "utf8");
-console.log(`[AutoMission] 已生成 ${outputPath}（${Object.keys(ordered).length} 个任务）`);
+writeFileSync(outputPath, `${JSON.stringify(missions, null, 4)}\n`, "utf8");
+console.log(
+    `[AutoMission] 已写入 npcName：${stats.written}/${stats.npc}，无名字 ${stats.empty}，下标不一致 ${stats.mismatch}`,
+);

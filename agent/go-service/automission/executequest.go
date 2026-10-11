@@ -83,6 +83,7 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		taskDetail, err = ctx.RunTask(node, map[string]any{
 			npcProxyInWorldNode: map[string]any{
 				"custom_action_param": map[string]any{
+					"heading_source": "camera",
 					"path": []any{
 						map[string]any{
 							"action":  "ZONE",
