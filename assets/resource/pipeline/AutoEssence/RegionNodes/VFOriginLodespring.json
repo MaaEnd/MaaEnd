@@ -37,11 +37,8 @@
             "param": {
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
+                    // 不要补 ZONE：路线从 ValleyIV_Base 跨到 L6_109，打完后人停在 L6_109，首点 ZONE 校验必定失败
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "ValleyIV_Base"
-                        },
                         {
                             "action": "NAVMESH",
                             "target": [

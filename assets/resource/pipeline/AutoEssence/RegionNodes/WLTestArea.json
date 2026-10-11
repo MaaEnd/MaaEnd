@@ -38,11 +38,8 @@
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
                     "enable_bootstrap_navmesh": false,
+                    // 不要补 ZONE：路线跨 L5_322 / L5_321 两层，打完后人停在 L5_321，首点 ZONE 校验必定失败
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_L5_322"
-                        },
                         {
                             "action": "RUN",
                             "target": [

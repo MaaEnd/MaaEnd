@@ -24,7 +24,7 @@ const (
 // CustomRecognitionName 是 Maa Pipeline 注册的 IconRecognition 名称。
 const CustomRecognitionName = "IconRecognition"
 
-// ResultOrder 是 IconRecognition 识别结果的输出顺序。
+// ResultOrder 是 IconRecognition 的结果排序方式。
 type ResultOrder string
 
 const (
@@ -160,12 +160,14 @@ func WithDebug(debug bool) Option {
 	}
 }
 
-// WithTuningFrom 复制另一组参数的阈值、去重和调试选项，不复制候选条件或场景行为。
+// WithTuningFrom 复制另一组参数的阈值、排序、去重和调试选项，不复制候选条件或场景行为。
 func WithTuningFrom(source Params) Option {
 	return func(params *Params) {
 		params.Threshold = clonePointer(source.Threshold)
 		params.SubpixelThreshold = clonePointer(source.SubpixelThreshold)
 		params.Deduplicate = clonePointer(source.Deduplicate)
+		params.OrderBy = source.OrderBy
+		params.Reverse = clonePointer(source.Reverse)
 		params.Debug = clonePointer(source.Debug)
 	}
 }
@@ -185,6 +187,9 @@ func ParseParams(raw string) (Params, error) {
 	params.AdditionalItemFilters = normalizeItemFilters(params.AdditionalItemFilters)
 	params.ExcludedItemIDs = normalizeStrings(params.ExcludedItemIDs)
 	params.ItemRecheckFilters = normalizeItemFilters(params.ItemRecheckFilters)
+	if params.OrderBy != "" && params.OrderBy != ResultOrderScore && params.OrderBy != ResultOrderNatural {
+		return params, fmt.Errorf("IconRecognition order_by must be score or natural")
+	}
 	if params.GridType == "" {
 		return params, fmt.Errorf("IconRecognition grid_type is required")
 	}

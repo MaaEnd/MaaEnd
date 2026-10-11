@@ -162,6 +162,19 @@
                                 "title": "Deduplicate",
                                 "description": "Keep only the highest-scoring match for each item ID."
                             },
+                            "order_by": {
+                                "type": "string",
+                                "enum": [ "score", "natural" ],
+                                "default": "score",
+                                "title": "Result Order",
+                                "description": "Sort accepted results by descending score, or in natural row-by-row order from left to right. Does not change which match deduplication keeps."
+                            },
+                            "reverse": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "Reverse Results",
+                                "description": "Reverse the final result order after filtering and deduplication."
+                            },
                             "debug": {
                                 "type": "boolean",
                                 "default": false,
