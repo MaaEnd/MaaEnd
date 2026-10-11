@@ -2168,9 +2168,8 @@ bool NavigationStateMachine::TickNavigate()
             steering_rate.in_flight.push_back({ .delta_deg = issued_delta_deg, .sent_at = steer_sent_at });
         }
     }
-    // 只有走到这里的拍才记账。在上面就返回的拍留下拍号缺口，估计器拿输入出口的账判断那拍有没有发过转向。
-    const int64_t now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-    sensitivity::RecordTick(maa_context_, tick_seq, now_ms, steer_heading, issued_delta_deg, degraded_fix);
+    // 只有走到这里的拍才记账。在上面就返回的拍留下拍号缺口，那几拍可能发过转向，估计器把跨缺口的样本作废。
+    sensitivity::RecordTick(maa_context_, tick_seq, position_->camera_angle, issued_delta_deg, degraded_fix);
 
     // Closed the loop on the forward hold: the keydown goes out once on the transition, so a swallowed one
     // strands the agent aimed correctly and walking nowhere until an obstacle recovery notices seconds later.
