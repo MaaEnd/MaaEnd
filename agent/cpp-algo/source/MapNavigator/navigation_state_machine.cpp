@@ -1694,6 +1694,12 @@ bool NavigationStateMachine::TickNavigate()
                         return true;
                     }
                     if (!settled) {
+                        // 定位无效说明脉冲前的那个读数已经不成立, 人可能根本没到点: 拿它推进 waypoint 或记传送锚点
+                        // 都是错的, 交回定位恢复。定位仍有效只是收尾没达标时, 到点动作照旧非致命。
+                        if (!position_->valid) {
+                            walk_mode_.Request(false);
+                            return HandleLocalizationLoss();
+                        }
                         LogWarn << "Strict arrival correction incomplete; arrival action remains non-fatal."
                                 << VAR(session_->current_node_idx()) << VAR(position_->valid);
                     }
