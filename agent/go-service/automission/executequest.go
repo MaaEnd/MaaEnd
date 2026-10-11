@@ -21,7 +21,7 @@ var trackingNodes = map[string]string{
 	"SnsTrackingInfo":         "AutoMissionSns",
 }
 
-// ExecuteQuestAction 读取 AutoMissionMatchQuest 识别结果里的追踪，按第一条追踪的类型调用对应占位节点。
+// ExecuteQuestAction 读取识别结果里的唯一追踪，按类型调用对应占位节点。
 type ExecuteQuestAction struct{}
 
 func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -30,38 +30,25 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		return false
 	}
 
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.DetailJson == "" {
+	raw, ok := customDetail(arg.RecognitionDetail)
+	if !ok {
 		log.Warn().Str("component", executeComponent).Msg("no recognition detail")
 		return false
 	}
-	detail, err := unmarshalExecuteDetail(arg.RecognitionDetail.DetailJson)
-	if err != nil {
+	var detail matchDetail
+	if err := json.Unmarshal([]byte(raw), &detail); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", executeComponent).
 			Msg("unmarshal recognition detail failed")
 		return false
 	}
-	if len(detail.Tracks) == 0 {
-		log.Info().
-			Str("component", executeComponent).
-			Str("mission_id", detail.MissionID).
-			Str("quest_id", detail.QuestID).
-			Int("desc_index", detail.DescIndex).
-			Msg("quest has no tracking")
-		return true
-	}
-
-	track := detail.Tracks[0]
+	track := detail.Track
 	node, known := trackingNodes[track.Type]
 	event := log.Info().
 		Str("component", executeComponent).
-		Str("mission_id", detail.MissionID).
-		Str("quest_id", detail.QuestID).
-		Int("desc_index", detail.DescIndex).
 		Str("type", track.Type).
-		Interface("track", track).
-		Int("track_count", len(detail.Tracks))
+		Interface("track", track)
 	if !known {
 		event.Msg("unknown tracking type")
 		return true
@@ -80,26 +67,14 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	return true
 }
 
-// unmarshalExecuteDetail 兼容 MaaFramework 把自定义识别结果包在 best.detail 里的情况。
-func unmarshalExecuteDetail(raw string) (matchDetail, error) {
-	var detail matchDetail
-	if err := json.Unmarshal([]byte(raw), &detail); err != nil {
-		return matchDetail{}, err
+// customDetail 取绑定已经从 best.detail 拆出的自定义识别结果。
+func customDetail(detail *maa.RecognitionDetail) (string, bool) {
+	if detail == nil || detail.Results == nil || detail.Results.Best == nil {
+		return "", false
 	}
-	if detail.QuestID != "" {
-		return detail, nil
+	custom, ok := detail.Results.Best.AsCustom()
+	if !ok || custom == nil || custom.Detail == "" {
+		return "", false
 	}
-
-	var wrapped struct {
-		Best struct {
-			Detail json.RawMessage `json:"detail"`
-		} `json:"best"`
-	}
-	if err := json.Unmarshal([]byte(raw), &wrapped); err != nil || len(wrapped.Best.Detail) == 0 {
-		return detail, nil
-	}
-	if err := json.Unmarshal(wrapped.Best.Detail, &detail); err != nil {
-		return matchDetail{}, err
-	}
-	return detail, nil
+	return custom.Detail, true
 }

@@ -2,7 +2,6 @@ package automission
 
 import (
 	"encoding/json"
-	"sort"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
@@ -25,13 +24,7 @@ type MatchQuestRecognition struct{}
 var _ maa.CustomRecognitionRunner = &MatchQuestRecognition{}
 
 type matchDetail struct {
-	MissionID   string           `json:"mission_id"`
-	QuestID     string           `json:"quest_id"`
-	DescIndex   int              `json:"desc_index"`
-	Title       string           `json:"title"`
-	Description string           `json:"description"`
-	Candidates  []objectiveEntry `json:"candidates,omitempty"`
-	Tracks      []trackData      `json:"tracks"`
+	Track trackData `json:"track"`
 }
 
 func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -66,10 +59,6 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 	missionID, ok := lookupByPrefix(title, idx.titles)
 	if !ok {
-		log.Warn().
-			Str("component", componentName).
-			Str("title", title).
-			Msg("unknown mission title")
 		maafocus.Print(ctx, i18n.T("automission.unknown_mission", title))
 		return nil, false
 	}
@@ -106,38 +95,38 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
-	hit, rest, ok := lookupObjective(description, idx.quests[missionID])
+	maafocus.Print(ctx, i18n.T("automission.current", title, description))
+
+	hit, _, ok := lookupObjective(description, idx.quests[missionID])
 	if !ok {
-		log.Warn().
-			Str("component", componentName).
-			Str("mission_id", missionID).
-			Str("title", title).
-			Str("description", description).
-			Msg("description does not match an objective")
+		maafocus.Print(ctx, i18n.T("automission.unsupported_description", description))
 		return nil, false
 	}
-	if len(rest) > 0 {
+
+	if len(hit.Tracks) == 0 {
 		log.Info().
 			Str("component", componentName).
 			Str("mission_id", missionID).
 			Str("quest_id", hit.QuestID).
-			Int("desc_index", hit.DescIndex).
-			Interface("candidates", rest).
-			Msg("objective text matches multiple quests, using the first")
+			Str("description", description).
+			Msg("quest has no tracking")
+		maafocus.Print(ctx, i18n.T("automission.unsupported_description", description))
+		return nil, false
+	}
+	if len(hit.Tracks) > 1 {
+		log.Info().
+			Str("component", componentName).
+			Str("mission_id", missionID).
+			Str("quest_id", hit.QuestID).
+			Str("description", description).
+			Int("track_count", len(hit.Tracks)).
+			Msg("multiple tracking points are not supported")
+		maafocus.Print(ctx, i18n.T("automission.unsupported_description", description))
+		return nil, false
 	}
 
-	tracks := hit.Tracks
-	if tracks == nil {
-		tracks = []trackData{}
-	}
 	payload, err := json.Marshal(matchDetail{
-		MissionID:   missionID,
-		QuestID:     hit.QuestID,
-		DescIndex:   hit.DescIndex,
-		Title:       title,
-		Description: description,
-		Candidates:  rest,
-		Tracks:      tracks,
+		Track: hit.Tracks[0],
 	})
 	if err != nil {
 		log.Error().Err(err).Str("component", componentName).Msg("marshal detail failed")
@@ -162,14 +151,15 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 // lookupByPrefix 用 OCR 文本逐字加长的前缀在 entries 中收窄候选：
 // 候选为 0 表示未找到；只剩 1 个即命中；用完 OCR 全文仍有多个则视为无法确定。
 func lookupByPrefix(text string, entries []textEntry) (string, bool) {
-	runes := []rune(strings.TrimSpace(text))
+	text = strings.TrimSpace(text)
+	runes := []rune(text)
 	candidates := entries
 	for n := 1; n <= len(runes); n++ {
 		prefix := string(runes[:n])
 		narrowed := make([]textEntry, 0, len(candidates))
 		for _, e := range candidates {
 			for _, v := range e.variants {
-				if strings.HasPrefix(v, prefix) {
+				if strings.HasPrefix(comparableText(v), comparableText(prefix)) {
 					narrowed = append(narrowed, e)
 					break
 				}
@@ -179,29 +169,53 @@ func lookupByPrefix(text string, entries []textEntry) (string, bool) {
 
 		switch len(candidates) {
 		case 0:
+			log.Warn().
+				Str("component", componentName).
+				Str("text", text).
+				Msg("title lookup missed")
 			return "", false
 		case 1:
+			log.Info().
+				Str("component", componentName).
+				Str("text", text).
+				Str("mission_id", candidates[0].missionID).
+				Msg("title lookup matched")
 			return candidates[0].missionID, true
 		}
 	}
+
+	missionIDs := make([]string, len(candidates))
+	for i, entry := range candidates {
+		missionIDs[i] = entry.missionID
+	}
+	log.Warn().
+		Str("component", componentName).
+		Str("text", text).
+		Strs("mission_ids", missionIDs).
+		Msg("title lookup ambiguous")
 	return "", false
 }
 
 // lookupObjective 在一个任务的步骤名称里按 OCR 前缀收窄。
 // 收窄到 0 条表示没找到，收窄到 1 条即命中。
-// 用完全文仍有多条时，按主线顺序取第一个子步骤，同一子步骤内取最小说明下标，其余作为候选返回。
-func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []objectiveEntry, bool) {
+// 用完全文仍有多条时返回这些 quest_id。
+func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []string, bool) {
+	text = strings.TrimSpace(text)
 	if quests == nil {
+		log.Warn().
+			Str("component", componentName).
+			Str("text", text).
+			Msg("objective lookup missed")
 		return objectiveEntry{}, nil, false
 	}
-	runes := []rune(strings.TrimSpace(text))
+	runes := []rune(text)
 	candidates := quests.objectives
 	for n := 1; n <= len(runes); n++ {
 		prefix := string(runes[:n])
 		narrowed := make([]objectiveEntry, 0, len(candidates))
 		for _, entry := range candidates {
 			for _, variant := range entry.variants {
-				if strings.HasPrefix(variant, prefix) {
+				if strings.HasPrefix(comparableText(variant), comparableText(prefix)) {
 					narrowed = append(narrowed, entry)
 					break
 				}
@@ -211,38 +225,45 @@ func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []obje
 
 		switch len(candidates) {
 		case 0:
+			log.Warn().
+				Str("component", componentName).
+				Str("text", text).
+				Msg("objective lookup missed")
 			return objectiveEntry{}, nil, false
 		case 1:
+			log.Info().
+				Str("component", componentName).
+				Str("text", text).
+				Str("quest_id", candidates[0].QuestID).
+				Int("desc_index", candidates[0].DescIndex).
+				Msg("objective lookup matched")
 			return candidates[0], nil, true
 		}
 	}
-	if len(candidates) == 0 {
-		return objectiveEntry{}, nil, false
-	}
 
-	sort.SliceStable(candidates, func(i, j int) bool {
-		return objectiveLess(candidates[i], candidates[j], quests.pathOrder)
-	})
-	return candidates[0], candidates[1:], true
+	questIDs := make([]string, len(candidates))
+	for i, entry := range candidates {
+		questIDs[i] = entry.QuestID
+	}
+	log.Warn().
+		Str("component", componentName).
+		Str("text", text).
+		Strs("quest_ids", questIDs).
+		Msg("objective lookup ambiguous")
+	return objectiveEntry{}, questIDs, false
 }
 
-// objectiveLess 不在主线上的子步骤排在主线之后。
-func objectiveLess(a, b objectiveEntry, pathOrder map[string]int) bool {
-	aOrder, aOnPath := pathOrder[a.QuestID]
-	if !aOnPath {
-		aOrder = len(pathOrder)
-	}
-	bOrder, bOnPath := pathOrder[b.QuestID]
-	if !bOnPath {
-		bOrder = len(pathOrder)
-	}
-	if aOrder != bOrder {
-		return aOrder < bOrder
-	}
-	if a.QuestID != b.QuestID {
-		return a.QuestID < b.QuestID
-	}
-	return a.DescIndex < b.DescIndex
+// comparableText 去掉整段文本中的每一处中点类分隔符，供前缀比较使用。
+// OCR 常把「·」认成其它点号，或直接漏掉。
+func comparableText(s string) string {
+	return strings.Map(func(r rune) rune {
+		switch r {
+		case '·', '・', '･', '•', '.', '．':
+			return -1
+		default:
+			return r
+		}
+	}, s)
 }
 
 // ocrText 在识别结果树中取第一段非空 OCR，只读 Filtered。

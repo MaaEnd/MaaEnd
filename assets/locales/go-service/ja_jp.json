@@ -236,6 +236,8 @@
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
     "ims.item_current": "現在 %s：%d",
+    "automission.current": "現在の任務 %s\n現在の目標 %s",
     "automission.unknown_mission": "未知の任務 %s",
-    "automission.unsupported_critical": "緊要任務にはまだ対応していません"
+    "automission.unsupported_critical": "緊要任務にはまだ対応していません",
+    "automission.unsupported_description": "%s にはまだ対応していません。現在のステップを手動で完了してから再試行してください。"
 }

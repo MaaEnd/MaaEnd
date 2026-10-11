@@ -45,7 +45,6 @@ type missionData struct {
 	MissionID             string               `json:"missionId"`
 	BaseMissionImportance *int                 `json:"baseMissionImportance"`
 	MissionName           missionText          `json:"missionName"`
-	MainPathQuests        []string             `json:"mainPathQuests"`
 	QuestDic              map[string]questData `json:"questDic"`
 }
 
@@ -64,9 +63,8 @@ type objectiveEntry struct {
 	variants  []string
 }
 
-// missionQuests 保存一个任务的全部步骤名称，以及主线顺序，供说明匹配到多条时消歧。
+// missionQuests 保存一个任务的全部步骤名称。
 type missionQuests struct {
-	pathOrder  map[string]int
 	objectives []objectiveEntry
 }
 
@@ -130,12 +128,7 @@ func buildMissionIndex() (*missionIndex, error) {
 }
 
 func indexQuests(m missionData) *missionQuests {
-	quests := &missionQuests{
-		pathOrder: make(map[string]int, len(m.MainPathQuests)),
-	}
-	for i, questID := range m.MainPathQuests {
-		quests.pathOrder[questID] = i
-	}
+	quests := &missionQuests{}
 	for key, quest := range m.QuestDic {
 		id := quest.QuestID
 		if id == "" {

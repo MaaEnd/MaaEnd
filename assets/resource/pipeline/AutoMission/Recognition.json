@@ -64,16 +64,16 @@
         "recognition": "ColorMatch",
         "roi": "AutoMissionLocationIcon",
         "roi_offset": [
-            // 待补充：色块相对位置图标，说明在图标下方
             25,
             70,
             300,
             8
         ],
+        // 包含白色和黄色文字
         "lower": [
             90, 
             90, 
-            90
+            0
         ],
         "upper": [
             255, 
