@@ -1,50 +1,50 @@
 name: generator-output-test
 
 on:
-    push:
-        branches:
-            - "v2"
-        paths:
-            - ".github/workflows/generator-output-test.yml"
-            - "tools/pipeline-generate/run-all.mjs"
-            - "tools/pipeline-generate/run-all.test.mjs"
-            - "package.json"
-            - "pnpm-lock.yaml"
-    pull_request:
-        branches:
-            - "v2"
-        paths:
-            - ".github/workflows/generator-output-test.yml"
-            - "tools/pipeline-generate/run-all.mjs"
-            - "tools/pipeline-generate/run-all.test.mjs"
-            - "package.json"
-            - "pnpm-lock.yaml"
-    workflow_dispatch:
+  push:
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/generator-output-test.yml"
+      - "tools/pipeline-generate/run-all.mjs"
+      - "tools/pipeline-generate/run-all.test.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+  pull_request:
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/generator-output-test.yml"
+      - "tools/pipeline-generate/run-all.mjs"
+      - "tools/pipeline-generate/run-all.test.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+  workflow_dispatch:
 
 permissions:
-    contents: read
+  contents: read
 
 jobs:
-    generator-output-test:
-        strategy:
-            matrix:
-                os: [ubuntu-latest, windows-latest]
-        runs-on: ${{ matrix.os }}
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v6
+  generator-output-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v6
-              with:
-                  node-version: 22
-                  cache: "pnpm"
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "pnpm"
 
-            - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-            - name: Run generator output tests
-              run: pnpm test:generator
+      - name: Run generator output tests
+        run: pnpm test:generator
