@@ -74,14 +74,22 @@ constexpr int32_t kWalkResetReleaseMs = 120;
 constexpr double kSamePointActionChainDistance = 0.2;
 
 // --- Strict-Arrival Settle ---
-// PR #4577 forward-pulse parameters, used 1:1 in navigation coordinates without scale compensation.
 // Stop, align the observed camera heading, pulse forward, then measure only after settling.
-constexpr double kStrictSettleStartStopDistance = 0.325;
-constexpr double kStrictSettleWalkSpeed = 1.2; // px/s; hold time = (residual - start/stop distance) / speed
-constexpr double kStrictSettleAcceptBandWu = 0.325;
-constexpr int32_t kStrictSettleStopWaitMs = 325;
+constexpr double kStrictSettleAcceptBandWu = 0.5;
 constexpr int32_t kStrictSettleMaxPulses = 3;
-constexpr int32_t kStrictSettleBudgetMs = 6000; // existing wall-clock bound, including turns and observations
+// Settled = this many consecutive reads all within this distance of the first one. Measured against the first read
+// rather than the previous one, so a slow slide cannot pass as standing still.
+constexpr double kStrictSettleStillWu = 0.1;
+constexpr int32_t kStrictSettleStillReads = 3;
+// Pulse length comes only from hold-to-travel pairs measured in this process. Until the first pair exists, a short
+// probe is sent: falling short costs one more pulse, overshooting can cost the whole budget.
+constexpr int32_t kStrictSettleProbeHoldMs = 150;
+constexpr int32_t kStrictSettleMinHoldMs = 80; // shorter presses risk being dropped whole by the game's input sampling
+constexpr int32_t kStrictSettleMaxHoldMs = 1500;
+constexpr size_t kStrictSettlePulseHistory = 16;
+constexpr int32_t kStrictSettlePulseSpreadMs = 30;               // pairs closer than this carry no slope information
+constexpr double kStrictSettlePulseDirectionToleranceDeg = 30.0; // a pulse deflected further was pushed by geometry
+constexpr int32_t kStrictSettleBudgetMs = 6000;                  // existing wall-clock bound, including turns and observations
 constexpr int32_t kStrictSettleFixIntervalMs = 120;
 constexpr int32_t kStrictSettleFixMaxFrames = 12;
 constexpr double kStrictSettleHeadingToleranceDeg = 5.0; // observed camera alignment before pressing forward

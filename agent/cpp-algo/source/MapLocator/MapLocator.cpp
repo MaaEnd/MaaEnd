@@ -1554,8 +1554,12 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
                 << VAR(rawFallbackPos.score) << VAR(rawFallbackPos.x) << VAR(rawFallbackPos.y) << VAR(dist);
     }
 
-    if (!holdPending || options.precise_position) {
+    if (!holdPending) {
         return std::nullopt;
+    }
+    // 精确取位只要本帧实测：这帧直接判没认出，不交旧坐标，也不落到后面的全局搜索去改写跟踪状态。
+    if (options.precise_position) {
+        return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Tracking Hold" };
     }
 
     // 第二策略也没救回来，交付 tracker 里保留的上一帧坐标。丢失已在 tryTracking 里记账。
