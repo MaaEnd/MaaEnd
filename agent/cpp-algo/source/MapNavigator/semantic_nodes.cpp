@@ -397,7 +397,7 @@ void RecordPulseResponse(double hold_ms, double travel)
 
 // 位移随按键时长线性增长, 截距是起步和刹车的固定位移。斜率取所有样本两两斜率的中位数, 截距取残差中位数,
 // 个别被吞键、蹭墙的样本拉不动它。时长拉不开时按比例估, 偏差留给下一下纠正。
-int PlanPulseHoldMs(double residual)
+int PlanPulseHoldMs(double residual, int max_hold_ms)
 {
     std::vector<PulseResponse> samples;
     {
@@ -434,7 +434,7 @@ int PlanPulseHoldMs(double residual)
         }
         hold_ms = residual / MedianOf(rates);
     }
-    return std::clamp(static_cast<int>(std::lround(hold_ms)), kStrictSettleMinHoldMs, kStrictSettleMaxHoldMs);
+    return std::clamp(static_cast<int>(std::lround(hold_ms)), kStrictSettleMinHoldMs, max_hold_ms);
 }
 
 template <typename CanCaptureFrame>
@@ -599,6 +599,8 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std:
 
     StopMotionAndCommitment(ctx);
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(kStrictSettleBudgetMs);
+    const StrictSettleInputProfile& input =
+        ctx.action_wrapper->uses_touch_backend() ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile;
     int pulses = 0;
     double residual = std::numeric_limits<double>::infinity();
     const auto incomplete = [&](const char* reason) {
@@ -662,9 +664,9 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std:
             }
         }
 
-        const int hold_ms = PlanPulseHoldMs(residual);
+        const int hold_ms = PlanPulseHoldMs(residual, input.max_hold_ms);
         const auto settle_reserve =
-            std::chrono::milliseconds(hold_ms + kStrictSettleSlideMs + kStrictSettleStillReads * kStrictSettleFixIntervalMs);
+            std::chrono::milliseconds(hold_ms + input.slide_ms + kStrictSettleStillReads * kStrictSettleFixIntervalMs);
         if (should_stop() || std::chrono::steady_clock::now() + settle_reserve >= deadline) {
             return incomplete(should_stop() ? "cancelled" : "budget_exhausted");
         }
