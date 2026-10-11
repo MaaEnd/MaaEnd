@@ -205,13 +205,13 @@
     },
     // ===== 下面是运送委托列表中的流程节点 =====
     "__SeizeDeliveryJobsRecoFilterOther": {
-        "desc": "寻找非目标地图筛选标志（仅识别）",
+        "desc": "寻找底部当前地区筛选标志，以展开菜单（仅识别）",
         "recognition": "TemplateMatch",
         "roi": [
             20,
-            440,
+            640,
             140,
-            260
+            40
         ],
         "template": [
             "SeizeDeliveryJobs/DepotNodePage/FilterAll.png",
@@ -221,16 +221,31 @@
         "order_by": "Score"
     },
     "__SeizeDeliveryJobsRecoFilterAll": {
-        "desc": "寻找全部区域筛选标志（仅识别）",
+        "desc": "寻找底部当前全部区域筛选标志（仅识别）",
         "recognition": "TemplateMatch",
         "roi": [
             20,
-            440,
+            640,
             140,
-            260
+            40
         ],
         "template": "SeizeDeliveryJobs/DepotNodePage/FilterAll.png",
         "order_by": "Score"
+    },
+    "__SeizeDeliveryJobsRecoFilterOptionAll": {
+        "desc": "寻找地区筛选菜单中的全部区域选项（仅识别）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            520,
+            140,
+            160
+        ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/FilterAll.png",
+        "order_by": "Score",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SeizeDeliveryJobsJobListIsAllFilter": {
         "desc": "在运送委托列表检查到全部区域筛选",
@@ -252,11 +267,11 @@
     "SeizeDeliveryJobsJobListSelectAllFilter": {
         "desc": "在筛选列表中选择全部区域",
         "recognition": "And",
-        "all_of": ["__SeizeDeliveryJobsRecoFilterAll"],
+        "all_of": ["__SeizeDeliveryJobsRecoFilterOptionAll"],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "next": ["SeizeDeliveryJobsLoop"]
+        "next": ["SeizeDeliveryJobsJobListIsAllFilter"]
     },
     "SeizeDeliveryJobsLoop": {
         "desc": "等待委托列表静止，随后开始抢单",

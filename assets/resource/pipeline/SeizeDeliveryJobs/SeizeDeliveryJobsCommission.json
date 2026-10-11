@@ -27,16 +27,31 @@
         }
     },
     "__SeizeDeliveryJobsRecoFilterValleyIV": {
-        "desc": "寻找四号谷地筛选标志（仅识别）",
+        "desc": "寻找底部当前四号谷地筛选标志（仅识别）",
         "recognition": "TemplateMatch",
         "roi": [
             20,
-            440,
+            640,
             140,
-            260
+            40
         ],
         "template": "SeizeDeliveryJobs/DepotNodePage/FilterValleyIV.png",
         "order_by": "Score"
+    },
+    "__SeizeDeliveryJobsRecoFilterOptionValleyIV": {
+        "desc": "寻找地区筛选菜单中的四号谷地选项（仅识别）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            520,
+            140,
+            160
+        ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/FilterValleyIV.png",
+        "order_by": "Score",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SeizeDeliveryJobsJobListIsValleyIVFilter": {
         "desc": "在运送委托列表检查到四号谷地筛选",
@@ -73,13 +88,13 @@
         "desc": "在筛选列表中选择四号谷地",
         "recognition": "And",
         "all_of": [
-            "__SeizeDeliveryJobsRecoFilterValleyIV"
+            "__SeizeDeliveryJobsRecoFilterOptionValleyIV"
         ],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsLoop"
+            "SeizeDeliveryJobsJobListIsValleyIVFilter"
         ],
         "focus": {
             "Node.Action.Succeeded": "切换到四号谷地筛选"
@@ -113,16 +128,31 @@
         }
     },
     "__SeizeDeliveryJobsRecoFilterWuling": {
-        "desc": "寻找武陵筛选标志（仅识别）",
+        "desc": "寻找底部当前武陵筛选标志（仅识别）",
         "recognition": "TemplateMatch",
         "roi": [
             20,
-            440,
+            640,
             140,
-            260
+            40
         ],
         "template": "SeizeDeliveryJobs/DepotNodePage/FilterWuling.png",
         "order_by": "Score"
+    },
+    "__SeizeDeliveryJobsRecoFilterOptionWuling": {
+        "desc": "寻找地区筛选菜单中的武陵选项（仅识别）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            520,
+            140,
+            160
+        ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/FilterWuling.png",
+        "order_by": "Score",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SeizeDeliveryJobsJobListIsWulingFilter": {
         "desc": "在运送委托列表检查到武陵筛选",
@@ -159,13 +189,13 @@
         "desc": "在筛选列表中选择武陵",
         "recognition": "And",
         "all_of": [
-            "__SeizeDeliveryJobsRecoFilterWuling"
+            "__SeizeDeliveryJobsRecoFilterOptionWuling"
         ],
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsLoop"
+            "SeizeDeliveryJobsJobListIsWulingFilter"
         ],
         "focus": {
             "Node.Action.Succeeded": "切换到武陵筛选"

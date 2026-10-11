@@ -1,0 +1,63 @@
+{
+    "configs": {
+        "name": "抢委托送货，当前地区与菜单选项识别",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "当前为武陵，菜单中的四号谷地不能被当作当前地区",
+            "image": "武陵_运送委托列表_地区筛选展开.png",
+            "hits": [
+                "__SeizeDeliveryJobsRecoFilterOther",
+                {
+                    "node": "__SeizeDeliveryJobsRecoFilterWuling",
+                    "box": [
+                        39,
+                        652,
+                        21,
+                        18
+                    ]
+                },
+                "SeizeDeliveryJobsJobListIsWulingFilter",
+                {
+                    "node": "__SeizeDeliveryJobsRecoFilterOptionAll",
+                    "box": [
+                        44,
+                        535,
+                        21,
+                        22
+                    ]
+                },
+                {
+                    "node": "__SeizeDeliveryJobsRecoFilterOptionValleyIV",
+                    "box": [
+                        43,
+                        577,
+                        23,
+                        10
+                    ]
+                },
+                "__SeizeDeliveryJobsRecoFilterOptionWuling"
+            ]
+        },
+        {
+            "name": "当前为四号谷地，底部确认不能命中武陵",
+            "image": "四号谷地_运送委托列表_地区筛选收起.png",
+            "hits": [
+                "__SeizeDeliveryJobsRecoFilterOther",
+                {
+                    "node": "__SeizeDeliveryJobsRecoFilterValleyIV",
+                    "box": [
+                        38,
+                        656,
+                        23,
+                        10
+                    ]
+                },
+                "SeizeDeliveryJobsJobListIsValleyIVFilter",
+                "__SeizeDeliveryJobsRecoFilterOptionValleyIV"
+            ]
+        }
+    ]
+}
