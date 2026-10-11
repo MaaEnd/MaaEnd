@@ -1,0 +1,152 @@
+{
+    "__InventoryTransferStackButtonLeft": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            150,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferStack.png",
+        "method": 5,
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "contact": 1,
+        "pressure": 1,
+        "auto_up": true,
+        "post_delay": 100,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferButtonTouchUp"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferStackButtonRight": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            1030,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferStack.png",
+        "method": 5,
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "contact": 1,
+        "pressure": 1,
+        "auto_up": true,
+        "post_delay": 100,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferButtonTouchUp"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferAllButtonLeft": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            150,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferAll.png",
+        "method": 5,
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "contact": 1,
+        "pressure": 1,
+        "auto_up": true,
+        "post_delay": 100,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferButtonTouchUp"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferAllButtonRight": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            1030,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferAll.png",
+        "method": 5,
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "contact": 1,
+        "pressure": 1,
+        "auto_up": true,
+        "post_delay": 100,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferButtonTouchUp"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferHalfButtonLeft": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            150,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferHalf.png",
+        "method": 5,
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "contact": 1,
+        "pressure": 1,
+        "auto_up": true,
+        "post_delay": 100,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferButtonTouchUp"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    },
+    "__InventoryTransferHalfButtonRight": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            1030,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferHalf.png",
+        "method": 5,
+        "threshold": 0.85,
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "contact": 1,
+        "pressure": 1,
+        "auto_up": true,
+        "post_delay": 100,
+        "rate_limit": 0,
+        "next": [
+            "__InventoryTransferButtonTouchUp"
+        ],
+        "on_error": [
+            "__InventoryTransferErrorButtonTouchUp"
+        ]
+    }
+}

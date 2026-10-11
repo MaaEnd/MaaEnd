@@ -52,91 +52,14 @@
         }
     },
     "ItemTransferStart": {
-        "next": [
-            "ItemTransferStartInDijiangBackpack",
-            "ItemTransferStartOpenRepo",
-            "[JumpBack]SceneEnterWorldDijiang"
-        ]
-    },
-    "ItemTransferStartInDijiangBackpack": {
-        "desc": "帝江号背包已打开，直接开始转移任务",
-        "recognition": "And",
-        "all_of": [
-            "InBackpack",
-            "ItemTransferRepoSwitchButton"
-        ],
-        "next": [
-            "ItemTransferInBackpack"
-        ]
-    },
-    "ItemTransferStartOpenRepo": {
-        "desc": "直接打开背包而非通过快捷键",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -250,
-                                    0,
-                                    200,
-                                    200
-                                ],
-                                "template": [
-                                    "SceneManager/Backpack.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    },
-                    "InDijiangWorld",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -200,
-                                    0,
-                                    200,
-                                    200
-                                ],
-                                "template": [
-                                    "SceneManager/WorldMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    }
-                ],
-                "box_index": 0
-            }
-        },
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuBackpackWithDepot"
+            ]
         },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ItemTransferStartOpenRepoSuccess"
-        ]
-    },
-    "ItemTransferStartOpenRepoSuccess": {
-        "recognition": "And",
-        "all_of": [
-            "InBackpack"
-        ],
-        "pre_wait_freezes": {
-            "time": 200,
-            "timeout": 3000
-        },
-        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -163,25 +86,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ItemTransferResetRepoSwitchHitCount"
-        ]
-    },
-    "ItemTransferResetRepoSwitchHitCount": {
-        "desc": "每轮转移开始前清理仓库切换节点的命中计数",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ClearHitCount",
-                "custom_action_param": {
-                    "nodes": [
-                        "ItemTransferSwitchRepoToOrigin",
-                        "ItemTransferSwitchRepoToDestination",
-                        "ItemTransferSwitchRepoToOriginReturn"
-                    ]
-                }
-            }
-        },
-        "next": [
             "ItemTransferSwitchRepoToOrigin"
         ]
     },
@@ -203,115 +107,17 @@
             "StashBackpackEnterSuccess"
         ]
     },
-    "ItemTransferRepoSwitchButton": {
-        "recognition": "OCR",
-        "roi": [
-            607,
-            128,
-            65,
-            24
-        ],
-        "expected": [
-            "仓库切换",
-            "倉庫切換",
-            "(?i)Switch\\s*Depot",
-            "倉庫切替",
-            "Switch",
-            "Depot"
-        ]
-    },
     "ItemTransferSwitchRepoToOrigin": {
-        "max_hit": 3,
-        "recognition": "And",
-        "all_of": [
-            "ItemTransferRepoSwitchButton"
-        ],
-        "box_index": 0,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuBackpackWithDepotValleyIV"
+            ]
         },
-        "next": [
-            "ItemTransferClickOrigin",
-            "ItemTransferSwitchRepoToOrigin"
-        ]
-    },
-    "ItemTransferClickOrigin": {
-        "recognition": "OCR",
-        "roi": [
-            515,
-            158,
-            481,
-            393
-        ],
-        "expected": "ORIGIN_REGION",
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "ItemTransferClickOriginClicked"
-        ]
-    },
-    "ItemTransferClickOriginClicked": {
-        "recognition": "OCR",
-        "roi": [
-            596,
-            346,
-            213,
-            23
-        ],
-        "expected": "ORIGIN_REGION",
-        "next": [
-            "ItemTransferClickConfirmOrigin",
-            "ItemTransferAtOrigin"
-        ]
-    },
-    "ItemTransferClickConfirmOrigin": {
-        "recognition": "OCR",
-        "roi": [
-            991,
-            560,
-            117,
-            41
-        ],
-        "expected": [
-            "确认",
-            "確定",
-            "Confirm"
-        ],
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "ItemTransferAtOrigin"
-        ]
-    },
-    "ItemTransferAtOrigin": {
-        "recognition": "OCR",
-        "roi": [
-            991,
-            560,
-            117,
-            41
-        ],
-        "expected": [
-            "已连接",
-            "已連接",
-            "(?i)Connected",
-            "接続済み"
-        ],
-        "next": [
-            "ItemTransferClickEscOrigin"
-        ]
-    },
-    "ItemTransferClickEscOrigin": {
-        "action": "ClickKey",
-        "key": 27,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[Anchor]ItemTransferOriginArrivedNext"
         ]
@@ -330,19 +136,6 @@
         ]
     },
     "ItemTransferOriginDispatch": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ClearHitCount",
-                "custom_action_param": {
-                    "nodes": [
-                        "ItemTransferSwitchRepoToOrigin",
-                        "ItemTransferSwitchRepoToDestination",
-                        "ItemTransferSwitchRepoToOriginReturn"
-                    ]
-                }
-            }
-        },
         "anchor": {
             "ItemTransferForwardGateNext": "ItemTransferRepoToBag",
             "ItemTransferReturnGateNext": "ItemTransferTravelToDestinationForReturn"
@@ -354,19 +147,6 @@
         ]
     },
     "ItemTransferDestinationDispatch": {
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ClearHitCount",
-                "custom_action_param": {
-                    "nodes": [
-                        "ItemTransferSwitchRepoToOrigin",
-                        "ItemTransferSwitchRepoToDestination",
-                        "ItemTransferSwitchRepoToOriginReturn"
-                    ]
-                }
-            }
-        },
         "anchor": {
             "ItemTransferReturnGateNext": "ItemTransferReturnRepoToBag",
             "ItemTransferForwardGateNext": "ItemTransferTravelToOriginForForward"
@@ -423,10 +203,7 @@
             "ItemTransferAfterRepoTransfer": "ItemTransferSwitchRepoToDestinationWithForwardItem"
         },
         "next": [
-            "ItemTransferClickSortAscending",
-            "[Anchor]ItemTransferCurrentItemCategory",
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "ItemTransferRepoSearchCurrentPage"
+            "[Anchor]ItemTransferCurrentItemCategory"
         ]
     },
     "ItemTransferReturnRepoToBag": {
@@ -439,109 +216,42 @@
             "ItemTransferAfterRepoTransfer": "ItemTransferSwitchRepoToOriginWithReturnItem"
         },
         "next": [
-            "ItemTransferClickSortAscending",
-            "[Anchor]ItemTransferCurrentItemCategory",
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "ItemTransferRepoSearchCurrentPage"
-        ]
-    },
-    "ItemTransferClickSortDescending": {
-        "recognition": "OCR",
-        "roi": [
-            371,
-            505,
-            48,
-            26
-        ],
-        "expected": [
-            "降序",
-            "(?i)DESC",
-            "降順"
-        ],
-        "action": "Click",
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "[Anchor]ItemTransferCurrentItemCategory",
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "ItemTransferRepoSearchCurrentPage"
-        ]
-    },
-    "ItemTransferClickSortAscending": {
-        "recognition": "OCR",
-        "roi": [
-            371,
-            505,
-            48,
-            26
-        ],
-        "expected": [
-            "升序",
-            "(?i)ASC",
-            "昇順"
-        ],
-        "action": "Click",
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "[Anchor]ItemTransferCurrentItemCategory",
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "ItemTransferRepoSearchCurrentPage"
+            "[Anchor]ItemTransferCurrentItemCategory"
         ]
     },
     "ItemTransferClickForwardItemCategory": {
-        "recognition": "TemplateMatch",
-        "roi": [
-            168,
-            171,
-            531,
-            35
-        ],
-        "template": "ItemTransfer/All.png",
-        "threshold": 0.8,
-        "order_by": "Score",
-        "action": "Click",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuBackpackWithDepotAll"
+            ]
+        },
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack][Anchor]MouseMoveResetAnchor",
             "ItemTransferRepoSearchCurrentPage"
         ]
     },
     "ItemTransferClickReturnItemCategory": {
-        "recognition": "TemplateMatch",
-        "roi": [
-            168,
-            171,
-            531,
-            35
-        ],
-        "template": "ItemTransfer/All.png",
-        "threshold": 0.8,
-        "order_by": "Score",
-        "action": "Click",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuBackpackWithDepotAll"
+            ]
+        },
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack][Anchor]MouseMoveResetAnchor",
             "ItemTransferRepoSearchCurrentPage"
@@ -574,7 +284,9 @@
             "timeout": 3000
         },
         "next": [
-            "[Anchor]ItemTransferCurrentRepoTransfer"
+            "ItemTransferForwardQuantityAllowed",
+            "ItemTransferForwardQuantityAtReserve",
+            "ItemTransferForwardQuantityError"
         ]
     },
     "ItemTransferFindReturnItemInRepo": {
@@ -604,7 +316,9 @@
             "timeout": 3000
         },
         "next": [
-            "[Anchor]ItemTransferCurrentRepoTransfer"
+            "ItemTransferReturnQuantityAllowed",
+            "ItemTransferReturnQuantityAtReserve",
+            "ItemTransferReturnQuantityError"
         ]
     },
     "ItemTransferRepoSearchCurrentPage": {
@@ -713,12 +427,14 @@
     },
     "ItemTransferScrollDownwardRepo": {
         "max_hit": 20,
-        "action": "Scroll",
-        "target": [
-            640,
-            350
-        ],
-        "dy": -180,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryRepoScrollDownward"
+            ]
+        },
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
         },
@@ -731,17 +447,21 @@
                 291
             ],
             "timeout": 3000
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ItemTransferScrollUpwardRepo": {
         "desc": "完整扫描前向上滚动一页",
         "max_hit": 20,
-        "action": "Scroll",
-        "target": [
-            640,
-            350
-        ],
-        "dy": 180,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryRepoScrollUpward"
+            ]
+        },
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
         },
@@ -754,7 +474,9 @@
                 291
             ],
             "timeout": 3000
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ItemTransferForwardItemNotFound": {
         "recognition": "DirectHit",
@@ -793,145 +515,64 @@
         }
     },
     "ItemTransferTransferForwardToBag": {
-        "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
-        "target": "ItemTransferFindForwardItemInRepo",
-        "target_offset": [
-            26,
-            25,
-            -52,
-            -50
-        ],
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                154,
-                202,
-                585,
-                291
-            ],
-            "timeout": 3000
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": "ItemTransferFindForwardItemInRepo",
+                "roi_offset": [
+                    26,
+                    25,
+                    -52,
+                    -50
+                ]
+            }
         },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "InventoryTransferSource": "ItemTransferTransferForwardToBag"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "[Anchor]ItemTransferAfterRepoTransfer"
+            "ItemTransferRunRepoTransfer"
         ]
     },
     "ItemTransferTransferReturnToBag": {
-        "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
-        "target": "ItemTransferFindReturnItemInRepo",
-        "target_offset": [
-            26,
-            25,
-            -52,
-            -50
-        ],
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                154,
-                202,
-                585,
-                291
-            ],
-            "timeout": 3000
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": "ItemTransferFindReturnItemInRepo",
+                "roi_offset": [
+                    26,
+                    25,
+                    -52,
+                    -50
+                ]
+            }
         },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "InventoryTransferSource": "ItemTransferTransferReturnToBag"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "[Anchor]ItemTransferAfterRepoTransfer"
+            "ItemTransferRunRepoTransfer"
         ]
     },
     "ItemTransferSwitchRepoToDestination": {
-        "max_hit": 3,
-        "recognition": "And",
-        "all_of": [
-            "ItemTransferRepoSwitchButton"
-        ],
-        "box_index": 0,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuBackpackWithDepotWuling"
+            ]
         },
-        "next": [
-            "ItemTransferClickDestination",
-            "ItemTransferSwitchRepoToDestination"
-        ]
-    },
-    "ItemTransferClickDestination": {
-        "recognition": "OCR",
-        "roi": [
-            515,
-            158,
-            481,
-            393
-        ],
-        "expected": "DESTINATION_REGION",
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "ItemTransferClickDestinationClicked"
-        ]
-    },
-    "ItemTransferClickDestinationClicked": {
-        "recognition": "OCR",
-        "roi": [
-            596,
-            346,
-            213,
-            23
-        ],
-        "expected": "DESTINATION_REGION",
-        "next": [
-            "ItemTransferClickConfirmDestination",
-            "ItemTransferAtDestination"
-        ]
-    },
-    "ItemTransferClickConfirmDestination": {
-        "recognition": "OCR",
-        "roi": [
-            991,
-            560,
-            117,
-            41
-        ],
-        "expected": [
-            "确认",
-            "確定",
-            "Confirm"
-        ],
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "ItemTransferAtDestination"
-        ]
-    },
-    "ItemTransferAtDestination": {
-        "recognition": "OCR",
-        "roi": [
-            991,
-            560,
-            117,
-            41
-        ],
-        "expected": [
-            "已连接",
-            "已連接",
-            "(?i)Connected",
-            "接続済み"
-        ],
-        "next": [
-            "ItemTransferClickEscDestination"
-        ]
-    },
-    "ItemTransferClickEscDestination": {
-        "action": "ClickKey",
-        "key": 27,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[Anchor]ItemTransferDestinationArrivedNext"
         ]
@@ -1128,12 +769,14 @@
     },
     "ItemTransferScrollDownwardBag": {
         "max_hit": 20,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": -180,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryBagScrollDownward"
+            ]
+        },
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
         },
@@ -1146,17 +789,21 @@
                 291
             ],
             "timeout": 3000
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ItemTransferScrollUpwardBag": {
         "desc": "完整扫描前向上滚动一页",
         "max_hit": 20,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": 180,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryBagScrollUpward"
+            ]
+        },
         "anchor": {
             "MouseMoveResetAnchor": "MouseMoveReset"
         },
@@ -1169,54 +816,56 @@
                 291
             ],
             "timeout": 3000
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ItemTransferTransferForwardToRepo": {
-        "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
-        "target": "ItemTransferFindForwardItemInBag",
-        "target_offset": [
-            26,
-            25,
-            -52,
-            -50
-        ],
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                739,
-                202,
-                398,
-                291
-            ],
-            "timeout": 3000
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": "ItemTransferFindForwardItemInBag",
+                "roi_offset": [
+                    26,
+                    25,
+                    -52,
+                    -50
+                ]
+            }
         },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "InventoryTransferSource": "ItemTransferTransferForwardToRepo"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "[Anchor]ItemTransferAfterBagTransfer"
+            "ItemTransferRunBagTransfer"
         ]
     },
     "ItemTransferTransferReturnToRepo": {
-        "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
-        "target": "ItemTransferFindReturnItemInBag",
-        "target_offset": [
-            26,
-            25,
-            -52,
-            -50
-        ],
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                739,
-                202,
-                398,
-                291
-            ],
-            "timeout": 3000
+        "recognition": {
+            "type": "DirectHit",
+            "param": {
+                "roi": "ItemTransferFindReturnItemInBag",
+                "roi_offset": [
+                    26,
+                    25,
+                    -52,
+                    -50
+                ]
+            }
         },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "InventoryTransferSource": "ItemTransferTransferReturnToRepo"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "[Anchor]ItemTransferAfterBagTransfer"
+            "ItemTransferRunBagTransfer"
         ]
     },
     "ItemTransferVerifyForwardStored": {
@@ -1433,207 +1082,6 @@
             "ItemTransferStoreUnverified"
         ]
     },
-    "ItemTransferSwitchRepoToOriginReturn": {
-        "max_hit": 3,
-        "recognition": "And",
-        "all_of": [
-            "ItemTransferRepoSwitchButton"
-        ],
-        "box_index": 0,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "ItemTransferClickOriginReturn",
-            "ItemTransferSwitchRepoToOriginReturn"
-        ]
-    },
-    "ItemTransferClickOriginReturn": {
-        "recognition": "OCR",
-        "roi": [
-            515,
-            158,
-            481,
-            393
-        ],
-        "expected": "ORIGIN_REGION",
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "ItemTransferClickOriginReturnClicked"
-        ]
-    },
-    "ItemTransferClickOriginReturnClicked": {
-        "recognition": "OCR",
-        "roi": [
-            596,
-            346,
-            213,
-            23
-        ],
-        "expected": "ORIGIN_REGION",
-        "next": [
-            "ItemTransferClickConfirmOriginReturn",
-            "ItemTransferAtOriginReturn"
-        ]
-    },
-    "ItemTransferClickConfirmOriginReturn": {
-        "recognition": "OCR",
-        "roi": [
-            991,
-            560,
-            117,
-            41
-        ],
-        "expected": [
-            "确认",
-            "確定",
-            "Confirm"
-        ],
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "ItemTransferAtOriginReturn"
-        ]
-    },
-    "ItemTransferAtOriginReturn": {
-        "recognition": "OCR",
-        "roi": [
-            991,
-            560,
-            117,
-            41
-        ],
-        "expected": [
-            "已连接",
-            "已連接",
-            "(?i)Connected",
-            "接続済み"
-        ],
-        "next": [
-            "ItemTransferClickEscOriginReturn"
-        ]
-    },
-    "ItemTransferClickEscOriginReturn": {
-        "action": "ClickKey",
-        "key": 27,
-        "next": [
-            "ItemTransferBagToOriginRepo"
-        ]
-    },
-    "ItemTransferBagToOriginRepo": {
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "next": [
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "ItemTransferFindItemInBagReturn",
-            "ItemTransferScrollDownwardBagReturn"
-        ]
-    },
-    "ItemTransferFindItemInBagReturn": {
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "IconRecognition",
-                "custom_recognition_param": {
-                    "grid_type": "transfer"
-                },
-                "roi": [
-                    739,
-                    202,
-                    398,
-                    291
-                ]
-            }
-        },
-        "pre_wait_freezes": {
-            "time": 400,
-            "target": [
-                739,
-                202,
-                398,
-                291
-            ],
-            "timeout": 3000
-        },
-        "next": [
-            "ItemTransferTransferToRepoReturn"
-        ]
-    },
-    "ItemTransferScrollDownwardBagReturn": {
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": -180,
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "ItemTransferFindItemInBagReturn",
-            "ItemTransferScrollUpwardBagReturn"
-        ]
-    },
-    "ItemTransferScrollUpwardBagReturn": {
-        "desc": "触底后回顶",
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": 180,
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000
-        },
-        "next": [
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "ItemTransferFindItemInBagReturn"
-        ]
-    },
-    "ItemTransferTransferToRepoReturn": {
-        "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
-        "target": "ItemTransferFindItemInBagReturn",
-        "target_offset": [
-            26,
-            25,
-            -52,
-            -50
-        ],
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                739,
-                202,
-                398,
-                291
-            ],
-            "timeout": 3000
-        },
-        "next": [
-            "ItemTransferCheckIfFullReturn",
-            "ItemTransferBagReturnCompleted"
-        ]
-    },
     "ItemTransferCheckIfFullReturn": {
         "recognition": "OCR",
         "roi": [
@@ -1725,22 +1173,10 @@
             "ItemTransferBagReturnManualCleanup"
         ]
     },
-    "ItemTransferBagReturnCompleted": {
-        "action": "StopTask",
-        "focus": {
-            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
-        }
-    },
     "ItemTransferBagReturnManualCleanup": {
         "action": "StopTask",
         "focus": {
             "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_manual_cleanup"
-        }
-    },
-    "ItemTransferBagReturnStashCompleted": {
-        "action": "StopTask",
-        "focus": {
-            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_stash_completed"
         }
     },
     "ItemTransferStoreUnverified": {
@@ -1751,5 +1187,221 @@
     },
     "ItemTransferStop": {
         "action": "StopTask"
+    },
+    "ItemTransferForwardQuantityAllowed": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{ItemTransferForwardQuantityOCR}>100"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]ItemTransferCurrentRepoTransfer"
+        ]
+    },
+    "ItemTransferForwardReserveReached": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "ItemTransferForwardGate": {
+                    "enabled": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferOriginDispatch"
+        ]
+    },
+    "ItemTransferReturnQuantityAllowed": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{ItemTransferReturnQuantityOCR}>100"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]ItemTransferCurrentRepoTransfer"
+        ]
+    },
+    "ItemTransferReturnReserveReached": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "ItemTransferReturnGate": {
+                    "enabled": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferDestinationDispatch"
+        ]
+    },
+    "ItemTransferForwardQuantityOCR": {
+        "desc": "数量区域为 transfer 格底部 18px；ADB 覆盖为 22px",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ItemTransferFindForwardItemInRepo",
+                "roi_offset": [
+                    0,
+                    46,
+                    0,
+                    -46
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ItemTransferForwardQuantityAtReserve": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{ItemTransferForwardQuantityOCR}>=0 && {ItemTransferForwardQuantityOCR}<=100"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferForwardReserveReached"
+        ]
+    },
+    "ItemTransferForwardQuantityError": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferForwardReserveReached"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.forward_quantity_error"
+        }
+    },
+    "ItemTransferReturnQuantityOCR": {
+        "desc": "数量区域为 transfer 格底部 18px；ADB 覆盖为 22px",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ItemTransferFindReturnItemInRepo",
+                "roi_offset": [
+                    0,
+                    46,
+                    0,
+                    -46
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ItemTransferReturnQuantityAtReserve": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{ItemTransferReturnQuantityOCR}>=0 && {ItemTransferReturnQuantityOCR}<=100"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferReturnReserveReached"
+        ]
+    },
+    "ItemTransferReturnQuantityError": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferReturnReserveReached"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.return_quantity_error"
+        }
+    },
+    "ItemTransferRunRepoTransfer": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryTransferAll"
+            ]
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]ItemTransferAfterRepoTransfer"
+        ]
+    },
+    "ItemTransferRunBagTransfer": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryTransferAll"
+            ]
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ],
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]ItemTransferAfterBagTransfer"
+        ]
     }
 }
