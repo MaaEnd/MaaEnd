@@ -9,7 +9,10 @@
                 "other_menu"
             ],
             "controller": [
-                "Win32-Front"
+                "Win32-Front",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots"
             ],
             "option": [
                 "CloseGamePCApplyGameSetting"
@@ -19,6 +22,9 @@
     "option": {
         "CloseGamePCApplyGameSetting": {
             "type": "switch",
+            "controller": [
+                "Win32-Front"
+            ],
             "label": "$option.CloseGamePCApplyGameSetting.label",
             "cases": [
                 {
