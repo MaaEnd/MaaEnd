@@ -263,6 +263,8 @@ PromptTriggerOutcome
     motion_controller->SetForwardState(false);
     utils::SleepFor(kStopWaitMs);
     if (!RunPromptSubtask(context_, spec_, expected, rec)) {
+        // 认空的间隔从认完算起: 认一次比间隔长, 旁边常驻的别家提示会让到点判定一拍都轮不到
+        last_trigger_at_ = std::chrono::steady_clock::now();
         LogInfo << "Async prompt not confirmed — resuming the walk." << VAR(spec_.tag) << VAR(waypoint_distance) << VAR(node_idx);
         return PromptTriggerOutcome::Missed;
     }
