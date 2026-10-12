@@ -33,6 +33,19 @@
             }
         }
     },
+    // 领奖时列表标题行也带这枚图标，图标旁的字确实是激发才算命中
+    "AutoEssenceClickTriggerButton": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEssenceRecoEssenceTriggerButton",
+                    "__AutoEssenceRecoEssenceTriggerText"
+                ],
+                "box_index": 0
+            }
+        }
+    },
     "AutoEssenceMistakeFactoryDevice": {
         "desc": "识别是否误入工业设备界面，并将其关闭（ADB）",
         "recognition": {
@@ -106,6 +119,45 @@
                         -75
                     ]
                 }
+            }
+        }
+    },
+    "__AutoEssenceEngraveCondition1HighlightColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    715,
+                    540,
+                    330,
+                    45
+                ]
+            }
+        }
+    },
+    "__AutoEssenceEngraveCondition2HighlightColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1055,
+                    540,
+                    170,
+                    45
+                ]
+            }
+        }
+    },
+    "AutoEssenceFindAttributeSelection": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1080,
+                    485,
+                    160,
+                    52
+                ]
             }
         }
     }
