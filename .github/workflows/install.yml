@@ -787,7 +787,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
           fetch-depth: 0
+
+      - name: Initialize MaaFwApp submodule
+        run: |
+          # APK 上报的外壳版本来自它自己检出里的 git describe，浅克隆没有 tag 会
+          # 退化成裸短哈希，这里要完整检出才能算出与 APK 一致的版本号。
+          git submodule update --init Android/MaaFwApp
 
       - name: Resolve Sentry release
         id: sentry_release
@@ -796,7 +803,9 @@ jobs:
           MXU_VERSION: ${{ needs.meta.outputs.mxu_version }}
         run: |
           release="MXU@${MXU_VERSION#v}+MaaEnd@$MAAEND_VERSION"
+          android_release="MaaFwApp@$(python3 .github/scripts/maafwapp_version.py Android/MaaFwApp)+MaaEnd@$MAAEND_VERSION"
           echo "release=$release" | tee -a "$GITHUB_OUTPUT"
+          echo "android_release=$android_release" | tee -a "$GITHUB_OUTPUT"
 
       - name: Create Sentry release
         uses: getsentry/action-release@v3
@@ -810,3 +819,16 @@ jobs:
           set_commits: auto
           ignore_missing: true
           ignore_empty: true
+
+      # 外壳代码在 Aliothmoon/MaaFwApp，本仓库只 pin 一个 commit，没有可自动关联的
+      # 提交范围，所以只登记 release / deploy，不设 commits
+      - name: Create Android Sentry release
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: maaend
+          SENTRY_PROJECT: rust
+        with:
+          environment: ${{ needs.meta.outputs.is_prerelease == 'true' && 'beta' || 'stable' }}
+          release: ${{ steps.sentry_release.outputs.android_release }}
+          set_commits: skip

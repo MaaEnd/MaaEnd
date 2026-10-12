@@ -199,7 +199,13 @@ jobs:
           persist-credentials: false
 
       - name: Initialize submodules
-        run: git submodule update --init --depth 1 Android/MaaFwApp assets/resource/model
+        run: |
+          # 与上一行同理：MaaFwApp 的版本号由它自己的 gradle 在检出目录里跑
+          # git describe 得到，浅克隆没有 tag 会退化成裸短哈希并原样进 Sentry
+          # release，所以这个子模块要完整检出；model 子模块体积大且不参与版本
+          # 计算，保持浅克隆。
+          git submodule update --init Android/MaaFwApp
+          git submodule update --init --depth 1 assets/resource/model
 
       # 临时：PI 的预设不能按控制器区分，桌面预设带不了只支持移动端的 AndroidOpenGame，
       # 只在打 Android 包时把它插到这三个预设的第一个

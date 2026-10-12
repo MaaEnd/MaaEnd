@@ -23,6 +23,14 @@ SUPPORTED_SENTRY_ENVIRONMENTS = frozenset(("beta", "stable"))
 MAAEND_RELEASE_PATTERN = re.compile(
     r"(?:^|\+)MaaEnd@v(\d+)\.(\d+)\.(\d+)(?:-(beta|rc)\.(\d+))?$"
 )
+# 发布流程会为同一版本同时创建桌面（MXU）与 Android（MaaFwApp）两个 release；
+# 报告的 spans 查询按 release 精确过滤，因此自动选版优先桌面端
+PREFERRED_RELEASE_CLIENT = "MXU"
+
+
+def release_client(release: str) -> str:
+    """取出 release 名称里的客户端标识（``MXU@2.7.1+MaaEnd@v2.32.0`` → ``MXU``）。"""
+    return release.partition("@")[0]
 
 
 def normalize_sentry_environment(environment: str) -> str:
@@ -211,10 +219,17 @@ def maaend_release_version_key(
 def select_latest_reported_maaend_release(
     rows: Sequence[dict[str, Any]], *, environment: str | None = None
 ) -> str | None:
-    """选择发布流程已 finalize 并记录 deploy 的最新 MaaEnd release。"""
+    """选择发布流程已 finalize 并记录 deploy 的最新 MaaEnd release。
+
+    同一版本会有桌面与 Android 两个 release，优先桌面端：报告按 release 精确
+    过滤 spans，选中 Android release 时统计里只剩 Android 用户。
+    """
     if environment is not None:
         environment = normalize_sentry_environment(environment)
     candidates: list[
+        tuple[datetime, tuple[int, int, int, int, int], str]
+    ] = []
+    desktop_candidates: list[
         tuple[datetime, tuple[int, int, int, int, int], str]
     ] = []
     for row in rows:
@@ -238,9 +253,14 @@ def select_latest_reported_maaend_release(
             )
         except ValueError:
             continue
-        candidates.append((release_time, version, release))
+        candidate = (release_time, version, release)
+        if release_client(release) == PREFERRED_RELEASE_CLIENT:
+            desktop_candidates.append(candidate)
+        else:
+            candidates.append(candidate)
 
-    return max(candidates)[2] if candidates else None
+    pool = desktop_candidates or candidates
+    return max(pool)[2] if pool else None
 
 
 def select_latest_maaend_release(
@@ -314,6 +334,10 @@ def query_sentry_releases(
         verbose=verbose,
         timeout_seconds=timeout_seconds,
     )
+    # 新版 sentry CLI 的 `api --json` 会把响应包在 {status, statusText, body} 里，
+    # 旧版直接输出响应体，两种都要认
+    if isinstance(result, dict) and isinstance(result.get("body"), list):
+        result = result["body"]
     if not isinstance(result, list) or not all(
         isinstance(row, dict) for row in result
     ):
