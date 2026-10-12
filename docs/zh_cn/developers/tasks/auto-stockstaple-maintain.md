@@ -199,7 +199,8 @@ pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple
 
 四者同时命中后，点击商品卡片（`target_offset: [-45, 85, -30, 0]`），`next` 进入 `AutoStockStapleQuantityControl`。
 
-> [!IMPORTANT] > `AutoStockBuyItemValleyIVTask` 只表示“识别到候选商品并进入购买判定”，**不等于** 已完成购买。是否真正下单，要看数量控制分支是否走到 `AutoStockStapleQuantityControlConfirmBuy`。
+> [!IMPORTANT]
+> `AutoStockBuyItemValleyIVTask` 只表示“识别到候选商品并进入购买判定”，**不等于** 已完成购买。是否真正下单，要看数量控制分支是否走到 `AutoStockStapleQuantityControlConfirmBuy`。
 
 ### 5. 售罄与滑动
 

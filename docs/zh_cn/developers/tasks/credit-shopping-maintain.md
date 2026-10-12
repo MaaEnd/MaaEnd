@@ -6,7 +6,7 @@
 
 ## 文件路径
 
-```
+```text
 CreditShopping/
 ├── Flow/                  # 主购物流程
 │   ├── Entry.json         # 入口检测 + 白名单初始化
@@ -119,7 +119,7 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 
 ### 自动补信用
 
-某档开启了「自动补信用」，且[补信用识别链](#商品识别链)命中时，跳转到 `NeedCredit.json`（`Credit/AutoGetCredits.json`）：
+某档开启了「自动补信用」，且[补信用识别链](#补信用链)命中时，跳转到 `NeedCredit.json`（`Credit/AutoGetCredits.json`）：
 
 1. 回基建会客室，按配置赠送线索或开启线索交流。
 2. 赠送次数由 `CreditShoppingClueSend` 控制（`0` = 不送）。

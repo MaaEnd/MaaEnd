@@ -18,7 +18,7 @@ cpp-algo 当前最严重的问题是 **命名风格不统一**，同一个项目
 | 类 / 结构体 / 枚举 | PascalCase | `MapLocator`, `MatchFeature` |
 | 成员函数 | camelCase | `initialize()`, `resetTrackingState()` |
 | 自由函数 | PascalCase（对外）/ snake_case（内部工具） | `CreateInputBackend()` |
-| 成员变量 | snake*case + 尾下划线 `*` | `locator_`, `current_zone_id_` |
+| 成员变量 | snake_case + 尾下划线 `_` | `locator_`, `current_zone_id_` |
 | 局部变量 | snake_case | `search_rect`, `fine_result` |
 | 常量（constexpr） | `k` 前缀 + PascalCase | `kDefaultMinimapRoi`, `kMaxLostFrames` |
 | 宏 | ALL_CAPS | `MAA_TRUE`, `LOG_ARGS` |

@@ -43,9 +43,9 @@
 
 | 字段 | 类型 | 默认值 |
 | -------------------- | ---------------------- | ----------------------------- |
-| `template` | string \| list<string> | **必填** |
+| `template` | string \| list\<string> | **必填** |
 | `roi` / `roi_offset` | 同 DirectHit | |
-| `threshold` | double \| list<double> | `0.7` |
+| `threshold` | double \| list\<double> | `0.7` |
 | `order_by` | string | `"Horizontal"` |
 | `index` | int | `0` |
 | `method` | int | `5`（TM_CCOEFF_NORMED，推荐） |
@@ -55,7 +55,7 @@
 
 | 字段 | 类型 | 默认值 |
 | -------------------- | ---------------------- | ---------------- |
-| `template` | string \| list<string> | **必填** |
+| `template` | string \| list\<string> | **必填** |
 | `roi` / `roi_offset` | 同 DirectHit | |
 | `count` | uint | `4` |
 | `detector` | string | `"SIFT"`（推荐） |
@@ -70,8 +70,8 @@
 | -------------------- | ---------------------------- | -------------- |
 | `roi` / `roi_offset` | 同 DirectHit | |
 | `method` | int | `4`（RGB） |
-| `lower` | list<int> \| list<list<int>> | **必填** |
-| `upper` | list<int> \| list<list<int>> | **必填** |
+| `lower` | list\<int> \| list\<list\<int>> | **必填** |
+| `upper` | list\<int> \| list\<list\<int>> | **必填** |
 | `count` | uint | `1` |
 | `connected` | bool | `false` |
 | `order_by` | string | `"Horizontal"` |
@@ -82,7 +82,7 @@
 | 字段 | 类型 | 默认值 |
 | -------------------- | ----------------------- | ------------------------- |
 | `roi` / `roi_offset` | 同 DirectHit | |
-| `expected` | string \| list<string> | 匹配全部 |
+| `expected` | string \| list\<string> | 匹配全部 |
 | `threshold` | double | `0.3` |
 | `replace` | array<string,2> \| list | 无 |
 | `only_rec` | bool | `false` |
@@ -97,8 +97,8 @@
 | -------------------- | ---------------- | -------------- |
 | `roi` / `roi_offset` | 同 DirectHit | |
 | `model` | string | **必填** |
-| `labels` | list<string> | `["Unknown"]` |
-| `expected` | int \| list<int> | 匹配全部 |
+| `labels` | list\<string> | `["Unknown"]` |
+| `expected` | int \| list\<int> | 匹配全部 |
 | `order_by` | string | `"Horizontal"` |
 | `index` | int | `0` |
 
@@ -108,9 +108,9 @@
 | -------------------- | ---------------------- | -------------- |
 | `roi` / `roi_offset` | 同 DirectHit | |
 | `model` | string | **必填** |
-| `labels` | list<string> | 自动读取 |
-| `expected` | int \| list<int> | 匹配全部 |
-| `threshold` | double \| list<double> | `0.3` |
+| `labels` | list\<string> | 自动读取 |
+| `expected` | int \| list\<int> | 匹配全部 |
+| `threshold` | double \| list\<double> | `0.3` |
 | `order_by` | string | `"Horizontal"` |
 | `index` | int | `0` |
 
@@ -152,8 +152,8 @@
 | ------------------------ | ---------------------------- | -------------------- |
 | `begin` / `begin_offset` | 同 Click target | `true` / `[0,0,0,0]` |
 | `end` / `end_offset` | 同 Click target（支持 list） | `true` / `[0,0,0,0]` |
-| `duration` | uint \| list<uint> | `200` |
-| `end_hold` | uint \| list<uint> | `0` |
+| `duration` | uint \| list\<uint> | `200` |
+| `end_hold` | uint \| list\<uint> | `0` |
 | `contact` | uint | `0` |
 
 ### Scroll

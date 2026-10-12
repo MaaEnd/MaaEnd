@@ -1,1 +1,2 @@
+<!-- markdownlint-disable-next-line MD041 -->
 MaaEnd는 《명일방주: 엔드필드》 자동화 보조 도구입니다. 활발히 개발 중입니다!
