@@ -163,6 +163,7 @@ The region-independent category interfaces enter the Dijiang Depot from any scre
 | `SceneEnterWorldValleyIVTheHub` | Enter the Valley IV - The Hub overworld from any screen. |
 | `SceneEnterWorldValleyIVTheHub1` | Enter the Valley IV - The Hub (East of Old Water Supply Facility) overworld from any screen. |
 | `SceneEnterWorldValleyIVTheHub2` | Enter the Valley IV - The Hub (Rock Hill Passage) overworld from any screen. |
+| `SceneEnterWorldValleyIVTheHub3` | Enter the Valley IV - The Hub (Southern Meadow) overworld from any screen. |
 | `SceneEnterWorldValleyIVOriginiumSciencePark0` | Enter the Valley IV - Originium Science Park (Origin Lodespring Entrance) overworld from any screen. |
 | `SceneEnterWorldValleyIVOriginiumSciencePark1` | Enter the Valley IV - Originium Science Park (Originium Experimental Park) overworld from any screen. |
 | `SceneEnterWorldValleyIVOriginiumSciencePark2` | Enter the Valley IV - Originium Science Park (Gentle Mountain Slope) overworld from any screen. |

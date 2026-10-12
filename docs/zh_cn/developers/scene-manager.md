@@ -160,6 +160,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 | `SceneEnterWorldValleyIVTheHub` | 从任意界面进入四号谷地-枢纽区大世界 |
 | `SceneEnterWorldValleyIVTheHub1` | 从任意界面进入四号谷地-枢纽区-旧供水设施东侧大世界 |
 | `SceneEnterWorldValleyIVTheHub2` | 从任意界面进入四号谷地-枢纽区-岩丘通道大世界 |
+| `SceneEnterWorldValleyIVTheHub3` | 从任意界面进入四号谷地-枢纽区-南部草甸大世界 |
 | `SceneEnterWorldValleyIVOriginiumSciencePark0` | 从任意界面进入四号谷地-源石研究园-矿脉源区入口大世界 |
 | `SceneEnterWorldValleyIVOriginiumSciencePark1` | 从任意界面进入四号谷地-源石研究园-源石实验园区大世界 |
 | `SceneEnterWorldValleyIVOriginiumSciencePark2` | 从任意界面进入四号谷地-源石研究园-山道缓坡大世界 |
