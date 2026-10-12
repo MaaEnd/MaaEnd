@@ -98,6 +98,12 @@
             ]
         },
         {
+            "image": "自动采集_路线14_定位点1.png",
+            "hits": [
+                "AutoCollectRoute14AssertLocation1"
+            ]
+        },
+        {
             "image": "自动采集_路线14_定位点2.png",
             "hits": [
                 "AutoCollectRoute14AssertLocation2"
