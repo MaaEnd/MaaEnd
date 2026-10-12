@@ -256,15 +256,21 @@ After pushing, open your browser and visit `https://github.com/your-username/Maa
 
 ### Commit Message Format (Common to Both Routes)
 
-This project follows [Conventional Commits](https://www.conventionalcommits.org/zh-hans/v1.0.0/), see [getting-started.md § 0. Commit Guidelines](./getting-started.md) for details. Below is a quick reference for common prefixes:
+This project follows [Conventional Commits](https://www.conventionalcommits.org/zh-hans/v1.0.0/). The format is `type(scope): description`, and the scope is optional. The available types are defined by [`.github/cliff.toml`](../../../.github/cliff.toml); for the full details, including which changelog section each type goes into, see [getting-started.md § 0. Commit Conventions](./getting-started.md#commit-conventions-conventional-commits). Below is a quick reference for the prefixes:
 
 | Prefix | When to use |
-| -------- | --------------------------------------------------------------- |
+| --- | --- |
 | `feat:` | New features (Pipeline nodes, recognition templates, etc.) |
 | `fix:` | Bug fixes |
+| `refactor:` | Restructuring code without changing behavior |
+| `perf:` | Improving existing behavior (speed, accuracy, fault tolerance, etc.) |
 | `docs:` | Documentation changes only |
 | `style:` | Formatting/whitespace adjustments (doesn't affect code meaning) |
-| `chore:` | Build, dependencies, and other miscellaneous |
+| `test:` | Adding or changing tests |
+| `ci:` | CI workflows and configuration |
+| `chore:` | Build, auxiliary tools, and other miscellaneous; use `chore(deps):` for dependency updates |
+| `ai:` | AI collaboration such as skills and `AGENTS.md` |
+| `revert:` | Reverting a previous commit |
 
 Examples: `feat(OutpostTrading): Add sell button recognition template`, `fix: Fix startup crash`.
 
