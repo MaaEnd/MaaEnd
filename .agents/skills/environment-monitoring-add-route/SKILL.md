@@ -45,20 +45,20 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 
 ### 完整适配必填字段
 
-| 字段                   | 说明                                                                                                                    |
+| 字段 | 说明 |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| 传送入口               | 默认填写真实 `EnterMap`（任意可作为 SubTask 正常返回的 Pipeline 节点）；或启用 `QuickTeleport: true` 从任务地图快捷传送 |
-| 路线方式               | 传送点可直接拍照时不填地图与寻路字段；否则填写 `NavPath`                                                                |
-| `NavZoneId`            | 普通传送寻路路线必填，MapLocate 的 `zone_id`，用于解释 `NavAssert` 坐标；`QuickTeleport` 可省略                         |
-| `NavAssert`            | 直拍路线不填；普通传送的寻路路线必填；`QuickTeleport` 不执行起点断言，可与 `NavZoneId` 一并省略                         |
-| `NavPath`              | MapNavigateAction 的完整 `path` 数组，不含 `HEADING`；终点可写 `NAVMESH` 动作并按需携带 `target_tier` / `target_deck_y` |
+| 传送入口 | 默认填写真实 `EnterMap`（任意可作为 SubTask 正常返回的 Pipeline 节点）；或启用 `QuickTeleport: true` 从任务地图快捷传送 |
+| 路线方式 | 传送点可直接拍照时不填地图与寻路字段；否则填写 `NavPath` |
+| `NavZoneId` | 普通传送寻路路线必填，MapLocate 的 `zone_id`，用于解释 `NavAssert` 坐标；`QuickTeleport` 可省略 |
+| `NavAssert` | 直拍路线不填；普通传送的寻路路线必填；`QuickTeleport` 不执行起点断言，可与 `NavZoneId` 一并省略 |
+| `NavPath` | MapNavigateAction 的完整 `path` 数组，不含 `HEADING`；终点可写 `NAVMESH` 动作并按需携带 `target_tier` / `target_deck_y` |
 
 ### 路线模式
 
-| 模式       | 数据格式                 | 生成动作            | 适用场景                                                                             |
+| 模式 | 数据格式 | 生成动作 | 适用场景 |
 | ---------- | ------------------------ | ------------------- | ------------------------------------------------------------------------------------ |
-| `NavPath`  | MapNavigator `path` 数组 | `MapNavigateAction` | 普通可通行路线；普通传送配置 `NavZoneId` / `NavAssert`，快捷传送可从固定落点直接开始 |
-| 传送后直拍 | 不配置地图字段           | 可选转向后拍照      | 传送落点已经满足拍照条件；可配置 `Heading`，但不配置地图断言或寻路字段               |
+| `NavPath` | MapNavigator `path` 数组 | `MapNavigateAction` | 普通可通行路线；普通传送配置 `NavZoneId` / `NavAssert`，快捷传送可从固定落点直接开始 |
+| 传送后直拍 | 不配置地图字段 | 可选转向后拍照 | 传送落点已经满足拍照条件；可配置 `Heading`，但不配置地图断言或寻路字段 |
 
 寻路只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。传送后直拍必须经过游戏实测确认；不能因为缺少路线数据就把未适配条目写成直拍。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
 
@@ -66,13 +66,13 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 
 ### 可选字段
 
-| 字段                           | 使用条件与写法                                                                                                                               |
+| 字段 | 使用条件与写法 |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `target_deck_y`                | 仅写在 `NavPath` 的 `NAVMESH` 动作中。目标点底下压着多张可走面（走廊 / 天桥 / 屋顶）时，填 MapNavigator 重叠面列表读出的那一层高度；不要手估 |
-| `Replace`                      | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写                                                                 |
-| `Heading`                      | 可选。进入拍照模式前的角色朝向，范围 `[0, 360)`；直拍路线会在传送后生成只含 `HEADING` 动作的 `MapNavigateAction`                            |
-| `QuickTeleport`                | 可选布尔值，默认 `false`。启用后依次点击任务地图的“前往传送”和“传送”，不调用 `EnterMap`；此时 `EnterMap` 可省略                              |
-| `FightAfterMove`               | 仅完整寻路路线可选的独立 MapNavigator `path` 数组。首次寻路后执行 `AutoFight`，再沿此路径归位；直拍路线不配置，且不要复用或改写首次前往的 `NavPath` |
+| `target_deck_y` | 仅写在 `NavPath` 的 `NAVMESH` 动作中。目标点底下压着多张可走面（走廊 / 天桥 / 屋顶）时，填 MapNavigator 重叠面列表读出的那一层高度；不要手估 |
+| `Replace` | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写 |
+| `Heading` | 可选。进入拍照模式前的角色朝向，范围 `[0, 360)`；直拍路线会在传送后生成只含 `HEADING` 动作的 `MapNavigateAction` |
+| `QuickTeleport` | 可选布尔值，默认 `false`。启用后依次点击任务地图的“前往传送”和“传送”，不调用 `EnterMap`；此时 `EnterMap` 可省略 |
+| `FightAfterMove` | 仅完整寻路路线可选的独立 MapNavigator `path` 数组。首次寻路后执行 `AutoFight`，再沿此路径归位；直拍路线不配置，且不要复用或改写首次前往的 `NavPath` |
 
 所有坐标均使用 720p（1280×720）基准，并与录制工具所用地图体系保持一致。
 

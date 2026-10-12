@@ -201,22 +201,22 @@ ColorMatcher.*BuyFirstOCRTextColor
 
 常见货架商品名对照（用于把槽位 OCR / A3 播报映射到中文名）：
 
-| 内部名 / 槽位 OCR 线索       | 商品名       |
+| 内部名 / 槽位 OCR 线索 | 商品名 |
 | ---------------------------- | ------------ |
-| `ArmsInspector`              | 武器检查单元 |
-| `ArmsINSPKit`                | 武器检查装置 |
-| `ArsenalTicket`              | 武库配额     |
-| `Oroberyl`                   | 嵌晶玉       |
-| `TCreds`                     | 折金票       |
-| `Protoprism`                 | 协议棱柱     |
-| `Protohedron`                | 协议棱柱组   |
-| `Protodisk`                  | 协议圆盘     |
-| `Protoset`                   | 协议圆盘组   |
-| `ElementaryCombatRecord`     | 初级作战记录 |
-| `IntermediateCombatRecord`   | 中级作战记录 |
+| `ArmsInspector` | 武器检查单元 |
+| `ArmsINSPKit` | 武器检查装置 |
+| `ArsenalTicket` | 武库配额 |
+| `Oroberyl` | 嵌晶玉 |
+| `TCreds` | 折金票 |
+| `Protoprism` | 协议棱柱 |
+| `Protohedron` | 协议棱柱组 |
+| `Protodisk` | 协议圆盘 |
+| `Protoset` | 协议圆盘组 |
+| `ElementaryCombatRecord` | 初级作战记录 |
+| `IntermediateCombatRecord` | 中级作战记录 |
 | `ElementaryCognitiveCarrier` | 初级认知载体 |
-| `CastDie`                    | 强固模具     |
-| `HeavyCastDie`               | 重型强固模具 |
+| `CastDie` | 强固模具 |
+| `HeavyCastDie` | 重型强固模具 |
 
 ### 5. 判断刷新状态
 
