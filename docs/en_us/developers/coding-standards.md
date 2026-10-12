@@ -76,8 +76,8 @@ For example:
 2. Rerunning a sub-task after it fails.
    _Retrying only slightly increases the success rate and does not fundamentally solve the problem. It only makes the code harder to maintain, eventually leading to trying A, then B, then C if it fails, retrying A 3 times and B 2 times, making the problem difficult to locate._
 
-3. Adding max*hit after a node enters an infinite loop.
-   \_An infinite loop is usually caused by recognition issues or logical flaws. Blindly adding `max_hit` will only interrupt the logic, similar to blindly throwing exceptions in code to break out of a task, leading to unpredictable consequences.*
+3. Adding `max_hit` after a node enters an infinite loop.
+   _An infinite loop is usually caused by recognition issues or logical flaws. Blindly adding `max_hit` will only interrupt the logic, similar to blindly throwing exceptions in code to break out of a task, leading to unpredictable consequences._
 
 ### Handling Pop-ups and Loading
 
@@ -245,8 +245,6 @@ The resource folder is in a linked state. Modifying `assets` is equivalent to mo
 
 - Use plain names without underscores for folders, e.g. `Private`, `Button`;
 - This restriction applies to **folder names only**. Task names (keys in the pipeline JSON) may still use a `__` prefix, e.g. `__AutoAltClickAltKeyDownAction`; the two do not affect each other.
-
-<a id="ocr-与-i18n"></a>
 
 ## OCR and i18n
 
