@@ -337,7 +337,7 @@
                     90
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -358,7 +358,7 @@
         "recognition": "And",
         "all_of": [
             "OutpostTradingOperatorAlreadyAssignedPrompt",
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -788,7 +788,7 @@
                     90
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -809,7 +809,7 @@
         "recognition": "And",
         "all_of": [
             "OutpostTradingOperatorAlreadyAssignedPrompt",
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_delay": 0,

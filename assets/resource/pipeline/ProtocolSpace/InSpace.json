@@ -166,7 +166,7 @@
         "enabled": false,
         "recognition": "And",
         "all_of": [
-            "CancelButton",
+            "GrayCancelButton",
             "ProtocolSpacePopupSanityLowExit"
         ],
         "box_index": 0,
@@ -1030,7 +1030,7 @@
                     "// @i18n-skip"
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_wait_freezes": 200,
@@ -1061,7 +1061,7 @@
                     "// @i18n-skip"
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_wait_freezes": 200,
