@@ -88,8 +88,9 @@ constexpr int32_t kStrictSettleProbeHoldMs = 150;
 constexpr int32_t kStrictSettleMinHoldMs = 80; // shorter presses risk being dropped whole by the game's input sampling
 
 // Measured per input chain: touch on PlayCover, keyboard on Win32. slide_ms covers the longest observed coast after
-// release, so a pulse only starts when that slide and the settle reads still fit in the budget; max_hold_ms is the
-// hold whose fitted travel is about 2.3.
+// release, so a pulse only starts when that slide and the settle reads still fit in the budget. Touch travel is
+// roughly linear and capped where the fit reaches 2.3; keyboard travel is a staircase (0.7 to 400 ms, 1.33 to
+// 1000 ms), so its cap stays on the second step where a fit built only from short presses cannot overshoot far.
 struct StrictSettleInputProfile
 {
     int32_t slide_ms = 0;
@@ -97,7 +98,7 @@ struct StrictSettleInputProfile
 };
 
 inline constexpr StrictSettleInputProfile kStrictSettleTouchProfile { .slide_ms = 1000, .max_hold_ms = 1500 };
-inline constexpr StrictSettleInputProfile kStrictSettleKeyboardProfile { .slide_ms = 1300, .max_hold_ms = 1800 };
+inline constexpr StrictSettleInputProfile kStrictSettleKeyboardProfile { .slide_ms = 1300, .max_hold_ms = 1000 };
 
 constexpr size_t kStrictSettlePulseHistory = 16;
 constexpr int32_t kStrictSettlePulseSpreadMs = 30;               // pairs closer than this carry no slope information
