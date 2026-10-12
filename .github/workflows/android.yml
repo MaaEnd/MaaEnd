@@ -46,6 +46,10 @@ on:
       maafw_version:
         type: string
         default: ""
+    outputs:
+      mafw_app_version:
+        description: "APK 里的 BuildConfig.MAFW_APP_VERSION，即 Sentry release 里的外壳版本；取不到时为空"
+        value: ${{ jobs.apk.outputs.mafw_app_version }}
 
 permissions:
   contents: read
@@ -187,6 +191,9 @@ jobs:
       fail-fast: false
       matrix:
         variant: ${{ fromJSON(needs.meta.outputs.variants) }}
+    # 各 variant 从同一个 MaaFwApp 检出算出的值相同，matrix 输出取哪个都一样
+    outputs:
+      mafw_app_version: ${{ steps.mafw_app_version.outputs.version }}
     env:
       ASSEMBLE: ${{ needs.meta.outputs.assemble }}
       ABIS: ${{ matrix.variant == 'universal' && 'arm64-v8a,x86_64' || matrix.variant }}
@@ -199,7 +206,13 @@ jobs:
           persist-credentials: false
 
       - name: Initialize submodules
-        run: git submodule update --init --depth 1 Android/MaaFwApp assets/resource/model
+        run: |
+          # 与上一行同理：MaaFwApp 的版本号由它自己的 gradle 在检出目录里跑
+          # git describe 得到，浅克隆没有 tag 会退化成裸短哈希并原样进 Sentry
+          # release，所以这个子模块要带完整历史和 tag；describe 只用提交图，
+          # blobless 克隆即可。model 子模块体积大且不参与版本计算，保持浅克隆。
+          git submodule update --init --filter=blob:none Android/MaaFwApp
+          git submodule update --init --depth 1 assets/resource/model
 
       # 临时：PI 的预设不能按控制器区分，桌面预设带不了只支持移动端的 AndroidOpenGame，
       # 只在打 Android 包时把它插到这三个预设的第一个
@@ -292,6 +305,20 @@ jobs:
           else
             ./gradlew --no-daemon assembleDebug
           fi
+
+      # APK 上报的 Sentry release 是 MaaFwApp@<MAFW_APP_VERSION>+<PI name>@<PI version>，
+      # 直接取 gradle 生成的值交给 install.yml 登记 release，不在 CI 里另算一遍
+      - name: Read MaaFwApp version
+        id: mafw_app_version
+        run: |
+          build_config="Android/MaaFwApp/app/build/generated/source/buildConfig/$ASSEMBLE"
+          version=$(grep -rhoP 'MAFW_APP_VERSION = "\K[^"]*' "$build_config" || true)
+          if [[ -z "$version" ]]; then
+            echo "::warning::$build_config 里找不到 MAFW_APP_VERSION，不会登记 Android Sentry release"
+          elif [[ "$version" =~ ^[0-9a-f]{7,}$ ]]; then
+            echo "::warning::MaaFwApp 检出里 git describe 找不到 tag，外壳版本退化成提交哈希 $version"
+          fi
+          echo "version=$version" | tee -a "$GITHUB_OUTPUT"
 
       # 与桌面包同一命名 MaaEnd-<os>-<arch>-<tag>，Release 与 Mirror酱 上传都按这个名字认包
       # universal 包不能带 ABI 标记：应用内更新按资产名选包，带标记会绕过 universal 回退

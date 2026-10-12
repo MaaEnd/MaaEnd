@@ -23,6 +23,7 @@
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.ReconcileDecision",
                 "AutoStockpile.SelectItem",
+                "AutoSwipeClickAction",
                 "BatchAddFriendsAction",
                 "BatchAddFriendsFriendListFullAction",
                 "BatchAddFriendsStrangersFinishAction",

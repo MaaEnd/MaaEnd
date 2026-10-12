@@ -43,7 +43,7 @@ namespace mapnavigator
 // ZIPLINE  - 滑索上索点：精确抵达后停车，把镜头转向下索点再交互上索，然后等滑行自己结束；
 //            链尾落地会先把朝向摆到下一段走路的规划点再下索。只由滑索规划生成，不手写：能不能滑
 //            取决于两端的落差与跨度，那是规划器算出来的
-// TRIGGER  - 只能做路线终点：整条路线行进中定时跑 trigger_node，不论走到哪，命中即算导航成功；到点未命中则原地等它
+// TRIGGER  - 只能做路线终点：整条路线行进中定时跑 trigger_node，不论走到哪，命中即算导航成功；走到 target 未命中也算成功
 #define NAVI_ACTION_TYPES(X) \
     X(RUN)                   \
     X(SPRINT)                \
@@ -76,7 +76,6 @@ struct ActionTraits
     bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 除 INTERACT 外只对线路明写 strict_arrival 的点
     bool walk_approach = false;      // 接近段允许切走路
     bool walk_at_startup = false;    // 起步位移还没确认也允许走路
-    bool settle_walking = false;     // 末端纠正前先切走路
     bool route_boundary = false;     // 全局规划分段的固有边界
     double commit_distance = 0.0;    // 判定圈下限 px, 0 = 不放宽
 };
@@ -112,7 +111,6 @@ constexpr ActionTraits TraitsOf(ActionType action)
             .settles_at_arrival = true,
             .walk_approach = true,
             .walk_at_startup = true,
-            .settle_walking = true,
             .route_boundary = true,
         };
     // 不设 strict_arrival：锚点只是「站这儿开始找」，收尾由视觉伺服完成

@@ -228,7 +228,17 @@
                     "今日活跃度已达上限",
                     "今日活躍度已達上限",
                     "(?i)Daily\\s*Activity\\s*Points\\s*Maxed",
-                    "上限到達"
+                    "上限到達",
+                    // 完整原文：
+                    // 通行证等级提升，可前往查看奖励
+                    // 通行證等級提升，可前往查看獎勵
+                    // Pass level up; go to the Protocol Pass for rewards
+                    // 通行証レべルがアップしました。報酬をご確認ください。
+                    // @i18n-skip
+                    "通行证等级提升",
+                    "通行證等級提升",
+                    "(?i)Pass\\s*level\\s*up",
+                    "通行証レべル"
                 ]
             }
         },

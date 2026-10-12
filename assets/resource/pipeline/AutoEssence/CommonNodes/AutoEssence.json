@@ -206,6 +206,29 @@
     "AutoEssenceDispatcher": {
         "desc": "基质刷取分发：首次强制传送；之后认开挑战/激发/领取等，未命中则纯寻路",
         "pre_delay": 0,
+        // 寻路失败后只在传送与寻路之间往返，不经过这里；在这里清零，传送重走的上限就只数连续失败
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "GotoTriggerPointMaybeTeleport_VFOriginLodespring",
+                        "GotoTriggerPointMaybeTeleport_VFOriginiumSciencePark",
+                        "GotoTriggerPointMaybeTeleport_VFPowerPlateau",
+                        "GotoTriggerPointMaybeTeleport_VFTheHub",
+                        "GotoTriggerPointMaybeTeleport_WLMarkerStone",
+                        "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone",
+                        "GotoTriggerPointMaybeTeleport_WLQingboStockade",
+                        "GotoTriggerPointMaybeTeleport_WLSnowyForest",
+                        "GotoTriggerPointMaybeTeleport_WLSwordVaultDale",
+                        "GotoTriggerPointMaybeTeleport_WLTestArea",
+                        "GotoTriggerPointMaybeTeleport_WLWulingCity",
+                        "GotoTriggerPointMaybeTeleport_WLYinglungPass"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "next": [
             // 整次任务首次：只强制传送+寻路，不识别其它界面
@@ -876,7 +899,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CancelButton",
+                    "GrayCancelButton",
                     "__AutoEssenceRecoEngravePermitInsufficient"
                 ],
                 "box_index": 0
@@ -918,7 +941,10 @@
                 "expected": [
                     // @i18n-skip
                     "当前未进行基质预刻写",
-                    "目前未預刻寫基質"
+                    "目前未預刻寫基質",
+                    "(?i)No\\s*essence\\s*pre\\s*-?\\s*engraving",
+                    "刻印指定を行っていません",
+                    "사전\\s*각인을\\s*진행하지\\s*않았습니다"
                 ]
             }
         ],
@@ -936,7 +962,7 @@
         "enabled": true,
         "recognition": "And",
         "all_of": [
-            "CancelButton",
+            "GrayCancelButton",
             {
                 "recognition": "OCR",
                 "roi": [
@@ -948,7 +974,10 @@
                 // @i18n-skip
                 "expected": [
                     "当前理智不足",
-                    "目前理智不足"
+                    "目前理智不足",
+                    "(?i)Insufficient\\s*Sanity",
+                    "理性が不足",
+                    "이성이\\s*부족"
                 ]
             }
         ],
@@ -961,7 +990,7 @@
         "enabled": false,
         "recognition": "And",
         "all_of": [
-            "CancelButton",
+            "GrayCancelButton",
             {
                 "recognition": "OCR",
                 "roi": [
@@ -973,7 +1002,10 @@
                 // @i18n-skip
                 "expected": [
                     "当前理智不足",
-                    "目前理智不足"
+                    "目前理智不足",
+                    "(?i)Insufficient\\s*Sanity",
+                    "理性が不足",
+                    "이성이\\s*부족"
                 ]
             }
         ],
@@ -1021,7 +1053,10 @@
                 // @i18n-skip
                 "expected": [
                     "当前理智不足",
-                    "目前理智不足"
+                    "目前理智不足",
+                    "(?i)Insufficient\\s*Sanity",
+                    "理性が不足",
+                    "이성이\\s*부족"
                 ]
             }
         ],
@@ -1096,7 +1131,8 @@
                     "重度|能量|淤积点", // 重度能量淤积点
                     "重度|能量|淤積點", // 重度能量淤積點
                     "Severe|Energy|Alluvium", // Severe Energy Alluvium
-                    "重度|超域|活性点" // 重度超域活性点
+                    "重度|超域|活性点", // 重度超域活性点
+                    "고위|에너지|응집점"
                 ]
             }
         },

@@ -74,24 +74,39 @@ constexpr int32_t kWalkResetReleaseMs = 120;
 constexpr double kSamePointActionChainDistance = 0.2;
 
 // --- Strict-Arrival Settle ---
-// The arrival band is a correction trigger, not an acceptance radius: entering it only means the residual is
-// worth walking off. Forward stays held the whole way through -- a view drag with the key released turns the
-// camera and leaves the character facing where it was. Every exit below accepts the point as it did before.
+// Stop, align the observed camera heading, pulse forward, then measure only after settling.
 constexpr double kStrictSettleAcceptBandWu = 0.5;
-constexpr int32_t kStrictSettleMaxCorrections = 4;
-constexpr int32_t kStrictSettleBudgetMs = 6000;
-// Retry budget for one usable fix: frames the locator held or blacked out are skipped rather than counted.
+constexpr int32_t kStrictSettleMaxPulses = 3;
+// Settled = this many consecutive reads all within this distance of the first one. Measured against the first read
+// rather than the previous one, so a slow slide cannot pass as standing still. Raw reads of a character standing still
+// flip between sub-pixel values about 0.027 apart; the distance is twice that.
+constexpr double kStrictSettleStillWu = 0.05;
+constexpr int32_t kStrictSettleStillReads = 3;
+// Pulse length comes only from hold-to-travel pairs measured in this process. Until the first pair exists, a short
+// probe is sent: falling short costs one more pulse, overshooting can cost the whole budget.
+constexpr int32_t kStrictSettleProbeHoldMs = 150;
+constexpr int32_t kStrictSettleMinHoldMs = 80; // shorter presses risk being dropped whole by the game's input sampling
+
+// Measured per input chain: touch on PlayCover, keyboard on Win32. slide_ms covers the longest observed coast after
+// release, so a pulse only starts when that slide and the settle reads still fit in the budget; max_hold_ms is the
+// hold whose fitted travel is about 2.3.
+struct StrictSettleInputProfile
+{
+    int32_t slide_ms = 0;
+    int32_t max_hold_ms = 0;
+};
+
+inline constexpr StrictSettleInputProfile kStrictSettleTouchProfile { .slide_ms = 1000, .max_hold_ms = 1500 };
+inline constexpr StrictSettleInputProfile kStrictSettleKeyboardProfile { .slide_ms = 1300, .max_hold_ms = 1800 };
+
+constexpr size_t kStrictSettlePulseHistory = 16;
+constexpr int32_t kStrictSettlePulseSpreadMs = 30;               // pairs closer than this carry no slope information
+constexpr double kStrictSettlePulseDirectionToleranceDeg = 30.0; // a pulse deflected further was pushed by geometry
+constexpr int32_t kStrictSettleBudgetMs = 6000;                  // existing wall-clock bound, including turns and observations
 constexpr int32_t kStrictSettleFixIntervalMs = 120;
 constexpr int32_t kStrictSettleFixMaxFrames = 12;
-// A step shorter than the locator's stationary latch cannot be told apart from not having moved, so steps are
-// floored at it and two sub-latch steps in a row mean the step is not landing at all rather than landing short.
-constexpr double kStrictSettleMinStepWu = 0.6;
-constexpr double kStrictSettleStalledStepWu = 0.4;
-constexpr int32_t kStrictSettleStalledSteps = 2;
-// The first step runs open-loop at this length; its measured travel sizes the ones after it.
-constexpr int32_t kStrictSettleStepMs = 200;
-constexpr int32_t kStrictSettleMinStepMs = 120;
-constexpr int32_t kStrictSettleMaxStepMs = 450;
+constexpr double kStrictSettleHeadingToleranceDeg = 5.0; // observed camera alignment before pressing forward
+constexpr int32_t kStrictSettleMaxHeadingTurns = 3;      // bounds correction of dropped or inaccurate view commands
 
 // --- Navigation Mainline Constants ---
 constexpr int32_t kLocatorWaitMaxRetries = 100;
@@ -389,6 +404,8 @@ constexpr int32_t kReachableAnchorPlanAttemptsMax = 8;
 // 封禁跳与规划候选的配对半径。链首封禁记录的是上索走位点而不是架子本身(相差供电桩让位
 // 那一点点), 太紧封不住; 太松会顺带罚掉旁边平行的另一根索, 代价只是少一条捷径。
 constexpr double kZiplineHopBanMatchWu = 10.0;
+// 同一跳瞄准失败这么多次就不再规划它; 留一次重试给读数没跟上的情况
+constexpr int32_t kZiplineAimFailBanCount = 2;
 // 一趟导航里弃索这么多次说明这一带的标定或定位整体不可靠, 重展开不再让滑索参与,
 // 顺带兜住"封一跳、换一链、再失败"的重试链条。
 constexpr int32_t kZiplineAbandonWalkFallbackCount = 3;
@@ -555,7 +572,5 @@ static_assert(kFindStepSleepMs > kAdbTouchTurnProfile.action_quiet_period_ms, "f
 
 // 行进中跑 trigger_node 的间隔
 constexpr int32_t kTriggerProbeIntervalMs = 300;
-// 到 TRIGGER 点仍未命中时原地等待的上限, 超时判失败
-constexpr int32_t kTriggerWaitTimeoutMs = 15000;
 
 } // namespace mapnavigator

@@ -3,6 +3,7 @@ package closegame
 import (
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -159,6 +160,11 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	if !params.ApplyGameSetting {
 		log.Info().Msg("CloseGameAction: skip game settings")
+		return true
+	}
+
+	if runtime.GOOS != "windows" {
+		log.Info().Msg("CloseGameAction: game settings are only supported on windows, skipped")
 		return true
 	}
 

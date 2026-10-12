@@ -46,5 +46,25 @@
         "pre_delay": 400,
         "action": "Click",
         "post_delay": 100
+    },
+    "__AutoSwipeClickHoverAction": {
+        "desc": "从画面中心悬停移到目标",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            640,
+            360
+        ],
+        "end": true,
+        "only_hover": true,
+        "post_delay": 200,
+        "rate_limit": 0
+    },
+    "__AutoSwipeClickClickAction": {
+        "desc": "悬停后点击目标",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

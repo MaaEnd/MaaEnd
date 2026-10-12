@@ -146,13 +146,8 @@ struct FindState
 struct TriggerState
 {
     std::chrono::steady_clock::time_point last_probe_at {};
-    std::chrono::steady_clock::time_point wait_started_at {};
 
-    void Reset()
-    {
-        last_probe_at = {};
-        wait_started_at = {};
-    }
+    void Reset() { last_probe_at = {}; }
 };
 
 // Recovery ladder position (device removal -> jump -> navmesh detour -> physical unstick), keyed on the
@@ -181,12 +176,15 @@ struct LocalizationLossState
 {
     std::chrono::steady_clock::time_point started_at {};
     std::chrono::steady_clock::time_point last_unstick_at {};
+    // Last accepted fix before the loss; a failed capture only clears `valid`, so it still holds coordinates.
+    NaviPosition last_fix {};
     bool saw_black_screen = false;
 
     void Reset()
     {
         started_at = {};
         last_unstick_at = {};
+        last_fix = {};
         saw_black_screen = false;
     }
 };
@@ -324,6 +322,11 @@ struct OffRouteWedgeState
         best_distance = std::numeric_limits<double>::max();
         active = false;
     }
+
+    // best_distance belongs to one corridor; after a swap the next tick re-takes it while the timer keeps running.
+    void InvalidateBaseline() { best_distance = std::numeric_limits<double>::max(); }
+
+    bool HasBaseline() const { return best_distance != std::numeric_limits<double>::max(); }
 };
 
 // Dwell watchdog. A latched world-coordinate disc and the time spent inside it. Every other stall clock is
@@ -428,6 +431,8 @@ struct ZiplineApproachState
 struct InteractApproachState
 {
     std::optional<size_t> prompt_missed_node;
+    // 收紧的判定圈从认空这一刻起算。停滞钟会被零点几的抖动和恢复重规划清零, 被挡在点外时等不到放宽
+    std::chrono::steady_clock::time_point missed_at {};
 
     bool PromptMissedAt(const std::optional<size_t>& node) const { return node.has_value() && prompt_missed_node == node; }
 

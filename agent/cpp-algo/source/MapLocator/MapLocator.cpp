@@ -785,7 +785,7 @@ private:
         FrameTemplateFeatureCache& featureCache,
         MapPosition* outBestRaw = nullptr);
     MapPosition stabilizePosition(const MapPosition& raw);
-    MapPosition acceptPosition(const MapPosition& raw, TimePoint now);
+    MapPosition acceptPosition(const MapPosition& raw, TimePoint now, const LocateOptions& options);
     MatchFeature
         getGlobalSearchFeature(const std::string& targetZoneId, const cv::Rect& roi, const cv::Mat& mapRoi, IMatchStrategy* strategy);
     void clearGlobalSearchFeatureCache();
@@ -982,11 +982,11 @@ MapPosition MapLocator::Impl::stabilizePosition(const MapPosition& raw)
     return *stablePosition;
 }
 
-MapPosition MapLocator::Impl::acceptPosition(const MapPosition& raw, TimePoint now)
+MapPosition MapLocator::Impl::acceptPosition(const MapPosition& raw, TimePoint now, const LocateOptions& options)
 {
     MapPosition stable = stabilizePosition(raw);
     motionTracker->update(stable, now);
-    return stable;
+    return options.precise_position ? raw : stable;
 }
 
 std::optional<MapPosition> MapLocator::Impl::tryTracking(
@@ -1183,7 +1183,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         pos.x = validation.absX;
         pos.y = validation.absY;
         pos.score = trackResult->score;
-        return acceptPosition(pos, now);
+        return acceptPosition(pos, now, options);
     }
 
     return std::nullopt;
@@ -1490,7 +1490,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
 
             MapPosition verifiedPos = rawPrimaryPos;
             verifiedPos.score = std::max(rawPrimaryPos.score, rawFallbackPos.score);
-            verifiedPos = acceptPosition(verifiedPos, now);
+            verifiedPos = acceptPosition(verifiedPos, now, options);
             arbiterRejectedPrimaryStreak = 0;
             arbiterRejectedPrimary.reset();
 
@@ -1527,7 +1527,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
                         arbiterRejectedPrimary.reset();
                         // 先 markLost 让 update 跳过速度 EMA，否则这次几十像素的修正会被当成一次高速位移
                         motionTracker->markLost(1);
-                        MapPosition reclaimed = acceptPosition(rawPrimaryPos, now);
+                        MapPosition reclaimed = acceptPosition(rawPrimaryPos, now, options);
                         motionTracker->clearVelocity();
                         return LocateResult {
                             .status = LocateStatus::Success,
@@ -1542,7 +1542,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
                 }
                 LogInfo << "Dual-Mode arbitrated by motion continuity" << VAR(distPrimaryToPred) << VAR(distFallbackToPred)
                         << VAR(arbitrated.x) << VAR(arbitrated.y) << VAR(arbitrated.score) << VAR(dist);
-                MapPosition accepted = acceptPosition(arbitrated, now);
+                MapPosition accepted = acceptPosition(arbitrated, now, options);
                 return LocateResult {
                     .status = LocateStatus::Success,
                     .position = accepted,
@@ -1556,6 +1556,10 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
 
     if (!holdPending) {
         return std::nullopt;
+    }
+    // 精确取位只要本帧实测：这帧直接判没认出，不交旧坐标，也不落到后面的全局搜索去改写跟踪状态。
+    if (options.precise_position) {
+        return LocateResult { .status = LocateStatus::TrackingLost, .debugMessage = "Tracking Hold" };
     }
 
     // 第二策略也没救回来，交付 tracker 里保留的上一帧坐标。丢失已在 tryTracking 里记账。
@@ -2118,7 +2122,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     currentZoneId = globalResult->zoneId;
     globalResult->angle = angle_future.get();
-    MapPosition accepted = acceptPosition(*globalResult, now);
+    MapPosition accepted = acceptPosition(*globalResult, now, options);
     return attachCamRot(LocateResult { .status = LocateStatus::Success, .position = accepted, .debugMessage = "Global Search Success" });
 }
 

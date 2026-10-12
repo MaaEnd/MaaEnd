@@ -134,7 +134,7 @@
                     "ゲームを終了しますか"
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_wait_freezes": 200,

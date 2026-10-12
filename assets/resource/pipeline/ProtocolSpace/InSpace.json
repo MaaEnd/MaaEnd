@@ -166,7 +166,7 @@
         "enabled": false,
         "recognition": "And",
         "all_of": [
-            "CancelButton",
+            "GrayCancelButton",
             "ProtocolSpacePopupSanityLowExit"
         ],
         "box_index": 0,
@@ -1030,7 +1030,7 @@
                     "// @i18n-skip"
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_wait_freezes": 200,
@@ -1061,7 +1061,7 @@
                     "// @i18n-skip"
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_wait_freezes": 200,
@@ -1102,7 +1102,7 @@
                     "보상 획득"
                 ]
             },
-            "CancelButton"
+            "WhiteCancelButton"
         ],
         "box_index": 1,
         "pre_wait_freezes": 100,
@@ -1115,7 +1115,7 @@
         "desc": "协议空间奖励界面，结束任务",
         "recognition": "And",
         "all_of": [
-            "CancelButton"
+            "WhiteCancelButton"
         ],
         "action": "Click",
         "next": [
@@ -1166,7 +1166,7 @@
         "desc": "协议空间行动失败界面，结束任务",
         "recognition": "And",
         "all_of": [
-            "CancelButton"
+            "WhiteCancelButton"
         ],
         "action": "Click",
         "next": [
