@@ -31,7 +31,7 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 | 只想读出当前坐标 / 朝向，自己决定后续逻辑 | `MapLocateRecognition`                |
 | 走到某点后采集 / 挖掘                     | `path` 里的 `COLLECT` / `DIG` 语义点  |
 | 目标只有识别框、没有坐标（名字牌、物件标签） | `path` 里的 `FIND` 语义点            |
-| 走着走着某个画面出现就算到（剧情、对话、弹窗、提示等） | `path` 末尾的 `TRIGGER` 点 + `trigger_node` |
+| 走着走着某个画面出现，或走到目标坐标就算到 | `path` 末尾的 `TRIGGER` 点 + `trigger_node` |
 
 **优先考虑 `NAVMESH`。** 只要目标点在不发生交互、过图或特殊机关的情况下本来就可达，填一个 `target` 坐标即可，运行时会基于三角图自动规划出可执行路径，不需要预先录制整段路线：
 
@@ -74,7 +74,7 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 
 **目标只有识别框、没有坐标时（NPC 名字牌、物件标签等）使用 `FIND` 语义点**，不应在 Pipeline 中使用 `NeuralNetworkDetect` + `CharacterMoveToTargetAction` 自行实现。每个 `FIND` 点需配置两组参数：目标来源（`find_target` 或 `find_text`，二选一）与完成条件（`find_stop` 或 `find_arrive`，至少一项）。旋转视角搜索、按识别框前进、越过目标后的后退均由导航器处理；配置 `find_arrive` 时，该点每拍额外读取一次定位用于距离判定（不参与转向），其余时刻不读取小地图。带 `target` 时先移动至锚点再开始搜索；不带 `target` 时抵达后立即开始搜索。搜索阶段的视角旋转为开环控制，节点结束后角色可能不在路网内且朝向任意，导航器会在退出时重置操舵与走廊记账；若其后仍有移动需求，建议追加一个普通移动节点以供重新定位；`FIND` 作为路线终点亦可行。
 
-**「某个画面出现就算到了」用路线末尾的 `TRIGGER` 点**，别拿 `FIND` 或自己在外层轮询凑。导航一边走一边识别 `trigger_node`，命中就算整条导航成功，跟走到哪无关；一直没命中就走到 `target` 原地等 15 秒。`TRIGGER` 自己直线走向 `target`，要寻路就在前面放一个同坐标的 `NAVMESH` 点。它必须是路线最后一个点；识别节点要选只在目的地出现的画面，路上命中会提前收工。
+**「某个画面出现就算到了」用路线末尾的 `TRIGGER` 点**，别拿 `FIND` 或自己在外层轮询凑。导航一边走一边识别 `trigger_node`，命中就算整条导航成功，跟走到哪无关；一直没命中就走到 `target`，到点即成功。`TRIGGER` 自己直线走向 `target`，要寻路就在前面放一个同坐标的 `NAVMESH` 点。它必须是路线最后一个点；识别节点要选只在目的地出现的画面，路上命中会提前收工。
 
 **提示弹出来之后按哪一行由业务决定时，给 `INTERACT` 点加 `interact_rec`。** 交互键只会选中默认那一行，所以一个可交互物上挂着「领取 / 放弃」这类多行选项时，导航一按就把业务侧那个「按哪一行」的开关架空了，而且完全无声——键按下去了、界面也开了，看不出哪里不对。写了 `interact_rec` 的点照旧预筛、停车、OCR 确认，只是最后那一下不按，按哪一行交回外层 Pipeline。它得配着 `interact_text` 用（文本没解析出来的点进不了异步那条路，会退回到点直接按键）；写在 `custom_action_param` 顶层是整条路线一起打开，且只能开不能关。
 
@@ -93,7 +93,7 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 - `navi_config.h`：子任务入口名、`pipeline_override`、等待时间等常量；
 - `semantic_nodes.cpp`：各语义点（`COLLECT`/`DIG`/`INTERACT` 等）到达后的执行逻辑；
 - `find_action.cpp`：`FIND` 的搜索与接近（按帧跑识别节点取框、转视角、前进脉冲），以及退出时的记账作废；
-- `trigger_action.cpp`：`TRIGGER` 的行进中识别与到点等待；
+- `trigger_action.cpp`：`TRIGGER` 的行进中识别与到点完成；
     - `NavigationStateMachine`：到点判定、疾跑控制、失败与恢复。
 - `Navmesh` 目录：BaseNav 三角图寻路核心；
     - `BaseNavReader.cpp`：`.nav` / `.nav.gz` 二进制包解析（magic 为 `BNAV`）；

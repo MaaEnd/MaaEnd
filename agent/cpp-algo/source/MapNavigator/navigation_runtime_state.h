@@ -146,13 +146,8 @@ struct FindState
 struct TriggerState
 {
     std::chrono::steady_clock::time_point last_probe_at {};
-    std::chrono::steady_clock::time_point wait_started_at {};
 
-    void Reset()
-    {
-        last_probe_at = {};
-        wait_started_at = {};
-    }
+    void Reset() { last_probe_at = {}; }
 };
 
 // Recovery ladder position (device removal -> jump -> navmesh detour -> physical unstick), keyed on the

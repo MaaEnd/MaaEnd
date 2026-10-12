@@ -177,7 +177,7 @@ Only `INTERACT` points can take these fields — on any other action they are ig
 - `COLLECT`: Collection point, upon precise arrival, synchronously trigger AutoCollect OCR + click, without exiting NaviController. See [Collection Semantics](#collection-semantics-collect--dig).
 - `DIG`: Digging point, same as `COLLECT`, but triggers a digging subtask. See [Collection Semantics](#collection-semantics-collect--dig).
 - `FIND`: Look for a target that exists only as a recognition box and walk up to it — turning the camera to search, stepping toward the box, done as soon as `find_stop` hits or the position reaches `find_arrive`. See [Finding and Approaching a Target](#finding-and-approaching-a-target-find).
-- `TRIGGER`: Route end point. The navigator recognizes `trigger_node` while walking and succeeds on the first hit. See [Ending on a Recognition Hit](#ending-on-a-recognition-hit-trigger).
+- `TRIGGER`: Route end point. The navigator recognizes `trigger_node` while walking and succeeds on the first hit, or when the character reaches `target`. See [Ending on a Recognition Hit](#ending-on-a-recognition-hit-trigger).
 
 ##### **3. Strict Arrival Point**
 
@@ -927,7 +927,7 @@ Control node (search starts as soon as the point is reached):
 
 `TRIGGER` goes at the end of a route and means "arrived once a certain screen shows up": a story sequence starting, a dialog or menu popping up, a prompt appearing.
 
-The navigator recognizes `trigger_node` while it walks. On the first hit it stops, the whole navigation succeeds, and the outer Pipeline's `next` takes over. A hit counts wherever the character is, even halfway along the route. If nothing hits, the character walks to `target`, stops, and waits there for up to 15 seconds.
+The navigator recognizes `trigger_node` while it walks. On the first hit it stops, the whole navigation succeeds, and the outer Pipeline's `next` takes over. A hit counts wherever the character is, even halfway along the route. If nothing hits, reaching `target` completes the navigation.
 
 ### Usage
 
@@ -961,7 +961,7 @@ Replace `MyTaskTriggerNode` with your own recognition node:
 
 - Recognition starts the moment navigation starts, so pick a screen that only appears at the destination. A dialog or prompt that also shows up elsewhere on the route ends the navigation there.
 - Pick something that stays on screen for a while. Recognition runs every 300 ms and can miss a brief flash.
-- Put `target` where the screen is sure to appear; anywhere else just waits out the 15 seconds and fails.
+- Reaching `target` completes the navigation even if the screen never appears. Put `target` where the character should stop.
 
 The hit screen often covers the minimap. The navigator loses its position then, but recognition keeps running and no unstick keys are pressed, so nothing disturbs the screen that just appeared.
 
@@ -970,7 +970,6 @@ The hit screen often covers the minimap. The navigator loses its position then, 
 `MapNavigateAction` returns false when:
 
 - `trigger_node` does not exist or its recognition errors (fails immediately);
-- nothing hits after 15 seconds of waiting at `target`;
 - nothing hits and localization stays lost for more than 30 seconds.
 
 ### Related Files
@@ -979,4 +978,4 @@ The hit screen often covers the minimap. The navigator loses its position then, 
 | ----------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------- |
 | The business's own route JSON | The `MapNavigateAction` path, the `TRIGGER` point and its `trigger_node` | Add a trigger end point, change the node |
 | The business's own recognition nodes | The node named by `trigger_node` | The ROI or the text of the hit screen changes |
-| `agent/cpp-algo/source/MapNavigator/trigger_action.cpp` | Recognition on the way and the wait on the point | Maintained by cpp-algo developers |
+| `agent/cpp-algo/source/MapNavigator/trigger_action.cpp` | Recognition on the way and completion on arrival | Maintained by cpp-algo developers |

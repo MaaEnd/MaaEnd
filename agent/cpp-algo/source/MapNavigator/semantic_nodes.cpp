@@ -638,9 +638,6 @@ Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
     if (phase == NaviPhase::WaitFind) {
         return TickFindTarget(ctx);
     }
-    if (phase == NaviPhase::WaitTrigger) {
-        return TickTriggerWait(ctx);
-    }
     if (ctx.runtime_state->semantic.portal_transit_active) {
         return TickPortalTransit(ctx);
     }
