@@ -13,18 +13,18 @@ cpp-algo 当前最严重的问题是 **命名风格不统一**，同一个项目
 
 ### 必须遵循的规则
 
-| 元素               | 风格                                       | 示例                                   |
+| 元素 | 风格 | 示例 |
 | ------------------ | ------------------------------------------ | -------------------------------------- |
-| 类 / 结构体 / 枚举 | PascalCase                                 | `MapLocator`, `MatchFeature`           |
-| 成员函数           | camelCase                                  | `initialize()`, `resetTrackingState()` |
-| 自由函数           | PascalCase（对外）/ snake_case（内部工具） | `CreateInputBackend()`                 |
-| 成员变量           | snake*case + 尾下划线 `*`                  | `locator_`, `current_zone_id_`         |
-| 局部变量           | snake_case                                 | `search_rect`, `fine_result`           |
-| 常量（constexpr）  | `k` 前缀 + PascalCase                      | `kDefaultMinimapRoi`, `kMaxLostFrames` |
-| 宏                 | ALL_CAPS                                   | `MAA_TRUE`, `LOG_ARGS`                 |
-| 命名空间           | lowercase                                  | `maplocator`, `mapnavigator`           |
-| 模板参数           | 后缀 `_t` 或 PascalCase                    | `Item_t`, `OutT`                       |
-| 枚举值             | PascalCase                                 | `TrackingLost`, `ScreenBlocked`        |
+| 类 / 结构体 / 枚举 | PascalCase | `MapLocator`, `MatchFeature` |
+| 成员函数 | camelCase | `initialize()`, `resetTrackingState()` |
+| 自由函数 | PascalCase（对外）/ snake_case（内部工具） | `CreateInputBackend()` |
+| 成员变量 | snake*case + 尾下划线 `*` | `locator_`, `current_zone_id_` |
+| 局部变量 | snake_case | `search_rect`, `fine_result` |
+| 常量（constexpr） | `k` 前缀 + PascalCase | `kDefaultMinimapRoi`, `kMaxLostFrames` |
+| 宏 | ALL_CAPS | `MAA_TRUE`, `LOG_ARGS` |
+| 命名空间 | lowercase | `maplocator`, `mapnavigator` |
+| 模板参数 | 后缀 `_t` 或 PascalCase | `Item_t`, `OutT` |
+| 枚举值 | PascalCase | `TrackingLost`, `ScreenBlocked` |
 
 ### 已知违规（修改时顺手修复）
 
@@ -139,14 +139,14 @@ LogTrace << "YOLO all scores:" << scores;
 
 ### 日志级别选择
 
-| 场景                          | 级别       |
+| 场景 | 级别 |
 | ----------------------------- | ---------- |
-| 初始化成功/失败、关键状态变更 | `LogInfo`  |
-| 定位结果、导航阶段切换        | `LogInfo`  |
-| 匹配分数、中间计算            | `LogDebug` |
-| 完整矩阵/向量数据             | `LogTrace` |
-| 可恢复异常（追踪丢失）        | `LogWarn`  |
-| 不可恢复错误                  | `LogError` |
+| 初始化成功/失败、关键状态变更 | `LogInfo` |
+| 定位结果、导航阶段切换 | `LogInfo` |
+| 匹配分数、中间计算 | `LogDebug` |
+| 完整矩阵/向量数据 | `LogTrace` |
+| 可恢复异常（追踪丢失） | `LogWarn` |
+| 不可恢复错误 | `LogError` |
 
 ## 7. 错误处理
 
@@ -166,16 +166,16 @@ LogTrace << "YOLO all scores:" << scores;
 
 项目目标 **C++20**，应积极使用现代特性：
 
-| 推荐              | 示例                                              |
+| 推荐 | 示例 |
 | ----------------- | ------------------------------------------------- |
-| `std::optional`   | 返回可能失败的结果                                |
-| 指定初始化器      | `LocateResult { .status = ..., .position = ... }` |
-| `std::filesystem` | 路径操作（转字符串必须走 MaaUtils，见下）          |
-| `std::format`     | 字符串格式化（替代 `std::stringstream`）          |
-| `std::ranges`     | 容器算法链（`controller_type_utils.h` 中已用）    |
-| `constexpr`       | 编译期常量                                        |
-| 结构化绑定        | `auto [x, y] = getPosition();`                    |
-| smart pointers    | `std::unique_ptr` / `std::shared_ptr` 管理资源    |
+| `std::optional` | 返回可能失败的结果 |
+| 指定初始化器 | `LocateResult { .status = ..., .position = ... }` |
+| `std::filesystem` | 路径操作（转字符串必须走 MaaUtils，见下） |
+| `std::format` | 字符串格式化（替代 `std::stringstream`） |
+| `std::ranges` | 容器算法链（`controller_type_utils.h` 中已用） |
+| `constexpr` | 编译期常量 |
+| 结构化绑定 | `auto [x, y] = getPosition();` |
+| smart pointers | `std::unique_ptr` / `std::shared_ptr` 管理资源 |
 
 ### 路径与编码（禁止 `path::string()`）
 
@@ -186,13 +186,13 @@ LogTrace << "YOLO all scores:" << scores;
 - `path.string()` 在 MSVC 上把原生宽字符路径转成系统 ANSI 码页，用户名含非 ASCII 字符（中文、俄文、emoji）时抛 `std::system_error`，Windows 错误码 1113 "No mapping for the Unicode character exists in the target multi-byte code page"。抛点常在错误消息拼接里，于是真实故障被这个异常盖掉。
 - `std::filesystem::path p(utf8_string)` 反过来把 UTF-8 字节按 ANSI 解读，路径静默指向错误位置。窄字符串隐式转 `path` 的地方同样中招（`dir / (name + ".png")`、`std::ofstream(narrow_string)`、把 `std::string` 传给收 `const path&` 的函数）。
 
-| 场景                              | 写法                                                   |
+| 场景 | 写法 |
 | --------------------------------- | ------------------------------------------------------ |
-| path → 文本（日志、错误消息、键） | `MAA_NS::path_to_utf8_string(p)`                       |
-| UTF-8 文本 → path                 | `MAA_NS::path(s)`                                      |
-| 读写图片                          | `MAA_NS::imread(p, flags)` / `MAA_NS::imwrite(p, img)` |
-| 同名文件换后缀                    | `auto q = p; q += ".tmp";`（后缀是 ASCII，码页无关）   |
-| gzip 打开                         | Windows 走 `gzopen_w(p.c_str())`                       |
+| path → 文本（日志、错误消息、键） | `MAA_NS::path_to_utf8_string(p)` |
+| UTF-8 文本 → path | `MAA_NS::path(s)` |
+| 读写图片 | `MAA_NS::imread(p, flags)` / `MAA_NS::imwrite(p, img)` |
+| 同名文件换后缀 | `auto q = p; q += ".tmp";`（后缀是 ASCII，码页无关） |
+| gzip 打开 | Windows 走 `gzopen_w(p.c_str())` |
 
 `std::ifstream` / `std::ofstream` 直接收 `path`，别先转成字符串。`#ifdef _WIN32` 的 POSIX 分支里 `path::string()` 只是取原生字节、不做码页转换，可以保留。
 
@@ -247,11 +247,11 @@ target_sources(cpp-algo PRIVATE
 
 ## 11. 文件命名
 
-| 元素          | 风格                                   | 示例                                     |
+| 元素 | 风格 | 示例 |
 | ------------- | -------------------------------------- | ---------------------------------------- |
-| 类对应的文件  | PascalCase                             | `MapLocator.h`, `MapLocator.cpp`         |
-| 工具/非类文件 | snake_case                             | `controller_type_utils.h`, `navi_math.h` |
-| 目录          | PascalCase（模块）/ snake_case（工具） | `MapLocator/`, `Backend/Adb/`            |
+| 类对应的文件 | PascalCase | `MapLocator.h`, `MapLocator.cpp` |
+| 工具/非类文件 | snake_case | `controller_type_utils.h`, `navi_math.h` |
+| 目录 | PascalCase（模块）/ snake_case（工具） | `MapLocator/`, `Backend/Adb/` |
 
 当前 `my_reco_1/` 是示例模板目录，如果保留应重命名为有意义的名称。
 

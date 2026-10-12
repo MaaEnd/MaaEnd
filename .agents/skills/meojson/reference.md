@@ -230,14 +230,14 @@ public:
 
 ## Macro Reference
 
-| Macro                        | Effect                                                |
+| Macro | Effect |
 | ---------------------------- | ----------------------------------------------------- |
-| `MEO_JSONIZATION(fields...)` | Generate `to_json()`, `check_json()`, `from_json()`   |
-| `MEO_TOJSON(fields...)`      | Generate `to_json()` only                             |
-| `MEO_FROMJSON(fields...)`    | Generate `from_json()` only                           |
-| `MEO_CHECKJSON(fields...)`   | Generate `check_json()` only                          |
-| `MEO_OPT`                    | Next field is optional in from_json (skip if missing) |
-| `MEO_KEY("key")`             | Override JSON key name for next field                 |
+| `MEO_JSONIZATION(fields...)` | Generate `to_json()`, `check_json()`, `from_json()` |
+| `MEO_TOJSON(fields...)` | Generate `to_json()` only |
+| `MEO_FROMJSON(fields...)` | Generate `from_json()` only |
+| `MEO_CHECKJSON(fields...)` | Generate `check_json()` only |
+| `MEO_OPT` | Next field is optional in from_json (skip if missing) |
+| `MEO_KEY("key")` | Override JSON key name for next field |
 
 ### Macro Generated Signatures
 
