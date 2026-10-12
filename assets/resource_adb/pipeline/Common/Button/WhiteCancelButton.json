@@ -1,15 +1,15 @@
 {
-    "__CancelButtonType1Icon": {
+    "__WhiteCancelButtonType1Icon": {
         "template": "AdbOnly/Common/Button/CancelButtonType1.png",
         "threshold": 0.7
     },
-    "__CancelButtonType1HoverIcon": {
+    "__WhiteCancelButtonType1HoverIcon": {
         "threshold": 0.7
     },
-    "__CancelButtonType1LineIcon": {
+    "__WhiteCancelButtonType1LineIcon": {
         "threshold": 0.7
     },
-    "__CancelButtonType1LineHoverIcon": {
+    "__WhiteCancelButtonType1LineHoverIcon": {
         "threshold": 0.7
     }
 }

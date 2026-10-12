@@ -73,13 +73,13 @@
 
 ---
 
-## CancelButton
+## WhiteCancelButton
 
 **Description**: General cancel button with text, white background, and **X-shaped** icon.
 
-<!-- Screenshot: docs/developers/images/common-buttons/CancelButton.png -->
+<!-- Screenshot: docs/developers/images/common-buttons/WhiteCancelButton.png -->
 
-![CancelButton](https://github.com/user-attachments/assets/849665ba-661e-4838-b30b-faedb3cba652)
+![WhiteCancelButton](https://github.com/user-attachments/assets/849665ba-661e-4838-b30b-faedb3cba652)
 
 | Item | Description |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -200,7 +200,7 @@
 | `WhiteConfirmButtonType2` | Confirm button with white background + checkmark icon |
 | `YellowConfirmButtonType1` | Confirm button with yellow background + circular ring icon |
 | `YellowConfirmButtonType2` | Confirm button with yellow background + checkmark icon |
-| `CancelButton` | Cancel button with white background + X icon |
+| `WhiteCancelButton` | Cancel button with white background + X icon |
 | `GrayCancelButton` | Cancel button with gray background + X icon |
 | `TeleportButton` | Teleport button in the lower right corner of the map interface |
 | `QuickTeleportButton` | Quick-teleport button to the left of it on the map interface |

@@ -1,14 +1,14 @@
 {
     // 白色取消按钮。
     // 先用白色背景锁定候选框，再在该框附近对子图标按顺序短路匹配，最终以背景框作为点击目标。
-    "CancelButton": {
+    "WhiteCancelButton": {
         "desc": "白色取消按钮：白底 X 标志，以白色背景框作为点击目标",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "WhiteButtonBackground",
-                    "__CancelButtonIcon"
+                    "__WhiteCancelButtonIcon"
                 ],
                 "box_index": 1
             }
@@ -31,16 +31,16 @@
     },
     // 取消按钮图标聚合节点。
     // 顺序即优先级：任一子节点命中后停止继续尝试。
-    "__CancelButtonIcon": {
+    "__WhiteCancelButtonIcon": {
         "desc": "白色取消按钮图标聚合节点，按图标变体顺序短路匹配",
         "recognition": {
             "type": "Or",
             "param": {
                 "any_of": [
-                    "__CancelButtonType1Icon",
-                    "__CancelButtonType1HoverIcon",
-                    "__CancelButtonType1LineIcon",
-                    "__CancelButtonType1LineHoverIcon"
+                    "__WhiteCancelButtonType1Icon",
+                    "__WhiteCancelButtonType1HoverIcon",
+                    "__WhiteCancelButtonType1LineIcon",
+                    "__WhiteCancelButtonType1LineHoverIcon"
                 ]
             }
         },
@@ -48,7 +48,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__CancelButtonType1Icon": {
+    "__WhiteCancelButtonType1Icon": {
         "desc": "白色取消按钮常态图标，在白色背景框附近优先匹配",
         "recognition": {
             "type": "TemplateMatch",
@@ -70,7 +70,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__CancelButtonType1HoverIcon": {
+    "__WhiteCancelButtonType1HoverIcon": {
         "desc": "白色取消按钮悬停态图标，在常态未命中时回退匹配",
         "recognition": {
             "type": "TemplateMatch",
@@ -92,7 +92,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__CancelButtonType1LineIcon": {
+    "__WhiteCancelButtonType1LineIcon": {
         "desc": "白色取消按钮细线变体常态图标，在前两种未命中时继续匹配",
         "recognition": {
             "type": "TemplateMatch",
@@ -114,7 +114,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__CancelButtonType1LineHoverIcon": {
+    "__WhiteCancelButtonType1LineHoverIcon": {
         "desc": "白色取消按钮细线变体悬停态图标，作为该组最后的回退匹配",
         "recognition": {
             "type": "TemplateMatch",

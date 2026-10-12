@@ -73,13 +73,13 @@
 
 ---
 
-## CancelButton
+## WhiteCancelButton
 
 **说明**：通用取消按钮，有文字、白色底、**X 形**图标。
 
-<!-- 截图：docs/developers/images/common-buttons/CancelButton.png -->
+<!-- 截图：docs/developers/images/common-buttons/WhiteCancelButton.png -->
 
-![CancelButton](https://github.com/user-attachments/assets/b5185e1e-b4fb-4435-af46-2e7673240bdd)
+![WhiteCancelButton](https://github.com/user-attachments/assets/b5185e1e-b4fb-4435-af46-2e7673240bdd)
 
 | 项目 | 说明 |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
@@ -200,7 +200,7 @@
 | `WhiteConfirmButtonType2` | 白色底 + 对号图标的确认按钮 |
 | `YellowConfirmButtonType1` | 黄色底 + 圆环图标的确认按钮 |
 | `YellowConfirmButtonType2` | 黄色底 + 对号图标的确认按钮 |
-| `CancelButton` | 白色底 + X 图标的取消按钮 |
+| `WhiteCancelButton` | 白色底 + X 图标的取消按钮 |
 | `GrayCancelButton` | 灰色底 + X 图标的取消按钮 |
 | `TeleportButton` | 地图界面右下角的传送按钮 |
 | `QuickTeleportButton` | 地图界面中传送按钮左侧的快速传送按钮 |

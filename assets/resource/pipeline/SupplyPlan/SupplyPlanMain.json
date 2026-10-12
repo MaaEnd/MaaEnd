@@ -1280,7 +1280,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CancelButton"
+                    "WhiteCancelButton"
                 ]
             }
         },
