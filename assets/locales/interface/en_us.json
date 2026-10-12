@@ -1553,7 +1553,7 @@
     "option.KeymapFight.inputs.KeymapFightSwitchOperator4.label": "Switch to Operator 4",
     "option.KeymapFight.label": "Combat",
     "option.KeymapGeneral.inputs.KeymapInteract.label": "Interact",
-    "option.KeymapGeneral.inputs.KeymapOpenMission.label": "Mission",
+    "option.KeymapGeneral.inputs.KeymapTrackCurrentMission.label": "Track Current Mission",
     "option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label": "Use Current Quick Tool",
     "option.KeymapGeneral.label": "General",
     "option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label": "Max Level Threshold",

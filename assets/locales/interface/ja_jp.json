@@ -1553,7 +1553,7 @@
     "option.KeymapFight.inputs.KeymapFightSwitchOperator4.label": "4番オペレーターに切替",
     "option.KeymapFight.label": "戦闘",
     "option.KeymapGeneral.inputs.KeymapInteract.label": "インタラクト",
-    "option.KeymapGeneral.inputs.KeymapOpenMission.label": "任務",
+    "option.KeymapGeneral.inputs.KeymapTrackCurrentMission.label": "現在の任務を追跡",
     "option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label": "現在の便捷ツールを使用",
     "option.KeymapGeneral.label": "汎用",
     "option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label": "最大レベル制限",

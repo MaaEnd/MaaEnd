@@ -59140,7 +59140,14 @@
                                     "key": "npcName_adaxier",
                                     "zh_cn": "阿达希尔",
                                     "zh_tw": "阿達希爾"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],
@@ -59598,7 +59605,14 @@
                                     "key": "npcName_adaxier",
                                     "zh_cn": "阿达希尔",
                                     "zh_tw": "阿達希爾"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],
@@ -59656,7 +59670,14 @@
                                     "key": "npcName_adaxier",
                                     "zh_cn": "阿达希尔",
                                     "zh_tw": "阿達希爾"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             },
                             {
                                 "type": "NpcProxyTrackingInfo",
@@ -59668,7 +59689,14 @@
                                     "key": "npcName_adaxier",
                                     "zh_cn": "阿达希尔",
                                     "zh_tw": "阿達希爾"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],
@@ -91912,7 +91940,14 @@
                                     "key": "npcName_laiang",
                                     "zh_cn": "莱昂",
                                     "zh_tw": "萊昂"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],
@@ -92064,7 +92099,14 @@
                                     "key": "npcName_laiang",
                                     "zh_cn": "莱昂",
                                     "zh_tw": "萊昂"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],
@@ -95886,7 +95928,14 @@
                                     "key": "npcName_gm02m14hsstudent1",
                                     "zh_cn": "安虞",
                                     "zh_tw": "安虞"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_gm02m14anyu",
+                                        "zh_cn": "苦恼的天师学徒",
+                                        "zh_tw": "苦惱的天師學徒"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],
@@ -117562,7 +117611,14 @@
                                     "key": "npcName_anonUnion025",
                                     "zh_cn": "气急败坏的工团工作人员",
                                     "zh_tw": "氣急敗壞的工團工作人員"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_sate",
+                                        "zh_cn": "萨特",
+                                        "zh_tw": "薩特"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],
@@ -140907,7 +140963,14 @@
                                     "key": "npcName_linmuxiang",
                                     "zh_cn": "陆令香",
                                     "zh_tw": "陸令香"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             },
                             {
                                 "type": "NpcProxyTrackingInfo",
@@ -140919,7 +140982,14 @@
                                     "key": "npcName_linmuxiang",
                                     "zh_cn": "陆令香",
                                     "zh_tw": "陸令香"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],
@@ -141418,7 +141488,14 @@
                                     "key": "npcName_linmuxiang",
                                     "zh_cn": "陆令香",
                                     "zh_tw": "陸令香"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],
@@ -141549,7 +141626,14 @@
                                     "key": "npcName_linmuxiang",
                                     "zh_cn": "陆令香",
                                     "zh_tw": "陸令香"
-                                }
+                                },
+                                "npcNameOverrides": [
+                                    {
+                                        "key": "npcName_unknown",
+                                        "zh_cn": "？？？",
+                                        "zh_tw": "？？？"
+                                    }
+                                ]
                             }
                         ],
                         "multiDescTrackingInfoList": [],

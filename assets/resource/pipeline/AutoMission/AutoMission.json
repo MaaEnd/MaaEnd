@@ -62,9 +62,24 @@
         }
     },
     "AutoMissionOpenJournal": {
-        "desc": "按打开任务键",
-        "action": "ClickKey",
-        "key": 74,
+        "desc": "点击打开任务直到任务界面出现",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "InMenuMission"
+            ],
+            "interval_ms": 6000
+        },
+        "target": [
+            30,
+            150
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoMissionJournalOpen"
         ]
@@ -99,7 +114,44 @@
         "action": "Custom",
         "custom_action": "AutoMissionExecuteQuest",
         "next": [
-            "AutoMissionMain"
+            "AutoMissionTrackFinish"
+        ]
+    },
+    "AutoMissionTrackFinish": {
+        "desc": "子步骤追踪结束",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoMissionTrackFinishOpenJournal"
+        ]
+    },
+    "AutoMissionTrackFinishOpenJournal": {
+        "desc": "点击打开任务直到任务界面出现",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "InMenuMission"
+            ],
+            "interval_ms": 6000,
+            "repeat_count": 6 // 某些任务做完后会强制锁定视角无法操作
+        },
+        "target": [
+            30,
+            150
+        ],
+        "next": [
+            "AutoMissionJournalOpen"
         ]
     }
 }

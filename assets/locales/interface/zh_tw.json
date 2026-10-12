@@ -1553,7 +1553,7 @@
     "option.KeymapFight.inputs.KeymapFightSwitchOperator4.label": "切換到4號幹員",
     "option.KeymapFight.label": "戰鬥",
     "option.KeymapGeneral.inputs.KeymapInteract.label": "交互",
-    "option.KeymapGeneral.inputs.KeymapOpenMission.label": "任務",
+    "option.KeymapGeneral.inputs.KeymapTrackCurrentMission.label": "追蹤當前任務",
     "option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label": "使用當前便捷工具",
     "option.KeymapGeneral.label": "通用",
     "option.LevelUpOperatorMaxLevelThreshold.inputs.MaxLevelThreshold.label": "最大等級限制",

@@ -325,7 +325,26 @@ function referencedProxies(dataMap) {
     return proxies;
 }
 
+// 关卡脚本运行时给代理改的名字，同一代理在不同进度可能显示不同名字。
+function collectNameOverrides(dataMap, overrides) {
+    for (const node of dataMap?.actionList ?? []) {
+        if (shortType(node?.$type) !== "NpcProxyOverrideName") {
+            continue;
+        }
+        const proxyId = node._proxyId?.constValue;
+        const nameKey = node._nameId?.constValue?.key;
+        if (typeof proxyId !== "string" || !proxyId || !nameKey) {
+            continue;
+        }
+        if (!overrides.has(proxyId)) {
+            overrides.set(proxyId, new Set());
+        }
+        overrides.get(proxyId).add(nameKey);
+    }
+}
+
 const autoTriggerProxies = new Set();
+const proxyNameOverrides = new Map();
 if (existsSync(levelScriptDir)) {
     for (const sceneId of readdirSync(levelScriptDir)) {
         const dir = resolve(levelScriptDir, sceneId);
@@ -334,6 +353,7 @@ if (existsSync(levelScriptDir)) {
                 continue;
             }
             const dataMap = readJson(resolve(dir, name)).actionMap?.dataMap;
+            collectNameOverrides(dataMap, proxyNameOverrides);
             const proxies = referencedProxies(dataMap);
             if (proxies.size === 0 || !hasAutoTrigger(dataMap)) {
                 continue;
@@ -375,6 +395,20 @@ function npcNameOf(proxyId, dialogs) {
         }
     }
     return null;
+}
+
+function npcNameOverridesOf(proxyId, npcName) {
+    const names = [];
+    for (const key of [...(proxyNameOverrides.get(proxyId) ?? [])].sort()) {
+        if (key === npcName?.key) {
+            continue;
+        }
+        const name = namedText(key);
+        if (name) {
+            names.push(name);
+        }
+    }
+    return names;
 }
 
 function interactTextOf(proxyId, dialogs) {
@@ -429,6 +463,10 @@ function convertNpcProxy(track, missionId) {
     };
     if (npcName) {
         result.npcName = npcName;
+    }
+    const npcNameOverrides = npcNameOverridesOf(proxyId, npcName);
+    if (npcNameOverrides.length > 0) {
+        result.npcNameOverrides = npcNameOverrides;
     }
     if (interactText) {
         result.interactText = interactText;

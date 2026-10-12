@@ -1,0 +1,64 @@
+{
+    "InStory": {
+        "desc": "在剧情界面",
+        "recognition": "Or",
+        // 防止背景变化过大，使用左上角和右上角两个画面进行匹配
+        "any_of": [
+            {
+                // 匹配左上角log图标
+                "recognition": "TemplateMatch",
+                "roi": [
+                    10,
+                    20,
+                    55,
+                    40
+                ],
+                "template": "RealTimeTask/AutoSkipLog.png",
+                "threshold": 0.7 // 图片alpha值较低，难以匹配，阈值不能太高
+            },
+            {
+                // 匹配右上角Auto和Esc图标
+                "recognition": "And",
+                "all_of": [
+                    {
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            1140,
+                            0,
+                            120,
+                            90
+                        ],
+                        "template": "RealTimeTask/AutoSkipA.png",
+                        "threshold": 0.7 // 图片alpha值较低，难以匹配，阈值不能太高
+                    },
+                    {
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            1140,
+                            0,
+                            120,
+                            90
+                        ],
+                        "template": "RealTimeTask/AutoSkipEsc.png",
+                        "threshold": 0.7 // 图片alpha值较低，难以匹配，阈值不能太高
+                    }
+                ]
+            },
+            {
+                // 匹配右上角Esc图标（部分剧情只有Esc没有Auto）
+                "recognition": "TemplateMatch",
+                "roi": [
+                    1140,
+                    0,
+                    120,
+                    90
+                ],
+                "template": "RealTimeTask/AutoSkipEsc.png",
+                "threshold": 0.7
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

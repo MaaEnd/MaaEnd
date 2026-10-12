@@ -8,9 +8,11 @@ import (
 )
 
 const (
-	executeComponent    = "AutoMissionExecuteQuest"
-	npcProxyNode        = "AutoMissionNpcProxy"
-	npcProxyInWorldNode = "AutoMissionNpcProxyInWorld"
+	executeComponent     = "AutoMissionExecuteQuest"
+	npcProxyNode         = "AutoMissionNpcProxy"
+	npcProxyInWorldNode  = "AutoMissionNpcProxyInWorld"
+	npcProxyInteractNode = "AutoMissionNpcProxyActionInteractRecognition"
+	npcProxyStoryNode    = "InStory"
 )
 
 var _ maa.CustomActionRunner = &ExecuteQuestAction{}
@@ -64,13 +66,15 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		err        error
 	)
 	if node == npcProxyNode {
-		if track.ZoneID == "" || track.X == nil || track.Y == nil {
+		npcNames := npcNameVariants(track)
+		if track.ZoneID == "" || track.X == nil || track.Y == nil || len(npcNames) == 0 {
 			log.Warn().
 				Str("component", executeComponent).
 				Str("zone_id", track.ZoneID).
 				Bool("has_x", track.X != nil).
 				Bool("has_y", track.Y != nil).
-				Msg("npc proxy track missing zone or position")
+				Strs("npc_names", npcNames).
+				Msg("npc proxy track missing zone, position or npc name")
 			return false
 		}
 		log.Info().
@@ -79,8 +83,12 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 			Str("zone_id", track.ZoneID).
 			Float64("x", *track.X).
 			Float64("y", *track.Y).
+			Strs("npc_names", npcNames).
 			Msg("npc proxy navigate target")
 		taskDetail, err = ctx.RunTask(node, map[string]any{
+			npcProxyInteractNode: map[string]any{
+				"expected": npcNames,
+			},
 			npcProxyInWorldNode: map[string]any{
 				"custom_action_param": map[string]any{
 					"heading_source": "camera",
@@ -92,6 +100,11 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 						map[string]any{
 							"action": "NAVMESH",
 							"target": []float64{*track.X, *track.Y},
+						},
+						map[string]any{
+							"action":       "TRIGGER",
+							"target":       []float64{*track.X, *track.Y},
+							"trigger_node": npcProxyStoryNode,
 						},
 					},
 				},

@@ -71,6 +71,7 @@
         "rate_limit": 0,
         "next": [
             "AutoMissionSnsTalkOver",
+            "AutoMissionSnsTalkOver2",
             "AutoMissionSnsTalkOver3",
             "AutoMissionSnsSay",
             "AutoMissionSnsSay2",
@@ -95,6 +96,24 @@
             "话题结束",
             "話題結束"
         ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoMissionSnsTalkOver2": {
+        "desc": "当前 Baker 会话已结束",
+        "recognition": "TemplateMatch",
+        "roi": [
+            31,
+            77,
+            78,
+            574
+        ],
+        "template": [
+            "Baker/talkover.png"
+        ],
+        "threshold": 0.95,
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,

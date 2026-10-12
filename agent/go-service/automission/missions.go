@@ -23,6 +23,8 @@ type trackData struct {
 	PhaseID    string      `json:"phase_id,omitempty"`
 	Components []string    `json:"components,omitempty"`
 	NpcName    missionText `json:"npcName,omitempty"`
+	// NpcNameOverrides 是关卡脚本运行时给 NPC 改的名字，与 NpcName 一起作为交互名称候选。
+	NpcNameOverrides []missionText `json:"npcNameOverrides,omitempty"`
 }
 
 type trackingBlock struct {
@@ -174,6 +176,22 @@ func objectiveEntries(questID string, objective objectiveData) []objectiveEntry 
 		})
 	}
 	return entries
+}
+
+// npcNameVariants 合并 NPC 本名和运行时改名的简繁写法，去重后返回。
+func npcNameVariants(track trackData) []string {
+	var names []string
+	seen := make(map[string]struct{})
+	for _, text := range append([]missionText{track.NpcName}, track.NpcNameOverrides...) {
+		for _, v := range variantsOf(text) {
+			if _, ok := seen[v]; ok {
+				continue
+			}
+			seen[v] = struct{}{}
+			names = append(names, v)
+		}
+	}
+	return names
 }
 
 func variantsOf(t missionText) []string {

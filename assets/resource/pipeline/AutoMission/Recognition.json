@@ -94,5 +94,37 @@
             255
         ],
         "count": 250
+    },
+    "AutoMissionNpcProxyActionInteractRecognition": {
+        "desc": "交互提示区域里的 NPC 名称，文本待注入",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            // NPC 名称待注入
+            // @i18n-skip
+            "物流负责人"
+        ]
+    },
+    "AutoMissionWorldTrackRecognition": {
+        "desc": "大世界画面上的任务追踪图标",
+        "recognition": "TemplateMatch",
+        // 只会在这个roi里出现
+        "roi": [
+            250,
+            90,
+            780,
+            530
+        ],
+        // 支持正常颜色、透明颜色
+        "template": [
+            "AutoMission/ImportantMissionIcon.png",
+            "AutoMission/SecondaryMissionIcon.png",
+            "AutoMission/UrgentMissionIcon.png"
+        ]
     }
 }
