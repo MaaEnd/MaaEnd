@@ -794,6 +794,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
     const size_t generated_count = generated_prefix.size();
     session_->ApplyDynamicOverlay(std::move(generated_prefix), continue_index, *position_);
     runtime_state_.route.Reset();
+    runtime_state_.offroute.InvalidateBaseline();
     runtime_state_.nav_run_dirty = true;
     if (generated_count == 0 && std::hypot(anchor.x - position_->x, anchor.y - position_->y) <= ArrivalBandForStartupBypass(anchor)) {
         runtime_state_.route.startup_anchor_pos = *position_;
@@ -1108,6 +1109,7 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
 
     session_->ReplaceRoute(std::move(replanned), *position_, reason);
     runtime_state_.route.Reset();
+    runtime_state_.offroute.InvalidateBaseline();
     runtime_state_.nav_run_dirty = true;
     runtime_state_.dynamic_replan_requested = false;
 
@@ -1788,10 +1790,13 @@ bool NavigationStateMachine::TickNavigate()
                     << VAR(wedge.best_distance);
         }
         const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
-        if (!wedge.active || route.progress_distance + progress_epsilon < wedge.best_distance) {
+        const bool retaking_baseline = wedge.active && !wedge.HasBaseline();
+        if (!wedge.active || retaking_baseline || route.progress_distance + progress_epsilon < wedge.best_distance) {
             wedge.active = true;
             wedge.best_distance = route.progress_distance;
-            wedge.since = now;
+            if (!retaking_baseline) {
+                wedge.since = now;
+            }
         }
         const int64_t wedge_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - wedge.since).count();
         if (wedge_ms >= kOffRouteWedgeFailMs) {

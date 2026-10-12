@@ -324,6 +324,11 @@ struct OffRouteWedgeState
         best_distance = std::numeric_limits<double>::max();
         active = false;
     }
+
+    // best_distance belongs to one corridor; after a swap the next tick re-takes it while the timer keeps running.
+    void InvalidateBaseline() { best_distance = std::numeric_limits<double>::max(); }
+
+    bool HasBaseline() const { return best_distance != std::numeric_limits<double>::max(); }
 };
 
 // Dwell watchdog. A latched world-coordinate disc and the time spent inside it. Every other stall clock is
