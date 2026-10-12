@@ -28,7 +28,7 @@
                 ],
                 "template": [
                     "AdbOnly/AutoEssence/EssenceTrigger.png",
-                    "RealTimeTask/AutoPick.png"
+                    "MapNavigator/ObstacleDevice/InteractButton.png"
                 ]
             }
         }
