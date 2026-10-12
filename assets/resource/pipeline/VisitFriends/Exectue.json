@@ -744,7 +744,8 @@
                     "interact_text": [
                         "物资调度终端",
                         "物資調度終端",
-                        "(?i)Stock\\s*Redistrib",
+                        "(?i)Stock\\s*Redistribution\\s*Terminal",
+                        "(?i)Stock\\s*Redistrib\\.",
                         "商品取引端末",
                         "물자\\s*관리\\s*단말기"
                     ],
@@ -779,7 +780,8 @@
         "expected": [
             "物资调度终端",
             "物資調度終端",
-            "(?i)Stock\\s*Redistrib",
+            "(?i)Stock\\s*Redistribution\\s*Terminal",
+            "(?i)Stock\\s*Redistrib\\.",
             "商品取引端末",
             "물자\\s*관리\\s*단말기"
         ],
