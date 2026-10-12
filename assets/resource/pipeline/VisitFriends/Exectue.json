@@ -749,6 +749,7 @@
                         "商品取引端末",
                         "물자\\s*관리\\s*단말기"
                     ],
+                    "interact_scan": "StockRedistributionTerminalInteractScan",
                     "interact_rec": true
                 }
             ]
