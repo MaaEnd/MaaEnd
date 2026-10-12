@@ -50,6 +50,7 @@
 - [`assets/locales/`](assets/locales/): 国际化本地化文件（任务名称、UI 文本等）。
 - [`tests/`](tests/): 节点测试用例与测试集（`tests/**/*.json`）；新增或修改识别节点时补充用例，写法见 [`docs/zh_cn/developers/node-testing.md`](docs/zh_cn/developers/node-testing.md)。
 - [`docs/zh_cn/developers/README.md`](docs/zh_cn/developers/README.md): 中文开发者文档索引（阅读路线、文档目录）；英文镜像见 [`docs/en_us/developers/README.md`](docs/en_us/developers/README.md)。
+- [`.agents/skills/docs-guide/SKILL.md`](.agents/skills/docs-guide/SKILL.md): 文档与 Markdown 编写、维护指南（中英文同步、markdownlint、GitHub 渲染陷阱）；新增或修改任何 `.md` 前先读。
 
 ## 编码规范
 
@@ -99,6 +100,13 @@
     - 数组格式受 `prettier-plugin-multiline-arrays` 插件影响，数组元素必须换行排列（阈值为 1）。
     - 提交前请务必执行格式化，确保代码风格统一。
 
+### 7. 文档规范
+
+- **先读指南**：新增、修改、翻译任何 `.md`，或处理 markdownlint 报错时，先读 [文档编写与维护指南](.agents/skills/docs-guide/SKILL.md)。
+- **中英文同步**：`docs/zh_cn` 是源，`docs/en_us` 由 `docs-sync` 工作流整篇重新翻译覆盖。改动先落在 zh_cn；修错字、格式、链接时，中英文在同一个 PR 里一起改。
+- **格式化**：Markdown 只由 markdownlint 处理（`pnpm format:md`），`pnpm format:md:check` 保持 0 条。`--fix` 可能改变显示效果，跑完要看 diff。只有「预期如此」的报错才用 markdownlint 的抑制注释，写法和注意事项（例如代码块里的同类注释也会生效）见指南。
+- **常见陷阱**：嵌套代码块的外层围栏要更长；提示块标记（如 `> [!NOTE]`）单独占一行；表格里的竖线写成 `\|`；`<…>` 放进行内代码或转义；有序列表用数字；不用 `<a>` 手写锚点。
+
 ## 审查重点
 
 在审查代码（Review）时，请重点关注以下事项：
@@ -114,6 +122,7 @@
 - **逻辑边界**：检查 Pipeline 是否处理了异常情况（如弹窗阻断）。每一步点击后都应有相应的识别验证。
 - **Go 职责界限**：审查 Go Service 中的代码是否包含本应由 Pipeline 处理的业务逻辑。确保 Go 仅作为“工具”被 Pipeline 调用。
 - **配置文件同步**：若修改了任务列表，务必确认 `assets/interface.json` 已正确更新。
+- **文档改动**：检查是否先改了 zh_cn、en_us 是否同步修改、`pnpm format:md:check` 是否为 0 条，以及 [docs-guide](.agents/skills/docs-guide/SKILL.md) 列出的渲染陷阱（代码块围栏、提示块、表格竖线、锚点）。
 
 ## 相关文档链接
 
