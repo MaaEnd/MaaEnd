@@ -480,7 +480,7 @@
                 {
                     "name": "Hannabit",
                     "label": "$option.ClueSendCustomize.cases.Hannabit.label",
-                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue007.png",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue006.png",
                     "pipeline_override": {
                         "ReceptionRoomSendCluesSelectClues": {
                             "enabled": false
@@ -493,7 +493,7 @@
                 {
                     "name": "Sesqa",
                     "label": "$option.ClueSendCustomize.cases.Sesqa.label",
-                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue006.png",
+                    "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue007.png",
                     "pipeline_override": {
                         "ReceptionRoomSendCluesSelectClues": {
                             "enabled": false
