@@ -88,6 +88,22 @@ pnpm install
 
 > **示例**：`feat(OutpostTrading): 新增地区建设自动售卖 Pipeline`
 
+#### 纯格式化 PR 与 `[blame ignore]`
+
+仓库根目录的 `.git-blame-ignore-revs` 列出了 `git blame` 时要跳过的提交，GitHub 网页的 Blame 视图会自动读取它，避免格式化提交覆盖真正的更改。如果你的 PR 只做全量格式化、批量排序等**不改变代码含义**的机械改动，请在 **PR 描述**里加上 `[blame ignore]`：
+
+- 本项目以 squash 方式合并 PR，PR 标题和描述默认会成为最终的 commit message。[`blame-ignore.yml`](../../../.github/workflows/blame-ignore.yml) 每天扫描 commit message，把带标记的提交追加到 `.git-blame-ignore-revs`，请勿手动编辑该文件。
+- 与 `[skip changelog]` 一样，标记出现在 commit message 任意位置即生效，两者可以写在同一行。建议写在描述里，写进标题会出现在 changelog 中。
+- 带标记的 PR 只放纯格式化改动。整个 squash commit 都会被 blame 跳过，夹带的逻辑修改将无法通过 blame 追溯。
+- 只是提到这个标记时（例如修改相关文档或 CI），不要写出带方括号的完整标记，否则该 PR 也会被收录。CodeRabbit 生成的摘要同样会写进 PR 描述，合并前请检查最终的 squash commit message。
+- [`format.yml`](../../../.github/workflows/format.yml) 的自动格式化提交已自带该标记，无需额外处理。
+
+本地使用 `git blame` 时，执行以下命令即可同样跳过这些提交：
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 ### 关于子模块 (Submodule) 更新
 
 本项目使用 Git Submodule 来管理一些独立的依赖库和体积较大的文件（例如用于识别的模型库）。

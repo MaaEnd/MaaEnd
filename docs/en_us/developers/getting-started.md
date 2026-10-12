@@ -85,6 +85,22 @@ Code commits in this project strictly follow the [Conventional Commits specifica
 
 > **Example**: `feat(OutpostTrading): Add regional construction auto-sell Pipeline`
 
+#### Formatting-only PRs and `[blame ignore]`
+
+The `.git-blame-ignore-revs` file in the repository root lists commits that `git blame` should skip. GitHub's web Blame view reads it automatically, so formatting commits do not hide the people who actually changed a line. If your PR only contains mechanical changes that **do not change code meaning**, such as repository-wide formatting or bulk key sorting, add `[blame ignore]` to the **PR description**:
+
+- PRs in this project are squash-merged, and by default the PR title and description become the final commit message. [`blame-ignore.yml`](../../../.github/workflows/blame-ignore.yml) scans commit messages daily and appends marked commits to `.git-blame-ignore-revs`. Do not edit that file manually.
+- Like `[skip changelog]`, the marker takes effect anywhere in the commit message, and the two can be on the same line. Put it in the description; if it is in the title, it will show up in the changelog.
+- Keep marked PRs formatting-only. The whole squash commit is skipped by blame, so any logic changes mixed in can no longer be traced through blame.
+- When you only mention the marker (for example, when changing related docs or CI), do not write the full bracketed marker; otherwise that PR will be collected as well. CodeRabbit's generated summary is also written into the PR description, so check the final squash commit message before merging.
+- Auto-format commits from [`format.yml`](../../../.github/workflows/format.yml) already carry the marker, so no extra action is needed.
+
+To skip these commits when running `git blame` locally, run:
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 ### About Submodule Updates
 
 This project uses Git Submodules to manage some independent dependency libraries and large files (e.g., model libraries used for recognition).
