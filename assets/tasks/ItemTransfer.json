@@ -14,7 +14,8 @@
                 "Linux-Wlroots",
                 "Win32-Front",
                 "ADB",
-                "CloudADB"
+                "CloudADB",
+                "PlayCover"
             ],
             "option": [
                 "WhatToTransfer",
