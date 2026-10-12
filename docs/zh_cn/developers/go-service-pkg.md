@@ -13,21 +13,21 @@
 
 | 包 | 一句话 | 典型调用方 |
 | ------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------- |
-| [`i18n`](#i18n-多语言文案) | `T` / `RenderHTML`，按客户端语言取文案 | 几乎所有要给用户看提示的 Action |
-| [`maafocus`](#maafocus-向客户端推-focus) | 把提示推到客户端 Focus UI | `FocusOCRAction`、战斗 / 据点交易等 |
-| [`recogtarget`](#recogtarget-and-识别解包) | 从 Pipeline 节点（含 `And`）选出真正要用的子识别结果 | `ExpressionRecognition`、`FocusOCRAction` |
-| [`boolexpr`](#boolexpr-条件计算) | `{占位符}` 替换 + 整型布尔表达式求值 | `ExpressionRecognition`、IMS R1 |
-| [`ocrnum`](#ocrnum-ocr-数值解析) | OCR 文本 → `int`（支持 `1.38万` / `13.8K` 等） | `ExpressionRecognition`、`iconqty` |
-| [`jsonclean`](#jsonclean-jsonc-清洗) | 去掉注释 / 尾逗号 / BOM，变成严格 JSON | `resource`、`i18n`、各类配置加载 |
-| [`pienv`](#pienv-project-interface-环境) | 读取 `PI_*` 环境变量（语言、控制器、资源） | `i18n`、`iconqty`、启动期逻辑 |
-| [`resource`](#resource-资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
+| [`i18n`](#i18n多语言文案) | `T` / `RenderHTML`，按客户端语言取文案 | 几乎所有要给用户看提示的 Action |
+| [`maafocus`](#maafocus向客户端推-focus) | 把提示推到客户端 Focus UI | `FocusOCRAction`、战斗 / 据点交易等 |
+| [`recogtarget`](#recogtargetand-识别解包) | 从 Pipeline 节点（含 `And`）选出真正要用的子识别结果 | `ExpressionRecognition`、`FocusOCRAction` |
+| [`boolexpr`](#boolexpr条件计算) | `{占位符}` 替换 + 整型布尔表达式求值 | `ExpressionRecognition`、IMS R1 |
+| [`ocrnum`](#ocrnumocr-数值解析) | OCR 文本 → `int`（支持 `1.38万` / `13.8K` 等） | `ExpressionRecognition`、`iconqty` |
+| [`jsonclean`](#jsoncleanjsonc-清洗) | 去掉注释 / 尾逗号 / BOM，变成严格 JSON | `resource`、`i18n`、各类配置加载 |
+| [`pienv`](#pienvproject-interface-环境) | 读取 `PI_*` 环境变量（语言、控制器、资源） | `i18n`、`iconqty`、启动期逻辑 |
+| [`resource`](#resource资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
 | [`fsutil`](#fsutil输出路径与原子写文件) | 持久化输出的路径基准；临时文件 + rename，避免半截写入 | 日志 / debug / 持久化缓存 |
-| [`levenshtein`](#levenshtein-编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
+| [`levenshtein`](#levenshtein编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
 | [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS、囤货、送货等扫格逻辑 |
 | [`iconqty`](#iconrecognition--iconqty) | 扫格 + 格内数量 OCR | IMS A2 / A3 |
-| [`control`](#control-跨平台操控适配) | Win32 / ADB / macOS / Linux 统一操控接口 | 角色移动、镜头旋转等 |
-| [`minicv`](#minicv-轻量-cv) | 模板匹配、圆检测等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
-| [`parentwatch`](#parentwatch-父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
+| [`control`](#control跨平台操控适配) | Win32 / ADB / macOS / Linux 统一操控接口 | 角色移动、镜头旋转等 |
+| [`minicv`](#minicv轻量-cv) | 模板匹配、圆检测等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
+| [`parentwatch`](#parentwatch父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
 
 ---
 
@@ -137,7 +137,7 @@ return ocrnum.Extract(selected)
 | ---- | -------------------------- |
 | 算术 | `+` `-` `*` `/` `%` |
 | 比较 | `<` `<=` `>` `>=` `==` `!=` |
-| 逻辑 | `&&` ` | | ` `!` |
+| 逻辑 | `&&` `\|\|` `!` |
 | 分组 | `(...)` |
 
 字面量超出平台 `int` 范围时会钳制到 `IntMax` / `IntMin` 并打 warn，求值继续而不是直接失败（与 `ocrnum` 溢出策略一致）。
