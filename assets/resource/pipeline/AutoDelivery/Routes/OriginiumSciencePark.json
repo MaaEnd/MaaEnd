@@ -301,10 +301,19 @@
                 {
                     "action": "NAVMESH",
                     "target": [
+                        1150.97,
+                        768.59
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
                         1144.79,
                         818.27
                     ],
-                    "target_deck_y": 96.97
+                    "target_deck_y": 96.97,
+                    "required": true
                 },
                 {
                     "action": "INTERACT",
@@ -312,7 +321,8 @@
                         1148.13,
                         820.42
                     ],
-                    "interact_text": "G层"
+                    "interact_text": "G层",
+                    "required": true
                 },
                 {
                     "action": "NAVMESH",
