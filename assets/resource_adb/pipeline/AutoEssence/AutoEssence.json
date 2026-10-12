@@ -1,6 +1,6 @@
 {
-    "__AutoEssenceRecoEssenceTrigger": {
-        "desc": "正式识别并点击激发的大世界按钮（ADB）",
+    "__AutoEssenceRecoEssenceTriggerButton": {
+        "desc": "寻找激发的大世界按钮（仅识别，ADB）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
