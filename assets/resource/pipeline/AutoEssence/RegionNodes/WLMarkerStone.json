@@ -84,8 +84,8 @@
                         {
                             "action": "INTERACT",
                             "target": [
-                                319.17,
-                                2318.36
+                                318.12,
+                                2318.38
                             ],
                             "strict_arrival": true,
                             "interact_text": {
