@@ -1825,9 +1825,14 @@ bool NavigationStateMachine::TickNavigate()
     // stall clock is still gathering, only earlier and stronger: aimed, commanding no turn, and going nowhere.
     // Waiting out the remaining wall clock just spends it walking into the obstacle, so it opens recovery too.
     const bool forward_hold_futile = runtime_state_.flow.futile_forward_reasserts >= kForwardHoldFutileReassertsBeforeRecovery;
-    const bool should_try_recovery =
-        session_->phase() == NaviPhase::Navigate && (stalled_ms >= kObstacleRecoveryMinTriggerMs || forward_hold_futile)
-        && (effective_progress > kNoProgressMinDistance || waypoint.RequiresStrictArrival()) && !runtime_state_.cross_tier_escape.active;
+    // Near the anchor a pinned forward also waits for the stall clock (the agent often slides off) and skips device removal,
+    // since the interactable ahead is usually the destination; prompt points and zipline mounts keep their own fallback.
+    const bool pinned_without_own_fallback = forward_hold_futile && stalled_ms >= kObstacleRecoveryMinTriggerMs
+                                             && !waypoint.StopsOnPromptDetection() && waypoint.action != ActionType::ZIPLINE;
+    const bool far_or_strict = effective_progress > kNoProgressMinDistance || waypoint.RequiresStrictArrival();
+    const bool should_try_recovery = session_->phase() == NaviPhase::Navigate
+                                     && (stalled_ms >= kObstacleRecoveryMinTriggerMs || forward_hold_futile)
+                                     && (far_or_strict || pinned_without_own_fallback) && !runtime_state_.cross_tier_escape.active;
     if (should_try_recovery) {
         const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
         if (anchor) {
@@ -1897,7 +1902,7 @@ bool NavigationStateMachine::TickNavigate()
                 // afterwards the jump below fires this same tick and the ladder keeps climbing. Every outcome
                 // but NotAttempted has run the subtask, so it spends the attempt either way.
                 const DeviceRemovalOutcome device_outcome =
-                    device_recovery_.TryRemove(route, waypoint, escalation.device_attempt_count < kRecoveryDeviceAttempts);
+                    device_recovery_.TryRemove(route, waypoint, escalation.device_attempt_count < kRecoveryDeviceAttempts && far_or_strict);
                 if (device_outcome != DeviceRemovalOutcome::NotAttempted) {
                     ++escalation.device_attempt_count;
                 }
