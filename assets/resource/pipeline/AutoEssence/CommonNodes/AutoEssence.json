@@ -206,6 +206,29 @@
     "AutoEssenceDispatcher": {
         "desc": "基质刷取分发：首次强制传送；之后认开挑战/激发/领取等，未命中则纯寻路",
         "pre_delay": 0,
+        // 寻路失败后只在传送与寻路之间往返，不经过这里；在这里清零，传送重走的上限就只数连续失败
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "GotoTriggerPointMaybeTeleport_VFOriginLodespring",
+                        "GotoTriggerPointMaybeTeleport_VFOriginiumSciencePark",
+                        "GotoTriggerPointMaybeTeleport_VFPowerPlateau",
+                        "GotoTriggerPointMaybeTeleport_VFTheHub",
+                        "GotoTriggerPointMaybeTeleport_WLMarkerStone",
+                        "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone",
+                        "GotoTriggerPointMaybeTeleport_WLQingboStockade",
+                        "GotoTriggerPointMaybeTeleport_WLSnowyForest",
+                        "GotoTriggerPointMaybeTeleport_WLSwordVaultDale",
+                        "GotoTriggerPointMaybeTeleport_WLTestArea",
+                        "GotoTriggerPointMaybeTeleport_WLWulingCity",
+                        "GotoTriggerPointMaybeTeleport_WLYinglungPass"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "next": [
             // 整次任务首次：只强制传送+寻路，不识别其它界面
