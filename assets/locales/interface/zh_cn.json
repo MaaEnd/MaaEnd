@@ -1741,7 +1741,7 @@
     "task.AeroSalvage.description": "自动放置所有气球并保持平衡。请在浮空回收界面内开启任务",
     "task.AeroSalvage.label": "🎈浮空回收",
     "task.AndroidOpenGame.description": "安卓端打开游戏，需先手动打开模拟器",
-    "task.AndroidOpenGame.label": "🎮打开游戏",
+    "task.AndroidOpenGame.label": "🎮打开游戏（安卓端）",
     "task.AutoCollect.description": "自动采集野外资源\n 注意，作物没有完全生长齐的时候作物会随机生长，会导致收集不齐的情况。\n <span style=\"color: green;\"> 矿石任务建议使用远程角色</span>",
     "task.AutoCollect.focus.inventory_fallback": "仓库库存同步失败，已忽略目标库存并按勾选路线继续",
     "task.AutoCollect.focus.inventory_ready": "仓库库存同步完成，开始按目标库存筛选采集路线",

@@ -10,8 +10,7 @@
             ],
             "controller": [
                 "ADB",
-                "CloudADB",
-                "PlayCover"
+                "CloudADB"
             ],
             "option": [
                 "ClientVersion",
