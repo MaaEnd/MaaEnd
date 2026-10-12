@@ -14,7 +14,6 @@
                 "AutoAltSwipeAction",
                 "AutoCtrlClickAction",
                 "AutoFightMainAction",
-                "AutoMissionExecuteQuest",
                 "AutoDeliveryResolveDepotAction",
                 "AutoDeliveryResolveDestinationAction",
                 "AutoEssenceLoadInventoryAction",
