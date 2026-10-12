@@ -2465,10 +2465,9 @@ bool NavigationStateMachine::TryZiplineMountPrompt(const Waypoint& waypoint, con
             LogWarn << "Zipline mount pre-filter not started; the chain stops on arrival instead." << VAR(kZiplineMountScanNode);
             return false;
         }
-        zipline_mount_scanner_ =
-            std::make_unique<RoiTemplateScanner>("zipline", profile.base_roi, profile.templ, profile.mask, profile.threshold);
         LogInfo << "Zipline mount pre-filter started." << VAR(kZiplineMountScanNode) << VAR(profile.base_roi.x) << VAR(profile.base_roi.y)
-                << VAR(profile.threshold);
+                << VAR(profile.icons.size());
+        zipline_mount_scanner_ = std::make_unique<RoiTemplateScanner>("zipline", profile.base_roi, std::move(profile.icons));
     }
     if (zipline_mount_scanner_ == nullptr) {
         return false;

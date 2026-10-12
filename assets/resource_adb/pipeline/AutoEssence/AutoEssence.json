@@ -16,6 +16,23 @@
             }
         }
     },
+    "__AutoEssenceRecoApproachInteractScan": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    720,
+                    330,
+                    332,
+                    312
+                ],
+                "template": [
+                    "AdbOnly/AutoEssence/EssenceTrigger.png",
+                    "RealTimeTask/AutoPick.png"
+                ]
+            }
+        }
+    },
     "AutoEssenceMistakeFactoryDevice": {
         "desc": "识别是否误入工业设备界面，并将其关闭（ADB）",
         "recognition": {

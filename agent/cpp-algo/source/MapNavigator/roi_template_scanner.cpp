@@ -1,5 +1,6 @@
 #include "roi_template_scanner.h"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <utility>
@@ -74,13 +75,7 @@ bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, const cv::Mat& m
 }
 
 // 裁剪图归一化到作者 ROI 尺寸后跑同一套匹配: worker 与一次性探测共用, 免得两边判据漂移
-bool MatchNormalized(
-    const cv::Mat& crop,
-    const cv::Size& base_size,
-    const cv::Mat& templ,
-    const cv::Mat& mask,
-    double threshold,
-    const std::string& tag)
+bool MatchNormalized(const cv::Mat& crop, const cv::Size& base_size, const std::vector<ScanIcon>& icons, const std::string& tag)
 {
     cv::Mat normalized;
     if (crop.size() == base_size) {
@@ -89,40 +84,30 @@ bool MatchNormalized(
     else {
         cv::resize(crop, normalized, base_size, 0, 0, cv::INTER_AREA);
     }
-    return MatchesTemplate(ToGray(normalized), templ, mask, threshold, tag);
+    const cv::Mat gray = ToGray(normalized);
+    return std::ranges::any_of(icons, [&](const ScanIcon& icon) {
+        return MatchesTemplate(gray, icon.templ, icon.mask, icon.threshold, tag);
+    });
 }
 
 } // namespace
 
-bool MatchTemplateOnFrame(
-    const cv::Mat& frame,
-    const cv::Rect& base_roi,
-    const cv::Mat& templ,
-    const cv::Mat& mask,
-    double threshold,
-    std::string_view tag)
+bool MatchTemplateOnFrame(const cv::Mat& frame, const cv::Rect& base_roi, const std::vector<ScanIcon>& icons, std::string_view tag)
 {
-    if (frame.empty() || templ.empty()) {
+    if (frame.empty() || icons.empty()) {
         return false;
     }
     const cv::Rect roi = ScaledRoi(frame.size(), base_roi);
     if (roi.width <= 0 || roi.height <= 0) {
         return false;
     }
-    return MatchNormalized(frame(roi), base_roi.size(), templ, mask, threshold, std::string(tag));
+    return MatchNormalized(frame(roi), base_roi.size(), icons, std::string(tag));
 }
 
-RoiTemplateScanner::RoiTemplateScanner(
-    std::string tag,
-    const cv::Rect& base_roi,
-    const cv::Mat& templ,
-    const cv::Mat& mask,
-    double match_threshold)
+RoiTemplateScanner::RoiTemplateScanner(std::string tag, const cv::Rect& base_roi, std::vector<ScanIcon> icons)
     : tag_(std::move(tag))
     , base_roi_(base_roi)
-    , template_(templ)
-    , mask_(mask)
-    , match_threshold_(match_threshold)
+    , icons_(std::move(icons))
 {
     worker_ = std::thread(&RoiTemplateScanner::WorkerLoop, this);
 }
@@ -174,7 +159,7 @@ void RoiTemplateScanner::WorkerLoop()
         }
 
         // Normalize the crop back to the authored ROI size so detection runs in one fixed pixel space.
-        if (MatchNormalized(roi, base_roi_.size(), template_, mask_, match_threshold_, tag_)) {
+        if (MatchNormalized(roi, base_roi_.size(), icons_, tag_)) {
             detected_.store(true);
         }
     }

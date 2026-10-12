@@ -222,13 +222,7 @@ Result ProbeStopWhileWalking(const Context& ctx, const Waypoint& waypoint, MaaCo
         bool flagged = true;
         if (find.stop_probe.has_value()) {
             const PromptScanProfile& profile = *find.stop_probe;
-            flagged = MatchTemplateOnFrame(
-                FrameAsMat(probe.Get()),
-                profile.base_roi,
-                profile.templ,
-                profile.mask,
-                profile.threshold,
-                "find-stop");
+            flagged = MatchTemplateOnFrame(FrameAsMat(probe.Get()), profile.base_roi, profile.icons, "find-stop");
         }
         if (!flagged) {
             utils::SleepFor(kFindStopProbeIntervalMs);
