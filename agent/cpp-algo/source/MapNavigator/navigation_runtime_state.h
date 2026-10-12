@@ -181,12 +181,15 @@ struct LocalizationLossState
 {
     std::chrono::steady_clock::time_point started_at {};
     std::chrono::steady_clock::time_point last_unstick_at {};
+    // Last accepted fix before the loss; a failed capture only clears `valid`, so it still holds coordinates.
+    NaviPosition last_fix {};
     bool saw_black_screen = false;
 
     void Reset()
     {
         started_at = {};
         last_unstick_at = {};
+        last_fix = {};
         saw_black_screen = false;
     }
 };

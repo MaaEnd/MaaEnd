@@ -634,6 +634,7 @@ bool NavigationStateMachine::HandleLocalizationLoss()
     LocalizationLossState& loss = runtime_state_.localization_loss;
     if (loss.started_at == std::chrono::steady_clock::time_point {}) {
         loss.started_at = now;
+        loss.last_fix = *position_;
     }
     runtime_state_.offroute.PauseAt(now);
     // River-fall discriminator: a black capture during a loss = fell in water (the locator folds it into a
@@ -686,7 +687,11 @@ bool NavigationStateMachine::HandleLocalizationLoss()
                 // CaptureCurrentPosition(false) would re-impose the stale expected_zone and fail again.
                 session_->UpdateCurrentZone(position_->zone_id);
             }
-            if (++runtime_state_.global_reacquire_streak >= kLocalizationThrashFailCount) {
+            // The streak counts recover/re-lose cycles; a short on-the-spot drop in the same zone is just lost frames.
+            const bool dropped_frames =
+                !zone_changed && !loss.saw_black_screen && loss_elapsed < std::chrono::milliseconds(kLocalizationLossUnstickIntervalMs)
+                && std::hypot(position_->x - loss.last_fix.x, position_->y - loss.last_fix.y) < kDwellWatchdogRadius;
+            if (!dropped_frames && ++runtime_state_.global_reacquire_streak >= kLocalizationThrashFailCount) {
                 return FailNavigation(
                     "localization_thrash",
                     "Re-acquired the route repeatedly without advancing a waypoint (wrong-tier fall thrashing "
@@ -696,7 +701,8 @@ bool NavigationStateMachine::HandleLocalizationLoss()
                     0);
             }
             LogInfo << "Localization recovered via global re-acquire; resuming navigation." << VAR(loss_elapsed.count()) << VAR(prior_zone)
-                    << VAR(position_->zone_id) << VAR(position_->x) << VAR(position_->y) << VAR(runtime_state_.global_reacquire_streak);
+                    << VAR(position_->zone_id) << VAR(position_->x) << VAR(position_->y) << VAR(runtime_state_.global_reacquire_streak)
+                    << VAR(dropped_frames);
             ArmRiverFallRecoveryIfBlackScreenLoss("global_reacquire");
             loss.Reset();
             runtime_state_.route.ResetTracking();
