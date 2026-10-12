@@ -918,7 +918,7 @@ StageResult ZiplineRideMachine::TickDismounting(const ZiplineObservation& obs, I
 StageResult ZiplineRideMachine::FailAim(IZiplineActuator& actuator, const char* reason, Clock::time_point now)
 {
     LogWarn << "zipline/aim/failed" << VAR(reason) << VAR(returning_) << VAR(pitch_tier_);
-    CommitRecord(HopOutcome::Dismounted, now);
+    CommitRecord(HopOutcome::AimFailed, now);
     return StartDismount(actuator, ChainAbandoned { reason }, now);
 }
 

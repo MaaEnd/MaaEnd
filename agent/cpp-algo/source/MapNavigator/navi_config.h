@@ -389,6 +389,8 @@ constexpr int32_t kReachableAnchorPlanAttemptsMax = 8;
 // 封禁跳与规划候选的配对半径。链首封禁记录的是上索走位点而不是架子本身(相差供电桩让位
 // 那一点点), 太紧封不住; 太松会顺带罚掉旁边平行的另一根索, 代价只是少一条捷径。
 constexpr double kZiplineHopBanMatchWu = 10.0;
+// 同一跳瞄准失败这么多次就不再规划它; 留一次重试给读数没跟上的情况
+constexpr int32_t kZiplineAimFailBanCount = 2;
 // 一趟导航里弃索这么多次说明这一带的标定或定位整体不可靠, 重展开不再让滑索参与,
 // 顺带兜住"封一跳、换一链、再失败"的重试链条。
 constexpr int32_t kZiplineAbandonWalkFallbackCount = 3;
