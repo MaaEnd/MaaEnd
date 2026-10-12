@@ -177,7 +177,7 @@
         ]
     },
     "DeliveryJobsItemListAtTop": {
-        "desc": "本地仓储列表已滚动到顶部；识别器比较连续两次向下滑动后的静止列表",
+        "desc": "[运行时覆盖] 本地仓储列表已滚动到顶部；识别器比较连续两次向下滑动后的静止列表",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
         "custom_recognition_param": {
@@ -195,6 +195,12 @@
         "next": [
             "DeliveryJobsSelectPriorityItemLoop"
         ],
+        // attach.ready 是识别器的运行期状态，不是静态配置：
+        // 本节点第一次执行时，ListCompleteRecognition 会把 roi 内画面截成模板
+        // ListCompleteRecognition/DeliveryJobsItemListAtTop.png 并把 ready 置为 true；
+        // 此后每轮都用该模板与当前画面比对，判断列表是否已停住，比对不过就重新截模板。
+        // 装箱流程开始新一轮扫描时（DeliveryJobsStartFill{地区}Priority{N} 的 PipelineOverrideAction）置回 false，
+        // 强制重新截模板。这里写死只会影响首次运行前的初值，改动不影响运行期判定。
         "attach": {
             "ready": false
         }
@@ -234,7 +240,7 @@
         ]
     },
     "DeliveryJobsItemListAtBottom": {
-        "desc": "当前优先级货物未找到且本地仓储列表已滚动到底部",
+        "desc": "[运行时覆盖] 当前优先级货物未找到且本地仓储列表已滚动到底部",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
         "custom_recognition_param": {
@@ -252,6 +258,9 @@
         "next": [
             "[Anchor]DeliveryJobsNextPriority"
         ],
+        // 与 DeliveryJobsItemListAtTop 同一套运行期状态，模板为
+        // ListCompleteRecognition/DeliveryJobsItemListAtBottom.png：首次执行截模板并置 ready=true，
+        // 装箱流程开始新一轮扫描时由 PipelineOverrideAction 置回 false。
         "attach": {
             "ready": false
         }
@@ -562,7 +571,7 @@
         ]
     },
     "DeliveryJobsResolveOngoingDepot": {
-        "desc": "从送货任务详情识别它所属的仓储节点，并把后续交给该仓储节点的处理方式",
+        "desc": "[运行时覆盖] 从送货任务详情识别它所属的仓储节点，并把后续交给该仓储节点的处理方式",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryInDeliveryMissionDetail",
@@ -583,6 +592,12 @@
         "custom_action": "DeliveryJobsResolveOngoingDepotAction",
         "post_delay": 0,
         "rate_limit": 0,
+        // 这份 next 只是占位，正常运行时不会按它走：
+        // DeliveryJobsResolveOngoingDepotAction 解析出残留委托所属仓储后会 OverridePipeline 成
+        // [DeliveryJobsOngoingDeliveryFor{仓储 ID}]，把后续交给该仓储自己的处理方式
+        // （转交 / 全自动送货 / 按报价，由 assets/tasks/DeliveryJobs.json 的选项 pipeline_override 决定）；
+        // 解析失败时动作直接失败、走 on_error，同样不会落到这里。
+        // 想改「不处理该残留委托」的行为要去 DeliveryJobsOngoingDeliveryFor{仓储 ID}，不是这里。
         "next": [
             "DeliveryJobsSkipOngoingDelivery"
         ]

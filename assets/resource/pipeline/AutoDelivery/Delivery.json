@@ -28,10 +28,14 @@
         ]
     },
     "AutoDeliveryAfterResolveDestination": {
-        "desc": "根据 AutoDeliveryRecognizeDestination 的解析结果，进入普通送货或资源回收站地图判定流程",
+        "desc": "[运行时覆盖] 根据 AutoDeliveryRecognizeDestination 的解析结果，进入普通送货或资源回收站地图判定流程",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        // next 运行时由 AutoDeliveryResolveDestinationAction 覆写，每次解析终点都会显式重写：
+        // ・普通终点（含滑索/步行由终点配置与任务选项决定）→ 下面的默认流程；
+        // ・同区重复的资源回收站 → [AutoDeliveryViewRecycleBin{区域}Map, AutoDeliveryStartTrackingRecycleBin{区域}]，先转大地图确认。
+        // 这里保留默认值只是给「没被覆写就执行」兜底，实际判定以动作写回的那份为准。
         "next": [
             "AutoDeliveryReturnWorldAndNavigateDestination"
         ]
@@ -81,7 +85,7 @@
         "order_by": "Score"
     },
     "AutoDeliveryCheckSubmitGoodsName": {
-        "desc": "识别送货目标交互提示中的文本，由 Go 按当前终点的名称注入 expected 复核",
+        "desc": "[运行时覆盖] 识别送货目标交互提示中的文本",
         "recognition": "OCR",
         "roi": [
             763,
@@ -89,12 +93,20 @@
             195,
             270
         ],
+        // 本节点静态不写 expected：AutoDeliveryResolveDestinationAction 解析出终点后，
+        // 按当前终点的名称（各语言名称经 regexp 转义成正则字面量）注入 expected 做提示文本复核，
+        // 每次解析都重写，避免上一个终点的名称残留。
+        // 终点未开启名称复核时既不注入 expected，也不会被加进 AutoDeliveryCheckSubmitGoodsTarget 的 all_of，
+        // 也就是本节点根本不参与判定。
         "only_rec": false,
         "order_by": "Horizontal"
     },
     "AutoDeliveryCheckSubmitGoodsTarget": {
-        "desc": "确认已站在送货目标前：交货图标命中，需要名称复核时交互提示中的名称也要命中",
+        "desc": "[运行时覆盖] 确认已站在送货目标前：交货图标命中，需要名称复核时交互提示中的名称也要命中",
         "recognition": "And",
+        // all_of 运行时由 AutoDeliveryResolveDestinationAction 整体重写：
+        // 恒含 AutoDeliveryCheckSubmitGoodsButton，终点开启名称复核时追加 AutoDeliveryCheckSubmitGoodsName。
+        // 静态这份就是「不做名称复核」的形态。
         "all_of": [
             "AutoDeliveryCheckSubmitGoodsButton"
         ],
@@ -175,9 +187,13 @@
         "order_by": "Score"
     },
     "AutoDeliveryNavigateDestination": {
-        "desc": "动态调用送货目标识别节点选择的生成路线；未配置时安全失败",
+        "desc": "[运行时覆盖] 动态调用送货目标识别节点选择的生成路线；未配置时安全失败",
         "pre_delay": 0,
         "action": "Custom",
+        // custom_action / custom_action_param 运行时由 AutoDeliveryResolveDestinationAction 覆写：
+        // 换成 SubTask + custom_action_param.sub=[该终点的主路线节点]，滑索或步行由终点配置与调用方选项共同决定。
+        // 每次解析终点都会显式重写，避免上个终点的路线残留。
+        // 静态的 FalseAction 是「还没解析出终点就执行到本节点」时的安全失败占位，不会真的导航。
         "custom_action": "FalseAction",
         "post_wait_freezes": {
             "time": 300,
@@ -203,12 +219,18 @@
                 "trace": true
             }
         },
+        // attach.zip 不由本文件决定：调用方的任务选项会通过 pipeline_override（接口层，不是 go）注入，
+        // 例如 assets/tasks/DeliveryJobs.json 的 DeliveryJobsAutoDeliveryPreferZipline 选项把它设成 true/false。
+        // AutoDeliveryResolveDestinationAction 读它来决定选滑索路线还是步行路线。
         "attach": {
             "zip": false
         }
     },
     "AutoDeliveryRetryNavigateDestination": {
-        "desc": "动态调用送货目标配置的一次性站位修正路线；无重试路线时不启用",
+        "desc": "[运行时覆盖] 动态调用送货目标配置的一次性站位修正路线；无重试路线时不启用",
+        // enabled 与（启用时的）custom_action / custom_action_param 运行时由 AutoDeliveryResolveDestinationAction 覆写：
+        // 终点配了重试路线就置 enabled=true 并换成 SubTask + sub=[该终点的一次性站位修正路线]；
+        // 没配则显式置 false，本节点整轮跳过。静态 false 表示「默认不启用」。
         "enabled": false,
         "pre_delay": 0,
         "action": "Custom",
