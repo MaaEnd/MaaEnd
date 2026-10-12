@@ -428,6 +428,8 @@ struct ZiplineApproachState
 struct InteractApproachState
 {
     std::optional<size_t> prompt_missed_node;
+    // 收紧的判定圈从认空这一刻起算。停滞钟会被零点几的抖动和恢复重规划清零, 被挡在点外时等不到放宽
+    std::chrono::steady_clock::time_point missed_at {};
 
     bool PromptMissedAt(const std::optional<size_t>& node) const { return node.has_value() && prompt_missed_node == node; }
 

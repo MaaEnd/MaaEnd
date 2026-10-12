@@ -779,6 +779,7 @@ Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::o
         if (!recognized && waypoint.HasPosition() && node_idx && !approach.PromptMissedAt(node_idx)
             && actual_distance > kStrictSettleAcceptBandWu) {
             approach.prompt_missed_node = node_idx;
+            approach.missed_at = std::chrono::steady_clock::now();
             // 起步按已确认算: 否则要先挪够起步距离才放行到点判定, 走路模式也开不了, 剩下这一两个单位就是小跑冲过去的
             ctx.runtime_state->route.Reset();
             ctx.runtime_state->route.startup_anchor_pos = *ctx.position;
