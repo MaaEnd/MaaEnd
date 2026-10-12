@@ -1157,7 +1157,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "InventoryRepoScrollUpward"
+                "InventoryRepoScrollDownward"
             ]
         },
         "post_wait_freezes": {
