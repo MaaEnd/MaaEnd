@@ -203,7 +203,7 @@
             "ItemTransferAfterRepoTransfer": "ItemTransferSwitchRepoToDestinationWithForwardItem"
         },
         "next": [
-            "[Anchor]ItemTransferCurrentItemCategory"
+            "ItemTransferResetQuantityRetry"
         ]
     },
     "ItemTransferReturnRepoToBag": {
@@ -215,6 +215,23 @@
             "ItemTransferCurrentRepoTransfer": "ItemTransferTransferReturnToBag",
             "ItemTransferAfterRepoTransfer": "ItemTransferSwitchRepoToOriginWithReturnItem"
         },
+        "next": [
+            "ItemTransferResetQuantityRetry"
+        ]
+    },
+    "ItemTransferResetQuantityRetry": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "ItemTransferQuantityRetryScroll"
+            ],
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[Anchor]ItemTransferCurrentItemCategory"
         ]
@@ -1132,6 +1149,33 @@
             "ItemTransferBagReturnManualCleanup"
         ]
     },
+    "ItemTransferQuantityRetryScroll": {
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryRepoScrollUpward"
+            ]
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]ItemTransferCurrentRepoFind"
+        ]
+    },
     "ItemTransferClickQuickStashReturn": {
         "recognition": "TemplateMatch",
         "roi": [
@@ -1300,6 +1344,16 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ItemTransferQuantityRetryScroll",
+            "ItemTransferForwardQuantityErrorStop"
+        ]
+    },
+    "ItemTransferForwardQuantityErrorStop": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "ItemTransferForwardReserveReached"
         ],
         "focus": {
@@ -1343,6 +1397,16 @@
         ]
     },
     "ItemTransferReturnQuantityError": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferQuantityRetryScroll",
+            "ItemTransferReturnQuantityErrorStop"
+        ]
+    },
+    "ItemTransferReturnQuantityErrorStop": {
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,

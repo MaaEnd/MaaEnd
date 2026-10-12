@@ -199,6 +199,48 @@
             ]
         }
     },
+    "ItemTransferQuantityRetryScroll": {
+        "post_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    },
+    "ItemTransferCheckIfFull": {
+        "roi": [
+            457,
+            139,
+            361,
+            28
+        ]
+    },
+    "ItemTransferCheckIfFullReturnTarget": {
+        "roi": [
+            457,
+            139,
+            361,
+            28
+        ]
+    },
+    "ItemTransferCheckIfFullReturn": {
+        "roi": [
+            457,
+            139,
+            361,
+            28
+        ]
+    },
+    "ItemTransferCheckIfFullReturnSource": {
+        "roi": [
+            457,
+            139,
+            361,
+            28
+        ]
+    },
     "ItemTransferClickQuickStashReturn": {
         "roi": [
             840,
