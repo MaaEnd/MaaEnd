@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import datetime
+import html
 import json
 import os
 import posixpath
 import re
 import shutil
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections.abc import Callable, Iterator
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -36,6 +40,17 @@ DOC_LINK_SUFFIXES = {
 INLINE_LINK_RE = re.compile(r"(!?\[[^\]\n]+\]\()([^)]+)(\))")
 REFERENCE_LINK_RE = re.compile(r"(?m)^(\s{0,3}\[[^\]\n]+\]:\s*)(\S.*)$")
 HTML_LINK_ATTR_RE = re.compile(r"\b(href|src)=(['\"])(.*?)(\2)", re.IGNORECASE)
+HEADING_MARKER_PREFIX = "__MAAEND_HEADING_"
+HEADING_MARKER_RE = re.compile(r"[ \t]*__MAAEND_HEADING_(\d{4})__")
+BLOCKQUOTE_PREFIX_RE = re.compile(r"^(?: {0,3}>[ \t]?)+")
+FENCE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")
+ATX_HEADING_RE = re.compile(r"^ {0,3}(#{1,6})(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*$")
+CODE_SPAN_RE = re.compile(r"(`+)(.+?)(?<!`)\1(?!`)")
+INLINE_LINK_TEXT_RE = re.compile(r"(!?)\[([^\]]*)\]\([^)]*\)")
+HTML_TAG_RE = re.compile(r"(?<!\\)</?[A-Za-z][^>]*>")
+ESCAPED_PUNCTUATION_RE = re.compile(r"\\([!-/:-@\[-`{-~])")
+ESCAPED_UNDERSCORE = "\ue000"
+ANCHOR_DOC_SUFFIXES = {".md", ".markdown", ".mdx"}
 DEFAULT_MODELS = {
     "anthropic": "claude-3-5-haiku-latest",
     "openai": "gpt-4.1-mini",
@@ -125,6 +140,7 @@ def build_prompt(source_text: str) -> str:
         "Return only the translated Markdown content.\n"
         "Preserve the Markdown structure exactly where practical, including headings, lists, tables, and blank lines.\n"
         "Do not translate code blocks, inline code, commands, file paths, JSON keys, identifiers, version strings, or placeholders.\n"
+        f"Keep every {HEADING_MARKER_PREFIX}NNNN__ marker unchanged at the end of its heading line.\n"
         "Do not add new facts, summaries, or commentary.\n"
         "Do not wrap the output in code fences.\n\n"
         f"{source_text}"
@@ -236,6 +252,282 @@ def restore_links(translated_text: str, placeholders: dict[str, str]) -> str:
     for placeholder, destination in placeholders.items():
         restored = restored.replace(placeholder, destination)
     return restored
+
+
+@dataclasses.dataclass
+class HeadingAnchors:
+    # zh_cn 标题锚点 -> en_us 标题锚点；targets 是 en_us 文档里实际存在的全部锚点
+    mapping: dict[str, str]
+    targets: set[str]
+
+
+@dataclasses.dataclass
+class TranslatedDoc:
+    path: Path
+    text: str
+    anchors: HeadingAnchors
+
+
+def iter_lines_outside_fences(lines: list[str]) -> Iterator[int]:
+    fence = ""
+    for index, line in enumerate(lines):
+        match = FENCE_RE.match(BLOCKQUOTE_PREFIX_RE.sub("", line))
+        if not fence:
+            if match and not (match.group(1)[0] == "`" and "`" in match.group(2)):
+                fence = match.group(1)
+                continue
+            yield index
+        elif (
+            match
+            and match.group(1)[0] == fence[0]
+            and len(match.group(1)) >= len(fence)
+            and not match.group(2).strip()
+        ):
+            fence = ""
+
+
+def markdown_headings(text: str) -> list[tuple[int, int, str]]:
+    lines = text.splitlines()
+    headings: list[tuple[int, int, str]] = []
+    for index in iter_lines_outside_fences(lines):
+        # 引用块（包括提示块）里的标题也有锚点
+        match = ATX_HEADING_RE.match(BLOCKQUOTE_PREFIX_RE.sub("", lines[index]))
+        if match:
+            headings.append((index, len(match.group(1)), match.group(2) or ""))
+    return headings
+
+
+def char_kind(char: str) -> str:
+    if not char or char.isspace():
+        return "space"
+    if unicodedata.category(char)[0] in "PS":
+        return "punct"
+    return "word"
+
+
+def strip_underscore_emphasis(text: str) -> str:
+    # 按 CommonMark 的 flanking 规则去掉作为强调符号的 `_`，词内的 `_`（如 max_hit）保留
+    removed: set[int] = set()
+    openers: list[tuple[int, int]] = []
+    for match in re.finditer(r"_+", text):
+        start, end = match.span()
+        before = char_kind(text[start - 1] if start else "")
+        after = char_kind(text[end] if end < len(text) else "")
+        left_flanking = after != "space" and (after != "punct" or before != "word")
+        right_flanking = before != "space" and (before != "punct" or after != "word")
+        if openers and right_flanking and (not left_flanking or after == "punct"):
+            open_start, open_end = openers.pop()
+            count = min(open_end - open_start, end - start)
+            removed.update(range(open_end - count, open_end))
+            removed.update(range(start, start + count))
+        elif left_flanking and (not right_flanking or before == "punct"):
+            openers.append((start, end))
+    return "".join(char for index, char in enumerate(text) if index not in removed)
+
+
+def inline_plain_text(text: str) -> str:
+    text = HTML_TAG_RE.sub("", text)
+    text = INLINE_LINK_TEXT_RE.sub(lambda match: "" if match.group(1) else match.group(2), text)
+    text = ESCAPED_PUNCTUATION_RE.sub(
+        lambda match: ESCAPED_UNDERSCORE if match.group(1) == "_" else match.group(1),
+        text,
+    )
+    text = strip_underscore_emphasis(text)
+    return html.unescape(text).replace(ESCAPED_UNDERSCORE, "_")
+
+
+def heading_plain_text(content: str) -> str:
+    # GitHub 用渲染后的标题文字生成锚点：行内代码保留内容，图片不计入
+    parts: list[str] = []
+    position = 0
+    for match in CODE_SPAN_RE.finditer(content):
+        parts.append(inline_plain_text(content[position : match.start()]))
+        code = match.group(2)
+        if code.startswith(" ") and code.endswith(" ") and code.strip():
+            code = code[1:-1]
+        parts.append(code)
+        position = match.end()
+    parts.append(inline_plain_text(content[position:]))
+    return "".join(parts)
+
+
+def github_slug(text: str) -> str:
+    # 与 GitHub 一致：转小写，只保留字母、数字、连接符、空格和 -，空格换成 -（连续空格不合并）
+    kept = []
+    for char in text.lower():
+        category = unicodedata.category(char)
+        if char in "- " or category[0] in "LM" or category in ("Nd", "Nl", "Pc"):
+            kept.append(char)
+    return "".join(kept).replace(" ", "-")
+
+
+def heading_anchors(text: str) -> list[str]:
+    counts: dict[str, int] = {}
+    anchors: list[str] = []
+    for _, _, content in markdown_headings(text):
+        base = github_slug(heading_plain_text(content))
+        seen = counts.get(base, 0)
+        anchors.append(f"{base}-{seen}" if seen else base)
+        counts[base] = seen + 1
+    return anchors
+
+
+def heading_levels(text: str) -> list[int]:
+    return [level for _, level, _ in markdown_headings(text)]
+
+
+def mark_headings(text: str) -> str:
+    # 给每个标题行末尾加编号标记，翻译后据此把中文标题和英文标题一一对应起来
+    lines = text.splitlines(keepends=True)
+    for ordinal, (index, _, _) in enumerate(markdown_headings(text)):
+        body = lines[index].rstrip("\r\n")
+        lines[index] = f"{body.rstrip()} {HEADING_MARKER_PREFIX}{ordinal:04d}__{lines[index][len(body):]}"
+    return "".join(lines)
+
+
+def unmark_headings(source_text: str, translated_text: str) -> tuple[str, HeadingAnchors]:
+    lines = translated_text.splitlines(keepends=True)
+    heading_ordinals = {
+        index: ordinal for ordinal, (index, _, _) in enumerate(markdown_headings(translated_text))
+    }
+    pairs: dict[int, int] = {}
+    kept_lines: list[str] = []
+    for index, line in enumerate(lines):
+        markers = HEADING_MARKER_RE.findall(line)
+        if index in heading_ordinals:
+            for marker in markers:
+                pairs.setdefault(int(marker), heading_ordinals[index])
+        stripped = HEADING_MARKER_RE.sub("", line)
+        if markers and not stripped.strip():
+            continue
+        kept_lines.append(stripped)
+    text = "".join(kept_lines)
+
+    # 模型丢了标记时，标题层级完全一致就按位置补齐
+    if heading_levels(source_text) == heading_levels(text):
+        for ordinal in range(len(heading_ordinals)):
+            pairs.setdefault(ordinal, ordinal)
+
+    source_anchors = heading_anchors(source_text)
+    target_anchors = heading_anchors(text)
+    mapping = {
+        source_anchors[source]: target_anchors[target]
+        for source, target in pairs.items()
+        if source < len(source_anchors) and target < len(target_anchors)
+    }
+    return text, HeadingAnchors(mapping, set(target_anchors))
+
+
+def existing_doc_anchors(target: str) -> HeadingAnchors:
+    # 本次没有翻译的文档：中文源文件自上次同步后没变，按标题位置对应
+    target_path = target_doc_path(target)
+    if not target_path.is_file():
+        return HeadingAnchors({}, set())
+    target_text = target_path.read_text(encoding="utf-8")
+    target_anchors = heading_anchors(target_text)
+    source_path = Path(f"{SOURCE_DOC_ROOT}/{target[len(TARGET_DOC_ROOT) + 1:]}")
+    mapping: dict[str, str] = {}
+    if source_path.is_file():
+        source_text = source_path.read_text(encoding="utf-8")
+        if heading_levels(source_text) == heading_levels(target_text):
+            mapping = dict(zip(heading_anchors(source_text), target_anchors))
+    return HeadingAnchors(mapping, set(target_anchors))
+
+
+def localize_destination(
+    destination: str,
+    current_target: str,
+    resolve: Callable[[str], HeadingAnchors],
+    unresolved: list[tuple[str, str, str]],
+) -> str:
+    prefix, core, quote, suffix = split_link_destination(destination)
+    if not core:
+        return destination
+
+    parsed = urllib.parse.urlsplit(core)
+    if parsed.scheme or parsed.netloc or not parsed.fragment:
+        return destination
+
+    path = urllib.parse.unquote(parsed.path)
+    if not path:
+        linked = current_target
+    elif path.startswith("/"):
+        linked = posixpath.normpath(path.lstrip("/"))
+    else:
+        linked = posixpath.normpath(posixpath.join(posixpath.dirname(current_target), path))
+    if (
+        not linked.startswith(f"{TARGET_DOC_ROOT}/")
+        or PurePosixPath(linked).suffix.lower() not in ANCHOR_DOC_SUFFIXES
+    ):
+        return destination
+
+    fragment = urllib.parse.unquote(parsed.fragment)
+    anchors = resolve(linked)
+    localized = anchors.mapping.get(fragment, anchors.mapping.get(fragment.lower()))
+    if localized is None:
+        if fragment not in anchors.targets and fragment.lower() not in anchors.targets:
+            unresolved.append((current_target, linked, fragment))
+        return destination
+
+    rewritten_core = urllib.parse.urlunsplit(("", "", parsed.path, parsed.query, localized))
+    return join_link_destination(prefix, rewritten_core, quote, suffix)
+
+
+def localize_anchor_links(
+    text: str,
+    current_target: str,
+    resolve: Callable[[str], HeadingAnchors],
+    unresolved: list[tuple[str, str, str]],
+) -> str:
+    def localize(destination: str) -> str:
+        return localize_destination(destination, current_target, resolve, unresolved)
+
+    def replace_inline(match: re.Match[str]) -> str:
+        return f"{match.group(1)}{localize(match.group(2))}{match.group(3)}"
+
+    def replace_reference(match: re.Match[str]) -> str:
+        destination, separator, title = match.group(2).partition(" ")
+        return f"{match.group(1)}{localize(destination)}{separator}{title}"
+
+    def replace_html_attr(match: re.Match[str]) -> str:
+        return f"{match.group(1)}={match.group(2)}{localize(match.group(3))}{match.group(4)}"
+
+    def localize_segment(segment: str) -> str:
+        segment = INLINE_LINK_RE.sub(replace_inline, segment)
+        segment = REFERENCE_LINK_RE.sub(replace_reference, segment)
+        return HTML_LINK_ATTR_RE.sub(replace_html_attr, segment)
+
+    # 代码块和行内代码里的链接不动
+    lines = text.splitlines(keepends=True)
+    for index in iter_lines_outside_fences([line.rstrip("\r\n") for line in lines]):
+        line = lines[index]
+        parts: list[str] = []
+        position = 0
+        for match in CODE_SPAN_RE.finditer(line):
+            parts.append(localize_segment(line[position : match.start()]))
+            parts.append(match.group(0))
+            position = match.end()
+        parts.append(localize_segment(line[position:]))
+        lines[index] = "".join(parts)
+    return "".join(lines)
+
+
+def write_translations(translations: dict[str, TranslatedDoc]) -> None:
+    anchors_by_target = {target: doc.anchors for target, doc in translations.items()}
+
+    def resolve(target: str) -> HeadingAnchors:
+        if target not in anchors_by_target:
+            anchors_by_target[target] = existing_doc_anchors(target)
+        return anchors_by_target[target]
+
+    unresolved: list[tuple[str, str, str]] = []
+    for target, doc in translations.items():
+        text = localize_anchor_links(doc.text, target, resolve, unresolved)
+        ensure_parent(doc.path)
+        doc.path.write_text(text, encoding="utf-8")
+
+    for current_target, linked, fragment in unresolved:
+        print(f"Warning: could not map anchor #{fragment} in {current_target} (links to {linked}); fix it by hand.")
 
 
 def parse_key_value_config(raw_config: str) -> dict[str, Any]:
@@ -610,7 +902,7 @@ def translate_task(
     base_url: str,
     model: str,
     max_tokens: int,
-) -> None:
+) -> TranslatedDoc:
     source_path = source_doc_path(task["source_path"])
     target_path = target_doc_path(task["target_path"])
     source_text = source_path.read_text(encoding="utf-8")
@@ -621,12 +913,12 @@ def translate_task(
         base_url=base_url,
         model=model,
         max_tokens=max_tokens,
-        source_text=protected_text,
+        source_text=mark_headings(protected_text),
     )
     translated = restore_links(translated, placeholders)
-    ensure_parent(target_path)
-    target_path.write_text(translated, encoding="utf-8")
+    translated, anchors = unmark_headings(source_text, translated)
     print(f"Translated {task['source_path']} -> {task['target_path']}")
+    return TranslatedDoc(target_path, translated, anchors)
 
 
 def apply_delete(task: dict[str, Any]) -> None:
@@ -668,6 +960,7 @@ def main() -> int:
         print("No translation tasks in manifest.")
         return 0
 
+    translations: dict[str, TranslatedDoc] = {}
     for task in tasks:
         mode = task["mode"]
         if mode == "delete_target":
@@ -675,7 +968,7 @@ def main() -> int:
             continue
         if mode == "rename_target":
             apply_rename(task)
-            translate_task(
+            translations[normalize_repo_path(task["target_path_after"])] = translate_task(
                 {
                     "source_path": task["source_path_after"],
                     "target_path": task["target_path_after"],
@@ -688,7 +981,7 @@ def main() -> int:
             )
             continue
         if mode == "translate_file":
-            translate_task(
+            translations[normalize_repo_path(task["target_path"])] = translate_task(
                 task,
                 api_style=api_style,
                 api_key=api_key,
@@ -699,6 +992,7 @@ def main() -> int:
             continue
         raise RuntimeError(f"Unsupported task mode: {mode}")
 
+    write_translations(translations)
     write_sync_state(args.state_path, manifest)
     print(f"Updated docs sync state: {args.state_path}")
     return 0
