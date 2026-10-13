@@ -97,7 +97,7 @@ pnpm install
 | `ai` | AI 协作相关：skill（`.agents/skills/`）、`AGENTS.md`、AI 相关工作流等 | 🤖 人工智能 |
 | `revert` | 撤销之前的提交 | ◀️ 撤销 |
 
-- 拼错的类型（如 `pref`、`doc`）不会报错，但会在更新日志里单独成组（如「Pref」），不会归入本应的分组。`cliff.toml` 还兼容 `rft`、`styles` 两种旧写法，新提交请用上表的写法。
+- 拼错或大小写不对的类型（如 `pref`、`doc`、`CI`）不会报错，但不会归入本应的分组：git-cliff 会直接用类型名当分组名，在更新日志末尾多出「Pref」这样的分组（见 v2.23.0）。`cliff.toml` 还兼容 `rft`、`styles` 两种旧写法，新提交请用上表的写法。
 - 标题或正文中含有 `[skip changelog]` 的提交不会出现在更新日志里，一般只有 bot 的自动格式化、同步等提交使用。
 - PR 一般以 squash 方式合并：PR 标题成为提交标题，PR 描述成为提交正文。所以 PR 标题也要按上面的格式写，PR 描述里不要出现 `[skip changelog]` 字样。
 

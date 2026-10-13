@@ -94,7 +94,7 @@ The commit title format is `type(scope): description`. The scope is optional; it
 | `ai` | AI collaboration: skills (`.agents/skills/`), `AGENTS.md`, AI-related workflows, etc. | 🤖 人工智能 (AI) |
 | `revert` | Reverting a previous commit | ◀️ 撤销 (Reverts) |
 
-- Misspelled types (such as `pref` or `doc`) are not rejected, but they end up in a separate section of the changelog (such as "Pref") instead of the intended one. `cliff.toml` also accepts the legacy spellings `rft` and `styles`; use the types in the table for new commits.
+- Misspelled or wrongly-cased types (such as `pref`, `doc` or `CI`) are not rejected, but they do not go into the intended section: git-cliff uses the type itself as the section name, so an extra section such as "Pref" appears at the end of the changelog (see v2.23.0). `cliff.toml` also accepts the legacy spellings `rft` and `styles`; use the types in the table for new commits.
 - Commits whose title or body contains `[skip changelog]` are left out of the changelog. This is normally used only by bot commits such as auto-formatting and syncing.
 - PRs are usually squash-merged: the PR title becomes the commit title and the PR description becomes the commit body. Write the PR title in the same format, and do not put `[skip changelog]` in the PR description.
 
