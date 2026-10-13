@@ -1771,6 +1771,7 @@
     "task.AutoEssence.focus.engrave_permit_insufficient": "각인권이 부족합니다",
     "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "초기화가 완료되었습니다.",
     "task.AutoEssence.focus.essence_filter_after_battle_start": "기질을 인식했습니다. 유효한 기질 필터링 및 잠금을 시작합니다.",
+    "task.AutoEssence.focus.location_changed": "🔁목표 지점 변경: %s → %s",
     "task.AutoEssence.label": "🎱기질 파밍",
     "task.AutoSell.label": "💰탄력 물자 판매",
     "task.AutoStockStaple.description": "안정 수요 물자를 구매하며, 매주 갱신되는 물자만 구매합니다.",

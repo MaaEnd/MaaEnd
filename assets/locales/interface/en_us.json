@@ -1771,6 +1771,7 @@
     "task.AutoEssence.focus.engrave_permit_insufficient": "Insufficient inscription vouchers",
     "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "Initialization completed.",
     "task.AutoEssence.focus.essence_filter_after_battle_start": "Essence detected. Start filtering and locking useful ones.",
+    "task.AutoEssence.focus.location_changed": "🔁Target location changed: %s → %s",
     "task.AutoEssence.label": "🎱Essence Farm",
     "task.AutoSell.label": "💰Sell elastic supplies",
     "task.AutoStockStaple.description": "Purchase staple demand supplies, buying only weekly-refreshed items.",

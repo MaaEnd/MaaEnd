@@ -1771,6 +1771,7 @@
     "task.AutoEssence.focus.engrave_permit_insufficient": "刻寫券不足",
     "task.AutoEssence.focus.essence_filter_after_battle_init_succeeded": "初始化完成",
     "task.AutoEssence.focus.essence_filter_after_battle_start": "識別到基質，開始篩選並鎖定有用的",
+    "task.AutoEssence.focus.location_changed": "🔁目標地點變更：%s → %s",
     "task.AutoEssence.label": "🎱基質刷取",
     "task.AutoSell.label": "💰售賣彈性物資",
     "task.AutoStockStaple.description": "購買穩定需求物資，僅購買每週刷新的物品。",

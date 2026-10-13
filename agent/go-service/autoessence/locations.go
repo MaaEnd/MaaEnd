@@ -22,6 +22,29 @@ func LocationKeyByName(name string) (string, bool) {
 	return key, ok
 }
 
+// locationLabelKeys maps AutoEssence RegionNodes keys to the interface region-name
+// i18n keys used by task options ($global.region.*).
+var locationLabelKeys = map[string]string{
+	"VFTheHub":                   "global.region.TheHub",
+	"VFOriginiumSciencePark":     "global.region.OriginiumSciencePark",
+	"VFOriginLodespring":         "global.region.OriginLodespring",
+	"VFPowerPlateau":             "global.region.PowerPlateau",
+	"WLWulingCity":               "global.region.WulingCity",
+	"WLQingboStockade":           "global.region.QingboStockade",
+	"WLMarkerStone":              "global.region.MarkerStone",
+	"WLTestArea":                 "global.region.TestArea",
+	"WLSwordVaultDale":           "global.region.SwordVaultDale",
+	"WLYinglungPass":             "global.region.YinglungPass",
+	"WLNorthWulingExclusionZone": "global.region.NorthWulingExclusionZone",
+	"WLSnowyForest":              "global.region.SnowyForest",
+}
+
+// RegionLabelKey returns the interface i18n key of a location's region name.
+func RegionLabelKey(locationKey string) (string, bool) {
+	key, ok := locationLabelKeys[locationKey]
+	return key, ok
+}
+
 // SetAnchorNode returns GotoTriggerPointSetAnchor_<key>.
 func SetAnchorNode(locationKey string) string {
 	return "GotoTriggerPointSetAnchor_" + locationKey

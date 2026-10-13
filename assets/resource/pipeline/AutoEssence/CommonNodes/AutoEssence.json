@@ -231,7 +231,7 @@
         },
         "post_delay": 0,
         "next": [
-            // 整次任务首次：只强制传送+寻路，不识别其它界面
+            // 整次任务首次，以及目标模式换淤积点后（AutoEssenceTargetPlanAction 会清零它的命中计数重新武装）：只强制传送+寻路，不识别其它界面
             "__AutoEssenceForceTeleportOnce",
             // 淤积点交互：激发 / 领取 / 放弃
             "AutoEssenceClickTriggerButton",
@@ -246,7 +246,7 @@
         }
     },
     "__AutoEssenceForceTeleportOnce": {
-        "desc": "整次任务仅一次：强制传送到目标锚点后再寻路",
+        "desc": "整次任务首次、以及目标模式换淤积点后（换点时由 AutoEssenceTargetPlanAction 清零命中计数重新武装）：强制传送到目标锚点后再寻路",
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
