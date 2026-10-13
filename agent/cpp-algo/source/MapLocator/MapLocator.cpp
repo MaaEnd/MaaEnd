@@ -841,7 +841,8 @@ private:
                                          .borderMargin = 8,
                                          .whiteDilate = 9,
                                          .colorDilate = 3,
-                                         .useHsvWhiteMask = false };
+                                         .useHsvWhiteMask = false,
+                                         .whiteMaskFloor = 240 }; // 白图标经缩放后常到不了 255
 };
 
 bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)

@@ -264,6 +264,7 @@ struct ImageProcessingConfig
     int whiteDilate;
     int colorDilate;
     bool useHsvWhiteMask;
+    int whiteMaskFloor = 255; // 三通道均不低于此值按白色图标剔除
 };
 
 } // namespace maplocator
