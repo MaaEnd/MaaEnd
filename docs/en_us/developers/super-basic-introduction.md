@@ -256,7 +256,7 @@ After pushing, open your browser and visit `https://github.com/your-username/Maa
 
 ### Commit Message Format (Common to Both Routes)
 
-This project follows [Conventional Commits](https://www.conventionalcommits.org/zh-hans/v1.0.0/). The format is `type(scope): description`, and the scope is optional. The available types are defined by [`.github/cliff.toml`](../../../.github/cliff.toml); for the full details, including which changelog section each type goes into, see [getting-started.md § 0. Commit Conventions](./getting-started.md#commit-conventions-conventional-commits). Below is a quick reference for the prefixes:
+This project follows [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). The format is `type(scope): description`, and the scope is optional. The available types are defined by [`.github/cliff.toml`](../../../.github/cliff.toml); for the full details, including which changelog section each type goes into, see [getting-started.md § 0. Commit Conventions](./getting-started.md#commit-conventions-conventional-commits). Below is a quick reference for the prefixes:
 
 | Prefix | When to use |
 | --- | --- |
@@ -387,7 +387,7 @@ This is the basic shape of a Pipeline node.
 ### Learning Resources
 
 - [JSON Tutorial (Runoob)](https://www.runoob.com/json/json-tutorial.html) — In Chinese, short and concise
-- [MDN JSON Tutorial](https://developer.mozilla.org/zh-CN/docs/Learn/JavaScript/Objects/JSON) — More systematic
+- [MDN JSON Tutorial](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/JSON) — More systematic
 
 ### 🎯 Checkpoint
 

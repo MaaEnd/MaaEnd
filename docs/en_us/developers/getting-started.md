@@ -75,7 +75,7 @@ In addition to basic `add` / `commit` / `push` / `pull`, participating in this p
 
 ### Commit Conventions (Conventional Commits)
 
-Code commits in this project strictly follow the [Conventional Commits specification](https://www.conventionalcommits.org/zh-hans/v1.0.0/). A clear commit history helps Reviewers quickly understand your intent.
+Code commits in this project strictly follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/). A clear commit history helps Reviewers quickly understand your intent.
 
 The commit title format is `type(scope): description`. The scope is optional; it is usually a module or task name and is shown in the changelog. The available types are defined by [`.github/cliff.toml`](../../../.github/cliff.toml): when a release is published, git-cliff uses it to sort commits into the changelog sections.
 
