@@ -78,6 +78,9 @@ NavmeshExpansionFailure CurrentNavmeshExpansionFailure();
 // the zone's dominant floor, unchanged.
 // `no_go` is the navigation's virtual no-go discs; the ones stamped in `locator_zone` become walls.
 // `start_deck_y` is the exact height of the deck the start stands on (just landed on a zipline tower).
+// `out_start_recovery_entry`, when given, opts into the start-off-mesh recovery the authored expansion uses:
+// a start the planner cannot anchor is re-planned from the nearest mesh point within the blind-walk budget,
+// and that point comes back here for the caller to walk onto first. Never for a start or goal in a no-go zone.
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -87,7 +90,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     std::optional<double> start_floor_y = std::nullopt,
     NavmeshRouteDiagnostic* out_diagnostic = nullptr,
     const std::vector<VirtualNoGoDisc>* no_go = nullptr,
-    std::optional<double> start_deck_y = std::nullopt);
+    std::optional<double> start_deck_y = std::nullopt,
+    std::optional<navmesh::WorldPoint>* out_start_recovery_entry = nullptr);
 
 // Which walkable surface `point` lands on: the planar distance to it, and its height on the same scale
 // as BaseNavRouteRequest::floor_y. Height matters as much as distance — a point directly above or below
