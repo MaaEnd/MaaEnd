@@ -281,7 +281,8 @@
                     255
                 ],
                 "connected": false,
-                "count": 15
+                // 共享滑索图标实测 13~22 个蓝色像素，非共享为 0
+                "count": 8
             }
         ],
         "box_index": 0,
