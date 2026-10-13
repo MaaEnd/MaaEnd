@@ -392,7 +392,8 @@ std::optional<RarityGridFit> FitRarityGrid(
     const cv::Mat& image,
     const std::vector<int>& x_starts,
     const std::vector<int>& coarse_y_starts,
-    const TransferGridProfile& profile)
+    const TransferGridProfile& profile,
+    std::optional<int> minimum_cell_top)
 {
     if (image.empty() || x_starts.empty() || coarse_y_starts.empty()) {
         return std::nullopt;
@@ -432,8 +433,19 @@ std::optional<RarityGridFit> FitRarityGrid(
                 continue;
             }
             const auto bands = DetectRarityBands(lab, candidate_x, profile);
+            const auto filtered_bands = minimum_cell_top
+                                            ? [&]() {
+                                                  std::vector<RarityBand> result;
+                                                  for (const auto& band : bands) {
+                                                      if (band.bottom - profile.rarity_anchor_offset >= *minimum_cell_top) {
+                                                          result.push_back(band);
+                                                      }
+                                                  }
+                                                  return result;
+                                              }()
+                                            : bands;
             const int minimum_rows = column_count == 1 ? 1 : 2;
-            const auto vertical = FitVerticalBands(bands, coarse_y_starts, profile, minimum_rows);
+            const auto vertical = FitVerticalBands(filtered_bands, coarse_y_starts, profile, minimum_rows);
             if (!vertical) {
                 continue;
             }

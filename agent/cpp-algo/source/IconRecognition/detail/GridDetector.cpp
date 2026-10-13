@@ -2259,7 +2259,14 @@ GridLayout BuildTransferLayout(
     bool reliable_rarity_fit = false;
     if (!empty_grid_selected) {
         trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
-        rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
+        std::optional<int> minimum_rarity_cell_top;
+        if (complete_transfer_panel && local_x.size() >= 4 && texture_context && !texture_context->texture_roi.empty()) {
+            // 提示条位于面板可信内容区之外；不允许它的彩色边缘成为第一行 rarity 锚点。
+            const int trusted_top = cvRound(
+                static_cast<double>(texture_context->texture_roi.y) / texture_context->source_grid_scale);
+            minimum_rarity_cell_top = trusted_top - roi.y - cvFloor((1.0 - profile.minimum_top_visibility) * profile.cell_size);
+        }
+        rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile, minimum_rarity_cell_top);
         // 满背包同类灰色物品的重复纹理可能比格框更强；有前景支持的灰条也应约束右侧相位。
         const bool gray_rarity_fit = transfer && rarity_fit.has_value() && rarity_fit->supporting_strong_cells == 0
                                      && rarity_fit->supporting_chromatic_cells == 0
@@ -2495,7 +2502,8 @@ GridLayout BuildTransferLayout(
 
     if (complete_transfer_panel) {
         // 只有右侧完整背包面板允许二维相位竞争；左侧已有物品的 rarity/结构观测直接约束相位。
-        if (!empty_grid_selected) {
+        // 稀疏可信色带只提供相位锚点时，仍需按右侧面板宽度恢复完整容量列。
+        if (!empty_grid_selected && (!reliable_rarity_fit || trusted_selected)) {
             double maximum_structure = 0.0;
             cv::minMaxLoc(cell_score, nullptr, &maximum_structure);
             if (maximum_structure <= kEpsilon && !reliable_rarity_fit) {
