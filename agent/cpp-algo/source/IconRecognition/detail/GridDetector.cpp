@@ -2502,8 +2502,7 @@ GridLayout BuildTransferLayout(
 
     if (complete_transfer_panel) {
         // 只有右侧完整背包面板允许二维相位竞争；左侧已有物品的 rarity/结构观测直接约束相位。
-        // 稀疏可信色带只提供相位锚点时，仍需按右侧面板宽度恢复完整容量列。
-        if (!empty_grid_selected && (!reliable_rarity_fit || trusted_selected)) {
+        if (!empty_grid_selected) {
             double maximum_structure = 0.0;
             cv::minMaxLoc(cell_score, nullptr, &maximum_structure);
             if (maximum_structure <= kEpsilon && !reliable_rarity_fit) {
@@ -2524,8 +2523,12 @@ GridLayout BuildTransferLayout(
                          << VAR(local_y.size());
                 return {};
             }
+            // 列容量必须由面板宽度恢复：rarity 列只覆盖有物品的列，空列会被截掉。
             local_x = final_phase->x_starts;
-            local_y = final_phase->y_starts;
+            // 未选用 trusted 时，可靠 rarity 行相位已排除提示条干扰；二维结构竞争会被提示条边缘拉回错误行相位。
+            if (!reliable_rarity_fit || trusted_selected) {
+                local_y = final_phase->y_starts;
+            }
         }
     }
 
