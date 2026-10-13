@@ -7,7 +7,7 @@
  * --ref 默认为 HEAD。结果：
  *   identical          渲染结果完全相同
  *   whitespace-only    只差标签间空白
- *   tightness-only     只差列表松紧（列表项是否直接包一层 <p>），条目间距会变
+ *   tightness-only     只差列表松紧（列表项是否直接包一层 <p>），条目间距会变；段落合并、拆分仍算 DIFFERENT
  *   DIFFERENT          渲染内容不同，输出第一处差异；存在此结果时退出码为 1
  *   skipped            文件在该 ref 中不存在
  * --ref 无效、不在 git 仓库里或 git 出错时，输出错误信息并以退出码 2 结束。
@@ -80,28 +80,45 @@ const collapse = (html) =>
         .replace(BLOCK_TAG, "$1")
         .trim();
 const VOID_TAGS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
-// 只去掉列表项直接包着的 <p>，也就是列表松紧的差别；其他位置多出或少了 <p>（例如 <div> 里多了一个段落）算显示变化
+const PARAGRAPH_BREAK = String.fromCodePoint(0xe001);
+// 只去掉列表项直接包着的 <p>，也就是列表松紧的差别；其他位置多出或少了 <p>（例如 <div> 里多了一个段落）算显示变化。
+// 紧凑列表里同一项的两个段落之间一定隔着别的块（代码块、子列表等），紧挨着的两个段落只会出现在松散列表里，
+// 所以在它们之间留下分隔标记：段落合并、拆分或边界移动仍会被判为 DIFFERENT
 const stripListParagraphs = (html) => {
+    const tokens = html.split(/(<\/?[A-Za-z][\w-]*\b[^>]*>)/);
     const open = [];
-    return html.replace(/<(\/?)([A-Za-z][\w-]*)\b[^>]*>/g, (tag, closing, rawName) => {
+    for (let i = 1; i < tokens.length; i += 2) {
+        const tag = tokens[i];
+        const [, closing, rawName] = tag.match(/^<(\/?)([A-Za-z][\w-]*)/);
         const name = rawName.toLowerCase();
         if (VOID_TAGS.has(name) || tag.endsWith("/>")) {
-            return tag;
+            continue;
         }
         if (!closing) {
-            const listParagraph = name === "p" && open.at(-1) === "li";
-            open.push(listParagraph ? "li>p" : name);
-            return listParagraph ? "" : tag;
+            const parent = open.at(-1);
+            const listParagraph = name === "p" && parent?.name === "li";
+            if (listParagraph) {
+                const adjacent =
+                    parent.lastParagraphEnd !== undefined &&
+                    !tokens.slice(parent.lastParagraphEnd + 1, i).join("").trim();
+                tokens[i] = adjacent ? PARAGRAPH_BREAK : "";
+            }
+            open.push({ name: listParagraph ? "li>p" : name });
+            continue;
         }
         // 原始 HTML 里可能有不配对的标签：弹到对应的开标签为止
-        const index = open.findLastIndex((entry) => entry === name || (name === "p" && entry === "li>p"));
+        const index = open.findLastIndex((entry) => entry.name === name || (name === "p" && entry.name === "li>p"));
         if (index === -1) {
-            return tag;
+            continue;
         }
-        const removed = open[index] === "li>p";
+        const closed = open[index];
         open.length = index;
-        return removed ? "" : tag;
-    });
+        if (closed.name === "li>p") {
+            tokens[i] = "";
+            open.at(-1).lastParagraphEnd = i;
+        }
+    }
+    return tokens.join("");
 };
 
 const firstDifference = (before, after) => {

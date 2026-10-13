@@ -227,13 +227,13 @@ node .agents/skills/docs-guide/scripts/render-diff.mjs --ref origin/v2 docs/zh_c
 
 GitHub 独有的语法这样确认：
 
-- 提示块：`gh api markdown -f mode=gfm -f context=MaaEnd/MaaEnd -F text=@<file.md>`，写对的提示块会渲染成 `<div class="markdown-alert …">`。这会把内容发给 GitHub，只用于本来就要公开的文档。
-- 标题锚点：同一文件内靠 MD051。跨文件的，把分支推上去后用 `gh api -H "Accept: application/vnd.github.html" "repos/MaaEnd/MaaEnd/contents/<path>?ref=<branch>"` 取页面，`id="user-content-…"` 里就是锚点（经过 URL 编码）；也可以在 PR 的 rich diff 里直接点。
+- 提示块：`gh api markdown -f mode=gfm -f context=MaaEnd/MaaEnd -F text=@path/to/file.md`（把 `path/to/file.md` 换成实际的文件路径），写对的提示块会渲染成 `<div class="markdown-alert …">`。这会把内容发给 GitHub，只用于本来就要公开的文档。
+- 标题锚点：同一文件内靠 MD051。跨文件的，把分支推上去后用 `gh api -H "Accept: application/vnd.github.html" "repos/MaaEnd/MaaEnd/contents/path/to/file.md?ref=branch-name"`（把 `path/to/file.md`、`branch-name` 换成实际的文件路径和分支名）取页面，`id="user-content-…"` 里就是锚点（经过 URL 编码）；也可以在 PR 的 rich diff 里直接点。
 
 ## 修复被格式化工具改坏的 Markdown
 
-1. 找到弄坏它的提交：`git log -L <起始行>,<结束行>:<file>` 或 `git log -S'<坏掉后的文本>'`，多半是 `style: auto format code`。
-2. 用 `git show <作者的提交>:<path>` 取出原文，按原文的结构还原；之后有意的修改要保留（例如 `maa.log` 改成了 `maafw.log`）。
+1. 找到弄坏它的提交：`git log -L 10,20:path/to/file.md` 或 `git log -S'坏掉后的文本'`（行号、路径和文本换成实际的），多半是 `style: auto format code`。
+2. 用 `git show COMMIT:path/to/file.md`（`COMMIT` 换成作者的提交，路径换成实际的文件路径）取出原文，按原文的结构还原；之后有意的修改要保留（例如 `maa.log` 改成了 `maafw.log`）。
 3. 写成真正合法的语法，不要原样恢复伪语法（例如 `a.` 改成 `1.`）；不改变列表类型，不改措辞。
 4. 跑 `pnpm format:md`，确认它不会再改这些位置。
 5. 中英文一起修。
@@ -251,7 +251,7 @@ GitHub 独有的语法这样确认：
 - 放在 `.agents/skills/<name>/SKILL.md`（`.claude/` 已被 gitignore）。frontmatter 只写 `name` 和 `description`，`name` 与目录名一致（现有例外：`dmp-analysis` 目录里的 name 是 `windows-dmp-analysis`）。
 - `description` 用中文写清做什么、在什么场景下使用，AI 靠它决定是否加载这个 skill。
 - skill 主要由 AI 读源码，结构清楚、指令明确优先；它同样受 markdownlint 约束，在 GitHub 上也要能正常显示。
-- 篇幅大的参考资料放同目录的 `reference.md`，脚本放 `scripts/`，在仓库根目录运行（`node .agents/skills/<name>/scripts/x.mjs`、`uv run .agents/skills/<name>/scripts/x.py`）。
+- 篇幅大的参考资料放同目录的 `reference.md`，脚本放 `scripts/`，在仓库根目录运行（`node .agents/skills/skill-name/scripts/x.mjs`、`uv run .agents/skills/skill-name/scripts/x.py`，`skill-name`、`x` 换成实际的目录名和脚本名）。
 - 给 AI 套用的输出模板，放在外层 4 个反引号的 `markdown` 代码块里。
 
 ## 提交前检查清单
