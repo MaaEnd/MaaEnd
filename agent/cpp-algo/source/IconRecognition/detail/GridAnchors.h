@@ -43,8 +43,7 @@ std::optional<RarityGridFit> FitRarityGrid(
     const cv::Mat& image,
     const std::vector<int>& x_starts,
     const std::vector<int>& coarse_y_starts,
-    const TransferGridProfile& profile,
-    std::optional<int> minimum_cell_top = std::nullopt);
+    const TransferGridProfile& profile);
 std::optional<TrustedRarityGridFit> FitTrustedRarityGrid(const cv::Mat& image, const cv::Rect& region, const TransferGridProfile& profile);
 
 } // namespace iconrecognition::detail
