@@ -46,7 +46,8 @@ BLOCKQUOTE_PREFIX_RE = re.compile(r"^(?: {0,3}>[ \t]?)+")
 FENCE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")
 ATX_HEADING_RE = re.compile(r"^ {0,3}(#{1,6})(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*$")
 CODE_SPAN_RE = re.compile(r"(`+)(.+?)(?<!`)\1(?!`)")
-INLINE_LINK_TEXT_RE = re.compile(r"(!?)\[([^\]]*)\]\([^)]*\)")
+INLINE_LINK_TEXT_RE = re.compile(r"(!?)\[([^\]]*)\](?:\([^)]*\)|\[[^\]]*\])")
+HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 HTML_TAG_RE = re.compile(r"(?<!\\)</?[A-Za-z][^>]*>")
 ESCAPED_PUNCTUATION_RE = re.compile(r"\\([!-/:-@\[-`{-~])")
 ESCAPED_UNDERSCORE = "\ue000"
@@ -326,6 +327,7 @@ def strip_underscore_emphasis(text: str) -> str:
 
 
 def inline_plain_text(text: str) -> str:
+    text = HTML_COMMENT_RE.sub("", text)
     text = HTML_TAG_RE.sub("", text)
     text = INLINE_LINK_TEXT_RE.sub(lambda match: "" if match.group(1) else match.group(2), text)
     text = ESCAPED_PUNCTUATION_RE.sub(
@@ -362,13 +364,19 @@ def github_slug(text: str) -> str:
 
 
 def heading_anchors(text: str) -> list[str]:
-    counts: dict[str, int] = {}
+    # 与 GitHub 一致：重名时加 -1、-2…，候选已被占用（包括标题本身就叫 xxx-1）就继续递增；
+    # 文字为空的标题（如只有图片）没有锚点，也不参与计数
+    occurrences: dict[str, int] = {}
     anchors: list[str] = []
     for _, _, content in markdown_headings(text):
         base = github_slug(heading_plain_text(content))
-        seen = counts.get(base, 0)
-        anchors.append(f"{base}-{seen}" if seen else base)
-        counts[base] = seen + 1
+        anchor = base
+        if base:
+            while anchor in occurrences:
+                occurrences[base] += 1
+                anchor = f"{base}-{occurrences[base]}"
+            occurrences[anchor] = 0
+        anchors.append(anchor)
     return anchors
 
 
@@ -413,9 +421,12 @@ def unmark_headings(source_text: str, translated_text: str) -> tuple[str, Headin
     mapping = {
         source_anchors[source]: target_anchors[target]
         for source, target in pairs.items()
-        if source < len(source_anchors) and target < len(target_anchors)
+        if source < len(source_anchors)
+        and target < len(target_anchors)
+        and source_anchors[source]
+        and target_anchors[target]
     }
-    return text, HeadingAnchors(mapping, set(target_anchors))
+    return text, HeadingAnchors(mapping, {anchor for anchor in target_anchors if anchor})
 
 
 def existing_doc_anchors(target: str) -> HeadingAnchors:
@@ -430,8 +441,12 @@ def existing_doc_anchors(target: str) -> HeadingAnchors:
     if source_path.is_file():
         source_text = source_path.read_text(encoding="utf-8")
         if heading_levels(source_text) == heading_levels(target_text):
-            mapping = dict(zip(heading_anchors(source_text), target_anchors))
-    return HeadingAnchors(mapping, set(target_anchors))
+            mapping = {
+                source: target
+                for source, target in zip(heading_anchors(source_text), target_anchors)
+                if source and target
+            }
+    return HeadingAnchors(mapping, {anchor for anchor in target_anchors if anchor})
 
 
 def localize_destination(
@@ -961,38 +976,41 @@ def main() -> int:
         return 0
 
     translations: dict[str, TranslatedDoc] = {}
-    for task in tasks:
-        mode = task["mode"]
-        if mode == "delete_target":
-            apply_delete(task)
-            continue
-        if mode == "rename_target":
-            apply_rename(task)
-            translations[normalize_repo_path(task["target_path_after"])] = translate_task(
-                {
-                    "source_path": task["source_path_after"],
-                    "target_path": task["target_path_after"],
-                },
-                api_style=api_style,
-                api_key=api_key,
-                base_url=base_url,
-                model=model,
-                max_tokens=max_tokens,
-            )
-            continue
-        if mode == "translate_file":
-            translations[normalize_repo_path(task["target_path"])] = translate_task(
-                task,
-                api_style=api_style,
-                api_key=api_key,
-                base_url=base_url,
-                model=model,
-                max_tokens=max_tokens,
-            )
-            continue
-        raise RuntimeError(f"Unsupported task mode: {mode}")
+    try:
+        for task in tasks:
+            mode = task["mode"]
+            if mode == "delete_target":
+                apply_delete(task)
+                continue
+            if mode == "rename_target":
+                apply_rename(task)
+                translations[normalize_repo_path(task["target_path_after"])] = translate_task(
+                    {
+                        "source_path": task["source_path_after"],
+                        "target_path": task["target_path_after"],
+                    },
+                    api_style=api_style,
+                    api_key=api_key,
+                    base_url=base_url,
+                    model=model,
+                    max_tokens=max_tokens,
+                )
+                continue
+            if mode == "translate_file":
+                translations[normalize_repo_path(task["target_path"])] = translate_task(
+                    task,
+                    api_style=api_style,
+                    api_key=api_key,
+                    base_url=base_url,
+                    model=model,
+                    max_tokens=max_tokens,
+                )
+                continue
+            raise RuntimeError(f"Unsupported task mode: {mode}")
+    finally:
+        # 后面的任务失败时，已经翻译好的文件照样写入，异常继续向上抛；同步状态只在全部成功后更新
+        write_translations(translations)
 
-    write_translations(translations)
     write_sync_state(args.state_path, manifest)
     print(f"Updated docs sync state: {args.state_path}")
     return 0
