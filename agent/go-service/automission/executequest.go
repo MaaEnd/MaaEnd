@@ -67,15 +67,18 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	)
 	if node == npcProxyNode {
 		npcNames := npcNameVariants(track)
-		if track.ZoneID == "" || track.X == nil || track.Y == nil || len(npcNames) == 0 {
+		if track.ZoneID == "" || track.X == nil || track.Y == nil {
 			log.Warn().
 				Str("component", executeComponent).
 				Str("zone_id", track.ZoneID).
 				Bool("has_x", track.X != nil).
 				Bool("has_y", track.Y != nil).
-				Strs("npc_names", npcNames).
-				Msg("npc proxy track missing zone, position or npc name")
+				Msg("npc proxy track missing zone or position")
 			return false
+		}
+		if len(npcNames) == 0 {
+			// 没有人名：注入永不匹配的正则，只走到坐标，不做交互。
+			npcNames = []string{"(?!)"}
 		}
 		log.Info().
 			Str("component", executeComponent).

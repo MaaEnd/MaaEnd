@@ -46,7 +46,6 @@ const GENERIC_COMPONENTS = new Set([
 ]);
 
 // 玩家进入触发区后会自动推进剧情的动作。
-const AUTO_TRIGGER_ACTIONS = new Set(["StartDialogAction", "StartLevelCustomPerformance", "NpcProxyPatrolStart"]);
 
 function readJson(path) {
     return JSON.parse(readFileSync(path, "utf8"));
@@ -272,59 +271,6 @@ function placement(sceneId, position) {
     };
 }
 
-function scriptNodeMap(dataMap) {
-    const nodes = new Map();
-    for (const key of ["headerList", "actionList"]) {
-        for (const node of dataMap?.[key] ?? []) {
-            if (node?._ID != null) {
-                nodes.set(node._ID, node);
-            }
-        }
-    }
-    return nodes;
-}
-
-// 从玩家进入触发区事件出发，沿 _nextID / Split._idList 查找会自动推进剧情的动作。
-function hasAutoTrigger(dataMap) {
-    const nodes = scriptNodeMap(dataMap);
-    const queue = [];
-    for (const header of dataMap?.headerList ?? []) {
-        if (shortType(header?.$type) === "OnLeaderEnterTriggerVolume") {
-            queue.push(header._nextID);
-        }
-    }
-    const visited = new Set();
-    while (queue.length > 0) {
-        const id = queue.shift();
-        if (id == null || id < 0 || visited.has(id)) {
-            continue;
-        }
-        visited.add(id);
-        const node = nodes.get(id);
-        if (!node) {
-            continue;
-        }
-        if (AUTO_TRIGGER_ACTIONS.has(shortType(node.$type))) {
-            return true;
-        }
-        queue.push(node._nextID, ...(Array.isArray(node._idList) ? node._idList : []));
-    }
-    return false;
-}
-
-function referencedProxies(dataMap) {
-    const proxies = new Set();
-    for (const key of ["getterList", "actionList", "headerList"]) {
-        for (const node of dataMap?.[key] ?? []) {
-            const proxyId = node?._targetProxy?.constValue;
-            if (typeof proxyId === "string" && proxyId) {
-                proxies.add(proxyId);
-            }
-        }
-    }
-    return proxies;
-}
-
 // 关卡脚本运行时给代理改的名字，同一代理在不同进度可能显示不同名字。
 function collectNameOverrides(dataMap, overrides) {
     for (const node of dataMap?.actionList ?? []) {
@@ -343,7 +289,6 @@ function collectNameOverrides(dataMap, overrides) {
     }
 }
 
-const autoTriggerProxies = new Set();
 const proxyNameOverrides = new Map();
 if (existsSync(levelScriptDir)) {
     for (const sceneId of readdirSync(levelScriptDir)) {
@@ -354,13 +299,6 @@ if (existsSync(levelScriptDir)) {
             }
             const dataMap = readJson(resolve(dir, name)).actionMap?.dataMap;
             collectNameOverrides(dataMap, proxyNameOverrides);
-            const proxies = referencedProxies(dataMap);
-            if (proxies.size === 0 || !hasAutoTrigger(dataMap)) {
-                continue;
-            }
-            for (const proxyId of proxies) {
-                autoTriggerProxies.add(proxyId);
-            }
         }
     }
 }
@@ -428,38 +366,15 @@ function interactTextOf(proxyId, dialogs) {
     return null;
 }
 
-// 代理自身挂了对话：靠近后按键交互。否则看关卡脚本是否在进入触发区时自动推进。
-function proxyAction(proxyId, npcName, interactText) {
-    if (proxyOwnDialogs(proxyId).length > 0) {
-        return "interact";
-    }
-    if (autoTriggerProxies.has(proxyId)) {
-        return "wait";
-    }
-    if (npcName || interactText) {
-        return "interact";
-    }
-    return "unknown";
-}
-
-const actionStats = {interact: 0, wait: 0, unknown: 0};
-const unknownSamples = [];
-
-function convertNpcProxy(track, missionId) {
+function convertNpcProxy(track) {
     const proxyId = track.npcProxyId ?? "";
     const row = proxyById.get(proxyId);
     const dialogs = proxyDialogs(proxyId);
     const npcName = npcNameOf(proxyId, dialogs);
     const interactText = interactTextOf(proxyId, dialogs);
-    const action = proxyAction(proxyId, npcName, interactText);
-    actionStats[action] += 1;
-    if (action === "unknown" && unknownSamples.length < 10) {
-        unknownSamples.push(`${missionId} ${proxyId}`);
-    }
     const result = {
         type: "NpcProxyTrackingInfo",
         ...placement(row?.levelId || track.sceneId, row?.position),
-        action,
     };
     if (npcName) {
         result.npcName = npcName;
@@ -484,7 +399,7 @@ function convertEntity(track) {
     return {...result, ...placement(track.sceneId, entity?.position)};
 }
 
-function convertTrack(track, missionId) {
+function convertTrack(track) {
     const type = shortType(track?.$type);
     switch (type) {
         case "SnsTrackingInfo":
@@ -498,7 +413,7 @@ function convertTrack(track, missionId) {
         case "MissionAreaTrackingInfo":
             return {type, ...placement(track.sceneId, missionArea(track.sceneId, track.missionAreaId)?.shape?.position)};
         case "NpcProxyTrackingInfo":
-            return convertNpcProxy(track, missionId);
+            return convertNpcProxy(track);
         case "EntityTrackingInfo":
             return convertEntity(track);
         default:
@@ -506,8 +421,8 @@ function convertTrack(track, missionId) {
     }
 }
 
-function convertTracks(tracks, missionId) {
-    return (tracks ?? []).map((track) => convertTrack(track, missionId)).filter(Boolean);
+function convertTracks(tracks) {
+    return (tracks ?? []).map((track) => convertTrack(track)).filter(Boolean);
 }
 
 function convertCondition(condition) {
@@ -523,7 +438,7 @@ function convertCondition(condition) {
     return result;
 }
 
-function convertObjective(objective, missionId) {
+function convertObjective(objective) {
     const result = {
         description: objectiveText(objective?.description?.key),
     };
@@ -531,20 +446,20 @@ function convertObjective(objective, missionId) {
         result.useMultipleDescription = true;
         result.multipleDescription = (objective.multipleDescription ?? []).map((item) => objectiveText(item?.key));
     }
-    result.trackingInfoList = convertTracks(objective?.trackingInfoList, missionId);
+    result.trackingInfoList = convertTracks(objective?.trackingInfoList);
     result.multiDescTrackingInfoList = (objective?.multiDescTrackingInfoList ?? []).map((block) => ({
-        actualList: convertTracks(block?.actualList, missionId),
+        actualList: convertTracks(block?.actualList),
     }));
     result.condition = convertCondition(objective?.condition);
     return result;
 }
 
-function convertQuest(quest, missionId) {
+function convertQuest(quest) {
     return {
         questId: quest.questId ?? "",
         prevQuestIdList: Array.isArray(quest.prevQuestIdList) ? quest.prevQuestIdList : [],
         flowIndex: quest.flowIndex ?? 0,
-        objectiveList: (quest.objectiveList ?? []).map((objective) => convertObjective(objective, missionId)),
+        objectiveList: (quest.objectiveList ?? []).map((objective) => convertObjective(objective)),
     };
 }
 
@@ -557,7 +472,7 @@ for (const name of readdirSync(missionDir)) {
     const missionId = mission.missionId ?? name.slice(0, -".json".length);
     const questDic = {};
     for (const [questId, quest] of Object.entries(mission.questDic ?? {})) {
-        questDic[questId] = convertQuest(quest, missionId);
+        questDic[questId] = convertQuest(quest);
     }
     missions[missionId] = {
         missionId,
@@ -577,9 +492,3 @@ for (const missionId of Object.keys(missions).sort()) {
 mkdirSync(dirname(outputPath), {recursive: true});
 writeFileSync(outputPath, `${JSON.stringify(ordered, null, 4)}\n`, "utf8");
 console.log(`[AutoMission] 已生成 ${outputPath}（${Object.keys(ordered).length} 个任务）`);
-console.log(
-    `[AutoMission] NpcProxy action：interact ${actionStats.interact}，wait ${actionStats.wait}，unknown ${actionStats.unknown}`,
-);
-if (unknownSamples.length > 0) {
-    console.log(`[AutoMission] unknown 样例：${unknownSamples.join("；")}`);
-}
