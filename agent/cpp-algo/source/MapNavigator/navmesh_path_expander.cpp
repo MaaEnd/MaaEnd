@@ -707,9 +707,10 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     const auto plan_started_at = std::chrono::steady_clock::now();
     auto route_result = PlanCorridorRoute(*navmesh, request, {}, out_diagnostic);
     // 要了入口点的调用方, 起点脱网时按开局展开那套起点恢复从网格上的入口点再规划一次, 入口点交给它先盲走过去。
-    // 禁区判掉的不接: 盲走不看可走面, 接手就是径直穿过禁区
+    // 禁区判掉的不接: 盲走不看可走面, 接手就是径直穿过禁区。搜索半径会随线路的吸附半径放大, 这里只收盲走预算内的入口
     if (!route_result.ok() && out_start_recovery_entry != nullptr && route_result.status != navmesh::BaseNavRouteStatus::NoGo) {
-        if (const auto entry = FindStartRecoveryEntry(param, *navmesh, navmesh_zone, locator_zone, request, nullptr)) {
+        const auto entry = FindStartRecoveryEntry(param, *navmesh, navmesh_zone, locator_zone, request, nullptr);
+        if (entry && entry->distance <= kStartRecoveryMaxBlindWalk) {
             navmesh::BaseNavRouteRequest recovered = request;
             recovered.start = entry->point;
             auto retry = PlanCorridorRoute(*navmesh, recovered, {}, out_diagnostic);
