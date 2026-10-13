@@ -78,7 +78,8 @@ type betterSlidingParamPresence struct {
 //   - Direction: swipe direction (left/right/up/down)
 //   - IncreaseButton: increase button coordinates, node reference, or param patch
 //   - DecreaseButton: decrease button coordinates, node reference, or param patch
-//   - CenterPointOffset: click offset from slider handle center, default [-10, 0]
+//   - CenterPointOffset: click offset from slider handle center; default [-10, 0] on desktop
+//     controllers and [-12, 0] on mobile controllers (ADB / CloudADB / PlayCover)
 //   - ClampTargetToSliderMax: clamp target to sliderMaxQuantity instead of failing (default false)
 //   - FineTuneQuantity: bool or int >= 1; true (default) always fine-tunes via
 //     Increase/Decrease, false never, int N only when abs(current - target) <= N.
@@ -244,7 +245,12 @@ const (
 	TargetQuantityTypePercentage = "Percentage"
 )
 
-var defaultCenterPointOffset = [2]int{-10, 0}
+var (
+	// defaultCenterPointOffsetDesktop 是桌面控制器（Win32 / macOS / Linux）的默认点击偏移。
+	defaultCenterPointOffsetDesktop = [2]int{-10, 0}
+	// defaultCenterPointOffsetMobile 是移动端控制器（ADB / CloudADB / PlayCover，即挂载 resource_adb 的控制器）的默认点击偏移。
+	defaultCenterPointOffsetMobile = [2]int{-12, 0}
+)
 
 // defaultGreenMask 是 BetterSliding 按钮模板匹配默认启用的绿色掩码开关。
 // BetterSliding 对 SwipeButton / IncreaseButton / DecreaseButton 的模板匹配默认开启绿色掩码，
