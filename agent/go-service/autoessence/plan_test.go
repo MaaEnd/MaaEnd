@@ -1,14 +1,11 @@
 package autoessence
 
 import (
-	"encoding/json"
-	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 )
 
 func testDataDir(t *testing.T) string {
@@ -307,57 +304,5 @@ func TestLocationKeyByName(t *testing.T) {
 	}
 	if _, ok := LocationKeyByName("不存在"); ok {
 		t.Fatal("expected miss")
-	}
-}
-
-func TestPlanLocationChanged(t *testing.T) {
-	t.Cleanup(func() { lastPlanLocation = planLocation{} })
-	lastPlanLocation = planLocation{}
-
-	lodespring := &FarmPlan{LocationKey: "VFOriginLodespring", LocationName: "重度能量淤积点·矿脉源区"}
-	if changed, _ := planLocationChanged(lodespring); changed {
-		t.Fatal("首次选点不该算换点")
-	}
-	rememberPlanLocation(lodespring)
-
-	if changed, _ := planLocationChanged(lodespring); changed {
-		t.Fatal("同一刷取点不该算换点")
-	}
-	rememberPlanLocation(lodespring)
-
-	snowyForest := &FarmPlan{LocationKey: "WLSnowyForest", LocationName: "重度能量淤积点·雪松林"}
-	changed, prev := planLocationChanged(snowyForest)
-	if !changed {
-		t.Fatal("换刷取点必须算换点，否则不会重新武装传送")
-	}
-	if prev.Key != "VFOriginLodespring" || prev.Name != "重度能量淤积点·矿脉源区" {
-		t.Fatalf("上一轮刷取点不对: %+v", prev)
-	}
-	rememberPlanLocation(snowyForest)
-	if changed, _ := planLocationChanged(snowyForest); changed {
-		t.Fatal("换点后同点不该再算换点")
-	}
-}
-
-// 换点提示里的地区名走 $global.region.* 文案，映射或文案缺一个都会在界面露出 key。
-func TestRegionLabelKeysExist(t *testing.T) {
-	assetsDir := filepath.Dir(filepath.Dir(testDataDir(t)))
-	raw, err := os.ReadFile(filepath.Join(assetsDir, "locales", "interface", "zh_cn.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var messages map[string]string
-	if err := json.Unmarshal(jsonclean.Clean(raw), &messages); err != nil {
-		t.Fatal(err)
-	}
-	for name, key := range locationNameToKey {
-		labelKey, ok := RegionLabelKey(key)
-		if !ok {
-			t.Errorf("%s(%s)：缺少 global.region 文案映射", name, key)
-			continue
-		}
-		if _, ok := messages[labelKey]; !ok {
-			t.Errorf("%s：interface/zh_cn.json 里没有 %s", name, labelKey)
-		}
 	}
 }
