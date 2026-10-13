@@ -80,7 +80,7 @@ const PRESERVED_MARK = String.fromCodePoint(0xe002);
 const collapse = (html) => {
     const preserved = [];
     const collapsed = html
-        .replace(CODE_BLOCK, "<pre/>")
+        .replace(CODE_BLOCK, "<pre></pre>")
         .replace(PRESERVED_WHITESPACE, (_, open, name, content, close) => {
             // HTML 解析时会丢掉 <pre>、<textarea> 开标签后紧跟的一个换行
             preserved.push(/^(pre|textarea)$/i.test(name) ? content.replace(/^\r?\n/, "") : content);
