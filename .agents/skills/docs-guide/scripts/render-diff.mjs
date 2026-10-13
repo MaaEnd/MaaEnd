@@ -72,13 +72,29 @@ const CODE_BLOCK = /<pre><code[^>]*>[\s\S]*?<\/code><\/pre>/g;
 const codeBlocks = (html) => html.match(CODE_BLOCK) ?? [];
 // 块级标签两侧的空白不影响显示；行内标签（code、a、em 等）两侧的空格会显示出来，保留
 const BLOCK_TAG = /\s*(<\/?(?:li|ul|ol|p|h[1-6]|table|thead|tbody|tr|th|td|blockquote|pre|hr|br|div|details|summary|section)\b[^>]*>)\s*/g;
-// 代码块单独逐字比较，其余部分把连续空白视为一个空格
-const collapse = (html) =>
-    html
+// 这些元素里的空白会原样显示：原始 HTML 的 <pre>、<textarea> 按浏览器默认保留空白，
+// 行内 <code>、<tt> 在 GitHub 的样式里是 white-space: break-spaces
+const PRESERVED_WHITESPACE = /(<(pre|textarea|code|tt)\b[^>]*>)([\s\S]*?)(<\/\2>)/gi;
+const PRESERVED_MARK = String.fromCodePoint(0xe002);
+// 代码块单独逐字比较；上面这些元素的内容先换成占位符，空白归一化后原样换回；其余部分把连续空白视为一个空格
+const collapse = (html) => {
+    const preserved = [];
+    const collapsed = html
         .replace(CODE_BLOCK, "<pre/>")
+        .replace(PRESERVED_WHITESPACE, (_, open, name, content, close) => {
+            // HTML 解析时会丢掉 <pre>、<textarea> 开标签后紧跟的一个换行
+            preserved.push(/^(pre|textarea)$/i.test(name) ? content.replace(/^\r?\n/, "") : content);
+            return `${open}${PRESERVED_MARK}${preserved.length - 1}${PRESERVED_MARK}${close}`;
+        })
         .replace(/\s+/g, " ")
         .replace(BLOCK_TAG, "$1")
         .trim();
+    // 按标记切开后，奇数位是占位符里的序号
+    return collapsed
+        .split(PRESERVED_MARK)
+        .map((part, index) => (index % 2 ? preserved[Number(part)] : part))
+        .join("");
+};
 const VOID_TAGS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
 const PARAGRAPH_BREAK = String.fromCodePoint(0xe001);
 // 只去掉列表项直接包着的 <p>，也就是列表松紧的差别；其他位置多出或少了 <p>（例如 <div> 里多了一个段落）算显示变化。
