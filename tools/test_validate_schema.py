@@ -47,6 +47,37 @@ class JsoncCommentsTest(unittest.TestCase):
         self.assertEqual(cleaned.count("\r"), text.count("\r"))
         self.assertEqual(json.loads(cleaned), {"value": 1})
 
+    def assert_decode_error_position(self, text, position):
+        with self.assertRaises(json.JSONDecodeError) as error:
+            json.loads(validate_schema.strip_jsonc_comments(text))
+        expected = json.JSONDecodeError("", text, position)
+        self.assertEqual(
+            (error.exception.pos, error.exception.lineno, error.exception.colno),
+            (expected.pos, expected.lineno, expected.colno),
+        )
+
+    def test_errors_after_block_comments_keep_original_positions(self):
+        for text in (
+            '{"value":/* comment */ @}',
+            '{"value":/* 注释 */ @}',
+            '{"value":/* first\nsecond */ @}',
+            '{"value":/* first\r\nsecond */ @}',
+        ):
+            with self.subTest(text=text):
+                self.assert_decode_error_position(text, text.index("@"))
+
+    def test_errors_after_line_comments_keep_original_positions(self):
+        for newline in ("\n", "\r", "\r\n"):
+            text = '{"value": // comment' + newline + '  @}'
+            with self.subTest(newline=repr(newline)):
+                self.assert_decode_error_position(text, text.index("@"))
+
+    def test_error_at_end_of_line_comment_keeps_original_position(self):
+        for comment in ("//", "// final comment", "// 末尾注释"):
+            text = '{"value":1' + comment
+            with self.subTest(comment=comment):
+                self.assert_decode_error_position(text, len(text))
+
     def test_valid_comments_around_values(self):
         text = '/* header */{"value"/* key */:/* value */true/**/}// final comment'
         self.assertEqual(

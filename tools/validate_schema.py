@@ -22,7 +22,7 @@ except ImportError:
 
 def strip_jsonc_comments(text):
     """
-    移除 JSONC 注释，保持 JSON 结构完整
+    用等宽空白替换 JSONC 注释，保持 JSON 结构和错误位置完整
     """
     # 状态机：0=正常, 1=字符串中, 2=转义字符
     result = []
@@ -38,24 +38,28 @@ def strip_jsonc_comments(text):
                 state = 1
                 i += 1
             elif i + 1 < len(text) and text[i : i + 2] == "//":
-                # 单行注释，跳到行尾
-                result.append(" ")
+                # 单行注释，保留每个字符的位置
+                result.append("  ")
                 i += 2
                 while i < len(text) and text[i] not in "\r\n":
+                    result.append(" ")
                     i += 1
             elif i + 1 < len(text) and text[i : i + 2] == "/*":
                 # 多行注释，跳到 */
                 comment_start = i
-                result.append(" ")  # 注释是空白，不能拼接两侧的 JSON token
+                result.append("  ")  # 注释是空白，不能拼接两侧的 JSON token
                 i += 2
                 while i + 1 < len(text) and text[i : i + 2] != "*/":
                     if text[i] in "\r\n":
                         result.append(text[i])  # 保留换行以维持行号
+                    else:
+                        result.append(" ")
                     i += 1
                 if i + 1 >= len(text):
                     raise json.JSONDecodeError(
                         "Unterminated block comment", text, comment_start
                     )
+                result.append("  ")
                 i += 2  # 跳过 */
             else:
                 result.append(char)
