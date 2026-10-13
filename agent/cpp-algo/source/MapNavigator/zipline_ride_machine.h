@@ -90,10 +90,10 @@ private:
     void ResetStableHeading();
     void NoteTurnResponse(double heading);
     std::optional<double> IssueYawTurn(IZiplineActuator& actuator, double heading, double residual, Clock::time_point now);
+    int32_t TurnBudgetMs(double residual) const;
     // 离索朝向: 初始残差定预算, 摆正或到点都回到同一条下索路径
     StageResult StartExitAim(const HopCompleted& done, Clock::time_point now);
     double ResidualToExitAim() const;
-    int32_t ExitAimBudgetMs(double residual) const;
     StageResult LeaveTowerAfterAim(IZiplineActuator& actuator, Clock::time_point now);
 
     StageResult TickMounting(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator);
@@ -152,6 +152,8 @@ private:
     double turn_cmd_deg_ = 0.0;
     // 这次瞄准里量到的实际转角与指令之比，不小于 1
     std::optional<double> yaw_response_ratio_;
+    // 链条瞄准的截止时间，读到头一个稳定朝向时按初始残差定下
+    std::optional<int32_t> aim_budget_ms_;
 
     // 离索朝向要朝的点与这一段按初始残差放大的预算。只有链尾那一跳带目标, 经调用方确认后才进这一段
     ZiplineMountSpot exit_aim_;
