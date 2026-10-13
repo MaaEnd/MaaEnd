@@ -1,0 +1,10 @@
+{
+    "SeizeDeliveryJobsEndpointRegion${AreaId}": {
+        "roi": [
+            40,
+            18,
+            280,
+            40
+        ]
+    }
+}

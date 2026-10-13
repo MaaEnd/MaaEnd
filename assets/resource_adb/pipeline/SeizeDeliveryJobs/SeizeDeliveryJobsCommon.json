@@ -1,0 +1,84 @@
+{
+    "__SeizeDeliveryJobsRecoJobList": {
+        "roi": [
+            310,
+            75,
+            60,
+            70
+        ]
+    },
+    "__SeizeDeliveryJobsRecoJobListActive": {
+        "roi": [
+            310,
+            75,
+            60,
+            70
+        ]
+    },
+    "__SeizeDeliveryJobsRecoJobListLoaded": {
+        "roi": [
+            1185,
+            210,
+            50,
+            420
+        ]
+    },
+    "__SeizeDeliveryJobsRecoViewCurrentJob": {
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoJobListActive",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    1185,
+                    215,
+                    50,
+                    417
+                ],
+                "template": "SeizeDeliveryJobs/DepotNodePage/JobViewButton.png",
+                "order_by": "Score"
+            }
+        ],
+        "box_index": 1
+    },
+    "__SeizeDeliveryJobsRecoCommissionToken": {
+        "roi": [
+            835,
+            214,
+            70,
+            418
+        ]
+    },
+    "__SeizeDeliveryJobsRecoReward": {
+        "roi": [
+            835,
+            270,
+            70,
+            362
+        ]
+    },
+    "__SeizeDeliveryJobsRecoOrigin": {
+        "roi": [
+            620,
+            230,
+            130,
+            400
+        ]
+    },
+    "__SeizeDeliveryJobsRecoAccept": {
+        "roi": [
+            1040,
+            265,
+            180,
+            367
+        ]
+    },
+    "__SeizeDeliveryJobsRecoViewLocation": {
+        "roi": [
+            620,
+            260,
+            130,
+            372
+        ]
+    }
+}
