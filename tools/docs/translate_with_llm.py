@@ -365,17 +365,16 @@ def github_slug(text: str) -> str:
 
 def heading_anchors(text: str) -> list[str]:
     # 与 GitHub 一致：重名时加 -1、-2…，候选已被占用（包括标题本身就叫 xxx-1）就继续递增；
-    # 文字为空的标题（如只有图片）没有锚点，也不参与计数
+    # 文字为空的标题（如只有图片）也参与计数：第一个没有锚点，之后的依次是 -1、-2…
     occurrences: dict[str, int] = {}
     anchors: list[str] = []
     for _, _, content in markdown_headings(text):
         base = github_slug(heading_plain_text(content))
         anchor = base
-        if base:
-            while anchor in occurrences:
-                occurrences[base] += 1
-                anchor = f"{base}-{occurrences[base]}"
-            occurrences[anchor] = 0
+        while anchor in occurrences:
+            occurrences[base] += 1
+            anchor = f"{base}-{occurrences[base]}"
+        occurrences[anchor] = 0
         anchors.append(anchor)
     return anchors
 
