@@ -218,8 +218,11 @@ node .agents/skills/docs-guide/scripts/render-diff.mjs --ref origin/v2 docs/zh_c
 | --- | --- |
 | `identical` | 渲染结果完全相同 |
 | `whitespace-only` | 只差块级标签之间的空白，显示不变 |
-| `tightness-only` | 只差列表松紧，条目间距会变 |
+| `tightness-only` | 只差列表松紧（列表项是否直接包一层段落），条目间距会变；其他位置多出或少了段落算 `DIFFERENT` |
 | `DIFFERENT` | 显示内容变了，会输出第一处差异；此时退出码为 1 |
+| `skipped` | 文件在该 ref 中不存在（例如新文件），没有比较 |
+
+`--ref` 写错、不在 git 仓库里或 git 出错时，脚本输出 git 的错误信息并以退出码 2 结束，不会把文件当成「不存在」跳过。
 
 GitHub 独有的语法这样确认：
 
