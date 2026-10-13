@@ -94,11 +94,45 @@ The commit title format is `type(scope): description`. The scope is optional; it
 | `ai` | AI collaboration: skills (`.agents/skills/`), `AGENTS.md`, AI-related workflows, etc. | 🤖 人工智能 (AI) |
 | `revert` | Reverting a previous commit | ◀️ 撤销 (Reverts) |
 
-- Misspelled or wrongly-cased types (such as `pref`, `doc` or `CI`) are not rejected, but they do not go into the intended section: git-cliff uses the type itself as the section name, so an extra section such as "Pref" appears at the end of the changelog (see v2.23.0). `cliff.toml` also accepts the legacy spellings `rft` and `styles`; use the types in the table for new commits.
-- Commits whose title or body contains `[skip changelog]` are left out of the changelog. This is normally used only by bot commits such as auto-formatting and syncing.
-- PRs are usually squash-merged: the PR title becomes the commit title and the PR description becomes the commit body. Write the PR title in the same format, and do not put `[skip changelog]` in the PR description.
+- Misspelled or wrongly-cased types (such as `pref`, `doc` or `CI`) are not rejected, but they do not go into the correct section: git-cliff uses the type itself as the section name, so an extra section like "Pref" appears at the end of the changelog (see v2.23.0). `cliff.toml` also accepts the legacy spellings `rft` and `styles`, but use the new spellings in the table for new commits whenever possible.
+- PRs are usually squash-merged: the PR title becomes the commit title and the PR description becomes the commit body. Write the PR title in the same format.
 
 > **Example**: `feat(OutpostTrading): Add regional construction auto-sell Pipeline`
+
+#### Two special markers
+
+The two markers below have extra effects when written in the commit message; they take effect as long as the keyword is present.
+
+- They work in either the title or the body, but put them in the body so that the title does not carry the marker into the changelog.
+- Since PRs are usually squash-merged, the PR description becomes the commit body. When you only mention a marker (for example, when changing related docs or CI), do not write the full bracketed marker; otherwise that PR will trigger the marker by accident. CodeRabbit's generated summary is also written into the PR description, so check the final squash commit message before merging.
+
+`[skip changelog]`
+
+Commits whose title or body contains this marker are left out of the changelog. This is normally used only by bot commits such as auto-formatting and syncing.
+
+`[blame ignore]`
+
+The `.git-blame-ignore-revs` file in the repository root lists commits that `git blame` should skip. GitHub's web Blame view reads it automatically, so formatting commits do not hide the people who actually changed a line. If your PR only contains mechanical changes that **do not change code meaning**, such as repository-wide formatting or bulk key sorting, add this marker to the **PR description**:
+
+- As described above, a squash merge turns the PR description into the commit body, so the marker ends up in the commit message. [`blame-ignore.yml`](../../../.github/workflows/blame-ignore.yml) scans commit messages daily and appends marked commits to `.git-blame-ignore-revs`. Do not edit that file manually unless necessary.
+- Marked PRs must contain formatting changes only. Because the whole squash commit is skipped by blame, any logic changes mixed in can no longer be traced through blame.
+- Auto-format commits from [`format.yml`](../../../.github/workflows/format.yml) already carry the marker, so no extra action is needed.
+
+To skip these commits when running `git blame` locally, run (Git 2.52 or later):
+
+```bash
+git config blame.ignoreRevsFile ":(optional).git-blame-ignore-revs"
+```
+
+`:(optional)` tells Git to skip this setting when the file does not exist, so `git blame` keeps working when you check out a commit without the file (for example, the `archive/v1` branch or a commit from before the file was added).
+
+Git versions before 2.52 do not support this prefix and treat it as part of the file name, which makes `git blame` fail; use this instead:
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+With this setting, `git blame` fails with `could not open object name list` in a version without the file; add `--no-ignore-revs-file` to skip the setting for that run.
 
 ### About Submodule Updates
 

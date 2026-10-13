@@ -65,5 +65,5 @@ jobs:
 
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-            [skip changelog]"
+            [skip changelog] [blame ignore]"
           github_token: ${{ steps.app-token.outputs.token }}
