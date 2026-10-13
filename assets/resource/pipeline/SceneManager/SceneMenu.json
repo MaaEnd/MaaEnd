@@ -598,7 +598,7 @@
                         "expected": [
                             "地区建设",
                             "地區建設",
-                            "(?i)Regional\\s*Development",
+                            "(?i)^Regional(\\s*Development)?$",
                             "地域建設",
                             "지역 건설"
                         ]
@@ -1230,7 +1230,7 @@
                         "expected": [
                             "行动手册",
                             "行動手",
-                            "(?i)Operational\\s*Manual",
+                            "(?i)^Operational(\\s*Manual)?$",
                             "案内所",
                             "작전 매뉴얼"
                         ]
@@ -1426,9 +1426,9 @@
                         "expected": [
                             "通行证",
                             "通行證",
-                            "(?i)Protocol\\s*Pass",
-                            "(?i)Battle\\s*Pass",
-                            "(?i)Supply\\s*Pass",
+                            "(?i)^Protocol(\\s*Pass)?$",
+                            "(?i)^Battle(\\s*Pass)?$",
+                            "(?i)^Supply(\\s*Pass)?$",
                             "プロトコルパス",
                             "프로토콜 패스"
                         ]
@@ -1907,7 +1907,7 @@
                 "expected": [
                     "装备加工",
                     "裝備加工",
-                    "(?i)Gear\\s*Assembly",
+                    "(?i)^Gear(\\s*Assembly)?$",
                     "装備加工",
                     "장비 가공"
                 ]
@@ -2435,7 +2435,7 @@
                         "expected": [
                             "采购中心",
                             "採購中心",
-                            "(?i)Acquisition\\s*Center",
+                            "(?i)^Acquisition(\\s*Center)?$",
                             "購買部",
                             "구매 센터"
                         ]
