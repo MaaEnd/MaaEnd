@@ -18,7 +18,10 @@ def validate_pipeline_paths(resource_dir: Path) -> None:
     pipeline_dir = resource_dir.absolute() / "pipeline"
     for path in (pipeline_dir, *pipeline_dir.parents):
         if is_directory_link(path):
-            raise RuntimeError(f"拒绝合并链接路径: {path}，请先使用 --ci 复制资源")
+            raise RuntimeError(
+                f"拒绝合并链接路径: {path}，请使用祖先无链接的真实 install 路径；"
+                "开发资源请先使用 --ci 复制"
+            )
 
     def check_children(dir_path: Path) -> None:
         for item in sorted(dir_path.iterdir()):
