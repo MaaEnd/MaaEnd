@@ -2,7 +2,9 @@ package automission
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
+	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -97,36 +99,47 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 	maafocus.Print(ctx, i18n.T("automission.current", title, description))
 
-	hit, _, ok := lookupObjective(description, idx.quests[missionID])
+	hits, ok := lookupObjective(description, idx.quests[missionID])
 	if !ok {
 		maafocus.Print(ctx, i18n.T("automission.unsupported_description", description))
 		return nil, false
 	}
 
-	if len(hit.Tracks) == 0 {
+	// 命中的子步骤按先后展开成候选追踪点，每轮取一个。
+	var candidates []trackCandidate
+	for _, hit := range hits {
+		for _, track := range hit.Tracks {
+			candidates = append(candidates, trackCandidate{hit: hit, track: track})
+		}
+	}
+	questIDs := questIDsOf(hits)
+	if len(candidates) == 0 {
 		log.Info().
 			Str("component", componentName).
 			Str("mission_id", missionID).
-			Str("quest_id", hit.QuestID).
+			Strs("quest_ids", questIDs).
 			Str("description", description).
 			Msg("quest has no tracking")
 		maafocus.Print(ctx, i18n.T("automission.unsupported_description", description))
 		return nil, false
 	}
-	if len(hit.Tracks) > 1 {
+
+	pick, ok := nextTrackIndex(arg.TaskID, missionID+"|"+strings.Join(questIDs, ","), len(candidates))
+	if !ok {
 		log.Info().
 			Str("component", componentName).
 			Str("mission_id", missionID).
-			Str("quest_id", hit.QuestID).
+			Strs("quest_ids", questIDs).
 			Str("description", description).
-			Int("track_count", len(hit.Tracks)).
-			Msg("multiple tracking points are not supported")
+			Int("track_count", len(candidates)).
+			Msg("all tracking points tried without progress")
 		maafocus.Print(ctx, i18n.T("automission.unsupported_description", description))
 		return nil, false
 	}
+	hit := candidates[pick].hit
 
 	payload, err := json.Marshal(matchDetail{
-		Track: hit.Tracks[0],
+		Track: candidates[pick].track,
 	})
 	if err != nil {
 		log.Error().Err(err).Str("component", componentName).Msg("marshal detail failed")
@@ -138,6 +151,8 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		Str("mission_id", missionID).
 		Str("quest_id", hit.QuestID).
 		Int("desc_index", hit.DescIndex).
+		Int("track_index", pick).
+		Int("track_count", len(candidates)).
 		Str("title", title).
 		Str("description", description).
 		Msg("mission matched")
@@ -198,15 +213,15 @@ func lookupByPrefix(text string, entries []textEntry) (string, bool) {
 
 // lookupObjective 在一个任务的步骤名称里按 OCR 前缀收窄。
 // 收窄到 0 条表示没找到，收窄到 1 条即命中。
-// 用完全文仍有多条时，若全部都是单条 SnsTrackingInfo 则取第一条；否则返回这些 quest_id。
-func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []string, bool) {
+// 用完全文仍有多条时，若全部都是单条 SnsTrackingInfo 则取第一条；否则按子步骤先后全部返回。
+func lookupObjective(text string, quests *missionQuests) ([]objectiveEntry, bool) {
 	text = strings.TrimSpace(text)
 	if quests == nil {
 		log.Warn().
 			Str("component", componentName).
 			Str("text", text).
 			Msg("objective lookup missed")
-		return objectiveEntry{}, nil, false
+		return nil, false
 	}
 	runes := []rune(text)
 	candidates := quests.objectives
@@ -229,7 +244,7 @@ func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []stri
 				Str("component", componentName).
 				Str("text", text).
 				Msg("objective lookup missed")
-			return objectiveEntry{}, nil, false
+			return nil, false
 		case 1:
 			log.Info().
 				Str("component", componentName).
@@ -237,14 +252,21 @@ func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []stri
 				Str("quest_id", candidates[0].QuestID).
 				Int("desc_index", candidates[0].DescIndex).
 				Msg("objective lookup matched")
-			return candidates[0], nil, true
+			return candidates[:1], true
 		}
 	}
 
-	questIDs := make([]string, len(candidates))
-	for i, entry := range candidates {
-		questIDs[i] = entry.QuestID
-	}
+	sort.SliceStable(candidates, func(i, j int) bool {
+		a, b := candidates[i], candidates[j]
+		if a.Order != b.Order {
+			return a.Order < b.Order
+		}
+		if a.QuestID != b.QuestID {
+			return a.QuestID < b.QuestID
+		}
+		return a.DescIndex < b.DescIndex
+	})
+	questIDs := questIDsOf(candidates)
 	if singleSnsTracking(candidates) {
 		log.Info().
 			Str("component", componentName).
@@ -253,14 +275,54 @@ func lookupObjective(text string, quests *missionQuests) (objectiveEntry, []stri
 			Int("desc_index", candidates[0].DescIndex).
 			Strs("quest_ids", questIDs).
 			Msg("ambiguous sns objectives share one tracking step")
-		return candidates[0], nil, true
+		return candidates[:1], true
 	}
-	log.Warn().
+	log.Info().
 		Str("component", componentName).
 		Str("text", text).
 		Strs("quest_ids", questIDs).
-		Msg("objective lookup ambiguous")
-	return objectiveEntry{}, questIDs, false
+		Msg("objective lookup ambiguous, rotate candidates")
+	return candidates, true
+}
+
+// trackCandidate 是一个候选追踪点及其所属的子步骤。
+type trackCandidate struct {
+	hit   objectiveEntry
+	track trackData
+}
+
+func questIDsOf(entries []objectiveEntry) []string {
+	ids := make([]string, len(entries))
+	for i, entry := range entries {
+		ids[i] = entry.QuestID
+	}
+	return ids
+}
+
+// trackRotation 记录当前步骤已经试到第几个候选追踪点。
+// 描述没变说明上一个点没推进，下一轮换下一个；换了任务运行或步骤就从头开始。
+var trackRotation struct {
+	mu     sync.Mutex
+	taskID int64
+	key    string
+	next   int
+}
+
+// nextTrackIndex 返回本轮要执行的候选下标；每个候选只试一次，用完返回 false。
+func nextTrackIndex(taskID int64, key string, count int) (int, bool) {
+	trackRotation.mu.Lock()
+	defer trackRotation.mu.Unlock()
+	if trackRotation.taskID != taskID || trackRotation.key != key {
+		trackRotation.taskID = taskID
+		trackRotation.key = key
+		trackRotation.next = 0
+	}
+	if trackRotation.next >= count {
+		return 0, false
+	}
+	index := trackRotation.next
+	trackRotation.next++
+	return index, true
 }
 
 // singleSnsTracking 判断这些同名步骤是否都能走同一条 SNS 流程。
