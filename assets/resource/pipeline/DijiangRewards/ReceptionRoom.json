@@ -1394,10 +1394,10 @@
         },
         "post_delay": 0,
         "timeout": 5000,
-        "rate_limit": 0
-        //"next": [
-        //            "ReceptionRoomSendCluesClickSend"
-        //        ]
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
     },
     "ReceptionRoomSendClueOne": {
         "desc": "[会客室·线索] 自定义赠送：匹配一号线索",
@@ -1424,10 +1424,10 @@
                 42
             ]
         },
-        "rate_limit": 0
-        //"next": [
-        //            "ReceptionRoomSendCluesClickSend"
-        //        ]
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
     },
     "ReceptionRoomSendClueTwo": {
         "desc": "[会客室·线索] 自定义赠送：匹配二号线索",
@@ -1454,10 +1454,10 @@
                 42
             ]
         },
-        "rate_limit": 0
-        //"next": [
-        //            "ReceptionRoomSendCluesClickSend"
-        //        ]
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
     },
     "ReceptionRoomSendClueThree": {
         "desc": "[会客室·线索] 自定义赠送：匹配三号线索",
@@ -1484,10 +1484,10 @@
                 42
             ]
         },
-        "rate_limit": 0
-        //"next": [
-        //            "ReceptionRoomSendCluesClickSend"
-        //        ]
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
     },
     "ReceptionRoomSendClueFour": {
         "desc": "[会客室·线索] 自定义赠送：匹配四号线索",
@@ -1514,10 +1514,10 @@
                 42
             ]
         },
-        "rate_limit": 0
-        //"next": [
-        //            "ReceptionRoomSendCluesClickSend"
-        //        ]
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
     },
     "ReceptionRoomSendClueFive": {
         "desc": "[会客室·线索] 自定义赠送：匹配五号线索",
@@ -1544,10 +1544,10 @@
                 42
             ]
         },
-        "rate_limit": 0
-        //"next": [
-        //            "ReceptionRoomSendCluesClickSend"
-        //        ]
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
     },
     "ReceptionRoomSendClueSix": {
         "desc": "[会客室·线索] 自定义赠送：匹配六号线索",
@@ -1574,10 +1574,10 @@
                 42
             ]
         },
-        "rate_limit": 0
-        //"next": [
-        //            "ReceptionRoomSendCluesClickSend"
-        //        ]
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
     },
     "ReceptionRoomSendClueSeven": {
         "desc": "[会客室·线索] 自定义赠送：匹配七号线索",
@@ -1604,10 +1604,10 @@
                 42
             ]
         },
-        "rate_limit": 0
-        //"next": [
-        //            "ReceptionRoomSendCluesClickSend"
-        //        ]
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesClickSend"
+        ]
     },
     "ReceptionRoomSendCluesClickSend": {
         "desc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
