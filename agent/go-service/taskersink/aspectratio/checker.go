@@ -82,7 +82,10 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Int32("height", height).
 			Msg("Failed to detect controller type, falling back to aspect ratio check")
 	} else {
-		isADBController = controlType == pienv.ControllerKindAdb
+		// 触控类控制器（ADB / PlayCover / 原生安卓）都按 1280×720 使用：PlayCover 在
+		// docs/zh_cn/users/playcover.md 里被要求设成该分辨率，原生安卓的触控空间也是 720p，
+		// 所以三者统一走精确分辨率检查，不能只与 adb 比较。
+		isADBController = pienv.IsAdbLikeControllerType(controlType)
 		log.Debug().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
