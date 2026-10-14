@@ -33,7 +33,7 @@ Go 只通过 `ctx.OverrideNext` 选择 Pipeline 分支：
 | `options.go` | 从合并后的节点 `attach` 读取运行选项 |
 | `ui.go` | MXU 展示、匹配摘要和预刻写输出 |
 | `plan_export.go` | 可选的 `EssencePlan.html` 导出 |
-| `inventory.go` | 无暇库存分组计数和 `EssenceInventory.json` 导出 |
+| `inventory.go` | 无瑕库存分组计数和 `EssenceInventory.json` 导出 |
 | `matchapi/` | 可复用的纯匹配 API：`OCRInput -> MatchResult` |
 | `register.go` | 注册本包 CustomAction / CustomRecognition |
 
@@ -50,7 +50,7 @@ Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。
 
 ## 输出基质库存
 
-任务顶层的「输出基质库存」默认关闭。开启时 UI 隐藏原筛选选项，关闭后重新显示。游戏语言由 Init 时界面 OCR 自动识别。盘点使用固定预设：只读取未标记弃置的无暇基质（包括已锁定的基质），匹配全部四至六星武器，不执行锁定、弃置、扩展规则和预刻写推荐。弃置项在缩略图阶段排除，不点击、不调用 OCR、不计入库存。网格参数只覆盖品质与跳过标志，保留控制器对应的 ROI 和滑动配置。
+任务顶层的「输出基质库存」默认关闭。开启时 UI 隐藏原筛选选项，关闭后重新显示。游戏语言由 Init 时界面 OCR 自动识别。盘点使用固定预设：只读取未标记弃置的无瑕基质（包括已锁定的基质），匹配全部四至六星武器，不执行锁定、弃置、扩展规则和预刻写推荐。弃置项在缩略图阶段排除，不点击、不调用 OCR、不计入库存。网格参数只覆盖品质与跳过标志，保留控制器对应的 ROI 和滑动配置。
 
 输出为工作目录下的 `EssenceInventory.json`，结构见 [库存 Schema](../../../tools/schema/essence_inventory.schema.json)。每个词条组合一组，武器共享该组的 `essences` 等级与数量分布；数量不乘以武器数。等级依次为基础属性、附加属性、技能属性。无匹配结果输出 `[]`。
 
