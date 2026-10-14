@@ -25,7 +25,6 @@
 | [`levenshtein`](#levenshtein编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
 | [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS、囤货、送货等扫格逻辑 |
 | [`iconqty`](#iconrecognition--iconqty) | 扫格 + 格内数量 OCR | IMS A2 / A3 |
-| [`control`](#control跨平台操控适配) | Win32 / ADB / macOS / Linux 统一操控接口 | 当前无调用者（给角色控制类逻辑预留） |
 | [`minicv`](#minicv轻量-cv) | 模板匹配、圆检测等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
 | [`parentwatch`](#parentwatch父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
 
@@ -272,16 +271,6 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 | `iconqty` | 在格子上跑 IconRecognition，再按 `cell_box` OCR 数量（IMS 默认 ROI / 过滤器） |
 
 详细协议与 Pipeline 用法见 [IconRecognition](./components/icon-recognition.md)、[IMS](./components/ims.md)。
-
-### `control`：跨平台操控适配
-
-路径：`pkg/control/`
-
-`ControlAdaptor` 统一 Touch / Key / 镜头旋转 / 角色移动等；按平台有 Win32、ADB、macOS、Linux 实现。角色控制、自动战斗等「真正动手」的逻辑应走适配器，而不是直接调底层 Controller API 散落各处。
-
-控制器类型的判定**不在本包**：一律走 [`pienv`](#pienvproject-interface-环境)（`ControllerKind()` / `IsAdbLikeControllerType()`）。
-
-本包当前**没有调用者**：原 MapTracker 已移除，CreditShopping 的货架滑动已改走 Pipeline 工具节点（见[信用点商店维护文档](./tasks/credit-shopping-maintain.md#货架快照与两屏合并)）。保留它是为了给角色控制这类连续操控留一套现成的跨平台骨架；新增这类逻辑时优先复用它，而不是各处直接调 Controller。
 
 ### `minicv`：轻量 CV
 
