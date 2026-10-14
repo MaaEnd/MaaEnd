@@ -335,24 +335,26 @@
             "type": "switch",
             "label": "$option.ClueSendCustomize.label",
             "description": "$option.ClueSendCustomize.description",
-            "default_case": "Yes",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesDirect": {
-                            "enabled": true
+                        "ReceptionRoomSendCluesSelectClues": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesQuickGiveDuplicates": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendCluesSwipe": {
+                            "enabled": false
                         }
                     },
                     "option": ["CustomSendCluesCheckbox"]
                 },
                 {
                     "name": "No",
-                    "pipeline_override": {
-                        "ReceptionRoomSendCluesDirect": {
-                            "enabled": false
-                        }
-                    }
+                    "option": []
                 }
             ]
         },
@@ -375,7 +377,7 @@
                     "label": "$option.ClueSendCustomize.cases.UWST.label",
                     "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue001.png",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesCustomSelectUWST": {
+                        "ReceptionRoomSendClueOne": {
                             "enabled": true
                         }
                     }
@@ -385,7 +387,7 @@
                     "label": "$option.ClueSendCustomize.cases.TGCC.label",
                     "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue002.png",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesCustomSelectTGCC": {
+                        "ReceptionRoomSendClueTwo": {
                             "enabled": true
                         }
                     }
@@ -395,7 +397,7 @@
                     "label": "$option.ClueSendCustomize.cases.HAS.label",
                     "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue003.png",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesCustomSelectHAS": {
+                        "ReceptionRoomSendClueThree": {
                             "enabled": true
                         }
                     }
@@ -405,7 +407,7 @@
                     "label": "$option.ClueSendCustomize.cases.SteelOath.label",
                     "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue004.png",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesCustomSelectSteelOath": {
+                        "ReceptionRoomSendClueFour": {
                             "enabled": true
                         }
                     }
@@ -415,7 +417,7 @@
                     "label": "$option.ClueSendCustomize.cases.Tranquility.label",
                     "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue005.png",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesCustomSelectTranquility": {
+                        "ReceptionRoomSendClueFive": {
                             "enabled": true
                         }
                     }
@@ -425,7 +427,7 @@
                     "label": "$option.ClueSendCustomize.cases.Hannabit.label",
                     "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue006.png",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesCustomSelectHannabit": {
+                        "ReceptionRoomSendClueSix": {
                             "enabled": true
                         }
                     }
@@ -435,7 +437,7 @@
                     "label": "$option.ClueSendCustomize.cases.Sesqa.label",
                     "icon": "resource/image/ClaimDijiangRewards/ReceptionRoom/Clue007.png",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesCustomSelectSesqa": {
+                        "ReceptionRoomSendClueSeven": {
                             "enabled": true
                         }
                     }

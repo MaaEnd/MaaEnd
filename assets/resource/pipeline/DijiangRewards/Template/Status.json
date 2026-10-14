@@ -332,5 +332,243 @@
                 "order_by": "Vertical"
             }
         }
+    },
+    "ClueOne": {
+        "desc": "[会客室·线索] 一号线索的图像识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue001.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "ClueOneCount": {
+        "desc": "[会客室·线索] 一号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueOne",
+                "roi_offset": [
+                    227,
+                    51,
+                    -34,
+                    -58
+                ], // 見下方說明，需依錨點重新計算
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueTwo": {
+        "desc": "[会客室·线索] 二号线索的图像识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue002.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "ClueTwoCount": {
+        "desc": "[会客室·线索] 二号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueTwo",
+                "roi_offset": [
+                    227,
+                    51,
+                    -34,
+                    -58
+                ], // 見下方說明，需依錨點重新計算
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueThree": {
+        "desc": "[会客室·线索] 三号线索的图像识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue003.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "ClueThreeCount": {
+        "desc": "[会客室·线索] 三号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueThree",
+                "roi_offset": [
+                    227,
+                    51,
+                    -34,
+                    -58
+                ], // 見下方說明，需依錨點重新計算
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueFour": {
+        "desc": "[会客室·线索] 四号线索的图像识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue004.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "ClueFourCount": {
+        "desc": "[会客室·线索] 四号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueFour",
+                "roi_offset": [
+                    227,
+                    51,
+                    -34,
+                    -58
+                ], // 見下方說明，需依錨點重新計算
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueFive": {
+        "desc": "[会客室·线索] 五号线索的图像识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue005.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "ClueFiveCount": {
+        "desc": "[会客室·线索] 五号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueFive",
+                "roi_offset": [
+                    227,
+                    51,
+                    -34,
+                    -58
+                ], // 見下方說明，需依錨點重新計算
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueSix": {
+        "desc": "[会客室·线索] 六号线索的图像识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue006.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "ClueSixCount": {
+        "desc": "[会客室·线索] 六号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueSix",
+                "roi_offset": [
+                    227,
+                    51,
+                    -34,
+                    -58
+                ], // 見下方說明，需依錨點重新計算
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueSeven": {
+        "desc": "[会客室·线索] 七号线索的图像识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    42,
+                    132,
+                    331,
+                    489
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceptionRoom/Clue007.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "ClueSevenCount": {
+        "desc": "[会客室·线索] 七号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueSeven",
+                "roi_offset": [
+                    227,
+                    51,
+                    -34,
+                    -58
+                ], // 見下方說明，需依錨點重新計算
+                "expected": "^[1-9]\\d*$"
+            }
+        }
     }
 }

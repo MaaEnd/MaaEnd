@@ -196,6 +196,7 @@
         }
     },
     "ClueItemCount": {
+        // [228, 132, 168, 593]
         "recognition": {
             "type": "OCR",
             "param": {
@@ -214,6 +215,7 @@
         }
     },
     "ClueItemCountColor": {
+        // [229, 133, 166, 591]
         "recognition": {
             "type": "ColorMatch",
             "param": {

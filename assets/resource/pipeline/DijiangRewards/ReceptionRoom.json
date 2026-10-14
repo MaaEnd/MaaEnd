@@ -1394,247 +1394,220 @@
         },
         "post_delay": 0,
         "timeout": 5000,
-        "rate_limit": 0,
-        "next": [
-            "ReceptionRoomSendCluesClickSend"
-        ]
+        "rate_limit": 0
+        //"next": [
+        //            "ReceptionRoomSendCluesClickSend"
+        //        ]
     },
-    "ReceptionRoomSendCluesCustomSelectUWST": {
-        "desc": "[会客室·线索] 自定义赠送：匹配联盟工团线索图标",
+    "ReceptionRoomSendClueOne": {
+        "desc": "[会客室·线索] 自定义赠送：匹配一号线索",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                "all_of": [
+                    "ClueOne",
+                    "ClueOneCount"
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue001.png"
-                ],
-                "green_mask": true
+                "box_index": 0
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
             "target": [
-                42,
-                132,
-                331,
-                489
+                1128,
+                0,
+                83,
+                42
             ]
         },
         "rate_limit": 0
-        // "next": [
-        //     "ReceptionRoomSendCluesClickSend"
-        // ]
+        //"next": [
+        //            "ReceptionRoomSendCluesClickSend"
+        //        ]
     },
-    "ReceptionRoomSendCluesCustomSelectTGCC": {
-        "desc": "[会客室·线索] 自定义赠送：匹配环塔商会线索图标",
+    "ReceptionRoomSendClueTwo": {
+        "desc": "[会客室·线索] 自定义赠送：匹配二号线索",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                "all_of": [
+                    "ClueTwo",
+                    "ClueTwoCount"
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue002.png"
-                ],
-                "green_mask": true
+                "box_index": 0
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
             "target": [
-                42,
-                132,
-                331,
-                489
+                1128,
+                0,
+                83,
+                42
             ]
         },
         "rate_limit": 0
-        // "next": [
-        //     "ReceptionRoomSendCluesClickSend"
-        // ]
+        //"next": [
+        //            "ReceptionRoomSendCluesClickSend"
+        //        ]
     },
-    "ReceptionRoomSendCluesCustomSelectHAS": {
-        "desc": "[会客室·线索] 自定义赠送：匹配宏山科学院线索图标",
+    "ReceptionRoomSendClueThree": {
+        "desc": "[会客室·线索] 自定义赠送：匹配三号线索",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                "all_of": [
+                    "ClueThree",
+                    "ClueThreeCount"
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue003.png"
-                ],
-                "green_mask": true
+                "box_index": 0
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
             "target": [
-                42,
-                132,
-                331,
-                489
+                1128,
+                0,
+                83,
+                42
             ]
         },
         "rate_limit": 0
-        // "next": [
-        //     "ReceptionRoomSendCluesClickSend"
-        // ]
+        //"next": [
+        //            "ReceptionRoomSendCluesClickSend"
+        //        ]
     },
-    "ReceptionRoomSendCluesCustomSelectSteelOath": {
-        "desc": "[会客室·线索] 自定义赠送：匹配铁誓军线索图标",
+    "ReceptionRoomSendClueFour": {
+        "desc": "[会客室·线索] 自定义赠送：匹配四号线索",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                "all_of": [
+                    "ClueFour",
+                    "ClueFourCount"
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue004.png"
-                ],
-                "green_mask": true
+                "box_index": 0
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
             "target": [
-                42,
-                132,
-                331,
-                489
+                1128,
+                0,
+                83,
+                42
             ]
         },
         "rate_limit": 0
-        // "next": [
-        //     "ReceptionRoomSendCluesClickSend"
-        // ]
+        //"next": [
+        //            "ReceptionRoomSendCluesClickSend"
+        //        ]
     },
-    "ReceptionRoomSendCluesCustomSelectTranquility": {
-        "desc": "[会客室·线索] 自定义赠送：匹配寂语修会线索图标",
+    "ReceptionRoomSendClueFive": {
+        "desc": "[会客室·线索] 自定义赠送：匹配五号线索",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                "all_of": [
+                    "ClueFive",
+                    "ClueFiveCount"
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue005.png"
-                ],
-                "green_mask": true
+                "box_index": 0
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
             "target": [
-                42,
-                132,
-                331,
-                489
+                1128,
+                0,
+                83,
+                42
             ]
         },
         "rate_limit": 0
-        // "next": [
-        //     "ReceptionRoomSendCluesClickSend"
-        // ]
+        //"next": [
+        //            "ReceptionRoomSendCluesClickSend"
+        //        ]
     },
-    "ReceptionRoomSendCluesCustomSelectHannabit": {
-        "desc": "[会客室·线索] 自定义赠送：匹配众生长地线索图标",
+    "ReceptionRoomSendClueSix": {
+        "desc": "[会客室·线索] 自定义赠送：匹配六号线索",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                "all_of": [
+                    "ClueSix",
+                    "ClueSixCount"
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue006.png"
-                ],
-                "green_mask": true
+                "box_index": 0
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
             "target": [
-                42,
-                132,
-                331,
-                489
+                1128,
+                0,
+                83,
+                42
             ]
         },
         "rate_limit": 0
-        // "next": [
-        //     "ReceptionRoomSendCluesClickSend"
-        // ]
+        //"next": [
+        //            "ReceptionRoomSendCluesClickSend"
+        //        ]
     },
-    "ReceptionRoomSendCluesCustomSelectSesqa": {
-        "desc": "[会客室·线索] 自定义赠送：匹配塞什卡线索图标",
+    "ReceptionRoomSendClueSeven": {
+        "desc": "[会客室·线索] 自定义赠送：匹配七号线索",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                "all_of": [
+                    "ClueSeven",
+                    "ClueSevenCount"
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue007.png"
-                ],
-                "green_mask": true
+                "box_index": 0
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
             "target": [
-                42,
-                132,
-                331,
-                489
+                1128,
+                0,
+                83,
+                42
             ]
-        }
-        // "next": [
-        //     "ReceptionRoomSendCluesClickSend"
-        // ]
+        },
+        "rate_limit": 0
+        //"next": [
+        //            "ReceptionRoomSendCluesClickSend"
+        //        ]
     },
     "ReceptionRoomSendCluesClickSend": {
         "desc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
@@ -1872,14 +1845,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]ReceptionRoomSendClueOne",
+            "[JumpBack]ReceptionRoomSendClueTwo",
+            "[JumpBack]ReceptionRoomSendClueThree",
+            "[JumpBack]ReceptionRoomSendClueFour",
+            "[JumpBack]ReceptionRoomSendClueFive",
+            "[JumpBack]ReceptionRoomSendClueSix",
+            "[JumpBack]ReceptionRoomSendClueSeven",
             "[JumpBack]ReceptionRoomSendCluesQuickGiveDuplicates",
-            "[JumpBack]ReceptionRoomSendCluesCustomSelectUWST",
-            "[JumpBack]ReceptionRoomSendCluesCustomSelectTGCC",
-            "[JumpBack]ReceptionRoomSendCluesCustomSelectHAS",
-            "[JumpBack]ReceptionRoomSendCluesCustomSelectSteelOath",
-            "[JumpBack]ReceptionRoomSendCluesCustomSelectTranquility",
-            "[JumpBack]ReceptionRoomSendCluesCustomSelectSesqa",
-            "[JumpBack]ReceptionRoomSendCluesCustomSelectHannabit",
             "[JumpBack]ReceptionRoomSendCluesSelectClues",
             "[JumpBack]ReceptionRoomSendCluesSwipe",
             "ReceptionRoomSendExit"
