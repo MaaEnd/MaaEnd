@@ -22,10 +22,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        912.255,
-                        263.96
+                        910.862,
+                        264.149
                     ],
-                    "target_deck_y": 74.57
+                    "target_deck_y": 74.57,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        910.862,
+                        264.149
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliveryFetchGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliveryFetchGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -65,10 +79,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        912.255,
-                        263.96
+                        910.862,
+                        264.149
                     ],
-                    "target_deck_y": 74.57
+                    "target_deck_y": 74.57,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        910.862,
+                        264.149
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliveryFetchGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliveryFetchGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -108,10 +136,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        912.255,
-                        263.96
+                        910.862,
+                        264.149
                     ],
-                    "target_deck_y": 74.57
+                    "target_deck_y": 74.57,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        910.862,
+                        264.149
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliveryFetchGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliveryFetchGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -217,7 +259,24 @@
                         1132.593,
                         471.222
                     ],
-                    "target_deck_y": 39.315
+                    "target_deck_y": 39.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.593,
+                        471.222
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "马泰奥",
+                        "馬泰奧",
+                        "(?i)Matteo",
+                        "マッテオ",
+                        "마테오"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "zip": false,
@@ -324,7 +383,24 @@
                         1132.593,
                         471.222
                     ],
-                    "target_deck_y": 39.315
+                    "target_deck_y": 39.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.593,
+                        471.222
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "马泰奥",
+                        "馬泰奧",
+                        "(?i)Matteo",
+                        "マッテオ",
+                        "마테오"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "zip": true,
@@ -367,7 +443,24 @@
                         1132.593,
                         471.222
                     ],
-                    "target_deck_y": 39.315
+                    "target_deck_y": 39.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.593,
+                        471.222
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "马泰奥",
+                        "馬泰奧",
+                        "(?i)Matteo",
+                        "マッテオ",
+                        "마테오"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "heading_source": "camera"
@@ -473,7 +566,24 @@
                         1192.373,
                         433.958
                     ],
-                    "target_deck_y": 34.228
+                    "target_deck_y": 34.228,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1192.373,
+                        433.958
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "陆言",
+                        "陸言",
+                        "(?i)Lu\\s*Yan",
+                        "ルー・イェン",
+                        "육언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "zip": false,
@@ -580,7 +690,24 @@
                         1192.373,
                         433.958
                     ],
-                    "target_deck_y": 34.228
+                    "target_deck_y": 34.228,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1192.373,
+                        433.958
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "陆言",
+                        "陸言",
+                        "(?i)Lu\\s*Yan",
+                        "ルー・イェン",
+                        "육언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "zip": true,
@@ -623,7 +750,24 @@
                         1192.373,
                         433.958
                     ],
-                    "target_deck_y": 34.228
+                    "target_deck_y": 34.228,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1192.373,
+                        433.958
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "陆言",
+                        "陸言",
+                        "(?i)Lu\\s*Yan",
+                        "ルー・イェン",
+                        "육언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "heading_source": "camera"
@@ -729,7 +873,24 @@
                         1172.391,
                         443.451
                     ],
-                    "target_deck_y": 36.701
+                    "target_deck_y": 36.701,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1172.391,
+                        443.451
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "莫莉",
+                        "(?i)Molly",
+                        "モリー",
+                        "몰리"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -836,7 +997,24 @@
                         1172.391,
                         443.451
                     ],
-                    "target_deck_y": 36.701
+                    "target_deck_y": 36.701,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1172.391,
+                        443.451
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "莫莉",
+                        "(?i)Molly",
+                        "モリー",
+                        "몰리"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -879,7 +1057,24 @@
                         1172.391,
                         443.451
                     ],
-                    "target_deck_y": 36.701
+                    "target_deck_y": 36.701,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1172.391,
+                        443.451
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "莫莉",
+                        "(?i)Molly",
+                        "モリー",
+                        "몰리"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -982,8 +1177,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.773,
-                        424.598
+                        1044.373,
+                        425.198
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -991,10 +1186,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1047.416,
-                        428.884
+                        1047.105,
+                        428.412
                     ],
-                    "target_deck_y": 41.441
+                    "target_deck_y": 41.441,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1047.105,
+                        428.412
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "zip": false,
@@ -1098,8 +1306,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.773,
-                        424.598
+                        1044.373,
+                        425.198
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -1107,10 +1315,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1047.416,
-                        428.884
+                        1047.105,
+                        428.412
                     ],
-                    "target_deck_y": 41.441
+                    "target_deck_y": 41.441,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1047.105,
+                        428.412
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "zip": true,
@@ -1141,8 +1362,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.773,
-                        424.598
+                        1044.373,
+                        425.198
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -1150,10 +1371,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1047.416,
-                        428.884
+                        1047.105,
+                        428.412
                     ],
-                    "target_deck_y": 41.441
+                    "target_deck_y": 41.441,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1047.105,
+                        428.412
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "heading_source": "camera"
@@ -1265,10 +1499,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1078.905,
-                        504.33
+                        1077.548,
+                        503.962
                     ],
-                    "target_deck_y": 36.255
+                    "target_deck_y": 36.255,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1077.548,
+                        503.962
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "zip": false,
@@ -1381,10 +1628,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1078.905,
-                        504.33
+                        1077.548,
+                        503.962
                     ],
-                    "target_deck_y": 36.255
+                    "target_deck_y": 36.255,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1077.548,
+                        503.962
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "zip": true,
@@ -1424,10 +1684,23 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1078.905,
-                        504.33
+                        1077.548,
+                        503.962
                     ],
-                    "target_deck_y": 36.255
+                    "target_deck_y": 36.255,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1077.548,
+                        503.962
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
                 }
             ],
             "heading_source": "camera"

@@ -81,6 +81,35 @@
             "Node.Action.Starting": "$task.AutoDelivery.focus.fetch_goods"
         }
     },
+    "AutoDeliveryFetchGoodsInteractScan": {
+        "desc": "走向仓储节点时边走边认的取货图标预筛，只给寻路读取 roi/template",
+        "recognition": "TemplateMatch",
+        "roi": [
+            763,
+            349,
+            195,
+            270
+        ],
+        "template": "AutoDelivery/FetchGoods.png",
+        "threshold": 0.8
+    },
+    "AutoDeliveryFetchGoodsInteractText": {
+        "desc": "仓储节点交互提示中的取货选项文字，只给寻路读取 expected",
+        "recognition": "OCR",
+        "roi": [
+            763,
+            349,
+            195,
+            270
+        ],
+        "expected": [
+            "取货",
+            "取貨",
+            "(?i)Pick\\s*Up\\s*Goods",
+            "受け取る",
+            "화물 수령"
+        ]
+    },
     "AutoDeliveryInDestinationMap": {
         "desc": "确认已打开任务目标地图",
         "recognition": "And",
@@ -135,6 +164,9 @@
             "[Anchor]AutoDeliveryAfterNavigateDepot",
             "AutoDeliveryFetchGoods"
         ],
+        "on_error": [
+            "AutoDeliveryNavigateDepotPromptMissed"
+        ],
         "focus": {
             "Node.Action.Starting": "$task.AutoDelivery.focus.navigate_depot",
             "Node.Action.Succeeded": {
@@ -150,6 +182,16 @@
         "attach": {
             "zip": false
         }
+    },
+    "AutoDeliveryNavigateDepotPromptMissed": {
+        "desc": "路线末尾的交互点到点仍认不出取货提示时整条路线判失败，照常接到达仓储后的流程，由环绕查找与重试路线兜底",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoDeliveryAfterNavigateDepot",
+            "AutoDeliveryFetchGoods"
+        ]
     },
     "AutoDeliveryOpenMissionAfterFetchGoods": {
         "desc": "取货后进入任务界面并确保选中送货任务",

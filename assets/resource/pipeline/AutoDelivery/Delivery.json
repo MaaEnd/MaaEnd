@@ -84,6 +84,38 @@
         "threshold": 0.9,
         "order_by": "Score"
     },
+    "AutoDeliverySubmitGoodsInteractScan": {
+        "desc": "走向送货目标时边走边认的交货图标预筛，只给寻路读取 roi/template",
+        "recognition": "TemplateMatch",
+        "roi": [
+            760,
+            350,
+            200,
+            270
+        ],
+        "template": [
+            "AutoDelivery/SubmitGoods.png", // NPC 交货图标
+            "AutoDelivery/SubmitGoods2.png" // 非 NPC 交货图标
+        ],
+        "threshold": 0.8
+    },
+    "AutoDeliverySubmitGoodsInteractText": {
+        "desc": "资源回收站交互提示中的交货选项文字，只给寻路读取 expected",
+        "recognition": "OCR",
+        "roi": [
+            760,
+            350,
+            200,
+            270
+        ],
+        "expected": [
+            "交货",
+            "交貨",
+            "(?i)Deliver",
+            "引き渡す",
+            "화물 제출"
+        ]
+    },
     "AutoDeliveryCheckSubmitGoodsName": {
         "desc": "[运行时覆盖] 识别送货目标交互提示中的文本",
         "recognition": "OCR",
@@ -206,9 +238,15 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        // 路线末尾的交互点认到交货提示就已按下交互键，先接对话与奖励；没按到才回到识别交货图标。
         "next": [
+            "AutoDeliveryCheckSkipChatReady",
+            "AutoDeliveryCloseRewardDialog",
             "AutoDeliveryCheckSubmitGoodsTarget",
             "AutoDeliverySearchSubmitGoodsButton"
+        ],
+        "on_error": [
+            "AutoDeliveryNavigateDestinationPromptMissed"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoDelivery.focus.navigate_destination",
@@ -225,6 +263,15 @@
         "attach": {
             "zip": false
         }
+    },
+    "AutoDeliveryNavigateDestinationPromptMissed": {
+        "desc": "只认不按的交互点到点仍认不出提示时整条路线判失败，照常进入环绕查找与重试路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySearchSubmitGoodsButton"
+        ]
     },
     "AutoDeliveryRetryNavigateDestination": {
         "desc": "[运行时覆盖] 动态调用送货目标配置的一次性站位修正路线；无重试路线时不启用",
@@ -247,6 +294,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoDeliveryCheckSkipChatReady",
+            "AutoDeliveryCloseRewardDialog",
             "AutoDeliveryCheckSubmitGoodsTarget"
         ]
     },

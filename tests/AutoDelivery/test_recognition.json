@@ -33,7 +33,9 @@
             "name": "仓储节点可取货",
             "image": "送货任务_大世界_仓储节点_可取货.png",
             "hits": [
-                "AutoDeliveryCheckFetchGoodsButton"
+                "AutoDeliveryCheckFetchGoodsButton",
+                "AutoDeliveryFetchGoodsInteractScan",
+                "AutoDeliveryFetchGoodsInteractText"
             ]
         },
         {
@@ -46,7 +48,9 @@
             "image": "送货任务_大世界_资源回收站_可交货.png",
             "hits": [
                 "AutoDeliveryCheckSubmitGoodsButton",
-                "AutoDeliveryCheckSubmitGoodsTarget"
+                "AutoDeliveryCheckSubmitGoodsTarget",
+                "AutoDeliverySubmitGoodsInteractScan",
+                "AutoDeliverySubmitGoodsInteractText"
             ]
         },
         {
@@ -54,7 +58,8 @@
             "image": "送货任务_大世界_NPC可交货.png",
             "hits": [
                 "AutoDeliveryCheckSubmitGoodsButton",
-                "AutoDeliveryCheckSubmitGoodsTarget"
+                "AutoDeliveryCheckSubmitGoodsTarget",
+                "AutoDeliverySubmitGoodsInteractScan"
             ]
         }
     ]
