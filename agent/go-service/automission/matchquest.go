@@ -3,8 +3,8 @@ package automission
 import (
 	"encoding/json"
 	"sort"
+	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -35,11 +35,13 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
+	// 构建数据缓存
 	idx, err := getMissionIndex()
 	if err != nil {
 		return nil, false
 	}
 
+	// 识别任务标题
 	titleDetail, err := ctx.RunRecognition(nodeTitle, arg.Img)
 	if err != nil || titleDetail == nil || !titleDetail.Hit {
 		log.Debug().
@@ -50,6 +52,7 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
+	// 提取任务标题文本
 	title := ocrText(titleDetail)
 	if title == "" {
 		log.Debug().
@@ -59,6 +62,7 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
+	// 在标题索引中查找匹配的任务，返回唯一符合条件的任务ID
 	missionID, ok := lookupByPrefix(title, idx.titles)
 	if !ok {
 		maafocus.Print(ctx, i18n.T("automission.unknown_mission", title))
@@ -76,6 +80,7 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
+	// 识别任务步骤
 	descDetail, err := ctx.RunRecognition(nodeDescription, arg.Img)
 	if err != nil || descDetail == nil || !descDetail.Hit {
 		log.Debug().
@@ -87,6 +92,7 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
+	// 提取任务步骤文本
 	description := ocrText(descDetail)
 	if description == "" {
 		log.Debug().
@@ -99,37 +105,46 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 	maafocus.Print(ctx, i18n.T("automission.current", title, description))
 
+	// 在当前任务中所有子步骤中尝试找text
 	hits, ok := lookupObjective(description, idx.quests[missionID])
 	if !ok {
 		maafocus.Print(ctx, i18n.T("automission.unsupported_description", description))
 		return nil, false
 	}
 
-	// 命中的子步骤按先后展开成候选追踪点，每轮取一个。
+	// SnsTrackingInfo 没有坐标，执行的都是同一个流程（重新追踪后进 Baker 推进会话），只留第一个。
 	var candidates []trackCandidate
+	hasSns := false
 	for _, hit := range hits {
 		for _, track := range hit.Tracks {
+			if track.Type == "SnsTrackingInfo" {
+				if hasSns {
+					continue
+				}
+				hasSns = true
+			}
 			candidates = append(candidates, trackCandidate{hit: hit, track: track})
 		}
 	}
-	questIDs := questIDsOf(hits)
+	objectiveIDs := objectiveIDsOf(hits)
 	if len(candidates) == 0 {
 		log.Info().
 			Str("component", componentName).
 			Str("mission_id", missionID).
-			Strs("quest_ids", questIDs).
+			Strs("objective_ids", objectiveIDs).
 			Str("description", description).
 			Msg("quest has no tracking")
 		maafocus.Print(ctx, i18n.T("automission.unsupported_description", description))
 		return nil, false
 	}
 
-	pick, ok := nextTrackIndex(arg.TaskID, missionID+"|"+strings.Join(questIDs, ","), len(candidates))
+	// 每次执行到这里时依次选择下一个候选追踪点
+	pick, ok := nextTrackIndex(arg.TaskID, missionID+"|"+strings.Join(objectiveIDs, ","), len(candidates))
 	if !ok {
 		log.Info().
 			Str("component", componentName).
 			Str("mission_id", missionID).
-			Strs("quest_ids", questIDs).
+			Strs("objective_ids", objectiveIDs).
 			Str("description", description).
 			Int("track_count", len(candidates)).
 			Msg("all tracking points tried without progress")
@@ -163,9 +178,10 @@ func (r *MatchQuestRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	}, true
 }
 
-// lookupByPrefix 用 OCR 文本逐字加长的前缀在 entries 中收窄候选：
-// 候选为 0 表示未找到；只剩 1 个即命中；用完 OCR 全文仍有多个则视为无法确定。
+// 在所有entries任务标题中尝试找text
 func lookupByPrefix(text string, entries []textEntry) (string, bool) {
+
+	// 匹配出所有任务名前缀相同的任务
 	text = strings.TrimSpace(text)
 	runes := []rune(text)
 	candidates := entries
@@ -181,39 +197,61 @@ func lookupByPrefix(text string, entries []textEntry) (string, bool) {
 			}
 		}
 		candidates = narrowed
-
-		switch len(candidates) {
-		case 0:
-			log.Warn().
-				Str("component", componentName).
-				Str("text", text).
-				Msg("title lookup missed")
-			return "", false
-		case 1:
-			log.Info().
-				Str("component", componentName).
-				Str("text", text).
-				Str("mission_id", candidates[0].missionID).
-				Msg("title lookup matched")
-			return candidates[0].missionID, true
+		// 剩 0 个或 1 个时已有结论，不用再看后面的字
+		if len(candidates) <= 1 {
+			break
 		}
 	}
 
-	missionIDs := make([]string, len(candidates))
-	for i, entry := range candidates {
-		missionIDs[i] = entry.missionID
+	// 整句用完仍剩多个时，与 OCR 全文完全一致的优先。
+	// 例如 OCR 读到「童心速绘」，会剩下「童心速绘」a1m3 和「童心速绘寻旅」a1m7，这里取 a1m3。
+	if len(candidates) > 1 {
+		var exact []textEntry
+		for _, e := range candidates {
+			for _, v := range e.variants {
+				if comparableText(v) == comparableText(text) {
+					exact = append(exact, e)
+					break
+				}
+			}
+		}
+		if len(exact) == 1 {
+			candidates = exact
+		}
 	}
-	log.Warn().
-		Str("component", componentName).
-		Str("text", text).
-		Strs("mission_ids", missionIDs).
-		Msg("title lookup ambiguous")
-	return "", false
+
+	switch len(candidates) {
+	case 0:
+		// 没找到
+		log.Warn().
+			Str("component", componentName).
+			Str("text", text).
+			Msg("title lookup missed")
+		return "", false
+	case 1:
+		// 找到一个，符合预期
+		log.Info().
+			Str("component", componentName).
+			Str("text", text).
+			Str("mission_id", candidates[0].missionID).
+			Msg("title lookup matched")
+		return candidates[0].missionID, true
+	default:
+		// 找到多个，不支持
+		missionIDs := make([]string, len(candidates))
+		for i, entry := range candidates {
+			missionIDs[i] = entry.missionID
+		}
+		log.Warn().
+			Str("component", componentName).
+			Str("text", text).
+			Strs("mission_ids", missionIDs).
+			Msg("title lookup ambiguous")
+		return "", false
+	}
 }
 
-// lookupObjective 在一个任务的步骤名称里按 OCR 前缀收窄。
-// 收窄到 0 条表示没找到，收窄到 1 条即命中。
-// 用完全文仍有多条时，若全部都是单条 SnsTrackingInfo 则取第一条；否则按子步骤先后全部返回。
+// 在当前任务中所有子步骤中尝试找text
 func lookupObjective(text string, quests *missionQuests) ([]objectiveEntry, bool) {
 	text = strings.TrimSpace(text)
 	if quests == nil {
@@ -237,25 +275,48 @@ func lookupObjective(text string, quests *missionQuests) ([]objectiveEntry, bool
 			}
 		}
 		candidates = narrowed
-
-		switch len(candidates) {
-		case 0:
-			log.Warn().
-				Str("component", componentName).
-				Str("text", text).
-				Msg("objective lookup missed")
-			return nil, false
-		case 1:
-			log.Info().
-				Str("component", componentName).
-				Str("text", text).
-				Str("quest_id", candidates[0].QuestID).
-				Int("desc_index", candidates[0].DescIndex).
-				Msg("objective lookup matched")
-			return candidates[:1], true
+		// 剩 0 条或 1 条时已有结论，不用再看后面的字
+		if len(candidates) <= 1 {
+			break
 		}
 	}
 
+	// 整句用完仍剩多条时，只保留与 OCR 全文完全一致的。
+	// 例如 OCR 读到「跟随黎风」，会剩下 q#8、q#15「跟随黎风」和 q#21「跟随黎风完成祭奠」等，
+	// 这里只留 q#8、q#15，它们才是真正的同名步骤。一条都不一致（OCR 被截断）时保持原样。
+	if len(candidates) > 1 {
+		var exact []objectiveEntry
+		for _, entry := range candidates {
+			for _, variant := range entry.variants {
+				if comparableText(variant) == comparableText(text) {
+					exact = append(exact, entry)
+					break
+				}
+			}
+		}
+		if len(exact) > 0 {
+			candidates = exact
+		}
+	}
+
+	switch len(candidates) {
+	case 0:
+		log.Warn().
+			Str("component", componentName).
+			Str("text", text).
+			Msg("objective lookup missed")
+		return nil, false
+	case 1:
+		log.Info().
+			Str("component", componentName).
+			Str("text", text).
+			Str("quest_id", candidates[0].QuestID).
+			Int("desc_index", candidates[0].DescIndex).
+			Msg("objective lookup matched")
+		return candidates[:1], true
+	}
+
+	// 用完全文仍有多条，是同名步骤，按任务先后顺序排序，供上层循环执行一遍
 	sort.SliceStable(candidates, func(i, j int) bool {
 		a, b := candidates[i], candidates[j]
 		if a.Order != b.Order {
@@ -266,21 +327,10 @@ func lookupObjective(text string, quests *missionQuests) ([]objectiveEntry, bool
 		}
 		return a.DescIndex < b.DescIndex
 	})
-	questIDs := questIDsOf(candidates)
-	if singleSnsTracking(candidates) {
-		log.Info().
-			Str("component", componentName).
-			Str("text", text).
-			Str("quest_id", candidates[0].QuestID).
-			Int("desc_index", candidates[0].DescIndex).
-			Strs("quest_ids", questIDs).
-			Msg("ambiguous sns objectives share one tracking step")
-		return candidates[:1], true
-	}
 	log.Info().
 		Str("component", componentName).
 		Str("text", text).
-		Strs("quest_ids", questIDs).
+		Int("count", len(candidates)).
 		Msg("objective lookup ambiguous, rotate candidates")
 	return candidates, true
 }
@@ -291,10 +341,16 @@ type trackCandidate struct {
 	track trackData
 }
 
-func questIDsOf(entries []objectiveEntry) []string {
+// objectiveIDsOf 返回每条步骤名称的标识，用于拼轮换 key 和打日志。
+// 普通目标就是 questId，如 sm2l2m1_q#2；多说明目标再带上说明下标，如 a1m14_q#2#1。
+// 多说明目标的几句说明同属一个 quest，会随进度依次切换，只用 questId 会把推进误判为没推进。
+func objectiveIDsOf(entries []objectiveEntry) []string {
 	ids := make([]string, len(entries))
 	for i, entry := range entries {
 		ids[i] = entry.QuestID
+		if entry.DescIndex >= 0 {
+			ids[i] += "#" + strconv.Itoa(entry.DescIndex)
+		}
 	}
 	return ids
 }
@@ -302,7 +358,6 @@ func questIDsOf(entries []objectiveEntry) []string {
 // trackRotation 记录当前步骤已经试到第几个候选追踪点。
 // 描述没变说明上一个点没推进，下一轮换下一个；换了任务运行或步骤就从头开始。
 var trackRotation struct {
-	mu     sync.Mutex
 	taskID int64
 	key    string
 	next   int
@@ -310,8 +365,6 @@ var trackRotation struct {
 
 // nextTrackIndex 返回本轮要执行的候选下标；每个候选只试一次，用完返回 false。
 func nextTrackIndex(taskID int64, key string, count int) (int, bool) {
-	trackRotation.mu.Lock()
-	defer trackRotation.mu.Unlock()
 	if trackRotation.taskID != taskID || trackRotation.key != key {
 		trackRotation.taskID = taskID
 		trackRotation.key = key
@@ -323,20 +376,6 @@ func nextTrackIndex(taskID int64, key string, count int) (int, bool) {
 	index := trackRotation.next
 	trackRotation.next++
 	return index, true
-}
-
-// singleSnsTracking 判断这些同名步骤是否都能走同一条 SNS 流程。
-// SnsTrackingInfo 没有坐标，多条之间没有可区分的下一步。
-func singleSnsTracking(entries []objectiveEntry) bool {
-	if len(entries) == 0 {
-		return false
-	}
-	for _, entry := range entries {
-		if len(entry.Tracks) != 1 || entry.Tracks[0].Type != "SnsTrackingInfo" {
-			return false
-		}
-	}
-	return true
 }
 
 // comparableText 去掉整段文本中的每一处中点类分隔符，供前缀比较使用。
