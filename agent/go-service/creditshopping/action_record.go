@@ -35,7 +35,7 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 
 	var imgForMeta image.Image
 	var slots []SlotRecord
-	adb := isADBController(ctrl)
+	adb := isADBController()
 	if adb {
 		first, err := screencap(ctrl)
 		if err != nil {

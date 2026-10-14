@@ -6,7 +6,6 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
@@ -358,13 +357,9 @@ var adbEndSkillRegions = [4]maa.Rect{
 	{1003, 362, 57, 106},
 }
 
+// mobileFightLayout 判断当前控制器是否走触控 + 移动端 UI（ADB / PlayCover / Android 原生）。
 func mobileFightLayout() bool {
-	switch strings.ToLower(strings.TrimSpace(pienv.ControllerType())) {
-	case "adb", "native_android", "playcover":
-		return true
-	default:
-		return false
-	}
+	return pienv.IsAdbLikeControllerType(pienv.ControllerType())
 }
 
 func characterRegion(idx int) maa.Rect {

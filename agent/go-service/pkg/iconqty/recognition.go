@@ -48,8 +48,9 @@ type Request struct {
 	TolerateEmptyGrid bool
 }
 
+// isADBController 判断当前控制器是否走触控 + 移动端 UI（ADB / PlayCover / Android 原生）。
 func isADBController() bool {
-	return strings.EqualFold(strings.TrimSpace(pienv.ControllerType()), "Adb")
+	return pienv.IsAdbLikeControllerType(pienv.ControllerType())
 }
 
 // DefaultROI returns the reference ROI for gridType on the current controller.

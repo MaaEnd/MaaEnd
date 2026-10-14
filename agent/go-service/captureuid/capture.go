@@ -11,7 +11,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
@@ -52,11 +51,11 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 		}
 	}
 
-	typ := controllerType(ctrl)
+	typ := controllerType()
 	if typ == "" {
 		return captureErr(allowUnknown, "cannot determine controller type")
 	}
-	if typ != control.CONTROL_TYPE_WIN32 {
+	if typ != pienv.ControllerKindWin32 {
 		return captureByOCR(ctx, ctrl, stayOnCurrentScreen, allowUnknown, outputType)
 	}
 
@@ -67,15 +66,9 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	return cacheAndFormat(raw, allowUnknown, outputType)
 }
 
-func controllerType(ctrl *maa.Controller) string {
-	if typ := strings.ToLower(strings.TrimSpace(pienv.ControllerType())); typ != "" {
-		return typ
-	}
-	typ, err := control.GetControlType(ctrl)
-	if err != nil {
-		return ""
-	}
-	return typ
+// controllerType 返回归一化后的控制器类别（见 pienv.ControllerKind*）。
+func controllerType() string {
+	return pienv.ControllerKind()
 }
 
 func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {

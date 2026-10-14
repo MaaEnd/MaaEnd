@@ -13,50 +13,21 @@ import (
 
 /* ******** Controller Type ******** */
 
-const (
-	CONTROL_TYPE_WIN32 = "win32"
-	CONTROL_TYPE_MACOS = "macos"
-	CONTROL_TYPE_LINUX = "linux"
-	CONTROL_TYPE_ADB   = "adb"
-)
-
-// controlTypeNativeAndroid 是 MaaFramework Android 原生控制器（MaaFwApp 在手机上直接跑）上报的类型。
-// 走触控、画面是移动端 UI，与 ADB 一致，只是不经过 adb，所以统一归到 CONTROL_TYPE_ADB。
-const controlTypeNativeAndroid = "native_android"
-
 type maaControllerInfoDto struct {
 	Type string `json:"type"`
 	HWnd uint64 `json:"hwnd"`
 }
 
-func controlTypeFromPI() string {
-	return controlTypeFromPIType(pienv.ControllerType())
-}
-
-func controlTypeFromPIType(controllerType string) string {
-	switch strings.ToLower(strings.TrimSpace(controllerType)) {
-	case CONTROL_TYPE_ADB, controlTypeNativeAndroid, "playcover":
-		return CONTROL_TYPE_ADB
-	case CONTROL_TYPE_WIN32:
-		return CONTROL_TYPE_WIN32
-	case CONTROL_TYPE_MACOS:
-		return CONTROL_TYPE_MACOS
-	case CONTROL_TYPE_LINUX:
-		return CONTROL_TYPE_LINUX
-	default:
-		return ""
-	}
-}
-
-// ResolveControlType returns PI_CONTROLLER type when MXU injects it; otherwise parses controller.GetInfo().
+// ResolveControlType 返回归一化后的控制器类别（取值见 pienv.ControllerKind*）。
+// 优先采用 PI 注入的类型；PI 环境缺失或类型未知时，回退到解析 controller.GetInfo()。
 func ResolveControlType(ctrl *maa.Controller) (string, error) {
-	if t := controlTypeFromPI(); t != "" {
-		return t, nil
+	if kind := pienv.ControllerKind(); kind != pienv.ControllerKindUnknown {
+		return kind, nil
 	}
 	return GetControlType(ctrl)
 }
 
-// GetControlType retrieves the control type of the given controller by parsing its info string.
+// GetControlType 解析 controller.GetInfo()，返回归一化后的控制器类别。
 func GetControlType(ctrl *maa.Controller) (string, error) {
 	if ctrl == nil {
 		return "", fmt.Errorf("nil controller")
@@ -77,36 +48,24 @@ func controlTypeFromInfo(infoStr string) (string, error) {
 
 	var info maaControllerInfoDto
 	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
-		// Fallback
-		if strings.Contains(infoStr, CONTROL_TYPE_WIN32) {
-			return CONTROL_TYPE_WIN32, nil
-		}
-		if strings.Contains(infoStr, CONTROL_TYPE_MACOS) {
-			return CONTROL_TYPE_MACOS, nil
-		}
-		if strings.Contains(infoStr, CONTROL_TYPE_LINUX) {
-			return CONTROL_TYPE_LINUX, nil
-		}
-		if strings.Contains(infoStr, CONTROL_TYPE_ADB) || strings.Contains(infoStr, controlTypeNativeAndroid) {
-			return CONTROL_TYPE_ADB, nil
+		// Fallback：info 不是合法 JSON 时按子串探测。
+		lower := strings.ToLower(infoStr)
+		for _, candidate := range []string{
+			pienv.ControllerKindWin32,
+			pienv.ControllerKindMacOS,
+			pienv.ControllerKindLinux,
+			pienv.ControllerKindPlayCover,
+			pienv.ControllerKindNativeAndroid,
+			pienv.ControllerKindAdb,
+		} {
+			if strings.Contains(lower, candidate) {
+				return candidate, nil
+			}
 		}
 		return "", fmt.Errorf("failed to parse controller info via JSON: %w, and fallback parsing also failed", err)
 	}
-	if info.Type == "" {
-		return "", fmt.Errorf("controller type is empty in parsed info")
-	}
-
-	if info.Type == CONTROL_TYPE_WIN32 {
-		return CONTROL_TYPE_WIN32, nil
-	}
-	if info.Type == CONTROL_TYPE_MACOS {
-		return CONTROL_TYPE_MACOS, nil
-	}
-	if info.Type == CONTROL_TYPE_LINUX {
-		return CONTROL_TYPE_LINUX, nil
-	}
-	if info.Type == CONTROL_TYPE_ADB || info.Type == controlTypeNativeAndroid {
-		return CONTROL_TYPE_ADB, nil
+	if kind := pienv.NormalizeControllerKind(info.Type); kind != pienv.ControllerKindUnknown {
+		return kind, nil
 	}
 	return "", fmt.Errorf("unsupported controller type: %s", info.Type)
 }

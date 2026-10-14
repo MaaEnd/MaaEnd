@@ -44,7 +44,7 @@ func (c *ProcessChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 		return
 	}
 
-	if !strings.EqualFold(pienv.ControllerType(), "Win32") {
+	if pienv.ControllerKind() != pienv.ControllerKindWin32 {
 		return
 	}
 

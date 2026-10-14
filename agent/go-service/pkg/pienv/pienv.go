@@ -3,6 +3,7 @@ package pienv
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/rs/zerolog/log"
@@ -227,6 +228,68 @@ func ControllerName() string {
 		return c.Name
 	}
 	return ""
+}
+
+/* ******** Controller Kind ******** */
+
+// Normalized controller kinds. Both the raw type injected by the Client
+// (PI_CONTROLLER's type, i.e. interface.json's controller.type) and the raw type
+// reported by MaaFramework (controller.GetInfo()) are normalized to these values
+// before any comparison, so callers never hand-roll case/alias handling.
+const (
+	// ControllerKindUnknown means the controller type is unknown: the PI environment is
+	// absent, or the raw type is not in the known set.
+	ControllerKindUnknown = ""
+	// ControllerKindAdb / ControllerKindPlayCover / ControllerKindNativeAndroid all use
+	// touch input with the mobile UI. Use IsAdbLikeControllerType when they share a branch.
+	ControllerKindAdb           = "adb"
+	ControllerKindPlayCover     = "playcover"
+	ControllerKindNativeAndroid = "native_android"
+	ControllerKindWin32         = "win32"
+	ControllerKindMacOS         = "macos"
+	ControllerKindLinux         = "linux"
+	ControllerKindGamepad       = "gamepad"
+)
+
+// ControllerKind returns the normalized kind of the current PI environment,
+// or ControllerKindUnknown when PI_CONTROLLER is absent or of an unknown type.
+func ControllerKind() string {
+	return NormalizeControllerKind(ControllerType())
+}
+
+// NormalizeControllerKind maps a raw controller type to its normalized kind,
+// or ControllerKindUnknown if it cannot be recognized.
+func NormalizeControllerKind(controllerType string) string {
+	switch strings.ToLower(strings.TrimSpace(controllerType)) {
+	case ControllerKindAdb:
+		return ControllerKindAdb
+	// play_cover is an accepted spelling of PlayCover in some clients.
+	case ControllerKindPlayCover, "play_cover":
+		return ControllerKindPlayCover
+	case ControllerKindNativeAndroid:
+		return ControllerKindNativeAndroid
+	case ControllerKindWin32:
+		return ControllerKindWin32
+	case ControllerKindMacOS:
+		return ControllerKindMacOS
+	case ControllerKindLinux:
+		return ControllerKindLinux
+	case ControllerKindGamepad:
+		return ControllerKindGamepad
+	default:
+		return ControllerKindUnknown
+	}
+}
+
+// IsAdbLikeControllerType reports whether the raw controller type uses touch input and
+// the mobile UI: ADB, PlayCover, and the Android native controller (MaaFwApp on phone).
+func IsAdbLikeControllerType(controllerType string) bool {
+	switch NormalizeControllerKind(controllerType) {
+	case ControllerKindAdb, ControllerKindPlayCover, ControllerKindNativeAndroid:
+		return true
+	default:
+		return false
+	}
 }
 
 // ResourceName returns the resource name identifier, or empty if unavailable.

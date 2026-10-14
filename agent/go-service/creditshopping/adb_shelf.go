@@ -5,6 +5,7 @@ import (
 	"image"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -19,9 +20,9 @@ const (
 	adbShelfSwipeWaitMs = 400
 )
 
-func isADBController(ctrl *maa.Controller) bool {
-	t, err := control.ResolveControlType(ctrl)
-	return err == nil && t == control.CONTROL_TYPE_ADB
+// isADBController 判断当前控制器是否走触控 + 移动端 UI（ADB / PlayCover / Android 原生）。
+func isADBController() bool {
+	return pienv.IsAdbLikeControllerType(pienv.ControllerType())
 }
 
 func swipeShelfForADB(ctx *maa.Context, ctrl *maa.Controller, beginY, endY int) bool {

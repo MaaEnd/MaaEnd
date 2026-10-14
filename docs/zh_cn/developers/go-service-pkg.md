@@ -221,11 +221,12 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 
 - `ClientLanguage()` → 交给 `i18n`
 - `ControllerType()` / `ControllerName()` → 区分 Win32 / Adb 等
+- `ControllerKind()` / `NormalizeControllerKind()` / `IsAdbLikeControllerType()` → 归一化后的控制器类别（`adb` / `playcover` / `native_android` / `win32` / `macos` / `linux` / `gamepad`），大小写、`play_cover` 之类的别名都在这里消化
 - `ResourceName()`、版本号等
 
 不要自己再 `os.Getenv("PI_...")` 散落解析。
 
-判断控制器类型一律用 `ControllerType()`，不要为此去取 controller 调 `GetInfo()`：同一回调里每多取一次 controller，之前拿到的那个就会失效（见[编码规范 · 回调里的句柄怎么用](./coding-standards.md#回调里的句柄怎么用)）。
+判断控制器类型一律用 `ControllerType()`，比较时走 `ControllerKind()` / `NormalizeControllerKind()`（不要各自 `ToLower` 拼字符串），更不要为此去取 controller 调 `GetInfo()`：同一回调里每多取一次 controller，之前拿到的那个就会失效（见[编码规范 · 回调里的句柄怎么用](./coding-standards.md#回调里的句柄怎么用)）。ADB、PlayCover（含别名 `play_cover`）与 Android 原生共用「触控 + 移动端 UI」分支时，用 `IsAdbLikeControllerType()` 判断。
 
 ### `resource`：资源文件定位与读取
 
@@ -276,7 +277,9 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 
 路径：`pkg/control/`
 
-`ControlAdaptor` 统一 Touch / Key / 镜头旋转 / 角色移动等；按平台有 Win32、ADB、macOS、Linux 实现。角色控制、自动战斗等「真正动手」的逻辑应走适配器，而不是直接调底层 Contorller API 散落各处。
+`ControlAdaptor` 统一 Touch / Key / 镜头旋转 / 角色移动等；按平台有 Win32、ADB、macOS、Linux 实现。角色控制、自动战斗等「真正动手」的逻辑应走适配器，而不是直接调底层 Controller API 散落各处。
+
+控制器类型的判定**不在本包**：一律走 [`pienv`](#pienv-project-interface-环境)（`ControllerKind()` / `IsAdbLikeControllerType()`）。`NewControlAdaptor` 仅在 PI 环境缺失时才回退到 `controller.GetInfo()` 选实现。
 
 ### `minicv`：轻量 CV
 
