@@ -1241,14 +1241,18 @@ bool AppendGlobalRouteGroup(
         return false;
     }
 
-    // 这一组只有一个动作点, 且和上一个作者点同坐标(先 NAVMESH 走到、再原地交互): 上一段已经停在这里,
-    // 没有路可规划。照常规划只会拿到空路径, 被当成走不通后还会去找滑索绕路。
+    // 这一组只有一个动作点, 且和上一个作者点同坐标、同一张面(先 NAVMESH 走到、再原地交互): 上一段已经停在这里,
+    // 没有路可规划。照常规划只会拿到空路径, 被当成走不通后还会去找滑索绕路。动作点另声明了一张面就照常规划。
     const Waypoint* previous = begin > 0 ? &path[begin - 1] : nullptr;
+    const bool same_deck = !authored_endpoint.target_deck_y
+                           || (previous != nullptr && previous->target_deck_y
+                               && std::abs(*previous->target_deck_y - *authored_endpoint.target_deck_y) <= 1e-6);
     if (endpoint_is_hard && begin + 1 == end && previous != nullptr && previous->HasPosition()
         && previous->target_tier == authored_endpoint.target_tier && authored_endpoint.action != ActionType::NAVMESH
-        && authored_endpoint.action != ActionType::RUN
+        && authored_endpoint.action != ActionType::RUN && same_deck
         && std::hypot(authored_endpoint.x - previous->x, authored_endpoint.y - previous->y) <= kSameRoutePointWu) {
         out_path.push_back(*projected_endpoint);
+        UpdateStateFromRegularWaypoint(*projected_endpoint, state);
         LogInfo << "Action point sits where the previous leg ended; appended without planning." << VAR(projected_endpoint->x)
                 << VAR(projected_endpoint->y) << VAR(static_cast<int>(authored_endpoint.action));
         return true;
