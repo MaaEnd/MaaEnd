@@ -13,13 +13,16 @@ const (
 	npcProxyInWorldNode  = "AutoMissionNpcProxyInWorld"
 	npcProxyInteractNode = "AutoMissionNpcProxyActionInteractRecognition"
 	npcProxyStoryNode    = "InStory"
+
+	missionAreaNode        = "AutoMissionMissionArea"
+	missionAreaInWorldNode = "AutoMissionMissionAreaInWorld"
 )
 
 var _ maa.CustomActionRunner = &ExecuteQuestAction{}
 
 // trackingNodes 把解包追踪类型对应到占位 Pipeline 节点。
 var trackingNodes = map[string]string{
-	"MissionAreaTrackingInfo": "AutoMissionMissionArea",
+	"MissionAreaTrackingInfo": missionAreaNode,
 	"NpcProxyTrackingInfo":    npcProxyNode,
 	"PosTrackingInfo":         "AutoMissionPos",
 	"EntityTrackingInfo":      "AutoMissionEntity",
@@ -65,7 +68,8 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		taskDetail *maa.TaskDetail
 		err        error
 	)
-	if node == npcProxyNode {
+	switch node {
+	case npcProxyNode:
 		npcNames := npcNameVariants(track)
 		if track.ZoneID == "" || track.X == nil || track.Y == nil {
 			log.Warn().
@@ -113,7 +117,47 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 				},
 			},
 		})
-	} else {
+	case missionAreaNode:
+		// 任务区域只要走进去就会推进，寻路到区域中心即可，不做交互。
+		if track.ZoneID == "" || track.X == nil || track.Y == nil {
+			log.Warn().
+				Str("component", executeComponent).
+				Str("zone_id", track.ZoneID).
+				Bool("has_x", track.X != nil).
+				Bool("has_y", track.Y != nil).
+				Msg("mission area track missing zone or position")
+			return false
+		}
+		log.Info().
+			Str("component", executeComponent).
+			Str("node", missionAreaInWorldNode).
+			Str("zone_id", track.ZoneID).
+			Float64("x", *track.X).
+			Float64("y", *track.Y).
+			Msg("mission area navigate target")
+		taskDetail, err = ctx.RunTask(node, map[string]any{
+			missionAreaInWorldNode: map[string]any{
+				"custom_action_param": map[string]any{
+					"heading_source": "camera",
+					"path": []any{
+						map[string]any{
+							"action":  "ZONE",
+							"zone_id": track.ZoneID,
+						},
+						map[string]any{
+							"action": "NAVMESH",
+							"target": []float64{*track.X, *track.Y},
+						},
+						map[string]any{
+							"action":       "TRIGGER",
+							"target":       []float64{*track.X, *track.Y},
+							"trigger_node": npcProxyStoryNode,
+						},
+					},
+				},
+			},
+		})
+	default:
 		taskDetail, err = ctx.RunTask(node)
 	}
 	if err != nil || taskDetail == nil || !taskDetail.Status.Success() {
