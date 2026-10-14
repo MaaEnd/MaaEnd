@@ -40,7 +40,7 @@ var screenAnalyzer = NewScreenAnalyzer()
 
 func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 	var override map[string]any
-	if !mobileFightLayout() {
+	if !screenAnalyzer.mobileLayout {
 		box, ok := screenAnalyzer.GetCharacterSelectBox()
 		if !ok {
 			return false
@@ -210,6 +210,9 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		return nil, false
 	}
 
+	// 回调入口刷新一次控制器布局，下游的识别区域与 label 都按它取。
+	screenAnalyzer.RefreshLayout(ctx)
+
 	if !screenAnalyzer.UpdateScreenDetail(ctx, arg.Img) {
 		return nil, false
 	}
@@ -354,6 +357,9 @@ var (
 type AutoFightMainAction struct{}
 
 func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	// 回调入口刷新一次控制器布局，下游的识别区域与 label 都按它取。
+	screenAnalyzer.RefreshLayout(ctx)
+
 	raw, err := ctx.GetNodeJSON(arg.CurrentTaskName)
 	if err != nil || raw == "" {
 		log.Error().Err(err).Str("component", "AutoFight").Str("step", "get node json").Msg("get node json for custom action param")
@@ -740,7 +746,7 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 
 		// ADB 断触兜底：按住中的普攻触点被模拟器层面的中断掐断后不会自行恢复，
 		// 按周期补按一次。PC 端的按住是键鼠状态，不需要也不应该重按。
-		if params.EnableAttack && mobileFightLayout() && time.Since(lastAttackReassert) >= attackReassertInterval {
+		if params.EnableAttack && screenAnalyzer.mobileLayout && time.Since(lastAttackReassert) >= attackReassertInterval {
 			lastAttackReassert = time.Now()
 			enqueueAction(fightAction{
 				executeAt: time.Now(),
