@@ -85,14 +85,23 @@
             }
         }
     },
+    // 放置菜单是一列白底选项，取消排第几行随设备而定，在整列里认文字
     "__MapNavigatorObstacleDevice_CancelMove": {
         "recognition": {
-            "type": "And",
+            "type": "OCR",
             "param": {
-                "all_of": [
-                    "WhiteCancelButton"
+                "roi": [
+                    740,
+                    370,
+                    260,
+                    250
                 ],
-                "box_index": 0
+                "expected": [
+                    "取消",
+                    "(?i)Cancel",
+                    "キャンセル",
+                    "취소"
+                ]
             }
         },
         "action": {
