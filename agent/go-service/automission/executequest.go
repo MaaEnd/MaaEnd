@@ -25,7 +25,7 @@ const (
 
 var _ maa.CustomActionRunner = &ExecuteQuestAction{}
 
-// trackingNodes 把解包追踪类型对应到占位 Pipeline 节点。
+// trackingNodes 把追踪类型对应到 Pipeline 节点。
 var trackingNodes = map[string]string{
 	"MissionAreaTrackingInfo": missionAreaNode,
 	"NpcProxyTrackingInfo":    npcProxyNode,

@@ -25,7 +25,7 @@ type trackData struct {
 	NpcName    missionText `json:"npcName,omitempty"`
 	// NpcNameOverrides 是关卡脚本运行时给 NPC 改的名字，与 NpcName 一起作为交互名称候选。
 	NpcNameOverrides []missionText `json:"npcNameOverrides,omitempty"`
-	// EntityDataIDKey 是实体追踪对应的解包实体类型，如 int_fixable_robot。
+	// EntityDataIDKey 是实体追踪对应的实体类型，如 int_fixable_robot。
 	EntityDataIDKey string `json:"entityDataIdKey,omitempty"`
 	// InteractTexts 是实体追踪的交互选项文字，可能有多个。
 	InteractTexts []missionText `json:"interactTexts,omitempty"`
@@ -157,7 +157,7 @@ func indexQuests(m missionData) *missionQuests {
 }
 
 // questOrder 按 prevQuestIdList 算每个子步骤的深度，用来给同名步骤排先后。
-// 解包数据里 questDic 按 questId 字符串排序，与实际流程顺序无关，只有前置关系可靠。
+// 数据里 questDic 按 questId 字符串排序，与实际流程顺序无关，只有前置关系可靠。
 //
 // 深度就是沿 prev 往前追的层数，即离起点有多远：自己的深度 = prev 的深度 + 1，
 // 没有 prev 的起点为 0。以「驮兽与我」(sm2l2m1) 为例：

@@ -47,7 +47,7 @@ const GENERIC_COMPONENTS = new Set([
 
 // 玩家进入触发区后会自动推进剧情的动作。
 
-// 交互文字由客户端按组件写死、解包数据里查不到的交互物，按 entityDataIdKey 手工补文本 key。
+// 交互文字由客户端按组件写死、数据里查不到的交互物，按 entityDataIdKey 手工补文本 key。
 const MANUAL_INTERACT_TEXTS = {
     int_fixable_robot: ["lang_int_fix_option"],
 };
