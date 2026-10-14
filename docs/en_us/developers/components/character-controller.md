@@ -9,7 +9,7 @@ This document explains how to use nodes related to CharacterController.
 > [!IMPORTANT]
 >
 > Camera/view nodes (Yaw / Pitch / MoveToTarget, etc.) depend on keyboard/mouse input and **must run in the foreground mode (Seize)**, otherwise input events cannot be correctly delivered to the game.  
-> Axis movement nodes (`CharacterControllerForwardAxisAction` and the `__CharacterControllerAxisLongPress*Action` nodes used by `CharacterSearchAction`) work on **ADB** via joystick `LongPress` overrides in [`resource_adb/.../CharacterController/Action.json`](../../../assets/resource_adb/pipeline/Common/Private/CharacterController/Action.json); Seize is not required for those.
+> Axis movement nodes (`CharacterControllerForwardAxisAction` and the `__CharacterControllerAxisLongPress*Action` nodes used by `CharacterSearchAction`) work on **ADB** via joystick `LongPress` overrides in [`resource_adb/.../CharacterController/Action.json`](../../../../assets/resource_adb/pipeline/Common/Private/CharacterController/Action.json); Seize is not required for those.
 
 ## Node Descriptions
 
@@ -80,7 +80,7 @@ Each time it is called, one of the following logics is executed based on the cur
 
 ### Action: CharacterSearchAction
 
-🔍 When an interact point cannot be found, walks a fixed circle path to fine-tune position and repeatedly recognizes target nodes. Returns success if any `wait_nodes` hits; returns failure after the full path with no hit, or when the task is Stopping. **Recognizes once at the starting position first**, then enters the move → wait → recognize loop.
+🔍 When an interact point cannot be found, walks a fixed circle path to fine-tune position and repeatedly recognizes target nodes. Returns success if any `wait_nodes` hits; returns failure after the full path with no hit, or when the task is Stopping. **Recognizes once at the starting position first**; if that misses, it enters the move → wait → recognize loop.
 
 Each step runs `__CharacterControllerAxisLongPress*Action`: default resource uses WASD `LongPressKey`; the ADB resource remaps them to virtual-joystick `LongPress` (see IMPORTANT above).
 
@@ -92,10 +92,10 @@ Required parameters:
 
 #### Circle Path
 
-Each step is fixed at 100ms (same as `CharacterControllerForwardAxisAction` with `axis: 1`); after every step, wait then recognize. Direction mapping: forward/up = W (or joystick up), back/down = S (or joystick down), left = A (or joystick left), right = D (or joystick right).
+Each step is fixed at 100ms (same as `CharacterControllerForwardAxisAction` with `axis: 1`); after every step, wait a fixed interval, then recognize. Direction mapping: forward/up = W (or joystick up), back/down = S (or joystick down), left = A (or joystick left), right = D (or joystick right).
 
 ```text
-start recognize → F F | L L | S S S S | D D D D | W W W W | A A
+start recognize → W W | A A | S S S S | D D D D | W W W W | A A
                         ^after each step: wait → screencap → recognize wait_nodes
 ```
 

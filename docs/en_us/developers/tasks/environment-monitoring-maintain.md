@@ -36,7 +36,7 @@ The core maintenance points for EnvironmentMonitoring are as follows:
 | Terminal Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | Terminal output configuration merged into a single file: `outputFile: "Terminals.json"` |
 | Multilingual Text | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` label / description (task-level; observation point names use OCR) |
 | Common Component Dependencies | `agent/cpp-algo/source/MapLocator/`, `agent/cpp-algo/source/MapNavigator/` | Localization and navigation use `MapLocateAssertLocation` + `MapNavigateAction` (see [map-locator.md](../components/map-locator.md) and [map-navigator.md](../components/map-navigator.md)) |
-| Scene Transition Dependencies | `assets/resource/pipeline/SceneManager/`、`Interface/` | `SceneEnterWorldWuling*`, `SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` (see details in [scene-manager.md](../scene-manager.md)) |
+| Scene Transition Dependencies | `assets/resource/pipeline/SceneManager/`, `Interface/` | `SceneEnterWorldWuling*`, `SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` (see details in [scene-manager.md](../scene-manager.md)) |
 
 ## Main Flow
 
@@ -68,16 +68,31 @@ The internal chain for each observation point `{Id}Job` (rendered by `template.j
             │    └─ GoTo{Id}         (Route adapted -> Continue to go)
             └─ AlreadyTracked{Id}    (Already tracking)
                  ├─ {Id}NotAdapted   (Route not adapted -> Only prompt and end this observation point)
-                  └─ GoTo{Id}         (Route adapted -> Continue to go)
-                       ├─ Navigation route
-                       │    ├─ GoTo{Id}StartPos
-                       │    └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap} → GoTo{Id}Move
-                       └─ Photo at teleport point
-                            └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
-                                 ├─ No Heading → {Id}TakePhoto
-                                 └─ Heading set → GoTo{Id}Move (heading-only turn)
+                 └─ GoTo{Id}         (Route adapted -> Continue to go)
+                      ├─ Default teleport: GoTo{Id}
+                      │    ├─ Navigation route
+                      │    │    ├─ GoTo{Id}StartPos (Already at start -> navigate)
+                      │    │    └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
+                      │    └─ Photo at teleport point
+                      │         └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
+                      │              ├─ No Heading → {Id}TakePhoto
+                      │              └─ Heading set → GoTo{Id}Move (heading-only turn)
+                      └─ QuickTeleport: true
+                           ├─ Track{Id} → {Id}InQuickTeleportMap
+                           └─ AlreadyTracked{Id} → {Id}OpenTrackedMissionMap → {Id}InQuickTeleportMap
+                                └─ {Id}QuickTeleportSelect   (Click "Go to teleport")
+                                     └─ {Id}QuickTeleport    (Click "Teleport")
+                                          └─ {Id}QuickTeleportDone
+                                               ├─ Navigation route → GoTo{Id}Move
+                                               └─ Photo at teleport point
+                                                    ├─ No Heading → {Id}TakePhoto
+                                                    └─ Heading set → GoTo{Id}Move
 GoTo{Id}Move                         (MapNavigateAction; heading-only action for direct-photo Heading)
-  └─ {Id}TakePhoto
+  ├─ Direct photo (Heading only) → {Id}TakePhoto
+  └─ Navigation
+       ├─ No FightAfterMove → {Id}TakePhoto
+       └─ FightAfterMove set → [JumpBack]AutoFight → GoTo{Id}MoveAfterFight
+                                                     └─ {Id}TakePhoto
        ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
        └─ next: EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto       (Enter photo mode -> orientation -> take photo)
@@ -85,7 +100,7 @@ EnvironmentMonitoringTakePhoto       (Enter photo mode -> orientation -> take ph
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
-Each `{Id}Job` still identifies its observation point list item, then uses the generic `FailureCollectorRunTask` action to execute the `{Id}Execute` route. The generator uses the shared game's five-language `mission.names` data to fill in `task.EnvironmentMonitoring.route.{Id}.failed` for new tasks; existing failure messages are preserved to avoid overwriting manual adjustments. If any node inside the route fails, the wrapper Action records `{Id}Failed`, runs `recovery_task` to return to the current monitoring terminal, and reports success outward so the remaining routes continue. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to call those notification nodes in failure order, then returns overall failure. The Agent does not directly print user-facing messages.
+Each `{Id}Job` still identifies its observation point list item, then uses the generic `FailureCollectorRunTask` action to execute the `{Id}Execute` route. The generator uses the five-language `mission.names` from the EnvironmentMonitoring data to fill in `task.EnvironmentMonitoring.route.{Id}.failed` for new tasks; existing failure messages are preserved to avoid overwriting manual adjustments. If any node inside the route fails, the wrapper Action records `{Id}Failed`, runs `recovery_task` to return to the current monitoring terminal, and reports success outward so the remaining routes continue. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to call those notification nodes in failure order, then returns overall failure. The Agent does not directly print user-facing messages.
 
 > [!NOTE]
 >
@@ -108,8 +123,8 @@ Each `{Id}Job` still identifies its observation point list item, then uses the g
 For example:
 
 ```text
-WaterTemperatureController        -> Water Temperature Control Device
-EcologyNearTheFieldLogisticsDepot -> Ecology near the Field Logistics Depot
+WaterTemperatureController        -> Water Temperature Controller
+EcologyNearTheFieldLogisticsDepot -> Ecology Near the Field Logistics Depot
 MysteriousCryptidGraffiti         -> Mysterious Cryptid Graffiti
 ```
 
@@ -151,7 +166,7 @@ If a new Station appears, **the generator side (`routes.json` + `model.mjs`) req
 }
 ```
 
-The default export of `data.mjs` is an array, where each element = the rendering context for one observation point (field names correspond to the `${Xxx}` placeholders in `template.json`). `pnpm generate:EnvironmentMonitoring` first syncs the zmdmap compact game data and calls `sync-routes.mjs` to refresh the parent `routes.json`; subsequently, `model.mjs` reads `routes.json` and `environment_monitoring.json`, assembles normalized missions via `route-resolver.mjs`, and `data.mjs` projects the final rows:
+The default export of `data.mjs` is an array, where each element = the rendering context for one observation point (field names correspond to the `${Xxx}` placeholders in `template.json`). `pnpm generate:EnvironmentMonitoring` first syncs the zmdmap compact game data and calls `sync-routes.mjs` to refresh the parent `routes.json`; subsequently, `model.mjs` only reads `routes.json` and `environment_monitoring.json`, assembles normalized missions via `route-resolver.mjs`, and `data.mjs` projects the final rows:
 
 | Field | Source |
 | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -159,14 +174,16 @@ The default export of `data.mjs` is an array, where each element = the rendering
 | `Id` | Automatically generated by default from the official English name in PascalCase; will be synced back to `routes.json`, equivalent to the node ID used by the final template |
 | `Name` | Comes from the Chinese name in `environment_monitoring.json`; `MissionId` is only used by `model.mjs` to match `routes.json` and is not passed to the template |
 | `GoToMonitoringTerminal` | Determined by `Station` |
-| `EnterMap` | `routes.json[*].EnterMap`; any defined Pipeline node name is allowed, without a required prefix, as long as the node can complete and return normally when run as a SubTask |
-| `NavZoneId` / `NavAssert` / `NavPath` | The route form in `routes.json[*]`. `NavPath` is required; regular teleports also require `NavZoneId` / `NavAssert`, while `QuickTeleport` may omit both. Generates `MapLocateAssertLocation` + `MapNavigateAction`; `Heading` appends a `HEADING` action. |
+| `EnterMap` | `routes.json[*].EnterMap`, the default teleport entry; any defined Pipeline node name is allowed, without a required prefix, as long as the node can complete and return normally when run as a SubTask; not used when `QuickTeleport` is enabled, so it may be omitted |
+| `QuickTeleport` | `routes.json[*].QuickTeleport`, optional boolean, default `false`; when enabled, clicks "Go to teleport" and then "Teleport" on the tracked mission map instead of calling `EnterMap` |
+| `NavZoneId` / `NavAssert` / `NavPath` | The route form in `routes.json[*]`. `NavPath` is required; regular teleports also require `NavZoneId` / `NavAssert`. Generates `MapLocateAssertLocation` + `MapNavigateAction`; `Heading` appends a `HEADING` action. The route itself takes over from the teleport landing point, and the start position is not re-verified after teleporting |
+| `FightAfterMove` | An optional, separate MapNavigator `path` array, available only for complete navigation routes; when present, `AutoFight` runs once after the first navigation, and the character then returns along this path. The route-level `Heading` is appended at the end as well; direct-photo routes must not configure it |
 | `CameraScanAction` | Common camera scan action; its parameters and scan order live in `TakePhoto.json` and the Go service, with no route-level configuration |
 | `OcrReplace` | Passed through from `routes.json[*].Replace` to `Check${Id}Text.replace` and `In${Id}Mission.replace`; used to configure task-specific OCR replacement pairs for the task list and mission detail page, without affecting route adaptation checks |
 | `ExpectedText` | Automatically expanded from `mission.names` in `environment_monitoring.json` (5 languages, English converted to flexible regex) |
 | `InExpectedText` | Automatically expanded from `mission.shot_target_names` in `environment_monitoring.json`; quotes and apostrophes are relaxed to an optional single-character wildcard `.?` (a trailing one is dropped), so a mobile OCR that cannot read the quotes still matches the photo title |
-| `TrackOrGoToNext` / `AfterTrackedNext` | Automatically determined by `data.mjs` based on whether the route is complete: `TrackOrGoToNext` converges to `Track${Id}` / `AlreadyTracked${Id}`, `AfterTrackedNext` is `GoTo${Id}` when adapted, `${Id}NotAdapted` when not adapted |
-| `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | Automatically determined by `data.mjs`: direct-photo routes always perform the configured teleport, then enter `GoTo${Id}Move` to turn in place when `Heading` is set, or `${Id}TakePhoto` otherwise; navigation routes proceed directly to `GoTo${Id}Move` after teleporting, without re-verifying the landing point. |
+| `TrackOrGoToNext` / `AfterTrackNext` / `AfterAlreadyTrackedNext` | Automatically determined by `data.mjs` based on whether the route is complete and on `QuickTeleport`: by default the flow enters `GoTo${Id}`; with quick teleport, it waits for the mission map after tracking starts, or, if the mission is already tracked, first clicks the locate icon to open the mission map; when not adapted, it enters `${Id}NotAdapted` |
+| `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | Automatically determined by `data.mjs` based on the teleport entry and route type: direct-photo routes always perform a real teleport, then enter `GoTo${Id}Move` to turn in place when `Heading` is set, or `${Id}TakePhoto` otherwise; navigation routes proceed directly to `GoTo${Id}Move` after teleporting |
 
 ### Terminal Grouping: `terminals-config.json`
 
@@ -212,20 +229,21 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### Pathfinding Components
 
-Teleporting and pathfinding for observation points is handled entirely by MapLocator and MapNavigator:
+Pathfinding for observation points is handled entirely by MapNavigator:
 
-- `MapLocateAssertLocation` (Recognition): Judges whether the current position is within the `NavAssert` rectangle based on the minimap. Regular teleport routes use it to decide whether `EnterMap` is needed; quick-teleport routes start from a fixed landing point and may omit the assertion.
-- `MapNavigateAction` (Action): Uses `NavPath` directly as its path. `NavZoneId` selects the coordinate zone for `NavAssert`; a `NAVMESH` action in `NavPath` may carry `target_tier` for a cross-tier target and `target_deck_y` for one of several overlapping walkable decks.
-- `${Id}TakePhoto` (wrapper): Sets the task-specific `EnvironmentMonitoringBackToTerminal` anchor before entering the shared photo flow.
-- Direct-photo routes perform no pathfinding; when `Heading` is set, the generator emits a `MapNavigateAction` whose path contains only a `HEADING` action, turning the character in place before the photo. Both route forms start their action right after teleporting and never re-verify the landing point.
+- `MapLocateAssertLocation` (Recognition): Judges whether the current position is within the `NavAssert` rectangle based on the minimap. Regular teleport routes use it to decide whether `EnterMap` is needed; `QuickTeleport` starts navigating directly from a fixed teleport landing point without entering this node, so `NavZoneId` / `NavAssert` may be omitted.
+- `MapNavigateAction` (Action): Uses `NavPath` directly as its path; `NAVMESH` waypoints in it may carry `target_tier` / `target_deck_y` as needed, and the assertion coordinates use the `NavZoneId` zone. After teleporting, the route enters the navigation action directly without re-verifying the start position.
+- `FightAfterMove` (optional, complete navigation routes only): Fill in a separate path in the same format as `NavPath`. After the first navigation, `AutoFight` runs first, then a second `MapNavigateAction` returns the character along this path; do not reuse the initial outbound route. Direct-photo routes involve no fighting and do not configure this field.
+- `${Id}TakePhoto` (wrapper): Sets the `EnvironmentMonitoringBackToTerminal` anchor for both navigation and direct-photo routes before entering the shared photo flow.
+- Direct-photo routes perform no pathfinding; when `Heading` is set, the generator emits a `MapNavigateAction` whose path contains only a `HEADING` action, turning the character in place before the photo.
 
 For detailed parameters and coordinate recording methods, see [map-locator.md](../components/map-locator.md) and [map-navigator.md](../components/map-navigator.md).
 
 ### Teleport Entry
 
-The `EnterMap` field must name an existing node under `assets/resource/pipeline/`. The name does not need to start with `Scene` and has no additional character restriction. A regular SceneManager entry or a task entry that encapsulates teleportation and interactions can both be used, provided that it can complete and return normally when run as a SubTask. With `QuickTeleport: true`, `EnterMap` is not called and may be omitted.
+For default teleport routes, the `EnterMap` field must name an existing Pipeline node under `assets/resource/pipeline/`. The name does not need to start with `Scene` and has no additional character restriction. A regular SceneManager entry or a task entry that encapsulates teleportation and interactions can both be used, provided that it can complete and return normally when run as a SubTask. With `QuickTeleport: true`, `EnterMap` is not called and may be omitted.
 
-`model.mjs` determines whether to enter the pathfinding/photo-taking process based on whether the `routes.json` entry is complete. Every adapted entry needs a real `EnterMap` or `QuickTeleport: true`. If the teleport landing point can be photographed directly, omit every assertion and navigation field. Otherwise configure `NavPath`; regular teleport routes also require `NavZoneId` / `NavAssert`, while quick-teleport routes may omit both. Unadapted points take the `${Id}NotAdapted` branch.
+`model.mjs` determines whether to enter the pathfinding/photo-taking process based on whether the `routes.json` entry is complete; unadapted points take the `${Id}NotAdapted` branch directly. Every adapted entry needs at least one teleport entry: a real `EnterMap` or `QuickTeleport: true`. If the teleport landing point can be photographed directly, omit every map assertion and navigation field, and the generator automatically takes the direct-photo branch. Otherwise configure `NavPath`; regular teleport navigation routes also require the `NavZoneId` / `NavAssert` assertion settings, while quick-teleport navigation routes may omit both.
 
 ### `routes.json` Configuration Types
 
@@ -234,8 +252,8 @@ Every fully adapted entry needs metadata and one teleport method: `EnterMap` or 
 | Type | Map and route fields | Location assertion | Runtime behavior |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ---------------------------------------------- |
 | Metadata only | `MissionId` / `Name` / `Id` only | Omit | Accept and track only; no teleport or photo |
-| Photo at teleport | No navigation field; optional `Heading` | Omit | Teleport → optional turn in place → photo |
-| Navigation | `NavPath`; regular teleports also add `NavZoneId`; optional `Heading` | `NavAssert`; optional with quick teleport | `MapNavigateAction` follows `NavPath` → photo |
+| Photo at teleport | No map or navigation field; optional `Heading` | Omit | Teleport → optional turn in place → photo |
+| Navigation | `NavPath`; regular teleports also add `NavZoneId`; optional `Heading` / `FightAfterMove` | `NavAssert`; optional with quick teleport | `MapNavigateAction` follows `NavPath` → optionally clear enemies and return along a separate path → photo |
 
 `Replace` is available to every adapted route and does not define a separate route type. Use photo-at-teleport only after in-game verification; missing route data must remain metadata-only. Navigation routes must use `NavPath`, adding `NavZoneId` / `NavAssert` for regular teleports.
 
@@ -262,10 +280,6 @@ Compare the `missions` under each terminal in `environment_monitoring.json` with
 - **Unadapted**: `routes.json` has no entry for this observation point, or the entry exists but is missing any required field (including `null` / empty string / empty array) → After generation, it will only accept and track.
 - **Ready to adapt**: Needs to make this observation point automatically go and take a photo → Proceed to step 3 to complete the real route.
 
-> [!IMPORTANT]
->
-> If you do not intend to adapt a certain observation point, simply do not add the entry in `routes.json`; do not write placeholder values like `"SceneAnyEnterWorld"` / `[0,0,1,1]`.
-
 ### 3. Add/Complete Entries in `routes.json`
 
 `tools/pipeline-generate/EnvironmentMonitoring/routes.json`:
@@ -273,16 +287,24 @@ Compare the `missions` under each terminal in `environment_monitoring.json` with
 ```jsonc
 {
     "MissionId": "m1m30",                    // Must match the mission_id in environment_monitoring.json
-    "Name": "My New Observation Point",      // Chinese name, for human reading only
+    "Name": "我的新观察点",                  // Chinese name, for human reading only
     "Id": "MyNewObservationPoint",           // Final template node ID, for human searching nodes/file names only
-    "EnterMap": "SceneEnterWorldWulingXxx",  // Defined Pipeline node that can complete and return as a SubTask
+    "EnterMap": "SceneEnterWorldWulingXxx", // Defined Pipeline node that can complete and return as a SubTask
+    // "QuickTeleport": true,             // Optional; quick teleport from the tracked mission map, EnterMap may be omitted
     "NavZoneId": "Wuling_Base",             // MapLocate zone_id used to interpret NavAssert coordinates
-    "NavAssert": [x, y, w, h],               // Required for regular teleport navigation; omit for QuickTeleport
+    "NavAssert": [x, y, w, h],              // Start-position rectangle; required for regular teleports, may be omitted for quick teleport
     "NavPath": [
-        {"action": "NAVMESH", "target": [x, y]}
-        // Add "target_tier" for a verified cross-tier target and "target_deck_y" for a selected overlapping deck
+        // MapNavigateAction path, copied directly from the MapNavigator recording
+        { "action": "ZONE", "zone_id": "Wuling_Base" },
+        [x1, y1],
+        [x2, y2]
     ],
+    // "FightAfterMove": [
+    //     [x3, y3],
+    //     [x4, y4]
+    // ], // Optional; separate return path used after clearing enemies
     // "Replace": [["売", "壳"]] // Optional; OCR replacement pairs for the task list and mission detail page
+    // "Heading": 90       // Optional; appends a HEADING action at the end of the route to turn the character to this angle
 }
 ```
 
@@ -291,7 +313,7 @@ When the teleport landing point can be photographed directly, use the compact fo
 ```jsonc
 {
     "MissionId": "m1m30",
-    "Name": "My New Observation Point",
+    "Name": "我的新观察点",
     "Id": "MyNewObservationPoint",
     "EnterMap": "SceneEnterWorldWulingXxx",
     // Or use "QuickTeleport": true
@@ -299,7 +321,7 @@ When the teleport landing point can be photographed directly, use the compact fo
 }
 ```
 
-Do not include `NavZoneId`, `NavAssert`, or `NavPath` in this form. `Heading` remains optional; when present, the generator emits a heading-only `MapNavigateAction` after teleporting and then enters the photo flow. The generator recognizes direct photography from a complete teleport configuration with no assertion or navigation fields. A metadata-only entry remains unadapted.
+Do not include `NavZoneId`, `NavAssert`, or `NavPath` in this form. `Heading` can be set according to in-game test results; when present, the generator emits a heading-only `MapNavigateAction` after teleporting and then enters the photo flow. The generator recognizes direct photography from a complete teleport configuration with no assertion or navigation fields. A metadata-only entry containing only `MissionId` / `Name` / `Id` remains unadapted.
 
 > [!IMPORTANT]
 >
@@ -311,10 +333,10 @@ Do not include `NavZoneId`, `NavAssert`, or `NavPath` in this form. `Heading` re
 
 ### 4. Record Coordinates and Paths
 
-If the teleport landing point cannot be photographed directly, use the GUI tool in [map-navigator.md](../components/map-navigator.md) to record `NavAssert` / `NavPath`. Copy the complete path into `NavPath`; a cross-tier `NAVMESH` target retains its `target_tier`, and a selected overlapping deck retains its `target_deck_y`. `QuickTeleport` does not execute the initial assertion and may omit both `NavZoneId` and `NavAssert`. Confirm in the game:
+If the teleport landing point cannot be photographed directly, use the GUI tool in [map-navigator.md](../components/map-navigator.md) to record the route: fill the recorded start rectangle into `NavAssert` and copy the complete path as-is into `NavPath`. `QuickTeleport` routes do not execute the start assertion, so `NavZoneId` / `NavAssert` need not be recorded. If walkable decks overlap vertically at the `NAVMESH` destination, select the target deck in the tool so the exported waypoint carries `target_deck_y`. Then confirm in the game:
 
 - `NavZoneId` is the MapLocate `zone_id` (for example, `Wuling_Base`) used to interpret `NavAssert`. If the destination is on a tier map, use tier coordinates in the `NAVMESH` action and retain its `target_tier`; if multiple walkable decks overlap at the target, select the intended deck in the tool and retain its `target_deck_y`.
-- A `NavPath` containing only `NAVMESH` does not need a leading `ZONE`: MapNavigator obtains the starting zone from the current MapLocator result. `ZONE` only declares and validates the zone for following recorded coordinate points; retain tool-generated `ZONE` declarations for multi-zone or portal routes.
+- In `routes.json`, the leading `ZONE` of `NavPath` and `FightAfterMove` indicates the map the character is on after the teleport lands, which the WebUI uses to select the initial map; it must be filled in from the landing map observed in game, not inferred from the destination coordinates. `target_tier` only interprets the coordinate system of the target point and does not represent the teleport landing map. Multi-zone or map-transition paths should also retain the necessary `ZONE` entries exported by the recording tool.
 
 - Whether the position allows `EnvironmentMonitoringTakePhoto` to enter photo mode normally. When the target misses, the common nine-grid and fallback camera scan runs automatically; no per-route swipe direction is recorded.
 
@@ -354,9 +376,9 @@ Before submission, at least check:
 
 1. Are the fields for new/modified entries in `tools/pipeline-generate/EnvironmentMonitoring/routes.json` complete?
 2. Does the `MissionId` for new entries in `routes.json` match the `mission_id` in `environment_monitoring.json`; `Id` is automatically refreshed by the generator.
-3. Does every adapted entry have a real teleport method; do direct-photo routes omit all map/navigation fields, while new navigation routes provide `NavPath` and regular teleport routes also provide `NavZoneId` / `NavAssert`?
+3. Does every adapted entry choose at least one teleport entry, a real `EnterMap` or `QuickTeleport: true`; do direct-photo routes omit all map, navigation, and `FightAfterMove` fields; is the `ZONE` of each new navigation route filled in from the teleport landing map observed in game rather than inferred from `target_tier`, and do regular teleport routes provide real `NavZoneId` / `NavAssert`; if `FightAfterMove` is configured, is it a separate return path tested in game with the same landing-map context?
 4. In the regenerated `Terminals.json`, does each `{Station}MonitoringTerminalLoop.next` contain all new `[JumpBack]{Id}Job`, and end with `EnvironmentMonitoringTerminalFinish`?
-5. Does the node referenced by `EnterMap` exist under `assets/resource/pipeline/`, and can it complete and return normally as a SubTask?
+5. If `EnterMap` is set, does the node it references exist under `assets/resource/pipeline/`, and can it complete and return normally as a SubTask?
 6. **No manual modifications** were made to `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` or `Terminals.json` (manual modifications will be overwritten by the next generation; if special nodes are truly needed, they should be extended in `template.json` / `terminals-template.json`).
 7. JSON files follow the `.prettierrc` format (the generator has `format: true`, but running `pnpm prettier --write` once before submission is safer).
 
@@ -366,7 +388,7 @@ Before submission, at least check:
 - **`MissionId` mismatch with game data**: The `MissionId` in the `routes.json` entry is the matching key; `Name` / `Id` are only for human reading and searching. If `MissionId` matching fails, the generator will prompt that the entry is unused, and the corresponding observation point will be treated as unadapted (only accept and track).
 - **Using `Id` as the matching key**: `Id` is only the final template node ID, convenient for searching generated nodes/file names; matching still only looks at `MissionId`.
 - **`Id` drifts from the `environment_monitoring.json` English name**: When the game side changes the English name, the automatically calculated `Id` will change, possibly causing generated file renaming or residual old files; after regeneration, the `Id` in `routes.json` will be synced.
-- **`EnterMap` references a missing node or one that cannot return normally**: Generation does not validate node references or runtime behavior; the route will fail at `GoTo{Id}NotAtStartPos`.
+- **A default teleport route's `EnterMap` references a missing node or one that cannot return normally**: Generation does not validate node references or runtime behavior; the route will fail at `GoTo{Id}NotAtStartPos` at runtime. `EnterMap` may be omitted only when `QuickTeleport: true` is explicitly enabled.
 - **A route passes through locked areas / battles / interactive objects**: The navigation components do not handle battles, story sequences, map transitions, or mechanism interactions; routes can only select pure traversal segments.
 - **Treating missing route data as direct photography**: Use the compact teleport/photo form only after verifying in game that the teleport landing point can complete the photo. Otherwise keep the metadata-only entry unadapted.
 - **New `Station` but `Locations.json` / `EnvironmentMonitoringLoop.next` not synced**: The new terminal cannot be recognized and entered, so all observation points cannot run.

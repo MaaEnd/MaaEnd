@@ -1,6 +1,6 @@
 # AutoStockpile Local Daily Goods-Price Records — Third-Party Read Protocol
 
-When the `AutoStockpileAllowDataUpload` option is enabled, the Go Service writes the per-round recognized goods prices to `debug/record/ElasticGoodsPrices.json` after successful goods recognition and region/server-day resolution. This path is for local file records only and does not trigger remote uploads.
+When the `AutoStockpile` task has `AutoStockpileAllowDataUpload` enabled, the Go Service writes the per-round recognized goods prices to `debug/record/ElasticGoodsPrices.json` after successful goods recognition and region/server-day resolution. This path is for local file records only and does not trigger remote uploads.
 
 This document defines the file format and path resolution rules for third-party tools (data analysis dashboards, web frontends, users) to read reliably.
 

@@ -1,8 +1,8 @@
 # Development Manual - Infrastructure Task Maintenance Documentation
 
-This document explains the file distribution and execution flow of `DijiangRewards`.
-The core design is "central hub dispatching + sub-stage callback": each sub-stage is independent, and options only modify stage entry points or branches without altering the main flow skeleton.
-This document was updated on August 29, 2026 (synchronized with the multi-select growth material and dynamic OCR whitelist design).
+This document explains the file distribution and execution flow of `DijiangRewards`.  
+The core design is "central hub dispatching + sub-stage callback": each sub-stage is independent, and options only modify stage entry points or branches without altering the main flow skeleton.  
+This document was updated on October 7, 2026.
 
 ## File Paths
 
@@ -41,20 +41,20 @@ Each stage can be individually toggled via `StageTaskSetting`; by default, the r
 
 ### One-click Collect
 
-Implemented in `FastCollect.json`, directly clicks "products" and "clues" shortcuts at the central hub for collection without entering the corresponding chamber.
+Implemented in `FastCollect.json`, directly clicks "products" and "clues" shortcuts at the central hub for collection without entering the corresponding chamber.  
 Controlled by the `StageTaskSetting` → `FastCollect` switch, disabled by default.
 
 ### Recover Mood
 
 `RecoveryEmotionCabins` defaults to all five cabins; deselecting all skips this stage. Following the game's ascending mood order, each page checks the fixed cabin labels of 12 operators from left to right, then top to bottom. Control Nexus, Reception Room, and Growth Chamber match by their color or full name. Manufacturing Cabins require yellow and the full cabin name containing I/II, checking II first. Unassigned cards are skipped while scanning continues.
 
-The available assist points determine whether one or two operators are selected. After each click, a fixed offset from the current cabin label locates the top-right yellow selection marker. A match continues selection or proceeds to confirmation; otherwise, scanning continues with the next operator. The list scrolls only after the current page is exhausted. Each swipe holds the starting point, initiates dragging, moves past two rows, and holds the endpoint for 1 second. The scrollbar's top position is compared before and after each scroll, treating a vertical shift of up to 3 px as unchanged. Three consecutive unchanged positions end the search; a larger shift resumes scanning on the new page and resets the count. Selected operators are confirmed before returning to the Control Nexus. If no first operator is found, the assist window is closed, the pipeline returns to the Control Nexus, and a not-found notice is shown.
+The available assist points determine whether one or two operators are selected. After each click, a fixed offset from the current cabin label locates the top-right yellow selection marker. A match continues selection or proceeds to confirmation; otherwise, scanning continues with the next operator. The list scrolls only after the current page is exhausted. Each swipe holds the starting point, initiates dragging, moves past two rows, and holds the endpoint for 1 second. The right-side scrollbar's top position is compared before and after each scroll, treating a vertical shift of up to 3 px as unchanged. Three consecutive unchanged positions end the search; a larger shift resumes scanning on the new page and resets the count. Selected operators are confirmed before returning to the Control Nexus. If no first operator is found, the assist window is closed, the pipeline returns to the Control Nexus, and a not-found notice is shown.
 
 ### Reception Room
 
 Upon entering the reception room, attempt in order: handle exchange completion popup → collect clues → receive clues → place/replace clues → (optional) start clue exchange → exit.
 
-When clue inventory is full, follow the [clue gifting](#clue-gifting) branch, which is not an independent top-level stage.
+When clue inventory is full, follow the [clue gifting](#clue-gifting) branch, which is not an independent top-level stage.  
 Whether to actively "start clue exchange" is controlled by `AutoStartExchange`, disabled by default, reserved for credit store linkage.
 
 ### Manufacturing Chamber
@@ -65,7 +65,7 @@ Upon entry: claim output → restock → use assist → exit. Maintenance focus 
 
 Default behavior: claim mature rewards → normal material selection for growth → exit. "Replant" is disabled by default and must be explicitly enabled by an option.
 
-Detail page loop: claim reward → (optional) replant → (optional) enter material selection list → find target → confirm growth or extract base core → return to detail page to continue.
+Detail page loop: claim reward → (optional) replant → (optional) enter material selection list → find target → confirm growth or extract base core → return to detail page to continue.  
 Material selection logic is almost entirely overridden by [cultivation chamber options](#cultivation-chamber-options), which is the maintenance focus.
 
 ## Special Handling
@@ -92,8 +92,8 @@ Implemented in `GrowthChamber.json` + `pipeline_override` of `DijiangRewards.jso
 | Mode | Actual Behavior |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `DoNothing` (No Growth) | Only claim mature rewards, do not enter material selection |
-| `GrowAgain` (Replant) | Disable normal growth; after reward claiming closes, attempt "replant" and confirm ([#2003](https://github.com/MaaEnd/MaaEnd/pull/2003) triggered after reward claiming closes, not directly from detail page) |
-| `Any` (displayed as "Specific Materials") | Expands material multi-select, base core extraction, and sorting sub-options, then finds an available target among the selected materials |
+| `GrowAgain` (Replant) | Disable normal growth; after reward claiming closes, attempt "replant" and confirm (since [#2003](https://github.com/MaaEnd/MaaEnd/pull/2003), triggered after reward claiming closes, not directly from detail page) |
+| `Any` (displayed as "Specified Materials") | Expands material multi-select, base core extraction, and sorting sub-options, then finds an available target among the selected materials |
 
 #### `SelectToGrowItems`: Select Growth Materials
 
@@ -103,7 +103,7 @@ Each material case writes its aliases in all five supported languages to `Growth
 
 #### `AutoExtractSeed`: What to Do When Base Core is Missing
 
-This is a separate switch under the "Specific Materials" mode and is independent of the material checkbox selection.
+This is a separate switch under the "Specified Materials" mode and is independent of the material checkbox selection.
 
 | Configuration | Actual Behavior |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -112,7 +112,7 @@ This is a separate switch under the "Specific Materials" mode and is independent
 
 #### `SortBy` / `SortOrder`
 
-Only apply to the "Specific Materials" mode. They affect candidate list order but do not change the selected material set.
+Only apply to the "Specified Materials" mode. They affect candidate list order but do not change the selected material set.
 
 When maintaining cultivation chamber issues, first confirm the current `SelectToGrow` mode, the `SelectToGrowItems` selection, the runtime whitelist, sorting settings, and whether `AutoExtractSeed` has changed the acceptable target range.
 
@@ -132,7 +132,7 @@ DijiangRewards
 └── SelectToGrow               # Cultivation chamber main mode
     ├── DoNothing
     ├── GrowAgain
-    └── Any (displayed as "Specific Materials")
+    └── Any (displayed as "Specified Materials")
         ├── SelectToGrowItems   # Multi-select 18 materials; all selected by default
         ├── AutoExtractSeed
         ├── SortBy
@@ -145,7 +145,7 @@ DijiangRewards
 2. `assets/locales/interface/{zh_cn,en_us,ja_jp,zh_tw,ko_kr}.json` — Add the material's `$item.*` display text
 3. If game button/chamber copy changes — synchronize `Template/TextTemplate.json`, `Template/Location.json`
 
-Do not modify `GrowthChamber.json` or add per-material `ColorMatch` or row-recognition overrides for a new material; the shared OCR whitelist flow reads the aliases from `attach`.
+There is no need to modify `GrowthChamber.json` or add per-material `ColorMatch` or row-recognition overrides for a new material; the shared OCR whitelist flow reads the aliases from `attach`.
 
 ## Maintenance Tips
 
@@ -158,7 +158,7 @@ Do not modify `GrowthChamber.json` or add per-material `ColorMatch` or row-recog
 | Wrong material selected for growth | `SelectToGrowItems` selection, five-language `attach` values in each case, and the exact whitelist generated by `GrowthChamberInitSelectTarget` |
 | No material is ever matched | Whether no material is selected and `a^` was generated; whether target aliases are complete; whether the initialization action succeeded |
 | Material body exists but no base core is extracted | `AutoExtractSeed` and disabling `GrowthChamberFindTargetByPlant` via task option |
-| Unexpected sorting | `SortBy` / `SortOrder`; both apply only in "Specific Materials" mode |
+| Unexpected sorting | `SortBy` / `SortOrder`; both apply only in "Specified Materials" mode |
 | Other OCR recognition drift | Multilingual `expected` values in the three files under `Template/` |
 
 Maintenance is divided into three layers: main flow layer (which chamber to go to) → stage business layer (what to do in the chamber) → interface configuration layer (which branches options modify).

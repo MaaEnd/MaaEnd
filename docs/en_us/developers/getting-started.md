@@ -10,6 +10,9 @@ Take "Auto-sell Items" as an example, go through the complete development proces
 - pnpm 10+
 - Go 1.25.6+
 
+> [!NOTE]
+> These are only enough for the desktop build. To build an Android package, you also need JDK, Android SDK, NDK, and Ninja; see [Android Build Environment Setup](./android-build-env.md).
+
 ### Check Local Environment
 
 ```bash
@@ -173,12 +176,12 @@ As you can see, our image has background interference, which reduces matching ef
 
 Place the captured templates under `assets/resource/image/OutpostTrading/`.
 
-Once we have the images, we can start writing the first node. Below, we use **TemplateMatch** to find the "Regional Construction" entry on the main interface, and after a hit, **Click** to enter. `template` is the relative path to your image placed under `assets/resource/image/`, `roi` is selected using the plugin to narrow the search area (needs adjustment based on your template and interface); if you processed the template with a green screen, you can add `green_mask`.
+Once we have the images, we can start writing the first node. Below, we use **TemplateMatch** to find the "Regional Development" entry on the main interface, and after a hit, **Click** to enter. `template` is the relative path to your image placed under `assets/resource/image/`, `roi` is selected using the plugin to narrow the search area (needs adjustment based on your template and interface); if you processed the template with a green screen, you can add `green_mask`.
 
 ```json
 {
     "OutpostTradingMain": {
-        "desc": "On the main interface, recognize the regional construction entry and click to enter",
+        "desc": "On the main interface, recognize the Regional Development entry and click to enter",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -213,12 +216,12 @@ Coding Standard: Using hard delays like `pre_delay` or `post_delay` is not recom
 
 Use `pre_wait_freezes` or `post_wait_freezes` only when necessary to wait for the screen to stabilize; otherwise, delays should be avoided as much as possible. For example, `"post_wait_freezes": 100` in the text above means waiting 100 ms after pixel changes in the `roi` area `[400, 200, 480, 320]` have stopped.
 
-The next step in `OutpostTradingLoop` should continue using a recognition node to confirm entry into the regional construction interface, rather than assuming the click was successful. The most important rule for an FSM is: recognize and confirm the current state first, then perform the operation.
+The next step in `OutpostTradingLoop` should continue using a recognition node to confirm entry into the Regional Development interface, rather than assuming the click was successful. The most important rule for an FSM is: recognize and confirm the current state first, then perform the operation.
 
 ```json
 {
     "OutpostTradingLoop": {
-        "desc": "Main loop, only supports starting from the regional construction interface",
+        "desc": "Main loop, only supports starting from the Regional Development interface",
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment"
@@ -235,7 +238,7 @@ The next step in `OutpostTradingLoop` should continue using a recognition node t
 }
 ```
 
-The `InRegionalDevelopment` called in `all_of` above is a recognition node already defined in the project, used to confirm you are currently on the main regional construction interface. **You can directly reuse existing recognition logic by filling in the node name**, avoiding rewriting the same code.
+The `InRegionalDevelopment` called in `all_of` above is a recognition node already defined in the project, used to confirm you are currently on the main Regional Development interface. **You can directly reuse existing recognition logic by filling in the node name**, avoiding rewriting the same code.
 
 > **💡 Advanced Tip: Combinational Recognition (And / Or)**
 >
@@ -243,12 +246,12 @@ The `InRegionalDevelopment` called in `all_of` above is a recognition node alrea
 >
 > For specific syntax and advanced usage of combinational recognition, please refer to the [MaaFramework Official Documentation - Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol#and).
 
-The example below shows another node, `InRegionalDevelopmentView2`, used to recognize the secondary interface of regional construction. It uses OCR to recognize the top function name to accurately confirm the current interface state:
+The example below shows another node, `InRegionalDevelopmentView2`, used to recognize the secondary interface of Regional Development. It uses OCR to recognize the top function name to accurately confirm the current interface state:
 
 ```json
 {
     "InRegionalDevelopmentView2": {
-        "desc": "On the regional construction secondary interface",
+        "desc": "On the Regional Development secondary interface",
         "recognition": "OCR",
         "roi": [
             0,
@@ -357,6 +360,19 @@ Create or modify a JSON file under `assets/tasks/` to define the task entry node
     ]
 }
 ```
+
+### UI Image Resource Paths
+
+The client UI can display images from the `assets/resource/` directory. Put the image path directly in the `icon` field; in fields that support Markdown, such as `label` and `description`, you can insert images with Markdown image syntax:
+
+```json
+{
+    "icon": "resource/image/UI/Item/item_lbmob_1_lbshamman_1_sp_1_1.png",
+    "description": "![](resource/image/UI/Item/item_char_break_stage_3_4.png)"
+}
+```
+
+Image paths are relative to the `assets/` directory, so do not include the `assets/` prefix; always start from `resource/`. To display a UI icon generated from item recognition, build the path as `resource/image/UI/Item/<item ID>.png`, where `<item ID>` is a top-level key in `assets/data/IconRecognition/recognition_items.json`.
 
 ### i18n Text
 

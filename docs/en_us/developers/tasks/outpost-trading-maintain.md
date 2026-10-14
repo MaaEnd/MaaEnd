@@ -44,12 +44,11 @@ OutpostTradingSellLoop (unlimited rounds; vouchers checked first each round)
   └─ OutpostTradingChangeGoods    click "Switch Goods" → ResetGoodsSelection → ChangeGoodsRelay
        ├─ [Anchor]SelectPriorityItem → SelectNewGoodConfirm → [Anchor]CommitPriorityItem
        │    → OutpostTradingAtSell: re-check vouchers → out of stock → [Anchor]MarkOutOfStock
-       │      → "select goods" prompt → retry switching once → [Anchor]BetterSliding
-       │        applies the reserve rule → trade/skip
+       │      → "select goods" prompt → retry switching once → [Anchor]BetterSliding applies the reserve rule → trade/skip
        └─ [Anchor]PriorityItemsExhausted → CloseGoodsAfterExhausted → SellLoopEnd
 ```
 
-Task-level termination: if outpost management is locked, SceneManager cannot enter and the task stops; the "exceeds stock bill reserves" dialog is handled by `OutpostTradingAidQuotaExceededStop`, which stops the task without auto-confirming.
+Task-level termination: if outpost management is locked, SceneManager cannot enter and the task stops; the dialog for exceeding the outpost's exchangeable stock bill limit is handled by `OutpostTradingAidQuotaExceededStop`, which stops the task without auto-confirming.
 
 > [!IMPORTANT]
 >
@@ -63,7 +62,7 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 | ---------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
 | Rarity (default) | rarity desc → unit price desc → stable source order | may pick bottom half-visible items with unknown stock |
 | Price | unit price desc → rarity desc → stable order | same as above |
-| Stock | local stock desc → unit price → rarity → stable order | requires recognized stock and the user's minimum unit price |
+| Stock | local stock desc → unit price → rarity → stable order | requires recognized stock and a unit price no lower than the user's minimum |
 
 ### Selection Recognition (`OutpostTradingPriorityItem` custom recognizer)
 
@@ -176,12 +175,12 @@ node tools/pipeline-generate/run-all.mjs OutpostTrading
 
 Maintenance notes:
 
-- New items usually only require syncing the zmdmap compact game data; `sync-locales.mjs` fills missing five-language `item.*` keys (reusing existing keys with the same Chinese name). Event-item exclusions live in `selection-data.mjs`; clean them up once the source data removes the event items and regenerate.
+- New items usually only require syncing the zmdmap compact game data; `sync-locales.mjs` fills missing five-language `item.*` keys (reusing existing keys with the same Chinese name). Temporary event-item exclusions live in `selection-data.mjs`; clean them up once the source data removes the event items and regenerate.
 - After adding an outpost, check the generated region `next` lists, SceneManager entries, and both Win32/ADB artifacts.
 - When adding a region, manually create its subfolder under `OutpostTrading/` in both resource packs before generating (the generator only creates `outputDir`).
 - Reserve rules: item cases pass `item_id` via `attach`; quantity inputs pass integers via `custom_action_param.quantity`.
 
-Before submitting, review the generated artifacts and `git diff` by hand:
+Before submitting, check:
 
 ```shell
 git diff --check

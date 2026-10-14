@@ -1,6 +1,6 @@
 # Developer Manual - SeizeDeliveryJobs Maintenance
 
-This document describes the `SeizeDeliveryJobs` task: its runtime flow, the boundary between Pipeline and Go Service, generator inputs and outputs, and the maintenance procedure for adding maps, areas, and delivery destinations.
+This document describes the `SeizeDeliveryJobs` (Accept Commission & Delivery) task: its runtime flow, the boundary between Pipeline and Go Service, generator inputs and outputs, and the maintenance procedure for adding maps, areas, and delivery destinations.
 
 The task has two mostly independent paths:
 
@@ -25,20 +25,20 @@ Both paths share the depot entry, job-list loading, reward OCR, and post-accept 
 | Area depot nodes (generated) | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsCommission.json` | Per-map dispatch-voucher recognition, depot entry, depot confirmation, and region filter nodes |
 | Destination candidates (generated) | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointCandidates.json` | Area OCR gates and `MapFind` candidate lists |
 | Destination leaves (generated) | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsDestinations.json` | Per-destination `enabled` switches, match messages, and the common successor |
-| Destination dispatcher (generated) | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointDispatcher.json` | Confirms that the map is open and routes by the upper-left sub-area name |
+| Destination dispatcher (generated) | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointDispatcher.json` | Confirms that the map is open and routes to the matching candidate group by the upper-left sub-area name |
 | Destination loop (hand-maintained) | `assets/resource/pipeline/SeizeDeliveryJobs/SeizeDeliveryJobsEndpointFilter.json` | Caching jobs, opening `Check Location`, destination matching, closing the map, accepting, and refreshing |
 | Auto-delivery adapter (hand-maintained) | `assets/resource/pipeline/SeizeDeliveryJobs/AutoDeliveryAdapter.json` | Calls the shared `AutoDelivery` through continuation anchors instead of copying its flow |
-| Destination names and directions (manual) | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | Per-destination five-language location name (where that destination's NPC stands) plus a `direction` code (0-8; 0 means no direction suffix); an established nickname is kept when no official entry exists |
+| Destination names and directions (manual) | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | Per-destination five-language location name (where that destination's NPC stands) plus a `direction` code (0-8; 0 means no direction suffix) |
 | Go Service | `agent/go-service/seizedeliveryjobs/` | Chained job-card OCR, reward parsing, dynamic click boxes, and per-scan session state |
-| Shared delivery catalog | `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap depot/destination data, map coordinates, areas, and source-language names read by `AutoDelivery` |
+| Shared delivery catalog | `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap depot/destination data, map coordinates, areas, and five-language source data, read by the `AutoDelivery` generator |
 
-See the [`tools/pipeline-generate` overview](../../../../tools/pipeline-generate/README.md) for zmdmap data updates and the [AutoDelivery component documentation (Chinese)](../../../zh_cn/developers/components/auto-delivery.md) for route-generation rules.
+See the [`tools/pipeline-generate` overview](../../../../tools/pipeline-generate/README.md) for zmdmap data updates and the [`AutoDelivery` component documentation](../components/auto-delivery.md) for route-generation rules.
 
 ## Runtime Flow
 
 ### Task Entry and Source Filtering
 
-`SeizeDeliveryJobsMain` handles the risk-acknowledgement gate, then enters the depot management page for the selected map. Once the job list is open, `SeizeDeliveryJobsReadyToSeize` checks for an existing job and an exhausted daily quota, then applies the selected region filter.
+`SeizeDeliveryJobsMain` handles the risk-acknowledgement gate, then enters the depot management page for the selected map. Once the job list is open, `SeizeDeliveryJobsReadyToSeize` checks, in order, for an existing job, an exhausted daily quota, and whether the current region filter is correct.
 
 The current source-to-map mapping is (in task-option order):
 
@@ -100,7 +100,7 @@ SeizeDeliveryJobsScanTarget
 
 The area-gate ROI `[16, 14, 214, 41]` reads the upper-left map-area name; it prevents an all-source run from testing the destination candidates for another map. Each area's `MapFind` node uses exactly one `zone`; the candidate set's `at` values come from the delivery catalog's map coordinates (world/map coordinates). Once the gate hits, that area's candidate node decides the destination; when nothing matches (for example the current commission goes to an unchecked destination), the trailing `SeizeDeliveryJobsEndpointNotMatched` in its `next` closes the map and scans the next commission.
 
-The dispatcher node `SeizeDeliveryJobsEndpointFilter` uses `__SeizeDeliveryJobsRecoAnyDepotNode` (a wrapper around `InLocalDepotNode`, the feature marker of any map's depot management page) in inverse mode to confirm that the map view is open: the marker is still present while the depot page is showing, so the node does not hit. It is not tied to a specific map, so adding an area only requires appending the new region gate to the dispatcher's `next` list.
+The filter-loop node `SeizeDeliveryJobsEndpointFilter` uses `__SeizeDeliveryJobsRecoAnyDepotNode` (a wrapper around `InLocalDepotNode`, the feature marker of any map's depot management page) in inverse mode to confirm that the map view is open: the marker is still present while the depot page is showing, so the node does not hit. It is not tied to a specific map, so adding an area only requires appending the new region gate to its `next` list.
 
 Each generated `SeizeDeliveryJobsEndpointFilter<EndpointId>` leaf is disabled by default. Task options enable only the checked leaves through Pipeline overrides. The leaves do not perform icon recognition again; a hit routes to `SeizeDeliveryJobsEndpointMatched`, so one `MapFind` call can inspect all enabled destinations in an area.
 
@@ -111,7 +111,7 @@ Each generated `SeizeDeliveryJobsEndpointFilter<EndpointId>` leaf is disabled by
 | Case | Behavior |
 | ---------------------- | ------------------------------------------------------------------------ |
 | `Disable` | Finish after accepting; an existing job produces the one-job-only message and finishes |
-| `Tele` | Call `AutoDelivery`; if pickup is needed, use quick teleport to the depot area |
+| `Tele` | Call `AutoDelivery`; if pickup is needed, only use quick teleport to the depot area |
 | `TeleWalk` | Quick-teleport and walk to the depot; optionally prefer ziplines |
 | `TeleWalkFetchDeliver` | Call full `AutoDelivery` to decide pickup/delivery and complete the job; configure risk acknowledgement, ziplines, and repeat count |
 
@@ -136,7 +136,7 @@ zmdmap
                  └─ commission-data.mjs → per-map depot entry, depot confirmation, and region filter rows
 ```
 
-`delivery_destinations.json` is compact zmdmap data and must not be edited manually. `pnpm fetch:zmdmap` updates it along with the other task data files. `AutoDelivery/model.mjs` also reads `tools/pipeline-generate/AutoDelivery/routes.json` to validate route overrides. A new destination that should work with full automatic delivery must therefore be generated through `AutoDelivery` as well. The generator only sees depots listed in `depots`, so a map without a depot entry never appears in `SeizeDeliveryJobsCommission.json`.
+`delivery_destinations.json` is compact zmdmap data and must not be edited manually. `pnpm fetch:zmdmap` updates it along with the other task data files. `AutoDelivery/model.mjs` also reads `tools/pipeline-generate/AutoDelivery/routes.json` to validate route overrides. A new destination that should work with full automatic delivery must also first have `AutoDelivery` generate its routes and runtime catalog. The generator only sees depots listed in `depots`, so a map without a depot entry never appears in `SeizeDeliveryJobsCommission.json`.
 
 ### Generator Configurations and Outputs
 
@@ -152,7 +152,7 @@ zmdmap
 
 During task rendering, `task-data.mjs` calls `syncSeizeDeliveryJobsLocales()`, which writes area labels, destination labels, and match messages to the five `assets/locales/interface/*.json` files. Area labels only fill missing values; destination labels and match messages are rewritten on every run from `endpoint-labels.json` (location name or source recipient name, plus the direction).
 
-Before rendering a task or `merged` output, `run-all.mjs` removes the old target file. This prevents deleted areas, destinations, or cases from remaining in generated output. Make sure there is no unsaved manual content in those files before regenerating.
+Before rendering a task or `merged` output, `run-all.mjs` removes the old target file. This prevents deleted areas, destinations, or cases from remaining in generated output. Make sure the current data and configuration contain no unsaved manual content before regenerating.
 
 ### Commands
 
@@ -166,7 +166,7 @@ pnpm generate:SeizeDeliveryJobs
 node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs
 ```
 
-If the change adds a depot or destination and `TeleWalkFetchDeliver` must support it, generate shared auto-delivery resources first:
+If the change adds a depot or destination and `TeleWalkFetchDeliver` must support it, generate shared auto-delivery resources first, then the seize task:
 
 ```bash
 pnpm generate:AutoDelivery
@@ -193,13 +193,13 @@ Destinations with a registered display name no longer use the source recipient n
 
 ### `endpoint-labels.json` Rules
 
-Keys are the raw destination IDs from `delivery_destinations.json`. The generator keeps one entry per destination and fills in the five locale fields plus `direction`: registered destinations carry the location name, unregistered ones stay empty (that locale falls back to the recipient name), and a hint means changing `direction` from `0` to a code:
+Keys are the raw destination IDs from `delivery_destinations.json`. The generator keeps one entry per destination and fills in the five locale fields plus `direction`: registered destinations carry the location name, unregistered ones stay empty (that locale falls back to the recipient name), and a direction suffix means changing `direction` from `0` to a code:
 
 ```jsonc
 {
-    // 武陵
-    // 武陵城
-    // 苏白易
+    // Wuling
+    // Wuling City
+    // Su Baiyi
     "deliver_target_map02_lv002_01": {
         "zh_cn": "技术生产办公室",
         "zh_tw": "技術生產辦公室",
@@ -237,7 +237,12 @@ The rules are:
 
 ### ID Compatibility and Ordering
 
-Existing destinations retain their internal `EndpointId` through the `LEGACY_ENDPOINTS` table in `endpoint-filter-data.mjs`. The current compatibility IDs are `Owl`, `MaterialResearchInstitute`, `Observatory`, `TechProductionOffice`, `No1TypeCAnchorArea`, `No3TypeCAnchorArea`, and `JingweiFieldArea`. Do not rename them to match a newer display name: doing so changes saved task cases, Pipeline node names, locale keys, and `MapFind` candidate references.
+Existing destinations retain their internal `EndpointId` through the `LEGACY_ENDPOINTS` table in `endpoint-filter-data.mjs`. The current compatibility IDs are `Owl`, `MaterialResearchInstitute`, `Observatory`, `TechProductionOffice`, `No1TypeCAnchorArea`, `No3TypeCAnchorArea`, and `JingweiFieldArea`. Do not rename them to match a newer display name; doing so would affect all of the following at once:
+
+- option cases in saved user configurations;
+- the `SeizeDeliveryJobsEndpointFilter<EndpointId>` node names;
+- locale keys and match-message keys;
+- the `next` references of `MapFind` candidates.
 
 Destinations not in the compatibility table derive a PascalCase ID from the raw source ID. For example:
 
@@ -257,7 +262,7 @@ Area IDs have no compatibility table and are derived from the data: `area.en_us`
 2. Run `pnpm generate:SeizeDeliveryJobs`, or run `node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs` when local source data is already current.
 3. Check the destination cases in `assets/tasks/SeizeDeliveryJobs.json`, the `desc` in `SeizeDeliveryJobsDestinations.json`, and the corresponding option/focus messages in all five locale files.
 
-Do not edit generated task, Pipeline, or locale files directly. The next generation must be able to reproduce the result from `endpoint-labels.json` and zmdmap data.
+Do not edit generated task, Pipeline, or locale files directly. The next generation takes `endpoint-labels.json` and zmdmap data as the source of truth.
 
 ### Registering or Changing a Location Name
 
@@ -273,7 +278,7 @@ If zmdmap already exposes the destination and it belongs to an existing area wit
 
 1. Run `pnpm fetch:zmdmap` and confirm that `delivery_destinations.json` contains the new destination and its `u`/`v` coordinates.
 2. Run `pnpm generate:AutoDelivery` so AutoDelivery syncs route metadata, generates navigation nodes, and updates `catalog.json`.
-3. The generator adds the empty entry (five locales + `direction: 0`) for the new ID; change `direction` for a hint, fill the five fields through "Registering or Changing a Location Name" for a location name, or leave them empty to use the recipient name.
+3. The generator adds the empty entry (five locales + `direction: 0`) for the new ID; change `direction` for a direction suffix, fill the five fields through "Registering or Changing a Location Name" for a location name, or leave them empty to use the recipient name.
 4. Run `pnpm generate:SeizeDeliveryJobs`.
 5. Verify that the destination appears in that area's task checkbox, `SeizeDeliveryJobsDestinations.json`, that area's `MapFind` candidates, and all five locale files.
 6. Run the node test or a real-device check to confirm that `DeliveryPoint.png` matches at the new `at` coordinate after map zooming, and that a match returns to the job list so the task can continue accepting jobs.
@@ -288,7 +293,7 @@ First decide which case applies:
 
 Nothing needs manual editing beyond the upstream data. If the new area also brings new destinations, run `pnpm generate:AutoDelivery` first, then `pnpm generate:SeizeDeliveryJobs` (see "Commands"). The following are generated automatically:
 
-- the source case in the commission-source option, ordered entirely from the source data (newest map first, then source order inside a map); locale key order shares that source, so there is no manual order table;
+- the source case in the commission-source option, ordered entirely from the source data (newest map first, then source order inside a map); locale key order shares that source with the task options;
 - the area's delivery-point option, one case per destination in that area, and the specify-delivery-point toggles;
 - the area gate's OCR `expected` values (complete area names) and the `MapFind` `at` coordinates;
 - the `expected` values of `Wuling - All`, `Valley IV - All`, and `All Regions`, which include the new area automatically;
@@ -305,9 +310,9 @@ A new map needs explicit wiring. Check the following in order:
 3. Add a region-level specify-delivery-point option block for the new map in `task-template.jsonc`, following the existing ones and naming it `<MapName>Unlimited` (for example `ValleyIVUnlimited`), then add the placeholder it references to `taskRows` in `task-data.mjs` (`<MapName>DeliveryPointOptions: deliveryPointOptionsOfMap("<MapId>")`); a placeholder nobody provides is emitted verbatim. Source cases, region-level case order, and locale key order pick up the new map from the source data automatically, and the map name is read from `commission-data.mjs`. The case label `task.SeizeDeliveryJobsCommissionSource.cases.<MapName>Unlimited.label` is **not generated** and must be added by hand to the five locale files.
 4. Confirm that `Filter${MapName}.png` exists and **capture a dedicated voucher image for the new map** at `assets/resource/image/SeizeDeliveryJobs/DepotNodePage/${MapName}Token.png` (then append it to `template` as in step 5). Match the size of the two existing images (47×33, cropped from the 720p screenshot as-is), and note two rules:
    - **Align the crop's anchor with the existing templates**: Go derives the following ROIs from the voucher box via fixed offsets, so the new template's match y must land at the same row-relative position. Calibrate against the centre of the yellow line at the bottom edge of the voucher card — both existing images sit 41.5~42.5 px above it in their matched rows, and a few pixels off shifts that row's reward ROI.
-   - **Keep the reward digits and that yellow line out of the crop**: including the digits drops the cross-row score from 0.997 to 0.93 (the amounts differ per row), and adding the line drops it further.
+   - **Keep the reward digits and the bottom yellow line out of the crop**
 5. Wire the new map into the hand-maintained Pipeline:
-   - append the new map's voucher image to `__SeizeDeliveryJobsRecoCommissionToken.template` in `SeizeDeliveryJobsCommon.json` (a shared node, not generated per map);
+   - append the new map's voucher image to `__SeizeDeliveryJobsRecoCommissionToken.template` in `SeizeDeliveryJobsCommon.json`;
    - also add the new map entry/filter nodes to the default `Main.next` and `ReadyToSeize.next` in `SeizeDeliveryJobs.json` so the default lists stay complete; the lists that actually run come from the per-case overrides in `task-data.mjs`;
    - confirm that the corresponding SceneManager depot entry and `DeliveryJobsCheckLocalDepotNode${DepotTextNode}` (for example `DeliveryJobsCheckLocalDepotNodeWulingCityText`) exist; the `DepotTextNode` value already has the `Text` suffix.
 6. Run `pnpm generate:AutoDelivery`, then `pnpm generate:SeizeDeliveryJobs`.
@@ -317,7 +322,7 @@ Area-gate `expected` values should use the complete area names and match the act
 
 ### Adding or Changing Routes
 
-SeizeDeliveryJobs destination matching only uses `delivery_destinations.json` map coordinates. Pickup and delivery routes belong to shared `AutoDelivery`:
+SeizeDeliveryJobs destination matching only uses `delivery_destinations.json` map coordinates. Pickup and delivery routes are maintained by the shared `AutoDelivery`. When adding or changing routes:
 
 - Store measured route overrides in `tools/pipeline-generate/AutoDelivery/routes.json`; do not put full navigation paths into SeizeDeliveryJobs `MapFind` candidates.
 - Run `pnpm generate:AutoDelivery` and verify the relevant `AutoDeliveryRoute...` nodes, retry routes, and `assets/data/AutoDelivery/catalog.json`.
@@ -370,14 +375,14 @@ If a new branch leaves the job list or refreshes job data, connect it to an expl
 | Symptom | Check first |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Generator cannot find the data file | Run `pnpm fetch:zmdmap`; do not create an incomplete local `delivery_destinations.json` as a substitute |
-| Destination option is empty or generation fails | Check the raw ID, that the five location-name fields or the source recipient name are non-empty, and that `direction` is an integer in 0-8 |
+| Destination option is empty or generation fails | Check that the destination ID exists, that the five location-name fields or the source recipient name are non-empty, and that `direction` is an integer in 0-8 (the generator fills in `direction: 0`) |
 | New destination has an option but `MapFind` misses | Check `mapAt`/`u`/`v`, the `MapFind zone`, the `DeliveryPoint` registration, and the post-zoom location; `at` is not a screen ROI |
 | Destination filtering routes to the wrong area | Check the area-gate ROI `[16, 14, 214, 41]`, five-language `expected`, and whether all destinations of that area share one `MapFind zone` |
 | Destination-filter mode never checks the next job | Check the miss path `ESC → SeizeDeliveryJobsScanTarget` and the exhaustion path `reset → refresh` |
 | Unfiltered mode cannot recognize any job | Check that `__SeizeDeliveryJobsRecoCommissionToken.template` contains the current map's voucher image, then inspect the voucher ROI, reward OCR, and source `expected`; `filtered_results_=[]` with scores below `param_.thresholds` in `maafw.log` only means the threshold was not met, so also check the ROI and the captured frame |
 | A newly added voucher image scores too low | Give the node a `threshold` array to set a per-template threshold (its length must match `template`, for example `[0.7, 0.6]`); if lowering it makes two images cross-match, a row yields two boxes and the Go side needs to deduplicate by y |
 | Jobs are recognized but the reward is unreadable or accepting fails | The map's voucher image is most likely misaligned: the reward/origin/accept/view-location ROIs derived from its box shift as a block. Recalibrate against the yellow row line as in step 4 of "Adding a Map" |
-| Auto-delivery cannot find the accepted destination | Run `pnpm generate:AutoDelivery` and inspect the corresponding `AutoDelivery/catalog.json` and route nodes; SeizeDeliveryJobs generation does not create them |
+| Auto-delivery cannot find a route after accepting | Run `pnpm generate:AutoDelivery` and inspect the corresponding `AutoDelivery/catalog.json` and route nodes; SeizeDeliveryJobs generation does not create them |
 | Changing display text breaks old configurations | Check whether a `LEGACY_ENDPOINTS` internal ID was changed; both directions and display names live in `endpoint-labels.json`, so neither should change the case or node ID |
 
 Start with `maafw.log`, `go-service.log`, and node focus messages to identify whether the failure is in list entry, job OCR, destination routing, or AutoDelivery. Fix that layer instead of masking the issue with extra retries or fixed delays.

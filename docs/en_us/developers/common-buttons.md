@@ -1,6 +1,6 @@
 # Development Guide - Common Button Nodes Reference
 
-> **Tip**: For the buttons covered in this document (whether they contain text or not), the **text content does not affect the recognition result**. Recognition only relies on the button's background color, icon shape, and position. Buttons of the same type can be reused for the corresponding node even if the copy is different.
+> **Tip**: For the buttons covered in this document (whether they contain text or not), the **text content does not affect the recognition result**. Recognition only relies on the button's background color, icon shape, and position. The corresponding node can be reused for buttons of the same type even if the copy is different.
 > **Tip**: **Nodes without ROI** perform full-screen searches and will find and click matching buttons anywhere on the screen; nodes with ROI only recognize within the specified area.
 
 ---
@@ -9,7 +9,7 @@
 
 **Description**: General confirmation button with text, white background, and **circular ring** icon.
 
-<!-- Screenshot: docs/developers/images/common-buttons/WhiteConfirmButtonType1.png (Reference Resource:Common/Button/WhiteConfirmButtonType1.png) -->
+<!-- Screenshot: docs/developers/images/common-buttons/WhiteConfirmButtonType1.png (Reference Resource: Common/Button/WhiteConfirmButtonType1.png) -->
 
 ![WhiteConfirmButtonType1](https://github.com/user-attachments/assets/556fcf7b-968c-4f06-87c9-8f16610c6b63)
 
@@ -100,7 +100,7 @@
 
 | Item | Description |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Recognition Method** | `And`: first locate the gray button background via color matching (`GrayButtonBackground`), then perform template matching (X icon) within the background ROI, matching normal → Hover state in short-circuit order, and finally use the background box as the click target (`box_index` selects the background box). |
+| **Recognition Method** | First locate the gray button background via color matching (`GrayButtonBackground`), then perform template matching (X icon) within the background ROI, matching normal → Hover state in short-circuit order, and finally use the background box as the click target (`box_index` selects the background box). |
 | **Search Range** | **Full-screen search**, with no fixed ROI. Buttons of this type appearing anywhere on the screen will be recognized and clicked. |
 | **Action** | Single click, followed by an 80ms freeze wait. |
 | **Usage Condition** | Use when a cancel button with **gray background + X icon** appears on the interface. For example, the gray cancel button beside the yellow confirm button in a "Confirm?" dialog; using this node avoids accidentally clicking confirm. |
@@ -126,7 +126,7 @@
 
 ## QuickTeleportButton
 
-**Description**: Quick-teleport button, sitting to the left of the teleport button in the lower right corner of the map interface.
+**Description**: "Go to teleport" button (quick teleport), sitting to the left of the teleport button in the lower right corner of the map interface.
 
 <!-- Screenshot: tests/MaaEndTestset/Win32/Official_CN/武陵_地图_拍摄巨兽心脏_前往传送.png -->
 

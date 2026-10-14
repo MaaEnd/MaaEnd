@@ -9,7 +9,7 @@ This documentation was last updated on June 28, 2026.
 | ------------------------------------------------------------------- | --------------------------------------------- |
 | `assets/interface.json` | Task mounting (`dijiang_ship` group) |
 | `assets/tasks/GiftOperator.json` | Task entry and interface options |
-| `assets/resource/pipeline/GiftOperator/GiftOperatorMain.json` | Entry, Di Jiang ship location |
+| `assets/resource/pipeline/GiftOperator/GiftOperatorMain.json` | Entry, Dijiang ship location |
 | `assets/resource/pipeline/GiftOperator/GiftOperatorNavigation.json` | Pathfinding and contact point interaction |
 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` | Contact interface operator selection |
 | `assets/resource/pipeline/GiftOperator/GiftOperatorGiftFlow.json` | Gift giving / receiving during dialogue |
@@ -38,7 +38,7 @@ When adding a new operator, at least the following 6 locations need to be update
 
 Corresponds to the "Receive Only" option being disabled. Configurable gift recipient and quantity.
 
-1. Store bag before starting the task, then enter the Di Jiang ship bridge world.
+1. Store bag before starting the task, then enter the Dijiang ship bridge world.
 2. Navigate to the operator contact point and open the contact interface.
 3. Select operators (must pass [Selection State Verification](#selection-state-verification) after clicking; implementation in `GiftOperatorContact.json`):
     - **Any**: Switch to trust ascending order, select three consecutive operators (including those at max trust); verify sequence number 1 → 2 → 3 for each click, confirm the call only after all three are selected.
@@ -104,7 +104,7 @@ Receive mode cannot rely on OCR of operator names to directly click the list. In
    After a successful match, temporarily change the operator name OCR whitelist used in subsequent dialogue stages to this operator's multilingual name.  
    This step is written in `Operator/Operator.json`, one entry per operator; must be maintained synchronously when adding new operators.
 
-    > **Example**: If `Operators/Gilberta.png` is secondarily matched next to a gift row in the contact list, the whitelist is narrowed to "Gilberta / Gilberta / …" for only that operator. After the call, when waiting for dialogue in the world, it must simultaneously see the dialogue icon and the name OCR hit that whitelist before clicking; if other operators like Pelica or Yvonne appear on the field, the names don't match, **no mis-clicks**.
+    > **Example**: If `Operators/Gilberta.png` is secondarily matched next to a gift row in the contact list, the whitelist is narrowed to "洁尔佩塔 / Gilberta / …" for only that operator. After the call, when waiting for dialogue in the world, it must simultaneously see the dialogue icon and the name OCR hit that whitelist before clicking; if other operators like Perlica or Yvonne appear on the field, the names don't match, **no mis-clicks**.
 
 3. **Step 3: Confirm Selection State**  
    Reuse the [Selection State Verification](#selection-state-verification) logic above, confirm the list row is highlighted and the sequence number is `1`, then click the yellow confirm button to call.

@@ -6,8 +6,8 @@ This document describes how node tests are currently written in MaaEnd. The rule
 
 Node tests verify which nodes should hit, and which should not hit, on a static screenshot.
 
-- Good for validating recognition nodes, reusable nodes, and scene-detection nodes.
-- Good for regression coverage when templates, thresholds, or ROI are changed.
+- Good for validating whether recognition nodes, reusable nodes, and scene-detection nodes are stable.
+- Good for regression coverage of reused nodes, so that changing templates or ROI does not break existing scenes.
 - Not a replacement for full workflow debugging; sequence correctness still needs to be checked in development tools and on real runs.
 
 ## Directory Layout
@@ -198,14 +198,14 @@ If you also care whether it hits the correct target location, especially for ful
 
 Based on the current pipeline guidelines, prioritize screenshots like these:
 
-- Frames around transitions where recognition is easy to miss.
+- Frames around transitions where recognition is easy to get wrong.
 - Screens with multiple clickable elements where misclicks are likely.
 - Hover, selected, disabled, reward-popup, or other special states.
 - Screens that differ slightly between ADB and Win32.
 
 ## Relation To Pipeline Guidelines
 
-Node tests should support the current pipeline design rules:
+Node tests do not exist in isolation; they should support the current pipeline design rules:
 
 - If a node is responsible for a key state decision, it should usually have tests so that the first `next` scan remains reliable.
 - If you added intermediate recognition nodes to avoid `pre_delay` or `post_delay`, add tests for those intermediate nodes too.
@@ -226,7 +226,8 @@ In this repository, `package.json` maps that command to `maa-tools test`, and CI
 `maa-tools test` does not start agents, so it cannot test custom recognitions that agents provide. `MapLocateAssertLocation` location nodes are tested by a standalone Python runner instead: run `pnpm test:map-locate` or `uv run python tests/MapLocateAssertLocation/map_locate.py`. In CI this is the `map-locate-test` job. See the [location node screenshot test](../../../tests/MapLocateAssertLocation/README.md) for the case format, sample requirements, and prerequisites.
 
 Route pathfinding connectivity is checked by another standalone runner: run `uv run python tests/MapNavmeshConnectivity/navmesh_connectivity.py`. It sends the start and goal from its case file to the agent for route planning; a successful plan counts as connected. It does not need screenshots. In CI this is the `Run navmesh connectivity tests` step of the `map-locate-test` job. See the [connectivity test](../../../tests/MapNavmeshConnectivity/README.md) for the case format and pass criteria.
-Ordinary node test logs are written to:
+
+By default, ordinary node test logs are written to:
 
 ```text
 tests/maatools/
@@ -251,9 +252,9 @@ The repository already maps `tests/**/*.json` to `tools/schema/test.schema.json`
 That means:
 
 - New test files get schema validation and completion in the editor.
-- Comments are allowed, just like in existing test files.
+- Comments are allowed, just like in existing test files, which makes it easy to keep temporary notes on negative cases.
 
-Even so, keep committed files clean and readable; avoid leaving large blocks of temporary comments behind.
+Even so, whether or not comments are allowed, keep files readable before committing; avoid leaving meaningless comment blocks behind.
 
 ## Complete Example
 

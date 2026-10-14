@@ -5,10 +5,12 @@
 - `Custom Action`: Executes action logic, such as subtask scheduling, state cleanup, and complex interactions.
 - `Custom Recognition`: Executes recognition logic, returns whether it matches, and optionally provides detailed recognition results.
 
-Go implementations in the project are typically located under `agent/go-service/` and are registered via:
+Go implementations in the project are typically located under `agent/go-service/` and use:
 
 - `maa.AgentServerRegisterCustomAction(...)`
 - `maa.AgentServerRegisterCustomRecognition(...)`
+
+to complete registration.
 
 ---
 
@@ -89,7 +91,7 @@ The `FocusOCRAction` implementation is located in `agent/go-service/common/focus
 Parameters:
 
 - `node: string`: Required. Pipeline recognition node name (OCR, or an `And` whose `box_index` points at OCR).
-- `focus: string`: Optional. `maafocus` message. `%s` is the OCR text, e.g. `Current sanity: %s`. If omitted, the raw text is printed.
+- `focus: string`: Optional. `maafocus` message. `%s` is the OCR text, e.g. `当前理智 %s` (Current sanity %s). If omitted, the raw text is printed.
 
 Example file: [`FocusOCRAction.json`](../../../assets/resource/pipeline/Interface/Example/FocusOCRAction.json)
 
@@ -101,7 +103,7 @@ Example file: [`FocusOCRAction.json`](../../../assets/resource/pipeline/Interfac
             "custom_action": "FocusOCRAction",
             "custom_action_param": {
                 "node": "CommonSanityText",
-                "focus": "Current sanity: %s"
+                "focus": "当前理智 %s"
             }
         }
     }
@@ -115,7 +117,7 @@ The node's own recognition still belongs in Pipeline for routing. This Action on
 Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in or custom action, then poll recognition inside a wait window. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
 
 - `RepeatUntilFoundAction`: succeeds when **any** `wait_nodes` entry hits.
-- `RepeatUntilNotFoundAction`: succeeds when `wait_node` misses.
+- `RepeatUntilNotFoundAction`: succeeds when `wait_node` **misses**.
 
 - Shared parameters:
     - `action: string`: Built-in action type (e.g. `Click`). Mutually exclusive with `custom_action`.
@@ -128,7 +130,7 @@ Both are implemented in `agent/go-service/common/repeataction`. They repeatedly 
 - `RepeatUntilNotFoundAction` extra:
     - `wait_node: string`: Single Pipeline node name to wait until it disappears. Required.
 
-The target position always uses the recognition `box` that triggered this Action (optionally adjusted by outer `target` / `target_offset`). The loop aborts immediately and returns failure when the tasker reports stopping.
+The target position always uses the recognition `box` that triggered this Action (optionally adjusted by outer `target` / `target_offset`). The loop aborts immediately and returns failure when the tasker reports stopping (`Stopping`).
 
 Example file: [`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
 
@@ -140,7 +142,7 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 
 ### CameraScanAction
 
-`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out nine-grid spiral, then resets the camera and performs discrete yaw rings at middle, upper, and lower pitch levels. It recognizes before and after every camera movement except reset, succeeds when any target hits, and fails after the complete scan misses.
+`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out nine-grid spiral; if nothing hits, it resets the camera and performs discrete yaw rings at middle, upper, and lower pitch levels. It recognizes before and after every camera movement except reset, succeeds when any target hits, and fails after the complete scan misses.
 
 - `wait_nodes: string[]`: Pipeline recognition nodes checked before and after every camera movement. Required; any hit succeeds. Reset movements are not checked.
 - `aim_target?: bool`: Whether to swipe from the screen center to the hit recognition result's `Box` center before returning. Defaults to `false`.
@@ -276,7 +278,7 @@ Recognition nodes are used to execute custom recognition. A common format is as 
 
 ### ExpressionRecognition
 
-The `ExpressionRecognition` implementation is located in `agent/go-service/common/expressionrecognition`. It is used to evaluate boolean expressions composed of numerical recognition nodes.
+The `ExpressionRecognition` implementation is located in `agent/go-service/common/expressionrecognition`. It is used to evaluate boolean expressions composed of numerical recognition nodes. Under the hood it reuses `pkg/recogtarget` (And unwrapping), `pkg/ocrnum` (OCR → integer), and `pkg/boolexpr` (placeholders and evaluation); see [Go Service `pkg/` Shared Packages](./go-service-pkg.md) for details.
 
 Parameters:
 
