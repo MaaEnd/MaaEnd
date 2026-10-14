@@ -245,9 +245,6 @@
             "AutoDeliveryCheckSubmitGoodsTarget",
             "AutoDeliverySearchSubmitGoodsButton"
         ],
-        "on_error": [
-            "AutoDeliveryNavigateDestinationPromptMissed"
-        ],
         "focus": {
             "Node.Action.Starting": "$task.AutoDelivery.focus.navigate_destination",
             "Node.Action.Succeeded": {
@@ -263,15 +260,6 @@
         "attach": {
             "zip": false
         }
-    },
-    "AutoDeliveryNavigateDestinationPromptMissed": {
-        "desc": "只认不按的交互点到点仍认不出提示时整条路线判失败，照常进入环绕查找与重试路线",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliverySearchSubmitGoodsButton"
-        ]
     },
     "AutoDeliveryRetryNavigateDestination": {
         "desc": "[运行时覆盖] 动态调用送货目标配置的一次性站位修正路线；无重试路线时不启用",

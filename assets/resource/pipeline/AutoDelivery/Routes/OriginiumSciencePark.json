@@ -25,21 +25,7 @@
                         1043.463,
                         803.314
                     ],
-                    "target_deck_y": 93.098,
-                    "required": true
-                },
-                {
-                    "action": "INTERACT",
-                    "target": [
-                        1043.463,
-                        803.314
-                    ],
-                    "required": true,
-                    "interact_text": {
-                        "node": "AutoDeliveryFetchGoodsInteractText"
-                    },
-                    "interact_scan": "AutoDeliveryFetchGoodsInteractScan",
-                    "interact_rec": true
+                    "target_deck_y": 93.098
                 }
             ],
             "zip": false,
@@ -82,21 +68,7 @@
                         1043.463,
                         803.314
                     ],
-                    "target_deck_y": 93.098,
-                    "required": true
-                },
-                {
-                    "action": "INTERACT",
-                    "target": [
-                        1043.463,
-                        803.314
-                    ],
-                    "required": true,
-                    "interact_text": {
-                        "node": "AutoDeliveryFetchGoodsInteractText"
-                    },
-                    "interact_scan": "AutoDeliveryFetchGoodsInteractScan",
-                    "interact_rec": true
+                    "target_deck_y": 93.098
                 }
             ],
             "zip": true,
@@ -139,21 +111,7 @@
                         1043.463,
                         803.314
                     ],
-                    "target_deck_y": 93.098,
-                    "required": true
-                },
-                {
-                    "action": "INTERACT",
-                    "target": [
-                        1043.463,
-                        803.314
-                    ],
-                    "required": true,
-                    "interact_text": {
-                        "node": "AutoDeliveryFetchGoodsInteractText"
-                    },
-                    "interact_scan": "AutoDeliveryFetchGoodsInteractScan",
-                    "interact_rec": true
+                    "target_deck_y": 93.098
                 }
             ],
             "heading_source": "camera"

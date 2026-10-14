@@ -33,9 +33,7 @@
             "name": "仓储节点可取货",
             "image": "送货任务_大世界_仓储节点_可取货.png",
             "hits": [
-                "AutoDeliveryCheckFetchGoodsButton",
-                "AutoDeliveryFetchGoodsInteractScan",
-                "AutoDeliveryFetchGoodsInteractText"
+                "AutoDeliveryCheckFetchGoodsButton"
             ]
         },
         {

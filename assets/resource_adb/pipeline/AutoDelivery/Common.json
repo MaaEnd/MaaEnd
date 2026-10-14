@@ -82,22 +82,6 @@
             ]
         }
     },
-    "AutoDeliveryFetchGoodsInteractScan": {
-        "roi": [
-            720,
-            349,
-            240,
-            270
-        ]
-    },
-    "AutoDeliveryFetchGoodsInteractText": {
-        "roi": [
-            720,
-            349,
-            240,
-            270
-        ]
-    },
     "AutoDeliveryScrollMissionList": {
         "post_wait_freezes": {
             "time": 300,

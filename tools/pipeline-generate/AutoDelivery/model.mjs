@@ -13,13 +13,7 @@ const APPROACH_DISTANCE_METERS = 8;
 const INTERACT_DISTANCE_METERS = 2;
 const COORDINATE_PRECISION = 3;
 
-// 路线末尾的交互点：行进中预筛到提示就停车，停下后按文本复核。
-// 仓储节点只认不按：只走到仓储节点、不取货的调用方也用这条路线，取货留给业务侧。
-const DEPOT_INTERACT = {
-    interact_text: {node: "AutoDeliveryFetchGoodsInteractText"},
-    interact_scan: "AutoDeliveryFetchGoodsInteractScan",
-    interact_rec: true,
-};
+// 交货路线末尾的交互点：行进中预筛到提示就停车，按文本复核后按交互键交货。
 const RECYCLE_BIN_INTERACT = {
     interact_text: {node: "AutoDeliverySubmitGoodsInteractText"},
     interact_scan: "AutoDeliverySubmitGoodsInteractScan",
@@ -287,9 +281,19 @@ function buildNameExpected(name, label) {
     return [...new Set(texts.map((text, index) => (index === 2 ? text : escapeRegExp(text))))];
 }
 
+// 人工路线的末点是裸坐标时挪到站位点；自动路线的末点 NAVMESH 已经落在站位点上。
+function withStandPoint(path, target) {
+    const last = path.at(-1);
+    return Array.isArray(last) && last.length === 2 ? [...path.slice(0, -1), target] : path;
+}
+
 // 路线末尾接交互点。末点是 NAVMESH 时原样保留并补 required：滑索规划会跳过不必经的点，层高要靠它带到底；
 // 交互点跟在同一坐标上。末点是裸坐标时整点换成交互点，落到 interactTarget（给了的话）。
+// interact 为 null 时不接，路线原样返回。
 function withInteractTail(path, interact, label, interactTarget = null) {
+    if (interact === null) {
+        return path;
+    }
     const last = path.at(-1);
     const head = path.slice(0, -1);
     if (last && !Array.isArray(last) && last.action === "NAVMESH") {
@@ -382,25 +386,16 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
         offset: readOffset(override?.offset, `仓储 ${id}`),
         interactForward: true,
     });
-    const interactTarget = buildInteractTarget(source, `仓储 ${id}`);
+    // 仓储路线不接交互点：只走到仓储节点、不取货的调用方也用这条路线，取货与认不出按钮时的兜底都在业务侧。
+    const standPoint = buildInteractTarget(source, `仓储 ${id}`);
     const zoneId = buildLocatorZoneId(source.map, `仓储 ${id}`);
     const path = withZoneDeclaration(
-        withInteractTail(
-            override?.path?.length ? override.path : defaultPath,
-            DEPOT_INTERACT,
-            `仓储 ${id}`,
-            interactTarget,
-        ),
+        withStandPoint(override?.path?.length ? override.path : defaultPath, standPoint),
         zoneId,
         `仓储 ${id}`,
     );
     const retryPath = withZoneDeclaration(
-        withInteractTail(
-            override?.retry_path?.length ? override.retry_path : defaultPath,
-            DEPOT_INTERACT,
-            `仓储重试 ${id}`,
-            interactTarget,
-        ),
+        withStandPoint(override?.retry_path?.length ? override.retry_path : defaultPath, standPoint),
         zoneId,
         `仓储重试 ${id}`,
     );
@@ -468,15 +463,16 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             offset,
             interactForward: isRecycleBin,
         });
-        // 交货在交互点上直接按交互键。旁边还有别的角色时按键可能选中别人，开了名称复核的终点只认不按，
-        // 交给业务侧点名字对得上的那一行。
+        // 交货在交互点上直接按交互键。开了名称复核的终点旁边还有别的角色，按键可能选中别人，不接交互点，
+        // 照旧交给业务侧点名字对得上的那一行。
         const interact = isRecycleBin
             ? RECYCLE_BIN_INTERACT
-            : {
-                  interact_text: buildNameExpected(source.name, `终点 ${id}`),
-                  interact_scan: "AutoDeliverySubmitGoodsInteractScan",
-                  ...(verifyName ? {interact_rec: true} : {}),
-              };
+            : verifyName
+              ? null
+              : {
+                    interact_text: buildNameExpected(source.name, `终点 ${id}`),
+                    interact_scan: "AutoDeliverySubmitGoodsInteractScan",
+                };
         const interactTarget = isRecycleBin ? buildInteractTarget(source, `终点 ${id}`) : null;
         const retryPath = withZoneDeclaration(
             withInteractTail(
