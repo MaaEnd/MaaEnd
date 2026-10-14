@@ -238,10 +238,7 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        // 路线末尾的交互点认到交货提示就已按下交互键，先接对话与奖励；没按到才回到识别交货图标。
         "next": [
-            "AutoDeliveryCheckSkipChatReady",
-            "AutoDeliveryCloseRewardDialog",
             "AutoDeliveryCheckSubmitGoodsTarget",
             "AutoDeliverySearchSubmitGoodsButton"
         ],
@@ -282,8 +279,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckSkipChatReady",
-            "AutoDeliveryCloseRewardDialog",
             "AutoDeliveryCheckSubmitGoodsTarget"
         ]
     },

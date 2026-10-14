@@ -287,7 +287,8 @@
                         "ジャオ・ジャオ",
                         "조조"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -346,7 +347,8 @@
                         "ジャオ・ジャオ",
                         "조조"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -406,7 +408,8 @@
                         "ジャオ・ジャオ",
                         "조조"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -463,7 +466,8 @@
                         "ペイ・リンロン",
                         "배령용"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -521,7 +525,8 @@
                         "ペイ・リンロン",
                         "배령용"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -580,7 +585,8 @@
                         "ペイ・リンロン",
                         "배령용"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -637,7 +643,8 @@
                         "フウ",
                         "수이"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -695,7 +702,8 @@
                         "フウ",
                         "수이"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -754,7 +762,8 @@
                         "フウ",
                         "수이"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"

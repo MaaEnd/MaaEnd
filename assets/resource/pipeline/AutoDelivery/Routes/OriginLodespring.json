@@ -234,7 +234,8 @@
                         "マッテオ",
                         "마테오"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -358,7 +359,8 @@
                         "マッテオ",
                         "마테오"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -418,7 +420,8 @@
                         "マッテオ",
                         "마테오"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -541,7 +544,8 @@
                         "ルー・イェン",
                         "육언"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -665,7 +669,8 @@
                         "ルー・イェン",
                         "육언"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -725,7 +730,8 @@
                         "ルー・イェン",
                         "육언"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -1109,7 +1115,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -1238,7 +1245,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -1294,7 +1302,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -1422,7 +1431,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -1551,7 +1561,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -1607,7 +1618,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"

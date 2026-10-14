@@ -160,7 +160,8 @@
                         "インゴル",
                         "잉골"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -210,7 +211,8 @@
                         "インゴル",
                         "잉골"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -269,7 +271,8 @@
                         "インゴル",
                         "잉골"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -334,7 +337,8 @@
                         "キット",
                         "킷"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -400,7 +404,8 @@
                         "キット",
                         "킷"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -459,7 +464,8 @@
                         "キット",
                         "킷"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -508,7 +514,8 @@
                         "ヤナ",
                         "야나"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -558,7 +565,8 @@
                         "ヤナ",
                         "야나"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -617,7 +625,8 @@
                         "ヤナ",
                         "야나"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -672,7 +681,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -728,7 +738,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -784,7 +795,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -839,7 +851,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -895,7 +908,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -951,7 +965,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"

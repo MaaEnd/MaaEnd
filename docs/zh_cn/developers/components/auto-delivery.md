@@ -105,9 +105,9 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 普通仓储和资源回收站由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往实体正面 2 米处的交互范围中心（实体原点压在机体占地里，导航包把那块挖掉了），从而保证从交互正面接近（朝向不合适时用覆盖条目中的 `yaw` 修正，见下节）；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。自动生成的点都带 `target_deck_y`，取值是该实体在数据源中的世界高度，接近点与终点同层、共用这个高度，用来在重叠可走面里选中目标层；人工覆盖路径的层声明按实测结果原样保留。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
 
-交货的主路线与 retry 路线由生成器在末尾接一个 `INTERACT` 交互点：末点是 `NAVMESH` 时补 `required: true` 并在同一坐标接交互点；末点是裸坐标时整点换成交互点（回收站落到交互范围中心）。交互点用 `AutoDeliverySubmitGoodsInteractScan` 预筛交货图标，再按文字复核后按交互键：资源回收站认 `AutoDeliverySubmitGoodsInteractText`（交货），收货 NPC 认终点的五语言名称。按过交互键后 `AutoDeliveryNavigateDestination` 先接对话与奖励界面，没认到提示、没按的照旧回到识别交货图标、环绕查找与站位修正。
+交货的主路线与 retry 路线由生成器在末尾接一个 `INTERACT` 交互点：末点是 `NAVMESH` 时补 `required: true` 并在同一坐标接交互点；末点是裸坐标时整点换成交互点（回收站落到交互范围中心）。交互点用 `AutoDeliverySubmitGoodsInteractScan` 预筛交货图标，再按文字复核：资源回收站认 `AutoDeliverySubmitGoodsInteractText`（交货），收货 NPC 认终点的五语言名称。交互点写了 `interact_rec`，认到提示就结束导航、不按键；交货仍由 `AutoDeliveryCheckSubmitGoodsTarget` → `AutoDeliverySubmitGoods` 识别交货图标后点击。走到点上仍认不到提示时导航判失败。
 
-两类目标不接交互点，路线结尾与原来一样：仓储路线（只走到仓储节点、不取货的调用方也用这条路线，取货在业务侧）只把终点挪到交互范围中心，人工路线的裸坐标末点同样挪过去；开了 `verify_name` 的 NPC 旁边还有别的角色，按交互键可能选中别人，照旧由业务侧点名字对得上的那一行。
+两类目标不接交互点，路线结尾与原来一样：仓储路线（只走到仓储节点、不取货的调用方也用这条路线，取货在业务侧）只把终点挪到交互范围中心，人工路线的裸坐标末点同样挪过去；开了 `verify_name` 的 NPC 照旧由业务侧复核名字后点击。
 
 运行 `pnpm generate:AutoDelivery` 后，每条主路线会生成普通与允许滑索两个 `AutoDeliveryRoute...` 节点。所有仓储和送货目标还会用同一条两点接近路线生成一个不启用滑索的 retry 节点；显式 `retry_path` 可以覆盖该路线。固定的 `AutoDeliveryNavigateDepot`、`AutoDeliveryRetryNavigateDepot`、`AutoDeliveryNavigateDestination` 和 `AutoDeliveryRetryNavigateDestination` 是 `SubTask` 分发器：Go Service 只根据 OCR 结果选择生成节点名，不再把坐标或完整 `path` 注入 Pipeline。生成节点是公开的单路线测试入口，`desc` 会注明路线对应的仓储节点；它们不替代完整送货业务的唯一入口 `AutoDelivery`。
 

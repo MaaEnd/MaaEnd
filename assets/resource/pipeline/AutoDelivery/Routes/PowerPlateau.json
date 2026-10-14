@@ -343,7 +343,8 @@
                         "クスミニチナ",
                         "쿠즈미니치나"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -394,7 +395,8 @@
                         "クスミニチナ",
                         "쿠즈미니치나"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -454,7 +456,8 @@
                         "クスミニチナ",
                         "쿠즈미니치나"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -503,7 +506,8 @@
                         "リースカ",
                         "리스카"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -553,7 +557,8 @@
                         "リースカ",
                         "리스카"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -612,7 +617,8 @@
                         "リースカ",
                         "리스카"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -661,7 +667,8 @@
                         "ゴリオン",
                         "고리언"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -711,7 +718,8 @@
                         "ゴリオン",
                         "고리언"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -770,7 +778,8 @@
                         "ゴリオン",
                         "고리언"
                     ],
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -825,7 +834,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -881,7 +891,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -937,7 +948,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -992,7 +1004,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -1048,7 +1061,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -1104,7 +1118,8 @@
                     "interact_text": {
                         "node": "AutoDeliverySubmitGoodsInteractText"
                     },
-                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan"
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"

@@ -13,10 +13,11 @@ const APPROACH_DISTANCE_METERS = 8;
 const INTERACT_DISTANCE_METERS = 2;
 const COORDINATE_PRECISION = 3;
 
-// 交货路线末尾的交互点：行进中预筛到提示就停车，按文本复核后按交互键交货。
+// 交货路线末尾的交互点：行进中预筛到提示就停车，文本复核通过即结束导航，不按键；交货由业务侧识别交货图标后点击。
 const RECYCLE_BIN_INTERACT = {
     interact_text: {node: "AutoDeliverySubmitGoodsInteractText"},
     interact_scan: "AutoDeliverySubmitGoodsInteractScan",
+    interact_rec: true,
 };
 
 function assertArray(value, label) {
@@ -463,8 +464,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             offset,
             interactForward: isRecycleBin,
         });
-        // 交货在交互点上直接按交互键。开了名称复核的终点旁边还有别的角色，按键可能选中别人，不接交互点，
-        // 照旧交给业务侧点名字对得上的那一行。
+        // 开了名称复核的终点不接交互点，照旧由业务侧复核名字后点击。
         const interact = isRecycleBin
             ? RECYCLE_BIN_INTERACT
             : verifyName
@@ -472,6 +472,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
               : {
                     interact_text: buildNameExpected(source.name, `终点 ${id}`),
                     interact_scan: "AutoDeliverySubmitGoodsInteractScan",
+                    interact_rec: true,
                 };
         const interactTarget = isRecycleBin ? buildInteractTarget(source, `终点 ${id}`) : null;
         const retryPath = withZoneDeclaration(
