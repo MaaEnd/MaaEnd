@@ -234,14 +234,30 @@ func resolveButtonTarget(ctx *maa.Context, fieldName string, raw any) (buttonTar
 	return buttonTarget{patch: patch}, nil
 }
 
+// fallbackController 仅在 PI_CONTROLLER 不可用时取一次 controller，供控制器类别兜底；
+// PI 正常时返回 nil，避免无谓地触碰 controller 句柄（见编码规范「回调里的句柄怎么用」）。
+func fallbackController(ctx *maa.Context) *maa.Controller {
+	if pienv.ControllerKind() != pienv.ControllerKindUnknown {
+		return nil
+	}
+	if ctx == nil || ctx.GetTasker() == nil {
+		return nil
+	}
+	return ctx.GetTasker().GetController()
+}
+
 // resolveControlType 返回控制器的资源挂载范围类别（见 pkg/pienv），取不到时返回空串。
 // 归一化后 ADB、CloudADB、原生安卓与 PlayCover 都是 "adb"，与 resource_adb 的挂载范围一致。
-func resolveControlType() string {
-	controllerType := pienv.ControllerType()
-	if pienv.IsAdbLikeControllerType(controllerType) {
+// ctrl 由回调入口传入；PI_CONTROLLER 缺失时用它兜底，否则移动端会误用桌面默认点击偏移。
+func resolveControlType(ctrl *maa.Controller) string {
+	kind := pienv.ResolveControllerKind(ctrl)
+	if kind == pienv.ControllerKindUnknown {
+		return ""
+	}
+	if pienv.IsAdbLikeControllerType(kind) {
 		return pienv.ControllerKindAdb
 	}
-	return pienv.NormalizeControllerKind(controllerType)
+	return kind
 }
 
 // defaultCenterPointOffset 返回当前控制器的默认点击偏移。

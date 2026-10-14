@@ -18,8 +18,9 @@ const (
 )
 
 // isADBController 判断当前控制器是否走触控 + 移动端 UI（ADB / PlayCover / Android 原生）。
-func isADBController() bool {
-	return pienv.IsAdbLikeControllerType(pienv.ControllerType())
+// ctrl 由回调入口传入；PI_CONTROLLER 缺失时用它兜底，否则 ADB 会被误当成桌面端。
+func isADBController(ctrl *maa.Controller) bool {
+	return pienv.IsAdbLikeControllerType(pienv.ResolveControllerKind(ctrl))
 }
 
 // runShelfSwipe 调一次货架滑动工具节点；滑动参数与稳定等待都在 Pipeline 侧，这里不做平台判断。

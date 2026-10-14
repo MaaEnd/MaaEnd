@@ -51,3 +51,33 @@ func TestIsAdbLikeControllerType(t *testing.T) {
 		})
 	}
 }
+
+// controllerKindFromInfo 是 PI_CONTROLLER 缺失时的兜底路径，覆盖 MaaFramework 的 GetInfo 输出。
+func TestControllerKindFromInfo(t *testing.T) {
+	cases := []struct {
+		name string
+		info string
+		want string
+	}{
+		{"win32", `{"type":"win32","hwnd":1}`, ControllerKindWin32},
+		{"adb", `{"type":"adb","adb_serial":"127.0.0.1:5555"}`, ControllerKindAdb},
+		{"native android", `{"type":"native_android","display_id":0}`, ControllerKindNativeAndroid},
+		{"playcover", `{"type":"PlayCover"}`, ControllerKindPlayCover},
+		{"playcover alias", `{"type":"play_cover"}`, ControllerKindPlayCover},
+		{"linux", `{"type":"linux"}`, ControllerKindLinux},
+		// 非法 JSON 时退化到子串探测
+		{"non-json native android", `type=native_android`, ControllerKindNativeAndroid},
+		{"non-json win32", `type=win32 hwnd=1`, ControllerKindWin32},
+		// 空串与无法识别的输入都返回 unknown
+		{"empty", "", ControllerKindUnknown},
+		{"unknown type", `{"type":"dbg"}`, ControllerKindUnknown},
+		{"garbage", `not json at all`, ControllerKindUnknown},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := controllerKindFromInfo(c.info); got != c.want {
+				t.Fatalf("controllerKindFromInfo(%q) = %q, want %q", c.info, got, c.want)
+			}
+		})
+	}
+}

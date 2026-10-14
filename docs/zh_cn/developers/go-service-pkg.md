@@ -221,11 +221,12 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 - `ClientLanguage()` → 交给 `i18n`
 - `ControllerType()` / `ControllerName()` → 区分 Win32 / Adb 等
 - `ControllerKind()` / `NormalizeControllerKind()` / `IsAdbLikeControllerType()` → 归一化后的控制器类别（`adb` / `playcover` / `native_android` / `win32` / `macos` / `linux` / `gamepad`），大小写、`play_cover` 之类的别名都在这里消化
+- `ResolveControllerKind(ctrl)` → 归一化类别的兜底版：PI_CONTROLLER 缺失或类型未知时改用 `controller.GetInfo()` 判定。PI 协议允许 Client 省略不可用的变量，所以**不能假定 PI_CONTROLLER 一定存在**
 - `ResourceName()`、版本号等
 
 不要自己再 `os.Getenv("PI_...")` 散落解析。
 
-判断控制器类型一律用 `ControllerType()`，比较时走 `ControllerKind()` / `NormalizeControllerKind()`（不要各自 `ToLower` 拼字符串），更不要为此去取 controller 调 `GetInfo()`：同一回调里每多取一次 controller，之前拿到的那个就会失效（见[编码规范 · 回调里的句柄怎么用](./coding-standards.md#回调里的句柄怎么用)）。ADB、PlayCover（含别名 `play_cover`）与 Android 原生共用「触控 + 移动端 UI」分支时，用 `IsAdbLikeControllerType()` 判断。
+判断控制器类型优先用 `ControllerType()`，比较时走 `ControllerKind()` / `NormalizeControllerKind()`（不要各自 `ToLower` 拼字符串）。需要兼容「Client 省略 `PI_CONTROLLER`」时用 `ResolveControllerKind(ctrl)`——`ctrl` 必须是本回调里已经取得并向下传递的那个，不要为了判断类型再 `GetController()`：同一回调里每多取一次 controller，之前拿到的那个就会失效（见[编码规范 · 回调里的句柄怎么用](./coding-standards.md#回调里的句柄怎么用)）。ADB、PlayCover（含别名 `play_cover`）与 Android 原生共用「触控 + 移动端 UI」分支时，用 `IsAdbLikeControllerType()` 判断。
 
 ### `resource`：资源文件定位与读取
 

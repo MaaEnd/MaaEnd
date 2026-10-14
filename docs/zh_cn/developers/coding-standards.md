@@ -120,7 +120,7 @@ _没有必要的 Go 逻辑会大大增加代码复杂度，造成下一位开发
 - **只在本次回调内用。** 回调返回后这些对象全部失效（`ctx.GetTasker()` 返回 `nil`，其余方法返回 `maa.ErrClosed`）。不要存进包级变量，不要交给回调返回后还在跑的 goroutine。
 - **一次回调里 controller 只取一次，取到后往下传。** 每调用一次 `GetController()`，上一次拿到的那个就被销毁了，再用它是释放后使用，go-service 会随机崩溃。`GetResource()` 同理。辅助函数需要 controller 就加一个 `*maa.Controller` 参数，不要自己再从 `ctx` 取。
 - **取到后先判空。** 与客户端断连时 `GetTasker()` / `GetController()` 会返回 `nil`，而回调里的空指针 panic 会直接结束整个 go-service 进程。
-- **判断控制器类型用 `pienv.ControllerType()`**，不要为此去取 controller 调 `GetInfo()`。
+- **判断控制器类型用 `pienv.ControllerType()`**，不要为此去取 controller 调 `GetInfo()`。PI 协议允许 Client 省略 `PI_CONTROLLER`，需要兜底时用 `pienv.ResolveControllerKind(ctrl)`，`ctrl` 取[上面](#回调里的句柄怎么用)已经传下来的那个，仍然不要重新 `GetController()`。
 - **识别未命中返回 `nil, false`。** 返回了非 nil 的结果，即使未命中，`Box` 和 `Detail` 也会写进识别详情。
 
 ```go

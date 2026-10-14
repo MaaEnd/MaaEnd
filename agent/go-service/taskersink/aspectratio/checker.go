@@ -69,7 +69,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		Msg("Got resolution")
 
 	isADBController := false
-	controlType, controllerTypeSource, controlErr := resolveControllerType()
+	controlType, controllerTypeSource, controlErr := resolveControllerType(controller)
 	controllerDisplay := displayController(pienv.ControllerName(), controlType)
 	if controlErr != nil {
 		log.Warn().
@@ -485,12 +485,17 @@ func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDispl
 }
 
 // resolveControllerType 返回归一化后的控制器类别及其来源。
-// 类型判定统一走 pienv（见编码规范「回调里的句柄怎么用」），PI 环境不可用时返回 unknown。
-func resolveControllerType() (string, string, error) {
+// PI_CONTROLLER 优先；缺失或类型未知时回退到 controller.GetInfo()——PI 协议允许 Client
+// 省略变量，少了兜底会把 ADB 控制器当成未知/桌面端，从而放行 1600×900 这类桌面分辨率。
+// controller 必须是本回调里已取得并向下传递的那个（见编码规范「回调里的句柄怎么用」）。
+func resolveControllerType(controller *maa.Controller) (string, string, error) {
 	if kind := pienv.ControllerKind(); kind != pienv.ControllerKindUnknown {
 		return kind, "pi_env", nil
 	}
-	return "unknown", "unavailable", fmt.Errorf("PI_CONTROLLER is absent or of an unknown controller type")
+	if kind := pienv.ResolveControllerKind(controller); kind != pienv.ControllerKindUnknown {
+		return kind, "controller_info", nil
+	}
+	return "unknown", "unavailable", fmt.Errorf("controller type unavailable from both PI_CONTROLLER and controller.GetInfo()")
 }
 
 // isAspectRatio16x9 checks if the given dimensions are approximately 16:9

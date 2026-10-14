@@ -51,7 +51,7 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 		}
 	}
 
-	typ := controllerType()
+	typ := controllerType(ctrl)
 	if typ == "" {
 		return captureErr(allowUnknown, "cannot determine controller type")
 	}
@@ -67,8 +67,10 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 }
 
 // controllerType 返回归一化后的控制器类别（见 pienv.ControllerKind*）。
-func controllerType() string {
-	return pienv.ControllerKind()
+// PI_CONTROLLER 缺失时回退到 controller.GetInfo()：PI 协议允许 Client 省略变量，
+// 少了这层兜底会让 ADB 控制器误走 OCR 流程。ctrl 由调用方传入，本函数不自己取句柄。
+func controllerType(ctrl *maa.Controller) string {
+	return pienv.ResolveControllerKind(ctrl)
 }
 
 func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
