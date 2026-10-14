@@ -132,14 +132,6 @@ flowchart TD
 
 开发 QQ 群: [1072587329](https://qm.qq.com/q/EyirQpBiW4) （干活群，欢迎加入一起开发，但不受理用户问题）
 
-## AI 自动同步
+## 中英文文档
 
-- 对应 GitHub Action 位于：`.github/workflows/docs-sync.yml`
-- 用途：手动触发后，先固定一个仓库快照，再根据 `docs/en_us/.docs-sync-state.json` 记录的中文源文件 hash，找出该快照里需要同步的 `docs/zh_cn/**` 文档，并把对应内容翻译到 `docs/en_us/**`，最后由 bot 自动创建 PR
-- 当前模式：仅手动 `workflow_dispatch`，自动触发已先注释停用
-- 限制：LLM 只作为逐文件翻译器；diff 收集、文档链接重写、文件写入、允许修改范围校验、推分支和建 PR 都由脚本与 workflow 处理
-- 翻译脚本：`tools/docs/translate_with_llm.py`
-- 运行依赖：一个 `DOCS_TRANSLATION_CONFIG` secret；`MAAEND_BOT_TOKEN` 可选，未配置时使用 GitHub Actions 自带的 `GITHUB_TOKEN`
-- `DOCS_TRANSLATION_CONFIG` 包含翻译端点配置：`api_key`、`model`、`base_url`、可选 `api_style`（`openai`、`anthropic` 或 `gemini`）和 `max_tokens`
-- 可选后端：手动触发时可选择 `translator=copilot`，此时使用 `COPILOT_GITHUB_TOKEN`；默认 `translator=config`，平时不使用 Copilot
-- `pr_branch` 只能使用 `chore/docs-auto-sync*` 前缀，且不能等于默认分支名
+`docs/en_us` 与 `docs/zh_cn` 按相同路径一一对应，都由人工维护。新增或修改文档时，在同一个 PR 里同时改好中英文两份。

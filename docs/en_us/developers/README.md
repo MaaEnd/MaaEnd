@@ -125,14 +125,6 @@ Define the format specifications for files written by MaaEnd, for reliable readi
 
 Development QQ Group: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (A working group, welcome to join and develop together, but user issues are not handled here)
 
-## AI Automatic Sync
+## Chinese and English Docs
 
-- Corresponding GitHub Action is located at: `.github/workflows/docs-sync.yml`
-- Purpose: When manually triggered, it first fixes a repository snapshot, then based on the Chinese source file hash recorded in `docs/en_us/.docs-sync-state.json`, identifies the `docs/zh_cn/**` documents needing sync in that snapshot, translates the corresponding content to `docs/en_us/**`, and finally the bot automatically creates a PR.
-- Current mode: Only manual `workflow_dispatch`; automatic triggering has been commented out and disabled for now.
-- Limitations: The LLM is only used as a per-file translator; diff collection, document link rewriting, file writing, permission scope validation for modifications, pushing branches, and creating PRs are all handled by scripts and workflows.
-- Translation script: `tools/docs/translate_with_llm.py`
-- Runtime dependency: A `DOCS_TRANSLATION_CONFIG` secret; `MAAEND_BOT_TOKEN` is optional; if not configured, uses the default `GITHUB_TOKEN` provided by GitHub Actions.
-- `DOCS_TRANSLATION_CONFIG` contains translation endpoint configuration: `api_key`, `model`, `base_url`, optional `api_style` (`openai`, `anthropic`, or `gemini`), and `max_tokens`.
-- Optional backend: When triggered manually, you can choose `translator=copilot`, which uses `COPILOT_GITHUB_TOKEN`; the default is `translator=config`, which does not use Copilot normally.
-- `pr_branch` can only use the `chore/docs-auto-sync*` prefix and cannot be equal to the default branch name.
+`docs/en_us` mirrors `docs/zh_cn` path for path, and both are maintained by hand. When you add or change a document, update both languages in the same PR.
