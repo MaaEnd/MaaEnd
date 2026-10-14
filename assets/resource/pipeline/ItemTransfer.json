@@ -884,7 +884,6 @@
     },
     "ItemTransferVerifyForwardStored": {
         "next": [
-            "ItemTransferCheckIfFull",
             "ItemTransferForwardItemStillInBag",
             "ItemTransferDestinationDispatch"
         ]
