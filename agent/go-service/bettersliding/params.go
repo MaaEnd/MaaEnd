@@ -126,7 +126,7 @@ func (a *BetterSlidingAction) normalizeActionParams(
 	params betterSlidingParam,
 ) (parsedBetterSlidingParams, bool) {
 	// CenterPointOffset 的默认值随控制器变化；调用方显式传入时不受影响。
-	controllerType := resolveControlType(ctx)
+	controllerType := resolveControlType()
 	centerPointOffsetDefault := defaultCenterPointOffset(controllerType)
 
 	parsed := parsedBetterSlidingParams{
