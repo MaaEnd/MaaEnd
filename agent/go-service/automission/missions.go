@@ -25,6 +25,10 @@ type trackData struct {
 	NpcName    missionText `json:"npcName,omitempty"`
 	// NpcNameOverrides 是关卡脚本运行时给 NPC 改的名字，与 NpcName 一起作为交互名称候选。
 	NpcNameOverrides []missionText `json:"npcNameOverrides,omitempty"`
+	// EntityDataIDKey 是实体追踪对应的解包实体类型，如 int_fixable_robot。
+	EntityDataIDKey string `json:"entityDataIdKey,omitempty"`
+	// InteractTexts 是实体追踪的交互选项文字，可能有多个。
+	InteractTexts []missionText `json:"interactTexts,omitempty"`
 }
 
 type trackingBlock struct {
@@ -245,9 +249,18 @@ func objectiveEntries(questID string, objective objectiveData) []objectiveEntry 
 
 // npcNameVariants 合并 NPC 本名和运行时改名的简繁写法，去重后返回。
 func npcNameVariants(track trackData) []string {
+	return textVariants(append([]missionText{track.NpcName}, track.NpcNameOverrides...))
+}
+
+// interactTextVariants 合并实体全部交互选项的简繁写法，去重后返回。
+func interactTextVariants(track trackData) []string {
+	return textVariants(track.InteractTexts)
+}
+
+func textVariants(texts []missionText) []string {
 	var names []string
 	seen := make(map[string]struct{})
-	for _, text := range append([]missionText{track.NpcName}, track.NpcNameOverrides...) {
+	for _, text := range texts {
 		for _, v := range variantsOf(text) {
 			if _, ok := seen[v]; ok {
 				continue

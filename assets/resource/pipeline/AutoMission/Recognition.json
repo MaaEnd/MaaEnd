@@ -110,6 +110,29 @@
             "物流负责人"
         ]
     },
+    "AutoMissionEntityActionInteractRecognition": {
+        "desc": "交互提示区域里的实体交互文字，文本待注入",
+        "recognition": "OCR",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "expected": [
+            // 交互文字待注入
+            // @i18n-skip
+            "接水"
+        ]
+    },
+    "AutoMissionEntityTrigger": {
+        "desc": "走向实体途中进入剧情或出现目标交互提示即停下",
+        "recognition": "Or",
+        "any_of": [
+            "InStory",
+            "AutoMissionEntityActionInteractRecognition"
+        ]
+    },
     "AutoMissionWorldTrackRecognition": {
         "desc": "大世界画面上的任务追踪图标",
         "recognition": "TemplateMatch",

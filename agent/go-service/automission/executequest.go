@@ -16,6 +16,11 @@ const (
 
 	missionAreaNode        = "AutoMissionMissionArea"
 	missionAreaInWorldNode = "AutoMissionMissionAreaInWorld"
+
+	entityNode         = "AutoMissionEntity"
+	entityInWorldNode  = "AutoMissionEntityInWorld"
+	entityInteractNode = "AutoMissionEntityActionInteractRecognition"
+	entityTriggerNode  = "AutoMissionEntityTrigger"
 )
 
 var _ maa.CustomActionRunner = &ExecuteQuestAction{}
@@ -25,7 +30,7 @@ var trackingNodes = map[string]string{
 	"MissionAreaTrackingInfo": missionAreaNode,
 	"NpcProxyTrackingInfo":    npcProxyNode,
 	"PosTrackingInfo":         "AutoMissionPos",
-	"EntityTrackingInfo":      "AutoMissionEntity",
+	"EntityTrackingInfo":      entityNode,
 	"JumpToUITrackingInfo":    "AutoMissionJumpToUI",
 	"SnsTrackingInfo":         "AutoMissionSns",
 }
@@ -152,6 +157,56 @@ func (a *ExecuteQuestAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 							"action":       "TRIGGER",
 							"target":       []float64{*track.X, *track.Y},
 							"trigger_node": npcProxyStoryNode,
+						},
+					},
+				},
+			},
+		})
+	case entityNode:
+		interactTexts := interactTextVariants(track)
+		if track.ZoneID == "" || track.X == nil || track.Y == nil {
+			log.Warn().
+				Str("component", executeComponent).
+				Str("zone_id", track.ZoneID).
+				Str("entity", track.EntityDataIDKey).
+				Bool("has_x", track.X != nil).
+				Bool("has_y", track.Y != nil).
+				Msg("entity track missing zone or position")
+			return false
+		}
+		if len(interactTexts) == 0 {
+			// 没有交互文字：注入永不匹配的正则，只走到坐标，不做交互。
+			interactTexts = []string{"(?!)"}
+		}
+		log.Info().
+			Str("component", executeComponent).
+			Str("node", entityInWorldNode).
+			Str("zone_id", track.ZoneID).
+			Str("entity", track.EntityDataIDKey).
+			Float64("x", *track.X).
+			Float64("y", *track.Y).
+			Strs("interact_texts", interactTexts).
+			Msg("entity navigate target")
+		taskDetail, err = ctx.RunTask(node, map[string]any{
+			entityInteractNode: map[string]any{
+				"expected": interactTexts,
+			},
+			entityInWorldNode: map[string]any{
+				"custom_action_param": map[string]any{
+					"heading_source": "camera",
+					"path": []any{
+						map[string]any{
+							"action":  "ZONE",
+							"zone_id": track.ZoneID,
+						},
+						map[string]any{
+							"action": "NAVMESH",
+							"target": []float64{*track.X, *track.Y},
+						},
+						map[string]any{
+							"action":       "TRIGGER",
+							"target":       []float64{*track.X, *track.Y},
+							"trigger_node": entityTriggerNode,
 						},
 					},
 				},

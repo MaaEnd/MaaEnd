@@ -47,6 +47,11 @@ const GENERIC_COMPONENTS = new Set([
 
 // 玩家进入触发区后会自动推进剧情的动作。
 
+// 交互文字由客户端按组件写死、解包数据里查不到的交互物，按 entityDataIdKey 手工补文本 key。
+const MANUAL_INTERACT_TEXTS = {
+    int_fixable_robot: ["lang_int_fix_option"],
+};
+
 function readJson(path) {
     return JSON.parse(readFileSync(path, "utf8"));
 }
@@ -227,34 +232,87 @@ function resolveEntity(track) {
     // 副本里的 entityLogicId 已经是全局 id。
     const globalId = track.entityLogicId >= 1e8 ? track.entityLogicId : num * 1e8 + track.entityLogicId;
     const brief = worldEntityBrief[String(globalId)];
+    // 简要信息只有模板和坐标，交互文字等实例属性要从关卡数据里取完整实体。
+    const entity = levelEntities(track.sceneId).get(globalId);
     if (brief) {
-        return {entityDataIdKey: brief.detailId, position: brief.position};
+        return {...entity, entityDataIdKey: brief.detailId, position: brief.position};
     }
-    return levelEntities(track.sceneId).get(globalId) ?? null;
+    return entity ?? null;
 }
 
-const componentCache = new Map();
-function entityComponents(dataKey) {
+const templateCache = new Map();
+function entityTemplate(dataKey) {
     if (!dataKey) {
-        return [];
+        return null;
     }
-    if (componentCache.has(dataKey)) {
-        return componentCache.get(dataKey);
+    if (templateCache.has(dataKey)) {
+        return templateCache.get(dataKey);
     }
     const templateId = interactiveTable.interactiveDataDict?.[dataKey]?.templateId ?? dataKey;
     const templatePath = interactiveTable.coreTemplatePathDict?.[templateId];
-    let components = [];
+    let template = null;
     if (templatePath) {
         const path = resolve(jsonRoot, templatePath.replace(/^Data\/Json\//, ""));
         if (existsSync(path)) {
-            components = (readJson(path).componentList ?? [])
-                .map((component) => shortType(component?.$type))
-                .filter((name) => name && !GENERIC_COMPONENTS.has(name));
-            components = [...new Set(components)];
+            template = readJson(path);
         }
     }
-    componentCache.set(dataKey, components);
-    return components;
+    templateCache.set(dataKey, template);
+    return template;
+}
+
+function entityComponents(dataKey) {
+    const components = (entityTemplate(dataKey)?.componentList ?? [])
+        .map((component) => shortType(component?.$type))
+        .filter((name) => name && !GENERIC_COMPONENTS.has(name));
+    return [...new Set(components)];
+}
+
+function propertyStrings(properties, key) {
+    return (properties ?? [])
+        .filter((property) => property?.key === key)
+        .flatMap((property) => property.value?.valueArray ?? [])
+        .map((value) => value?.valueString)
+        .filter((value) => typeof value === "string" && value);
+}
+
+function templateOptionKeys(node, keys = []) {
+    if (Array.isArray(node)) {
+        for (const item of node) {
+            templateOptionKeys(item, keys);
+        }
+    } else if (node && typeof node === "object") {
+        if (typeof node.optionName?.key === "string" && node.optionName.key) {
+            keys.push(node.optionName.key);
+        }
+        for (const value of Object.values(node)) {
+            templateOptionKeys(value, keys);
+        }
+    }
+    return keys;
+}
+
+// 交互文字依次取：实例的点击选项、实例的 InteractText（任务信标）、模板选项、手工补充。
+function interactTextKeys(entity) {
+    const optionKeys = Object.values(entity?.componentProperties ?? {}).flatMap((properties) =>
+        propertyStrings(properties, "click_option_name_list"),
+    );
+    if (optionKeys.length > 0) {
+        return optionKeys;
+    }
+    const beaconKeys = propertyStrings(entity?.properties, "InteractText");
+    if (beaconKeys.length > 0) {
+        return beaconKeys;
+    }
+    const templateKeys = templateOptionKeys(entityTemplate(entity?.entityDataIdKey));
+    if (templateKeys.length > 0) {
+        return templateKeys;
+    }
+    return MANUAL_INTERACT_TEXTS[entity?.entityDataIdKey] ?? [];
+}
+
+function interactTextsOf(entity) {
+    return [...new Set(interactTextKeys(entity))].map((key) => namedText(key)).filter(Boolean);
 }
 
 // 世界坐标换算到 MapLocator 底图坐标；只有四号谷地和武陵大地图有底图。
@@ -393,10 +451,18 @@ function convertEntity(track) {
     const entity = resolveEntity(track);
     const components = entityComponents(entity?.entityDataIdKey);
     const result = {type: "EntityTrackingInfo"};
+    if (entity?.entityDataIdKey) {
+        result.entityDataIdKey = entity.entityDataIdKey;
+    }
     if (components.length > 0) {
         result.components = components;
     }
-    return {...result, ...placement(track.sceneId, entity?.position)};
+    Object.assign(result, placement(track.sceneId, entity?.position));
+    const interactTexts = interactTextsOf(entity);
+    if (interactTexts.length > 0) {
+        result.interactTexts = interactTexts;
+    }
+    return result;
 }
 
 function convertTrack(track) {
