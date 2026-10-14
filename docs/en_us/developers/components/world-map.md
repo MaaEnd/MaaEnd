@@ -4,12 +4,19 @@ WorldMap is a native C++ coordinate recognition system for the open world map. A
 
 It shares its template matching core and its base map images with [MapLocator](./map-locator.md). The difference: MapLocator reads the minimap and answers "where is the character", WorldMap reads the full screen map and answers "where is this coordinate drawn right now".
 
-- [MapFind](#mapfind)
-- [Icon table](#icon-table)
-- [Wiring up teleport points](#wiring-up-teleport-points)
-- [How recognition works](#how-recognition-works)
+- [Developer Manual - WorldMap](#developer-manual---worldmap)
+    - [MapFind](#mapfind)
+        - [Node parameters](#node-parameters)
+        - [Judging a set of candidates in one call](#judging-a-set-of-candidates-in-one-call)
+            - [Turning one candidate off](#turning-one-candidate-off)
+        - [Success and failure](#success-and-failure)
+        - [Examples](#examples)
+    - [Icon table](#icon-table)
+    - [Wiring up teleport points](#wiring-up-teleport-points)
+    - [How recognition works](#how-recognition-works)
+        - [Block voting](#block-voting)
 
-WorldMap is a recognition layer. It only resolves a coordinate into a screen position on an already open map. Opening the map and switching layers are the job of [SceneManager](../scene-manager.md); the confirmation dialog afterwards is handled by the Pipeline. The zoom it sets itself, see below.
+WorldMap is a recognition layer. It only resolves a coordinate into a screen position on an already open map. Opening the map and switching layers are the job of the [SceneManager](../scene-manager.md) universal jump; the confirmation dialog afterwards is handled by the Pipeline. The zoom it sets itself, see below.
 
 ---
 
@@ -30,7 +37,7 @@ Required (`custom_recognition_param`):
 | `zone` | Zone name, i.e. the directory name under `assets/resource/image/MapLocator/`, e.g. `Wuling` |
 | `at` / `candidates` | One of the two. `at` judges one point, `candidates` judges a set, see [Judging a set of candidates in one call](#judging-a-set-of-candidates-in-one-call) |
 
-`at` is two numbers `[x, y]`, the position in that zone's base map pixel frame. The base map is one large image of the whole zone, with each sub-area occupying its own non-overlapping patch of it. `at` uses that image's frame — so the sub-area is not a parameter, and does not need to be one.
+`at` is two numbers `[x, y]`. The base map is one large image of the whole zone, with each sub-area occupying its own non-overlapping patch of it. `at` uses that image's frame — so the sub-area is not a parameter, and does not need to be one.
 
 Optional (`custom_recognition_param`):
 

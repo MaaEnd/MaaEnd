@@ -54,6 +54,8 @@ Regions and tiers currently used in the repository:
 | `Tier2` | Large |
 | `Tier3` | Extreme |
 
+Price thresholds are produced only by the "region base + tier base + weekday adjustment" formula in `strategy.go`; there is no longer a JSON configuration entry, so adjusting the thresholds requires changing that formula.
+
 ## Adding an Item
 
 When adding a new item, two parts need to be maintained: the **item mapping** and the **template image**.
@@ -192,10 +194,10 @@ If swipe/second-screen scan fails, fall back to first-screen results without abo
 
 After selection:
 
-- If the chosen ID is in `SecondPageOnlyIDs` (second-screen / page1 only), swipe down once more before `AutoStockpileSelectedGoodsClick`.
+- If the chosen ID is in `SecondPageOnlyIDs` (visible only on the second screen / page1, e.g. the last row), `AutoStockpileSwipeShelfDown` runs once more before the click, and `AutoStockpileSelectedGoodsClick` then performs the template click.
 - If the item was already on the first screen (page0), click without an extra swipe.
 
 Swipe nodes:
 
 - Win32 default: `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen).
-- ADB / PlayCover: real `Swipe` override in `assets/resource_adb/pipeline/AutoStockpile/Helper.json` (with horizontal end segment and `end_hold`). Coordinates are 720p; tune ADB `begin` / `end` and `post_wait_freezes.target` if devices miss or over-scroll.
+- ADB / PlayCover: real `Swipe` override in `assets/resource_adb/pipeline/AutoStockpile/Helper.json` (with horizontal end segment and `end_hold`). Coordinates are 720p; if real devices miss items or show too many duplicates, first tune the ADB-side `begin` / `end` and `post_wait_freezes.target`.

@@ -39,7 +39,7 @@ Before starting, let's explain common terms in the simplest language. Precision 
 | **Branch** | A branch. Open your own line, don't mess with others' |
 | **Commit** | Save. Take a snapshot of current changes, write a line of notes |
 | **Push** | Upload local saves to GitHub |
-| **PR** | Pull Request. Send your changes to the project manager for review |
+| **PR** | Pull Request. Send your changes to the project maintainers for review |
 | **Template Matching** | Find a small image in a larger one. E.g., "find this button on the screen" |
 
 ---
@@ -55,30 +55,28 @@ Before starting, let's explain common terms in the simplest language. Precision 
 **Learning Git? Recommended resources, in order:**
 
 1. [Learn Git Branching](https://learngitbranching.js.org/) — Highly recommended! Interactive challenges, learn while playing, also recommended in project documentation
-2. [Pro Git](https://git-scm.com/book/en/v2) — The official book, thorough and well-written
+2. [Pro Git](https://git-scm.com/book/en/v2) — The official book, very detailed; read this if you'd rather not play through the challenges
 
 ### 2.2 Terminal
 
 - **Windows 11**: Right-click in a folder → "Open in Terminal"
 - **Windows 10**: After installing Git, right-click → "Git Bash Here"
 - **macOS**: `Command + Space` → Type `Terminal` → Enter
-- **Linux**: `Ctrl + Alt + T`
 
-You only need to know three commands:
+You only need to know two commands:
 
 ```bash
 cd folder_name    # Enter a folder
 ls             # See what's in the current folder
-# Copy and paste     # Paste commands from the tutorial and press Enter
 ```
 
-That's enough.
+You can copy and paste the rest straight from the docs.
 
 ### 2.3 VS Code
 
 - Download: [code.visualstudio.com](https://code.visualstudio.com/)
 - During installation, it's recommended to check "Add to PATH" and "Add Code to right-click menu"
-- VS Code itself just needs to be installed; plugins can be installed after cloning and opening the project folder — because `@recommended` workspace recommendations require a project to be open. See [B.2 Clone — Download Locally](#b2-clone--download-locally)
+- VS Code itself just needs to be installed; plugins can be installed after cloning and opening the project folder — because `@recommended` workspace recommendations require a project to be open.
 - Most important plugin: **Maa Pipeline Support** — for screenshots, selecting recognition areas (you can also search and install this in the Extensions marketplace first)
 
 ### 2.4 Node.js + pnpm
@@ -91,6 +89,7 @@ corepack enable pnpm
 ```
 
 - Verify: `pnpm --version` shows a version number (requires 10+) and you're good
+- pnpm is Node's package manager (it installs dependencies). Install it now and leave it; it is only used later, when you run `pnpm install` after cloning the project
 
 ### 2.5 uv + Python
 
@@ -99,7 +98,9 @@ corepack enable pnpm
 
 ### 2.6 Go (Required)
 
-The project's underlying logic depends on Go for compilation and execution, so **it must be installed**. Good news: you don't need to learn Go syntax or write Go code; just install it and leave it. Go to [go.dev](https://go.dev/) to download and install (1.25.6+).
+The project's underlying logic depends on Go for compilation and execution, so **it must be installed**. Good news: you don't need to learn Go syntax or write Go code; just install it and leave it. Go to [go.dev](https://go.dev/) to download and install (1.25.6+). The part of the project written in Go is under `agent/go-service/`; you don't need to touch it for now.
+
+> Everything installed above (Node / uv / Go / pnpm) **just needs to be installed for now** — Chapter Three only needs Git; the rest won't be used until you actually run the project.
 
 ### 🎯 Checkpoint
 
@@ -115,7 +116,7 @@ The project's underlying logic depends on Go for compilation and execution, so *
 
 ## Chapter Three · Minimum GitHub Survival Guide
 
-> Goal: Be able to clone, create branches, commit, push, and open PRs.
+> Goal: fork + clone — copy the project to your own name, then download it locally. Creating branches, committing, pushing, and opening PRs are all part of submitting a PR, so they are left for Chapter Six, when you do a real task.
 >
 > Below are two paths, just choose one and stick with it:
 >
@@ -126,68 +127,37 @@ The project's underlying logic depends on Go for compilation and execution, so *
 
 ---
 
-### Route A: GitHub Desktop (Graphical Interface)
+### Fork — Copy the Repository to Your Own Name
 
-First, go to [GitHub Desktop Official Website](https://desktop.github.com/) to download and install, then open it and log in with your GitHub account.
-
-#### A.1 Fork — Copy the Repository to Your Own Name
-
-This step is done on the webpage:
+This step is done on the webpage, and it is the same for both routes:
 
 1. Open the [MaaEnd Repository](https://github.com/MaaEnd/MaaEnd), make sure you're logged in
 2. Click the **Fork** button in the upper right corner
 3. Don't change anything, just click **Create fork**
 4. Wait a few seconds, the page will jump to `https://github.com/your-username/MaaEnd` — this is your own copy
 
-#### A.2 Clone — Download Locally
+> From now on, you make all your changes on this copy; when they are ready, you ask for them to be merged back into the original repository through a PR. This copy is what you clone below.
+
+---
+
+### Route A: GitHub Desktop (Graphical Interface)
+
+First, go to [GitHub Desktop Official Website](https://desktop.github.com/) to download and install, then open it and log in with your GitHub account.
+
+#### A.1 Clone — Download Locally
 
 1. Open GitHub Desktop, menu bar **File → Clone a repository**
 2. Select the **GitHub.com** tab, find the `your-username/MaaEnd` repository, click it
 3. Choose a local storage path, click **Clone**
 4. Wait for the download to complete, the repository is now on your computer
 
-#### A.3 Branch — Create a Working Branch
-
-1. In GitHub Desktop, there's a branch selection box at the top, click it
-2. Select **New Branch**
-3. Use English for the branch name, format suggestion `feat/description`, e.g., `feat/add-sell-button`, click **Create Branch**
-
-> Fork copies the entire repository, Branch creates a working branch within the repository. Never modify things directly on the v2 branch — create a branch, if it gets messed up, delete it, and v2 remains clean and unaffected.
-
-#### A.4 Commit — Save
-
-1. After modifying files, GitHub Desktop will list all changes on the left
-2. Check the files you want to save
-3. In the lower left corner **Summary** input box, write the commit message (format see "Commit Message Format" below)
-4. Click **Commit to your-branch-name**
-
-#### A.5 Push — Upload to GitHub
-
-A **Push origin** button will appear at the top of GitHub Desktop, just click it. The first push might be slow, after that it's fast.
-
-#### A.6 Open PR — Request Review
-
-1. After pushing, a **Create Pull Request** button will appear at the top of GitHub Desktop; clicking it will jump to the browser
-2. Or manually open `https://github.com/your-username/MaaEnd`; at the top of the page, there will be a yellow prompt bar "xxx had recent pushes", click **Compare & pull request**
-3. Write a clear title about what you changed
-4. If not done, check **Create draft pull request**
-5. Click **Create pull request**
-
 ---
 
 ### Route B: Git Command Line
 
-You've already installed Git in Chapter Two. Open the terminal (right-click in a folder → "Git Bash Here" or "Open in Terminal") and follow along.
+You've already installed Git. Open the terminal (right-click in a folder → "Git Bash Here" or "Open in Terminal") and follow along.
 
-#### B.1 Fork — Copy the Repository to Your Own Name
-
-This step is also done on the webpage:
-
-1. Open the [MaaEnd Repository](https://github.com/MaaEnd/MaaEnd), make sure you're logged in
-2. Click the **Fork** button in the upper right corner, just click **Create fork**
-3. Wait a few seconds, the page will jump to `https://github.com/your-username/MaaEnd`
-
-#### B.2 Clone — Download Locally
+#### B.1 Clone — Download Locally
 
 ```bash
 git clone --recursive https://github.com/your-username/MaaEnd.git
@@ -203,86 +173,12 @@ git submodule update --init --recursive
 
 > **What are submodules?** MaaEnd references external resources (like model files) that are stored in other Git repositories. `--recursive` means "also download the referenced external repositories." Without it, some files will be missing, and subsequent operations won't work.
 
-#### B.3 Branch — Create a Working Branch
-
-```bash
-cd MaaEnd                                    # Enter the repository directory
-git checkout -b feat/your-branch-name               # Create and switch to a new branch
-```
-
-Use English for the branch name, format suggestion `feat/description`, e.g., `feat/add-sell-button`.
-
-> Fork copies the entire repository, Branch creates a working branch within the repository. Never modify things directly on the v2 branch — create a branch, if it gets messed up, delete it, and v2 remains clean and unaffected.
-
-#### B.4 Commit — Save
-
-```bash
-git add .                                                # Stage all changes
-git commit -m "feat(task-name): what you did"                     # Save + write notes
-```
-
-See below for commit message format. If you only want to save specific files, replace `git add .` with `git add file-path`.
-
-#### B.5 Push — Upload to GitHub
-
-```bash
-git push -u origin feat/your-branch-name
-```
-
-**Why `-u`?** Your locally created branch doesn't exist on GitHub yet. `-u` (short for `--set-upstream`) does two things:
-
-1. Creates a remote branch with the same name on GitHub and uploads the local code
-2. Makes the local branch "remember" which remote branch it corresponds to — after this, you can just use `git push` without typing a long command
-
-**What if you forgot to add `-u`?** You'll get an error when pushing:
-
-```text
-fatal: The current branch feat/xxx has no upstream branch.
-```
-
-Don't panic, just type what it suggests:
-
-```bash
-git push --set-upstream origin feat/your-branch-name
-```
-
-The effect is the same as `-u`. After that, you only need `git push`.
-
-#### B.6 Open PR — Request Review
-
-After pushing, open your browser and visit `https://github.com/your-username/MaaEnd`; at the top of the page, there will be a yellow prompt bar "xxx had recent pushes", click **Compare & pull request**. Write a clear title, if not done check **Create draft pull request**, click **Create pull request**.
-
----
-
-### Commit Message Format (Common to Both Routes)
-
-This project follows [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). The format is `type(scope): description`, and the scope is optional. The available types are defined by [`.github/cliff.toml`](../../../.github/cliff.toml); for the full details, including which changelog section each type goes into, see [getting-started.md § 0. Commit Conventions](./getting-started.md#commit-conventions-conventional-commits). Below is a quick reference for the prefixes:
-
-| Prefix | When to use |
-| --- | --- |
-| `feat:` | New features (Pipeline nodes, recognition templates, etc.) |
-| `fix:` | Bug fixes |
-| `refactor:` | Restructuring code without changing behavior |
-| `perf:` | Improving existing behavior (speed, accuracy, fault tolerance, etc.) |
-| `docs:` | Documentation changes only |
-| `style:` | Formatting/whitespace adjustments (doesn't affect code meaning) |
-| `test:` | Adding or changing tests |
-| `ci:` | CI workflows and configuration |
-| `chore:` | Build, auxiliary tools, and other miscellaneous; use `chore(deps):` for dependency updates |
-| `ai:` | AI collaboration such as skills and `AGENTS.md` |
-| `revert:` | Reverting a previous commit |
-
-Examples: `feat(OutpostTrading): Add sell button recognition template`, `fix: Fix startup crash`.
-
 ---
 
 ### 🎯 Checkpoint
 
-> - [ ] Can clone a repository locally
-> - [ ] Can create a branch
-> - [ ] Can commit (write a message that follows the format)
-> - [ ] Can push
-> - [ ] Can open a Draft PR on the GitHub webpage
+> - [ ] Forked MaaEnd on GitHub (copied it to your own name)
+> - [ ] Cloned the copy locally
 
 ---
 
@@ -339,6 +235,8 @@ Examples: `feat(OutpostTrading): Add sell button recognition template`, `fix: Fi
 ```
 
 This is the basic shape of a Pipeline node.
+
+> To read like plain language, the names above are simplified for illustration. Real Pipeline fields have fixed English names (`recognition` / `action` / `next`).
 
 ### 4.4 Three Most Common Beginner Mistakes
 
@@ -400,7 +298,7 @@ This is the basic shape of a Pipeline node.
 
 ## Chapter Five · How Pipelines Run
 
-> This chapter will help you understand Pipelines written by others. After reading, go to `getting-started.md`.
+> This chapter will help you understand Pipelines written by others. The next chapter (Chapter Six) walks you through your first PR; after that, go to `getting-started.md`.
 
 ### 5.1 Core Idea: Look First, Then Act
 
@@ -426,21 +324,20 @@ Each Pipeline node does three things:
 
 ```json
 {
-    "OutpostTradingMain": {
-        "desc": "When on the main screen, recognize the regional development entry and click to enter",
+    "EssenceFilterSwitchTab": {
+        "desc": "Switch to the Weapon Essence tab",
 
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "OutpostTrading/RegionalDevelopmentEntry.png",
+                "template": "EssenceFilter/EssenceTabNotChoose.png",
                 "roi": [
-                    400,
-                    200,
-                    480,
-                    320
+                    350,
+                    0,
+                    500,
+                    80
                 ],
-                "threshold": 0.7,
-                "green_mask": true
+                "threshold": 0.9
             }
         },
 
@@ -450,9 +347,9 @@ Each Pipeline node does three things:
 
         "pre_delay": 0,
         "post_delay": 0,
-        "post_wait_freezes": 100,
+        "post_wait_freezes": 400,
 
-        "next": ["OutpostTradingLoop"]
+        "next": ["EssenceFilterCheckInInventory"]
     }
 }
 ```
@@ -465,19 +362,27 @@ Translated line by line into plain English:
 | `"recognition"` → `"type": "TemplateMatch"` | Recognition method: template matching (find a small image on the screen) |
 | `"template"` | Where the image to find is stored |
 | `"roi"` | Only search within this box — `[top-left x, top-left y, width, height]`, screen top-left corner is the origin |
-| `"threshold": 0.7` | 70% similarity counts as a match |
-| `"green_mask": true` | Green mask: If true, parts of the image you don't want to match are painted green RGB: (0, 255, 0), green areas are skipped during matching |
+| `"threshold": 0.9` | 90% similarity counts as a match |
+| `"green_mask": true` (optional) | Green mask: If true, parts of the image you don't want to match are painted green RGB: (0, 255, 0), green areas are skipped during matching. Not used in this example; only needed when extra patterns in the template interfere |
 | `"action"` → `"type": "Click"` | If recognized, click; defaults to clicking the recognized position |
-| `"pre_delay": 0` | How many milliseconds to wait after recognition, before executing the action. Entry node screen is stable, set to 0 |
+| `"pre_delay": 0` | How many milliseconds to wait after recognition, before executing the action. This node's screen is usually stable, so set to 0 |
 | `"post_delay": 0` | How many milliseconds to wait after executing the action, before recognizing next. Here `post_wait_freezes` is used instead |
-| `"post_wait_freezes": 100` | Wait for the screen to stop moving after executing the action, then wait an additional 100ms. More reliable than a fixed `post_delay` |
-| `"next": ["OutpostTradingLoop"]` | After completion, try each node in next in order, only execute the first one recognized |
+| `"post_wait_freezes": 400` | Wait for the screen to stop moving after executing the action, then wait an additional 400ms. More reliable than a fixed `post_delay` |
+| `"next": ["EssenceFilterCheckInInventory"]` | After completion, try the nodes in next one by one, and stop at the first one that matches |
 
-> Use delay fields only when necessary: `pre_delay` waits for the screen to appear, `post_delay` waits for animations to finish, `post_wait_freezes` waits for the screen to stabilize. Most nodes can be set to 0. OutpostTradingMain is the task entry, the screen itself is stable, so both pre/post_delay are 0.
+> Use delay fields only when necessary: `pre_delay` waits for the screen to appear, `post_delay` waits for animations to finish, `post_wait_freezes` waits for the screen to stabilize. Most nodes can be set to 0. Clicking the node above triggers a tab-switch animation, so `post_wait_freezes: 400` is used to wait until the screen is fully stable.
 >
-> This only breaks down the most commonly used fields; there are many more available in practice — when you encounter unfamiliar ones, search online for **MaaFramework Pipeline Protocol**, the official documentation has a complete list (link in section 5.5).
+> This only breaks down the most commonly used fields; there are many more available in practice — for the complete list of fields, see the [MaaFramework Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol/) (official documentation).
 
-### 5.3 Common Recognition Methods Quick Reference
+### 5.3 Next Step Jump Logic
+
+```json
+"next": ["OutpostTradingSchedule", "OutpostTradingTaskEnd"]
+```
+
+The Pipeline will **try in order** — it tries the first one, only tries the second if the first doesn't match. So **put the most likely state first**: right after the task starts, you are most likely still on the main screen, so `OutpostTradingSchedule` is tried first; if everything has already been sold, `OutpostTradingTaskEnd` is tried next to wrap up the task. The more candidates, the better, so you can hit one in a single "screenshot → recognize → action" cycle.
+
+### 5.4 Common Recognition Methods Quick Reference
 
 | Method | Keyword | When to use |
 | ------------------ | ---------------- | ----------------------------------------------------------------- |
@@ -487,15 +392,17 @@ Translated line by line into plain English:
 | All conditions met | `And` + `all_of` | Multiple conditions all met for a match |
 | Any condition met | `Or` + `any_of` | One condition met is enough |
 
-### 5.4 Next Step Jump Logic
+### 5.5 How to Capture a Recognition Template Yourself
 
-```json
-"next": ["OutpostTradingStartSelling", "OutpostTradingTaskEnd"]
-```
+> Prerequisite: start the MaaEnd client and connect it to your game or emulator first, so the plugin can capture the real game screen.
 
-The Pipeline will **try in order** — it tries the first one, only tries the second if the first doesn't match. So put the most likely state first. The more candidates, the better, so you can hit one in a single "screenshot → recognize → action" cycle.
+1. Screenshots are based on 1280×720 as a baseline/recommended, but no need to manually switch resolution (framework will auto-scale)
+2. In VS Code, `Ctrl+Shift+P` → `Maa: Screenshot` (requires the Maa Pipeline Support plugin)
+3. Select the area you want to recognize on the screenshot
+4. If needed, use a green mask to remove areas that interfere with recognition — paint parts you don't want to match green RGB: (0, 255, 0); green areas are skipped during matching. With the plugin installed, you can paint green directly on the screenshot; don't do it by hand in Photoshop
+5. Save the processed screenshot as a PNG and put it in the `assets/resource/image/your-task-name/` folder (create it if it doesn't exist)
 
-### 5.5 Where to Look Up Detailed Syntax
+### 5.6 Where to Look Up Detailed Syntax
 
 - [MaaFramework Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol/) — Official complete documentation
 - Fastest learning method: Open the JSON files others have written under `assets/resource/pipeline/`, learn line by line
@@ -512,57 +419,131 @@ The Pipeline will **try in order** — it tries the first one, only tries the se
 
 ## Chapter Six · Your First PR (Step-by-Step)
 
-> Task: Contribute a screenshot template to the project — zero programming barrier, anyone can do it.
+> Task: Add a button recognition to the project — one Pipeline node + one template image. No coding needed, anyone can do it.
+>
+> In Chapter Three you already forked and cloned your own copy (`your-username/MaaEnd`). This chapter goes through the whole contribution flow on that copy: create a branch → edit files → commit → push → open a PR. Opening the PR is done on the webpage; for the other steps, both a GitHub Desktop method and a terminal method are given, so pick whichever suits you.
 
-### Step 1: Fork
+### Step 0: Tell Git Who You Are (One-Time Setup)
 
-1. Open the [MaaEnd Repository](https://github.com/MaaEnd/MaaEnd)
-2. Click the **Fork** button in the upper right corner
-3. Don't change anything, just click **Create fork**
+A commit records "who made this save." **If you don't set this up, Git makes do with your computer's name, or refuses to commit and shows an error.** You only need to do this once; after that, it applies to every repository on this computer.
 
-Wait a few seconds, it will jump to `https://github.com/your-username/MaaEnd` — this is your own copy.
+Open the terminal and type the two commands below (replace the text in quotes with your own name and email):
 
-### Step 2: Clone Your Own Repository
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your-email@example.com"
+```
 
-> Forgot what clone means? → [Go back to Chapter 3 to review](#chapter-three--minimum-github-survival-guide)
+> [!IMPORTANT]
+> **Use the email address that is linked to your GitHub account** — GitHub uses the email to attribute commits to accounts: if it matches, the commit shows your avatar and counts toward your contribution stats; if it doesn't, the commit is attached to an "ownerless" account with a blank avatar, and the contribution is not credited to you.
 
-VS Code → `F1` → `Git: Clone` → Enter **the address you forked**, not the original.
+> [!NOTE]
+> **Don't want to expose your real email?** In GitHub → Settings → Emails, check "Keep my email addresses private" to get a noreply address like `12345678+your-username@users.noreply.github.com`. Set `user.email` to it: your commits are still linked to your account, but others can't see your real email.
 
-### Step 3: Create a Branch
+Check that it is set correctly:
 
-Click the branch name in the lower left corner → "Create new branch" → `feat/add-template-xxx`
+```bash
+git config --global user.name
+git config --global user.email
+```
 
-### Step 4: Screenshot + Place Template
+If they print the name and email you just entered, the setup worked.
 
-1. Screenshots are based on 1280×720 as a baseline/recommended, but no need to manually switch resolution (framework will auto-scale)
-2. In VS Code, `Ctrl+Shift+P` → `Maa: Screenshot` (requires Maa Pipeline Support installed)
-3. Select the area you want to recognize on the screenshot
-4. If needed, use a green mask to remove areas that interfere with recognition — paint parts you don't want to match green RGB: (0, 255, 0); green areas are skipped during matching. With VS Code's Maa Pipeline Support plugin, you can paint directly on the screenshot, no need for manual Photoshop
-5. Place the image in `assets/resource/image/your-task-name/`
+> [!TIP]
+> **Already committed before noticing it wasn't set, or set the wrong name?** Run the two commands above again with the correct values, then run `git commit --amend --reset-author` to update the author information of the last commit as well. This only changes the most recent commit.
 
-### Step 5: Commit
+> [!NOTE]
+> **I only commit with GitHub Desktop / VS Code. Do I still need to set this?**
+> GitHub Desktop automatically uses your GitHub account information when committing, so no setup is needed. VS Code uses the git configuration above, so it's safer to set it anyway.
+
+---
+
+### Step 1: Create a Branch
+
+> Fork copies the entire repository, Branch creates a working branch within the repository. v2 is this project's main branch (PRs are opened against it too). Never modify things directly on the v2 branch — create a branch, if it gets messed up, delete it, and v2 remains clean and unaffected.
 
 Choose whichever method is easiest for you:
 
 | Method | Operation |
-| ---------------------------- | -------------------------------------------------------------------------- |
-| VS Code Interface | `Ctrl + Shift + G` → Click `+` to stage → Write commit message → Click `✓` |
-| Terminal (Chapter 3 Route B) | `git add .` then `git commit -m "feat(task-name): what you did"` |
+| --- | --- |
+| GitHub Desktop | Click the branch selection box at the top → **New Branch** → use English for the branch name, format suggestion `feat/description`, e.g., `feat/add-sell-button` → click **Create Branch** |
+| Terminal | In the repository directory, type `git checkout -b feat/add-sell-button` |
 
-### Step 6: Push
+### Step 2: Make the Changes — Write a Node + Make a Template
+
+This change is a pair of files that go together, both under `assets/resource/`:
+
+1. **Template image**: Follow [5.5 How to Capture a Recognition Template Yourself](#55-how-to-capture-a-recognition-template-yourself) to take a screenshot and turn it into a recognition template, save it as a PNG, and put it in the `assets/resource/image/your-task-name/` folder (use an English name, e.g. `OutpostTrading/`; the image could be `SellButton.png`)
+2. **JSON node**: Create `your-task-name.json` under `assets/resource/pipeline/` and write a Pipeline node whose `template` in `recognition` points to the image you just made. What a node looks like and what each field does was just covered in [5.2](#52-breaking-down-a-real-node); just follow it
+
+### Step 3: Commit — Save
+
+Choose whichever method is easiest for you:
 
 | Method | Operation |
-| ---------------------------- | -------------------------------------------------------- |
-| VS Code Interface | Click the "Sync Changes" button in the lower left corner |
-| Terminal (Chapter 3 Route B) | `git push -u origin feat/add-template-xxx` |
+| --- | --- |
+| GitHub Desktop | All changes are listed on the left → check the files → write the commit message in the **Summary** box in the lower left corner → click **Commit to your-branch-name** |
+| Terminal | `git add .` then `git commit -m "feat(task-name): what you did"` |
+| VS Code | `Ctrl + Shift + G` → Click `+` to stage → Write commit message → Click `✓` |
 
-### Step 7: Open PR (On the Webpage)
+Write the message following "Commit Message Format" below, e.g. `feat(OutpostTrading): Add sell button recognition template`.
 
-1. Open [your forked repository](https://github.com/你的用户名/MaaEnd), at the top of the page there will be a yellow prompt bar → click "Compare & pull request"
+### Step 4: Push — Upload to GitHub
+
+Choose whichever method is easiest for you:
+
+| Method | Operation |
+| --- | --- |
+| GitHub Desktop | A **Push origin** button appears at the top; click it |
+| Terminal | `git push -u origin feat/add-sell-button` |
+| VS Code | Click the "Sync Changes" button in the lower left corner |
+
+**Why `-u`?** Your locally created branch doesn't exist on GitHub yet. `-u` (short for `--set-upstream`) does two things:
+
+1. Creates a remote branch with the same name on GitHub and uploads the local code
+2. Makes the local branch "remember" which remote branch it corresponds to — after this, you can just use `git push` without typing a long command
+
+**What if you forgot to add `-u`?** You'll get an error when pushing:
+
+```text
+fatal: The current branch feat/xxx has no upstream branch.
+```
+
+Don't panic, just type what it suggests:
+
+```bash
+git push --set-upstream origin feat/add-sell-button
+```
+
+The effect is the same as `-u`. After that, you only need `git push`. The first push might be slow, after that it's fast.
+
+### Step 5: Open PR (On the Webpage)
+
+1. Open **your forked repository** (`github.com/your-username/MaaEnd`), at the top of the page there will be a yellow prompt bar → click "Compare & pull request"
 2. Confirm the base branch is `v2` (the main branch of the original repository), the head branch is the one you just pushed
 3. Write a clear title: `feat(task-name): Added recognition template for some button`
 4. If not done, select "Create draft pull request"
 5. Click "Create pull request"
+
+### Commit Message Format
+
+This project follows [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). The format is `type(scope): description`, and the scope is optional. The available types are defined by [`.github/cliff.toml`](../../../.github/cliff.toml); for the full details, including which changelog section each type goes into, see [getting-started.md § 0. Commit Conventions](./getting-started.md#commit-conventions-conventional-commits). Below is a quick reference for the prefixes:
+
+| Prefix | When to use |
+| --- | --- |
+| `feat:` | New features (Pipeline nodes, recognition templates, etc.) |
+| `fix:` | Bug fixes |
+| `refactor:` | Restructuring code without changing behavior |
+| `perf:` | Improving existing behavior (speed, accuracy, fault tolerance, etc.) |
+| `docs:` | Documentation changes only |
+| `style:` | Formatting/whitespace adjustments (doesn't affect code meaning) |
+| `test:` | Adding or changing tests |
+| `ci:` | CI workflows and configuration |
+| `chore:` | Build, auxiliary tools, and other miscellaneous; use `chore(deps):` for dependency updates |
+| `ai:` | AI collaboration such as skills and `AGENTS.md` |
+| `revert:` | Reverting a previous commit |
+
+Examples: `feat(OutpostTrading): Add sell button recognition template`, `fix: Fix startup crash`.
 
 ### Then What
 
@@ -573,15 +554,17 @@ Choose whichever method is easiest for you:
 ### Full Process Review
 
 ```text
-Fork the repository
+Fork the repository (done in Chapter Three)
     ↓
-Clone your own repository
+Clone your own copy (done in Chapter Three)
+    ↓
+Tell Git who you are (Step 0, one-time setup)
     ↓
 Create a branch (open your own line)
     ↓
-Screenshot + select recognition area (Maa Pipeline Support plugin)
+Make the template image and put it in assets/resource/image/your-task-name/
     ↓
-Place the image in the corresponding folder under assets/resource/image/
+Write a JSON node that references it (assets/resource/pipeline/your-task-name.json)
     ↓
 Commit (save)
     ↓
@@ -594,10 +577,10 @@ Wait for review ✅
 
 ### 🎯 Checkpoint
 
-> - [ ] Forked MaaEnd
-> - [ ] Cloned it locally
+> Prerequisites (done in Chapter Three): forked your own copy and cloned it locally
+>
 > - [ ] Created a branch
-> - [ ] Placed a screenshot template
+> - [ ] Wrote a JSON node + added a template image
 > - [ ] Commit + Push successful
 > - [ ] See your PR on GitHub
 > - [ ] 🎉 Congratulations! Your first open-source contribution!
@@ -617,14 +600,14 @@ After completing this guide, proceed in order:
 
 > [!NOTE]
 > **External Resources**
-
+>
 > The following links point to independent projects or third-party services outside of MaaEnd, for extended reference.
 
 - [MaaFramework Official Website](https://maafw.com/) — MaaEnd's underlying framework
 - [MaaFramework Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol/) — Detailed syntax for all nodes
 - [DeepWiki — MaaEnd](https://deepwiki.com/MaaEnd/MaaEnd) — AI-driven third-party online documentation browser
 
-Need help?
+## Need Help?
 
 If you encounter something you don't understand, don't panic and don't rush to ask everywhere. Try this order:
 

@@ -116,8 +116,8 @@ Matched when `limit <= current_held_quantity`:
 
 | Timing | Action | Purpose |
 | -------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
-| Task Entry | Option `pipeline_override` (category switch / discount tier select) | When a category is off, its overrides are not collected; a numeric tier rewrites the comparison expression, and the "Any" tier replaces the discount recognition node and reverts `all_of` |
 | Task Entry | `AttachToExpectedRegexAction` | Merge attach → item name OCR regex |
+| Task Entry | Option `pipeline_override` (category switch / discount tier select) | When a category is off, its overrides are not collected; a numeric tier rewrites the comparison expression, and the "Any" tier replaces the discount recognition node and reverts `all_of` |
 | After Item Exclusion | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove attach key and refresh whitelist |
 | Before Confirming Purchase | `AutoStockStapleQuantityControlAction` | Calculate difference and override BetterSliding target quantity |
 

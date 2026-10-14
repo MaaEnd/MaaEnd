@@ -15,9 +15,7 @@
 | `capture.go` | 核心逻辑：控制器分流、注册表读取、OCR、哈希、缓存 |
 | `register.go` | 向 MaaFramework 注册 `CaptureUid` 自定义动作 |
 
-每次需要账号身份时由相关任务调用 `CaptureUid`，并把默认的伪匿名哈希写入通用状态节点
-`CurrentAccountIdentity.attach.account_id`。该节点使用 Resource 级覆盖，使 Go Service 与 cpp-algo
-可以共享当前账号身份；跨进程传递的只有哈希，原始 UID 仍只存在 Go 进程内存中。
+每次需要账号身份时由相关任务调用 `CaptureUid`，并把默认的伪匿名哈希写入通用状态节点 `CurrentAccountIdentity.attach.account_id`。该节点使用 Resource 级覆盖，使 Go Service 与 cpp-algo 可以共享当前账号身份；跨进程传递的只有哈希，原始 UID 仍只存在 Go 进程内存中。
 
 ## 在 Pipeline 中调用
 

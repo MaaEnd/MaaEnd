@@ -15,6 +15,7 @@ flowchart TD
     Components --> SI["in-scene.md"]
     Components --> SM["scene-manager.md"]
     Components --> CU["custom.md"]
+    Components --> Gopkg["go-service-pkg.md"]
     Components --> Comps["components/*.md"]
     Tools --> NT["node-testing.md"]
 ```
@@ -27,8 +28,9 @@ It is recommended to read in the following order:
 4. Master development tools and debugging workflow → `tools-and-debug.md`
 5. Consult coding standards → `coding-standards.md`
 6. When you need to write test sets → `node-testing.md`
-7. When using a specific advanced component → refer to the corresponding documentation under `components/`
-8. When maintaining a specific task → refer to the corresponding documentation under `tasks/`
+7. When writing Go Custom components / reusing the utility packages → `custom.md`, `go-service-pkg.md`
+8. When using a specific advanced component → refer to the corresponding documentation under `components/`
+9. When maintaining a specific task → refer to the corresponding documentation under `tasks/`
 
 > [!WARNING]
 > **You must read the [Coding Standards](./coding-standards.md) before submitting any code.**
@@ -51,6 +53,8 @@ It is recommended to read in the following order:
 | [Components Guide](./components-guide.md) | Project architecture, where to make changes, reusable node directory |
 | [Tools & Debugging](./tools-and-debug.md) | Development tools list, common debugging entry points, community group info |
 | [Node Testing](./node-testing.md) | How to write and run node tests to verify stable recognition hits |
+| [Android Build Environment Setup](./android-build-env.md) | Installing JDK / Android SDK / NDK / Ninja and setting environment variables (for the build steps, see `Android/README.md`) |
+| [Go Service `pkg/` Shared Packages](./go-service-pkg.md) | Common utilities such as And unwrapping, condition evaluation, OCR numbers, i18n / focus / resource reading |
 | [Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol/) | Full text of MaaFramework official Pipeline protocol |
 | [Release Process](./release-process.md) | Release cycle, branch model, where to submit PRs, automation details |
 
@@ -77,6 +81,7 @@ Consult as needed. Only required when using the corresponding component.
 
 | Document | Description |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| [AutoDelivery](./components/auto-delivery.md) | A single entry handles depot pickup and delivery at the destination, and provides stage exit anchors |
 | [AutoFight](./components/auto-fight.md) | In-battle automation module, automatically performs normal attacks, skills, chain skills, etc. |
 | [CharacterController](./components/character-controller.md) | Character view rotation, movement, and automatic movement towards target |
 | [BetterSliding](./components/better-sliding.md) | Common custom action for adjusting discrete quantity sliders by target value |
@@ -100,6 +105,7 @@ Only required when maintaining the corresponding task.
 | [OutpostTrading](./tasks/outpost-trading-maintain.md) | Main flow, zmdmap compact game data sync, automatic operators, and dynamic selling-loop maintenance |
 | [SeizeDeliveryJobs](./tasks/seize-delivery-jobs-maintain.md) | Data-driven endpoint generation, landmark-name maintenance, fallback text, and locale synchronization |
 | [GiftOperator](./tasks/gift-operator-maintain.md) | Navigation pathfinding, contact operator selection, gift giving/receiving branches, and operator extension maintenance |
+| [DeliveryJobs](./tasks/delivery-jobs-maintain.md) | Depot node handling modes, anchor landing rules, bid branches, and cargo packing priority maintenance |
 
 ### Third-Party Protocol Documents (`protocol/`)
 
@@ -117,8 +123,9 @@ Define the format specifications for files written by MaaEnd, for reliable readi
 | Participate for the first time, starting from scratch | [getting-started.md](./getting-started.md) |
 | Understand the project architecture | [components-guide.md](./components-guide.md) |
 | Modify Pipeline nodes | [components-guide.md](./components-guide.md) → [common-buttons.md](./common-buttons.md) / [in-scene.md](./in-scene.md) / [scene-manager.md](./scene-manager.md) |
-| Write or debug Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md) |
+| Write or debug Go Service | [components-guide.md](./components-guide.md) → [custom.md](./custom.md) → [go-service-pkg.md](./go-service-pkg.md) |
 | Consult coding standards | [coding-standards.md](./coding-standards.md) |
+| Prepare the Android build environment (before building an APK) | [android-build-env.md](./android-build-env.md) |
 | Release / Submit PR, which branch to target | [release-process.md](./release-process.md) |
 
 ## Communication
