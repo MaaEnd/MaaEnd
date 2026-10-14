@@ -498,6 +498,7 @@ public:
         ImageProcessingConfig alphaCfg = _isBase ? baseCfg : tierCfg;
         alphaCfg.minimapDarkMaskThreshold = -1; // 禁用暗部剔除
         alphaCfg.useHsvWhiteMask = false;       // 保证路面像素不被白名单剔除
+        alphaCfg.whiteMaskFloor = 255;
 
         feat.mask = GenerateMinimapMask(feat.templRaw, alphaCfg);
         return feat;

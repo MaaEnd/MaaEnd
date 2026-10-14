@@ -78,13 +78,28 @@ pnpm install
 
 ### 提交规范 (Conventional Commits)
 
-本项目的代码提交严格遵循 [约定式提交规范 (Conventional Commits)](https://www.conventionalcommits.org/zh-hans/v1.0.0/)。清晰的 Commit 历史能帮助 Reviewer 快速理解你的意图。每次提交请使用以下前缀：
+本项目的代码提交严格遵循 [约定式提交规范 (Conventional Commits)](https://www.conventionalcommits.org/zh-hans/v1.0.0/)。清晰的 Commit 历史能帮助 Reviewer 快速理解你的意图。
 
-- `feat:` 新增功能（例如：写了新的 Pipeline 节点）
-- `fix:` 修复 Bug（例如：修正了某处 ROI 坐标错误）
-- `docs:` 仅文档更改
-- `style:` 不影响代码含义的更改（空白、格式、缺少分号等）
-- `chore:` 日常构建过程或辅助工具的变动（不涉及生产代码）
+提交标题的格式是 `类型(范围): 描述`。范围可以省略，一般写模块或任务名，会显示在更新日志里。可用的类型以 [`.github/cliff.toml`](../../../.github/cliff.toml) 为准：发版时 git-cliff 按它把提交归入更新日志的各个分组。
+
+| 类型 | 用途 | 更新日志分组 |
+| --- | --- | --- |
+| `feat` | 新增功能（例如：写了新的 Pipeline 节点） | ✨ 新功能 |
+| `fix` | 修复 Bug（例如：修正了某处 ROI 坐标错误） | 🐛 Bug修复 |
+| `refactor` | 重构：调整代码结构，不改变功能 | 🚜 代码重构 |
+| `perf` | 优化现有功能（速度、准确性、容错等） | 🚀 性能优化 |
+| `docs` | 仅文档更改 | 📚 文档 |
+| `style` | 不影响代码含义的更改（空白、格式等） | 🎨 样式 |
+| `test` | 新增或修改测试（例如 `tests/` 下的节点测试） | 🧪 测试 |
+| `ci` | CI 工作流与配置（`.github/workflows/` 等） | ⚙️ 持续集成 |
+| `chore` | 日常构建过程或辅助工具的变动（不涉及生产代码） | 🔧 日常维护 |
+| `chore(deps)` | 依赖升级 | 📦 依赖更新 |
+| `ai` | AI 协作相关：skill（`.agents/skills/`）、`AGENTS.md`、AI 相关工作流等 | 🤖 人工智能 |
+| `revert` | 撤销之前的提交 | ◀️ 撤销 |
+
+- 拼错或大小写不对的类型（如 `pref`、`doc`、`CI`）不会报错，但不会归入本应的分组：git-cliff 会直接用类型名当分组名，在更新日志末尾多出「Pref」这样的分组（见 v2.23.0）。`cliff.toml` 还兼容 `rft`、`styles` 两种旧写法，新提交请用上表的写法。
+- 标题或正文中含有 `[skip changelog]` 的提交不会出现在更新日志里，一般只有 bot 的自动格式化、同步等提交使用。
+- PR 一般以 squash 方式合并：PR 标题成为提交标题，PR 描述成为提交正文。所以 PR 标题也要按上面的格式写，PR 描述里不要出现 `[skip changelog]` 字样。
 
 > **示例**：`feat(OutpostTrading): 新增地区建设自动售卖 Pipeline`
 

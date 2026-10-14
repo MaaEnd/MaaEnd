@@ -9,13 +9,13 @@ description: MaaFramework 日志宏用法指南，适用于 MaaEnd cpp-algo。Us
 
 ## 可用宏
 
-| 宏                                  | 级别                                            |
+| 宏 | 级别 |
 | ----------------------------------- | ----------------------------------------------- |
-| `LogFatal` / `LogError` / `LogWarn` | 错误与警告                                      |
-| `LogInfo` / `LogDebug` / `LogTrace` | 信息与调试                                      |
-| `LogFunc`                           | 函数作用域（进入打 enter，离开打 leave + 耗时） |
-| `VAR(x)`                            | 格式化为 `[x=value]`                            |
-| `VAR_VOIDP(x)`                      | 同上，但将指针转为 `void*` 输出                 |
+| `LogFatal` / `LogError` / `LogWarn` | 错误与警告 |
+| `LogInfo` / `LogDebug` / `LogTrace` | 信息与调试 |
+| `LogFunc` | 函数作用域（进入打 enter，离开打 leave + 耗时） |
+| `VAR(x)` | 格式化为 `[x=value]` |
+| `VAR_VOIDP(x)` | 同上，但将指针转为 `void*` 输出 |
 
 ## 核心原则：不要手动拼字符串
 

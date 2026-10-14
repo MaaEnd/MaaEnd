@@ -6,7 +6,7 @@ This document was updated on July 13, 2026.
 
 ## File Paths
 
-```
+```text
 CreditShopping/
 ├── Flow/                  # Main shopping flow
 │   ├── Entry.json         # Entry detection + whitelist init

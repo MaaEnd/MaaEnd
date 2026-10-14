@@ -264,19 +264,19 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 
 动手前，尽量整理齐以下字段：
 
-| 字段             | 说明                                                               |
+| 字段 | 说明 |
 | ---------------- | ------------------------------------------------------------------ |
-| `TaskLabel`      | 任务名，例如 `路线6：四号谷地-轻红柱状菌`                          |
-| `RouteId`        | 从 `TaskLabel` 解析出的编号，例如 `6`                              |
-| `RouteFile`      | 目标文件名，例如 `AutoCollectRoute6.json`                          |
-| `TemplateRoute`  | 参考路线，例如 `Route6`                                            |
-| `EnterWorldNode` | 第一个传送点，例如 `SceneEnterWorldValleyIVTheHub2`                |
-| `AssertTarget`   | 断言框坐标；若断言点为 `[x, y]`，默认换算为 `[x-10, y-10, 20, 20]` |
-| `ZoneId`         | 通常来自 `path` 第一项 `{"action":"ZONE","zone_id":"..."}`         |
-| `ActionType`     | 固定为 `MapNavigateAction`                                         |
-| `CollectType`    | `Click` 或 `Dig`，决定 `true` 转成 `COLLECT` 还是 `DIG`            |
-| `GotoNode`       | 固定为 `AutoCollectRouteXGoto`                                     |
-| `Path`           | 完整单段路径；采集动作通过 `"COLLECT"` / `"DIG"` 标记表达          |
+| `TaskLabel` | 任务名，例如 `路线6：四号谷地-轻红柱状菌` |
+| `RouteId` | 从 `TaskLabel` 解析出的编号，例如 `6` |
+| `RouteFile` | 目标文件名，例如 `AutoCollectRoute6.json` |
+| `TemplateRoute` | 参考路线，例如 `Route6` |
+| `EnterWorldNode` | 第一个传送点，例如 `SceneEnterWorldValleyIVTheHub2` |
+| `AssertTarget` | 断言框坐标；若断言点为 `[x, y]`，默认换算为 `[x-10, y-10, 20, 20]` |
+| `ZoneId` | 通常来自 `path` 第一项 `{"action":"ZONE","zone_id":"..."}` |
+| `ActionType` | 固定为 `MapNavigateAction` |
+| `CollectType` | `Click` 或 `Dig`，决定 `true` 转成 `COLLECT` 还是 `DIG` |
+| `GotoNode` | 固定为 `AutoCollectRouteXGoto` |
+| `Path` | 完整单段路径；采集动作通过 `"COLLECT"` / `"DIG"` 标记表达 |
 
 其中以下 4 项应优先确认：
 

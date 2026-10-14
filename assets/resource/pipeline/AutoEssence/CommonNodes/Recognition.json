@@ -170,6 +170,27 @@
             }
         }
     },
+    "__AutoEssenceRecoApproachInteractScan": {
+        "desc": "走向激发点时边走边认的交互图标预筛，只给寻路读取 roi/template",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                // 激发行用专属图标，领取 / 放弃行用通用交互图标，任一命中即停车
+                "template": [
+                    "AutoEssence/EssenceTrigger.png",
+                    "MapNavigator/ObstacleDevice/InteractButton.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.75
+            }
+        }
+    },
     "__AutoEssenceRecoEngravePermitInsufficient": {
         "desc": "识别刻写券不足弹窗文案（仅识别）",
         "recognition": {

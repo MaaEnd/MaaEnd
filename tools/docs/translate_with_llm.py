@@ -33,6 +33,11 @@ DOC_LINK_SUFFIXES = {
     ".mdx",
     ".txt",
 }
+# 中文文档引用的中文版外链 -> 对应的英文版，新引用别的中文版页面时在这里加一行
+LOCALIZED_URL_PREFIXES = {
+    "https://www.conventionalcommits.org/zh-hans/": "https://www.conventionalcommits.org/en/",
+    "https://developer.mozilla.org/zh-CN/": "https://developer.mozilla.org/en-US/",
+}
 INLINE_LINK_RE = re.compile(r"(!?\[[^\]\n]+\]\()([^)]+)(\))")
 REFERENCE_LINK_RE = re.compile(r"(?m)^(\s{0,3}\[[^\]\n]+\]:\s*)(\S.*)$")
 HTML_LINK_ATTR_RE = re.compile(r"\b(href|src)=(['\"])(.*?)(\2)", re.IGNORECASE)
@@ -166,6 +171,9 @@ def rewrite_doc_link(destination: str, source_path: Path, target_path: Path) -> 
 
     parsed = urllib.parse.urlsplit(core)
     if parsed.scheme or parsed.netloc:
+        for source_prefix, target_prefix in LOCALIZED_URL_PREFIXES.items():
+            if core.startswith(source_prefix):
+                return join_link_destination(prefix, target_prefix + core[len(source_prefix):], quote, suffix)
         return destination
 
     path = urllib.parse.unquote(parsed.path)

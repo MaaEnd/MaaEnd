@@ -142,18 +142,18 @@ MaaEnd 使用 v2 格式，recognition 和 action 放入二级字典：
 
 ## 常用动作类型
 
-| 动作                   | 用途            | 关键字段                               |
+| 动作 | 用途 | 关键字段 |
 | ---------------------- | --------------- | -------------------------------------- |
-| `Click`                | 点击            | `target`, `target_offset`              |
-| `LongPress`            | 长按            | `target`, `duration`                   |
-| `Swipe`                | 滑动            | `begin`, `end`, `duration`             |
-| `Scroll`               | 滚轮（仅Win32） | `target`, `dx`, `dy`                   |
-| `ClickKey`             | 按键            | `key`（虚拟键码）                      |
-| `InputText`            | 输入文本        | `input_text`                           |
-| `StartApp` / `StopApp` | 启停应用        | `package`                              |
-| `StopTask`             | 停止当前任务链  | 无                                     |
-| `Custom`               | 自定义动作      | `custom_action`, `custom_action_param` |
-| `DoNothing`            | 不执行（默认）  | 无                                     |
+| `Click` | 点击 | `target`, `target_offset` |
+| `LongPress` | 长按 | `target`, `duration` |
+| `Swipe` | 滑动 | `begin`, `end`, `duration` |
+| `Scroll` | 滚轮（仅Win32） | `target`, `dx`, `dy` |
+| `ClickKey` | 按键 | `key`（虚拟键码） |
+| `InputText` | 输入文本 | `input_text` |
+| `StartApp` / `StopApp` | 启停应用 | `package` |
+| `StopTask` | 停止当前任务链 | 无 |
+| `Custom` | 自定义动作 | `custom_action`, `custom_action_param` |
+| `DoNothing` | 不执行（默认） | 无 |
 
 `target` 支持：`true`（当前识别结果）、节点名字符串、`[x, y]`、`[x, y, w, h]`。
 

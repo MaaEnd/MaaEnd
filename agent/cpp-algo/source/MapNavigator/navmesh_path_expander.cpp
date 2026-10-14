@@ -632,6 +632,40 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
     return result;
 }
 
+// 起点脱网时先盲走上去的那个网格点: 盲走预算内、脚下那层上最近的一点。离网不到到点余量的不算脱网, 返回空
+std::optional<navmesh::BaseNavSnapResult> FindStartRecoveryEntry(
+    const NaviParam& param,
+    const CachedNavmesh& navmesh,
+    const std::string& navmesh_zone,
+    const std::string& current_zone,
+    const navmesh::BaseNavRouteRequest& request,
+    std::string* out_error)
+{
+    const navmesh::BaseNavZone* zone = navmesh.pack.findZoneByName(navmesh_zone);
+    if (zone == nullptr) {
+        if (out_error != nullptr) {
+            *out_error = "找不到当前区域的 navmesh";
+        }
+        return std::nullopt;
+    }
+    const double radius = std::max(param.navmesh_snap_radius, kStartRecoveryMaxBlindWalk);
+    // 知道脚下那层的确切高度就按它挑层, 免得走去别层的最近点
+    const float floor_y = request.start_deck_y > navmesh::kBaseNavFloorYValidMin ? request.start_deck_y : request.start_floor_y;
+    const auto entry = navmesh.planner.snap(zone->zone_id, request.start, radius, floor_y);
+    if (!entry) {
+        LogWarn << "NAVMESH start recovery rejected: no mesh point within the blind-walk budget." << VAR(navmesh_zone) << VAR(current_zone)
+                << VAR(request.start.x) << VAR(request.start.y) << VAR(radius);
+        if (out_error != nullptr) {
+            *out_error = std::format("起点在 {:.2f}px 盲走预算内找不到可走网格", radius);
+        }
+        return std::nullopt;
+    }
+    if (entry->distance <= kWaypointArrivalSlack) {
+        return std::nullopt;
+    }
+    return entry;
+}
+
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -641,7 +675,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     std::optional<double> goal_deck_y = std::nullopt,
     std::optional<double> start_floor_y = std::nullopt,
     NavmeshRouteDiagnostic* out_diagnostic = nullptr,
-    std::optional<double> start_deck_y = std::nullopt)
+    std::optional<double> start_deck_y = std::nullopt,
+    std::optional<navmesh::WorldPoint>* out_start_recovery_entry = nullptr)
 {
     const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
     if (navmesh_zone.empty()) {
@@ -670,7 +705,24 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
         start_floor_y,
         start_deck_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
-    const auto route_result = PlanCorridorRoute(*navmesh, request, {}, out_diagnostic);
+    auto route_result = PlanCorridorRoute(*navmesh, request, {}, out_diagnostic);
+    // 要了入口点的调用方, 起点脱网时按开局展开那套起点恢复从网格上的入口点再规划一次, 入口点交给它先盲走过去。
+    // 禁区判掉的不接: 盲走不看可走面, 接手就是径直穿过禁区。搜索半径会随线路的吸附半径放大, 这里只收盲走预算内的入口
+    if (!route_result.ok() && out_start_recovery_entry != nullptr && route_result.status != navmesh::BaseNavRouteStatus::NoGo) {
+        const auto entry = FindStartRecoveryEntry(param, *navmesh, navmesh_zone, locator_zone, request, nullptr);
+        if (entry && entry->distance <= kStartRecoveryMaxBlindWalk) {
+            navmesh::BaseNavRouteRequest recovered = request;
+            recovered.start = entry->point;
+            auto retry = PlanCorridorRoute(*navmesh, recovered, {}, out_diagnostic);
+            if (retry.ok()) {
+                LogInfo << "NAVMESH replan start off mesh; walking onto the nearest mesh point first." << VAR(navmesh_zone)
+                        << VAR(locator_zone) << VAR(start.x) << VAR(start.y) << VAR(entry->point.x) << VAR(entry->point.y)
+                        << VAR(entry->distance);
+                *out_start_recovery_entry = entry->point;
+                route_result = std::move(retry);
+            }
+        }
+    }
     const int64_t plan_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
     if (!route_result.ok()) {
@@ -820,27 +872,8 @@ bool AppendStartRecovery(
     std::vector<Waypoint>& out_path,
     std::string* out_error)
 {
-    const navmesh::BaseNavZone* zone = navmesh.pack.findZoneByName(state.navmesh_zone);
-    if (zone == nullptr) {
-        if (out_error != nullptr) {
-            *out_error = "找不到当前区域的 navmesh";
-        }
-        return false;
-    }
-    const double radius = std::max(param.navmesh_snap_radius, kStartRecoveryMaxBlindWalk);
-    // 知道脚下那层的确切高度就按它挑层, 免得走去别层的最近点
-    const float floor_y = request.start_deck_y > navmesh::kBaseNavFloorYValidMin ? request.start_deck_y : request.start_floor_y;
-    const auto entry = navmesh.planner.snap(zone->zone_id, request.start, radius, floor_y);
+    const auto entry = FindStartRecoveryEntry(param, navmesh, state.navmesh_zone, state.current_zone, request, out_error);
     if (!entry) {
-        LogWarn << "NAVMESH start recovery rejected: no mesh point within the blind-walk budget." << VAR(state.navmesh_zone)
-                << VAR(state.current_zone) << VAR(request.start.x) << VAR(request.start.y) << VAR(radius);
-        if (out_error != nullptr) {
-            *out_error = std::format("起点在 {:.2f}px 盲走预算内找不到可走网格", radius);
-        }
-        return false;
-    }
-
-    if (entry->distance <= kWaypointArrivalSlack) {
         return false;
     }
 
@@ -1532,9 +1565,20 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     std::optional<double> start_floor_y,
     NavmeshRouteDiagnostic* out_diagnostic,
     const std::vector<VirtualNoGoDisc>* no_go,
-    std::optional<double> start_deck_y)
+    std::optional<double> start_deck_y,
+    std::optional<navmesh::WorldPoint>* out_start_recovery_entry)
 {
-    return PlanNavmeshRouteImpl(param, locator_zone, start, goal, no_go, goal_deck_y, start_floor_y, out_diagnostic, start_deck_y);
+    return PlanNavmeshRouteImpl(
+        param,
+        locator_zone,
+        start,
+        goal,
+        no_go,
+        goal_deck_y,
+        start_floor_y,
+        out_diagnostic,
+        start_deck_y,
+        out_start_recovery_entry);
 }
 
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone)

@@ -75,13 +75,28 @@ In addition to basic `add` / `commit` / `push` / `pull`, participating in this p
 
 ### Commit Conventions (Conventional Commits)
 
-Code commits in this project strictly follow the [Conventional Commits specification](https://www.conventionalcommits.org/zh-hans/v1.0.0/). A clear commit history helps Reviewers quickly understand your intent. Use the following prefixes for each commit:
+Code commits in this project strictly follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/). A clear commit history helps Reviewers quickly understand your intent.
 
-- `feat:` A new feature (e.g., wrote a new Pipeline node)
-- `fix:` A Bug fix (e.g., fixed an ROI coordinate error)
-- `docs:` Documentation only changes
-- `style:` Changes that do not affect the meaning of the code (whitespace, formatting, missing semicolons, etc.)
-- `chore:` Changes to the build process or auxiliary tools (does not involve production code)
+The commit title format is `type(scope): description`. The scope is optional; it is usually a module or task name and is shown in the changelog. The available types are defined by [`.github/cliff.toml`](../../../.github/cliff.toml): when a release is published, git-cliff uses it to sort commits into the changelog sections.
+
+| Type | Use for | Changelog section |
+| --- | --- | --- |
+| `feat` | A new feature (e.g., wrote a new Pipeline node) | ✨ 新功能 (New Features) |
+| `fix` | A bug fix (e.g., fixed an ROI coordinate error) | 🐛 Bug修复 (Bug Fixes) |
+| `refactor` | Restructuring code without changing behavior | 🚜 代码重构 (Refactoring) |
+| `perf` | Improving existing behavior (speed, accuracy, fault tolerance, etc.) | 🚀 性能优化 (Performance) |
+| `docs` | Documentation only changes | 📚 文档 (Documentation) |
+| `style` | Changes that do not affect the meaning of the code (whitespace, formatting, etc.) | 🎨 样式 (Style) |
+| `test` | Adding or changing tests (e.g., node tests under `tests/`) | 🧪 测试 (Tests) |
+| `ci` | CI workflows and configuration (`.github/workflows/`, etc.) | ⚙️ 持续集成 (CI) |
+| `chore` | Changes to the build process or auxiliary tools (does not involve production code) | 🔧 日常维护 (Maintenance) |
+| `chore(deps)` | Dependency updates | 📦 依赖更新 (Dependencies) |
+| `ai` | AI collaboration: skills (`.agents/skills/`), `AGENTS.md`, AI-related workflows, etc. | 🤖 人工智能 (AI) |
+| `revert` | Reverting a previous commit | ◀️ 撤销 (Reverts) |
+
+- Misspelled or wrongly-cased types (such as `pref`, `doc` or `CI`) are not rejected, but they do not go into the intended section: git-cliff uses the type itself as the section name, so an extra section such as "Pref" appears at the end of the changelog (see v2.23.0). `cliff.toml` also accepts the legacy spellings `rft` and `styles`; use the types in the table for new commits.
+- Commits whose title or body contains `[skip changelog]` are left out of the changelog. This is normally used only by bot commits such as auto-formatting and syncing.
+- PRs are usually squash-merged: the PR title becomes the commit title and the PR description becomes the commit body. Write the PR title in the same format, and do not put `[skip changelog]` in the PR description.
 
 > **Example**: `feat(OutpostTrading): Add regional construction auto-sell Pipeline`
 

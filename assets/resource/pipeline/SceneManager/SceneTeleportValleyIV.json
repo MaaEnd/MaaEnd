@@ -67,6 +67,40 @@
             }
         }
     },
+    "__ScenePrivateMapValleyIVEnterValleyIVTheHub3": {
+        "desc": "在地图界面找锚点 (枢纽区-南部草甸)",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                612.8,
+                968.1
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "__ScenePrivateMapValleyIVEnterValleyIVValleyPass0": {
         "desc": "在地图界面找锚点 (谷地通道 markInstId=200001240)",
         "recognition": "Custom",

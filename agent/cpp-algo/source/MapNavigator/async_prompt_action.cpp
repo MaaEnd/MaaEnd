@@ -97,14 +97,16 @@ PromptScanProfile DefaultScanProfile(
 
     profile = PromptScanProfile {};
     profile.base_roi = fallback_roi;
-    profile.threshold = kPromptIconMatchThreshold;
     const std::vector<std::filesystem::path> roots = ResourceImageRoots(controller_type);
+    cv::Mat templ;
     if (const std::optional<std::filesystem::path> icon_path = ResolveResourceImage(roots, kPromptIconRelativePath)) {
-        profile.templ = MAA_NS::imread(*icon_path, cv::IMREAD_GRAYSCALE);
+        templ = MAA_NS::imread(*icon_path, cv::IMREAD_GRAYSCALE);
     }
-    if (profile.templ.empty()) {
+    if (templ.empty()) {
         LogError << "Prompt icon template not loaded." << VAR(spec.tag) << VAR(kPromptIconRelativePath) << VAR(DescribeRoots(roots));
+        return profile;
     }
+    profile.icons.push_back(ScanIcon { .templ = std::move(templ), .threshold = kPromptIconMatchThreshold });
     return profile;
 }
 
@@ -319,15 +321,14 @@ void AsyncPromptAction::BuildScanner(const std::string& scan_node)
         LogError << "Points naming this scan node get no pre-filter; they stop on arrival instead." << VAR(spec_.tag) << VAR(scan_node);
         return;
     }
-    if (profile.templ.empty()) {
+    if (profile.icons.empty()) {
         LogError << "Prompt scan template is empty; these points stop on arrival instead." << VAR(spec_.tag) << VAR(scan_node);
         return;
     }
 
-    scanner_ = std::make_unique<RoiTemplateScanner>(spec_.tag, profile.base_roi, profile.templ, profile.mask, profile.threshold);
     LogInfo << "Async prompt scanner started." << VAR(spec_.tag) << VAR(scan_node) << VAR(profile.base_roi.x) << VAR(profile.base_roi.y)
-            << VAR(profile.base_roi.width) << VAR(profile.base_roi.height) << VAR(profile.templ.cols) << VAR(profile.templ.rows)
-            << VAR(profile.threshold);
+            << VAR(profile.base_roi.width) << VAR(profile.base_roi.height) << VAR(profile.icons.size());
+    scanner_ = std::make_unique<RoiTemplateScanner>(spec_.tag, profile.base_roi, std::move(profile.icons));
 }
 
 bool AsyncPromptAction::ConsumeDetection()

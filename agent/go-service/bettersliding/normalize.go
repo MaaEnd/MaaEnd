@@ -7,6 +7,7 @@ import (
 	"math"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -233,9 +234,39 @@ func resolveButtonTarget(ctx *maa.Context, fieldName string, raw any) (buttonTar
 	return buttonTarget{patch: patch}, nil
 }
 
-func normalizeCenterPointOffset(raw any) ([2]int, error) {
+// resolveControlType 返回归一化后的控制器类型（见 pkg/control），取不到时返回空串。
+// 归一化后 ADB、CloudADB、原生安卓与 PlayCover 都是 "adb"，与 resource_adb 的挂载范围一致。
+func resolveControlType(ctx *maa.Context) string {
+	if ctx == nil || ctx.GetTasker() == nil {
+		return ""
+	}
+
+	ctrl := ctx.GetTasker().GetController()
+	if ctrl == nil {
+		return ""
+	}
+
+	controlType, err := control.ResolveControlType(ctrl)
+	if err != nil {
+		// 解析失败不阻断流程，按桌面端默认值继续。
+		log.Debug().Err(err).Msg("failed to resolve control type")
+		return ""
+	}
+	return controlType
+}
+
+// defaultCenterPointOffset 返回当前控制器的默认点击偏移。
+// 移动端控制器通过触控坐标缩放上报点位，按识别框中心直接点击会落到滑块右侧，实测需再左移 15px。
+func defaultCenterPointOffset(controlType string) [2]int {
+	if controlType == control.CONTROL_TYPE_ADB {
+		return defaultCenterPointOffsetMobile
+	}
+	return defaultCenterPointOffsetDesktop
+}
+
+func normalizeCenterPointOffset(raw any, fallback [2]int) ([2]int, error) {
 	if raw == nil {
-		return defaultCenterPointOffset, nil
+		return fallback, nil
 	}
 
 	numbers, err := normalizeIntSlice(raw)

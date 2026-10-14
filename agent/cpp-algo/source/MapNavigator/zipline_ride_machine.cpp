@@ -482,6 +482,7 @@ StageResult ZiplineRideMachine::TickOnTower(IZiplineActuator& actuator, Clock::t
     }
     ResetStableHeading();
     yaw_response_ratio_.reset();
+    aim_budget_ms_.reset();
     pitch_lowered_ = false;
     // 俯仰读不回来, 每次发射前都先拉到上限, 从这个已知位置开环往下调
     if (!actuator.ResetPitchToMaximum()) {
@@ -550,8 +551,9 @@ std::optional<double> ZiplineRideMachine::IssueYawTurn(IZiplineActuator& actuato
 StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
-    if (StageElapsedMs(now) > kZiplineAimHeadingTimeoutMs) {
-        LogWarn << "zipline/aim/timeout" << VAR(returning_) << VAR(turn_pending_) << VAR(stable_heading_hits_);
+    const int32_t budget_ms = aim_budget_ms_.value_or(kZiplineAimHeadingTimeoutMs);
+    if (StageElapsedMs(now) > budget_ms) {
+        LogWarn << "zipline/aim/timeout" << VAR(returning_) << VAR(turn_pending_) << VAR(stable_heading_hits_) << VAR(budget_ms);
         return FailAim(actuator, "zipline/aim/timeout", now);
     }
     if (turn_pending_ && ElapsedMs(turn_sent_at_, now) < kWaitAfterFirstTurnMs) {
@@ -570,6 +572,11 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
     const double target_heading = NaviMath::CalcTargetRotation(obs.fix->x, obs.fix->y, target_.x, target_.y) + bias
                                   + (sweep_pending ? std::copysign(kZiplineAimSweepLeadDeg, bias) : 0.0);
     const double residual = NaviMath::NormalizeAngle(target_heading - heading);
+    if (!aim_budget_ms_) {
+        const int64_t elapsed_ms = StageElapsedMs(now);
+        aim_budget_ms_ = std::max(kZiplineAimHeadingTimeoutMs, static_cast<int32_t>(elapsed_ms) + TurnBudgetMs(residual));
+        LogInfo << "zipline/aim/budget" << VAR(residual) << VAR(elapsed_ms) << VAR(*aim_budget_ms_);
+    }
     if (std::abs(residual) > kZiplineAimToleranceDeg) {
         const std::optional<double> issued = IssueYawTurn(actuator, heading, residual, now);
         if (!issued) {
@@ -596,6 +603,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
             LogInfo << "zipline/aim/sweep" << VAR(target_heading) << VAR(heading) << VAR(bias) << VAR(pitch_target);
             // 横扫是新一段闭环, 重新计时
             stage_entered_at_ = Clock::now();
+            aim_budget_ms_.reset();
             ResetStableHeading();
             return {};
         }
@@ -752,9 +760,9 @@ double ZiplineRideMachine::ResidualToExitAim() const
     return NaviMath::NormalizeAngle(target_heading - last_fix_->angle);
 }
 
-int32_t ZiplineRideMachine::ExitAimBudgetMs(double residual) const
+int32_t ZiplineRideMachine::TurnBudgetMs(double residual) const
 {
-    return kZiplineExitAimBudgetBaseMs + static_cast<int32_t>(std::lround(std::abs(residual) * kZiplineExitAimBudgetPerDegMs));
+    return kZiplineTurnBudgetBaseMs + static_cast<int32_t>(std::lround(std::abs(residual) * kZiplineTurnBudgetPerDegMs));
 }
 
 StageResult ZiplineRideMachine::StartExitAim(const HopCompleted& done, Clock::time_point now)
@@ -762,7 +770,7 @@ StageResult ZiplineRideMachine::StartExitAim(const HopCompleted& done, Clock::ti
     ResetStableHeading();
     yaw_response_ratio_.reset();
     exit_aim_ = *plan_.exit_aim;
-    exit_aim_budget_ms_ = ExitAimBudgetMs(ResidualToExitAim());
+    exit_aim_budget_ms_ = TurnBudgetMs(ResidualToExitAim());
     pending_exit_ = done;
     EnterStage(ZiplineStage::ExitAiming, now);
     LogInfo << "zipline/exit_aim/begin" << VAR(exit_aim_.x) << VAR(exit_aim_.y) << VAR(exit_aim_budget_ms_)

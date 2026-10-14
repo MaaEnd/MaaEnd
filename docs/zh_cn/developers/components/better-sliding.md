@@ -88,7 +88,7 @@
 | `SliderQuantityFilter` | `string` 或 `object` | 否 | 当前滑条数量 OCR 预处理使用的颜色过滤（ColorMatch）识别参数，覆盖 `BetterSlidingSliderQuantityFilter` 节点，并通过 `color_filter` 链接到滑条数量节点。默认不配置。 |
 | `AvailableQuantity` | `string` 或 `object` | 否 | 可用总量 OCR 识别参数，覆盖并启用 `BetterSlidingGetAvailableQuantity`。仅当完全不提供 `AvailableQuantity`（或写 `null`）时，才使用滑条终点值作为计算基准。 |
 | `AvailableQuantityFilter` | `string` 或 `object` | 否 | 可用总量 OCR 预处理使用的颜色过滤（ColorMatch）识别参数，覆盖 `BetterSlidingAvailableQuantityFilter` 节点。默认不配置。 |
-| `CenterPointOffset` | `int[2]` | 否 | 相对滑块识别框中心点的点击偏移 `[x, y]`，负数向左/上，正数向右/下。默认 `[-10, 0]`。 |
+| `CenterPointOffset` | `int[2]` | 否 | 相对滑块识别框中心点的点击偏移 `[x, y]`，负数向左/上，正数向右/下。默认按控制器取值：桌面端（Win32 / macOS / Linux）为 `[-10, 0]`，移动端（ADB / CloudADB / PlayCover）为 `[-12, 0]`。 |
 | `ClampTargetToSliderMax` | `bool` | 否 | 为 `true` 时，若目标超过 `sliderMaxQuantity`，则钳制为滑条最大可选数量继续执行。默认 `false`。 |
 | `OutOfRangeOverrideEnable` | `string` | 否 | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true` 并返回成功；未配置该字段（默认 `""`）时，本次动作直接返回失败。 |
 | `TargetReachableOverrideEnable` | `string` | 否 | 当解析后的目标无需钳制且位于 `[1, sliderMaxQuantity]` 时，将指定 Pipeline 节点的 `enabled` 设为 `true`。默认 `""`。 |

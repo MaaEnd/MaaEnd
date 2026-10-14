@@ -762,6 +762,8 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
 
     const navmesh::WorldPoint start { .x = position_->x, .y = position_->y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
+    // 被挤出网格(搬设备、卡墙脱困之后)时路线从网格上的入口点规划, 先直着走上入口点
+    std::optional<navmesh::WorldPoint> start_recovery_entry;
     const auto route = WithPlanningPause(motion_controller_, &runtime_state_, session_, [&] {
         return PlanNavmeshRoute(
             param_,
@@ -772,13 +774,18 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
             session_->WalkedFloorY(*position_),
             nullptr,
             &runtime_state_.virtual_no_go,
-            session_->LandedTowerDeckY(*position_));
+            session_->LandedTowerDeckY(*position_),
+            &start_recovery_entry);
     });
     if (!route) {
         return false;
     }
 
     std::vector<Waypoint> generated_prefix;
+    if (start_recovery_entry) {
+        generated_prefix.emplace_back(start_recovery_entry->x, start_recovery_entry->y, ActionType::RUN);
+        generated_prefix.back().strict_arrival = false;
+    }
     if (!AppendGeneratedNavmeshWaypoints(
             param_,
             position_->zone_id,
@@ -2465,10 +2472,9 @@ bool NavigationStateMachine::TryZiplineMountPrompt(const Waypoint& waypoint, con
             LogWarn << "Zipline mount pre-filter not started; the chain stops on arrival instead." << VAR(kZiplineMountScanNode);
             return false;
         }
-        zipline_mount_scanner_ =
-            std::make_unique<RoiTemplateScanner>("zipline", profile.base_roi, profile.templ, profile.mask, profile.threshold);
         LogInfo << "Zipline mount pre-filter started." << VAR(kZiplineMountScanNode) << VAR(profile.base_roi.x) << VAR(profile.base_roi.y)
-                << VAR(profile.threshold);
+                << VAR(profile.icons.size());
+        zipline_mount_scanner_ = std::make_unique<RoiTemplateScanner>("zipline", profile.base_roi, std::move(profile.icons));
     }
     if (zipline_mount_scanner_ == nullptr) {
         return false;
