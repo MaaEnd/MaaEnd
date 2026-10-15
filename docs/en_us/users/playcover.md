@@ -51,11 +51,7 @@ PlayCover support is making steady progress alongside ADB support. We have almos
 In the Connection Settings at the top right of the MaaEnd window, select the `PlayCover` controller, and enter the text inside the square brackets of the game's title bar as the connection address, e.g. `localhost:<port>`.
 
 ### Launch the game automatically
-<!--
-> [!WARNING]
-> 
-> An issue in the upstream GUI client prevents PlayCover from launching the game automatically and starting tasks. This has to wait until the [fix PR](https://github.com/MistEO/MXU/pull/377) is merged into the main branch and synced downstream.
--->
+
 Add the `Special Tasks` - `Pre-Program` task, and in `Program Path` enter the path of the game's Unix executable, not the .app path. For example, `/Users/<username>/Library/Containers/io.playcover.PlayCover/Applications/com.hypergryph.endfield.app/Endfield`.
 
 ### Close the game automatically
