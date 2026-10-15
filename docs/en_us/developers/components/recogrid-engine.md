@@ -18,7 +18,7 @@ flowchart LR
 | Module | Owns | Does not own |
 | --- | --- | --- |
 | `RecoGrid` | Rows, columns, cell rectangles, occupancy, pHash, and comparison features for one image | Frame history, scroll order, business quality, clicks |
-| `GridTracker` | Adjacent-frame alignment, global coordinates, deduplication, order, and end confirmation | Image segmentation, template loading, Pipeline routing |
+| `GridTracker` | Adjacent-frame alignment, global row/column indices, deduplication, order, and end confirmation | Image segmentation, template loading, Pipeline routing |
 | `EssenceGrid` | Essence quality, lock/discard thumbnails, pending queue, and Maa callbacks | Skill OCR, match rules, actual UI actions |
 | Go `essencefilter` | OCR normalization, target combination matching, Lock/Discard/Skip decisions | Grid recognition and button clicks |
 | Pipeline | Screenshot timing, clicks, swipes, waits, and post-action verification | Image algorithms and match data structures |
@@ -148,11 +148,11 @@ EssenceGrid processes only tracker `new_cells`:
 
 After Pipeline clicks a cell, OCR nodes read the three skills and their levels. Go's `runUnifiedSkillDecision` only decides the branch:
 
-- target matched: go to `LockItem`;
-- no match and discarding enabled: go to `DiscardItem`;
+- target matched: go to `EssenceFilterLockItem`;
+- no match and discarding enabled: go to `EssenceFilterDiscardItem`;
 - otherwise: return to `EssenceGridAdvance`.
 
-Pipeline owns the actual button recognition, clicking, and `CheckLocked` / `CheckDiscarded` verification. Go must not route directly to a post-action check node, because doing so skips the operation.
+Pipeline owns the actual button recognition, clicking, and `EssenceFilterCheckLocked` / `EssenceFilterCheckDiscarded` verification. Go must not route directly to a post-action check node, because doing so skips the operation.
 
 ## Controller differences
 

@@ -65,18 +65,18 @@ A full delivery usually only needs the exit after submission:
 
 ## Zipline Configuration
 
-Depot and destination navigation both run with `zip: false` by default. To allow ziplines, have a task option override the full `custom_action_param` of the two fixed recognition nodes, without modifying `AutoDelivery.next`:
+Depot and destination navigation both run with `zip: false` by default. To allow ziplines, have a task option override `attach.zip` of the two fixed navigation nodes, without modifying `AutoDelivery.next`:
 
 ```json
 {
     "pipeline_override": {
-        "AutoDeliveryRecognizeDepot": {
-            "custom_action_param": {
+        "AutoDeliveryNavigateDepot": {
+            "attach": {
                 "zip": true
             }
         },
-        "AutoDeliveryRecognizeDestination": {
-            "custom_action_param": {
+        "AutoDeliveryNavigateDestination": {
+            "attach": {
                 "zip": true
             }
         }
@@ -84,7 +84,7 @@ Depot and destination navigation both run with `zip: false` by default. To allow
 }
 ```
 
-`pipeline_override` replaces `custom_action_param` at the field level, so the full parameters the node needs must be provided. `AutoDeliveryRecognizeDepot` and `AutoDeliveryRecognizeDestination` are not execution entries, but their node names are part of the configuration contract used by task options. Allowing ziplines only means MapNavigator may choose a zipline when appropriate; it does not guarantee that the actual route will use one.
+On the Go side, `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` read the `attach.zip` of these two nodes respectively and pick the plain or the zipline-enabled generated route node accordingly. `AutoDeliveryNavigateDepot` and `AutoDeliveryNavigateDestination` are not execution entries, but their node names are part of the configuration contract used by task options. Allowing ziplines only means MapNavigator may choose a zipline when appropriate; it does not guarantee that the actual route will use one.
 
 ## Component Maintenance
 
@@ -198,6 +198,6 @@ After changing data, recognition, or flow, regenerate the routes and the runtime
 pnpm generate:AutoDelivery
 ```
 
-Run `pnpm check` / `pnpm test` as needed: run `pnpm test` locally when the change includes `tests/**`, and otherwise leave validation to PR CI; see the [coding standards](../coding-standards.md#pre-submission-check) for details.
+Run `pnpm check` / `pnpm test` as needed: run `pnpm test` locally when the change includes `tests/**`, and if you also changed `assets/**` or `tools/schema/**`, run `pnpm check` as well; otherwise leave validation to PR CI. See the [coding standards](../coding-standards.md#pre-submission-check) for details.
 
 Static checks and node tests cannot replace in-game verification. After adding a region or changing an interaction screen, the paths for recovery before pickup, recovery after pickup, pickup position correction, NPC hand-in, and non-NPC hand-in still need to be verified one by one.

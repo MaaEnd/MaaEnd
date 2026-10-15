@@ -15,7 +15,7 @@ When submitting a Bug Report, you **must** provide the following information:
 ### 📂 Logs
 
 - **Location**: `debug` folder.
-    - Tip: Click the 🗄️ icon in the upper right corner of the "Run Logs" panel to export directly.
+    - Tip: Click the 🗄️ icon in the upper right corner of the "Logs" panel to export directly.
 - **Action**: Please upload the exported `MaaEnd-logs-xxx.zip` file.
     - ❌ Do not copy and send the text content.
     - ❌ Do not take screenshots of the logs.

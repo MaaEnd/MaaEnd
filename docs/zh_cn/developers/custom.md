@@ -33,7 +33,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### SubTask
 
-`SubTask` 实现位于 `agent/go-service/subtask`，用于顺序执行一组子任务。
+`SubTask` 实现位于 `agent/go-service/common/subtask`，用于顺序执行一组子任务。
 
 - 参数：
     - `sub: string[]`：子任务名列表，必填。
@@ -41,7 +41,7 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `strict?: bool`：某个子任务失败时当前 Action 是否返回失败，默认 `true`。
     - `random_choice?: int`：若指定且大于 `0`，则先将 `sub` 列表随机打乱，再从中挑选不超过该数量的子任务执行；超过列表长度时按列表长度处理。默认不随机，按原顺序执行全部子任务。
 
-    执行前会先剔除 `sub` 中无法解析或 `enabled` 为 `false` 的子任务节点（未显式声明 `enabled` 的节点视为启用），随后才进行随机挑选与执行。若过滤（及随机挑选）后没有可执行的子任务，当前 Action 不视为失败，仅记录一条 warn 日志并返回成功。
+    执行前会先剔除 `sub` 中无法解析或 `enabled` 为 `false` 的子任务节点（未显式声明 `enabled` 的节点视为启用），随后才进行随机挑选与执行。若过滤后没有可执行的子任务，当前 Action 记录一条 error 日志并返回失败。
 
 示例文件：[`SubTask.json`](../../../assets/resource/pipeline/Interface/Example/SubTask.json)
 
@@ -70,7 +70,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### ClearHitCount
 
-`ClearHitCount` 实现位于 `agent/go-service/clearhitcount`，用于清除指定节点的命中计数。
+`ClearHitCount` 实现位于 `agent/go-service/common/clearhitcount`，用于清除指定节点的命中计数。
 
 - 参数：
     - `nodes: string[]`：要清理的节点名列表，必填。
@@ -179,7 +179,9 @@ Action 节点用于执行自定义动作。常见写法如下：
 `AttachToExpectedRegexAction` 实现位于 `agent/go-service/common/attachregex`，用于通用地读取目标节点自身 `attach` 中的关键词，并把合并后的白名单正则写回该目标 OCR 节点的 `expected`。
 
 - 参数：
-    - `target: string`：目标节点名（将被覆盖 `expected`），必填。
+    - `target: string` / `targets: string[]`：目标节点名（将被覆盖 `expected`），至少填一个；`targets` 可一次处理多个节点。
+    - `substring?: bool`：可选，默认 `false`，生成精确匹配 `^(…)$`；为 `true` 时生成子串匹配 `.*(…).*`。
+    - `keywords?: string`：可选。改用该字符串生成正则（按 `,`、`，`、`;`、`；`、`、` 和空白拆分并去重），不读取 `attach`。
 
 处理规则：
 
@@ -202,7 +204,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 兼容性说明：
 
 - 信用点商店已切换为直接使用 `AttachToExpectedRegexAction`。
-- 若需要覆盖多个目标节点，建议在 Pipeline 中拆成多个 `Custom` 节点并通过 `next` 串联。
+- 需要覆盖多个目标节点时，用 `targets` 一次处理。
 - 若多个节点需要相同白名单，应在任务配置中分别把同一份 `attach` 写入各自节点。
 - 其他任务也建议优先使用通用名，避免与具体业务耦合。
 
@@ -284,6 +286,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 - `expression: string`：必填。表达式最终必须计算为布尔值。
 - `box_node?: string`：可选。命中后返回哪个识别节点的结果框；若该节点是 `And`，则会先执行该节点，再按其原生 `box_index` 从本次识别返回结果中直接读取对应子识别结果的框。
+- `focus_matched_resolved_expression?: bool` / `focus_unmatched_resolved_expression?: bool`：可选，默认 `false`。为 `true` 时，命中 / 未命中后通过 `maafocus` 输出代入数值后的表达式（如 `120<300 匹配`）。
 
 占位规则：
 
@@ -420,7 +423,7 @@ Pipeline 组织：把本识别放在滑动节点**之前**；命中走「到底�
 }
 ```
 
-检测算法由两个滚动条 Recognition 共享：在 ROI 的每一行查找 `min(R, G, B) >= 200` 的白色像素，填补最长 2 行的内部断点，再从长度至少 5px 的连续段中选择最长段。
+检测算法由两个滚动条 Recognition 共享：对 ROI 每一行取最亮 3 个像素的 `min(R, G, B)` 均值，与 ROI 左右各 3px 背景的中位数比较，归一化增亮比例 `>= 0.45` 的行记为滑块行；填补最长 2 行的内部断点后，从长度至少 5px 的连续段中选择累计对比度最高的一段。
 
 ```json
 {
@@ -542,7 +545,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 
 ### ScheduleRecognition
 
-`ScheduleRecognition` 实现位于 `agent/go-service/common/schedule`，用于按星期几判断当前任务是否应继续执行。它只返回识别是否命中，不在 Go 中直接运行子任务；后续流程应通过 Pipeline 的 `next` 组织。
+`ScheduleRecognition` 实现位于 `agent/go-service/common/schedule`，用于按星期几判断当前任务是否应继续执行（按游戏日计算，本地时间每天 04:00 前算作前一天）。它只返回识别是否命中，不在 Go 中直接运行子任务；后续流程应通过 Pipeline 的 `next` 组织。
 
 - 参数：无。
 - `attach` 字段（写在当前识别节点中，可以在任务配置中合并）：
@@ -554,7 +557,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
     - `saturday: bool` — 周六是否执行。
     - `sunday: bool` — 周日是否执行。
 
-省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会发出一条“今日跳过”的本地化提示并返回未命中。
+省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会通过 `maafocus` 输出本地化提示（`schedule.skip_today`）并返回未命中。
 
 ## 小结
 

@@ -64,7 +64,7 @@ flowchart TD
     RB --> Back["DeliveryJobsBackToDepot\nWaits until back in the overworld (InWorld)"]
     Quick --> Back
     Back -->|"[Anchor]DeliveryJobsGoToDepot"| Land{"Where to go after accepting (differs by mode)"}
-    Land -->|Accept and Transfer / Accept Job Only| LandScene["This depot node's scene\nAfter loop re-entry, entry A triggers the transfer"]
+    Land -->|Accept and Transfer / Accept Job Only| LandScene["This depot node's scene\n'Accept and Transfer': entry A transfers after loop re-entry; 'Accept Job Only': no transfer"]
     Land -->|Fully Automatic Delivery| LandAuto["DeliveryJobsAutoDelivery{Depot}, see 'Fully Automatic Delivery'"]
     Land -->|Handle by Bid| LandRT["DeliveryJobsReturnAndTransfer{Depot} or DeliveryJobsAutoDelivery{Depot}\nDecided by the bid branch, see 'Handle by Bid'"]
 ```
@@ -85,8 +85,8 @@ Each depot node has one `select`, defaulting to "Accept and Transfer". The six m
 A few points that are easy to misread:
 
 - **The transfer of "Accept and Transfer" is not part of the packing flow.** After packing and accepting, the flow only returns to the depot node; the actual transfer is triggered when the next round of the region loop hits entry A (which recognizes `查看任务` (Check Mission)), so the same depot node may be visited twice in one run.
-- **"Accept Job Only" and "Pack Cargo Only" achieve "no transfer" by disabling entry A**, not by a check in the flow; so under these two modes, delivery jobs the depot node already has are not touched at all.
-- **The packing recognition of "Pack Cargo Only" accepts only `货物装箱` (Pack Goods)**, not `查看报价` (Check Bid): the entry shows `货物装箱` when the cargo box is already full, and shows `查看报价` only when it is not full.
+- **"Accept Job Only" and "Pack Cargo Only" achieve "no transfer" by disabling entry A**, not by a check in the flow; so under these two modes, delivery jobs the depot node already has are never transferred; both modes still reach the Redistribution Bid screen, though, so a seized job in hand is still always delivered, see [Leftover Delivery Jobs](#leftover-delivery-jobs).
+- **The packing recognition of "Pack Cargo Only" accepts only `货物装箱` (Pack Goods)**, not `查看报价` (Check Bid): the entry shows `查看报价` when the cargo box is already full, and shows `货物装箱` only when it is not full.
 - **"Do Not Process" does not override the leftover-job dispatch node**; it takes the template default `DeliveryJobsSkipOngoingDelivery` (see [Leftover Delivery Jobs](#leftover-delivery-jobs)).
 - **The handling mode also decides where leftover jobs go**: `deliveryEnabled` / `cargoEnabled` only toggle the entries; the leftover-job action of the same select is written separately by the generator into `DeliveryJobsOngoingDeliveryFor{Depot}.next` (see [Leftover Delivery Jobs](#leftover-delivery-jobs)).
 
@@ -96,8 +96,8 @@ Within the same depot node, there are two independent paths for "handing over th
 
 | # | Trigger | Nodes passed through | When this path is taken |
 | --- | --- | --- | --- |
-| 1 | After loop re-entry, entry A `查看任务` (Check Mission) is hit | `DeliveryJobsClickTransferJob` → `DeliveryJobsConfirmTaskTransfer` | When entry A is enabled and the depot node still has `max_hit` quota left |
-| 2 | The Redistribution Bid screen detects cargo already awaiting delivery | `DeliveryJobsOngoingDelivery` → `DeliveryJobsEnsureOngoingDeliveryMission` → `DeliveryJobsWaitOngoingMissionDetail`: **first decide whether this job can be transferred** (`转交运送委托` (Transfer Delivery Job) in the details = a job accepted by "Accept and Transfer"; absent = a seized job). Only a transferable job goes through `DeliveryJobsOngoingDeliveryFor{Depot}` according to the mode of the depot node it belongs to ("Accept and Transfer" → `DeliveryJobsTransferOngoingJob`; "Fully Automatic Delivery" and "Handle by Bid" → `DeliveryJobsAutoDelivery{DepotId}`; any other mode → `DeliveryJobsSkipOngoingDelivery`); a seized job always goes through `DeliveryJobsTransferUnavailable` → `DeliveryJobsDeliverOngoingByAutoDelivery` to be delivered | When the job in hand has not been handed over yet and the flow enters this depot node's packing / Redistribution Bid flow again |
+| 1 | After loop re-entry, entry A `查看任务` (Check Mission) is hit | `DeliveryJobsClickTransferJob` → `DeliveryJobsConfirmTaskTransfer` | Under "Accept and Transfer", when entry A is enabled and the depot node still has `max_hit` quota left ("Fully Automatic Delivery" re-points entry A's `next` to delivery) |
+| 2 | The Redistribution Bid screen detects cargo already awaiting delivery | `DeliveryJobsOngoingDelivery` → `DeliveryJobsEnsureOngoingDeliveryMission` → `DeliveryJobsWaitOngoingMissionDetail`: **first decide whether this job can be transferred** (`转交运送委托` (Transfer Delivery Job) in the details = a normally accepted job; absent = a seized job). Only a transferable job goes through `DeliveryJobsOngoingDeliveryFor{Depot}` according to the mode of the depot node it belongs to ("Accept and Transfer" → `DeliveryJobsTransferOngoingJob`; "Fully Automatic Delivery" and "Handle by Bid" → `DeliveryJobsAutoDelivery{DepotId}`; any other mode → `DeliveryJobsSkipOngoingDelivery`); a seized job always goes through `DeliveryJobsTransferUnavailable` → `DeliveryJobsDeliverOngoingByAutoDelivery` to be delivered | When the job in hand has not been handed over yet and the flow enters this depot node's packing / Redistribution Bid flow again |
 
 ### `DeliveryJobsEnter{Depot}PriceDeliveryJob`
 
@@ -131,7 +131,7 @@ flowchart TD
 
 Implementation notes:
 
-- The threshold is injected into `ExpressionRecognition.expression` with `pipeline_type: string`; the actual comparisons are `{DeliveryJobsSelectedBidPrice}>=<threshold>` and `{DeliveryJobsSelectedBidPrice}<{threshold}`. **`pipeline_type` must stay `string`**: setting it to `int` tries to convert the whole expression into an integer, which ends up as `null`.
+- The threshold is injected into `ExpressionRecognition.expression` with `pipeline_type: string`; the actual comparisons are `{DeliveryJobsSelectedBidPrice}>={threshold}` and `{DeliveryJobsSelectedBidPrice}<{threshold}`. **`pipeline_type` must stay `string`**: setting it to `int` tries to convert the whole expression into an integer, which ends up as `null`.
 - Each of the two actions is one of four, and the values are **not shared** with the depot node handling modes: `Accept and Transfer` / `Fully Automatic Delivery` / `Accept Job Only` / `Do Not Process`; there are no "Handle by Bid" or "Pack Cargo Only" values.
 - **"How to accept" is expressed by the node's `next`; "where to go after accepting" is expressed only by `DeliveryJobsGoToDepot`.** The three "accept" actions share the same `DeliveryJobsRedistributionBidNextStep` and differ only in the anchor value: `DeliveryJobsReturnAndTransfer{Depot}` (return to the depot node and transfer), `DeliveryJobsAutoDelivery{Depot}` (hand over to fully automatic delivery), or this depot node's scene (just go back).
 - These overrides are written by the options directly into the `next` and `anchor.DeliveryJobsGoToDepot` of `DeliveryJobs{Depot}QuoteAtLeastMinimum` / `DeliveryJobs{Depot}QuoteBelowMinimum`. "Do Not Process" points `next` at `DeliveryJobsCloseRedistributionBid`; the flow then does not pass through `DeliveryJobsBackToDepot`, and `DeliveryJobsGoToDepot` plays no part.
@@ -147,11 +147,11 @@ When `有待运送的货物，请先完成送货` (Finish the ongoing delivery f
 flowchart TD
     Bid{"DeliveryJobsInCargoRedistributionBid\nRedistribution Bid screen"} -->|Cargo awaiting delivery detected| Ong["DeliveryJobsOngoingDelivery"]
     Ong --> Ensure["DeliveryJobsEnsureOngoingDeliveryMission\nSubTask AutoDeliveryEnsureDeliveryMissionSelected\nEnters the Missions screen and selects that delivery job"]
-    Ensure --> Wait{{"DeliveryJobsWaitOngoingMissionDetail\nAnd(AutoDeliveryInDeliveryMissionDetail)\n+ pre_wait_freezes 200ms\nWaits for the details to settle before deciding whether the job can be transferred"}}
-    Wait -->|"Details show 转交运送委托 (Transfer Delivery Job)\n= a job accepted by 'Accept and Transfer'"| Chk["DeliveryJobsCheckTransferJobAvailable"]
+    Ensure --> Wait["DeliveryJobsWaitOngoingMissionDetail\nAnd(AutoDeliveryInDeliveryMissionDetail)\n+ pre_wait_freezes 200ms\nWaits for the details to settle before deciding whether the job can be transferred"]
+    Wait -->|"Details show 转交运送委托 (Transfer Delivery Job)\n= a normally accepted job"| Chk["DeliveryJobsCheckTransferJobAvailable"]
     Wait -->|"No transfer button in the details\n= a seized job, always delivered"| Unavail["DeliveryJobsTransferUnavailable → DeliverOngoingByAutoDelivery\nStops the task if it cannot be delivered"]
     Chk --> Resolve["DeliveryJobsResolveOngoingDepot\nAnd(AutoDeliveryInDeliveryMissionDetail, AutoDeliveryCheckAreaText)\nGo: DeliveryJobsResolveOngoingDepotAction"]
-    Resolve -.->|"Overrides next to DeliveryJobsOngoingDeliveryFor{DepotId} at runtime"| For{{"DeliveryJobsOngoingDeliveryFor{DepotId}\nOnly overrides next (handling mode), declares no jump-back landing point"}}
+    Resolve -.->|"Overrides next to DeliveryJobsOngoingDeliveryFor{DepotId} at runtime"| For["DeliveryJobsOngoingDeliveryFor{DepotId}\nOnly overrides next (handling mode), declares no jump-back landing point"]
     For -->|Accept and Transfer| T["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode"]
     For -->|Fully Automatic Delivery / Handle by Bid| A["DeliveryJobsAutoDelivery{DepotId} → DeliverByAutoDelivery → [Anchor]AfterAutoDelivery"]
     For -->|The other three| S["DeliveryJobsSkipOngoingDelivery → [Anchor]ReturnToDepotNode"]
@@ -172,7 +172,7 @@ The table above applies only to **transferable jobs**: seized jobs have already 
 >
 > **Leftover jobs under "Handle by Bid" skip the bid check and go straight to fully automatic delivery.** An accepted job no longer has a bid to look at, and skipping it would keep blocking the Redistribution Bid screen, so later depot nodes could not even accept new jobs; only depot nodes that have no assigned destination in `delivery_destinations.json` have nowhere to deliver to, and only those fall back to `DeliveryJobsSkipOngoingDelivery` (all five current depot nodes have destinations, so this branch takes effect only when a depot node without a destination is added). An automatic delivery failure is still handled by the `on_error` of the shared call node `DeliveryJobsDeliverByAutoDelivery`: by default the task stops; with "Auto-transfer job after delivery fails" turned on, the job is transferred and the run continues.
 >
-> **Seized jobs are always delivered, regardless of depot node configuration.** The game does not allow a delivery job obtained by seizing jobs (🏍️Accept Commission & Delivery) to be transferred again: its job details have no `转交运送委托` (Transfer Delivery Job), only `开始追踪` (Track). Once `DeliveryJobsWaitOngoingMissionDetail` concludes "no button", the flow goes through `DeliveryJobsTransferUnavailable` → `DeliveryJobsDeliverOngoingByAutoDelivery` to deliver it; if the delivery fails, the task stops and outputs "Automatic delivery could not reach the destination". Normally accepted jobs are not affected by this (they can still be transferred even when the cargo is already in hand), so this is not a generic fallback for "cargo in hand" but a branch specific to the seizing path. This rule has the same origin as the way the seize task handles a job already in hand: the `next` of `SeizeDeliveryJobsHandleOngoingJob` is likewise "transfer if there is a transfer button, otherwise hand over to the post-processing option" (it can run into a transfer button because it may also be handling a job accepted by "Accept and Transfer").
+> **Seized jobs are always delivered, regardless of depot node configuration.** The game does not allow a delivery job obtained by seizing jobs (🏍️Accept Commission & Delivery) to be transferred again: its job details have no `转交运送委托` (Transfer Delivery Job), only `开始追踪` (Track). Once `DeliveryJobsWaitOngoingMissionDetail` concludes "no button", the flow goes through `DeliveryJobsTransferUnavailable` → `DeliveryJobsDeliverOngoingByAutoDelivery` to deliver it; if the delivery fails, the task stops and outputs "Automatic delivery could not reach the destination". Normally accepted jobs are not affected by this (they can still be transferred even when the cargo is already in hand), so this is not a generic fallback for "cargo in hand" but a branch specific to the seizing path. This rule has the same origin as the way the seize task handles a job already in hand: the `next` of `SeizeDeliveryJobsHandleOngoingJob` is likewise "transfer if there is a transfer button, otherwise hand over to the post-processing option" (it can run into a transfer button because it may also be handling a normally accepted job).
 >
 > **The page must settle before deciding whether a job can be transferred.** Whether the transfer button is present decides between two destinations at once, "handle by depot node configuration" and "always deliver": deciding while the page is still rendering would treat a job that should be transferred as a seized one and deliver it directly. So after `DeliveryJobsEnsureOngoingDeliveryMission`, the flow first passes through `DeliveryJobsWaitOngoingMissionDetail` (`And(AutoDeliveryInDeliveryMissionDetail)` + `pre_wait_freezes 200ms` on the details area), and only once the page has settled does `DeliveryJobsCheckTransferJobAvailable` decide — the same idea as the gate node `DeliveryJobsWait{Depot}DeliveryMissionDetail` on the edge from entry A.
 
@@ -199,7 +199,7 @@ The detection message is output by `DeliveryJobsOngoingDelivery` when it recogni
 flowchart TD
     EJob{{"DeliveryJobsEnter{Depot}DeliveryJob\nThis mode overrides next to\nDeliveryJobsWait{Depot}DeliveryMissionDetail"}} --> Wait["DeliveryJobsWait{Depot}DeliveryMissionDetail\nAnd(AutoDeliveryInDeliveryMissionDetail)\n+ pre_wait_freezes 200ms\nWaits for the job details screen to settle"]
     Wait --> AutoD
-    GoTo{{"[Anchor]DeliveryJobsGoToDepot\n= DeliveryJobsAutoDelivery{Depot} (entry after packing and accepting)"}} --> AutoD
+    GoTo{"[Anchor]DeliveryJobsGoToDepot\n= DeliveryJobsAutoDelivery{Depot} (entry after packing and accepting)"} --> AutoD
     AutoD{{"DeliveryJobsAutoDelivery{Depot}\nsets AfterAutoDelivery = this region's loop\nsets ReturnToDepotNode = this region's depot node scene"}} --> ByAuto["DeliveryJobsDeliverByAutoDelivery\nSubTask AutoDelivery (strict)\nOn failure, outputs 'Automatic delivery could not reach the destination'"]
     ByAuto -->|Success| Done{"[Anchor]DeliveryJobsAfterAutoDelivery\nBack to this region's loop node"}
     ByAuto -->|"Failure: switch off (default)"| Stop["Stops the whole task"]
@@ -229,7 +229,7 @@ flowchart TD
     Loop -->|Found| Item["DeliveryJobsSelectItemToFill{Region}Priority{n}\nIconRecognition (grid_type=shipment)"]
     Item --> Fill["DeliveryJobsFillCorrespondingGoods\nClicks the far right of the progress bar to fill to max"]
     Loop -->|"Still not found after swiping up screen by screen to the bottom of the list"| Bottom["DeliveryJobsItemListAtBottom"]
-    Fill -->|Not full| Next{"[Anchor]DeliveryJobsNextPriority"}
+    Fill -->|Full not recognized| Recheck["DeliveryJobsRecheckCargoFilledAfterSettle"] -->|Still not full| Next{"[Anchor]DeliveryJobsNextPriority"}
     Bottom --> Next
     Next -->|Configured slots remain| Start
     Next -->|No configured slot works| Err["DeliveryJobsConfiguredFillItemsInsufficient\nStops on the packing screen with an error"]
@@ -252,7 +252,7 @@ The shared nodes of DeliveryJobs do not know which depot node they are serving, 
 | `DeliveryJobsRedistributionBidAction` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsInCargoRedistributionBid` | Redistribution Bid screen |
 | `DeliveryJobsAfterAcceptJob` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsRedistributionBidNextStep` | Redistribution Bid screen (after clicking Confirm to accept) |
 | `DeliveryJobsCurrentPriorityItem` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsSelectPriorityItemLoop` | Packing item list |
-| `DeliveryJobsNextPriority` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsFillCorrespondingGoods`, `DeliveryJobsItemListAtBottom` | Packing item list |
+| `DeliveryJobsNextPriority` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsRecheckCargoFilledAfterSettle`, `DeliveryJobsItemListAtBottom` | Packing item list |
 | `DeliveryJobsAfterAutoDelivery` | `DeliveryJobs{Region}Loop`, `DeliveryJobsAutoDelivery{Depot}` | `DeliveryJobsDeliverByAutoDelivery`, `DeliveryJobsDeliverOngoingByAutoDelivery` | Screen after the delivery ends |
 
 For every anchor in the table except `DeliveryJobsReturnToDepotNode`, the reader is a shared node used across depot nodes or across regions, and the value changes with the declarer: `DeliveryJobsSelectPriorityItems` takes the local region's priority entry, `DeliveryJobsRedistributionBidAction` and `DeliveryJobsAfterAcceptJob` change with the depot node's handling mode, and `DeliveryJobsGoToDepot` changes with where the flow goes after accepting.
@@ -268,7 +268,7 @@ The rule is: **the jump-back belongs to the region loop that started the travers
 | `DeliveryJobs{Region}Loop` | Local region's depot node scene | Loop entry: used by flows in the current iteration that have not passed through a more specific declarer |
 | `DeliveryJobsEnter{Depot}DeliveryJob` | `InLocalDepotNode` | The transfer is started on the depot node screen, so after it only the screen load needs to be awaited |
 | `DeliveryJobsEnter{Depot}PriceDeliveryJob` | `InLocalDepotNode` | Same as above (bid-qualified path) |
-| `DeliveryJobsEnter{Depot}Cargo` | Local region's depot node scene | Enters packing from the Missions screen; it supplies the landing point of `DeliveryJobsSkipOngoingDelivery` |
+| `DeliveryJobsEnter{Depot}Cargo` | Local region's depot node scene | Enters packing from the depot node screen and, when it meets a leftover job, switches to the Missions screen to handle it; it supplies the landing point of `DeliveryJobsSkipOngoingDelivery` |
 | `DeliveryJobsAutoDelivery{Depot}` | Local region's depot node scene | Transfer after a fully automatic delivery failure, which has to exit from the Missions screen |
 
 There are two consumers, both of the "return to the depot node after leaving the Missions screen" kind: `DeliveryJobsConfirmTaskTransfer` (transfer confirmation) and `DeliveryJobsSkipOngoingDelivery` (skipping a leftover job that is not handled).
@@ -304,7 +304,7 @@ The old global "Accept Jobs Only" and "Pack Cargo Only" switches have been repla
 ## Known Limitations
 
 - **Under "Handle by Bid", each depot node transfers at most once per run through `DeliveryJobsEnter{Depot}PriceDeliveryJob`.** The node carries `max_hit: 1` and is called only by `DeliveryJobsReturnAndTransfer{Depot}`; when the bid qualifies and the action is "Accept and Transfer", this node completes the transfer. If the transfer does not happen this time (the bid action is "Accept Job Only", or that quota has already been used up in this run), the job becomes a leftover job and, the next time `有待运送的货物` (cargo awaiting delivery) is recognized, is handed to `DeliveryJobsAutoDelivery{Depot}` to be delivered, so it does not occupy the Redistribution Bid screen for long — but the cost is that the job really gets delivered, and since "Fully Automatic Delivery" is only available on depot nodes with an assigned destination, depot nodes without a destination still take the skip path. This item is inferred from the node configuration and has not yet been confirmed on a real device.
-- The text list of `DeliveryJobsCheck{Depot}Cargo.expected` exists twice, once in `depot-template.jsonc` and once in `ALL_CARGO_EXPECTED` / `PACK_CARGO_EXPECTED` of `task-template.mjs`: the option override always takes effect, and the template copy is only visible when debugging the Pipeline directly, so **when you change one, sync the other**.
+- The text list of `DeliveryJobsCheck{Depot}Cargo.expected` exists twice, once in `depot-template.jsonc` and once in `ALL_CARGO_EXPECTED` / `PACK_CARGO_EXPECTED` of `task-template.mjs`: "Fully Automatic Delivery" does not override it, so that mode runs with the template copy, while the other modes that enable the cargo entry override it through the option, so **when you change one, sync the other**.
 - The default bid threshold `119000` likewise exists twice, in the template expression and in the option `default`.
 
 ## Generator and Maintenance
@@ -314,7 +314,7 @@ For generation, data sources, and the steps for adding a region or depot node, s
 | File | Responsibility |
 | --- | --- |
 | `DeliveryJobs/PackCargo.json` | Packing, the Redistribution Bid screen, bid actions, leftover-job handling, returning to the depot node |
-| `DeliveryJobs/TransferJob.json` | Wait for the details to settle → decide whether this job can be transferred (transfer button present = accepted by "Accept and Transfer", continue according to the owning depot node's configuration; absent = seized, hand over to `DeliveryJobsDeliverOngoingByAutoDelivery`) → click transfer → confirm transfer → jump according to `DeliveryJobsReturnToDepotNode` |
+| `DeliveryJobs/TransferJob.json` | Wait for the details to settle → decide whether this job can be transferred (transfer button present = accepted normally, continue according to the owning depot node's configuration; absent = seized, hand over to `DeliveryJobsDeliverOngoingByAutoDelivery`) → click transfer → confirm transfer → jump according to `DeliveryJobsReturnToDepotNode` |
 | `DeliveryJobs/AutoDelivery.json` | `DeliveryJobsDeliverByAutoDelivery` (normal fully automatic delivery; after a failure, the switch decides whether to transfer) and `DeliveryJobsDeliverOngoingByAutoDelivery` (fallback delivery of leftover jobs; a failure stops the task), the two call sites of fully automatic delivery |
 | `DeliveryJobs.json` | Task entry and main loop (generated, but changes to the flow structure go into `core-template.jsonc`) |
 
@@ -332,4 +332,4 @@ Change checklist:
 - Adding an anchor to a shared node → make sure that, anywhere after all declarers and before the consumers, it never overwrites the initiator's value.
 - Changing an anchor value or a node name → search the whole repository for the old value; `assets/tasks/DeliveryJobs.json`, `tools/pipeline-generate/DeliveryJobs/README.md`, and tests may hard-code it.
 - Changing what an option overrides → overriding `anchor` / `next` replaces them as a whole, so take care not to miss fields.
-- Before submitting, run at least `pnpm check` and `pnpm test`.
+- Before submitting, formatting is all you need by default; run `pnpm test` locally when the change includes `tests/**`, and if you also changed `assets/**` or `tools/schema/**`, run `pnpm check` as well; otherwise leave `pnpm check` / `pnpm test` to PR CI — see the [coding standards](../coding-standards.md#pre-submission-check).

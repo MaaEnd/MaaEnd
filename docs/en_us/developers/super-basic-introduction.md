@@ -2,7 +2,7 @@
 
 > **Who is this document for?**
 >
-> You opened [Getting Started](./getting-started.md), saw `git clone`, `pnpm install`, `Pipeline`, `PR`... and are completely lost, not knowing where to start.
+> You opened [Quick Start](./getting-started.md), saw `git clone`, `pnpm install`, `Pipeline`, `PR`... and are completely lost, not knowing where to start.
 >
 > This document is for you — it doesn't teach you to write code; it teaches you "how to understand what others are talking about."
 >
@@ -100,13 +100,13 @@ corepack enable pnpm
 
 The project's underlying logic depends on Go for compilation and execution, so **it must be installed**. Good news: you don't need to learn Go syntax or write Go code; just install it and leave it. Go to [go.dev](https://go.dev/) to download and install (1.25.6+). The part of the project written in Go is under `agent/go-service/`; you don't need to touch it for now.
 
-> Everything installed above (Node / uv / Go / pnpm) **just needs to be installed for now** — Chapter Three only needs Git; the rest won't be used until you actually run the project.
+> Everything installed above (Node / uv / Go / pnpm) **just needs to be installed for now** — Chapter Three only needs Git and VS Code; the rest won't be used until you actually run the project.
 
 ### 🎯 Checkpoint
 
 > - [ ] Git is installed
 > - [ ] Can open the terminal (can `cd` and `ls`)
-> - [ ] VS Code is installed, recommended plugins installed
+> - [ ] VS Code is installed (recommended plugins come after cloning)
 > - [ ] `node --version` has output
 > - [ ] `pnpm --version` has output
 > - [ ] `uv --version` has output
@@ -175,10 +175,13 @@ git submodule update --init --recursive
 
 ---
 
+After cloning, both routes are the same: open the project folder in VS Code now, search `@recommended` in the Extensions view, and install the recommended plugins mentioned in [2.3](#23-vs-code).
+
 ### 🎯 Checkpoint
 
 > - [ ] Forked MaaEnd on GitHub (copied it to your own name)
 > - [ ] Cloned the copy locally
+> - [ ] Opened the project in VS Code and installed the recommended plugins
 
 ---
 
@@ -305,13 +308,13 @@ This is the basic shape of a Pipeline node.
 Each Pipeline node does three things:
 
 ```text
-┌─────────────────┐
+┌──────────────────────────────────┐
 │  Recognize (Look at the screen)  │  "Is what I'm looking for on the screen?"
-├─────────────────┤
-│  Act (Do something)    │  "Yes? Then click/swipe/press it!"
-├─────────────────┤
-│  Next Step (Jump)  │  "Then go to which node to continue?"
-└─────────────────┘
+├──────────────────────────────────┤
+│  Act (Do something)              │  "Yes? Then click/swipe/press it!"
+├──────────────────────────────────┤
+│  Next Step (Jump)                │  "Then go to which node to continue?"
+└──────────────────────────────────┘
 ```
 
 > [!WARNING]
@@ -367,7 +370,7 @@ Translated line by line into plain English:
 | `"action"` → `"type": "Click"` | If recognized, click; defaults to clicking the recognized position |
 | `"pre_delay": 0` | How many milliseconds to wait after recognition, before executing the action. This node's screen is usually stable, so set to 0 |
 | `"post_delay": 0` | How many milliseconds to wait after executing the action, before recognizing next. Here `post_wait_freezes` is used instead |
-| `"post_wait_freezes": 400` | Wait for the screen to stop moving after executing the action, then wait an additional 400ms. More reliable than a fixed `post_delay` |
+| `"post_wait_freezes": 400` | After the action, wait until the recognized area has shown no significant change for 400 ms in a row, then continue. More reliable than a fixed `post_delay` |
 | `"next": ["EssenceFilterCheckInInventory"]` | After completion, try the nodes in next one by one, and stop at the first one that matches |
 
 > Use delay fields only when necessary: `pre_delay` waits for the screen to appear, `post_delay` waits for animations to finish, `post_wait_freezes` waits for the screen to stabilize. Most nodes can be set to 0. Clicking the node above triggers a tab-switch animation, so `post_wait_freezes: 400` is used to wait until the screen is fully stable.
@@ -377,10 +380,10 @@ Translated line by line into plain English:
 ### 5.3 Next Step Jump Logic
 
 ```json
-"next": ["OutpostTradingSchedule", "OutpostTradingTaskEnd"]
+"next": ["EssenceFilterSwitchTab", "EssenceFilterInitNormalize", "[JumpBack]SceneEnterMenuValuables"]
 ```
 
-The Pipeline will **try in order** — it tries the first one, only tries the second if the first doesn't match. So **put the most likely state first**: right after the task starts, you are most likely still on the main screen, so `OutpostTradingSchedule` is tried first; if everything has already been sold, `OutpostTradingTaskEnd` is tried next to wrap up the task. The more candidates, the better, so you can hit one in a single "screenshot → recognize → action" cycle.
+The Pipeline will **try in order** — it tries the first one, and only tries the second if the first doesn't match. The list above is the `next` of `EssenceFilterMain`, the node before the one in 5.2: in the Valuables Vault with the Weapon Essence tab not yet selected, `EssenceFilterSwitchTab` matches and clicks it; with the tab already selected, `EssenceFilterInitNormalize` matches; only when neither matches (for example, you are not in the Valuables Vault) does the fallback `[JumpBack]SceneEnterMenuValuables` run: it enters the Valuables Vault, then comes back and tries the list in order again. So **put the most likely state first** and the fallback jump last. The more candidates, the better, so you can hit one in a single "screenshot → recognize → action" cycle.
 
 ### 5.4 Common Recognition Methods Quick Reference
 
@@ -394,10 +397,10 @@ The Pipeline will **try in order** — it tries the first one, only tries the se
 
 ### 5.5 How to Capture a Recognition Template Yourself
 
-> Prerequisite: start the MaaEnd client and connect it to your game or emulator first, so the plugin can capture the real game screen.
+> Prerequisite: start the game or emulator first and connect to it from the plugin's control panel, so the plugin can capture the real game screen.
 
 1. Screenshots are based on 1280×720 as a baseline/recommended, but no need to manually switch resolution (framework will auto-scale)
-2. In VS Code, `Ctrl+Shift+P` → `Maa: Screenshot` (requires the Maa Pipeline Support plugin)
+2. In VS Code, `Ctrl+Shift+P` → `Maa: open crop tool` (requires the Maa Pipeline Support plugin)
 3. Select the area you want to recognize on the screenshot
 4. If needed, use a green mask to remove areas that interfere with recognition — paint parts you don't want to match green RGB: (0, 255, 0); green areas are skipped during matching. With the plugin installed, you can paint green directly on the screenshot; don't do it by hand in Photoshop
 5. Save the processed screenshot as a PNG and put it in the `assets/resource/image/your-task-name/` folder (create it if it doesn't exist)
@@ -421,7 +424,7 @@ The Pipeline will **try in order** — it tries the first one, only tries the se
 
 > Task: Add a button recognition to the project — one Pipeline node + one template image. No coding needed, anyone can do it.
 >
-> In Chapter Three you already forked and cloned your own copy (`your-username/MaaEnd`). This chapter goes through the whole contribution flow on that copy: create a branch → edit files → commit → push → open a PR. Opening the PR is done on the webpage; for the other steps, both a GitHub Desktop method and a terminal method are given, so pick whichever suits you.
+> In Chapter Three you already forked and cloned your own copy (`your-username/MaaEnd`). This chapter goes through the whole contribution flow on that copy: create a branch → edit files → commit → push → open a PR. Opening the PR is done on the webpage; for creating the branch, committing and pushing, both a GitHub Desktop method and a terminal method are given (committing and pushing can also be done in VS Code), so pick whichever suits you.
 
 ### Step 0: Tell Git Who You Are (One-Time Setup)
 
@@ -494,9 +497,9 @@ Choose whichever method is easiest for you:
 
 | Method | Operation |
 | --- | --- |
-| GitHub Desktop | A **Push origin** button appears at the top; click it |
+| GitHub Desktop | On the first push of a new branch, the button at the top reads **Publish branch**; click it. Later pushes use **Push origin** |
 | Terminal | `git push -u origin feat/add-sell-button` |
-| VS Code | Click the "Sync Changes" button in the lower left corner |
+| VS Code | On the first push of a new branch, click **Publish Branch** in the Source Control view; later pushes use "Sync Changes" |
 
 **Why `-u`?** Your locally created branch doesn't exist on GitHub yet. `-u` (short for `--set-upstream`) does two things:
 

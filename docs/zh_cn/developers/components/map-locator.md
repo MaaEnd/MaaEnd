@@ -146,7 +146,7 @@ MapLocator 属于 Recognition 层，只负责坐标与方位识别，不接管�
 
 > [!TIP]
 >
-> 该节点适合作为 `MapNavigateAction` 的入口判定：先确认角色位于预期区域，再开始整段导航。配套工具的 `断言模式` 可直接框选导出该节点，见 [MapNavigator](./map-navigator.md)。
+> 该节点适合作为 `MapNavigateAction` 的入口判定：先确认角色位于预期区域，再开始整段导航。配套工具的 `断言` 模式可直接框选导出该节点，见 [MapNavigator](./map-navigator.md)。
 
 ---
 

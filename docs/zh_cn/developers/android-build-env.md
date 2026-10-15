@@ -105,7 +105,7 @@ uv run tools/build_android_agents.py --check-env
 
 > [!WARNING]
 >
-> **光装好还不够，SDK 路径必须配上。** 不配的话体检第一项就会报 `ANDROID_HOME / ANDROID_SDK_ROOT is not set`。
+> **光装好还不够，SDK 路径必须配上。** 不配的话体检的 Android SDK 一项就会报 `ANDROID_HOME / ANDROID_SDK_ROOT is not set`。
 
 ---
 
@@ -125,6 +125,7 @@ Android build environment check
   Windows AMD64, python 3.14.2
 
 OK  environment ready: JDK 17+, Android SDK, Android NDK, CMake >= 3.28, Ninja, Go, MaaUtils submodule
+run: uv run tools/build_android_agents.py
 ```
 
 第二行是你自己的系统和 Python 版本（macOS 上会是 `Darwin arm64`），**不用和上面完全一致**。

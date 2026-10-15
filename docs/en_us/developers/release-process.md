@@ -73,7 +73,7 @@ Daily     Beta (vX.Y.Z-beta.N) → Based on v2 (No Beta on Thursdays; RC is rele
 
 1. Create a fix branch based on `release/vX.Y`, commit the fix.
 2. Submit a PR to `release/vX.Y` and merge it.
-3. CI automatically cherry-picks to `v2`, resulting in a PR on v2 with the message `fix: cherry-pick #N from release/vX.Y to v2` — **just merge it directly**.
+3. CI automatically cherry-picks to `v2`, resulting in a PR on v2 titled `<original PR title> (cherry-pick of #N)` — **just merge it directly**.
 4. Create a new tag on the release branch (e.g., `v2.16.1`) to trigger the release.
 
 ### Handling Conflicts in Cherry-pick PRs

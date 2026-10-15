@@ -27,7 +27,7 @@ _Custom code is usually only maintainable by the original author. If even the au
 
 ### Naming: PascalCase
 
-Node names use PascalCase, prefixed with the task name or module name within the same task. For example, `ResellMain`, `DailyProtocolPassInMenu`, `RealTimeAutoFightEntry`.
+Node names use PascalCase, prefixed with the task name or module name within the same task. For example, `AutoSellPressStockRedistribution`, `DailyProtocolPassInMenu`, `RealTimeAutoSkipEntry`.
 
 ### Prohibit Hard Delays
 
@@ -88,7 +88,7 @@ If you truly run into a problem that cannot be solved (such as the game's own an
 
 ### Handling Pop-ups and Loading
 
-A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, loading can be waited through, and it can automatically jump past when not in the target scenario.
+A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, loading can be waited through, and when it is not in the target scene it can automatically navigate there.
 
 Common practice is to add to `next`:
 
@@ -168,10 +168,10 @@ pnpm test          # Node testing
 ```
 
 - Changes that include `tests/**` content (new or modified test cases, test screenshots, `hits` / `box` expectations) → **run `pnpm test` locally first**; if you also changed `assets/**` or `tools/schema/**`, run `pnpm check` as well.
-- Other changes (Pipeline, Go, Cpp, docs, etc.) → no need to run these two commands locally; CI validates them after you open a PR, so just follow the CI status.
+- Other changes (Pipeline, Go, Cpp, docs, etc.) → no need to run these two commands locally; follow the relevant CI after opening a PR (Go is checked by `go-check.yml`; docs-only changes trigger no PR CI).
 - When you want to check something locally (for example, debugging the hit rate of a recognition node or confirming the scope of a change), you can run either command on its own at any time.
 
-How CI maps to these commands: `pnpm check` + `uv run tools/validate_schema.py` ([`check.yml`](../../../.github/workflows/check.yml)), `pnpm test` ([`test.yml`](../../../.github/workflows/test.yml), triggered when `assets/**` or `tests/**` changes), `pnpm format:all` ([`format.yml`](../../../.github/workflows/format.yml), scheduled full formatting with automatic commits).
+How CI maps to these commands: `pnpm check` + `uv run tools/validate_schema.py` ([`check.yml`](../../../.github/workflows/check.yml)), `pnpm test` ([`test.yml`](../../../.github/workflows/test.yml), triggered when `assets/**`, `tests/**` or `agent/cpp-algo/**` changes), `pnpm format:all` ([`format.yml`](../../../.github/workflows/format.yml), scheduled full formatting with automatic commits).
 
 ## Supporting Files
 
@@ -208,7 +208,7 @@ When adding, modifying, renaming, or removing either type of Custom component de
 - Do not create an empty parameter Schema for a component with no parameters or one that intentionally accepts arbitrary values
 - Do not modify `tools/schema/pipeline.schema.json`; it already references both Custom Schemas
 
-> MXU is a GUI for end-users and is not recommended for daily development and debugging. The above development tools can greatly improve development efficiency.
+> MXU is a GUI for end-users and is not recommended for daily development and debugging. The [development tools](./tools-and-debug.md#development-tools) can greatly improve development efficiency.
 
 ## Debug Workflow
 
@@ -248,7 +248,7 @@ uv run build-and-install --cpp-algo
 
 ### Resolution: 720p Base
 
-All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. MaaFramework automatically converts based on the user's device at runtime. It is recommended to use the above development tools for screenshots and coordinate conversion.
+All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. MaaFramework automatically converts based on the user's device at runtime. It is recommended to use the [development tools](./tools-and-debug.md#development-tools) for screenshots and coordinate conversion.
 
 ### HDR / Color Management
 
@@ -271,7 +271,7 @@ Developers do not need to manually maintain multi-language OCR; just write the e
 
 ### Writing Requirements
 
-- `expected` should contain the complete text, not just a fragment. For example, write "This is an example content" instead of just "example content."
+- `expected` should contain the complete text, not just a fragment. For example, write `这是一段示例内容` (a piece of sample text) instead of just `示例内容` (sample text).
 - Only when the OCR engine is unstable in recognizing complete text (e.g., containing percent signs, special symbols, easily confused characters) and it is truly necessary to use fragments or handwritten regular expressions for stable matching is skipping automatic processing allowed. **Truncation is not a default method but a fallback.**
 
 Requirements:

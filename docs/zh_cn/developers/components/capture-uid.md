@@ -58,11 +58,11 @@
 | `use_cache` | `bool` | `true` | 缓存中有 UID 时直接返回，不再读取注册表或执行 OCR。 |
 | `stay_on_current_screen` | `bool` | `true` | 仅影响非 Win32：为 `false` 时先调用 `SceneEnterMenuOperationalManual`，再截图 OCR。 |
 | `allow_unknown` | `bool` | `true` | 注册表读取、区服判定或 OCR 失败时返回 `"unknown"` 而非报错。为 `false` 时失败将导致动作失败。 |
-| `clear_cache` | `bool` | `false` | 清空 UID 缓存并立即返回，不执行注册表读取或 OCR。 |
+| `clear_cache` | `bool` | `false` | 清空 UID 缓存并把 `CurrentAccountIdentity` 置空后立即返回，不执行注册表读取或 OCR。 |
 | `output_type` | `string` | `"hashed"` | 输出格式：`hashed`（加盐 SHA-256 前 16 位十六进制）、`masked`（保留首尾各 3 位，中间以 `*` 打码）、`raw`（原始 UID 数字）。 |
 
 > [!note]
-> `clear_cache` 为 `true` 时，其余参数均不生效——动作仅清空缓存后直接返回成功。
+> `clear_cache` 为 `true` 时，其余参数均不生效——动作只清空 UID 缓存、把 `CurrentAccountIdentity` 置空，然后直接返回成功。
 
 区服由 `gamesetting.ResolveRegion` / `SetRegion` 决定，CaptureUid 本身不接受 region 参数。
 

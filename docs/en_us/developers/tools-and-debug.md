@@ -16,4 +16,4 @@ MaaFramework provides a rich set of [development tools](https://github.com/MaaXY
 
 ## Community
 
-Dev QQ group: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (contributors welcome; **not** for end-user support)
+Development QQ Group: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (A working group, welcome to join and develop together, but user issues are not handled here)

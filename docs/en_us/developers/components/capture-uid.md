@@ -58,11 +58,11 @@ After switching accounts, the cache must be cleared to prevent reuse of old UIDs
 | `use_cache` | `bool` | `true` | Return a cached UID without reading the registry or running OCR. |
 | `stay_on_current_screen` | `bool` | `true` | Non-Win32 only: if `false`, call `SceneEnterMenuOperationalManual` before screenshot OCR. |
 | `allow_unknown` | `bool` | `true` | If registry read, region resolution, or OCR fails, return `"unknown"` instead of throwing an error. If `false`, failure causes the action to fail. |
-| `clear_cache` | `bool` | `false` | Clear the UID cache and return immediately, without reading the registry or running OCR. |
+| `clear_cache` | `bool` | `false` | Clear the UID cache and empty `CurrentAccountIdentity`, then return immediately, without reading the registry or running OCR. |
 | `output_type` | `string` | `"hashed"` | Output format: `hashed` (salted SHA-256, first 16 hex characters), `masked` (first and last 3 characters kept, middle replaced with `*`), or `raw` (original UID digits). |
 
 > [!note]
-> When `clear_cache` is `true`, all other parameters are ignored—the action only clears the cache and returns success directly.
+> When `clear_cache` is `true`, all other parameters are ignored—the action only clears the UID cache and empties `CurrentAccountIdentity`, then returns success directly.
 
 Region is resolved by `gamesetting.ResolveRegion` / `SetRegion`; CaptureUid itself does not accept a region parameter.
 

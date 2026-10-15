@@ -146,7 +146,7 @@ There are no optional parameters. The assertion always forces a global search an
 
 > [!TIP]
 >
-> This node works well as an entry guard before `MapNavigateAction`: confirm the character is in the expected area first, then start the navigation. The companion tool's `Assert Mode` can export this node by dragging a rectangle directly; see [MapNavigator](./map-navigator.md).
+> This node works well as an entry guard before `MapNavigateAction`: confirm the character is in the expected area first, then start the navigation. The companion tool's `断言` (Assert) mode can export this node by dragging a rectangle directly; see [MapNavigator](./map-navigator.md).
 
 ---
 

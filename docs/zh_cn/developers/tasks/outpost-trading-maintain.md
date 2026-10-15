@@ -186,4 +186,4 @@ node tools/pipeline-generate/run-all.mjs OutpostTrading
 git diff --check
 ```
 
-改动包含 `tests/**` 时本地跑 `pnpm test`；`pnpm check` / `pnpm test` 的其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。
+改动包含 `tests/**` 时本地跑 `pnpm test`，若同时改了 `assets/**` 或 `tools/schema/**`，一并跑 `pnpm check`；`pnpm check` / `pnpm test` 的其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。

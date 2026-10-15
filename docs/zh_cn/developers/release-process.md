@@ -73,7 +73,7 @@
 
 1. 基于 `release/vX.Y` 创建 fix 分支，提交修复
 2. 提 PR 到 `release/vX.Y`，合入
-3. CI 自动 cherry-pick 到 `v2`，在 v2 上出现一条 `fix: cherry-pick #N from release/vX.Y to v2` 的 PR——**直接合入即可**
+3. CI 自动 cherry-pick 到 `v2`，在 v2 上出现一条标题为 `<原 PR 标题> (cherry-pick of #N)` 的 PR——**直接合入即可**
 4. 在 release 分支上打新 tag（如 `v2.16.1`）触发发版
 
 ### Cherry-pick PR 有冲突怎么办

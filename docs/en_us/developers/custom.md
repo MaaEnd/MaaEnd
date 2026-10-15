@@ -33,7 +33,7 @@ Action nodes are used to execute custom actions. A common format is as follows:
 
 ### SubTask
 
-The `SubTask` implementation is located in `agent/go-service/subtask` and is used to execute a series of subtasks sequentially.
+The `SubTask` implementation is located in `agent/go-service/common/subtask` and is used to execute a series of subtasks sequentially.
 
 - Parameters:
     - `sub: string[]`: required list of subtask names.
@@ -41,7 +41,7 @@ The `SubTask` implementation is located in `agent/go-service/subtask` and is use
     - `strict?: bool`: whether the current action should fail when a subtask fails. Default is `true`.
     - `random_choice?: int`: if set and greater than `0`, the `sub` list is shuffled and at most this many subtasks are picked to run; values exceeding the list length are clamped to it. Defaults to running every subtask in order.
 
-    Before the random pick, subtask nodes in `sub` that cannot be resolved or whose `enabled` is `false` are filtered out (a node without an explicit `enabled` counts as enabled). If no runnable subtask remains after filtering (and the random pick), the action is not treated as a failure: it logs a single warning and returns success.
+    Before the random pick, subtask nodes in `sub` that cannot be resolved or whose `enabled` is `false` are filtered out (a node without an explicit `enabled` counts as enabled). If no runnable subtask remains after filtering, the action logs an error and returns failure.
 
 Example file: [`SubTask.json`](../../../assets/resource/pipeline/Interface/Example/SubTask.json)
 
@@ -70,7 +70,7 @@ Example file: [`AutoCollect.json`](../../../assets/resource/pipeline/AutoCollect
 
 ### ClearHitCount
 
-The `ClearHitCount` implementation is located in `agent/go-service/clearhitcount` and is used to clear the hit count of specified nodes.
+The `ClearHitCount` implementation is located in `agent/go-service/common/clearhitcount` and is used to clear the hit count of specified nodes.
 
 - Parameters:
     - `nodes: string[]`: A list of node names to clear. Required.
@@ -179,7 +179,9 @@ Example file: [`PipelineOverride.json`](../../../assets/resource/pipeline/Interf
 The `AttachToExpectedRegexAction` implementation is located in `agent/go-service/common/attachregex`. It is used to generically read keywords from the target node's own `attach` and write the merged allowlist regex back to the target OCR node's `expected`.
 
 - Parameters:
-    - `target: string`: The target node name (which will have its `expected` overwritten). Required.
+    - `target: string` / `targets: string[]`: Target node name(s) whose `expected` is overwritten; at least one is required, and `targets` handles several nodes at once.
+    - `substring?: bool`: Optional, default `false` (exact match `^(…)$`); `true` generates a substring match `.*(…).*`.
+    - `keywords?: string`: Optional. Builds the regex from this string instead of `attach` (split on `,` `，` `;` `；` `、` and whitespace, deduplicated).
 
 Processing Rules:
 
@@ -202,7 +204,7 @@ Example:
 Compatibility Notes:
 
 - The Credit Shop has been switched to directly use `AttachToExpectedRegexAction`.
-- If multiple target nodes need to be overridden, it is recommended to split them into multiple `Custom` nodes in the Pipeline and link them via `next`.
+- To override several target nodes, list them in `targets`.
 - If multiple nodes require the same allowlist, the same `attach` should be written into their respective nodes in the task configuration.
 - Other tasks are also recommended to use the generic name to avoid coupling with specific business logic.
 
@@ -284,6 +286,7 @@ Parameters:
 
 - `expression: string`: Required. The expression must ultimately evaluate to a boolean value.
 - `box_node?: string`: Optional. Which recognition node's result box to return upon a match; if the node is `And`, it will first execute that node, then read the corresponding sub-recognition result's box directly from the current recognition results based on its native `box_index`.
+- `focus_matched_resolved_expression?: bool` / `focus_unmatched_resolved_expression?: bool`: Optional, default `false`. When `true`, prints the value-substituted expression via `maafocus` after a match / miss (e.g. `120<300 matched`).
 
 Placeholder Rules:
 
@@ -420,7 +423,7 @@ Output:
 }
 ```
 
-Both scrollbar recognizers share the same detector: search each ROI row for a pixel where `min(R, G, B) >= 200`, fill internal gaps up to 2 rows, and select the longest continuous segment whose length is at least 5px.
+Both scrollbar recognizers share the same detector: for each ROI row it averages `min(R, G, B)` of the 3 brightest pixels and compares it with the median of the 3px background strips left and right of the ROI; rows whose normalized brightening is `>= 0.45` count as thumb rows. After filling internal gaps of up to 2 rows, it picks, among continuous segments at least 5px long, the one with the highest cumulative contrast.
 
 ```json
 {
@@ -542,7 +545,7 @@ Notes:
 
 ### ScheduleRecognition
 
-The `ScheduleRecognition` implementation is located in `agent/go-service/common/schedule`. It is used to determine whether the current task should continue executing based on the day of the week. It only returns whether recognition matches; it does not directly run subtasks in Go; subsequent flows should be organized via the Pipeline's `next`.
+The `ScheduleRecognition` implementation is located in `agent/go-service/common/schedule`. It is used to determine whether the current task should continue executing based on the day of the week (game days start at 04:00 local time). It only returns whether recognition matches; it does not directly run subtasks in Go; subsequent flows should be organized via the Pipeline's `next`.
 
 - Parameters: None.
 - `attach` field (written in the current recognition node, can be merged in the task configuration):
@@ -554,7 +557,7 @@ The `ScheduleRecognition` implementation is located in `agent/go-service/common/
     - `saturday: bool` — Whether to execute on Saturday.
     - `sunday: bool` — Whether to execute on Sunday.
 
-When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits a localized prompt "Skipping today" and returns no match.
+When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits the localized `schedule.skip_today` message via `maafocus` and returns no match.
 
 ## Summary
 

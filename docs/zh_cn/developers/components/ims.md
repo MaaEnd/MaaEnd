@@ -106,6 +106,14 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 `sum` 合并的是两个界面上的**绝对库存快照**，不能替代 A3 的奖励增量语义，也不应脱离完整的「首区域 replace → 第二区域 sum」流程单独调用。普通翻页仍使用默认 `replace`：第 1 页地区重建；后续页只覆写当页可见 ID，避免抹掉前面页。预留入口 `SyncItemData` 的默认链路为：
 
+```text
+初次：SyncItemDataRunFull（page_dedup = false，地区重建）
+  next[0]：[JumpBack]SyncItemDataScrollPage → 滑动后 SyncItemDataRunInc（page_dedup = true）
+  next[1]：SyncItemDataLock（扫描结束）
+```
+
+额外翻页由 `SyncItemDataScrollPage` 控制：该节点默认 `enabled=false`，目前没有任何控制器资源开启它，因此实际只扫描首屏。需要翻页时先在对应控制器的资源里开启该节点，再用 `max_hit`（当前为 1）控制额外翻页次数；`max_hit` 用尽后 JumpBack 不再命中，走 Lock。
+
 跨多个页面或库存区域且要求“中断时不污染正式缓存”时，可在同一 Pipeline TaskID 内使用：
 
 ```text
@@ -115,14 +123,6 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 ```
 
 `begin` 会替换同 runner 上一次未完成的 staging；`continue` / `commit` 必须与 staging 的 TaskID 一致。`commit` 不要求 `grid_type` 或 `items`，也不会再次截图；当 `notify_ui: true` 时，会在提交成功后按本地化物品名排序并输出一条带图标的 HTML 汇总。省略 `transaction_mode` 时，兼容原有每次 A2 调用立即持久化的行为。
-
-```text
-初次：SyncItemDataRunFull（page_dedup = false，地区重建）
-  next[0]：[JumpBack]SyncItemDataScrollPage → 滑动后 SyncItemDataRunInc（page_dedup = true）
-  next[1]：SyncItemDataLock（扫描结束）
-```
-
-额外翻页次数只改 `SyncItemDataScrollPage.max_hit`（当前为 1）。`max_hit` 用尽后 JumpBack 不再命中，走 Lock。该节点在 Win32-Front 默认 `enabled=false`，ADB 资源开启并覆盖为上滑。
 
 ### 同 Resource 只真正扫库一次（实现细节）
 
@@ -162,7 +162,7 @@ A3 在**奖励播报界面**用与 A2 相同的路径：一次 IconRecognition�
 | `grid_type` | 默认 `rewards` |
 | `roi` | 可选；默认奖励界面参考 ROI（Win32 `[39,82,1205,511]` / ADB `[178,140,935,440]`） |
 | `item_filters` | 可选；省略则用 rewards 默认候选（`Isolate:*` + `ValuableDepot:*`） |
-| `item_ids` | 可选；与 `item_filters` **取并集**（先展开 filter 再合并 ID）。仅有 `item_ids` 时按 catalog 推导覆盖用 filter。用于从大类中精确追加子集（如基建快速收取只要武器检查单元/装置，不要模具/套组） |
+| `item_ids` | 可选；与 `item_filters` **取并集**（先展开 filter 再合并 ID）。仅有 `item_ids` 时按 catalog 推导覆盖用 filter。用于从大类中精确选取子集（如选剑演武的 `TrialOfSwordmancyFightSuccess` 只传 `item_domain_jinlong_coupon`：只累加武陵调度券，不含同属 `Isolate:DomainGold` 的谷地调度券） |
 
 `custom_action_param` 可为 `{}`。**不会**更新同步时间戳 / 就绪状态。
 

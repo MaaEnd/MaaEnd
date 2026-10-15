@@ -105,7 +105,7 @@ Once you see `OK  environment ready`, you can go to [Android/README.md](../../..
 
 > [!WARNING]
 >
-> **Installing is not enough on its own; the SDK path must be set.** Otherwise the very first item of the check reports `ANDROID_HOME / ANDROID_SDK_ROOT is not set`.
+> **Installing is not enough on its own; the SDK path must be set.** Otherwise the check's Android SDK item reports `ANDROID_HOME / ANDROID_SDK_ROOT is not set`.
 
 ---
 
@@ -125,6 +125,7 @@ Android build environment check
   Windows AMD64, python 3.14.2
 
 OK  environment ready: JDK 17+, Android SDK, Android NDK, CMake >= 3.28, Ninja, Go, MaaUtils submodule
+run: uv run tools/build_android_agents.py
 ```
 
 The second line is your own system and Python version (on macOS it will be `Darwin arm64`); it **does not need to match the above exactly**.

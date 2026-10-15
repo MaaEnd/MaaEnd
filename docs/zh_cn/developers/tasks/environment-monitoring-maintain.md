@@ -14,7 +14,7 @@
 
 | 模块 | 路径 | 作用 |
 | ------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 任务入口 | `assets/tasks/EnvironmentMonitoring.json` | interface 任务定义（无可配置选项，控制器 = Win32-Front / Linux / ADB） |
+| 任务入口 | `assets/tasks/EnvironmentMonitoring.json` | interface 任务定义（无可配置选项，控制器 = Win32-Front / Linux / ADB / CloudADB / PlayCover） |
 | 主流程 Pipeline | `assets/resource/pipeline/EnvironmentMonitoring.json` | 主入口节点 `EnvironmentMonitoringMain`，循环识别两个监测终端 |
 | 终端分组（生成） | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | 城郊监测终端 / 首墩监测终端的入口节点与各自的观察点 `next` 列表（**生成**） |
 | 终端跳转 | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json` | `EnvironmentMonitoringGoTo*` 与 `Select*` 节点，从主菜单进入对应终端 |
@@ -59,7 +59,7 @@ EnvironmentMonitoringMain
 每个观察点 `{Id}Job` 内部的链路（由 `template.json` 渲染）：
 
 ```text
-{Id}Job                              （识别该观察点列表项）
+{Id}Job                              （识别该观察点列表项，经 FailureCollectorRunTask 执行 {Id}Execute，下列为其 next）
   ├─ Accept{Id}                      （委托可接 → 点击接取）
   └─ GoTo{Id}Mission                 （委托已接 → 点击前往）
        └─ {Id}TrackOrGoTo
@@ -72,7 +72,7 @@ EnvironmentMonitoringMain
                       ├─ 默认传送：GoTo{Id}
                       │    ├─ 寻路路线
                       │    │    ├─ GoTo{Id}StartPos （已在起点 → 寻路）
-                      │    │    └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
+                      │    │    └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap} → GoTo{Id}Move
                       │    └─ 传送后直拍
                       │         └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
                       │              ├─ 无 Heading → {Id}TakePhoto
@@ -93,8 +93,9 @@ GoTo{Id}Move                         （寻路动作；直拍有 Heading 时只�
        ├─ 无 FightAfterMove → {Id}TakePhoto
        └─ 有 FightAfterMove → [JumpBack]AutoFight → GoTo{Id}MoveAfterFight
                                                    └─ {Id}TakePhoto
-       ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
-       └─ next: EnvironmentMonitoringTakePhoto
+{Id}TakePhoto                        （包装节点：设置 anchor，再进入公共拍照流程）
+  ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
+  └─ next: EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照）
   └─ [Anchor]EnvironmentMonitoringBackToTerminal
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
@@ -259,7 +260,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### 主菜单入口
 
-环境监测主入口节点 `EnvironmentMonitoringMain` 通过 `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` 进入终端选择界面。该节点维护在 `assets/resource/pipeline/Interface/InScene/Region.json`，新增地区监测终端时需要确认主菜单入口已能进入对应界面。
+环境监测主入口节点 `EnvironmentMonitoringMain` 通过 `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` 进入终端选择界面。该节点维护在 `assets/resource/pipeline/Interface/SceneRegionalDevelopment.json`（终端界面识别节点在 `Interface/InScene/Region.json`），新增地区监测终端时需要确认主菜单入口已能进入对应界面。
 
 ## 添加新观察点
 
@@ -328,7 +329,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 > `routes.json` 是严格 JSON：双引号、不允许行内注释、不允许尾随逗号。上述代码块里的 `//` 只是文档示意，写进真实文件会让 JSON 解析失败。
 >
 > `MissionId` 是 `model.mjs` 的匹配键，会与 `environment_monitoring.json` 中的 `mission_id` 精确匹配。`Name` 只供人工阅读，`Id` 只供人工搜索生成节点/文件名；如果与当前游戏数据不一致，生成器会直接刷新为当前正确值，不影响匹配。
-
+>
 > 重新生成 EnvironmentMonitoring 时，`sync-routes.mjs` 会先按环境监测数据自动刷新 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序。手写条目时必须填写 `MissionId`；如果数据中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
 
 ### 4. 录制坐标和路径

@@ -65,7 +65,7 @@ The following tasks have dedicated maintenance documentation. **You must read th
 | ------------------------------------- | ------------------------------------------------------------------------ |
 | AutoStockpile (Auto Stockpile) | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md) |
 | DijiangRewards (Base Rewards) | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
-| CreditShopping (Credit Point Store) | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
+| CreditShopping (Credit Shop) | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
 
 ## External Documentation
 

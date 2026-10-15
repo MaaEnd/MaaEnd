@@ -65,18 +65,18 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 ## 滑索配置
 
-仓储和终点导航默认都以 `zip: false` 运行。需要允许滑索时，通过任务选项覆写两个固定识别节点的完整 `custom_action_param`，不修改 `AutoDelivery.next`：
+仓储和终点导航默认都以 `zip: false` 运行。需要允许滑索时，通过任务选项覆写两个固定导航节点的 `attach.zip`，不修改 `AutoDelivery.next`：
 
 ```json
 {
     "pipeline_override": {
-        "AutoDeliveryRecognizeDepot": {
-            "custom_action_param": {
+        "AutoDeliveryNavigateDepot": {
+            "attach": {
                 "zip": true
             }
         },
-        "AutoDeliveryRecognizeDestination": {
-            "custom_action_param": {
+        "AutoDeliveryNavigateDestination": {
+            "attach": {
                 "zip": true
             }
         }
@@ -84,7 +84,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 }
 ```
 
-`pipeline_override` 对 `custom_action_param` 使用字段级替换，因此必须提供节点需要的完整参数。`AutoDeliveryRecognizeDepot` 与 `AutoDeliveryRecognizeDestination` 不是执行入口，但节点名属于任务选项使用的配置契约。允许滑索只表示 MapNavigator 可以在合适时选择滑索，不保证实际路线一定使用。
+Go 侧的 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 分别读取这两个节点的 `attach.zip`，据此选择普通或允许滑索的生成路线节点。`AutoDeliveryNavigateDepot` 与 `AutoDeliveryNavigateDestination` 不是执行入口，但节点名属于任务选项使用的配置契约。允许滑索只表示 MapNavigator 可以在合适时选择滑索，不保证实际路线一定使用。
 
 ## 组件维护
 
@@ -198,6 +198,6 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 pnpm generate:AutoDelivery
 ```
 
-`pnpm check` / `pnpm test` 按需执行：改动包含 `tests/**` 时本地跑 `pnpm test`，其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。
+`pnpm check` / `pnpm test` 按需执行：改动包含 `tests/**` 时本地跑 `pnpm test`，若同时改了 `assets/**` 或 `tools/schema/**`，一并跑 `pnpm check`；其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。
 
 静态检查和节点测试不能代替游戏内验证。新增地区或修改交互界面后，仍需分别验证未取货恢复、已取货恢复、取货站位修正、NPC 交货和非 NPC 交货链路。

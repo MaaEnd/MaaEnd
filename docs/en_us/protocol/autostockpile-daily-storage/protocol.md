@@ -63,7 +63,7 @@ A corresponding JSON Schema file is provided for third-party tools to validate t
 - **Do not contain** the old `captured_at_utc` field. This field is deprecated in files with `schema_version ≥ 2`.
 - A new record with the same `server_date + region + uid` **overwrites** the old record. Different `uid` values on the same server date and region are kept independently.
 - At most **120 distinct** `server_date` values are retained. When exceeded, the earliest date and all its region records are discarded.
-- Writes use a same-directory temporary file + rename **atomic write** process. Readers can safely read `ElasticGoodsPrices.json` at any time without seeing a partially written file.
+- Writes use a same-directory temporary file + rename **atomic write** process. No matter when readers read the file, they never see a half-written file.
 - Write failures only log a warning and continue AutoStockpile; the task is not aborted.
 
 ---
@@ -80,14 +80,14 @@ The path is a fixed relative path from the MaaEnd working directory. No upward s
 
 ### Atomic Write Process
 
-1. Create a temporary file in the same directory (naming pattern `.{ElasticGoodsPrices.json}.*.tmp`)
+1. Create a temporary file in the same directory (naming pattern `.ElasticGoodsPrices.json.*.tmp`, where `*` is a random string)
 2. Write the complete JSON content
 3. `chmod` the file to `0644`
 4. `Sync` to flush to disk
 5. `Close` the file handle
-6. `os.Rename` to atomically replace the target file
+6. `os.Rename` to replace the target file (atomic for a same-directory replace on Unix; not guaranteed atomic on Windows, where the target file may briefly not exist during the replace)
 
-Readers can safely read `ElasticGoodsPrices.json` at any time and will never see a partially written file.
+No matter when readers read `ElasticGoodsPrices.json`, they never see partially written content. On Windows the file may briefly not exist while it is being replaced; if a read fails because the file is not found, retry shortly.
 
 ### Write Failure Behavior
 

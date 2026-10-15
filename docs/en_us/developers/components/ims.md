@@ -24,9 +24,9 @@ A2 means “look at the current screen and record item quantities”. Callers mu
 
 | Entry | Screen |
 | --- | --- |
-| `SyncItemData` | Valuables **Progression** tab |
+| `SyncItemData` | Valuables Vault **Progression** tab |
 | `SyncShopItemData` | **Procurement Center** (Origeometry / Oroberyl header counts) |
-| `SyncValuablesItemData` | Valuables **Valuables** tab (e.g. Chartered HH Permit) |
+| `SyncValuablesItemData` | Valuables Vault **Valuables** tab (e.g. Chartered HH Permit) |
 | `SyncDepotItemData` | Combined **Valley IV + Wuling left-side depots** on the Dijiang depot/backpack screen (normal collectables; excludes the right-side backpack) |
 
 Tasks that must declare “I want a fresh cache” should call the matching entry explicitly (it goes to Skipped if already scanned).
@@ -60,7 +60,7 @@ Cache keys and recognition IDs all use [`IconRecognition`](./icon-recognition.md
 | Field | Meaning |
 | --- | --- |
 | `grid_type` | Grid screen. Progression/valuables tabs use `valuables`; required for IconRecognition scan |
-| `roi` | Optional; omit to use the IconRecognition reference ROI (Valuables Win32 `[24,76,950,570]` / ADB `[100,85,790,540]`) |
+| `roi` | Optional; omit to use the IconRecognition reference ROI (Valuables Vault Win32 `[24,76,950,570]` / ADB `[100,85,790,540]`) |
 | `item_filters` | Narrows IconRecognition **candidate templates** only (e.g. `ValuableDepot:SpecialItem` on the Progression tab); does not filter which IDs IMS keeps |
 | `items` | **Anchored quantity nodes** (still required for region rebuild): cache ID → Pipeline recognition node. The node may be pure OCR, or And with `box_index` selecting the OCR digit result (top-bar currencies, shop digits, etc.) |
 | `deduplicate` | IconRecognition dedupe; A2 defaults to `true` |
@@ -106,6 +106,14 @@ Hits emit one HTML Focus summary after the scan finishes by default (16px item i
 
 `sum` combines two **absolute inventory snapshots**. It does not replace A3 reward-delta semantics and should not be called outside a complete `first region replace → second region sum` flow. Ordinary paging still uses the default `replace`: page 1 does a region rebuild; later pages overwrite only the IDs visible on that page so earlier pages are not wiped. The reserved entry `SyncItemData` defaults to:
 
+```text
+First: SyncItemDataRunFull (page_dedup = false, region rebuild)
+  next[0]: [JumpBack]SyncItemDataScrollPage → swipe, then SyncItemDataRunInc (page_dedup = true)
+  next[1]: SyncItemDataLock (scan finished)
+```
+
+Extra pages are controlled by `SyncItemDataScrollPage`: the node defaults to `enabled=false` and no controller resource currently enables it, so only the first page is actually scanned. To scroll, first enable the node in that controller's resource, then set the number of extra pages with `max_hit` (currently 1); when `max_hit` is exhausted, JumpBack no longer matches and Lock runs.
+
 For a multi-page or multi-region snapshot that must not publish partial data when interrupted, use one Pipeline TaskID:
 
 ```text
@@ -114,15 +122,7 @@ Remaining pages/regions: transaction_mode = continue
 Complete-success endpoint: transaction_mode = commit
 ```
 
-`begin` replaces unfinished staging left on the same runner. `continue` and `commit` must match the staging TaskID. `commit` needs neither `grid_type` nor `items` and performs no screenshot; with `notify_ui: true`, it sorts by localized item name and prints one icon HTML summary after a successful commit. Omitting `transaction_mode` preserves the original immediate-persist behavior.
-
-```text
-First: SyncItemDataRunFull (page_dedup = false, region rebuild)
-  next[0]: [JumpBack]SyncItemDataScrollPage → swipe, then SyncItemDataRunInc (page_dedup = true)
-  next[1]: SyncItemDataLock (scan finished)
-```
-
-Extra pages are controlled only by `SyncItemDataScrollPage.max_hit` (currently 1). When `max_hit` is exhausted, JumpBack no longer matches and Lock runs. The node defaults to `enabled=false` on Win32-Front; the ADB resource enables it and overrides it with a swipe-up.
+`begin` replaces unfinished staging left on the same runner. `continue` and `commit` must match the staging TaskID. `commit` needs neither `grid_type` nor `items` and performs no screenshot; with `notify_ui: true`, it sorts by localized item name and prints one icon HTML summary after a successful commit. Omitting `transaction_mode` keeps the original behavior in which every A2 call persists immediately.
 
 ### One real scan per Resource (implementation details)
 
@@ -162,7 +162,7 @@ A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`,
 | `grid_type` | Defaults to `rewards` |
 | `roi` | Optional; default rewards reference ROI (Win32 `[39,82,1205,511]` / ADB `[178,140,935,440]`) |
 | `item_filters` | Optional; omit for rewards defaults (`Isolate:*` + `ValuableDepot:*`) |
-| `item_ids` | Optional; **union** with `item_filters` (filters are expanded first, then the IDs are merged). With only `item_ids`, the covering filters are derived from the catalog. Use to add an exact subset of a broad category (e.g. base Fast Collect only wants Arms Inspector / Arms INSP Kit, not the Cast Dies / Arms INSP Set) |
+| `item_ids` | Optional; **union** with `item_filters` (filters are expanded first, then the IDs are merged). With only `item_ids`, the covering filters are derived from the catalog. Use to select an exact subset of a broad category (e.g. Trial of Swordmancy's `TrialOfSwordmancyFightSuccess` passes only `item_domain_jinlong_coupon`: it adds only the Wuling Stock Bill, not the Valley Stock Bill from the same `Isolate:DomainGold` category) |
 
 `custom_action_param` may be `{}`. Does **not** update sync timestamp / readiness.
 
@@ -171,7 +171,7 @@ A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`,
 | | A2 | A3 |
 | --- | --- | --- |
 | Write mode | **Absolute:** the scanned count becomes current stock | **Computed:** the scanned count is added to existing stock |
-| Typical use | Full Valuables sync (`valuables`) | Rewards popup “how much more did we get?” (`rewards`) |
+| Typical use | Full Valuables Vault sync (`valuables`) | Rewards popup “how much more did we get?” (`rewards`) |
 | Establishes readiness | Yes (writes `updated_at`, sets `hasData`) | No |
 
 ### Works without a cache

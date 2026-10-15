@@ -80,14 +80,14 @@ debug/record/ElasticGoodsPrices.json
 
 ### 原子写入流程
 
-1. 在同一目录下创建临时文件（命名模式 `.{ElasticGoodsPrices.json}.*.tmp`）
+1. 在同一目录下创建临时文件（命名模式 `.ElasticGoodsPrices.json.*.tmp`，`*` 为随机串）
 2. 写入完整 JSON 内容
 3. `chmod` 设置权限为 `0644`
 4. `Sync` 刷盘
 5. `Close` 关闭文件句柄
-6. `os.Rename` 原子替换目标文件
+6. `os.Rename` 替换目标文件（Unix 上同目录替换是原子的；Windows 上不保证原子，替换瞬间目标文件可能短暂不存在）
 
-读取方可安全地在任何时刻读取 `ElasticGoodsPrices.json`，不会读到部分写入的内容。
+读取方在任何时刻读取 `ElasticGoodsPrices.json` 都不会读到部分写入的内容。Windows 上替换瞬间该文件可能短暂不存在，读取时若提示文件不存在，稍后重试即可。
 
 ### 写入失败行为
 
