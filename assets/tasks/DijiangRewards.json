@@ -162,10 +162,25 @@
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "FastCollectClue",
+                        "FastCollectProduction"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "FastCollectClue": {
+            "type": "switch",
+            "label": "$option.FastCollectClue.label",
+            "description": "$option.FastCollectClue.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
                     "pipeline_override": {
-                        "DijiangRewardsFastCollectProduction": {
-                            "enabled": true
-                        },
                         "DijiangRewardsFastCollectClues": {
                             "enabled": true
                         }
@@ -174,10 +189,31 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "DijiangRewardsFastCollectProduction": {
-                            "enabled": false
-                        },
                         "DijiangRewardsFastCollectClues": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "FastCollectProduction": {
+            "type": "switch",
+            "label": "$option.FastCollectProduction.label",
+            "description": "$option.FastCollectProduction.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DijiangRewardsFastCollectProduction": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DijiangRewardsFastCollectProduction": {
                             "enabled": false
                         }
                     }
