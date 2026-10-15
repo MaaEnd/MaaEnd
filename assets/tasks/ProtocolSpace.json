@@ -703,8 +703,8 @@
                         },
                         "ProtocolSpaceOperationalManualScrollEnd": {
                             "template": [
-                                "ProtocolSpace/AdvancedProgression5.png",
-                                "ProtocolSpace/AdvancedProgression5Low.png"
+                                "ProtocolSpace/AdvancedProgression6.png",
+                                "ProtocolSpace/AdvancedProgression6Low.png"
                             ]
                         }
                     }
@@ -927,6 +927,17 @@
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
                             "template": "ProtocolSpace/AdvancedProgression5.png"
+                        }
+                    }
+                },
+                {
+                    "name": "AdvancedProgression6",
+                    "label": "$option.CrisisDrills.AdvancedProgression6.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": [
+                                "ProtocolSpace/AdvancedProgression6.png",
+                            ]
                         }
                     }
                 }
