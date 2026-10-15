@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -22,6 +24,7 @@ const (
 	LabelCharacterLevel           = "CharacterLevel"
 	LabelCharacterSelect          = "CharacterSelect"
 	LabelEndSkillFull             = "EndSkillFull"
+	LabelEndSkillFullADB          = "EndSkillFullADB"
 	LabelEnemyAccumPower          = "EnemyAccumulatingPower"
 	LabelEnemyBossHealth          = "EnemyBossHealth"
 	LabelEnemyDodge               = "EnemyDodge"
@@ -49,6 +52,9 @@ type screenFrame struct {
 
 type ScreenAnalyzer struct {
 	frames []screenFrame
+	// mobileLayout 由回调入口经 RefreshLayout 刷新：移动端与桌面端的识别区域、
+	// 终结技 label 不同，必须成套使用（见 characterRegion / endSkillRegion）。
+	mobileLayout bool
 }
 
 // FrameCount prunes expired frames (older than 30s) and returns the current count.
@@ -147,7 +153,7 @@ func saveLabelDebugImage(label string, img image.Image, boxes []maa.Rect) {
 	if img == nil {
 		return
 	}
-	dir := filepath.Join("debug", "autofight_label")
+	dir := fsutil.OutputPath("debug", "autofight_label")
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		log.Debug().Err(err).Str("component", "AutoFight").Str("dir", dir).Msg("failed to create debug dir for label image")
 		return
@@ -323,18 +329,71 @@ func (sa *ScreenAnalyzer) GetCharacterComboActive() bool {
 	return sa.hasLabelInFrames(LabelCharacterComboActive, 1, false)
 }
 
-var characterRegions = [4]maa.Rect{
+var winCharacterRegions = [4]maa.Rect{
 	{15, 580, 80, 100},
 	{95, 580, 80, 100},
 	{175, 580, 80, 100},
 	{255, 580, 80, 100},
 }
 
-var endSkillRegions = [4]maa.Rect{
+var adbCharacterRegions = [4]maa.Rect{
+	{865, 50, 100, 100},
+	{965, 50, 100, 100},
+	{1065, 50, 100, 100},
+	{1165, 50, 100, 100},
+}
+
+var winEndSkillRegions = [4]maa.Rect{
 	{1020, 535, 65, 100},
 	{1082, 535, 65, 100},
 	{1146, 535, 67, 65},
 	{1208, 535, 68, 65},
+}
+
+// adbEndSkillRegions 下标 1–4 对应战技 1–4。
+// 实测框自上而下靠近战技 4、3、2、1，这里按战技序号从下往上排。
+// 四边各扩 12px：2 号与 1 号竖直间距 24px，再大就会叠格；扩完后仍在 1280×720 内。
+var adbEndSkillRegions = [4]maa.Rect{
+	{858, 575, 57, 105},
+	{844, 472, 54, 103},
+	{905, 386, 57, 107},
+	{1003, 362, 57, 106},
+}
+
+// RefreshLayout 在回调入口刷新控制器布局（移动端 / 桌面）。
+// PI_CONTROLLER 缺失时用入口取到的 controller 兜底，否则移动端会误用桌面区域与 label；
+// 这里只解析出布尔值、不保存 controller，因此不影响回调后续各自取用句柄。
+func (sa *ScreenAnalyzer) RefreshLayout(ctx *maa.Context) {
+	var ctrl *maa.Controller
+	if pienv.ControllerKind() == pienv.ControllerKindUnknown && ctx != nil && ctx.GetTasker() != nil {
+		// 仅 PI 不可用时才取一次 controller，避免无谓地触碰句柄。
+		ctrl = ctx.GetTasker().GetController()
+	}
+	sa.mobileLayout = pienv.IsAdbLikeControllerType(pienv.ResolveControllerKind(ctrl))
+}
+
+func characterRegion(idx int) maa.Rect {
+	if screenAnalyzer.mobileLayout {
+		return adbCharacterRegions[idx]
+	}
+	return winCharacterRegions[idx]
+}
+
+func endSkillRegion(idx int) maa.Rect {
+	if screenAnalyzer.mobileLayout {
+		return adbEndSkillRegions[idx]
+	}
+	return winEndSkillRegions[idx]
+}
+
+// endSkillFullLabel 返回当前控制器下"终结技已就绪"的 label。
+// 移动端与 PC 端的终结技图标不同，模型分成 EndSkillFullADB / EndSkillFull 两个类别，
+// 识别区域与 label 必须成套使用，否则就绪状态会识别不到或无法标记为已消费。
+func endSkillFullLabel() string {
+	if screenAnalyzer.mobileLayout {
+		return LabelEndSkillFullADB
+	}
+	return LabelEndSkillFull
 }
 
 func boxIntersects(a, b maa.Rect) bool {
@@ -363,8 +422,9 @@ func (sa *ScreenAnalyzer) latestLabelBox(label string, n int) (maa.Rect, bool) {
 
 func (sa *ScreenAnalyzer) GetEndSkillFull(unused bool) []int {
 	result := make([]int, 0, 4)
+	label := endSkillFullLabel()
 	for idx := 1; idx <= 4; idx++ {
-		if sa.hasLabelInFrames(LabelEndSkillFull, 5, unused, endSkillRegions[idx-1]) {
+		if sa.hasLabelInFrames(label, 5, unused, endSkillRegion(idx-1)) {
 			result = append(result, idx)
 		}
 	}
@@ -373,7 +433,7 @@ func (sa *ScreenAnalyzer) GetEndSkillFull(unused bool) []int {
 
 func (sa *ScreenAnalyzer) GetCharacterSelect() int {
 	for idx := 1; idx <= 4; idx++ {
-		if sa.hasLabelInFrames(LabelCharacterSelect, 5, false, characterRegions[idx-1]) {
+		if sa.hasLabelInFrames(LabelCharacterSelect, 5, false, characterRegion(idx-1)) {
 			return idx
 		}
 	}
@@ -385,7 +445,7 @@ func (sa *ScreenAnalyzer) GetCharacterSelectBox() (maa.Rect, bool) {
 	if idx == 0 {
 		return maa.Rect{}, false
 	}
-	region := characterRegions[idx-1]
+	region := characterRegion(idx - 1)
 	for fi := len(sa.frames) - 1; fi >= 0; fi-- {
 		for _, det := range sa.frames[fi].Detections {
 			if det.Label == LabelCharacterSelect && boxIntersects(det.Box, region) {
@@ -399,7 +459,7 @@ func (sa *ScreenAnalyzer) GetCharacterSelectBox() (maa.Rect, bool) {
 func (sa *ScreenAnalyzer) GetCharacterDied() []int {
 	result := make([]int, 0, 4)
 	for idx := 1; idx <= 4; idx++ {
-		if sa.hasLabelInFrames(LabelCharacterDied, 5, false, characterRegions[idx-1]) {
+		if sa.hasLabelInFrames(LabelCharacterDied, 5, false, characterRegion(idx-1)) {
 			result = append(result, idx)
 		}
 	}
@@ -409,7 +469,7 @@ func (sa *ScreenAnalyzer) GetCharacterDied() []int {
 func (sa *ScreenAnalyzer) GetCharacterComboFull() []int {
 	result := make([]int, 0, 4)
 	for idx := 1; idx <= 4; idx++ {
-		if sa.hasLabelInFrames(LabelCharacterComboFull, 3, false, characterRegions[idx-1]) {
+		if sa.hasLabelInFrames(LabelCharacterComboFull, 3, false, characterRegion(idx-1)) {
 			result = append(result, idx)
 		}
 	}
@@ -419,7 +479,7 @@ func (sa *ScreenAnalyzer) GetCharacterComboFull() []int {
 func (sa *ScreenAnalyzer) GetCharacterComboEmpty() []int {
 	result := make([]int, 0, 4)
 	for idx := 1; idx <= 4; idx++ {
-		if sa.hasLabelInFrames(LabelCharacterComboEmpty, 3, false, characterRegions[idx-1]) {
+		if sa.hasLabelInFrames(LabelCharacterComboEmpty, 3, false, characterRegion(idx-1)) {
 			result = append(result, idx)
 		}
 	}
@@ -429,7 +489,7 @@ func (sa *ScreenAnalyzer) GetCharacterComboEmpty() []int {
 func (sa *ScreenAnalyzer) GetCharacterHealthNormal() []int {
 	result := make([]int, 0, 4)
 	for idx := 1; idx <= 4; idx++ {
-		if sa.hasLabelInFrames(LabelCharacterHealthNormal, 3, false, characterRegions[idx-1]) {
+		if sa.hasLabelInFrames(LabelCharacterHealthNormal, 3, false, characterRegion(idx-1)) {
 			result = append(result, idx)
 		}
 	}
@@ -439,7 +499,7 @@ func (sa *ScreenAnalyzer) GetCharacterHealthNormal() []int {
 func (sa *ScreenAnalyzer) GetCharacterHealthDangerous() []int {
 	result := make([]int, 0, 4)
 	for idx := 1; idx <= 4; idx++ {
-		if sa.hasLabelInFrames(LabelCharacterHealthDangerous, 3, false, characterRegions[idx-1]) {
+		if sa.hasLabelInFrames(LabelCharacterHealthDangerous, 3, false, characterRegion(idx-1)) {
 			result = append(result, idx)
 		}
 	}

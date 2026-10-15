@@ -8,3 +8,5 @@ deps/
 install/
 3rdparty/
 .claude/
+assets/locales/LICENSE_SHORT.md
+assets/locales/interface/DESCRIPTION/

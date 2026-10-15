@@ -15,29 +15,13 @@
             46
         ]
     },
-    "VisitFriendsRecognitionItemNameByEnterButton": {
-        "recognition": {
-            "param": {
-                "roi_offset": [
-                    -6,
-                    -76,
-                    236,
-                    19
-                ]
-            }
-        }
-    },
-    "VisitFriendsRecognitionItemNameRemarkByEnterButton": {
-        "recognition": {
-            "param": {
-                "roi_offset": [
-                    -6,
-                    -76,
-                    236,
-                    19
-                ]
-            }
-        }
+    "VisitFriendsRecognitionItemNameColor": {
+        "roi_offset": [
+            -6,
+            -76,
+            236,
+            19
+        ]
     },
     "VisitFriendsRecognitionItemNameByEnterButtonForScroll": {
         "recognition": {

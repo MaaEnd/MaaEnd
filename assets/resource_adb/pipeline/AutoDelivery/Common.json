@@ -92,5 +92,21 @@
                 590
             ]
         }
+    },
+    "AutoDeliverySubmitGoodsInteractScan": {
+        "roi": [
+            720,
+            349,
+            240,
+            270
+        ]
+    },
+    "AutoDeliverySubmitGoodsInteractText": {
+        "roi": [
+            720,
+            349,
+            240,
+            270
+        ]
     }
 }

@@ -14,6 +14,8 @@ import (
 type attachToExpectedRegexParam struct {
 	Target  string   `json:"target"`
 	Targets []string `json:"targets"`
+	// Keywords 拆分接口输入并直接生成 expected 正则。
+	Keywords *string `json:"keywords,omitempty"`
 	// Substring 控制是否启用子串匹配模式。
 	// 默认（不传）：精确匹配，如 ^(escaped)$
 	// 传 true：子串匹配，如 .*(escaped).*
@@ -63,11 +65,70 @@ func (a *AttachToExpectedRegexAction) Run(ctx *maa.Context, arg *maa.CustomActio
 		substring = *param.Substring
 	}
 	for _, target := range targets {
+		if param.Keywords != nil {
+			if !applyKeywordsRegexOverride(ctx, target, *param.Keywords, substring, "AttachToExpectedRegexAction") {
+				return false
+			}
+			continue
+		}
 		if !applyAttachRegexOverride(ctx, target, substring, "AttachToExpectedRegexAction") {
 			return false
 		}
 	}
 	return true
+}
+
+func applyKeywordsRegexOverride(ctx *maa.Context, targetNodeName, keywordsInput string, substring bool, component string) bool {
+	keywords := splitInputKeywords(keywordsInput)
+	expected := "a^"
+	if len(keywords) > 0 {
+		escaped := make([]string, 0, len(keywords))
+		for _, keyword := range keywords {
+			escaped = append(escaped, regexp.QuoteMeta(keyword))
+		}
+		if substring {
+			expected = fmt.Sprintf(".*(%s).*", strings.Join(escaped, "|"))
+		} else {
+			expected = fmt.Sprintf("^(%s)$", strings.Join(escaped, "|"))
+		}
+	}
+	override := map[string]any{
+		targetNodeName: map[string]any{
+			"recognition": map[string]any{
+				"param": map[string]any{"expected": expected},
+			},
+		},
+	}
+
+	log.Debug().
+		Str("component", component).
+		Str("target", targetNodeName).
+		Int("value_count", len(keywords)).
+		Str("expected", expected).
+		Msg("generated expected regex from input values")
+
+	if err := ctx.OverridePipeline(override); err != nil {
+		log.Error().Err(err).Str("component", component).Interface("override", override).Msg("OverridePipeline failed")
+		return false
+	}
+	return true
+}
+
+func splitInputKeywords(keywordsInput string) []string {
+	parts := regexp.MustCompile(`[,，;；、\s]+`).Split(keywordsInput, -1)
+	seen := make(map[string]struct{}, len(parts))
+	result := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if part == "" {
+			continue
+		}
+		if _, ok := seen[part]; ok {
+			continue
+		}
+		seen[part] = struct{}{}
+		result = append(result, part)
+	}
+	return result
 }
 
 func applyAttachRegexOverride(ctx *maa.Context, targetNodeName string, substring bool, component string) bool {

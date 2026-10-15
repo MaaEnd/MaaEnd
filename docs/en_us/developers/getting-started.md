@@ -43,7 +43,13 @@ pnpm install
 | `--cpp-algo-pr <N>` | Download cpp-algo from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
 | `--cpp-algo-run <ID>` | Download cpp-algo from a specified workflow run ID |
 
-> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. If neither is specified, the script selects a successful CI build for the current checkout branch. On the protected `v2` branch it only uses the latest push build; on other branches it first matches the current commit so it does not accidentally use `v2`'s cpp-algo.
+> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. Both are explicit instructions and are used as given.
+>
+> When neither is specified, the build is chosen as follows:
+>
+> - **The `v2` main branch**: the most recent successful push build on `v2` (if the newest commit did not trigger CI, earlier commits are checked in order).
+> - **Any other branch**: the current commit, then the branch name, then the PR resolved from the current commit, then `v2`. A local branch name often differs from its remote (e.g. `pr-4945` is really `feat/android-agent-ci`), so the commit is used as the primary key.
+> - Falling back to `v2` prints a warning: it means you are running `v2`'s agent rather than this branch's build. Pass `--cpp-algo-run <ID>` to pin this branch's artifact.
 
 ### Editor (Recommended)
 
@@ -69,15 +75,64 @@ In addition to basic `add` / `commit` / `push` / `pull`, participating in this p
 
 ### Commit Conventions (Conventional Commits)
 
-Code commits in this project strictly follow the [Conventional Commits specification](https://www.conventionalcommits.org/zh-hans/v1.0.0/). A clear commit history helps Reviewers quickly understand your intent. Use the following prefixes for each commit:
+Code commits in this project strictly follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/). A clear commit history helps Reviewers quickly understand your intent.
 
-- `feat:` A new feature (e.g., wrote a new Pipeline node)
-- `fix:` A Bug fix (e.g., fixed an ROI coordinate error)
-- `docs:` Documentation only changes
-- `style:` Changes that do not affect the meaning of the code (whitespace, formatting, missing semicolons, etc.)
-- `chore:` Changes to the build process or auxiliary tools (does not involve production code)
+The commit title format is `type(scope): description`. The scope is optional; it is usually a module or task name and is shown in the changelog. The available types are defined by [`.github/cliff.toml`](../../../.github/cliff.toml): when a release is published, git-cliff uses it to sort commits into the changelog sections.
+
+| Type | Use for | Changelog section |
+| --- | --- | --- |
+| `feat` | A new feature (e.g., wrote a new Pipeline node) | ✨ 新功能 (New Features) |
+| `fix` | A bug fix (e.g., fixed an ROI coordinate error) | 🐛 Bug修复 (Bug Fixes) |
+| `refactor` | Restructuring code without changing behavior | 🚜 代码重构 (Refactoring) |
+| `perf` | Improving existing behavior (speed, accuracy, fault tolerance, etc.) | 🚀 性能优化 (Performance) |
+| `docs` | Documentation only changes | 📚 文档 (Documentation) |
+| `style` | Changes that do not affect the meaning of the code (whitespace, formatting, etc.) | 🎨 样式 (Style) |
+| `test` | Adding or changing tests (e.g., node tests under `tests/`) | 🧪 测试 (Tests) |
+| `ci` | CI workflows and configuration (`.github/workflows/`, etc.) | ⚙️ 持续集成 (CI) |
+| `chore` | Changes to the build process or auxiliary tools (does not involve production code) | 🔧 日常维护 (Maintenance) |
+| `chore(deps)` | Dependency updates | 📦 依赖更新 (Dependencies) |
+| `ai` | AI collaboration: skills (`.agents/skills/`), `AGENTS.md`, AI-related workflows, etc. | 🤖 人工智能 (AI) |
+| `revert` | Reverting a previous commit | ◀️ 撤销 (Reverts) |
+
+- Misspelled or wrongly-cased types (such as `pref`, `doc` or `CI`) are not rejected, but they do not go into the correct section: git-cliff uses the type itself as the section name, so an extra section like "Pref" appears at the end of the changelog (see v2.23.0). `cliff.toml` also accepts the legacy spellings `rft` and `styles`, but use the new spellings in the table for new commits whenever possible.
+- PRs are usually squash-merged: the PR title becomes the commit title and the PR description becomes the commit body. Write the PR title in the same format.
 
 > **Example**: `feat(OutpostTrading): Add regional construction auto-sell Pipeline`
+
+#### Two special markers
+
+The two markers below have extra effects when written in the commit message; they take effect as long as the keyword is present.
+
+- They work in either the title or the body, but put them in the body so that the title does not carry the marker into the changelog.
+- Since PRs are usually squash-merged, the PR description becomes the commit body. When you only mention a marker (for example, when changing related docs or CI), do not write the full bracketed marker; otherwise that PR will trigger the marker by accident. CodeRabbit's generated summary is also written into the PR description, so check the final squash commit message before merging.
+
+`[skip changelog]`
+
+Commits whose title or body contains this marker are left out of the changelog. This is normally used only by bot commits such as auto-formatting and syncing.
+
+`[blame ignore]`
+
+The `.git-blame-ignore-revs` file in the repository root lists commits that `git blame` should skip. GitHub's web Blame view reads it automatically, so formatting commits do not hide the people who actually changed a line. If your PR only contains mechanical changes that **do not change code meaning**, such as repository-wide formatting or bulk key sorting, add this marker to the **PR description**:
+
+- As described above, a squash merge turns the PR description into the commit body, so the marker ends up in the commit message. [`blame-ignore.yml`](../../../.github/workflows/blame-ignore.yml) scans commit messages daily and appends marked commits to `.git-blame-ignore-revs`. Do not edit that file manually unless necessary.
+- Marked PRs must contain formatting changes only. Because the whole squash commit is skipped by blame, any logic changes mixed in can no longer be traced through blame.
+- Auto-format commits from [`format.yml`](../../../.github/workflows/format.yml) already carry the marker, so no extra action is needed.
+
+To skip these commits when running `git blame` locally, run (Git 2.52 or later):
+
+```bash
+git config blame.ignoreRevsFile ":(optional).git-blame-ignore-revs"
+```
+
+`:(optional)` tells Git to skip this setting when the file does not exist, so `git blame` keeps working when you check out a commit without the file (for example, the `archive/v1` branch or a commit from before the file was added).
+
+Git versions before 2.52 do not support this prefix and treat it as part of the file name, which makes `git blame` fail; use this instead:
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+With this setting, `git blame` fails with `could not open object name list` in a version without the file; add `--no-ignore-revs-file` to skip the setting for that run.
 
 ### About Submodule Updates
 

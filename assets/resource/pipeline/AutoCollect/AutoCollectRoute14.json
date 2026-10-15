@@ -6,7 +6,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVTheHub1"
+                "SceneEnterWorldValleyIVTheHub3"
             ]
         },
         "next": [
@@ -27,8 +27,8 @@
         "custom_recognition_param": {
             "zone_id": "ValleyIV_Base",
             "target": [
-                436,
-                901,
+                601,
+                961,
                 20,
                 20
             ]

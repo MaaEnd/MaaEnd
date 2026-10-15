@@ -242,6 +242,16 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `end_hold?: int`：滑动结束后按住时长（毫秒）。
     - `only_hover?: bool`：是否仅悬停滑动。
 
+### AutoSwipeClickAction
+
+`AutoSwipeClickAction` 实现位于 `agent/go-service/common/autoalt`。先执行 `__AutoSwipeClickHoverAction`，再执行 `__AutoSwipeClickClickAction`。
+
+PC 上悬停滑动从画面中心移到当前识别框，等待 200 毫秒后点击。ADB 资源把悬停节点覆盖为 `DoNothing`，因此只点击。
+
+- 参数：无。
+
+目标位置由 Pipeline 节点的 `box` 决定。
+
 ---
 
 ## Custom Recognition
@@ -570,5 +580,6 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | 在指定位置 Alt + 点击 | `AutoAltClickAction` |
 | 在指定位置 Ctrl + 点击 | `AutoCtrlClickAction` |
 | Alt + 滑动 | `AutoAltSwipeAction` |
+| 从画面中心悬停到识别框后再点击 | `AutoSwipeClickAction` |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

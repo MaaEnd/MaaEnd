@@ -668,11 +668,29 @@ jobs:
           OUTPUT: CHANGES.md
           GITHUB_REPO: ${{ github.repository }}
 
+  # 正式版的 Android APK：与桌面包同一 tag、同一 MaaFramework 版本，一起进 Release
+  android:
+    if: ${{ needs.meta.outputs.is_release == 'true' }}
+    needs: meta
+    uses: ./.github/workflows/android.yml
+    with:
+      assemble: release
+      ref: ${{ github.event.inputs.ref || github.ref }}
+      tag: ${{ needs.meta.outputs.tag }}
+      maafw_version: ${{ needs.meta.outputs.maafw_version }}
+    secrets: inherit
+
   release:
     if: ${{ needs.meta.outputs.is_release == 'true' }}
-    needs: [meta, package_linux_tarball, package_macos_dmg, package_win_zip, changelog]
+    needs: [meta, package_linux_tarball, package_macos_dmg, package_win_zip, changelog, android]
     runs-on: ubuntu-latest
     steps:
+      # 只取生成 Release 正文的脚本
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/scripts
+          show-progress: false
+
       - uses: actions/download-artifact@v7
         with:
           pattern: MaaEnd-*-zip
@@ -686,6 +704,11 @@ jobs:
       - uses: actions/download-artifact@v7
         with:
           pattern: MaaEnd-*-dmg
+          path: artifacts
+
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: MaaEnd-android-*-release
           path: artifacts
 
       - name: Prepare release artifacts
@@ -714,15 +737,30 @@ jobs:
               mv "$f" "MaaEnd-${arch}-${{ needs.meta.outputs.tag }}.dmg"
             fi
           done
+          # APK 在 android.yml 里已按最终文件名命名，只需移出 artifact 目录
+          mv MaaEnd-android-*-release/*.apk .
           # 清理空目录
           rm -rf MaaEnd-*/
           ls -la
+
+      # 正文 = 下载表 + 更新日志；下载表按 artifacts 里实际要上传的文件生成
+      - name: Build release body
+        env:
+          CHANGELOG: ${{ needs.changelog.outputs.release_body }}
+        run: |
+          printf '%s\n' "$CHANGELOG" > "$RUNNER_TEMP/changelog.md"
+          python3 .github/scripts/release_body.py \
+            --artifacts artifacts \
+            --tag "${{ needs.meta.outputs.tag }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --changelog "$RUNNER_TEMP/changelog.md" \
+            --output "$RUNNER_TEMP/release_body.md"
 
       - uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*
           tag_name: ${{ needs.meta.outputs.tag }}
-          body: ${{ needs.changelog.outputs.release_body }}
+          body_path: ${{ runner.temp }}/release_body.md
           draft: false
           prerelease: ${{ needs.meta.outputs.is_prerelease == 'true' }}
 
@@ -744,11 +782,12 @@ jobs:
 
   sentry_release:
     if: ${{ needs.meta.outputs.is_release == 'true' && github.repository_owner == 'MaaEnd' }}
-    needs: [meta, release]
+    needs: [meta, release, android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
           fetch-depth: 0
 
       - name: Resolve Sentry release
@@ -756,9 +795,14 @@ jobs:
         env:
           MAAEND_VERSION: ${{ needs.meta.outputs.tag }}
           MXU_VERSION: ${{ needs.meta.outputs.mxu_version }}
+          MAFW_APP_VERSION: ${{ needs.android.outputs.mafw_app_version }}
         run: |
           release="MXU@${MXU_VERSION#v}+MaaEnd@$MAAEND_VERSION"
           echo "release=$release" | tee -a "$GITHUB_OUTPUT"
+          # 外壳版本取自 APK 构建时 gradle 生成的值；取不到就只登记桌面 release
+          if [[ -n "$MAFW_APP_VERSION" ]]; then
+            echo "android_release=MaaFwApp@$MAFW_APP_VERSION+MaaEnd@$MAAEND_VERSION" | tee -a "$GITHUB_OUTPUT"
+          fi
 
       - name: Create Sentry release
         uses: getsentry/action-release@v3
@@ -772,3 +816,17 @@ jobs:
           set_commits: auto
           ignore_missing: true
           ignore_empty: true
+
+      # 外壳代码在 Aliothmoon/MaaFwApp，本仓库只 pin 一个 commit，没有可自动关联的
+      # 提交范围，所以只登记 release / deploy，不设 commits
+      - name: Create Android Sentry release
+        if: steps.sentry_release.outputs.android_release != ''
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: maaend
+          SENTRY_PROJECT: rust
+        with:
+          environment: ${{ needs.meta.outputs.is_prerelease == 'true' && 'beta' || 'stable' }}
+          release: ${{ steps.sentry_release.outputs.android_release }}
+          set_commits: skip

@@ -115,6 +115,7 @@ jobs:
         run: |
           python3 -u tools/essence_filter/extract_skill_pools.py
           python3 -u tools/essence_filter/build_locations.py --data-version "$DATA_VERSION"
+          python3 -u tools/essence_filter/build_autoessence_tasks.py
 
       - name: Create Pull Request
         if: steps.sync.outputs.updated == 'true'
@@ -129,12 +130,22 @@ jobs:
             assets/data/EssenceFilter/skill_pools.json
             assets/data/EssenceFilter/locations.json
             assets/data/EssenceFilter/matcher_config.json
+            assets/tasks/AutoEssence/AutoEssence.json
+            assets/tasks/AutoEssence/Location/
+            assets/tasks/AutoEssence/Target/Target.json
+            assets/interface.json
+            assets/resource/pipeline/AutoEssence/CommonNodes/AutoEssence.json
+            assets/locales/interface/zh_cn.json
+            assets/locales/interface/zh_tw.json
+            assets/locales/interface/en_us.json
+            assets/locales/interface/ja_jp.json
+            assets/locales/interface/ko_kr.json
           commit-message: "chore(essencefilter): sync zmdmap data"
           branch: chore/sync-zmdmap-essence-filter-data
           title: "chore(essencefilter): sync zmdmap data"
           body: |
             ## Summary
 
-            This PR synchronized the latest valid EssenceFilter data from zmdmap and regenerated dependent data files.
+            This PR synchronized the latest valid EssenceFilter data from zmdmap and regenerated dependent data files and AutoEssence task options.
 
             Please review the changes before merging it.

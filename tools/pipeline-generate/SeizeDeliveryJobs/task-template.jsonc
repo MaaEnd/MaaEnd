@@ -3,9 +3,18 @@
     "task": [
         {
             "name": "SeizeDeliveryJobs",
-            "description": "$task.SeizeDeliveryJobs.description",
             "label": "$task.SeizeDeliveryJobs.label",
             "entry": "SeizeDeliveryJobsCheckOngoingJob",
+            "description": "$task.SeizeDeliveryJobs.description",
+            "group": [
+                "regional_development"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
+            ],
             // 任务入口门控自己判定身上是否已有送货委托；只有组件确认「委托列表已滑到底」
             // （AutoDeliveryDeliveryMissionNotFound）才放行到无单主流程，其余失败停在门控里报错。
             "pipeline_override": {
@@ -20,15 +29,6 @@
                 "SeizeDeliveryJobsRefreshLimit",
                 "SeizeDeliveryJobsCommissionSource",
                 "SeizeDeliveryJobsPostProcessing"
-            ],
-            "controller": [
-                "Linux-Gamescope",
-                "Linux-ScreenCast",
-                "Linux-Wlroots",
-                "Win32-Front"
-            ],
-            "group": [
-                "regional_development"
             ]
         }
     ],
@@ -43,8 +43,8 @@
                     "label": "$task.SeizeDeliveryJobsReward.inputs.Reward.label",
                     "default": "15.9",
                     "pipeline_type": "string",
-                    "pattern_msg": "$task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg",
-                    "verify": "^\\d+(\\.\\d+)?$"
+                    "verify": "^\\d+(\\.\\d+)?$",
+                    "pattern_msg": "$task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg"
                 }
             ],
             "pipeline_override": {
@@ -57,13 +57,12 @@
         },
         "SeizeDeliveryJobsCommissionSource": {
             "type": "select",
-            "default_case": "Unlimited",
             "label": "$task.SeizeDeliveryJobsCommissionSource.label",
-            "cases": "${CommissionSourceCases}"
+            "cases": "${CommissionSourceCases}",
+            "default_case": "Unlimited"
         },
         "SeizeDeliveryJobsSpecifyDeliveryPoint${AreaId}": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -89,17 +88,17 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsDeliveryPoint${AreaId}": {
             "type": "checkbox",
             "label": "$task.SeizeDeliveryJobsDeliveryPoint${AreaId}.label",
-            "default_case": "${EndpointIds}",
-            "cases": "${DeliveryPointCases}"
+            "cases": "${DeliveryPointCases}",
+            "default_case": "${EndpointIds}"
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointUnlimited": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -123,11 +122,11 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointAllUnlimited": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -151,11 +150,11 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointValleyIVUnlimited": {
             "type": "switch",
-            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -179,11 +178,11 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsPostProcessing": {
             "type": "select",
-            "default_case": "Disable",
             "label": "$task.SeizeDeliveryJobsPostProcessing.label",
             "description": "$task.SeizeDeliveryJobsPostProcessing.description",
             "cases": [
@@ -237,13 +236,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Disable"
         },
         "SeizeDeliveryJobsPostDepartureRiskAcknowledgement": {
             "type": "switch",
             "label": "$task.AutoDeliveryRiskAcknowledgement.label",
             "description": "$task.AutoDeliveryRiskAcknowledgement.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No",
@@ -256,13 +255,13 @@
                 {
                     "name": "Yes"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsPostDeparturePreferZipline": {
             "type": "switch",
             "label": "$task.AutoDeliveryPreferZipline.label",
             "description": "$task.AutoDeliveryPreferZipline.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No",
@@ -294,7 +293,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SeizeDeliveryJobsRefreshLimit": {
             "type": "input",
@@ -317,7 +317,6 @@
         },
         "SeizeDeliveryJobsRepeatCount": {
             "type": "select",
-            "default_case": "3",
             "label": "$task.SeizeDeliveryJobsRepeatCount.label",
             "description": "$task.SeizeDeliveryJobsRepeatCount.description",
             "cases": [
@@ -348,7 +347,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "3"
         }
     }
 }

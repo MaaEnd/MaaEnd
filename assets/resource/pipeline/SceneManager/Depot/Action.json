@@ -82,13 +82,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -109,13 +109,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -154,13 +154,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -182,13 +182,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -212,13 +212,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -255,17 +255,17 @@
                 ]
             }
         },
-        "pre_delay": 0,
+        "pre_delay": 200,
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -486,13 +486,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -514,13 +514,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -542,13 +542,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -570,13 +570,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -598,13 +598,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -626,13 +626,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -654,13 +654,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -682,13 +682,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -710,13 +710,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,

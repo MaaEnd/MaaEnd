@@ -41,6 +41,21 @@
         "template": "TrialOfSwordmancy/ChallengeBackground.png",
         "green_mask": true
     },
+    "TrialOfSwordmancyFightFinishButton": {
+        "desc": "WhiteConfirmButtonType1 的私有实现：缩小匹配范围以节约性能消耗",
+        "recognition": "TemplateMatch",
+        "roi": [
+            360,
+            590,
+            393,
+            103
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "threshold": 0.9
+    },
     // ===========================================================================
     // 地区建设-事务总览
     // ===========================================================================

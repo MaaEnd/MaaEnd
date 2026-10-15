@@ -1,0 +1,1168 @@
+{
+    "DecomposeWeaponEssenceStart": {
+        "desc": "进入贵重品库，按阈值分解武器基质",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityEnter"
+        ]
+    },
+    "AutoEssenceCapacityEnter": {
+        "desc": "进入贵重品库的武器基质页",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityOnWeaponTab",
+            "AutoEssenceCapacitySwitchToWeaponTab",
+            "[JumpBack]SceneEnterMenuValuables"
+        ]
+    },
+    "AutoEssenceCapacityOnWeaponTab": {
+        "desc": "已在武器基质页，读取当前/2000",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    435,
+                    3,
+                    150,
+                    49
+                ],
+                "template": "EssenceFilter/EssenceTabChoose.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityOverflow",
+            "AutoEssenceCapacityEnough",
+            "AutoEssenceCapacityReadFailed"
+        ]
+    },
+    "AutoEssenceCapacitySwitchToWeaponTab": {
+        "desc": "切换到武器基质标签页",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    350,
+                    0,
+                    500,
+                    80
+                ],
+                "template": "EssenceFilter/EssenceTabNotChoose.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityOnWeaponTab"
+        ]
+    },
+    "AutoEssenceCapacityCountOCR": {
+        "desc": "识别武器基质当前数量。只取左上角当前/2000里的当前值",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    70,
+                    40,
+                    150,
+                    36
+                ],
+                "expected": [
+                    // 武器基质 2004/2000，只取当前值
+                    // @i18n-skip
+                    "\\d+"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoEssenceCapacityOverflow": {
+        "desc": "武器基质数量高于阈值",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "1800 < {AutoEssenceCapacityCountOCR}",
+                    "focus_matched_resolved_expression": true
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityClickRecycle"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "武器基质高于阈值，分解 200 个"
+        }
+    },
+    "AutoEssenceCapacityEnough": {
+        "desc": "武器基质数量未高于阈值",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoEssenceCapacityCountOCR} <= 1800"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityReturnWorld"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "武器基质未高于阈值，返回大世界"
+        }
+    },
+    "AutoEssenceCapacityReadFailed": {
+        "desc": "读不到武器基质数量",
+        "action": {
+            "type": "StopTask"
+        },
+        "focus": {
+            "Node.Action.Starting": "读不到武器基质数量，已停止任务"
+        }
+    },
+    "AutoEssenceCapacityClickRecycle": {
+        "desc": "点击武器基质页底部的回收按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    280,
+                    610,
+                    120,
+                    90
+                ],
+                "template": "AutoEssence/EssenceRecycle.png",
+                "threshold": 0.6,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityDecomposePrompt"
+        ]
+    },
+    "AutoEssenceCapacityDecomposePrompt": {
+        "desc": "已进入勾选要分解的武器基质",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    560,
+                    280,
+                    50
+                ],
+                "expected": [
+                    "请勾选想要分解的武器基质"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityClickQuickPut"
+        ]
+    },
+    "AutoEssenceCapacityClickQuickPut": {
+        "desc": "点击快捷放入，进入筛选",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    80,
+                    620,
+                    280,
+                    70
+                ],
+                "expected": [
+                    "快捷放入"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                300,
+                80,
+                700,
+                520
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityFilterOpen"
+        ]
+    },
+    "AutoEssenceCapacityFilterOpen": {
+        "desc": "筛选弹窗已打开",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    520,
+                    120,
+                    240,
+                    80
+                ],
+                "expected": [
+                    "筛选"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                200,
+                140,
+                880,
+                460
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityStableOff",
+            "AutoEssenceCapacityStableOn"
+        ]
+    },
+    "AutoEssenceCapacityStableOff": {
+        "desc": "稳定基质未勾选，点击勾上",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    375,
+                    250,
+                    70,
+                    18
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        60,
+                        70
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                600,
+                145,
+                80,
+                36
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityPureOff",
+            "AutoEssenceCapacityPureOn"
+        ]
+    },
+    "AutoEssenceCapacityStableOn": {
+        "desc": "稳定基质已勾选",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    375,
+                    250,
+                    70,
+                    18
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        120
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        50,
+                        255
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityPureOff",
+            "AutoEssenceCapacityPureOn"
+        ]
+    },
+    "AutoEssenceCapacityPureOff": {
+        "desc": "净态基质未勾选，点击勾上",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    648,
+                    250,
+                    70,
+                    18
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        60,
+                        70
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                600,
+                145,
+                80,
+                36
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityHighOff",
+            "AutoEssenceCapacityHighOn"
+        ]
+    },
+    "AutoEssenceCapacityPureOn": {
+        "desc": "净态基质已勾选",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    648,
+                    250,
+                    70,
+                    18
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        120
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        50,
+                        255
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityHighOff",
+            "AutoEssenceCapacityHighOn"
+        ]
+    },
+    "AutoEssenceCapacityHighOff": {
+        "desc": "高纯基质未勾选，点击勾上",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    920,
+                    250,
+                    70,
+                    18
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        60,
+                        70
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                600,
+                145,
+                80,
+                36
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityUnlockedOn",
+            "AutoEssenceCapacityUnlockedOff"
+        ]
+    },
+    "AutoEssenceCapacityHighOn": {
+        "desc": "高纯基质已勾选",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    920,
+                    250,
+                    70,
+                    18
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        120
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        50,
+                        255
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityUnlockedOn",
+            "AutoEssenceCapacityUnlockedOff"
+        ]
+    },
+    "AutoEssenceCapacityUnlockedOn": {
+        "desc": "未上锁被勾选，点击取消",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    375,
+                    356,
+                    70,
+                    16
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        120
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        50,
+                        255
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                600,
+                145,
+                80,
+                36
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityDiscardedOn",
+            "AutoEssenceCapacityDiscardedOff"
+        ]
+    },
+    "AutoEssenceCapacityUnlockedOff": {
+        "desc": "未上锁保持空圈",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    375,
+                    356,
+                    70,
+                    16
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        60,
+                        70
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityDiscardedOn",
+            "AutoEssenceCapacityDiscardedOff"
+        ]
+    },
+    "AutoEssenceCapacityDiscardedOn": {
+        "desc": "已弃置被勾选，点击取消",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    648,
+                    356,
+                    70,
+                    16
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        120
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        50,
+                        255
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                600,
+                145,
+                80,
+                36
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityFilterResult"
+        ]
+    },
+    "AutoEssenceCapacityDiscardedOff": {
+        "desc": "已弃置保持空圈",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    648,
+                    356,
+                    70,
+                    16
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        180,
+                        60,
+                        70
+                    ]
+                ],
+                "count": 30
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityFilterResult"
+        ]
+    },
+    "AutoEssenceCapacityFilterResult": {
+        "desc": "筛选结果已出现",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    160,
+                    500,
+                    220,
+                    60
+                ],
+                "expected": [
+                    "筛选结果"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityClickSave"
+        ]
+    },
+    "AutoEssenceCapacityClickSave": {
+        "desc": "保存筛选，快捷放入 200 个",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    840,
+                    510,
+                    280,
+                    60
+                ],
+                "expected": [
+                    "保存"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        // 只等「已选择」数字静止。整条底栏含滚动黄条，永远等不满，会空等默认 20 秒
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                620,
+                250,
+                80
+            ],
+            "timeout": 1000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityBatchReady",
+            "AutoEssenceCapacityCannotReach",
+            "AutoEssenceCapacityNothingLeft"
+        ]
+    },
+    "AutoEssenceCapacitySelectedCountOCR": {
+        "desc": "识别已选择数量。只取已选择/200里的已选择值",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    620,
+                    220,
+                    70
+                ],
+                "expected": [
+                    // 已选择 200/200
+                    // @i18n-skip
+                    "已选择\\s*\\d+"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoEssenceCapacityBatchReady": {
+        "desc": "还有可分解的基质，分解这一批",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "0 < {AutoEssenceCapacitySelectedCountOCR}"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityClickDecompose"
+        ]
+    },
+    "AutoEssenceCapacityCannotReach": {
+        "desc": "没有可分解的基质，且库存仍高于阈值",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoEssenceCapacitySelectedCountOCR} == 0 && 1800 < {AutoEssenceCapacityCountOCR}"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityAbortExit"
+        ]
+    },
+    "AutoEssenceCapacityNothingLeft": {
+        "desc": "没有可分解的基质，库存已经不高于阈值",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "{AutoEssenceCapacitySelectedCountOCR} == 0 && {AutoEssenceCapacityCountOCR} <= 1800"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityClickExit"
+        ]
+    },
+    "AutoEssenceCapacityClickDecompose": {
+        "desc": "点击黄色分解按钮，分解这一批",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    860,
+                    620,
+                    400,
+                    80
+                ],
+                "expected": [
+                    // 分解
+                    // @i18n-skip
+                    "(?<!无法)分解"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityConfirmPrompt"
+        ],
+        "focus": {
+            "Node.Action.Starting": "分解 200 个武器基质"
+        }
+    },
+    "AutoEssenceCapacityConfirmPrompt": {
+        "desc": "分解确认弹窗已出现",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    480,
+                    230,
+                    320,
+                    70
+                ],
+                "expected": [
+                    "是否确认分解以下物品？"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityClickConfirm"
+        ],
+        "on_error": [
+            "AutoEssenceCapacityAbortExit"
+        ]
+    },
+    "AutoEssenceCapacityClickConfirm": {
+        "desc": "点击确认，分解这一批武器基质",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    640,
+                    450,
+                    240,
+                    70
+                ],
+                "expected": [
+                    "确认"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityRewardPrompt"
+        ]
+    },
+    "AutoEssenceCapacityRewardPrompt": {
+        "desc": "分解获得弹窗已出现",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    460,
+                    60,
+                    360,
+                    110
+                ],
+                "expected": [
+                    "分解获得"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityClickRewardClose"
+        ],
+        "on_error": [
+            "AutoEssenceCapacityAbortExit"
+        ]
+    },
+    "AutoEssenceCapacityClickRewardClose": {
+        "desc": "等关闭按钮静止后再点。弹窗还在就再点一次",
+        "max_hit": 3,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "AutoEssenceCapacityRewardPrompt"
+                ],
+                "box_index": 0
+            }
+        },
+        // 与 CloseRewardsButton 相同：先等按钮静止，避免弹窗动画吃掉点击
+        "pre_wait_freezes": {
+            "time": 50,
+            "timeout": 1000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityRewardClosed",
+            "AutoEssenceCapacityClickRewardClose"
+        ]
+    },
+    "AutoEssenceCapacityRewardClosed": {
+        "desc": "弹窗已关闭，回到武器基质页并再次确认数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoEssenceCapacityOnWeaponTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityOverflow",
+            "AutoEssenceCapacityEnough",
+            "AutoEssenceCapacityReadFailed"
+        ]
+    },
+    "AutoEssenceCapacityClickExit": {
+        "desc": "退出分解页",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 空列表时「退出」在提示栏右侧，位于底栏「无法分解」上方
+                "roi": [
+                    1050,
+                    520,
+                    230,
+                    160
+                ],
+                "expected": [
+                    "退出"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityReturnWorld"
+        ]
+    },
+    "AutoEssenceCapacityAbortExit": {
+        "desc": "没有可分解的基质且仍高于阈值时退出分解页",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                // 空列表时「退出」在提示栏右侧，位于底栏「无法分解」上方
+                "roi": [
+                    1050,
+                    520,
+                    230,
+                    160
+                ],
+                "expected": [
+                    "退出"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacitySelectFailed"
+        ]
+    },
+    "AutoEssenceCapacitySelectFailed": {
+        "desc": "没有可分解的基质，库存仍高于阈值，任务失败",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "325"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Failed": "$task.DecomposeWeaponEssence.focus.insufficient"
+        }
+    },
+    "AutoEssenceCapacityCloseValuables": {
+        "desc": "武器基质页按一次 Esc，回到主菜单",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoEssenceCapacityOnWeaponTab"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityBackInWorld",
+            "AutoEssenceCapacityOnMainMenu"
+        ]
+    },
+    "AutoEssenceCapacityOnMainMenu": {
+        "desc": "已经回到主菜单，再进入大世界",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InMenuList"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityBackInWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "AutoEssenceCapacityBackInWorld": {
+        "desc": "已在大世界，任务结束",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "AutoEssenceCapacityReturnWorld": {
+        "desc": "回到大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceCapacityBackInWorld",
+            "AutoEssenceCapacityCloseValuables",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    }
+}

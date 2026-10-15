@@ -206,9 +206,32 @@
     "AutoEssenceDispatcher": {
         "desc": "基质刷取分发：首次强制传送；之后认开挑战/激发/领取等，未命中则纯寻路",
         "pre_delay": 0,
+        // 寻路失败后只在传送与寻路之间往返，不经过这里；在这里清零，传送重走的上限就只数连续失败
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "GotoTriggerPointMaybeTeleport_VFOriginLodespring",
+                        "GotoTriggerPointMaybeTeleport_VFOriginiumSciencePark",
+                        "GotoTriggerPointMaybeTeleport_VFPowerPlateau",
+                        "GotoTriggerPointMaybeTeleport_VFTheHub",
+                        "GotoTriggerPointMaybeTeleport_WLMarkerStone",
+                        "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone",
+                        "GotoTriggerPointMaybeTeleport_WLQingboStockade",
+                        "GotoTriggerPointMaybeTeleport_WLSnowyForest",
+                        "GotoTriggerPointMaybeTeleport_WLSwordVaultDale",
+                        "GotoTriggerPointMaybeTeleport_WLTestArea",
+                        "GotoTriggerPointMaybeTeleport_WLWulingCity",
+                        "GotoTriggerPointMaybeTeleport_WLYinglungPass"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "next": [
-            // 整次任务首次：只强制传送+寻路，不识别其它界面
+            // 整次任务首次，以及目标模式换淤积点后（AutoEssenceTargetPlanAction 会清零它的命中计数重新武装）：只强制传送+寻路，不识别其它界面
             "__AutoEssenceForceTeleportOnce",
             // 淤积点交互：激发 / 领取 / 放弃
             "AutoEssenceClickTriggerButton",
@@ -223,7 +246,7 @@
         }
     },
     "__AutoEssenceForceTeleportOnce": {
-        "desc": "整次任务仅一次：强制传送到目标锚点后再寻路",
+        "desc": "整次任务首次、以及目标模式换淤积点后（换点时由 AutoEssenceTargetPlanAction 清零命中计数重新武装）：强制传送到目标锚点后再寻路",
         "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
@@ -585,6 +608,42 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoEssenceFindAttributeSelectionSuccess"
+        ]
+    },
+    "AutoEssenceFindAttributeSelectionSuccess": {
+        "desc": "确认进入属性选择界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "预刻写属性",
+                    "預刻寫屬性",
+                    "(?i)Pre\\s*-\\s*Engrave\\s*Stats",
+                    "刻印指定効果",
+                    "사전 각인 속성"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                34,
+                66,
+                917,
+                198
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "[JumpBack]AutoEssenceClickGrayAttributeOption",
             "AutoEssenceNoGrayAttributeOption"
         ]
@@ -840,7 +899,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CancelButton",
+                    "GrayCancelButton",
                     "__AutoEssenceRecoEngravePermitInsufficient"
                 ],
                 "box_index": 0
@@ -882,7 +941,10 @@
                 "expected": [
                     // @i18n-skip
                     "当前未进行基质预刻写",
-                    "目前未預刻寫基質"
+                    "目前未預刻寫基質",
+                    "(?i)No\\s*essence\\s*pre\\s*-?\\s*engraving",
+                    "刻印指定を行っていません",
+                    "사전\\s*각인을\\s*진행하지\\s*않았습니다"
                 ]
             }
         ],
@@ -900,7 +962,7 @@
         "enabled": true,
         "recognition": "And",
         "all_of": [
-            "CancelButton",
+            "GrayCancelButton",
             {
                 "recognition": "OCR",
                 "roi": [
@@ -912,7 +974,10 @@
                 // @i18n-skip
                 "expected": [
                     "当前理智不足",
-                    "目前理智不足"
+                    "目前理智不足",
+                    "(?i)Insufficient\\s*Sanity",
+                    "理性が不足",
+                    "이성이\\s*부족"
                 ]
             }
         ],
@@ -925,7 +990,7 @@
         "enabled": false,
         "recognition": "And",
         "all_of": [
-            "CancelButton",
+            "GrayCancelButton",
             {
                 "recognition": "OCR",
                 "roi": [
@@ -937,7 +1002,10 @@
                 // @i18n-skip
                 "expected": [
                     "当前理智不足",
-                    "目前理智不足"
+                    "目前理智不足",
+                    "(?i)Insufficient\\s*Sanity",
+                    "理性が不足",
+                    "이성이\\s*부족"
                 ]
             }
         ],
@@ -985,7 +1053,10 @@
                 // @i18n-skip
                 "expected": [
                     "当前理智不足",
-                    "目前理智不足"
+                    "目前理智不足",
+                    "(?i)Insufficient\\s*Sanity",
+                    "理性が不足",
+                    "이성이\\s*부족"
                 ]
             }
         ],
@@ -1060,7 +1131,8 @@
                     "重度|能量|淤积点", // 重度能量淤积点
                     "重度|能量|淤積點", // 重度能量淤積點
                     "Severe|Energy|Alluvium", // Severe Energy Alluvium
-                    "重度|超域|活性点" // 重度超域活性点
+                    "重度|超域|活性点", // 重度超域活性点
+                    "고위|에너지|응집점"
                 ]
             }
         },
@@ -1089,8 +1161,25 @@
         }
     },
     "AutoEssenceClickObtainButton": {
-        "desc": "识别并点击领取奖励的大世界按钮（Alt 点击；此节点默认开启）",
+        "desc": "识别领取奖励的大世界按钮，等待队友捡起物品避免交互坐标变动",
         "enabled": true,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEssenceRecoEssenceObtainButton",
+                    "__AutoEssenceRecoEssenceObtainText"
+                ],
+                "box_index": 1
+            }
+        },
+        "post_delay": 2000,
+        "next": [
+            "AutoEssenceClickObtainButtonRecheck"
+        ]
+    },
+    "AutoEssenceClickObtainButtonRecheck": {
+        "desc": "再次识别领取奖励按钮，命中后 Alt 点击",
         "recognition": {
             "type": "And",
             "param": {
@@ -1107,7 +1196,6 @@
                 "custom_action": "AutoAltClickAction"
             }
         },
-        "timeout": 2000,
         "next": [
             "AutoEssenceMistakeFactoryDevice",
             "AutoEssenceChooseScalingPre"
@@ -1132,7 +1220,14 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "AutoAltClickAction"
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "custom_action": "AutoAltClickAction",
+                    "wait_nodes": [
+                        "AutoEssenceMistakeFactoryDevice",
+                        "AutoEssenceConfirmDiscard"
+                    ]
+                }
             }
         },
         "timeout": 2000,
@@ -1224,16 +1319,13 @@
         "desc": "识别刻写选项是否已打开，识别到之后，点击它来关闭刻写",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    66,
-                    124,
-                    472,
-                    460
+                "all_of": [
+                    "__AutoEssenceRecoEssenceOverrideOnToggle",
+                    "__AutoEssenceRecoChooseOverrideEngraveNow"
                 ],
-                "template": "AutoEssence/EssenceOverrideOn.png",
-                "order_by": "Score"
+                "box_index": 0
             }
         },
         "action": {
@@ -1247,16 +1339,13 @@
         "desc": "识别刻写选项是否已关闭，识别到之后，点击它来开启刻写",
         "enabled": false,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    66,
-                    124,
-                    472,
-                    460
+                "all_of": [
+                    "__AutoEssenceRecoEssenceOverrideOffToggle",
+                    "__AutoEssenceRecoChooseOverrideEngraveNow"
                 ],
-                "template": "AutoEssence/EssenceOverrideOff.png",
-                "order_by": "Score"
+                "box_index": 0
             }
         },
         "action": {
@@ -1360,19 +1449,88 @@
         "inverse": true,
         "next": [
             "AutoEssenceLowSpUseMedication",
-            "AutoEssenceLowSpCancelObtain"
+            "AutoEssenceLowSpNoMedication"
         ]
     },
     "AutoEssenceLowSpUseMedication": {
         "desc": "尝试使用理智消耗许可",
         "pre_delay": 0,
         "anchor": {
-            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceLowSpCancelObtain",
+            "AutoUseSpMedicationInPrepareFinishNoUseAnchor": "AutoEssenceLowSpNoMedication",
             "AutoUseSpMedicationInPrepareFinishUseAnchor": "AutoEssenceConfirmObtain"
         },
         "post_delay": 0,
         "next": [
             "AutoUseSpMedicationInPrepareWithAnchor"
+        ]
+    },
+    "AutoEssenceLowSpNoMedication": {
+        "desc": "体力不足且未补充体力：双倍模式回退单倍领取，否则取消领取",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceLowSpFallbackScaling1",
+            "AutoEssenceLowSpCancelObtain"
+        ]
+    },
+    "AutoEssenceLowSpFallbackScaling1": {
+        "desc": "双倍领取体力不足，切换为单倍领取（默认关闭；仅双倍领取选项启用）",
+        "enabled": false,
+        "recognition": "And",
+        "all_of": [
+            "AutoEssenceChooseScaling1"
+        ],
+        "pre_wait_freezes": 200,
+        "action": "Click",
+        "next": [
+            "AutoEssenceLowSpFallbackConfirmObtain"
+        ]
+    },
+    "AutoEssenceLowSpFallbackConfirmObtain": {
+        "desc": "回退单倍后点击确认领取",
+        "recognition": "And",
+        "all_of": [
+            "AutoEssenceConfirmObtain"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                210,
+                168,
+                861,
+                422
+            ]
+        },
+        "post_delay": 1000,
+        "next": [
+            "AutoEssenceLowSpFallbackLowSp",
+            "EssenceFilterAfterBattleStart",
+            "AutoEssenceCloseObtainDialog"
+        ]
+    },
+    "AutoEssenceLowSpFallbackLowSp": {
+        "desc": "单倍领取仍体力不足，关闭弹窗后取消领取",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEssenceLowSpDialog",
+            "__AutoEssenceLowSpDialogCloseButton"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AutoEssenceLowSpFallbackLowDisappear"
+        ]
+    },
+    "AutoEssenceLowSpFallbackLowDisappear": {
+        "desc": "识别体力不足的弹窗消失",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEssenceLowSpDialog"
+        ],
+        "inverse": true,
+        "next": [
+            "AutoEssenceLowSpCancelObtain"
         ]
     },
     "AutoEssenceLowSpCancelObtain": {

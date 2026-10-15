@@ -40,6 +40,16 @@
             "problemMatcher": []
         },
         {
+            "label": "Build: Android Agents",
+            "type": "shell",
+            "command": "uv run tools/build_android_agents.py",
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "Generate: AutoStockStaple",
             "type": "shell",
             "command": "pnpm generate:AutoStockStaple",

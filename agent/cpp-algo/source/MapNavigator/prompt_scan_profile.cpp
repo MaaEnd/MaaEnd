@@ -105,13 +105,20 @@ bool ReadRoiArray(const json::value& holder, cv::Rect* out)
     return out->width > 0 && out->height > 0;
 }
 
-// 作者可以写单值, 但框架回吐时 template 与 threshold 恒为数组。预筛只跑一张图, 多给的当写错处理。
-bool ReadSingleString(const json::value& holder, std::string* out)
+// 作者可以写单值, 但框架回吐时 template 与 threshold 恒为数组
+bool ReadStringList(const json::value& holder, std::vector<std::string>* out)
 {
-    if (!holder.is_array() || holder.as_array().size() != 1 || !holder.as_array().at(0).is_string()) {
+    if (!holder.is_array() || holder.as_array().empty()) {
         return false;
     }
-    *out = holder.as_array().at(0).as_string();
+    std::vector<std::string> values;
+    for (const json::value& item : holder.as_array()) {
+        if (!item.is_string() || item.as_string().empty()) {
+            return false;
+        }
+        values.push_back(item.as_string());
+    }
+    *out = std::move(values);
     return true;
 }
 
@@ -124,12 +131,19 @@ bool ReadBool(const json::value& holder, bool* out)
     return true;
 }
 
-bool ReadSingleNumber(const json::value& holder, double* out)
+bool ReadNumberList(const json::value& holder, std::vector<double>* out)
 {
-    if (!holder.is_array() || holder.as_array().size() != 1 || !holder.as_array().at(0).is_number()) {
+    if (!holder.is_array() || holder.as_array().empty()) {
         return false;
     }
-    *out = holder.as_array().at(0).as_double();
+    std::vector<double> values;
+    for (const json::value& item : holder.as_array()) {
+        if (!item.is_number()) {
+            return false;
+        }
+        values.push_back(item.as_double());
+    }
+    *out = std::move(values);
     return true;
 }
 
@@ -213,29 +227,27 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
         return false;
     }
 
-    std::string relative_path;
+    std::vector<std::string> relative_paths;
     const json::value* template_value = FindRecognitionParam(*node, "template");
-    if (template_value == nullptr || !ReadSingleString(*template_value, &relative_path) || relative_path.empty()) {
-        LogError << "Prompt scan node needs exactly one template path." << VAR(scan_node);
+    if (template_value == nullptr || !ReadStringList(*template_value, &relative_paths)) {
+        LogError << "Prompt scan node needs at least one template path." << VAR(scan_node);
         return false;
     }
 
-    double threshold = kPromptIconMatchThreshold;
+    // 只给一个 threshold 时所有图共用
+    std::vector<double> thresholds { kPromptIconMatchThreshold };
     const json::value* threshold_value = FindRecognitionParam(*node, "threshold");
-    if (threshold_value != nullptr && !ReadSingleNumber(*threshold_value, &threshold)) {
-        LogError << "Prompt scan node needs exactly one threshold." << VAR(scan_node);
+    if (threshold_value != nullptr && !ReadNumberList(*threshold_value, &thresholds)) {
+        LogError << "Prompt scan threshold must be numbers." << VAR(scan_node);
         return false;
     }
-    if (threshold <= 0.0 || threshold > 1.0) {
-        LogError << "Prompt scan threshold must sit in (0, 1]." << VAR(scan_node) << VAR(threshold);
+    if (thresholds.size() != 1 && thresholds.size() != relative_paths.size()) {
+        LogError << "Prompt scan node needs one threshold, or one per template." << VAR(scan_node) << VAR(relative_paths.size())
+                 << VAR(thresholds.size());
         return false;
     }
-
-    const std::vector<std::filesystem::path> roots = ResourceImageRoots(controller_type);
-    const std::optional<std::filesystem::path> resolved = ResolveResourceImage(roots, relative_path);
-    if (!resolved) {
-        LogError << "Prompt scan template not found under any loaded resource tree." << VAR(scan_node) << VAR(relative_path)
-                 << VAR(DescribeRoots(roots));
+    if (std::ranges::any_of(thresholds, [](double threshold) { return threshold <= 0.0 || threshold > 1.0; })) {
+        LogError << "Prompt scan threshold must sit in (0, 1]." << VAR(scan_node) << VAR(thresholds);
         return false;
     }
 
@@ -246,41 +258,53 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
         return false;
     }
 
-    // 纯绿被排除在匹配之外, 与 pipeline 的 TemplateMatch 同判据; 全不透明时按没有掩码处理。
-    cv::Mat mask;
-    cv::Mat templ;
-    if (green_mask) {
-        const cv::Mat color = MAA_NS::imread(*resolved, cv::IMREAD_COLOR);
-        if (!color.empty()) {
-            cv::inRange(color, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0), mask);
-            mask = ~mask;
-            if (cv::countNonZero(mask) == mask.rows * mask.cols) {
-                mask.release();
-            }
-            cv::cvtColor(color, templ, cv::COLOR_BGR2GRAY);
+    const std::vector<std::filesystem::path> roots = ResourceImageRoots(controller_type);
+    std::vector<ScanIcon> icons;
+    std::vector<std::string> resolved_paths;
+    for (size_t i = 0; i < relative_paths.size(); ++i) {
+        const std::string& relative_path = relative_paths[i];
+        const std::optional<std::filesystem::path> resolved = ResolveResourceImage(roots, relative_path);
+        if (!resolved) {
+            LogError << "Prompt scan template not found under any loaded resource tree." << VAR(scan_node) << VAR(relative_path)
+                     << VAR(DescribeRoots(roots));
+            return false;
         }
-    }
-    else {
-        templ = MAA_NS::imread(*resolved, cv::IMREAD_GRAYSCALE);
-    }
-    if (templ.empty()) {
-        LogError << "Prompt scan template failed to decode." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(*resolved));
-        return false;
-    }
-    // cv::matchTemplate 的硬前提。这里不放过, 后台线程每帧都会踩上去; 而 cpp-algo 不留 try/catch。
-    if (templ.cols > base_roi.width || templ.rows > base_roi.height) {
-        LogError << "Prompt scan template is larger than its roi." << VAR(scan_node) << VAR(templ.cols) << VAR(templ.rows)
-                 << VAR(base_roi.width) << VAR(base_roi.height);
-        return false;
+
+        // 纯绿被排除在匹配之外, 与 pipeline 的 TemplateMatch 同判据; 全不透明时按没有掩码处理。
+        ScanIcon icon { .threshold = thresholds.size() == 1 ? thresholds.front() : thresholds[i] };
+        if (green_mask) {
+            const cv::Mat color = MAA_NS::imread(*resolved, cv::IMREAD_COLOR);
+            if (!color.empty()) {
+                cv::inRange(color, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0), icon.mask);
+                icon.mask = ~icon.mask;
+                if (cv::countNonZero(icon.mask) == icon.mask.rows * icon.mask.cols) {
+                    icon.mask.release();
+                }
+                cv::cvtColor(color, icon.templ, cv::COLOR_BGR2GRAY);
+            }
+        }
+        else {
+            icon.templ = MAA_NS::imread(*resolved, cv::IMREAD_GRAYSCALE);
+        }
+        if (icon.templ.empty()) {
+            LogError << "Prompt scan template failed to decode." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(*resolved));
+            return false;
+        }
+        // cv::matchTemplate 的硬前提。这里不放过, 后台线程每帧都会踩上去; 而 cpp-algo 不留 try/catch。
+        if (icon.templ.cols > base_roi.width || icon.templ.rows > base_roi.height) {
+            LogError << "Prompt scan template is larger than its roi." << VAR(scan_node) << VAR(relative_path) << VAR(icon.templ.cols)
+                     << VAR(icon.templ.rows) << VAR(base_roi.width) << VAR(base_roi.height);
+            return false;
+        }
+        resolved_paths.push_back(MAA_NS::path_to_utf8_string(*resolved));
+        icons.push_back(std::move(icon));
     }
 
     out->scan_node = scan_node;
     out->base_roi = base_roi;
-    out->templ = templ;
-    out->mask = mask;
-    out->threshold = threshold;
-    LogInfo << "Prompt scan profile loaded from the pipeline." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(*resolved))
-            << VAR(threshold) << VAR(green_mask) << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
+    out->icons = std::move(icons);
+    LogInfo << "Prompt scan profile loaded from the pipeline." << VAR(scan_node) << VAR(resolved_paths) << VAR(thresholds)
+            << VAR(green_mask) << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
     return true;
 }
 

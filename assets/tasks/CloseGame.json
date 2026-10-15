@@ -8,13 +8,13 @@
             "group": [
                 "other_menu"
             ],
-            "option": [
-                "ClientVersion",
-                "ClientVersionCloudLocked"
-            ],
             "controller": [
                 "ADB",
                 "CloudADB"
+            ],
+            "option": [
+                "ClientVersion",
+                "ClientVersionCloudLocked"
             ]
         }
     ]

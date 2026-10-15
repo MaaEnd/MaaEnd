@@ -1,0 +1,357 @@
+{
+    "configs": {
+        "name": "自动采集连通性（正例）"
+    },
+    "cases": [
+        {
+            "name": "AutoCollectCommonRoute1AssertLocation1",
+            "zone_id": "ValleyIV_Base",
+            "start": [
+                446,
+                911
+            ],
+            "goal": [
+                340.15,
+                983.54
+            ]
+        },
+        {
+            "name": "AutoCollectCommonRoute2AssertLocation1",
+            "zone_id": "ValleyIV_Base",
+            "start": [
+                446,
+                911
+            ],
+            "goal": [
+                357.84,
+                949.37
+            ]
+        },
+        {
+            "name": "AutoCollectCommonRoute3AssertLocation1",
+            "zone_id": "Wuling_L4_328",
+            "start": [
+                259,
+                215
+            ],
+            "goal": [
+                244.38,
+                122.12
+            ],
+            "goal_tier": "Wuling_L4_328"
+        },
+        {
+            "name": "AutoCollectCommonRoute4AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                980,
+                2508
+            ],
+            "goal": [
+                956.74,
+                2535.91
+            ]
+        },
+        {
+            "name": "AutoCollectCommonRoute5AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                492,
+                2119
+            ],
+            "goal": [
+                411.37,
+                2132.9
+            ]
+        },
+        {
+            "name": "AutoCollectCommonRoute6AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                599,
+                2241
+            ],
+            "goal": [
+                636.26,
+                2293.87
+            ]
+        },
+        {
+            "name": "AutoCollectCommonRoute6AssertLocation2",
+            "zone_id": "Wuling_Base",
+            "start": [
+                455,
+                2389
+            ],
+            "goal": [
+                467.08,
+                2400.82
+            ]
+        },
+        {
+            "name": "AutoCollectCommonRoute7AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                492,
+                2119
+            ],
+            "goal": [
+                408.71,
+                2122.16
+            ]
+        },
+        {
+            "name": "AutoCollectCommonRoute8AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                1293,
+                1753
+            ],
+            "goal": [
+                1336.21,
+                1763.47
+            ]
+        },
+        {
+            "name": "AutoCollectRoute1AssertLocation",
+            "zone_id": "Wuling_Base",
+            "start": [
+                951,
+                1788
+            ],
+            "goal": [
+                933,
+                1706
+            ]
+        },
+        {
+            "name": "AutoCollectRoute10AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                975,
+                2202
+            ],
+            "goal": [
+                933.27,
+                2222.41
+            ]
+        },
+        {
+            "name": "AutoCollectRoute10AssertLocation2",
+            "zone_id": "Wuling_Base",
+            "start": [
+                933,
+                2222
+            ],
+            "goal": [
+                931.64,
+                2201.9
+            ]
+        },
+        {
+            "name": "AutoCollectRoute11AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                738,
+                2412
+            ],
+            "goal": [
+                701.34,
+                2317.76
+            ]
+        },
+        {
+            "name": "AutoCollectRoute12AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                598,
+                2242
+            ],
+            "goal": [
+                624.05,
+                2263.63
+            ]
+        },
+        {
+            "name": "AutoCollectRoute13AssertLocation1",
+            "zone_id": "ValleyIV_Base",
+            "start": [
+                1102,
+                453
+            ],
+            "goal": [
+                1007.91,
+                362.95
+            ]
+        },
+        {
+            "name": "AutoCollectRoute14AssertLocation1",
+            "zone_id": "ValleyIV_Base",
+            "start": [
+                446,
+                911
+            ],
+            "goal": [
+                593.63,
+                979.66
+            ]
+        },
+        {
+            "name": "AutoCollectRoute15AssertLocation",
+            "zone_id": "Wuling_Base",
+            "start": [
+                1118.96,
+                598.59
+            ],
+            "goal": [
+                1096.46,
+                575.99
+            ]
+        },
+        {
+            "name": "AutoCollectRoute16AssertLocation",
+            "zone_id": "Wuling_L8_382",
+            "start": [
+                142.84,
+                271.89
+            ],
+            "goal": [
+                1502,
+                538.13
+            ]
+        },
+        {
+            "name": "AutoCollectRoute17AssertLocation",
+            "zone_id": "Wuling_Base",
+            "start": [
+                1716.07,
+                995.23
+            ],
+            "goal": [
+                1666.32,
+                1016.35
+            ],
+            "goal_deck_y": 126.37
+        },
+        {
+            "name": "AutoCollectRoute2AssertLocation",
+            "zone_id": "Wuling_Base",
+            "start": [
+                920,
+                1593
+            ],
+            "goal": [
+                818.71,
+                1519.42
+            ]
+        },
+        {
+            "name": "AutoCollectRoute3AssertLocation",
+            "zone_id": "Wuling_Base",
+            "start": [
+                716,
+                1903
+            ],
+            "goal": [
+                733,
+                1885
+            ]
+        },
+        {
+            "name": "AutoCollectRoute4AssertLocation",
+            "zone_id": "ValleyIV_Base",
+            "start": [
+                652,
+                377
+            ],
+            "goal": [
+                728.68,
+                366.75
+            ]
+        },
+        {
+            "name": "AutoCollectRoute5AssertLocation",
+            "zone_id": "ValleyIV_Base",
+            "start": [
+                530,
+                698
+            ],
+            "goal": [
+                532.43,
+                754.71
+            ]
+        },
+        {
+            "name": "AutoCollectRoute6AssertLocation",
+            "zone_id": "ValleyIV_Base",
+            "start": [
+                530,
+                697
+            ],
+            "goal": [
+                585,
+                723
+            ]
+        },
+        {
+            "name": "AutoCollectRoute7AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                497,
+                1565
+            ],
+            "goal": [
+                554,
+                1404.52
+            ]
+        },
+        {
+            "name": "AutoCollectRoute7AssertLocation4",
+            "zone_id": "Wuling_Base",
+            "start": [
+                555,
+                1398
+            ],
+            "goal": [
+                564.83,
+                1367.48
+            ]
+        },
+        {
+            "name": "AutoCollectRoute7AssertLocation5",
+            "zone_id": "Wuling_Base",
+            "start": [
+                578,
+                1358
+            ],
+            "goal": [
+                562.27,
+                1332.9
+            ]
+        },
+        {
+            "name": "AutoCollectRoute8AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                707,
+                1894
+            ],
+            "goal": [
+                665.72,
+                1858.93
+            ]
+        },
+        {
+            "name": "AutoCollectRoute9AssertLocation1",
+            "zone_id": "Wuling_Base",
+            "start": [
+                707,
+                1894
+            ],
+            "goal": [
+                838.22,
+                1943.85
+            ]
+        }
+    ]
+}

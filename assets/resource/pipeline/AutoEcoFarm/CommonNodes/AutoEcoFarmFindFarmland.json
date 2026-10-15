@@ -199,13 +199,13 @@
             }
         },
         "post_wait_freezes": {
+            "time": 500,
             "target": [
                 18,
                 44,
                 337,
                 593
-            ],
-            "time": 500
+            ]
         },
         "next": [
             "_AutoEcoFarmClickIndustrialFacilities"
@@ -371,13 +371,13 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 945,
                 13,
                 332,
                 697
-            ],
-            "time": 200
+            ]
         },
         "next": [
             "_AutoEcoFarmIsMrarking",

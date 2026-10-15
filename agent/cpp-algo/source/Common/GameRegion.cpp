@@ -1,13 +1,21 @@
 #include "GameRegion.h"
 
 #include <algorithm>
+#include <array>
 #include <cctype>
+#include <cstdint>
 #include <filesystem>
+#include <iterator>
 #include <memory>
 #include <optional>
+#include <set>
+#include <sstream>
+#include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
+#include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
 
@@ -15,6 +23,13 @@
 #include <MaaUtils/SafeWindows.hpp>
 
 #include <Psapi.h>
+#endif
+
+#include "../MapNavigator/controller_info_utils.h"
+#include "../MapNavigator/controller_type_utils.h"
+#include "../utils.h"
+#ifdef __APPLE__
+#include "MacAppHost.h"
 #endif
 
 namespace gamesetting
@@ -27,6 +42,15 @@ constexpr const char* kEndfieldProcessName = "Endfield.exe";
 constexpr const char* kSdkDllCN = "hgsdk.dll";
 constexpr const char* kSdkDllCNPCGame = "PCGameSDK.dll"; // Bilibili 服，仍归国服
 constexpr const char* kSdkDllGlobal = "gfsdk.dll";
+
+constexpr const char* kAdbListProcessesCommand = "ps -A -o NAME";
+constexpr int64_t kAdbShellTimeoutMs = 20000;
+constexpr std::array<std::pair<std::string_view, Region>, 4> kEndfieldAppIds = { {
+    { "com.hypergryph.endfield", Region::CN },
+    { "com.hypergryph.endfield.bilibili", Region::CN },
+    { "com.gryphline.endfield.gp", Region::Global },
+    { "com.gryphline.endfield.ios", Region::Global },
+} };
 
 std::optional<Region> g_cached_region;
 
@@ -165,6 +189,46 @@ Region DetectGameRegionUncached()
     return Region::Unknown;
 }
 
+Region RegionOfRunningApps(const std::vector<std::string>& app_ids, const std::string& controller_type)
+{
+    std::set<Region> regions;
+    for (const auto& [app_id, region] : kEndfieldAppIds) {
+        if (std::find(app_ids.begin(), app_ids.end(), app_id) != app_ids.end()) {
+            regions.insert(region);
+        }
+    }
+
+    switch (regions.size()) {
+    case 1:
+        return *regions.begin();
+    case 0:
+        LogError << "GameRegion: Endfield not running; cannot auto-detect region" << VAR(controller_type);
+        return Region::Unknown;
+    default:
+        LogError << "GameRegion: both CN and Global Endfield are running, cannot auto-detect region" << VAR(controller_type);
+        return Region::Unknown;
+    }
+}
+
+std::vector<std::string> ListAdbProcessNames(MaaController* controller)
+{
+    const MaaCtrlId shell_id = MaaControllerPostShell(controller, kAdbListProcessesCommand, kAdbShellTimeoutMs);
+    if (MaaControllerWait(controller, shell_id) != MaaStatus_Succeeded) {
+        LogError << "GameRegion: adb shell failed" << VAR(kAdbListProcessesCommand);
+        return {};
+    }
+
+    ScopedStringBuffer buffer;
+    if (buffer.Get() == nullptr || !MaaControllerGetShellOutput(controller, buffer.Get())) {
+        LogError << "GameRegion: adb shell output unavailable" << VAR(kAdbListProcessesCommand);
+        return {};
+    }
+
+    const char* raw = MaaStringBufferGet(buffer.Get());
+    std::istringstream output(raw != nullptr ? raw : "");
+    return std::vector<std::string>(std::istream_iterator<std::string>(output), std::istream_iterator<std::string>());
+}
+
 } // namespace
 
 Region DetectGameRegion()
@@ -179,6 +243,20 @@ Region DetectGameRegion()
     }
     g_cached_region = region;
     return region;
+}
+
+Region DetectGameRegion(MaaController* controller)
+{
+    const std::string controller_type = mapnavigator::DetectControllerType(controller);
+#ifdef __APPLE__
+    if (mapnavigator::IsPlayCoverControllerType(controller_type)) {
+        return RegionOfRunningApps(common::macapp::RunningApplicationIds(), controller_type);
+    }
+#endif
+    if (mapnavigator::IsAdbLikeControllerType(controller_type)) {
+        return RegionOfRunningApps(ListAdbProcessNames(controller), controller_type);
+    }
+    return DetectGameRegion();
 }
 
 } // namespace gamesetting

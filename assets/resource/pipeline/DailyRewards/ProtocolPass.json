@@ -632,7 +632,7 @@
                 ],
                 "threshold": 0.9
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_wait_freezes": 100,
@@ -661,7 +661,7 @@
                     "지정 보급 개방"
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_wait_freezes": 100,

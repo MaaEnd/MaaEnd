@@ -96,6 +96,12 @@ bool AdbVirtualJoystickDriver::Release(int delay_millis)
     return true;
 }
 
+bool AdbVirtualJoystickDriver::SetWalking(bool walking)
+{
+    walking_ = walking;
+    return !touch_active_ || UpdateDirectionalDrag(active_direction_);
+}
+
 AdbVirtualJoystickDriver::Direction AdbVirtualJoystickDriver::ResolveDirection(bool forward, bool left, bool backward, bool right) const
 {
     const int horizontal = (right ? 1 : 0) - (left ? 1 : 0);
@@ -233,7 +239,7 @@ cv::Point AdbVirtualJoystickDriver::ComputeTargetPoint(Direction direction) cons
     const cv::Point vector = DirectionVector(direction);
     const int radius = ComputeDragRadius();
     const bool diagonal = vector.x != 0 && vector.y != 0;
-    const double unit_scale = diagonal ? 1.0 / std::numbers::sqrt2_v<double> : 1.0;
+    const double unit_scale = (diagonal ? 1.0 / std::numbers::sqrt2_v<double> : 1.0) * (walking_ ? config_.walk_drag_ratio : 1.0);
 
     const cv::Point image_target(
         active_geometry_->control_origin.x

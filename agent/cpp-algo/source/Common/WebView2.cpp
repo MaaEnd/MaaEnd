@@ -13,6 +13,8 @@
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
 
+#include "output_paths.h"
+
 namespace
 {
 
@@ -72,9 +74,9 @@ std::wstring utf8ToWide(const std::string& src)
 // 一旦未来 Microsoft 把优先级调成参数 > env var（issue #1338 里 Microsoft
 // 也提过想这样调），第 2 步也能让我们继续命中专属 UDF，向前兼容。
 //
-// 返回的路径默认是 cpp-algo.exe 同目录下的 "<exe>.WebView2"（与 SDK 没有任何
-// override 时的默认命名规则保持一致）。GetModuleFileNameW 失败时返回空路径，
-// 表示此次无法接管，调用方应当回退到 nullptr 让 SDK 自己处理。
+// 保留 agent/<exe>.WebView2 的原有布局，以启动工作目录为根目录。
+// GetModuleFileNameW 仅用于获取 exe 文件名；失败时返回空路径，
+// 调用方回退到 nullptr 让 SDK 自己处理。
 std::filesystem::path redirect_user_data_folder()
 {
     wchar_t exe_buf[MAX_PATH] = {};
@@ -84,7 +86,7 @@ std::filesystem::path redirect_user_data_folder()
         return {};
     }
 
-    std::filesystem::path udf(exe_buf);
+    std::filesystem::path udf = common::OutputPath("agent") / std::filesystem::path(exe_buf).filename();
     udf += L".WebView2";
 
     std::error_code ec;

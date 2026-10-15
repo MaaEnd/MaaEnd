@@ -33,7 +33,7 @@ flowchart TD
     Auto --> RAuto["DeliveryJobsAuto{Region}\nOr(InRegionalDevelopment{Region}, DeliveryJobsIn{Region}LocalDepotNode)"]
     RAuto --> RTask
     RAuto --> Loop
-    RTask --> RLoop(["DeliveryJobs{Region}Loop\nSubTask 进入本地区仓储节点场景\n设 DeliveryJobsGoToDepot / DeliveryJobsReturnToDepotNode"])
+    RTask --> RLoop(["DeliveryJobs{Region}Loop\nSubTask 进入本地区仓储节点场景\n设 DeliveryJobsGoToDepot / DeliveryJobsReturnToDepotNode / DeliveryJobsAfterAutoDelivery"])
     RLoop -->|"[JumpBack] × 本地区每个仓储节点"| EJob{{"DeliveryJobsEnter{Depot}DeliveryJob\n识别「查看任务」\n设 DeliveryJobsReturnToDepotNode = InLocalDepotNode"}}
     RLoop -->|"[JumpBack] × 本地区每个仓储节点"| ECargo{{"DeliveryJobsEnter{Depot}Cargo\n识别「查看报价」/「货物装箱」\n设 5 个 anchor"}}
     RLoop --> Next(["DeliveryJobsLoop\n下一个地区"])
@@ -97,7 +97,7 @@ flowchart TD
 | # | 触发方式 | 经过的节点 | 何时走这条 |
 | --- | ------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------ |
 | 1 | 循环重入后命中入口 A「查看任务」 | `DeliveryJobsClickTransferJob` → `DeliveryJobsConfirmTaskTransfer` | 入口 A 启用且该仓储节点还有 `max_hit` 名额时 |
-| 2 | 调度申请界面识别到已有待运送货物 | `DeliveryJobsOngoingDelivery` → … → `DeliveryJobsTransferOngoingJob`（仅当该委托归属仓储节点的方式是「接取并转交」，其余方式走 `DeliveryJobsSkipOngoingDelivery`） | 手里的委托还没有交出去，又进了这个仓储节点的装箱/调度申请流程时 |
+| 2 | 调度申请界面识别到已有待运送货物 | `DeliveryJobsOngoingDelivery` → `DeliveryJobsEnsureOngoingDeliveryMission` → `DeliveryJobsWaitOngoingMissionDetail`：**先判这条委托能不能转交**（详情里有「转交运送委托」= 由「接取并转交」接下的委托；没有 = 抢来的）。能转交才按它归属仓储节点的方式走 `DeliveryJobsOngoingDeliveryFor{Depot}`（「接取并转交」→ `DeliveryJobsTransferOngoingJob`；「全自动送货」与「按报价处理」→ `DeliveryJobsAutoDelivery{DepotId}`；其余方式 → `DeliveryJobsSkipOngoingDelivery`）；抢来的一律走 `DeliveryJobsTransferUnavailable` → `DeliveryJobsDeliverOngoingByAutoDelivery` 送掉 | 手里的委托还没有交出去，又进了这个仓储节点的装箱/调度申请流程时 |
 
 ### `DeliveryJobsEnter{Depot}PriceDeliveryJob`
 
@@ -137,6 +137,7 @@ flowchart TD
 - 这些覆盖由 option 直接改写 `DeliveryJobs{Depot}QuoteAtLeastMinimum` / `DeliveryJobs{Depot}QuoteBelowMinimum` 的 `next` 与 `anchor.DeliveryJobsGoToDepot`。「不处理」把 `next` 指向 `DeliveryJobsCloseRedistributionBid`，此时不经过 `DeliveryJobsBackToDepot`，`DeliveryJobsGoToDepot` 不参与。
 - `pipeline_override` 对 `anchor` 对象和数组 `next` 都是**整体替换**，覆盖时必须给全该字段，不要只写想改的那一项。
 - 报价 OCR 失败（`DeliveryJobsBidPriceRecognitionFailed`）直接 `StopTask` 并停在报价页，不猜、不自动接取。
+- **残留委托不走报价判断**：`DeliveryJobsOngoingDeliveryFor{Depot}.next` 被覆盖为 `DeliveryJobsAutoDelivery{Depot}`（无归属终点的仓储节点为 `DeliveryJobsSkipOngoingDelivery`），理由与影响见[残留送货任务](#残留送货任务)。
 
 ## 残留送货任务
 
@@ -146,21 +147,34 @@ flowchart TD
 flowchart TD
     Bid{"DeliveryJobsInCargoRedistributionBid\n调度申请界面"} -->|识别到已有待运送货物| Ong["DeliveryJobsOngoingDelivery"]
     Ong --> Ensure["DeliveryJobsEnsureOngoingDeliveryMission\nSubTask AutoDeliveryEnsureDeliveryMissionSelected\n进任务界面并选中那条送货任务"]
-    Ensure --> Resolve["DeliveryJobsResolveOngoingDepot\nAnd(AutoDeliveryInDeliveryMissionDetail, AutoDeliveryCheckAreaText)\nGo: DeliveryJobsResolveOngoingDepotAction"]
+    Ensure --> Wait{{"DeliveryJobsWaitOngoingMissionDetail\nAnd(AutoDeliveryInDeliveryMissionDetail)\n+ pre_wait_freezes 200ms\n等详情稳定后再判能不能转交"}}
+    Wait -->|"详情里有「转交运送委托」\n= 由「接取并转交」接下的委托"| Chk["DeliveryJobsCheckTransferJobAvailable"]
+    Wait -->|"详情里没有转交按钮\n= 抢来的委托，一律送掉"| Unavail["DeliveryJobsTransferUnavailable → DeliverOngoingByAutoDelivery\n送不掉则停止任务"]
+    Chk --> Resolve["DeliveryJobsResolveOngoingDepot\nAnd(AutoDeliveryInDeliveryMissionDetail, AutoDeliveryCheckAreaText)\nGo: DeliveryJobsResolveOngoingDepotAction"]
     Resolve -.->|"运行时把 next 覆盖为 DeliveryJobsOngoingDeliveryFor{DepotId}"| For{{"DeliveryJobsOngoingDeliveryFor{DepotId}\n只覆盖 next（处理方式），不声明回跳落点"}}
     For -->|接取并转交| T["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode"]
-    For -->|全自动送货| A["DeliveryJobsAutoDelivery{DepotId} → DeliverByAutoDelivery → [Anchor]AfterAutoDelivery"]
-    For -->|其余四种| S["DeliveryJobsSkipOngoingDelivery → [Anchor]ReturnToDepotNode"]
+    For -->|全自动送货 / 按报价处理| A["DeliveryJobsAutoDelivery{DepotId} → DeliverByAutoDelivery → [Anchor]AfterAutoDelivery"]
+    For -->|其余三种| S["DeliveryJobsSkipOngoingDelivery → [Anchor]ReturnToDepotNode"]
 ```
 
 `DeliveryJobsResolveOngoingDepotAction` 用任务详情「当前区域」的 OCR 文本匹配仓储节点，把 `next` 覆盖为对应的分派节点。分派依据是**残留任务归属仓储节点**的处理方式，与当前正在遍历哪个仓储节点无关——残留任务可能来自上一个仓储节点，也可能来自本次根本没遍历到的节点：
 
 | 归属仓储节点的处理方式 | 去向 | 结果 |
-| ------------------------------- | ---------------------------------- | ------------------------------------------ |
-| 接取并转交 | `DeliveryJobsTransferOngoingJob` | 转交后回本地区仓储节点，继续地区循环 |
-| 全自动送货 | `DeliveryJobsAutoDelivery{DepotId}` | 送掉后回地区循环 |
-| 按报价处理 / 仅接取委托 / 仅装箱货物 | `DeliveryJobsSkipOngoingDelivery` | 退出任务界面，回本地区仓储节点继续遍历 |
+| ------------------------------------------- | ---------------------------------- | ------------------------------------------ |
+| 接取并转交 | `DeliveryJobsTransferOngoingJob`；界面上没有转交按钮时降级为 `DeliveryJobsDeliverOngoingByAutoDelivery` | 转交后回本地区仓储节点，继续地区循环；降级送货成功后回地区循环，送货失败则停止任务 |
+| 全自动送货 / 按报价处理 | `DeliveryJobsAutoDelivery{DepotId}` | 送掉后回地区循环 |
+| 仅接取委托 / 仅装箱货物 | `DeliveryJobsSkipOngoingDelivery` | 退出任务界面，回本地区仓储节点继续遍历 |
 | 不处理 | 同上（不覆盖分派节点，走模板默认） | 同上 |
+
+上表只对**能转交的委托**生效：抢来的委托在 `DeliveryJobsWaitOngoingMissionDetail` 就已经被分走（一律送掉），不会走到 `DeliveryJobsResolveOngoingDepot`，也不看任何仓储节点的配置。
+
+> [!NOTE]
+>
+> **「按报价处理」的残留委托不做报价判断，直接交给全自动送货。** 已接取的委托已经没有报价可看，而跳过它会一直挡着调度申请界面，后续仓储节点连新委托都接不了；`delivery_destinations.json` 里没有归属终点的仓储节点无处可送，这种仓储节点才退回 `DeliveryJobsSkipOngoingDelivery`（当前五个仓储节点都有终点，该分支只在新增无终点仓储节点时生效）。自动送货失败仍由公共调用节点 `DeliveryJobsDeliverByAutoDelivery` 的 `on_error` 处理：默认停止任务，打开「送货失败后自动转交任务」则转交后继续。
+>
+> **抢来的委托一律送掉，不看仓储节点配置。** 抢委托（🏍️抢委托送货）拿到的送货任务，游戏不允许再转交：任务详情里没有「转交运送委托」，只有「开始追踪」。`DeliveryJobsWaitOngoingMissionDetail` 判出「没有按钮」后就走 `DeliveryJobsTransferUnavailable` → `DeliveryJobsDeliverOngoingByAutoDelivery` 把它送掉；送货失败即停止任务并输出「自动送货未能送达」。普通接取的委托不受这条影响（即使货物已经在手上也照样能转交），所以这不是「货在手上」的通用兜底，而是抢委托这条路特有的分支。这条规则与抢委托任务对身上已有委托的处理同源：`SeizeDeliveryJobsHandleOngoingJob` 的 `next` 同样是「有转交按钮就转交，没有就交给后处理选项」（它能撞上转交按钮，是因为它也可能在处理「接取并转交」接下的委托）。
+>
+> **判断「能不能转交」之前必须先让页面稳定。** 转交按钮在不在，同时决定「按仓储节点配置处理」和「一律送掉」两个去向：页面还在渲染时先判，会把本该转交的委托当成抢来的直接送掉。所以 `DeliveryJobsEnsureOngoingDeliveryMission` 之后先过 `DeliveryJobsWaitOngoingMissionDetail`（`And(AutoDeliveryInDeliveryMissionDetail)` + 详情区域 `pre_wait_freezes 200ms`），稳定后才由 `DeliveryJobsCheckTransferJobAvailable` 判断——这与入口 A 边上那个门节点 `DeliveryJobsWait{Depot}DeliveryMissionDetail` 是同一个思路。
 
 任务详情里的区域名与仓储节点名在五种语言下逐字一致，Go 侧才能用区域 ID 直接拼出 `DeliveryJobsOngoingDeliveryFor{ID}` 这个节点名；这条恒等关系由 `model.mjs` 在生成时断言，两边不各写一套映射。Go 侧仓储节点名取自 `global.region.{DepotId}`，与节点名后缀同源。
 
@@ -174,8 +188,10 @@ flowchart TD
 | `DeliveryJobsSkipOngoingDelivery` | 🚚 该送货任务所属的仓储节点不处理它，已跳过并回到仓储节点继续遍历 | `task.DeliveryJobs.OngoingDeliverySkipped`（interface locale） |
 | `DeliveryJobsDeliverByAutoDelivery`（动作失败） | 🚚 自动送货未能送达 | `task.DeliveryJobs.AutoDeliveryFailed`（interface locale） |
 | `DeliveryJobsTransferOngoingJob` | 🚚 按该送货任务所属仓储节点的设置转交它 | `task.DeliveryJobs.OngoingDeliveryTransferred`（interface locale） |
+| `DeliveryJobsTransferUnavailable` | 🚚 抢来的送货委托不能转交，准备自动送货 | `task.DeliveryJobs.OngoingDeliveryTransferUnavailable`（interface locale） |
+| `DeliveryJobsDeliverOngoingByAutoDelivery`（动作失败） | 🚚 自动送货未能送达 | `task.DeliveryJobs.AutoDeliveryFailed`（interface locale） |
 
-检测由 `DeliveryJobsOngoingDelivery` 在识别到提示文案时输出，归属由 Go 侧在解析出区域后输出，两个出口各自说明自己采取的行为；每条只说该步骤新增的信息。自动送货的失败原因挂在公共调用节点的动作失败上，开关开或关都会提示，开关只决定失败后是否转交。
+检测由 `DeliveryJobsOngoingDelivery` 在识别到提示文案时输出，归属由 Go 侧在解析出区域后输出，两个出口各自说明自己采取的行为；每条只说该步骤新增的信息。自动送货的失败原因挂在公共调用节点的动作失败上，开关开或关都会提示，开关只决定失败后是否转交；开关只作用于 `DeliveryJobsDeliverByAutoDelivery`，降级路径 `DeliveryJobsDeliverOngoingByAutoDelivery` 不读这个开关。
 
 ## 全自动送货
 
@@ -187,17 +203,17 @@ flowchart TD
     AutoD{{"DeliveryJobsAutoDelivery{Depot}\n设 AfterAutoDelivery = 本地区循环\n设 ReturnToDepotNode = 本地区仓储节点场景"}} --> ByAuto["DeliveryJobsDeliverByAutoDelivery\nSubTask AutoDelivery（strict）\n失败时输出「自动送货未能送达」"]
     ByAuto -->|成功| Done{"[Anchor]DeliveryJobsAfterAutoDelivery\n回到本地区循环节点"}
     ByAuto -->|"失败：开关关闭（默认）"| Stop["停止整个任务"]
-    ByAuto -->|"失败：开关开启（on_error）"| TOng["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode"]
+    ByAuto -->|"失败：开关开启（on_error）"| TOng["DeliveryJobsTransferOngoingJob → ClickTransferJob → ConfirmTaskTransfer → [Anchor]ReturnToDepotNode\n（点不到按钮时同样直接送掉，见「残留送货任务」）"]
 ```
 
 「全自动送货」只在 `delivery_destinations.json` 中有归属终点的仓储节点上提供——没有终点的仓储节点无处可送，仓储节点处理方式与两侧报价动作都不给出这个选项。
 
 - **入口 A 的边上多一个门节点 `DeliveryJobsWait{Depot}DeliveryMissionDetail`**：识别 `And(AutoDeliveryInDeliveryMissionDetail)`，等任务详情区域静止 200ms（等待区域与组件的 `AutoDeliveryInDeliveryMissionDetail` 相同），通过后进 `DeliveryJobsAutoDelivery{Depot}`。
 - 进入 `DeliveryJobsAutoDelivery{Depot}` 的另外两个入口不经过这个门：装箱接取后的 `[Anchor]DeliveryJobsGoToDepot`，以及残留委托的 `DeliveryJobsOngoingDeliveryFor{DepotId}`。
-- DeliveryJobs 不直接把 `AutoDelivery` 放进 `next`。各仓储节点的 `DeliveryJobsAutoDelivery{Depot}` 只负责声明回跳锚点（`DeliveryJobsAfterAutoDelivery`、`DeliveryJobsReturnToDepotNode`），再交给公共调用节点 `DeliveryJobsDeliverByAutoDelivery`。
-- `DeliveryJobsDeliverByAutoDelivery` 用 strict `SubTask` 包裹 `AutoDelivery`，组件内部任意环节失败都会浮现在自身动作上，`on_error` 只需在这一处配置。当前处于取货还是送货阶段由组件根据任务详情自行判断，调用方无需为详情切换配置额外入口或 anchor。
+- DeliveryJobs 不直接把 `AutoDelivery` 放进 `next`。各仓储节点的 `DeliveryJobsAutoDelivery{Depot}` 只负责声明回跳锚点（`DeliveryJobsAfterAutoDelivery`、`DeliveryJobsReturnToDepotNode`），再交给公共调用节点 `DeliveryJobsDeliverByAutoDelivery`；残留委托的降级送货（抢来的委托，或转交流程里点不到按钮）直接调 `DeliveryJobsDeliverOngoingByAutoDelivery`（见[残留送货任务](#残留送货任务)）。
+- 两个公共调用节点都用 strict `SubTask` 包裹 `AutoDelivery`，组件内部任意环节失败都会浮现在自身动作上，`on_error` 只需在这一处配置：`DeliveryJobsDeliverByAutoDelivery` 的失败由「送货失败后自动转交任务」开关决定；`DeliveryJobsDeliverOngoingByAutoDelivery` 故意不配 `on_error`，失败即停止任务，避免与转交互相打转。当前处于取货还是送货阶段由组件根据任务详情自行判断，调用方无需为详情切换配置额外入口或 anchor。
 - 「送货时优先使用滑索」开关通过 `AutoDeliveryNavigateDepot` / `AutoDeliveryNavigateDestination` 的 `attach.zip` 传给 AutoDelivery（Go 侧读的就是这两个节点的 `attach`）。它只允许导航在预计更快且滑索已供电、可正常上下索时使用滑索，不保证每条路线都会选择滑索。`routes.json` 中声明 `zipline_only` 的目标（如裴令容）例外：它们只能坐滑索送达，开关为关时 AutoDelivery 会直接输出提示并让动作失败，不会尝试步行（见 [AutoDelivery 组件维护](../components/auto-delivery.md)）。
-- 「送货失败后自动转交任务」开关把 `DeliveryJobsDeliverByAutoDelivery.on_error` 设为 `DeliveryJobsTransferOngoingJob`。关闭（默认）时全自动送货失败即停止整个任务，只输出失败原因；开启时由转交节点接管，自动转交当前任务并继续地区循环。该功能仍处于测试阶段。
+- 「送货失败后自动转交任务」开关把 `DeliveryJobsDeliverByAutoDelivery.on_error` 设为 `DeliveryJobsTransferOngoingJob`。关闭（默认）时全自动送货失败即停止整个任务，只输出失败原因；开启时由转交节点接管，自动转交当前任务并继续地区循环。该功能仍处于测试阶段。开关只作用于 `DeliveryJobsDeliverByAutoDelivery`；转交不可用时的降级送货（`DeliveryJobsDeliverOngoingByAutoDelivery`）不读这个开关，送货失败即停止任务，因此开关开着也不会「转交 → 送货 → 转交」打转。
 
 ## 装箱货物优先级
 
@@ -237,7 +253,7 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 | `DeliveryJobsAfterAcceptJob` | `DeliveryJobsEnter{Depot}Cargo` | `DeliveryJobsRedistributionBidNextStep` | 调度申请界面（点确认接取后） |
 | `DeliveryJobsCurrentPriorityItem` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsSelectPriorityItemLoop` | 装箱物品列表 |
 | `DeliveryJobsNextPriority` | `DeliveryJobsStartFill{Region}Priority{1..4}` | `DeliveryJobsFillCorrespondingGoods`、`DeliveryJobsItemListAtBottom` | 装箱物品列表 |
-| `DeliveryJobsAfterAutoDelivery` | `DeliveryJobsAutoDelivery{Depot}` | `DeliveryJobsDeliverByAutoDelivery` | 送货结束后的界面 |
+| `DeliveryJobsAfterAutoDelivery` | `DeliveryJobs{Region}Loop`、`DeliveryJobsAutoDelivery{Depot}` | `DeliveryJobsDeliverByAutoDelivery`、`DeliveryJobsDeliverOngoingByAutoDelivery` | 送货结束后的界面 |
 
 表中除 `DeliveryJobsReturnToDepotNode` 外的 anchor，读取方都是跨仓储节点或跨地区的共享节点，取值随声明方变化：`DeliveryJobsSelectPriorityItems` 取本地区的优先级入口，`DeliveryJobsRedistributionBidAction` 与 `DeliveryJobsAfterAcceptJob` 随仓储节点的处理方式变化，`DeliveryJobsGoToDepot` 随接取后的去向变化。
 
@@ -259,7 +275,7 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 
 > [!IMPORTANT]
 >
-> **落点由发起遍历的地区循环决定，不由残留任务的归属地决定。** `DeliveryJobsOngoingDeliveryFor{DepotId}` 的 id 来自 `DeliveryJobsResolveOngoingDepot` 的区域 OCR，可以指向别的地区，因此它只覆盖 `next`（处理方式），不声明落点。同理，`DeliveryJobsTransferOngoingJob`、`DeliveryJobsClickTransferJob`、`DeliveryJobsDeliverByAutoDelivery` 都排在声明者之后、消费者之前执行，也不声明。`DeliveryJobsAutoDelivery{Depot}` 声明它，是因为「送货失败后自动转交任务」的 `on_error` 直接接到转交流程，不经过 `DeliveryJobsOngoingDeliveryFor{DepotId}`。
+> **落点由发起遍历的地区循环决定，不由残留任务的归属地决定。** `DeliveryJobsOngoingDeliveryFor{DepotId}` 的 id 来自 `DeliveryJobsResolveOngoingDepot` 的区域 OCR，可以指向别的地区，因此它只覆盖 `next`（处理方式），不声明落点。同理，`DeliveryJobsTransferOngoingJob`、`DeliveryJobsClickTransferJob`、`DeliveryJobsDeliverByAutoDelivery` 都排在声明者之后、消费者之前执行，也不声明。`DeliveryJobs{Region}Loop` 声明 `DeliveryJobsAfterAutoDelivery`（指回它自己），是为了让「残留委托不能转交 → 降级送货」在这条循环下任何位置发生时都能回到**发起遍历**的地区循环；`DeliveryJobsAutoDelivery{Depot}` 声明 `DeliveryJobsReturnToDepotNode`，是因为「送货失败后自动转交任务」的 `on_error` 直接接到转交流程，不经过 `DeliveryJobsOngoingDeliveryFor{DepotId}`。
 
 排查同类问题的通用问法：**这个节点的落点是否取决于从哪个界面进入？** 如果是，落点就必须由发起方声明；写死或由共享节点兜底，都会在某个入口上失效。
 
@@ -287,7 +303,7 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 
 ## 已知边界
 
-- **「按报价处理」下每个仓储节点每次运行最多完成一次「达标 → 接取 → 转交」。** `DeliveryJobsEnter{Depot}PriceDeliveryJob` 带 `max_hit: 1`，而该方式把残留委托动作设成 `DeliveryJobsSkipOngoingDelivery`，于是第二条已接未转交的委托不会被再处理（「接取并转交」没有这个问题，它的残留动作是 `DeliveryJobsTransferOngoingJob`，第二条会走[两条转交路径](#两条转交路径)的第 2 条）。本条由节点配置推得，尚未实机确认。
+- **「按报价处理」下每个仓储节点每次运行最多经 `DeliveryJobsEnter{Depot}PriceDeliveryJob` 转交一次。** 该节点带 `max_hit: 1`，且只被 `DeliveryJobsReturnAndTransfer{Depot}` 调用；报价达标且动作选「接取并转交」时靠它完成这次转交。若这次没转成（报价动作选了「仅接取委托」、或该名额已被本次运行用掉），委托会作为残留任务在下次识别到「有待运送的货物」时交给 `DeliveryJobsAutoDelivery{Depot}` 送掉，不会长期占着调度申请界面——但代价是这条委托会真的被送完，而「全自动送货」只在有归属终点的仓储节点上可用，无终点的仓储节点仍走跳过。本条由节点配置推得，尚未实机确认。
 - `DeliveryJobsCheck{Depot}Cargo.expected` 的文本清单在 `depot-template.jsonc` 与 `task-template.mjs` 的 `ALL_CARGO_EXPECTED` / `PACK_CARGO_EXPECTED` 各有一份：option 覆盖总会生效，模板那份只在直接调试 Pipeline 时可见，**改一处要同步另一处**。
 - 报价阈值默认值 `119000` 同样在模板表达式与 option `default` 各有一份。
 
@@ -298,8 +314,8 @@ DeliveryJobs 的共享节点不知道自己在为哪个仓储节点服务，全�
 | 文件 | 职责 |
 | --------------------------------- | --------------------------------------------------------------------------------- |
 | `DeliveryJobs/PackCargo.json` | 装箱、调度申请界面、报价动作、残留任务处理、回仓储节点 |
-| `DeliveryJobs/TransferJob.json` | 点击转交 → 确认转交 → 按 `DeliveryJobsReturnToDepotNode` 跳转 |
-| `DeliveryJobs/AutoDelivery.json` | `DeliveryJobsDeliverByAutoDelivery`，全自动送货的唯一调用点 |
+| `DeliveryJobs/TransferJob.json` | 等详情稳定 → 判断这条委托能不能转交（有转交按钮 = 由「接取并转交」接下，按归属仓储节点配置继续；没有 = 抢来的，交给 `DeliveryJobsDeliverOngoingByAutoDelivery`）→ 点击转交 → 确认转交 → 按 `DeliveryJobsReturnToDepotNode` 跳转 |
+| `DeliveryJobs/AutoDelivery.json` | `DeliveryJobsDeliverByAutoDelivery`（正常全自动送货，失败后由开关决定是否转交）与 `DeliveryJobsDeliverOngoingByAutoDelivery`（残留委托降级送货，失败即停止），全自动送货的两个调用点 |
 | `DeliveryJobs.json` | 任务入口与主循环（生成，但流程结构变更需改 `core-template.jsonc`） |
 
 数据版本未变时，可以跳过网络直接重新生成：

@@ -5,14 +5,8 @@
             "label": "$task.OutpostTrading.label",
             "entry": "OutpostTradingSchedule",
             "description": "$task.OutpostTrading.description",
-            "option": [
-                "SellProductSchedule",
-                "SellProductOperatorAutoSwitch",
-                "SellProductSelectionStrategy",
-                "SellProductPriorityRules",
-                "SellProductItemReserveRules",
-                "ValleyIVSell",
-                "WulingSell"
+            "group": [
+                "regional_development"
             ],
             "controller": [
                 "ADB",
@@ -25,8 +19,14 @@
                 "PlayCover",
                 "Win32-Front"
             ],
-            "group": [
-                "regional_development"
+            "option": [
+                "SellProductSchedule",
+                "SellProductOperatorAutoSwitch",
+                "SellProductSelectionStrategy",
+                "SellProductPriorityRules",
+                "SellProductItemReserveRules",
+                "ValleyIVSell",
+                "WulingSell"
             ]
         }
     ],
@@ -34,15 +34,6 @@
         "SellProductSchedule": {
             "type": "checkbox",
             "label": "$option.TaskSchedule.label",
-            "default_case": [
-                "SellProductScheduleMonday",
-                "SellProductScheduleTuesday",
-                "SellProductScheduleWednesday",
-                "SellProductScheduleThursday",
-                "SellProductScheduleFriday",
-                "SellProductScheduleSaturday",
-                "SellProductScheduleSunday"
-            ],
             "cases": [
                 {
                     "name": "SellProductScheduleMonday",
@@ -121,13 +112,21 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "SellProductScheduleMonday",
+                "SellProductScheduleTuesday",
+                "SellProductScheduleWednesday",
+                "SellProductScheduleThursday",
+                "SellProductScheduleFriday",
+                "SellProductScheduleSaturday",
+                "SellProductScheduleSunday"
             ]
         },
         "SellProductPriorityRules": {
             "type": "switch",
             "label": "$task.OutpostTrading.PrioritySwitch",
             "description": "$task.OutpostTrading.PriorityDescription",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -148,13 +147,13 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SellProductSelectionStrategy": {
             "type": "select",
             "label": "$task.OutpostTrading.SelectionStrategy",
             "description": "$task.OutpostTrading.SelectionStrategyDescription",
-            "default_case": "Rarity",
             "cases": [
                 {
                     "name": "Rarity",
@@ -196,7 +195,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Rarity"
         },
         "SellProductStockMinimumUnitPrice": {
             "type": "input",
@@ -205,9 +205,9 @@
                 {
                     "name": "SellProductStockMinimumUnitPrice",
                     "label": "$task.OutpostTrading.StockMinimumUnitPrice",
+                    "default": "10",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": "10",
                     "pattern_msg": "$task.OutpostTrading.StockMinimumUnitPricePattern"
                 }
             ],
@@ -225,7 +225,6 @@
             "type": "switch",
             "label": "$task.OutpostTrading.OnlyPreferredItems",
             "description": "$task.OutpostTrading.OnlyPreferredItemsDescription",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -242,13 +241,13 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SellProductValleyIVPriorityRules": {
             "type": "switch",
             "label": "$task.OutpostTrading.PriorityRulesValleyIV",
             "description": "$task.OutpostTrading.PriorityRegionDescription",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -272,12 +271,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SellProductValleyIVPriorityItem1": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem1",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -465,12 +464,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductValleyIVPriorityItem2": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem2",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -658,12 +657,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductValleyIVPriorityItem3": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem3",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -851,12 +850,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductValleyIVPriorityItem4": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem4",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -1044,12 +1043,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductValleyIVPriorityItem5": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem5",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -1237,12 +1236,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductValleyIVPriorityItem6": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem6",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -1430,13 +1429,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductItemReserveRules": {
             "type": "switch",
             "label": "$task.OutpostTrading.ReserveSwitch",
             "description": "$task.OutpostTrading.ReserveSwitchDescription",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -1452,13 +1451,13 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SellProductReserveItem1": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveItem1",
             "description": "$task.OutpostTrading.ReserveDescription",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -1854,12 +1853,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductReserveItem1Mode": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveMode",
-            "default_case": "Quantity",
             "cases": [
                 {
                     "name": "Quantity",
@@ -1880,7 +1879,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Quantity"
         },
         "SellProductReserveItem1Value": {
             "type": "input",
@@ -1889,9 +1889,9 @@
                 {
                     "name": "SellProductReserveItem1Value",
                     "label": "$task.OutpostTrading.ReserveQuantity",
+                    "default": "100",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": "100",
                     "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
                 }
             ],
@@ -1907,7 +1907,6 @@
         "SellProductReserveItem2": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveItem2",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -2303,12 +2302,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductReserveItem2Mode": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveMode",
-            "default_case": "Quantity",
             "cases": [
                 {
                     "name": "Quantity",
@@ -2329,7 +2328,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Quantity"
         },
         "SellProductReserveItem2Value": {
             "type": "input",
@@ -2338,9 +2338,9 @@
                 {
                     "name": "SellProductReserveItem2Value",
                     "label": "$task.OutpostTrading.ReserveQuantity",
+                    "default": "100",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": "100",
                     "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
                 }
             ],
@@ -2356,7 +2356,6 @@
         "SellProductReserveItem3": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveItem3",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -2752,12 +2751,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductReserveItem3Mode": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveMode",
-            "default_case": "Quantity",
             "cases": [
                 {
                     "name": "Quantity",
@@ -2778,7 +2777,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Quantity"
         },
         "SellProductReserveItem3Value": {
             "type": "input",
@@ -2787,9 +2787,9 @@
                 {
                     "name": "SellProductReserveItem3Value",
                     "label": "$task.OutpostTrading.ReserveQuantity",
+                    "default": "100",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": "100",
                     "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
                 }
             ],
@@ -2805,7 +2805,6 @@
         "SellProductReserveItem4": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveItem4",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -3201,12 +3200,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductReserveItem4Mode": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveMode",
-            "default_case": "Quantity",
             "cases": [
                 {
                     "name": "Quantity",
@@ -3227,7 +3226,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Quantity"
         },
         "SellProductReserveItem4Value": {
             "type": "input",
@@ -3236,9 +3236,9 @@
                 {
                     "name": "SellProductReserveItem4Value",
                     "label": "$task.OutpostTrading.ReserveQuantity",
+                    "default": "100",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": "100",
                     "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
                 }
             ],
@@ -3254,7 +3254,6 @@
         "SellProductReserveItem5": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveItem5",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -3650,12 +3649,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductReserveItem5Mode": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveMode",
-            "default_case": "Quantity",
             "cases": [
                 {
                     "name": "Quantity",
@@ -3676,7 +3675,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Quantity"
         },
         "SellProductReserveItem5Value": {
             "type": "input",
@@ -3685,9 +3685,9 @@
                 {
                     "name": "SellProductReserveItem5Value",
                     "label": "$task.OutpostTrading.ReserveQuantity",
+                    "default": "100",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": "100",
                     "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
                 }
             ],
@@ -3703,7 +3703,6 @@
         "SellProductReserveItem6": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveItem6",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
@@ -4099,12 +4098,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductReserveItem6Mode": {
             "type": "select",
             "label": "$task.OutpostTrading.ReserveMode",
-            "default_case": "Quantity",
             "cases": [
                 {
                     "name": "Quantity",
@@ -4125,7 +4124,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Quantity"
         },
         "SellProductReserveItem6Value": {
             "type": "input",
@@ -4134,9 +4134,9 @@
                 {
                     "name": "SellProductReserveItem6Value",
                     "label": "$task.OutpostTrading.ReserveQuantity",
+                    "default": "100",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": "100",
                     "pattern_msg": "$task.OutpostTrading.ReserveQuantityPattern"
                 }
             ],
@@ -4153,7 +4153,6 @@
             "type": "switch",
             "label": "$task.OutpostTrading.OperatorAutoSwitch",
             "description": "$task.OutpostTrading.OperatorAutoSwitchDescription",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -4177,13 +4176,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "SellProductForceRefreshOperatorCache": {
             "type": "switch",
             "label": "$task.OutpostTrading.ForceRefreshOperatorCache",
             "description": "$task.OutpostTrading.ForceRefreshOperatorCacheDescription",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "No"
@@ -4900,26 +4899,26 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "ValleyIVSell": {
             "type": "switch",
             "label": "$global.region.ValleyIV",
             "description": "$task.OutpostTrading.regionToggleDescription",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "OutpostTradingValleyIV": {
-                            "enabled": true
-                        }
-                    },
                     "option": [
                         "ValleyIVRefugeeCamp",
                         "ValleyIVInfraStation",
                         "ValleyIVReconstructionHQ"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "OutpostTradingValleyIV": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No",
@@ -4929,12 +4928,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "ValleyIVRefugeeCamp": {
             "type": "switch",
             "label": "$task.OutpostTrading.ValleyIVRefugeeCamp",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -4959,12 +4958,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "ValleyIVInfraStation": {
             "type": "switch",
             "label": "$task.OutpostTrading.ValleyIVInfraStation",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -4989,12 +4988,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "ValleyIVReconstructionHQ": {
             "type": "switch",
             "label": "$task.OutpostTrading.ValleyIVReconstructionHQ",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -5019,13 +5018,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "SellProductWulingPriorityRules": {
             "type": "switch",
             "label": "$task.OutpostTrading.PriorityRulesWuling",
             "description": "$task.OutpostTrading.PriorityRegionDescription",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -5049,42 +5048,16 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "SellProductWulingPriorityItem1": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem1",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
                     "label": "$task.OutpostTrading.PriorityNone"
-                },
-                {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_enr_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem1": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -5242,42 +5215,16 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductWulingPriorityItem2": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem2",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
                     "label": "$task.OutpostTrading.PriorityNone"
-                },
-                {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_enr_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem2": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -5435,42 +5382,16 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductWulingPriorityItem3": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem3",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
                     "label": "$task.OutpostTrading.PriorityNone"
-                },
-                {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_enr_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem3": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -5628,42 +5549,16 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductWulingPriorityItem4": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem4",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
                     "label": "$task.OutpostTrading.PriorityNone"
-                },
-                {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_enr_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem4": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -5821,42 +5716,16 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductWulingPriorityItem5": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem5",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
                     "label": "$task.OutpostTrading.PriorityNone"
-                },
-                {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_enr_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem5": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -6014,42 +5883,16 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "SellProductWulingPriorityItem6": {
             "type": "select",
             "label": "$task.OutpostTrading.PriorityItem6",
-            "default_case": "None",
             "cases": [
                 {
                     "name": "None",
                     "label": "$task.OutpostTrading.PriorityNone"
-                },
-                {
-                    "name": "重息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteEnrLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_enr_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_enr_lung"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "息壤龙泡泡",
-                    "label": "$item.ActivityXiraniteLung",
-                    "icon": "resource/image/UI/Item/item_activity_xiranite_lung.png",
-                    "pipeline_override": {
-                        "OutpostTradingWulingRegisterPriorityItem6": {
-                            "custom_action_param": {
-                                "operation": "register",
-                                "item_id": "item_activity_xiranite_lung"
-                            }
-                        }
-                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -6207,26 +6050,26 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "None"
         },
         "WulingSell": {
             "type": "switch",
             "label": "$global.region.Wuling",
             "description": "$task.OutpostTrading.regionToggleDescription",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "OutpostTradingWuling": {
-                            "enabled": true
-                        }
-                    },
                     "option": [
                         "WulingSkyKingFlatsConstructionSite",
                         "WulingCardiacRemediationStation",
                         "WulingXiranflowCloudseederStation"
-                    ]
+                    ],
+                    "pipeline_override": {
+                        "OutpostTradingWuling": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No",
@@ -6236,12 +6079,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "WulingSkyKingFlatsConstructionSite": {
             "type": "switch",
             "label": "$task.OutpostTrading.WulingSkyKingFlatsConstructionSite",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -6266,12 +6109,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "WulingCardiacRemediationStation": {
             "type": "switch",
             "label": "$task.OutpostTrading.WulingCardiacRemediationStation",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -6296,12 +6139,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "WulingXiranflowCloudseederStation": {
             "type": "switch",
             "label": "$task.OutpostTrading.WulingXiranflowCloudseederStation",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -6326,7 +6169,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         }
     }
 }

@@ -527,15 +527,21 @@ git push --set-upstream origin feat/add-sell-button
 
 ### Commit 消息格式
 
-本项目遵循 [约定式提交（Conventional Commits）](https://www.conventionalcommits.org/zh-hans/v1.0.0/)，详见 [getting-started.md § 0. 提交规范](./getting-started.md)。下面是常用前缀速查：
+本项目遵循 [约定式提交（Conventional Commits）](https://www.conventionalcommits.org/zh-hans/v1.0.0/)，格式是 `类型(范围): 描述`，范围可以省略。可用的类型以 [`.github/cliff.toml`](../../../.github/cliff.toml) 为准，每种类型进入更新日志的哪个分组等完整说明，见 [getting-started.md § 0. 提交规范](./getting-started.md#提交规范-conventional-commits)。下面是前缀速查：
 
 | 前缀 | 什么时候用 |
-| -------- | ------------------------------------- |
+| --- | --- |
 | `feat:` | 新增功能（Pipeline 节点、识别模板等） |
 | `fix:` | 修复 Bug |
+| `refactor:` | 重构代码结构，不改变功能 |
+| `perf:` | 优化现有功能（速度、准确性、容错等） |
 | `docs:` | 仅文档更改 |
 | `style:` | 格式/空白调整（不影响代码含义） |
-| `chore:` | 构建、依赖等杂项 |
+| `test:` | 新增或修改测试 |
+| `ci:` | CI 工作流与配置 |
+| `chore:` | 构建、辅助工具等杂项；依赖升级用 `chore(deps):` |
+| `ai:` | skill、`AGENTS.md` 等 AI 协作相关 |
+| `revert:` | 撤销之前的提交 |
 
 示例：`feat(OutpostTrading): 添加售货按钮识别模板`、`fix: 修复启动崩溃`。
 

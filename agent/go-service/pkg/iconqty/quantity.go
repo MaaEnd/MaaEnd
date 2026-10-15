@@ -91,8 +91,8 @@ func QuantityROIFromCellBox(gridType string, cell maa.Rect) (maa.Rect, error) {
 // config error and fails the whole call. A single unusable cell only skips
 // that cell: one malformed cell must not abort a depot sync (A2) or block
 // closing the rewards UI (A3, see ims.AddItemData).
-func RecognizeQuantities(ctx *maa.Context, img image.Image, req Request) ([]QuantityHit, error) {
-	matches, err := recognizeIcons(ctx, img, req)
+func RecognizeQuantities(ctx *maa.Context, ctrl *maa.Controller, img image.Image, req Request) ([]QuantityHit, error) {
+	matches, err := recognizeIcons(ctx, ctrl, img, req)
 	if err != nil {
 		return nil, err
 	}

@@ -20,7 +20,7 @@
                 "roi_offset": [
                     100,
                     -10,
-                    40,
+                    50,
                     20
                 ],
                 "template": "AutoUseSpMedication/AddButton.png"
@@ -109,10 +109,10 @@
         "desc": "识别恢复理智界面标题",
         "recognition": "OCR",
         "roi": [
-            180,
-            180,
-            200,
-            100
+            50,
+            150,
+            330,
+            130
         ],
         "expected": [
             "恢复理智"

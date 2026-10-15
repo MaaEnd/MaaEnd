@@ -62,18 +62,25 @@ void PreloadNavmeshWaypoints(const NaviParam& param);
 // state machine exists, so it is the only place a stop request can be honored during planning.
 // `no_go` carries the virtual no-go discs this navigation has stamped so far; every leg planned here
 // treats the discs of its zone as walls. Null on the initial expansion, when none exist yet.
+// `start_deck_y` is the exact height of the deck `initial_pos` stands on (waiting on a zipline tower).
 bool ExpandNavmeshWaypoints(
     const NaviParam& param,
     const NaviPosition& initial_pos,
     const std::function<bool()>& should_stop,
     std::vector<Waypoint>& out_path,
     std::vector<NavmeshRouteDiagnostic>* out_diagnostics = nullptr,
-    const std::vector<VirtualNoGoDisc>* no_go = nullptr);
+    const std::vector<VirtualNoGoDisc>* no_go = nullptr,
+    std::optional<double> start_deck_y = std::nullopt);
 NavmeshExpansionFailure CurrentNavmeshExpansionFailure();
 // The goal deck pins which overlapping walkable surface the route must stop on; unset keeps the full span
-// set. `start_floor_y` overrides which floor the start snaps onto, for the rare caller that actually knows
-// the height it is standing at (a zipline dismount); unset keeps the zone's dominant floor, unchanged.
+// set. `start_floor_y` overrides which floor the start snaps onto, for a caller that actually knows the
+// height it is standing at (a zipline dismount, or a mid-run replan from the route being walked); unset keeps
+// the zone's dominant floor, unchanged.
 // `no_go` is the navigation's virtual no-go discs; the ones stamped in `locator_zone` become walls.
+// `start_deck_y` is the exact height of the deck the start stands on (just landed on a zipline tower).
+// `out_start_recovery_entry`, when given, opts into the start-off-mesh recovery the authored expansion uses:
+// a start the planner cannot anchor is re-planned from the nearest mesh point within the blind-walk budget,
+// and that point comes back here for the caller to walk onto first. Never for a start or goal in a no-go zone.
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -82,7 +89,9 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     std::optional<double> goal_deck_y = std::nullopt,
     std::optional<double> start_floor_y = std::nullopt,
     NavmeshRouteDiagnostic* out_diagnostic = nullptr,
-    const std::vector<VirtualNoGoDisc>* no_go = nullptr);
+    const std::vector<VirtualNoGoDisc>* no_go = nullptr,
+    std::optional<double> start_deck_y = std::nullopt,
+    std::optional<navmesh::WorldPoint>* out_start_recovery_entry = nullptr);
 
 // Which walkable surface `point` lands on: the planar distance to it, and its height on the same scale
 // as BaseNavRouteRequest::floor_y. Height matters as much as distance — a point directly above or below

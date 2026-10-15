@@ -1,0 +1,8 @@
+{
+    "template": "template-adb.json",
+    "data": "data.json",
+    "outputDir": "../../../assets/resource_adb/pipeline/BatchUseDetector",
+    "outputPattern": "${LocationId}.json",
+    "format": true,
+    "merged": false
+}

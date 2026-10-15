@@ -51,27 +51,55 @@
             "Online"
         ]
     },
+    "VisitFriendsRecognitionItemNameColor": {
+        "desc": "以在线状态为锚匹配好友名文字颜色。框取名字所在色带，左缘跟随在线时间，避免检测框把名字左缘裁进字内",
+        "recognition": "ColorMatch",
+        "roi": "VisitFriendsRecognitionItemOnline",
+        "roi_offset": [
+            -6,
+            -58,
+            143,
+            12
+        ],
+        "method": 6,
+        "lower": [
+            163
+        ],
+        "upper": [
+            255
+        ],
+        "count": 30
+    },
     "VisitFriendsRecognitionItemNameByEnterButton": {
-        "desc": "按进船按钮偏移识别好友名（任意含 #）",
+        "desc": "在名字色块内 only_rec 读出好友名（任意含 #）",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "VisitFriendsRecognitionItemOnline",
-                "roi_offset": [
-                    0,
-                    -62,
-                    135,
-                    62
-                ],
+                "roi": "VisitFriendsRecognitionItemNameColor",
                 "expected": [
                     ".*#.*"
                 ],
+                "only_rec": true,
                 "order_by": "Vertical"
             }
         }
     },
     "VisitFriendsRecognitionItemNameRemarkByEnterButton": {
-        "desc": "按进船按钮偏移识别带备注好友名（含括号）",
+        "desc": "在名字色块内 only_rec 读出带备注好友名（含括号）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "VisitFriendsRecognitionItemNameColor",
+                "expected": [
+                    ".*[（(].*#.*"
+                ],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "VisitFriendsRecognitionItemNamePriorityRemarkByEnterButton": {
+        "desc": "按进船按钮偏移识别指定优先好友名",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -83,31 +111,44 @@
                     62
                 ],
                 "expected": [
-                    ".*[（(].*#.*"
+                    "a^"
                 ],
                 "order_by": "Vertical"
             }
         }
     },
     "VisitFriendsRecognitionItemWithName": {
-        "desc": "识别进船按钮与对应好友名（含线索锚点）；box_index=3 返回名字框，供普通消费性选友",
+        "desc": "识别进船按钮与对应好友名（含线索锚点）；box_index=4 返回名字框，供普通消费性选友",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",
             "VisitFriendsRecognitionItemClueExchange",
             "VisitFriendsRecognitionItemOnline",
+            "VisitFriendsRecognitionItemNameColor",
             "VisitFriendsRecognitionItemNameByEnterButton"
         ],
-        "box_index": 3
+        "box_index": 4
     },
     "VisitFriendsRecognitionItemWithRemark": {
-        "desc": "识别进船按钮与带备注好友名；box_index=3 返回名字框，供备注选友链路消费",
+        "desc": "识别进船按钮与带备注好友名；box_index=4 返回名字框，供备注选友链路消费",
         "recognition": "And",
         "all_of": [
             "VisitFriendsRecognitionItemEnterButton",
             "VisitFriendsRecognitionItemClueExchange",
             "VisitFriendsRecognitionItemOnline",
+            "VisitFriendsRecognitionItemNameColor",
             "VisitFriendsRecognitionItemNameRemarkByEnterButton"
+        ],
+        "box_index": 4
+    },
+    "VisitFriendsRecognitionItemWithPriorityRemark": {
+        "desc": "识别进船按钮与指定优先好友名；box_index=3 返回名字框，供优先选友链路消费",
+        "recognition": "And",
+        "all_of": [
+            "VisitFriendsRecognitionItemEnterButton",
+            "VisitFriendsRecognitionItemClueExchange",
+            "VisitFriendsRecognitionItemOnline",
+            "VisitFriendsRecognitionItemNamePriorityRemarkByEnterButton"
         ],
         "box_index": 3
     },

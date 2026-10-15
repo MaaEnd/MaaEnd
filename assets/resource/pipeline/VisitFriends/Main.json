@@ -70,6 +70,21 @@
             "VisitFriendsMenuScan"
         ]
     },
+    "VisitFriendsPriorityRemarkInit": {
+        "desc": "初始化优先好友名 OCR 正则",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "target": "VisitFriendsRecognitionItemNamePriorityRemarkByEnterButton",
+            "keywords": "",
+            "substring": true
+        },
+        "next": [
+            "VisitFriendsMenuScan"
+        ]
+    },
     "VisitFriendsAssistCountZero": {
         "desc": "助力次数为 0（纯识别，无 max_hit，供 Full 判定与 AssistFull 复用）",
         "recognition": "And",

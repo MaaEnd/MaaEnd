@@ -1,6 +1,6 @@
 {
     "AutoDeliveryRouteDepotDomain1Lv007Depot1": {
-        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点（domain_1_lv007_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点(domain_1_lv007_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -115,11 +115,12 @@
                     232.64
                 ],
                 [
-                    636.64,
-                    230.87
+                    635.975,
+                    231.698
                 ]
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -133,7 +134,7 @@
         }
     },
     "AutoDeliveryRouteDepotDomain1Lv007Depot1WithZipline": {
-        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点，仅允许步行（domain_1_lv007_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点，仅允许步行(domain_1_lv007_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -248,11 +249,12 @@
                     232.64
                 ],
                 [
-                    636.64,
-                    230.87
+                    635.975,
+                    231.698
                 ]
             ],
-            "zip": false
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -266,7 +268,7 @@
         }
     },
     "AutoDeliveryRouteDepotRetryDomain1Lv007Depot1": {
-        "desc": "AutoDelivery 仓储站位修正路线：供能高地仓储节点（domain_1_lv007_depot_1）",
+        "desc": "AutoDelivery 仓储站位修正路线：供能高地仓储节点(domain_1_lv007_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -288,12 +290,13 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        635.995,
-                        230.292
+                        635.975,
+                        231.698
                     ],
                     "target_deck_y": 166.572
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -307,7 +310,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00701": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜（deliver_target_map01_lv007_01）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜(deliver_target_map01_lv007_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -323,10 +326,29 @@
                         616.693,
                         130.125
                     ],
-                    "target_deck_y": 174.285
+                    "target_deck_y": 174.285,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        616.693,
+                        130.125
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "库济米尼奇娜",
+                        "庫濟米尼奇娜",
+                        "(?i)Kuzminichna",
+                        "クスミニチナ",
+                        "쿠즈미니치나"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -340,7 +362,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00701WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜，允许使用滑索（deliver_target_map01_lv007_01）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜，允许使用滑索(deliver_target_map01_lv007_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -356,10 +378,29 @@
                         616.693,
                         130.125
                     ],
-                    "target_deck_y": 174.285
+                    "target_deck_y": 174.285,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        616.693,
+                        130.125
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "库济米尼奇娜",
+                        "庫濟米尼奇娜",
+                        "(?i)Kuzminichna",
+                        "クスミニチナ",
+                        "쿠즈미니치나"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -373,7 +414,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00701": {
-        "desc": "AutoDelivery 终点站位修正路线：库济米尼奇娜（deliver_target_map01_lv007_01）",
+        "desc": "AutoDelivery 终点站位修正路线：库济米尼奇娜(deliver_target_map01_lv007_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -398,9 +439,28 @@
                         616.693,
                         130.125
                     ],
-                    "target_deck_y": 174.285
+                    "target_deck_y": 174.285,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        616.693,
+                        130.125
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "库济米尼奇娜",
+                        "庫濟米尼奇娜",
+                        "(?i)Kuzminichna",
+                        "クスミニチナ",
+                        "쿠즈미니치나"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -414,7 +474,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00702": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡（deliver_target_map01_lv007_02）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡(deliver_target_map01_lv007_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -430,10 +490,28 @@
                         527.836,
                         241.566
                     ],
-                    "target_deck_y": 168.282
+                    "target_deck_y": 168.282,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        527.836,
+                        241.566
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "里斯卡",
+                        "(?i)Riska",
+                        "リースカ",
+                        "리스카"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -447,7 +525,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00702WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡，允许使用滑索（deliver_target_map01_lv007_02）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡，允许使用滑索(deliver_target_map01_lv007_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -463,10 +541,28 @@
                         527.836,
                         241.566
                     ],
-                    "target_deck_y": 168.282
+                    "target_deck_y": 168.282,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        527.836,
+                        241.566
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "里斯卡",
+                        "(?i)Riska",
+                        "リースカ",
+                        "리스카"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -480,7 +576,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00702": {
-        "desc": "AutoDelivery 终点站位修正路线：里斯卡（deliver_target_map01_lv007_02）",
+        "desc": "AutoDelivery 终点站位修正路线：里斯卡(deliver_target_map01_lv007_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -505,9 +601,27 @@
                         527.836,
                         241.566
                     ],
-                    "target_deck_y": 168.282
+                    "target_deck_y": 168.282,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        527.836,
+                        241.566
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "里斯卡",
+                        "(?i)Riska",
+                        "リースカ",
+                        "리스카"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -521,7 +635,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00703": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂（deliver_target_map01_lv007_03）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂(deliver_target_map01_lv007_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -537,10 +651,28 @@
                         681.185,
                         390.687
                     ],
-                    "target_deck_y": 202.813
+                    "target_deck_y": 202.813,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        681.185,
+                        390.687
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "戈里昂",
+                        "(?i)Gorion",
+                        "ゴリオン",
+                        "고리언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -554,7 +686,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00703WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂，允许使用滑索（deliver_target_map01_lv007_03）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂，允许使用滑索(deliver_target_map01_lv007_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -570,10 +702,28 @@
                         681.185,
                         390.687
                     ],
-                    "target_deck_y": 202.813
+                    "target_deck_y": 202.813,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        681.185,
+                        390.687
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "戈里昂",
+                        "(?i)Gorion",
+                        "ゴリオン",
+                        "고리언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -587,7 +737,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00703": {
-        "desc": "AutoDelivery 终点站位修正路线：戈里昂（deliver_target_map01_lv007_03）",
+        "desc": "AutoDelivery 终点站位修正路线：戈里昂(deliver_target_map01_lv007_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -612,9 +762,27 @@
                         681.185,
                         390.687
                     ],
-                    "target_deck_y": 202.813
+                    "target_deck_y": 202.813,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        681.185,
+                        390.687
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "戈里昂",
+                        "(?i)Gorion",
+                        "ゴリオン",
+                        "고리언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -628,7 +796,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle02": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员（deliver_target_map01_lv007_recycle_02）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员(deliver_target_map01_lv007_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -651,12 +819,27 @@
                     "action": "NAVMESH",
                     "target": [
                         502.664,
-                        251.902
+                        250.496
                     ],
-                    "target_deck_y": 168.518
+                    "target_deck_y": 168.518,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        502.664,
+                        250.496
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -670,7 +853,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle02WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员，允许使用滑索（deliver_target_map01_lv007_recycle_02）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员，允许使用滑索(deliver_target_map01_lv007_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -693,12 +876,27 @@
                     "action": "NAVMESH",
                     "target": [
                         502.664,
-                        251.902
+                        250.496
                     ],
-                    "target_deck_y": 168.518
+                    "target_deck_y": 168.518,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        502.664,
+                        250.496
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -712,7 +910,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv007Recycle02": {
-        "desc": "AutoDelivery 终点站位修正路线：无畏的工团成员（deliver_target_map01_lv007_recycle_02）",
+        "desc": "AutoDelivery 终点站位修正路线：无畏的工团成员(deliver_target_map01_lv007_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -735,11 +933,26 @@
                     "action": "NAVMESH",
                     "target": [
                         502.664,
-                        251.902
+                        250.496
                     ],
-                    "target_deck_y": 168.518
+                    "target_deck_y": 168.518,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        502.664,
+                        250.496
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -753,7 +966,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle03": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组（deliver_target_map01_lv007_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组(deliver_target_map01_lv007_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -776,12 +989,27 @@
                     "action": "NAVMESH",
                     "target": [
                         615.071,
-                        397.166
+                        398.572
                     ],
-                    "target_deck_y": 178.24
+                    "target_deck_y": 178.24,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        615.071,
+                        398.572
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -795,7 +1023,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle03WithZipline": {
-        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组，允许使用滑索（deliver_target_map01_lv007_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组，允许使用滑索(deliver_target_map01_lv007_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -818,12 +1046,27 @@
                     "action": "NAVMESH",
                     "target": [
                         615.071,
-                        397.166
+                        398.572
                     ],
-                    "target_deck_y": 178.24
+                    "target_deck_y": 178.24,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        615.071,
+                        398.572
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -837,7 +1080,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv007Recycle03": {
-        "desc": "AutoDelivery 终点站位修正路线：采购-超域试验场物资模组（deliver_target_map01_lv007_recycle_03）",
+        "desc": "AutoDelivery 终点站位修正路线：采购-超域试验场物资模组(deliver_target_map01_lv007_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -860,11 +1103,26 @@
                     "action": "NAVMESH",
                     "target": [
                         615.071,
-                        397.166
+                        398.572
                     ],
-                    "target_deck_y": 178.24
+                    "target_deck_y": 178.24,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        615.071,
+                        398.572
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,

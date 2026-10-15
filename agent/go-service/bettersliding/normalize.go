@@ -1,10 +1,14 @@
 package bettersliding
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -35,27 +39,239 @@ func normalizeButton(btn any) ([]int, error) {
 	}
 }
 
-func normalizeButtonParam(btn any) (buttonTarget, error) {
-	if template, ok := btn.(string); ok {
-		template = strings.TrimSpace(template)
-		if template == "" {
-			return buttonTarget{}, fmt.Errorf("button template must not be empty")
-		}
+// errEmptyRecognitionPatch 表示参数已配置，但归一后没有得到任何识别参数。
+// 若不报错，空补丁会让目标节点沿用 Pipeline 里的默认 ROI（通常为 [0,0,0,0] 全屏），
+// 把配置错误静默转成错误识别结果，因此必须显式失败。
+var errEmptyRecognitionPatch = errors.New("recognition param patch is empty")
 
-		return buttonTarget{template: template}, nil
+// resolveRecognitionParam 把 String|Object 归一为 recognition.param 补丁。
+//
+//   - String：节点引用，读取该节点的 recognition.param（绝不取 type / recognition）；
+//   - Object：直接作为补丁，禁止含 recognition / type / action 键；
+//   - nil：返回空补丁（表示该参数未配置）。
+//
+// 除 nil 外，归一结果必须是非空补丁，否则返回 errEmptyRecognitionPatch。
+func resolveRecognitionParam(ctx *maa.Context, raw any) (map[string]any, error) {
+	if raw == nil {
+		return map[string]any{}, nil
 	}
 
-	coordinates, err := normalizeButton(btn)
+	var (
+		patch map[string]any
+		err   error
+	)
+
+	switch value := raw.(type) {
+	case string:
+		patch, err = resolveRecognitionParamFromNode(ctx, value)
+
+	case map[string]any:
+		patch, err = validateRecognitionPatch(value)
+
+	default:
+		return nil, fmt.Errorf(
+			"expected a node reference string or a recognition param object, got %T",
+			raw,
+		)
+	}
 	if err != nil {
-		return buttonTarget{}, err
+		return nil, err
+	}
+	if len(patch) == 0 {
+		return nil, errEmptyRecognitionPatch
 	}
 
-	return buttonTarget{coordinates: coordinates}, nil
+	return patch, nil
 }
 
-func normalizeCenterPointOffset(raw any) ([2]int, error) {
+func resolveRecognitionParamFromNode(ctx *maa.Context, nodeName string) (map[string]any, error) {
+	nodeName = strings.TrimSpace(nodeName)
+	if nodeName == "" {
+		return nil, fmt.Errorf("node reference must not be empty")
+	}
+	if ctx == nil {
+		return nil, fmt.Errorf("context is nil, cannot resolve node reference %q", nodeName)
+	}
+
+	raw, err := ctx.GetNodeJSON(nodeName)
+	if err != nil {
+		return nil, fmt.Errorf("get node %s json: %w", nodeName, err)
+	}
+	if strings.TrimSpace(raw) == "" {
+		return nil, fmt.Errorf("node %s json is empty", nodeName)
+	}
+
+	return extractRecognitionParam(raw)
+}
+
+// forbiddenRecognitionPatchKeys 是补丁中禁止出现的键：它们属于 recognition / action 层级，
+// 出现即视为「替换识别类型」的误用，必须显式报错而不是静默忽略。
+var forbiddenRecognitionPatchKeys = map[string]struct{}{
+	"recognition": {},
+	"type":        {},
+	"action":      {},
+}
+
+func validateRecognitionPatch(patch map[string]any) (map[string]any, error) {
+	if patch == nil {
+		return map[string]any{}, nil
+	}
+	for key := range patch {
+		if _, forbidden := forbiddenRecognitionPatchKeys[key]; forbidden {
+			return nil, fmt.Errorf(
+				"recognition param patch must not contain %q, only recognition.param keys are allowed",
+				key,
+			)
+		}
+	}
+
+	return patch, nil
+}
+
+// extractRecognitionParam 从 GetNodeJSON 返回的节点 JSON 中取出 recognition.param。
+// GetNodeJSON 经 MaaContextGetNodeData 走 PipelineDumper::dump，返回的始终是
+// recognition: {type, param} 形态（与 Pipeline 源文件写 v1 还是 v2 无关），
+// 因此这里只需解析该形态，不做扁平写法兼容。
+func extractRecognitionParam(raw string) (map[string]any, error) {
+	var node map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		return nil, fmt.Errorf("unmarshal node json: %w", err)
+	}
+
+	recognitionRaw, ok := node["recognition"]
+	if !ok || len(recognitionRaw) == 0 || string(recognitionRaw) == "null" {
+		return nil, fmt.Errorf("node has no recognition")
+	}
+
+	// v2 形态要求 recognition 是对象；扁平写法的字符串类型会在此处解析失败。
+	var recognitionObject map[string]json.RawMessage
+	if err := json.Unmarshal(recognitionRaw, &recognitionObject); err != nil {
+		return nil, fmt.Errorf("unmarshal recognition, expected v2 object form: %w", err)
+	}
+
+	paramRaw, hasParam := recognitionObject["param"]
+	if !hasParam || len(paramRaw) == 0 || string(paramRaw) == "null" {
+		return nil, fmt.Errorf("node recognition has no param")
+	}
+
+	patch := map[string]any{}
+	if err := json.Unmarshal(paramRaw, &patch); err != nil {
+		return nil, fmt.Errorf("unmarshal recognition.param: %w", err)
+	}
+
+	return patch, nil
+}
+
+// resolveFilterPatch 解析 Filter 参数：返回内建 Filter 节点名（供 color_filter 引用）
+// 与要写入该节点的识别参数补丁。未配置时两者皆为空。
+func resolveFilterPatch(ctx *maa.Context, raw any, builtin string) (string, map[string]any, error) {
 	if raw == nil {
-		return defaultCenterPointOffset, nil
+		return "", nil, nil
+	}
+
+	patch, err := resolveRecognitionParam(ctx, raw)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return builtin, patch, nil
+}
+
+// applyColorFilter 给 Quantity 的 OCR 补丁挂上 color_filter 节点名，并报告是否建立了关联。
+// 补丁自身已声明 color_filter 时保持原值（补丁优先），此时内建 Filter 节点不会被引用，返回 false。
+// 未配置 Filter 时无需关联，返回 false 且调用方不告警。
+func applyColorFilter(patch map[string]any, filterNode string) bool {
+	if filterNode == "" {
+		return false
+	}
+	if _, exists := patch["color_filter"]; exists {
+		return false
+	}
+
+	patch["color_filter"] = filterNode
+
+	return true
+}
+
+// warnUnlinkedColorFilter 在 Filter 已配置、但 Quantity 补丁自身声明了 color_filter 时告警：
+// 内建 Filter 节点会被覆写却无人引用，配置静默失效。
+func (a *BetterSlidingAction) warnUnlinkedColorFilter(fieldName string, filterConfigured bool, linked bool) {
+	if !filterConfigured || linked {
+		return
+	}
+
+	a.logger.Warn().
+		Str("field", fieldName).
+		Msg("color filter is configured but not linked, the quantity patch declares its own color_filter")
+}
+
+// resolveButtonTarget 归一化 IncreaseButton / DecreaseButton：
+// 数组为点击坐标（int[2|4]），String|Object 为模板识别补丁（默认 green_mask: true）。
+// 数量模式下两个按钮都必填，缺失或归一为空补丁都会显式报错。
+func resolveButtonTarget(ctx *maa.Context, fieldName string, raw any) (buttonTarget, error) {
+	if raw == nil {
+		return buttonTarget{}, fmt.Errorf("%s is required", fieldName)
+	}
+
+	switch raw.(type) {
+	case []any, []int, []float64:
+		coordinates, err := normalizeButton(raw)
+		if err != nil {
+			return buttonTarget{}, fmt.Errorf("%s: %w", fieldName, err)
+		}
+
+		return buttonTarget{coordinates: coordinates}, nil
+	}
+
+	patch, err := resolveRecognitionParam(ctx, raw)
+	if err != nil {
+		return buttonTarget{}, fmt.Errorf("%s: %w", fieldName, err)
+	}
+	if _, has := patch["green_mask"]; !has {
+		patch["green_mask"] = defaultGreenMask
+	}
+
+	return buttonTarget{patch: patch}, nil
+}
+
+// fallbackController 仅在 PI_CONTROLLER 不可用时取一次 controller，供控制器类别兜底；
+// PI 正常时返回 nil，避免无谓地触碰 controller 句柄（见编码规范「回调里的句柄怎么用」）。
+func fallbackController(ctx *maa.Context) *maa.Controller {
+	if pienv.ControllerKind() != pienv.ControllerKindUnknown {
+		return nil
+	}
+	if ctx == nil || ctx.GetTasker() == nil {
+		return nil
+	}
+	return ctx.GetTasker().GetController()
+}
+
+// resolveControlType 返回控制器的资源挂载范围类别（见 pkg/pienv），取不到时返回空串。
+// 归一化后 ADB、CloudADB、原生安卓与 PlayCover 都是 "adb"，与 resource_adb 的挂载范围一致。
+// ctrl 由回调入口传入；PI_CONTROLLER 缺失时用它兜底，否则移动端会误用桌面默认点击偏移。
+func resolveControlType(ctrl *maa.Controller) string {
+	kind := pienv.ResolveControllerKind(ctrl)
+	if kind == pienv.ControllerKindUnknown {
+		return ""
+	}
+	if pienv.IsAdbLikeControllerType(kind) {
+		return pienv.ControllerKindAdb
+	}
+	return kind
+}
+
+// defaultCenterPointOffset 返回当前控制器的默认点击偏移。
+// 移动端控制器通过触控坐标缩放上报点位，按识别框中心直接点击会落到滑块右侧，实测需再左移 15px。
+func defaultCenterPointOffset(controlType string) [2]int {
+	if controlType == pienv.ControllerKindAdb {
+		return defaultCenterPointOffsetMobile
+	}
+	return defaultCenterPointOffsetDesktop
+}
+
+func normalizeCenterPointOffset(raw any, fallback [2]int) ([2]int, error) {
+	if raw == nil {
+		return fallback, nil
 	}
 
 	numbers, err := normalizeIntSlice(raw)
@@ -68,55 +284,6 @@ func normalizeCenterPointOffset(raw any) ([2]int, error) {
 	}
 
 	return [2]int{numbers[0], numbers[1]}, nil
-}
-
-func normalizeQuantityFilter(fieldName string, raw *quantityFilterParam) (*quantityFilterParam, error) {
-	if raw == nil {
-		return nil, nil
-	}
-
-	if len(raw.Lower) == 0 || len(raw.Upper) == 0 {
-		return nil, fmt.Errorf("%s lower and upper must both be provided", fieldName)
-	}
-
-	if len(raw.Lower) != len(raw.Upper) {
-		return nil, fmt.Errorf("%s lower and upper must have the same length, got lower=%d upper=%d", fieldName, len(raw.Lower), len(raw.Upper))
-	}
-
-	channelCount, err := quantityFilterChannelCount(raw.Method)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(raw.Lower) != channelCount {
-		return nil, fmt.Errorf("%s lower and upper must each contain %d values for method %d, got %d", fieldName, channelCount, raw.Method, len(raw.Lower))
-	}
-
-	return &quantityFilterParam{
-		Lower:  append([]int(nil), raw.Lower...),
-		Upper:  append([]int(nil), raw.Upper...),
-		Method: raw.Method,
-	}, nil
-}
-
-func normalizeQuantityParam(raw quantityParam) ([]int, bool) {
-	onlyRec := false
-	if raw.OnlyRec != nil {
-		onlyRec = *raw.OnlyRec
-	}
-
-	return append([]int(nil), raw.Box...), onlyRec
-}
-
-func quantityFilterChannelCount(method int) (int, error) {
-	switch method {
-	case 4, 40:
-		return 3, nil
-	case 6:
-		return 1, nil
-	default:
-		return 0, fmt.Errorf("unsupported QuantityFilter method %d, expected 4 (RGB), 40 (HSV), or 6 (GRAY)", method)
-	}
 }
 
 func normalizeIntSlice(raw any) ([]int, error) {
@@ -140,7 +307,7 @@ func normalizeIntSlice(raw any) ([]int, error) {
 		}
 		return result, nil
 	default:
-		return nil, fmt.Errorf("unsupported button type %T", raw)
+		return nil, fmt.Errorf("unsupported int slice type %T", raw)
 	}
 }
 
@@ -327,7 +494,9 @@ func normalizeFineTuneFallback(raw string) (string, error) {
 func isSwipeOnlyMode(params betterSlidingParam) bool {
 	return !params.presence.TargetQuantity &&
 		!params.presence.SliderQuantity &&
+		!params.presence.SliderQuantityFilter &&
 		!params.presence.AvailableQuantity &&
+		!params.presence.AvailableQuantityFilter &&
 		!params.presence.IncreaseButton &&
 		!params.presence.DecreaseButton &&
 		!params.presence.OutOfRangeOverrideEnable &&

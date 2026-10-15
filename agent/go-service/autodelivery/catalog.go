@@ -31,6 +31,7 @@ type destination struct {
 	RouteNode        string
 	ZipRouteNode     string
 	RetryRouteNode   string
+	WalkOnly         bool
 	ZiplineOnly      bool
 	VerifyName       bool
 	SerialID         int
@@ -51,6 +52,7 @@ type generatedDepot struct {
 	Map            string            `json:"map"`
 	RouteNode      string            `json:"route_node"`
 	ZipRouteNode   string            `json:"zip_route_node"`
+	WalkOnly       bool              `json:"walk_only"`
 	ZiplineOnly    bool              `json:"zipline_only"`
 	RetryRouteNode string            `json:"retry_route_node"`
 }
@@ -65,6 +67,7 @@ type generatedDestination struct {
 	Area           map[string]string `json:"area"`
 	RouteNode      string            `json:"route_node"`
 	ZipRouteNode   string            `json:"zip_route_node"`
+	WalkOnly       bool              `json:"walk_only"`
 	ZiplineOnly    bool              `json:"zipline_only"`
 	VerifyName     bool              `json:"verify_name"`
 	RetryRouteNode string            `json:"retry_route_node"`
@@ -76,6 +79,7 @@ type depot struct {
 	Map            string
 	RouteNode      string
 	ZipRouteNode   string
+	WalkOnly       bool
 	ZiplineOnly    bool
 	RetryRouteNode string
 }
@@ -165,12 +169,17 @@ func buildDepots(generated generatedCatalog) (map[string]depot, error) {
 		if _, exists := depots[source.ID]; exists {
 			return nil, fmt.Errorf("duplicate AutoDelivery depot id %q", source.ID)
 		}
+		// walk_only 与 zipline_only 是对同一条路线的相反约束，同时声明时没有可用的滑索策略。
+		if source.WalkOnly && source.ZiplineOnly {
+			return nil, fmt.Errorf("AutoDelivery depot %q is both walk-only and zipline-only", source.ID)
+		}
 		depots[source.ID] = depot{
 			ID:             source.ID,
 			Names:          source.Name,
 			Map:            source.Map,
 			RouteNode:      source.RouteNode,
 			ZipRouteNode:   source.ZipRouteNode,
+			WalkOnly:       source.WalkOnly,
 			ZiplineOnly:    source.ZiplineOnly,
 			RetryRouteNode: source.RetryRouteNode,
 		}
@@ -202,6 +211,10 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 		}
 		if source.Kind == destinationKindRecycleBin && source.SerialID <= 0 {
 			return nil, nil, fmt.Errorf("AutoDelivery recycle bin destination %q has invalid serial id %d", source.ID, source.SerialID)
+		}
+		// walk_only 与 zipline_only 是对同一条路线的相反约束，同时声明时没有可用的滑索策略。
+		if source.WalkOnly && source.ZiplineOnly {
+			return nil, nil, fmt.Errorf("AutoDelivery destination %q is both walk-only and zipline-only", source.ID)
 		}
 		// 只有 NPC 终点的世界交互提示会显示终点名称，其他终点开启名称复核只会一直失败。
 		if source.VerifyName && source.Kind != destinationKindNPC {
@@ -239,6 +252,7 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 			RouteNode:        source.RouteNode,
 			ZipRouteNode:     source.ZipRouteNode,
 			RetryRouteNode:   source.RetryRouteNode,
+			WalkOnly:         source.WalkOnly,
 			ZiplineOnly:      source.ZiplineOnly,
 			VerifyName:       source.VerifyName,
 			SerialID:         source.SerialID,

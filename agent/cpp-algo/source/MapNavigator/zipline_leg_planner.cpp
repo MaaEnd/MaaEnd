@@ -624,6 +624,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const navmesh::WorldPath* walking_path,
     std::optional<double> goal_deck_y,
     std::optional<double> start_floor_y,
+    std::optional<double> start_deck_y,
     const std::function<bool()>& should_stop,
     bool capture_diagnostics)
 {
@@ -913,7 +914,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         }
     }
 
-    // 执行侧账本里滑不动、滑错、落地丢了的跳直接从连通图里拿掉。索不分上下行, 一根滑不动的索
+    // 执行侧账本里滑不动、滑错、落地丢了、反复瞄不准的跳直接从连通图里拿掉。索不分上下行, 一根滑不动的索
     // 反着大概率也滑不动, 两个方向一起封。
     if (!param.zipline_ledger.empty()) {
         const auto near_tower = [&nodes](size_t tower, const ZiplineNodeRef& ref) {
@@ -925,13 +926,18 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                 if (j <= i) {
                     continue;
                 }
+                int32_t aim_failures = 0;
                 for (const ZiplineHopRecord& record : param.zipline_ledger) {
-                    if (!IsZiplineRopeFailure(record.outcome)) {
+                    const bool rope_failure = IsZiplineRopeFailure(record.outcome);
+                    if (!rope_failure && record.outcome != HopOutcome::AimFailed) {
                         continue;
                     }
                     const ZiplineNodeRef& from = record.plan.mount;
                     const ZiplineNodeRef& to = record.plan.landing;
-                    if ((near_tower(i, from) && near_tower(j, to)) || (near_tower(i, to) && near_tower(j, from))) {
+                    if (!((near_tower(i, from) && near_tower(j, to)) || (near_tower(i, to) && near_tower(j, from)))) {
+                        continue;
+                    }
+                    if (rope_failure || ++aim_failures >= kZiplineAimFailBanCount) {
                         banned.emplace_back(i, j);
                         break;
                     }
@@ -1004,7 +1010,9 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                 spots[index],
                 nodes[spot_tower[index]].height,
                 start_floor_y,
-                capture_diagnostics ? &diagnostic : nullptr);
+                capture_diagnostics ? &diagnostic : nullptr,
+                nullptr,
+                start_deck_y);
             if (!route || !route->ok()) {
                 return std::nullopt;
             }

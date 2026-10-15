@@ -2,10 +2,13 @@
 
 #include <chrono>
 #include <cstddef>
+#include <deque>
 #include <limits>
 #include <optional>
 #include <string>
+#include <vector>
 
+#include "../Navmesh/NavmeshTypes.h"
 #include "navi_domain_types.h"
 #include "prompt_scan_profile.h"
 #include "zipline_ride_machine.h"
@@ -61,6 +64,15 @@ struct FlowState
     int32_t futile_forward_reasserts = 0;
     NaviPosition last_steer_position {};
     bool has_last_steer_position = false;
+    // Recent intervals between steering ticks: how long a sent turn waits before a tick can see it land. The
+    // entry gap above cannot stand in for it, since a tick that follows an early-return one is short however
+    // slow the loop is.
+    std::vector<int64_t> steer_periods_ms;
+    std::chrono::steady_clock::time_point last_steer_tick_at {};
+    // Vertex of the last bend braked for, so each bend is braked for once and a stop short of it is not repeated.
+    std::optional<navmesh::WorldPoint> braked_corner;
+    // That bend is still the next one ahead: walk the rest of the way in (UpdateWalkMode).
+    bool corner_walk = false;
 };
 
 struct SemanticState
@@ -131,6 +143,13 @@ struct FindState
     }
 };
 
+struct TriggerState
+{
+    std::chrono::steady_clock::time_point last_probe_at {};
+
+    void Reset() { last_probe_at = {}; }
+};
+
 // Recovery ladder position (device removal -> jump -> navmesh detour -> physical unstick), keyed on the
 // corridor anchor the agent is stuck against. Top-level so a dynamic replan, which renumbers the path and
 // clears the DynamicRecoveryState episode, cannot rewind it; cleared only by a genuine escape, a waypoint
@@ -157,12 +176,15 @@ struct LocalizationLossState
 {
     std::chrono::steady_clock::time_point started_at {};
     std::chrono::steady_clock::time_point last_unstick_at {};
+    // Last accepted fix before the loss; a failed capture only clears `valid`, so it still holds coordinates.
+    NaviPosition last_fix {};
     bool saw_black_screen = false;
 
     void Reset()
     {
         started_at = {};
         last_unstick_at = {};
+        last_fix = {};
         saw_black_screen = false;
     }
 };
@@ -230,6 +252,16 @@ struct SteeringRateState
     double pending_turn_deg = 0.0;
     double pending_ref_heading_deg = 0.0;
 
+    // Sends still inside their own lifetime, kept when the transport can swallow a send. Each direction of the total
+    // above is bounded by its own sends; netting the two would cancel a fresh reversal.
+    struct InFlightTurn
+    {
+        double delta_deg = 0.0;
+        std::chrono::steady_clock::time_point sent_at {};
+    };
+
+    std::deque<InFlightTurn> in_flight;
+
     void Reset()
     {
         prev_heading_deg = 0.0;
@@ -243,6 +275,7 @@ struct SteeringRateState
         turn_latch_sign = 0;
         pending_turn_deg = 0.0;
         pending_ref_heading_deg = 0.0;
+        in_flight.clear();
     }
 };
 
@@ -274,6 +307,9 @@ struct OffRouteWedgeState
         }
         const auto blind = now - blind_since;
         since += blind;
+        if (last_replan_at != std::chrono::steady_clock::time_point {}) {
+            last_replan_at += blind;
+        }
         blind_since = {};
         return std::chrono::duration_cast<std::chrono::milliseconds>(blind).count();
     }
@@ -286,6 +322,11 @@ struct OffRouteWedgeState
         best_distance = std::numeric_limits<double>::max();
         active = false;
     }
+
+    // best_distance belongs to one corridor; after a swap the next tick re-takes it while the timer keeps running.
+    void InvalidateBaseline() { best_distance = std::numeric_limits<double>::max(); }
+
+    bool HasBaseline() const { return best_distance != std::numeric_limits<double>::max(); }
 };
 
 // Dwell watchdog. A latched world-coordinate disc and the time spent inside it. Every other stall clock is
@@ -385,6 +426,19 @@ struct ZiplineApproachState
     }
 };
 
+// 到点认过一次没认出提示的交互点。周围别的可交互物占着焦点时原地再认还是同一个答案, 所以收紧判定圈接着往点上走。
+// 身份同样记 canonical 下标
+struct InteractApproachState
+{
+    std::optional<size_t> prompt_missed_node;
+    // 收紧的判定圈从认空这一刻起算。停滞钟会被零点几的抖动和恢复重规划清零, 被挡在点外时等不到放宽
+    std::chrono::steady_clock::time_point missed_at {};
+
+    bool PromptMissedAt(const std::optional<size_t>& node) const { return node.has_value() && prompt_missed_node == node; }
+
+    void Reset() { prompt_missed_node.reset(); }
+};
+
 // 退索恢复必须重新取得位置所有权。滑行中的快速位移和小地图遮挡可能让最后一帧落在远处的相似
 // 纹理上；ResetTracking 之后用贴近 navmesh 的连续新定位重新确认，再允许状态机规划接回剩余路线。
 struct ZiplineRecoveryState
@@ -429,9 +483,12 @@ struct NavigationRuntimeState
     CrossTierEscapeState cross_tier_escape;
     // FIND 的进度。按点计: 推进点位或重开导航就清, 步数预算与开始时刻都只属于当前这个 FIND 点
     FindState find;
+    // 只由 BeginNavigation 清, 推进点位不重置识别节拍
+    TriggerState trigger;
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
     // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
     ZiplineApproachState zipline_approach;
+    InteractApproachState interact_approach;
     ZiplineRecoveryState zipline_recovery;
     // 正在滑的这一跳和这趟导航每一跳的账本。账本跨越丢链和重规划, 只由 BeginNavigation 清
     ZiplineRideMachine zipline_ride;
@@ -478,8 +535,10 @@ struct NavigationRuntimeState
         dwell.Reset();
         cross_tier_escape.Reset();
         zipline_approach.Reset();
+        interact_approach.Reset();
         zipline_recovery.Reset();
         find.Reset();
+        trigger.Reset();
         zipline_ride.ResetNavigation();
         virtual_no_go.clear();
         progress_identity.Reset();
@@ -490,6 +549,10 @@ struct NavigationRuntimeState
         flow.navigate_started_at = now;
         flow.last_auto_sprint_time = {};
         flow.last_tick_started_at = {};
+        flow.steer_periods_ms.clear();
+        flow.last_steer_tick_at = {};
+        flow.braked_corner.reset();
+        flow.corner_walk = false;
     }
 
     void OnWaypointAdvance()

@@ -343,12 +343,16 @@ void TestControllerTypeSelectsKnownGridScale()
     const auto playcover = iconrecognition::detail::GridScaleForControllerType("PlayCover");
     Check(playcover && std::abs(*playcover - 1.25) <= 1e-6, "PlayCover controller must use the ADB grid scale");
 
+    const auto native_android = iconrecognition::detail::GridScaleForControllerType("native_android");
+    Check(native_android && std::abs(*native_android - 1.25) <= 1e-6, "Android native controller must use the ADB grid scale");
+
     const auto linux_scale = iconrecognition::detail::GridScaleForControllerType("linux");
     Check(linux_scale && std::abs(*linux_scale - 1.0) <= 1e-6, "Linux controller must use the standard grid scale");
 
     const auto macos = iconrecognition::detail::GridScaleForControllerType("MacOS");
     Check(macos && std::abs(*macos - 1.0) <= 1e-6, "MacOS controller must use the standard grid scale");
     Check(!iconrecognition::detail::GridScaleForControllerType("Unknown"), "unknown controllers must keep image-based fallback");
+    Check(!iconrecognition::detail::GridScaleForControllerType(""), "missing controller type must keep image-based fallback");
 }
 
 void TestValuablesCardExtentUsesScaledProfileOcclusionPolicy()
@@ -635,6 +639,18 @@ void TestCatalogBuildsFinalSizeDirectlyFromSourceAssets()
     }
 }
 
+void TestCatalogLoadsOnlyAvailableBigVariants()
+{
+    iconrecognition::detail::TemplateCatalog catalog("assets/data/IconRecognition", "assets/resource/image/IconRecognition");
+    Check(catalog.initialize(), "big template catalog must initialize from public assets");
+    const auto& variants = catalog.loadBig(96);
+    Check(variants.size() >= 2, "big template catalog must include the published variants");
+    for (const auto& item_id : { "item_char_skill_crown", "item_case_wpn_selfselect_bp_2" }) {
+        const auto found = std::ranges::find_if(variants, [&](const auto& templ) { return templ.record.item_id == item_id; });
+        Check(found != variants.end() && found->image.size() == cv::Size(96, 96), "big template must retain its original item identity");
+    }
+}
+
 void TestCatalogUsesGameSortOrderBeforeItemId()
 {
     const std::filesystem::path fixture = "agent/cpp-algo/source/IconRecognition/test/build/generated-sorted-catalog";
@@ -736,6 +752,7 @@ int main()
         TestEdgeOcclusionSkipsRewardsAndSingleRoi();
         TestEdgeOcclusionRecoveryPolicyIsConservative();
         TestCatalogBuildsFinalSizeDirectlyFromSourceAssets();
+        TestCatalogLoadsOnlyAvailableBigVariants();
         TestCatalogUsesGameSortOrderBeforeItemId();
         TestCatalogRejectsNonBooleanRegionRestricted();
         TestCatalogConcurrentLoadIsStable();

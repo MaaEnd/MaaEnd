@@ -26,6 +26,8 @@ const OPERATOR_CHAR_ID_PATTERN = /^chr_(\d+)(?:_|$)/;
 const TEMP_EXCLUDED_ITEM_CN_NAMES = new Set([
     "息壤玉葫芦",
     "息壤葫芦",
+    "重息壤龙泡泡",
+    "息壤龙泡泡",
 ]);
 
 function completeLocalizedNames(names = {}) {

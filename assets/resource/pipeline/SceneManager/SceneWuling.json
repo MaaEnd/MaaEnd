@@ -513,26 +513,6 @@
             "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess"
         ]
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor": {
-        "desc": "在武陵-景玉谷地图界面，进入[锚点]大世界",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]SceneMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapFilterClear",
-            "[JumpBack]__ScenePrivateMapZoomOut",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep2Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep3Anchor",
-            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep4Anchor"
-        ]
-    },
     "__ScenePrivateMapWulingWulingCityEnterWorldAnchor": {
         "desc": "在武陵-武陵城地图界面，进入[锚点]大世界",
         "recognition": "And",

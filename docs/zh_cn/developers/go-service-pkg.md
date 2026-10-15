@@ -13,21 +13,20 @@
 
 | 包 | 一句话 | 典型调用方 |
 | ------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------- |
-| [`i18n`](#i18n-多语言文案) | `T` / `RenderHTML`，按客户端语言取文案 | 几乎所有要给用户看提示的 Action |
-| [`maafocus`](#maafocus-向客户端推-focus) | 把提示推到客户端 Focus UI | `FocusOCRAction`、战斗 / 据点交易等 |
-| [`recogtarget`](#recogtarget-and-识别解包) | 从 Pipeline 节点（含 `And`）选出真正要用的子识别结果 | `ExpressionRecognition`、`FocusOCRAction` |
-| [`boolexpr`](#boolexpr-条件计算) | `{占位符}` 替换 + 整型布尔表达式求值 | `ExpressionRecognition`、IMS R1 |
-| [`ocrnum`](#ocrnum-ocr-数值解析) | OCR 文本 → `int`（支持 `1.38万` / `13.8K` 等） | `ExpressionRecognition`、`iconqty` |
-| [`jsonclean`](#jsonclean-jsonc-清洗) | 去掉注释 / 尾逗号 / BOM，变成严格 JSON | `resource`、`i18n`、各类配置加载 |
-| [`pienv`](#pienv-project-interface-环境) | 读取 `PI_*` 环境变量（语言、控制器、资源） | `i18n`、`iconqty`、启动期逻辑 |
-| [`resource`](#resource-资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
-| [`fsutil`](#fsutil-原子写文件) | 临时文件 + rename，避免半截写入 | debug / 持久化缓存 |
-| [`levenshtein`](#levenshtein-编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
+| [`i18n`](#i18n多语言文案) | `T` / `RenderHTML`，按客户端语言取文案 | 几乎所有要给用户看提示的 Action |
+| [`maafocus`](#maafocus向客户端推-focus) | 把提示推到客户端 Focus UI | `FocusOCRAction`、战斗 / 据点交易等 |
+| [`recogtarget`](#recogtargetand-识别解包) | 从 Pipeline 节点（含 `And`）选出真正要用的子识别结果 | `ExpressionRecognition`、`FocusOCRAction` |
+| [`boolexpr`](#boolexpr条件计算) | `{占位符}` 替换 + 整型布尔表达式求值 | `ExpressionRecognition`、IMS R1 |
+| [`ocrnum`](#ocrnumocr-数值解析) | OCR 文本 → `int`（支持 `1.38万` / `13.8K` 等） | `ExpressionRecognition`、`iconqty` |
+| [`jsonclean`](#jsoncleanjsonc-清洗) | 去掉注释 / 尾逗号 / BOM，变成严格 JSON | `resource`、`i18n`、各类配置加载 |
+| [`pienv`](#pienvproject-interface-环境) | 读取 `PI_*` 环境变量（语言、控制器、资源） | `i18n`、`iconqty`、启动期逻辑 |
+| [`resource`](#resource资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
+| [`fsutil`](#fsutil输出路径与原子写文件) | 持久化输出的路径基准；临时文件 + rename，避免半截写入 | 日志 / debug / 持久化缓存 |
+| [`levenshtein`](#levenshtein编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
 | [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS、囤货、送货等扫格逻辑 |
 | [`iconqty`](#iconrecognition--iconqty) | 扫格 + 格内数量 OCR | IMS A2 / A3 |
-| [`control`](#control-跨平台操控适配) | Win32 / ADB / macOS / Linux 统一操控接口 | 角色移动、镜头旋转等 |
-| [`minicv`](#minicv-轻量-cv) | 模板匹配、圆检测等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
-| [`parentwatch`](#parentwatch-父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
+| [`minicv`](#minicv轻量-cv) | 模板匹配、圆检测等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
+| [`parentwatch`](#parentwatch父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
 
 ---
 
@@ -137,7 +136,7 @@ return ocrnum.Extract(selected)
 | ---- | -------------------------- |
 | 算术 | `+` `-` `*` `/` `%` |
 | 比较 | `<` `<=` `>` `>=` `==` `!=` |
-| 逻辑 | `&&` ` | | ` `!` |
+| 逻辑 | `&&` `\|\|` `!` |
 | 分组 | `(...)` |
 
 字面量超出平台 `int` 范围时会钳制到 `IntMax` / `IntMin` 并打 warn，求值继续而不是直接失败（与 `ocrnum` 溢出策略一致）。
@@ -221,9 +220,13 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 
 - `ClientLanguage()` → 交给 `i18n`
 - `ControllerType()` / `ControllerName()` → 区分 Win32 / Adb 等
+- `ControllerKind()` / `NormalizeControllerKind()` / `IsAdbLikeControllerType()` → 归一化后的控制器类别（`adb` / `playcover` / `native_android` / `win32` / `macos` / `linux` / `gamepad`），大小写、`play_cover` 之类的别名都在这里消化
+- `ResolveControllerKind(ctrl)` → 归一化类别的兜底版：PI_CONTROLLER 缺失或类型未知时改用 `controller.GetInfo()` 判定。PI 协议允许 Client 省略不可用的变量，所以**不能假定 PI_CONTROLLER 一定存在**
 - `ResourceName()`、版本号等
 
 不要自己再 `os.Getenv("PI_...")` 散落解析。
+
+判断控制器类型优先用 `ControllerType()`，比较时走 `ControllerKind()` / `NormalizeControllerKind()`（不要各自 `ToLower` 拼字符串）。需要兼容「Client 省略 `PI_CONTROLLER`」时用 `ResolveControllerKind(ctrl)`——`ctrl` 必须是本回调里已经取得并向下传递的那个，不要为了判断类型再 `GetController()`：同一回调里每多取一次 controller，之前拿到的那个就会失效（见[编码规范 · 回调里的句柄怎么用](./coding-standards.md#回调里的句柄怎么用)）。ADB、PlayCover（含别名 `play_cover`）与 Android 原生共用「触控 + 移动端 UI」分支时，用 `IsAdbLikeControllerType()` 判断。
 
 ### `resource`：资源文件定位与读取
 
@@ -234,11 +237,26 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 
 读商品表、据点数据等时用本包，不要写死 `install/...` 绝对路径。
 
-### `fsutil`：原子写文件
+### `fsutil`：输出路径与原子写文件
 
 路径：`pkg/fsutil/`
 
-`WriteFileAtomic(path, content, perm)`：同目录临时文件写完再 rename。适合 debug 落盘、可覆盖的缓存；**不保证掉电持久性**（不做目录 fsync）。
+**输出路径**：日志、调试截图、`debug/record/` 下的记录、导出文件等持久化输出，统一以**进程启动时的工作目录**为根，不依赖调用时的工作目录，也不依赖可执行文件位置。
+
+| 函数 | 用途 |
+| ----------------------- | ---------------------------------------------------------------- |
+| `StartupDir()` | 返回启动时捕获的工作目录及捕获错误；`main` 启动期检查一次，失败即退出 |
+| `OutputPath(parts...)` | 把相对路径拼到启动工作目录下，返回绝对路径 |
+
+```go
+path := fsutil.OutputPath("debug", "record", "IMS.json")
+```
+
+- 写文件、以及读回自己写出的文件，都走 `OutputPath`，保证读写同一位置；不要再写 `filepath.Join("debug", ...)` 这类相对路径。
+- 只用于**输出**。读取随包发布的 `resource/`、`data/`、`locales/` 用上面的 `resource` 包，临时文件用系统临时目录。
+- cpp-algo 侧对应 `common::OutputPath`（`source/Common/output_paths.h`），两边共用的文件（如 `debug/record/random_salt.txt`、`Ziplines.json`）靠同一基准对齐。
+
+**原子写**：`WriteFileAtomic(path, content, perm)`：同目录临时文件写完再 rename。适合 debug 落盘、可覆盖的缓存；**不保证掉电持久性**（不做目录 fsync）。
 
 ### `levenshtein`：编辑距离
 
@@ -254,12 +272,6 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 | `iconqty` | 在格子上跑 IconRecognition，再按 `cell_box` OCR 数量（IMS 默认 ROI / 过滤器） |
 
 详细协议与 Pipeline 用法见 [IconRecognition](./components/icon-recognition.md)、[IMS](./components/ims.md)。
-
-### `control`：跨平台操控适配
-
-路径：`pkg/control/`
-
-`ControlAdaptor` 统一 Touch / Key / 镜头旋转 / 角色移动等；按平台有 Win32、ADB、macOS、Linux 实现。角色控制、自动战斗等「真正动手」的逻辑应走适配器，而不是直接调底层 Contorller API 散落各处。
 
 ### `minicv`：轻量 CV
 
@@ -286,6 +298,7 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 | 读带注释的 JSON 配置 | `jsonclean`（或经 `resource.ReadJsonResource`） |
 | 区分 Adb / Win32 | `pienv.ControllerType()` |
 | 扫背包格子并读数量 | `iconrecognition` + `iconqty` |
+| 决定日志 / 记录 / 导出文件写到哪 | `fsutil.OutputPath` |
 | 写文件不留半截内容 | `fsutil.WriteFileAtomic` |
 
 ## 相关文档

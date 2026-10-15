@@ -402,13 +402,13 @@
             }
         },
         "post_wait_freezes": {
+            "time": 400,
             "target": [
                 154,
                 202,
                 585,
                 291
             ],
-            "time": 400,
             "timeout": 3000
         },
         "post_delay": 0,
@@ -421,13 +421,13 @@
         "desc": "A2 首页面地区重建：清除并重建仓库普通植物、培养素材和采集材料缓存",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
+            "time": 400,
             "target": [
                 154,
                 202,
                 585,
                 291
             ],
-            "time": 400,
             "timeout": 3000
         },
         "pre_delay": 0,
@@ -517,13 +517,13 @@
             "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_wait_freezes": {
+            "time": 400,
             "target": [
                 154,
                 202,
                 585,
                 291
             ],
-            "time": 400,
             "timeout": 3000
         },
         "post_delay": 0,
@@ -569,13 +569,13 @@
         "desc": "无滚动条时执行单页地区重建扫描",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
+            "time": 400,
             "target": [
                 154,
                 202,
                 585,
                 291
             ],
-            "time": 400,
             "timeout": 3000
         },
         "pre_delay": 0,

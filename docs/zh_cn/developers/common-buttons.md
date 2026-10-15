@@ -73,13 +73,13 @@
 
 ---
 
-## CancelButton
+## WhiteCancelButton
 
 **说明**：通用取消按钮，有文字、白色底、**X 形**图标。
 
-<!-- 截图：docs/developers/images/common-buttons/CancelButton.png -->
+<!-- 截图：docs/developers/images/common-buttons/WhiteCancelButton.png -->
 
-![CancelButton](https://github.com/user-attachments/assets/b5185e1e-b4fb-4435-af46-2e7673240bdd)
+![WhiteCancelButton](https://github.com/user-attachments/assets/b5185e1e-b4fb-4435-af46-2e7673240bdd)
 
 | 项目 | 说明 |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
@@ -87,6 +87,23 @@
 | **搜索范围** | **全屏搜索**，无固定 ROI，画面任意位置出现的该按钮都会识别并点击。 |
 | **动作** | 单击。 |
 | **使用条件** | 界面中出现**白色底、带 X 图标**的取消按钮时使用。与确认按钮（圆环/对号）区分使用，避免误点确认。 |
+
+---
+
+## GrayCancelButton
+
+**说明**：通用取消按钮，有文字、**灰色底**、**X 形**图标。
+
+<!-- 截图：tests/MaaEndTestset/Win32/Official_CN/四号谷地_地区建设_仓储节点_送货任务_确认转交.png -->
+
+![GrayCancelButton](https://raw.githubusercontent.com/MaaEnd/MaaEndTestset/main/Win32/Official_CN/%E5%9B%9B%E5%8F%B7%E8%B0%B7%E5%9C%B0_%E5%9C%B0%E5%8C%BA%E5%BB%BA%E8%AE%BE_%E4%BB%93%E5%82%A8%E8%8A%82%E7%82%B9_%E9%80%81%E8%B4%A7%E4%BB%BB%E5%8A%A1_%E7%A1%AE%E8%AE%A4%E8%BD%AC%E4%BA%A4.png)
+
+| 项目 | 说明 |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **识别方式** | 先用颜色匹配定位灰色按钮背景（`GrayButtonBackground`），再在背景 ROI 内做模板匹配（X 图标），按常态 → Hover 态顺序短路匹配，最终以背景框作为点击目标（`box_index` 取背景框）。 |
+| **搜索范围** | **全屏搜索**，无固定 ROI，画面任意位置出现的该按钮都会识别并点击。 |
+| **动作** | 单击，并等待画面冻结 80ms。 |
+| **使用条件** | 界面中出现**灰色底、带 X 图标**的取消按钮时使用。例如“是否确认……”确认弹窗中，与黄色确认按钮并列的灰色取消按钮，用本节点可避免误点确认。 |
 
 ---
 
@@ -183,7 +200,8 @@
 | `WhiteConfirmButtonType2` | 白色底 + 对号图标的确认按钮 |
 | `YellowConfirmButtonType1` | 黄色底 + 圆环图标的确认按钮 |
 | `YellowConfirmButtonType2` | 黄色底 + 对号图标的确认按钮 |
-| `CancelButton` | 白色底 + X 图标的取消按钮 |
+| `WhiteCancelButton` | 白色底 + X 图标的取消按钮 |
+| `GrayCancelButton` | 灰色底 + X 图标的取消按钮 |
 | `TeleportButton` | 地图界面右下角的传送按钮 |
 | `QuickTeleportButton` | 地图界面中传送按钮左侧的快速传送按钮 |
 | `CloseRewardsButton` | 奖励界面中下部的对号关闭按钮 |

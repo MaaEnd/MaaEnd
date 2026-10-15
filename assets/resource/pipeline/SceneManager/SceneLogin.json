@@ -246,7 +246,14 @@
             }
         ],
         "action": {
-            "type": "Click"
+            "type": "Custom",
+            "param": {
+                "custom_action": "RepeatUntilNotFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_node": "__ScenePrivateCloseLoginAnnouncement"
+                }
+            }
         }
     },
     "__ScenePrivateLoginMonthlyPassConfirm": {
@@ -359,13 +366,13 @@
             }
         },
         "post_wait_freezes": {
+            "time": 600,
             "target": [
                 0,
                 0,
                 100,
                 100
             ],
-            "time": 600,
             "timeout": 2000
         }
     },

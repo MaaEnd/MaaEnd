@@ -5,9 +5,8 @@
             "label": "$task.GearAssembly.label",
             "entry": "GearAssemblyStart",
             "description": "$task.GearAssembly.description",
-            "option": [
-                "GearAssemblyType",
-                "GearAssemblySortOrder"
+            "group": [
+                "valuables_vault"
             ],
             "controller": [
                 "ADB",
@@ -20,8 +19,9 @@
                 "PlayCover",
                 "Win32-Front"
             ],
-            "group": [
-                "valuables_vault"
+            "option": [
+                "GearAssemblyType",
+                "GearAssemblySortOrder"
             ]
         }
     ],
@@ -29,7 +29,6 @@
         "GearAssemblySortOrder": {
             "type": "select",
             "label": "$task.GearAssembly.option.GearAssemblySortOrder.label",
-            "default_case": "Lower",
             "cases": [
                 {
                     "name": "Lower",
@@ -49,12 +48,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Lower"
         },
         "GearAssemblyType": {
             "type": "select",
             "label": "$task.GearAssembly.option.GearAssemblyType.label",
-            "default_case": "SetGear",
             "cases": [
                 {
                     "name": "BasicGear",
@@ -101,7 +100,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "SetGear"
         }
     }
 }

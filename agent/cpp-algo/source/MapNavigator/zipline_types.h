@@ -49,6 +49,9 @@ struct ZiplineHopPlan
     std::vector<ZiplineMountSpot> mount_spots;
     // 落点就是下一跳的上索架: 落地不下索, 直接接着瞄
     bool chain_continues = false;
+    // 离开这跳时要朝的下一点: 只有链尾那一跳有值, 是下索段里第一个够远的规划步行点。下索动作
+    // 自身带出一段沿按键那刻朝向的动量, 所以下索前要先把它摆到下一段的走路方向上
+    std::optional<ZiplineMountSpot> exit_aim;
 };
 
 enum class LandingClass
@@ -81,6 +84,7 @@ enum class HopOutcome
     Unboardable, // 每个站位都走到过, 一次提示都没出来: 这根架子上不去, 别再拿它当上索点
     Lost,        // 落地定位一直对不上
     Dismounted,  // 主动下索交给恢复
+    AimFailed,   // 在架上瞄不准放弃
 };
 
 struct ZiplineHopRecord
@@ -108,6 +112,7 @@ enum class ZiplineStage
     Riding,       // 滑行中小地图整个隐藏, 定位不到, 只等
     Landed,       // 定位回来了, 等停稳
     Classified,   // 停稳的位置查决策表
+    ExitAiming,   // 链尾落地: 下索前先把朝向摆到下一段的走路方向
     ReturnAiming, // 滑错了: 从当前架子瞄回上索架
     Dismounting,  // 已发下索键, 等定位稳定
     Handoff,      // 把出口事件交回导航
@@ -122,7 +127,7 @@ enum class MountVerdict
     Unclear,
 };
 
-// 一帧观测。fix 只在定位到且不是 held 时有值, 朝向就是 fix 的角度
+// 一帧观测。fix 只在定位到、不是 held 且所选朝向有效时有值，朝向就是 fix 的角度。
 struct ZiplineObservation
 {
     std::optional<NaviPosition> fix;

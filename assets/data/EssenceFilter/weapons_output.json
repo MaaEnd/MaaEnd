@@ -1,6 +1,7 @@
 {
     "wpn_claym_0003": {
         "internal_id": "wpn_claym_0003",
+        "icon_id": "wpn_claym_0003",
         "weapon_type": "Claymores",
         "rarity": 4,
         "icon_path": "weapon_images_endfield\\Industry_01_icon.png",
@@ -96,109 +97,12 @@
                 "Tấn Công [Nhỏ]",
                 "Áp Chế-Bổ Trợ Khẩn Cấp"
             ]
-        }
-    },
-    "wpn_lance_0006": {
-        "internal_id": "wpn_lance_0006",
-        "weapon_type": "Lance",
-        "rarity": 5,
-        "icon_path": "weapon_images_endfield\\Cohesive_Traction_icon.png",
-        "skill_ids": [
-            "wpn_attr_will_mid",
-            "wpn_sp_attr_electrondam_mid",
-            "sk_wpn_lance_0006"
-        ],
-        "names": {
-            "BR": "Tração Coesiva",
-            "CN": "向心之引",
-            "DE": "Einheitliche Haftung",
-            "EN": "Cohesive Traction",
-            "FR": "Traction cohésive",
-            "ID": "Cohesive Traction",
-            "IT": "Trazione compatta",
-            "JP": "求心の槍",
-            "KR": "중심력",
-            "MX": "Tracción cohesiva",
-            "RU": "Прочное притяжение",
-            "TC": "向心之引",
-            "TH": "แรงดึงดูด​เหนียวแน่น",
-            "VN": "Lực Kéo Kết Dính"
         },
-        "skills": {
-            "BR": [
-                "Vontade [M]",
-                "DNO Elétrico [M]",
-                "Supressão: Círculos Concêntricos"
-            ],
-            "CN": [
-                "意志提升·中",
-                "电磁伤害提升·中",
-                "压制·同心圆"
-            ],
-            "DE": [
-                "Wille [M]",
-                "Elektrischer SDN [M]",
-                "Unterdrückung: Konzentrische Kreise"
-            ],
-            "EN": [
-                "Will [M]",
-                "Electric DMG [M]",
-                "Suppression: Concentric Circles"
-            ],
-            "FR": [
-                "Volonté [M]",
-                "DÉG électriques [M]",
-                "Suppression : Cercles concentriques"
-            ],
-            "ID": [
-                "Will [M]",
-                "Electric DMG [M]",
-                "Suppression: Concentric Circles"
-            ],
-            "IT": [
-                "Volontà [M]",
-                "Danni da elettricità [M]",
-                "Soppressione: Cerchi concentrici"
-            ],
-            "JP": [
-                "意志UP・中",
-                "電磁ダメージUP・中",
-                "圧制・同心円"
-            ],
-            "KR": [
-                "의지 증가 · 중",
-                "전기 피해 증가 · 중",
-                "억제 · 동심원"
-            ],
-            "MX": [
-                "Voluntad [M]",
-                "DAÑ eléctrico [M]",
-                "Supresión: círculos concéntricos"
-            ],
-            "RU": [
-                "Воля [ср.]",
-                "Электрический УРН [ср.]",
-                "Подавление: концентрические круги"
-            ],
-            "TC": [
-                "意志提升·中",
-                "電磁傷害提升·中",
-                "壓制·同心圓"
-            ],
-            "TH": [
-                "ความมุ่งมั่น​ [M]",
-                "DMG ไฟฟ้า​ [M]",
-                "ปราบปราม​: วงกลม​ร่วม​ศูนย์กลาง"
-            ],
-            "VN": [
-                "Ý Chí [Vừa]",
-                "ST Điện [Vừa]",
-                "Áp Chế: Vòng Tròn Đồng Tâm"
-            ]
-        }
+        "foresight": false
     },
     "wpn_claym_0004": {
         "internal_id": "wpn_claym_0004",
+        "icon_id": "wpn_claym_0004",
         "weapon_type": "Claymores",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Exemplar_icon.png",
@@ -294,109 +198,12 @@
                 "Tấn Công [Lớn]",
                 "Áp Chế: Chém Chồng Lên Nhau"
             ]
-        }
-    },
-    "wpn_funnel_0009": {
-        "internal_id": "wpn_funnel_0009",
-        "weapon_type": "Wand",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Oblivion_icon.png",
-        "skill_ids": [
-            "wpn_attr_wisd_high",
-            "wpn_sp_attr_magicdam_high",
-            "sk_wpn_funnel_0009"
-        ],
-        "names": {
-            "BR": "Esquecimento",
-            "CN": "遗忘",
-            "DE": "Vergessenheit",
-            "EN": "Oblivion",
-            "FR": "Oubli",
-            "ID": "Oblivion",
-            "IT": "Oblio",
-            "JP": "遺忘",
-            "KR": "망각",
-            "MX": "Olvido",
-            "RU": "Забвение",
-            "TC": "遺忘",
-            "TH": "ความว่างเปล่า",
-            "VN": "Lãng Quên"
         },
-        "skills": {
-            "BR": [
-                "Inteligência [G]",
-                "DNO Artes [G]",
-                "Crepúsculo: Humilhação"
-            ],
-            "CN": [
-                "智识提升·大",
-                "法术提升·大",
-                "夜幕·耻辱"
-            ],
-            "DE": [
-                "Intellekt [L]",
-                "Technik-SDN [L]",
-                "Abenddämmerung: Demütigung"
-            ],
-            "EN": [
-                "Intellect [L]",
-                "Arts DMG [L]",
-                "Twilight: Humiliation"
-            ],
-            "FR": [
-                "Intelligence [G]",
-                "DÉG des Arts [G]",
-                "Crépuscule : Humiliation"
-            ],
-            "ID": [
-                "Intellect [L]",
-                "Arts DMG [L]",
-                "Twilight: Humiliation"
-            ],
-            "IT": [
-                "Intelletto [L]",
-                "Danni da Arti [L]",
-                "Crepuscolo: Umiliazione"
-            ],
-            "JP": [
-                "知性UP・大",
-                "アーツダメージUP・大",
-                "夜幕・屈辱"
-            ],
-            "KR": [
-                "지능 증가 · 대",
-                "아츠 피해 증가 · 대",
-                "어둠 · 치욕"
-            ],
-            "MX": [
-                "Intelecto [G]",
-                "DAÑ por Artes [G]",
-                "Crepúsculo: humillación"
-            ],
-            "RU": [
-                "Интеллект [бол.]",
-                "УРН от искусств [бол.]",
-                "Сумерки: унижение"
-            ],
-            "TC": [
-                "智識提升·大",
-                "法術提升·大",
-                "夜幕·恥辱"
-            ],
-            "TH": [
-                "สติปัญญา​ [L]",
-                "DMG พลัง​เวท​ [L]",
-                "ลี้ลับ​: การ​ทำให้​อับอาย"
-            ],
-            "VN": [
-                "Trí Tuệ [Lớn]",
-                "ST Thuật Pháp [Lớn]",
-                "Chạng Vạng: Nhục Nhã"
-            ]
-        }
+        "foresight": false
     },
     "wpn_claym_0006": {
         "internal_id": "wpn_claym_0006",
+        "icon_id": "wpn_claym_0006",
         "weapon_type": "Claymores",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Former_Finery_icon.png",
@@ -492,109 +299,12 @@
                 "HP [Lớn]",
                 "Hiệu Lực: Liệu Pháp Nhẹ Nhàng"
             ]
-        }
-    },
-    "wpn_lance_0003": {
-        "internal_id": "wpn_lance_0003",
-        "weapon_type": "Lance",
-        "rarity": 4,
-        "icon_path": "weapon_images_endfield\\Pathfinders_Beacon_icon.png",
-        "skill_ids": [
-            "wpn_attr_agi_low",
-            "wpn_sp_attr_atk_low",
-            "sk_wpn_lance_0003"
-        ],
-        "names": {
-            "BR": "Sinalizadora do Explorador",
-            "CN": "寻路者道标",
-            "DE": "Wegweiser",
-            "EN": "Pathfinder's Beacon",
-            "FR": "Balise de l'éclaireur",
-            "ID": "Pathfinder’s Beacon",
-            "IT": "Faro del pioniere",
-            "JP": "開拓者の道標",
-            "KR": "개척자의 이정표",
-            "MX": "Baliza del explorador",
-            "RU": "Маяк следопыта",
-            "TC": "尋路者道標",
-            "TH": "บี​คอน​นัก​สำรวจ",
-            "VN": "Hải Đăng Dẫn Lối"
         },
-        "skills": {
-            "BR": [
-                "Agilidade [P]",
-                "ATQ [P]",
-                "Inspirador: Início de uma Saga"
-            ],
-            "CN": [
-                "敏捷提升·小",
-                "攻击提升·小",
-                "昂扬·远途起始"
-            ],
-            "DE": [
-                "Beweglichkeit [S]",
-                "ANG [S]",
-                "Inspirierend: Beginn einer Saga"
-            ],
-            "EN": [
-                "Agility [S]",
-                "ATK [S]",
-                "Inspiring: Start of a Saga"
-            ],
-            "FR": [
-                "Agilité [P]",
-                "ATQ [P]",
-                "Inspiration : Début d'une saga"
-            ],
-            "ID": [
-                "Agility [S]",
-                "ATK [S]",
-                "Inspiring: Start of a Saga"
-            ],
-            "IT": [
-                "Agilità [S]",
-                "ATT [S]",
-                "Ispirazione: L'inizio di una saga"
-            ],
-            "JP": [
-                "敏捷UP・小",
-                "攻撃力UP・小",
-                "昂揚・遠路の始まり"
-            ],
-            "KR": [
-                "민첩 증가 · 소",
-                "공격력 증가 · 소",
-                "사기 · 원정의 시작"
-            ],
-            "MX": [
-                "Agilidad [P]",
-                "ATQ [P]",
-                "Inspirador: inicio de una saga"
-            ],
-            "RU": [
-                "Ловкость [мал.]",
-                "АТК [мал.]",
-                "Муза: начало саги"
-            ],
-            "TC": [
-                "敏捷提升·小",
-                "攻擊提升·小",
-                "昂揚·遠途起始"
-            ],
-            "TH": [
-                "ความคล่องแคล่ว​ [S]",
-                "ATK [S]",
-                "สร้าง​กำลังใจ​: บท​เริ่ม​มหากาพย์"
-            ],
-            "VN": [
-                "Nhanh Nhẹn [Nhỏ]",
-                "Tấn Công [Nhỏ]",
-                "Cảm Hứng-Khởi Đầu Sử Thi"
-            ]
-        }
+        "foresight": false
     },
     "wpn_claym_0007": {
         "internal_id": "wpn_claym_0007",
+        "icon_id": "wpn_claym_0007",
         "weapon_type": "Claymores",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Thunderberge_icon.png",
@@ -690,10 +400,12 @@
                 "HP [Lớn]",
                 "Chữa Lành: Con Mắt Của Talos"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_claym_0008": {
         "internal_id": "wpn_claym_0008",
+        "icon_id": "wpn_claym_0008",
         "weapon_type": "Claymores",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Sundered_Prince_icon.png",
@@ -789,109 +501,12 @@
                 "Tỷ Lệ Bạo Kích [Lớn]",
                 "Nghiền: Uy Thế Vương Giả"
             ]
-        }
-    },
-    "wpn_pistol_0008": {
-        "internal_id": "wpn_pistol_0008",
-        "weapon_type": "Pistol",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Wedge_icon.png",
-        "skill_ids": [
-            "wpn_attr_main_high",
-            "wpn_sp_attr_crirate_high",
-            "sk_wpn_pistol_0008"
-        ],
-        "names": {
-            "BR": "Cunha",
-            "CN": "楔子",
-            "DE": "Keil",
-            "EN": "Wedge",
-            "FR": "Pivot",
-            "ID": "Wedge",
-            "IT": "Cuneo",
-            "JP": "楔",
-            "KR": "쐐기",
-            "MX": "Cuña",
-            "RU": "Клин",
-            "TC": "楔子",
-            "TH": "เว​ด​จ์",
-            "VN": "Cái Nêm"
         },
-        "skills": {
-            "BR": [
-                "Atributo Principal [G]",
-                "Taxa de Críticos [G]",
-                "Inflição: Cunha da Civilização"
-            ],
-            "CN": [
-                "主能力提升·大",
-                "暴击率提升·大",
-                "附术·文明楔子"
-            ],
-            "DE": [
-                "Hauptattribut [L]",
-                "Kritische Rate [L]",
-                "Zufügung: Keil der Zivilisation"
-            ],
-            "EN": [
-                "Main Attribute [L]",
-                "Critical Rate [L]",
-                "Infliction: Wedge of Civilization"
-            ],
-            "FR": [
-                "Trait principal [G]",
-                "Taux de coups critiques [G]",
-                "Altération : Pivot de civilisation"
-            ],
-            "ID": [
-                "Atribut Utama [L]",
-                "Critical Rate [L]",
-                "Infliction: Wedge of Civilization"
-            ],
-            "IT": [
-                "Attributo principale [L]",
-                "Probabilità di critico [L]",
-                "Afflizione: Cuneo della civiltà"
-            ],
-            "JP": [
-                "メイン能力UP・大",
-                "会心率UP・大",
-                "付術・文明楔"
-            ],
-            "KR": [
-                "주요 능력치 증가 · 대",
-                "치명타 확률 증가 · 대",
-                "고통 · 문명의 쐐기"
-            ],
-            "MX": [
-                "Atributo principal [G]",
-                "Índice crítico [G]",
-                "Imposición: Cuña de la Civilización"
-            ],
-            "RU": [
-                "Основной показатель [бол.]",
-                "Шанс крит. удара [бол.]",
-                "Поражение: клин цивилизации"
-            ],
-            "TC": [
-                "主能力提升·大",
-                "暴擊率提升·大",
-                "附術·文明楔子"
-            ],
-            "TH": [
-                "คุณสมบัติ​หลัก​ [L]",
-                "อัตรา​การติ​ด​คริ​ติค​อล​ [L]",
-                "สร้าง​บาดแผล​: เสาหลัก​แห่ง​อารยธรรม"
-            ],
-            "VN": [
-                "Thuộc Tính Chính [Lớn]",
-                "Tỷ Lệ Bạo Kích [Lớn]",
-                "Nhiễm: Dẫn Nhập Nền Văn Minh"
-            ]
-        }
+        "foresight": false
     },
     "wpn_claym_0009": {
         "internal_id": "wpn_claym_0009",
+        "icon_id": "wpn_claym_0009",
         "weapon_type": "Claymores",
         "rarity": 4,
         "icon_path": "weapon_images_endfield\\Quencher_icon.png",
@@ -987,10 +602,12 @@
                 "HP [Nhỏ]",
                 "Nghiền: Rèn Luyện Vào Quân Đoàn"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_claym_0010": {
         "internal_id": "wpn_claym_0010",
+        "icon_id": "wpn_claym_0010",
         "weapon_type": "Claymores",
         "rarity": 3,
         "icon_path": "weapon_images_endfield\\Darhoff_7_icon.png",
@@ -1071,109 +688,12 @@
                 "Thuộc Tính Chính [Nhỏ]",
                 "Đột Kích-Chuẩn Bị Vũ Trang"
             ]
-        }
-    },
-    "wpn_pistol_0004": {
-        "internal_id": "wpn_pistol_0004",
-        "weapon_type": "Pistol",
-        "rarity": 5,
-        "icon_path": "weapon_images_endfield\\Rational_Farewell_icon.png",
-        "skill_ids": [
-            "wpn_attr_str_mid",
-            "wpn_sp_attr_firedam_mid",
-            "sk_wpn_pistol_0004"
-        ],
-        "names": {
-            "BR": "Despedida Racional",
-            "CN": "理性告别",
-            "DE": "Rationaler Abschied",
-            "EN": "Rational Farewell",
-            "FR": "Adieu raisonnable",
-            "ID": "Rational Farewell",
-            "IT": "Addio razionale",
-            "JP": "合理的決別",
-            "KR": "이성적인 작별",
-            "MX": "Despedida racional",
-            "RU": "Прощальный обет",
-            "TC": "理性告別",
-            "TH": "คำอำลา​ที่​มีเหตุผล",
-            "VN": "Tạm Biệt Lý Trí"
         },
-        "skills": {
-            "BR": [
-                "Força [M]",
-                "DNO Térmico [M]",
-                "Perseguição: Ajuda do Passado"
-            ],
-            "CN": [
-                "力量提升·中",
-                "灼热伤害提升·中",
-                "追袭·旧时之援"
-            ],
-            "DE": [
-                "Stärke [M]",
-                "Hitze-SDN [M]",
-                "Verfolgung: Hilfe aus der Vergangenheit"
-            ],
-            "EN": [
-                "Strength [M]",
-                "Heat DMG [M]",
-                "Pursuit: Aid from the Past"
-            ],
-            "FR": [
-                "Force [M]",
-                "DÉG thermiques [M]",
-                "Poursuite : Aide du passé"
-            ],
-            "ID": [
-                "Strength [M]",
-                "Heat DMG [M]",
-                "Pursuit: Aid from the Past"
-            ],
-            "IT": [
-                "Forza [M]",
-                "Danni da fuoco [M]",
-                "Inseguimento: Aiuto dal passato"
-            ],
-            "JP": [
-                "筋力UP・中",
-                "灼熱ダメージUP・中",
-                "追襲・往時の援助"
-            ],
-            "KR": [
-                "힘 증가 · 중",
-                "열기 피해 증가 · 중",
-                "추격 · 옛 시절의 원조"
-            ],
-            "MX": [
-                "Fuerza [M]",
-                "DAÑ por calor [M]",
-                "Persecución: ayuda del pasado"
-            ],
-            "RU": [
-                "Сила [ср.]",
-                "Тепловой УРН [ср.]",
-                "Азарт: помощь из прошлого"
-            ],
-            "TC": [
-                "力量提升·中",
-                "灼熱傷害提升·中",
-                "追襲·舊時之援"
-            ],
-            "TH": [
-                "ความแข็ง​แกร่ง​ [M]",
-                "DMG ความร้อน​ [M]",
-                "ไล่​ล่า​: ความช่วยเหลือ​จาก​อดีต"
-            ],
-            "VN": [
-                "Sức Mạnh [Vừa]",
-                "ST Nhiệt [Vừa]",
-                "Truy Kích: Viện Trợ Từ Quá Khứ"
-            ]
-        }
+        "foresight": false
     },
     "wpn_claym_0011": {
         "internal_id": "wpn_claym_0011",
+        "icon_id": "wpn_claym_0011",
         "weapon_type": "Claymores",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Seeker_of_Dark_Lung_icon.png",
@@ -1269,109 +789,12 @@
                 "Hiệu Quả Nhận TK [Vừa]",
                 "Kích Nổ: Kẻ Truy Tìm Bí Truyền"
             ]
-        }
-    },
-    "wpn_lance_0007": {
-        "internal_id": "wpn_lance_0007",
-        "weapon_type": "Lance",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Beacon_of_Duty_icon.png",
-        "skill_ids": [
-            "wpn_attr_agi_high",
-            "wpn_sp_attr_usgs_high",
-            "sk_wpn_lance_0007"
-        ],
-        "names": {
-            "BR": "Sinalizador do Dever",
-            "CN": "灯火使命",
-            "DE": "Leuchtfeuer der Pflicht",
-            "EN": "Beacon of Duty",
-            "FR": "Symbole du devoir",
-            "ID": "Beacon of Duty",
-            "IT": "Faro del dovere",
-            "JP": "灯火の使命",
-            "KR": "등불의 사명",
-            "MX": "Baliza del deber",
-            "RU": "Маяк долга",
-            "TC": "燈火使命",
-            "TH": "คบเพลิง​แห่ง​หน้าที่",
-            "VN": "Ngọn Đuốc Trách Nhiệm"
         },
-        "skills": {
-            "BR": [
-                "Agilidade [G]",
-                "Eficiência SUP [G]",
-                "Eficácia: Combustível de Tocha"
-            ],
-            "CN": [
-                "敏捷提升·大",
-                "终结技充能效率提升·大",
-                "效益·灯火灼身"
-            ],
-            "DE": [
-                "Beweglichkeit [L]",
-                "ULT-Effizienz [L]",
-                "Wirksamkeit: Pech für die Fackel"
-            ],
-            "EN": [
-                "Agility [L]",
-                "ULT Efficiency [L]",
-                "Efficacy: Fuel for the Torch"
-            ],
-            "FR": [
-                "Agilité [G]",
-                "Vitesse ULT [G]",
-                "Efficacité : De quoi raviver la flamme"
-            ],
-            "ID": [
-                "Agility [L]",
-                "Efisiensi ULT [L]",
-                "Efficacy: Fuel for the Torch"
-            ],
-            "IT": [
-                "Agilità [L]",
-                "Velocità SUP [L]",
-                "Efficacia: Carburante per la torcia"
-            ],
-            "JP": [
-                "敏捷UP・大",
-                "必殺技効率UP・大",
-                "効率・灯火燃焼"
-            ],
-            "KR": [
-                "민첩 증가 · 대",
-                "궁극기 충전 효율 증가 · 대",
-                "효율 · 불빛 연소"
-            ],
-            "MX": [
-                "Agilidad [G]",
-                "Eficiencia MÁX. [G]",
-                "Eficacia: Combustible para la antorcha"
-            ],
-            "RU": [
-                "Ловкость [бол.]",
-                "Отдача суперэнергии [бол.]",
-                "Эффективность: топливо для факела"
-            ],
-            "TC": [
-                "敏捷提升·大",
-                "終結技蓄能效率提升·大",
-                "效益·燈火灼身"
-            ],
-            "TH": [
-                "ความคล่องแคล่ว​ [L]",
-                "ประสิทธิภาพ​อัล​ติ​เมท​ [L]",
-                "ประสิทธิผล​: เชื้อเพลิง​คบไฟ"
-            ],
-            "VN": [
-                "Nhanh Nhẹn [Lớn]",
-                "Hiệu Quả Nhận TK [Lớn]",
-                "Hiệu Lực: Nhiên Liệu Cho Đuốc"
-            ]
-        }
+        "foresight": false
     },
     "wpn_claym_0012": {
         "internal_id": "wpn_claym_0012",
+        "icon_id": "wpn_claym_0012",
         "weapon_type": "Claymores",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Finishing_Call_icon.png",
@@ -1467,10 +890,12 @@
                 "HP [Vừa]",
                 "Chữa Lành: Vinh Quang Của Hiệp Sĩ"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_claym_0013": {
         "internal_id": "wpn_claym_0013",
+        "icon_id": "wpn_claym_0013",
         "weapon_type": "Claymores",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Khravengger_icon.png",
@@ -1566,109 +991,12 @@
                 "Tấn Công [Lớn]",
                 "Kích Nổ: Lạnh Buốt"
             ]
-        }
-    },
-    "wpn_lance_0016": {
-        "internal_id": "wpn_lance_0016",
-        "weapon_type": "Lance",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Golden_Age_icon.png",
-        "skill_ids": [
-            "wpn_attr_will_high",
-            "wpn_sp_attr_heal_high",
-            "sk_wpn_lance_0016"
-        ],
-        "names": {
-            "BR": "Era de Ouro",
-            "CN": "黄金时代",
-            "DE": "Goldenes Zeitalter",
-            "EN": "Golden Age",
-            "FR": "Âge d'or",
-            "ID": "Golden Age",
-            "IT": "Epoca d'oro",
-            "JP": "黄金時代",
-            "KR": "전성기",
-            "MX": "Edad de oro",
-            "RU": "Золотой век",
-            "TC": "黃金時代",
-            "TH": "ยุคทอง",
-            "VN": "Thời Đại Hoàng Kim"
         },
-        "skills": {
-            "BR": [
-                "Vontade [G]",
-                "Eficiência do Tratamento [G]",
-                "Perseguição: Grande Herói"
-            ],
-            "CN": [
-                "意志提升·大",
-                "治疗效率提升·大",
-                "追袭·大英雄"
-            ],
-            "DE": [
-                "Wille [L]",
-                "Behandlungseffizienz [L]",
-                "Verfolgung: Großer Held"
-            ],
-            "EN": [
-                "Will [L]",
-                "Treatment Efficiency [L]",
-                "Pursuit: Great Hero"
-            ],
-            "FR": [
-                "Volonté [G]",
-                "Efficacité des soins [G]",
-                "Poursuite : Grand héros"
-            ],
-            "ID": [
-                "Will [L]",
-                "Efisiensi Treatment [L]",
-                "Pursuit: Great Hero"
-            ],
-            "IT": [
-                "Volontà [L]",
-                "Efficacia della Cura [L]",
-                "Inseguimento: Grande eroina"
-            ],
-            "JP": [
-                "意志UP・大",
-                "回復効率UP・大",
-                "追襲・大英雄"
-            ],
-            "KR": [
-                "의지 증가 · 대",
-                "치유 효율 증가 · 대",
-                "추격 · 위대한 영웅"
-            ],
-            "MX": [
-                "Voluntad [G]",
-                "Eficiencia del tratamiento [G]",
-                "Persecución: Gran héroe"
-            ],
-            "RU": [
-                "Воля [бол.]",
-                "Эффективность лечения [бол.]",
-                "Азарт: великий герой"
-            ],
-            "TC": [
-                "意志提升·大",
-                "治療效率提升·大",
-                "追襲·大英雄"
-            ],
-            "TH": [
-                "ความมุ่งมั่น​ [L]",
-                "ประสิทธิภาพ​การรักษา​ [L]",
-                "ไล่​ล่า​: ยอด​วีรบุรุษ"
-            ],
-            "VN": [
-                "Ý Chí [Lớn]",
-                "Hiệu Quả Điều Trị [Lớn]",
-                "Truy Kích: Đại Anh Hùng"
-            ]
-        }
+        "foresight": false
     },
     "wpn_claym_0014": {
         "internal_id": "wpn_claym_0014",
+        "icon_id": "wpn_claym_0014",
         "weapon_type": "Claymores",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Ancient_Canal_icon.png",
@@ -1764,208 +1092,12 @@
                 "Công Phép [Vừa]",
                 "Tàn Bạo: Xứ Cổ"
             ]
-        }
-    },
-    "wpn_funnel_0008": {
-        "internal_id": "wpn_funnel_0008",
-        "weapon_type": "Wand",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Detonation_Unit_icon.png",
-        "skill_ids": [
-            "wpn_attr_main_high",
-            "wpn_sp_attr_phy_spell_high",
-            "sk_wpn_funnel_0008"
-        ],
-        "names": {
-            "BR": "Unidade de Detonação",
-            "CN": "爆破单元",
-            "DE": "Zünder",
-            "EN": "Detonation Unit",
-            "FR": "Unité de détonation",
-            "ID": "Detonation Unit",
-            "IT": "Unità di detonazione",
-            "JP": "破壊ユニット",
-            "KR": "폭발 유닛",
-            "MX": "Unidad de detonación",
-            "RU": "Модуль взрыва",
-            "TC": "爆破單元",
-            "TH": "หน่วย​จุด​ระเบิด",
-            "VN": "Đơn Vị Nổ"
         },
-        "skills": {
-            "BR": [
-                "Atributo Principal [G]",
-                "Intensidade das Artes [G]",
-                "Detonação: Campeão Imponente"
-            ],
-            "CN": [
-                "主能力提升·大",
-                "源石技艺强度提升·大",
-                "迸发·冠军威赫"
-            ],
-            "DE": [
-                "Hauptattribut [L]",
-                "Technik-Intensität [L]",
-                "Zünden: Beeindruckender Champion"
-            ],
-            "EN": [
-                "Main Attribute [L]",
-                "Arts Intensity [L]",
-                "Detonate: Imposing Champion"
-            ],
-            "FR": [
-                "Trait principal [G]",
-                "Intensité des Arts [G]",
-                "Détonation : Champion imposant"
-            ],
-            "ID": [
-                "Atribut Utama [L]",
-                "Intensitas Arts [L]",
-                "Detonate: Imposing Champion"
-            ],
-            "IT": [
-                "Attributo principale [L]",
-                "Intensità delle Arti [L]",
-                "Detonazione: Campione indiscusso"
-            ],
-            "JP": [
-                "メイン能力UP・大",
-                "アーツ強度UP・大",
-                "噴発・勝者威圧"
-            ],
-            "KR": [
-                "주요 능력치 증가 · 대",
-                "오리지늄 아츠 강도 증가 · 대",
-                "방출 · 우승자의 위세"
-            ],
-            "MX": [
-                "Atributo principal [G]",
-                "Intensidad de artes [G]",
-                "Detonación: Campeón imponente"
-            ],
-            "RU": [
-                "Основной показатель [бол.]",
-                "Сила искусств [бол.]",
-                "Детонация: уверенное наступление"
-            ],
-            "TC": [
-                "主能力提升·大",
-                "源石技藝強度提升·大",
-                "迸發·冠軍威赫"
-            ],
-            "TH": [
-                "คุณสมบัติ​หลัก​ [L]",
-                "ความ​เข้มข้น​ของ​เวท​ [L]",
-                "จุด​ระเบิด​: แชมเปี้ยน​ผู้​ทรงอำนาจ"
-            ],
-            "VN": [
-                "Thuộc Tính Chính [Lớn]",
-                "Công Phép [Lớn]",
-                "Kích Nổ: Nhà Vô Địch Uy Nghi"
-            ]
-        }
-    },
-    "wpn_lance_0010": {
-        "internal_id": "wpn_lance_0010",
-        "weapon_type": "Lance",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Valiant_icon.png",
-        "skill_ids": [
-            "wpn_attr_agi_high",
-            "wpn_sp_attr_phydam_high",
-            "sk_wpn_lance_0010"
-        ],
-        "names": {
-            "BR": "Valente",
-            "CN": "骁勇",
-            "DE": "Tapferkeit",
-            "EN": "Valiant",
-            "FR": "Vaillance",
-            "ID": "Valiant",
-            "IT": "Audace",
-            "JP": "勇猛",
-            "KR": "용사",
-            "MX": "Valiente",
-            "RU": "Доблесть",
-            "TC": "驍勇",
-            "TH": "ผู้​กล้า",
-            "VN": "Dũng Khí"
-        },
-        "skills": {
-            "BR": [
-                "Agilidade [G]",
-                "DNO Físico [G]",
-                "Combativo: Ganho Virtuoso"
-            ],
-            "CN": [
-                "敏捷提升·大",
-                "物理伤害提升·大",
-                "巧技·美德盈利"
-            ],
-            "DE": [
-                "Beweglichkeit [L]",
-                "Physischer SDN [L]",
-                "Kämpferisch: Tugendhafter Ertrag"
-            ],
-            "EN": [
-                "Agility [L]",
-                "Physical DMG [L]",
-                "Combative: Virtuous Gain"
-            ],
-            "FR": [
-                "Agilité [G]",
-                "DÉG physiques [G]",
-                "Combativité : Gain vertueux"
-            ],
-            "ID": [
-                "Agility [L]",
-                "Physical DMG [L]",
-                "Combative: Virtuous Gain"
-            ],
-            "IT": [
-                "Agilità [L]",
-                "Danni fisici [L]",
-                "Combattività: Guadagno virtuoso"
-            ],
-            "JP": [
-                "敏捷UP・大",
-                "物理ダメージUP・大",
-                "巧技・美徳収益"
-            ],
-            "KR": [
-                "민첩 증가 · 대",
-                "물리 피해 증가 · 대",
-                "기예 · 좋은 품성의 결실"
-            ],
-            "MX": [
-                "Agilidad [G]",
-                "DAÑ físico [G]",
-                "Combativo: ganancia virtuosa"
-            ],
-            "RU": [
-                "Ловкость [бол.]",
-                "Физический УРН [бол.]",
-                "Драчливость: плоды добродетели"
-            ],
-            "TC": [
-                "敏捷提升·大",
-                "物理傷害提升·大",
-                "巧技·美德盈利"
-            ],
-            "TH": [
-                "ความคล่องแคล่ว​ [L]",
-                "DMG กายภาพ​ [L]",
-                "บุก​ตะลุย​: ผล​แห่ง​คุณธรรม"
-            ],
-            "VN": [
-                "Nhanh Nhẹn [Lớn]",
-                "ST Vật Lý [Lớn]",
-                "Hiếu Chiến: Thiện Quả"
-            ]
-        }
+        "foresight": false
     },
     "wpn_claym_0015": {
         "internal_id": "wpn_claym_0015",
+        "icon_id": "wpn_claym_0015",
         "weapon_type": "Claymores",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\OBJ_Heavy_Burden_icon.png",
@@ -2061,208 +1193,12 @@
                 "HP [Vừa]",
                 "Hiệu Lực: Ý Chí Bền Bỉ"
             ]
-        }
-    },
-    "wpn_lance_0014": {
-        "internal_id": "wpn_lance_0014",
-        "weapon_type": "Lance",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Bedazzling_Night_Debut_icon.png",
-        "skill_ids": [
-            "wpn_attr_will_high",
-            "wpn_sp_attr_heal_high",
-            "sk_wpn_lance_0014"
-        ],
-        "names": {
-            "BR": "Estreia Noturna Deslumbrante",
-            "CN": "曜夜的首演",
-            "DE": "Debüt der blendenden Nacht",
-            "EN": "Bedazzling Night Debut",
-            "FR": "Première par une soirée éblouissante",
-            "ID": "Bedazzling Night Debut",
-            "IT": "Debutto notturno abbagliante",
-            "JP": "プリズムナイトデビュー",
-            "KR": "찬란한 밤의 데뷔",
-            "MX": "Debut nocturno deslumbrante",
-            "RU": "Блестящий ночной дебют",
-            "TC": "曜夜的首演",
-            "TH": "เด​บิว​ต์​คืน​เจิด​จรัส",
-            "VN": "Màn Ra Mắt Đêm Chói Rạng"
         },
-        "skills": {
-            "BR": [
-                "Vontade [G]",
-                "Eficiência do Tratamento [G]",
-                "Medicinal: Cortina Brilhante"
-            ],
-            "CN": [
-                "意志提升·大",
-                "治疗效率提升·大",
-                "医疗·闪耀帷幕"
-            ],
-            "DE": [
-                "Wille [L]",
-                "Behandlungseffizienz [L]",
-                "Pharmakon: Schimmernder Vorhang"
-            ],
-            "EN": [
-                "Will [L]",
-                "Treatment Efficiency [L]",
-                "Medicant: Shimmering Curtain"
-            ],
-            "FR": [
-                "Volonté [G]",
-                "Efficacité des soins [G]",
-                "Cure : Rideau scintillant"
-            ],
-            "ID": [
-                "Will [L]",
-                "Efisiensi Treatment [L]",
-                "Medicant: Shimmering Curtain"
-            ],
-            "IT": [
-                "Volontà [L]",
-                "Efficacia della Cura [L]",
-                "Cura: Cortina scintillante"
-            ],
-            "JP": [
-                "意志UP・大",
-                "回復効率UP・大",
-                "治癒・閃耀の幕"
-            ],
-            "KR": [
-                "의지 증가 · 대",
-                "치유 효율 증가 · 대",
-                "의료 · 찬란한 장막"
-            ],
-            "MX": [
-                "Voluntad [G]",
-                "Eficiencia del tratamiento [G]",
-                "Medicante: Cortina resplandeciente"
-            ],
-            "RU": [
-                "Воля [бол.]",
-                "Эффективность лечения [бол.]",
-                "Лечение: мерцающий занавес"
-            ],
-            "TC": [
-                "意志提升·大",
-                "治療效率提升·大",
-                "醫療·閃耀帷幕"
-            ],
-            "TH": [
-                "ความมุ่งมั่น​ [L]",
-                "ประสิทธิภาพ​การรักษา​ [L]",
-                "เยียวยา​: ม่าน​ระยิบระยับ"
-            ],
-            "VN": [
-                "Ý Chí [Lớn]",
-                "Hiệu Quả Điều Trị [Lớn]",
-                "Chữa Lành: Màn Che Lấp Lánh"
-            ]
-        }
-    },
-    "wpn_pistol_0009": {
-        "internal_id": "wpn_pistol_0009",
-        "weapon_type": "Pistol",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Clannibal_icon.png",
-        "skill_ids": [
-            "wpn_attr_main_high",
-            "wpn_sp_attr_magicdam_high",
-            "sk_wpn_pistol_0009"
-        ],
-        "names": {
-            "BR": "Clanibal",
-            "CN": "同类相食",
-            "DE": "Klannibale",
-            "EN": "Clannibal",
-            "FR": "Clannibale",
-            "ID": "Clannibal",
-            "IT": "Clannibal",
-            "JP": "同類共食",
-            "KR": "클래니벌",
-            "MX": "Clannibal",
-            "RU": "Кланнибал",
-            "TC": "同類相食",
-            "TH": "แคล​นิ​บอล",
-            "VN": "Clannibal"
-        },
-        "skills": {
-            "BR": [
-                "Atributo Principal [G]",
-                "DNO Artes [G]",
-                "Inflição: Expurgo Cruel"
-            ],
-            "CN": [
-                "主能力提升·大",
-                "法术提升·大",
-                "附术·残酷清洗"
-            ],
-            "DE": [
-                "Hauptattribut [L]",
-                "Technik-SDN [L]",
-                "Zufügung: Bösartige Säuberung"
-            ],
-            "EN": [
-                "Main Attribute [L]",
-                "Arts DMG [L]",
-                "Infliction: Vicious Purge"
-            ],
-            "FR": [
-                "Trait principal [G]",
-                "DÉG des Arts [G]",
-                "Altération : Purge brutale"
-            ],
-            "ID": [
-                "Atribut Utama [L]",
-                "Arts DMG [L]",
-                "Infliction: Vicious Purge"
-            ],
-            "IT": [
-                "Attributo principale [L]",
-                "Danni da Arti [L]",
-                "Afflizione: Epurazione feroce"
-            ],
-            "JP": [
-                "メイン能力UP・大",
-                "アーツダメージUP・大",
-                "付術・残酷粛清"
-            ],
-            "KR": [
-                "주요 능력치 증가 · 대",
-                "아츠 피해 증가 · 대",
-                "고통 · 가차 없는 숙청"
-            ],
-            "MX": [
-                "Atributo principal [G]",
-                "DAÑ por Artes [G]",
-                "Imposición: Purga violenta"
-            ],
-            "RU": [
-                "Основной показатель [бол.]",
-                "УРН от искусств [бол.]",
-                "Поражение: безжалостная зачистка"
-            ],
-            "TC": [
-                "主能力提升·大",
-                "法術提升·大",
-                "附術·殘酷清洗"
-            ],
-            "TH": [
-                "คุณสมบัติ​หลัก​ [L]",
-                "DMG พลัง​เวท​ [L]",
-                "สร้าง​บาดแผล​: การ​ชำระล้าง​อัน​โหดเหี้ยม"
-            ],
-            "VN": [
-                "Thuộc Tính Chính [Lớn]",
-                "ST Thuật Pháp [Lớn]",
-                "Nhiễm: Thanh Trừng Tàn Bạo"
-            ]
-        }
+        "foresight": false
     },
     "wpn_claym_0016": {
         "internal_id": "wpn_claym_0016",
+        "icon_id": "wpn_claym_0016",
         "weapon_type": "Claymores",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Phantom_Pain_icon.png",
@@ -2358,10 +1294,12 @@
                 "Công Phép [Lớn]",
                 "Áp Chế: Khổ Đau Chồng Chất"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_claym_0017": {
         "internal_id": "wpn_claym_0017",
+        "icon_id": "wpn_claym_0017",
         "weapon_type": "Claymores",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Amaranthine_Tassel_icon.png",
@@ -2457,208 +1395,12 @@
                 "Tấn Công [Lớn]",
                 "Hiếu Chiến: Nhát Chém Bất Diệt"
             ]
-        }
-    },
-    "wpn_lance_0012": {
-        "internal_id": "wpn_lance_0012",
-        "weapon_type": "Lance",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Mountain_Bearer_icon.png",
-        "skill_ids": [
-            "wpn_attr_agi_high",
-            "wpn_sp_attr_phydam_high",
-            "sk_wpn_lance_0012"
-        ],
-        "names": {
-            "BR": "Guardiã das Montanhas",
-            "CN": "负山",
-            "DE": "Bergträger",
-            "EN": "Mountain Bearer",
-            "FR": "Porte-montagne",
-            "ID": "Mountain Bearer",
-            "IT": "Portatore della montagna",
-            "JP": "負山",
-            "KR": "산의 지배자",
-            "MX": "Portador de montañas",
-            "RU": "Хранитель Горы",
-            "TC": "負山",
-            "TH": "เมาเทน​ แบ​เรอร์",
-            "VN": "Sơn Thần"
         },
-        "skills": {
-            "BR": [
-                "Agilidade [G]",
-                "DNO Físico [G]",
-                "Eficácia: Peso da Montanha"
-            ],
-            "CN": [
-                "敏捷提升·大",
-                "物理伤害提升·大",
-                "效益·山川在我"
-            ],
-            "DE": [
-                "Beweglichkeit [L]",
-                "Physischer SDN [L]",
-                "Wirksamkeit: Gewicht des Bergs"
-            ],
-            "EN": [
-                "Agility [L]",
-                "Physical DMG [L]",
-                "Efficacy: Weight of Mountain"
-            ],
-            "FR": [
-                "Agilité [G]",
-                "DÉG physiques [G]",
-                "Efficacité : Poids de la montagne"
-            ],
-            "ID": [
-                "Agility [L]",
-                "Physical DMG [L]",
-                "Efficacy: Weight of Mountain"
-            ],
-            "IT": [
-                "Agilità [L]",
-                "Danni fisici [L]",
-                "Efficacia: Peso della montagna"
-            ],
-            "JP": [
-                "敏捷UP・大",
-                "物理ダメージUP・大",
-                "効率・山河在り"
-            ],
-            "KR": [
-                "민첩 증가 · 대",
-                "물리 피해 증가 · 대",
-                "효율 · 하나 되는 자연"
-            ],
-            "MX": [
-                "Agilidad [G]",
-                "DAÑ físico [G]",
-                "Eficacia: el peso de la montaña"
-            ],
-            "RU": [
-                "Ловкость [бол.]",
-                "Физический УРН [бол.]",
-                "Эффективность: тяжесть горы"
-            ],
-            "TC": [
-                "敏捷提升·大",
-                "物理傷害提升·大",
-                "效益·山川在我"
-            ],
-            "TH": [
-                "ความคล่องแคล่ว​ [L]",
-                "DMG กายภาพ​ [L]",
-                "ประสิทธิภาพ​: หนักแน่น​ดั่ง​ขุนเขา"
-            ],
-            "VN": [
-                "Nhanh Nhẹn [Lớn]",
-                "ST Vật Lý [Lớn]",
-                "Hiệu Lực: Sức Nặng Của Núi"
-            ]
-        }
-    },
-    "wpn_lance_0013": {
-        "internal_id": "wpn_lance_0013",
-        "weapon_type": "Lance",
-        "rarity": 5,
-        "icon_path": "weapon_images_endfield\\OBJ_Razorhorn_icon.png",
-        "skill_ids": [
-            "wpn_attr_will_mid",
-            "wpn_sp_attr_phydam_mid",
-            "sk_wpn_lance_0013"
-        ],
-        "names": {
-            "BR": "OBJ Chifre-Navalha",
-            "CN": "O.B.J.尖峰",
-            "DE": "OBJ Klingenhorn",
-            "EN": "OBJ Razorhorn",
-            "FR": "OBJ Rasecorne",
-            "ID": "OBJ Razorhorn",
-            "IT": "Corno tagliente OBJ",
-            "JP": "O.B.J.鋭矛",
-            "KR": "O.B.J. 스파이크",
-            "MX": "OBJ Cuerno afilado",
-            "RU": "OBJ Рог-бритва",
-            "TC": "O.B.J.尖峰",
-            "TH": "OBJ เร​เซอร์​ฮอร์น",
-            "VN": "OBJ Sừng Thép"
-        },
-        "skills": {
-            "BR": [
-                "Vontade [M]",
-                "DNO Físico [M]",
-                "Inflição: Conquista dos Picos Gelados"
-            ],
-            "CN": [
-                "意志提升·中",
-                "物理伤害提升·中",
-                "附术·攀越冰峰"
-            ],
-            "DE": [
-                "Wille [M]",
-                "Physischer SDN [M]",
-                "Zufügung: Eroberung der eisigen Gipfel"
-            ],
-            "EN": [
-                "Will [M]",
-                "Physical DMG [M]",
-                "Infliction: Conquest of Icy Peaks"
-            ],
-            "FR": [
-                "Volonté [M]",
-                "DÉG physiques [M]",
-                "Altération : Conquête des cimes glacées"
-            ],
-            "ID": [
-                "Will [M]",
-                "Physical DMG [M]",
-                "Infliction: Conquest of Icy Peaks"
-            ],
-            "IT": [
-                "Volontà [M]",
-                "Danni fisici [M]",
-                "Afflizione: Conquista di vette innevate"
-            ],
-            "JP": [
-                "意志UP・中",
-                "物理ダメージUP・中",
-                "付術・氷山を越えて"
-            ],
-            "KR": [
-                "의지 증가 · 중",
-                "물리 피해 증가 · 중",
-                "고통 · 빙산을 넘어서"
-            ],
-            "MX": [
-                "Voluntad [M]",
-                "DAÑ físico [M]",
-                "Imposición: Conquista de cumbres heladas"
-            ],
-            "RU": [
-                "Воля [ср.]",
-                "Физический УРН [ср.]",
-                "Поражение: покорение ледяных скал"
-            ],
-            "TC": [
-                "意志提升·中",
-                "物理傷害提升·中",
-                "附術·攀越冰峰"
-            ],
-            "TH": [
-                "ความมุ่งมั่น​ [M]",
-                "DMG กายภาพ​ [M]",
-                "สร้าง​บาดแผล​: พิชิต​ยอดเขา​น้ำแข็ง"
-            ],
-            "VN": [
-                "Ý Chí [Vừa]",
-                "ST Vật Lý [Vừa]",
-                "Nhiễm: Chinh Phục Đỉnh Băng"
-            ]
-        }
+        "foresight": false
     },
     "wpn_funnel_0001": {
         "internal_id": "wpn_funnel_0001",
+        "icon_id": "wpn_funnel_0001",
         "weapon_type": "Wand",
         "rarity": 4,
         "icon_path": "weapon_images_endfield\\Hypernova_Auto_icon.png",
@@ -2754,109 +1496,12 @@
                 "ST Thuật Pháp [Nhỏ]",
                 "Cảm Hứng-Khởi Đầu Sử Thi"
             ]
-        }
-    },
-    "wpn_sword_0016": {
-        "internal_id": "wpn_sword_0016",
-        "weapon_type": "Sword",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Never_Rest_icon.png",
-        "skill_ids": [
-            "wpn_attr_will_high",
-            "wpn_sp_attr_atk_high",
-            "sk_wpn_sword_0016"
-        ],
-        "names": {
-            "BR": "Descansar Jamais",
-            "CN": "不知归",
-            "DE": "Nimmerrast",
-            "EN": "Never Rest",
-            "FR": "Pas de repos",
-            "ID": "Never Rest",
-            "IT": "Nessun riposo",
-            "JP": "不知帰",
-            "KR": "끝없는 방랑",
-            "MX": "Sin descanso",
-            "RU": "Неустанность",
-            "TC": "不知歸",
-            "TH": "เน​ฟ​เวอร์​เรสต์",
-            "VN": "Không Nghỉ"
         },
-        "skills": {
-            "BR": [
-                "Vontade [G]",
-                "ATQ [G]",
-                "Fluxo: Reencarnação"
-            ],
-            "CN": [
-                "意志提升·大",
-                "攻击提升·大",
-                "流转·轮回"
-            ],
-            "DE": [
-                "Wille [L]",
-                "ANG [L]",
-                "Strömung: Reinkarnation"
-            ],
-            "EN": [
-                "Will [L]",
-                "ATK [L]",
-                "Flow: Reincarnation"
-            ],
-            "FR": [
-                "Volonté [G]",
-                "ATQ [G]",
-                "Flux : Réincarnation"
-            ],
-            "ID": [
-                "Will [L]",
-                "ATK [L]",
-                "Flow: Reincarnation"
-            ],
-            "IT": [
-                "Volontà [L]",
-                "ATT [L]",
-                "Flusso: Reincarnazione"
-            ],
-            "JP": [
-                "意志UP・大",
-                "攻撃力UP・大",
-                "流回・輪廻"
-            ],
-            "KR": [
-                "의지 증가 · 대",
-                "공격력 증가 · 대",
-                "흐름 · 윤회"
-            ],
-            "MX": [
-                "Voluntad [G]",
-                "ATQ [G]",
-                "Flujo: Reencarnación"
-            ],
-            "RU": [
-                "Воля [бол.]",
-                "АТК [бол.]",
-                "Поток: реинкарнация"
-            ],
-            "TC": [
-                "意志提升·大",
-                "攻擊提升·大",
-                "流轉·輪迴"
-            ],
-            "TH": [
-                "ความมุ่งมั่น​ [L]",
-                "ATK [L]",
-                "ไหล​ลื่น​: การจุ​ติ​ใหม่"
-            ],
-            "VN": [
-                "Ý Chí [Lớn]",
-                "Tấn Công [Lớn]",
-                "Uyển Chuyển: Luân Hồi"
-            ]
-        }
+        "foresight": false
     },
     "wpn_funnel_0002": {
         "internal_id": "wpn_funnel_0002",
+        "icon_id": "wpn_funnel_0002",
         "weapon_type": "Wand",
         "rarity": 3,
         "icon_path": "weapon_images_endfield\\Jiminy_12_icon.png",
@@ -2937,10 +1582,12 @@
                 "Thuộc Tính Chính [Nhỏ]",
                 "Đột Kích-Chuẩn Bị Vũ Trang"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_funnel_0003": {
         "internal_id": "wpn_funnel_0003",
+        "icon_id": "wpn_funnel_0003",
         "weapon_type": "Wand",
         "rarity": 4,
         "icon_path": "weapon_images_endfield\\Fluorescent_Roc_icon.png",
@@ -3036,10 +1683,12 @@
                 "Tấn Công [Nhỏ]",
                 "Áp Chế-Bổ Trợ Khẩn Cấp"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_funnel_0004": {
         "internal_id": "wpn_funnel_0004",
+        "icon_id": "wpn_funnel_0004",
         "weapon_type": "Wand",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Wild_Wanderer_icon.png",
@@ -3135,109 +1784,12 @@
                 "ST Điện [Vừa]",
                 "Nhiễm: Vùng Hoang Địa"
             ]
-        }
-    },
-    "wpn_lance_0008": {
-        "internal_id": "wpn_lance_0008",
-        "weapon_type": "Lance",
-        "rarity": 4,
-        "icon_path": "weapon_images_endfield\\Aggeloslayer_icon.png",
-        "skill_ids": [
-            "wpn_attr_will_low",
-            "wpn_sp_attr_magicdam_low",
-            "sk_wpn_lance_0008"
-        ],
-        "names": {
-            "BR": "Matadora de Aggeloi",
-            "CN": "天使杀手",
-            "DE": "Aggelo-Bezwinger",
-            "EN": "Aggeloslayer",
-            "FR": "Tueuse d'Aggeloi",
-            "ID": "Aggeloslayer",
-            "IT": "Ammazza Aggeloi",
-            "JP": "アンゲロス・スレイヤー",
-            "KR": "아겔로스 사냥꾼",
-            "MX": "Asesino de Aggelos",
-            "RU": "Аггелоубийца",
-            "TC": "天使殺手",
-            "TH": "ผู้​สังหาร​แอก​เก​โล",
-            "VN": "Sát Thủ Diệt Aggeloi"
         },
-        "skills": {
-            "BR": [
-                "Vontade [P]",
-                "DNO Artes [P]",
-                "Supressão: Reforço de Emergência"
-            ],
-            "CN": [
-                "意志提升·小",
-                "法术提升·小",
-                "压制·应急强化"
-            ],
-            "DE": [
-                "Wille [S]",
-                "Technik-SDN [S]",
-                "Unterdrückung: Notfall-Boost"
-            ],
-            "EN": [
-                "Will [S]",
-                "Arts DMG [S]",
-                "Suppression: Emergency Boost"
-            ],
-            "FR": [
-                "Volonté [P]",
-                "DÉG des Arts [P]",
-                "Suppression : Renforcement d'urgence"
-            ],
-            "ID": [
-                "Will [S]",
-                "Arts DMG [S]",
-                "Suppression: Emergency Boost"
-            ],
-            "IT": [
-                "Volontà [S]",
-                "Danni da Arti [S]",
-                "Soppressione: Potenziamento d'emergenza"
-            ],
-            "JP": [
-                "意志UP・小",
-                "アーツダメージUP・小",
-                "圧制・応急強化"
-            ],
-            "KR": [
-                "의지 증가 · 소",
-                "아츠 피해 증가 · 소",
-                "억제 · 비상 부스트"
-            ],
-            "MX": [
-                "Voluntad [P]",
-                "DAÑ por Artes [P]",
-                "Supresión: impulso de emergencia"
-            ],
-            "RU": [
-                "Воля [мал.]",
-                "УРН от искусств [мал.]",
-                "Подавление: срочная поддержка"
-            ],
-            "TC": [
-                "意志提升·小",
-                "法術提升·小",
-                "壓制·緊急強化"
-            ],
-            "TH": [
-                "ความมุ่งมั่น​ [S]",
-                "DMG พลัง​เวท​ [S]",
-                "ปราบปราม​: เสริมกำลัง​ฉุกเฉิน"
-            ],
-            "VN": [
-                "Ý Chí [Nhỏ]",
-                "ST Thuật Pháp [Nhỏ]",
-                "Áp Chế-Bổ Trợ Khẩn Cấp"
-            ]
-        }
+        "foresight": false
     },
     "wpn_funnel_0005": {
         "internal_id": "wpn_funnel_0005",
+        "icon_id": "wpn_funnel_0005",
         "weapon_type": "Wand",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Stanza_of_Memorials_icon.png",
@@ -3333,10 +1885,12 @@
                 "Tấn Công [Vừa]",
                 "Chạng Vạng: Giàn Thiêu Rực Rỡ"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_funnel_0006": {
         "internal_id": "wpn_funnel_0006",
+        "icon_id": "wpn_funnel_0006",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Opus_Etch_Figure_icon.png",
@@ -3432,10 +1986,12 @@
                 "ST Tự Nhiên [Lớn]",
                 "Áp Chế: Trầm Tích Khắc"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_funnel_0007": {
         "internal_id": "wpn_funnel_0007",
+        "icon_id": "wpn_funnel_0007",
         "weapon_type": "Wand",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Monaihe_icon.png",
@@ -3531,10 +2087,214 @@
                 "Hiệu Quả Nhận TK [Vừa]",
                 "Cảm Hứng: Phân Tích Mộng Và Chốt"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_funnel_0008": {
+        "internal_id": "wpn_funnel_0008",
+        "icon_id": "wpn_funnel_0010",
+        "weapon_type": "Wand",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Detonation_Unit_icon.png",
+        "skill_ids": [
+            "wpn_attr_main_high",
+            "wpn_sp_attr_phy_spell_high",
+            "sk_wpn_funnel_0008"
+        ],
+        "names": {
+            "BR": "Unidade de Detonação",
+            "CN": "爆破单元",
+            "DE": "Zünder",
+            "EN": "Detonation Unit",
+            "FR": "Unité de détonation",
+            "ID": "Detonation Unit",
+            "IT": "Unità di detonazione",
+            "JP": "破壊ユニット",
+            "KR": "폭발 유닛",
+            "MX": "Unidad de detonación",
+            "RU": "Модуль взрыва",
+            "TC": "爆破單元",
+            "TH": "หน่วย​จุด​ระเบิด",
+            "VN": "Đơn Vị Nổ"
+        },
+        "skills": {
+            "BR": [
+                "Atributo Principal [G]",
+                "Intensidade das Artes [G]",
+                "Detonação: Campeão Imponente"
+            ],
+            "CN": [
+                "主能力提升·大",
+                "源石技艺强度提升·大",
+                "迸发·冠军威赫"
+            ],
+            "DE": [
+                "Hauptattribut [L]",
+                "Technik-Intensität [L]",
+                "Zünden: Beeindruckender Champion"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Arts Intensity [L]",
+                "Detonate: Imposing Champion"
+            ],
+            "FR": [
+                "Trait principal [G]",
+                "Intensité des Arts [G]",
+                "Détonation : Champion imposant"
+            ],
+            "ID": [
+                "Atribut Utama [L]",
+                "Intensitas Arts [L]",
+                "Detonate: Imposing Champion"
+            ],
+            "IT": [
+                "Attributo principale [L]",
+                "Intensità delle Arti [L]",
+                "Detonazione: Campione indiscusso"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "アーツ強度UP・大",
+                "噴発・勝者威圧"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "오리지늄 아츠 강도 증가 · 대",
+                "방출 · 우승자의 위세"
+            ],
+            "MX": [
+                "Atributo principal [G]",
+                "Intensidad de artes [G]",
+                "Detonación: Campeón imponente"
+            ],
+            "RU": [
+                "Основной показатель [бол.]",
+                "Сила искусств [бол.]",
+                "Детонация: уверенное наступление"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "源石技藝強度提升·大",
+                "迸發·冠軍威赫"
+            ],
+            "TH": [
+                "คุณสมบัติ​หลัก​ [L]",
+                "ความ​เข้มข้น​ของ​เวท​ [L]",
+                "จุด​ระเบิด​: แชมเปี้ยน​ผู้​ทรงอำนาจ"
+            ],
+            "VN": [
+                "Thuộc Tính Chính [Lớn]",
+                "Công Phép [Lớn]",
+                "Kích Nổ: Nhà Vô Địch Uy Nghi"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_funnel_0009": {
+        "internal_id": "wpn_funnel_0009",
+        "icon_id": "wpn_funnel_0009",
+        "weapon_type": "Wand",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Oblivion_icon.png",
+        "skill_ids": [
+            "wpn_attr_wisd_high",
+            "wpn_sp_attr_magicdam_high",
+            "sk_wpn_funnel_0009"
+        ],
+        "names": {
+            "BR": "Esquecimento",
+            "CN": "遗忘",
+            "DE": "Vergessenheit",
+            "EN": "Oblivion",
+            "FR": "Oubli",
+            "ID": "Oblivion",
+            "IT": "Oblio",
+            "JP": "遺忘",
+            "KR": "망각",
+            "MX": "Olvido",
+            "RU": "Забвение",
+            "TC": "遺忘",
+            "TH": "ความว่างเปล่า",
+            "VN": "Lãng Quên"
+        },
+        "skills": {
+            "BR": [
+                "Inteligência [G]",
+                "DNO Artes [G]",
+                "Crepúsculo: Humilhação"
+            ],
+            "CN": [
+                "智识提升·大",
+                "法术提升·大",
+                "夜幕·耻辱"
+            ],
+            "DE": [
+                "Intellekt [L]",
+                "Technik-SDN [L]",
+                "Abenddämmerung: Demütigung"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Arts DMG [L]",
+                "Twilight: Humiliation"
+            ],
+            "FR": [
+                "Intelligence [G]",
+                "DÉG des Arts [G]",
+                "Crépuscule : Humiliation"
+            ],
+            "ID": [
+                "Intellect [L]",
+                "Arts DMG [L]",
+                "Twilight: Humiliation"
+            ],
+            "IT": [
+                "Intelletto [L]",
+                "Danni da Arti [L]",
+                "Crepuscolo: Umiliazione"
+            ],
+            "JP": [
+                "知性UP・大",
+                "アーツダメージUP・大",
+                "夜幕・屈辱"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "아츠 피해 증가 · 대",
+                "어둠 · 치욕"
+            ],
+            "MX": [
+                "Intelecto [G]",
+                "DAÑ por Artes [G]",
+                "Crepúsculo: humillación"
+            ],
+            "RU": [
+                "Интеллект [бол.]",
+                "УРН от искусств [бол.]",
+                "Сумерки: унижение"
+            ],
+            "TC": [
+                "智識提升·大",
+                "法術提升·大",
+                "夜幕·恥辱"
+            ],
+            "TH": [
+                "สติปัญญา​ [L]",
+                "DMG พลัง​เวท​ [L]",
+                "ลี้ลับ​: การ​ทำให้​อับอาย"
+            ],
+            "VN": [
+                "Trí Tuệ [Lớn]",
+                "ST Thuật Pháp [Lớn]",
+                "Chạng Vạng: Nhục Nhã"
+            ]
+        },
+        "foresight": false
     },
     "wpn_funnel_0010": {
         "internal_id": "wpn_funnel_0010",
+        "icon_id": "wpn_funnel_0008",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Chivalric_Virtues_icon.png",
@@ -3630,109 +2390,12 @@
                 "HP [Lớn]",
                 "Chữa Lành: Cơn Sốt Nhiễm Khuẩn"
             ]
-        }
-    },
-    "wpn_sword_0015": {
-        "internal_id": "wpn_sword_0015",
-        "weapon_type": "Sword",
-        "rarity": 5,
-        "icon_path": "weapon_images_endfield\\Aspirant_icon.png",
-        "skill_ids": [
-            "wpn_attr_agi_mid",
-            "wpn_sp_attr_phydam_mid",
-            "sk_wpn_sword_0015"
-        ],
-        "names": {
-            "BR": "Aspirante",
-            "CN": "仰止",
-            "DE": "Aspirant",
-            "EN": "Aspirant",
-            "FR": "Aspirant",
-            "ID": "Aspirant",
-            "IT": "Aspirante",
-            "JP": "仰止",
-            "KR": "숭배의 시선",
-            "MX": "Aspirante",
-            "RU": "Устремление",
-            "TC": "仰止",
-            "TH": "ใฝ่​ทะเยอทะยาน",
-            "VN": "Ngưỡng Vọng"
         },
-        "skills": {
-            "BR": [
-                "Agilidade [M]",
-                "DNO Físico [M]",
-                "Crepúsculo: Pico Imponente"
-            ],
-            "CN": [
-                "敏捷提升·中",
-                "物理伤害提升·中",
-                "夜幕·高山仰止"
-            ],
-            "DE": [
-                "Beweglichkeit [M]",
-                "Physischer SDN [M]",
-                "Abenddämmerung: Imposanter Gipfel"
-            ],
-            "EN": [
-                "Agility [M]",
-                "Physical DMG [M]",
-                "Twilight: Imposing Peak"
-            ],
-            "FR": [
-                "Agilité [M]",
-                "DÉG physiques [M]",
-                "Crépuscule : Pic imposant"
-            ],
-            "ID": [
-                "Agility [M]",
-                "Physical DMG [M]",
-                "Twilight: Imposing Peak"
-            ],
-            "IT": [
-                "Agilità [M]",
-                "Danni fisici [M]",
-                "Crepuscolo: Cima imponente"
-            ],
-            "JP": [
-                "敏捷UP・中",
-                "物理ダメージUP・中",
-                "夜幕・高山仰止"
-            ],
-            "KR": [
-                "민첩 증가 · 중",
-                "물리 피해 증가 · 중",
-                "어둠 · 우러러보는 경지"
-            ],
-            "MX": [
-                "Agilidad [M]",
-                "DAÑ físico [M]",
-                "Crepúsculo: Cumbre imponente"
-            ],
-            "RU": [
-                "Ловкость [ср.]",
-                "Физический УРН [ср.]",
-                "Сумерки: величественный пик"
-            ],
-            "TC": [
-                "敏捷提升·中",
-                "物理傷害提升·中",
-                "夜幕·高山仰止"
-            ],
-            "TH": [
-                "ความคล่องแคล่ว​ [M]",
-                "DMG กายภาพ​ [M]",
-                "ลี้ลับ​: ยอดเขา​สูงส่ง"
-            ],
-            "VN": [
-                "Nhanh Nhẹn [Vừa]",
-                "ST Vật Lý [Vừa]",
-                "Chạng Vạng: Đỉnh Uy Nghi"
-            ]
-        }
+        "foresight": false
     },
     "wpn_funnel_0011": {
         "internal_id": "wpn_funnel_0011",
+        "icon_id": "wpn_funnel_0011",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Delivery_Guaranteed_icon.png",
@@ -3828,109 +2491,12 @@
                 "Hiệu Quả Nhận TK [Lớn]",
                 "Truy Kích: Hoàn Thành Nhiệm Vụ"
             ]
-        }
-    },
-    "wpn_sword_0005": {
-        "internal_id": "wpn_sword_0005",
-        "weapon_type": "Sword",
-        "rarity": 5,
-        "icon_path": "weapon_images_endfield\\Sundering_Steel_icon.png",
-        "skill_ids": [
-            "wpn_attr_agi_mid",
-            "wpn_sp_attr_phydam_mid",
-            "sk_wpn_sword_0005"
-        ],
-        "names": {
-            "BR": "Aço Dilacerador",
-            "CN": "钢铁余音",
-            "DE": "Zerreißender Stahl",
-            "EN": "Sundering Steel",
-            "FR": "Fracture d'acier",
-            "ID": "Sundering Steel",
-            "IT": "Acciaio divisorio",
-            "JP": "鋼鉄余音",
-            "KR": "강철의 여운",
-            "MX": "Acero hendiente",
-            "RU": "Стальной раскол",
-            "TC": "鋼鐵餘音",
-            "TH": "เหล็ก​ทำลายล้าง",
-            "VN": "Thép Phân Tách"
         },
-        "skills": {
-            "BR": [
-                "Agilidade [M]",
-                "DNO Físico [M]",
-                "Combativo: Hino das Cinzas"
-            ],
-            "CN": [
-                "敏捷提升·中",
-                "物理伤害提升·中",
-                "巧技·旧火余音"
-            ],
-            "DE": [
-                "Beweglichkeit [M]",
-                "Physischer SDN [M]",
-                "Kämpferisch: Hymne der Glut"
-            ],
-            "EN": [
-                "Agility [M]",
-                "Physical DMG [M]",
-                "Combative: Anthem of Cinder"
-            ],
-            "FR": [
-                "Agilité [M]",
-                "DÉG physiques [M]",
-                "Combativité : Hymne aux cendres"
-            ],
-            "ID": [
-                "Agility [M]",
-                "Physical DMG [M]",
-                "Combative: Anthem of Cinder"
-            ],
-            "IT": [
-                "Agilità [M]",
-                "Danni fisici [M]",
-                "Combattività: Inno alle ceneri"
-            ],
-            "JP": [
-                "敏捷UP・中",
-                "物理ダメージUP・中",
-                "巧技・残火の余韻"
-            ],
-            "KR": [
-                "민첩 증가 · 중",
-                "물리 피해 증가 · 중",
-                "기예 · 옛 불의 잔향"
-            ],
-            "MX": [
-                "Agilidad [M]",
-                "DAÑ físico [M]",
-                "Combativo: Himno de cenizas"
-            ],
-            "RU": [
-                "Ловкость [ср.]",
-                "Физический УРН [ср.]",
-                "Драчливость: гимн пепелища"
-            ],
-            "TC": [
-                "敏捷提升·中",
-                "物理傷害提升·中",
-                "巧技·舊火餘音"
-            ],
-            "TH": [
-                "ความคล่องแคล่ว​ [M]",
-                "DMG กายภาพ​ [M]",
-                "บุก​ตะลุย​: บท​สรรเสริญ​แห่ง​เถ้าถ่าน"
-            ],
-            "VN": [
-                "Nhanh Nhẹn [Vừa]",
-                "ST Vật Lý [Vừa]",
-                "Hiếu Chiến-Thánh Ca Tro Tàn"
-            ]
-        }
+        "foresight": false
     },
     "wpn_funnel_0012": {
         "internal_id": "wpn_funnel_0012",
+        "icon_id": "wpn_funnel_0012",
         "weapon_type": "Wand",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Freedom_to_Proselytize_icon.png",
@@ -4026,10 +2592,12 @@
                 "Hiệu Quả Điều Trị [Vừa]",
                 "Chữa Lành: Đức Tin Cứu Rỗi"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_funnel_0013": {
         "internal_id": "wpn_funnel_0013",
+        "icon_id": "wpn_funnel_0013",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Dreams_of_the_Starry_Beach_icon.png",
@@ -4125,94 +2693,12 @@
                 "Hiệu Quả Điều Trị [Lớn]",
                 "Nhiễm: Thì Thầm Của Thủy Triều"
             ]
-        }
-    },
-    "wpn_lance_0009": {
-        "internal_id": "wpn_lance_0009",
-        "weapon_type": "Lance",
-        "rarity": 3,
-        "icon_path": "weapon_images_endfield\\Opero_77_icon.png",
-        "skill_ids": [
-            "wpn_attr_main_low",
-            "sk_wpn_lance_0009"
-        ],
-        "names": {
-            "BR": "Opero 77",
-            "CN": "奥佩罗77",
-            "DE": "Opero 77",
-            "EN": "Opero 77",
-            "FR": "Opéro 77",
-            "ID": "Opero 77",
-            "IT": "Opero 77",
-            "JP": "オッペロ77",
-            "KR": "오페로 77",
-            "MX": "Opero 77",
-            "RU": "Оперо 77",
-            "TC": "奧佩羅77",
-            "TH": "โอ​เป​โร​ 77",
-            "VN": "Opero 77"
         },
-        "skills": {
-            "BR": [
-                "Atributo Principal [P]",
-                "Assalto: Preparação do Armamento"
-            ],
-            "CN": [
-                "主能力提升·小",
-                "强攻·武装整备"
-            ],
-            "DE": [
-                "Hauptattribut [S]",
-                "Sturmangriff: Aufrüstungsvorbereitung"
-            ],
-            "EN": [
-                "Main Attribute [S]",
-                "Assault: Armament Prep"
-            ],
-            "FR": [
-                "Trait principal [P]",
-                "Assaut : Préparation militaire"
-            ],
-            "ID": [
-                "Atribut Utama [S]",
-                "Assault: Armament Prep"
-            ],
-            "IT": [
-                "Attributo principale [S]",
-                "Assalto: Preparazione degli armamenti"
-            ],
-            "JP": [
-                "メイン能力UP・小",
-                "強攻・武装整備"
-            ],
-            "KR": [
-                "주요 능력치 증가 · 소",
-                "강공 · 무장 정비"
-            ],
-            "MX": [
-                "Atributo principal [P]",
-                "Asalto: preparación de armamento"
-            ],
-            "RU": [
-                "Основной показатель [мал.]",
-                "Натиск: боеготовность"
-            ],
-            "TC": [
-                "主能力提升·小",
-                "強攻·武裝整備"
-            ],
-            "TH": [
-                "คุณสมบัติ​หลัก​ [S]",
-                "จู่โจม​: เตรียม​อาวุธ"
-            ],
-            "VN": [
-                "Thuộc Tính Chính [Nhỏ]",
-                "Đột Kích-Chuẩn Bị Vũ Trang"
-            ]
-        }
+        "foresight": false
     },
     "wpn_funnel_0014": {
         "internal_id": "wpn_funnel_0014",
+        "icon_id": "wpn_funnel_0014",
         "weapon_type": "Wand",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\OBJ_Arts_Identifier_icon.png",
@@ -4308,10 +2794,12 @@
                 "Công Phép [Vừa]",
                 "Truy Kích: Thuật Pháp Tối Cao"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_funnel_0015": {
         "internal_id": "wpn_funnel_0015",
+        "icon_id": "wpn_funnel_0015",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Lone_Barge_icon.png",
@@ -4407,10 +2895,12 @@
                 "Tấn Công [Lớn]",
                 "Áp Chế: Oanh Tạc Dồn Dập"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_funnel_0016": {
         "internal_id": "wpn_funnel_0016",
+        "icon_id": "wpn_funnel_0016",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Type_42_Solemn_Phalanx_icon.png",
@@ -4506,193 +2996,12 @@
                 "Hiệu Quả Nhận TK [Lớn]",
                 "Kích Nổ: Đòn Tập Kích Suy Yếu"
             ]
-        }
-    },
-    "wpn_sword_0003": {
-        "internal_id": "wpn_sword_0003",
-        "weapon_type": "Sword",
-        "rarity": 3,
-        "icon_path": "weapon_images_endfield\\Tarr_11_icon.png",
-        "skill_ids": [
-            "wpn_attr_main_low",
-            "sk_wpn_sword_0003"
-        ],
-        "names": {
-            "BR": "Tarr 11",
-            "CN": "塔尔11",
-            "DE": "Tarr 11",
-            "EN": "Tarr 11",
-            "FR": "Tarr 11",
-            "ID": "Tarr 11",
-            "IT": "Tarr 11",
-            "JP": "タール11",
-            "KR": "타르 11",
-            "MX": "Tarr 11",
-            "RU": "Тарр 11",
-            "TC": "塔爾11",
-            "TH": "ทาร์​ 11",
-            "VN": "Tarr 11"
         },
-        "skills": {
-            "BR": [
-                "Atributo Principal [P]",
-                "Assalto: Preparação do Armamento"
-            ],
-            "CN": [
-                "主能力提升·小",
-                "强攻·武装整备"
-            ],
-            "DE": [
-                "Hauptattribut [S]",
-                "Sturmangriff: Aufrüstungsvorbereitung"
-            ],
-            "EN": [
-                "Main Attribute [S]",
-                "Assault: Armament Prep"
-            ],
-            "FR": [
-                "Trait principal [P]",
-                "Assaut : Préparation militaire"
-            ],
-            "ID": [
-                "Atribut Utama [S]",
-                "Assault: Armament Prep"
-            ],
-            "IT": [
-                "Attributo principale [S]",
-                "Assalto: Preparazione degli armamenti"
-            ],
-            "JP": [
-                "メイン能力UP・小",
-                "強攻・武装整備"
-            ],
-            "KR": [
-                "주요 능력치 증가 · 소",
-                "강공 · 무장 정비"
-            ],
-            "MX": [
-                "Atributo principal [P]",
-                "Asalto: preparación de armamento"
-            ],
-            "RU": [
-                "Основной показатель [мал.]",
-                "Натиск: боеготовность"
-            ],
-            "TC": [
-                "主能力提升·小",
-                "強攻·武裝整備"
-            ],
-            "TH": [
-                "คุณสมบัติ​หลัก​ [S]",
-                "จู่โจม​: เตรียม​อาวุธ"
-            ],
-            "VN": [
-                "Thuộc Tính Chính [Nhỏ]",
-                "Đột Kích-Chuẩn Bị Vũ Trang"
-            ]
-        }
-    },
-    "wpn_sword_0017": {
-        "internal_id": "wpn_sword_0017",
-        "weapon_type": "Sword",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Glorious_Memory_icon.png",
-        "skill_ids": [
-            "wpn_attr_agi_high",
-            "wpn_sp_attr_crirate_high",
-            "sk_wpn_sword_0017"
-        ],
-        "names": {
-            "BR": "Memória Gloriosa",
-            "CN": "光荣记忆",
-            "DE": "Glorreiche Erinnerung",
-            "EN": "Glorious Memory",
-            "FR": "Glorieux souvenir",
-            "ID": "Glorious Memory",
-            "IT": "Ricordo glorioso",
-            "JP": "栄光の記憶",
-            "KR": "찬란했던 기억",
-            "MX": "Memoria gloriosa",
-            "RU": "Славное воспоминание",
-            "TC": "光榮記憶",
-            "TH": "ความทรงจำ​อัน​รุ่งโรจน์",
-            "VN": "Ký Ức Huy Hoàng"
-        },
-        "skills": {
-            "BR": [
-                "Agilidade [G]",
-                "Taxa de Críticos [G]",
-                "Crepúsculo: Brilho Persistente"
-            ],
-            "CN": [
-                "敏捷提升·大",
-                "暴击率提升·大",
-                "夜幕·余辉未消"
-            ],
-            "DE": [
-                "Beweglichkeit [L]",
-                "Kritische Rate [L]",
-                "Abenddämmerung: Sanftes Leuchten"
-            ],
-            "EN": [
-                "Agility [L]",
-                "Critical Rate [L]",
-                "Twilight: Lingering Glow"
-            ],
-            "FR": [
-                "Agilité [G]",
-                "Taux de coups critiques [G]",
-                "Crépuscule : Lueur tenace"
-            ],
-            "ID": [
-                "Agility [L]",
-                "Critical Rate [L]",
-                "Twilight: Lingering Glow"
-            ],
-            "IT": [
-                "Agilità [L]",
-                "Probabilità di critico [L]",
-                "Crepuscolo: Bagliore persistente"
-            ],
-            "JP": [
-                "敏捷UP・大",
-                "会心率UP・大",
-                "夜幕・消えぬ輝き"
-            ],
-            "KR": [
-                "민첩 증가 · 대",
-                "치명타 확률 증가 · 대",
-                "어둠 · 사라지지 않은 여광"
-            ],
-            "MX": [
-                "Agilidad [G]",
-                "Índice crítico [G]",
-                "Crepúsculo: Resplandor remanente"
-            ],
-            "RU": [
-                "Ловкость [бол.]",
-                "Шанс крит. удара [бол.]",
-                "Сумерки: неугасающее сияние"
-            ],
-            "TC": [
-                "敏捷提升·大",
-                "暴擊率提升·大",
-                "夜幕·餘輝未消"
-            ],
-            "TH": [
-                "ความคล่องแคล่ว​ [L]",
-                "อัตรา​การติ​ด​คริ​ติค​อล​ [L]",
-                "ลี้ลับ​: แสงสว่าง​อ้อยอิ่ง"
-            ],
-            "VN": [
-                "Nhanh Nhẹn [Lớn]",
-                "Tỷ Lệ Bạo Kích [Lớn]",
-                "Chạng Vạng: Dư Quang"
-            ]
-        }
+        "foresight": false
     },
     "wpn_funnel_0017": {
         "internal_id": "wpn_funnel_0017",
+        "icon_id": "wpn_funnel_0017",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Flickers_in_the_Mist_icon.png",
@@ -4788,208 +3097,12 @@
                 "ST Điện [Lớn]",
                 "Hiệu Lực: Ánh Chớp Trùng Điệp"
             ]
-        }
-    },
-    "wpn_sword_0007": {
-        "internal_id": "wpn_sword_0007",
-        "weapon_type": "Sword",
-        "rarity": 5,
-        "icon_path": "weapon_images_endfield\\Fortmaker_icon.png",
-        "skill_ids": [
-            "wpn_attr_wisd_mid",
-            "wpn_sp_attr_usgs_mid",
-            "sk_wpn_sword_0007"
-        ],
-        "names": {
-            "BR": "Fortificadora",
-            "CN": "坚城铸造者",
-            "DE": "Fortbauer",
-            "EN": "Fortmaker",
-            "FR": "Bâtisseur",
-            "ID": "Fortmaker",
-            "IT": "Fortezza",
-            "JP": "堅城鋳造者",
-            "KR": "불사의 성주",
-            "MX": "Constructor de fuertes",
-            "RU": "Скала",
-            "TC": "堅城鑄造者",
-            "TH": "ผู้สร้าง​ป้อม",
-            "VN": "Kiến Tạo Pháo Đài"
         },
-        "skills": {
-            "BR": [
-                "Inteligência [M]",
-                "Eficiência SUP [M]",
-                "Inspirador: De Volta à Cidade Destruída"
-            ],
-            "CN": [
-                "智识提升·中",
-                "终结技充能效率提升·中",
-                "昂扬·残城归途"
-            ],
-            "DE": [
-                "Intellekt [M]",
-                "ULT-Effizienz [M]",
-                "Inspirierend: Zurück in die zerstörte Stadt"
-            ],
-            "EN": [
-                "Intellect [M]",
-                "ULT Efficiency [M]",
-                "Inspiring: Back to the Broken City"
-            ],
-            "FR": [
-                "Intelligence [M]",
-                "Vitesse ULT [M]",
-                "Inspiration : Retour à la ville brisée"
-            ],
-            "ID": [
-                "Intellect [M]",
-                "Efisiensi ULT [M]",
-                "Inspiring: Back to the Broken City"
-            ],
-            "IT": [
-                "Intelletto [M]",
-                "Velocità SUP [M]",
-                "Ispirazione: Ritorno nella città distrutta"
-            ],
-            "JP": [
-                "知性UP・中",
-                "必殺技効率UP・中",
-                "昂揚・残城崩壊"
-            ],
-            "KR": [
-                "지능 증가 · 중",
-                "궁극기 충전 효율 증가 · 중",
-                "사기 · 잔성의 귀로"
-            ],
-            "MX": [
-                "Intelecto [M]",
-                "Eficiencia MÁX. [M]",
-                "Inspirador: De vuelta a la ciudad quebrada"
-            ],
-            "RU": [
-                "Интеллект [ср.]",
-                "Отдача суперэнергии [ср.]",
-                "Муза: возвращение в разрушенный город"
-            ],
-            "TC": [
-                "智識提升·中",
-                "終結技蓄能效率提升·中",
-                "昂揚·殘城歸途"
-            ],
-            "TH": [
-                "สติปัญญา​ [M]",
-                "ประสิทธิภาพ​อัล​ติ​เมท​ [M]",
-                "สร้าง​กำลังใจ​: กลับ​สู่​เมือง​ที่​แตกสลาย"
-            ],
-            "VN": [
-                "Trí Tuệ [Vừa]",
-                "Hiệu Quả Nhận TK [Vừa]",
-                "Cảm Hứng: Quay Lại Thành Phố Đổ Nát"
-            ]
-        }
-    },
-    "wpn_sword_0013": {
-        "internal_id": "wpn_sword_0013",
-        "weapon_type": "Sword",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Eminent_Repute_icon.png",
-        "skill_ids": [
-            "wpn_attr_main_high",
-            "wpn_sp_attr_phydam_high",
-            "sk_wpn_sword_0013"
-        ],
-        "names": {
-            "BR": "Reputação Eminente",
-            "CN": "显赫声名",
-            "DE": "Untadeliger Ruf",
-            "EN": "Eminent Repute",
-            "FR": "Réputation éminente",
-            "ID": "Eminent Repute",
-            "IT": "Reputazione illustre",
-            "JP": "輝かしき名声",
-            "KR": "위대한 이름",
-            "MX": "Alto prestigio",
-            "RU": "Безупречная репутация",
-            "TC": "顯赫聲名",
-            "TH": "อี​มิ​เนน​ต์​เร​พิว​ท์",
-            "VN": "Danh Tiếng Lừng Lẫy"
-        },
-        "skills": {
-            "BR": [
-                "Atributo Principal [G]",
-                "DNO Físico [G]",
-                "Brutalidade: Disciplinar"
-            ],
-            "CN": [
-                "主能力提升·大",
-                "物理伤害提升·大",
-                "残暴·规行矩止"
-            ],
-            "DE": [
-                "Hauptattribut [L]",
-                "Physischer SDN [L]",
-                "Brutalität: Anführer"
-            ],
-            "EN": [
-                "Main Attribute [L]",
-                "Physical DMG [L]",
-                "Brutality: Disciplinarian"
-            ],
-            "FR": [
-                "Trait principal [G]",
-                "DÉG physiques [G]",
-                "Brutalité : Adepte de la discipline"
-            ],
-            "ID": [
-                "Atribut Utama [L]",
-                "Physical DMG [L]",
-                "Brutality: Disciplinarian"
-            ],
-            "IT": [
-                "Attributo principale [L]",
-                "Danni fisici [L]",
-                "Brutalità: Pugno di ferro"
-            ],
-            "JP": [
-                "メイン能力UP・大",
-                "物理ダメージUP・大",
-                "残虐・規則遵守"
-            ],
-            "KR": [
-                "주요 능력치 증가 · 대",
-                "물리 피해 증가 · 대",
-                "잔혹 · 엄격한 규율"
-            ],
-            "MX": [
-                "Atributo principal [G]",
-                "DAÑ físico [G]",
-                "Brutalidad: Disciplinario"
-            ],
-            "RU": [
-                "Основной показатель [бол.]",
-                "Физический УРН [бол.]",
-                "Жестокость: строгая дисциплина"
-            ],
-            "TC": [
-                "主能力提升·大",
-                "物理傷害提升·大",
-                "殘暴·規行矩止"
-            ],
-            "TH": [
-                "คุณสมบัติ​หลัก​ [L]",
-                "DMG กายภาพ​ [L]",
-                "เกรี้ยวกราด​: ผู้​ยึดถือ​ระเบียบวินัย"
-            ],
-            "VN": [
-                "Thuộc Tính Chính [Lớn]",
-                "ST Vật Lý [Lớn]",
-                "Tàn Bạo: Người Kỷ Luật"
-            ]
-        }
+        "foresight": false
     },
     "wpn_funnel_0018": {
         "internal_id": "wpn_funnel_0018",
+        "icon_id": "wpn_funnel_0018",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Junction_Point_icon.png",
@@ -5085,10 +3198,12 @@
                 "Hiệu Quả Nhận TK [Lớn]",
                 "Hiệu Lực: Vòng Lặp Phản Hồi"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_funnel_0019": {
         "internal_id": "wpn_funnel_0019",
+        "icon_id": "wpn_funnel_0019",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Umbra_of_Frigid_Eventide_icon.png",
@@ -5184,10 +3299,12 @@
                 "Tấn Công [Lớn]",
                 "Kích Nổ: Bản Năng Thợ Săn"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_funnel_0020": {
         "internal_id": "wpn_funnel_0020",
+        "icon_id": "wpn_funnel_0020",
         "weapon_type": "Wand",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Sufferings_End_icon.png",
@@ -5283,208 +3400,113 @@
                 "ST Tự Nhiên [Lớn]",
                 "Kích Nổ: Bình Minh Đêm Dài"
             ]
-        }
+        },
+        "foresight": false
     },
-    "wpn_sword_0008": {
-        "internal_id": "wpn_sword_0008",
-        "weapon_type": "Sword",
+    "wpn_lance_0003": {
+        "internal_id": "wpn_lance_0003",
+        "icon_id": "wpn_lance_0003",
+        "weapon_type": "Lance",
         "rarity": 4,
-        "icon_path": "weapon_images_endfield\\Prominent_Edge_icon.png",
+        "icon_path": "weapon_images_endfield\\Pathfinders_Beacon_icon.png",
         "skill_ids": [
             "wpn_attr_agi_low",
-            "wpn_sp_attr_phydam_low",
-            "sk_wpn_sword_0008"
+            "wpn_sp_attr_atk_low",
+            "sk_wpn_lance_0003"
         ],
         "names": {
-            "BR": "Lâmina Afiada",
-            "CN": "显锋",
-            "DE": "Erhabene Klinge",
-            "EN": "Prominent Edge",
-            "FR": "Arête saillante",
-            "ID": "Prominent Edge",
-            "IT": "Lama eminente",
-            "JP": "顕鋒",
-            "KR": "드러난 칼날",
-            "MX": "Filo prominente",
-            "RU": "Выдающийся клинок",
-            "TC": "顯鋒",
-            "TH": "คม​ดาบ​โดดเด่น",
-            "VN": "Kiếm Sắc Áp Đảo"
+            "BR": "Sinalizadora do Explorador",
+            "CN": "寻路者道标",
+            "DE": "Wegweiser",
+            "EN": "Pathfinder's Beacon",
+            "FR": "Balise de l'éclaireur",
+            "ID": "Pathfinder’s Beacon",
+            "IT": "Faro del pioniere",
+            "JP": "開拓者の道標",
+            "KR": "개척자의 이정표",
+            "MX": "Baliza del explorador",
+            "RU": "Маяк следопыта",
+            "TC": "尋路者道標",
+            "TH": "บี​คอน​นัก​สำรวจ",
+            "VN": "Hải Đăng Dẫn Lối"
         },
         "skills": {
             "BR": [
                 "Agilidade [P]",
-                "DNO Físico [P]",
-                "Supressão: Reforço de Emergência"
+                "ATQ [P]",
+                "Inspirador: Início de uma Saga"
             ],
             "CN": [
                 "敏捷提升·小",
-                "物理伤害提升·小",
-                "压制·应急强化"
+                "攻击提升·小",
+                "昂扬·远途起始"
             ],
             "DE": [
                 "Beweglichkeit [S]",
-                "Physischer SDN [S]",
-                "Unterdrückung: Notfall-Boost"
+                "ANG [S]",
+                "Inspirierend: Beginn einer Saga"
             ],
             "EN": [
                 "Agility [S]",
-                "Physical DMG [S]",
-                "Suppression: Emergency Boost"
+                "ATK [S]",
+                "Inspiring: Start of a Saga"
             ],
             "FR": [
                 "Agilité [P]",
-                "DÉG physiques [P]",
-                "Suppression : Renforcement d'urgence"
+                "ATQ [P]",
+                "Inspiration : Début d'une saga"
             ],
             "ID": [
                 "Agility [S]",
-                "Physical DMG [S]",
-                "Suppression: Emergency Boost"
+                "ATK [S]",
+                "Inspiring: Start of a Saga"
             ],
             "IT": [
                 "Agilità [S]",
-                "Danni fisici [S]",
-                "Soppressione: Potenziamento d'emergenza"
+                "ATT [S]",
+                "Ispirazione: L'inizio di una saga"
             ],
             "JP": [
                 "敏捷UP・小",
-                "物理ダメージUP・小",
-                "圧制・応急強化"
+                "攻撃力UP・小",
+                "昂揚・遠路の始まり"
             ],
             "KR": [
                 "민첩 증가 · 소",
-                "물리 피해 증가 · 소",
-                "억제 · 비상 부스트"
+                "공격력 증가 · 소",
+                "사기 · 원정의 시작"
             ],
             "MX": [
                 "Agilidad [P]",
-                "DAÑ físico [P]",
-                "Supresión: impulso de emergencia"
+                "ATQ [P]",
+                "Inspirador: inicio de una saga"
             ],
             "RU": [
                 "Ловкость [мал.]",
-                "Физический УРН [мал.]",
-                "Подавление: срочная поддержка"
+                "АТК [мал.]",
+                "Муза: начало саги"
             ],
             "TC": [
                 "敏捷提升·小",
-                "物理傷害提升·小",
-                "壓制·緊急強化"
+                "攻擊提升·小",
+                "昂揚·遠途起始"
             ],
             "TH": [
                 "ความคล่องแคล่ว​ [S]",
-                "DMG กายภาพ​ [S]",
-                "ปราบปราม​: เสริมกำลัง​ฉุกเฉิน"
+                "ATK [S]",
+                "สร้าง​กำลังใจ​: บท​เริ่ม​มหากาพย์"
             ],
             "VN": [
                 "Nhanh Nhẹn [Nhỏ]",
-                "ST Vật Lý [Nhỏ]",
-                "Áp Chế-Bổ Trợ Khẩn Cấp"
+                "Tấn Công [Nhỏ]",
+                "Cảm Hứng-Khởi Đầu Sử Thi"
             ]
-        }
-    },
-    "wpn_sword_0012": {
-        "internal_id": "wpn_sword_0012",
-        "weapon_type": "Sword",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Thermite_Cutter_icon.png",
-        "skill_ids": [
-            "wpn_attr_will_high",
-            "wpn_sp_attr_atk_high",
-            "sk_wpn_sword_0012"
-        ],
-        "names": {
-            "BR": "Cortadora de Termita",
-            "CN": "热熔切割器",
-            "DE": "Thermitschneider",
-            "EN": "Thermite Cutter",
-            "FR": "Coupe-thermite",
-            "ID": "Thermite Cutter",
-            "IT": "Tagliatrice termitica",
-            "JP": "テルミット・カッター",
-            "KR": "테르밋 커터",
-            "MX": "Cortador de termita",
-            "RU": "Термитный резак",
-            "TC": "熱熔切割器",
-            "TH": "เครื่อง​ตัด​เทอร์​ไมต์",
-            "VN": "Kiếm Cắt Nhiệt"
         },
-        "skills": {
-            "BR": [
-                "Vontade [G]",
-                "ATQ [G]",
-                "Fluxo: Liberação Térmica"
-            ],
-            "CN": [
-                "意志提升·大",
-                "攻击提升·大",
-                "流转·高热解放"
-            ],
-            "DE": [
-                "Wille [L]",
-                "ANG [L]",
-                "Strömung: Thermale Aktivierung"
-            ],
-            "EN": [
-                "Will [L]",
-                "ATK [L]",
-                "Flow: Thermal Release"
-            ],
-            "FR": [
-                "Volonté [G]",
-                "ATQ [G]",
-                "Flux : Libération thermique"
-            ],
-            "ID": [
-                "Will [L]",
-                "ATK [L]",
-                "Flow: Thermal Release"
-            ],
-            "IT": [
-                "Volontà [L]",
-                "ATT [L]",
-                "Flusso: Rilascio termico"
-            ],
-            "JP": [
-                "意志UP・大",
-                "攻撃力UP・大",
-                "流回・高熱解放"
-            ],
-            "KR": [
-                "의지 증가 · 대",
-                "공격력 증가 · 대",
-                "흐름 · 고열 방출"
-            ],
-            "MX": [
-                "Voluntad [G]",
-                "ATQ [G]",
-                "Flujo: liberación térmica"
-            ],
-            "RU": [
-                "Воля [бол.]",
-                "АТК [бол.]",
-                "Поток: выброс энергии"
-            ],
-            "TC": [
-                "意志提升·大",
-                "攻擊提升·大",
-                "流轉·高熱解放"
-            ],
-            "TH": [
-                "ความมุ่งมั่น​ [L]",
-                "ATK [L]",
-                "ไหล​ลื่น​: การ​ปล่อย​ความร้อน"
-            ],
-            "VN": [
-                "Ý Chí [Lớn]",
-                "Tấn Công [Lớn]",
-                "Uyển Chuyển: Phóng Nhiệt"
-            ]
-        }
+        "foresight": false
     },
     "wpn_lance_0004": {
         "internal_id": "wpn_lance_0004",
+        "icon_id": "wpn_lance_0004",
         "weapon_type": "Lance",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Chimeric_Justice_icon.png",
@@ -5580,10 +3602,502 @@
                 "Hiệu Quả Nhận TK [Vừa]",
                 "Tàn Bạo-Phẫn Nộ Đông Cứng"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_lance_0006": {
+        "internal_id": "wpn_lance_0006",
+        "icon_id": "wpn_lance_0006",
+        "weapon_type": "Lance",
+        "rarity": 5,
+        "icon_path": "weapon_images_endfield\\Cohesive_Traction_icon.png",
+        "skill_ids": [
+            "wpn_attr_will_mid",
+            "wpn_sp_attr_electrondam_mid",
+            "sk_wpn_lance_0006"
+        ],
+        "names": {
+            "BR": "Tração Coesiva",
+            "CN": "向心之引",
+            "DE": "Einheitliche Haftung",
+            "EN": "Cohesive Traction",
+            "FR": "Traction cohésive",
+            "ID": "Cohesive Traction",
+            "IT": "Trazione compatta",
+            "JP": "求心の槍",
+            "KR": "중심력",
+            "MX": "Tracción cohesiva",
+            "RU": "Прочное притяжение",
+            "TC": "向心之引",
+            "TH": "แรงดึงดูด​เหนียวแน่น",
+            "VN": "Lực Kéo Kết Dính"
+        },
+        "skills": {
+            "BR": [
+                "Vontade [M]",
+                "DNO Elétrico [M]",
+                "Supressão: Círculos Concêntricos"
+            ],
+            "CN": [
+                "意志提升·中",
+                "电磁伤害提升·中",
+                "压制·同心圆"
+            ],
+            "DE": [
+                "Wille [M]",
+                "Elektrischer SDN [M]",
+                "Unterdrückung: Konzentrische Kreise"
+            ],
+            "EN": [
+                "Will [M]",
+                "Electric DMG [M]",
+                "Suppression: Concentric Circles"
+            ],
+            "FR": [
+                "Volonté [M]",
+                "DÉG électriques [M]",
+                "Suppression : Cercles concentriques"
+            ],
+            "ID": [
+                "Will [M]",
+                "Electric DMG [M]",
+                "Suppression: Concentric Circles"
+            ],
+            "IT": [
+                "Volontà [M]",
+                "Danni da elettricità [M]",
+                "Soppressione: Cerchi concentrici"
+            ],
+            "JP": [
+                "意志UP・中",
+                "電磁ダメージUP・中",
+                "圧制・同心円"
+            ],
+            "KR": [
+                "의지 증가 · 중",
+                "전기 피해 증가 · 중",
+                "억제 · 동심원"
+            ],
+            "MX": [
+                "Voluntad [M]",
+                "DAÑ eléctrico [M]",
+                "Supresión: círculos concéntricos"
+            ],
+            "RU": [
+                "Воля [ср.]",
+                "Электрический УРН [ср.]",
+                "Подавление: концентрические круги"
+            ],
+            "TC": [
+                "意志提升·中",
+                "電磁傷害提升·中",
+                "壓制·同心圓"
+            ],
+            "TH": [
+                "ความมุ่งมั่น​ [M]",
+                "DMG ไฟฟ้า​ [M]",
+                "ปราบปราม​: วงกลม​ร่วม​ศูนย์กลาง"
+            ],
+            "VN": [
+                "Ý Chí [Vừa]",
+                "ST Điện [Vừa]",
+                "Áp Chế: Vòng Tròn Đồng Tâm"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_lance_0007": {
+        "internal_id": "wpn_lance_0007",
+        "icon_id": "wpn_lance_0007",
+        "weapon_type": "Lance",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Beacon_of_Duty_icon.png",
+        "skill_ids": [
+            "wpn_attr_agi_high",
+            "wpn_sp_attr_usgs_high",
+            "sk_wpn_lance_0007"
+        ],
+        "names": {
+            "BR": "Sinalizador do Dever",
+            "CN": "灯火使命",
+            "DE": "Leuchtfeuer der Pflicht",
+            "EN": "Beacon of Duty",
+            "FR": "Symbole du devoir",
+            "ID": "Beacon of Duty",
+            "IT": "Faro del dovere",
+            "JP": "灯火の使命",
+            "KR": "등불의 사명",
+            "MX": "Baliza del deber",
+            "RU": "Маяк долга",
+            "TC": "燈火使命",
+            "TH": "คบเพลิง​แห่ง​หน้าที่",
+            "VN": "Ngọn Đuốc Trách Nhiệm"
+        },
+        "skills": {
+            "BR": [
+                "Agilidade [G]",
+                "Eficiência SUP [G]",
+                "Eficácia: Combustível de Tocha"
+            ],
+            "CN": [
+                "敏捷提升·大",
+                "终结技充能效率提升·大",
+                "效益·灯火灼身"
+            ],
+            "DE": [
+                "Beweglichkeit [L]",
+                "ULT-Effizienz [L]",
+                "Wirksamkeit: Pech für die Fackel"
+            ],
+            "EN": [
+                "Agility [L]",
+                "ULT Efficiency [L]",
+                "Efficacy: Fuel for the Torch"
+            ],
+            "FR": [
+                "Agilité [G]",
+                "Vitesse ULT [G]",
+                "Efficacité : De quoi raviver la flamme"
+            ],
+            "ID": [
+                "Agility [L]",
+                "Efisiensi ULT [L]",
+                "Efficacy: Fuel for the Torch"
+            ],
+            "IT": [
+                "Agilità [L]",
+                "Velocità SUP [L]",
+                "Efficacia: Carburante per la torcia"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "必殺技効率UP・大",
+                "効率・灯火燃焼"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "궁극기 충전 효율 증가 · 대",
+                "효율 · 불빛 연소"
+            ],
+            "MX": [
+                "Agilidad [G]",
+                "Eficiencia MÁX. [G]",
+                "Eficacia: Combustible para la antorcha"
+            ],
+            "RU": [
+                "Ловкость [бол.]",
+                "Отдача суперэнергии [бол.]",
+                "Эффективность: топливо для факела"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "終結技蓄能效率提升·大",
+                "效益·燈火灼身"
+            ],
+            "TH": [
+                "ความคล่องแคล่ว​ [L]",
+                "ประสิทธิภาพ​อัล​ติ​เมท​ [L]",
+                "ประสิทธิผล​: เชื้อเพลิง​คบไฟ"
+            ],
+            "VN": [
+                "Nhanh Nhẹn [Lớn]",
+                "Hiệu Quả Nhận TK [Lớn]",
+                "Hiệu Lực: Nhiên Liệu Cho Đuốc"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_lance_0008": {
+        "internal_id": "wpn_lance_0008",
+        "icon_id": "wpn_lance_0008",
+        "weapon_type": "Lance",
+        "rarity": 4,
+        "icon_path": "weapon_images_endfield\\Aggeloslayer_icon.png",
+        "skill_ids": [
+            "wpn_attr_will_low",
+            "wpn_sp_attr_magicdam_low",
+            "sk_wpn_lance_0008"
+        ],
+        "names": {
+            "BR": "Matadora de Aggeloi",
+            "CN": "天使杀手",
+            "DE": "Aggelo-Bezwinger",
+            "EN": "Aggeloslayer",
+            "FR": "Tueuse d'Aggeloi",
+            "ID": "Aggeloslayer",
+            "IT": "Ammazza Aggeloi",
+            "JP": "アンゲロス・スレイヤー",
+            "KR": "아겔로스 사냥꾼",
+            "MX": "Asesino de Aggelos",
+            "RU": "Аггелоубийца",
+            "TC": "天使殺手",
+            "TH": "ผู้​สังหาร​แอก​เก​โล",
+            "VN": "Sát Thủ Diệt Aggeloi"
+        },
+        "skills": {
+            "BR": [
+                "Vontade [P]",
+                "DNO Artes [P]",
+                "Supressão: Reforço de Emergência"
+            ],
+            "CN": [
+                "意志提升·小",
+                "法术提升·小",
+                "压制·应急强化"
+            ],
+            "DE": [
+                "Wille [S]",
+                "Technik-SDN [S]",
+                "Unterdrückung: Notfall-Boost"
+            ],
+            "EN": [
+                "Will [S]",
+                "Arts DMG [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "FR": [
+                "Volonté [P]",
+                "DÉG des Arts [P]",
+                "Suppression : Renforcement d'urgence"
+            ],
+            "ID": [
+                "Will [S]",
+                "Arts DMG [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "IT": [
+                "Volontà [S]",
+                "Danni da Arti [S]",
+                "Soppressione: Potenziamento d'emergenza"
+            ],
+            "JP": [
+                "意志UP・小",
+                "アーツダメージUP・小",
+                "圧制・応急強化"
+            ],
+            "KR": [
+                "의지 증가 · 소",
+                "아츠 피해 증가 · 소",
+                "억제 · 비상 부스트"
+            ],
+            "MX": [
+                "Voluntad [P]",
+                "DAÑ por Artes [P]",
+                "Supresión: impulso de emergencia"
+            ],
+            "RU": [
+                "Воля [мал.]",
+                "УРН от искусств [мал.]",
+                "Подавление: срочная поддержка"
+            ],
+            "TC": [
+                "意志提升·小",
+                "法術提升·小",
+                "壓制·緊急強化"
+            ],
+            "TH": [
+                "ความมุ่งมั่น​ [S]",
+                "DMG พลัง​เวท​ [S]",
+                "ปราบปราม​: เสริมกำลัง​ฉุกเฉิน"
+            ],
+            "VN": [
+                "Ý Chí [Nhỏ]",
+                "ST Thuật Pháp [Nhỏ]",
+                "Áp Chế-Bổ Trợ Khẩn Cấp"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_lance_0009": {
+        "internal_id": "wpn_lance_0009",
+        "icon_id": "wpn_lance_0009",
+        "weapon_type": "Lance",
+        "rarity": 3,
+        "icon_path": "weapon_images_endfield\\Opero_77_icon.png",
+        "skill_ids": [
+            "wpn_attr_main_low",
+            "sk_wpn_lance_0009"
+        ],
+        "names": {
+            "BR": "Opero 77",
+            "CN": "奥佩罗77",
+            "DE": "Opero 77",
+            "EN": "Opero 77",
+            "FR": "Opéro 77",
+            "ID": "Opero 77",
+            "IT": "Opero 77",
+            "JP": "オッペロ77",
+            "KR": "오페로 77",
+            "MX": "Opero 77",
+            "RU": "Оперо 77",
+            "TC": "奧佩羅77",
+            "TH": "โอ​เป​โร​ 77",
+            "VN": "Opero 77"
+        },
+        "skills": {
+            "BR": [
+                "Atributo Principal [P]",
+                "Assalto: Preparação do Armamento"
+            ],
+            "CN": [
+                "主能力提升·小",
+                "强攻·武装整备"
+            ],
+            "DE": [
+                "Hauptattribut [S]",
+                "Sturmangriff: Aufrüstungsvorbereitung"
+            ],
+            "EN": [
+                "Main Attribute [S]",
+                "Assault: Armament Prep"
+            ],
+            "FR": [
+                "Trait principal [P]",
+                "Assaut : Préparation militaire"
+            ],
+            "ID": [
+                "Atribut Utama [S]",
+                "Assault: Armament Prep"
+            ],
+            "IT": [
+                "Attributo principale [S]",
+                "Assalto: Preparazione degli armamenti"
+            ],
+            "JP": [
+                "メイン能力UP・小",
+                "強攻・武装整備"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 소",
+                "강공 · 무장 정비"
+            ],
+            "MX": [
+                "Atributo principal [P]",
+                "Asalto: preparación de armamento"
+            ],
+            "RU": [
+                "Основной показатель [мал.]",
+                "Натиск: боеготовность"
+            ],
+            "TC": [
+                "主能力提升·小",
+                "強攻·武裝整備"
+            ],
+            "TH": [
+                "คุณสมบัติ​หลัก​ [S]",
+                "จู่โจม​: เตรียม​อาวุธ"
+            ],
+            "VN": [
+                "Thuộc Tính Chính [Nhỏ]",
+                "Đột Kích-Chuẩn Bị Vũ Trang"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_lance_0010": {
+        "internal_id": "wpn_lance_0010",
+        "icon_id": "wpn_lance_0010",
+        "weapon_type": "Lance",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Valiant_icon.png",
+        "skill_ids": [
+            "wpn_attr_agi_high",
+            "wpn_sp_attr_phydam_high",
+            "sk_wpn_lance_0010"
+        ],
+        "names": {
+            "BR": "Valente",
+            "CN": "骁勇",
+            "DE": "Tapferkeit",
+            "EN": "Valiant",
+            "FR": "Vaillance",
+            "ID": "Valiant",
+            "IT": "Audace",
+            "JP": "勇猛",
+            "KR": "용사",
+            "MX": "Valiente",
+            "RU": "Доблесть",
+            "TC": "驍勇",
+            "TH": "ผู้​กล้า",
+            "VN": "Dũng Khí"
+        },
+        "skills": {
+            "BR": [
+                "Agilidade [G]",
+                "DNO Físico [G]",
+                "Combativo: Ganho Virtuoso"
+            ],
+            "CN": [
+                "敏捷提升·大",
+                "物理伤害提升·大",
+                "巧技·美德盈利"
+            ],
+            "DE": [
+                "Beweglichkeit [L]",
+                "Physischer SDN [L]",
+                "Kämpferisch: Tugendhafter Ertrag"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Physical DMG [L]",
+                "Combative: Virtuous Gain"
+            ],
+            "FR": [
+                "Agilité [G]",
+                "DÉG physiques [G]",
+                "Combativité : Gain vertueux"
+            ],
+            "ID": [
+                "Agility [L]",
+                "Physical DMG [L]",
+                "Combative: Virtuous Gain"
+            ],
+            "IT": [
+                "Agilità [L]",
+                "Danni fisici [L]",
+                "Combattività: Guadagno virtuoso"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "物理ダメージUP・大",
+                "巧技・美徳収益"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "물리 피해 증가 · 대",
+                "기예 · 좋은 품성의 결실"
+            ],
+            "MX": [
+                "Agilidad [G]",
+                "DAÑ físico [G]",
+                "Combativo: ganancia virtuosa"
+            ],
+            "RU": [
+                "Ловкость [бол.]",
+                "Физический УРН [бол.]",
+                "Драчливость: плоды добродетели"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "物理傷害提升·大",
+                "巧技·美德盈利"
+            ],
+            "TH": [
+                "ความคล่องแคล่ว​ [L]",
+                "DMG กายภาพ​ [L]",
+                "บุก​ตะลุย​: ผล​แห่ง​คุณธรรม"
+            ],
+            "VN": [
+                "Nhanh Nhẹn [Lớn]",
+                "ST Vật Lý [Lớn]",
+                "Hiếu Chiến: Thiện Quả"
+            ]
+        },
+        "foresight": false
     },
     "wpn_lance_0011": {
         "internal_id": "wpn_lance_0011",
+        "icon_id": "wpn_lance_0011",
         "weapon_type": "Lance",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\JET_icon.png",
@@ -5679,10 +4193,315 @@
                 "Tấn Công [Lớn]",
                 "Áp Chế: Vật Lý Thiên Văn"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_lance_0012": {
+        "internal_id": "wpn_lance_0012",
+        "icon_id": "wpn_lance_0012",
+        "weapon_type": "Lance",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Mountain_Bearer_icon.png",
+        "skill_ids": [
+            "wpn_attr_agi_high",
+            "wpn_sp_attr_phydam_high",
+            "sk_wpn_lance_0012"
+        ],
+        "names": {
+            "BR": "Guardiã das Montanhas",
+            "CN": "负山",
+            "DE": "Bergträger",
+            "EN": "Mountain Bearer",
+            "FR": "Porte-montagne",
+            "ID": "Mountain Bearer",
+            "IT": "Portatore della montagna",
+            "JP": "負山",
+            "KR": "산의 지배자",
+            "MX": "Portador de montañas",
+            "RU": "Хранитель Горы",
+            "TC": "負山",
+            "TH": "เมาเทน​ แบ​เรอร์",
+            "VN": "Sơn Thần"
+        },
+        "skills": {
+            "BR": [
+                "Agilidade [G]",
+                "DNO Físico [G]",
+                "Eficácia: Peso da Montanha"
+            ],
+            "CN": [
+                "敏捷提升·大",
+                "物理伤害提升·大",
+                "效益·山川在我"
+            ],
+            "DE": [
+                "Beweglichkeit [L]",
+                "Physischer SDN [L]",
+                "Wirksamkeit: Gewicht des Bergs"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Physical DMG [L]",
+                "Efficacy: Weight of Mountain"
+            ],
+            "FR": [
+                "Agilité [G]",
+                "DÉG physiques [G]",
+                "Efficacité : Poids de la montagne"
+            ],
+            "ID": [
+                "Agility [L]",
+                "Physical DMG [L]",
+                "Efficacy: Weight of Mountain"
+            ],
+            "IT": [
+                "Agilità [L]",
+                "Danni fisici [L]",
+                "Efficacia: Peso della montagna"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "物理ダメージUP・大",
+                "効率・山河在り"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "물리 피해 증가 · 대",
+                "효율 · 하나 되는 자연"
+            ],
+            "MX": [
+                "Agilidad [G]",
+                "DAÑ físico [G]",
+                "Eficacia: el peso de la montaña"
+            ],
+            "RU": [
+                "Ловкость [бол.]",
+                "Физический УРН [бол.]",
+                "Эффективность: тяжесть горы"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "物理傷害提升·大",
+                "效益·山川在我"
+            ],
+            "TH": [
+                "ความคล่องแคล่ว​ [L]",
+                "DMG กายภาพ​ [L]",
+                "ประสิทธิภาพ​: หนักแน่น​ดั่ง​ขุนเขา"
+            ],
+            "VN": [
+                "Nhanh Nhẹn [Lớn]",
+                "ST Vật Lý [Lớn]",
+                "Hiệu Lực: Sức Nặng Của Núi"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_lance_0013": {
+        "internal_id": "wpn_lance_0013",
+        "icon_id": "wpn_lance_0013",
+        "weapon_type": "Lance",
+        "rarity": 5,
+        "icon_path": "weapon_images_endfield\\OBJ_Razorhorn_icon.png",
+        "skill_ids": [
+            "wpn_attr_will_mid",
+            "wpn_sp_attr_phydam_mid",
+            "sk_wpn_lance_0013"
+        ],
+        "names": {
+            "BR": "OBJ Chifre-Navalha",
+            "CN": "O.B.J.尖峰",
+            "DE": "OBJ Klingenhorn",
+            "EN": "OBJ Razorhorn",
+            "FR": "OBJ Rasecorne",
+            "ID": "OBJ Razorhorn",
+            "IT": "Corno tagliente OBJ",
+            "JP": "O.B.J.鋭矛",
+            "KR": "O.B.J. 스파이크",
+            "MX": "OBJ Cuerno afilado",
+            "RU": "OBJ Рог-бритва",
+            "TC": "O.B.J.尖峰",
+            "TH": "OBJ เร​เซอร์​ฮอร์น",
+            "VN": "OBJ Sừng Thép"
+        },
+        "skills": {
+            "BR": [
+                "Vontade [M]",
+                "DNO Físico [M]",
+                "Inflição: Conquista dos Picos Gelados"
+            ],
+            "CN": [
+                "意志提升·中",
+                "物理伤害提升·中",
+                "附术·攀越冰峰"
+            ],
+            "DE": [
+                "Wille [M]",
+                "Physischer SDN [M]",
+                "Zufügung: Eroberung der eisigen Gipfel"
+            ],
+            "EN": [
+                "Will [M]",
+                "Physical DMG [M]",
+                "Infliction: Conquest of Icy Peaks"
+            ],
+            "FR": [
+                "Volonté [M]",
+                "DÉG physiques [M]",
+                "Altération : Conquête des cimes glacées"
+            ],
+            "ID": [
+                "Will [M]",
+                "Physical DMG [M]",
+                "Infliction: Conquest of Icy Peaks"
+            ],
+            "IT": [
+                "Volontà [M]",
+                "Danni fisici [M]",
+                "Afflizione: Conquista di vette innevate"
+            ],
+            "JP": [
+                "意志UP・中",
+                "物理ダメージUP・中",
+                "付術・氷山を越えて"
+            ],
+            "KR": [
+                "의지 증가 · 중",
+                "물리 피해 증가 · 중",
+                "고통 · 빙산을 넘어서"
+            ],
+            "MX": [
+                "Voluntad [M]",
+                "DAÑ físico [M]",
+                "Imposición: Conquista de cumbres heladas"
+            ],
+            "RU": [
+                "Воля [ср.]",
+                "Физический УРН [ср.]",
+                "Поражение: покорение ледяных скал"
+            ],
+            "TC": [
+                "意志提升·中",
+                "物理傷害提升·中",
+                "附術·攀越冰峰"
+            ],
+            "TH": [
+                "ความมุ่งมั่น​ [M]",
+                "DMG กายภาพ​ [M]",
+                "สร้าง​บาดแผล​: พิชิต​ยอดเขา​น้ำแข็ง"
+            ],
+            "VN": [
+                "Ý Chí [Vừa]",
+                "ST Vật Lý [Vừa]",
+                "Nhiễm: Chinh Phục Đỉnh Băng"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_lance_0014": {
+        "internal_id": "wpn_lance_0014",
+        "icon_id": "wpn_lance_0014",
+        "weapon_type": "Lance",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Bedazzling_Night_Debut_icon.png",
+        "skill_ids": [
+            "wpn_attr_will_high",
+            "wpn_sp_attr_heal_high",
+            "sk_wpn_lance_0014"
+        ],
+        "names": {
+            "BR": "Estreia Noturna Deslumbrante",
+            "CN": "曜夜的首演",
+            "DE": "Debüt der blendenden Nacht",
+            "EN": "Bedazzling Night Debut",
+            "FR": "Première par une soirée éblouissante",
+            "ID": "Bedazzling Night Debut",
+            "IT": "Debutto notturno abbagliante",
+            "JP": "プリズムナイトデビュー",
+            "KR": "찬란한 밤의 데뷔",
+            "MX": "Debut nocturno deslumbrante",
+            "RU": "Блестящий ночной дебют",
+            "TC": "曜夜的首演",
+            "TH": "เด​บิว​ต์​คืน​เจิด​จรัส",
+            "VN": "Màn Ra Mắt Đêm Chói Rạng"
+        },
+        "skills": {
+            "BR": [
+                "Vontade [G]",
+                "Eficiência do Tratamento [G]",
+                "Medicinal: Cortina Brilhante"
+            ],
+            "CN": [
+                "意志提升·大",
+                "治疗效率提升·大",
+                "医疗·闪耀帷幕"
+            ],
+            "DE": [
+                "Wille [L]",
+                "Behandlungseffizienz [L]",
+                "Pharmakon: Schimmernder Vorhang"
+            ],
+            "EN": [
+                "Will [L]",
+                "Treatment Efficiency [L]",
+                "Medicant: Shimmering Curtain"
+            ],
+            "FR": [
+                "Volonté [G]",
+                "Efficacité des soins [G]",
+                "Cure : Rideau scintillant"
+            ],
+            "ID": [
+                "Will [L]",
+                "Efisiensi Treatment [L]",
+                "Medicant: Shimmering Curtain"
+            ],
+            "IT": [
+                "Volontà [L]",
+                "Efficacia della Cura [L]",
+                "Cura: Cortina scintillante"
+            ],
+            "JP": [
+                "意志UP・大",
+                "回復効率UP・大",
+                "治癒・閃耀の幕"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "치유 효율 증가 · 대",
+                "의료 · 찬란한 장막"
+            ],
+            "MX": [
+                "Voluntad [G]",
+                "Eficiencia del tratamiento [G]",
+                "Medicante: Cortina resplandeciente"
+            ],
+            "RU": [
+                "Воля [бол.]",
+                "Эффективность лечения [бол.]",
+                "Лечение: мерцающий занавес"
+            ],
+            "TC": [
+                "意志提升·大",
+                "治療效率提升·大",
+                "醫療·閃耀帷幕"
+            ],
+            "TH": [
+                "ความมุ่งมั่น​ [L]",
+                "ประสิทธิภาพ​การรักษา​ [L]",
+                "เยียวยา​: ม่าน​ระยิบระยับ"
+            ],
+            "VN": [
+                "Ý Chí [Lớn]",
+                "Hiệu Quả Điều Trị [Lớn]",
+                "Chữa Lành: Màn Che Lấp Lánh"
+            ]
+        },
+        "foresight": false
     },
     "wpn_lance_0015": {
         "internal_id": "wpn_lance_0015",
+        "icon_id": "wpn_lance_0015",
         "weapon_type": "Lance",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Blessing_of_Lustrous_Carmine_icon.png",
@@ -5778,10 +4597,113 @@
                 "ST Nhiệt [Lớn]",
                 "Uyển Chuyển: Xá Tội"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_lance_0016": {
+        "internal_id": "wpn_lance_0016",
+        "icon_id": "wpn_lance_0016",
+        "weapon_type": "Lance",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Golden_Age_icon.png",
+        "skill_ids": [
+            "wpn_attr_will_high",
+            "wpn_sp_attr_heal_high",
+            "sk_wpn_lance_0016"
+        ],
+        "names": {
+            "BR": "Era de Ouro",
+            "CN": "黄金时代",
+            "DE": "Goldenes Zeitalter",
+            "EN": "Golden Age",
+            "FR": "Âge d'or",
+            "ID": "Golden Age",
+            "IT": "Epoca d'oro",
+            "JP": "黄金時代",
+            "KR": "전성기",
+            "MX": "Edad de oro",
+            "RU": "Золотой век",
+            "TC": "黃金時代",
+            "TH": "ยุคทอง",
+            "VN": "Thời Đại Hoàng Kim"
+        },
+        "skills": {
+            "BR": [
+                "Vontade [G]",
+                "Eficiência do Tratamento [G]",
+                "Perseguição: Grande Herói"
+            ],
+            "CN": [
+                "意志提升·大",
+                "治疗效率提升·大",
+                "追袭·大英雄"
+            ],
+            "DE": [
+                "Wille [L]",
+                "Behandlungseffizienz [L]",
+                "Verfolgung: Großer Held"
+            ],
+            "EN": [
+                "Will [L]",
+                "Treatment Efficiency [L]",
+                "Pursuit: Great Hero"
+            ],
+            "FR": [
+                "Volonté [G]",
+                "Efficacité des soins [G]",
+                "Poursuite : Grand héros"
+            ],
+            "ID": [
+                "Will [L]",
+                "Efisiensi Treatment [L]",
+                "Pursuit: Great Hero"
+            ],
+            "IT": [
+                "Volontà [L]",
+                "Efficacia della Cura [L]",
+                "Inseguimento: Grande eroina"
+            ],
+            "JP": [
+                "意志UP・大",
+                "回復効率UP・大",
+                "追襲・大英雄"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "치유 효율 증가 · 대",
+                "추격 · 위대한 영웅"
+            ],
+            "MX": [
+                "Voluntad [G]",
+                "Eficiencia del tratamiento [G]",
+                "Persecución: Gran héroe"
+            ],
+            "RU": [
+                "Воля [бол.]",
+                "Эффективность лечения [бол.]",
+                "Азарт: великий герой"
+            ],
+            "TC": [
+                "意志提升·大",
+                "治療效率提升·大",
+                "追襲·大英雄"
+            ],
+            "TH": [
+                "ความมุ่งมั่น​ [L]",
+                "ประสิทธิภาพ​การรักษา​ [L]",
+                "ไล่​ล่า​: ยอด​วีรบุรุษ"
+            ],
+            "VN": [
+                "Ý Chí [Lớn]",
+                "Hiệu Quả Điều Trị [Lớn]",
+                "Truy Kích: Đại Anh Hùng"
+            ]
+        },
+        "foresight": false
     },
     "wpn_pistol_0001": {
         "internal_id": "wpn_pistol_0001",
+        "icon_id": "wpn_pistol_0001",
         "weapon_type": "Pistol",
         "rarity": 3,
         "icon_path": "weapon_images_endfield\\Peco_5_icon.png",
@@ -5862,109 +4784,12 @@
                 "Thuộc Tính Chính [Nhỏ]",
                 "Đột Kích-Chuẩn Bị Vũ Trang"
             ]
-        }
-    },
-    "wpn_sword_0010": {
-        "internal_id": "wpn_sword_0010",
-        "weapon_type": "Sword",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\Umbral_Torch_icon.png",
-        "skill_ids": [
-            "wpn_attr_wisd_high",
-            "wpn_sp_attr_firedam_high",
-            "sk_wpn_sword_0010"
-        ],
-        "names": {
-            "BR": "Chama Sombria",
-            "CN": "黯色火炬",
-            "DE": "Schattenfackel",
-            "EN": "Umbral Torch",
-            "FR": "Flambeau de l'ombre",
-            "ID": "Umbral Torch",
-            "IT": "Torcia d'ombra",
-            "JP": "ダークトーチ",
-            "KR": "암흑의 횃불",
-            "MX": "Antorcha del umbral",
-            "RU": "Ночной факел",
-            "TC": "黯色火炬",
-            "TH": "คบเพลิง​แห่ง​เงามืด",
-            "VN": "Ngọn Đuốc Bóng Tối"
         },
-        "skills": {
-            "BR": [
-                "Inteligência [G]",
-                "DNO Térmico [G]",
-                "Inflição: Acúmulo de Cobiça"
-            ],
-            "CN": [
-                "智识提升·大",
-                "灼热伤害提升·大",
-                "附术·觊觎堆叠"
-            ],
-            "DE": [
-                "Intellekt [L]",
-                "Hitze-SDN [L]",
-                "Zufügung: Begehrlicher Aufbau"
-            ],
-            "EN": [
-                "Intellect [L]",
-                "Heat DMG [L]",
-                "Infliction: Covetous Buildup"
-            ],
-            "FR": [
-                "Intelligence [G]",
-                "DÉG thermiques [G]",
-                "Altération : Cumul cupide"
-            ],
-            "ID": [
-                "Intellect [L]",
-                "Heat DMG [L]",
-                "Infliction: Covetous Buildup"
-            ],
-            "IT": [
-                "Intelletto [L]",
-                "Danni da fuoco [L]",
-                "Afflizione: Accumulo bramoso"
-            ],
-            "JP": [
-                "知性UP・大",
-                "灼熱ダメージUP・大",
-                "付術・欲望堆積"
-            ],
-            "KR": [
-                "지능 증가 · 대",
-                "열기 피해 증가 · 대",
-                "고통 · 쌓이는 탐욕"
-            ],
-            "MX": [
-                "Intelecto [G]",
-                "DAÑ por calor [G]",
-                "Imposición: Acumulación codiciosa"
-            ],
-            "RU": [
-                "Интеллект [бол.]",
-                "Тепловой УРН [бол.]",
-                "Поражение: ненасытная жажда"
-            ],
-            "TC": [
-                "智識提升·大",
-                "灼熱傷害提升·大",
-                "附術·覬覦堆疊"
-            ],
-            "TH": [
-                "สติปัญญา​ [L]",
-                "DMG ความร้อน​ [L]",
-                "สร้าง​บาดแผล​: การ​สะสม​ความละโมบ"
-            ],
-            "VN": [
-                "Trí Tuệ [Lớn]",
-                "ST Nhiệt [Lớn]",
-                "Nhiễm: Tích Lũy Thèm Muốn"
-            ]
-        }
+        "foresight": false
     },
     "wpn_pistol_0002": {
         "internal_id": "wpn_pistol_0002",
+        "icon_id": "wpn_pistol_0002",
         "weapon_type": "Pistol",
         "rarity": 4,
         "icon_path": "weapon_images_endfield\\Howling_Guard_icon.png",
@@ -6060,109 +4885,12 @@
                 "Tấn Công [Nhỏ]",
                 "Áp Chế-Bổ Trợ Khẩn Cấp"
             ]
-        }
-    },
-    "wpn_sword_0020": {
-        "internal_id": "wpn_sword_0020",
-        "weapon_type": "Sword",
-        "rarity": 5,
-        "icon_path": "weapon_images_endfield\\Finchaser_30_icon.png",
-        "skill_ids": [
-            "wpn_attr_str_mid",
-            "wpn_sp_attr_crystdam_mid",
-            "sk_wpn_sword_0020"
-        ],
-        "names": {
-            "BR": "Caça-Barbatanas 3.0",
-            "CN": "逐鳞3.0",
-            "DE": "Flösslerjäger 3.0",
-            "EN": "Finchaser 3.0",
-            "FR": "Chassailettes 3.0",
-            "ID": "Finchaser 3.0",
-            "IT": "Predatrice 3.0",
-            "JP": "フィンチェイサー3.0",
-            "KR": "린수를 찾아서 3.0",
-            "MX": "Cazaletas 3.0",
-            "RU": "Водоплаволов 3.0",
-            "TC": "逐鱗3.0",
-            "TH": "ฟิน​เช​ส​เซอร์​ 3.0",
-            "VN": "Thợ Săn Cá 3.0"
         },
-        "skills": {
-            "BR": [
-                "Força [M]",
-                "DNO Crio [M]",
-                "Supressão: Intenção do Caçador de Barbatanas"
-            ],
-            "CN": [
-                "力量提升·中",
-                "寒冷伤害提升·中",
-                "压制·逐鳞意"
-            ],
-            "DE": [
-                "Stärke [M]",
-                "Kryo-SDN [M]",
-                "Unterdrückung: Absicht des Flössler-Jägers"
-            ],
-            "EN": [
-                "Strength [M]",
-                "Cryo DMG [M]",
-                "Suppression: Fin Chaser's Intent"
-            ],
-            "FR": [
-                "Force [M]",
-                "DÉG cryogéniques [M]",
-                "Suppression : Intention du chasseur d'ailettes"
-            ],
-            "ID": [
-                "Strength [M]",
-                "Cryo DMG [M]",
-                "Suppression: Fin Chaser’s Intent"
-            ],
-            "IT": [
-                "Forza [M]",
-                "Danni da ghiaccio [M]",
-                "Soppressione: Trappola del pescatore"
-            ],
-            "JP": [
-                "筋力UP・中",
-                "寒冷ダメージUP・中",
-                "圧制・鱗獣追い"
-            ],
-            "KR": [
-                "힘 증가 · 중",
-                "냉기 피해 증가 · 중",
-                "억제 · 린수를 향한 의지"
-            ],
-            "MX": [
-                "Fuerza [M]",
-                "DAÑ criogénico [M]",
-                "Supresión: Intención de Cazaletas"
-            ],
-            "RU": [
-                "Сила [ср.]",
-                "Криогенный УРН [ср.]",
-                "Подавление: целеустремленность водоплаволова"
-            ],
-            "TC": [
-                "力量提升·中",
-                "寒冷傷害提升·中",
-                "壓制·逐鱗意"
-            ],
-            "TH": [
-                "ความแข็ง​แกร่ง​ [M]",
-                "DMG ไค​ร​โอ​ [M]",
-                "ปราบปราม​: เจตนา​ของ​ผู้ตาม​ล่า​ปลา"
-            ],
-            "VN": [
-                "Sức Mạnh [Vừa]",
-                "ST Băng [Vừa]",
-                "Áp Chế: Ý Đồ Của Thợ Săn Cá"
-            ]
-        }
+        "foresight": false
     },
     "wpn_pistol_0003": {
         "internal_id": "wpn_pistol_0003",
+        "icon_id": "wpn_pistol_0003",
         "weapon_type": "Pistol",
         "rarity": 4,
         "icon_path": "weapon_images_endfield\\Long_Road_icon.png",
@@ -6258,10 +4986,113 @@
                 "ST Thuật Pháp [Nhỏ]",
                 "Truy Kích: Vòng Lặp Bất Tận"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_pistol_0004": {
+        "internal_id": "wpn_pistol_0004",
+        "icon_id": "wpn_pistol_0004",
+        "weapon_type": "Pistol",
+        "rarity": 5,
+        "icon_path": "weapon_images_endfield\\Rational_Farewell_icon.png",
+        "skill_ids": [
+            "wpn_attr_str_mid",
+            "wpn_sp_attr_firedam_mid",
+            "sk_wpn_pistol_0004"
+        ],
+        "names": {
+            "BR": "Despedida Racional",
+            "CN": "理性告别",
+            "DE": "Rationaler Abschied",
+            "EN": "Rational Farewell",
+            "FR": "Adieu raisonnable",
+            "ID": "Rational Farewell",
+            "IT": "Addio razionale",
+            "JP": "合理的決別",
+            "KR": "이성적인 작별",
+            "MX": "Despedida racional",
+            "RU": "Прощальный обет",
+            "TC": "理性告別",
+            "TH": "คำอำลา​ที่​มีเหตุผล",
+            "VN": "Tạm Biệt Lý Trí"
+        },
+        "skills": {
+            "BR": [
+                "Força [M]",
+                "DNO Térmico [M]",
+                "Perseguição: Ajuda do Passado"
+            ],
+            "CN": [
+                "力量提升·中",
+                "灼热伤害提升·中",
+                "追袭·旧时之援"
+            ],
+            "DE": [
+                "Stärke [M]",
+                "Hitze-SDN [M]",
+                "Verfolgung: Hilfe aus der Vergangenheit"
+            ],
+            "EN": [
+                "Strength [M]",
+                "Heat DMG [M]",
+                "Pursuit: Aid from the Past"
+            ],
+            "FR": [
+                "Force [M]",
+                "DÉG thermiques [M]",
+                "Poursuite : Aide du passé"
+            ],
+            "ID": [
+                "Strength [M]",
+                "Heat DMG [M]",
+                "Pursuit: Aid from the Past"
+            ],
+            "IT": [
+                "Forza [M]",
+                "Danni da fuoco [M]",
+                "Inseguimento: Aiuto dal passato"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "灼熱ダメージUP・中",
+                "追襲・往時の援助"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "열기 피해 증가 · 중",
+                "추격 · 옛 시절의 원조"
+            ],
+            "MX": [
+                "Fuerza [M]",
+                "DAÑ por calor [M]",
+                "Persecución: ayuda del pasado"
+            ],
+            "RU": [
+                "Сила [ср.]",
+                "Тепловой УРН [ср.]",
+                "Азарт: помощь из прошлого"
+            ],
+            "TC": [
+                "力量提升·中",
+                "灼熱傷害提升·中",
+                "追襲·舊時之援"
+            ],
+            "TH": [
+                "ความแข็ง​แกร่ง​ [M]",
+                "DMG ความร้อน​ [M]",
+                "ไล่​ล่า​: ความช่วยเหลือ​จาก​อดีต"
+            ],
+            "VN": [
+                "Sức Mạnh [Vừa]",
+                "ST Nhiệt [Vừa]",
+                "Truy Kích: Viện Trợ Từ Quá Khứ"
+            ]
+        },
+        "foresight": false
     },
     "wpn_pistol_0005": {
         "internal_id": "wpn_pistol_0005",
+        "icon_id": "wpn_pistol_0005",
         "weapon_type": "Pistol",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Navigator_icon.png",
@@ -6357,10 +5188,12 @@
                 "ST Băng [Lớn]",
                 "Nhiễm: Cánh Buồm Cô Độc Xa Xăm"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_pistol_0006": {
         "internal_id": "wpn_pistol_0006",
+        "icon_id": "wpn_pistol_0006",
         "weapon_type": "Pistol",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Opus_The_Living_icon.png",
@@ -6456,10 +5289,12 @@
                 "ST Thuật Pháp [Vừa]",
                 "Nhiễm: Lối Về Cho Muôn Loài"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_pistol_0007": {
         "internal_id": "wpn_pistol_0007",
+        "icon_id": "wpn_pistol_0007",
         "weapon_type": "Pistol",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Home_Longing_icon.png",
@@ -6555,10 +5390,214 @@
                 "ST Băng [Lớn]",
                 "Áp Chế: Nguyệt Cổ"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_pistol_0008": {
+        "internal_id": "wpn_pistol_0008",
+        "icon_id": "wpn_pistol_0008",
+        "weapon_type": "Pistol",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Wedge_icon.png",
+        "skill_ids": [
+            "wpn_attr_main_high",
+            "wpn_sp_attr_crirate_high",
+            "sk_wpn_pistol_0008"
+        ],
+        "names": {
+            "BR": "Cunha",
+            "CN": "楔子",
+            "DE": "Keil",
+            "EN": "Wedge",
+            "FR": "Pivot",
+            "ID": "Wedge",
+            "IT": "Cuneo",
+            "JP": "楔",
+            "KR": "쐐기",
+            "MX": "Cuña",
+            "RU": "Клин",
+            "TC": "楔子",
+            "TH": "เว​ด​จ์",
+            "VN": "Cái Nêm"
+        },
+        "skills": {
+            "BR": [
+                "Atributo Principal [G]",
+                "Taxa de Críticos [G]",
+                "Inflição: Cunha da Civilização"
+            ],
+            "CN": [
+                "主能力提升·大",
+                "暴击率提升·大",
+                "附术·文明楔子"
+            ],
+            "DE": [
+                "Hauptattribut [L]",
+                "Kritische Rate [L]",
+                "Zufügung: Keil der Zivilisation"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Critical Rate [L]",
+                "Infliction: Wedge of Civilization"
+            ],
+            "FR": [
+                "Trait principal [G]",
+                "Taux de coups critiques [G]",
+                "Altération : Pivot de civilisation"
+            ],
+            "ID": [
+                "Atribut Utama [L]",
+                "Critical Rate [L]",
+                "Infliction: Wedge of Civilization"
+            ],
+            "IT": [
+                "Attributo principale [L]",
+                "Probabilità di critico [L]",
+                "Afflizione: Cuneo della civiltà"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "会心率UP・大",
+                "付術・文明楔"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "치명타 확률 증가 · 대",
+                "고통 · 문명의 쐐기"
+            ],
+            "MX": [
+                "Atributo principal [G]",
+                "Índice crítico [G]",
+                "Imposición: Cuña de la Civilización"
+            ],
+            "RU": [
+                "Основной показатель [бол.]",
+                "Шанс крит. удара [бол.]",
+                "Поражение: клин цивилизации"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "暴擊率提升·大",
+                "附術·文明楔子"
+            ],
+            "TH": [
+                "คุณสมบัติ​หลัก​ [L]",
+                "อัตรา​การติ​ด​คริ​ติค​อล​ [L]",
+                "สร้าง​บาดแผล​: เสาหลัก​แห่ง​อารยธรรม"
+            ],
+            "VN": [
+                "Thuộc Tính Chính [Lớn]",
+                "Tỷ Lệ Bạo Kích [Lớn]",
+                "Nhiễm: Dẫn Nhập Nền Văn Minh"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_pistol_0009": {
+        "internal_id": "wpn_pistol_0009",
+        "icon_id": "wpn_pistol_0009",
+        "weapon_type": "Pistol",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Clannibal_icon.png",
+        "skill_ids": [
+            "wpn_attr_main_high",
+            "wpn_sp_attr_magicdam_high",
+            "sk_wpn_pistol_0009"
+        ],
+        "names": {
+            "BR": "Clanibal",
+            "CN": "同类相食",
+            "DE": "Klannibale",
+            "EN": "Clannibal",
+            "FR": "Clannibale",
+            "ID": "Clannibal",
+            "IT": "Clannibal",
+            "JP": "同類共食",
+            "KR": "클래니벌",
+            "MX": "Clannibal",
+            "RU": "Кланнибал",
+            "TC": "同類相食",
+            "TH": "แคล​นิ​บอล",
+            "VN": "Clannibal"
+        },
+        "skills": {
+            "BR": [
+                "Atributo Principal [G]",
+                "DNO Artes [G]",
+                "Inflição: Expurgo Cruel"
+            ],
+            "CN": [
+                "主能力提升·大",
+                "法术提升·大",
+                "附术·残酷清洗"
+            ],
+            "DE": [
+                "Hauptattribut [L]",
+                "Technik-SDN [L]",
+                "Zufügung: Bösartige Säuberung"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Arts DMG [L]",
+                "Infliction: Vicious Purge"
+            ],
+            "FR": [
+                "Trait principal [G]",
+                "DÉG des Arts [G]",
+                "Altération : Purge brutale"
+            ],
+            "ID": [
+                "Atribut Utama [L]",
+                "Arts DMG [L]",
+                "Infliction: Vicious Purge"
+            ],
+            "IT": [
+                "Attributo principale [L]",
+                "Danni da Arti [L]",
+                "Afflizione: Epurazione feroce"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "アーツダメージUP・大",
+                "付術・残酷粛清"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "아츠 피해 증가 · 대",
+                "고통 · 가차 없는 숙청"
+            ],
+            "MX": [
+                "Atributo principal [G]",
+                "DAÑ por Artes [G]",
+                "Imposición: Purga violenta"
+            ],
+            "RU": [
+                "Основной показатель [бол.]",
+                "УРН от искусств [бол.]",
+                "Поражение: безжалостная зачистка"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "法術提升·大",
+                "附術·殘酷清洗"
+            ],
+            "TH": [
+                "คุณสมบัติ​หลัก​ [L]",
+                "DMG พลัง​เวท​ [L]",
+                "สร้าง​บาดแผล​: การ​ชำระล้าง​อัน​โหดเหี้ยม"
+            ],
+            "VN": [
+                "Thuộc Tính Chính [Lớn]",
+                "ST Thuật Pháp [Lớn]",
+                "Nhiễm: Thanh Trừng Tàn Bạo"
+            ]
+        },
+        "foresight": false
     },
     "wpn_pistol_0010": {
         "internal_id": "wpn_pistol_0010",
+        "icon_id": "wpn_pistol_0010",
         "weapon_type": "Pistol",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Artzy_Tyrannical_icon.png",
@@ -6654,10 +5693,12 @@
                 "Tỷ Lệ Bạo Kích [Lớn]",
                 "Rạn Nứt: Cường Điệu Nghệ Thuật"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_pistol_0011": {
         "internal_id": "wpn_pistol_0011",
+        "icon_id": "wpn_pistol_0011",
         "weapon_type": "Pistol",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Brigands_Calling_icon.png",
@@ -6753,10 +5794,12 @@
                 "Tấn Công [Lớn]",
                 "Kích Nổ: Khắc Tinh Đạo Phỉ"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_pistol_0012": {
         "internal_id": "wpn_pistol_0012",
+        "icon_id": "wpn_pistol_0012",
         "weapon_type": "Pistol",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\OBJ_Velocitous_icon.png",
@@ -6852,10 +5895,199 @@
                 "Hiệu Quả Nhận TK [Vừa]",
                 "Kích Nổ: Tấn Công Nhanh"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_sword_0003": {
+        "internal_id": "wpn_sword_0003",
+        "icon_id": "wpn_sword_0003",
+        "weapon_type": "Sword",
+        "rarity": 3,
+        "icon_path": "weapon_images_endfield\\Tarr_11_icon.png",
+        "skill_ids": [
+            "wpn_attr_main_low",
+            "sk_wpn_sword_0003"
+        ],
+        "names": {
+            "BR": "Tarr 11",
+            "CN": "塔尔11",
+            "DE": "Tarr 11",
+            "EN": "Tarr 11",
+            "FR": "Tarr 11",
+            "ID": "Tarr 11",
+            "IT": "Tarr 11",
+            "JP": "タール11",
+            "KR": "타르 11",
+            "MX": "Tarr 11",
+            "RU": "Тарр 11",
+            "TC": "塔爾11",
+            "TH": "ทาร์​ 11",
+            "VN": "Tarr 11"
+        },
+        "skills": {
+            "BR": [
+                "Atributo Principal [P]",
+                "Assalto: Preparação do Armamento"
+            ],
+            "CN": [
+                "主能力提升·小",
+                "强攻·武装整备"
+            ],
+            "DE": [
+                "Hauptattribut [S]",
+                "Sturmangriff: Aufrüstungsvorbereitung"
+            ],
+            "EN": [
+                "Main Attribute [S]",
+                "Assault: Armament Prep"
+            ],
+            "FR": [
+                "Trait principal [P]",
+                "Assaut : Préparation militaire"
+            ],
+            "ID": [
+                "Atribut Utama [S]",
+                "Assault: Armament Prep"
+            ],
+            "IT": [
+                "Attributo principale [S]",
+                "Assalto: Preparazione degli armamenti"
+            ],
+            "JP": [
+                "メイン能力UP・小",
+                "強攻・武装整備"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 소",
+                "강공 · 무장 정비"
+            ],
+            "MX": [
+                "Atributo principal [P]",
+                "Asalto: preparación de armamento"
+            ],
+            "RU": [
+                "Основной показатель [мал.]",
+                "Натиск: боеготовность"
+            ],
+            "TC": [
+                "主能力提升·小",
+                "強攻·武裝整備"
+            ],
+            "TH": [
+                "คุณสมบัติ​หลัก​ [S]",
+                "จู่โจม​: เตรียม​อาวุธ"
+            ],
+            "VN": [
+                "Thuộc Tính Chính [Nhỏ]",
+                "Đột Kích-Chuẩn Bị Vũ Trang"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_sword_0005": {
+        "internal_id": "wpn_sword_0005",
+        "icon_id": "wpn_sword_0005",
+        "weapon_type": "Sword",
+        "rarity": 5,
+        "icon_path": "weapon_images_endfield\\Sundering_Steel_icon.png",
+        "skill_ids": [
+            "wpn_attr_agi_mid",
+            "wpn_sp_attr_phydam_mid",
+            "sk_wpn_sword_0005"
+        ],
+        "names": {
+            "BR": "Aço Dilacerador",
+            "CN": "钢铁余音",
+            "DE": "Zerreißender Stahl",
+            "EN": "Sundering Steel",
+            "FR": "Fracture d'acier",
+            "ID": "Sundering Steel",
+            "IT": "Acciaio divisorio",
+            "JP": "鋼鉄余音",
+            "KR": "강철의 여운",
+            "MX": "Acero hendiente",
+            "RU": "Стальной раскол",
+            "TC": "鋼鐵餘音",
+            "TH": "เหล็ก​ทำลายล้าง",
+            "VN": "Thép Phân Tách"
+        },
+        "skills": {
+            "BR": [
+                "Agilidade [M]",
+                "DNO Físico [M]",
+                "Combativo: Hino das Cinzas"
+            ],
+            "CN": [
+                "敏捷提升·中",
+                "物理伤害提升·中",
+                "巧技·旧火余音"
+            ],
+            "DE": [
+                "Beweglichkeit [M]",
+                "Physischer SDN [M]",
+                "Kämpferisch: Hymne der Glut"
+            ],
+            "EN": [
+                "Agility [M]",
+                "Physical DMG [M]",
+                "Combative: Anthem of Cinder"
+            ],
+            "FR": [
+                "Agilité [M]",
+                "DÉG physiques [M]",
+                "Combativité : Hymne aux cendres"
+            ],
+            "ID": [
+                "Agility [M]",
+                "Physical DMG [M]",
+                "Combative: Anthem of Cinder"
+            ],
+            "IT": [
+                "Agilità [M]",
+                "Danni fisici [M]",
+                "Combattività: Inno alle ceneri"
+            ],
+            "JP": [
+                "敏捷UP・中",
+                "物理ダメージUP・中",
+                "巧技・残火の余韻"
+            ],
+            "KR": [
+                "민첩 증가 · 중",
+                "물리 피해 증가 · 중",
+                "기예 · 옛 불의 잔향"
+            ],
+            "MX": [
+                "Agilidad [M]",
+                "DAÑ físico [M]",
+                "Combativo: Himno de cenizas"
+            ],
+            "RU": [
+                "Ловкость [ср.]",
+                "Физический УРН [ср.]",
+                "Драчливость: гимн пепелища"
+            ],
+            "TC": [
+                "敏捷提升·中",
+                "物理傷害提升·中",
+                "巧技·舊火餘音"
+            ],
+            "TH": [
+                "ความคล่องแคล่ว​ [M]",
+                "DMG กายภาพ​ [M]",
+                "บุก​ตะลุย​: บท​สรรเสริญ​แห่ง​เถ้าถ่าน"
+            ],
+            "VN": [
+                "Nhanh Nhẹn [Vừa]",
+                "ST Vật Lý [Vừa]",
+                "Hiếu Chiến-Thánh Ca Tro Tàn"
+            ]
+        },
+        "foresight": false
     },
     "wpn_sword_0006": {
         "internal_id": "wpn_sword_0006",
+        "icon_id": "wpn_sword_0006",
         "weapon_type": "Sword",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Forgeborn_Scathe_icon.png",
@@ -6951,109 +6183,214 @@
                 "Tấn Công [Lớn]",
                 "Chạng Vạng: Tiếng Gào Rực Lửa"
             ]
-        }
+        },
+        "foresight": false
     },
-    "wpn_sword_0014": {
-        "internal_id": "wpn_sword_0014",
+    "wpn_sword_0007": {
+        "internal_id": "wpn_sword_0007",
+        "icon_id": "wpn_sword_0007",
         "weapon_type": "Sword",
-        "rarity": 6,
-        "icon_path": "weapon_images_endfield\\White_Night_Nova_icon.png",
+        "rarity": 5,
+        "icon_path": "weapon_images_endfield\\Fortmaker_icon.png",
         "skill_ids": [
-            "wpn_attr_main_high",
-            "wpn_sp_attr_phy_spell_high",
-            "sk_wpn_sword_0014"
+            "wpn_attr_wisd_mid",
+            "wpn_sp_attr_usgs_mid",
+            "sk_wpn_sword_0007"
         ],
         "names": {
-            "BR": "Nova da Noite Branca",
-            "CN": "白夜新星",
-            "DE": "Polarnacht-Nova",
-            "EN": "White Night Nova",
-            "FR": "Nova des nuits blanches",
-            "ID": "White Night Nova",
-            "IT": "Esplosione notturna",
-            "JP": "白夜新星",
-            "KR": "백야의 별",
-            "MX": "Nova de la noche blanca",
-            "RU": "Звезда белых ночей",
-            "TC": "白夜新星",
-            "TH": "ไวท์​ไนท์​โน​วา",
-            "VN": "Sao Băng Đêm Trắng"
+            "BR": "Fortificadora",
+            "CN": "坚城铸造者",
+            "DE": "Fortbauer",
+            "EN": "Fortmaker",
+            "FR": "Bâtisseur",
+            "ID": "Fortmaker",
+            "IT": "Fortezza",
+            "JP": "堅城鋳造者",
+            "KR": "불사의 성주",
+            "MX": "Constructor de fuertes",
+            "RU": "Скала",
+            "TC": "堅城鑄造者",
+            "TH": "ผู้สร้าง​ป้อม",
+            "VN": "Kiến Tạo Pháo Đài"
         },
         "skills": {
             "BR": [
-                "Atributo Principal [G]",
-                "Intensidade das Artes [G]",
-                "Inflição: Nova da Noite Branca"
+                "Inteligência [M]",
+                "Eficiência SUP [M]",
+                "Inspirador: De Volta à Cidade Destruída"
             ],
             "CN": [
-                "主能力提升·大",
-                "源石技艺强度提升·大",
-                "附术·白夜新星"
+                "智识提升·中",
+                "终结技充能效率提升·中",
+                "昂扬·残城归途"
             ],
             "DE": [
-                "Hauptattribut [L]",
-                "Technik-Intensität [L]",
-                "Zufügung: Polarnacht-Nova"
+                "Intellekt [M]",
+                "ULT-Effizienz [M]",
+                "Inspirierend: Zurück in die zerstörte Stadt"
             ],
             "EN": [
-                "Main Attribute [L]",
-                "Arts Intensity [L]",
-                "Infliction: White Night Nova"
+                "Intellect [M]",
+                "ULT Efficiency [M]",
+                "Inspiring: Back to the Broken City"
             ],
             "FR": [
-                "Trait principal [G]",
-                "Intensité des Arts [G]",
-                "Altération : Nova des nuits blanches"
+                "Intelligence [M]",
+                "Vitesse ULT [M]",
+                "Inspiration : Retour à la ville brisée"
             ],
             "ID": [
-                "Atribut Utama [L]",
-                "Intensitas Arts [L]",
-                "Infliction: White Night Nova"
+                "Intellect [M]",
+                "Efisiensi ULT [M]",
+                "Inspiring: Back to the Broken City"
             ],
             "IT": [
-                "Attributo principale [L]",
-                "Intensità delle Arti [L]",
-                "Afflizione: Esplosione notturna"
+                "Intelletto [M]",
+                "Velocità SUP [M]",
+                "Ispirazione: Ritorno nella città distrutta"
             ],
             "JP": [
-                "メイン能力UP・大",
-                "アーツ強度UP・大",
-                "付術・白夜新星"
+                "知性UP・中",
+                "必殺技効率UP・中",
+                "昂揚・残城崩壊"
             ],
             "KR": [
-                "주요 능력치 증가 · 대",
-                "오리지늄 아츠 강도 증가 · 대",
-                "고통 · 백야의 별"
+                "지능 증가 · 중",
+                "궁극기 충전 효율 증가 · 중",
+                "사기 · 잔성의 귀로"
             ],
             "MX": [
-                "Atributo principal [G]",
-                "Intensidad de artes [G]",
-                "Imposición: Nova de la Noche Blanca"
+                "Intelecto [M]",
+                "Eficiencia MÁX. [M]",
+                "Inspirador: De vuelta a la ciudad quebrada"
             ],
             "RU": [
-                "Основной показатель [бол.]",
-                "Сила искусств [бол.]",
-                "Поражение: Звезда белых ночей"
+                "Интеллект [ср.]",
+                "Отдача суперэнергии [ср.]",
+                "Муза: возвращение в разрушенный город"
             ],
             "TC": [
-                "主能力提升·大",
-                "源石技藝強度提升·大",
-                "附術·白夜新星"
+                "智識提升·中",
+                "終結技蓄能效率提升·中",
+                "昂揚·殘城歸途"
             ],
             "TH": [
-                "คุณสมบัติ​หลัก​ [L]",
-                "ความ​เข้มข้น​ของ​เวท​ [L]",
-                "สร้าง​บาดแผล​: ไวท์​ไนท์​โน​วา"
+                "สติปัญญา​ [M]",
+                "ประสิทธิภาพ​อัล​ติ​เมท​ [M]",
+                "สร้าง​กำลังใจ​: กลับ​สู่​เมือง​ที่​แตกสลาย"
             ],
             "VN": [
-                "Thuộc Tính Chính [Lớn]",
-                "Công Phép [Lớn]",
-                "Nhiễm: Sao Băng Đêm Trắng"
+                "Trí Tuệ [Vừa]",
+                "Hiệu Quả Nhận TK [Vừa]",
+                "Cảm Hứng: Quay Lại Thành Phố Đổ Nát"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_sword_0008": {
+        "internal_id": "wpn_sword_0008",
+        "icon_id": "wpn_sword_0008",
+        "weapon_type": "Sword",
+        "rarity": 4,
+        "icon_path": "weapon_images_endfield\\Prominent_Edge_icon.png",
+        "skill_ids": [
+            "wpn_attr_agi_low",
+            "wpn_sp_attr_phydam_low",
+            "sk_wpn_sword_0008"
+        ],
+        "names": {
+            "BR": "Lâmina Afiada",
+            "CN": "显锋",
+            "DE": "Erhabene Klinge",
+            "EN": "Prominent Edge",
+            "FR": "Arête saillante",
+            "ID": "Prominent Edge",
+            "IT": "Lama eminente",
+            "JP": "顕鋒",
+            "KR": "드러난 칼날",
+            "MX": "Filo prominente",
+            "RU": "Выдающийся клинок",
+            "TC": "顯鋒",
+            "TH": "คม​ดาบ​โดดเด่น",
+            "VN": "Kiếm Sắc Áp Đảo"
+        },
+        "skills": {
+            "BR": [
+                "Agilidade [P]",
+                "DNO Físico [P]",
+                "Supressão: Reforço de Emergência"
+            ],
+            "CN": [
+                "敏捷提升·小",
+                "物理伤害提升·小",
+                "压制·应急强化"
+            ],
+            "DE": [
+                "Beweglichkeit [S]",
+                "Physischer SDN [S]",
+                "Unterdrückung: Notfall-Boost"
+            ],
+            "EN": [
+                "Agility [S]",
+                "Physical DMG [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "FR": [
+                "Agilité [P]",
+                "DÉG physiques [P]",
+                "Suppression : Renforcement d'urgence"
+            ],
+            "ID": [
+                "Agility [S]",
+                "Physical DMG [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "IT": [
+                "Agilità [S]",
+                "Danni fisici [S]",
+                "Soppressione: Potenziamento d'emergenza"
+            ],
+            "JP": [
+                "敏捷UP・小",
+                "物理ダメージUP・小",
+                "圧制・応急強化"
+            ],
+            "KR": [
+                "민첩 증가 · 소",
+                "물리 피해 증가 · 소",
+                "억제 · 비상 부스트"
+            ],
+            "MX": [
+                "Agilidad [P]",
+                "DAÑ físico [P]",
+                "Supresión: impulso de emergencia"
+            ],
+            "RU": [
+                "Ловкость [мал.]",
+                "Физический УРН [мал.]",
+                "Подавление: срочная поддержка"
+            ],
+            "TC": [
+                "敏捷提升·小",
+                "物理傷害提升·小",
+                "壓制·緊急強化"
+            ],
+            "TH": [
+                "ความคล่องแคล่ว​ [S]",
+                "DMG กายภาพ​ [S]",
+                "ปราบปราม​: เสริมกำลัง​ฉุกเฉิน"
+            ],
+            "VN": [
+                "Nhanh Nhẹn [Nhỏ]",
+                "ST Vật Lý [Nhỏ]",
+                "Áp Chế-Bổ Trợ Khẩn Cấp"
+            ]
+        },
+        "foresight": false
     },
     "wpn_sword_0009": {
         "internal_id": "wpn_sword_0009",
+        "icon_id": "wpn_sword_0009",
         "weapon_type": "Sword",
         "rarity": 4,
         "icon_path": "weapon_images_endfield\\Wave_Tide_icon.png",
@@ -7149,10 +6486,113 @@
                 "Tấn Công [Nhỏ]",
                 "Truy Kích: Vòng Lặp Bất Tận"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_sword_0010": {
+        "internal_id": "wpn_sword_0010",
+        "icon_id": "wpn_sword_0010",
+        "weapon_type": "Sword",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Umbral_Torch_icon.png",
+        "skill_ids": [
+            "wpn_attr_wisd_high",
+            "wpn_sp_attr_firedam_high",
+            "sk_wpn_sword_0010"
+        ],
+        "names": {
+            "BR": "Chama Sombria",
+            "CN": "黯色火炬",
+            "DE": "Schattenfackel",
+            "EN": "Umbral Torch",
+            "FR": "Flambeau de l'ombre",
+            "ID": "Umbral Torch",
+            "IT": "Torcia d'ombra",
+            "JP": "ダークトーチ",
+            "KR": "암흑의 횃불",
+            "MX": "Antorcha del umbral",
+            "RU": "Ночной факел",
+            "TC": "黯色火炬",
+            "TH": "คบเพลิง​แห่ง​เงามืด",
+            "VN": "Ngọn Đuốc Bóng Tối"
+        },
+        "skills": {
+            "BR": [
+                "Inteligência [G]",
+                "DNO Térmico [G]",
+                "Inflição: Acúmulo de Cobiça"
+            ],
+            "CN": [
+                "智识提升·大",
+                "灼热伤害提升·大",
+                "附术·觊觎堆叠"
+            ],
+            "DE": [
+                "Intellekt [L]",
+                "Hitze-SDN [L]",
+                "Zufügung: Begehrlicher Aufbau"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Heat DMG [L]",
+                "Infliction: Covetous Buildup"
+            ],
+            "FR": [
+                "Intelligence [G]",
+                "DÉG thermiques [G]",
+                "Altération : Cumul cupide"
+            ],
+            "ID": [
+                "Intellect [L]",
+                "Heat DMG [L]",
+                "Infliction: Covetous Buildup"
+            ],
+            "IT": [
+                "Intelletto [L]",
+                "Danni da fuoco [L]",
+                "Afflizione: Accumulo bramoso"
+            ],
+            "JP": [
+                "知性UP・大",
+                "灼熱ダメージUP・大",
+                "付術・欲望堆積"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "열기 피해 증가 · 대",
+                "고통 · 쌓이는 탐욕"
+            ],
+            "MX": [
+                "Intelecto [G]",
+                "DAÑ por calor [G]",
+                "Imposición: Acumulación codiciosa"
+            ],
+            "RU": [
+                "Интеллект [бол.]",
+                "Тепловой УРН [бол.]",
+                "Поражение: ненасытная жажда"
+            ],
+            "TC": [
+                "智識提升·大",
+                "灼熱傷害提升·大",
+                "附術·覬覦堆疊"
+            ],
+            "TH": [
+                "สติปัญญา​ [L]",
+                "DMG ความร้อน​ [L]",
+                "สร้าง​บาดแผล​: การ​สะสม​ความละโมบ"
+            ],
+            "VN": [
+                "Trí Tuệ [Lớn]",
+                "ST Nhiệt [Lớn]",
+                "Nhiễm: Tích Lũy Thèm Muốn"
+            ]
+        },
+        "foresight": false
     },
     "wpn_sword_0011": {
         "internal_id": "wpn_sword_0011",
+        "icon_id": "wpn_sword_0011",
         "weapon_type": "Sword",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Rapid_Ascent_icon.png",
@@ -7248,10 +6688,618 @@
                 "Tỷ Lệ Bạo Kích [Lớn]",
                 "Chạng Vạng: Mây Xanh Biếc"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_sword_0012": {
+        "internal_id": "wpn_sword_0012",
+        "icon_id": "wpn_sword_0012",
+        "weapon_type": "Sword",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Thermite_Cutter_icon.png",
+        "skill_ids": [
+            "wpn_attr_will_high",
+            "wpn_sp_attr_atk_high",
+            "sk_wpn_sword_0012"
+        ],
+        "names": {
+            "BR": "Cortadora de Termita",
+            "CN": "热熔切割器",
+            "DE": "Thermitschneider",
+            "EN": "Thermite Cutter",
+            "FR": "Coupe-thermite",
+            "ID": "Thermite Cutter",
+            "IT": "Tagliatrice termitica",
+            "JP": "テルミット・カッター",
+            "KR": "테르밋 커터",
+            "MX": "Cortador de termita",
+            "RU": "Термитный резак",
+            "TC": "熱熔切割器",
+            "TH": "เครื่อง​ตัด​เทอร์​ไมต์",
+            "VN": "Kiếm Cắt Nhiệt"
+        },
+        "skills": {
+            "BR": [
+                "Vontade [G]",
+                "ATQ [G]",
+                "Fluxo: Liberação Térmica"
+            ],
+            "CN": [
+                "意志提升·大",
+                "攻击提升·大",
+                "流转·高热解放"
+            ],
+            "DE": [
+                "Wille [L]",
+                "ANG [L]",
+                "Strömung: Thermale Aktivierung"
+            ],
+            "EN": [
+                "Will [L]",
+                "ATK [L]",
+                "Flow: Thermal Release"
+            ],
+            "FR": [
+                "Volonté [G]",
+                "ATQ [G]",
+                "Flux : Libération thermique"
+            ],
+            "ID": [
+                "Will [L]",
+                "ATK [L]",
+                "Flow: Thermal Release"
+            ],
+            "IT": [
+                "Volontà [L]",
+                "ATT [L]",
+                "Flusso: Rilascio termico"
+            ],
+            "JP": [
+                "意志UP・大",
+                "攻撃力UP・大",
+                "流回・高熱解放"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "공격력 증가 · 대",
+                "흐름 · 고열 방출"
+            ],
+            "MX": [
+                "Voluntad [G]",
+                "ATQ [G]",
+                "Flujo: liberación térmica"
+            ],
+            "RU": [
+                "Воля [бол.]",
+                "АТК [бол.]",
+                "Поток: выброс энергии"
+            ],
+            "TC": [
+                "意志提升·大",
+                "攻擊提升·大",
+                "流轉·高熱解放"
+            ],
+            "TH": [
+                "ความมุ่งมั่น​ [L]",
+                "ATK [L]",
+                "ไหล​ลื่น​: การ​ปล่อย​ความร้อน"
+            ],
+            "VN": [
+                "Ý Chí [Lớn]",
+                "Tấn Công [Lớn]",
+                "Uyển Chuyển: Phóng Nhiệt"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_sword_0013": {
+        "internal_id": "wpn_sword_0013",
+        "icon_id": "wpn_sword_0013",
+        "weapon_type": "Sword",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Eminent_Repute_icon.png",
+        "skill_ids": [
+            "wpn_attr_main_high",
+            "wpn_sp_attr_phydam_high",
+            "sk_wpn_sword_0013"
+        ],
+        "names": {
+            "BR": "Reputação Eminente",
+            "CN": "显赫声名",
+            "DE": "Untadeliger Ruf",
+            "EN": "Eminent Repute",
+            "FR": "Réputation éminente",
+            "ID": "Eminent Repute",
+            "IT": "Reputazione illustre",
+            "JP": "輝かしき名声",
+            "KR": "위대한 이름",
+            "MX": "Alto prestigio",
+            "RU": "Безупречная репутация",
+            "TC": "顯赫聲名",
+            "TH": "อี​มิ​เนน​ต์​เร​พิว​ท์",
+            "VN": "Danh Tiếng Lừng Lẫy"
+        },
+        "skills": {
+            "BR": [
+                "Atributo Principal [G]",
+                "DNO Físico [G]",
+                "Brutalidade: Disciplinar"
+            ],
+            "CN": [
+                "主能力提升·大",
+                "物理伤害提升·大",
+                "残暴·规行矩止"
+            ],
+            "DE": [
+                "Hauptattribut [L]",
+                "Physischer SDN [L]",
+                "Brutalität: Anführer"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Physical DMG [L]",
+                "Brutality: Disciplinarian"
+            ],
+            "FR": [
+                "Trait principal [G]",
+                "DÉG physiques [G]",
+                "Brutalité : Adepte de la discipline"
+            ],
+            "ID": [
+                "Atribut Utama [L]",
+                "Physical DMG [L]",
+                "Brutality: Disciplinarian"
+            ],
+            "IT": [
+                "Attributo principale [L]",
+                "Danni fisici [L]",
+                "Brutalità: Pugno di ferro"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "物理ダメージUP・大",
+                "残虐・規則遵守"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "물리 피해 증가 · 대",
+                "잔혹 · 엄격한 규율"
+            ],
+            "MX": [
+                "Atributo principal [G]",
+                "DAÑ físico [G]",
+                "Brutalidad: Disciplinario"
+            ],
+            "RU": [
+                "Основной показатель [бол.]",
+                "Физический УРН [бол.]",
+                "Жестокость: строгая дисциплина"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "物理傷害提升·大",
+                "殘暴·規行矩止"
+            ],
+            "TH": [
+                "คุณสมบัติ​หลัก​ [L]",
+                "DMG กายภาพ​ [L]",
+                "เกรี้ยวกราด​: ผู้​ยึดถือ​ระเบียบวินัย"
+            ],
+            "VN": [
+                "Thuộc Tính Chính [Lớn]",
+                "ST Vật Lý [Lớn]",
+                "Tàn Bạo: Người Kỷ Luật"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_sword_0014": {
+        "internal_id": "wpn_sword_0014",
+        "icon_id": "wpn_sword_0014",
+        "weapon_type": "Sword",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\White_Night_Nova_icon.png",
+        "skill_ids": [
+            "wpn_attr_main_high",
+            "wpn_sp_attr_phy_spell_high",
+            "sk_wpn_sword_0014"
+        ],
+        "names": {
+            "BR": "Nova da Noite Branca",
+            "CN": "白夜新星",
+            "DE": "Polarnacht-Nova",
+            "EN": "White Night Nova",
+            "FR": "Nova des nuits blanches",
+            "ID": "White Night Nova",
+            "IT": "Esplosione notturna",
+            "JP": "白夜新星",
+            "KR": "백야의 별",
+            "MX": "Nova de la noche blanca",
+            "RU": "Звезда белых ночей",
+            "TC": "白夜新星",
+            "TH": "ไวท์​ไนท์​โน​วา",
+            "VN": "Sao Băng Đêm Trắng"
+        },
+        "skills": {
+            "BR": [
+                "Atributo Principal [G]",
+                "Intensidade das Artes [G]",
+                "Inflição: Nova da Noite Branca"
+            ],
+            "CN": [
+                "主能力提升·大",
+                "源石技艺强度提升·大",
+                "附术·白夜新星"
+            ],
+            "DE": [
+                "Hauptattribut [L]",
+                "Technik-Intensität [L]",
+                "Zufügung: Polarnacht-Nova"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Arts Intensity [L]",
+                "Infliction: White Night Nova"
+            ],
+            "FR": [
+                "Trait principal [G]",
+                "Intensité des Arts [G]",
+                "Altération : Nova des nuits blanches"
+            ],
+            "ID": [
+                "Atribut Utama [L]",
+                "Intensitas Arts [L]",
+                "Infliction: White Night Nova"
+            ],
+            "IT": [
+                "Attributo principale [L]",
+                "Intensità delle Arti [L]",
+                "Afflizione: Esplosione notturna"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "アーツ強度UP・大",
+                "付術・白夜新星"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "오리지늄 아츠 강도 증가 · 대",
+                "고통 · 백야의 별"
+            ],
+            "MX": [
+                "Atributo principal [G]",
+                "Intensidad de artes [G]",
+                "Imposición: Nova de la Noche Blanca"
+            ],
+            "RU": [
+                "Основной показатель [бол.]",
+                "Сила искусств [бол.]",
+                "Поражение: Звезда белых ночей"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "源石技藝強度提升·大",
+                "附術·白夜新星"
+            ],
+            "TH": [
+                "คุณสมบัติ​หลัก​ [L]",
+                "ความ​เข้มข้น​ของ​เวท​ [L]",
+                "สร้าง​บาดแผล​: ไวท์​ไนท์​โน​วา"
+            ],
+            "VN": [
+                "Thuộc Tính Chính [Lớn]",
+                "Công Phép [Lớn]",
+                "Nhiễm: Sao Băng Đêm Trắng"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_sword_0015": {
+        "internal_id": "wpn_sword_0015",
+        "icon_id": "wpn_sword_0015",
+        "weapon_type": "Sword",
+        "rarity": 5,
+        "icon_path": "weapon_images_endfield\\Aspirant_icon.png",
+        "skill_ids": [
+            "wpn_attr_agi_mid",
+            "wpn_sp_attr_phydam_mid",
+            "sk_wpn_sword_0015"
+        ],
+        "names": {
+            "BR": "Aspirante",
+            "CN": "仰止",
+            "DE": "Aspirant",
+            "EN": "Aspirant",
+            "FR": "Aspirant",
+            "ID": "Aspirant",
+            "IT": "Aspirante",
+            "JP": "仰止",
+            "KR": "숭배의 시선",
+            "MX": "Aspirante",
+            "RU": "Устремление",
+            "TC": "仰止",
+            "TH": "ใฝ่​ทะเยอทะยาน",
+            "VN": "Ngưỡng Vọng"
+        },
+        "skills": {
+            "BR": [
+                "Agilidade [M]",
+                "DNO Físico [M]",
+                "Crepúsculo: Pico Imponente"
+            ],
+            "CN": [
+                "敏捷提升·中",
+                "物理伤害提升·中",
+                "夜幕·高山仰止"
+            ],
+            "DE": [
+                "Beweglichkeit [M]",
+                "Physischer SDN [M]",
+                "Abenddämmerung: Imposanter Gipfel"
+            ],
+            "EN": [
+                "Agility [M]",
+                "Physical DMG [M]",
+                "Twilight: Imposing Peak"
+            ],
+            "FR": [
+                "Agilité [M]",
+                "DÉG physiques [M]",
+                "Crépuscule : Pic imposant"
+            ],
+            "ID": [
+                "Agility [M]",
+                "Physical DMG [M]",
+                "Twilight: Imposing Peak"
+            ],
+            "IT": [
+                "Agilità [M]",
+                "Danni fisici [M]",
+                "Crepuscolo: Cima imponente"
+            ],
+            "JP": [
+                "敏捷UP・中",
+                "物理ダメージUP・中",
+                "夜幕・高山仰止"
+            ],
+            "KR": [
+                "민첩 증가 · 중",
+                "물리 피해 증가 · 중",
+                "어둠 · 우러러보는 경지"
+            ],
+            "MX": [
+                "Agilidad [M]",
+                "DAÑ físico [M]",
+                "Crepúsculo: Cumbre imponente"
+            ],
+            "RU": [
+                "Ловкость [ср.]",
+                "Физический УРН [ср.]",
+                "Сумерки: величественный пик"
+            ],
+            "TC": [
+                "敏捷提升·中",
+                "物理傷害提升·中",
+                "夜幕·高山仰止"
+            ],
+            "TH": [
+                "ความคล่องแคล่ว​ [M]",
+                "DMG กายภาพ​ [M]",
+                "ลี้ลับ​: ยอดเขา​สูงส่ง"
+            ],
+            "VN": [
+                "Nhanh Nhẹn [Vừa]",
+                "ST Vật Lý [Vừa]",
+                "Chạng Vạng: Đỉnh Uy Nghi"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_sword_0016": {
+        "internal_id": "wpn_sword_0016",
+        "icon_id": "wpn_sword_0016",
+        "weapon_type": "Sword",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Never_Rest_icon.png",
+        "skill_ids": [
+            "wpn_attr_will_high",
+            "wpn_sp_attr_atk_high",
+            "sk_wpn_sword_0016"
+        ],
+        "names": {
+            "BR": "Descansar Jamais",
+            "CN": "不知归",
+            "DE": "Nimmerrast",
+            "EN": "Never Rest",
+            "FR": "Pas de repos",
+            "ID": "Never Rest",
+            "IT": "Nessun riposo",
+            "JP": "不知帰",
+            "KR": "끝없는 방랑",
+            "MX": "Sin descanso",
+            "RU": "Неустанность",
+            "TC": "不知歸",
+            "TH": "เน​ฟ​เวอร์​เรสต์",
+            "VN": "Không Nghỉ"
+        },
+        "skills": {
+            "BR": [
+                "Vontade [G]",
+                "ATQ [G]",
+                "Fluxo: Reencarnação"
+            ],
+            "CN": [
+                "意志提升·大",
+                "攻击提升·大",
+                "流转·轮回"
+            ],
+            "DE": [
+                "Wille [L]",
+                "ANG [L]",
+                "Strömung: Reinkarnation"
+            ],
+            "EN": [
+                "Will [L]",
+                "ATK [L]",
+                "Flow: Reincarnation"
+            ],
+            "FR": [
+                "Volonté [G]",
+                "ATQ [G]",
+                "Flux : Réincarnation"
+            ],
+            "ID": [
+                "Will [L]",
+                "ATK [L]",
+                "Flow: Reincarnation"
+            ],
+            "IT": [
+                "Volontà [L]",
+                "ATT [L]",
+                "Flusso: Reincarnazione"
+            ],
+            "JP": [
+                "意志UP・大",
+                "攻撃力UP・大",
+                "流回・輪廻"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "공격력 증가 · 대",
+                "흐름 · 윤회"
+            ],
+            "MX": [
+                "Voluntad [G]",
+                "ATQ [G]",
+                "Flujo: Reencarnación"
+            ],
+            "RU": [
+                "Воля [бол.]",
+                "АТК [бол.]",
+                "Поток: реинкарнация"
+            ],
+            "TC": [
+                "意志提升·大",
+                "攻擊提升·大",
+                "流轉·輪迴"
+            ],
+            "TH": [
+                "ความมุ่งมั่น​ [L]",
+                "ATK [L]",
+                "ไหล​ลื่น​: การจุ​ติ​ใหม่"
+            ],
+            "VN": [
+                "Ý Chí [Lớn]",
+                "Tấn Công [Lớn]",
+                "Uyển Chuyển: Luân Hồi"
+            ]
+        },
+        "foresight": false
+    },
+    "wpn_sword_0017": {
+        "internal_id": "wpn_sword_0017",
+        "icon_id": "wpn_sword_0017",
+        "weapon_type": "Sword",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Glorious_Memory_icon.png",
+        "skill_ids": [
+            "wpn_attr_agi_high",
+            "wpn_sp_attr_crirate_high",
+            "sk_wpn_sword_0017"
+        ],
+        "names": {
+            "BR": "Memória Gloriosa",
+            "CN": "光荣记忆",
+            "DE": "Glorreiche Erinnerung",
+            "EN": "Glorious Memory",
+            "FR": "Glorieux souvenir",
+            "ID": "Glorious Memory",
+            "IT": "Ricordo glorioso",
+            "JP": "栄光の記憶",
+            "KR": "찬란했던 기억",
+            "MX": "Memoria gloriosa",
+            "RU": "Славное воспоминание",
+            "TC": "光榮記憶",
+            "TH": "ความทรงจำ​อัน​รุ่งโรจน์",
+            "VN": "Ký Ức Huy Hoàng"
+        },
+        "skills": {
+            "BR": [
+                "Agilidade [G]",
+                "Taxa de Críticos [G]",
+                "Crepúsculo: Brilho Persistente"
+            ],
+            "CN": [
+                "敏捷提升·大",
+                "暴击率提升·大",
+                "夜幕·余辉未消"
+            ],
+            "DE": [
+                "Beweglichkeit [L]",
+                "Kritische Rate [L]",
+                "Abenddämmerung: Sanftes Leuchten"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Critical Rate [L]",
+                "Twilight: Lingering Glow"
+            ],
+            "FR": [
+                "Agilité [G]",
+                "Taux de coups critiques [G]",
+                "Crépuscule : Lueur tenace"
+            ],
+            "ID": [
+                "Agility [L]",
+                "Critical Rate [L]",
+                "Twilight: Lingering Glow"
+            ],
+            "IT": [
+                "Agilità [L]",
+                "Probabilità di critico [L]",
+                "Crepuscolo: Bagliore persistente"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "会心率UP・大",
+                "夜幕・消えぬ輝き"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "치명타 확률 증가 · 대",
+                "어둠 · 사라지지 않은 여광"
+            ],
+            "MX": [
+                "Agilidad [G]",
+                "Índice crítico [G]",
+                "Crepúsculo: Resplandor remanente"
+            ],
+            "RU": [
+                "Ловкость [бол.]",
+                "Шанс крит. удара [бол.]",
+                "Сумерки: неугасающее сияние"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "暴擊率提升·大",
+                "夜幕·餘輝未消"
+            ],
+            "TH": [
+                "ความคล่องแคล่ว​ [L]",
+                "อัตรา​การติ​ด​คริ​ติค​อล​ [L]",
+                "ลี้ลับ​: แสงสว่าง​อ้อยอิ่ง"
+            ],
+            "VN": [
+                "Nhanh Nhẹn [Lớn]",
+                "Tỷ Lệ Bạo Kích [Lớn]",
+                "Chạng Vạng: Dư Quang"
+            ]
+        },
+        "foresight": false
     },
     "wpn_sword_0018": {
         "internal_id": "wpn_sword_0018",
+        "icon_id": "wpn_sword_0018",
         "weapon_type": "Sword",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\Twelve_Questions_icon.png",
@@ -7347,10 +7395,12 @@
                 "Tấn Công [Vừa]",
                 "Nhiễm: Lời Thẩm Vấn Chân Thành"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_sword_0019": {
         "internal_id": "wpn_sword_0019",
+        "icon_id": "wpn_sword_0019",
         "weapon_type": "Sword",
         "rarity": 5,
         "icon_path": "weapon_images_endfield\\OBJ_Edge_of_Lightness_icon.png",
@@ -7446,10 +7496,113 @@
                 "Tấn Công [Vừa]",
                 "Uyển Chuyển: Lưỡi Dao Bất Khống"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_sword_0020": {
+        "internal_id": "wpn_sword_0020",
+        "icon_id": "wpn_sword_0020",
+        "weapon_type": "Sword",
+        "rarity": 5,
+        "icon_path": "weapon_images_endfield\\Finchaser_30_icon.png",
+        "skill_ids": [
+            "wpn_attr_str_mid",
+            "wpn_sp_attr_crystdam_mid",
+            "sk_wpn_sword_0020"
+        ],
+        "names": {
+            "BR": "Caça-Barbatanas 3.0",
+            "CN": "逐鳞3.0",
+            "DE": "Flösslerjäger 3.0",
+            "EN": "Finchaser 3.0",
+            "FR": "Chassailettes 3.0",
+            "ID": "Finchaser 3.0",
+            "IT": "Predatrice 3.0",
+            "JP": "フィンチェイサー3.0",
+            "KR": "린수를 찾아서 3.0",
+            "MX": "Cazaletas 3.0",
+            "RU": "Водоплаволов 3.0",
+            "TC": "逐鱗3.0",
+            "TH": "ฟิน​เช​ส​เซอร์​ 3.0",
+            "VN": "Thợ Săn Cá 3.0"
+        },
+        "skills": {
+            "BR": [
+                "Força [M]",
+                "DNO Crio [M]",
+                "Supressão: Intenção do Caçador de Barbatanas"
+            ],
+            "CN": [
+                "力量提升·中",
+                "寒冷伤害提升·中",
+                "压制·逐鳞意"
+            ],
+            "DE": [
+                "Stärke [M]",
+                "Kryo-SDN [M]",
+                "Unterdrückung: Absicht des Flössler-Jägers"
+            ],
+            "EN": [
+                "Strength [M]",
+                "Cryo DMG [M]",
+                "Suppression: Fin Chaser's Intent"
+            ],
+            "FR": [
+                "Force [M]",
+                "DÉG cryogéniques [M]",
+                "Suppression : Intention du chasseur d'ailettes"
+            ],
+            "ID": [
+                "Strength [M]",
+                "Cryo DMG [M]",
+                "Suppression: Fin Chaser’s Intent"
+            ],
+            "IT": [
+                "Forza [M]",
+                "Danni da ghiaccio [M]",
+                "Soppressione: Trappola del pescatore"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "寒冷ダメージUP・中",
+                "圧制・鱗獣追い"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "냉기 피해 증가 · 중",
+                "억제 · 린수를 향한 의지"
+            ],
+            "MX": [
+                "Fuerza [M]",
+                "DAÑ criogénico [M]",
+                "Supresión: Intención de Cazaletas"
+            ],
+            "RU": [
+                "Сила [ср.]",
+                "Криогенный УРН [ср.]",
+                "Подавление: целеустремленность водоплаволова"
+            ],
+            "TC": [
+                "力量提升·中",
+                "寒冷傷害提升·中",
+                "壓制·逐鱗意"
+            ],
+            "TH": [
+                "ความแข็ง​แกร่ง​ [M]",
+                "DMG ไค​ร​โอ​ [M]",
+                "ปราบปราม​: เจตนา​ของ​ผู้ตาม​ล่า​ปลา"
+            ],
+            "VN": [
+                "Sức Mạnh [Vừa]",
+                "ST Băng [Vừa]",
+                "Áp Chế: Ý Đồ Của Thợ Săn Cá"
+            ]
+        },
+        "foresight": false
     },
     "wpn_sword_0021": {
         "internal_id": "wpn_sword_0021",
+        "icon_id": "wpn_sword_0021",
         "weapon_type": "Sword",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Grand_Vision_icon.png",
@@ -7545,10 +7698,12 @@
                 "Tấn Công [Lớn]",
                 "Nhiễm: Nguyện Ước Xưa"
             ]
-        }
+        },
+        "foresight": false
     },
     "wpn_sword_0022": {
         "internal_id": "wpn_sword_0022",
+        "icon_id": "wpn_sword_0022",
         "weapon_type": "Sword",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Lupine_Scarlet_icon.png",
@@ -7644,10 +7799,113 @@
                 "Tỷ Lệ Bạo Kích [Lớn]",
                 "Rạn Nứt: Bầy Sói Nhe Nanh"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_sword_0023": {
+        "internal_id": "wpn_sword_0023",
+        "icon_id": "wpn_sword_0023",
+        "weapon_type": "Sword",
+        "rarity": 5,
+        "icon_path": "weapon_images_endfield\\Dessert_Moment_icon.png",
+        "skill_ids": [
+            "wpn_attr_str_mid",
+            "wpn_sp_attr_heal_mid",
+            "sk_wpn_sword_0023"
+        ],
+        "names": {
+            "BR": "Momento da Sobremesa",
+            "CN": "点心时刻",
+            "DE": "Desserthighlight",
+            "EN": "Dessert Moment",
+            "FR": "L'heure du dessert",
+            "ID": "Dessert Moment",
+            "IT": "Momento del dolce",
+            "JP": "スイーツタイム",
+            "KR": "간식 시간",
+            "MX": "Momento del postre",
+            "RU": "Время десерта",
+            "TC": "點心時刻",
+            "TH": "ช่วงเวลา​แห่ง​ของหวาน",
+            "VN": "Giờ Tráng Miệng"
+        },
+        "skills": {
+            "BR": [
+                "Força [M]",
+                "Eficiência do Tratamento [M]",
+                "Medicinal: Doçura e Sonhos"
+            ],
+            "CN": [
+                "力量提升·中",
+                "治疗效率提升·中",
+                "医疗·甜与梦"
+            ],
+            "DE": [
+                "Stärke [M]",
+                "Behandlungseffizienz [M]",
+                "Pharmakon: Süße Träume"
+            ],
+            "EN": [
+                "Strength [M]",
+                "Treatment Efficiency [M]",
+                "Medicant: Sweetness and Dreams"
+            ],
+            "FR": [
+                "Force [M]",
+                "Efficacité des soins [M]",
+                "Cure : Douceur et rêves"
+            ],
+            "ID": [
+                "Strength [M]",
+                "Efisiensi Treatment [M]",
+                "Medicant: Sweetness and Dreams"
+            ],
+            "IT": [
+                "Forza [M]",
+                "Efficacia della Cura [M]",
+                "Cura: Dolcezza e sogni"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "回復効率UP・中",
+                "治癒・甘さと夢"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "치유 효율 증가 · 중",
+                "의료 · 달콤한 꿈"
+            ],
+            "MX": [
+                "Fuerza [M]",
+                "Eficiencia del tratamiento [M]",
+                "Medicante: Dulzura y sueños"
+            ],
+            "RU": [
+                "Сила [ср.]",
+                "Эффективность лечения [ср.]",
+                "Лечение: сладость и грезы"
+            ],
+            "TC": [
+                "力量提升·中",
+                "治療效率提升·中",
+                "醫療·甜與夢"
+            ],
+            "TH": [
+                "ความแข็ง​แกร่ง​ [M]",
+                "ประสิทธิภาพ​การรักษา​ [M]",
+                "เยียวยา​: นิทรา​ฝัน​แสน​หวาน"
+            ],
+            "VN": [
+                "Sức Mạnh [Vừa]",
+                "Hiệu Quả Điều Trị [Vừa]",
+                "Chữa Lành: Ngọt Ngào và Mộng Mơ"
+            ]
+        },
+        "foresight": false
     },
     "wpn_sword_0026": {
         "internal_id": "wpn_sword_0026",
+        "icon_id": "wpn_sword_0026",
         "weapon_type": "Sword",
         "rarity": 6,
         "icon_path": "weapon_images_endfield\\Farsight_icon.png",
@@ -7743,6 +8001,411 @@
                 "Công Phép [Lớn]",
                 "Đột Kích: Viễn Cảnh Ngày Mai"
             ]
-        }
+        },
+        "foresight": false
+    },
+    "wpn_claym_0018": {
+        "internal_id": "wpn_claym_0018",
+        "icon_id": "wpn_claym_0018",
+        "weapon_type": "Claymores",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Jade_Vessel_icon.png",
+        "skill_ids": [
+            "wpn_attr_wisd_high",
+            "wpn_sp_attr_crystdam_high",
+            "sk_wpn_claym_0018"
+        ],
+        "names": {
+            "BR": "Vaso de Jade",
+            "CN": "玉中身",
+            "DE": "Jadegefäß",
+            "EN": "Jade Vessel",
+            "FR": "Vaisseau de jade",
+            "ID": "Jade Vessel",
+            "IT": "Contenitore di giada",
+            "JP": "玉芯",
+            "KR": "옥에 깃든 형체",
+            "MX": "Vasija de jade",
+            "RU": "Нефритовый сосуд",
+            "TC": "玉中身",
+            "TH": "ภาชนะ​หยก",
+            "VN": "Ngọc Khí"
+        },
+        "skills": {
+            "BR": [
+                "Inteligência [G]",
+                "DNO Crio [G]",
+                "Eficácia: Pinceladas de Tinta"
+            ],
+            "CN": [
+                "智识提升·大",
+                "寒冷伤害提升·大",
+                "效益·落墨添彩"
+            ],
+            "DE": [
+                "Intellekt [L]",
+                "Kryo-SDN [L]",
+                "Wirksamkeit: Tuschekleckse"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Cryo DMG [L]",
+                "Efficacy: Dabbles of Ink"
+            ],
+            "FR": [
+                "Intelligence [G]",
+                "DÉG cryogéniques [G]",
+                "Efficacité : Quelques gouttes d'encre"
+            ],
+            "ID": [
+                "Intellect [L]",
+                "Cryo DMG [L]",
+                "Efficacy: Dabbles of Ink"
+            ],
+            "IT": [
+                "Intelletto [L]",
+                "Danni da ghiaccio [L]",
+                "Efficacia: Diletto d'inchiostro"
+            ],
+            "JP": [
+                "知性UP・大",
+                "寒冷ダメージUP・大",
+                "効率・墨筆の彩り"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "냉기 피해 증가 · 대",
+                "효율 · 먹빛에 더한 색채"
+            ],
+            "MX": [
+                "Intelecto [G]",
+                "DAÑ criogénico [G]",
+                "Eficacia: Salpicaduras de tinta"
+            ],
+            "RU": [
+                "Интеллект [бол.]",
+                "Криогенный УРН [бол.]",
+                "Эффективность: капли чернил"
+            ],
+            "TC": [
+                "智識提升·大",
+                "寒冷傷害提升·大",
+                "效益·落墨添彩"
+            ],
+            "TH": [
+                "สติปัญญา​ [L]",
+                "DMG ไค​ร​โอ​ [L]",
+                "ประสิทธิภาพ​: แต้ม​น้ำหมึก"
+            ],
+            "VN": [
+                "Trí Tuệ [Lớn]",
+                "ST Băng [Lớn]",
+                "Hiệu Lực: Lấm Tấm Mực Vương"
+            ]
+        },
+        "foresight": true
+    },
+    "wpn_claym_0019": {
+        "internal_id": "wpn_claym_0019",
+        "icon_id": "wpn_claym_0019",
+        "weapon_type": "Claymores",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Long_Heritage_icon.png",
+        "skill_ids": [
+            "wpn_attr_wisd_high",
+            "wpn_sp_attr_crystdam_high",
+            "sk_wpn_claym_0019"
+        ],
+        "names": {
+            "BR": "Legado Duradouro",
+            "CN": "悠久传承",
+            "DE": "Langes Erbe",
+            "EN": "Long Heritage",
+            "FR": "Long héritage",
+            "ID": "Long Heritage",
+            "IT": "Eredità antica",
+            "JP": "悠久の継承",
+            "KR": "유구한 전승",
+            "MX": "Tradición ancestral",
+            "RU": "Вечное наследие",
+            "TC": "悠久傳承",
+            "TH": "มรดก​อัน​ยาวนาน",
+            "VN": "Di Sản Lâu Đời"
+        },
+        "skills": {
+            "BR": [
+                "Inteligência [G]",
+                "DNO Crio [G]",
+                "Eficácia: História Secreta"
+            ],
+            "CN": [
+                "智识提升·大",
+                "寒冷伤害提升·大",
+                "效益·秘辛史话"
+            ],
+            "DE": [
+                "Intellekt [L]",
+                "Kryo-SDN [L]",
+                "Wirksamkeit: Geheime Geschichte"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Cryo DMG [L]",
+                "Efficacy: Secret History"
+            ],
+            "FR": [
+                "Intelligence [G]",
+                "DÉG cryogéniques [G]",
+                "Efficacité : Histoire secrète"
+            ],
+            "ID": [
+                "Intellect [L]",
+                "Cryo DMG [L]",
+                "Efficacy: Secret History"
+            ],
+            "IT": [
+                "Intelletto [L]",
+                "Danni da ghiaccio [L]",
+                "Efficacia: Storia segreta"
+            ],
+            "JP": [
+                "知性UP・大",
+                "寒冷ダメージUP・大",
+                "効率・秘史"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "냉기 피해 증가 · 대",
+                "효율 · 숨겨진 역사"
+            ],
+            "MX": [
+                "Intelecto [G]",
+                "DAÑ criogénico [G]",
+                "Eficacia: Historia secreta"
+            ],
+            "RU": [
+                "Интеллект [бол.]",
+                "Криогенный УРН [бол.]",
+                "Эффективность: тайная история"
+            ],
+            "TC": [
+                "智識提升·大",
+                "寒冷傷害提升·大",
+                "效益·秘辛史話"
+            ],
+            "TH": [
+                "สติปัญญา​ [L]",
+                "DMG ไค​ร​โอ​ [L]",
+                "ประสิทธิภาพ​: ประวัติศาสตร์​ลับ"
+            ],
+            "VN": [
+                "Trí Tuệ [Lớn]",
+                "ST Băng [Lớn]",
+                "Hiệu Lực: Bí Sử Chôn Giấu"
+            ]
+        },
+        "foresight": true
+    },
+    "wpn_sword_0024": {
+        "internal_id": "wpn_sword_0024",
+        "icon_id": "wpn_sword_0024",
+        "weapon_type": "Sword",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Complexed_Industry_icon.png",
+        "skill_ids": [
+            "wpn_attr_will_high",
+            "wpn_sp_attr_electrondam_high",
+            "sk_wpn_sword_0024"
+        ],
+        "names": {
+            "BR": "Indústria Complexa",
+            "CN": "聚合工业",
+            "DE": "Angelagerte Industrie",
+            "EN": "Complexed Industry",
+            "FR": "Industrie intégrée",
+            "ID": "Complexed Industry",
+            "IT": "Industria complessa",
+            "JP": "複合工業",
+            "KR": "응집 공업",
+            "MX": "Industria compleja",
+            "RU": "Комплексная промышленность",
+            "TC": "聚合工業",
+            "TH": "อุตสาหกรรม​คอมเพล็กซ์",
+            "VN": "Tổ Hợp Công Nghiệp"
+        },
+        "skills": {
+            "BR": [
+                "Vontade [G]",
+                "DNO Elétrico [G]",
+                "Detonar: Vantagem Complexa"
+            ],
+            "CN": [
+                "意志提升·大",
+                "电磁伤害提升·大",
+                "迸发·聚合效益"
+            ],
+            "DE": [
+                "Wille [L]",
+                "Elektrischer SDN [L]",
+                "Zünden: Komplexer Vorteil"
+            ],
+            "EN": [
+                "Will [L]",
+                "Electric DMG [L]",
+                "Detonate: Complexed Advantage"
+            ],
+            "FR": [
+                "Volonté [G]",
+                "DÉG électriques [G]",
+                "Détonation : Avantage embrouillé"
+            ],
+            "ID": [
+                "Will [L]",
+                "Electric DMG [L]",
+                "Detonate: Complexed Advantage"
+            ],
+            "IT": [
+                "Volontà [L]",
+                "Danni da elettricità [L]",
+                "Detonazione: Vantaggio complesso"
+            ],
+            "JP": [
+                "意志UP・大",
+                "電磁ダメージUP・大",
+                "噴発・集約効率"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "전기 피해 증가 · 대",
+                "방출 · 집약 효과"
+            ],
+            "MX": [
+                "Voluntad [G]",
+                "DAÑ eléctrico [G]",
+                "Detonación: Ventaja compleja"
+            ],
+            "RU": [
+                "Воля [бол.]",
+                "Электрический УРН [бол.]",
+                "Детонация: комплексное преимущество"
+            ],
+            "TC": [
+                "意志提升·大",
+                "電磁傷害提升·大",
+                "迸發·聚合效益"
+            ],
+            "TH": [
+                "ความมุ่งมั่น​ [L]",
+                "DMG ไฟฟ้า​ [L]",
+                "จุด​ระเบิด​: ความได้เปรียบ​อัน​ซับซ้อน"
+            ],
+            "VN": [
+                "Ý Chí [Lớn]",
+                "ST Điện [Lớn]",
+                "Kích Nổ: Ưu Thế Phức Hợp"
+            ]
+        },
+        "foresight": true
+    },
+    "wpn_sword_0025": {
+        "internal_id": "wpn_sword_0025",
+        "icon_id": "wpn_sword_0025",
+        "weapon_type": "Sword",
+        "rarity": 6,
+        "icon_path": "weapon_images_endfield\\Lunar_Calling_icon.png",
+        "skill_ids": [
+            "wpn_attr_will_high",
+            "wpn_sp_attr_atk_high",
+            "sk_wpn_sword_0025"
+        ],
+        "names": {
+            "BR": "Chamado Lunar",
+            "CN": "唤月",
+            "DE": "Mondruf",
+            "EN": "Lunar Calling",
+            "FR": "Appel lunaire",
+            "ID": "Lunar Calling",
+            "IT": "Richiamo lunare",
+            "JP": "喚月",
+            "KR": "환월",
+            "MX": "Llamado lunar",
+            "RU": "Зов луны",
+            "TC": "喚月",
+            "TH": "จันทรา​เรียกขาน",
+            "VN": "Lời Gọi Trăng"
+        },
+        "skills": {
+            "BR": [
+                "Vontade [G]",
+                "ATQ [G]",
+                "Inflição: Estrelas em Curso"
+            ],
+            "CN": [
+                "意志提升·大",
+                "攻击提升·大",
+                "附术·垂星渡野"
+            ],
+            "DE": [
+                "Wille [L]",
+                "ANG [L]",
+                "Zufügung: Fliegende Sterne"
+            ],
+            "EN": [
+                "Will [L]",
+                "ATK [L]",
+                "Infliction: Coursing Stars"
+            ],
+            "FR": [
+                "Volonté [G]",
+                "ATQ [G]",
+                "Altération : Ruissellement d'étoiles"
+            ],
+            "ID": [
+                "Will [L]",
+                "ATK [L]",
+                "Infliction: Coursing Stars"
+            ],
+            "IT": [
+                "Volontà [L]",
+                "ATT [L]",
+                "Afflizione: Traiettoria stellata"
+            ],
+            "JP": [
+                "意志UP・大",
+                "攻撃力UP・大",
+                "付術・星流る荒野"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "공격력 증가 · 대",
+                "고통 · 별빛의 들판"
+            ],
+            "MX": [
+                "Voluntad [G]",
+                "ATQ [G]",
+                "Imposición: Estrellas fugaces"
+            ],
+            "RU": [
+                "Воля [бол.]",
+                "АТК [бол.]",
+                "Поражение: движение звезд"
+            ],
+            "TC": [
+                "意志提升·大",
+                "攻擊提升·大",
+                "附術·垂星渡野"
+            ],
+            "TH": [
+                "ความมุ่งมั่น​ [L]",
+                "ATK [L]",
+                "สร้าง​บาดแผล​: ดารา​ไหลบ่า"
+            ],
+            "VN": [
+                "Ý Chí [Lớn]",
+                "Tấn Công [Lớn]",
+                "Nhiễm: Tinh Hà Tuôn Chảy"
+            ]
+        },
+        "foresight": true
     }
 }

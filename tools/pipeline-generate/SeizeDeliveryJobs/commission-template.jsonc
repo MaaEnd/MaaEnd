@@ -30,20 +30,25 @@
         "desc": "寻找${AreaName}筛选标志（仅识别）",
         "recognition": "TemplateMatch",
         "roi": [
-            20,
-            440,
-            140,
-            260
+            2,
+            520,
+            236,
+            200
         ],
         "template": "SeizeDeliveryJobs/DepotNodePage/Filter${MapName}.png",
         "order_by": "Score"
     },
     "SeizeDeliveryJobsJobListIs${MapName}Filter": {
         "desc": "在运送委托列表检查到${AreaName}筛选",
-        "recognition": "And",
-        "all_of": [
-            "__SeizeDeliveryJobsRecoFilter${MapName}"
+        "recognition": "TemplateMatch",
+        "roi": [
+            4,
+            638,
+            234,
+            82
         ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/Filter${MapName}.png",
+        "order_by": "Score",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

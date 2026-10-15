@@ -91,9 +91,11 @@ description: 仅当用户明确要求往「🐌库存转移 / ItemTransfer」任
 1. 读取 `assets/data/ItemTransfer/item_order.json` 的 `category_order.<category>`，找到新增物品在数组里的**前一项**与**后一项**。
 2. 在 locale 文件中搜索前一项对应的 `item.*` key（例如前一项是「赤铜瓶」→ 搜 `"item.CupriumBottle":`）。
 3. 在该行**下方**、后一项的 `item.*` key **上方**，插入新增物品的键值对：
+
     ```json
         "item.<EnglishPascalCase>": "<该语言的译名>",
     ```
+
 4. 保持缩进、引号、逗号与相邻行严格一致，不要破坏 JSON 结构。
 
 > 💡 locale 文件里 `item.*` 的顺序与 `category_order` 严格一致，插入时务必按这个顺序；不要随意追加到末尾。

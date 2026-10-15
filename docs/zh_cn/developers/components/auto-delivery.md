@@ -103,7 +103,11 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | `assets/resource/pipeline/AutoDelivery/Delivery.json` | 取消追踪、终点导航和提交货物 |
 | `agent/go-service/autodelivery/` | OCR 匹配、运行时目录校验和生成路线节点分发 |
 
-普通仓储和资源回收站由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往原始坐标，从而保证从交互正面接近（朝向不合适时用覆盖条目中的 `yaw` 修正，见下节）；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。自动生成的点都带 `target_deck_y`，取值是该实体在数据源中的世界高度，接近点与终点同层、共用这个高度，用来在重叠可走面里选中目标层；人工覆盖路径的层声明按实测结果原样保留。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
+普通仓储和资源回收站由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往实体正面 2 米处的交互范围中心（实体原点压在机体占地里，导航包把那块挖掉了），从而保证从交互正面接近（朝向不合适时用覆盖条目中的 `yaw` 修正，见下节）；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。自动生成的点都带 `target_deck_y`，取值是该实体在数据源中的世界高度，接近点与终点同层、共用这个高度，用来在重叠可走面里选中目标层；人工覆盖路径的层声明按实测结果原样保留。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
+
+交货的主路线与 retry 路线由生成器在末尾接一个 `INTERACT` 交互点：末点是 `NAVMESH` 时补 `required: true` 并在同一坐标接交互点；末点是裸坐标时整点换成交互点（回收站落到交互范围中心）。交互点用 `AutoDeliverySubmitGoodsInteractScan` 预筛交货图标，再按文字复核：资源回收站认 `AutoDeliverySubmitGoodsInteractText`（交货），收货 NPC 认终点的五语言名称。交互点写了 `interact_rec`，认到提示就结束导航、不按键；交货仍由 `AutoDeliveryCheckSubmitGoodsTarget` → `AutoDeliverySubmitGoods` 识别交货图标后点击。走到点上仍认不到提示时导航判失败。
+
+两类目标不接交互点，路线结尾与原来一样：仓储路线（只走到仓储节点、不取货的调用方也用这条路线，取货在业务侧）只把终点挪到交互范围中心，人工路线的裸坐标末点同样挪过去；开了 `verify_name` 的 NPC 照旧由业务侧复核名字后点击。
 
 运行 `pnpm generate:AutoDelivery` 后，每条主路线会生成普通与允许滑索两个 `AutoDeliveryRoute...` 节点。所有仓储和送货目标还会用同一条两点接近路线生成一个不启用滑索的 retry 节点；显式 `retry_path` 可以覆盖该路线。固定的 `AutoDeliveryNavigateDepot`、`AutoDeliveryRetryNavigateDepot`、`AutoDeliveryNavigateDestination` 和 `AutoDeliveryRetryNavigateDestination` 是 `SubTask` 分发器：Go Service 只根据 OCR 结果选择生成节点名，不再把坐标或完整 `path` 注入 Pipeline。生成节点是公开的单路线测试入口，`desc` 会注明路线对应的仓储节点；它们不替代完整送货业务的唯一入口 `AutoDelivery`。
 
@@ -169,10 +173,10 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 
 ### `walk_only` / `zipline_only`
 
-这两个字段覆盖一条主路线的滑索策略，二者互斥，同时声明时生成器直接报错：
+这两个字段覆盖一条主路线的滑索策略，二者互斥，同时声明时生成器直接报错。策略不改写生成节点的 `zip`：普通节点始终是 `zip: false`、`WithZipline` 节点始终是 `zip: true`，两个标记随运行时目录 `assets/data/AutoDelivery/catalog.json` 交给 Go，在分发路线节点时生效。节点名与参数因此永远一致，排查时不会看到 `WithZipline` 节点写着 `zip: false`：
 
-- `walk_only: true`：完整保留录制路径，禁止全局滑索规划跳过作者路点。生成器仍保留普通节点和 `WithZipline` 节点名，但两个节点都写 `"zip": false`，即用户全局启用滑索时仍严格按作者路径步行执行。
-- `zipline_only: true`：该目标只有坐滑索才到得了（如终点裴令容），没有可用的步行路线。两个节点都写 `"zip": true`，避免留下一条已知走不通的步行路线；运行时若用户选择步行送货（「送货时优先使用滑索」为关），Go 侧在 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 分发路线前直接输出红色提示说明原因并让动作失败，不会静默退化成步行走到不可达处再超时。
+- `walk_only: true`：完整保留录制路径，禁止全局滑索规划跳过作者路点。`AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 无论用户是否启用滑索都只分派普通节点，即用户启用滑索时仍严格按作者路径步行执行；该条目在映射里保留的滑索节点只用于单路线试跑。动作日志会带上 `walkOnly=true`。
+- `zipline_only: true`：该目标只有坐滑索才到得了（如终点裴令容），没有可用的步行路线。运行时若用户选择步行送货（「送货时优先使用滑索」为关），Go 侧在 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 分发路线前直接输出红色提示说明原因并让动作失败，不会静默退化成步行走到不可达处再超时。
 
 注意 `zip: true` 只表示允许 MapNavigator 在合适时使用滑索；未导入滑索坐标或滑索成本不占优时，导航仍可能选择步行。`zipline_only` 拦截的是「用户明确选择步行」这种配置错误，不保证导航规划一定采用滑索。
 

@@ -15,6 +15,7 @@ struct SteeringTransportProfile
     double min_emit_delta_deg = 1.0;
     double max_batch_delta_deg = 18.0;
     int action_quiet_period_ms = 0;
+    bool drops_turn_sends = false;
 };
 
 class IInputBackend
@@ -51,6 +52,15 @@ public:
     virtual void ClickMouseLeftSync() = 0;
     virtual void MouseRightDownSync(int delay_millis) = 0;
     virtual void MouseRightUpSync(int delay_millis) = 0;
+
+    virtual void TriggerZiplineLaunchSync() { ClickMouseLeftSync(); }
+
+    virtual void TriggerZiplineDismountSync(int hold_millis)
+    {
+        MouseRightDownSync(hold_millis);
+        MouseRightUpSync(0);
+    }
+
     virtual bool SendViewDeltaSync(int dx, int dy) = 0;
 };
 

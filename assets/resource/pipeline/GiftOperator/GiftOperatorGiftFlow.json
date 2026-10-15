@@ -88,13 +88,13 @@
         },
         "pre_wait_freezes": {
             "time": 200,
-            "timeout": 3000,
             "target": [
                 1008,
                 474,
                 84,
                 38
-            ]
+            ],
+            "timeout": 3000
         },
         "pre_delay": 0,
         "action": {
@@ -211,7 +211,7 @@
                     "YellowConfirmButtonType1",
                     "YellowButtonConfirmText"
                 ],
-                "box_index": 1
+                "box_index": 0
             }
         },
         "action": {
@@ -545,13 +545,13 @@
         },
         "post_wait_freezes": {
             "time": 1000,
-            "timeout": 2000,
             "target": [
                 831,
                 403,
                 161,
                 176
-            ]
+            ],
+            "timeout": 2000
         },
         "next": [
             "GiftOperatorWaitChat",
@@ -581,26 +581,26 @@
         },
         "pre_wait_freezes": {
             "time": 200,
-            "timeout": 2000,
             "target": [
                 977,
                 145,
                 192,
                 215
-            ]
+            ],
+            "timeout": 2000
         },
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 2000,
             "target": [
                 977,
                 145,
                 192,
                 215
-            ]
+            ],
+            "timeout": 2000
         },
         "next": [
             "GiftOperatorBranchGift",

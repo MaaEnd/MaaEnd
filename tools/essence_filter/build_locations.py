@@ -38,10 +38,10 @@ SLOT2_CN_SUFFIXES = (
 _TC_TO_SC = str.maketrans("強藝", "强艺")
 
 # slot2 基名歧义：
-# - strip 提升 会得到「源石技艺」，对应 pool 的「源石技艺提升」
+# - strip 提升 会得到「源石技艺」，对应 pool 的「源石技艺强度」
 # - strip 效率提升 会得到「终结技」，对应 pool 的「终结技充能」
 SLOT2_STEM_ALIAS: Dict[str, str] = {
-    "源石技艺": "源石技艺提升",
+    "源石技艺": "源石技艺强度",
     "终结技": "终结技充能",
 }
 
@@ -191,6 +191,7 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as f:
         json.dump(out_locations, f, ensure_ascii=False, indent=4)
+        f.write("\n")
 
     if args.data_version:
         _update_data_version(root / DEFAULT_MATCHER_CONFIG, args.data_version)

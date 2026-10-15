@@ -102,6 +102,10 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
                 return false;
             }
         }
+        // 台沿下落交给调用方判。
+        if (st.fall && !st.fall(cid, cid + dy * nx + dx, h0, h1)) {
+            return false;
+        }
     }
     // 坡度口径以内两条支路结论一样: 立面按坡度放行, 平地按 UpAllow 放行而 UpAllow 恒不小于
     // 坡度口径。于是这一档不必去问是不是立面 —— 绝大多数边是平的, 省下的正是那两次叠层扫描。
@@ -142,6 +146,86 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
         }
     }
     return false;
+}
+
+namespace
+{
+
+static_assert(kClimb <= kDrop);
+
+// RiseOk 的快路: 平缓的边直接放行。
+inline bool riseOkFast(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1)
+{
+    const double dh = static_cast<double>(h1) - static_cast<double>(h0);
+    return (dh >= -kClimb && dh <= kSlope * kCS) || RiseOk(st, nx, ny, cid, dx, dy, h0, h1);
+}
+
+// 四叉最小堆, 按 (f, u) 出堆。
+class MinHeap4
+{
+public:
+    bool empty() const { return a_.empty(); }
+
+    std::pair<double, int64_t> top() const { return { a_.front().f, a_.front().u }; }
+
+    void push(double f, int64_t u)
+    {
+        const Node n { f, u };
+        size_t i = a_.size();
+        a_.push_back(n);
+        while (i > 0) {
+            const size_t p = (i - 1) / 4;
+            if (!less(n, a_[p])) {
+                break;
+            }
+            a_[i] = a_[p];
+            i = p;
+        }
+        a_[i] = n;
+    }
+
+    void pop()
+    {
+        const Node last = a_.back();
+        a_.pop_back();
+        const size_t n = a_.size();
+        if (n == 0) {
+            return;
+        }
+        size_t i = 0;
+        while (true) {
+            const size_t c = 4 * i + 1;
+            if (c >= n) {
+                break;
+            }
+            size_t m = c;
+            const size_t e = std::min(c + 4, n);
+            for (size_t k = c + 1; k < e; ++k) {
+                if (less(a_[k], a_[m])) {
+                    m = k;
+                }
+            }
+            if (!less(a_[m], last)) {
+                break;
+            }
+            a_[i] = a_[m];
+            i = m;
+        }
+        a_[i] = last;
+    }
+
+private:
+    struct Node
+    {
+        double f;
+        int64_t u;
+    };
+
+    static bool less(const Node& x, const Node& y) { return x.f < y.f || (!(y.f < x.f) && x.u < y.u); }
+
+    std::vector<Node> a_;
+};
+
 }
 
 RasterCells Rasterize(
@@ -1013,7 +1097,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const Visibility* vis,
     std::vector<int64_t>* corners,
     double* out_cost,
-    const JumpEdges* jumps)
+    const JumpEdges* jumps,
+    double give_up_at)
 {
     if (s < 0 || ok[static_cast<size_t>(s)] == 0 || gset.empty()) {
         return std::nullopt;
@@ -1035,9 +1120,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     // 存的是 span 下标, 一个区的 span 数远在 int32 之内, 窄一半省下的是每次规划的瞬时峰值。
     std::vector<int32_t> prev(st.sp_h.size(), -1);
     dist[static_cast<size_t>(s)] = 0.0;
-    using Node = std::tuple<double, int64_t>;
-    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> pq;
-    pq.emplace(0.0, s);
+    MinHeap4 pq;
+    pq.push(0.0, s);
     int64_t hit = -1;
     // Lazy Theta* 的 SetVertex: 祖父直连验不过时, 从已展开的邻格里挑最便宜的那个当父亲。
     // 视线全失效则整条路逐格退化成 A*, 所以弦无权把一条走得通的腿变成走不通。
@@ -1067,9 +1151,9 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 continue;
             }
             // 与扩展同口径: 禁步位只管不是纯下落的那些 span 对
-            const bool faceblk = forbidden != nullptr && forbidden->has(cw, cu);
+            const bool faceblk = forbidden != nullptr && forbidden->hasStep(cw, cu, -d.dx, -d.dy, nx);
             double pen = 0.0;
-            if (banned != nullptr && banned->has(cw, cu)) {
+            if (banned != nullptr && banned->hasStep(cw, cu, -d.dx, -d.dy, nx)) {
                 if (bnp == nullptr) {
                     continue;
                 }
@@ -1085,7 +1169,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 if (faceblk && !byFall(w, u)) {
                     continue;
                 }
-                if (!RiseOk(st, nx, ny, cw, -d.dx, -d.dy, st.sp_h[static_cast<size_t>(w)], hu)) {
+                if (!riseOkFast(st, nx, ny, cw, -d.dx, -d.dy, st.sp_h[static_cast<size_t>(w)], hu)) {
                     continue;
                 }
                 const double nd = dist[static_cast<size_t>(w)] + stp + pen;
@@ -1108,6 +1192,9 @@ std::optional<std::vector<int64_t>> SpanAstar(
         const int64_t x = cu % nx, y = cu / nx;
         if (f > d0 + std::hypot(static_cast<double>(gxx - x), static_cast<double>(gyy - y)) + 1e-9) {
             continue;
+        }
+        if (vis == nullptr && f >= give_up_at) {
+            return std::nullopt;
         }
         if (vis != nullptr) {
             if (closed[static_cast<size_t>(u)] != 0) {
@@ -1152,9 +1239,9 @@ std::optional<std::vector<int64_t>> SpanAstar(
             }
             // 禁步位不分方向, 而纯下落的 span 对不该受它管 —— 跳下台沿不需要台阶,
             // 所以放到逐 span 循环里按落差方向再定。
-            const bool faceblk = forbidden != nullptr && forbidden->has(cu, cv);
+            const bool faceblk = forbidden != nullptr && forbidden->hasStep(cu, cv, d.dx, d.dy, nx);
             double pen = 0.0;
-            if (banned != nullptr && banned->has(cu, cv)) {
+            if (banned != nullptr && banned->hasStep(cu, cv, d.dx, d.dy, nx)) {
                 if (bnp == nullptr) {
                     continue;
                 }
@@ -1184,12 +1271,16 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 if (ok[static_cast<size_t>(v)] == 0) {
                     continue;
                 }
+                // 已关闭的 span 不再松弛: 弹出时它会因已关闭被跳过, 改写后的弦就验不到视线
+                if (vis != nullptr && closed[static_cast<size_t>(v)] != 0) {
+                    continue;
+                }
                 const float hv = st.sp_h[static_cast<size_t>(v)];
                 const bool fall = static_cast<double>(hu) - static_cast<double>(hv) > kClimb;
                 if (faceblk && !fall) {
                     continue;
                 }
-                if (!RiseOk(st, nx, ny, cu, d.dx, d.dy, hu, hv)) {
+                if (!riseOkFast(st, nx, ny, cu, d.dx, d.dy, hu, hv)) {
                     continue;
                 }
                 // 下落是单向边, 弦会从台沿上方穿空而过, 所以不接祖父
@@ -1198,7 +1289,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 if (dv < dist[static_cast<size_t>(v)] - 1e-12) {
                     dist[static_cast<size_t>(v)] = dv;
                     prev[static_cast<size_t>(v)] = static_cast<int32_t>(pv);
-                    pq.emplace(dv + std::hypot(static_cast<double>(gxx - a), static_cast<double>(gyy - b)), v);
+                    pq.push(dv + std::hypot(static_cast<double>(gxx - a), static_cast<double>(gyy - b)), v);
                 }
             }
         }
@@ -1212,11 +1303,14 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 if (ok[static_cast<size_t>(v)] == 0 || ok2.v[static_cast<size_t>(cv)] == 0) {
                     continue;
                 }
+                if (vis != nullptr && closed[static_cast<size_t>(v)] != 0) {
+                    continue;
+                }
                 const double nd = d0 + static_cast<double>(je.cost);
                 if (nd < dist[static_cast<size_t>(v)] - 1e-12) {
                     dist[static_cast<size_t>(v)] = nd;
                     prev[static_cast<size_t>(v)] = static_cast<int32_t>(u);
-                    pq.emplace(nd + std::hypot(static_cast<double>(gxx - cv % nx), static_cast<double>(gyy - cv / nx)), v);
+                    pq.push(nd + std::hypot(static_cast<double>(gxx - cv % nx), static_cast<double>(gyy - cv / nx)), v);
                 }
             }
         }
@@ -1799,7 +1893,7 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
     return walk(pts, std::vector<float> { h });
 }
 
-std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h) const
+std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h, bool fall) const
 {
     std::vector<CellPt> cells;
     for (size_t i = 1; i < pts.size(); ++i) {
@@ -1838,17 +1932,47 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
         }
         nxt.clear();
         const double up = UpAllow(std::hypot(static_cast<double>(cells[i].x - pc.x), static_cast<double>(cells[i].y - pc.y))) + kQH;
+        // 与 RiseOk 同一条: 往前几格出发那层又回来, 脚下只是路面上一道缝, 不算台沿
+        const int64_t sx = (cells[i].x > pc.x) - (cells[i].x < pc.x);
+        const int64_t sy = (cells[i].y > pc.y) - (cells[i].y < pc.y);
+        const auto seam = [&](float c) {
+            for (int64_t s = 1; s <= kSeamCells; ++s) {
+                if (levelAt(*st_, nx_, ny_, pc.y * nx_ + pc.x, sx, sy, s, c, kClimb)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        bool over_seam = false;
         for (const float t : nb) {
             for (const float c : cur) {
                 const float dh = t - c;
-                if (static_cast<double>(dh) <= up && dh >= -static_cast<float>(kClimb)) {
+                if (static_cast<double>(dh) > up) {
+                    continue;
+                }
+                if (dh >= -static_cast<float>(kClimb)) {
+                    nxt.push_back(t);
+                    break;
+                }
+                if (fall) {
+                    if (seam(c)) {
+                        over_seam = true;
+                        continue;
+                    }
                     nxt.push_back(t);
                     break;
                 }
             }
         }
         if (nxt.empty()) {
-            return std::nullopt;
+            if (!fall) {
+                return std::nullopt;
+            }
+            // 缝: 出发那层留着跨过去。离网连接或头顶的面接不上: 这格的面全收进来, 原来的也留着
+            nxt = cur;
+            if (!over_seam) {
+                nxt.insert(nxt.end(), nb.begin(), nb.end());
+            }
         }
         cur = nxt;
         pc = cells[i];

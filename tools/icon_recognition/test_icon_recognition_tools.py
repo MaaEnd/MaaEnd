@@ -8,6 +8,7 @@ from pathlib import Path
 
 from catalog import build_catalog, write_catalog
 from download import (
+    BIG_IMAGE_BASE_URL,
     DEFAULT_CACHE_ROOT,
     DownloadJob,
     IMAGE_BASE_URL,
@@ -17,6 +18,7 @@ from download import (
     apply_item_blacklist,
     build_download_jobs,
     download_sources,
+    load_big_icon_ids,
     validate_icon_png_bytes,
     merge_item_sources,
     prepare_item_map,
@@ -35,6 +37,7 @@ from publish import (
     publish,
     publish_fixed_items,
     sync_published_images,
+    sync_published_big_images,
 )
 from expected import merge_expected_results
 from text import clean_text, validate_identifier
@@ -457,6 +460,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
             IMAGE_BASE_URL,
             "https://assets.fz.wiki/output_image/itemicon",
         )
+        self.assertEqual(BIG_IMAGE_BASE_URL, "https://assets.fz.wiki/output_image/itemiconbig")
 
     def test_download_sources_timestamp_all_remote_json_urls(self) -> None:
         sources = download_sources(Path("cache"), dry_run=True)
@@ -479,6 +483,43 @@ class IconRecognitionToolsTest(unittest.TestCase):
             "https://assets.fz.wiki/output_image/itemicon/icon%20id%2Bplus.png@raw",
         )
         self.assertEqual(jobs[0].destination, Path("images/6/icon id+plus.png"))
+        big_jobs, _ = build_download_jobs(items, Path("big_images"), image_base_url=BIG_IMAGE_BASE_URL)
+        self.assertEqual(
+            big_jobs[0].url,
+            "https://assets.fz.wiki/output_image/itemiconbig/icon%20id%2Bplus.png@raw",
+        )
+
+    def test_big_icon_ids_validate_duplicates(self) -> None:
+        self.assertEqual(load_big_icon_ids(), {"item_char_skill_crown", "item_case_wpn_selfselect_bp_2"})
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "big_icon_ids.json"
+            path.write_text('["item_test", "item_test"]', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "重复"):
+                load_big_icon_ids(path)
+
+    def test_big_image_publish_keeps_base_and_removes_stale_variants(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "big_images" / "5" / "item_char_skill_crown.png"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(self._png_header(256, 256))
+            base = root / "assets" / "5" / source.name
+            base.parent.mkdir(parents=True)
+            base.write_bytes(b"base")
+            stale = root / "assets" / "Big" / "5" / "stale.png"
+            stale.parent.mkdir(parents=True)
+            stale.write_bytes(b"stale")
+
+            sync_published_big_images(
+                root / "images",
+                root / "assets",
+                {"item_char_skill_crown": {"rarity": 5, "iconId": "item_char_skill_crown"}},
+                {"item_char_skill_crown"},
+            )
+
+            self.assertEqual((root / "assets" / "Big" / "5" / source.name).read_bytes(), source.read_bytes())
+            self.assertEqual(base.read_bytes(), b"base")
+            self.assertFalse(stale.exists())
 
     def test_catalog_applies_currency_types_to_actual_item_ids(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -708,7 +749,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
             self.assertTrue((paths.asset_image_root / "3" / "item_test.png").is_file())
             self.assertEqual(
                 (paths.asset_image_root / "3" / "item_test.png").read_bytes(),
-                b"stale",
+                b"png",
             )
             self.assertFalse(removed_destination.exists())
         self.assertEqual(catalog["item_test"]["name"], "测试物品")

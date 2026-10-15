@@ -13,6 +13,7 @@
     },
     "GotoTriggerPointMaybeTeleport_WLNorthWulingExclusionZone": {
         "desc": "强制传送到最近锚点后前往激发点",
+        "max_hit": 3, // 连续传送重走的上限，计数在 AutoEssenceDispatcher 清零
         "action": {
             "type": "Custom",
             "param": {
@@ -79,13 +80,18 @@
                             "zone_id": "Wuling_L8_388"
                         },
                         {
-                            "action": "RUN",
+                            "action": "INTERACT",
                             "target": [
                                 258.17,
                                 281.28
                             ],
                             "target_tier": "Wuling_L8_388",
-                            "strict_arrival": true
+                            "strict_arrival": true,
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_scan": "__AutoEssenceRecoApproachInteractScan",
+                            "interact_rec": true
                         }
                     ]
                 }
@@ -94,6 +100,9 @@
         "post_delay": 1500,
         "next": [
             "AutoEssenceDispatcher"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

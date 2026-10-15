@@ -1,6 +1,6 @@
 {
     "AutoDeliveryRouteDepotDomain1Lv006Depot1": {
-        "desc": "AutoDelivery 仓储路线：前往矿脉源区仓储节点（domain_1_lv006_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往矿脉源区仓储节点(domain_1_lv006_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -22,13 +22,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        912.255,
-                        263.96
+                        910.862,
+                        264.149
                     ],
                     "target_deck_y": 74.57
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -42,7 +43,7 @@
         }
     },
     "AutoDeliveryRouteDepotDomain1Lv006Depot1WithZipline": {
-        "desc": "AutoDelivery 仓储路线：前往矿脉源区仓储节点，允许使用滑索（domain_1_lv006_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往矿脉源区仓储节点，允许使用滑索(domain_1_lv006_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -64,13 +65,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        912.255,
-                        263.96
+                        910.862,
+                        264.149
                     ],
                     "target_deck_y": 74.57
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -84,7 +86,7 @@
         }
     },
     "AutoDeliveryRouteDepotRetryDomain1Lv006Depot1": {
-        "desc": "AutoDelivery 仓储站位修正路线：矿脉源区仓储节点（domain_1_lv006_depot_1）",
+        "desc": "AutoDelivery 仓储站位修正路线：矿脉源区仓储节点(domain_1_lv006_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -106,12 +108,13 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        912.255,
-                        263.96
+                        910.862,
+                        264.149
                     ],
                     "target_deck_y": 74.57
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -125,7 +128,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00601": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往马泰奥（deliver_target_map01_lv006_01）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往马泰奥(deliver_target_map01_lv006_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -214,10 +217,29 @@
                         1132.593,
                         471.222
                     ],
-                    "target_deck_y": 39.315
+                    "target_deck_y": 39.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.593,
+                        471.222
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "马泰奥",
+                        "馬泰奧",
+                        "(?i)Matteo",
+                        "マッテオ",
+                        "마테오"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -231,7 +253,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00601WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往马泰奥，允许使用滑索（deliver_target_map01_lv006_01）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往马泰奥，允许使用滑索(deliver_target_map01_lv006_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -320,10 +342,29 @@
                         1132.593,
                         471.222
                     ],
-                    "target_deck_y": 39.315
+                    "target_deck_y": 39.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.593,
+                        471.222
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "马泰奥",
+                        "馬泰奧",
+                        "(?i)Matteo",
+                        "マッテオ",
+                        "마테오"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -337,7 +378,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00601": {
-        "desc": "AutoDelivery 终点站位修正路线：马泰奥（deliver_target_map01_lv006_01）",
+        "desc": "AutoDelivery 终点站位修正路线：马泰奥(deliver_target_map01_lv006_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -362,9 +403,28 @@
                         1132.593,
                         471.222
                     ],
-                    "target_deck_y": 39.315
+                    "target_deck_y": 39.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.593,
+                        471.222
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "马泰奥",
+                        "馬泰奧",
+                        "(?i)Matteo",
+                        "マッテオ",
+                        "마테오"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -378,7 +438,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00602": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往陆言（deliver_target_map01_lv006_02）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往陆言(deliver_target_map01_lv006_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -467,10 +527,29 @@
                         1192.373,
                         433.958
                     ],
-                    "target_deck_y": 34.228
+                    "target_deck_y": 34.228,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1192.373,
+                        433.958
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "陆言",
+                        "陸言",
+                        "(?i)Lu\\s*Yan",
+                        "ルー・イェン",
+                        "육언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -484,7 +563,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00602WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往陆言，允许使用滑索（deliver_target_map01_lv006_02）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往陆言，允许使用滑索(deliver_target_map01_lv006_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -573,10 +652,29 @@
                         1192.373,
                         433.958
                     ],
-                    "target_deck_y": 34.228
+                    "target_deck_y": 34.228,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1192.373,
+                        433.958
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "陆言",
+                        "陸言",
+                        "(?i)Lu\\s*Yan",
+                        "ルー・イェン",
+                        "육언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -590,7 +688,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00602": {
-        "desc": "AutoDelivery 终点站位修正路线：陆言（deliver_target_map01_lv006_02）",
+        "desc": "AutoDelivery 终点站位修正路线：陆言(deliver_target_map01_lv006_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -615,9 +713,28 @@
                         1192.373,
                         433.958
                     ],
-                    "target_deck_y": 34.228
+                    "target_deck_y": 34.228,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1192.373,
+                        433.958
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "陆言",
+                        "陸言",
+                        "(?i)Lu\\s*Yan",
+                        "ルー・イェン",
+                        "육언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -631,7 +748,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00603": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往莫莉（deliver_target_map01_lv006_03）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往莫莉(deliver_target_map01_lv006_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -723,7 +840,8 @@
                     "target_deck_y": 36.701
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -737,7 +855,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00603WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往莫莉，允许使用滑索（deliver_target_map01_lv006_03）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往莫莉，允许使用滑索(deliver_target_map01_lv006_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -829,7 +947,8 @@
                     "target_deck_y": 36.701
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -843,7 +962,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00603": {
-        "desc": "AutoDelivery 终点站位修正路线：莫莉（deliver_target_map01_lv006_03）",
+        "desc": "AutoDelivery 终点站位修正路线：莫莉(deliver_target_map01_lv006_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -870,7 +989,8 @@
                     ],
                     "target_deck_y": 36.701
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -884,7 +1004,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle01": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往“不是废品佬”（deliver_target_map01_lv006_recycle_01）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往“不是废品佬”(deliver_target_map01_lv006_recycle_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -970,8 +1090,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.773,
-                        424.598
+                        1044.373,
+                        425.198
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -979,13 +1099,28 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1047.416,
-                        428.884
+                        1047.105,
+                        428.412
                     ],
-                    "target_deck_y": 41.441
+                    "target_deck_y": 41.441,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1047.105,
+                        428.412
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -999,7 +1134,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle01WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往“不是废品佬”，允许使用滑索（deliver_target_map01_lv006_recycle_01）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往“不是废品佬”，允许使用滑索(deliver_target_map01_lv006_recycle_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1085,8 +1220,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.773,
-                        424.598
+                        1044.373,
+                        425.198
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -1094,13 +1229,28 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1047.416,
-                        428.884
+                        1047.105,
+                        428.412
                     ],
-                    "target_deck_y": 41.441
+                    "target_deck_y": 41.441,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1047.105,
+                        428.412
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1114,7 +1264,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv006Recycle01": {
-        "desc": "AutoDelivery 终点站位修正路线：“不是废品佬”（deliver_target_map01_lv006_recycle_01）",
+        "desc": "AutoDelivery 终点站位修正路线：“不是废品佬”(deliver_target_map01_lv006_recycle_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1127,8 +1277,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.773,
-                        424.598
+                        1044.373,
+                        425.198
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -1136,12 +1286,27 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1047.416,
-                        428.884
+                        1047.105,
+                        428.412
                     ],
-                    "target_deck_y": 41.441
+                    "target_deck_y": 41.441,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1047.105,
+                        428.412
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1155,7 +1320,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle03": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往采购-矿区医疗站模组（deliver_target_map01_lv006_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往采购-矿区医疗站模组(deliver_target_map01_lv006_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1250,13 +1415,28 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1078.905,
-                        504.33
+                        1077.548,
+                        503.962
                     ],
-                    "target_deck_y": 36.255
+                    "target_deck_y": 36.255,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1077.548,
+                        503.962
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1270,7 +1450,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle03WithZipline": {
-        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往采购-矿区医疗站模组，允许使用滑索（deliver_target_map01_lv006_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从矿脉源区仓储节点前往采购-矿区医疗站模组，允许使用滑索(deliver_target_map01_lv006_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1365,13 +1545,28 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1078.905,
-                        504.33
+                        1077.548,
+                        503.962
                     ],
-                    "target_deck_y": 36.255
+                    "target_deck_y": 36.255,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1077.548,
+                        503.962
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -1385,7 +1580,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv006Recycle03": {
-        "desc": "AutoDelivery 终点站位修正路线：采购-矿区医疗站模组（deliver_target_map01_lv006_recycle_03）",
+        "desc": "AutoDelivery 终点站位修正路线：采购-矿区医疗站模组(deliver_target_map01_lv006_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -1407,12 +1602,27 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1078.905,
-                        504.33
+                        1077.548,
+                        503.962
                     ],
-                    "target_deck_y": 36.255
+                    "target_deck_y": 36.255,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1077.548,
+                        503.962
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,

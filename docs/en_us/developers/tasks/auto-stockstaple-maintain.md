@@ -199,7 +199,8 @@ Therefore, the `And` conditions for `AutoStockBuyItemValleyIVTask` are:
 
 After all four match, click the item card (`target_offset: [-45, 85, -30, 0]`), and `next` enters `AutoStockStapleQuantityControl`.
 
-> [!IMPORTANT] > `AutoStockBuyItemValleyIVTask` only means "a candidate item was recognized and entered purchase judgment," **it does not** mean the purchase is completed. Whether an order is actually placed depends on if the quantity control branch reaches `AutoStockStapleQuantityControlConfirmBuy`.
+> [!IMPORTANT]
+> `AutoStockBuyItemValleyIVTask` only means "a candidate item was recognized and entered purchase judgment," **it does not** mean the purchase is completed. Whether an order is actually placed depends on if the quantity control branch reaches `AutoStockStapleQuantityControlConfirmBuy`.
 
 ### 5. Sold-Out and Swiping
 

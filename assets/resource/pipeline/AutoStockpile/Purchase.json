@@ -78,32 +78,36 @@
             "param": {
                 "custom_action": "BetterSliding",
                 "custom_action_param": {
-                    "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                    "ClampTargetToSliderMax": true,
+                    "DecreaseButton": {
+                        "template": "AutoStockpile/DecreaseButton.png"
+                    },
                     "Direction": "right",
-                    "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                    "TargetQuantity": 1,
+                    "IncreaseButton": {
+                        "template": "AutoStockpile/IncreaseButton.png"
+                    },
                     "SliderQuantity": {
-                        "Box": [
+                        "roi": [
                             360,
                             484,
                             100,
                             38
-                        ],
-                        "Filter": {
-                            "lower": [
-                                75,
-                                75,
-                                75
-                            ],
-                            "upper": [
-                                255,
-                                255,
-                                255
-                            ],
-                            "method": 4
-                        }
+                        ]
                     },
-                    "ClampTargetToSliderMax": true
+                    "SliderQuantityFilter": {
+                        "lower": [
+                            75,
+                            75,
+                            75
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            255
+                        ],
+                        "method": 4
+                    },
+                    "TargetQuantity": 1
                 }
             }
         },

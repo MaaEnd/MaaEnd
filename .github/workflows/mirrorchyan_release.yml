@@ -57,3 +57,33 @@ jobs:
           repo: MaaEnd
           github_token: ${{ secrets.GITHUB_TOKEN }}
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
+
+  mirrorchyan_android:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'MaaEnd' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: arm64-v8a
+            arch: aarch64
+          - variant: x86_64
+            arch: x86_64
+          # universal 不带 arch：universal 安装包检查更新时不传 arch，单 ABI 包查不到时也回退到这里
+          - variant: universal
+            arch: ""
+    steps:
+      - uses: MirrorChyan/uploading-action@v1
+        with:
+          filetype: latest-release
+          filename: ${{ format('MaaEnd-android-{0}-*.apk', matrix.variant) }}
+          mirrorchyan_rid: MaaEnd_exec
+          tag: ${{ inputs.tag }}
+
+          os: android
+          arch: ${{ matrix.arch }}
+
+          owner: MaaEnd
+          repo: MaaEnd
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}

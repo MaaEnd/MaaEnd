@@ -19,6 +19,7 @@
             80,
             80
         ],
+        "auto_up": true,
         "post_delay": 0
     },
     "__AutoFightActionAttackTouchUp": {
@@ -84,6 +85,7 @@
         "desc": "alt按键",
         "pre_delay": 0,
         "action": "KeyDown",
+        "auto_up": true,
         "key": 18,
         "post_delay": 0
     },
@@ -98,6 +100,7 @@
         "desc": "S键",
         "pre_delay": 0,
         "action": "KeyDown",
+        "auto_up": true,
         "key": 83,
         "post_delay": 0
     },
@@ -112,6 +115,7 @@
         "desc": "W键",
         "pre_delay": 0,
         "action": "KeyDown",
+        "auto_up": true,
         "key": 87,
         "post_delay": 0
     },
@@ -126,6 +130,7 @@
         "desc": "A键",
         "pre_delay": 0,
         "action": "KeyDown",
+        "auto_up": true,
         "key": 65,
         "post_delay": 0
     },
@@ -140,6 +145,7 @@
         "desc": "D键",
         "pre_delay": 0,
         "action": "KeyDown",
+        "auto_up": true,
         "key": 68,
         "post_delay": 0
     },
