@@ -26,7 +26,7 @@ After setting things up, **be sure to reopen your terminal**: windows that are a
 
 | What to install | What it is for | How to install |
 | --- | --- | --- |
-| JDK 17 or later | Compiles the app; Gradle needs it | Windows `winget install Microsoft.OpenJDK.21`; macOS `brew install openjdk` |
+| JDK 17 or later | Compiles the app; Gradle needs it | Windows `winget install Microsoft.OpenJDK.21`; macOS `brew install openjdk@21`, then put `$(brew --prefix openjdk@21)/bin` at the front of `PATH` (brew does not add it) |
 | Android SDK | Provides the Android packaging tools | [1.1](#11-install-the-android-sdk) |
 | Android NDK | Cross-compiles the C++ agent (cpp-algo); go-service's cgo build also uses its clang | `sdkmanager --install "ndk;29.0.13599879"` |
 | CMake ≥ 3.28 | Configures and builds cpp-algo | [1.2](#12-choose-a-cmake) |
@@ -41,7 +41,7 @@ After setting things up, **be sure to reopen your terminal**: windows that are a
 
 ### 1.1 Install the Android SDK
 
-1. Go to the [Android command-line tools download page](https://developer.android.com/studio#command-line-tools-only), download the zip for your system, and extract it wherever you like, e.g. `<SDK>/cmdline-tools/latest`.
+1. Go to the [Android command-line tools download page](https://developer.android.com/studio#command-line-tools-only), and download the zip for your system. The zip contains a single `cmdline-tools` folder; after extracting, rename it to `latest` and put it under `<SDK>/cmdline-tools/` (`<SDK>` is the SDK directory you choose), so that `sdkmanager` ends up in `<SDK>/cmdline-tools/latest/bin`.
 2. Add `<SDK>/cmdline-tools/latest/bin` and `<SDK>/platform-tools` to `PATH`.
 3. Install the components:
 
@@ -79,7 +79,7 @@ The script first looks through `<SDK>/cmake/*` and then `PATH`, so both of the a
 
 ### 1.3 Checkpoint
 
-Not sure whether you have everything? **Run the environment check first**; it lists, item by item, what is missing and how to install it:
+Not sure whether you have everything? **Run the environment check first**; it lists, item by item, what is missing and how to fix it:
 
 ```bash
 uv run tools/build_android_agents.py --check-env
@@ -115,7 +115,7 @@ Once you see `OK  environment ready`, you can go to [Android/README.md](../../..
 uv run tools/build_android_agents.py --check-env
 ```
 
-It only reports: it does not install anything, and it does not scan your disk for dependencies; Go is only checked for presence on `PATH`, not for its version. If everything is green, you can start building; if there is a MISS, fix the items one by one following the hints. Each one says which environment variable to set and what to install.
+It only reports: it does not install anything, and it does not scan your disk for dependencies; Go is only checked for presence on `PATH`, not for its version. If everything is green, you can start building; if there is a MISS, fix the items one by one following the hints. Each one states the current problem and how to fix it.
 
 <details>
 <summary>What a passing check looks like</summary>

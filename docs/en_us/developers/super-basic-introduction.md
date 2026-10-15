@@ -453,7 +453,7 @@ git config --global user.email
 If they print the name and email you just entered, the setup worked.
 
 > [!TIP]
-> **Already committed before noticing it wasn't set, or set the wrong name?** Run the two commands above again with the correct values, then run `git commit --amend --reset-author` to update the author information of the last commit as well. This only changes the most recent commit.
+> **Already committed before noticing it wasn't set, or set the wrong name?** Run the two commands above again with the correct values, then run `git commit --amend --reset-author` to update the author information of the last commit as well. This only changes the most recent commit; if that commit has already been pushed, you then need `git push --force-with-lease` to push it.
 
 > [!NOTE]
 > **I only commit with GitHub Desktop / VS Code. Do I still need to set this?**

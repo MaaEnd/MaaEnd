@@ -453,7 +453,7 @@ git config --global user.email
 能分别输出你刚填的名字和邮箱，就说明设置成功了。
 
 > [!TIP]
-> **万一你已经 commit 了才发现没设置，或者设错了名字？** 把上面两条命令再敲一遍改成正确的，再 `git commit --amend --reset-author` 就能把上一次提交的作者信息一起改掉。这条只改最近一次提交。
+> **万一你已经 commit 了才发现没设置，或者设错了名字？** 把上面两条命令再敲一遍改成正确的，再 `git commit --amend --reset-author` 就能把上一次提交的作者信息一起改掉。这条只改最近一次提交；如果这次提交已经 push 过，改完后要用 `git push --force-with-lease` 才能推上去。
 
 > [!NOTE]
 > **我只用 GitHub Desktop / VS Code 提交，也要设置吗？**

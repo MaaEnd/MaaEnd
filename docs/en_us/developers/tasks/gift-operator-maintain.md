@@ -140,7 +140,7 @@ If all 8 steps are used and the button is still not found, or the character is n
 Two other similar retries handle click offsets caused by the operator walking over:
 
 - Dialogue button found but no dialogue entered after clicking → Step back one step first (this happens only once), then find and click the dialogue button again.
-- Dialogue entered but right-side action buttons not yet appeared → The skip button's `next` includes itself, so it keeps clicking until the give/receive buttons appear.
+- Dialogue entered but right-side action buttons not yet appeared → The skip button's `next` includes itself, so it keeps clicking until the give/receive buttons appear; with "Only Receive Gifts" enabled, `next` does not include itself, so it clicks only once.
 
 ### Differences in Default Mode Operator Selection (Compared to Receive)
 

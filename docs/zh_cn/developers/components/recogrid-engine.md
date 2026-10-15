@@ -84,7 +84,7 @@ gridtracker::Result observe(
 | 状态 | 含义 | EssenceGrid 路由 |
 | --- | --- | --- |
 | `Initial` | 首个有效帧 | 处理新格子；无候选则滑动 |
-| `Advanced` | 正向推进，或形状变化后刷新基准 | 处理新格子；无候选则滑动 |
+| `Advanced` | 正向推进，或零偏移但不构成完整重复（如行数变化）时刷新基准 | 处理新格子；无候选则滑动 |
 | `ConfirmingEnd` | 第一次完整重复 | 再滑一次确认 |
 | `Repeated` | 连续第二次完整重复 | 完成任务 |
 | `Rejected` | 空帧、列数变化、低置信对齐，或零偏移完整重复但匹配比例低于 `repeat_match_ratio` | 返回识别失败，让 Maa 同屏重试 |

@@ -6,7 +6,7 @@
 
 ### Core Concepts
 
-- **Entry Recognition**: Determines whether the current scene is an "auto-combat ready" combat scene (energy bar visible, at least one operator's link skill ready, not in character level settlement, etc.) through custom recognition `AutoFightEntryRecognition`.
+- **Entry Recognition**: Determines whether the current scene is an "auto-combat ready" combat scene (energy bar visible, at least one operator's link skill ready, operator level not shown) through custom recognition `AutoFightEntryRecognition`.
 - **Main Loop**: After entry recognition passes, the custom action `AutoFightMainAction` runs the main loop inside Go: after capturing each frame, it branches between "pause", "exit", and "execute"; when a non-combat space (such as ultimate skill cutscene) is recognized, enter pause; when the pause lasts 10 seconds or a node in `pause_exit_nodes` hits during the pause, exit; also exit when the operator level shows again in combat space (combat is over); otherwise, execute one combat operation.
 - **Execution Logic**: `AutoFightMainAction` queues actions to be performed based on the current screen (enemies, energy, link skills/ultimates, HP, etc.) and the `attach` parameters, and at the end of each frame retrieves and executes the due actions in chronological order (such as skill keys, dodge keys, target locking, etc.), with Pipeline's `__AutoFightAction*` nodes completing specific clicks/key presses.
 
@@ -35,7 +35,7 @@ The above interface is defined in `assets/resource/pipeline/Interface/AutoFight.
 
 ### Example: Mounting AutoFight in Real-time Tasks
 
-In `RealtimeTask.json`, `AutoFight` is listed in `custom_action_param.nodes` of `RealTimeTaskMain` and polled by the custom action `RealTimeTaskAction`. When in a combat scene, it will automatically enter the AutoFight process, and after the battle ends, polling continues (excerpt):
+In `assets/resource/pipeline/RealtimeTask.json`, `AutoFight` is listed in `custom_action_param.nodes` of `RealTimeTaskMain` and polled by the custom action `RealTimeTaskAction`. When in a combat scene, it will automatically enter the AutoFight process, and after the battle ends, polling continues (excerpt):
 
 ```jsonc
 {

@@ -2,7 +2,7 @@
 
 This document describes the file distribution and execution flow of `CreditShopping`.  
 Purchase conditions are not independent switches but an entire screening chain from `Item/` to `Flow/`; maintenance requires understanding this chain.  
-This document was updated on October 14, 2026.
+This document was updated on October 15, 2026.
 
 ## File Paths
 
@@ -43,7 +43,7 @@ Other related files:
 1. Enter the credit exchange tab; if not in the shop, navigate first (`GoToShop.json`), then [claim pending credits](#claiming-credits) (`Credit/ClaimCredit.json`).
 2. Before entering the scan loop, [initialize the item name whitelist for each tier once](#attach-and-whitelist-initialization) (`Flow/Entry.json` + `attachregex/action.go`).
 3. In each round, for the current shelf snapshot, evaluate in a fixed priority order (`Flow/Scan.json` → `Flow/BuyAction.json`):
-    - A target item in some tier [is unaffordable (not enough credit)](#automatic-credit-replenishment) → jump to base to replenish credit and return.
+    - A tier has "Automatically collect credits" enabled and its target item [is unaffordable (not enough credit)](#automatic-credit-replenishment) → jump to base to replenish credit and return; tiers with it disabled skip this check.
     - Whether it matches [Purchase Item Option 1 / 2 / 3](#three-tier-purchase-priority) → confirm purchase directly.
     - Whether the current credit is [below the reserve threshold](#credit-point-reserve-threshold) → end the task.
     - Whether refresh attempts are exhausted, whether to trigger [prudent refresh switching to direct purchase](#force-strategy-and-refresh).

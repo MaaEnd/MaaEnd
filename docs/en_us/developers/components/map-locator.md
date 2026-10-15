@@ -24,7 +24,7 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 
 | Parameter | Default | Description |
 | --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `loc_threshold` | `0.55` | Validation score for global-search results (local tracking does not use it). Below it the second strategy and hint windows run first; if nothing clears it, the best raw peak is still delivered (subject to the far-jump and cold-start consensus checks), so it is not a hard floor on the hit score |
+| `loc_threshold` | `0.55` | Validation score for global-search results (local tracking does not use it). Below it the second strategy runs first; if nothing clears it, the best raw peak is still delivered (its score must be above 0, otherwise the status is `TrackingLost`; it is still subject to the far-jump and cold-start consensus checks), so it is not a hard floor on the hit score |
 | `yolo_threshold` | `0.70` | YOLO confidence threshold. The current implementation stores it but never compares against it: YOLO always takes the top-scoring class, so changing it has no effect |
 | `force_global_search` | `false` | Set to `true` after cross-region teleports, respawns, or long screen switches to abandon tracking and re-lock via a full-map search |
 | `max_lost_frames` | `3` | Number of consecutive frames without a valid result that tracking tolerates; beyond it tracking is declared lost (fixed at 10 for `OMVBase` zones). Raising it tolerates brief occlusion but also lengthens how long an incorrect state persists |

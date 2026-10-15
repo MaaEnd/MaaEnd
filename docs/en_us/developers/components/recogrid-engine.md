@@ -84,7 +84,7 @@ Each scrolling task holds one `GridTracker`. Call `reset()` when a new task star
 | Status | Meaning | EssenceGrid route |
 | --- | --- | --- |
 | `Initial` | First valid frame | Process new cells; scroll if there are no candidates |
-| `Advanced` | Forward progress, or a baseline refresh after a shape change | Process new cells; scroll if there are no candidates |
+| `Advanced` | Forward progress, or a baseline refresh at zero offset without a complete repeat (e.g., a row count change) | Process new cells; scroll if there are no candidates |
 | `ConfirmingEnd` | First complete repeat | Scroll once more to confirm |
 | `Repeated` | Second consecutive complete repeat | Finish |
 | `Rejected` | Empty frame, column count change, low-confidence alignment, or a complete zero-offset repeat below `repeat_match_ratio` | Return recognition failure and let Maa retry on the same screen |

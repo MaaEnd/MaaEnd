@@ -6,8 +6,8 @@
 
 ### 核心概念
 
-- **入口识别**：通过自定义识别 `AutoFightEntryRecognition` 判断当前是否处于「可自动战斗」的战斗场景（能量条可见、至少一名干员连携技就绪、未处于角色等级结算等）。
-- **主循环**：入口识别通过后执行自定义动作 `AutoFightMainAction`，主循环在 Go 内完成：每帧截图后在「暂停」「退出」「执行」三者之间分支；识别到非战斗空间（如放大招过场）时进入暂停，暂停超过 10 秒或暂停期间命中 `pause_exit_nodes` 时退出；战斗空间内识别到干员等级重新显示（已脱战）时也退出，否则执行一次战斗操作。
+- **入口识别**：通过自定义识别 `AutoFightEntryRecognition` 判断当前是否处于「可自动战斗」的战斗场景（能量条可见、至少一名干员连携技就绪、干员等级未显示）。
+- **主循环**：入口识别通过后执行自定义动作 `AutoFightMainAction`，主循环在 Go 内完成：每帧截图后在「暂停」「退出」「执行」三者之间分支；识别到非战斗空间（如放大招过场）时进入暂停，暂停超过 10 秒或暂停期间命中 `pause_exit_nodes` 时退出；战斗空间内识别到干员等级重新显示（战斗已结束）时也退出，否则执行一次战斗操作。
 - **执行逻辑**：`AutoFightMainAction` 根据当前画面（敌人、能量、连携/终结技、血量等）和 `attach` 参数将待执行动作入队，每帧末尾按时间顺序取出已到期的动作并执行（如技能键、闪避键、锁定目标等），由 Pipeline 中的 `__AutoFightAction*` 节点完成具体点击/按键。
 
 ### 实现分工
@@ -35,7 +35,7 @@
 
 ### 示例：实时任务中挂载 AutoFight
 
-在 `RealtimeTask.json` 中，`AutoFight` 列在 `RealTimeTaskMain` 的 `custom_action_param.nodes` 里，由自定义动作 `RealTimeTaskAction` 轮询；当处于战斗场景时会自动进入 AutoFight 流程，战斗结束后继续轮询（节选）：
+在 `assets/resource/pipeline/RealtimeTask.json` 中，`AutoFight` 列在 `RealTimeTaskMain` 的 `custom_action_param.nodes` 里，由自定义动作 `RealTimeTaskAction` 轮询；当处于战斗场景时会自动进入 AutoFight 流程，战斗结束后继续轮询（节选）：
 
 ```jsonc
 {
