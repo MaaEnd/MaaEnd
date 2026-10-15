@@ -15,6 +15,7 @@ description: MaaEnd 文档与 Markdown 编写指南：中英文文档要一起�
 - 新增开发者文档时，中英文 `developers/README.md` 的文档索引都要登记。
 - 英文版与中文版逐一对应：标题、段落、列表、表格、代码块、提示块的数量和顺序都一致，不多不少。
 - 翻译正文、标题、表格和代码块里的注释；代码、节点名、字段、路径、命令，以及游戏内文字（OCR 的 `expected`、物品名、截图文件名等）保持原样。任务名、选项名用 `assets/locales/interface/en_us.json` 里的官方英文。
+- 只有中文界面的工具（如 MapNavigator 网页工具）：英文文档里的按钮、标签写界面上的中文原文，后面括号里给英文释义，如 `` `复制路径` (Copy Path) ``；标题里不放中文，以免改变锚点。
 - en_us 里的链接指向 en_us 的对应文档，`#锚点` 按英文标题生成（见下节）；只有中文版的文件（如 `.agents/skills/**`）保留中文锚点。有英文版的中文外链换成英文版，如 `conventionalcommits.org/zh-hans/` 换成 `/en/`。
 
 ## 写作约定
@@ -98,4 +99,4 @@ lint 只检查同一文件内的锚点（MD051），跨文件的 `xxx.md#锚点`
 
 - 放在 `.agents/skills/<name>/SKILL.md`。frontmatter 写 `name`（与目录名一致）和 `description`（用中文写清做什么、什么时候用，AI 靠它决定是否加载）。
 - skill 主要给 AI 读，结构清楚、指令明确优先；同样受 markdownlint 约束。
-- 给 AI 套用的输出模板放在外层 4 个反引号的 `markdown` 代码块里。
+- 给 AI 套用的输出模板放在外层 4 个反引号的 `markdown` 代码块里，参考 `maaend-issue-log-analysis` skill。
