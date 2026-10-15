@@ -18,6 +18,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from ..constants import I18N_TABLE_SUFFIXES
+
 
 class Record(dict[str, Any]):
     """属性可访问的 JSON 记录：``record.field`` 等价于 ``record["field"]``。"""
@@ -62,15 +64,6 @@ class _Logger:
 
 
 logger = _Logger()
-
-# 语言代码 -> I18nTextTable_<后缀>.json。
-I18N_TABLE_SUFFIXES = {
-    "zh-CN": "CN",
-    "zh-TW": "TC",
-    "en-US": "EN",
-    "ja-JP": "JP",
-    "ko-KR": "KR",
-}
 
 
 def load_json_dict(file_path: str | Path) -> dict[str, Any]:
@@ -143,3 +136,43 @@ def localized_text(table_cfg_dir: Path, text_id: int, lang: str) -> str:
     if not text:
         logger.debug(f"No text found for ID {text_id} in {lang}")
     return text if isinstance(text, str) else ""
+
+
+def text_id_of(ref: Any) -> int:
+    """``{"id": N, "text": ...}`` 里的文本 id；不是这个形状就是 0。"""
+    if isinstance(ref, dict):
+        value = ref.get("id")
+        if isinstance(value, int):
+            return value
+    return 0
+
+
+def as_text(value: Any) -> str:
+    """表里的 id/名字字段当字符串用；不是字符串就是空串。"""
+    return value if isinstance(value, str) else ""
+
+
+def texts_of(table_cfg_dir: Path, text_id: int, inline: str = "") -> dict[str, str]:
+    """五语文本：内联 ``text`` 优先，否则查该语言的文本表；key 是语言后缀（CN/TC/...）。"""
+    if inline:
+        return {suffix: inline for suffix in I18N_TABLE_SUFFIXES.values()}
+    return {
+        suffix: localized_text(table_cfg_dir, text_id, lang)
+        for lang, suffix in I18N_TABLE_SUFFIXES.items()
+    }
+
+
+def ref_texts(table_cfg_dir: Path, ref: Any) -> dict[str, str]:
+    """表里 ``{"id", "text"}`` 这类文本引用的五语文本。"""
+    return texts_of(table_cfg_dir, text_id_of(ref), inline=_inline_text(ref))
+
+
+def ref_text(table_cfg_dir: Path, ref: Any, lang: str = "zh-CN") -> str:
+    """表里文本引用的某一语言文本。"""
+    return _inline_text(ref) or localized_text(table_cfg_dir, text_id_of(ref), lang)
+
+
+def _inline_text(ref: Any) -> str:
+    """文本引用里直接带的那份文本（没有就是空串）。"""
+    inline = ref.get("text") if isinstance(ref, dict) else ""
+    return inline if isinstance(inline, str) else ""

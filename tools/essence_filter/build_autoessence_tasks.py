@@ -17,6 +17,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "assets" / "data" / "EssenceFilter"
+ZMDMAP_DATA_DIR = REPO_ROOT / "tools" / "zmdmap" / "data"
 TASK_DIR = REPO_ROOT / "assets" / "tasks" / "AutoEssence"
 LOCATION_DIR = TASK_DIR / "Location"
 TARGET_PATH = TASK_DIR / "Target" / "Target.json"
@@ -490,7 +491,7 @@ def sync_weapon_locales(weapons: dict[str, Any]) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--weapons", type=Path, default=DATA_DIR / "weapons_output.json")
+    parser.add_argument("--weapons", type=Path, default=ZMDMAP_DATA_DIR / "weapons.json")
     parser.add_argument("--locations", type=Path, default=DATA_DIR / "locations.json")
     parser.add_argument("--skill-pools", type=Path, default=DATA_DIR / "skill_pools.json")
     parser.add_argument("--location-keys", type=Path, default=LOCATION_KEYS_GO)

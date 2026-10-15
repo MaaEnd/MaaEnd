@@ -1,6 +1,6 @@
 # AutoDelivery 路线生成器
 
-`tools/pipeline-generate/data/delivery_destinations.json` 是 zmdmap 数据 CI 生成并由 `fetch:zmdmap` 下载的仓储/终点目录；本目录的 `routes.json` 参考 EnvironmentMonitoring 的 metadata-only 维护方式，自动同步全部仓储和终点的检索元数据，并仅在需要覆盖自动 `NAVMESH` 目标时保存实测路线。`tools/schema/auto_delivery_routes.schema.json` 为其提供 IDE 校验。两者共同生成：
+`tools/zmdmap/data/delivery_destinations.json` 是 zmdmap 数据 CI 生成并由 `fetch:zmdmap` 下载的仓储/终点目录；本目录的 `routes.json` 参考 EnvironmentMonitoring 的 metadata-only 维护方式，自动同步全部仓储和终点的检索元数据，并仅在需要覆盖自动 `NAVMESH` 目标时保存实测路线。`tools/schema/auto_delivery_routes.schema.json` 为其提供 IDE 校验。两者共同生成：
 
 - `assets/resource/pipeline/AutoDelivery/Routes/{RouteFileId}.json`：按仓储节点分组保存可直接试跑的 `AutoDeliveryRoute...` 节点，并为主路线生成允许滑索的变体；文件名取自仓储英文名（如 `OriginLodespring.json`），终点路线的 `desc` 会注明起点仓储节点；
 - `assets/resource/pipeline/AutoDelivery/RecycleBinAreas.json`：按区域生成资源回收站任务的二次判定入口；`AutoDeliveryRecognizeDestination` 发现同一地图的同一区域存在多个回收站后开始追踪或打开任务地图，并依次检查该区域的全部候选节点；

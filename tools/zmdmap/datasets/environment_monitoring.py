@@ -6,15 +6,8 @@
 from pathlib import Path
 from typing import Any
 
+from ..constants import MAAEND_LOCALES
 from ..utils.game_data import Record, localized_text, logger, read_table_cfg
-
-MAAEND_LOCALES: tuple[tuple[str, str], ...] = (
-    ("zh_cn", "zh-CN"),
-    ("zh_tw", "zh-TW"),
-    ("en_us", "en-US"),
-    ("ja_jp", "ja-JP"),
-    ("ko_kr", "ko-KR"),
-)
 
 def build_environment_monitoring(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
     """Data chain: KiteStationEntrustTasksTable -> per-terminal missions

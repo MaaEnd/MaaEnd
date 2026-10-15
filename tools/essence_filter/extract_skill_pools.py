@@ -248,8 +248,8 @@ def main() -> int:
     parser.add_argument(
         "--input",
         type=Path,
-        default=Path("assets/data/EssenceFilter/weapons_output.json"),
-        help="weapons_output.json 路径",
+        default=Path("tools/zmdmap/data/weapons.json"),
+        help="zmdmap 的 weapons.json 路径",
     )
     parser.add_argument(
         "--output",

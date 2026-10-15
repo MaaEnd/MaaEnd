@@ -1,23 +1,30 @@
 # zmdmap 精简游戏数据（`uv run zmdmap`）
 
-`tools/zmdmap` 是 MaaEnd 六个任务所需精简游戏数据的统一入口：既能从本地游戏数据**生成**，也能从
-zmdmap**下载**已发布数据，并投影进入库的 `data/*.json`。原 Node 实现（`fetch-data.mjs` /
-`project.mjs`）已全部移植到这里的 Python 模块，不再需要 Node。
+`tools/zmdmap` 是 MaaEnd 各任务所需精简游戏数据的统一入口：既能从本地游戏数据**生成**，也能从
+zmdmap**下载**已发布数据，并投影进入库的数据。原 Node 实现（`fetch-data.mjs` / `project.mjs`）已全部
+移植到这里的 Python 模块，不再需要 Node。
+
+数据树也在本目录下：
+
+| 目录 | 放什么 | 入不入库 |
+| --- | --- | --- |
+| `data/raw/` | 原样产物：下载来的六份（只有世界坐标）与本地生成的结果 | 不入库 |
+| `data/` | 可以直接用的数据：投影后的六份，以及不需要投影的那几份（`energy_point_gems.json`、`weapons.json`） | 入库 |
 
 ## 子命令
 
 | 子命令 | 作用 |
 | --- | --- |
-| `generate` | 从本地 TableCfg / JsonData 生成六份精简数据到 `data/raw/` |
-| `fetch` | 从 zmdmap 下载已发布数据到 `data/raw/`，再投影进入库的 `data/*.json` |
+| `generate` | 从本地 TableCfg / JsonData 生成精简数据：入 pipeline 的六份先进 `data/raw/`，不需要投影的直接进 `data/` |
+| `fetch` | 从 zmdmap 下载已发布数据：要投影的进 `data/raw/`，免投影的直接进 `data/`，然后投影进入库的六份 |
 
 不带子命令时只打印帮助。`fetch` 的两个步骤各由一个开关控制：`--download/--no-download`、
 `--project/--no-project`；`generate` 只带可选的 `--project`。
 
 ```shell
 uv run zmdmap                                     # 打印帮助
-uv run zmdmap generate                            # 六份都生成到 tools/pipeline-generate/data/raw/
-uv run zmdmap generate --list                     # 列出数据集名（每行一个）
+uv run zmdmap generate                            # 八份都生成到 tools/zmdmap/data/
+uv run zmdmap generate --list                     # 列出数据集名、文件名与去向（每行一个）
 uv run zmdmap generate --only collect_points      # 只生成一份（可重复给：--only a --only b）
 uv run zmdmap generate --out-dir /tmp/x --force
 uv run zmdmap fetch                               # 下载已发布数据并投影入库
@@ -28,20 +35,30 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 ## 文件职责
 
-### 生成：六份精简游戏数据（`datasets/`）
+### 生成：精简游戏数据（`datasets/`）
 
-`datasets/__init__.py` 的 `DATASETS` 登记了六份数据的顺序与文件名，`uv run zmdmap generate` 按这个
-顺序逐个调用 `build_*`；每个 `build_*` 的入参都是 `(table_cfg_dir, json_data_dir)`，只从本地兄弟仓库
-取数据（只用到其中一个目录的也照这个签名收）。
+`datasets/__init__.py` 的 `DATASETS` 登记了每份数据的顺序、文件名与**去向**（`target`），
+`uv run zmdmap generate` 按这个顺序逐个调用 `build_*`；每个 `build_*` 的入参都是
+`(table_cfg_dir, json_data_dir)`，只从本地兄弟仓库取数据（只用到其中一个目录的也照这个签名收）。
 
-| 文件 | 说明 |
-| --- | --- |
-| `datasets/delivery_jobs.py` | `delivery_jobs.json` |
-| `datasets/environment_monitoring.py` | `environment_monitoring.json` |
-| `datasets/sell_product.py` | `sell_product.json` |
-| `datasets/delivery_destinations.py` | `delivery_destinations.json` |
-| `datasets/teleport_anchors.py` | `teleport_anchors.json` |
-| `datasets/collect_points.py` | `collect_points.json` |
+| 文件 | 数据 | 去向 |
+| --- | --- | --- |
+| `datasets/delivery_jobs.py` | `delivery_jobs.json` | pipeline |
+| `datasets/environment_monitoring.py` | `environment_monitoring.json` | pipeline |
+| `datasets/sell_product.py` | `sell_product.json` | pipeline |
+| `datasets/delivery_destinations.py` | `delivery_destinations.json` | pipeline |
+| `datasets/teleport_anchors.py` | `teleport_anchors.json` | pipeline |
+| `datasets/collect_points.py` | `collect_points.json` | pipeline |
+| `datasets/essence.py` | `energy_point_gems.json`（基质筛选的能量淤积点） | plain |
+| `datasets/weapons.py` | `weapons.json`（基质筛选与图标识别共用的武器表） | plain |
+
+`pipeline` 去向的数据先进 `data/raw/`，再由投影补上底图像素；`plain` 去向不需要投影，直接进 `data/`。
+要加一份新数据，就在 `datasets/` 加一个同签名的 `build_*`，再在 `DATASETS` 里登记一行。
+
+### 常量（`constants.py`）
+
+跨模块共用的常量：五种语言的两种 key 写法（文本表后缀 `CN` / MaaEnd locale 名 `zh_cn`）、zmdmap 版本
+接口与发布地址。语言只写两份映射，其余由它们推出来，避免各处各抄一份。
 
 ### 共用件（`utils/`）
 
@@ -59,7 +76,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | `project.py` | 按 BaseNav zone 表投影 / 材料化入库数据（原 `project.mjs`） |
 | `navmesh.py` | 从 `BNAV` / `BGEO` 二进制 nav 数据里读出 zone 表 |
 | `paths.py` | 输入 / 输出路径的默认值与环境变量名 |
-| `cli.py` | `uv run zmdmap` 的入口，跑上面六个 `build_*` / 下载 / 投影 |
+| `cli.py` | `uv run zmdmap` 的入口，跑 `datasets/` 里的 `build_*` / 下载 / 投影 |
 
 入库 JSON 用 Python 的 `json` 序列化（`ensure_ascii=False`、缩进 4）。与原 Node 实现只在数字写法上
 有差别（整型浮点写成 `520.0` 而不是 `520`），值与键顺序一致——移植时已用原 JS 投影器逐份比对过解析
@@ -106,9 +123,10 @@ CI 只需要出数据时用 `uv run --no-default-groups zmdmap generate`：`clic
 
 ## 产出
 
-六份产物都只带游戏世界坐标，落在**不入库**的 `tools/pipeline-generate/data/raw/`；底图像素由投影
-步骤按 BaseNav 的 zone 表算出来，进入库的 `tools/pipeline-generate/data/*.json`。上游发布的数据不含
-底图像素，所以 `fetch` 下载完必须先投影才能被各任务生成器读取。
+入 pipeline 的六份产物都只带游戏世界坐标，落在**不入库**的 `tools/zmdmap/data/raw/`；底图像素由投影
+步骤按 BaseNav 的 zone 表算出来，进入库的 `tools/zmdmap/data/*.json`。上游发布的数据不含底图像素，
+所以 `fetch` 下载完必须先投影才能被各任务生成器读取。免投影的那几份（`energy_point_gems.json`、
+`weapons.json`）直接落在 `tools/zmdmap/data/`，各工具按需读取。
 
 整条链路（同步兄弟仓库 → 本地生成 → 投影）也在本入口，用开关控制后两步：
 
@@ -121,26 +139,26 @@ uv run zmdmap fetch                                        # 下载 → 投影�
 
 ## 读取本地数据
 
-数据入口只有 `utils/game_data.py` 里的三个函数：
+数据入口只有 `utils/game_data.py` 里的几个函数：
 
 | 函数 | 读什么 |
 | --- | --- |
 | `read_table_cfg(dir, name)` | `<table_cfg_dir>/<name>.json` |
 | `read_gameplay_config(dir, name)` | `<json_data_dir>/GameplayConfig/<name>.json` |
 | `localized_text(dir, text_id, lang)` | `<table_cfg_dir>/I18nTextTable_<后缀>.json` |
+| `ref_texts(dir, ref)` / `ref_text(dir, ref, lang)` | 表里 `{"id", "text"}` 文本引用的五语 / 单语文本 |
 
-读出来的 JSON 会换成属性可访问的 `Record`，`build_*` 里直接写 `entry.position.x`；三个函数都按
-「目录 + 文件名」缓存，六份数据共用同一次读取。
+读出来的 JSON 会换成属性可访问的 `Record`，`build_*` 里直接写 `entry.position.x`；几个函数都按
+「目录 + 文件名」缓存，多份数据共用同一次读取。
 
 ## 校验
 
-参照物是入库的 `tools/pipeline-generate/data/raw/`：拿同一份本地兄弟仓库重算一遍，产物应当与它
-逐字节一致。
+参照物是入库的 `tools/zmdmap/data/raw/`：拿同一份本地兄弟仓库重算一遍，六份产物应当与它逐字节一致。
 
 ```shell
-uv run zmdmap generate --force --out-dir <临时目录>
+uv run zmdmap generate --force --out-dir <临时目录> --data-dir <临时目录>
 ```
 
-再逐份比对 `tools/pipeline-generate/data/raw/` 下的同名文件。只改注释、重命名这类不动输出的改动，
-应当零差异；动了取数逻辑就看差异是否符合预期。注意 `data/raw/` 是**上一次本地生成**的快照，与已发布
-版本不一定是同一版（`data/version.txt` 记的是发布版本）。
+再逐份比对 `tools/zmdmap/data/raw/` 下的同名文件。只改注释、重命名这类不动输出的改动，应当零差异；
+动了取数逻辑就看差异是否符合预期。`plain` 去向的几份没有本地快照，按字段与线上发布数据比对。注意
+`data/raw/` 是**上一次本地生成**的快照，与已发布版本不一定是同一版（`data/version.txt` 记的是发布版本）。

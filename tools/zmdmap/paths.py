@@ -6,9 +6,10 @@
 ``--workspace`` 是放兄弟仓库的那个目录，既决定同步哪些仓库，也决定两个输入的默认位置；显式
 给了 ``--table-cfg-dir`` / ``--json-data-dir``（或对应环境变量）时以显式值为准。
 
-产物默认落在不入库的 ``tools/pipeline-generate/data/raw/``（原始形态，只带世界坐标），
-再由投影步骤（``tools/zmdmap/project.py``）按 BaseNav 的 zone 表投影进入库的
-``data/*.json``。
+产物落在 zmdmap 自己的数据树里：原样数据（下载的或本地生成的）进不入库的
+``tools/zmdmap/data/raw/``，可以直接用的数据进入库的 ``tools/zmdmap/data/``——入 pipeline 的六份由
+投影步骤（``tools/zmdmap/project.py``）按 BaseNav 的 zone 表换成底图像素后落在那儿，不需要投影的
+（如 EssenceFilter 那两份）直接生成在那儿。
 """
 
 from __future__ import annotations
@@ -30,9 +31,10 @@ WORKSPACE_REPO_NAMES = ("BeyondMemoryPack", "BeyondTableCfg")
 TABLE_CFG_SUBPATH = ("BeyondTableCfg", "TableCfg")
 JSON_DATA_SUBPATH = ("BeyondMemoryPack", "JsonData")
 
-# 入库数据的目录（投影的输入/输出），以及投影要用的 navmesh 子模块。
-PIPELINE_DATA_DIR = REPO_ROOT / "tools" / "pipeline-generate" / "data"
-DEFAULT_OUT_DIR = PIPELINE_DATA_DIR / "raw"
+# zmdmap 自己的数据树：``data/raw/`` 放原样产物（下载的或本地生成的，不入库），
+# ``data/`` 放可以直接用的数据（投影后的六份，以及不需要投影的）。
+ZMDMAP_DATA_DIR = REPO_ROOT / "tools" / "zmdmap" / "data"
+DEFAULT_OUT_DIR = ZMDMAP_DATA_DIR / "raw"
 MODEL_SUBMODULE_PATH = REPO_ROOT / "assets" / "resource" / "model"
 NAVMESH_DIR = MODEL_SUBMODULE_PATH / "map" / "navmesh"
 NAVMESH_FILES = ("base.nav.gz", "base.nav")

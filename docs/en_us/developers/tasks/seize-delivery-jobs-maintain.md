@@ -30,7 +30,7 @@ Both paths share the depot entry, job-list loading, reward OCR, and post-accept 
 | Auto-delivery adapter (hand-maintained) | `assets/resource/pipeline/SeizeDeliveryJobs/AutoDeliveryAdapter.json` | Calls the shared `AutoDelivery` through continuation anchors instead of copying its flow |
 | Destination names and directions (manual) | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | Per-destination five-language location name (where that destination's NPC stands) plus a `direction` code (0-8; 0 means no direction suffix); an established nickname is kept when no official entry exists |
 | Go Service | `agent/go-service/seizedeliveryjobs/` | Chained job-card OCR, reward parsing, dynamic click boxes, and per-scan session state |
-| Shared delivery catalog | `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap depot/destination data, map coordinates, areas, and source-language names read by `AutoDelivery` |
+| Shared delivery catalog | `tools/zmdmap/data/delivery_destinations.json` | zmdmap depot/destination data, map coordinates, areas, and source-language names read by `AutoDelivery` |
 
 See the [`tools/pipeline-generate` overview](../../../../tools/pipeline-generate/README.md) for zmdmap data updates and the [AutoDelivery component documentation (Chinese)](../../../zh_cn/developers/components/auto-delivery.md) for route-generation rules.
 
@@ -125,7 +125,7 @@ Both the area depot nodes and the destination nodes use the same catalog model a
 
 ```text
 zmdmap
-  └─ tools/pipeline-generate/data/delivery_destinations.json
+  └─ tools/zmdmap/data/delivery_destinations.json
        └─ AutoDelivery/model.mjs
             ├─ destinations (map, area, MapFind zone, destination u/v coordinates, recipient names)
             │    └─ endpoint-filter-data.mjs → destination rows, area candidate rows, and dispatcher rows

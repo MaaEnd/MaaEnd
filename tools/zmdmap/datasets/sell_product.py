@@ -6,15 +6,8 @@
 from pathlib import Path
 from typing import Any
 
+from ..constants import MAAEND_LOCALES
 from ..utils.game_data import Record, localized_text, logger, read_table_cfg
-
-MAAEND_LOCALES: tuple[tuple[str, str], ...] = (
-    ("zh_cn", "zh-CN"),
-    ("zh_tw", "zh-TW"),
-    ("en_us", "en-US"),
-    ("ja_jp", "ja-JP"),
-    ("ko_kr", "ko-KR"),
-)
 
 # settlement tag 增强字段 -> 输出中的 bonus 类型名。
 SETTLEMENT_BONUS_FIELDS: dict[str, str] = {

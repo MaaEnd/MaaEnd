@@ -13,6 +13,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from ..constants import MAAEND_LOCALES
 from ..utils.game_data import (
     Record,
     load_json_dict,
@@ -22,16 +23,6 @@ from ..utils.game_data import (
     read_table_cfg,
 )
 from ..utils.coords import COORD_TEXT, COORD_Y_NOTE, read_xyz
-
-# MaaEnd 侧硬编码的 5 种语言（zh_cn/zh_tw/en_us/ja_jp/ko_kr），
-# 对应 I18nTextTable_{CN,TC,EN,JP,KR}.json 后缀。
-MAAEND_LOCALES: tuple[tuple[str, str], ...] = (
-    ("zh_cn", "zh-CN"),
-    ("zh_tw", "zh-TW"),
-    ("en_us", "en-US"),
-    ("ja_jp", "ja-JP"),
-    ("ko_kr", "ko-KR"),
-)
 
 # 富文本标签（如 <@qu.key>…</>）剥除。
 RICH_TEXT_TAG = re.compile(r"<[^<>]*>")

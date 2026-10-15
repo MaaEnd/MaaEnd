@@ -1,10 +1,13 @@
-"""从 zmdmap 下载已发布的精简游戏数据到 ``data/raw/``（原 ``fetch-data.mjs``）。
+"""从 zmdmap 下载已发布的精简游戏数据（原 ``fetch-data.mjs``）。
 
-版本接口给出当前数据版本；六份数据从发布 CDN 按 ``?ver=<版本>`` 拉取。本地已是最新版本且
-``data/raw/`` 完整时跳过下载（版本检查失败也用本地缓存继续），但无论下载与否都会跑一次投影。
+版本接口给出当前数据版本，数据从发布 CDN 按 ``?ver=<版本>`` 拉取。按产物去向分两处落：
 
-下载下来的原始数据只带游戏世界坐标，落在不入库的 ``data/raw/``；底图像素由
-:mod:`tools.zmdmap.project` 按 BaseNav 的 zone 表补上。
+- 入 pipeline 的六份只带游戏世界坐标，先进不入库的 ``data/raw/``，再由 :mod:`tools.zmdmap.project`
+  按 BaseNav 的 zone 表补上底图像素、落进入库的 ``data/``；
+- 不需要投影的（EssenceFilter / IconRecognition 直接读的那两份）直接落 ``data/``。
+
+本地已是最新版本且文件齐全时跳过下载（版本检查失败也用本地缓存继续），无论下载与否都会跑一次投影。
+上游还没发布的数据只提示、不当失败：本地可以用 ``uv run zmdmap generate --only <名字>`` 生成。
 """
 
 from __future__ import annotations
@@ -18,11 +21,9 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from .constants import DATA_BASE_URL, USER_AGENT, VERSION_API
+from .datasets import PLAIN_FILES
 from .project import DATA_FILES, VERSION_FILE, dump_json
-
-VERSION_API = "https://api.zmdmap.com/api/v1/endfield/version"
-DATA_BASE_URL = "https://assets.fz.wiki/output_maaend"
-USER_AGENT = "MaaEnd-pipeline"
 
 
 def _get(url: str) -> bytes:
@@ -58,45 +59,72 @@ def read_cached_version(raw_dir: Path) -> str | None:
         return None
 
 
-def is_data_cached(raw_dir: Path) -> bool:
-    """六份原始数据是不是都在本地。"""
-    for file_name in DATA_FILES:
+def is_data_cached(raw_dir: Path, data_dir: Path) -> bool:
+    """要下载的数据是不是都在本地：入 pipeline 的在 ``raw_dir``，免投影的在 ``data_dir``。"""
+    for file_name in (*DATA_FILES, *PLAIN_FILES):
+        directory = data_dir if file_name in PLAIN_FILES else raw_dir
         try:
-            (raw_dir / file_name).read_text(encoding="utf-8")
+            (directory / file_name).read_text(encoding="utf-8")
         except OSError:
             return False
     return True
 
 
-def fetch_and_cache(raw_dir: Path, version: str, *, token: str | None = None) -> None:
-    """按版本下载六份数据（含版本号）到 ``raw_dir``。"""
+def _download_json(file_name: str, destination: Path, version: str, token: str | None) -> None:
+    params = {"ver": version}
+    if token:
+        params["t"] = token
+    url = f"{DATA_BASE_URL}/{file_name}?{urlencode(params)}"
+    print(f"[fetch-data] 下载 {url}")
+    text = _get(url).decode("utf-8")
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as error:
+        raise ValueError(f"{file_name} 不是合法 JSON：{error}") from error
+
+    formatted = dump_json(data)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(formatted, encoding="utf-8")
+    size_kb = len(formatted.encode("utf-8")) / 1024
+    print(f"[fetch-data] 已缓存 {destination} ({size_kb:.0f} KB)")
+
+
+def fetch_and_cache(
+    raw_dir: Path, data_dir: Path, version: str, *, token: str | None = None
+) -> list[str]:
+    """按版本下载数据；返回上游还没发布、被跳过的文件名。"""
     raw_dir.mkdir(parents=True, exist_ok=True)
     for file_name in DATA_FILES:
-        params = {"ver": version}
-        if token:
-            params["t"] = token
-        url = f"{DATA_BASE_URL}/{file_name}?{urlencode(params)}"
-        print(f"[fetch-data] 下载 {url}")
         try:
-            text = _get(url).decode("utf-8")
+            _download_json(file_name, raw_dir / file_name, version, token)
         except HTTPError as error:
             raise ValueError(f"下载 {file_name} 失败: {error.code} {error.reason}") from error
         except URLError as error:
             raise ValueError(f"下载 {file_name} 失败: {error.reason}") from error
-        try:
-            data = json.loads(text)
-        except json.JSONDecodeError as error:
-            raise ValueError(f"{file_name} 不是合法 JSON：{error}") from error
 
-        formatted = dump_json(data)
-        (raw_dir / file_name).write_text(formatted, encoding="utf-8")
-        size_kb = len(formatted.encode("utf-8")) / 1024
-        print(f"[fetch-data] 已缓存 {file_name} ({size_kb:.0f} KB)")
+    missing: list[str] = []
+    for file_name in PLAIN_FILES:
+        try:
+            _download_json(file_name, data_dir / file_name, version, token)
+        except HTTPError as error:
+            if error.code != 404:
+                raise ValueError(f"下载 {file_name} 失败: {error.code} {error.reason}") from error
+            print(
+                f"[fetch-data] 上游还没发布 {file_name}，跳过"
+                f"（本地可用 uv run zmdmap generate 生成）",
+                file=sys.stderr,
+            )
+            missing.append(file_name)
+        except URLError as error:
+            raise ValueError(f"下载 {file_name} 失败: {error.reason}") from error
 
     (raw_dir / VERSION_FILE).write_text(version, encoding="utf-8")
+    return missing
 
 
-def download(raw_dir: Path, *, force: bool = False, cache_bust: bool = False) -> str | None:
+def download(
+    raw_dir: Path, data_dir: Path, *, force: bool = False, cache_bust: bool = False
+) -> str | None:
     """按需下载最新版本；本地已是最新时返回 ``None``。
 
     ``cache_bust``（CI 上自动开启）同时意味着强制下载，并在请求上追加时间戳绕开远端缓存。
@@ -106,7 +134,7 @@ def download(raw_dir: Path, *, force: bool = False, cache_bust: bool = False) ->
     token = str(int(time.time() * 1000)) if should_cache_bust else None
 
     cached_version = read_cached_version(raw_dir)
-    data_cached = is_data_cached(raw_dir)
+    data_cached = is_data_cached(raw_dir, data_dir)
     latest_version: str | None = None
 
     if cached_version and data_cached and not force:
@@ -127,6 +155,8 @@ def download(raw_dir: Path, *, force: bool = False, cache_bust: bool = False) ->
         print("[fetch-data] 本地无缓存，开始下载...")
 
     version = latest_version or fetch_latest_version()
-    fetch_and_cache(raw_dir, version, token=token)
+    missing = fetch_and_cache(raw_dir, data_dir, version, token=token)
+    if missing:
+        print(f"[fetch-data] 上游还没发布：{', '.join(missing)}", file=sys.stderr)
     print(f"[fetch-data] 完成，当前版本: v{version}")
     return version

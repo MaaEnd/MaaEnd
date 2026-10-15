@@ -6,17 +6,8 @@
 from pathlib import Path
 from typing import Any
 
+from ..constants import MAAEND_LOCALES
 from ..utils.game_data import Record, localized_text, logger, read_table_cfg
-
-# MaaEnd 侧硬编码的 5 种语言（zh_cn/zh_tw/en_us/ja_jp/ko_kr），
-# 对应 I18nTextTable_{CN,TC,EN,JP,KR}.json 后缀。
-MAAEND_LOCALES: tuple[tuple[str, str], ...] = (
-    ("zh_cn", "zh-CN"),
-    ("zh_tw", "zh-TW"),
-    ("en_us", "en-US"),
-    ("ja_jp", "ja-JP"),
-    ("ko_kr", "ko-KR"),
-)
 
 def build_delivery_jobs(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
     """Data chain: FactoryItemTable -> deliverable items (deliverItemTypeList +

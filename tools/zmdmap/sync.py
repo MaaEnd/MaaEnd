@@ -15,7 +15,7 @@ from pathlib import Path
 from .paths import (
     NAVMESH_DIR,
     NAVMESH_FILES,
-    PIPELINE_DATA_DIR,
+    ZMDMAP_DATA_DIR,
     REPO_ROOT,
     WORKSPACE_REPO_NAMES,
 )
@@ -134,7 +134,7 @@ def changed_data_files(dataset_names: list[str]) -> list[str]:
     """入库 data/ 目录里与本次生成相关的改动（git status 的原始行）。"""
     expected = {f"{name}.json" for name in dataset_names} | {"version.txt"}
     changed = git(
-        REPO_ROOT, "status", "--porcelain", "--", str(PIPELINE_DATA_DIR)
+        REPO_ROOT, "status", "--porcelain", "--", str(ZMDMAP_DATA_DIR)
     ).stdout.strip()
     return [
         line

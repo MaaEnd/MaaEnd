@@ -30,7 +30,7 @@
 | 自动送货接续（手工） | `assets/resource/pipeline/SeizeDeliveryJobs/AutoDeliveryAdapter.json` | 通过 continuation anchor 调用公共 `AutoDelivery`，不复制送货流程 |
 | 终点展示名与方位（手工） | `tools/pipeline-generate/SeizeDeliveryJobs/endpoint-labels.json` | 按终点 ID 登记五语言地点名（该终点 NPC 所在的地点）与 `direction` 方位代码（0-8，0 表示不加方位后缀） |
 | Go Service | `agent/go-service/seizedeliveryjobs/` | 委托卡片链式 OCR、奖励解析、动态点击坐标和一次扫描的会话状态 |
-| 共享送货目录 | `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap 发布的仓储、终点、地图坐标、区域和五语言源数据；由 `AutoDelivery` 生成器读取 |
+| 共享送货目录 | `tools/zmdmap/data/delivery_destinations.json` | zmdmap 发布的仓储、终点、地图坐标、区域和五语言源数据；由 `AutoDelivery` 生成器读取 |
 
 生成器总览和 zmdmap 数据更新方式见 [`tools/pipeline-generate/README.md`](../../../../tools/pipeline-generate/README.md)；自动送货路线的详细规则见 [`AutoDelivery` 组件文档](../components/auto-delivery.md)。
 
@@ -125,7 +125,7 @@ SeizeDeliveryJobsScanTarget
 
 ```text
 zmdmap
-  └─ tools/pipeline-generate/data/delivery_destinations.json
+  └─ tools/zmdmap/data/delivery_destinations.json
        └─ AutoDelivery/model.mjs
             ├─ destinations（地图、区域、MapFind zone、终点 u/v 坐标和收货人名称）
             │    └─ endpoint-filter-data.mjs → 终点行、区域 candidates 行和调度器行

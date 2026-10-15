@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from .navmesh import NavZone, load_nav_zones
-from .paths import PIPELINE_DATA_DIR, REPO_ROOT
+from .paths import ZMDMAP_DATA_DIR, REPO_ROOT
 
 VERSION_FILE = "version.txt"
 
@@ -216,7 +216,7 @@ def copy_version(raw_dir: Path, out_dir: Path, force: bool) -> None:
 
 def project_data(
     raw_dir: Path,
-    out_dir: Path = PIPELINE_DATA_DIR,
+    out_dir: Path = ZMDMAP_DATA_DIR,
     *,
     nav: str | None = None,
     only: tuple[str, ...] | list[str] | None = None,
