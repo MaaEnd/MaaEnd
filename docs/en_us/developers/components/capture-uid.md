@@ -58,11 +58,11 @@ After switching accounts, the cache must be cleared to prevent reuse of old UIDs
 | `use_cache` | `bool` | `true` | Return a cached UID without reading the registry or running OCR. |
 | `stay_on_current_screen` | `bool` | `true` | Non-Win32 only: if `false`, call `SceneEnterMenuOperationalManual` before screenshot OCR. |
 | `allow_unknown` | `bool` | `true` | If registry read, region resolution, or OCR fails, return `"unknown"` instead of throwing an error. If `false`, failure causes the action to fail. |
-| `clear_cache` | `bool` | `false` | Clear the UID cache and return immediately, without reading the registry or running OCR. |
+| `clear_cache` | `bool` | `false` | Clear the UID cache and empty `CurrentAccountIdentity`, then return immediately, without reading the registry or running OCR. |
 | `output_type` | `string` | `"hashed"` | Output format: `hashed` (salted SHA-256, first 16 hex characters), `masked` (first and last 3 characters kept, middle replaced with `*`), or `raw` (original UID digits). |
 
 > [!note]
-> When `clear_cache` is `true`, all other parameters are ignored—the action only clears the cache and returns success directly.
+> When `clear_cache` is `true`, all other parameters are ignored (`output_type` is still validated, and an invalid value fails the action)—the action only clears the UID cache and empties `CurrentAccountIdentity`, and returns success once that succeeds.
 
 Region is resolved by `gamesetting.ResolveRegion` / `SetRegion`; CaptureUid itself does not accept a region parameter.
 
@@ -94,11 +94,11 @@ captureuid.ClearCache()
 
 The action executes in the following order:
 
-1. **Cache Check** — If `use_cache` is `true` and the cache already contains a UID, return it directly.
+1. **Cache Check** — If `use_cache` is `true` and the cache already contains a UID, skip steps 2–4 and format the cached UID directly.
 2. **Get UID by Controller** — Win32 calls `gamesetting.GetCachedUID()`; other controllers optionally navigate according to `stay_on_current_screen`, then capture a screenshot and extract UID digits with OCR at the original ROI `[60, 690, 155, 25]`. Win32 read failures never fall back to OCR. An unknown controller type is handled according to `allow_unknown`.
 3. **Digit Validation** — Verify the number has 8–12 digits. If the digit count is outside this range or the read fails, based on `allow_unknown`, either return `"unknown"` or throw an error.
-4. **Output Formatting** — Convert according to `output_type`: for `hashed`, read (or generate for the first time) the random salt `debug/record/random_salt.txt`, compute `SHA-256(numeric UID + salt)`, and take the first 16 hexadecimal characters; for `masked`, keep the first and last 3 characters and mask the middle with `*`; for `raw`, return the digits unchanged.
-5. **Caching** — Store the raw UID digits in an in-memory cache so subsequent calls can convert them to any `output_type`.
+4. **Caching** — Store the raw UID digits in an in-memory cache so subsequent calls can convert them to any `output_type`.
+5. **Output Formatting** — Convert according to `output_type`: for `hashed`, read (or generate for the first time) the random salt `debug/record/random_salt.txt`, compute `SHA-256(numeric UID + salt)`, and take the first 16 hexadecimal characters; for `masked`, keep the first and last 3 characters and mask the middle with `*`; for `raw`, return the digits unchanged.
 6. **Publish Account Identity** — The Custom Action writes the hash to the shared state node `CurrentAccountIdentity` so cross-Agent consumers such as zipline planning can identify the current account. An `"unknown"` capture publishes an empty value and planning falls back to walking.
 
 ## Privacy Design
@@ -113,6 +113,7 @@ The action executes in the following order:
 | ---------------------- | ----------------------------------------------------------------------------------- | ------------------------ | ----------------------------------------------- |
 | AutoStockpile selector | `agent/go-service/autostockpile/selector.go` | Go API (`Capture`) | Correlate price upload with pseudonymous identity |
 | CreditShopping | `agent/go-service/creditshopping/action_record.go` | Go API (`Capture`) | Correlate UID when recording shelf snapshots |
+| OutpostTrading | `assets/resource/pipeline/OutpostTrading.json` (`OutpostTradingCaptureUid` node), `agent/go-service/outposttrading/operator/cache.go` | Pipeline (`CaptureUid`) + Go API (`GetCachedUID`) | Partition the operator cache by account |
 | AccountSwitch | `assets/resource/pipeline/AccountSwitch.json` (`__AccountSwitchClearUidCache` node) | Pipeline (`clear_cache`) | Clear cache after switching accounts |
 | SceneImageCheck | `assets/resource/pipeline/SceneManager/SceneImageCheck.json` (`__SceneImageCaptureUid`) | Pipeline (empty-param `CaptureUid`) | Publish `CurrentAccountIdentity` during scene screen check |
 | MapNavigator | `assets/resource/pipeline/Common/AccountIdentity.json` | Resource shared state node | Automatically select zipline records for the current account |

@@ -59,7 +59,7 @@ When several coordinates on the same map have to be tried one after another and 
 | `at` | Two numbers `[x, y]`, the same frame as above |
 | `next` | The node the framework goes to when this candidate hits; it is also the candidate's on/off switch |
 
-A set of candidates shares one zoom-out and one viewport solve: they all look at the same screen, and those two steps give every one of them the same answer. What each candidate pays on its own is one windowed confirmation, plus a pan when its target is off screen. One node per point is exactly what repeats those first two steps, and every repetition computes the same answer.
+A set of candidates shares one zoom-out, and, as long as the screen has not moved, one viewport solve: they all look at the same screen, and those two steps give every one of them the same answer. What each candidate pays on its own is the windowed confirmation, plus a pan when its target is off screen; when its icon does not confirm, it recaptures the screen and re-solves the viewport before retrying, up to `max_attempts` times, and the next candidate carries on from that recaptured screen (only an unlock-state mismatch fails on the spot and leaves the screen as it was). One node per point is exactly what repeats those first two steps, and every repetition computes the same answer.
 
 Candidates are judged in writing order, and **the first one whose icon confirms wins; the ones behind it are never looked at**. The winner hands its own `next` back to the framework, overriding whatever the node's own `next` says.
 
@@ -101,7 +101,7 @@ The switch has to sit ahead of recognition, and that part matters: candidates st
 
 With `candidates` this table applies per candidate: any candidate hitting makes the node hit, and the node misses only when the whole set misses.
 
-The player's own marker is drawn on top of the icon, which is what stops the icon from being recognised — and the reason it is covered is precisely that the character is already standing there. In that case the node reports a **hit** at the expected position, because a marker landing there is itself evidence that the viewport was solved correctly. This branch only applies to icons flagged `occluded_by_player` in the table.
+The player's own marker is drawn on top of the icon, which is what stops the icon from being recognised — and the reason it is covered is precisely that the character is already standing there. In that case the node reports a **hit** at the expected position, because a marker landing there is itself evidence that the viewport was solved correctly. This branch only applies to icons flagged `occluded_by_player` in the table, and only when the requested state is unlocked (`state` is not `"locked"`).
 
 A mismatched unlock state makes that candidate **fail immediately without retrying** — that is a rule, not a recognition failure, and retrying changes nothing.
 
@@ -202,7 +202,7 @@ The icon table is `assets/resource/image/SceneManager/MapIcons.json`, one entry 
 
 The table sits beside the templates it names and resolves through the same resource layers: a client whose icons are drawn differently ships its own templates and its own thresholds in its own layer.
 
-Three entries exist today:
+Four entries exist today:
 
 **`TeleportAnchor`**, the ordinary teleport anchor. Its position is fixed, `at` is the icon itself, and a match offset beyond `gate` is treated as the wrong icon. The two closest teleport points in a zone are 23.5 base map pixels apart, so a 10 pixel gate leaves twice the margin needed.
 
@@ -220,13 +220,15 @@ Three entries exist today:
 >
 > This threshold was calibrated from one blue and one white icon in a single capture. The margin on both sides is wide, but that one pair is the whole sample. Blue is also not exclusive to this icon — the same map carries other blue icons, they simply sit far enough from the Recycle Station coordinates never to fall inside that small fixed window.
 
+**`DeliveryPoint`**, the delivery destination marker. It borrows `../SeizeDeliveryJobs/DeliveryPoint.png` with its own threshold of 0.8; the Accept Commission & Delivery task uses it with `candidates` to judge every enabled delivery destination of an area in one call. It carries no `gold_ratio`, so `state` cannot be used on it.
+
 ---
 
 ## Wiring up teleport points
 
 Teleport nodes live in `assets/resource/pipeline/SceneManager/SceneTeleport<Zone>.json` and fill the `__ScenePrivateMapTeleportPickAnchor` slot; entry nodes live in `Interface/Scene<Zone>.json`, bind that slot and route through `__ScenePrivateMap<SubArea>EnterWorldAnchorWithPick`, which switches the map to its main layer, uses `all_of` to confirm that this really is that sub-area's map screen, and gives the zoom a head start on the way.
 
-The `[JumpBack]__ScenePrivateMapZoomOut` in the entry node is a head start, not a requirement: `MapFind` calls `SceneMapZoomOutWithoutReco` on its own. Copy an existing entry when wiring up a new point; leaving it out costs nothing in recognition.
+The `[JumpBack]__ScenePrivateMapZoomOut` in `...EnterWorldAnchorWithPick` is a head start, not a requirement: `MapFind` calls `SceneMapZoomOutWithoutReco` on its own. When wiring up a new sub-area, copy an existing `...EnterWorldAnchorWithPick`; leaving it out costs nothing in recognition.
 
 The sub-area check lives on `...EnterWorldAnchorWithPick`; the `MapFind` node no longer repeats it — the `recognition` slot went to `MapFind`, and solving the viewport is itself the stronger test of "are we on this map at all".
 
@@ -243,15 +245,15 @@ This section is for readers who need the internals; day-to-day use does not requ
 Recognition runs in two stages that answer different questions, and only the second one decides where the coordinate lands:
 
 1. **Viewport solve — where is the camera pointed**: take a fixed patch of the screen centre (clear of the layer list on the left, the detail panel on the right, and the top and bottom bars) and template match it against the zone's base map across scales, solving the similarity transform `base = (screen - roiOrigin) * scale + baseOrigin`. This decides **where we are looking**, not which coordinate to hand back. The scale sweep runs coarse then fine: the coarse pass walks a geometric ladder across the whole band on a downscaled image, the fine pass returns to full resolution and only sweeps the neighbourhood of the winning coarse rung.
-2. **Icon confirmation — is anything actually there**: project `at` through that transform onto the screen, match the icon templates in a small window at that position, and hand back the centre of what matched.
+2. **Icon confirmation — is anything actually there**: project `at` through that transform onto the screen, match the icon templates in a small window at that position, and hand back the thickest point of the matched icon's body (the point farthest from the edge in the largest blob of the template's alpha mask), not the centre of the template box.
 
 Map icons are drawn at a fixed screen size and do not scale with the map; 5% off the best scale already drops the score below 0.6. Icon templates therefore ship at their displayed size under the capture resolution, and the table's scale ladder has to land squarely on it.
 
-The framework normalises every capture to one base resolution, but the same icon is not drawn at the same size on every client — mobile runs about a quarter larger than desktop. Template paths are therefore resolved through the resource layers the controller loaded, the controller's own layer ahead of the base layer, the same hierarchy `TemplateMatch` uses in the Pipeline. Base maps exist only in the base layer and land there naturally. The log records which file was actually read, so a wrong layer is visible at a glance.
+The framework normalises every capture to one base resolution, but the same icon is not drawn at the same size on every client — mobile runs about a quarter larger than desktop. Template paths are therefore resolved through the resource layers the controller loaded, the controller's own layer ahead of the base layer, the same hierarchy `TemplateMatch` uses in the Pipeline. Base maps exist only in the base layer and land there naturally. The log records each template's name and pixel size and the icon table's actual path, and prints the whole layer chain when a file cannot be found, so a wrong layer is visible at a glance.
 
 The template's alpha channel doubles as a weight mask: the soft glow around an icon shows the terrain through it in a real capture, and letting it take part in the correlation only drags the score down; the level text on a base card is masked out too, since it differs per player.
 
-When the target falls outside the usable area the node pans the map instead of answering anyway. Panning is accounted separately and is not charged against `max_attempts` — bringing the target into view is this step's own job, not a recognition failure. But every pan has to genuinely shorten the remaining distance; otherwise the map is already against its edge and will not move, and the node stops there rather than spinning.
+When the target falls outside the usable area the node pans the map instead of answering anyway. Panning is accounted separately and is not charged against `max_attempts` — bringing the target into view is this step's own job, not a recognition failure. But a pan has to actually move the map: only when an axis stays put through 3 consecutive pans that issued enough distance is the map taken to be against its edge (a single stall is usually the touch being swallowed by an icon or line under the start point, and the next pan takes another path); the node then confirms the target where it stands if it is still inside the usable area, and misses otherwise, rather than spinning.
 
 The unlock check runs on its own track. Locked and unlocked icons differ only in colour and are identical in shape, and normalised correlation on greyscale is insensitive to overall brightness — which is exactly why it recognises icons so reliably, and exactly why it cannot tell the two apart. Unlock is therefore judged on colour instead: whichever pixels are gold in the template are measured for saturation at the same pixels of the live capture. This only judges unlock and never judges authenticity — map texture alone can reach a high gold ratio, so it is no evidence that an icon is there.
 

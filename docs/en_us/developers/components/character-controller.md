@@ -8,8 +8,8 @@ This document explains how to use nodes related to CharacterController.
 
 > [!IMPORTANT]
 >
-> Camera/view nodes (Yaw / Pitch / MoveToTarget, etc.) depend on keyboard/mouse input and **must run in the foreground mode (Seize)**, otherwise input events cannot be correctly delivered to the game.  
-> Axis movement nodes (`CharacterControllerForwardAxisAction` and the `__CharacterControllerAxisLongPress*Action` nodes used by `CharacterSearchAction`) work on **ADB** via joystick `LongPress` overrides in [`resource_adb/.../CharacterController/Action.json`](../../../../assets/resource_adb/pipeline/Common/Private/CharacterController/Action.json); Seize is not required for those.
+> On Win32, camera/view nodes (Yaw / Pitch / MoveToTarget, etc.) depend on keyboard/mouse input and **must run in the foreground mode (Seize)**, otherwise input events cannot be correctly delivered to the game.  
+> On **ADB**, [`resource_adb/.../CharacterController/Action.json`](../../../../assets/resource_adb/pipeline/Common/Private/CharacterController/Action.json) remaps the axis movement nodes (`CharacterControllerForwardAxisAction` and the `__CharacterControllerAxisLongPress*Action` nodes used by `CharacterSearchAction`) to joystick `LongPress`, the view drag to a touch swipe, and the Shift sprint to a sprint-button tap; Seize is not required for any of them.
 
 ## Node Descriptions
 
@@ -62,7 +62,7 @@ Required parameters:
 Optional parameters:
 
 - `align_threshold`: Positive integer, default `120`. The pixel tolerance range for horizontal centering. When the horizontal offset between the target center and the screen center is less than this value, it is considered aligned, and the action switches to forward/backward movement.
-- `far_target_width`: Positive integer. When the recognition box width is less than this value, the target is considered too far away, and the character moves forward directly, skipping rotation and alignment logic. This judgment is not enabled if not set.
+- `far_target_width`: Positive integer. When the recognition box width is less than this value, the target is considered too far away, and the character moves forward directly (200 ms forward, then 3 sprints), skipping rotation and alignment logic. This judgment is not enabled if not set.
 
 #### Behavior Description
 
@@ -70,7 +70,7 @@ Each time it is called, one of the following logics is executed based on the cur
 
 | Condition | Action Taken |
 | -------------------------------------------------------------------------- | ----------------- |
-| Recognition box width < `far_target_width` (and `far_target_width` is set) | Move forward |
+| Recognition box width < `far_target_width` (and `far_target_width` is set) | Move forward, then sprint 3 times |
 | Target is left of screen center (exceeds `align_threshold`) | Rotate view left |
 | Target is right of screen center (exceeds `align_threshold`) | Rotate view right |
 | Target is aligned, but Y-coordinate > 480 (target in lower half, passed) | Move backward |

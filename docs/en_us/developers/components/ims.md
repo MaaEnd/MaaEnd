@@ -1,6 +1,6 @@
 # IMS (Item Management System)
 
-IMS (Item Management System) keeps a cache of cultivation-item counts inside the go-service process so tasks can answer “is it enough?” and “should we farm?”. Pipeline still owns flow control; IMS only provides recognitions and actions.
+IMS (Item Management System) keeps a cache of counts for cultivation items and other items inside the go-service process so tasks can answer “is it enough?” and “should we farm?”. Pipeline still owns flow control; IMS only provides recognitions and actions.
 
 There are **2 recognitions + 3 actions**:
 
@@ -60,7 +60,7 @@ Cache keys and recognition IDs all use [`IconRecognition`](./icon-recognition.md
 | Field | Meaning |
 | --- | --- |
 | `grid_type` | Grid screen. Progression/valuables tabs use `valuables`; required for IconRecognition scan |
-| `roi` | Optional; omit to use the IconRecognition reference ROI (Valuables Win32 `[24,76,950,570]` / ADB `[100,85,790,540]`) |
+| `roi` | Optional; omit to use the IconRecognition reference ROI (Valuables Vault Win32 `[24,76,950,570]` / ADB `[100,85,790,540]`); `transfer` has no default and must pass it explicitly |
 | `item_filters` | Narrows IconRecognition **candidate templates** only (e.g. `ValuableDepot:SpecialItem` on the Progression tab); does not filter which IDs IMS keeps |
 | `items` | **Anchored quantity nodes** (still required for region rebuild): cache ID → Pipeline recognition node. The node may be pure OCR, or And with `box_index` selecting the OCR digit result (top-bar currencies, shop digits, etc.) |
 | `deduplicate` | IconRecognition dedupe; A2 defaults to `true` |
@@ -69,7 +69,7 @@ Cache keys and recognition IDs all use [`IconRecognition`](./icon-recognition.md
 | `transaction_mode` | Optional TaskID-scoped staging: `begin` starts and scans, `continue` scans into the same stage, and `commit` skips recognition and publishes the completed stage. Omit for immediate persistence |
 | `notify_ui` | Whether to announce hits; defaults to `true`. After each scan, emit one icon HTML summary; scan stages summarize per page, while `commit` summarizes final deduplicated quantities for items hit by the transaction |
 
-Provide `grid_type` (IconRecognition scan) and/or `items`. Shop-only OCR entries may pass only `items` (e.g. `item_originium_recharge` / `item_diamond`). Keys in `items` always join `page_dedup=false` region rebuild (miss removes the ID).
+Provide `grid_type` (IconRecognition scan) and/or `items`. Shop-only OCR entries may pass only `items` (e.g. `item_originium_recharge` / `item_diamond`). Keys in `items` always join the `merge_mode: replace` + `page_dedup=false` region rebuild (miss removes the ID).
 
 Example (Progression tab):
 
@@ -106,6 +106,14 @@ Hits emit one HTML Focus summary after the scan finishes by default (16px item i
 
 `sum` combines two **absolute inventory snapshots**. It does not replace A3 reward-delta semantics and should not be called outside a complete `first region replace → second region sum` flow. Ordinary paging still uses the default `replace`: page 1 does a region rebuild; later pages overwrite only the IDs visible on that page so earlier pages are not wiped. The reserved entry `SyncItemData` defaults to:
 
+```text
+First: SyncItemDataRunFull (page_dedup = false, region rebuild)
+  next[0]: [JumpBack]SyncItemDataScrollPage → swipe, then SyncItemDataRunInc (page_dedup = true)
+  next[1]: SyncItemDataLock (scan finished)
+```
+
+Extra pages are controlled by `SyncItemDataScrollPage`: the node defaults to `enabled=false` and no controller resource currently enables it, so only the first page is actually scanned. To scroll, first enable the node in that controller's resource, then set the number of extra pages with `max_hit` (currently 1); when `max_hit` is exhausted, JumpBack no longer matches and Lock runs.
+
 For a multi-page or multi-region snapshot that must not publish partial data when interrupted, use one Pipeline TaskID:
 
 ```text
@@ -116,19 +124,11 @@ Complete-success endpoint: transaction_mode = commit
 
 `begin` replaces unfinished staging left on the same runner. `continue` and `commit` must match the staging TaskID. `commit` needs neither `grid_type` nor `items` and performs no screenshot; with `notify_ui: true`, it sorts by localized item name and prints one icon HTML summary after a successful commit. Omitting `transaction_mode` keeps the original behavior in which every A2 call persists immediately.
 
-```text
-First: SyncItemDataRunFull (page_dedup = false, region rebuild)
-  next[0]: [JumpBack]SyncItemDataScrollPage → swipe, then SyncItemDataRunInc (page_dedup = true)
-  next[1]: SyncItemDataLock (scan finished)
-```
-
-Extra pages are controlled only by `SyncItemDataScrollPage.max_hit` (currently 1). When `max_hit` is exhausted, JumpBack no longer matches and Lock runs. The node defaults to `enabled=false` on Win32-Front; the ADB resource enables it and overrides it with a swipe-up.
-
 ### One real scan per Resource (implementation details)
 
 Each entry node handles the convention above automatically; callers only need to keep invoking the matching entry:
 
-1. **First call:** actually open the target screen, scan, write the cache, then close the “scan again” path with a Resource-level override for the rest of this run.
+1. **First call:** actually open the target screen, scan, write the cache, then close the “scan again” path with a Resource-level override for the rest of this run (an account switch reopens every entry).
 2. **Later calls:** the entry is still reachable, but it immediately decides “already synced this run”, skips the scan, and continues.
 3. **Next cold start:** reloading the Resource / restarting the client restores the path; the next IMS task will scan again.
 
@@ -162,7 +162,7 @@ A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`,
 | `grid_type` | Defaults to `rewards` |
 | `roi` | Optional; default rewards reference ROI (Win32 `[39,82,1205,511]` / ADB `[178,140,935,440]`) |
 | `item_filters` | Optional; omit for rewards defaults (`Isolate:*` + `ValuableDepot:*`) |
-| `item_ids` | Optional; **union** with `item_filters` (filters are expanded first, then the IDs are merged). With only `item_ids`, the covering filters are derived from the catalog. Use to add an exact subset of a broad category (e.g. base Fast Collect only wants Arms Inspector / Arms INSP Kit, not the Cast Dies / Arms INSP Set) |
+| `item_ids` | Optional; **union** with `item_filters` (filters are expanded first, then the IDs are merged). With only `item_ids`, the covering filters are derived from the catalog. Use to select an exact subset of a broad category (e.g. Trial of Swordmancy's `TrialOfSwordmancyFightSuccess` passes only `item_domain_jinlong_coupon`: it adds only the Wuling Stock Bill, not the Valley Stock Bill from the same `Isolate:DomainGold` category) |
 
 `custom_action_param` may be `{}`. Does **not** update sync timestamp / readiness.
 
@@ -176,7 +176,7 @@ A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`,
 
 ### Works without a cache
 
-Unlike the other actions / recognitions, A3 **does not require** an existing IMS cache.
+A3 **does not require** an existing IMS cache.
 
 If A2 has never succeeded (`hasData=false`), A3 still recognizes the rewards but **does not write the cache**, and still returns success so closing the rewards and later steps are not blocked. An empty rewards grid (IconRecognition `no_match` / `grid_detection_failed`) and a failed disk hydrate are also considered a success. An IconRecognition `exception`, and a missing `recognition_items.json` while resolving candidates with `item_ids`, are logged and treated as an empty grid, so the close-rewards click still runs. Illegal parameters (unparseable JSON, empty or duplicate entries, unknown `item_id`) still fail the action. Hits print one HTML summary after recognition (quantities of same-ID stacks are merged first; template `ims.add_item_summary`, with icons), without IMS header/footer lines such as “not initialized / not writing the cache”.
 
@@ -186,7 +186,7 @@ With a cache it also prints one summary; no Pipeline Starting/Succeeded Focus is
 >
 > Reference Pipeline: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
 >
-> Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (Claim Daily Rewards, etc.), `DijiangRewardsFastCollectAddItemData` (base Fast Collect, separate candidates), `CreditShoppingClaimConfirm` (Credit Shop: Oroberyl / T-Creds / Arsenal Ticket / Credits + `ValuableDepot:SpecialItem`), `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`.
+> Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (Claim Daily Rewards, etc.), `DijiangRewardsFastCollectAddItemData` (base Fast Collect, separate candidates), `CreditShoppingClaimConfirm` (Credit Shop: Oroberyl / T-Creds / Arsenal Ticket / Credits + `ValuableDepot:SpecialItem`), `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`, `SceneNoticeRewardsConfirmWithAnchor`, `ReceptionRoomSendCluesQuickGiveClose` (Reception Room quick gift), `AutoDeliveryCloseRewardDialog` (automatic delivery), `ProtocolSpaceRewardAddItemData` (Protocol Space), `TrialOfSwordmancyFightSuccess` (Trial of Swordmancy).
 
 ---
 
@@ -344,7 +344,7 @@ When you need “ready and quantity satisfied”:
 
 - In-session, process memory is authoritative; hot paths do not reread disk.
 - Successful writes by non-transactional A2 calls, A2 transactional `commit`, A1, and A3 (when `hasData`) are also persisted for the next cold start; A2 transactional `begin` / `continue` do not modify the formal cache.
-- `ClearCache` (tests / account switch) clears memory and does **not** reload from disk.
+- `ClearCache` clears memory and does **not** reload from disk.
 - Small drift in the cache is acceptable; periodic A2 corrects it.
 
 ### Go helper API (tests)

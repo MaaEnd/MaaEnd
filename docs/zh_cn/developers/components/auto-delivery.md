@@ -1,12 +1,12 @@
 # 开发手册 - AutoDelivery 送货组件
 
-AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当前送货任务详情后，只需进入公共节点 `AutoDelivery`；组件会自行判断当前需要取货还是送货，并完成对应流程。
+AutoDelivery 是任务无关的自动送货组件。调用方只需进入公共节点 `AutoDelivery`；组件会先确保任务界面已选中送货任务详情，再自行判断当前需要取货还是送货，并完成对应流程。
 
 ## 调用方式
 
 ### 前置条件与入口
 
-调用方只负责触发打开**正确的当前送货任务详情**。组件会等待详情页加载完成，但不负责首次从任务列表或仓储节点打开详情，因为不同任务进入详情页的方式不同。
+调用方无需自行打开送货任务详情。组件会先确认任务界面是否已选中“送货任务”详情并等待详情页加载完成；未选中时通过 `SceneEnterMenuMission` 进入任务界面，在任务列表中滑动查找并选中送货任务，列表滑到底仍未找到时失败。
 
 ```json
 {
@@ -23,15 +23,15 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 ### 默认流程
 
 ```text
-当前送货任务详情
+任意界面
   -> AutoDelivery
-       -> 已取货：识别终点 -> 取消追踪 -> 返回大世界 -> 前往终点 -> 提交货物
-       -> 未取货：识别仓储 -> 快速传送 -> 取消追踪 -> 返回大世界
+       -> 已取货：识别终点 -> 返回大世界 -> 前往终点 -> 提交货物
+       -> 未取货：识别仓储 -> 快速传送 -> 返回大世界
             -> 前往仓储 -> 取货 -> 重新打开送货任务详情
-            -> 识别终点 -> 取消追踪 -> 返回大世界 -> 前往终点 -> 提交货物
+            -> 识别终点 -> 返回大世界 -> 前往终点 -> 提交货物
 ```
 
-组件按任务详情中的区域、任务条件和操作按钮自行判断阶段。快速传送后、资源回收站地图判定后以及取货后需要重新打开任务详情时，组件会通过 `SubTask` 依次执行 `SceneEnterMenuMission` 和送货任务选择流程；只有同时确认任务界面与右侧“送货任务”详情后，才会取消追踪或继续识别目的地。调用方无需为详情切换配置额外入口或 anchor。
+组件按任务详情中的区域和任务条件自行判断阶段。进入组件时以及取货后需要重新打开任务详情时，组件会通过 `SubTask` 依次执行 `SceneEnterMenuMission` 和送货任务选择流程（已选中送货任务详情时直接继续）；只有同时确认任务界面与右侧“送货任务”详情后，才会继续识别仓储或目的地。调用方无需为详情切换配置额外入口或 anchor。
 
 页面信息无法识别、路线无法解析或操作失败时，组件不转发额外的 `on_error`，而是按 Pipeline 默认行为结束任务。调用方若需要在某个正常阶段返回自身流程，应使用下节的 anchor，不要直接引用内部节点。
 
@@ -41,8 +41,8 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 | anchor | 触发位置 | 未设置时的默认行为 | 典型用途 |
 | --- | --- | --- | --- |
-| `AutoDeliveryAfterRecognizeDestination` | 已识别到送货终点后 | 取消追踪并前往终点 | 已取货时禁止仅传送、仅走到仓储等模式继续移动 |
-| `AutoDeliveryAfterQuickTeleport` | 快速传送到仓储附近后 | 取消追踪并前往仓储 | 仅快速传送 |
+| `AutoDeliveryAfterRecognizeDestination` | 已识别到送货终点后 | 返回大世界并前往终点 | 已取货时禁止仅传送、仅走到仓储等模式继续移动 |
+| `AutoDeliveryAfterQuickTeleport` | 快速传送到仓储附近后 | 前往仓储 | 仅快速传送 |
 | `AutoDeliveryAfterNavigateDepot` | 到达仓储后 | 取货 | 仅走到仓储节点 |
 | `AutoDeliveryAfterSubmitGoods` | 关闭送货奖励界面后 | 正常结束组件 | 返回调用方主循环或完成节点 |
 
@@ -65,18 +65,18 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 ## 滑索配置
 
-仓储和终点导航默认都以 `zip: false` 运行。需要允许滑索时，通过任务选项覆写两个固定识别节点的完整 `custom_action_param`，不修改 `AutoDelivery.next`：
+仓储和终点导航默认都以 `zip: false` 运行。需要允许滑索时，通过任务选项覆写两个固定导航节点的 `attach.zip`，不修改 `AutoDelivery.next`：
 
 ```json
 {
     "pipeline_override": {
-        "AutoDeliveryRecognizeDepot": {
-            "custom_action_param": {
+        "AutoDeliveryNavigateDepot": {
+            "attach": {
                 "zip": true
             }
         },
-        "AutoDeliveryRecognizeDestination": {
-            "custom_action_param": {
+        "AutoDeliveryNavigateDestination": {
+            "attach": {
                 "zip": true
             }
         }
@@ -84,7 +84,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 }
 ```
 
-`pipeline_override` 对 `custom_action_param` 使用字段级替换，因此必须提供节点需要的完整参数。`AutoDeliveryRecognizeDepot` 与 `AutoDeliveryRecognizeDestination` 不是执行入口，但节点名属于任务选项使用的配置契约。允许滑索只表示 MapNavigator 可以在合适时选择滑索，不保证实际路线一定使用。
+Go 侧的 `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` 分别读取这两个节点的 `attach.zip`，据此选择普通或允许滑索的生成路线节点。`AutoDeliveryNavigateDepot` 与 `AutoDeliveryNavigateDestination` 不是执行入口，但节点名属于任务选项使用的配置契约。允许滑索只表示 MapNavigator 可以在合适时选择滑索，不保证实际路线一定使用。
 
 ## 组件维护
 
@@ -100,7 +100,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | `assets/data/AutoDelivery/catalog.json` | 运行时 OCR 匹配目录，仅保留文本、归属关系和生成节点名 |
 | `assets/resource/pipeline/AutoDelivery/Common.json` | 公共入口和任务详情识别 |
 | `assets/resource/pipeline/AutoDelivery/Pickup.json` | 快速传送、仓储导航和取货 |
-| `assets/resource/pipeline/AutoDelivery/Delivery.json` | 取消追踪、终点导航和提交货物 |
+| `assets/resource/pipeline/AutoDelivery/Delivery.json` | 识别终点、返回大世界、终点导航和提交货物 |
 | `agent/go-service/autodelivery/` | OCR 匹配、运行时目录校验和生成路线节点分发 |
 
 普通仓储和资源回收站由 `tools/zmdmap/datasets/delivery_destinations.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往实体正面 2 米处的交互范围中心（实体原点压在机体占地里，导航包把那块挖掉了），从而保证从交互正面接近（朝向不合适时用覆盖条目中的 `yaw` 修正，见下节）；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。自动生成的点都带 `target_deck_y`，取值是该实体在数据源中的世界高度，接近点与终点同层、共用这个高度，用来在重叠可走面里选中目标层；人工覆盖路径的层声明按实测结果原样保留。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
@@ -120,23 +120,23 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | 数组 | 字段 | 含义 |
 | --- | --- | --- |
 | `depots` | `path` | 从快速传送落点前往仓储的完整 MapNavigator 路线；未配置时使用自动生成的仓储坐标 |
-| `depots` | `retry_path` | 覆盖首次未识别到取货按钮时执行的自动两点站位修正路线 |
+| `depots` | `retry_path` | 覆盖环绕搜索后仍未识别到取货按钮时执行的自动两点站位修正路线 |
 | `depots` | `departure_path` | 拼接到该仓储所属终点路线前的公共离场路线 |
 | `depots` | `yaw` | 覆盖主路线接近点与自动重试路线使用的朝向角；仓储朝向墙体时使用 |
 | `depots` | `offset` | 微调自动生成的仓储导航落点（底图像素偏移） |
 | `depots` | `walk_only` / `zipline_only` | 覆盖该仓储主路线的滑索策略，见下节；二者互斥 |
 | `destinations` | `path` | 包含最终航点的完整终点路线；未配置时使用自动生成的终点坐标 |
-| `destinations` | `retry_path` | 覆盖首次未识别到提交按钮时执行的自动两点站位修正路线 |
+| `destinations` | `retry_path` | 覆盖环绕搜索后仍未识别到提交按钮时执行的自动两点站位修正路线 |
 | `destinations` | `yaw` | 覆盖回收站主路线接近点与自动重试路线使用的朝向角；NPC 主路线仍为单个终点 |
 | `destinations` | `offset` | 微调自动生成的终点导航落点（底图像素偏移） |
 | `destinations` | `walk_only` / `zipline_only` | 覆盖该终点主路线的滑索策略，见下节；二者互斥 |
 | `destinations` | `verify_name` | 到达终点后用 OCR 复核世界交互提示中的角色名，见下节；仅支持 NPC 终点 |
 
-终点目录中的 `area` 取自 `LevelDescTable.showName`，对应任务详情页实际显示的关卡名称，而不是地区建设中的仓储节点名称。普通收货任务按 `buyerName` 匹配终点；`kind` 为 `recycle_bin` 的回收站任务不显示买家名，改为匹配完整 `mission`。同一区域存在多个相同回收站文案时保持歧义失败，不静默选择可能错误的终点。
+终点目录中的 `area` 取自 `LevelDescTable.showName`，对应任务详情页实际显示的关卡名称，而不是地区建设中的仓储节点名称。普通收货任务按 `buyerName` 匹配终点；`kind` 为 `recycle_bin` 的回收站任务不显示买家名，改为匹配完整 `mission`。同一区域存在多个相同回收站文案时不凭文字选择终点，而是打开任务地图，按大地图图标判定是哪一个回收站。
 
 ### `retry_path`
 
-`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从主路线结束后的实际站位开始执行，只需维护路径点；首点区域声明由生成器按仓储所在 `map` 统一注入，同区声明会被归一化后重新生成，跨区声明直接报错。所有仓储和送货目标未配置时都使用自动生成的“8 米必经接近点 → 原始终点”路线，无需手工复制坐标；自动路线与主路线同源，从接近点到终点一律带 `target_deck_y`，共用实体的世界高度。接近点方位不合适时优先用下节的 `yaw` 修正，而不是改写整条 `retry_path`。这不改变 NPC 主路线仍为单个终点的规则。
+`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从主路线结束后的实际站位开始执行，只需维护路径点；首点区域声明由生成器按仓储所在 `map` 统一注入，同区声明会被归一化后重新生成，跨区声明直接报错。所有仓储和送货目标未配置时都使用自动生成的“8 米必经接近点 → 终点”路线（仓储与回收站的终点是实体正面 2 米处的交互范围中心，NPC 为原始坐标），无需手工复制坐标；自动路线与主路线同源，从接近点到终点一律带 `target_deck_y`，共用实体的世界高度。接近点方位不合适时优先用下节的 `yaw` 修正，而不是改写整条 `retry_path`。这不改变 NPC 主路线仍为单个终点的规则。
 
 只在已经确认自动两点修正不适用时配置 `retry_path`，例如断网格、分层或目标附近需要绕行。不要用它掩盖模板不稳定、页面未加载或主路线错误。
 
@@ -145,11 +145,11 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 ```text
 前往仓储或终点
   -> 首次识别到交互按钮：继续取货或提交
-  -> 首次未识别到，且目录中存在 retry 节点：修正站位一次 -> 再识别一次
+  -> 首次未识别到：先环绕搜索；仍未找到且目录中存在 retry 节点时修正站位一次 -> 再识别一次
   -> 没有 retry 节点，或修正后仍未识别到：结束任务
 ```
 
-retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。一次取货或交付流程最多执行一次站位修正。
+retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。一次取货或交付流程最多执行一次站位修正。带交互点的交货路线走到点上仍认不到提示时，导航本身失败并结束任务，不会进入环绕搜索和站位修正。
 
 ### `yaw`
 
@@ -198,6 +198,6 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 pnpm generate:AutoDelivery
 ```
 
-`pnpm check` / `pnpm test` 按需执行：改动包含 `tests/**` 时本地跑 `pnpm test`，其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。
+`pnpm check` / `pnpm test` 按需执行：改动包含 `tests/**` 时本地跑 `pnpm test`，若同时改了 `assets/**` 或 `tools/schema/**`，一并跑 `pnpm check`；其余情况不必在本地跑，提 PR 后跟进相应 CI 即可，详见[编码规范](../coding-standards.md#提交前检查)。
 
 静态检查和节点测试不能代替游戏内验证。新增地区或修改交互界面后，仍需分别验证未取货恢复、已取货恢复、取货站位修正、NPC 交货和非 NPC 交货链路。

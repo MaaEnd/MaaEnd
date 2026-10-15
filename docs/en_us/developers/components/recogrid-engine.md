@@ -87,7 +87,7 @@ Each scrolling task holds one `GridTracker`. Call `reset()` when a new task star
 | `Advanced` | Forward progress, or a baseline refresh after a shape change | Process new cells; scroll if there are no candidates |
 | `ConfirmingEnd` | First complete repeat | Scroll once more to confirm |
 | `Repeated` | Second consecutive complete repeat | Finish |
-| `Rejected` | Empty frame, column count change, or low-confidence alignment | Return recognition failure and let Maa retry on the same screen |
+| `Rejected` | Empty frame, column count change, low-confidence alignment, or a complete zero-offset repeat below `repeat_match_ratio` | Return recognition failure and let Maa retry on the same screen |
 
 ### Alignment and deduplication
 
@@ -148,11 +148,11 @@ EssenceGrid processes only tracker `new_cells`:
 
 After Pipeline clicks a cell, OCR nodes read the three skills and their levels. Go's `runUnifiedSkillDecision` only decides the branch:
 
-- target matched: go to `LockItem`;
-- no match and discarding enabled: go to `DiscardItem`;
+- target matched: go to `EssenceFilterLockItem`;
+- no match and discarding enabled: go to `EssenceFilterDiscardItem`;
 - otherwise: return to `EssenceGridAdvance`.
 
-Pipeline owns the actual button recognition, clicking, and `CheckLocked` / `CheckDiscarded` verification. Go must not route directly to a post-action check node, because doing so skips the operation.
+Pipeline owns the actual button recognition, clicking, and `EssenceFilterCheckLocked` / `EssenceFilterCheckDiscarded` verification. Go must not route directly to a post-action check node, because doing so skips the operation.
 
 ## Controller differences
 

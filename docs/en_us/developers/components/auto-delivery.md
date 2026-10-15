@@ -1,12 +1,12 @@
 # Development Manual - AutoDelivery Delivery Component
 
-AutoDelivery is a task-agnostic automatic delivery component. After the caller opens the details of the correct current delivery job, it only needs to enter the public node `AutoDelivery`; the component decides on its own whether it currently needs to pick up or deliver, and completes the corresponding flow.
+AutoDelivery is a task-agnostic automatic delivery component. The caller only needs to enter the public node `AutoDelivery`; the component first makes sure the delivery job details are selected on the Missions screen, then decides on its own whether it currently needs to pick up or deliver, and completes the corresponding flow.
 
 ## Usage
 
 ### Prerequisites and Entry
 
-The caller is only responsible for triggering the opening of **the correct current delivery job's details**. The component waits for the detail page to finish loading, but it is not responsible for opening the details the first time from the mission list or a depot node, because different tasks reach the detail page in different ways.
+The caller does not need to open the delivery job details itself. The component first checks whether the Missions screen already has the "Delivery Job" details selected and waits for the detail page to finish loading; if not, it enters the Missions screen through `SceneEnterMenuMission`, scrolls the mission list to find and select the delivery job, and fails if the list reaches the bottom without one.
 
 ```json
 {
@@ -23,15 +23,15 @@ The caller is only responsible for triggering the opening of **the correct curre
 ### Default Flow
 
 ```text
-Current delivery job details
+Any screen
   -> AutoDelivery
-       -> Already picked up: recognize destination -> cancel tracking -> return to overworld -> go to destination -> submit cargo
-       -> Not picked up yet: recognize depot -> quick teleport -> cancel tracking -> return to overworld
+       -> Already picked up: recognize destination -> return to overworld -> go to destination -> submit cargo
+       -> Not picked up yet: recognize depot -> quick teleport -> return to overworld
             -> go to depot -> pick up -> reopen delivery job details
-            -> recognize destination -> cancel tracking -> return to overworld -> go to destination -> submit cargo
+            -> recognize destination -> return to overworld -> go to destination -> submit cargo
 ```
 
-The component works out the stage on its own from the area, the mission conditions, and the action buttons in the job details. When the job details need to be reopened after a quick teleport, after the Resource Recycle Station map check, or after pickup, the component runs `SceneEnterMenuMission` and then the delivery job selection flow through `SubTask`; only after confirming both the Missions screen and the `送货任务` (Delivery Job) details on the right does it cancel tracking or go on to recognize the destination. The caller does not need to configure any extra entry or anchor for switching to the details.
+The component works out the stage on its own from the area and the mission conditions in the job details. On entry, and when the job details need to be reopened after pickup, the component runs `SceneEnterMenuMission` and then the delivery job selection flow through `SubTask` (going straight on if the delivery job details are already selected); only after confirming both the Missions screen and the "Delivery Job" details on the right does it go on to recognize the depot or the destination. The caller does not need to configure any extra entry or anchor for switching to the details.
 
 When page information cannot be recognized, a route cannot be resolved, or an operation fails, the component does not forward any extra `on_error` and instead ends the task according to the Pipeline's default behavior. If the caller needs to return to its own flow at a normal stage, it should use the anchors in the next section instead of referencing internal nodes directly.
 
@@ -41,8 +41,8 @@ All four stage exits take the form "anchor first, default node as fallback". Whe
 
 | Anchor | Trigger point | Default behavior when unset | Typical use |
 | --- | --- | --- | --- |
-| `AutoDeliveryAfterRecognizeDestination` | After the delivery destination has been recognized | Cancel tracking and go to the destination | When the cargo has already been picked up, stop modes such as teleport-only and walk-to-depot-only from moving on |
-| `AutoDeliveryAfterQuickTeleport` | After quick-teleporting near the depot | Cancel tracking and go to the depot | Quick teleport only |
+| `AutoDeliveryAfterRecognizeDestination` | After the delivery destination has been recognized | Return to the overworld and go to the destination | When the cargo has already been picked up, stop modes such as teleport-only and walk-to-depot-only from moving on |
+| `AutoDeliveryAfterQuickTeleport` | After quick-teleporting near the depot | Go to the depot | Quick teleport only |
 | `AutoDeliveryAfterNavigateDepot` | After reaching the depot | Pick up | Walk to the depot node only |
 | `AutoDeliveryAfterSubmitGoods` | After the delivery reward screen is closed | End the component normally | Return to the caller's main loop or completion node |
 
@@ -65,18 +65,18 @@ A full delivery usually only needs the exit after submission:
 
 ## Zipline Configuration
 
-Depot and destination navigation both run with `zip: false` by default. To allow ziplines, have a task option override the full `custom_action_param` of the two fixed recognition nodes, without modifying `AutoDelivery.next`:
+Depot and destination navigation both run with `zip: false` by default. To allow ziplines, have a task option override `attach.zip` of the two fixed navigation nodes, without modifying `AutoDelivery.next`:
 
 ```json
 {
     "pipeline_override": {
-        "AutoDeliveryRecognizeDepot": {
-            "custom_action_param": {
+        "AutoDeliveryNavigateDepot": {
+            "attach": {
                 "zip": true
             }
         },
-        "AutoDeliveryRecognizeDestination": {
-            "custom_action_param": {
+        "AutoDeliveryNavigateDestination": {
+            "attach": {
                 "zip": true
             }
         }
@@ -84,7 +84,7 @@ Depot and destination navigation both run with `zip: false` by default. To allow
 }
 ```
 
-`pipeline_override` replaces `custom_action_param` at the field level, so the full parameters the node needs must be provided. `AutoDeliveryRecognizeDepot` and `AutoDeliveryRecognizeDestination` are not execution entries, but their node names are part of the configuration contract used by task options. Allowing ziplines only means MapNavigator may choose a zipline when appropriate; it does not guarantee that the actual route will use one.
+On the Go side, `AutoDeliveryResolveDepotAction` / `AutoDeliveryResolveDestinationAction` read the `attach.zip` of these two nodes respectively and pick the plain or the zipline-enabled generated route node accordingly. `AutoDeliveryNavigateDepot` and `AutoDeliveryNavigateDestination` are not execution entries, but their node names are part of the configuration contract used by task options. Allowing ziplines only means MapNavigator may choose a zipline when appropriate; it does not guarantee that the actual route will use one.
 
 ## Component Maintenance
 
@@ -100,7 +100,7 @@ This section is for maintainers of AutoDelivery's data and implementation; ordin
 | `assets/data/AutoDelivery/catalog.json` | Runtime OCR matching catalog, keeping only text, ownership relations, and generated node names |
 | `assets/resource/pipeline/AutoDelivery/Common.json` | Public entry and job details recognition |
 | `assets/resource/pipeline/AutoDelivery/Pickup.json` | Quick teleport, depot navigation, and pickup |
-| `assets/resource/pipeline/AutoDelivery/Delivery.json` | Cancel tracking, destination navigation, and cargo submission |
+| `assets/resource/pipeline/AutoDelivery/Delivery.json` | Destination recognition, returning to the overworld, destination navigation, and cargo submission |
 | `agent/go-service/autodelivery/` | OCR matching, runtime catalog validation, and dispatch to generated route nodes |
 
 For ordinary depots and Resource Recycle Stations, `tools/zmdmap/datasets/delivery_destinations.py` provides the game-data coordinates and yaw. The route generator first generates a `NAVMESH` must-pass point with `required: true` 8 meters out along the target's yaw direction, then heads to the center of the interaction range 2 meters in front of the entity (the entity's origin sits inside the machine's footprint, which the navigation pack cuts out), which guarantees an approach from the front of the interaction (when the orientation is unsuitable, correct it with `yaw` in the override entry, see below); ordinary recipient NPCs still get only a single `NAVMESH` target at the original coordinate. Every generated point carries `target_deck_y`, whose value is the entity's world height in the source data; the approach point and the destination are on the same deck and share this height, which is used to pick the target deck among overlapping walkable surfaces. Deck declarations in manually overridden paths are kept exactly as measured. Only maintain overrides in `routes.json` for a broken mesh, layered terrain, or when a special standing position is needed.
@@ -120,23 +120,23 @@ The override file only has the top-level `depots` and `destinations`:
 | Array | Field | Meaning |
 | --- | --- | --- |
 | `depots` | `path` | Full MapNavigator route from the quick teleport landing point to the depot; when not configured, the automatically generated depot coordinates are used |
-| `depots` | `retry_path` | Overrides the automatic two-point position-correction route run when the pickup button is not recognized the first time |
+| `depots` | `retry_path` | Overrides the automatic two-point position-correction route run when the pickup button is still not recognized after the circle search |
 | `depots` | `departure_path` | Shared departure route prepended to the routes of the destinations that belong to this depot |
 | `depots` | `yaw` | Overrides the facing angle used by the main route's approach point and the automatic retry route; use it when the depot faces a wall |
 | `depots` | `offset` | Fine-tunes the automatically generated depot navigation landing point (base map pixel offset) |
 | `depots` | `walk_only` / `zipline_only` | Overrides the zipline policy of this depot's main route, see below; the two are mutually exclusive |
 | `destinations` | `path` | Full destination route including the final waypoint; when not configured, the automatically generated destination coordinates are used |
-| `destinations` | `retry_path` | Overrides the automatic two-point position-correction route run when the submit button is not recognized the first time |
+| `destinations` | `retry_path` | Overrides the automatic two-point position-correction route run when the submit button is still not recognized after the circle search |
 | `destinations` | `yaw` | Overrides the facing angle used by the recycle station main route's approach point and the automatic retry route; the NPC main route remains a single destination point |
 | `destinations` | `offset` | Fine-tunes the automatically generated destination navigation landing point (base map pixel offset) |
 | `destinations` | `walk_only` / `zipline_only` | Overrides the zipline policy of this destination's main route, see below; the two are mutually exclusive |
 | `destinations` | `verify_name` | After arriving at the destination, uses OCR to verify the character name in the world interact prompt, see below; only supported for NPC destinations |
 
-The `area` in the destination catalog comes from `LevelDescTable.showName`, which is the level name actually shown on the job detail page, not the depot node name in Regional Development. Ordinary recipient jobs match the destination by `buyerName`; recycle station jobs, whose `kind` is `recycle_bin`, show no buyer name and match the full `mission` instead. When several identical recycle station texts exist in the same area, matching fails as ambiguous rather than silently picking a destination that may be wrong.
+The `area` in the destination catalog comes from `LevelDescTable.showName`, which is the level name actually shown on the job detail page, not the depot node name in Regional Development. Ordinary recipient jobs match the destination by `buyerName`; recycle station jobs, whose `kind` is `recycle_bin`, show no buyer name and match the full `mission` instead. When several identical recycle station texts exist in the same area, the text does not pick the destination; instead the job's map is opened and the world map icon decides which recycle station it is.
 
 ### `retry_path`
 
-`retry_path` uses the same format as `MapNavigateAction.custom_action_param.path`. It runs from the actual position where the main route ended, and only the waypoints need maintaining: the generator injects the first-point zone declaration uniformly from the depot's `map`, a same-zone declaration is normalized and regenerated, and a cross-zone declaration is an error. When not configured, every depot and delivery destination uses the automatically generated "8-meter must-pass approach point → original destination" route, so no coordinates need copying by hand; the automatic route comes from the same source as the main route, and every point from the approach point to the destination carries `target_deck_y`, sharing the entity's world height. When the approach point's direction is unsuitable, prefer correcting it with `yaw` in the next section over rewriting the whole `retry_path`. This does not change the rule that the NPC main route remains a single destination point.
+`retry_path` uses the same format as `MapNavigateAction.custom_action_param.path`. It runs from the actual position where the main route ended, and only the waypoints need maintaining: the generator injects the first-point zone declaration uniformly from the depot's `map`, a same-zone declaration is normalized and regenerated, and a cross-zone declaration is an error. When not configured, every depot and delivery destination uses the automatically generated "8-meter must-pass approach point → end point" route (for depots and recycle stations the end point is the interaction range center 2 meters in front of the entity, for NPCs the original coordinate), so no coordinates need copying by hand; the automatic route comes from the same source as the main route, and every point from the approach point to the destination carries `target_deck_y`, sharing the entity's world height. When the approach point's direction is unsuitable, prefer correcting it with `yaw` in the next section over rewriting the whole `retry_path`. This does not change the rule that the NPC main route remains a single destination point.
 
 Configure `retry_path` only once you have confirmed that the automatic two-point correction does not apply, for example with a broken mesh, layered terrain, or a detour needed near the target. Do not use it to mask unstable templates, pages that have not loaded, or a wrong main route.
 
@@ -145,11 +145,11 @@ The execution boundaries are as follows:
 ```text
 Go to the depot or destination
   -> Interaction button recognized on the first try: continue with pickup or submission
-  -> Not recognized on the first try, and the catalog has a retry node: correct the position once -> recognize once more
+  -> Not recognized on the first try: circle-search first; if still not found and the catalog has a retry node, correct the position once -> recognize once more
   -> No retry node, or still not recognized after correction: end the task
 ```
 
-The retry node does not inherit the main route's `zip`, and it forms neither an anchor nor a retry loop. A single pickup or delivery flow performs at most one position correction.
+The retry node does not inherit the main route's `zip`, and it forms neither an anchor nor a retry loop. A single pickup or delivery flow performs at most one position correction. On a hand-in route that ends with an interaction point, if the prompt is still not recognized at the point, the navigation itself fails and ends the task without the circle search or the position correction.
 
 ### `yaw`
 
@@ -198,6 +198,6 @@ After changing data, recognition, or flow, regenerate the routes and the runtime
 pnpm generate:AutoDelivery
 ```
 
-Run `pnpm check` / `pnpm test` as needed: run `pnpm test` locally when the change includes `tests/**`, and otherwise leave validation to PR CI; see the [coding standards](../coding-standards.md#pre-submission-check) for details.
+Run `pnpm check` / `pnpm test` as needed: run `pnpm test` locally when the change includes `tests/**`, and if you also changed `assets/**` or `tools/schema/**`, run `pnpm check` as well; otherwise there is no need to run them locally, just follow the relevant CI after opening a PR. See the [coding standards](../coding-standards.md#pre-submission-check) for details.
 
 Static checks and node tests cannot replace in-game verification. After adding a region or changing an interaction screen, the paths for recovery before pickup, recovery after pickup, pickup position correction, NPC hand-in, and non-NPC hand-in still need to be verified one by one.
