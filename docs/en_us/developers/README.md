@@ -95,6 +95,7 @@ Only required when maintaining the corresponding task.
 | [AutoStockpile](./tasks/auto-stockpile-maintain.md) | Product templates, product mapping, price thresholds, and region extension maintenance |
 | [AutoStockStaple](./tasks/auto-stockstaple-maintain.md) | Regular expression initialization, product recognition chain, quantity control |
 | [DijiangRewards](./tasks/dijiang-rewards-maintain.md) | Main flow, stage responsibilities, and interface option override logic |
+| [GameLaunch](./tasks/game-launch-maintain.md) | CN launcher configuration, OCR click, and process lifetime |
 | [CreditShopping](./tasks/credit-shopping-maintain.md) | Purchase priority, credit linkage, refresh strategy, and product extension |
 | [EnvironmentMonitoring](./tasks/environment-monitoring-maintain.md) | Observation point route data, `pipeline-generate` automatic generation and new point integration process |
 | [OutpostTrading](./tasks/outpost-trading-maintain.md) | Main flow, zmdmap compact game data sync, automatic operators, and dynamic selling-loop maintenance |

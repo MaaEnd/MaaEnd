@@ -1,0 +1,33 @@
+# GameLaunch 官方启动器预任务
+
+本文说明 Windows 国服官方启动器的预任务入口与维护边界。  
+更新日期：2026-10-15。
+
+## 配置与执行
+
+在「通过官方启动器启动游戏（国服）」中填写鹰角启动器 `Launcher.exe` 的绝对路径，留空则跳过。启动器需要已安装游戏并完成登录、更新。此入口不支持国际服或其他渠道启动器。
+
+Client 在连接 `Win32-Front` 控制器前执行 `agent/go-service --pretask GameLaunch`，将输入值作为最后一个参数传入：
+
+```json
+{"GameLaunchLauncher":{"Path":"D:\\Hypergryph Launcher\\Launcher.exe"}}
+```
+
+`GameSetting` 在 `GameLaunch` 之前执行，以便在启动前应用游戏设置。游戏已有 `UnityWndClass` / `Endfield` 窗口时直接复用；存在「游戏启动失败」窗口时报告失败，不将空白游戏窗口视为成功。
+
+## 识别与进程生命周期
+
+Go 负责启动 `Launcher.exe --game=endfield --reason=4`、发现窗口和等待游戏窗口。`OfficialLauncher/StartGame.json` 使用 MaaFramework OCR 识别完整文本「开始游戏」，只点击一次，再由 Go 确认游戏窗口出现。连接游戏后的登录和场景判断仍由原有任务负责。
+
+识别 ROI 为 1280×720 基准下的 `[900, 540, 360, 160]`，来自国服启动器右下角的实际按钮界面。修改前应重新获取该启动器的截图验证。启动器要求登录、更新或弹窗阻断时，不绕过提示、不重复点击，预任务失败后由用户处理。
+
+启动器创建并持有游戏进程，必须保留运行。代码只释放本进程持有的句柄，不终止启动器，不设置游戏父进程，不修改游戏文件或账号缓存。外部多账号工具应在游戏退出后自行完成账号切换，再执行本预任务。
+
+## 验证
+
+```bash
+cd agent/go-service
+go test ./pretask/...
+```
+
+检查输入参数兼容 PI 的 `input` 对象格式，以及游戏启动失败窗口优先于正常游戏窗口的判断。修改原生接入后执行 `uv run build-and-install`，并在 Windows 国服官方启动器上检查冷启动、游戏已运行和启动器需要更新时的行为；未执行的场景应在 PR 中明确说明。

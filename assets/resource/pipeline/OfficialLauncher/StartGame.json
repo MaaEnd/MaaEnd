@@ -1,0 +1,24 @@
+{
+    "OfficialLauncherStartGame": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    540,
+                    360,
+                    160
+                ],
+                "expected": [
+                    "开始游戏"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

@@ -1,0 +1,31 @@
+{
+    "pretask": {
+        "controller": [
+            "Win32-Front"
+        ],
+        "exec": "agent/go-service",
+        "args": [
+            "--pretask",
+            "GameLaunch"
+        ],
+        "name": "GameLaunch",
+        "label": "$pretask.GameLaunch.label",
+        "description": "$pretask.GameLaunch.description",
+        "option": [
+            "GameLaunchLauncher"
+        ]
+    },
+    "option": {
+        "GameLaunchLauncher": {
+            "type": "input",
+            "label": "$option.GameLaunchLauncher.label",
+            "inputs": [
+                {
+                    "name": "Path",
+                    "label": "$option.GameLaunchLauncher.Path.label",
+                    "default": ""
+                }
+            ]
+        }
+    }
+}

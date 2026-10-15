@@ -100,6 +100,7 @@ flowchart TD
 | [AutoStockpile 自动囤货](./tasks/auto-stockpile-maintain.md) | 商品模板、商品映射、价格阈值与地区扩展维护 |
 | [AutoStockStaple 稳定需求物资](./tasks/auto-stockstaple-maintain.md) | 正则初始化、商品识别链、数量控制 |
 | [DijiangRewards 基建任务](./tasks/dijiang-rewards-maintain.md) | 主流程、阶段职责与 interface 选项覆盖逻辑 |
+| [GameLaunch 官方启动器预任务](./tasks/game-launch-maintain.md) | 国服启动器配置、OCR 点击与进程生命周期 |
 | [CreditShopping 信用点商店](./tasks/credit-shopping-maintain.md) | 购买优先级、补信用联动、刷新策略与商品扩展 |
 | [EnvironmentMonitoring 环境监测](./tasks/environment-monitoring-maintain.md) | 观察点路线数据、`pipeline-generate` 自动生成与新点接入流程 |
 | [OutpostTrading 据点交易](./tasks/outpost-trading-maintain.md) | 主流程、zmdmap 精简游戏数据同步、自动干员与动态售卖循环维护 |
