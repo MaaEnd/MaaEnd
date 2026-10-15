@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .paths import (
-    MODEL_SUBMODULE_PATH,
     NAVMESH_DIR,
     NAVMESH_FILES,
     PIPELINE_DATA_DIR,
@@ -103,52 +102,8 @@ def sync_repo(name: str, repo: Path, *, dry_run: bool) -> RepoOutcome:
     return RepoOutcome(name, "updated", f"{head} → {after}（{behind} 个提交，{branch}）")
 
 
-def submodule_upstream(repo: Path) -> str | None:
-    """子模块处于分离头指针，按 origin/HEAD → origin/main → origin/master 找可比较的上游。"""
-    default = git(repo, "rev-parse", "--abbrev-ref", "origin/HEAD").stdout.strip()
-    candidates = [default] if default and default != "origin/HEAD" else []
-    candidates += ["origin/main", "origin/master"]
-    for candidate in candidates:
-        if git(repo, "rev-parse", "--verify", "--quiet", candidate).returncode == 0:
-            return candidate
-    return None
-
-
-def sync_model_submodule(*, update: bool) -> RepoOutcome:
-    """报告（或更新）assets/resource/model：BaseNav 数据包，投影用的 zone 表来源。"""
-    name = "assets/resource/model"
-    repo = MODEL_SUBMODULE_PATH
-    if not (repo / ".git").exists():
-        return RepoOutcome(name, "missing", f"{repo} 尚未初始化；投影会改用远端 navmesh")
-
-    fetched = git(repo, "fetch", "--prune", "origin")
-    if fetched.returncode != 0:
-        return RepoOutcome(name, "failed", f"git fetch 失败：{last_lines(fetched.stdout)}", ok=False)
-
-    upstream = submodule_upstream(repo)
-    head = git(repo, "rev-parse", "--short", "HEAD").stdout.strip()
-    if upstream is None:
-        return RepoOutcome(name, "current", f"停在 {head}（找不到可比较的上游）")
-
-    target = git(repo, "rev-parse", "--short", upstream).stdout.strip()
-    behind = git(repo, "rev-list", "--count", f"HEAD..{upstream}").stdout.strip() or "0"
-    if head == target:
-        return RepoOutcome(name, "current", f"已是最新（{head}）")
-    if not update:
-        return RepoOutcome(
-            name, "pending", f"{head} → {target}（落后 {behind} 个提交；--update-model 才会更新）"
-        )
-
-    merged = git(repo, "merge", "--ff-only", upstream)
-    if merged.returncode != 0:
-        return RepoOutcome(name, "failed", f"无法快进到 {upstream}，需要人工处理", ok=False)
-    return RepoOutcome(name, "updated", f"{head} → {target}（{behind} 个提交）")
-
-
-def sync_workspace(
-    workspace: Path, *, dry_run: bool, update_model: bool
-) -> tuple[list[RepoOutcome], bool]:
-    """同步 workspace 下的兄弟仓库（外加 navmesh 子模块）。
+def sync_workspace(workspace: Path, *, dry_run: bool) -> tuple[list[RepoOutcome], bool]:
+    """同步 workspace 下的兄弟仓库。
 
     返回 ``(各仓库结果, 是否有失败)``。
     """
@@ -158,10 +113,6 @@ def sync_workspace(
         outcome = sync_repo(name, workspace / name, dry_run=dry_run)
         failed = failed or not outcome.ok
         outcomes.append(outcome)
-
-    model = sync_model_submodule(update=update_model and not dry_run)
-    failed = failed or not model.ok
-    outcomes.append(model)
     return outcomes, failed
 
 

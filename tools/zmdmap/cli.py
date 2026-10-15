@@ -27,7 +27,7 @@ teleport_anchors -> collect_points），产物只带游戏世界坐标；底图�
     uv run zmdmap generate --list                     # 列出数据集名（每行一个）
     uv run zmdmap generate --only collect_points       # 只生成一份（可重复给）
     uv run zmdmap generate --sync                     # 先同步兄弟仓库，再生成
-    uv run zmdmap generate --sync --update-model --project   # 连 navmesh 一起更新并投影入库
+    uv run zmdmap generate --sync --project           # 同步、生成，并把结果投影入库
     uv run zmdmap fetch                               # 下载已发布数据并投影入库
     uv run zmdmap fetch --cache-bust                  # 强制重新下载（CI 上默认开启）
     uv run zmdmap fetch --no-download --only collect_points  # 不下载，只用 data/raw/ 重新投影
@@ -228,7 +228,6 @@ def main() -> None:
 @data_dir_option()
 @only_option()
 @click.option("--sync/--no-sync", default=False, help="生成前先同步兄弟仓库（只做快进合并）")
-@click.option("--update-model", is_flag=True, help="同步时顺带更新 assets/resource/model 子模块")
 @click.option(
     "--project/--no-project",
     default=False,
@@ -248,7 +247,6 @@ def generate_command(
     data_dir: Path,
     only: tuple[str, ...],
     sync: bool,
-    update_model: bool,
     project: bool,
     nav: str | None,
     dry_run: bool,
@@ -277,9 +275,7 @@ def generate_command(
     sync_failed = False
     if sync:
         click.echo("\n── 同步 ──────────────────────────────────────────")
-        outcomes, sync_failed = sync_workspace(
-            workspace, dry_run=dry_run, update_model=update_model
-        )
+        outcomes, sync_failed = sync_workspace(workspace, dry_run=dry_run)
         for outcome in outcomes:
             mark = SYNC_MARKS.get(outcome.state, SYNC_MARK_UNKNOWN)
             click.echo(f"  [{mark}] {outcome.name:<20} {outcome.detail}")

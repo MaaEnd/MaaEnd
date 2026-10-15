@@ -72,12 +72,13 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | 开关 | 作用 |
 | --- | --- |
 | `--sync` | 生成前先同步兄弟仓库（只对干净工作区做快进合并） |
-| `--update-model` | 同步时顺带更新 `assets/resource/model` 子模块（navmesh / zone 投影参数） |
 | `--project` | 生成后把 `data/raw/` 投影进入库的 `data/*.json` |
 | `--dry-run` | 只报告会做什么（不合并、不生成、不投影） |
 
 只对干净的工作区做快进合并，绝不 stash / reset / 覆盖本地改动；本地重算不会改
 `data/version.txt`（那是「已发布数据版本」的标记）。
+
+`assets/resource/model` 子模块不参与同步：投影用的 navmesh 一律取当前仓库里检出的那一版。
 
 ## 输入路径（`generate`）
 
@@ -113,7 +114,7 @@ CI 只需要出数据时用 `uv run --no-default-groups zmdmap generate`：`clic
 
 ```shell
 uv run zmdmap generate --sync                              # 先同步兄弟仓库，再生成
-uv run zmdmap generate --sync --update-model --project     # 连 navmesh 子模块一起更新并投影入库
+uv run zmdmap generate --sync --project                    # 同步兄弟仓库、生成并投影入库
 uv run zmdmap generate --dry-run                           # 只报告会做什么
 uv run zmdmap fetch                                        # 下载 → 投影（等同 pnpm fetch:zmdmap）
 ```

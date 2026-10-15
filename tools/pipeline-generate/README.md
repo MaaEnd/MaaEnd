@@ -77,7 +77,7 @@ uv run zmdmap generate --only collect_points  # 只生成一份（可重复给�
 ```shell
 uv run zmdmap generate --dry-run                           # 只报告会做什么
 uv run zmdmap generate --sync                              # 先同步兄弟仓库，再生成
-uv run zmdmap generate --sync --update-model --project     # 连 navmesh 子模块一起更新并投影入库
+uv run zmdmap generate --sync --project                    # 同步兄弟仓库、生成并投影入库
 ```
 
 它只对干净的工作区做快进合并，绝不 stash / reset / 覆盖本地改动；本地重算不会改 `data/version.txt`（那是「已发布数据版本」）。
