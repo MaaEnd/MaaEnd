@@ -491,3 +491,7 @@ tests/maatools
 Android/agent-dist/
 *.jks
 *.jks.b64
+
+# 精简数据的原始形态（只带世界坐标）：fetch:zmdmap 下载或 data/scripts 本地生成，
+# 由 project:zmdmap 投影成入库的 data/*.json
+tools/pipeline-generate/data/raw/

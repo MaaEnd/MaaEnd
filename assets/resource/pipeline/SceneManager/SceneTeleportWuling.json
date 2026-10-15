@@ -1,5 +1,5 @@
 {
-    // https://assets.zmdmap.com/data/entity/1.2.5/maaend_entities.json
+    // 坐标是底图像素（与 BaseNav 顶点同一平面）。
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry1": {
         "desc": "在地图界面找锚点 (武陵城核心区)",
         "recognition": "And",
