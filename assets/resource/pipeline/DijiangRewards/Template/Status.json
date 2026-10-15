@@ -324,7 +324,7 @@
         }
     },
     "ClueOne": {
-        "desc": "[会客室·线索] 一号线索的图像识别",
+        "desc": "[会客室·线索] 一号线索的 OCR 识别",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -355,7 +355,7 @@
         }
     },
     "ClueTwo": {
-        "desc": "[会客室·线索] 二号线索的图像识别",
+        "desc": "[会客室·线索] 二号线索的 OCR 识别",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -386,7 +386,7 @@
         }
     },
     "ClueThree": {
-        "desc": "[会客室·线索] 三号线索的图像识别",
+        "desc": "[会客室·线索] 三号线索的 OCR 识别",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -417,7 +417,7 @@
         }
     },
     "ClueFour": {
-        "desc": "[会客室·线索] 四号线索的图像识别",
+        "desc": "[会客室·线索] 四号线索的 OCR 识别",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -448,7 +448,7 @@
         }
     },
     "ClueFive": {
-        "desc": "[会客室·线索] 五号线索的图像识别",
+        "desc": "[会客室·线索] 五号线索的 OCR 识别",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -479,7 +479,7 @@
         }
     },
     "ClueSix": {
-        "desc": "[会客室·线索] 六号线索的图像识别",
+        "desc": "[会客室·线索] 六号线索的 OCR 识别",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -510,7 +510,7 @@
         }
     },
     "ClueSeven": {
-        "desc": "[会客室·线索] 七号线索的图像识别",
+        "desc": "[会客室·线索] 七号线索的 OCR 识别",
         "recognition": {
             "type": "OCR",
             "param": {
