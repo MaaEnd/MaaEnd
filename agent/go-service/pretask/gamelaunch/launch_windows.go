@@ -74,6 +74,10 @@ func run(args []string) error {
 	windows.CloseHandle(process.Thread)
 	log.Info().Uint32("game_pid", process.ProcessId).Str("game_path", game).
 		Msg("created game with official launcher parent")
+	if err := waitForGame(process); err != nil {
+		return err
+	}
+	log.Info().Uint32("game_pid", process.ProcessId).Msg("game window is ready")
 	return nil
 }
 
@@ -114,6 +118,38 @@ func prepareLauncher(path string) (windows.Handle, error) {
 		select {
 		case <-deadline.C:
 			return 0, errors.New("timed out waiting for official Games.exe")
+		case <-ticker.C:
+		}
+	}
+}
+
+func waitForGame(process windows.ProcessInformation) error {
+	deadline := time.NewTimer(120 * time.Second)
+	defer deadline.Stop()
+	ticker := time.NewTicker(250 * time.Millisecond)
+	defer ticker.Stop()
+	for {
+		state, err := windows.WaitForSingleObject(process.Process, 0)
+		if err != nil {
+			return err
+		}
+		if state != uint32(windows.WAIT_TIMEOUT) {
+			var code uint32
+			if err := windows.GetExitCodeProcess(process.Process, &code); err != nil {
+				return err
+			}
+			return fmt.Errorf("game exited before window became ready: exit code %d", code)
+		}
+		ready, err := gameWindowReady(process.ProcessId)
+		if err != nil {
+			return err
+		}
+		if ready {
+			return nil
+		}
+		select {
+		case <-deadline.C:
+			return errors.New("timed out waiting for a visible UnityWndClass game window")
 		case <-ticker.C:
 		}
 	}
