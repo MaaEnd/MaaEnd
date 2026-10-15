@@ -94,7 +94,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 | 路径 | 内容 |
 | --- | --- |
-| `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap 数据 CI 自动生成并发布的仓储、终点、五语言文本、坐标和归属关系 |
+| `tools/zmdmap/data/delivery_destinations.json` | zmdmap 数据 CI 自动生成并发布的仓储、终点、五语言文本、坐标和归属关系 |
 | `tools/pipeline-generate/AutoDelivery/routes.json` | 自动路线无法适用时的仓储、终点和站位修正路线覆盖 |
 | `assets/resource/pipeline/AutoDelivery/Routes/{RouteFileId}.json` | 由上述数据按仓储节点分组生成、可独立试跑的仓储与终点寻路节点 |
 | `assets/data/AutoDelivery/catalog.json` | 运行时 OCR 匹配目录，仅保留文本、归属关系和生成节点名 |
@@ -103,7 +103,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | `assets/resource/pipeline/AutoDelivery/Delivery.json` | 取消追踪、终点导航和提交货物 |
 | `agent/go-service/autodelivery/` | OCR 匹配、运行时目录校验和生成路线节点分发 |
 
-普通仓储和资源回收站由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往实体正面 2 米处的交互范围中心（实体原点压在机体占地里，导航包把那块挖掉了），从而保证从交互正面接近（朝向不合适时用覆盖条目中的 `yaw` 修正，见下节）；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。自动生成的点都带 `target_deck_y`，取值是该实体在数据源中的世界高度，接近点与终点同层、共用这个高度，用来在重叠可走面里选中目标层；人工覆盖路径的层声明按实测结果原样保留。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
+普通仓储和资源回收站由 `tools/zmdmap/datasets/delivery_destinations.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往实体正面 2 米处的交互范围中心（实体原点压在机体占地里，导航包把那块挖掉了），从而保证从交互正面接近（朝向不合适时用覆盖条目中的 `yaw` 修正，见下节）；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。自动生成的点都带 `target_deck_y`，取值是该实体在数据源中的世界高度，接近点与终点同层、共用这个高度，用来在重叠可走面里选中目标层；人工覆盖路径的层声明按实测结果原样保留。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
 
 交货的主路线与 retry 路线由生成器在末尾接一个 `INTERACT` 交互点：末点是 `NAVMESH` 时补 `required: true` 并在同一坐标接交互点；末点是裸坐标时整点换成交互点（回收站落到交互范围中心）。交互点用 `AutoDeliverySubmitGoodsInteractScan` 预筛交货图标，再按文字复核：资源回收站认 `AutoDeliverySubmitGoodsInteractText`（交货），收货 NPC 认终点的五语言名称。交互点写了 `interact_rec`，认到提示就结束导航、不按键；交货仍由 `AutoDeliveryCheckSubmitGoodsTarget` → `AutoDeliverySubmitGoods` 识别交货图标后点击。走到点上仍认不到提示时导航判失败。
 

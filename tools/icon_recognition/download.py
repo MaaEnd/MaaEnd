@@ -1,4 +1,9 @@
-"""下载并整理 IconRecognition 的物品、武器、多语言和图标资源。"""
+"""整理 IconRecognition 的物品、武器数据并下载图标资源。
+
+物品表与武器表都来自 zmdmap（``tools/zmdmap/data/``，由 ``uv run zmdmap fetch`` 下载或
+``uv run zmdmap generate`` 本地生成）：条目自带多语言名字，所以不再下载 ``lang_*.json`` 那几份
+i18n 包（每份约 950 KB）。图标仍然只能从站点下载。
+"""
 
 from __future__ import annotations
 
@@ -24,20 +29,15 @@ from fixed_items import FIXED_ITEMS
 from text import clean_text, validate_identifier
 
 
-ITEM_TABLE_URL = "https://assets.fz.wiki/output_beyondmap/item_mini_table.json"
-WEAPON_TABLE_URL = "https://assets.fz.wiki/output_maaend/weapons.json"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+#: zmdmap 的数据目录：物品表与武器表的来源。
+ZMDMAP_DATA_DIR = REPO_ROOT / "tools" / "zmdmap" / "data"
+ITEM_TABLE_NAME = "item_mini_table.json"
+WEAPON_TABLE_NAME = "weapons.json"
 IMAGE_BASE_URL = "https://assets.fz.wiki/output_image/itemicon"
 BIG_IMAGE_BASE_URL = "https://assets.fz.wiki/output_image/itemiconbig"
-LANG_URL = "https://assets.fz.wiki/output_beyondmap/i18n/{locale}/lang.json"
-LOCALES = {
-    "zh-CN": "CN",
-    "zh-TW": "TC",
-    "en-US": "EN",
-    "ja-JP": "JP",
-    "ko-KR": "KR",
-}
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-DEFAULT_CACHE_ROOT = Path("tools/icon_recognition/.cache/downloads")
+DEFAULT_CACHE_ROOT = REPO_ROOT / "tools" / "icon_recognition" / ".cache" / "downloads"
 DEFAULT_BLACKLIST_PATH = Path(__file__).with_name("blacklist.json")
 BIG_ICON_IDS_PATH = Path(__file__).with_name("big_icon_ids.json")
 
@@ -271,6 +271,10 @@ def _normalize_item(item_id: str, raw_source: Any) -> dict[str, Any]:
             raw_source, "emptyContainers", item_id
         ),
     }
+    # zmdmap 那份额外带名字的文本 id；去重时按它分组才与上游的哈希去重等价。
+    name_id = raw_source.get("nameId")
+    if isinstance(name_id, int) and not isinstance(name_id, bool):
+        result["nameId"] = name_id
     if _require_optional_boolean(raw_source, "regionRestricted", item_id):
         result["regionRestricted"] = True
     return result
@@ -379,9 +383,11 @@ def prepare_item_map(
         for container_id in payload["fullContainers"]
     }
 
-    duplicate_groups: dict[tuple[str, str], list[str]] = defaultdict(list)
+    duplicate_groups: dict[tuple[Any, str], list[str]] = defaultdict(list)
     for item_id, payload in filtered.items():
-        duplicate_groups[(payload["name"], payload["iconId"])].append(item_id)
+        # 按名字的文本 id 分组（上游是拿名字哈希去重的，哈希即文本 id 的函数）；
+        # 没有 nameId 的旧数据退回用名字本身。
+        duplicate_groups[(payload.get("nameId", payload["name"]), payload["iconId"])].append(item_id)
     for (name, icon_id), member_ids in duplicate_groups.items():
         if len(member_ids) < 2:
             continue
@@ -400,7 +406,7 @@ def prepare_item_map(
                 {
                     "removedId": item_id,
                     "keptId": kept_id,
-                    "name": name,
+                    "name": filtered[kept_id]["name"],
                     "iconId": icon_id,
                     "reason": reason,
                 }
@@ -488,7 +494,8 @@ def merge_item_sources(
         if item_id in merged:
             raise ValueError(f"固定物品与远端物品 ID 冲突: {item_id}")
         merged[item_id] = {
-            "name": fixed["i18nKey"],
+            "name": fixed["name"],
+            "names": fixed["names"],
             "category": fixed["category"],
             "storageKind": fixed["storageKind"],
             "categoryType": fixed["categoryType"],
@@ -735,53 +742,30 @@ def probe_icon_downloadable(icon_id: str, *, timeout: float) -> bool:
         raise
 
 
-def download_sources(
-    cache_root: str | Path,
-    *,
-    timeout: float = 60,
-    dry_run: bool = False,
-) -> dict[str, str]:
-    root = Path(cache_root)
-    timestamp_ms = time.time_ns() // 1_000_000
-    jobs = {
-        "item_mini_table.json": _timestamped_url(
-            ITEM_TABLE_URL, timestamp_ms=timestamp_ms
-        ),
-        "weapons.json": _timestamped_url(
-            WEAPON_TABLE_URL, timestamp_ms=timestamp_ms
-        ),
-    }
-    jobs.update(
-        {
-            f"lang_{locale}.json": _timestamped_url(
-                LANG_URL.format(locale=locale),
-                timestamp_ms=timestamp_ms,
-            )
-            for locale in LOCALES
-        }
-    )
-    if dry_run:
-        return jobs
-    for filename, url in jobs.items():
-        fetch(url, root / filename, timeout=timeout)
-    _write_json(root / "source_download_report.json", jobs)
-    return jobs
+def load_item_table(data_dir: str | Path = ZMDMAP_DATA_DIR) -> dict[str, Any]:
+    """zmdmap 的物品表。"""
+    return _load_json(Path(data_dir) / ITEM_TABLE_NAME)
+
+
+def load_weapon_table(data_dir: str | Path = ZMDMAP_DATA_DIR) -> dict[str, Any]:
+    """zmdmap 的武器表。"""
+    return _load_json(Path(data_dir) / WEAPON_TABLE_NAME)
 
 
 def run(
     cache_root: str | Path,
     *,
+    data_dir: str | Path = ZMDMAP_DATA_DIR,
     workers: int,
     timeout: float,
 ) -> dict[str, Any]:
     root = Path(cache_root)
-    download_sources(root, timeout=timeout)
     items, removals = prepare_item_map(
-        _load_json(root / "item_mini_table.json"),
+        load_item_table(data_dir),
         blacklist=load_item_blacklist(),
     )
     weapons = prepare_weapon_map(
-        _load_json(root / "weapons.json"),
+        load_weapon_table(data_dir),
         probe_icon=lambda icon_id: probe_icon_downloadable(
             icon_id, timeout=timeout
         ),
@@ -838,6 +822,12 @@ def main() -> int:
         type=Path,
         default=DEFAULT_CACHE_ROOT,
     )
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        default=ZMDMAP_DATA_DIR,
+        help="zmdmap 数据目录（默认 tools/zmdmap/data）",
+    )
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--timeout", type=float, default=60)
     parser.add_argument("--dry-run", action="store_true")
@@ -845,16 +835,22 @@ def main() -> int:
     if args.dry_run:
         print(
             json.dumps(
-                download_sources(
-                    args.cache_root, timeout=args.timeout, dry_run=True
-                ),
+                {
+                    "itemTable": str(Path(args.data_dir) / ITEM_TABLE_NAME),
+                    "weaponTable": str(Path(args.data_dir) / WEAPON_TABLE_NAME),
+                    "imageBaseUrl": IMAGE_BASE_URL,
+                    "bigImageBaseUrl": BIG_IMAGE_BASE_URL,
+                },
                 ensure_ascii=False,
                 indent=4,
             )
         )
         return 0
     report = run(
-        args.cache_root, workers=args.workers, timeout=args.timeout
+        args.cache_root,
+        data_dir=args.data_dir,
+        workers=args.workers,
+        timeout=args.timeout,
     )
     print(json.dumps(report, ensure_ascii=False, indent=4))
     return 1 if report["failed"] else 0

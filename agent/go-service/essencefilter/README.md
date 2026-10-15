@@ -64,7 +64,7 @@ Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。
 
 - `matcher_config.json`：多语言归一化、相似字和停用后缀；
 - `skill_pools.json`：三槽技能池；
-- `weapons_output.json`：武器、稀有度和技能组合；
+- `weapons_output.json`：武器、稀有度和技能组合（由 `tools/essence_filter/sync_zmdmap.py` 从 zmdmap 的 `tools/zmdmap/data/weapons.json` 同步）；
 - `locations.json`：预刻写地点数据。
 
 OCR 文本会先按探测到的（或 attach 强制的）`input_language` 归一化。中文、繁中、日文和韩文会过滤无关标点；英文会进行小写化和常见缩写归一。

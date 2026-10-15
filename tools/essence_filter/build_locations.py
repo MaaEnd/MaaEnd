@@ -19,7 +19,7 @@ from typing import Any, Dict, List
 
 import json5
 
-DEFAULT_ENERGY_POINTS = Path("assets/data/EssenceFilter/energy_point_gems.json")
+DEFAULT_ENERGY_POINTS = Path("tools/zmdmap/data/energy_point_gems.json")
 DEFAULT_SKILL_POOLS = Path("assets/data/EssenceFilter/skill_pools.json")
 DEFAULT_OUTPUT = Path("assets/data/EssenceFilter/locations.json")
 DEFAULT_MATCHER_CONFIG = Path("assets/data/EssenceFilter/matcher_config.json")

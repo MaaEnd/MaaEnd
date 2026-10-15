@@ -2,7 +2,7 @@
 
 This document explains the Pipeline organization, route data, terminal grouping, automatic generation mechanism, and integration method for new observation points for the `EnvironmentMonitoring` task.
 
-The core characteristic of EnvironmentMonitoring is **"Data-Driven + Template Batch Generation"**: The Pipeline JSON corresponding to each observation point is not manually written but is batch-rendered into `assets/resource/pipeline/EnvironmentMonitoring/` using the [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) tool, combining template/route configurations from `tools/pipeline-generate/EnvironmentMonitoring/` and `tools/pipeline-generate/data/environment_monitoring.json`. The focus of maintenance work is on **generation configuration and zmdmap compact game data**, not manually editing JSON.
+The core characteristic of EnvironmentMonitoring is **"Data-Driven + Template Batch Generation"**: The Pipeline JSON corresponding to each observation point is not manually written but is batch-rendered into `assets/resource/pipeline/EnvironmentMonitoring/` using the [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) tool, combining template/route configurations from `tools/pipeline-generate/EnvironmentMonitoring/` and `tools/zmdmap/data/environment_monitoring.json`. The focus of maintenance work is on **generation configuration and zmdmap compact game data**, not manually editing JSON.
 
 > [!WARNING]
 >
@@ -31,7 +31,7 @@ The core maintenance points for EnvironmentMonitoring are as follows:
 | Route Resolution Logic | `tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs` | Parses `routes.json` entries into pathfinding recognition/action parameters required by the template and uniformly handles unadapted fallbacks |
 | Normalized Mission Model | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | Reads the zmdmap compact game data and `routes.json` once and builds the observation-point mission model shared by the route and terminal templates |
 | Terminal List Data | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-data.mjs` | Generates each terminal's `next` from the normalized missions in `model.mjs` and the automatically derived terminal list |
-| zmdmap Compact Game Data | `tools/pipeline-generate/data/environment_monitoring.json` | Terminals, observation points, and five-language names extracted from TableCfg and published by the zmdmap data CI; updated in MaaEnd by `pnpm fetch:zmdmap` |
+| zmdmap Compact Game Data | `tools/zmdmap/data/environment_monitoring.json` | Terminals, observation points, and five-language names extracted from TableCfg and published by the zmdmap data CI; updated in MaaEnd by `pnpm fetch:zmdmap` |
 | Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/config.json` | Single observation point output configuration: `outputPattern: "${Station}/${Id}.json"` |
 | Terminal Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | Terminal output configuration merged into a single file: `outputFile: "Terminals.json"` |
 | Multilingual Text | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` label / description (task-level; observation point names use OCR) |
@@ -253,7 +253,7 @@ New observation points generally come from game updates, appearing as an additio
 
 ### 1. Update Game Data
 
-Run `pnpm fetch:zmdmap`. It checks the zmdmap data version against `tools/pipeline-generate/data/version.txt` and downloads `tools/pipeline-generate/data/environment_monitoring.json` when the version changes. Raw TableCfg parsing is performed by `data/scripts/environment_monitoring_data.py` in the zmdmap data CI and is not part of the routine MaaEnd generation flow.
+Run `pnpm fetch:zmdmap`. It checks the zmdmap data version against `tools/zmdmap/data/version.txt` and downloads `tools/zmdmap/data/environment_monitoring.json` when the version changes. Raw TableCfg parsing lives in `tools/zmdmap/datasets/environment_monitoring.py`; the zmdmap data CI clones this repository and runs `uv run zmdmap generate` for it, so it is not part of the routine MaaEnd generation flow.
 
 ### 2. Check Route Adaptation Status
 

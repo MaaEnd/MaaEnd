@@ -34,6 +34,14 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
       - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile
@@ -48,7 +56,7 @@ jobs:
       - name: Get version info
         id: version
         run: |
-          echo "version=$(cat tools/pipeline-generate/data/version.txt)" >> "$GITHUB_OUTPUT"
+          echo "version=$(cat tools/zmdmap/data/version.txt)" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -57,6 +65,7 @@ jobs:
           committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           add-paths: |
+            tools/zmdmap
             tools/pipeline-generate
             assets
           commit-message: "chore: sync zmdmap pipeline data ${{ steps.version.outputs.version }}"
@@ -101,51 +110,42 @@ jobs:
         with:
           python-version: "3.12"
 
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
       - name: Install dependencies
         run: python3 -m pip install json5
 
-      - name: Sync EssenceFilter source data
-        id: sync
-        run: python3 -u tools/essence_filter/sync_zmdmap.py
+      - name: Sync zmdmap data
+        run: uv run --frozen --no-default-groups zmdmap fetch
 
       - name: Generate EssenceFilter data
-        if: steps.sync.outputs.updated == 'true'
-        env:
-          DATA_VERSION: ${{ steps.sync.outputs.data_version }}
         run: |
+          python3 -u tools/essence_filter/sync_zmdmap.py
           python3 -u tools/essence_filter/extract_skill_pools.py
-          python3 -u tools/essence_filter/build_locations.py --data-version "$DATA_VERSION"
+          python3 -u tools/essence_filter/build_locations.py --data-version "$(cat tools/zmdmap/data/version.txt)"
           python3 -u tools/essence_filter/build_autoessence_tasks.py
 
       - name: Create Pull Request
-        if: steps.sync.outputs.updated == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}
           committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           add-paths: |
-            assets/data/EssenceFilter/energy_point_gems.json
-            assets/data/EssenceFilter/weapons_output.json
-            assets/data/EssenceFilter/skill_pools.json
-            assets/data/EssenceFilter/locations.json
-            assets/data/EssenceFilter/matcher_config.json
-            assets/tasks/AutoEssence/AutoEssence.json
-            assets/tasks/AutoEssence/Location/
-            assets/tasks/AutoEssence/Target/Target.json
+            tools/zmdmap
+            assets/data/EssenceFilter
+            assets/tasks/AutoEssence
             assets/interface.json
-            assets/resource/pipeline/AutoEssence/CommonNodes/AutoEssence.json
-            assets/locales/interface/zh_cn.json
-            assets/locales/interface/zh_tw.json
-            assets/locales/interface/en_us.json
-            assets/locales/interface/ja_jp.json
-            assets/locales/interface/ko_kr.json
+            assets/resource/pipeline/AutoEssence
+            assets/locales/interface
           commit-message: "chore(essencefilter): sync zmdmap data"
           branch: chore/sync-zmdmap-essence-filter-data
           title: "chore(essencefilter): sync zmdmap data"
           body: |
             ## Summary
 
-            This PR synchronized the latest valid EssenceFilter data from zmdmap and regenerated dependent data files and AutoEssence task options.
+            This PR synchronized the latest EssenceFilter compact game data from zmdmap and regenerated dependent data files and AutoEssence task options.
 
             Please review the changes before merging it.

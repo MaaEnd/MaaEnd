@@ -141,7 +141,7 @@ Selling operator not found / scan failure → stop the task (never trade with th
 
 ## Generator and Maintenance
 
-The generator lives in `tools/pipeline-generate/OutpostTrading/`. The zmdmap data CI uses `data/scripts/sell_product_data.py` to extract and publish `tools/pipeline-generate/data/sell_product.json` from TableCfg. This compact game data keeps only outposts, sellable items and their activity ids, outpost features, and operator matches; MaaEnd downloads it through `fetch-data.mjs`. `model.mjs` centrally defines outposts, regions, and i18n keys, and each `*-data.mjs` is the minimal data projection for its template.
+The generator lives in `tools/pipeline-generate/OutpostTrading/`. The outpost extraction lives in `tools/zmdmap/datasets/sell_product.py`: the zmdmap data CI clones this repository and runs `uv run zmdmap generate` to extract and publish `tools/zmdmap/data/sell_product.json` from TableCfg. This compact game data keeps only outposts, sellable items and their activity ids, outpost features, and operator matches; MaaEnd downloads it through `uv run zmdmap fetch`. `model.mjs` centrally defines outposts, regions, and i18n keys, and each `*-data.mjs` is the minimal data projection for its template.
 
 | Maintenance entry | Generated artifact |
 | ------------------------------- | ----------------------------------------------------------------- |

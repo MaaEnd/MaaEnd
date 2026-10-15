@@ -13,7 +13,7 @@
         "check": "maa-tools check",
         "test": "maa-tools test",
         "test:map-locate": "uv run python tests/MapLocateAssertLocation/map_locate.py",
-        "fetch:zmdmap": "node tools/pipeline-generate/fetch-data.mjs",
+        "fetch:zmdmap": "uv run --frozen --no-default-groups zmdmap fetch",
         "generate:MacOS": "node tools/pipeline-generate/macos-keymap.mjs",
         "generate:BatchUseDetector": "node tools/pipeline-generate/run-all.mjs BatchUseDetector",
         "generate:AutoDelivery": "pnpm fetch:zmdmap && node tools/pipeline-generate/AutoDelivery/sync-routes.mjs && node tools/pipeline-generate/AutoDelivery/sync-catalog.mjs && node tools/pipeline-generate/run-all.mjs AutoDelivery",

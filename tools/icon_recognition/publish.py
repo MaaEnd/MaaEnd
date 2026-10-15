@@ -1,4 +1,4 @@
-"""从下载缓存一次生成 IconRecognition catalog 与五语言名称。"""
+"""从下载缓存一次生成 IconRecognition catalog 与各语言名称。"""
 
 from __future__ import annotations
 
@@ -13,7 +13,13 @@ from pathlib import Path
 from PIL import Image
 
 from catalog import build_catalog, write_catalog
-from download import apply_item_blacklist, load_big_icon_ids, rarity_directories, validate_icon_png_bytes
+from download import (
+    ZMDMAP_DATA_DIR,
+    apply_item_blacklist,
+    load_big_icon_ids,
+    rarity_directories,
+    validate_icon_png_bytes,
+)
 from fixed_items import FIXED_ITEMS
 from localization import (
     LOCALE_MAP,
@@ -35,21 +41,20 @@ class PublishPaths:
     catalog_output: Path
     localization_item_source: Path
     weapon_source: Path
-    language_root: Path
     locale_root: Path
 
 
 def default_publish_paths(repo_root: str | Path | None = None) -> PublishPaths:
     root = Path(repo_root) if repo_root is not None else Path(__file__).resolve().parents[2]
     cache_root = root / "tools" / "icon_recognition" / ".cache" / "downloads"
+    data_root = root / "tools" / "zmdmap" / "data"
     return PublishPaths(
         item_source=cache_root / "item.json",
         image_root=cache_root / "images",
         asset_image_root=root / "assets" / "resource" / "image" / "IconRecognition",
         catalog_output=root / "assets" / "data" / "IconRecognition" / "recognition_items.json",
-        localization_item_source=cache_root / "item_mini_table.json",
-        weapon_source=cache_root / "weapons.json",
-        language_root=cache_root,
+        localization_item_source=data_root / "item_mini_table.json",
+        weapon_source=data_root / "weapons.json",
         locale_root=root / "assets" / "locales" / "interface",
     )
 
@@ -195,7 +200,6 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
         catalog,
         localization_source,
         "CN",
-        load_json_object(paths.language_root / "lang_zh-CN.json"),
     )
     for item_id, record in catalog.items():
         record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
@@ -224,7 +228,6 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
         paths.catalog_output,
         paths.localization_item_source,
         paths.weapon_source,
-        paths.language_root,
         paths.locale_root,
     )
     return len(catalog), locale_counts
@@ -233,7 +236,8 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
 def publish_fixed_items(paths: PublishPaths) -> int:
     fixed_source = {
         item_id: {
-            "name": payload["i18nKey"],
+            "name": payload["name"],
+            "names": payload["names"],
             "category": payload["category"],
             "storageKind": payload["storageKind"],
             "categoryType": payload["categoryType"],
@@ -259,15 +263,9 @@ def publish_fixed_items(paths: PublishPaths) -> int:
     fixed_catalog = build_catalog(fixed_source, paths.asset_image_root)
     if len(fixed_catalog) != len(FIXED_ITEMS):
         raise ValueError("固定物品图标未完整生成 catalog")
-    zh_cn_values = build_locale_values(
-        fixed_catalog,
-        {},
-        "CN",
-        load_json_object(paths.language_root / "lang_zh-CN.json"),
-    )
-    for locale, (weapon_language, path_language) in LOCALE_MAP.items():
-        translations = load_json_object(paths.language_root / f"lang_{path_language}.json")
-        values = build_locale_values(fixed_catalog, {}, weapon_language, translations)
+    zh_cn_values = build_locale_values(fixed_catalog, fixed_source, "CN")
+    for locale, (weapon_language, _) in LOCALE_MAP.items():
+        values = build_locale_values(fixed_catalog, fixed_source, weapon_language)
         locale_path = paths.locale_root / f"{locale}.json"
         update_interface_locale(locale_path, values, remove_stale=False)
 
@@ -288,7 +286,6 @@ def main() -> int:
     parser.add_argument("--catalog-output", type=Path, default=defaults.catalog_output)
     parser.add_argument("--localization-item-source", type=Path, default=defaults.localization_item_source)
     parser.add_argument("--weapon-source", type=Path, default=defaults.weapon_source)
-    parser.add_argument("--language-root", type=Path, default=defaults.language_root)
     parser.add_argument("--locale-root", type=Path, default=defaults.locale_root)
     parser.add_argument("--fixed-only", action="store_true")
     args = parser.parse_args()
@@ -299,7 +296,6 @@ def main() -> int:
         catalog_output=args.catalog_output,
         localization_item_source=args.localization_item_source,
         weapon_source=args.weapon_source,
-        language_root=args.language_root,
         locale_root=args.locale_root,
     )
     if args.fixed_only:

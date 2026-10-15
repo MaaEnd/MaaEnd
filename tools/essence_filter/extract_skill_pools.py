@@ -4,7 +4,7 @@
 
 - 从每个武器的 skills 按位置归入 slot：idx0=slot1, idx1=slot2(若 len=3) 或 slot3(若 len=2), idx2=slot3
 - 技能名取「基名」：按 · / : / ： / [ 分割，取第一段（统一处理不同格式如 ·小、: xxx、[S] 等）
-- 五语（cn/tc/en/jp/kr）直接从 weapons_output 的 skills.CN/TC/EN/JP/KR 同位置提取，不再依赖 i18n
+- 多语言（cn/tc/en/jp/kr）直接从 weapons_output 的 skills.CN/TC/EN/JP/KR 同位置提取，不再依赖 i18n
 - 每 slot 用 set 去重；id 分配规则：若存在已有的 skill_pools 文件，已出现的 (slot, cn) 保留原 id，
   新增技能在该 slot 内分配「当前最大 id + 1」，保证同一技能 id 不随新增/删除其他技能而变化。
 """
@@ -243,13 +243,13 @@ def write_skill_pools(path: Path, data: Dict) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="从 weapons_output.json 提取 skill_pools（五语来自同文件）"
+        description="从 weapons_output.json 提取 skill_pools（多语言来自同文件）"
     )
     parser.add_argument(
         "--input",
         type=Path,
-        default=Path("assets/data/EssenceFilter/weapons_output.json"),
-        help="weapons_output.json 路径",
+        default=Path("tools/zmdmap/data/weapons.json"),
+        help="zmdmap 的 weapons.json 路径",
     )
     parser.add_argument(
         "--output",

@@ -2,7 +2,7 @@ import {readFileSync, writeFileSync} from "node:fs";
 import {resolve} from "node:path";
 import {pathToFileURL} from "node:url";
 
-const catalogPath = new URL("../data/delivery_destinations.json", import.meta.url);
+const catalogPath = new URL("../../zmdmap/data/delivery_destinations.json", import.meta.url);
 const routesPath = new URL("./routes.json", import.meta.url);
 
 const DEPOT_METADATA_KEYS = new Set([

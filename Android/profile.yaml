@@ -16,8 +16,6 @@ include:
 exclude:
   # ProtocolSpace 只支持桌面控制器；MaaFramework 按需加载模型，缺失不影响资源加载
   - resource/model/detect/ProtocolSpace/**
-  # 没有任何 agent / pipeline 读取
-  - data/ZmdMap/**
 
 # 出 agent（仓库根）：
 #   uv run tools/build_android_agents.py

@@ -170,6 +170,9 @@ wheels = [
 name = "maaend"
 version = "0.0.0"
 source = { editable = "." }
+dependencies = [
+    { name = "click" },
+]
 
 [package.dev-dependencies]
 images = [
@@ -222,6 +225,7 @@ scripts = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "click", specifier = ">=8.1,<9.0" }]
 
 [package.metadata.requires-dev]
 images = [

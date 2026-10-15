@@ -140,7 +140,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 
 ## 生成器与维护
 
-生成器位于 `tools/pipeline-generate/OutpostTrading/`。zmdmap 数据 CI 通过 `data/scripts/sell_product_data.py` 从 TableCfg 裁剪并发布 `tools/pipeline-generate/data/sell_product.json`，这份精简游戏数据只保留据点、可售物品及其活动标识、据点特性与干员匹配关系；MaaEnd 通过 `fetch-data.mjs` 下载该文件。`model.mjs` 统一定义据点/地区/多语言键，各 `*-data.mjs` 是对应模板的最小数据投影。
+生成器位于 `tools/pipeline-generate/OutpostTrading/`。据点数据的裁剪逻辑在 `tools/zmdmap/datasets/sell_product.py`：zmdmap 数据 CI 克隆本仓库后跑 `uv run zmdmap generate`，从 TableCfg 裁剪并发布 `tools/zmdmap/data/sell_product.json`，这份精简游戏数据只保留据点、可售物品及其活动标识、据点特性与干员匹配关系；MaaEnd 通过 `uv run zmdmap fetch` 下载该文件。`model.mjs` 统一定义据点/地区/多语言键，各 `*-data.mjs` 是对应模板的最小数据投影。
 
 | 维护入口 | 生成产物 |
 | ------------------------------- | --------------------------------------------------------------- |
