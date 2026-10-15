@@ -63,7 +63,6 @@
         "post_delay": 1500, // 走到目的地后等一会再继续，部分任务会进入剧情动画
         "next": [
             "AutoMissionEntityActionInteract",
-            "AutoMissionEntityActionExitToWorld",
             "AutoMissionEntityActionMove"
         ]
     },
@@ -80,8 +79,59 @@
         "custom_action_param": {
             "custom_action": "AutoAltClickAction",
             "wait_node": "AutoMissionEntityActionInteractRecognition"
-        }
-        // TODO: 交互完毕后的界面（剧情、终端、提交物品等）待补充
+        },
+        "post_delay": 1000, // 等待界面跳转
+        "next": [
+            "AutoMissionEntityActionTakePhoto",
+            "AutoMissionEntityActionRepair",
+            "AutoMissionEntityActionExitToWorld",
+            "AutoMissionEntityActionBackInWorld"
+        ]
+    },
+    "AutoMissionEntityActionTakePhoto": {
+        "desc": "交互后进入拍照模式，复用环境监测的拍照流程，拍完经锚点回到本流程",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton"
+        ],
+        "anchor": {
+            "EnvironmentMonitoringBackToTerminal": "AutoMissionEntityActionPhotoDone"
+        },
+        "next": [
+            "EnvironmentMonitoringWaitShutterButton"
+        ]
+    },
+    "AutoMissionEntityActionPhotoDone": {
+        "desc": "拍照完成，关闭照片预览回到大世界",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "next": [
+            "AutoMissionEntityActionExitToWorld",
+            "AutoMissionEntityActionBackInWorld"
+        ]
+    },
+    "AutoMissionEntityActionRepair": {
+        "desc": "修复机器人进入电路拼图，调用拼图解谜",
+        "recognition": "And",
+        "all_of": [
+            "PuzzleSolverOnScenePrepare"
+        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "PuzzleSolverMain"
+            ]
+        },
+        "next": [
+            "AutoMissionEntityActionExitToWorld",
+            "AutoMissionEntityActionBackInWorld"
+        ]
     },
     "AutoMissionEntityActionExitToWorld": {
         "desc": "剧情中识别到跳过按钮后，从画面中心悬停移过去并点击",
