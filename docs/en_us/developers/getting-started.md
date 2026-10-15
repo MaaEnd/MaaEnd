@@ -101,7 +101,7 @@ The commit title format is `type(scope): description`. The scope is optional; it
 - Commits whose title or body contains `[skip changelog]` are left out of the changelog. This is normally used only by bot commits such as auto-formatting and syncing.
 - PRs are usually squash-merged: the PR title becomes the commit title and the PR description becomes the commit body. Write the PR title in the same format, and do not put `[skip changelog]` in the PR description.
 
-> **Example**: `feat(OutpostTrading): Add regional construction auto-sell Pipeline`
+> **Example**: `feat(OutpostTrading): Add Regional Development auto-sell Pipeline`
 
 ### About Submodule Updates
 
