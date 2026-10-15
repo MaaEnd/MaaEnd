@@ -31,22 +31,20 @@ type jobRowOffsets struct {
 	rewardToView   [4]int
 }
 
-func rowOffsetsForController(controllerType string) jobRowOffsets {
-	switch strings.ToLower(strings.TrimSpace(controllerType)) {
-	case "adb", "native_android", "playcover":
+func rowOffsetsForController(controllerKind string) jobRowOffsets {
+	if pienv.IsAdbLikeControllerType(controllerKind) {
 		return jobRowOffsets{
 			tokenToReward:  [4]int{0, 31, 3, -13},
 			rewardToOrigin: [4]int{-220, -40, 70, 15},
 			rewardToAccept: [4]int{210, -9, 130, 20},
 			rewardToView:   [4]int{-220, -15, 80, 20},
 		}
-	default:
-		return jobRowOffsets{
-			tokenToReward:  [4]int{0, 30, 0, -20},
-			rewardToOrigin: [4]int{-229, -38, 50, 14},
-			rewardToAccept: [4]int{226, -4, 70, 12},
-			rewardToView:   [4]int{-215, -8, 34, 10},
-		}
+	}
+	return jobRowOffsets{
+		tokenToReward:  [4]int{0, 30, 0, -20},
+		rewardToOrigin: [4]int{-229, -38, 50, 14},
+		rewardToAccept: [4]int{226, -4, 70, 12},
+		rewardToView:   [4]int{-215, -8, 34, 10},
 	}
 }
 
@@ -199,7 +197,7 @@ func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJ
 		return nil, false
 	}
 
-	offsets := rowOffsetsForController(pienv.ControllerType())
+	offsets := rowOffsetsForController(pienv.ControllerKind())
 	var items []deliveryJobItem
 	for _, wf := range commissionFD.Filtered {
 		if len(wf.Box) < 4 {

@@ -382,7 +382,7 @@ ADB 加载 `resource_adb`；CloudADB 再加载 `resource_cloud_adb`，PlayCover 
 - 移动端模板位于 `assets/resource_adb/image/SeizeDeliveryJobs/DepotNodePage/`；触摸端刷新只用 `JobRefresh.png`，无 Hover 模板。
 - 调度券模板 `ValleyIVToken.png` / `WulingToken.png` 从完整、稳定的图案裁取，尺寸 50×37，再标定移动偏移。
 - `JobViewButton.png` 取按钮右侧完整圆角轮廓。
-- `find_target.go` 的 `rowOffsetsForController()` 按 `pienv.ControllerType()` 选布局：`Adb`、`native_android`、`PlayCover` 用移动偏移，其余用桌面偏移。
+- `find_target.go` 的 `rowOffsetsForController()` 按 `pienv.ControllerKind()` 选布局：`Adb`、`native_android`、`PlayCover`用移动偏移，其余用桌面偏移。
 - 移动偏移依次为：调度券 → 奖励 `[0, 31, 3, -13]`，奖励 → 出发地 `[-220, -40, 70, 15]`，奖励 → 接取 `[210, -9, 130, 20]`，奖励 → 查看位置 `[-220, -15, 80, 20]`。
 - Go 每次 OCR 都覆写 ROI；重标偏移时必须同时核验 `rowOffsetsForController()`。
 

@@ -377,7 +377,7 @@ ADB loads `resource_adb`; CloudADB additionally loads `resource_cloud_adb`, whil
 - Mobile templates live in `assets/resource_adb/image/SeizeDeliveryJobs/DepotNodePage/`. Touch refresh only needs `JobRefresh.png`, with no Hover template.
 - `ValleyIVToken.png` / `WulingToken.png` are complete, stable 50×37 crops; calibrate the mobile offsets from them.
 - `JobViewButton.png` uses the complete right-hand rounded edge.
-- `find_target.go` picks offsets via `rowOffsetsForController(pienv.ControllerType())`: `Adb`, `native_android`, and `PlayCover` use the mobile offsets, all other types the desktop ones.
+- `find_target.go` picks offsets via `rowOffsetsForController(pienv.ControllerKind())`: `Adb`, `native_android`, and `PlayCover` use the mobile offsets, all other types the desktop ones.
 - Mobile offsets are voucher → reward `[0, 31, 3, -13]`, reward → origin `[-220, -40, 70, 15]`, reward → accept `[210, -9, 130, 20]`, and reward → location `[-220, -15, 80, 20]`.
 - Go overrides every per-row OCR ROI at runtime; verify `rowOffsetsForController()` when re-calibrating.
 
