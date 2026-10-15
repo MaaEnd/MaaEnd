@@ -56,7 +56,7 @@ lint 只检查同一文件内的锚点（MD051），跨文件的 `xxx.md#锚点`
 
 ## 格式化与检查
 
-- Markdown 只由 markdownlint 处理（prettier 只管 JSON、YAML）：`pnpm format:md` 自动修复，`pnpm format:md:check` 只检查，保持 0 条。
+- Markdown 只由 markdownlint 处理而非 Prettier：`pnpm format:md` 自动修复，`pnpm format:md:check` 只检查，保持 0 条。
 - PR 的 CI 不检查 Markdown，但 `format.yml` 每天两次对全仓库跑格式化并直接提交，没人 review。所以提交前自己先跑 `pnpm format:md`，再看 diff。
 - `--fix` 不只改空白，下面几条会改变显示：
     - MD060 把表格压成紧凑格式，单元格里没转义的 `|` 会被当成分列符；
