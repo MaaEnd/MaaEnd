@@ -1,9 +1,15 @@
-"""MaaEnd 精简游戏数据生成入口（``uv run zmdmap``）。
+"""MaaEnd 精简游戏数据入口（``uv run zmdmap``）。
 
-这一个是「统一入口」：默认只生成六份精简游戏数据，用 ``--sync`` 拉兄弟仓库、用 ``--project``
-把结果投影进入库的 ``data/*.json``。生成部分与 endfield-workflow 的 ``maaend_game_data``
-处理器同序跑同一批 ``build_*``（delivery_jobs -> environment_monitoring -> sell_product ->
-delivery_destinations -> teleport_anchors -> collect_points），产物只带游戏世界坐标。
+两个子命令，**不带子命令时只打印帮助**：
+
+- ``generate``：从本地 TableCfg / JsonData 生成六份精简数据到 ``data/raw/``；
+- ``fetch``：从 zmdmap 下载已发布的精简数据到 ``data/raw/``，再投影进入库的 ``data/*.json``
+  （下载和投影各由一个开关控制）。
+
+``generate`` 与 endfield-workflow 的 ``maaend_game_data`` 处理器同序跑同一批 ``build_*``
+（delivery_jobs -> environment_monitoring -> sell_product -> delivery_destinations ->
+teleport_anchors -> collect_points），产物只带游戏世界坐标；底图像素由 ``project`` 按 BaseNav
+的 zone 表补上。
 
 输入默认取与 MaaEnd 平级的兄弟仓库（由 ``--workspace`` 定位），三档优先级为
 「命令行 > 环境变量 > 默认」：
@@ -16,12 +22,15 @@ delivery_destinations -> teleport_anchors -> collect_points），产物只带游
 
 用法::
 
-    uv run zmdmap                                     # 只生成到 data/raw/
-    uv run zmdmap --list                              # 列出数据集名（每行一个）
-    uv run zmdmap --only collect_points               # 只生成一份（可重复给）
-    uv run zmdmap --sync                              # 先同步兄弟仓库，再生成
-    uv run zmdmap --sync --update-model --project     # 连 navmesh 子模块一起更新并投影入库
-    uv run zmdmap --sync --dry-run                    # 只报告会做什么
+    uv run zmdmap                                     # 只打印帮助
+    uv run zmdmap generate                            # 生成到 data/raw/
+    uv run zmdmap generate --list                     # 列出数据集名（每行一个）
+    uv run zmdmap generate --only collect_points       # 只生成一份（可重复给）
+    uv run zmdmap generate --sync                     # 先同步兄弟仓库，再生成
+    uv run zmdmap generate --sync --update-model --project   # 连 navmesh 一起更新并投影入库
+    uv run zmdmap fetch                               # 下载已发布数据并投影入库
+    uv run zmdmap fetch --cache-bust                  # 强制重新下载（CI 上默认开启）
+    uv run zmdmap fetch --no-download --only collect_points  # 不下载，只用 data/raw/ 重新投影
 """
 
 from __future__ import annotations
@@ -30,7 +39,7 @@ import json
 import time
 from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 import click
 
@@ -38,17 +47,19 @@ from .collect_points import build_collect_points
 from .delivery_destinations import build_delivery_destinations
 from .delivery_jobs import build_delivery_jobs
 from .environment_monitoring import build_environment_monitoring
+from .fetch import download as download_published
 from .local_context import RunContext
 from .paths import (
     DEFAULT_OUT_DIR,
     DEFAULT_WORKSPACE,
     JSON_DATA_DIR_ENV,
+    PIPELINE_DATA_DIR,
     TABLE_CFG_DIR_ENV,
     WORKSPACE_ENV,
     json_data_dir_in,
     table_cfg_dir_in,
 )
-from .project import Outcome, build_project_command, output_dir_label, run
+from .project import project_data
 from .sell_product import build_sell_product
 from .sync import SYNC_MARK_UNKNOWN, SYNC_MARKS, changed_data_files, preflight, sync_workspace
 from .teleport_anchors import build_teleport_anchors
@@ -66,12 +77,17 @@ DATASETS: tuple[tuple[str, str, Builder], ...] = (
 
 DATASET_NAMES = tuple(name for name, _, _ in DATASETS)
 
+#: click 选项装饰器的返回类型。
+F = TypeVar("F", bound=Callable[..., Any])
+
 # 路径是怎么定下来的，日志里说清楚（CI 上排查「读的是哪份数据」时最有用）。
 _SOURCE_LABELS = {
     click.core.ParameterSource.COMMANDLINE: "命令行",
     click.core.ParameterSource.ENVIRONMENT: "环境变量",
     click.core.ParameterSource.DEFAULT: "默认",
 }
+
+Decorator = Callable[[F], F]
 
 
 def select_datasets(names: Sequence[str]) -> tuple[tuple[str, str, Builder], ...]:
@@ -113,7 +129,7 @@ def check_input_dir(label: str, path: Path, option: str, env_name: str) -> None:
         )
 
 
-def generate(
+def generate_datasets(
     datasets: Sequence[tuple[str, str, Builder]],
     context: RunContext,
     out_dir: Path,
@@ -140,7 +156,79 @@ def generate(
     return written
 
 
-@click.command(context_settings={"help_option_names": ["-h", "--help"]})
+def run_projection(
+    raw_dir: Path,
+    data_dir: Path,
+    only: tuple[str, ...],
+    *,
+    nav: str | None,
+    force: bool,
+) -> int:
+    """投影 ``raw_dir`` 到 ``data_dir``；返回写入份数。"""
+    try:
+        result = project_data(raw_dir, data_dir, nav=nav, only=only, force=force)
+    except (OSError, ValueError) as error:
+        raise click.ClickException(str(error)) from error
+    return int(result["written"])
+
+
+def report_data_changes(data_dir: Path, dataset_names: Sequence[str]) -> None:
+    """入库目录的改动（只在入库目录就是默认的 data/ 时报）。"""
+    if data_dir != PIPELINE_DATA_DIR:
+        return
+    changed = changed_data_files(list(dataset_names))
+    if changed:
+        click.echo("data/*.json 改动：")
+        for line in changed:
+            click.echo(f"  {line}")
+    else:
+        click.echo("data/*.json：没有改动")
+
+
+def only_option() -> Decorator:
+    return click.option(
+        "--only",
+        "only",
+        type=click.Choice(DATASET_NAMES),
+        multiple=True,
+        help="只处理列出的数据集（可重复给；缺省全部）",
+    )
+
+
+def raw_dir_option() -> Decorator:
+    return click.option(
+        "--out-dir",
+        type=click.Path(path_type=Path, file_okay=False),
+        default=DEFAULT_OUT_DIR,
+        show_default=True,
+        help="原始数据目录（只带世界坐标）",
+    )
+
+
+def data_dir_option() -> Decorator:
+    return click.option(
+        "--data-dir",
+        type=click.Path(path_type=Path, file_okay=False),
+        default=PIPELINE_DATA_DIR,
+        show_default=True,
+        help="入库数据目录（投影输出）",
+    )
+
+
+def nav_option() -> Decorator:
+    return click.option(
+        "--nav",
+        default=None,
+        help="投影用的 nav 数据（本地路径或 URL；缺省用子模块里的 map/navmesh/base.nav.gz）",
+    )
+
+
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+def main() -> None:
+    """生成 / 下载 / 投影 MaaEnd 的六份精简游戏数据。"""
+
+
+@main.command(name="generate")
 @click.option(
     "--workspace",
     type=click.Path(path_type=Path, file_okay=False),
@@ -162,38 +250,28 @@ def generate(
     default=None,
     help="BeyondMemoryPack 的 JsonData 目录（默认：<workspace>/BeyondMemoryPack/JsonData）",
 )
-@click.option(
-    "--out-dir",
-    type=click.Path(path_type=Path, file_okay=False),
-    default=DEFAULT_OUT_DIR,
-    show_default=True,
-    help="输出目录（只带世界坐标的原始形态）",
-)
-@click.option(
-    "--only",
-    "only",
-    type=click.Choice(DATASET_NAMES),
-    multiple=True,
-    help="只生成列出的数据集（可重复给；缺省全部）",
-)
+@raw_dir_option()
+@data_dir_option()
+@only_option()
 @click.option("--sync/--no-sync", default=False, help="生成前先同步兄弟仓库（只做快进合并）")
 @click.option("--update-model", is_flag=True, help="同步时顺带更新 assets/resource/model 子模块")
 @click.option(
     "--project/--no-project",
     default=False,
-    help="生成后调用 fetch-data.mjs 把 data/raw/ 投影进入库的 data/*.json",
+    help="生成后把 data/raw/ 投影进入库的 data/*.json",
 )
-@click.option("--nav", default=None, help="--project 用的 nav 数据（本地路径或 URL）")
+@nav_option()
 @click.option("--dry-run", is_flag=True, help="只报告会做什么，不合并、不生成、不投影")
 @click.option("--force", is_flag=True, help="结果未变化也重写输出文件")
 @click.option("--list", "list_datasets", is_flag=True, help="只列出数据集名（每行一个）后退出")
 @click.pass_context
-def main(
+def generate_command(
     ctx: click.Context,
     workspace: Path | None,
     table_cfg_dir: Path | None,
     json_data_dir: Path | None,
     out_dir: Path,
+    data_dir: Path,
     only: tuple[str, ...],
     sync: bool,
     update_model: bool,
@@ -203,7 +281,7 @@ def main(
     force: bool,
     list_datasets: bool,
 ) -> None:
-    """生成 MaaEnd 的六份精简游戏数据（可选同步输入仓库、投影进入库数据）。"""
+    """从本地 TableCfg / JsonData 生成六份精简数据。"""
     if list_datasets:
         for name, file_name, _ in DATASETS:
             click.echo(f"{name}\t{file_name}")
@@ -214,6 +292,7 @@ def main(
     table_cfg_dir = (table_cfg_dir or table_cfg_dir_in(workspace)).expanduser().resolve()
     json_data_dir = (json_data_dir or json_data_dir_in(workspace)).expanduser().resolve()
     out_dir = out_dir.expanduser().resolve()
+    data_dir = data_dir.expanduser().resolve()
     datasets = select_datasets(only)
 
     click.echo(f"[zmdmap] 工作区（兄弟仓库）：{workspace}（{parameter_source(ctx, 'workspace')}）")
@@ -238,12 +317,11 @@ def main(
             # 只用 GBK 能编出来的字符：Windows 中文控制台编不出 ⚠ / ✘ 会直接抛 UnicodeEncodeError。
             click.echo(f"  ! {problem}")
 
-    project_command = build_project_command([name for name, _, _ in datasets], nav)
     if dry_run:
         click.echo("\n── 将执行（--dry-run，未执行）────────────────────")
         click.echo(f"  输出目录：{out_dir}")
         if project:
-            click.echo(f"  投影    ：{' '.join(project_command)}")
+            click.echo(f"  投影    ：{out_dir} -> {data_dir}")
         else:
             click.echo("  投影    ：未启用（--project）")
         click.echo("\n--dry-run：没有合并仓库，也没有写任何 data 文件")
@@ -256,21 +334,22 @@ def main(
     started = time.monotonic()
     generated_ok = True
     try:
-        generate(datasets, RunContext(table_cfg_dir, json_data_dir), out_dir, force=force)
+        generate_datasets(datasets, RunContext(table_cfg_dir, json_data_dir), out_dir, force=force)
     except click.ClickException as error:
         generated_ok = False
         click.echo(f"  x {error.message}")
     generate_seconds = time.monotonic() - started
 
-    projected: Outcome | None = None
+    projected_ok: bool | None = None
     if project:
         click.echo("\n── 投影（data/raw/ -> data/）─────────────────────")
         if generated_ok:
-            click.echo(f"      $ {' '.join(project_command)}")
-            projected = run(project_command)
-            for line in (projected.stdout + projected.stderr).splitlines():
-                if line.strip():
-                    click.echo(f"      {line.strip()}")
+            try:
+                run_projection(out_dir, data_dir, only, nav=nav, force=force)
+                projected_ok = True
+            except click.ClickException as error:
+                click.echo(f"  x {error.message}")
+                projected_ok = False
         else:
             click.echo("      跳过（生成失败）")
 
@@ -280,22 +359,67 @@ def main(
     else:
         click.echo("同步：未执行（--no-sync）")
     click.echo(f"生成：{'正常' if generated_ok else '失败'}（{generate_seconds:.1f}s）")
-    if projected is None:
+    if projected_ok is None:
         click.echo("投影：未执行（--no-project）" if not project else "投影：跳过（生成失败）")
     else:
-        click.echo(f"投影：{'正常' if projected.ok else '失败'}（{output_dir_label()}）")
-    if out_dir == DEFAULT_OUT_DIR:
-        changed = changed_data_files([name for name, _, _ in datasets])
-        if changed:
-            click.echo("data/*.json 改动：")
-            for line in changed:
-                click.echo(f"  {line}")
-        else:
-            click.echo("data/*.json：没有改动")
+        click.echo(f"投影：{'正常' if projected_ok else '失败'}（{data_dir}）")
+    report_data_changes(data_dir, [name for name, _, _ in datasets])
+    if data_dir == PIPELINE_DATA_DIR:
         click.echo("提示：data/version.txt 是「已发布数据版本」，本地重算不会改它。")
 
-    if sync_failed or not generated_ok or (projected is not None and not projected.ok):
+    if sync_failed or not generated_ok or projected_ok is False:
         ctx.exit(1)
+
+
+@main.command(name="fetch")
+@raw_dir_option()
+@data_dir_option()
+@only_option()
+@nav_option()
+@click.option("--force", is_flag=True, help="重新下载，并重写未变化的输出文件")
+@click.option(
+    "--cache-bust",
+    is_flag=True,
+    help="请求带时间戳绕开远端缓存（CI 上自动开启，同时意味着强制下载）",
+)
+@click.option(
+    "--download/--no-download",
+    default=True,
+    help="先下载已发布数据（--no-download 时只用本地 data/raw/ 重新投影）",
+)
+@click.option("--project/--no-project", default=True, help="把 data/raw/ 投影进入库的 data/*.json")
+def fetch_command(
+    out_dir: Path,
+    data_dir: Path,
+    only: tuple[str, ...],
+    nav: str | None,
+    force: bool,
+    cache_bust: bool,
+    download: bool,
+    project: bool,
+) -> None:
+    """下载 zmdmap 已发布的精简数据，并投影进入库的 data/*.json。"""
+    raw_dir = out_dir.expanduser().resolve()
+    data_dir = data_dir.expanduser().resolve()
+
+    if download:
+        click.echo("── 下载（data/raw/）──────────────────────────────")
+        try:
+            download_published(raw_dir, force=force, cache_bust=cache_bust)
+        except (OSError, ValueError) as error:
+            raise click.ClickException(str(error)) from error
+    else:
+        click.echo("── 下载：跳过（--no-download），直接用现有 data/raw/")
+
+    if not project:
+        click.echo("投影：未执行（--no-project）")
+        return
+
+    click.echo("\n── 投影（data/raw/ -> data/）─────────────────────")
+    written = run_projection(raw_dir, data_dir, only, nav=nav, force=force)
+    click.echo("\n── 汇总 ──────────────────────────────────────────")
+    click.echo(f"投影：正常（写入 {written} 份，输出到 {data_dir}）")
+    report_data_changes(data_dir, only or DATASET_NAMES)
 
 
 if __name__ == "__main__":

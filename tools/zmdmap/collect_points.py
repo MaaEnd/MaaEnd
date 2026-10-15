@@ -3,8 +3,8 @@
 AutoCollect 采集路线的数据源：``WorldEntityRegistry`` 中 ``detailId`` 以
 ``int_doodad_`` 开头的可交互采集物，全量输出。
 
-只发布游戏世界坐标 x/z：投影参数属于 BaseNav pack，换算由 MaaEnd 侧
-``fetch-data.mjs`` 完成，所以这里不做任何底图筛选。
+只发布游戏世界坐标 x/z：投影参数属于 BaseNav pack，换算由 MaaEnd 侧的投影步骤
+（``tools/zmdmap/project.py``）完成，所以这里不做任何底图筛选。
 """
 
 from typing import Any

@@ -3,7 +3,7 @@
 六份数据里带坐标的三份（``delivery_destinations`` / ``teleport_anchors`` /
 ``collect_points``）只发布游戏世界坐标 x/z（送货点另有世界高度 y）：投影参数
 （``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）与底图像素都属于 BaseNav pack，只有
-MaaEnd 手里有，换算由 MaaEnd 侧 ``tools/pipeline-generate/fetch-data.mjs`` 在下载完
+MaaEnd 手里有，换算由 MaaEnd 侧的投影步骤（``tools/zmdmap/project.py``）在下载或生成完
 发布数据后完成。本文件与 endfield-workflow 侧
 ``src/beyond_map/processors/maaend/coords.py`` 逐字对应（只差 import 行与文件路径提及）。
 """

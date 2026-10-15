@@ -5,8 +5,8 @@
 
 只发布游戏世界坐标 x/y/z：仓储节点与回收站的 y 取自 ``LevelMapMark.pos.y``，
 普通收货 NPC 的取自 ``NpcProxyTable.position.y``，都原样交给 MaaEnd 当
-NAVMESH 终点的 ``target_deck_y``；底图像素由 MaaEnd 侧 ``fetch-data.mjs`` 按 BaseNav
-pack 的 zone 表投影，这里不做任何换算。
+NAVMESH 终点的 ``target_deck_y``；底图像素由 MaaEnd 侧的投影步骤（``tools/zmdmap/project.py``）
+按 BaseNav pack 的 zone 表投影，这里不做任何换算。
 """
 
 import re

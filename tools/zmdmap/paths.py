@@ -7,7 +7,7 @@
 给了 ``--table-cfg-dir`` / ``--json-data-dir``（或对应环境变量）时以显式值为准。
 
 产物默认落在不入库的 ``tools/pipeline-generate/data/raw/``（原始形态，只带世界坐标），
-再由 ``tools/pipeline-generate/fetch-data.mjs`` 按 BaseNav 的 zone 表投影进入库的
+再由投影步骤（``tools/zmdmap/project.py``）按 BaseNav 的 zone 表投影进入库的
 ``data/*.json``。
 """
 
@@ -33,7 +33,6 @@ JSON_DATA_SUBPATH = ("BeyondMemoryPack", "JsonData")
 # 入库数据的目录（投影的输入/输出），以及投影要用的 navmesh 子模块。
 PIPELINE_DATA_DIR = REPO_ROOT / "tools" / "pipeline-generate" / "data"
 DEFAULT_OUT_DIR = PIPELINE_DATA_DIR / "raw"
-PROJECTOR = REPO_ROOT / "tools" / "pipeline-generate" / "fetch-data.mjs"
 MODEL_SUBMODULE_PATH = REPO_ROOT / "assets" / "resource" / "model"
 NAVMESH_DIR = MODEL_SUBMODULE_PATH / "map" / "navmesh"
 NAVMESH_FILES = ("base.nav.gz", "base.nav")

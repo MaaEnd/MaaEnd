@@ -34,6 +34,14 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
       - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile

@@ -5,8 +5,8 @@
 即传送到该点时用的锚点 ID。任何要「先传送再走路」的任务都吃这份数据，
 ``collect_points`` 也用它把采集物分圈。
 
-只发布游戏世界坐标 x/z：投影参数属于 BaseNav pack，换算由 MaaEnd 侧
-``fetch-data.mjs`` 完成，所以这里不做任何底图筛选，全部营地主都收。
+只发布游戏世界坐标 x/z：投影参数属于 BaseNav pack，换算由 MaaEnd 侧的投影步骤
+（``tools/zmdmap/project.py``）完成，所以这里不做任何底图筛选，全部营地主都收。
 """
 
 from typing import Any

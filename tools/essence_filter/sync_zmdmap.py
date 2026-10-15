@@ -83,7 +83,7 @@ def _download_sources(version: str) -> tuple[dict[str, Any], datetime | None] | 
     result: dict[str, Any] = {}
     last_modified: list[str] = []
     for filename, validator in validators.items():
-        # output_maaend 使用查询参数 ?ver=<version> 指定数据版本（与 fetch-data.mjs 一致）。
+        # output_maaend 使用查询参数 ?ver=<version> 指定数据版本（与 tools/zmdmap/fetch.py 一致）。
         url = f"{DATA_BASE_URL}/{filename}?ver={quote(version, safe='')}"
         data, modified = _download_json(url)
         if not validator(data):
