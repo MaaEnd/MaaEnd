@@ -2101,6 +2101,75 @@
                     }
                 },
                 {
+                    "name": "item_corp_mushroom_seed_2",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_2",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_2",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_tundra_wood",
                     "label": "$iconRecognition.name.item_plant_tundra_wood",
                     "icon": "resource/image/UI/Item/item_plant_tundra_wood.png",
@@ -2114,6 +2183,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_tundra_wood"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_mushroom_seed_1",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_potato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_potato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_potato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -2239,6 +2354,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_bean_seed_1",
+                    "label": "$iconRecognition.name.item_corp_bean_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_bean_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_sp_3",
                     "label": "$iconRecognition.name.item_plant_sp_3",
                     "icon": "resource/image/UI/Item/item_plant_sp_3.png",
@@ -2285,6 +2423,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_whitegourd_seed_1",
+                    "label": "$iconRecognition.name.item_corp_whitegourd_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_whitegourd_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_moss_3",
                     "label": "$iconRecognition.name.item_plant_moss_3",
                     "icon": "resource/image/UI/Item/item_plant_moss_3.png",
@@ -2321,6 +2482,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_canolaflower_seed_1",
+                    "label": "$iconRecognition.name.item_corp_canolaflower_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_canolaflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_sugarcane_seed_1",
+                    "label": "$iconRecognition.name.item_corp_sugarcane_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_sugarcane_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -2413,6 +2620,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_sp_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_tomato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_tomato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_tomato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -2643,6 +2873,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_1",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_1",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -6701,6 +6977,98 @@
                     }
                 },
                 {
+                    "name": "item_inn_drink_7",
+                    "label": "$iconRecognition.name.item_inn_drink_7",
+                    "icon": "resource/image/UI/Item/item_inn_drink_7.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_7"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_2",
+                    "label": "$iconRecognition.name.item_inn_drink_2",
+                    "icon": "resource/image/UI/Item/item_inn_drink_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_4",
+                    "label": "$iconRecognition.name.item_inn_drink_4",
+                    "icon": "resource/image/UI/Item/item_inn_drink_4.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_10",
+                    "label": "$iconRecognition.name.item_inn_drink_10",
+                    "icon": "resource/image/UI/Item/item_inn_drink_10.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_10"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_dog_hsmob_corp_1",
                     "label": "$iconRecognition.name.item_dog_hsmob_corp_1",
                     "icon": "resource/image/UI/Item/item_dog_hsmob_corp_1.png",
@@ -7046,6 +7414,29 @@
                     }
                 },
                 {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkbiter_1_wgshoal_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_bottled_rec_hp_1",
                     "label": "$iconRecognition.name.item_bottled_rec_hp_1",
                     "icon": "resource/image/UI/Item/item_bottled_rec_hp_1.png",
@@ -7243,6 +7634,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_lbshamman_1_agmelee_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inkkirin_1_hscrane_1_1",
+                    "label": "$iconRecognition.name.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkkirin_1_hscrane_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -7678,6 +8092,75 @@
                     }
                 },
                 {
+                    "name": "item_corp_mushroom_seed_2",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_2",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_2",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_tundra_wood",
                     "label": "$iconRecognition.name.item_plant_tundra_wood",
                     "icon": "resource/image/UI/Item/item_plant_tundra_wood.png",
@@ -7691,6 +8174,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_tundra_wood"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_mushroom_seed_1",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_potato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_potato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_potato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -7816,6 +8345,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_bean_seed_1",
+                    "label": "$iconRecognition.name.item_corp_bean_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_bean_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_sp_3",
                     "label": "$iconRecognition.name.item_plant_sp_3",
                     "icon": "resource/image/UI/Item/item_plant_sp_3.png",
@@ -7862,6 +8414,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_whitegourd_seed_1",
+                    "label": "$iconRecognition.name.item_corp_whitegourd_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_whitegourd_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_moss_3",
                     "label": "$iconRecognition.name.item_plant_moss_3",
                     "icon": "resource/image/UI/Item/item_plant_moss_3.png",
@@ -7898,6 +8473,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_canolaflower_seed_1",
+                    "label": "$iconRecognition.name.item_corp_canolaflower_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_canolaflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_sugarcane_seed_1",
+                    "label": "$iconRecognition.name.item_corp_sugarcane_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_sugarcane_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -7990,6 +8611,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_sp_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_tomato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_tomato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_tomato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -8220,6 +8864,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_1",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_1",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -12278,6 +12968,98 @@
                     }
                 },
                 {
+                    "name": "item_inn_drink_7",
+                    "label": "$iconRecognition.name.item_inn_drink_7",
+                    "icon": "resource/image/UI/Item/item_inn_drink_7.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_7"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_2",
+                    "label": "$iconRecognition.name.item_inn_drink_2",
+                    "icon": "resource/image/UI/Item/item_inn_drink_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_4",
+                    "label": "$iconRecognition.name.item_inn_drink_4",
+                    "icon": "resource/image/UI/Item/item_inn_drink_4.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_10",
+                    "label": "$iconRecognition.name.item_inn_drink_10",
+                    "icon": "resource/image/UI/Item/item_inn_drink_10.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_10"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_dog_hsmob_corp_1",
                     "label": "$iconRecognition.name.item_dog_hsmob_corp_1",
                     "icon": "resource/image/UI/Item/item_dog_hsmob_corp_1.png",
@@ -12623,6 +13405,29 @@
                     }
                 },
                 {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkbiter_1_wgshoal_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_bottled_rec_hp_1",
                     "label": "$iconRecognition.name.item_bottled_rec_hp_1",
                     "icon": "resource/image/UI/Item/item_bottled_rec_hp_1.png",
@@ -12820,6 +13625,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_lbshamman_1_agmelee_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inkkirin_1_hscrane_1_1",
+                    "label": "$iconRecognition.name.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkkirin_1_hscrane_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -13255,6 +14083,75 @@
                     }
                 },
                 {
+                    "name": "item_corp_mushroom_seed_2",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_2",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_2",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_tundra_wood",
                     "label": "$iconRecognition.name.item_plant_tundra_wood",
                     "icon": "resource/image/UI/Item/item_plant_tundra_wood.png",
@@ -13268,6 +14165,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_tundra_wood"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_mushroom_seed_1",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_potato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_potato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_potato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -13393,6 +14336,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_bean_seed_1",
+                    "label": "$iconRecognition.name.item_corp_bean_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_bean_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_sp_3",
                     "label": "$iconRecognition.name.item_plant_sp_3",
                     "icon": "resource/image/UI/Item/item_plant_sp_3.png",
@@ -13439,6 +14405,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_whitegourd_seed_1",
+                    "label": "$iconRecognition.name.item_corp_whitegourd_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_whitegourd_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_moss_3",
                     "label": "$iconRecognition.name.item_plant_moss_3",
                     "icon": "resource/image/UI/Item/item_plant_moss_3.png",
@@ -13475,6 +14464,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_canolaflower_seed_1",
+                    "label": "$iconRecognition.name.item_corp_canolaflower_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_canolaflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_sugarcane_seed_1",
+                    "label": "$iconRecognition.name.item_corp_sugarcane_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_sugarcane_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -13567,6 +14602,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_sp_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_tomato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_tomato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_tomato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -13797,6 +14855,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_1",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_1",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -17855,6 +18959,98 @@
                     }
                 },
                 {
+                    "name": "item_inn_drink_7",
+                    "label": "$iconRecognition.name.item_inn_drink_7",
+                    "icon": "resource/image/UI/Item/item_inn_drink_7.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_7"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_2",
+                    "label": "$iconRecognition.name.item_inn_drink_2",
+                    "icon": "resource/image/UI/Item/item_inn_drink_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_4",
+                    "label": "$iconRecognition.name.item_inn_drink_4",
+                    "icon": "resource/image/UI/Item/item_inn_drink_4.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_10",
+                    "label": "$iconRecognition.name.item_inn_drink_10",
+                    "icon": "resource/image/UI/Item/item_inn_drink_10.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_10"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_dog_hsmob_corp_1",
                     "label": "$iconRecognition.name.item_dog_hsmob_corp_1",
                     "icon": "resource/image/UI/Item/item_dog_hsmob_corp_1.png",
@@ -18200,6 +19396,29 @@
                     }
                 },
                 {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkbiter_1_wgshoal_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_bottled_rec_hp_1",
                     "label": "$iconRecognition.name.item_bottled_rec_hp_1",
                     "icon": "resource/image/UI/Item/item_bottled_rec_hp_1.png",
@@ -18397,6 +19616,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_lbshamman_1_agmelee_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inkkirin_1_hscrane_1_1",
+                    "label": "$iconRecognition.name.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkkirin_1_hscrane_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -18832,6 +20074,75 @@
                     }
                 },
                 {
+                    "name": "item_corp_mushroom_seed_2",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_2",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_2",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_tundra_wood",
                     "label": "$iconRecognition.name.item_plant_tundra_wood",
                     "icon": "resource/image/UI/Item/item_plant_tundra_wood.png",
@@ -18845,6 +20156,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_tundra_wood"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_mushroom_seed_1",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_potato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_potato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_potato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -18970,6 +20327,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_bean_seed_1",
+                    "label": "$iconRecognition.name.item_corp_bean_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_bean_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_sp_3",
                     "label": "$iconRecognition.name.item_plant_sp_3",
                     "icon": "resource/image/UI/Item/item_plant_sp_3.png",
@@ -19016,6 +20396,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_whitegourd_seed_1",
+                    "label": "$iconRecognition.name.item_corp_whitegourd_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_whitegourd_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_moss_3",
                     "label": "$iconRecognition.name.item_plant_moss_3",
                     "icon": "resource/image/UI/Item/item_plant_moss_3.png",
@@ -19052,6 +20455,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_canolaflower_seed_1",
+                    "label": "$iconRecognition.name.item_corp_canolaflower_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_canolaflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_sugarcane_seed_1",
+                    "label": "$iconRecognition.name.item_corp_sugarcane_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_sugarcane_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -19144,6 +20593,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_sp_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_tomato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_tomato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_tomato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -19374,6 +20846,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_1",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_1",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -23432,6 +24950,98 @@
                     }
                 },
                 {
+                    "name": "item_inn_drink_7",
+                    "label": "$iconRecognition.name.item_inn_drink_7",
+                    "icon": "resource/image/UI/Item/item_inn_drink_7.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_7"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_2",
+                    "label": "$iconRecognition.name.item_inn_drink_2",
+                    "icon": "resource/image/UI/Item/item_inn_drink_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_4",
+                    "label": "$iconRecognition.name.item_inn_drink_4",
+                    "icon": "resource/image/UI/Item/item_inn_drink_4.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_10",
+                    "label": "$iconRecognition.name.item_inn_drink_10",
+                    "icon": "resource/image/UI/Item/item_inn_drink_10.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_10"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_dog_hsmob_corp_1",
                     "label": "$iconRecognition.name.item_dog_hsmob_corp_1",
                     "icon": "resource/image/UI/Item/item_dog_hsmob_corp_1.png",
@@ -23777,6 +25387,29 @@
                     }
                 },
                 {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkbiter_1_wgshoal_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_bottled_rec_hp_1",
                     "label": "$iconRecognition.name.item_bottled_rec_hp_1",
                     "icon": "resource/image/UI/Item/item_bottled_rec_hp_1.png",
@@ -23974,6 +25607,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_lbshamman_1_agmelee_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inkkirin_1_hscrane_1_1",
+                    "label": "$iconRecognition.name.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkkirin_1_hscrane_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -24432,6 +26088,75 @@
                     }
                 },
                 {
+                    "name": "item_corp_mushroom_seed_2",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_2",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_2",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_tundra_wood",
                     "label": "$iconRecognition.name.item_plant_tundra_wood",
                     "icon": "resource/image/UI/Item/item_plant_tundra_wood.png",
@@ -24445,6 +26170,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_tundra_wood"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_mushroom_seed_1",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_potato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_potato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_potato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -24570,6 +26341,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_bean_seed_1",
+                    "label": "$iconRecognition.name.item_corp_bean_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_bean_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_sp_3",
                     "label": "$iconRecognition.name.item_plant_sp_3",
                     "icon": "resource/image/UI/Item/item_plant_sp_3.png",
@@ -24616,6 +26410,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_whitegourd_seed_1",
+                    "label": "$iconRecognition.name.item_corp_whitegourd_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_whitegourd_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_moss_3",
                     "label": "$iconRecognition.name.item_plant_moss_3",
                     "icon": "resource/image/UI/Item/item_plant_moss_3.png",
@@ -24652,6 +26469,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_canolaflower_seed_1",
+                    "label": "$iconRecognition.name.item_corp_canolaflower_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_canolaflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_sugarcane_seed_1",
+                    "label": "$iconRecognition.name.item_corp_sugarcane_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_sugarcane_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -24744,6 +26607,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_sp_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_tomato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_tomato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_tomato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -24974,6 +26860,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_1",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_1",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -29032,6 +30964,98 @@
                     }
                 },
                 {
+                    "name": "item_inn_drink_7",
+                    "label": "$iconRecognition.name.item_inn_drink_7",
+                    "icon": "resource/image/UI/Item/item_inn_drink_7.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_7"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_2",
+                    "label": "$iconRecognition.name.item_inn_drink_2",
+                    "icon": "resource/image/UI/Item/item_inn_drink_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_4",
+                    "label": "$iconRecognition.name.item_inn_drink_4",
+                    "icon": "resource/image/UI/Item/item_inn_drink_4.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_10",
+                    "label": "$iconRecognition.name.item_inn_drink_10",
+                    "icon": "resource/image/UI/Item/item_inn_drink_10.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_10"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_dog_hsmob_corp_1",
                     "label": "$iconRecognition.name.item_dog_hsmob_corp_1",
                     "icon": "resource/image/UI/Item/item_dog_hsmob_corp_1.png",
@@ -29377,6 +31401,29 @@
                     }
                 },
                 {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkbiter_1_wgshoal_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_bottled_rec_hp_1",
                     "label": "$iconRecognition.name.item_bottled_rec_hp_1",
                     "icon": "resource/image/UI/Item/item_bottled_rec_hp_1.png",
@@ -29574,6 +31621,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_lbshamman_1_agmelee_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inkkirin_1_hscrane_1_1",
+                    "label": "$iconRecognition.name.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkkirin_1_hscrane_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -30009,6 +32079,75 @@
                     }
                 },
                 {
+                    "name": "item_corp_mushroom_seed_2",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_2",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_2",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_tundra_wood",
                     "label": "$iconRecognition.name.item_plant_tundra_wood",
                     "icon": "resource/image/UI/Item/item_plant_tundra_wood.png",
@@ -30022,6 +32161,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_tundra_wood"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_mushroom_seed_1",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_potato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_potato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_potato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -30147,6 +32332,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_bean_seed_1",
+                    "label": "$iconRecognition.name.item_corp_bean_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_bean_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_sp_3",
                     "label": "$iconRecognition.name.item_plant_sp_3",
                     "icon": "resource/image/UI/Item/item_plant_sp_3.png",
@@ -30193,6 +32401,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_whitegourd_seed_1",
+                    "label": "$iconRecognition.name.item_corp_whitegourd_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_whitegourd_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_moss_3",
                     "label": "$iconRecognition.name.item_plant_moss_3",
                     "icon": "resource/image/UI/Item/item_plant_moss_3.png",
@@ -30229,6 +32460,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_canolaflower_seed_1",
+                    "label": "$iconRecognition.name.item_corp_canolaflower_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_canolaflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_sugarcane_seed_1",
+                    "label": "$iconRecognition.name.item_corp_sugarcane_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_sugarcane_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -30321,6 +32598,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_sp_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_tomato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_tomato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_tomato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -30551,6 +32851,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_1",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_1",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -34609,6 +36955,98 @@
                     }
                 },
                 {
+                    "name": "item_inn_drink_7",
+                    "label": "$iconRecognition.name.item_inn_drink_7",
+                    "icon": "resource/image/UI/Item/item_inn_drink_7.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_7"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_2",
+                    "label": "$iconRecognition.name.item_inn_drink_2",
+                    "icon": "resource/image/UI/Item/item_inn_drink_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_4",
+                    "label": "$iconRecognition.name.item_inn_drink_4",
+                    "icon": "resource/image/UI/Item/item_inn_drink_4.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_10",
+                    "label": "$iconRecognition.name.item_inn_drink_10",
+                    "icon": "resource/image/UI/Item/item_inn_drink_10.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_10"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_dog_hsmob_corp_1",
                     "label": "$iconRecognition.name.item_dog_hsmob_corp_1",
                     "icon": "resource/image/UI/Item/item_dog_hsmob_corp_1.png",
@@ -34954,6 +37392,29 @@
                     }
                 },
                 {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkbiter_1_wgshoal_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_bottled_rec_hp_1",
                     "label": "$iconRecognition.name.item_bottled_rec_hp_1",
                     "icon": "resource/image/UI/Item/item_bottled_rec_hp_1.png",
@@ -35151,6 +37612,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_lbshamman_1_agmelee_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inkkirin_1_hscrane_1_1",
+                    "label": "$iconRecognition.name.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkkirin_1_hscrane_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -35586,6 +38070,75 @@
                     }
                 },
                 {
+                    "name": "item_corp_mushroom_seed_2",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_2",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_2",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_tundra_wood",
                     "label": "$iconRecognition.name.item_plant_tundra_wood",
                     "icon": "resource/image/UI/Item/item_plant_tundra_wood.png",
@@ -35599,6 +38152,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_tundra_wood"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_mushroom_seed_1",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_potato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_potato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_potato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -35724,6 +38323,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_bean_seed_1",
+                    "label": "$iconRecognition.name.item_corp_bean_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_bean_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_sp_3",
                     "label": "$iconRecognition.name.item_plant_sp_3",
                     "icon": "resource/image/UI/Item/item_plant_sp_3.png",
@@ -35770,6 +38392,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_whitegourd_seed_1",
+                    "label": "$iconRecognition.name.item_corp_whitegourd_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_whitegourd_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_moss_3",
                     "label": "$iconRecognition.name.item_plant_moss_3",
                     "icon": "resource/image/UI/Item/item_plant_moss_3.png",
@@ -35806,6 +38451,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_canolaflower_seed_1",
+                    "label": "$iconRecognition.name.item_corp_canolaflower_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_canolaflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_sugarcane_seed_1",
+                    "label": "$iconRecognition.name.item_corp_sugarcane_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_sugarcane_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -35898,6 +38589,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_sp_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_tomato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_tomato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_tomato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -36128,6 +38842,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_1",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_1",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -40186,6 +42946,98 @@
                     }
                 },
                 {
+                    "name": "item_inn_drink_7",
+                    "label": "$iconRecognition.name.item_inn_drink_7",
+                    "icon": "resource/image/UI/Item/item_inn_drink_7.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_7"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_2",
+                    "label": "$iconRecognition.name.item_inn_drink_2",
+                    "icon": "resource/image/UI/Item/item_inn_drink_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_4",
+                    "label": "$iconRecognition.name.item_inn_drink_4",
+                    "icon": "resource/image/UI/Item/item_inn_drink_4.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_10",
+                    "label": "$iconRecognition.name.item_inn_drink_10",
+                    "icon": "resource/image/UI/Item/item_inn_drink_10.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_10"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_dog_hsmob_corp_1",
                     "label": "$iconRecognition.name.item_dog_hsmob_corp_1",
                     "icon": "resource/image/UI/Item/item_dog_hsmob_corp_1.png",
@@ -40531,6 +43383,29 @@
                     }
                 },
                 {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkbiter_1_wgshoal_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_bottled_rec_hp_1",
                     "label": "$iconRecognition.name.item_bottled_rec_hp_1",
                     "icon": "resource/image/UI/Item/item_bottled_rec_hp_1.png",
@@ -40728,6 +43603,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_lbshamman_1_agmelee_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inkkirin_1_hscrane_1_1",
+                    "label": "$iconRecognition.name.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkkirin_1_hscrane_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -41163,6 +44061,75 @@
                     }
                 },
                 {
+                    "name": "item_corp_mushroom_seed_2",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_2",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_2",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_2",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_tundra_wood",
                     "label": "$iconRecognition.name.item_plant_tundra_wood",
                     "icon": "resource/image/UI/Item/item_plant_tundra_wood.png",
@@ -41176,6 +44143,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_tundra_wood"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_mushroom_seed_1",
+                    "label": "$iconRecognition.name.item_corp_mushroom_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_mushroom_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_mushroom_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_potato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_potato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_potato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_potato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -41301,6 +44314,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_bean_seed_1",
+                    "label": "$iconRecognition.name.item_corp_bean_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_bean_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_bean_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_sp_3",
                     "label": "$iconRecognition.name.item_plant_sp_3",
                     "icon": "resource/image/UI/Item/item_plant_sp_3.png",
@@ -41347,6 +44383,29 @@
                     }
                 },
                 {
+                    "name": "item_corp_whitegourd_seed_1",
+                    "label": "$iconRecognition.name.item_corp_whitegourd_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_whitegourd_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_whitegourd_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_plant_moss_3",
                     "label": "$iconRecognition.name.item_plant_moss_3",
                     "icon": "resource/image/UI/Item/item_plant_moss_3.png",
@@ -41383,6 +44442,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_canolaflower_seed_1",
+                    "label": "$iconRecognition.name.item_corp_canolaflower_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_canolaflower_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_canolaflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_sugarcane_seed_1",
+                    "label": "$iconRecognition.name.item_corp_sugarcane_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_sugarcane_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_sugarcane_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -41475,6 +44580,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_sp_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_tomato_seed_1",
+                    "label": "$iconRecognition.name.item_corp_tomato_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_tomato_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_tomato_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -41705,6 +44833,52 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_strawberry_seed_1",
+                    "label": "$iconRecognition.name.item_corp_strawberry_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_strawberry_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_strawberry_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_corp_cabbage_seed_1",
+                    "label": "$iconRecognition.name.item_corp_cabbage_seed_1",
+                    "icon": "resource/image/UI/Item/item_corp_cabbage_seed_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_corp_cabbage_seed_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Plant"
@@ -45763,6 +48937,98 @@
                     }
                 },
                 {
+                    "name": "item_inn_drink_7",
+                    "label": "$iconRecognition.name.item_inn_drink_7",
+                    "icon": "resource/image/UI/Item/item_inn_drink_7.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_7"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_2",
+                    "label": "$iconRecognition.name.item_inn_drink_2",
+                    "icon": "resource/image/UI/Item/item_inn_drink_2.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_4",
+                    "label": "$iconRecognition.name.item_inn_drink_4",
+                    "icon": "resource/image/UI/Item/item_inn_drink_4.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inn_drink_10",
+                    "label": "$iconRecognition.name.item_inn_drink_10",
+                    "icon": "resource/image/UI/Item/item_inn_drink_10.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inn_drink_10"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_dog_hsmob_corp_1",
                     "label": "$iconRecognition.name.item_dog_hsmob_corp_1",
                     "icon": "resource/image/UI/Item/item_dog_hsmob_corp_1.png",
@@ -46108,6 +49374,29 @@
                     }
                 },
                 {
+                    "name": "item_inkbiter_1_wgshoal_1_1",
+                    "label": "$iconRecognition.name.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkbiter_1_wgshoal_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_bottled_rec_hp_1",
                     "label": "$iconRecognition.name.item_bottled_rec_hp_1",
                     "icon": "resource/image/UI/Item/item_bottled_rec_hp_1.png",
@@ -46305,6 +49594,29 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_lbshamman_1_agmelee_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_inkkirin_1_hscrane_1_1",
+                    "label": "$iconRecognition.name.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_inkkirin_1_hscrane_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
