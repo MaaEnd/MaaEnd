@@ -13,8 +13,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.463,
-                        799.095
+                        23744.576,
+                        18183.84
                     ],
                     "target_deck_y": 93.098,
                     "required": true
@@ -22,8 +22,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.463,
-                        803.314
+                        23744.576,
+                        18279.84
                     ],
                     "target_deck_y": 93.098
                 }
@@ -56,8 +56,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.463,
-                        799.095
+                        23744.576,
+                        18183.84
                     ],
                     "target_deck_y": 93.098,
                     "required": true
@@ -65,8 +65,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.463,
-                        803.314
+                        23744.576,
+                        18279.84
                     ],
                     "target_deck_y": 93.098
                 }
@@ -99,8 +99,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.463,
-                        799.095
+                        23744.576,
+                        18183.84
                     ],
                     "target_deck_y": 93.098,
                     "required": true
@@ -108,8 +108,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.463,
-                        803.314
+                        23744.576,
+                        18279.84
                     ],
                     "target_deck_y": 93.098
                 }
@@ -141,8 +141,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1132.831,
-                        900.497
+                        25778.198,
+                        20491.312
                     ],
                     "target_deck_y": 90.519,
                     "required": true
@@ -150,8 +150,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        1132.831,
-                        900.497
+                        25778.198,
+                        20491.312
                     ],
                     "required": true,
                     "interact_text": [
@@ -191,8 +191,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1132.831,
-                        900.497
+                        25778.198,
+                        20491.312
                     ],
                     "target_deck_y": 90.519,
                     "required": true
@@ -200,8 +200,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        1132.831,
-                        900.497
+                        25778.198,
+                        20491.312
                     ],
                     "required": true,
                     "interact_text": [
@@ -241,8 +241,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1130.172,
-                        905.454
+                        25717.691,
+                        20604.108
                     ],
                     "target_deck_y": 90.519,
                     "required": true
@@ -250,8 +250,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1132.831,
-                        900.497
+                        25778.198,
+                        20491.312
                     ],
                     "target_deck_y": 90.519,
                     "required": true
@@ -259,8 +259,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        1132.831,
-                        900.497
+                        25778.198,
+                        20491.312
                     ],
                     "required": true,
                     "interact_text": [
@@ -431,8 +431,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1156.971,
-                        823.25
+                        26327.504,
+                        18733.51
                     ],
                     "target_deck_y": 87.394,
                     "required": true
@@ -440,8 +440,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1161.842,
-                        826.062
+                        26438.355,
+                        18797.51
                     ],
                     "target_deck_y": 87.394,
                     "required": true
@@ -449,8 +449,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        1161.842,
-                        826.062
+                        26438.355,
+                        18797.51
                     ],
                     "required": true,
                     "interact_text": [
@@ -489,8 +489,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        968.209,
-                        824.369
+                        22032.128,
+                        18758.976
                     ],
                     "target_deck_y": 95.898,
                     "required": true
@@ -498,8 +498,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        968.209,
-                        824.369
+                        22032.128,
+                        18758.976
                     ],
                     "required": true,
                     "interact_text": [
@@ -539,8 +539,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        968.209,
-                        824.369
+                        22032.128,
+                        18758.976
                     ],
                     "target_deck_y": 95.898,
                     "required": true
@@ -548,8 +548,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        968.209,
-                        824.369
+                        22032.128,
+                        18758.976
                     ],
                     "required": true,
                     "interact_text": [
@@ -589,8 +589,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        972.459,
-                        828.054
+                        22128.836,
+                        18842.83
                     ],
                     "target_deck_y": 95.898,
                     "required": true
@@ -598,8 +598,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        968.209,
-                        824.369
+                        22032.128,
+                        18758.976
                     ],
                     "target_deck_y": 95.898,
                     "required": true
@@ -607,8 +607,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        968.209,
-                        824.369
+                        22032.128,
+                        18758.976
                     ],
                     "required": true,
                     "interact_text": [
@@ -647,8 +647,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        910.924,
-                        764.145
+                        20728.576,
+                        17388.544
                     ],
                     "target_deck_y": 87.331,
                     "required": true
@@ -656,8 +656,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        906.705,
-                        764.145
+                        20632.576,
+                        17388.544
                     ],
                     "target_deck_y": 87.331,
                     "required": true
@@ -665,8 +665,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        906.705,
-                        764.145
+                        20632.576,
+                        17388.544
                     ],
                     "required": true,
                     "interact_text": {
@@ -703,8 +703,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        910.924,
-                        764.145
+                        20728.576,
+                        17388.544
                     ],
                     "target_deck_y": 87.331,
                     "required": true
@@ -712,8 +712,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        906.705,
-                        764.145
+                        20632.576,
+                        17388.544
                     ],
                     "target_deck_y": 87.331,
                     "required": true
@@ -721,8 +721,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        906.705,
-                        764.145
+                        20632.576,
+                        17388.544
                     ],
                     "required": true,
                     "interact_text": {
@@ -759,8 +759,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        910.924,
-                        764.145
+                        20728.576,
+                        17388.544
                     ],
                     "target_deck_y": 87.331,
                     "required": true
@@ -768,8 +768,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        906.705,
-                        764.145
+                        20632.576,
+                        17388.544
                     ],
                     "target_deck_y": 87.331,
                     "required": true
@@ -777,8 +777,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        906.705,
-                        764.145
+                        20632.576,
+                        17388.544
                     ],
                     "required": true,
                     "interact_text": {
@@ -814,8 +814,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1179.481,
-                        813.139
+                        26839.729,
+                        18503.41
                     ],
                     "target_deck_y": 96.809,
                     "required": true
@@ -823,8 +823,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1182.464,
-                        816.122
+                        26907.612,
+                        18571.293
                     ],
                     "target_deck_y": 96.809,
                     "required": true
@@ -832,8 +832,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        1182.464,
-                        816.122
+                        26907.612,
+                        18571.293
                     ],
                     "required": true,
                     "interact_text": {
@@ -870,8 +870,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1179.481,
-                        813.139
+                        26839.729,
+                        18503.41
                     ],
                     "target_deck_y": 96.809,
                     "required": true
@@ -879,8 +879,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1182.464,
-                        816.122
+                        26907.612,
+                        18571.293
                     ],
                     "target_deck_y": 96.809,
                     "required": true
@@ -888,8 +888,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        1182.464,
-                        816.122
+                        26907.612,
+                        18571.293
                     ],
                     "required": true,
                     "interact_text": {
@@ -926,8 +926,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1179.481,
-                        813.139
+                        26839.729,
+                        18503.41
                     ],
                     "target_deck_y": 96.809,
                     "required": true
@@ -935,8 +935,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1182.464,
-                        816.122
+                        26907.612,
+                        18571.293
                     ],
                     "target_deck_y": 96.809,
                     "required": true
@@ -944,8 +944,8 @@
                 {
                     "action": "INTERACT",
                     "target": [
-                        1182.464,
-                        816.122
+                        26907.612,
+                        18571.293
                     ],
                     "required": true,
                     "interact_text": {

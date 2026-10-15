@@ -542,6 +542,15 @@
                 "ko_kr": "리노"
             }
         },
+        "Si": {
+            "names": {
+                "zh_cn": "祀",
+                "zh_tw": "祀",
+                "en_us": "Si",
+                "ja_jp": "スー",
+                "ko_kr": "사"
+            }
+        },
         "Purrchena": {
             "names": {
                 "zh_cn": "噗切娜",
@@ -810,6 +819,11 @@
                     "name": "Perlica",
                     "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Si",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
                     "name": "Camille",
@@ -1129,6 +1143,11 @@
                     "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
+                    "name": "Si",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
                     "name": "MiFu",
                     "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
@@ -1171,6 +1190,7 @@
             ],
             "restore_operators": [
                 "ZhuangFangyi",
+                "Si",
                 "Akekuri",
                 "Pogranichnik",
                 "Yvonne",
@@ -1235,6 +1255,11 @@
                 },
                 {
                     "name": "MiFu",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Si",
                     "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
                 },
