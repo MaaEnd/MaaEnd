@@ -14,5 +14,61 @@
             31,
             0
         ]
+    },
+    "ClueOneCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueTwoCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueThreeCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueFourCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueFiveCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueSixCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
+    },
+    "ClueSevenCount": {
+        "roi_offset": [
+            339,
+            41,
+            -15,
+            -35
+        ]
     }
 }

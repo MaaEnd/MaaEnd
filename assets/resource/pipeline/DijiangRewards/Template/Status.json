@@ -336,18 +336,15 @@
     "ClueOne": {
         "desc": "[会客室·线索] 一号线索的图像识别",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                    21,
+                    126,
+                    109,
+                    496
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue001.png"
-                ],
-                "green_mask": true
+                "expected": "1"
             }
         }
     },
@@ -358,11 +355,11 @@
             "param": {
                 "roi": "ClueOne",
                 "roi_offset": [
-                    227,
-                    51,
-                    -34,
-                    -58
-                ], // 見下方說明，需依錨點重新計算
+                    280,
+                    32,
+                    -15,
+                    -23
+                ],
                 "expected": "^[1-9]\\d*$"
             }
         }
@@ -370,18 +367,15 @@
     "ClueTwo": {
         "desc": "[会客室·线索] 二号线索的图像识别",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                    21,
+                    126,
+                    109,
+                    496
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue002.png"
-                ],
-                "green_mask": true
+                "expected": "2"
             }
         }
     },
@@ -392,11 +386,11 @@
             "param": {
                 "roi": "ClueTwo",
                 "roi_offset": [
-                    227,
-                    51,
-                    -34,
-                    -58
-                ], // 見下方說明，需依錨點重新計算
+                    280,
+                    32,
+                    -15,
+                    -23
+                ],
                 "expected": "^[1-9]\\d*$"
             }
         }
@@ -404,18 +398,15 @@
     "ClueThree": {
         "desc": "[会客室·线索] 三号线索的图像识别",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                    21,
+                    126,
+                    109,
+                    496
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue003.png"
-                ],
-                "green_mask": true
+                "expected": "3"
             }
         }
     },
@@ -426,11 +417,11 @@
             "param": {
                 "roi": "ClueThree",
                 "roi_offset": [
-                    227,
-                    51,
-                    -34,
-                    -58
-                ], // 見下方說明，需依錨點重新計算
+                    280,
+                    32,
+                    -15,
+                    -23
+                ],
                 "expected": "^[1-9]\\d*$"
             }
         }
@@ -438,18 +429,15 @@
     "ClueFour": {
         "desc": "[会客室·线索] 四号线索的图像识别",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                    21,
+                    126,
+                    109,
+                    496
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue004.png"
-                ],
-                "green_mask": true
+                "expected": "4"
             }
         }
     },
@@ -460,11 +448,11 @@
             "param": {
                 "roi": "ClueFour",
                 "roi_offset": [
-                    227,
-                    51,
-                    -34,
-                    -58
-                ], // 見下方說明，需依錨點重新計算
+                    280,
+                    32,
+                    -15,
+                    -23
+                ],
                 "expected": "^[1-9]\\d*$"
             }
         }
@@ -472,18 +460,15 @@
     "ClueFive": {
         "desc": "[会客室·线索] 五号线索的图像识别",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                    21,
+                    126,
+                    109,
+                    496
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue005.png"
-                ],
-                "green_mask": true
+                "expected": "5"
             }
         }
     },
@@ -494,11 +479,11 @@
             "param": {
                 "roi": "ClueFive",
                 "roi_offset": [
-                    227,
-                    51,
-                    -34,
-                    -58
-                ], // 見下方說明，需依錨點重新計算
+                    280,
+                    32,
+                    -15,
+                    -23
+                ],
                 "expected": "^[1-9]\\d*$"
             }
         }
@@ -506,18 +491,15 @@
     "ClueSix": {
         "desc": "[会客室·线索] 六号线索的图像识别",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                    21,
+                    126,
+                    109,
+                    496
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue006.png"
-                ],
-                "green_mask": true
+                "expected": "6"
             }
         }
     },
@@ -528,11 +510,11 @@
             "param": {
                 "roi": "ClueSix",
                 "roi_offset": [
-                    227,
-                    51,
-                    -34,
-                    -58
-                ], // 見下方說明，需依錨點重新計算
+                    280,
+                    32,
+                    -15,
+                    -23
+                ],
                 "expected": "^[1-9]\\d*$"
             }
         }
@@ -540,18 +522,15 @@
     "ClueSeven": {
         "desc": "[会客室·线索] 七号线索的图像识别",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    42,
-                    132,
-                    331,
-                    489
+                    21,
+                    126,
+                    109,
+                    496
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ReceptionRoom/Clue007.png"
-                ],
-                "green_mask": true
+                "expected": "7"
             }
         }
     },
@@ -562,11 +541,11 @@
             "param": {
                 "roi": "ClueSeven",
                 "roi_offset": [
-                    227,
-                    51,
-                    -34,
-                    -58
-                ], // 見下方說明，需依錨點重新計算
+                    280,
+                    32,
+                    -15,
+                    -23
+                ],
                 "expected": "^[1-9]\\d*$"
             }
         }
