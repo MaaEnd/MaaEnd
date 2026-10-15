@@ -37,21 +37,6 @@
                 "keyboard": "Seize"
             }
         },
-        // Win32-Window-Background: 因游戏更新无法继续适配，已弃用
-        // {
-        //     "name": "Win32-Window-Background",
-        //     "label": "$controller.Win32-Window-Background.label",
-        //     "description": "$controller.Win32-Window-Background.description",
-        //     "type": "Win32",
-        //     "win32": {
-        //         "class_regex": "UnityWndClass",
-        //         "window_regex": "Endfield",
-        //         "screencap": "PrintWindow",
-        //         "mouse": "SendMessageWithWindowPos",
-        //         "keyboard": "PostMessage"
-        //     },
-        //     "permission_required": true
-        // },
         {
             "name": "ADB",
             "label": "$controller.ADB.label",
@@ -218,7 +203,7 @@
     "task": [],
     "import": [
         // pretask
-        "tasks/pretasks/GameSetting.json",
+        "tasks/pretasks/LaunchGamePC.json",
         // group: regional_development
         "tasks/OutpostTrading.json",
         "tasks/SeizeDeliveryJobs.json",

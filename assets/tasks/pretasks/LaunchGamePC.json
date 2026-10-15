@@ -6,43 +6,62 @@
         "exec": "agent/go-service",
         "args": [
             "--pretask",
-            "GameSetting"
+            "LaunchGamePC"
         ],
-        "name": "GameSetting",
-        "label": "$pretask.GameSetting.label",
-        "description": "$pretask.GameSetting.description",
+        "name": "LaunchGamePC",
+        "label": "$pretask.LaunchGamePC.label",
         "option": [
-            "GameSettingRegion",
-            "GameSettingLanguage",
-            "GameSettingDisplayType",
-            "GameSettingGraphicsQuality",
-            "GameSettingFrameRate",
-            "GameSettingAutoHDR"
+            "LaunchGamePCRegion",
+            "LaunchGamePCGameSetting"
         ]
     },
     "option": {
-        "GameSettingRegion": {
+        "LaunchGamePCRegion": {
             "type": "select",
-            "label": "$option.GameSettingRegion.label",
+            "label": "$option.LaunchGamePCRegion.label",
             "cases": [
                 {
                     "name": "CN",
-                    "label": "$option.GameSettingRegion.cases.CN.label"
+                    "label": "$option.LaunchGamePCRegion.cases.CN.label"
                 },
                 {
                     "name": "Global",
-                    "label": "$option.GameSettingRegion.cases.Global.label"
+                    "label": "$option.LaunchGamePCRegion.cases.Global.label"
+                },
+                {
+                    "name": "Bilibili",
+                    "label": "$option.LaunchGamePCRegion.cases.Bilibili.label"
                 }
             ],
             "default_case": "CN"
         },
-        "GameSettingLanguage": {
+        "LaunchGamePCGameSetting": {
+            "type": "switch",
+            "label": "$option.LaunchGamePCGameSetting.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "LaunchGamePCLanguage",
+                        "LaunchGamePCDisplayType",
+                        "LaunchGamePCGraphicsQuality",
+                        "LaunchGamePCFrameRate",
+                        "LaunchGamePCAutoHDR"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "LaunchGamePCLanguage": {
             "type": "select",
-            "label": "$option.GameSettingLanguage.label",
+            "label": "$option.LaunchGamePCLanguage.label",
             "cases": [
                 {
                     "name": "Unchanged",
-                    "label": "$option.GameSettingLanguage.cases.Unchanged.label"
+                    "label": "$option.LaunchGamePCLanguage.cases.Unchanged.label"
                 },
                 {
                     "name": "CN",
@@ -103,30 +122,30 @@
             ],
             "default_case": "Unchanged"
         },
-        "GameSettingDisplayType": {
+        "LaunchGamePCDisplayType": {
             "type": "select",
-            "label": "$option.GameSettingDisplayType.label",
+            "label": "$option.LaunchGamePCDisplayType.label",
             "cases": [
                 {
                     "name": "Window",
-                    "label": "$option.GameSettingDisplayType.cases.Window.label",
+                    "label": "$option.LaunchGamePCDisplayType.cases.Window.label",
                     "option": [
-                        "GameSettingResolution"
+                        "LaunchGamePCResolution"
                     ]
                 },
                 {
                     "name": "Fullscreen",
-                    "label": "$option.GameSettingDisplayType.cases.Fullscreen.label",
+                    "label": "$option.LaunchGamePCDisplayType.cases.Fullscreen.label",
                     "option": [
-                        "GameSettingResolution"
+                        "LaunchGamePCResolution"
                     ]
                 }
             ],
             "default_case": "Window"
         },
-        "GameSettingResolution": {
+        "LaunchGamePCResolution": {
             "type": "select",
-            "label": "$option.GameSettingResolution.label",
+            "label": "$option.LaunchGamePCResolution.label",
             "cases": [
                 {
                     "name": "1280x720"
@@ -140,76 +159,76 @@
             ],
             "default_case": "1280x720"
         },
-        "GameSettingGraphicsQuality": {
+        "LaunchGamePCGraphicsQuality": {
             "type": "select",
-            "label": "$option.GameSettingGraphicsQuality.label",
+            "label": "$option.LaunchGamePCGraphicsQuality.label",
             "cases": [
                 {
                     "name": "Unchanged",
-                    "label": "$option.GameSettingGraphicsQuality.cases.Unchanged.label"
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.Unchanged.label"
                 },
                 {
                     "name": "VeryLow",
-                    "label": "$option.GameSettingGraphicsQuality.cases.VeryLow.label"
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.VeryLow.label"
                 },
                 {
                     "name": "Low",
-                    "label": "$option.GameSettingGraphicsQuality.cases.Low.label"
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.Low.label"
                 },
                 {
                     "name": "Medium",
-                    "label": "$option.GameSettingGraphicsQuality.cases.Medium.label"
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.Medium.label"
                 },
                 {
                     "name": "High",
-                    "label": "$option.GameSettingGraphicsQuality.cases.High.label"
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.High.label"
                 },
                 {
                     "name": "Ultra",
-                    "label": "$option.GameSettingGraphicsQuality.cases.Ultra.label"
+                    "label": "$option.LaunchGamePCGraphicsQuality.cases.Ultra.label"
                 }
             ],
             "default_case": "Unchanged"
         },
-        "GameSettingFrameRate": {
+        "LaunchGamePCFrameRate": {
             "type": "select",
-            "label": "$option.GameSettingFrameRate.label",
+            "label": "$option.LaunchGamePCFrameRate.label",
             "cases": [
                 {
                     "name": "Unchanged",
-                    "label": "$option.GameSettingFrameRate.cases.Unchanged.label"
+                    "label": "$option.LaunchGamePCFrameRate.cases.Unchanged.label"
                 },
                 {
                     "name": "Fps30",
-                    "label": "$option.GameSettingFrameRate.cases.Fps30.label"
+                    "label": "$option.LaunchGamePCFrameRate.cases.Fps30.label"
                 },
                 {
                     "name": "Fps60",
-                    "label": "$option.GameSettingFrameRate.cases.Fps60.label"
+                    "label": "$option.LaunchGamePCFrameRate.cases.Fps60.label"
                 },
                 {
                     "name": "Fps120",
-                    "label": "$option.GameSettingFrameRate.cases.Fps120.label"
+                    "label": "$option.LaunchGamePCFrameRate.cases.Fps120.label"
                 }
             ],
             "default_case": "Unchanged"
         },
-        "GameSettingAutoHDR": {
+        "LaunchGamePCAutoHDR": {
             "type": "select",
-            "label": "$option.GameSettingAutoHDR.label",
-            "description": "$option.GameSettingAutoHDR.description",
+            "label": "$option.LaunchGamePCAutoHDR.label",
+            "description": "$option.LaunchGamePCAutoHDR.description",
             "cases": [
                 {
                     "name": "Unchanged",
-                    "label": "$option.GameSettingAutoHDR.cases.Unchanged.label"
+                    "label": "$option.LaunchGamePCAutoHDR.cases.Unchanged.label"
                 },
                 {
                     "name": "Disable",
-                    "label": "$option.GameSettingAutoHDR.cases.Disable.label"
+                    "label": "$option.LaunchGamePCAutoHDR.cases.Disable.label"
                 },
                 {
                     "name": "Enable",
-                    "label": "$option.GameSettingAutoHDR.cases.Enable.label"
+                    "label": "$option.LaunchGamePCAutoHDR.cases.Enable.label"
                 }
             ],
             "default_case": "Unchanged"

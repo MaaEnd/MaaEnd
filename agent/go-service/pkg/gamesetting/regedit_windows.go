@@ -713,3 +713,34 @@ func isAutoHDREnabledValue(value string, perApp bool) bool {
 		return false
 	}
 }
+
+const launcherUninstallPath = `SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\`
+
+// FindLauncherInstallDir 读取启动器卸载项中的 InstallLocation。启动器为 32 位安装程序，
+// 卸载项位于 WOW6432Node，故先查 32 位视图，再兼容 64 位视图与当前用户。
+func FindLauncherInstallDir(uninstallKey string) (string, error) {
+	lookups := []struct {
+		root   registry.Key
+		access uint32
+	}{
+		{registry.LOCAL_MACHINE, registry.QUERY_VALUE | registry.WOW64_32KEY},
+		{registry.LOCAL_MACHINE, registry.QUERY_VALUE | registry.WOW64_64KEY},
+		{registry.CURRENT_USER, registry.QUERY_VALUE},
+	}
+
+	for _, l := range lookups {
+		k, err := registry.OpenKey(l.root, launcherUninstallPath+uninstallKey, l.access)
+		if err != nil {
+			if errors.Is(err, registry.ErrNotExist) {
+				continue
+			}
+			return "", err
+		}
+		dir, _, err := k.GetStringValue("InstallLocation")
+		k.Close()
+		if err == nil && dir != "" {
+			return dir, nil
+		}
+	}
+	return "", fmt.Errorf("uninstall key %s not found", uninstallKey)
+}

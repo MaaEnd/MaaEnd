@@ -4,6 +4,11 @@
             "name": "DailyFull",
             "label": "$preset.DailyFull.label",
             "description": "$preset.DailyFull.description",
+            "pretask": [
+                {
+                    "name": "LaunchGamePC"
+                }
+            ],
             "task": [
                 {
                     "name": "VisitFriends",

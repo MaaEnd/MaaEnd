@@ -26,6 +26,7 @@
 | [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS、囤货、送货等扫格逻辑 |
 | [`iconqty`](#iconrecognition--iconqty) | 扫格 + 格内数量 OCR | IMS A2 / A3 |
 | [`minicv`](#minicv轻量-cv) | 模板匹配、圆检测等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
+| [`gamesetting`](#gamesetting游戏设置注册表) | 读写游戏设置注册表、判定区服、定位启动器安装目录（仅 Windows） | `LaunchGamePC`、`CloseGamePC`、分辨率 / HDR 检查 |
 | [`parentwatch`](#parentwatch父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
 
 ---
@@ -257,6 +258,19 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 - cpp-algo 侧对应 `common::OutputPath`（`source/Common/output_paths.h`），两边共用的文件（如 `debug/record/random_salt.txt`、`Ziplines.json`）靠同一基准对齐。
 
 **原子写**：`WriteFileAtomic(path, content, perm)`：同目录临时文件写完再 rename。适合 debug 落盘、可覆盖的缓存；**不保证掉电持久性**（不做目录 fsync）。
+
+### `gamesetting`：游戏设置注册表
+
+路径：`pkg/gamesetting/`
+
+游戏的画面、语言等设置保存在注册表 `HKCU\Software\Hypergryph\Endfield`（国服、B 服）或 `HKCU\Software\Gryphline\Endfield`（国际服），本包负责读写这些值。
+
+- `ApplyAll(region, Settings)`：一次写入显示模式 / 分辨率、语言、画质、帧率、AutoHDR，取值与 `LaunchGamePC` 选项的 case 名一致；需在游戏未运行时调用
+- `SetRegion` / `ResolveRegion`：显式指定区服，或根据运行中 `Endfield.exe` 目录下的 SDK DLL 自动判定
+- `GetXxx` / `SetXxx`：单项读写，供分辨率、HDR 检查等只读场景使用
+- `FindLauncherInstallDir(uninstallKey)`：从卸载项读取启动器安装目录
+
+仅 Windows 有效，其他平台返回 `ErrUnsupported`。
 
 ### `levenshtein`：编辑距离
 

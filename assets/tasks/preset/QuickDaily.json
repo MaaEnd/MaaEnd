@@ -4,6 +4,11 @@
             "name": "QuickDaily",
             "label": "$preset.QuickDaily.label",
             "description": "$preset.QuickDaily.description",
+            "pretask": [
+                {
+                    "name": "LaunchGamePC"
+                }
+            ],
             "task": [
                 {
                     "name": "VisitFriends",

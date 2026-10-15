@@ -1,7 +1,6 @@
 package gamesetting
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -30,94 +29,76 @@ const (
 // configuredRegion 为 SetRegion 显式值，或 detectRegionFromProcess 成功后的缓存；空表示尚未判定。
 var configuredRegion string
 
-type gameSettingOptions struct {
-	Region          string `json:"GameSettingRegion"`
-	Language        string `json:"GameSettingLanguage"`
-	DisplayType     string `json:"GameSettingDisplayType"`
-	Resolution      string `json:"GameSettingResolution"`
-	GraphicsQuality string `json:"GameSettingGraphicsQuality"`
-	FrameRate       string `json:"GameSettingFrameRate"`
-	AutoHDR         string `json:"GameSettingAutoHDR"`
+// Settings 为启动游戏前写入的设置，取值与 LaunchGamePC 选项的 case 名一致；空值按默认处理。
+type Settings struct {
+	Language        string
+	DisplayType     string
+	Resolution      string
+	GraphicsQuality string
+	FrameRate       string
+	AutoHDR         string
 }
 
-// Run 对应 assets/tasks/pretasks/GameSetting.json 的 pretask 入口。
-// Client 会把 option 取值序列化为 JSON 并追加为最后一个参数。
-func Run(args []string) bool {
-	opts, err := parseGameSettingOptions(args)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "gamesetting").
-			Strs("args", args).
-			Msg("failed to parse GameSetting options")
-		return false
+func (s Settings) withDefaults() Settings {
+	if s.Language == "" {
+		s.Language = optionUnchanged
 	}
-
-	if _, _, err := mapTextLanguage(opts.Language); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "gamesetting").
-			Str("language", opts.Language).
-			Msg("invalid game language")
-		return false
+	if s.DisplayType == "" {
+		s.DisplayType = displayTypeWindow
 	}
-
-	if isGameRunning() {
-		log.Error().
-			Str("component", "gamesetting").
-			Msg("cannot apply game settings: game is running")
-		return false
+	if s.Resolution == "" {
+		s.Resolution = defaultResolution
 	}
+	if s.GraphicsQuality == "" {
+		s.GraphicsQuality = optionUnchanged
+	}
+	if s.FrameRate == "" {
+		s.FrameRate = optionUnchanged
+	}
+	if s.AutoHDR == "" {
+		s.AutoHDR = optionUnchanged
+	}
+	return s
+}
 
-	if err := SetRegion(opts.Region); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "gamesetting").
-			Str("region", opts.Region).
-			Msg("invalid game region")
-		return false
+// ApplyAll 按区服写入全部游戏设置，需在游戏未运行时调用。region 取 "CN" / "Global"。
+func ApplyAll(region string, s Settings) error {
+	s = s.withDefaults()
+
+	if _, _, err := mapTextLanguage(s.Language); err != nil {
+		return err
+	}
+	if err := SetRegion(region); err != nil {
+		return err
 	}
 
 	log.Info().
 		Str("component", "gamesetting").
-		Str("region", opts.Region).
-		Str("language", opts.Language).
-		Str("display_type", opts.DisplayType).
-		Str("resolution", opts.Resolution).
-		Str("graphics_quality", opts.GraphicsQuality).
-		Str("frame_rate", opts.FrameRate).
-		Str("auto_hdr", opts.AutoHDR).
+		Str("region", region).
+		Str("language", s.Language).
+		Str("display_type", s.DisplayType).
+		Str("resolution", s.Resolution).
+		Str("graphics_quality", s.GraphicsQuality).
+		Str("frame_rate", s.FrameRate).
+		Str("auto_hdr", s.AutoHDR).
 		Msg("applying game settings")
 
-	if !Apply(opts.DisplayType, opts.Resolution) {
-		return false
+	if !Apply(s.DisplayType, s.Resolution) {
+		return fmt.Errorf("gamesetting: failed to apply display type %q with resolution %q", s.DisplayType, s.Resolution)
 	}
 
 	// Apply 已按区服选定注册表路径，此处才能写入语言项。
-	if err := ApplyTextLanguage(opts.Language); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "gamesetting").
-			Str("language", opts.Language).
-			Msg("failed to set game language")
-		return false
+	if err := ApplyTextLanguage(s.Language); err != nil {
+		return err
 	}
 
-	if quality, ok, err := mapGraphicsQuality(opts.GraphicsQuality); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "gamesetting").
-			Str("graphics_quality", opts.GraphicsQuality).
-			Msg("invalid graphics quality")
-		return false
-	} else if ok {
+	quality, ok, err := mapGraphicsQuality(s.GraphicsQuality)
+	if err != nil {
+		return err
+	}
+	if ok {
 		if err := SetVideoQualityMain(quality); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", "gamesetting").
-				Uint32("graphics_quality", quality).
-				Msg("failed to set graphics quality")
-			return false
+			return err
 		}
 		log.Info().
 			Str("component", "gamesetting").
@@ -125,21 +106,13 @@ func Run(args []string) bool {
 			Msg("applied graphics quality")
 	}
 
-	if frameRate, ok, err := mapFrameRate(opts.FrameRate); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "gamesetting").
-			Str("frame_rate", opts.FrameRate).
-			Msg("invalid frame rate")
-		return false
-	} else if ok {
+	frameRate, ok, err := mapFrameRate(s.FrameRate)
+	if err != nil {
+		return err
+	}
+	if ok {
 		if err := SetVideoFrameRate8(frameRate); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", "gamesetting").
-				Uint32("frame_rate", frameRate).
-				Msg("failed to set frame rate")
-			return false
+			return err
 		}
 		log.Info().
 			Str("component", "gamesetting").
@@ -147,62 +120,7 @@ func Run(args []string) bool {
 			Msg("applied frame rate")
 	}
 
-	if err := ApplyAutoHDR(opts.AutoHDR); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "gamesetting").
-			Str("auto_hdr", opts.AutoHDR).
-			Msg("failed to apply Auto HDR")
-		return false
-	}
-
-	return true
-}
-
-func parseGameSettingOptions(args []string) (gameSettingOptions, error) {
-	opts := gameSettingOptions{
-		Region:          regionCN,
-		Language:        optionUnchanged,
-		DisplayType:     displayTypeWindow,
-		Resolution:      defaultResolution,
-		GraphicsQuality: optionUnchanged,
-		FrameRate:       optionUnchanged,
-		AutoHDR:         optionUnchanged,
-	}
-	if len(args) == 0 {
-		return opts, nil
-	}
-
-	raw := strings.TrimSpace(args[len(args)-1])
-	if !strings.HasPrefix(raw, "{") {
-		return opts, nil
-	}
-
-	if err := json.Unmarshal([]byte(raw), &opts); err != nil {
-		return gameSettingOptions{}, err
-	}
-	if opts.Region == "" {
-		opts.Region = regionCN
-	}
-	if opts.Language == "" {
-		opts.Language = optionUnchanged
-	}
-	if opts.DisplayType == "" {
-		opts.DisplayType = displayTypeWindow
-	}
-	if opts.Resolution == "" {
-		opts.Resolution = defaultResolution
-	}
-	if opts.GraphicsQuality == "" {
-		opts.GraphicsQuality = optionUnchanged
-	}
-	if opts.FrameRate == "" {
-		opts.FrameRate = optionUnchanged
-	}
-	if opts.AutoHDR == "" {
-		opts.AutoHDR = optionUnchanged
-	}
-	return opts, nil
+	return ApplyAutoHDR(s.AutoHDR)
 }
 
 // ApplyTextLanguage 按选项写入游戏文本语言：Unchanged 或空值不修改，非法值返回错误。
@@ -392,27 +310,4 @@ func fileExists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, fmt.Errorf("gamesetting: stat %q failed: %w", path, err)
-}
-
-// isGameRunning 检测 Endfield.exe 是否正在运行；进程枚举失败时视为正在运行。
-func isGameRunning() bool {
-	procs, err := process.Processes()
-	if err != nil {
-		log.Warn().
-			Err(err).
-			Str("component", "gamesetting").
-			Msg("failed to enumerate processes, treating as game running")
-		return true
-	}
-
-	for _, p := range procs {
-		name, err := p.Name()
-		if err != nil {
-			continue
-		}
-		if strings.EqualFold(name, endfieldProcessName) {
-			return true
-		}
-	}
-	return false
 }

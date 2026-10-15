@@ -227,3 +227,7 @@ func ApplyAutoHDR(_ string) error {
 func IsAutoHDREnabled() (bool, error) {
 	return false, nil
 }
+
+func FindLauncherInstallDir(_ string) (string, error) {
+	return "", ErrUnsupported
+}
