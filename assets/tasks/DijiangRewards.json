@@ -193,8 +193,7 @@
                         }
                     }
                 }
-            ],
-            "default_case": "No"
+            ]
         },
         "FastCollectProduction": {
             "type": "switch",
