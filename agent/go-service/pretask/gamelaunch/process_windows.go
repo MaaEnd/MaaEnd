@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"unsafe"
 
 	"github.com/rs/zerolog/log"
@@ -101,4 +102,27 @@ func createGame(path string, parent windows.Handle) (windows.ProcessInformation,
 	err = windows.CreateProcess(app, command, nil, nil, false, windows.EXTENDED_STARTUPINFO_PRESENT|windows.CREATE_UNICODE_ENVIRONMENT,
 		nil, dir, &startup.StartupInfo, &process)
 	return process, err
+}
+
+type windowSearch struct {
+	pid   uint32
+	ready bool
+}
+
+var gameWindowCallback = syscall.NewCallback(func(hwnd windows.HWND, search *windowSearch) uintptr {
+	var owner uint32
+	if _, err := windows.GetWindowThreadProcessId(hwnd, &owner); err != nil || owner != search.pid || !windows.IsWindowVisible(hwnd) {
+		return 1
+	}
+	var class [256]uint16
+	if _, err := windows.GetClassName(hwnd, &class[0], int32(len(class))); err == nil && windows.UTF16ToString(class[:]) == "UnityWndClass" {
+		search.ready = true
+	}
+	return 1
+})
+
+func gameWindowReady(pid uint32) (bool, error) {
+	search := windowSearch{pid: pid}
+	err := windows.EnumWindows(gameWindowCallback, unsafe.Pointer(&search))
+	return search.ready, err
 }
