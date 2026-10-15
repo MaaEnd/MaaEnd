@@ -3,10 +3,11 @@ name = "maaend"
 version = "0.0.0"
 description = "Python dependencies for MaaEnd development scripts"
 requires-python = ">=3.10"
-# zmdmap 的 CLI 用 click；放核心依赖是为了让 CI 能 `uv run --no-default-groups zmdmap`
-# 只装这一个包就出数据，不必拉 scripts 组里的 maafw / fastapi / numpy。
+# zmdmap 的 CLI 用 click、下载数据用 httpx；放核心依赖是为了让 CI 能
+# `uv run --no-default-groups zmdmap` 只装这两个包就出数据，不必拉 scripts 组里的 maafw / fastapi / numpy。
 dependencies = [
     "click>=8.1,<9.0",
+    "httpx>=0.28,<1.0",
 ]
 
 [project.scripts]

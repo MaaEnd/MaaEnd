@@ -10,6 +10,9 @@ permissions:
 jobs:
   sync-pipeline-generate:
     runs-on: ubuntu-latest
+    env:
+      # 下载与生成的进度实时进日志，不要等进程退出才刷出来。
+      PYTHONUNBUFFERED: "1"
     steps:
       - name: Generate MaaEndBot GitHub App token
         id: app-token
@@ -34,17 +37,20 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
-      - uses: actions/setup-python@v6
+      # setup-uv 一并负责 Python：python-version 会设成 UV_PYTHON，不必再挂 actions/setup-python。
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.12"
-
-      - uses: astral-sh/setup-uv@v9.0.0
-        with:
           enable-cache: true
 
       - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile
+
+      # 这个 job 只下载一次：下面的 generate 脚本各自也会 fetch:zmdmap，同一次运行里会直接复用。
+      - name: Fetch zmdmap data
+        run: |
+          pnpm fetch:zmdmap
 
       - name: Generate pipeline data
         run: |
@@ -89,6 +95,8 @@ jobs:
 
   sync-essence-filter:
     runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
     steps:
       - name: Generate MaaEndBot GitHub App token
         id: app-token
@@ -105,27 +113,22 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ github.event.repository.default_branch }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
+      # setup-uv 一并负责 Python：python-version 会设成 UV_PYTHON，不必再挂 actions/setup-python。
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.12"
-
-      - uses: astral-sh/setup-uv@v9.0.0
-        with:
           enable-cache: true
 
-      - name: Install dependencies
-        run: python3 -m pip install json5
-
-      - name: Sync zmdmap data
+      - name: Fetch zmdmap data
         run: uv run --frozen --no-default-groups zmdmap fetch
 
+      # 依赖就地声明：uv 按 uv.lock 建环境，再叠加这里点名的包，不必单独装 python 或 pip install。
       - name: Generate EssenceFilter data
         run: |
-          python3 -u tools/essence_filter/sync_zmdmap.py
-          python3 -u tools/essence_filter/extract_skill_pools.py
-          python3 -u tools/essence_filter/build_locations.py --data-version "$(cat tools/zmdmap/data/version.txt)"
-          python3 -u tools/essence_filter/build_autoessence_tasks.py
+          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/sync_zmdmap.py
+          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/extract_skill_pools.py
+          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/build_locations.py --data-version "$(cat tools/zmdmap/data/version.txt)"
+          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/build_autoessence_tasks.py
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -149,3 +152,67 @@ jobs:
             This PR synchronized the latest EssenceFilter compact game data from zmdmap and regenerated dependent data files and AutoEssence task options.
 
             Please review the changes before merging it.
+
+  sync-icon-recognition:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.event.repository.default_branch }}
+
+      # setup-uv 一并负责 Python：python-version 会设成 UV_PYTHON，不必再挂 actions/setup-python。
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Fetch zmdmap data
+        run: uv run --frozen --no-default-groups zmdmap fetch
+
+      # 图标脚本要 json5（读物品表）与 pillow（合成 UI 图标），httpx 已经是核心依赖。
+      - name: Download icon resources
+        run: uv run --frozen --no-default-groups --with json5 --with pillow python tools/icon_recognition/download.py --workers 16
+
+      - name: Publish icon resources
+        run: uv run --frozen --no-default-groups --with json5 --with pillow python tools/icon_recognition/publish.py
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          add-paths: |
+            tools/zmdmap
+            assets/data/IconRecognition
+            assets/resource/image/IconRecognition
+            assets/resource/image/UI/Item
+            assets/locales/interface
+          commit-message: "chore(iconrecognition): sync zmdmap icon resources"
+          branch: chore/sync-zmdmap-icon-recognition
+          title: "chore(iconrecognition): sync zmdmap icon resources"
+          body: |
+            ## Summary
+
+            This PR automatically downloaded the latest IconRecognition icons from zmdmap and regenerated the recognition catalog, item images, and localized item names.
+
+            Please review the changes before merging it.
+
+            **Generated Artifacts:**
+            - `assets/data/IconRecognition/recognition_items.json`
+            - `assets/resource/image/IconRecognition/`
+            - `assets/resource/image/UI/Item/`
+            - `assets/locales/interface/` item names

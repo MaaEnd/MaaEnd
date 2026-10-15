@@ -3,6 +3,8 @@
 物品表与武器表都来自 zmdmap（``tools/zmdmap/data/``，由 ``uv run zmdmap fetch`` 下载或
 ``uv run zmdmap generate`` 本地生成）：条目自带多语言名字，所以不再下载 ``lang_*.json`` 那几份
 i18n 包（每份约 950 KB）。图标仍然只能从站点下载。
+
+图标走 httpx 的共享连接池并发下载：几百个图标共用一个 TLS 会话池，比每个文件重新握手快得多。
 """
 
 from __future__ import annotations
@@ -12,16 +14,17 @@ from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
 import struct
+import sys
 import time
 from typing import Any
-from urllib.error import HTTPError
 from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
-from urllib.request import Request, urlopen
 
+import httpx
 import json5
 
 from fixed_items import FIXED_ITEMS
@@ -34,12 +37,65 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 ZMDMAP_DATA_DIR = REPO_ROOT / "tools" / "zmdmap" / "data"
 ITEM_TABLE_NAME = "item_mini_table.json"
 WEAPON_TABLE_NAME = "weapons.json"
-IMAGE_BASE_URL = "https://assets.fz.wiki/output_image/itemicon"
-BIG_IMAGE_BASE_URL = "https://assets.fz.wiki/output_image/itemiconbig"
+# 图标与 zmdmap 数据一样从 voice.fz.wiki 取：同一个源站，但前置的 EdgeOne 有海外节点。
+IMAGE_BASE_URL = "https://voice.fz.wiki/output_image/itemicon"
+BIG_IMAGE_BASE_URL = "https://voice.fz.wiki/output_image/itemiconbig"
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+USER_AGENT = "MaaEnd-IconRecognition/1.0"
 DEFAULT_CACHE_ROOT = REPO_ROOT / "tools" / "icon_recognition" / ".cache" / "downloads"
 DEFAULT_BLACKLIST_PATH = Path(__file__).with_name("blacklist.json")
 BIG_ICON_IDS_PATH = Path(__file__).with_name("big_icon_ids.json")
+#: 共享连接池上限；要大于 `--workers`，否则线程会排队等连接。
+MAX_CONNECTIONS = 32
+#: httpx 自带的建连重试次数（只覆盖建连阶段）。
+CONNECT_RETRIES = 2
+#: 网络层瞬时失败的重试次数：CDN 会在并发下直接断开连接，重试一次通常就好。
+REQUEST_ATTEMPTS = 3
+#: 重试前的等待秒数，按次数递增。
+RETRY_BACKOFF = 1.0
+
+
+@lru_cache(maxsize=1)
+def http_client() -> httpx.Client:
+    """进程内共享的连接池客户端；线程池里的下载共用它复用连接。"""
+    return httpx.Client(
+        headers={"User-Agent": USER_AGENT},
+        follow_redirects=True,
+        limits=httpx.Limits(max_connections=MAX_CONNECTIONS),
+        transport=httpx.HTTPTransport(retries=CONNECT_RETRIES),
+    )
+
+
+def timeout_for(seconds: float) -> httpx.Timeout:
+    """单次请求超时；连接（含 TLS 握手）单独限时，握手卡住时不必把整个超时耗满。"""
+    return httpx.Timeout(seconds, connect=min(seconds, 20.0))
+
+
+def request_with_retry(
+    url: str,
+    *,
+    headers: Mapping[str, str] | None = None,
+    timeout: float,
+) -> httpx.Response:
+    """带瞬时失败重试的 GET：网络层错误与被断开都会重试，返回可用的响应。"""
+    for attempt in range(REQUEST_ATTEMPTS):
+        if attempt:
+            time.sleep(RETRY_BACKOFF * attempt)
+        try:
+            response = http_client().get(
+                url, headers=headers or {}, timeout=timeout_for(timeout)
+            )
+        except httpx.TransportError as error:
+            failure: Exception = error
+        else:
+            if response.status_code < 500:
+                return response
+            failure = httpx.HTTPStatusError(
+                f"{response.status_code} {response.reason_phrase}",
+                request=response.request,
+                response=response,
+            )
+    raise failure
 
 
 def load_big_icon_ids(path: Path = BIG_ICON_IDS_PATH) -> set[str]:
@@ -618,7 +674,7 @@ def fetch(
         if metadata_path.is_file()
         else {}
     )
-    headers = {"User-Agent": "MaaEnd-IconRecognition/1.0"}
+    headers = {}
     if destination.is_file() and metadata.get("url") == url and (
         validate_content is None or is_valid_png(destination)
     ):
@@ -626,28 +682,25 @@ def fetch(
             headers["If-None-Match"] = metadata["etag"]
         if isinstance(metadata.get("lastModified"), str):
             headers["If-Modified-Since"] = metadata["lastModified"]
-    request = Request(url, headers=headers)
-    try:
-        with urlopen(request, timeout=timeout) as response:
-            data = response.read()
-            if validate_content is not None:
-                validate_content(data)
-            result: dict[str, Any] = {
-                "url": url,
-                "bytes": len(data),
-                "sha256": hashlib.sha256(data).hexdigest(),
-                "updatedAt": int(time.time()),
-            }
-            for source_key, output_key in (
-                ("ETag", "etag"),
-                ("Last-Modified", "lastModified"),
-            ):
-                if response.headers.get(source_key):
-                    result[output_key] = response.headers[source_key]
-    except HTTPError as error:
-        if error.code == 304 and destination.is_file():
-            return metadata
-        raise
+    response = request_with_retry(url, headers=headers, timeout=timeout)
+    if response.status_code == 304 and destination.is_file():
+        return metadata
+    response.raise_for_status()
+    data = response.content
+    if validate_content is not None:
+        validate_content(data)
+    result: dict[str, Any] = {
+        "url": url,
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "updatedAt": int(time.time()),
+    }
+    for source_key, output_key in (
+        ("ETag", "etag"),
+        ("Last-Modified", "lastModified"),
+    ):
+        if response.headers.get(source_key):
+            result[output_key] = response.headers[source_key]
 
     temporary = destination.with_suffix(destination.suffix + ".part")
     try:
@@ -683,6 +736,7 @@ def download_images(
     downloaded = 0
     skipped = 0
     failures: list[dict[str, Any]] = []
+    unpublished: list[dict[str, Any]] = []
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {
             executor.submit(_download_icon, job, timeout): job for job in jobs
@@ -695,23 +749,29 @@ def download_images(
                 else:
                     skipped += 1
             except Exception as error:
-                failures.append(
-                    {
-                        "iconId": job.icon_id,
-                        "rarity": job.rarity,
-                        "url": job.url,
-                        "destination": str(job.destination),
-                        "errorType": type(error).__name__,
-                        "error": str(error),
-                    }
-                )
+                row = {
+                    "iconId": job.icon_id,
+                    "rarity": job.rarity,
+                    "url": job.url,
+                    "destination": str(job.destination),
+                    "errorType": type(error).__name__,
+                    "error": str(error),
+                }
+                # 404 是站点上没有这个图标（上游的缺口），不是下载失败：重试也不会出现。
+                if isinstance(error, httpx.HTTPStatusError) and error.response.status_code == 404:
+                    unpublished.append(row)
+                else:
+                    failures.append(row)
     failures.sort(key=lambda row: (row["rarity"], row["iconId"]))
+    unpublished.sort(key=lambda row: (row["rarity"], row["iconId"]))
     return {
         "total": len(jobs),
         "downloaded": downloaded,
         "skipped": skipped,
         "failed": len(failures),
         "failures": failures,
+        "unpublished": len(unpublished),
+        "unpublishedIcons": unpublished,
     }
 
 
@@ -730,16 +790,11 @@ def _write_json(path: Path, payload: Any) -> None:
 def probe_icon_downloadable(icon_id: str, *, timeout: float) -> bool:
     validate_identifier(icon_id, field="待探测 iconId")
     url = f"{IMAGE_BASE_URL}/{quote(icon_id, safe='')}.png@raw"
-    request = Request(
-        url, headers={"User-Agent": "MaaEnd-IconRecognition/1.0"}
-    )
-    try:
-        with urlopen(request, timeout=timeout) as response:
-            return response.read(len(PNG_SIGNATURE)) == PNG_SIGNATURE
-    except HTTPError as error:
-        if error.code == 404:
-            return False
-        raise
+    response = request_with_retry(url, timeout=timeout)
+    if response.status_code == 404:
+        return False
+    response.raise_for_status()
+    return response.content[: len(PNG_SIGNATURE)] == PNG_SIGNATURE
 
 
 def load_item_table(data_dir: str | Path = ZMDMAP_DATA_DIR) -> dict[str, Any]:
@@ -853,6 +908,12 @@ def main() -> int:
         timeout=args.timeout,
     )
     print(json.dumps(report, ensure_ascii=False, indent=4))
+    if report["unpublished"]:
+        print(
+            f"[icon] {report['unpublished']} 个图标站点上没有（见 download_report.json 的"
+            f" unpublishedIcons），已跳过",
+            file=sys.stderr,
+        )
     return 1 if report["failed"] else 0
 
 

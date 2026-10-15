@@ -6,10 +6,10 @@
 
 物品表与武器表来自 zmdmap（`tools/zmdmap/data/`，由 `uv run zmdmap fetch` 下载或 `uv run zmdmap generate` 本地生成）：`item_mini_table.json` 与 `weapons.json`，它们自带多语言名字，因此不再下载 `lang_*.json`（原先每份约 950 KB）。
 
-只有图标仍从站点下载：
+只有图标仍从站点下载（与 zmdmap 数据同一个源站，但走有海外节点的 `voice.fz.wiki`，海外 runner 不必绕回国内 CDN）：
 
-- `https://assets.fz.wiki/output_image/itemicon/<url-encoded-iconId>.png@raw`
-- `https://assets.fz.wiki/output_image/itemiconbig/<url-encoded-iconId>.png@raw`（仅备用大图名单）
+- `https://voice.fz.wiki/output_image/itemicon/<url-encoded-iconId>.png@raw`
+- `https://voice.fz.wiki/output_image/itemiconbig/<url-encoded-iconId>.png@raw`（仅备用大图名单）
 
 zmdmap 那份物品表比原先站点的 `output_beyondmap/item_mini_table.json` 多了 `names`（多语言真名，站点那份是名字的文本 id 哈希）与 `nameId`（文本 id，按「名字 + 图标」去重时用，等价于按哈希去重）。
 
@@ -90,3 +90,5 @@ python -m unittest discover -s tools/icon_recognition -p "test_*.py"
 ```
 
 下载失败时保留已成功缓存的文件，并把失败项写入 `download_report.json`。按项目约定等待 10 分钟后重试原下载命令；发布阶段可离线复用已经完整校验的缓存。
+
+站点返回 404 的图标（上游还没有这份图，例如 `item_Ingredient_flour_1`）与「失败」分开记：它们是 `unpublishedIcons`，重试也不会出现，不会让下载命令以非零码退出；只有其余错误（超时、5xx 等）算 `failures`。

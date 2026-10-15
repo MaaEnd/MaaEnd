@@ -388,7 +388,7 @@ def generate_command(
 @click.option(
     "--cache-bust",
     is_flag=True,
-    help="请求带时间戳绕开远端缓存（CI 上自动开启，同时意味着强制下载）",
+    help="请求带时间戳绕开远端缓存（CI 上自动开启，同时意味着强制下载；同一次运行只下载一次）",
 )
 @click.option(
     "--download/--no-download",

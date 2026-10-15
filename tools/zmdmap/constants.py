@@ -42,6 +42,8 @@ UPSTREAM_LOCALES: tuple[tuple[str, str], ...] = tuple(
 )
 
 # 数据来源：zmdmap 发布的精简数据。
+# 数据与图标都从 voice.fz.wiki 取：它和 assets.fz.wiki 是同一个源站，但前置的 EdgeOne 有海外
+# 节点，GitHub runner 不必再绕回国内 CDN（那边每个文件都要重新握手，几秒起步、偶发超时）。
 VERSION_API = "https://api.zmdmap.com/api/v1/endfield/version"
-DATA_BASE_URL = "https://assets.fz.wiki/output_maaend"
+DATA_BASE_URL = "https://voice.fz.wiki/output_maaend"
 USER_AGENT = "MaaEnd-pipeline"

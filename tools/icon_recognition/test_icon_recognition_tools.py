@@ -439,9 +439,9 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(DEFAULT_CACHE_ROOT, repo_root / "tools" / "icon_recognition" / ".cache" / "downloads")
         self.assertEqual(
             IMAGE_BASE_URL,
-            "https://assets.fz.wiki/output_image/itemicon",
+            "https://voice.fz.wiki/output_image/itemicon",
         )
-        self.assertEqual(BIG_IMAGE_BASE_URL, "https://assets.fz.wiki/output_image/itemiconbig")
+        self.assertEqual(BIG_IMAGE_BASE_URL, "https://voice.fz.wiki/output_image/itemiconbig")
 
     def test_load_tables_reads_the_given_data_dir(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -466,13 +466,13 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual([], missing)
         self.assertEqual(
             jobs[0].url,
-            "https://assets.fz.wiki/output_image/itemicon/icon%20id%2Bplus.png@raw",
+            "https://voice.fz.wiki/output_image/itemicon/icon%20id%2Bplus.png@raw",
         )
         self.assertEqual(jobs[0].destination, Path("images/6/icon id+plus.png"))
         big_jobs, _ = build_download_jobs(items, Path("big_images"), image_base_url=BIG_IMAGE_BASE_URL)
         self.assertEqual(
             big_jobs[0].url,
-            "https://assets.fz.wiki/output_image/itemiconbig/icon%20id%2Bplus.png@raw",
+            "https://voice.fz.wiki/output_image/itemiconbig/icon%20id%2Bplus.png@raw",
         )
 
     def test_big_icon_ids_validate_duplicates(self) -> None:
