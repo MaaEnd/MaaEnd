@@ -20,6 +20,7 @@
         "green_mask": true,
         "action": "Click",
         "next": [
+            "GameLauncherStateCheck",
             "GameLauncherClickStartGame"
         ]
     },

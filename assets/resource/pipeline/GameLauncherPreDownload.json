@@ -1,0 +1,166 @@
+{
+    // 鹰角启动器状态检测：在 GameLauncherSelectEndfield 之后、GameLauncherClickStartGame 之前分流。
+    "GameLauncherStateCheck": {
+        "desc": "已选中终末地：先判断是否需要更新、是否存在预下载，再走官方启动流程",
+        "next": [
+            "GameLauncherUpdateGame",
+            "GameLauncherUpdating",
+            "GameLauncherPreDownloadIdle",
+            "GameLauncherClickStartGame"
+        ]
+    },
+    "GameLauncherUpdateGame": {
+        "desc": "右下角按钮为可点击态「更新游戏 / 继续更新 / 继续下载」→ 点击开始或继续更新",
+        // 点击前提：只有这三个状态才点击；下载中/更新中/校验中/解压中/安装中一律不点
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        // 启动器界面文案由启动器自身下发，不进入游戏 i18n 表，与官方 GameLauncherStartGameText 同样跳过
+        "expected": [
+            // @i18n-skip
+            "更新游戏",
+            "继续更新",
+            "继续下载"
+        ],
+        "action": "Click",
+        "next": [
+            "GameLauncherConfirmDialog",
+            "GameLauncherWaitStartGame"
+        ]
+    },
+    "GameLauncherUpdating": {
+        "desc": "更新进行中（下载中/更新中/校验中/解压中/安装中）：本帧不点击，直接回到等待节点继续观察",
+        // 命中即说明「状态已知」。回到 GameLauncherWaitStartGame 会让等待窗口重新计时，
+        // 因此正常更新可以一直等下去，不受任何硬上限约束。
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "下载中",
+            "更新中",
+            "校验中",
+            "解压中",
+            "安装中"
+        ],
+        "next": [
+            "GameLauncherWaitStartGame"
+        ]
+    },
+    "GameLauncherConfirmDialog": {
+        "desc": "「系统提示」弹窗上的「确认」按钮（更新与预下载共用同一弹窗布局）",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherConfirmDialogTitle",
+            "GameLauncherConfirmDialogConfirm"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "GameLauncherWaitStartGame"
+        ]
+    },
+    "GameLauncherConfirmDialogTitle": {
+        "desc": "弹窗标题「系统提示」",
+        "recognition": "OCR",
+        "roi": [
+            -780,
+            -520,
+            300,
+            110
+        ],
+        // 同上：弹窗标题与按钮文案均由启动器下发
+        "expected": [
+            // @i18n-skip
+            "系统提示"
+        ]
+    },
+    "GameLauncherConfirmDialogConfirm": {
+        "desc": "弹窗右下角的白底「确认」",
+        "recognition": "OCR",
+        "roi": [
+            -660,
+            -330,
+            320,
+            140
+        ],
+        // 同上：弹窗标题与按钮文案均由启动器下发
+        "expected": [
+            // @i18n-skip
+            "确认"
+        ]
+    },
+    "GameLauncherWaitStartGame": {
+        "desc": "等待更新结束：每帧重新识别右下角按钮；识别出已知状态就继续等，只有连续识别不出已知状态才失败",
+        // 本文件唯一的 timeout：12 秒 ≈ 连续 5 帧（1s 轮询 + 每帧若干次 OCR，其中约 2s/帧）。
+        // 命中任一已知状态都会重新进入本节点，等待窗口随之重置，所以正常更新没有硬上限；
+        // 连续 5 帧识别不出任何已知状态（更新卡死、界面异常等）等价于「重试识别五次仍失败」，
+        // 此时让 next 列表超时失败，pretask 随之返回失败并记日志
+        //（客户端对预任务失败只提示警告，不会中止用户任务）。
+        "timeout": 12000,
+        // 每帧一次识别的节奏（毫秒）
+        "rate_limit": 1000,
+        "next": [
+            "GameLauncherConfirmDialog",
+            "GameLauncherUpdateGame",
+            "GameLauncherUpdating",
+            "GameLauncherClickStartGame"
+        ]
+    },
+    "GameLauncherPreDownloadRing": {
+        "desc": "预下载圆钮的黄色实心圆（启动器主题色）",
+        "recognition": "ColorMatch",
+        "roi": [
+            -410,
+            -140,
+            100,
+            110
+        ],
+        "lower": [
+            240,
+            240,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            60
+        ],
+        "connected": true,
+        "count": 1500
+    },
+    "GameLauncherPreDownloadIdleIcon": {
+        "desc": "圆钮内的「云+下箭头」图标：仅未开始下载时出现（已暂停/已完成/出错为其他图标）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -410,
+            -140,
+            100,
+            110
+        ],
+        "template": "GameLauncher/PreDownloadIdle.png",
+        "threshold": 0.8
+    },
+    "GameLauncherPreDownloadIdle": {
+        "desc": "存在预下载圆钮且图标为「云+下箭头」，点击触发预下载（下载期间可正常游戏）",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherPreDownloadRing",
+            "GameLauncherPreDownloadIdleIcon"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "GameLauncherConfirmDialog",
+            "GameLauncherWaitStartGame"
+        ]
+    }
+}

@@ -12,7 +12,8 @@
         "label": "$pretask.LaunchGamePC.label",
         "option": [
             "LaunchGamePCRegion",
-            "LaunchGamePCGameSetting"
+            "LaunchGamePCGameSetting",
+            "LaunchGamePCUpdateCheck"
         ]
     },
     "option": {
@@ -54,6 +55,21 @@
                 }
             ],
             "default_case": "No"
+        },
+        "LaunchGamePCUpdateCheck": {
+            "type": "switch",
+            "label": "$option.LaunchGamePCUpdateCheck.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.LaunchGamePCUpdateCheck.cases.Yes.label"
+                },
+                {
+                    "name": "No",
+                    "label": "$option.LaunchGamePCUpdateCheck.cases.No.label"
+                }
+            ],
+            "default_case": "Yes"
         },
         "LaunchGamePCLanguage": {
             "type": "select",

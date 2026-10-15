@@ -61,12 +61,27 @@ var launchers = map[string]launcherInfo{
 type launchGamePCOptions struct {
 	Region          string `json:"LaunchGamePCRegion"`
 	GameSetting     string `json:"LaunchGamePCGameSetting"`
+	UpdateCheck     string `json:"LaunchGamePCUpdateCheck"`
 	Language        string `json:"LaunchGamePCLanguage"`
 	DisplayType     string `json:"LaunchGamePCDisplayType"`
 	Resolution      string `json:"LaunchGamePCResolution"`
 	GraphicsQuality string `json:"LaunchGamePCGraphicsQuality"`
 	FrameRate       string `json:"LaunchGamePCFrameRate"`
 	AutoHDR         string `json:"LaunchGamePCAutoHDR"`
+}
+
+// launcherStateCheckNode 是 GameLauncherPreDownload.json 里的启动器状态检测入口节点
+// （更新游戏 / 预下载圆钮）。关闭开关时把它置为 enabled:false，
+// GameLauncherSelectEndfield 的 next 会自然落到官方 GameLauncherClickStartGame，行为与改动前完全一致。
+const launcherStateCheckNode = "GameLauncherStateCheck"
+
+// pipelineOverride 按「启动前进行预下载/更新游戏」开关生成 pipeline 覆盖。
+// 只有显式选择 No 才跳过检测；缺省（如手工调用 pretask 不传该选项）保持开启。
+func pipelineOverride(opts launchGamePCOptions) string {
+	if opts.UpdateCheck == "No" {
+		return `{"` + launcherStateCheckNode + `":{"enabled":false}}`
+	}
+	return "{}"
 }
 
 // settingRegion 把启动器区服映射为游戏设置的注册表区服：B 服与国服共用 Hypergryph 路径。
@@ -193,8 +208,9 @@ func Run(args []string) bool {
 	log.Info().
 		Str("component", component).
 		Str("entry", pipelineEntry).
+		Str("update_check", opts.UpdateCheck).
 		Msg("running launcher pipeline")
-	if !runLauncherPipeline(hWnd) {
+	if !runLauncherPipeline(hWnd, pipelineOverride(opts)) {
 		return false
 	}
 
@@ -348,8 +364,8 @@ func waitGame(timeout time.Duration) bool {
 	return true
 }
 
-func runLauncherPipeline(hWnd unsafe.Pointer) bool {
-	if err := runPipeline(hWnd); err != nil {
+func runLauncherPipeline(hWnd unsafe.Pointer, pipelineOverride string) bool {
+	if err := runPipeline(hWnd, pipelineOverride); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", component).
@@ -362,7 +378,7 @@ func runLauncherPipeline(hWnd unsafe.Pointer) bool {
 	return true
 }
 
-func runPipeline(hWnd unsafe.Pointer) error {
+func runPipeline(hWnd unsafe.Pointer, pipelineOverride string) error {
 	ctrl, err := maa.NewWin32Controller(hWnd, win32.ScreencapPrintWindow, win32.InputPostMessage, win32.InputPostMessage)
 	if err != nil {
 		return err
@@ -394,7 +410,7 @@ func runPipeline(hWnd unsafe.Pointer) error {
 		return err
 	}
 
-	if !tasker.PostTask(pipelineEntry).Wait().Success() {
+	if !tasker.PostTask(pipelineEntry, pipelineOverride).Wait().Success() {
 		return fmt.Errorf("pipeline %s failed", pipelineEntry)
 	}
 	return nil
