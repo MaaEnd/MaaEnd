@@ -2,18 +2,18 @@
 
 两个子命令，**不带子命令时只打印帮助**：
 
-- ``generate``：从本地 TableCfg / JsonData 生成精简数据。入 pipeline 的六份先进
-  ``data/raw/``，再由投影按 BaseNav 的 zone 表补上底图像素进 ``data/``；不需要投影的
-  （EssenceFilter 那两份）直接进 ``data/``；
-- ``fetch``：从 zmdmap 下载已发布的精简数据到 ``data/raw/``，再投影进入库的 ``data/*.json``
-  （下载和投影各由一个开关控制）。
+- ``generate``：从本地 TableCfg / JsonData 生成精简数据。九份一律先出原始形态（只带游戏世界
+  坐标）进 ``--out-dir``，再入库到 ``--data-dir``：需要投影的按 BaseNav 的 zone 表补上底图像素，
+  不需要投影的原样复制；``--raw-only`` 时只出原始形态；
+- ``fetch``：从 zmdmap 下载已发布的原始数据到 ``--out-dir``（下载和入库各由一个开关控制），再按
+  同样的规则入库到 ``--data-dir``。
 
 ``data/`` 与 ``data/raw/`` 都是 zmdmap 自己的数据树（``tools/zmdmap/data/``）：``raw/`` 放原样
 产物（不入库），``data/`` 放可以直接用的、入库的数据。
 
 ``generate`` 按固定顺序跑同一批 ``build_*``
 （delivery_jobs -> environment_monitoring -> sell_product -> delivery_destinations ->
-teleport_anchors -> collect_points -> essence_points -> essence_weapons），产物只带游戏世界坐标；
+teleport_anchors -> collect_points -> essence_points -> weapons -> items），产物只带游戏世界坐标；
 底图像素由 ``project`` 按 BaseNav 的 zone 表补上。
 
 输入默认取与 MaaEnd 平级的兄弟仓库（由 ``--workspace`` 定位），三档优先级为
@@ -28,38 +28,35 @@ teleport_anchors -> collect_points -> essence_points -> essence_weapons），产
 用法::
 
     uv run zmdmap                                     # 只打印帮助
-    uv run zmdmap generate                            # 全部生成到 tools/zmdmap/data/
-    uv run zmdmap generate --list                     # 列出数据集名、文件名与去向
+    uv run zmdmap generate                            # 生成并入库到 tools/zmdmap/data/
+    uv run zmdmap generate --raw-only                  # 只出原始形态（发布用的就是这一份）
+    uv run zmdmap generate --list                     # 列出数据集名、文件名与入库方式
     uv run zmdmap generate --only collect_points       # 只生成一份（可重复给）
     uv run zmdmap generate --sync                     # 先同步兄弟仓库，再生成
-    uv run zmdmap generate --sync --project           # 同步、生成，并把结果投影入库
-    uv run zmdmap fetch                               # 下载已发布数据并投影入库
+    uv run zmdmap fetch                               # 下载已发布数据并入库
     uv run zmdmap fetch --cache-bust                  # 强制重新下载（CI 上默认开启）
-    uv run zmdmap fetch --no-download --only collect_points  # 不下载，只用 data/raw/ 重新投影
+    uv run zmdmap fetch --no-download --only collect_points  # 不下载，只用 data/raw/ 重新入库
 """
 
 from __future__ import annotations
 
 import json
 import time
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any, TypeVar
 
 import click
 
 from .datasets import (
+    COPY,
     DATASETS,
     DATASET_NAMES,
-    PLAIN,
-    PIPELINE,
-    PIPELINE_NAMES,
-    TARGET_DIRS,
+    PROJECT,
     Dataset,
-    names_of,
+    files_of,
     select_datasets,
 )
-
 from .fetch import download as download_published
 from .paths import (
     DEFAULT_OUT_DIR,
@@ -71,7 +68,7 @@ from .paths import (
     json_data_dir_in,
     table_cfg_dir_in,
 )
-from .project import project_data
+from .project import copy_files, project_data
 from .sync import SYNC_MARK_UNKNOWN, SYNC_MARKS, changed_data_files, preflight, sync_workspace
 
 #: click 选项装饰器的返回类型。
@@ -99,9 +96,11 @@ def should_skip(output_path: Path, data: Any, force: bool) -> bool:
 
 def write_dataset(output_path: Path, data: Any) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    # newline：仓库 .gitattributes 是 eol=lf，别让 Windows 把写入变成 CRLF。
     output_path.write_text(
         json.dumps(data, ensure_ascii=False, indent=4) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
 
 
@@ -122,14 +121,14 @@ def generate_datasets(
     datasets: Sequence[Dataset],
     table_cfg_dir: Path,
     json_data_dir: Path,
-    target_dirs: Mapping[str, Path],
+    out_dir: Path,
     *,
     force: bool,
 ) -> int:
-    """跑 ``build_*`` 并落盘（每份落到各自去向的目录）；返回成功生成的份数。"""
+    """跑 ``build_*`` 并把原始形态落到 ``out_dir``；返回成功生成的份数。"""
     written = 0
     for dataset in datasets:
-        output_path = target_dirs[dataset.target] / dataset.file_name
+        output_path = out_dir / dataset.file_name
         try:
             data = dataset.build(table_cfg_dir, json_data_dir)
         except (OSError, ValueError) as error:
@@ -154,7 +153,9 @@ def run_projection(
     nav: str | None,
     force: bool,
 ) -> int:
-    """投影 ``raw_dir`` 到 ``data_dir``；返回写入份数。"""
+    """投影 ``raw_dir`` 里需要投影的那几份到 ``data_dir``；返回写入份数。"""
+    if not only:
+        return 0
     try:
         result = project_data(raw_dir, data_dir, nav=nav, only=only, force=force)
     except (OSError, ValueError) as error:
@@ -162,11 +163,21 @@ def run_projection(
     return int(result["written"])
 
 
-def report_data_changes(data_dir: Path, dataset_names: Sequence[str]) -> None:
+def copy_plain(raw_dir: Path, data_dir: Path, file_names: Sequence[str], *, force: bool) -> int:
+    """把不需要投影的那几份原样复制进 ``data_dir``；返回写入份数。"""
+    if not file_names:
+        return 0
+    try:
+        return copy_files(raw_dir, data_dir, list(file_names), force=force)
+    except (OSError, ValueError) as error:
+        raise click.ClickException(str(error)) from error
+
+
+def report_data_changes(data_dir: Path, file_names: Sequence[str]) -> None:
     """入库目录的改动（只在入库目录就是默认的 data/ 时报）。"""
     if data_dir != ZMDMAP_DATA_DIR:
         return
-    changed = changed_data_files(list(dataset_names))
+    changed = changed_data_files(list(file_names))
     if changed:
         click.echo("data/*.json 改动：")
         for line in changed:
@@ -191,7 +202,7 @@ def raw_dir_option() -> Decorator:
         type=click.Path(path_type=Path, file_okay=False),
         default=DEFAULT_OUT_DIR,
         show_default=True,
-        help="原始数据目录（原样产物，只带世界坐标）",
+        help="原始数据目录（九份的原样产物，只带世界坐标）",
     )
 
 
@@ -201,7 +212,7 @@ def data_dir_option() -> Decorator:
         type=click.Path(path_type=Path, file_okay=False),
         default=ZMDMAP_DATA_DIR,
         show_default=True,
-        help="入库数据目录（投影输出，以及不需要投影的数据）",
+        help="入库数据目录（需要投影的投影后落这里，其余原样复制进来）",
     )
 
 
@@ -215,7 +226,7 @@ def nav_option() -> Decorator:
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 def main() -> None:
-    """生成 / 下载 / 投影 MaaEnd 的六份精简游戏数据。"""
+    """生成 / 下载 / 入库 MaaEnd 的九份精简游戏数据。"""
 
 
 @main.command(name="generate")
@@ -245,14 +256,14 @@ def main() -> None:
 @only_option()
 @click.option("--sync/--no-sync", default=False, help="生成前先同步兄弟仓库（只做快进合并）")
 @click.option(
-    "--project/--no-project",
-    default=False,
-    help="生成后把 data/raw/ 投影进入库的 data/*.json",
+    "--raw-only",
+    is_flag=True,
+    help="只出原始形态（只写 --out-dir），不做入库",
 )
 @nav_option()
-@click.option("--dry-run", is_flag=True, help="只报告会做什么，不合并、不生成、不投影")
+@click.option("--dry-run", is_flag=True, help="只报告会做什么，不合并、不生成、不入库")
 @click.option("--force", is_flag=True, help="结果未变化也重写输出文件")
-@click.option("--list", "list_datasets", is_flag=True, help="只列出数据集名与去向（每行一个）后退出")
+@click.option("--list", "list_datasets", is_flag=True, help="只列出数据集名、文件名与入库方式后退出")
 @click.pass_context
 def generate_command(
     ctx: click.Context,
@@ -263,16 +274,17 @@ def generate_command(
     data_dir: Path,
     only: tuple[str, ...],
     sync: bool,
-    project: bool,
+    raw_only: bool,
     nav: str | None,
     dry_run: bool,
     force: bool,
     list_datasets: bool,
 ) -> None:
-    """从本地 TableCfg / JsonData 生成精简数据（pipeline 用的六份，以及 EssenceFilter 用的两份）。"""
+    """从本地 TableCfg / JsonData 生成精简数据（九份：入 pipeline 的六份要投影，其余原样复制）。"""
     if list_datasets:
         for dataset in DATASETS:
-            click.echo(f"{dataset.name}\t{dataset.file_name}\t{dataset.target}")
+            how = "投影" if dataset.materialize == PROJECT else "复制"
+            click.echo(f"{dataset.name}\t{dataset.file_name}\t{how}")
         return
 
     # click 的 envvar 已经把环境变量填进参数值了，这里只补最后的默认值。
@@ -282,9 +294,8 @@ def generate_command(
     out_dir = out_dir.expanduser().resolve()
     data_dir = data_dir.expanduser().resolve()
     datasets = select_datasets(only)
-    # 每份数据集落到各自去向的目录：入 pipeline 的进 data/raw/ 再投影，不需要投影的直接进 data/。
-    target_dirs = {**TARGET_DIRS, PIPELINE: out_dir, PLAIN: data_dir}
-    pipeline_names = names_of(datasets, target=PIPELINE)
+    pipeline_files = files_of(datasets, materialize=PROJECT)
+    plain_files = files_of(datasets, materialize=COPY)
 
     click.echo(f"[zmdmap] 工作区（兄弟仓库）：{workspace}（{parameter_source(ctx, 'workspace')}）")
     click.echo(f"[zmdmap] TableCfg：{table_cfg_dir}（{parameter_source(ctx, 'table_cfg_dir')}）")
@@ -299,7 +310,9 @@ def generate_command(
             mark = SYNC_MARKS.get(outcome.state, SYNC_MARK_UNKNOWN)
             click.echo(f"  [{mark}] {outcome.name:<20} {outcome.detail}")
 
-    problems = preflight(table_cfg_dir, json_data_dir, check_navmesh=project and bool(pipeline_names))
+    problems = preflight(
+        table_cfg_dir, json_data_dir, check_navmesh=not raw_only and bool(pipeline_files)
+    )
     if problems:
         click.echo("\n── 预检提示 ─────────────────────────────────────")
         for problem in problems:
@@ -310,41 +323,43 @@ def generate_command(
         click.echo("\n── 将执行（--dry-run，未执行）────────────────────")
         click.echo(f"  原始数据目录：{out_dir}")
         click.echo(f"  入库数据目录：{data_dir}")
-        if project:
-            click.echo(f"  投影    ：{out_dir} -> {data_dir}")
+        if raw_only:
+            click.echo("  入库    ：未启用（--raw-only）")
         else:
-            click.echo("  投影    ：未启用（--project）")
-        click.echo("\n--dry-run：没有合并仓库，也没有写任何 data 文件")
+            click.echo(f"  投影    ：{len(pipeline_files)} 份 {out_dir} -> {data_dir}")
+            click.echo(f"  复制    ：{len(plain_files)} 份 {out_dir} -> {data_dir}")
+        click.echo("\n--dry-run：没有合并仓库，也没有写任何数据文件")
         return
 
     check_input_dir("TableCfg", table_cfg_dir, "--table-cfg-dir", TABLE_CFG_DIR_ENV)
     check_input_dir("JsonData", json_data_dir, "--json-data-dir", JSON_DATA_DIR_ENV)
 
-    click.echo("\n── 生成 ──────────────────────────────────────────")
+    click.echo("\n── 生成（原始形态）──────────────────────────────")
     started = time.monotonic()
     generated_ok = True
     try:
-        generate_datasets(datasets, table_cfg_dir, json_data_dir, target_dirs, force=force)
+        generate_datasets(datasets, table_cfg_dir, json_data_dir, out_dir, force=force)
     except click.ClickException as error:
         generated_ok = False
         click.echo(f"  x {error.message}")
     generate_seconds = time.monotonic() - started
 
-    projected_ok: bool | None = None
-    if project and not pipeline_names:
-        projected_ok = True
-        click.echo("\n── 投影：跳过（选中的数据集不进 pipeline）───────")
-    elif project:
-        click.echo("\n── 投影（data/raw/ -> data/）─────────────────────")
-        if generated_ok:
-            try:
-                run_projection(out_dir, data_dir, pipeline_names, nav=nav, force=force)
-                projected_ok = True
-            except click.ClickException as error:
-                click.echo(f"  x {error.message}")
-                projected_ok = False
-        else:
-            click.echo("      跳过（生成失败）")
+    materialized_ok: bool | None = None
+    if raw_only:
+        materialized_ok = None
+    elif not generated_ok:
+        materialized_ok = False
+        click.echo("\n── 入库：（跳过：生成失败）───────────────────────")
+    else:
+        click.echo("\n── 入库（原始形态 -> data/）─────────────────────")
+        materialized_ok = True
+        try:
+            projected = run_projection(out_dir, data_dir, pipeline_files, nav=nav, force=force)
+            copied = copy_plain(out_dir, data_dir, plain_files, force=force)
+            click.echo(f"  投影 {projected} 份、复制 {copied} 份")
+        except click.ClickException as error:
+            click.echo(f"  x {error.message}")
+            materialized_ok = False
 
     click.echo("\n── 汇总 ──────────────────────────────────────────")
     if sync:
@@ -352,23 +367,22 @@ def generate_command(
     else:
         click.echo("同步：未执行（--no-sync）")
     click.echo(f"生成：{'正常' if generated_ok else '失败'}（{generate_seconds:.1f}s）")
-    if projected_ok is None:
-        click.echo("投影：未执行（--no-project）" if not project else "投影：跳过（生成失败）")
+    if materialized_ok is None:
+        click.echo("入库：未执行（--raw-only）")
     else:
-        click.echo(f"投影：{'正常' if projected_ok else '失败'}（{data_dir}）")
-    report_data_changes(data_dir, pipeline_names)
+        click.echo(f"入库：{'正常' if materialized_ok else '失败'}（{data_dir}）")
+    report_data_changes(data_dir, [dataset.file_name for dataset in datasets])
     if data_dir == ZMDMAP_DATA_DIR:
         click.echo("提示：data/version.txt 是「已发布数据版本」，本地重算不会改它。")
 
-    if sync_failed or not generated_ok or projected_ok is False:
+    if sync_failed or not generated_ok or materialized_ok is False:
         ctx.exit(1)
 
 
 @main.command(name="fetch")
 @raw_dir_option()
 @data_dir_option()
-# fetch 目前只下载入 pipeline 的那六份（它们要投影）；不需要投影的数据还没接进来。
-@only_option(PIPELINE_NAMES)
+@only_option()
 @nav_option()
 @click.option("--force", is_flag=True, help="重新下载，并重写未变化的输出文件")
 @click.option(
@@ -379,9 +393,9 @@ def generate_command(
 @click.option(
     "--download/--no-download",
     default=True,
-    help="先下载已发布数据（--no-download 时只用本地 data/raw/ 重新投影）",
+    help="先下载已发布数据（--no-download 时只用本地 data/raw/ 重新入库）",
 )
-@click.option("--project/--no-project", default=True, help="把 data/raw/ 投影进入库的 data/*.json")
+@click.option("--raw-only", is_flag=True, help="只下载原始形态（只写 --out-dir），不做入库")
 def fetch_command(
     out_dir: Path,
     data_dir: Path,
@@ -390,30 +404,34 @@ def fetch_command(
     force: bool,
     cache_bust: bool,
     download: bool,
-    project: bool,
+    raw_only: bool,
 ) -> None:
-    """下载 zmdmap 已发布的精简数据，并投影进入库的 data/*.json。"""
+    """下载 zmdmap 已发布的原始数据，并入库到 data/。"""
     raw_dir = out_dir.expanduser().resolve()
     data_dir = data_dir.expanduser().resolve()
+    datasets = select_datasets(only)
+    pipeline_files = files_of(datasets, materialize=PROJECT)
+    plain_files = files_of(datasets, materialize=COPY)
 
     if download:
         click.echo("── 下载 ──────────────────────────────────────────")
         try:
-            download_published(raw_dir, data_dir, force=force, cache_bust=cache_bust)
+            download_published(raw_dir, force=force, cache_bust=cache_bust)
         except (OSError, ValueError) as error:
             raise click.ClickException(str(error)) from error
     else:
         click.echo("── 下载：跳过（--no-download），直接用现有 data/raw/")
 
-    if not project:
-        click.echo("投影：未执行（--no-project）")
+    if raw_only:
+        click.echo("入库：未执行（--raw-only）")
         return
 
-    click.echo("\n── 投影（data/raw/ -> data/）─────────────────────")
-    written = run_projection(raw_dir, data_dir, only, nav=nav, force=force)
+    click.echo("\n── 入库（原始形态 -> data/）─────────────────────")
+    projected = run_projection(raw_dir, data_dir, pipeline_files, nav=nav, force=force)
+    copied = copy_plain(raw_dir, data_dir, plain_files, force=force)
     click.echo("\n── 汇总 ──────────────────────────────────────────")
-    click.echo(f"投影：正常（写入 {written} 份，输出到 {data_dir}）")
-    report_data_changes(data_dir, only or PIPELINE_NAMES)
+    click.echo(f"入库：正常（投影 {projected} 份、复制 {copied} 份，输出到 {data_dir}）")
+    report_data_changes(data_dir, [dataset.file_name for dataset in datasets])
 
 
 if __name__ == "__main__":

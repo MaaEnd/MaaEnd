@@ -1,4 +1,7 @@
-"""把 ``data/raw/`` 里的原始数据投影 / 材料化进入库的 ``data/*.json``（原 ``project.mjs``）。
+"""把 ``data/raw/`` 里的原始数据材料化进入库的 ``data/*.json``（原 ``project.mjs``）。
+
+入库分两种：需要投影的按下表的 zone 表补底图像素（:func:`project_data`），不需要投影的由
+:func:`copy_files` 原样复制。
 
 六份数据里带坐标的三份只发布游戏世界坐标 x/z（送货点另有世界高度 y），而底图像素与投影参数
 （``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）都在 BaseNav 包里 —— 只有 MaaEnd 手里有。所以
@@ -14,6 +17,7 @@ from __future__ import annotations
 import json
 import math
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -31,21 +35,14 @@ PROJECTED_COORD_TEXT = (
 #: 送货点数据的 coord 在通用说明后再补一句 y 的用途。
 COORD_Y_NOTE = "y 是未换算的世界高度，直接作为 NAVMESH 终点的 target_deck_y 用来在重叠可走面中选中目标层"
 
-#: 投影的输入文件（原 ``project.mjs`` 的 DATA_FILES，顺序照旧）。
-DATA_FILES = (
-    "delivery_jobs.json",
-    "delivery_destinations.json",
-    "environment_monitoring.json",
-    "sell_product.json",
-    "teleport_anchors.json",
-    "collect_points.json",
-)
-#: 带世界坐标的数据集 -> 条目数组所在的键；其余文件原样带到 data/。
+#: 带世界坐标的数据集 -> 条目数组所在的键；只有这些需要投影，其余原样复制进 ``data/``。
 COORDINATE_DATASETS: dict[str, tuple[str, ...]] = {
     "delivery_destinations.json": ("depots", "destinations"),
     "teleport_anchors.json": ("anchors",),
     "collect_points.json": ("points",),
 }
+#: 投影的输入文件（只有带坐标的那几份）。
+PROJECT_FILES: tuple[str, ...] = tuple(COORDINATE_DATASETS)
 
 
 def dump_json(value: Any) -> str:
@@ -174,12 +171,12 @@ def project_dataset(
 def select_files(only: tuple[str, ...] | list[str] | None) -> list[str]:
     """``--only`` 选出的文件名；没给就是全部六份。"""
     if not only:
-        return list(DATA_FILES)
+        return list(PROJECT_FILES)
     files: list[str] = []
     for keyword in only:
         file_name = keyword if keyword.endswith(".json") else f"{keyword}.json"
-        if file_name not in DATA_FILES:
-            choices = ", ".join(name.removesuffix(".json") for name in DATA_FILES)
+        if file_name not in PROJECT_FILES:
+            choices = ", ".join(name.removesuffix(".json") for name in PROJECT_FILES)
             raise ValueError(f"未知数据集 {keyword}；可选：{choices}")
         if file_name not in files:
             files.append(file_name)
@@ -210,8 +207,30 @@ def copy_version(raw_dir: Path, out_dir: Path, force: bool) -> None:
     target = out_dir / VERSION_FILE
     if not force and target.exists() and target.read_text(encoding="utf-8").strip() == version:
         return
-    target.write_text(version, encoding="utf-8")
+    target.write_text(version, encoding="utf-8", newline="\n")
     print(f"[project] {VERSION_FILE} -> {target}")
+
+
+def copy_files(raw_dir: Path, out_dir: Path, file_names: Sequence[str], *, force: bool = False) -> int:
+    """不需要投影的数据：原样从 ``raw_dir`` 复制进 ``out_dir``；返回写入份数。"""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    written = 0
+    for file_name in file_names:
+        source_path = raw_dir / file_name
+        if not source_path.exists():
+            raise ValueError(
+                f"缺少原始数据文件：{source_path}"
+                "（先跑 uv run zmdmap fetch 下载，或 uv run zmdmap generate 本地生成）"
+            )
+        text = source_path.read_text(encoding="utf-8")
+        output_path = out_dir / file_name
+        if not force and output_path.exists() and output_path.read_text(encoding="utf-8") == text:
+            print(f"[project] {file_name} 未变化，跳过写入")
+            continue
+        output_path.write_text(text, encoding="utf-8", newline="\n")
+        print(f"[project] {file_name} -> {output_path}")
+        written += 1
+    return written
 
 
 def project_data(
@@ -223,7 +242,7 @@ def project_data(
     force: bool = False,
     repo_root: Path = REPO_ROOT,
 ) -> dict[str, Any]:
-    """把 ``raw_dir`` 里的原始数据投影 / 材料化到 ``out_dir``（缺省就是入库的 data/）。"""
+    """把 ``raw_dir`` 里带坐标的原始数据投影到 ``out_dir``（缺省就是入库的 data/）。"""
     files = select_files(only)
     need_zones = any(name in COORDINATE_DATASETS for name in files)
     zones = load_nav_zones(nav, repo_root) if need_zones else {}
@@ -246,9 +265,9 @@ def project_data(
 
     out_dir.mkdir(parents=True, exist_ok=True)
     for file_name, output_path, result in pending:
-        output_path.write_text(dump_json(result), encoding="utf-8")
+        output_path.write_text(dump_json(result), encoding="utf-8", newline="\n")
         print(f"[project] {file_name} -> {output_path}")
-    if len(files) == len(DATA_FILES):
+    if len(files) == len(PROJECT_FILES):
         copy_version(raw_dir, out_dir, force)
     if skipped_maps:
         names = ", ".join(sorted(skipped_maps))
