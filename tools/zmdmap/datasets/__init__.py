@@ -37,6 +37,7 @@ from .delivery_destinations import build_delivery_destinations
 from .delivery_jobs import build_delivery_jobs
 from .environment_monitoring import build_environment_monitoring
 from .essence import build_energy_points
+from .items import build_items
 from .sell_product import build_sell_product
 from .teleport_anchors import build_teleport_anchors
 from .weapons import build_weapons
@@ -75,6 +76,7 @@ DATASETS: tuple[Dataset, ...] = (
     Dataset("collect_points", "collect_points.json", build_collect_points),
     Dataset("essence_points", "energy_point_gems.json", build_energy_points, PLAIN),
     Dataset("weapons", "weapons.json", build_weapons, PLAIN),
+    Dataset("items", "item_mini_table.json", build_items, PLAIN),
 )
 
 DATASET_NAMES = tuple(dataset.name for dataset in DATASETS)
