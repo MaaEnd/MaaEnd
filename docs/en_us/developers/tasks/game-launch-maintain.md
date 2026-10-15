@@ -17,9 +17,9 @@ Before connecting the `Win32-Front` controller, the Client executes `agent/go-se
 
 ## Recognition and Process Lifetime
 
-Go starts `Launcher.exe --game=endfield --reason=4`, discovers windows, and waits for the game window. `OfficialLauncher/StartGame.json` uses MaaFramework OCR to recognize the full text “开始游戏” and clicks once; Go then confirms that the game window appears. Login and scene recognition after game connection remain the responsibility of the existing tasks.
+Go starts `Launcher.exe --game=endfield --reason=4`, discovers windows, and waits for the game window. `OfficialLauncher/StartGame.json` uses MaaFramework OCR to recognize the full text “开始游戏” and clicks it, then checks the button again after 300ms: continue if it shows “游戏中”, or click a second time only if it still shows “开始游戏”. After the second click, recognition must confirm “游戏中” before Go checks for the game window. Login and scene recognition after game connection remain the responsibility of the existing tasks.
 
-The recognition ROI is `[900, 540, 360, 160]` at the 1280×720 baseline, taken from the actual button at the bottom right of the CN launcher. Obtain a fresh launcher screenshot before changing it. When login, updates, or a blocking dialog prevent startup, the pretask fails for the user to resolve without bypassing prompts or repeating the click.
+The recognition ROI is `[900, 540, 360, 160]` at the 1280×720 baseline, taken from the actual button at the bottom right of the CN launcher. Obtain a fresh launcher screenshot before changing it. On CN launcher 1.6.0, a single click did not start the game, while two clicks separated by 300ms succeeded. This observed interval is retained, with fresh recognition before the second action. When login, updates, or a blocking dialog prevent startup, the pretask fails for the user to resolve without bypassing prompts or looping retries. Native recognition and action logs are saved under `debug/game-launch/`.
 
 The launcher creates and owns the game process and must remain running. The code only releases handles owned by this process. It does not terminate the launcher, assign the game's parent process, or modify game files or account caches. External multi-account tools should switch accounts after the game exits, then execute this pretask again.
 

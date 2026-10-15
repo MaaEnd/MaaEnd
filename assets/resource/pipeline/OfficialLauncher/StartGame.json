@@ -18,6 +18,55 @@
         "action": {
             "type": "Click"
         },
+        // 首次点击后间隔 300ms 复核按钮状态，仍为「开始游戏」时才再次点击。
+        "post_delay": 300,
+        "rate_limit": 0,
+        "next": [
+            "OfficialLauncherGameRunning",
+            "OfficialLauncherConfirmStart"
+        ]
+    },
+    "OfficialLauncherConfirmStart": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    540,
+                    360,
+                    160
+                ],
+                "expected": [
+                    "开始游戏"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OfficialLauncherGameRunning"
+        ]
+    },
+    "OfficialLauncherGameRunning": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    540,
+                    360,
+                    160
+                ],
+                "expected": [
+                    "游戏中"
+                ]
+            }
+        },
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     }

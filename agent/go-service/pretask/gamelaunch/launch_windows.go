@@ -22,7 +22,11 @@ func launch(path string) error {
 	if libDir == "" {
 		libDir = fsutil.OutputPath("maafw")
 	}
-	if err := maa.Init(maa.WithLibDir(libDir)); err != nil {
+	if err := maa.Init(
+		maa.WithLibDir(libDir),
+		maa.WithLogDir(fsutil.OutputPath("debug", "game-launch")),
+		maa.WithSaveDraw(true),
+	); err != nil {
 		return fmt.Errorf("initialize MaaFramework: %w", err)
 	}
 	defer closeHandle("MaaFramework", maa.Release)
@@ -71,7 +75,7 @@ func launch(path string) error {
 }
 
 // waitForWindow waits for external process/window creation, not a fixed UI delay.
-// UI recognition and the single Start Game click are handled by Pipeline.
+// UI recognition and Start Game clicks are handled by Pipeline.
 func waitForWindow(gameOnly bool, timeout time.Duration) (*maa.DesktopWindow, bool, error) {
 	timer := time.NewTimer(timeout)
 	defer timer.Stop()
@@ -135,7 +139,7 @@ func clickStart(window *maa.DesktopWindow) error {
 		return err
 	}
 	if !tasker.PostTask("OfficialLauncherStartGame").Wait().Success() {
-		return errors.New("Start Game button not found; check launcher login, updates and permissions")
+		return errors.New("launcher did not confirm game startup; check launcher login, updates and permissions")
 	}
 	return nil
 }
