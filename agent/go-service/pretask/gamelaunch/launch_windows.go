@@ -66,7 +66,6 @@ func run(args []string) error {
 		log.Info().Uints32("game_pids", ids).Msg("game started while preparing launcher; skipping launch")
 		return nil
 	}
-	logs := captureSDKLogs()
 	process, err := createGame(game, parent)
 	if err != nil {
 		return fmt.Errorf("CreateProcessW: %w", err)
@@ -75,11 +74,6 @@ func run(args []string) error {
 	windows.CloseHandle(process.Thread)
 	log.Info().Uint32("game_pid", process.ProcessId).Str("game_path", game).
 		Msg("created game with official launcher parent")
-	if err := waitForGame(process); err != nil {
-		logs.report()
-		return err
-	}
-	log.Info().Uint32("game_pid", process.ProcessId).Msg("game window is ready")
 	return nil
 }
 
@@ -89,8 +83,13 @@ func prepareLauncher(path string) (windows.Handle, error) {
 		return parent, err
 	}
 	path = strings.TrimSpace(path)
-	if !filepath.IsAbs(path) || (!strings.EqualFold(filepath.Base(path), "Launcher.exe") && !strings.EqualFold(filepath.Base(path), "Games.exe")) {
-		return 0, errors.New("configure the absolute path to the official Launcher.exe (or Games.exe)")
+	if path == "" {
+		path, err = installedLauncher()
+		if err != nil {
+			return 0, err
+		}
+	} else if !filepath.IsAbs(path) || (!strings.EqualFold(filepath.Base(path), "Launcher.exe") && !strings.EqualFold(filepath.Base(path), "Games.exe")) {
+		return 0, errors.New("configure the absolute path to the official Launcher.exe (or Games.exe), or leave it empty for auto-discovery")
 	}
 	fingerprint, err := verifyLauncher(path)
 	if err != nil {
@@ -115,38 +114,6 @@ func prepareLauncher(path string) (windows.Handle, error) {
 		select {
 		case <-deadline.C:
 			return 0, errors.New("timed out waiting for official Games.exe")
-		case <-ticker.C:
-		}
-	}
-}
-
-func waitForGame(process windows.ProcessInformation) error {
-	deadline := time.NewTimer(120 * time.Second)
-	defer deadline.Stop()
-	ticker := time.NewTicker(250 * time.Millisecond)
-	defer ticker.Stop()
-	for {
-		state, err := windows.WaitForSingleObject(process.Process, 0)
-		if err != nil {
-			return err
-		}
-		if state != uint32(windows.WAIT_TIMEOUT) {
-			var code uint32
-			if err := windows.GetExitCodeProcess(process.Process, &code); err != nil {
-				return err
-			}
-			return fmt.Errorf("game exited before window became ready: exit code %d", code)
-		}
-		ready, err := gameWindowReady(process.ProcessId)
-		if err != nil {
-			return err
-		}
-		if ready {
-			return nil
-		}
-		select {
-		case <-deadline.C:
-			return errors.New("timed out waiting for a visible UnityWndClass game window")
 		case <-ticker.C:
 		}
 	}

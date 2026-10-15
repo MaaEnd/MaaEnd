@@ -153,9 +153,4 @@ func TestAlreadyRunning(t *testing.T) {
 	if !Run([]string{"invalid config is ignored when game already runs"}) {
 		t.Fatal("running game should skip all launch configuration")
 	}
-	if ready, err := gameWindowReady(ids[0]); err != nil {
-		t.Fatal(err)
-	} else {
-		t.Logf("existing game visible Unity window: %v", ready)
-	}
 }
