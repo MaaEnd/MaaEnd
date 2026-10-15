@@ -204,6 +204,28 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose06",
+                    "label": "06",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "06"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose07",
+                    "label": "07",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "07"
+                            ]
+                        }
+                    }
                 }
             ],
             "default_case": "ProtocolSpaceTeamChooseDefault"
