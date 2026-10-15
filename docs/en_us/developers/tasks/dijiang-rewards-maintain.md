@@ -2,13 +2,13 @@
 
 This document explains the file distribution and execution flow of `DijiangRewards`.  
 The core design is "Control Nexus dispatching + sub-stage jump-back": each sub-stage is independent, and options only modify stage entry points or branches without altering the main flow skeleton.  
-This document was updated on October 7, 2026.
+This document was updated on October 14, 2026.
 
 ## File Paths
 
 | Path | Function |
 | -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `assets/interface.json` | Task mounting (`dijiang_ship` / `daily` group) |
+| `assets/interface.json` | Task mounting (`dijiang_ship` group; also in the `DailyFull` / `QuickDaily` presets) |
 | `assets/tasks/DijiangRewards.json` | Task entry, stage switches, Reception Room and Growth Chamber options |
 | `assets/resource/pipeline/DijiangRewards/Entry.json` | Enter the Dijiang ship Control Nexus |
 | `assets/resource/pipeline/DijiangRewards/MainFlow.json` | Control Nexus dispatches sub-stages in sequence |
@@ -17,7 +17,7 @@ This document was updated on October 7, 2026.
 | `assets/resource/pipeline/DijiangRewards/ReceptionRoom.json` | Reception Room clue collection, exchange, gifting |
 | `assets/resource/pipeline/DijiangRewards/Manufacturing.json` | Manufacturing Cabin harvest, restock, assist |
 | `assets/resource/pipeline/DijiangRewards/GrowthChamber.json` | Growth Chamber claim rewards, grow again, select material for growth |
-| `assets/resource/pipeline/DijiangRewards/NeedCredit.json` | Credit store linkage sub-process for obtaining credit points |
+| `assets/resource/pipeline/DijiangRewards/Entry.json` → `NeedCredit` | Credit store linkage entry for obtaining credit points; enters the Reception Room flow |
 | `assets/resource/pipeline/DijiangRewards/Template/Location.json` | Cabin interface positioning |
 | `assets/resource/pipeline/DijiangRewards/Template/TextTemplate.json` | Button and state OCR templates |
 | `assets/resource/pipeline/DijiangRewards/Template/Status.json` | Auxiliary recognition for red dots, quantities, inventory, etc. |
@@ -91,7 +91,7 @@ Implemented in `GrowthChamber.json` + `pipeline_override` of `DijiangRewards.jso
 
 | Mode | Actual Behavior |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DoNothing` (No Growth) | Only claim mature rewards, do not enter material selection |
+| `DoNothing` (Do Nothing) | Only claim mature rewards, do not enter material selection |
 | `GrowAgain` (Grow Again) | Disable normal growth; after reward claiming closes, attempt "Grow Again" and confirm (since [#2003](https://github.com/MaaEnd/MaaEnd/pull/2003), triggered after reward claiming closes, not directly from detail page) |
 | `Any` (displayed as "Specified Materials") | Expands material multi-select, seed extraction, and sorting sub-options, then finds an available target among the selected materials |
 
@@ -121,13 +121,15 @@ When maintaining Growth Chamber issues, first confirm the current `SelectToGrow`
 ```text
 DijiangRewards
 ├── AutoStartExchange          # Whether the Reception Room actively starts clue exchange
+│   └── WaitExchangeBeforeStart  # Wait when all clues are placed; Yes expands WaitExchangeBeforeStartThreshold
 ├── StageTaskSetting           # Expand stage sub-switches
 │   ├── FastCollect            # One-click collect
 │   ├── RecoveryEmotionStage
+│   │   └── RecoveryEmotionCabins  # Cabins to include; all five by default
 │   ├── ReceptionRoomStage
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
-├── ClueSetting                # Expand clue gifting attempts / inventory thresholds
+├── ClueSetting                # Expands SendCluesDirect / ClueSend / ClueStockLimit (direct send / send excess / stock limit)
 ├── QuickGiveDuplicateClues    # Give Away All Duplicates; off by default
 └── SelectToGrow               # Growth Chamber main mode
     ├── DoNothing

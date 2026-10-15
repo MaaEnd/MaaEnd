@@ -75,11 +75,11 @@ SeizeDeliveryJobsLoop
                       └─ accept animation missing → refresh and scan again
 ```
 
-`__SeizeDeliveryJobsRecoCommissionToken` is the **row anchor** of the grab flow: it uses `TemplateMatch` to locate each row's **dispatch voucher icon** (the Wuling or Valley IV dispatch voucher), and Go then derives the reward amount, origin, accept button, and view-location ROIs from that box via fixed offsets.
+`__SeizeDeliveryJobsRecoCommissionToken` is the **row anchor** of the grab flow: it uses `TemplateMatch` to locate each row's **Stock Bill icon** (the Wuling Stock Bill or Valley Stock Bill), and Go then derives the reward amount, origin, accept button, and view-location ROIs from that box via fixed offsets.
 
-The node is a **single `TemplateMatch` with multiple templates**: `template` lists one voucher image per map (`WulingToken.png` = Wuling dispatch voucher, `ValleyIVToken.png` = Valley IV dispatch voucher), so one recognition returns the whole column of boxes, including the mixed multi-map rows shown by "all regions"; `order_by: Vertical` keeps them top-to-bottom.
+The node is a **single `TemplateMatch` with multiple templates**: `template` lists one Stock Bill image per map (`WulingToken.png` = Wuling Stock Bill, `ValleyIVToken.png` = Valley Stock Bill), so one recognition returns the whole column of boxes, including the mixed multi-map rows shown by "all regions"; `order_by: Vertical` keeps them top-to-bottom.
 
-Do not replace it with an `Or` combination of per-map nodes: `Or` returns only the first hitting child's result, so a mixed list would silently drop the other map's jobs. A new map must also ship its own voucher image; cropping requirements are in step 4 of "Adding a Map".
+Do not replace it with an `Or` combination of per-map nodes: `Or` returns only the first hitting child's result, so a mixed list would silently drop the other map's jobs. A new map must also ship its own Stock Bill image; cropping requirements are in step 4 of "B. The area belongs to a new map".
 
 ### With Destination Filtering
 
@@ -98,9 +98,9 @@ SeizeDeliveryJobsScanTarget
                       └─ all cached jobs checked → clear state → refresh the list
 ```
 
-The area-gate ROI `[16, 14, 214, 41]` reads the upper-left map-area name; it prevents an all-source run from testing the destination candidates for another map. Each area's `MapFind` node uses exactly one `zone`; the candidate set's `at` values come from the delivery catalog's map coordinates (world/map coordinates). Once the gate hits, that area's candidate node decides the destination; when nothing matches (for example the current commission goes to an unchecked destination), the trailing `SeizeDeliveryJobsEndpointNotMatched` in its `next` closes the map and scans the next commission.
+The area-gate ROI `[16, 14, 214, 41]` reads the upper-left sub-area name; it prevents an all-source run from testing the destination candidates for another map. Each area's `MapFind` node uses exactly one `zone`; the candidate set's `at` values come from the delivery catalog's map coordinates (zone base-map `u`/`v` coordinates, not world coordinates). Once the gate hits, that area's candidate node decides the destination; when nothing matches (for example the current commission goes to an unchecked destination), the trailing `SeizeDeliveryJobsEndpointNotMatched` in the gate's `next` closes the map and scans the next commission.
 
-The filter-loop node `SeizeDeliveryJobsEndpointFilter` uses `__SeizeDeliveryJobsRecoAnyDepotNode` (a wrapper around `InLocalDepotNode`, the feature marker of any map's depot management page) in inverse mode to confirm that the map view is open: the marker is still present while the depot page is showing, so the node does not hit. It is not tied to a specific map, so adding an area only requires appending the new region gate to its `next` list.
+The destination-filter guard node `SeizeDeliveryJobsEndpointFilter` (generated from `endpoint-dispatcher-template.jsonc` into `SeizeDeliveryJobsEndpointDispatcher.json`) uses `__SeizeDeliveryJobsRecoAnyDepotNode` (a wrapper around `InLocalDepotNode`, the feature marker of any map's depot management page) in inverse mode to confirm that the map view is open: the marker is still present while the depot page is showing, so the node does not hit. It is not tied to a specific map; its `next` list is generated from all area gate nodes (`${NextList}`), so regenerating after adding an area appends the new gate automatically, with no manual edit.
 
 Each generated `SeizeDeliveryJobsEndpointFilter<EndpointId>` leaf is disabled by default. Task options enable only the checked leaves through Pipeline overrides. The leaves do not perform icon recognition again; a hit routes to `SeizeDeliveryJobsEndpointMatched`, so one `MapFind` call can inspect all enabled destinations in an area.
 
@@ -254,7 +254,7 @@ deliver_target_map01_lv006_03
 
 Legacy destinations keep their existing order; new destinations are appended in the source-ID order emitted by `AutoDelivery/model.mjs`. When a destination disappears from the source data, regeneration removes its generated options and nodes instead of leaving orphaned entries.
 
-Area IDs have no compatibility table and are derived from the data: `area.en_us` with every non-alphanumeric character removed (`Origin Lodespring` → `OriginLodespring`, `Test District` → `TestDistrict`). The same ID determines the commission-source case name, the `SeizeDeliveryJobsDeliveryPoint<AreaId>` option name, and the area gate node names, so renaming an English area name in the source data renames all of them.
+Area IDs have no compatibility table and are derived from the data: `area.en_us` with every non-alphanumeric character removed (`Origin Lodespring` → `OriginLodespring`, `Test Area` → `TestArea`). The same ID determines the source case name in the "Commission Destination" option, the `SeizeDeliveryJobsDeliveryPoint<AreaId>` option name, and the area gate node names, so renaming an English area name in the source data renames all of them.
 
 ### Changing the Direction of an Existing Destination
 
@@ -381,7 +381,7 @@ If a new branch leaves the job list or refreshes job data, connect it to an expl
 | Destination-filter mode never checks the next job | Check the miss path `ESC → SeizeDeliveryJobsScanTarget` and the exhaustion path `reset → refresh` |
 | Unfiltered mode cannot recognize any job | Check that `__SeizeDeliveryJobsRecoCommissionToken.template` contains the current map's Stock Bill image, then inspect the Stock Bill ROI, reward OCR, and source `expected`; `filtered_results_=[]` with scores below `param_.thresholds` in `maafw.log` only means the threshold was not met, so also check the ROI and the captured frame |
 | A newly added Stock Bill image scores too low | Give the node a `threshold` array to set a per-template threshold (its length must match `template`, for example `[0.7, 0.6]`); if lowering it makes two images cross-match, a row yields two boxes and the Go side needs to deduplicate by y |
-| Jobs are recognized but the reward is unreadable or accepting fails | The map's voucher image is most likely misaligned: the reward/origin/accept/view-location ROIs derived from its box shift as a block. Recalibrate against the yellow row line as in step 4 of "Adding a Map" |
+| Jobs are recognized but the reward is unreadable or accepting fails | The map's Stock Bill image is most likely misaligned: the reward/origin/accept/view-location ROIs derived from its box shift as a block. Recalibrate against the yellow row line as in step 4 of "B. The area belongs to a new map" |
 | Auto-delivery cannot find a route after accepting | Run `pnpm generate:AutoDelivery` and inspect the corresponding `AutoDelivery/catalog.json` and route nodes; SeizeDeliveryJobs generation does not create them |
 | Changing display text breaks old configurations | Check whether a `LEGACY_ENDPOINTS` internal ID was changed; both directions and display names live in `endpoint-labels.json`, so neither should change the case or node ID |
 
@@ -396,7 +396,7 @@ node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs
 git diff --check
 ```
 
-Run `pnpm test` locally when the change includes `tests/**`; otherwise leave `pnpm check` / `pnpm test` to PR CI — see the [coding standards](../coding-standards.md#pre-submission-check).
+Run `pnpm test` locally when the change includes `tests/**`, and if you also changed `assets/**` or `tools/schema/**`, run `pnpm check` as well; otherwise there is no need to run these two commands locally, just follow the relevant CI after opening a PR — see the [coding standards](../coding-standards.md#pre-submission-check).
 
 The generator's own ordering and locale invariants are covered by `tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs`; run `node --test tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs` when you want a local self-check (CI does not run generator unit tests, so this only matters when you touch the generator).
 

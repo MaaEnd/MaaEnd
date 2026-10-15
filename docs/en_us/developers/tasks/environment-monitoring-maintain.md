@@ -14,7 +14,7 @@ The core maintenance points for Environment Monitoring are as follows:
 
 | Module | Path | Function |
 | ----------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Task Entry | `assets/tasks/EnvironmentMonitoring.json` | Interface task definition (no configurable options, controller = Win32-Front / Linux / ADB) |
+| Task Entry | `assets/tasks/EnvironmentMonitoring.json` | Interface task definition (no configurable options, controller = Win32-Front / Linux / ADB / CloudADB / PlayCover) |
 | Main Flow Pipeline | `assets/resource/pipeline/EnvironmentMonitoring.json` | Main entry node `EnvironmentMonitoringMain`, loops to identify the two monitoring terminals |
 | Terminal Grouping (Generated) | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | Entry nodes for Outskirts Monitoring Terminal / Marker Stone Monitoring Terminal and their respective observation point `next` lists (**generated**) |
 | Terminal Jump | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json` | `EnvironmentMonitoringGoTo*` and `Select*` nodes, enter the corresponding terminal from the main menu |
@@ -25,7 +25,7 @@ The core maintenance points for Environment Monitoring are as follows:
 | Observation Point Template | `tools/pipeline-generate/EnvironmentMonitoring/generator/template.json` | Single observation point Pipeline template (text recognition, accept/go, teleport, pathfinding, photo taking) |
 | Terminal Template | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-template.json` | Terminal grouping node template |
 | Route/Coordinate Data | `tools/pipeline-generate/EnvironmentMonitoring/routes.json` | Route overrides matched by observation point `MissionId` (teleport points, map, path); `Name` is for human reading only, `Id` is the final template node ID, convenient for searching generated nodes/file names |
-| Route JSON Schema | `tools/schema/environment_monitoring_routes.schema.json` | Field constraints for `routes.json` (required fields, enums, coordinate array shapes), automatically associated via `.vscode/settings.json`, providing IDE field completion and validation |
+| Route JSON Schema | `tools/schema/environment_monitoring_routes.schema.json` | Field constraints for `routes.json` (required fields, field combinations, coordinate array shapes), automatically associated via `.vscode/settings.json`, providing IDE field completion and validation |
 | Failure Collector Parameter Schema | `tools/schema/components/failure_collector.schema.json` | Parameter constraints for generic Failure Collector Custom Actions; action names are registered in `tools/schema/custom.action.schema.json` |
 | Route Sync Logic | `tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs` | Automatically syncs `MissionId` / `Name` / `Id` in `routes.json` before generation and sorts by `MissionId` |
 | Route Resolution Logic | `tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs` | Parses `routes.json` entries into pathfinding recognition/action parameters required by the template and uniformly handles unadapted fallbacks |
@@ -34,7 +34,7 @@ The core maintenance points for Environment Monitoring are as follows:
 | zmdmap Compact Game Data | `tools/zmdmap/data/environment_monitoring.json` | Terminals, observation points, and five-language names extracted from TableCfg and published by the zmdmap data CI; updated in MaaEnd by `pnpm fetch:zmdmap` |
 | Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/config.json` | Single observation point output configuration: `outputPattern: "${Station}/${Id}.json"` |
 | Terminal Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | Terminal output configuration merged into a single file: `outputFile: "Terminals.json"` |
-| Multilingual Text | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` label / description (task-level; observation point names use OCR) |
+| Multilingual Text | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` label / description, the `not_adapted` notice, and the `route.{Id}.failed` failure messages maintained by `sync-routes.mjs` (observation points are recognized via OCR) |
 | Common Component Dependencies | `agent/cpp-algo/source/MapLocator/`, `agent/cpp-algo/source/MapNavigator/` | Localization and navigation use `MapLocateAssertLocation` + `MapNavigateAction` (see [map-locator.md](../components/map-locator.md) and [map-navigator.md](../components/map-navigator.md)) |
 | Scene Transition Dependencies | `assets/resource/pipeline/SceneManager/`, `Interface/` | `SceneEnterWorldWuling*`, `SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` (see details in [scene-manager.md](../scene-manager.md)) |
 
@@ -59,8 +59,8 @@ EnvironmentMonitoringMain
 The internal chain for each observation point `{Id}Job` (rendered by `template.json`):
 
 ```text
-{Id}Job                              (Identifies this observation point list item)
-  ├─ Accept{Id}                      (Quest can be accepted -> Click to accept)
+{Id}Job                              (Identifies this observation point list item, then runs {Id}Execute via FailureCollectorRunTask; the branches below are the next of {Id}Execute)
+  ├─ Accept{Id}                      (Job can be accepted -> Click to accept -> GoTo{Id}Mission)
   └─ GoTo{Id}Mission                 (Job already accepted -> Click to go)
        └─ {Id}TrackOrGoTo
             ├─ Track{Id}             (If "Start Tracking" button exists, click it)
@@ -72,12 +72,12 @@ The internal chain for each observation point `{Id}Job` (rendered by `template.j
                       ├─ Default teleport: GoTo{Id}
                       │    ├─ Navigation route
                       │    │    ├─ GoTo{Id}StartPos (Already at start -> navigate)
-                      │    │    └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
+                      │    │    └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap} → GoTo{Id}Move
                       │    └─ Photo at teleport point
                       │         └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
                       │              ├─ No Heading → {Id}TakePhoto
                       │              └─ Heading set → GoTo{Id}Move (heading-only turn)
-                      └─ QuickTeleport: true
+                      └─ QuickTeleport: true (skips GoTo{Id})
                            ├─ Track{Id} → {Id}InQuickTeleportMap
                            └─ AlreadyTracked{Id} → {Id}OpenTrackedMissionMap → {Id}InQuickTeleportMap
                                 └─ {Id}QuickTeleportSelect   (Click "Go to teleport")
@@ -93,8 +93,9 @@ GoTo{Id}Move                         (MapNavigateAction; heading-only action for
        ├─ No FightAfterMove → {Id}TakePhoto
        └─ FightAfterMove set → [JumpBack]AutoFight → GoTo{Id}MoveAfterFight
                                                      └─ {Id}TakePhoto
-       ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
-       └─ next: EnvironmentMonitoringTakePhoto
+{Id}TakePhoto                        (Wrapper: sets the anchor, then enters the shared photo flow)
+  ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
+  └─ next: EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto       (Enter photo mode -> orientation -> take photo)
   └─ [Anchor]EnvironmentMonitoringBackToTerminal
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
@@ -147,9 +148,9 @@ Derived by `model.mjs` from the PascalCase of `environment_monitoring.json.termi
 
 If a new Station appears, **the generator side (`routes.json` + `model.mjs`) requires zero changes**: `MONITORING_TERMINAL_IDS` is automatically derived from `environment_monitoring.json`, and the `GoToMonitoringTerminal` anchor name is concatenated according to the `EnvironmentMonitoringGoTo{Station}` template. However, the following **hand-written linked nodes** referenced by the generated Pipeline must be completed first, otherwise MaaFramework will report "undefined task referenced" at runtime:
 
-1. `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`: Add new `EnvironmentMonitoringGoTo{Station}MonitoringTerminal` and `EnvironmentMonitoringSelect{Station}MonitoringTerminal` nodes.
-2. `assets/resource/pipeline/EnvironmentMonitoring.json`'s `EnvironmentMonitoringLoop.next`: Add `[JumpBack]{Station}MonitoringTerminal`.
-3. If there are new text recognition nodes (e.g., `EnvironmentMonitoringCheck{Station}MonitoringTerminalText`, `EnvironmentMonitoringIn{Station}MonitoringTerminal`), complete them in the Pipeline (hand-written).
+1. `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`: Add new `EnvironmentMonitoringGoTo{Station}` and `EnvironmentMonitoringSelect{Station}` nodes.
+2. `assets/resource/pipeline/EnvironmentMonitoring.json`'s `EnvironmentMonitoringLoop.next`: Add `[JumpBack]{Station}`.
+3. The generated `Terminals.json` also references `EnvironmentMonitoringCheck{Station}Text` and `EnvironmentMonitoringIn{Station}`; add them (hand-written) in `assets/resource/pipeline/Interface/InScene/Region.json`.
 
 ## Automatic Generation Mechanism
 
@@ -177,7 +178,7 @@ The default export of `data.mjs` is an array, where each element = the rendering
 | `EnterMap` | `routes.json[*].EnterMap`, the default teleport entry; any defined Pipeline node name is allowed, without a required prefix, as long as the node can complete and return normally when run as a SubTask; not used when `QuickTeleport` is enabled, so it may be omitted |
 | `QuickTeleport` | `routes.json[*].QuickTeleport`, optional boolean, default `false`; when enabled, clicks "Go to teleport" and then "Teleport" on the tracked mission map instead of calling `EnterMap` |
 | `NavZoneId` / `NavAssert` / `NavPath` | The route form in `routes.json[*]`. `NavPath` is required; regular teleports also require `NavZoneId` / `NavAssert`. Generates `MapLocateAssertLocation` + `MapNavigateAction`; `Heading` appends a `HEADING` action. The route itself takes over from the teleport landing point, and the start position is not re-verified after teleporting |
-| `FightAfterMove` | An optional, separate MapNavigator `path` array, available only for complete navigation routes; when present, `AutoFight` runs once after the first navigation, and the character then returns along this path. The route-level `Heading` is appended at the end as well; direct-photo routes must not configure it |
+| `FightAfterMove` | An optional, separate MapNavigator `path` array, available only for complete navigation routes; when present, `AutoFight` runs after the first navigation if combat is detected (otherwise it is skipped), and the character then returns along this path. The route-level `Heading` is appended at the end as well; direct-photo routes must not configure it |
 | `CameraScanAction` | Common camera scan action; its parameters and scan order live in `TakePhoto.json` and the Go service, with no route-level configuration |
 | `OcrReplace` | Passed through from `routes.json[*].Replace` to `Check${Id}Text.replace` and `In${Id}Mission.replace`; used to configure task-specific OCR replacement pairs for the task list and mission detail page, without affecting route adaptation checks |
 | `ExpectedText` | Automatically expanded from `mission.names` in `environment_monitoring.json` (5 languages, English converted to flexible regex) |
@@ -233,7 +234,7 @@ Pathfinding for observation points is handled entirely by MapNavigator:
 
 - `MapLocateAssertLocation` (Recognition): Judges whether the current position is within the `NavAssert` rectangle based on the minimap. Regular teleport routes use it to decide whether `EnterMap` is needed; `QuickTeleport` starts navigating directly from a fixed teleport landing point without entering this node, so `NavZoneId` / `NavAssert` may be omitted.
 - `MapNavigateAction` (Action): Uses `NavPath` directly as its path; `NAVMESH` waypoints in it may carry `target_tier` / `target_deck_y` as needed, and the assertion coordinates use the `NavZoneId` zone. After teleporting, the route enters the navigation action directly without re-verifying the start position.
-- `FightAfterMove` (optional, complete navigation routes only): Fill in a separate path in the same format as `NavPath`. After the first navigation, `AutoFight` runs first, then a second `MapNavigateAction` returns the character along this path; do not reuse the initial outbound route. Direct-photo routes involve no fighting and do not configure this field.
+- `FightAfterMove` (optional, complete navigation routes only): Fill in a separate path in the same format as `NavPath`. After the first navigation, `AutoFight` runs if combat is detected (otherwise it is skipped), then a second `MapNavigateAction` returns the character along this path; do not reuse the initial outbound route. Direct-photo routes involve no fighting and do not configure this field.
 - `${Id}TakePhoto` (wrapper): Sets the `EnvironmentMonitoringBackToTerminal` anchor for both navigation and direct-photo routes before entering the shared photo flow.
 - Direct-photo routes perform no pathfinding; when `Heading` is set, the generator emits a `MapNavigateAction` whose path contains only a `HEADING` action, turning the character in place before the photo.
 
@@ -259,7 +260,7 @@ Every fully adapted entry needs metadata and one teleport method: `EnterMap` or 
 
 ### Main Menu Entry
 
-The EnvironmentMonitoring main entry node `EnvironmentMonitoringMain` enters the terminal selection interface via `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring`. This node is maintained in `assets/resource/pipeline/Interface/InScene/Region.json`. When adding new regional monitoring terminals, ensure the main menu entry can enter the corresponding interface.
+The Environment Monitoring main entry node `EnvironmentMonitoringMain` enters the terminal selection interface via `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring`. This node is maintained in `assets/resource/pipeline/Interface/SceneRegionalDevelopment.json` (the terminal-screen recognition nodes live in `Interface/InScene/Region.json`). When adding new regional monitoring terminals, ensure the main menu entry can enter the corresponding interface.
 
 ## Adding a New Observation Point
 
@@ -325,10 +326,10 @@ Do not include `NavZoneId`, `NavAssert`, or `NavPath` in this form. `Heading` ca
 
 > [!IMPORTANT]
 >
-> `routes.json` is strict JSON: double quotes, no inline comments, no trailing commas. The `//` in the code block above is only for documentation; writing it into a real file will cause JSON parsing failure.
+> `routes.json` is read as JSONC, but `sync-routes.mjs` rewrites it as standard JSON (double quotes, no comments, no trailing commas) when it syncs, so comments written into the file are dropped. The `//` in the code block above is only for documentation.
 >
 > `MissionId` is the matching key for `model.mjs`, which will exactly match the `mission_id` in `environment_monitoring.json`. `Name` is for human reading only, `Id` is for human searching of generated nodes/file names only; if inconsistent with the current game data, the generator will directly refresh it to the current correct value, without affecting matching.
-
+>
 > When regenerating EnvironmentMonitoring, `sync-routes.mjs` will first automatically refresh `MissionId` / `Name` / `Id` based on the Environment Monitoring data and sort by `MissionId`. When writing entries manually, `MissionId` must be filled; if a new task exists in the data but `routes.json` has no corresponding entry, the generator will automatically append an unadapted placeholder entry containing only `MissionId` / `Name` / `Id`, making it convenient for maintainers to see routes that need completion.
 
 ### 4. Record Coordinates and Paths
@@ -336,7 +337,7 @@ Do not include `NavZoneId`, `NavAssert`, or `NavPath` in this form. `Heading` ca
 If the teleport landing point cannot be photographed directly, use the GUI tool in [map-navigator.md](../components/map-navigator.md) to record the route: fill the recorded start rectangle into `NavAssert` and copy the complete path as-is into `NavPath`. `QuickTeleport` routes do not execute the start assertion, so `NavZoneId` / `NavAssert` need not be recorded. If walkable decks overlap vertically at the `NAVMESH` destination, select the target deck in the tool so the exported waypoint carries `target_deck_y`. Then confirm in the game:
 
 - `NavZoneId` is the MapLocate `zone_id` (for example, `Wuling_Base`) used to interpret `NavAssert`. If the destination is on a tier map, use tier coordinates in the `NAVMESH` action in `NavPath` and retain its `target_tier`; if multiple walkable decks overlap at the target, select the intended deck in the tool and retain its `target_deck_y`.
-- In `routes.json`, the leading `ZONE` of `NavPath` and `FightAfterMove` indicates the map the character is on after the teleport lands, which the WebUI uses to select the initial map; it must be filled in from the landing map observed in game, not inferred from the destination coordinates. `target_tier` only interprets the coordinate system of the target point and does not represent the teleport landing map. Multi-zone or map-transition paths should also retain the necessary `ZONE` entries exported by the recording tool.
+- In `routes.json`, the leading `ZONE` of `NavPath` indicates the map the character is on after the teleport lands, and the leading `ZONE` of `FightAfterMove` indicates the map the character is on when the fight is over and the return starts; the WebUI uses them to select the initial map. They must be filled in from what is observed in game, not inferred from the destination coordinates. `target_tier` only interprets the coordinate system of the target point and does not represent the teleport landing map. Multi-zone or map-transition paths should also retain the necessary `ZONE` entries exported by the recording tool.
 
 - Whether the position allows `EnvironmentMonitoringTakePhoto` to enter photo mode normally. When the target misses, the common nine-grid and fallback camera scan runs automatically; no per-route swipe direction is recorded.
 
@@ -356,7 +357,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 Confirm the generation of the two types of files:
 
 - `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`
-- `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` (contains `[JumpBack]{Id}Job` in `{Station}MonitoringTerminalLoop.next`)
+- `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` (contains `[JumpBack]{Id}Job` in `{Station}Loop.next`)
 
 Here `{Id}` is the node ID in the generation result. Usually, you can confirm by looking directly at the generated file name; no need to manually calculate in advance when maintaining `routes.json`.
 
@@ -376,11 +377,11 @@ Before submission, at least check:
 
 1. Are the fields for new/modified entries in `tools/pipeline-generate/EnvironmentMonitoring/routes.json` complete?
 2. Does the `MissionId` for new entries in `routes.json` match the `mission_id` in `environment_monitoring.json`; `Id` is automatically refreshed by the generator.
-3. Does every adapted entry choose at least one teleport entry, a real `EnterMap` or `QuickTeleport: true`; do direct-photo routes omit all map, navigation, and `FightAfterMove` fields; is the `ZONE` of each new navigation route filled in from the teleport landing map observed in game rather than inferred from `target_tier`, and do regular teleport routes provide real `NavZoneId` / `NavAssert`; if `FightAfterMove` is configured, is it a separate return path tested in game with the same landing-map context?
-4. In the regenerated `Terminals.json`, does each `{Station}MonitoringTerminalLoop.next` contain all new `[JumpBack]{Id}Job`, and end with `EnvironmentMonitoringTerminalFinish`?
+3. Does every adapted entry choose at least one teleport entry, a real `EnterMap` or `QuickTeleport: true`; do direct-photo routes omit all map, navigation, and `FightAfterMove` fields; is the `ZONE` of each new navigation route filled in from the teleport landing map observed in game rather than inferred from `target_tier`, and do regular teleport routes provide real `NavZoneId` / `NavAssert`; if `FightAfterMove` is configured, is it a separate return path tested in game, with its leading `ZONE` set to the map where the fight ends?
+4. In the regenerated `Terminals.json`, does each `{Station}Loop.next` contain all new `[JumpBack]{Id}Job`, and end with `EnvironmentMonitoringTerminalFinish`?
 5. If `EnterMap` is set, does the node it references exist under `assets/resource/pipeline/`, and can it complete and return normally as a SubTask?
 6. **No manual modifications** were made to `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` or `Terminals.json` (manual modifications will be overwritten by the next generation; if special nodes are truly needed, they should be extended in `template.json` / `terminals-template.json`).
-7. JSON files follow the `.prettierrc` format (the generator has `format: true`, but running `pnpm prettier --write` once before submission is safer).
+7. JSON files follow the `.prettierrc` format (the generator has `format: true`, but running `pnpm format` once before submission is safer).
 
 ## Common Pitfalls
 
@@ -389,7 +390,7 @@ Before submission, at least check:
 - **Using `Id` as the matching key**: `Id` is only the final template node ID, convenient for searching generated nodes/file names; matching still only looks at `MissionId`.
 - **`Id` drifts from the `environment_monitoring.json` English name**: When the game side changes the English name, the automatically calculated `Id` will change, possibly causing generated file renaming or residual old files; after regeneration, the `Id` in `routes.json` will be synced.
 - **A default teleport route's `EnterMap` references a missing node or one that cannot return normally**: Generation does not validate node references or runtime behavior; the route will fail at `GoTo{Id}NotAtStartPos` at runtime. `EnterMap` may be omitted only when `QuickTeleport: true` is explicitly enabled.
-- **A route passes through locked areas / battles / interactive objects**: The navigation components do not handle battles, story sequences, map transitions, or mechanism interactions; routes can only select pure traversal segments.
+- **A route passes through locked areas / battles / interactive objects**: The navigation components do not handle battles, story sequences, or mechanism interactions on their own; keep the recorded `ZONE` / `PORTAL` entries for map transitions, use `FightAfterMove` for stable enemy encounters, and otherwise select pure traversal segments only.
 - **Treating missing route data as direct photography**: Use the compact teleport/photo form only after verifying in game that the teleport landing point can complete the photo. Otherwise keep the metadata-only entry unadapted.
 - **New `Station` but `Locations.json` / `EnvironmentMonitoringLoop.next` not synced**: The new terminal cannot be recognized and entered, so all observation points cannot run.
 - **`anchor` placeholder name consistency**: The key name `EnvironmentMonitoringBackToTerminal` for the `anchor` in `template.json` must exactly match the `[Anchor]EnvironmentMonitoringBackToTerminal` in `TakePhoto.json`; otherwise, the anchor mechanism fails.

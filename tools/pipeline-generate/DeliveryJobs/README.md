@@ -95,7 +95,7 @@ DeliveryJobsOngoingDeliveryFallback                    switch  覆盖 DeliveryJo
 
 没有送货终点的仓储节点不生成 `AutoDelivery` case：`model.mjs` 用 `delivery_destinations.json` 的 `destinations[].depot_id` 归并终点，`AutoDeliverySupported` 为假的仓储节点在仓储节点模式与两个报价分支里都不出现「全自动送货」。终点坐标与路线的生成属于 AutoDelivery 生成器，见 [AutoDelivery README](../AutoDelivery/README.md)。
 
-`buildQuoteThresholdOption()` 把阈值注入 `ExpressionRecognition.expression`（`{DeliveryJobsSelectedBidPrice}>=<阈值>` 与 `{DeliveryJobsSelectedBidPrice}<{阈值}`）。输入的 `pipeline_type` **必须保持 `"string"`**：输入值会被插入表达式字符串，设为 `int` 会把整个表达式当整数解析，最终得到 `null`。
+`buildQuoteThresholdOption()` 把阈值注入 `ExpressionRecognition.expression`（`{DeliveryJobsSelectedBidPrice}>={阈值}` 与 `{DeliveryJobsSelectedBidPrice}<{阈值}`）。输入的 `pipeline_type` **必须保持 `"string"`**：输入值会被插入表达式字符串，设为 `int` 会把整个表达式当整数解析，最终得到 `null`。
 
 ## 数据约束与生成期断言
 

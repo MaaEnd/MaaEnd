@@ -76,7 +76,7 @@ Add a new mapping from the item's Chinese name to the item ID under `zh_cn`:
 
 ### 2. Add Template Image
 
-Save a screenshot of the item detail page to the corresponding directory:
+Crop the item's picture from the elastic-demand goods list and save it to the corresponding directory:
 
 ```text
 assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
@@ -145,7 +145,7 @@ File: `assets/resource/pipeline/AutoStockpile/Main.json`
 
 File: `assets/resource/pipeline/AutoStockpile/DecisionLoop.json`
 
-Add a new `AutoStockpileDecision{NewRegion}` node, and write `"Region": "{NewRegion}"` in `action.param.custom_action_param`.
+Add a new `AutoStockpileDecision{NewRegion}` node, and write `"Region": "{NewRegion}"` in `action.param.custom_action_param`; if the new region's cash icon on the detail page differs from the existing ones, also add the new template to the `template` of `AutoStockpileEnsureCashAnchor`.
 
 ### 5. Go Logic
 
@@ -190,7 +190,7 @@ Recognition scans the elastic goods shelf for **at most two pages** so items bel
 4. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only after the swipe go into `SecondPageOnlyIDs`). Internally screens are page0 = first screen, page1 = second screen (0-based); the field means **second-screen-only (page1)**, not the first screen (page0).
 5. Run `AutoStockpileSwipeShelfUp` to restore the first screen.
 
-If swipe/second-screen scan fails, fall back to first-screen results without aborting.
+If the swipe down or the second-screen capture/scan fails, fall back to first-screen results without aborting; a failed swipe back up only logs a warning, and the merged results are still used.
 
 After selection:
 

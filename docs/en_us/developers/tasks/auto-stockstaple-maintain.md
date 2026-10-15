@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `AutoStockStaple`.  
 It takes **Valley IV** as the main line; the **Wuling** Pipeline structure is completely symmetrical, differing only in the regional suffix and scene recognition.  
-This document was updated on June 6, 2026.
+This document was updated on October 15, 2026.
 
 ## File Paths
 
@@ -22,7 +22,6 @@ This document was updated on June 6, 2026.
 | `assets/resource_adb/pipeline/AutoStockStaple/` | ADB ROI offset mirror (must be checked in sync with Win32) |
 | `agent/go-service/autostockstaple/action.go` | Calculates purchase quantity and drives BetterSliding |
 | `agent/go-service/common/attachregex/action.go` | Merges attach keywords into an OCR whitelist regex |
-| `tools/pipeline-generate/AutoStockStaple/General/` | Batch generation of Goods / CountValidate / QuantityControl |
 | `assets/locales/interface/*.json` | Task, option, and focus text |
 
 ## Execution Flow
@@ -68,18 +67,18 @@ The list scan phase does **not** judge whether the unit price is affordable; aff
 
 ### Item Recognition Chain
 
-Implemented in `General/Item.json` + the discount node within the regional JSON. The approach is similar to the [Credit Store](./credit-shopping-maintain.md): **first find the anchor, then offset to recognize subsequent fields**, but the anchor is the **remaining refresh time frame** in the top-left corner of the item card (cyan ColorMatch), not the credit icon.
+Implemented in `General/Item.json` (which also holds the per-region discount nodes `AutoStockInStapleItemDiscounts{Region}`) + `AutoStockBuyItem{Region}Task` in the regional JSON. The approach is similar to the [Credit Store](./credit-shopping-maintain.md): **first find the anchor, then offset to recognize subsequent fields**, but the anchor is the **remaining refresh time frame** in the top-left corner of the item card (ColorMatch over three colors: cyan / yellow / red), not the credit icon.
 
 ```text
-Remaining Time Anchor -> Item Name (Color + OCR Whitelist) -> Discount (OCR Extraction) -> Discount Threshold Comparison (ExpressionRecognition)
+Remaining Time Anchor -> Item Name (Color + OCR Whitelist) -> Discount (OCR matches the selected tier's discount values)
 ```
 
 1. **Anchor**: Locates the time region of each item card in the list, serving as the basis for subsequent offsets.
-2. **Item Name**: Anchor -> Name label color -> Text background color -> OCR; only matches items selected by the user in the whitelist.
-3. **Discount**: Offsets from the name region to the discount position; OCR extracts the discount badge value with the regex `-?\d{1,2}` (falls back to a positive number when the minus sign is missed; the comparison node fails safe — missed purchase instead of wrong purchase).
-4. **Discount Comparison**: `AutoStockDiscountCompare{Region}` (`ExpressionRecognition`) checks whether the discount is not lower than the selected tier threshold; items without a discount badge produce no OCR text and never match, so they are never bought unless the "Any" tier is selected.
+2. **Item Name**: Anchor -> Name label color -> Name text color -> OCR; only matches items selected by the user in the whitelist.
+3. **Discount**: Offsets from the name region to the discount position; the OCR `expected` lists only the selected tier and deeper discounts (e.g. `-99` / `-95` / `-90` for the `-90%` tier, `order_by: Expected`); a reading that lost its minus sign does not match — a missed purchase instead of a wrong one.
+4. **Discount Tier**: The numeric tiers of `AutoStockMinDiscount{Region}` rewrite that OCR node's `expected` directly; there is no separate comparison node. Items without a discount badge produce no OCR text and never match, so they are never bought unless the "Any" tier is selected.
 
-Only when all four match is the item clicked, entering quantity control.
+Only when the anchor, item name, and discount all match is the item clicked, entering quantity control.
 
 ### Quantity Control Three-Branches
 
@@ -117,25 +116,17 @@ Matched when `limit <= current_held_quantity`:
 | Timing | Action | Purpose |
 | -------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
 | Task Entry | `AttachToExpectedRegexAction` | Merge attach → item name OCR regex |
-| Task Entry | Option `pipeline_override` (category switch / discount tier select) | When a category is off, its overrides are not collected; a numeric tier rewrites the comparison expression, and the "Any" tier replaces the discount recognition node and reverts `all_of` |
+| Task Entry | Option `pipeline_override` (category switch / discount tier select) | When a category is off, its overrides are not collected; a numeric tier rewrites the discount OCR `expected`, and the "Any" tier replaces the discount recognition node with an always-matching `ColorMatch` |
 | After Item Exclusion | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove attach key and refresh whitelist |
 | Before Confirming Purchase | `AutoStockStapleQuantityControlAction` | Calculate difference and override BetterSliding target quantity |
 
 ## Paths to Modify When Adding a New Item
 
-1. `tools/pipeline-generate/AutoStockStaple/General/data.mjs` (`id`, `slug`, multilingual `expected`)
-2. Re-generate (in repository root directory):
+1. `Goods.json`, `GoodsCountValidate.json` and `QuantityControl.json` under `assets/resource/pipeline/AutoStockStaple/General/` (popup item OCR, limit comparison expressions, quantity control branches; there is no generator, edit them directly)
+2. `assets/tasks/AutoStockStaple.json` (checkbox case + limit override)
+3. `assets/locales/interface/*.json` (options and the `quantity_control.buy.*` / `reached.*` / `stock_bill_insufficient.*` focus text)
 
-```bash
-pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-config.json
-pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-count-validate-config.json
-pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/quantity-control-config.json
-```
-
-1. `assets/tasks/AutoStockStaple.json` (checkbox case + limit override)
-2. `assets/locales/interface/*.json` (options and `quantity_control.buy.*` focus text)
-
-Generation rules are in [`tools/pipeline-generate/AutoStockStaple/General/README.md`](../../../../tools/pipeline-generate/AutoStockStaple/General/README.md).
+For what to change in each file, see [Adding a New Item](#adding-a-new-item) below.
 
 ## Paths to Modify When Adding a New Region
 
@@ -145,13 +136,12 @@ Copy a set corresponding to Valley IV (Wuling is already an existing mirror):
 Anchor AutoStockInStapleItem
   -> Item Name AutoStockInStapleItemName_Expected
   -> Discount AutoStockInStapleItemDiscountsValleyIV
-  -> Discount Comparison AutoStockDiscountCompareValleyIV
   -> Click and Enter Quantity Control
 ```
 
 ### 1. Anchor: Remaining Refresh Time Frame
 
-`AutoStockInStapleItem` uses `ColorMatch` to identify the remaining time area in the top-left corner of the item card (cyan connected domain, `order_by: Vertical`), serving as the basis `box` for all subsequent offset recognition.
+`AutoStockInStapleItem` uses `ColorMatch` to identify the remaining time area in the top-left corner of the item card (connected domain over the union of three HSV ranges — cyan / yellow / red — `order_by: Vertical`), serving as the basis `box` for all subsequent offset recognition.
 
 ### 2. Offset Recognition of Item Name
 
@@ -172,12 +162,12 @@ Unselected items do not enter the whitelist; OCR will not match them.
 
 ### 3. Offset Recognition of Discount
 
-`AutoStockInStapleItemDiscountsValleyIV` uses the box of `AutoStockInStapleItemName` as the basis, with `roi_offset` offset to the discount area. OCR extracts any discount badge value (e.g., `-50`) with the regex `-?\d{1,2}`.
+`AutoStockInStapleItemDiscountsValleyIV` uses the box of `AutoStockInStapleItemName` as the basis, with `roi_offset` offset to the discount area. By default its OCR `expected` lists every discount value from `-99` to `-50` (`order_by: Expected`).
 
 The discount threshold is controlled by `AutoStockMinDiscountValleyIV` (select), which shares the `option.DiscountValue.*` locale key family with the Credit Store:
 
-- **Numeric tiers** (`-95%` … `-50%`): Rewrites the expression of `AutoStockDiscountCompareValleyIV` (`ExpressionRecognition`) to `{AutoStockInStapleItemDiscountsValleyIV} <= -{tier value}`; the discount OCR value is compared against the threshold and only matching items are hit.
-- **Any**: Replaces the discount OCR node entirely by `ColorMatch` (full-range threshold `[0,0,0]`–`[255,255,255]` with `count` defaulting to 1, so any non-empty ROI passes and the presence of a discount color block does not affect the result), and reverts the `all_of` of `AutoStockBuyItemValleyIVTask` to 3 members — equivalent to buying all selected items, with the discount comparison skipped.
+- **Numeric tiers** (`-95%` … `-50%`): Rewrite the `expected` of `AutoStockInStapleItemDiscountsValleyIV` to that tier and deeper discounts (e.g. `-90%` → `-99`, `-95`, `-90`); the OCR must match one of them.
+- **Any**: Replaces the discount OCR node entirely by `ColorMatch` (full-range threshold `[0,0,0]`–`[255,255,255]` with `count` defaulting to 1, so any non-empty ROI passes and the presence of a discount color block does not affect the result) — equivalent to buying all selected items without checking the discount.
 
 Tiers list only the discounts that actually occur for staple goods (`-95/-90/-85/-80/-75/-70/-65/-50`), defaulting to `-50%`. Items without a discount badge produce no OCR text and never match any numeric tier; select "Any" to buy them.
 
@@ -194,10 +184,9 @@ Therefore, the `And` conditions for `AutoStockBuyItemValleyIVTask` are:
 
 - `AutoStockInStapleItem`
 - `AutoStockInStapleItemName_Expected`
-- `AutoStockInStapleItemDiscountsValleyIV`
-- `AutoStockDiscountCompareValleyIV` (discount threshold comparison; `box_index: 2` still points to the discount OCR node)
+- `AutoStockInStapleItemDiscountsValleyIV` (discount OCR; `box_index: 2` points to this node)
 
-After all four match, click the item card (`target_offset: [-45, 85, -30, 0]`), and `next` enters `AutoStockStapleQuantityControl`.
+After all three match, click the item card (`target_offset: [-45, 85, -30, 0]`), and `next` enters `AutoStockStapleQuantityControl`.
 
 > [!IMPORTANT]
 > `AutoStockBuyItemValleyIVTask` only means "a candidate item was recognized and entered purchase judgment," **it does not** mean the purchase is completed. Whether an order is actually placed depends on if the quantity control branch reaches `AutoStockStapleQuantityControlConfirmBuy`.
@@ -223,7 +212,7 @@ AutoStockStapleQuantityControlValleyEngravingPermitStockBillInsufficient
 
 The held quantity in the top-right corner of the popup is recognized by `AutoStockStapleGoodsCountValidate`:
 
-- `AutoStockStapleGoodsCountValidateColor`: Quantity area color anchor.
+- `AutoStockStapleGoodsCountValidateArea` → `AutoStockStapleGoodsCountValidateColor`: first find the gray quantity box in a fixed ROI, then the bright digit area inside it.
 - `AutoStockStapleGoodsCountValidateText`: OCR reads `\d+`.
 
 Each item's Buy/Exclude branch uses `ExpressionRecognition` to compare with the user-configured limit, for example:
@@ -256,7 +245,7 @@ Action logic:
 1. Read the corresponding `AutoStockStapleGoods{Item}Validate` node expression, parsing the **target limit** and **quantity OCR node name**.
 2. Run quantity OCR on the current screenshot to get the **current held quantity**.
 3. Calculate `target = target_limit - current_held_quantity`.
-4. If `target <= 0`, skip sliding (disable `AutoStockStapleBetterSliding`).
+4. If `target <= 0`, only log and return success without any override (`AutoStockStapleBetterSliding` keeps its current state).
 5. Otherwise, enable `AutoStockStapleBetterSliding` via `OverridePipeline` and write `target` into its `attach.TargetQuantity`.
 
 Go **no longer** executes `RunTask` to perform sliding; quantity adjustment is completed by the low-code branch:
@@ -264,8 +253,7 @@ Go **no longer** executes `RunTask` to perform sliding; quantity adjustment is c
 ```text
 {Item}Buy (Go: calculate target + OverridePipeline)
   ├ AutoStockStapleCheckSliding              (Skip sliding when slider is hidden and default quantity is 1)
-  ├ AutoStockStapleBetterSliding             (Execute BetterSliding after Go enables it)
-  └ AutoStockStapleQuantityControlRelayConfirm (Fallback for target<=0, etc.)
+  └ AutoStockStapleBetterSliding             (Execute BetterSliding after Go enables it)
   -> AutoStockStapleQuantityControlConfirmBuy
 ```
 
@@ -291,7 +279,7 @@ This task involves several types of runtime overrides; do not confuse them durin
 
 | Action | Trigger Location | Purpose |
 | -------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Option `pipeline_override` (declared in `interface.json`) | Task option collection (MXU render stage) | When a category is off, its overrides are not collected; a numeric tier injects the discount comparison expression, and the "Any" tier replaces the discount recognition node and reverts `all_of` |
+| Option `pipeline_override` (declared in `interface.json`) | Task option collection (MXU render stage) | When a category is off, its overrides are not collected; a numeric tier rewrites the discount OCR `expected`, and the "Any" tier replaces the discount recognition node with `ColorMatch` |
 | `AttachToExpectedRegexAction` | `AutoStockStapleMain` entry; Exclude → Reset node | Merge attach keywords → OCR whitelist regex |
 | `PipelineOverrideAction` | Each item's `{Item}RemoveFilter` | Set specified attach key to `false`, excluding the item |
 | `AutoStockStapleQuantityControlAction` | Each item's `{Item}Buy` | Calculate difference and override BetterSliding's `TargetQuantity` / `enabled` |
@@ -309,7 +297,7 @@ When adding a new staple demand supply item, the following typically need to be 
 1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**: Add `AutoStockStapleGoods{Item}` OCR node and multilingual `expected`.
 2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**: Add `{Item}Validate` / `{Item}ExcludeValidate` expression nodes.
 3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**: Append `{Item}` control node in `AutoStockStapleQuantityControl.next`, and complete sub-nodes like Buy / Exclude / StockBillInsufficient / RemoveFilter (refer to existing items in the same region for examples).
-4. **`assets/tasks/AutoStockStaple.json`**: Add a case in the `{Category}Items` multiple-choice box nested under the corresponding region's category switch, writing `AutoStockInStapleItemName.attach.{slug}` and the quantity limit override.
+4. **`assets/tasks/AutoStockStaple.json`**: Add a case in the `{Category}Items` multiple-choice box nested under the corresponding region's category switch, writing `AutoStockInStapleItemName.attach.{slug}`. The quantity limit override is not in the case but in a `{Category}…Limit` input option under the same category switch (e.g. `AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit`; one option can cover several items): add the limit expressions for `AutoStockStapleGoods{Item}Validate` / `AutoStockStapleGoods{Item}ExcludeValidate` to its `pipeline_override`.
 5. **`assets/locales/interface/*.json`**: Add `option.CreditShoppingItems.cases.{Item}.label` and focus text (e.g., `quantity_control.buy.*`).
 
 During maintenance, directly edit the above Pipeline and task configuration; **do not** rely on code generators to overwrite outputs.
@@ -319,13 +307,13 @@ During maintenance, directly edit the above Pipeline and task configuration; **d
 If a third region for staple goods purchase is added in the future, a set of nodes can be copied corresponding to Valley IV:
 
 1. Create `assets/resource/pipeline/AutoStockStaple/{Region}.json`:
-    - `{Region}InStaple` scan loop (the four-branch `next` structure remains unchanged).
+    - `AutoStockInStaple{Region}` scan loop (keep the five-entry `next` structure, including `AutoStockNoMoreTarget{Region}`, which ends the region once swipes run out).
     - `AutoStockTargetCompare{Region}` / `AutoStockTargetCanNotBuy{Region}`.
     - `AutoStockBuyItem{Region}Task` (replace discount node names).
     - `AutoStockSwipe{Region}`.
 2. Add `[JumpBack]AutoStockStaple{Region}` sub-task and SceneManager jump in `Main.json`.
 3. Add scene OCR in `StockStaple.json` or the regional InScene file.
-4. Add `AutoStockInStapleItemDiscounts{Region}` in `Item.json` (if the UI layout differs from existing regions).
+4. Add `AutoStockInStapleItemDiscounts{Region}` in `Item.json` (even with the same layout, since `AutoStockMinDiscount{Region}` overrides this node per region), and add its `roi_offset` to the `resource_adb` `Item.json`.
 5. Add region switch and option group in `assets/tasks/AutoStockStaple.json`.
 
 The existing Wuling implementation is a mirror of Valley IV; you can directly diff `ValleyIV.json` and `Wuling.json` to see the differences.

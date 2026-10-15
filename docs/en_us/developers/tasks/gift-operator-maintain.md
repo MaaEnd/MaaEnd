@@ -1,7 +1,7 @@
 # Development Manual - Gift to Operator Maintenance Documentation
 
 This document explains the file distribution and two execution routes of `GiftOperator`.  
-This documentation was last updated on June 28, 2026.
+This documentation was last updated on October 15, 2026.
 
 ## File Paths
 
@@ -29,8 +29,8 @@ When adding a new operator, at least the following 6 locations need to be update
 | --- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1 | `assets/resource/image/GiftOperator/Operators/<Name>.png` | Win32 operator avatar template; must be processed with `tools/gift_operator/fill_gift_operator_green_box.py` before storage |
 | 2 | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png` | ADB operator avatar template; processed similarly |
-| 3 | `assets/tasks/GiftOperator.json` → `SelectOperator` | Add a case to provide selectable operators in the UI and supply operator information for the "Receive Only" route |
-| 4 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | OCR recognition and whitelist for each operator in "Receive Only" mode |
+| 3 | `assets/tasks/GiftOperator.json` → `SelectOperator` | Add a case to provide the operator in the UI and supply the avatar template and name whitelist for the "Specific Operator" route |
+| 4 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | Avatar re-matching and name OCR whitelist for each operator in "Only Receive Gifts" mode |
 | 5 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | Append `GiftOperatorSelect_<Name>` to the `next` array at the "Only Receive Gifts" operator selection node; otherwise, the operator node will not be triggered |
 | 6 | `assets/locales/interface/*.json` → `operator.<Name>` | Operator display name for each language |
 
@@ -43,12 +43,12 @@ Corresponds to the "Only Receive Gifts" option being disabled. Configurable gift
 3. Select operators (must pass [Selection State Verification](#selection-state-verification) after clicking; implementation in `GiftOperatorContact.json`):
     - **Any**: Switch to trust ascending order, select three consecutive operators (including those at max trust); verify sequence number 1 → 2 → 3 for each click, confirm the call only after all three are selected.
     - **Specific Operator**: Match the target operator in the list using the avatar template, then verify the selection state before calling.
-4. Confirm the call; if the operator is not in position, use [Preset Orientation and Coordinate Movement Fallback](#after-calling-operator-what-to-do-if-dialogue-button-not-found) (implementation in `GiftOperatorNavigation.json`).
+4. Confirm the call; if the operator is not in position, fall back to [stepping in preset directions](#after-calling-operator-what-to-do-if-dialogue-button-not-found) (implementation in `GiftOperatorNavigation.json`).
 5. Wait for the operator to appear, enter dialogue.
 6. Handle dialogue based on priority:
-    - Can give gift → Select gift (also pass [Selection State Verification](#selection-state-verification) after selection; implementation in `GiftOperatorGiftFlow.json`), confirm giving, skip dialogue, leave. Operators at max trust can still receive gifts.
+    - Can give gift → Select gift (the highlight color is verified after selection, see [Selection State Verification](#selection-state-verification); implementation in `GiftOperatorGiftFlow.json`), confirm giving, skip dialogue, leave. Operators at max trust can still receive gifts.
     - Can receive gift → Collect gift, skip dialogue, leave.
-7. Number of gifts given is controlled by the "Gift Quantity" option, default allows multiple consecutive gifts.
+7. The number of gifts is controlled by the "Gift Count" option: `GiftOperatorClickGift` clicks the gift cell that many times before a single confirmation; the default is 1.
 
 ## Route 2: Only Receive Gifts
 
@@ -66,7 +66,7 @@ Corresponds to the "Only Receive Gifts" option being enabled. No longer actively
 
 ### Selection State Verification
 
-In this task, "clicking once" does not equal "selected". The contact point operator selection and gift interface selection share the same **three-layer serial judgment** to avoid empty or off-target clicks:
+In this task, "clicking once" does not equal "selected". Operator selection at the Operator Contact Panel uses a **three-layer serial judgment** to avoid empty or off-target clicks; gift selection in the gift interface currently keeps only the first layer (see below):
 
 ```text
 Selection highlight color → Text background color within the highlighted area → OCR read key text
@@ -76,7 +76,7 @@ Selection highlight color → Text background color within the highlighted area 
 
 Implementation is in `GiftOperatorContact.json`. After clicking a list row, use `And` to simultaneously satisfy:
 
-1. **Tag Highlight Color**: Identify the HSV color block of the selected state in that row (cyan-green label background).
+1. **Tag Highlight Color**: Identify the HSV color block of the selected state in that row (yellow label background).
 2. **Sequence Number Text Background**: Use the hit area from the previous step as an anchor, then identify the text background color of the sequence number.
 3. **Sequence Number OCR**: Read `1` / `2` / `3` in the text area, corresponding to the current operator to be selected.
 
@@ -84,11 +84,11 @@ The "Any" route gradually confirms that the first, second, and third operators a
 
 #### Gift Interface Gift Selection
 
-Implementation is in `GiftOperatorGiftFlow.json`, same link chain, only anchor and OCR target differ:
+Implementation is in `GiftOperatorGiftFlow.json`; unlike operator selection, the quantity OCR happens before the click:
 
-1. First, use color matching to locate and click a clickable item in the bottom gift bar.
-2. Then verify the selection highlight color + text background color of the gift cell.
-3. Finally, OCR reads the quantity number (`\d+`) in that cell, confirming the gift is indeed in a selected state, then proceed to click "Confirm Gift".
+1. First, color matching plus a quantity OCR (`[1-9]\d*`) locates a clickable item in the bottom gift bar, and the quantity position is clicked.
+2. After the click, only the gift cell's selection highlight color (`GiftOperatorGiftSelectedLabelColor`) is verified.
+3. The text-color and OCR (`\d+`) layers are commented out in `GiftOperatorGiftSelected`; once the highlight matches, the flow clicks "Confirm".
 
 When maintaining, if selection state recognition drifts, prioritize checking the color thresholds and OCR area offsets for these three layers; both operator and gift locations should be checked in parallel.
 
@@ -97,7 +97,7 @@ When maintaining, if selection state recognition drifts, prioritize checking the
 Receive mode cannot rely on OCR of operator names to directly click the list. Instead, it **first finds the gift, then recognizes the avatar, and finally verifies the name**. Logic is distributed in `GiftOperatorContact.json` and `Operator/Operator.json`.
 
 1. **Step 1: Locate the "Row with a Gift"**  
-   In the contact list area, use `Gift.png` template matching to find the gift icon (`green_mask`). After a hit, offset to the left and click to select that operator row.
+   In the contact list area, use `Gift.png` template matching to find the gift icon (`green_mask`). After a hit, click 40 px to the right of it to select that operator row.
 
 2. **Step 2: Confirm Which Operator**  
    Use the gift icon hit position as an anchor, and in the adjacent area, perform secondary matching of that operator's avatar (`Operators/<Name>.png`, also `green_mask`).  
@@ -121,22 +121,26 @@ If no operator with a gift is found on the current screen, the list scrolls up t
 
 After call confirmation, the task first waits for the operator to appear and attempts to click the dialogue entry. If the interactive dialogue button is still not visible on screen, it won't wait indefinitely but enters **Position Correction Fallback**, logic in `GiftOperatorNavigation.json`.
 
-Correction sequence is fixed to three preset groups, each attempted once (the count is reset at the start of the task to avoid residuals from the previous round):
+The fallback is driven by `GiftOperatorMoveAhead`: it first uses `MapLocateAssertLocation` to confirm the character is still near the Operator Contact Panel, then turns in a fixed order; the number of turns per heading is the `max_hit` of the corresponding node (the counts are reset at the start of the task to avoid residuals from the previous round):
 
-| Order | Orientation | Movement Target |
-| ----- | ----------- | --------------- |
-| 1 | West (270°) | (186.6, 175.0) |
-| 2 | North (0°) | (188.0, 175.3) |
-| 3 | East (90°) | (188.6, 176.2) |
+| Order | Node | Orientation | Count |
+| ----- | ----------------------------- | ------------------------ | ----- |
+| 1 | `GiftOperatorTurnEast` | East (90°) | 2 |
+| 2 | `GiftOperatorTurnNorthwest` | Northwest (315°) | 1 |
+| 3 | `GiftOperatorTurnNorthByWest` | 15° west of north (345°) | 1 |
+| 4 | `GiftOperatorTurnWest` | West (270°) | 2 |
+| 5 | `GiftOperatorTurnSoutheast` | Southeast (135°) | 2 |
 
-Each group is "turn first → then move a short distance → wait for the character to stop", then re-attempt to find the dialogue button.
+Each turn is a single `HEADING` waypoint: the camera turns to the given heading and `W` is pressed once, so the character also takes a small step that way; the 8 steps together make a small loop starting from the Operator Contact Panel. After each step the flow jumps back (`[JumpBack]`) to the post-call check and looks for the dialogue button again; once it is found, the dialogue starts and no more turns are made.
 
-If all three groups are tried and still not found, the task ends with an error and prompts "Failed to find operator identification", while retaining a screenshot for troubleshooting. Common causes are the operator spawning outside the preset area, or the position after the call deviating too much from the template ROI.
+`GiftOperatorMoveAhead` also has `max_hit` 8, equal to the sum of the counts above: once the turns are used up it stops matching as well, so the flow can fall through to the failure branch. The file still contains the fixed-position move nodes `GiftOperatorMoveLocation{1,2,3}Move`, but they are not in any `next` list and do not run.
+
+If all 8 steps are used and the button is still not found, or the character is no longer near the Operator Contact Panel, the flow falls into `GiftOperatorMoveFail`: the task ends with an error and prompts "Failed to navigate or locate operator", while retaining a screenshot for troubleshooting. Common causes are the operator spawning outside the area these steps cover, or the position after the call deviating too much from the template ROI.
 
 Two other similar retries handle click offsets caused by the operator walking over:
 
-- Dialogue button found but no dialogue entered after clicking → Retry click once in place.
-- Dialogue entered but right-side action buttons not yet appeared → The skip button also self-retries once, then waits for give/receive buttons to appear.
+- Dialogue button found but no dialogue entered after clicking → Step back one step first (this happens only once), then find and click the dialogue button again.
+- Dialogue entered but right-side action buttons not yet appeared → The skip button's `next` includes itself, so it keeps clicking until the give/receive buttons appear.
 
 ### Differences in Default Mode Operator Selection (Compared to Receive)
 

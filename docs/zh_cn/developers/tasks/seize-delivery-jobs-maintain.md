@@ -75,11 +75,11 @@ SeizeDeliveryJobsLoop
                       └─ 接取动画未出现 → 刷新列表后重新扫描
 ```
 
-`__SeizeDeliveryJobsRecoCommissionToken` 是抢单的**行锚点**：它用 `TemplateMatch` 识别每行的**调度券图标**（武陵调度券 / 四号谷地调度券），Go 再以这个 box 为锚点，按固定偏移推导奖励数字、出发地、接取按钮和查看位置的 roi。
+`__SeizeDeliveryJobsRecoCommissionToken` 是抢单的**行锚点**：它用 `TemplateMatch` 识别每行的**调度券图标**（武陵调度券 / 谷地调度券），Go 再以这个 box 为锚点，按固定偏移推导奖励数字、出发地、接取按钮和查看位置的 roi。
 
-该节点是**单节点 + 多模板**：`template` 列出每张地图的调度券图（`WulingToken.png` = 武陵调度券，`ValleyIVToken.png` = 四号谷地调度券），一次识别就能拿到整列 box，包含「全部地区」下混排的多地图委托；`order_by: Vertical` 保证自上而下。
+该节点是**单节点 + 多模板**：`template` 列出每张地图的调度券图（`WulingToken.png` = 武陵调度券，`ValleyIVToken.png` = 谷地调度券），一次识别就能拿到整列 box，包含「全部地区」下混排的多地图委托；`order_by: Vertical` 保证自上而下。
 
-不要改成 `Or` 组合每张地图的节点：`Or` 只返回首个命中子节点的结果，混排列表里会漏掉另一张地图的整列委托。新增地图也要自带调度券图，裁剪要求见「新增地图」第 4 步。
+不要改成 `Or` 组合每张地图的节点：`Or` 只返回首个命中子节点的结果，混排列表里会漏掉另一张地图的整列委托。新增地图也要自带调度券图，裁剪要求见「B. 属于一张新地图」第 4 步。
 
 ### 指定终点
 
@@ -98,9 +98,9 @@ SeizeDeliveryJobsScanTarget
                       └─ 缓存委托全部检查完 → 清空状态 → 刷新委托列表
 ```
 
-区域门控节点用 ROI `[16, 14, 214, 41]` 读取地图左上角的子区域名，以避免在不限来源时误用另一张地图的终点候选。每个区域的 `MapFind` 节点只使用一个 `zone`，其 `candidates` 的 `at` 坐标来自送货目录中的地图坐标（地图世界坐标）。门控命中后由该区域的候选节点判定终点，都未命中（例如当前委托送到未勾选的终点）时走 `next` 末尾的 `SeizeDeliveryJobsEndpointNotMatched`：关地图、扫描下一份委托。
+区域门控节点用 ROI `[16, 14, 214, 41]` 读取地图左上角的子区域名，以避免在不限来源时误用另一张地图的终点候选。每个区域的 `MapFind` 节点只使用一个 `zone`，其 `candidates` 的 `at` 坐标来自送货目录中的地图坐标（区域底图坐标 `u`/`v`，不是世界坐标）。门控命中后由该区域的候选节点判定终点，都未命中（例如当前委托送到未勾选的终点）时走门控 `next` 末尾的 `SeizeDeliveryJobsEndpointNotMatched`：关地图、扫描下一份委托。
 
-筛选循环节点 `SeizeDeliveryJobsEndpointFilter` 用 `__SeizeDeliveryJobsRecoAnyDepotNode`（任一地图仓储管理页面的特征标志，`InLocalDepotNode` 的封装）反向判断地图视图已经打开：仍停在仓储管理页面时该标志存在，节点不命中。它不绑定具体地图，新增区域时只需在它的 `next` 里追加新的区域门控节点。
+终点筛选守卫节点 `SeizeDeliveryJobsEndpointFilter`（由 `endpoint-dispatcher-template.jsonc` 生成到 `SeizeDeliveryJobsEndpointDispatcher.json`）用 `__SeizeDeliveryJobsRecoAnyDepotNode`（任一地图仓储管理页面的特征标志，`InLocalDepotNode` 的封装）反向判断地图视图已经打开：仍停在仓储管理页面时该标志存在，节点不命中。它不绑定具体地图；`next` 由生成器按全部区域门控节点生成（`${NextList}`），新增区域后重新生成即会自动追加，无需手工改动。
 
 每个终点的生成节点 `SeizeDeliveryJobsEndpointFilter<EndpointId>` 默认 `enabled: false`。任务选项只通过 Pipeline override 打开用户勾选的叶子节点。叶子节点不再重复识别图标，命中后统一跳转 `SeizeDeliveryJobsEndpointMatched`；这样一次 `MapFind` 就能在同一区域内判断所有已启用终点。
 
@@ -254,7 +254,7 @@ deliver_target_map01_lv006_03
 
 旧终点保持既有顺序，新终点按 `AutoDelivery/model.mjs` 输出的源 ID 顺序排在旧终点之后；删除源数据中的终点后，重新生成会删除相应产物，不会保留孤立选项。
 
-区域 ID 不走兼容表，而是从数据自动派生：`area.en_us` 去掉非字母数字字符（`Origin Lodespring` → `OriginLodespring`，`Test District` → `TestDistrict`）。它同时决定「委托接收点」的来源 case 名、`SeizeDeliveryJobsDeliveryPoint<AreaId>` 选项名和区域门控节点名，因此改动数据源中的英文区域名会一并改名。
+区域 ID 不走兼容表，而是从数据自动派生：`area.en_us` 去掉非字母数字字符（`Origin Lodespring` → `OriginLodespring`，`Test Area` → `TestArea`）。它同时决定「委托接收点」的来源 case 名、`SeizeDeliveryJobsDeliveryPoint<AreaId>` 选项名和区域门控节点名，因此改动数据源中的英文区域名会一并改名。
 
 ### 只修改已有终点方位
 
@@ -381,7 +381,7 @@ Go 从 `__SeizeDeliveryJobsMinReward.expected[0]` 读取任务输入，并把奖
 | 指定终点模式没有检查下一张委托 | 检查未命中后的 ESC → `SeizeDeliveryJobsScanTarget` 链路，以及扫描耗尽后的 reset → refresh 链路 |
 | 不限制终点模式完全识别不到委托 | 检查 `__SeizeDeliveryJobsRecoCommissionToken` 的 `template` 是否含当前地图的调度券图，以及调度券 ROI、奖励 OCR 和来源 `expected`；`maafw.log` 里的 `filtered_results_=[]` 且分数低于 `param_.thresholds` 只说明没过阈值，还要排查 roi 与当前画面 |
 | 新加的调度券图分数偏低 | 给该节点加 `threshold` 数组按模板分别设阈值（长度与 `template` 一致，如 `[0.7, 0.6]`）；阈值调低后两图可能互相误匹配，同一行拿到两个 box，需要在 Go 侧按 y 去重 |
-| 委托识别到了但奖励读不到/接取失败 | 多半是该地图调度券图的锚点裁偏：按偏移推导出的奖励/出发地/接取/查看位置 roi 会整体平移，按「新增地图」第 4 步用行底黄线重新标定 |
+| 委托识别到了但奖励读不到/接取失败 | 多半是该地图调度券图的锚点裁偏：按偏移推导出的奖励/出发地/接取/查看位置 roi 会整体平移，按「B. 属于一张新地图」第 4 步用行底黄线重新标定 |
 | 接单后自动送货找不到路线 | 先运行 `pnpm generate:AutoDelivery`，检查对应 `AutoDelivery/catalog.json` 和生成路线；`SeizeDeliveryJobs` 生成器不会代替 `AutoDelivery` 生成这些文件 |
 | 改了展示文案后旧配置失效 | 检查是否改动了 `LEGACY_ENDPOINTS` 对应的内部 ID；方位和展示名都改 `endpoint-labels.json`，两者都不该改动 case/node ID |
 
@@ -396,7 +396,7 @@ node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs
 git diff --check
 ```
 
-改动包含 `tests/**` 时本地跑 `pnpm test`；`pnpm check` / `pnpm test` 的其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。
+改动包含 `tests/**` 时本地跑 `pnpm test`，若同时改了 `assets/**` 或 `tools/schema/**`，一并跑 `pnpm check`；其余情况不必在本地跑这两条命令，提 PR 后跟进相应 CI 即可，详见[编码规范](../coding-standards.md#提交前检查)。
 
 生成器自身的顺序与文案不变量由 `tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs` 覆盖，需要本地自查时可 `node --test tools/pipeline-generate/SeizeDeliveryJobs/task-data.test.mjs`（CI 不跑生成器单测，改动生成器时才需要）。
 

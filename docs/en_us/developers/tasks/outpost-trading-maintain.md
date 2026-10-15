@@ -4,7 +4,7 @@
 
 ## At a Glance
 
-- **Entry**: the `SellProduct` task in `assets/tasks/OutpostTrading.json` → Pipeline entry `OutpostTradingSchedule` (weekday-gated). The task name and every option name are persistence keys in `config/gui.json`, so they deliberately keep the legacy `SellProduct*` spelling; only directories, files and node names moved to `OutpostTrading`.
+- **Entry**: the `SellProduct` task in `assets/tasks/OutpostTrading.json` → Pipeline entry `OutpostTradingSchedule` (weekday-gated). The task name and every option name are persistence keys in the MXU config `config/mxu-MaaEnd.json`, so they deliberately keep the legacy `SellProduct*` spelling; only directories, files and node names moved to `OutpostTrading`.
 - **Responsibility split**: Go has only two business packages — `goods/` (item selection, reserve, out-of-stock, priority lists) and `operator/` (operator recognition, assignment planning, cache), independent of each other; top-level `runtime.go` combines both to print the per-outpost plan.
 - **Do not hand-edit generated artifacts**: `assets/data/OutpostTrading/selection_data.json`, `assets/tasks/OutpostTrading.json`, `pipeline/OutpostTrading/{OperatorSession.json, Loop.json, {Region}/}` (both Win32 and ADB packs). Always edit the model/templates/projections under `tools/pipeline-generate/OutpostTrading/` and regenerate.
 - **Two kinds of state**: the out-of-stock set, tried items, and satisfied reserves are **task-scoped session state** — never persisted, cleared on the next task init. The only persisted state is `debug/record/OutpostTradingCache.json` (operator snapshot + outpost prosperity state, isolated per hashed UID).
@@ -22,15 +22,15 @@ OutpostTradingSchedule ──weekday hit──> OutpostTradingMain
   │    └─ ConfigureSelectionStrategy                           selection strategy (rarity/price/stock)
   └─ OutpostTradingLoop                       newest region first: Wuling → Valley IV → OutpostTradingTaskEnd
 
-Per region (OutpostTrading{Region}Sell)
-  ├─ SceneManager enters the region's outpost management (SubTask)
+Per region (OutpostTrading{Region} → OutpostTrading{Region}Sell)
+  ├─ SceneManager enters the region, then the region's outpost management (two SubTask runs)
   ├─ {Region}InitializePrioritySession → RegisterPriorityItem1..6   switch region priority list
   ├─ {Region}PrepareOperatorCache → ScanOperatorList     full operator scan when no snapshot
   └─ [JumpBack] run the region's outposts in fixed order → back to OutpostTradingLoop
 
 Per outpost (OutpostTrading{LocationId}Sell)
-  ├─ bind outpost anchors (ZeroMoneyHandler / SelectPriorityItem / CommitPriorityItem
-  │    / MarkOutOfStock / BetterSliding / before & after OperatorTarget)
+  ├─ bind outpost anchors (ZeroMoneyHandler / CurrentGoodsReady / SelectPriorityItem / PriorityItemsExhausted
+  │    / CommitPriorityItem / MarkOutOfStock / BetterSliding; before & after OperatorTarget are bound by SetOperatorAnchors below)
   ├─ detect whether outpost prosperity is maxed → ReportLocationPlan (print the outpost plan)
   ├─ SetOperatorAnchors → OutpostTradingSellMain
   │    ├─ BeforeSellOperator → [Anchor]…Target   pre-sell: switch to the planned selling operator
@@ -78,7 +78,7 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 - Recognizes the currently selected goods icon in the outpost selling screen via IconRecognition `single_roi`, with candidates limited to the outpost's sellable items; the Win32 and ADB Pipelines pass `[1177,450,54,54]` and `[1151,393,66,66]` through `roi`, so Go hardcodes no platform coordinates.
 - Rarity and price strategies reuse the normal selection rules. The current item is adopted only when it is exactly the next candidate after preferred slots, tried/out-of-stock state, and reserve rules are applied; otherwise the flow falls back to "Switch Goods" and scans the list.
 - Preferred slots take precedence over the stock strategy, so Stock may also adopt the first available preferred item after tried, out-of-stock, and reserve filters are applied. If the current item is not that preferred candidate, or no preferred item remains available, the goods list must be opened to read live storage quantities; an ordinary candidate is never adopted without that scan.
-- On hit, the `adopt` operation registers the recognized `itemId` as the outpost's current item with the same session effect as a switching `commit` (marks tried, updates the reserve-rule selection), so selling, reserve rules, and out-of-stock marking never distinguish where the goods came from.
+- On hit, the `adopt` operation registers the recognized `item_id` as the outpost's current item with the same session effect as a switching `commit` (marks tried, updates the reserve-rule selection), so selling, reserve rules, and out-of-stock marking never distinguish where the goods came from.
 
 ### Priority Selling (master switch, off by default, decoupled from region toggles)
 
@@ -95,7 +95,7 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 
 ### Out of Stock
 
-When an item is confirmed out of stock after switching, `[Anchor]MarkOutOfStock` records the last committed `itemId` into a task-scoped set so later outposts skip it during selection; not persisted, cleared on the next task init.
+When the current item's stock is found insufficient after switching or adopting (`OutpostTradingZeroProduct`: red stock text, or a 1–3 digit white stock, i.e. 1–999 units), `[Anchor]MarkOutOfStock` records the outpost's current item (`item_id` of the last `commit` / `adopt`) into a task-scoped set so later outposts skip it during selection; not persisted, cleared on the next task init.
 
 ## Operator Rules (Go `operator/`)
 
@@ -106,7 +106,7 @@ Pre-sell (switch to the selling operator) and post-sell (restore production assi
 1. both prosperity and trade-income bonuses;
 2. prosperity bonus only;
 3. trade-income bonus only;
-4. within a tier, stable game-list order (count of matched `settlementFeatures` desc → numeric charId desc; rarity is irrelevant).
+4. within a tier, stable game-list order (count of matched outpost `features` desc → numeric charId desc; rarity is irrelevant).
 
 When outpost prosperity is maxed, prosperity bonuses stop counting and only trade income defines the tiers. A "perfect candidate" is the intersection of the outpost's top selling tier and its restore candidates; if the account owns any perfect candidate, planning picks only from them (even if one is occupied by another enabled outpost — no downgrade), otherwise it falls back to the top available tier. If the current operator already belongs to the best available tier, it is kept without opening the list.
 
@@ -120,7 +120,7 @@ If the candidate is assigned elsewhere, a confirmation dialog appears: source ou
 
 ### Failure Policy
 
-Selling operator not found / scan failure → stop the task (never trade with the wrong operator); restore operator unavailable → log a skip, finish the outpost, and continue.
+Selling operator not found, or a pre-/post-sell list scan failure (including the planned operator still unselectable after one refreshed retry) → stop the task (never trade with the wrong operator); no available restore operator after a full scan → log a skip, finish the outpost, and continue.
 
 ### Operator Cache (`debug/record/OutpostTradingCache.json`)
 
@@ -155,9 +155,9 @@ The generator lives in `tools/pipeline-generate/OutpostTrading/`. The outpost ex
 Hand-maintained (untouched by the generator):
 
 - `pipeline/OutpostTrading.json`: task entry and init chain;
-- `OutpostTrading/SellCore.json`, `ChangeGoods.json`: shared selling loop and goods selection;
-- `OutpostTrading/OperatorScan.json`: operator cache scanning;
-- `OutpostTrading/ReserveSession.json`: reserve-rule session;
+- `OutpostTrading/SellCore.json`, `ChangeGoods.json`, `OutpostShared.json`: shared selling loop, goods selection, and outpost screen recognition;
+- `OutpostTrading/OperatorScan.json`, `Operator.json`: operator cache scanning and liaison screen recognition;
+- `OutpostTrading/ReserveSession.json`: reserve-rule session (also holds `ConfigurePrioritySession`);
 - all Go code under `agent/go-service/outposttrading/`: `goods/` (items, with the three pure strategies in `strategy/`), `operator/` (operators), `internal/selectiondata/` (shared deployment-data loading/validation), `internal/ocrmatch/` (shared strict OCR matching), `runtime.go` (the combined `OutpostTradingLocationPlan` output), and `register.go` (component registration).
 
 ```shell
@@ -186,4 +186,4 @@ Before submitting, check:
 git diff --check
 ```
 
-Run `pnpm test` locally when the change includes `tests/**`; otherwise leave `pnpm check` / `pnpm test` to PR CI — see the [coding standards](../coding-standards.md#pre-submission-check).
+Run `pnpm test` locally when the change includes `tests/**`, and if you also changed `assets/**` or `tools/schema/**`, run `pnpm check` as well; otherwise there is no need to run these two commands locally, just follow the relevant CI after opening a PR — see the [coding standards](../coding-standards.md#pre-submission-check).
