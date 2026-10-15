@@ -6,7 +6,7 @@
 - ``fetch``：从 zmdmap 下载已发布的精简数据到 ``data/raw/``，再投影进入库的 ``data/*.json``
   （下载和投影各由一个开关控制）。
 
-``generate`` 与 endfield-workflow 的 ``maaend_game_data`` 处理器同序跑同一批 ``build_*``
+``generate`` 按固定顺序跑同一批 ``build_*``
 （delivery_jobs -> environment_monitoring -> sell_product -> delivery_destinations ->
 teleport_anchors -> collect_points），产物只带游戏世界坐标；底图像素由 ``project`` 按 BaseNav
 的 zone 表补上。
@@ -43,12 +43,8 @@ from typing import Any, TypeVar
 
 import click
 
-from .collect_points import build_collect_points
-from .delivery_destinations import build_delivery_destinations
-from .delivery_jobs import build_delivery_jobs
-from .environment_monitoring import build_environment_monitoring
+from .datasets import DATASETS, DATASET_NAMES, Builder, select_datasets
 from .fetch import download as download_published
-from .local_context import RunContext
 from .paths import (
     DEFAULT_OUT_DIR,
     DEFAULT_WORKSPACE,
@@ -60,22 +56,7 @@ from .paths import (
     table_cfg_dir_in,
 )
 from .project import project_data
-from .sell_product import build_sell_product
 from .sync import SYNC_MARK_UNKNOWN, SYNC_MARKS, changed_data_files, preflight, sync_workspace
-from .teleport_anchors import build_teleport_anchors
-
-Builder = Callable[[RunContext], dict[str, Any]]
-# 与 workflow ``maaend_game_data`` 处理器的顺序、文件名一致。
-DATASETS: tuple[tuple[str, str, Builder], ...] = (
-    ("delivery_jobs", "delivery_jobs.json", build_delivery_jobs),
-    ("environment_monitoring", "environment_monitoring.json", build_environment_monitoring),
-    ("sell_product", "sell_product.json", build_sell_product),
-    ("delivery_destinations", "delivery_destinations.json", build_delivery_destinations),
-    ("teleport_anchors", "teleport_anchors.json", build_teleport_anchors),
-    ("collect_points", "collect_points.json", build_collect_points),
-)
-
-DATASET_NAMES = tuple(name for name, _, _ in DATASETS)
 
 #: click 选项装饰器的返回类型。
 F = TypeVar("F", bound=Callable[..., Any])
@@ -88,14 +69,6 @@ _SOURCE_LABELS = {
 }
 
 Decorator = Callable[[F], F]
-
-
-def select_datasets(names: Sequence[str]) -> tuple[tuple[str, str, Builder], ...]:
-    """按名字挑数据集；顺序始终跟随 :data:`DATASETS`，与 workflow 一致。"""
-    if not names:
-        return DATASETS
-    wanted = set(names)
-    return tuple(dataset for dataset in DATASETS if dataset[0] in wanted)
 
 
 def should_skip(output_path: Path, data: dict[str, Any], force: bool) -> bool:
@@ -131,7 +104,8 @@ def check_input_dir(label: str, path: Path, option: str, env_name: str) -> None:
 
 def generate_datasets(
     datasets: Sequence[tuple[str, str, Builder]],
-    context: RunContext,
+    table_cfg_dir: Path,
+    json_data_dir: Path,
     out_dir: Path,
     *,
     force: bool,
@@ -141,7 +115,7 @@ def generate_datasets(
     for name, file_name, build in datasets:
         output_path = out_dir / file_name
         try:
-            data = build(context)
+            data = build(table_cfg_dir, json_data_dir)
         except (OSError, ValueError) as error:
             raise click.ClickException(f"[{name}] {error}") from error
         if should_skip(output_path, data, force):
@@ -334,7 +308,7 @@ def generate_command(
     started = time.monotonic()
     generated_ok = True
     try:
-        generate_datasets(datasets, RunContext(table_cfg_dir, json_data_dir), out_dir, force=force)
+        generate_datasets(datasets, table_cfg_dir, json_data_dir, out_dir, force=force)
     except click.ClickException as error:
         generated_ok = False
         click.echo(f"  x {error.message}")

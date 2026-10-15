@@ -22,9 +22,11 @@ BeyondMemoryPack/JsonData┘
                                      ↓ 投影（按 BaseNav zone 表）
                         data/*.json（含 u/v 与 maps，入库）→ 各任务生成器 → assets/…
 
-BeyondTableCfg + BeyondMemoryPack → endfield-workflow（CI）→ zmdmap 发布精简游戏数据
-                                                        → uv run zmdmap fetch（MaaEnd）→ data/raw/*.json
-                                                        → 同一个投影步骤 → data/*.json
+zmdmap 发布精简游戏数据（六份 JSON，只有世界坐标）
+                             ↓
+                uv run zmdmap fetch（下载发布数据）→ data/raw/*.json
+                             ↓ 同一个投影步骤
+                             data/*.json
 ```
 
 `uv run zmdmap fetch`（也就是 `pnpm fetch:zmdmap`）按 zmdmap 版本接口判断要不要重新下载（版本未变化且 `data/raw/` 完整时跳过下载，网络检查失败时保留现有缓存），**下载与否都会跑一次投影**：
@@ -58,7 +60,7 @@ pnpm generate:SeizeDeliveryJobs
 
 ## 本地生成脚本
 
-六个 `build_*` 与 `endfield-workflow` 的 `src/beyond_map/processors/maaend/` 一一对应，改哪边都要同步另一处；`coords.py` / `levels.py` / 六个 `build_*` 逐字相同，只有 import 行不同——那边从流水线的 `RunContext` 取数据，这边由 `local_context.py` 读本地兄弟仓库。生成器与下载/投影统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。
+六个 `build_*`（`datasets/`）与下载/投影统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：`datasets/` 里的 `build_*` 通过 `utils/game_data.py` 读 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`；`coords.py` / `levels.py` 等共用件在 `utils/`。
 
 默认按当前 MaaEnd 仓库的兄弟目录解析输入，因此三个仓库位于同一 `Endfield` 目录时无需传路径：
 

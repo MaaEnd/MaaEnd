@@ -3,31 +3,31 @@
 从 TableCfg 生成地区、仓储节点及其可装箱物品数据。
 """
 
+from pathlib import Path
 from typing import Any
 
-from .local_context import I18nText, LanguageCode, RunContext, logger
+from ..utils.game_data import Record, localized_text, logger, read_table_cfg
 
 # MaaEnd 侧硬编码的 5 种语言（zh_cn/zh_tw/en_us/ja_jp/ko_kr），
 # 对应 I18nTextTable_{CN,TC,EN,JP,KR}.json 后缀。
-MAAEND_LOCALES: tuple[tuple[str, LanguageCode], ...] = (
-    ("zh_cn", LanguageCode.ZH_CN),
-    ("zh_tw", LanguageCode.ZH_TW),
-    ("en_us", LanguageCode.EN_US),
-    ("ja_jp", LanguageCode.JA_JP),
-    ("ko_kr", LanguageCode.KO_KR),
+MAAEND_LOCALES: tuple[tuple[str, str], ...] = (
+    ("zh_cn", "zh-CN"),
+    ("zh_tw", "zh-TW"),
+    ("en_us", "en-US"),
+    ("ja_jp", "ja-JP"),
+    ("ko_kr", "ko-KR"),
 )
 
-def build_delivery_jobs(ctx: RunContext) -> dict[str, Any]:
+def build_delivery_jobs(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
     """Data chain: FactoryItemTable -> deliverable items (deliverItemTypeList +
     transferDomainIds), DomainDepotTable -> depot region/name,
     DomainDepotLevelTable -> per-level deliverItemTypeList,
     DomainDataTable -> region names, ItemTable -> item names."""
-    tcfg = ctx.table_cfg
-    factory_item = tcfg.FactoryItemTable
-    depot_table = tcfg.DomainDepotTable
-    depot_level_table = tcfg.DomainDepotLevelTable
-    domain_table = tcfg.DomainDataTable
-    item_table = tcfg.ItemTable
+    factory_item = read_table_cfg(table_cfg_dir, "FactoryItemTable")
+    depot_table = read_table_cfg(table_cfg_dir, "DomainDepotTable")
+    depot_level_table = read_table_cfg(table_cfg_dir, "DomainDepotLevelTable")
+    domain_table = read_table_cfg(table_cfg_dir, "DomainDataTable")
+    item_table = read_table_cfg(table_cfg_dir, "ItemTable")
 
     # ── 可装箱物品 ───────────────────────────────────────────────
     deliverable_items: list[dict[str, Any]] = []
@@ -85,7 +85,7 @@ def build_delivery_jobs(ctx: RunContext) -> dict[str, Any]:
 
         depots[depot_id] = {
             "region_id": region_id,
-            "names": _build_localized_names(entry.depotName, ctx, f"仓储节点 {depot_id}"),
+            "names": _build_localized_names(entry.depotName, table_cfg_dir, f"仓储节点 {depot_id}"),
             "fillable_items": fillable_items,
         }
 
@@ -96,7 +96,7 @@ def build_delivery_jobs(ctx: RunContext) -> dict[str, Any]:
         if entry.domainName is None:
             raise ValueError(f"地区 {region_id} 缺少 domainName")
         regions[region_id] = {
-            "names": _build_localized_names(entry.domainName, ctx, f"地区 {region_id}"),
+            "names": _build_localized_names(entry.domainName, table_cfg_dir, f"地区 {region_id}"),
         }
 
     # ── 物品 ─────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ def build_delivery_jobs(ctx: RunContext) -> dict[str, Any]:
         if item_entry is None:
             raise ValueError(f"ItemTable 缺少可装箱物品 {item_id}")
         items[item_id] = {
-            "names": _build_localized_names(item_entry.name, ctx, f"物品 {item_id}"),
+            "names": _build_localized_names(item_entry.name, table_cfg_dir, f"物品 {item_id}"),
         }
 
     logger.info(
@@ -120,11 +120,11 @@ def build_delivery_jobs(ctx: RunContext) -> dict[str, Any]:
     }
 
 def _build_localized_names(
-    ref: I18nText,
-    ctx: RunContext,
+    ref: Record,
+    table_cfg_dir: Path,
     label: str,
 ) -> dict[str, str]:
-    """Resolve an I18nText id into the 5-language dict MaaEnd expects."""
+    """把 ``ref`` 里的文本 id 解析成 MaaEnd 需要的五语言字典。"""
     if ref.text:
         return {locale: ref.text for locale, _ in MAAEND_LOCALES}
     text_id = ref.id
@@ -133,7 +133,7 @@ def _build_localized_names(
 
     names: dict[str, str] = {}
     for locale, lang_code in MAAEND_LOCALES:
-        text = ctx.i18n.get_localized_text(text_id, lang_code)
+        text = localized_text(table_cfg_dir, text_id, lang_code)
         if not text:
             raise ValueError(f"{label} 在 {locale} 中缺少文本 {text_id}")
         names[locale] = text

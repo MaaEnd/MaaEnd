@@ -9,21 +9,22 @@
 （``tools/zmdmap/project.py``）完成，所以这里不做任何底图筛选，全部营地主都收。
 """
 
+from pathlib import Path
 from typing import Any
 
-from .local_context import RunContext, logger
-from .coords import COORD_TEXT, read_xz
-from .levels import build_level_index, level_of, map_of_level
+from ..utils.game_data import logger, read_gameplay_config
+from ..utils.coords import COORD_TEXT, read_xz
+from ..utils.levels import build_level_index, level_of, map_of_level
 
 CAMPFIRE_TEMPLATE_ID = "mark_sp_campfire"
 
 class TeleportAnchorError(ValueError):
     """teleport_anchors 数据组装错误。"""
 
-def build_anchors(ctx: RunContext) -> list[dict[str, Any]]:
+def build_anchors(json_data_dir: Path) -> list[dict[str, Any]]:
     """营地列表（按 markInstId 数值升序）。"""
-    level_map_mark = ctx.json_data.LevelMapMark
-    levels = build_level_index(ctx.json_data.LevelBasicInfoTable)
+    level_map_mark = read_gameplay_config(json_data_dir, "LevelMapMark")
+    levels = build_level_index(read_gameplay_config(json_data_dir, "LevelBasicInfoTable"))
 
     anchors: list[dict[str, Any]] = []
     for group_key in sorted(level_map_mark):
@@ -63,11 +64,11 @@ def build_anchors(ctx: RunContext) -> list[dict[str, Any]]:
     anchors.sort(key=lambda item: int(item["id"]))
     return anchors
 
-def build_teleport_anchors(ctx: RunContext) -> dict[str, Any]:
+def build_teleport_anchors(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
     """Data chain: LevelMapMark 的营地标记 -> 传送锚点；LevelBasicInfoTable 提供
     ID 前缀到关卡的对照。
     """
-    anchors = build_anchors(ctx)
+    anchors = build_anchors(json_data_dir)
     logger.info(f"Built maaend teleport_anchors: {len(anchors)} anchors")
     return {
         "text": {

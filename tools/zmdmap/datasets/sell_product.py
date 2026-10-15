@@ -3,16 +3,17 @@
 从 TableCfg 生成据点、可售物品、据点特性与匹配干员。
 """
 
+from pathlib import Path
 from typing import Any
 
-from .local_context import I18nText, LanguageCode, RunContext, logger
+from ..utils.game_data import Record, localized_text, logger, read_table_cfg
 
-MAAEND_LOCALES: tuple[tuple[str, LanguageCode], ...] = (
-    ("zh_cn", LanguageCode.ZH_CN),
-    ("zh_tw", LanguageCode.ZH_TW),
-    ("en_us", LanguageCode.EN_US),
-    ("ja_jp", LanguageCode.JA_JP),
-    ("ko_kr", LanguageCode.KO_KR),
+MAAEND_LOCALES: tuple[tuple[str, str], ...] = (
+    ("zh_cn", "zh-CN"),
+    ("zh_tw", "zh-TW"),
+    ("en_us", "en-US"),
+    ("ja_jp", "ja-JP"),
+    ("ko_kr", "ko-KR"),
 )
 
 # settlement tag 增强字段 -> 输出中的 bonus 类型名。
@@ -22,17 +23,16 @@ SETTLEMENT_BONUS_FIELDS: dict[str, str] = {
     "enhanceMoneyProduceSpeedRate": "moneyProduceSpeed",
 }
 
-def build_sell_product(ctx: RunContext) -> dict[str, Any]:
+def build_sell_product(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
     """Data chain: SettlementBasicDataTable -> settlements/prosperity levels/
     wantTagIdGroup, SettlementTagTable -> feature tags + enhance rates,
     CharacterTable + CharacterTagTable -> operator tags/names,
     ItemTable -> item names/rarity."""
-    tcfg = ctx.table_cfg
-    settlement_table = tcfg.SettlementBasicDataTable
-    settlement_tag_table = tcfg.SettlementTagTable
-    character_table = tcfg.CharacterTable
-    character_tag_table = tcfg.CharacterTagTable
-    item_table = tcfg.ItemTable
+    settlement_table = read_table_cfg(table_cfg_dir, "SettlementBasicDataTable")
+    settlement_tag_table = read_table_cfg(table_cfg_dir, "SettlementTagTable")
+    character_table = read_table_cfg(table_cfg_dir, "CharacterTable")
+    character_tag_table = read_table_cfg(table_cfg_dir, "CharacterTagTable")
+    item_table = read_table_cfg(table_cfg_dir, "ItemTable")
 
     # ── 干员 ─────────────────────────────────────────────────────
     operator_tags: list[dict[str, Any]] = []
@@ -52,7 +52,7 @@ def build_sell_product(ctx: RunContext) -> dict[str, Any]:
                 "id": operator_id,
                 "tags": [tag for tag in tags if tag],
                 "names": _build_localized_names(
-                    character.name, ctx, f"干员 {operator_id}"
+                    character.name, table_cfg_dir, f"干员 {operator_id}"
                 ),
             }
         )
@@ -127,7 +127,7 @@ def build_sell_product(ctx: RunContext) -> dict[str, Any]:
             "id": settlement_id,
             "region_id": settlement.domainId,
             "names": _build_localized_names(
-                settlement.settlementName, ctx, f"据点 {settlement_id}"
+                settlement.settlementName, table_cfg_dir, f"据点 {settlement_id}"
             ),
             "prosperity_levels": prosperity_levels,
             "features": features,
@@ -139,7 +139,7 @@ def build_sell_product(ctx: RunContext) -> dict[str, Any]:
         entry = item_table[item_id]
         items[item_id] = {
             "id": item_id,
-            "names": _build_localized_names(entry.name, ctx, f"售卖物品 {item_id}"),
+            "names": _build_localized_names(entry.name, table_cfg_dir, f"售卖物品 {item_id}"),
             "rarity": entry.rarity,
         }
 
@@ -154,11 +154,11 @@ def build_sell_product(ctx: RunContext) -> dict[str, Any]:
     }
 
 def _build_localized_names(
-    ref: I18nText,
-    ctx: RunContext,
+    ref: Record,
+    table_cfg_dir: Path,
     label: str,
 ) -> dict[str, str]:
-    """Resolve an I18nText id into the 5-language dict MaaEnd expects."""
+    """把 ``ref`` 里的文本 id 解析成 MaaEnd 需要的五语言字典。"""
     if ref.text:
         return {locale: ref.text for locale, _ in MAAEND_LOCALES}
     text_id = ref.id
@@ -167,7 +167,7 @@ def _build_localized_names(
 
     names: dict[str, str] = {}
     for locale, lang_code in MAAEND_LOCALES:
-        text = ctx.i18n.get_localized_text(text_id, lang_code)
+        text = localized_text(table_cfg_dir, text_id, lang_code)
         if not text:
             raise ValueError(f"{label} 在 {locale} 中缺少文本 {text_id}")
         names[locale] = text

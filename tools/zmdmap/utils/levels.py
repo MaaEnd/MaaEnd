@@ -5,7 +5,7 @@
 ``collect_points`` 共用这一套。
 """
 
-from .local_context import LevelBasicInfoEntry
+from .game_data import Record
 
 ID_LEVEL_FACTOR = 10**8
 # indie_dgXXX 各自一张底图，其余关卡按 mapXX / base01 / dung01 归图。
@@ -19,7 +19,7 @@ def map_of_level(level_id: str) -> str:
     head = level_id.split("_")[0]
     return level_id if head == INDIE_LEVEL_HEAD else head
 
-def build_level_index(level_basic_info: dict[str, LevelBasicInfoEntry]) -> dict[int, str]:
+def build_level_index(level_basic_info: dict[str, Record]) -> dict[int, str]:
     """``idNum -> levelId``。"""
     levels: dict[int, str] = {}
     for level_id in sorted(level_basic_info):

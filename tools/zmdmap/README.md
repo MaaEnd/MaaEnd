@@ -28,27 +28,30 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 ## 文件职责
 
-### 生成：与 endfield-workflow 一一对应
+### 生成：六份精简游戏数据（`datasets/`）
 
-这些 `build_*` 与 `endfield-workflow` 的 `src/beyond_map/processors/maaend/` 一一对应，是同一批代码的
-两份落地：那边在流水线里跑、输出 zmdmap 的发布数据；这边是 MaaEnd 仓库内的同一份实现，可在本地或
-CI 直接跑，用同样的输入重算一遍，做本地 / CI 等价校验。**改哪边都要同步另一处。**
+`datasets/__init__.py` 的 `DATASETS` 登记了六份数据的顺序与文件名，`uv run zmdmap generate` 按这个
+顺序逐个调用 `build_*`；每个 `build_*` 的入参都是 `(table_cfg_dir, json_data_dir)`，只从本地兄弟仓库
+取数据（只用到其中一个目录的也照这个签名收）。
 
 | 文件 | 说明 |
 | --- | --- |
-| `coords.py` | 坐标读取与 `coord` 文案，逐字对应 |
-| `levels.py` | ID 前缀 → 关卡 → 底图，逐字对应 |
-| `delivery_jobs.py` | `delivery_jobs.json`，逐字对应 |
-| `environment_monitoring.py` | `environment_monitoring.json`，逐字对应 |
-| `sell_product.py` | `sell_product.json`，逐字对应 |
-| `delivery_destinations.py` | `delivery_destinations.json`，逐字对应 |
-| `teleport_anchors.py` | `teleport_anchors.json`，逐字对应 |
-| `collect_points.py` | `collect_points.json`，逐字对应 |
-| `local_context.py` | MaaEnd 专有：读取本地兄弟仓库，提供同样的 `RunContext` |
+| `datasets/delivery_jobs.py` | `delivery_jobs.json` |
+| `datasets/environment_monitoring.py` | `environment_monitoring.json` |
+| `datasets/sell_product.py` | `sell_product.json` |
+| `datasets/delivery_destinations.py` | `delivery_destinations.json` |
+| `datasets/teleport_anchors.py` | `teleport_anchors.json` |
+| `datasets/collect_points.py` | `collect_points.json` |
 
-workflow 侧的 `__init__.py` / `processor.py` / `context.py` 是流水线自身的接线，这里没有对应文件。
+### 共用件（`utils/`）
 
-### 下载与投影：MaaEnd 专有
+| 文件 | 说明 |
+| --- | --- |
+| `utils/game_data.py` | 读 TableCfg / GameplayConfig 与五语言文本表 |
+| `utils/coords.py` | 世界坐标读取与 `coord` 文案 |
+| `utils/levels.py` | ID 前缀 → 关卡 → 底图 |
+
+### 下载与投影
 
 | 文件 | 说明 |
 | --- | --- |
@@ -115,26 +118,28 @@ uv run zmdmap generate --dry-run                           # 只报告会做什�
 uv run zmdmap fetch                                        # 下载 → 投影（等同 pnpm fetch:zmdmap）
 ```
 
-## 同步方式
+## 读取本地数据
 
-逐字对应 = 除了 import 行以外完全一样（函数名、返回值、注释、文案都不许各写一份）。搬过来时
-只改 import：
+数据入口只有 `utils/game_data.py` 里的三个函数：
 
-| workflow 侧 | 这里 |
+| 函数 | 读什么 |
 | --- | --- |
-| `from beyond_map.context import RunContext` | `from .local_context import RunContext` |
-| `from loguru import logger` | `from .local_context import logger` |
-| `from beyond_map.processors.maaend.coords import ...` | `from .coords import ...` |
-| `from beyond_map.processors.maaend.levels import ...` | `from .levels import ...` |
-| `from beyond_map.models.*` / `from beyond_map.utils import load_json_dict` | `from .local_context import ...` |
+| `read_table_cfg(dir, name)` | `<table_cfg_dir>/<name>.json` |
+| `read_gameplay_config(dir, name)` | `<json_data_dir>/GameplayConfig/<name>.json` |
+| `localized_text(dir, text_id, lang)` | `<table_cfg_dir>/I18nTextTable_<后缀>.json` |
 
-数据来源的区别都收在 `local_context.py` 里：那边由流水线缓存提供 `ctx.table_cfg` /
-`ctx.json_data` / `ctx.i18n`，这边读兄弟仓库的 `BeyondTableCfg/TableCfg` 与
-`BeyondMemoryPack/JsonData`，并用属性可访问的 `Record` 顶掉 pydantic 模型（`Text` 顶掉枚举，
-支持 `.value`）。
+读出来的 JSON 会换成属性可访问的 `Record`，`build_*` 里直接写 `entry.position.x`；三个函数都按
+「目录 + 文件名」缓存，六份数据共用同一次读取。
 
 ## 校验
 
-校验方式是比对产物而不是比对代码：`endfield-workflow` 的 `tools/check_maaend_parity.py` 会分别跑
-workflow 侧的 `build_*` 与 MaaEnd 侧的 `uv run zmdmap generate --out-dir <临时目录>`，逐项比对六份
-JSON（解析后的结构，不看缩进与换行）；改了任何一边的 `build_*` 都要让它通过。
+参照物是入库的 `tools/pipeline-generate/data/raw/`：拿同一份本地兄弟仓库重算一遍，产物应当与它
+逐字节一致。
+
+```shell
+uv run zmdmap generate --force --out-dir <临时目录>
+```
+
+再逐份比对 `tools/pipeline-generate/data/raw/` 下的同名文件。只改注释、重命名这类不动输出的改动，
+应当零差异；动了取数逻辑就看差异是否符合预期。注意 `data/raw/` 是**上一次本地生成**的快照，与已发布
+版本不一定是同一版（`data/version.txt` 记的是发布版本）。

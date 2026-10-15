@@ -10,28 +10,27 @@ NAVMESH 终点的 ``target_deck_y``；底图像素由 MaaEnd 侧的投影步骤�
 """
 
 import re
+from pathlib import Path
 from typing import Any
 
-from .local_context import (
-    DomainDepotTargetType,
-    I18nText,
-    LanguageCode,
-    MapMarkBasicData,
-    RecycleBinData,
-    RunContext,
+from ..utils.game_data import (
+    Record,
     load_json_dict,
+    localized_text,
     logger,
+    read_gameplay_config,
+    read_table_cfg,
 )
-from .coords import COORD_TEXT, COORD_Y_NOTE, read_xyz
+from ..utils.coords import COORD_TEXT, COORD_Y_NOTE, read_xyz
 
 # MaaEnd 侧硬编码的 5 种语言（zh_cn/zh_tw/en_us/ja_jp/ko_kr），
 # 对应 I18nTextTable_{CN,TC,EN,JP,KR}.json 后缀。
-MAAEND_LOCALES: tuple[tuple[str, LanguageCode], ...] = (
-    ("zh_cn", LanguageCode.ZH_CN),
-    ("zh_tw", LanguageCode.ZH_TW),
-    ("en_us", LanguageCode.EN_US),
-    ("ja_jp", LanguageCode.JA_JP),
-    ("ko_kr", LanguageCode.KO_KR),
+MAAEND_LOCALES: tuple[tuple[str, str], ...] = (
+    ("zh_cn", "zh-CN"),
+    ("zh_tw", "zh-TW"),
+    ("en_us", "en-US"),
+    ("ja_jp", "ja-JP"),
+    ("ko_kr", "ko-KR"),
 )
 
 # 富文本标签（如 <@qu.key>…</>）剥除。
@@ -39,8 +38,8 @@ RICH_TEXT_TAG = re.compile(r"<[^<>]*>")
 
 # DomainDepotDeliverTargetTable.entityType 枚举 -> 输出 kind。
 ENTITY_TYPE_KINDS = {
-    DomainDepotTargetType.NpcProxy.value: "npc",
-    DomainDepotTargetType.RecycleBin.value: "recycle_bin",
+    "NpcProxy": "npc",
+    "RecycleBin": "recycle_bin",
 }
 
 # 仓储节点/资源回收站在 LevelData 关卡文件里的交互 ID 与系统组件名
@@ -55,11 +54,11 @@ class DeliveryDestinationError(ValueError):
     """delivery_destinations 数据组装错误。"""
 
 def _build_localized_names(
-    ref: I18nText,
-    ctx: RunContext,
+    ref: Record,
+    table_cfg_dir: Path,
     label: str,
 ) -> dict[str, str]:
-    """Resolve an I18nText id into the 5-language dict MaaEnd expects."""
+    """把 ``ref`` 里的文本 id 解析成 MaaEnd 需要的五语言字典。"""
     if ref.text:
         return {locale: ref.text for locale, _ in MAAEND_LOCALES}
     text_id = ref.id
@@ -68,7 +67,7 @@ def _build_localized_names(
 
     names: dict[str, str] = {}
     for locale, lang_code in MAAEND_LOCALES:
-        text = ctx.i18n.get_localized_text(text_id, lang_code)
+        text = localized_text(table_cfg_dir, text_id, lang_code)
         if not text:
             raise DeliveryDestinationError(f"{label} 在 {locale} 中缺少文本 {text_id}")
         names[locale] = text
@@ -86,9 +85,9 @@ def strip_rich_text(names: dict[str, str], label: str) -> dict[str, str]:
 
 def _build_mark_index(
     level_map_mark: dict[str, list[Any]],
-) -> dict[str, MapMarkBasicData]:
+) -> dict[str, Record]:
     """LevelMapMark（{level: [mark...]}）-> {markInstId: basicData}。"""
-    index: dict[str, MapMarkBasicData] = {}
+    index: dict[str, Record] = {}
     for level_key in sorted(level_map_mark):
         for offset, mark in enumerate(level_map_mark[level_key]):
             basic = mark.basicData
@@ -130,7 +129,7 @@ def _extract_system_instance_id(entity: dict[str, Any], system_component: str) -
     return None
 
 def _load_depot_pose(
-    ctx: RunContext, depot_by_level: dict[str, dict[str, Any]]
+    json_data_dir: Path, depot_by_level: dict[str, dict[str, Any]]
 ) -> dict[str, dict[str, Any]]:
     """为每个仓储节点读取 LevelData 交互实体，计算朝向 yaw。
 
@@ -142,7 +141,7 @@ def _load_depot_pose(
     for level_id, depot_info in depot_by_level.items():
         depot_id = depot_info["id"]
         pose = _find_entity_pose(
-            ctx,
+            json_data_dir,
             level_id,
             _DEPOT_INTERACTIVE_ID,
             _DEPOT_SYSTEM_COMPONENT,
@@ -156,7 +155,7 @@ def _load_depot_pose(
     return poses
 
 def _load_recycle_pose(
-    ctx: RunContext, recycle_targets: list[tuple[str, str]]
+    json_data_dir: Path, recycle_targets: list[tuple[str, str]]
 ) -> dict[str, dict[str, Any]]:
     """为每个资源回收站目的地读取 LevelData 交互实体，计算朝向 yaw。
 
@@ -168,7 +167,7 @@ def _load_recycle_pose(
 
     for level_id, target_id in recycle_targets:
         pose = _find_entity_pose(
-            ctx,
+            json_data_dir,
             level_id,
             _RECYCLE_INTERACTIVE_ID,
             _RECYCLE_SYSTEM_COMPONENT,
@@ -185,7 +184,7 @@ def _reverse_yaw(yaw: float) -> float:
     return round((yaw + 180.0) % 360.0, 9)
 
 def _find_entity_pose(
-    ctx: RunContext,
+    json_data_dir: Path,
     level_id: str,
     interactive_id: str,
     system_component: str,
@@ -196,7 +195,7 @@ def _find_entity_pose(
     按 ``entityDataIdKey == interactive_id`` 且 ``system_component.system_inst_key ==
     target_id`` 匹配；找到即返回，关卡目录缺失或未匹配到实体时返回 None。
     """
-    level_dir = ctx.json_data.base_path / "LevelData" / level_id
+    level_dir = json_data_dir / "LevelData" / level_id
     if not level_dir.is_dir():
         logger.warning(f"LevelData 目录不存在: {level_dir}")
         return None
@@ -221,9 +220,9 @@ def _find_entity_pose(
     return None
 
 def _build_depots(
-    ctx: RunContext,
+    table_cfg_dir: Path,
     depot_table: dict[str, Any],
-    mark_index: dict[str, MapMarkBasicData],
+    mark_index: dict[str, Record],
     depot_pose: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """生成仓储节点列表。"""
@@ -245,7 +244,7 @@ def _build_depots(
         depots.append(
             {
                 "id": depot_id,
-                "name": _build_localized_names(entry.depotName, ctx, f"仓储节点 {depot_id}"),
+                "name": _build_localized_names(entry.depotName, table_cfg_dir, f"仓储节点 {depot_id}"),
                 "map": map_id,
                 "x": x,
                 "y": round(y, 3),
@@ -258,13 +257,14 @@ def _build_depots(
     return depots
 
 def _build_delivery_destinations(
-    ctx: RunContext,
+    table_cfg_dir: Path,
+    json_data_dir: Path,
     deliver_target_table: dict[str, Any],
     buyer_table: dict[str, Any],
-    recycle_bin_table: dict[str, RecycleBinData],
+    recycle_bin_table: dict[str, Record],
     level_desc_table: dict[str, Any],
     npc_positions: dict[str, Any],
-    mark_index: dict[str, MapMarkBasicData],
+    mark_index: dict[str, Record],
     depot_by_level: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     """组装送货目的地列表。"""
@@ -273,9 +273,9 @@ def _build_delivery_destinations(
     recycle_targets = [
         (entry.level, entry.targetId)
         for entry in deliver_target_table.values()
-        if entry.entityType == DomainDepotTargetType.RecycleBin
+        if entry.entityType == "RecycleBin"
     ]
-    recycle_pose = _load_recycle_pose(ctx, recycle_targets)
+    recycle_pose = _load_recycle_pose(json_data_dir, recycle_targets)
 
     destinations: list[dict[str, Any]] = []
     for target_id, entry in sorted(deliver_target_table.items()):
@@ -290,11 +290,11 @@ def _build_delivery_destinations(
         if not entity_key:
             raise DeliveryDestinationError(f"{label} 缺少 targetId")
 
-        kind = ENTITY_TYPE_KINDS.get(entry.entityType.value)
+        kind = ENTITY_TYPE_KINDS.get(entry.entityType)
         if kind is None:
             raise DeliveryDestinationError(f"{label} 的 entityType {entry.entityType!r} 不是已知枚举值")
 
-        if entry.entityType == DomainDepotTargetType.NpcProxy:
+        if entry.entityType == "NpcProxy":
             npc = npc_positions.get(entity_key)
             if npc is None:
                 raise DeliveryDestinationError(f"{label} 在 NpcProxyTable 中的 {entity_key} 不存在")
@@ -329,7 +329,7 @@ def _build_delivery_destinations(
         level_desc = level_desc_table.get(level_id)
         if level_desc is None:
             raise DeliveryDestinationError(f"{label} 对应的关卡 {level_id} 不存在")
-        area = _build_localized_names(level_desc.showName, ctx, f"关卡 {level_id}")
+        area = _build_localized_names(level_desc.showName, table_cfg_dir, f"关卡 {level_id}")
 
         mission_ref = entry.missionObjDesc
         if mission_ref is None:
@@ -340,9 +340,9 @@ def _build_delivery_destinations(
             "id": target_id,
             "kind": kind,
             **({"serial_id": serial_id} if serial_id is not None else {}),
-            "name": _build_localized_names(buyer.buyerName, ctx, f"收货人 {buyer_id}"),
+            "name": _build_localized_names(buyer.buyerName, table_cfg_dir, f"收货人 {buyer_id}"),
             "mission": strip_rich_text(
-                _build_localized_names(mission_ref, ctx, f"{label}任务目标"),
+                _build_localized_names(mission_ref, table_cfg_dir, f"{label}任务目标"),
                 f"{label}任务目标",
             ),
             "area": area,
@@ -373,28 +373,28 @@ def _check_unique_names(destinations: list[dict[str, Any]]) -> None:
             dupes = sorted({value for value in values if values.count(value) > 1})
             raise DeliveryDestinationError(f"{locale} 的 name 有重复：{dupes}")
 
-def build_delivery_destinations(ctx: RunContext) -> dict[str, Any]:
+def build_delivery_destinations(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
     """Data chain: DomainDepotDeliverTargetTable -> delivery points; the
     point's position comes from NpcProxyTable (npc) or LevelMapMark
     (recycle_bin), names/areas from DomainDepotBuyerTable/LevelDescTable;
     DomainDepotTable -> depots + level linkage. 坐标按游戏世界坐标发布，
     底图像素由 MaaEnd 侧投影。
     """
-    tcfg = ctx.table_cfg
-    deliver_target_table = tcfg.DomainDepotDeliverTargetTable
-    buyer_table = tcfg.DomainDepotBuyerTable
-    depot_table = tcfg.DomainDepotTable
-    recycle_bin_table = tcfg.RecycleBinTable
-    level_desc_table = tcfg.LevelDescTable
+    deliver_target_table = read_table_cfg(table_cfg_dir, "DomainDepotDeliverTargetTable")
+    buyer_table = read_table_cfg(table_cfg_dir, "DomainDepotBuyerTable")
+    depot_table = read_table_cfg(table_cfg_dir, "DomainDepotTable")
+    recycle_bin_table = read_table_cfg(table_cfg_dir, "RecycleBinTable")
+    level_desc_table = read_table_cfg(table_cfg_dir, "LevelDescTable")
 
-    npc_positions = ctx.json_data.NpcProxyTable.dataTable
-    mark_index = _build_mark_index(ctx.json_data.LevelMapMark)
+    npc_positions = read_gameplay_config(json_data_dir, "NpcProxyTable").dataTable
+    mark_index = _build_mark_index(read_gameplay_config(json_data_dir, "LevelMapMark"))
 
     depot_by_level = _build_depots_by_level(depot_table)
-    depot_pose = _load_depot_pose(ctx, depot_by_level)
-    depots = _build_depots(ctx, depot_table, mark_index, depot_pose)
+    depot_pose = _load_depot_pose(json_data_dir, depot_by_level)
+    depots = _build_depots(table_cfg_dir, depot_table, mark_index, depot_pose)
     destinations = _build_delivery_destinations(
-        ctx,
+        table_cfg_dir,
+        json_data_dir,
         deliver_target_table,
         buyer_table,
         recycle_bin_table,

@@ -26,7 +26,7 @@ TABLE_CFG_DIR_ENV = "ZMDMAP_TABLE_CFG_DIR"
 JSON_DATA_DIR_ENV = "ZMDMAP_JSON_DATA_DIR"
 
 # 兄弟仓库目录名与各自的输入子路径。
-WORKSPACE_REPO_NAMES = ("BeyondMemoryPack", "BeyondTableCfg", "endfield-workflow")
+WORKSPACE_REPO_NAMES = ("BeyondMemoryPack", "BeyondTableCfg")
 TABLE_CFG_SUBPATH = ("BeyondTableCfg", "TableCfg")
 JSON_DATA_SUBPATH = ("BeyondMemoryPack", "JsonData")
 

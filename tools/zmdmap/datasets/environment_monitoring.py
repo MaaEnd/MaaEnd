@@ -3,25 +3,25 @@
 从 TableCfg 生成监测终端、观察点与五语言名称。
 """
 
+from pathlib import Path
 from typing import Any
 
-from .local_context import I18nText, LanguageCode, RunContext, logger
+from ..utils.game_data import Record, localized_text, logger, read_table_cfg
 
-MAAEND_LOCALES: tuple[tuple[str, LanguageCode], ...] = (
-    ("zh_cn", LanguageCode.ZH_CN),
-    ("zh_tw", LanguageCode.ZH_TW),
-    ("en_us", LanguageCode.EN_US),
-    ("ja_jp", LanguageCode.JA_JP),
-    ("ko_kr", LanguageCode.KO_KR),
+MAAEND_LOCALES: tuple[tuple[str, str], ...] = (
+    ("zh_cn", "zh-CN"),
+    ("zh_tw", "zh-TW"),
+    ("en_us", "en-US"),
+    ("ja_jp", "ja-JP"),
+    ("ko_kr", "ko-KR"),
 )
 
-def build_environment_monitoring(ctx: RunContext) -> dict[str, Any]:
+def build_environment_monitoring(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
     """Data chain: KiteStationEntrustTasksTable -> per-terminal missions
     (entrustIdx/kiteStation/missionId/name/shotTargetName),
     KiteStationLevelTable -> terminal display name."""
-    tcfg = ctx.table_cfg
-    entrust_table = tcfg.KiteStationEntrustTasksTable
-    level_table = tcfg.KiteStationLevelTable
+    entrust_table = read_table_cfg(table_cfg_dir, "KiteStationEntrustTasksTable")
+    level_table = read_table_cfg(table_cfg_dir, "KiteStationLevelTable")
 
     terminals: dict[str, Any] = {}
 
@@ -54,11 +54,11 @@ def build_environment_monitoring(ctx: RunContext) -> dict[str, Any]:
                     "mission_id": mission_id,
                     "entrust_index": mission_value.entrustIdx,
                     "names": _build_localized_names(
-                        mission_value.name, ctx, f"观察点 {mission_id}"
+                        mission_value.name, table_cfg_dir, f"观察点 {mission_id}"
                     ),
                     "shot_target_names": _build_localized_names(
                         mission_value.shotTargetName,
-                        ctx,
+                        table_cfg_dir,
                         f"观察点 {mission_id} 拍照目标",
                     ),
                 }
@@ -70,7 +70,7 @@ def build_environment_monitoring(ctx: RunContext) -> dict[str, Any]:
         terminals[terminal_id] = {
             "id": terminal_id,
             "names": _build_localized_names(
-                level_entry.name, ctx, f"监测终端 {terminal_id}"
+                level_entry.name, table_cfg_dir, f"监测终端 {terminal_id}"
             ),
             "missions": missions,
         }
@@ -79,11 +79,11 @@ def build_environment_monitoring(ctx: RunContext) -> dict[str, Any]:
     return {"terminals": terminals}
 
 def _build_localized_names(
-    ref: I18nText,
-    ctx: RunContext,
+    ref: Record,
+    table_cfg_dir: Path,
     label: str,
 ) -> dict[str, str]:
-    """Resolve an I18nText id into the 5-language dict MaaEnd expects."""
+    """把 ``ref`` 里的文本 id 解析成 MaaEnd 需要的五语言字典。"""
     if ref.text:
         return {locale: ref.text for locale, _ in MAAEND_LOCALES}
     text_id = ref.id
@@ -92,7 +92,7 @@ def _build_localized_names(
 
     names: dict[str, str] = {}
     for locale, lang_code in MAAEND_LOCALES:
-        text = ctx.i18n.get_localized_text(text_id, lang_code)
+        text = localized_text(table_cfg_dir, text_id, lang_code)
         if not text:
             raise ValueError(f"{label} 在 {locale} 中缺少文本 {text_id}")
         names[locale] = text

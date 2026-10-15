@@ -3,20 +3,18 @@
 六份数据里带坐标的三份（``delivery_destinations`` / ``teleport_anchors`` /
 ``collect_points``）只发布游戏世界坐标 x/z（送货点另有世界高度 y）：投影参数
 （``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）与底图像素都属于 BaseNav pack，只有
-MaaEnd 手里有，换算由 MaaEnd 侧的投影步骤（``tools/zmdmap/project.py``）在下载或生成完
-发布数据后完成。本文件与 endfield-workflow 侧
-``src/beyond_map/processors/maaend/coords.py`` 逐字对应（只差 import 行与文件路径提及）。
+MaaEnd 手里有，换算由投影步骤（``tools/zmdmap/project.py``）在下载或生成完发布数据后完成。
 """
 
 from typing import Any, cast
 
-# 三份带坐标数据的 coord 说明（与 workflow 侧 coords.py::COORD_TEXT 同文）。
+# 三份带坐标数据的 coord 说明。
 COORD_TEXT = (
     "x/z = 游戏世界坐标（米）；数据本身不含底图像素，投影由消费侧按 BaseNav pack 的 "
     "zone 表完成：u = sx*x + tx, v = -sy*z + ty。map 是底图 ID"
     "（map01 / map02 / base01 / indie_dgXXX …），没有对应 zone 的底图由消费侧跳过"
 )
-# 送货点数据的 coord 在通用说明后再补一句 y 的用途（两边同名常量逐字一致）。
+# 送货点数据的 coord 在通用说明后再补一句 y 的用途。
 COORD_Y_NOTE = (
     "y 是未换算的世界高度，直接作为 NAVMESH 终点的 target_deck_y 用来在重叠可走面中选中目标层"
 )
