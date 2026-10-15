@@ -67,7 +67,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "YellowConfirmButtonType1"
+                    "YellowConfirmButtonType2"
                 ],
                 "box_index": 0
             }
