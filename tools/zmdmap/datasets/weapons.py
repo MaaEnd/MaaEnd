@@ -1,6 +1,6 @@
 """武器表：EssenceFilter 与 IconRecognition 共用的那份精简武器数据。
 
-两个消费端要的字段不一样，合起来是这些（其余一概不生成）：
+消费端各自要的字段不一样，合起来是这些（其余一概不生成）：
 
 | 字段 | 谁要 |
 | --- | --- |
@@ -10,7 +10,7 @@
 数据来自 ``WeaponBasicTable`` + ``ForesightWeaponTable`` + ``ItemTable`` + ``SkillPatchTable``：
 前者是已上线的武器，后者是还没上线的前瞻武器（同一把武器上线后会出现在 ``WeaponBasicTable`` 里，
 所以要先按 id、再按五语名字去重）。上游那份 ``weapons.json`` 里的 ``icon_path``、``foresight``、
-``skill_ids`` 与另外九种语言，两边都没读，这里不生成。
+``skill_ids`` 与其余语言的字段都没读，这里不生成。
 """
 
 from __future__ import annotations

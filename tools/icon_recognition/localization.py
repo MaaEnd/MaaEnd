@@ -1,6 +1,6 @@
-"""把 catalog item ID 同步到 MaaEnd 五语言 locale 文件。
+"""把 catalog item ID 同步到 MaaEnd 各语言 locale 文件。
 
-名字直接取自 zmdmap 数据与 ``fixed_items.json`` 里的 ``names``（五语），不再查 ``lang_*.json`` 的
+名字直接取自 zmdmap 数据与 ``fixed_items.json`` 里的 ``names``（多语言），不再查 ``lang_*.json`` 的
 哈希表。
 """
 
@@ -173,7 +173,7 @@ def generate_locales(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="生成 IconRecognition 五语言名称")
+    parser = argparse.ArgumentParser(description="生成 IconRecognition 各语言名称")
     parser.add_argument("--catalog", type=Path, required=True)
     parser.add_argument("--item-source", type=Path, required=True)
     parser.add_argument("--weapon-source", type=Path, required=True)

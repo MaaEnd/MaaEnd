@@ -1,6 +1,6 @@
 """MaaEnd 精简游戏数据共用件：世界坐标读取 + ``coord`` 字段文案。
 
-六份数据里带坐标的三份（``delivery_destinations`` / ``teleport_anchors`` /
+带坐标的数据（``delivery_destinations`` / ``teleport_anchors`` /
 ``collect_points``）只发布游戏世界坐标 x/z（送货点另有世界高度 y）：投影参数
 （``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）与底图像素都属于 BaseNav pack，只有
 MaaEnd 手里有，换算由投影步骤（``tools/zmdmap/project.py``）在下载或生成完发布数据后完成。
@@ -8,7 +8,7 @@ MaaEnd 手里有，换算由投影步骤（``tools/zmdmap/project.py``）在下�
 
 from typing import Any, cast
 
-# 三份带坐标数据的 coord 说明。
+# 带坐标数据的 coord 说明。
 COORD_TEXT = (
     "x/z = 游戏世界坐标（米）；数据本身不含底图像素，投影由消费侧按 BaseNav pack 的 "
     "zone 表完成：u = sx*x + tx, v = -sy*z + ty。map 是底图 ID"

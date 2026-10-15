@@ -22,7 +22,7 @@ uv run tools/essence_filter/sync_zmdmap.py
 
 ## extract_skill_pools.py
 
-从 `weapons.json` 提取技能池（skill_pools），五语（cn/tc/en/jp/kr）直接取自同文件的 skills 数组，无需 i18n。
+从 `weapons.json` 提取技能池（skill_pools），各语言（cn/tc/en/jp/kr）直接取自同文件的 skills 数组，无需 i18n。
 
 ### 用法
 
@@ -42,7 +42,7 @@ uv run tools/essence_filter/extract_skill_pools.py
 
 - 从每个武器的 `skills.CN` 按位置归入 slot：`[0]` → slot1，`[1]` → slot2（若长度为 3）或 slot3（若长度为 2），`[2]` → slot3。
 - 技能名取「基名」：按 `·`、`・`、`:`、`：`、`[` 分割，取第一段（如 `力量提升·小` → `力量提升`，`Strength Boost [S]` → `Strength Boost`）。
-- 五语从同武器的 skills.CN/TC/EN/JP/KR 同位置提取基名。
+- 多语言从同武器的 skills.CN/TC/EN/JP/KR 同位置提取基名。
 - 每 slot 去重后保留已有 `(slot, cn)` 的 id；新增词条从该 slot 的最大 id 加一分配，最后按 id 排序。
 
 ## build_locations.py
@@ -86,4 +86,4 @@ uv run tools/essence_filter/build_autoessence_tasks.py
 - 目标模式只收录 5、6 星武器，按稀有度从高到低、武器 ID 升序排列，6 星作为默认勾选。
 - 武器图标写成 `resource/image/UI/Item/<武器 ID>.png`。这个路径对应已发布的 UI 图标，不使用站点 `weapons.json` 里的 `icon_path`。缺少对应 PNG 时生成失败。
 - 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区中文名到节点 key 的对照在 `agent/go-service/autoessence/locations.go`。新地区要先补上这条对照和 `RegionNodes` 下的节点，再运行生成器。
-- 武器显示名 `★稀有度 名称` 会同步到五份 interface locale。词条显示名仍使用已有的 `option.AutoEssenceSkill.*`，缺文案时生成失败。
+- 武器显示名 `★稀有度 名称` 会同步到各语言的 interface locale。词条显示名仍使用已有的 `option.AutoEssenceSkill.*`，缺文案时生成失败。

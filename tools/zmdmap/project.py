@@ -1,9 +1,9 @@
 """把 ``data/raw/`` 里的原始数据材料化进入库的 ``data/*.json``（原 ``project.mjs``）。
 
-入库分两种：需要投影的按下表的 zone 表补底图像素（:func:`project_data`），不需要投影的由
+入库看数据集是否需要投影：需要投影的按下表的 zone 表补底图像素（:func:`project_data`），不需要投影的由
 :func:`copy_files` 原样复制。
 
-六份数据里带坐标的三份只发布游戏世界坐标 x/z（送货点另有世界高度 y），而底图像素与投影参数
+带坐标的数据只发布游戏世界坐标 x/z（送货点另有世界高度 y），而底图像素与投影参数
 （``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）都在 BaseNav 包里 —— 只有 MaaEnd 手里有。所以
 下载或本地生成出来的原始数据要再过这一步：``u = sx*x + tx``、``v = -sy*z + ty``，并把本次用到
 的 zone 写进 ``maps``。
@@ -169,7 +169,7 @@ def project_dataset(
 
 
 def select_files(only: tuple[str, ...] | list[str] | None) -> list[str]:
-    """``--only`` 选出的文件名；没给就是全部六份。"""
+    """``--only`` 选出的文件名；没给就是全部。"""
     if not only:
         return list(PROJECT_FILES)
     files: list[str] = []

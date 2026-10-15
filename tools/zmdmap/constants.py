@@ -1,14 +1,14 @@
 """zmdmap 里跨模块共用的常量。
 
-语言是这里最容易写歪的一处：同五种语言，在三个地方用三种写法——
+语言是这里最容易写歪的一处：同一批语言，在几处地方用不同写法——
 
 | 用处 | 语言 key | 例子 |
 | --- | --- | --- |
 | 文本表文件 ``I18nTextTable_<后缀>.json`` | 后缀 | ``CN`` |
 | 上游发布的精简数据（EssenceFilter / IconRecognition 读的） | 后缀 | ``CN`` |
-| 六份 pipeline 数据（MaaEnd 生成器读的） | locale 名 | ``zh_cn`` |
+| 入 pipeline 的数据（MaaEnd 生成器读的） | locale 名 | ``zh_cn`` |
 
-所以这里只写两份映射（:data:`I18N_TABLE_SUFFIXES`、:data:`LOCALE_NAMES`），其余由它们推出来。
+所以这里只写映射（:data:`I18N_TABLE_SUFFIXES`、:data:`LOCALE_NAMES`），其余由它们推出来。
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ I18N_TABLE_SUFFIXES: dict[str, str] = {
     "ko-KR": "KR",
 }
 
-#: 语言代码 -> MaaEnd 的 locale 名（``assets/locales/`` 里的文件名，也是六份数据的语言 key）。
+#: 语言代码 -> MaaEnd 的 locale 名（``assets/locales/`` 里的文件名，也是数据文件的语言 key）。
 LOCALE_NAMES: dict[str, str] = {
     "zh-CN": "zh_cn",
     "zh-TW": "zh_tw",
@@ -31,7 +31,7 @@ LOCALE_NAMES: dict[str, str] = {
     "ko-KR": "ko_kr",
 }
 
-#: 六份 pipeline 数据的 ``(语言 key, 语言代码)``。
+#: 入 pipeline 数据的 ``(语言 key, 语言代码)``。
 MAAEND_LOCALES: tuple[tuple[str, str], ...] = tuple(
     (name, lang) for lang, name in LOCALE_NAMES.items()
 )

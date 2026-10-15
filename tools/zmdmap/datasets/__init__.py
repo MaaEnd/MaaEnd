@@ -1,6 +1,6 @@
 """精简游戏数据的 ``build_*``。
 
-每份数据先出原始形态（只带游戏世界坐标）进 ``raw/``，再由入库步骤进 ``data/``：带坐标的三份按
+每份数据先出原始形态（只带游戏世界坐标）进 ``raw/``，再由入库步骤进 ``data/``：带坐标的按
 BaseNav 的 zone 表投影，其余原样复制。
 
 | 模块 | 数据 | 入库方式 |
@@ -56,7 +56,7 @@ class Dataset:
     materialize: str = COPY
 
 
-#: 生成顺序与文件名（需要投影的三份在前）。
+#: 生成顺序与文件名（需要投影的在前）。
 DATASETS: tuple[Dataset, ...] = (
     Dataset("delivery_destinations", "delivery_destinations.json", build_delivery_destinations, PROJECT),
     Dataset("teleport_anchors", "teleport_anchors.json", build_teleport_anchors, PROJECT),

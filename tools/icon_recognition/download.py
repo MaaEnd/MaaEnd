@@ -1,7 +1,7 @@
 """整理 IconRecognition 的物品、武器数据并下载图标资源。
 
 物品表与武器表都来自 zmdmap（``tools/zmdmap/data/``，由 ``uv run zmdmap fetch`` 下载或
-``uv run zmdmap generate`` 本地生成）：条目自带五语名字，所以不再下载 ``lang_*.json`` 那五份
+``uv run zmdmap generate`` 本地生成）：条目自带多语言名字，所以不再下载 ``lang_*.json`` 那几份
 i18n 包（每份约 950 KB）。图标仍然只能从站点下载。
 """
 

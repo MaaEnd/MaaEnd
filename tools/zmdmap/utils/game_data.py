@@ -1,12 +1,12 @@
 """读取本地游戏数据。
 
-``build_*`` 只从两个目录取数据：
+``build_*`` 只从本地游戏数据的表目录取数据：
 
-- TableCfg：``<workspace>/BeyondTableCfg/TableCfg``，一批 ``<表名>.json``，另有五语言文本表
+- TableCfg：``<workspace>/BeyondTableCfg/TableCfg``，一批 ``<表名>.json``，另有各语言文本表
   ``I18nTextTable_{CN,TC,EN,JP,KR}.json``；
 - JsonData：``<workspace>/BeyondMemoryPack/JsonData``，数据在 ``GameplayConfig/<表名>.json``。
 
-两个目录默认取与 MaaEnd 平级的兄弟仓库（见 :mod:`tools.zmdmap.paths`），可用 CLI 参数或环境变量
+目录默认取与 MaaEnd 平级的兄弟仓库（见 :mod:`tools.zmdmap.paths`），可用 CLI 参数或环境变量
 覆盖。读出来的 JSON 换成属性可访问的 ``Record``，``build_*`` 里就能直接写 ``entry.position.x``。
 """
 
@@ -153,7 +153,7 @@ def as_text(value: Any) -> str:
 
 
 def texts_of(table_cfg_dir: Path, text_id: int, inline: str = "") -> dict[str, str]:
-    """五语文本：内联 ``text`` 优先，否则查该语言的文本表；key 是语言后缀（CN/TC/...）。"""
+    """多语言文本：内联 ``text`` 优先，否则查该语言的文本表；key 是语言后缀（CN/TC/...）。"""
     if inline:
         return {suffix: inline for suffix in I18N_TABLE_SUFFIXES.values()}
     return {
@@ -163,7 +163,7 @@ def texts_of(table_cfg_dir: Path, text_id: int, inline: str = "") -> dict[str, s
 
 
 def ref_texts(table_cfg_dir: Path, ref: Any) -> dict[str, str]:
-    """表里 ``{"id", "text"}`` 这类文本引用的五语文本。"""
+    """表里 ``{"id", "text"}`` 这类文本引用的多语言文本。"""
     return texts_of(table_cfg_dir, text_id_of(ref), inline=_inline_text(ref))
 
 

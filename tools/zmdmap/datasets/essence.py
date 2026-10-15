@@ -1,7 +1,7 @@
 """EssenceFilter 用的能量淤积点。
 
-``tools/essence_filter/`` 的生成步骤从站点下载的 ``energy_point_gems.json`` 有 25 个字段，但它们
-真正读到的只有这里的四个（中文名字、体力消耗、两栏词条名），所以只从本地 TableCfg 取这些：
+``tools/essence_filter/`` 的生成步骤从站点下载的 ``energy_point_gems.json`` 字段很多，但它们
+真正读到的只有这里的几项（中文名字、体力消耗、两栏词条名），所以只从本地 TableCfg 取这些：
 
 - ``pointName``：``WorldEnergyPointTable`` 的 ``gameName``；
 - ``costStamina``：点自己的，没有就用 ``GameMechanicTable`` 的；
@@ -9,7 +9,7 @@
   ``GemTable.tagName`` 换成中文名，查不到就留 id 本身。
 
 产物默认落 ``tools/zmdmap/data/energy_point_gems.json``（不需要投影），文件名与字段名沿用消费端
-现在读的那套，所以那三个生成步骤一行都不用改。
+现在读的那套，所以那几个生成步骤一行都不用改。
 """
 
 from __future__ import annotations

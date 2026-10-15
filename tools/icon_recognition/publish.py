@@ -1,4 +1,4 @@
-"""从下载缓存一次生成 IconRecognition catalog 与五语言名称。"""
+"""从下载缓存一次生成 IconRecognition catalog 与各语言名称。"""
 
 from __future__ import annotations
 

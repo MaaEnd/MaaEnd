@@ -1,6 +1,6 @@
 """从 zmdmap 下载已发布的精简游戏数据（原 ``fetch-data.mjs``）。
 
-版本接口给出当前数据版本，数据从发布 CDN 按 ``?ver=<版本>`` 拉取。发布的九份都是**原始形态**
+版本接口给出当前数据版本，数据从发布 CDN 按 ``?ver=<版本>`` 拉取。发布的都是**原始形态**
 （只带游戏世界坐标），一律先落不入库的 ``data/raw/``，再由 :mod:`tools.zmdmap.project` 材料化进
 入库的 ``data/``：需要投影的补上底图像素，不需要投影的原样复制。
 
@@ -24,7 +24,7 @@ from .constants import DATA_BASE_URL, USER_AGENT, VERSION_API
 from .datasets import COPY_FILES, PROJECT_FILES
 from .project import VERSION_FILE, dump_json
 
-#: 发布的数据文件：需要投影的三份 + 原样复制的其余几份。
+#: 发布的数据文件：需要投影的 + 原样复制的。
 DATA_FILES: tuple[str, ...] = (*PROJECT_FILES, *COPY_FILES)
 
 
@@ -91,7 +91,7 @@ def _download_json(file_name: str, destination: Path, version: str, token: str |
 
 
 def fetch_and_cache(raw_dir: Path, version: str, *, token: str | None = None) -> list[str]:
-    """按版本把九份原始数据下载到 ``raw_dir``；返回上游还没发布、被跳过的文件名。"""
+    """按版本把发布的原始数据下载到 ``raw_dir``；返回上游还没发布、被跳过的文件名。"""
     raw_dir.mkdir(parents=True, exist_ok=True)
     for file_name in PROJECT_FILES:
         try:

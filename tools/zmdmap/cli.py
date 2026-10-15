@@ -1,8 +1,8 @@
 """MaaEnd 精简游戏数据入口（``uv run zmdmap``）。
 
-两个子命令，**不带子命令时只打印帮助**：
+子命令如下，**不带子命令时只打印帮助**：
 
-- ``generate``：从本地 TableCfg / JsonData 生成精简数据。九份一律先出原始形态（只带游戏世界
+- ``generate``：从本地 TableCfg / JsonData 生成精简数据。各份数据一律先出原始形态（只带游戏世界
   坐标）进 ``--out-dir``，再入库到 ``--data-dir``：需要投影的按 BaseNav 的 zone 表补上底图像素，
   不需要投影的原样复制；``--raw-only`` 时只出原始形态；
 - ``fetch``：从 zmdmap 下载已发布的原始数据到 ``--out-dir``（下载和入库各由一个开关控制），再按
@@ -202,7 +202,7 @@ def raw_dir_option() -> Decorator:
         type=click.Path(path_type=Path, file_okay=False),
         default=DEFAULT_OUT_DIR,
         show_default=True,
-        help="原始数据目录（九份的原样产物，只带世界坐标）",
+        help="原始数据目录（原样产物，只带世界坐标）",
     )
 
 
@@ -226,7 +226,7 @@ def nav_option() -> Decorator:
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 def main() -> None:
-    """生成 / 下载 / 入库 MaaEnd 的九份精简游戏数据。"""
+    """生成 / 下载 / 入库 MaaEnd 的精简游戏数据。"""
 
 
 @main.command(name="generate")
@@ -280,7 +280,7 @@ def generate_command(
     force: bool,
     list_datasets: bool,
 ) -> None:
-    """从本地 TableCfg / JsonData 生成精简数据（九份：入 pipeline 的六份要投影，其余原样复制）。"""
+    """从本地 TableCfg / JsonData 生成精简数据（带坐标的投影，其余原样复制）。"""
     if list_datasets:
         for dataset in DATASETS:
             how = "投影" if dataset.materialize == PROJECT else "复制"
