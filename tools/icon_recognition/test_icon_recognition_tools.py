@@ -12,22 +12,22 @@ from download import (
     DEFAULT_CACHE_ROOT,
     DownloadJob,
     IMAGE_BASE_URL,
-    ITEM_TABLE_URL,
-    LANG_URL,
-    WEAPON_TABLE_URL,
+    ITEM_TABLE_NAME,
+    WEAPON_TABLE_NAME,
+    ZMDMAP_DATA_DIR,
     apply_item_blacklist,
     build_download_jobs,
-    download_sources,
     load_big_icon_ids,
+    load_item_table,
+    load_weapon_table,
     validate_icon_png_bytes,
     merge_item_sources,
     prepare_item_map,
     prepare_weapon_map,
     relocate_rarity_changed_icons,
 )
-from fixed_items import load_fixed_items
+from fixed_items import FIXED_ITEMS, load_fixed_items
 from localization import (
-    FIXED_NAME_KEYS,
     LOCALE_MAP,
     build_locale_values,
     update_interface_locale,
@@ -244,7 +244,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            for locale, (_, language) in LOCALE_MAP.items():
+            for locale, (language, _) in LOCALE_MAP.items():
                 locale_path = paths.locale_root / f"{locale}.json"
                 locale_path.parent.mkdir(parents=True, exist_ok=True)
                 locale_path.write_text(
@@ -257,15 +257,6 @@ class IconRecognitionToolsTest(unittest.TestCase):
                     ),
                     encoding="utf-8",
                 )
-                translations = {
-                    key: f"{language}:{item_id}"
-                    for item_id, key in FIXED_NAME_KEYS.items()
-                }
-                if locale == "en_us":
-                    translations.pop(FIXED_NAME_KEYS["item_diamond"])
-                language_path = paths.language_root / f"lang_{language}.json"
-                language_path.parent.mkdir(parents=True, exist_ok=True)
-                language_path.write_text(json.dumps(translations), encoding="utf-8")
             for item_id, item in merge_item_sources({}, {}).items():
                 source = paths.image_root / str(item["rarity"]) / f"{item_id}.png"
                 source.parent.mkdir(parents=True, exist_ok=True)
@@ -280,7 +271,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
             self.assertEqual(count, 9)
             self.assertIn("item_kept", catalog)
             self.assertEqual(catalog["item_diamond"]["rarity"], 6)
-            self.assertEqual(catalog["item_diamond"]["name"], "zh-CN:item_diamond")
+            self.assertEqual(catalog["item_diamond"]["name"], "嵌晶玉")
             self.assertFalse(stale.exists())
             self.assertTrue((paths.asset_image_root / "6" / "item_diamond.png").is_file())
             locale = json.loads((paths.locale_root / "en_us.json").read_text(encoding="utf-8"))
@@ -288,7 +279,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
             self.assertEqual(locale["iconRecognition.name.item_kept"], "Keep")
             self.assertEqual(
                 locale["iconRecognition.name.item_diamond"],
-                FIXED_NAME_KEYS["item_diamond"],
+                FIXED_ITEMS["item_diamond"]["names"]["EN"],
             )
 
     def test_expected_merge_replaces_old_image_cases_and_keeps_all_reported_rois(self) -> None:
@@ -442,29 +433,24 @@ class IconRecognitionToolsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_identifier("a\x00b", field="iconId")
 
-    def test_remote_urls_match_verified_sources(self) -> None:
-        self.assertEqual(DEFAULT_CACHE_ROOT, Path("tools/icon_recognition/.cache/downloads"))
-        self.assertEqual(
-            ITEM_TABLE_URL,
-            "https://assets.fz.wiki/output_beyondmap/item_mini_table.json",
-        )
-        self.assertEqual(
-            WEAPON_TABLE_URL,
-            "https://assets.fz.wiki/output_maaend/weapons.json",
-        )
-        self.assertEqual(
-            LANG_URL.format(locale="en-US"),
-            "https://assets.fz.wiki/output_beyondmap/i18n/en-US/lang.json",
-        )
+    def test_data_sources_are_local_zmdmap_files(self) -> None:
+        repo_root = Path(__file__).resolve().parents[2]
+        self.assertEqual(ZMDMAP_DATA_DIR, repo_root / "tools" / "zmdmap" / "data")
+        self.assertEqual(DEFAULT_CACHE_ROOT, repo_root / "tools" / "icon_recognition" / ".cache" / "downloads")
         self.assertEqual(
             IMAGE_BASE_URL,
             "https://assets.fz.wiki/output_image/itemicon",
         )
         self.assertEqual(BIG_IMAGE_BASE_URL, "https://assets.fz.wiki/output_image/itemiconbig")
 
-    def test_download_sources_timestamp_all_remote_json_urls(self) -> None:
-        sources = download_sources(Path("cache"), dry_run=True)
-        self.assertTrue(all("timestamp=" in url for url in sources.values()))
+    def test_load_tables_reads_the_given_data_dir(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            data_dir = Path(directory)
+            (data_dir / ITEM_TABLE_NAME).write_text('{"item_a": {}}', encoding="utf-8")
+            (data_dir / WEAPON_TABLE_NAME).write_text('{"wpn_a": {}}', encoding="utf-8")
+
+            self.assertEqual(set(load_item_table(data_dir)), {"item_a"})
+            self.assertEqual(set(load_weapon_table(data_dir)), {"wpn_a"})
 
     def test_icon_url_has_no_rarity_segment_and_uses_raw_suffix(self) -> None:
         items = {
@@ -667,37 +653,43 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 blacklist=(),
             )
 
-    def test_publish_replaces_catalog_name_hash_with_zh_cn_locale(self) -> None:
+    def test_publish_takes_catalog_name_and_locales_from_source_names(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             paths = default_publish_paths(root)
-            item = self._mini_item(name="item_name_hash")
+            names = {
+                "CN": "测试物品",
+                "TC": "測試物品",
+                "EN": "Test Item",
+                "JP": "テスト物品",
+                "KR": "테스트 아이템",
+            }
+            producer_names = {
+                "CN": "模拟田块",
+                "TC": "模擬田塊",
+                "EN": "Simulated Plot",
+                "JP": "模擬区画",
+                "KR": "모의 구획",
+            }
+            item = self._mini_item(names=names)
+            producer = self._mini_item(
+                name=producer_names["CN"],
+                names=producer_names,
+                category="生产工具",
+                categoryType="Producer",
+                iconId="item_port_soil_grass_1",
+            )
             paths.item_source.parent.mkdir(parents=True, exist_ok=True)
             paths.item_source.write_text(
                 json.dumps(
-                    {
-                        "item_test": item,
-                        "item_port_soil_grass_fast_1": self._mini_item(
-                            name="simulated_name_hash",
-                            category="生产工具",
-                            categoryType="Producer",
-                            iconId="item_port_soil_grass_1",
-                        ),
-                    }
+                    {"item_test": item, "item_port_soil_grass_fast_1": producer}
                 ),
                 encoding="utf-8",
             )
+            paths.localization_item_source.parent.mkdir(parents=True, exist_ok=True)
             paths.localization_item_source.write_text(
                 json.dumps(
-                    {
-                        "item_test": item,
-                        "item_port_soil_grass_fast_1": self._mini_item(
-                            name="simulated_name_hash",
-                            category="生产工具",
-                            categoryType="Producer",
-                            iconId="item_port_soil_grass_1",
-                        ),
-                    }
+                    {"item_test": item, "item_port_soil_grass_fast_1": producer}
                 ),
                 encoding="utf-8",
             )
@@ -712,23 +704,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 paths.asset_image_root / "3" / "item_port_soil_grass_1.png"
             )
             removed_destination.write_bytes(b"blacklisted")
-            for locale, (_, language) in LOCALE_MAP.items():
-                translations = (
-                    {}
-                    if locale == "en_us"
-                    else {
-                        "item_name_hash": (
-                            "测试物品"
-                            if locale == "zh_cn"
-                            else f"{language}:item_test"
-                        ),
-                        "simulated_name_hash": f"{language}:simulated",
-                    }
-                )
-                (paths.language_root / f"lang_{language}.json").write_text(
-                    json.dumps(translations, ensure_ascii=False),
-                    encoding="utf-8",
-                )
+            for locale, _ in LOCALE_MAP.items():
                 locale_path = paths.locale_root / f"{locale}.json"
                 locale_path.parent.mkdir(parents=True, exist_ok=True)
                 locale_path.write_text(
@@ -752,9 +728,9 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 b"png",
             )
             self.assertFalse(removed_destination.exists())
-        self.assertEqual(catalog["item_test"]["name"], "测试物品")
+        self.assertEqual(catalog["item_test"]["name"], names["CN"])
         self.assertNotIn("item_port_soil_grass_fast_1", catalog)
-        self.assertEqual(en_us["iconRecognition.name.item_test"], "item_name_hash")
+        self.assertEqual(en_us["iconRecognition.name.item_test"], names["EN"])
         self.assertNotIn(
             "iconRecognition.name.item_port_soil_grass_fast_1",
             en_us,
@@ -973,39 +949,21 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(set(items), {"item_regular", "item_simulated"})
         self.assertEqual(removals, [])
 
-    def test_fixed_translation_hashes_are_not_catalog_item_ids(self) -> None:
-        self.assertEqual(
-            FIXED_NAME_KEYS,
-            {
-                "item_cbp_exp": "b8cff4d169274d30f90de3fe0bf854d9",
-                "item_adventureexp": "9ec5628af29c72843a11c5621ec0e32a",
-                "item_gold": "1b858553aff0ccfee876ed0367300534",
-                "item_diamond": "aa5edf17dd5cbb87661ec9f3d86d353e",
-                "item_gachabyproducts_weapongold": "011c0bffc4a5c215eb651edaf3e5b929",
-                "item_domain_jinlong_coupon": "af0a45fb328a9cdd07d2fe0e7ddacbb2",
-                "item_domain_tundra_coupon": "40f1e255b753623044d91b8c492ab277",
-                "item_spaceship_credit": "1bd1aaac9e3e0db9677cd16b2118ff8f",
-                "item_originium_recharge": "ff990914a2dc3f11473e5d6739e873b7",
-            },
-        )
+    def test_fixed_items_carry_five_language_names(self) -> None:
+        self.assertEqual(len(FIXED_ITEMS), 9)
+        for item_id, payload in FIXED_ITEMS.items():
+            self.assertEqual(
+                set(payload["names"]),
+                {"CN", "TC", "EN", "JP", "KR"},
+                msg=item_id,
+            )
+            self.assertTrue(all(payload["names"].values()), msg=item_id)
+            self.assertEqual(payload["name"], payload["names"]["CN"], msg=item_id)
 
         merged = merge_item_sources({}, {})
-
-        self.assertEqual(
-            set(merged),
-            {
-                "item_cbp_exp",
-                "item_adventureexp",
-                "item_gold",
-                "item_diamond",
-                "item_gachabyproducts_weapongold",
-                "item_domain_jinlong_coupon",
-                "item_domain_tundra_coupon",
-                "item_spaceship_credit",
-                "item_originium_recharge",
-            },
-        )
-        self.assertTrue(set(FIXED_NAME_KEYS.values()).isdisjoint(merged))
+        self.assertEqual(set(merged), set(FIXED_ITEMS))
+        for item_id, payload in merged.items():
+            self.assertEqual(payload["names"], FIXED_ITEMS[item_id]["names"], msg=item_id)
         self.assertEqual(merged["item_gold"]["rarity"], 4)
         self.assertEqual(merged["item_diamond"]["rarity"], 6)
         self.assertEqual(merged["item_gachabyproducts_weapongold"]["rarity"], 6)
@@ -1013,7 +971,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertTrue(all(item["storageKind"] == "Isolate" for item in merged.values()))
 
         with tempfile.TemporaryDirectory() as directory:
-            item_id = FIXED_NAME_KEYS["item_gold"]
+            item_id = "item_gold"
             image = Path(directory) / "images" / "2" / "ordinary.png"
             image.parent.mkdir(parents=True)
             image.write_bytes(b"png")
@@ -1061,13 +1019,13 @@ class IconRecognitionToolsTest(unittest.TestCase):
             },
         )
 
-    def test_localization_resolves_mini_table_name_hash(self) -> None:
+    def test_localization_uses_the_source_names_map(self) -> None:
         catalog = {"item": {"name": "中文", "fluidIconId": ""}}
-        source = {"item": {"name": "hash"}}
-        values = build_locale_values(catalog, source, "EN", {"hash": "English"})
+        source = {"item": {"name": "中文", "names": {"CN": "中文", "EN": "English"}}}
+        values = build_locale_values(catalog, source, "EN")
         self.assertEqual(values["iconRecognition.name.item"], "English")
 
-    def test_localization_resolves_composite_container_and_content_hashes(self) -> None:
+    def test_localization_names_the_composite_container_and_content(self) -> None:
         catalog = {
             "container": {
                 "name": "容器(内容)",
@@ -1076,15 +1034,18 @@ class IconRecognitionToolsTest(unittest.TestCase):
             }
         }
         source = {
-            "container": {"name": "container_hash", "iconId": "container_icon"},
-            "fluid": {"name": "fluid_hash", "iconId": "fluid_icon"},
+            "container": {
+                "name": "容器",
+                "names": {"CN": "容器", "EN": "Container"},
+                "iconId": "container_icon",
+            },
+            "fluid": {
+                "name": "内容",
+                "names": {"CN": "内容", "EN": "Content"},
+                "iconId": "fluid_icon",
+            },
         }
-        values = build_locale_values(
-            catalog,
-            source,
-            "EN",
-            {"container_hash": "Container", "fluid_hash": "Content"},
-        )
+        values = build_locale_values(catalog, source, "EN")
         self.assertEqual(
             values["iconRecognition.name.container"],
             "Container(Content)",
@@ -1169,8 +1130,14 @@ class IconRecognitionToolsTest(unittest.TestCase):
     // 上游表未收录的固定物品。
     "item_test": {
         "name": "测试物品",
+        "names": {
+            "CN": "测试物品",
+            "TC": "測試物品",
+            "EN": "Test Item",
+            "JP": "テスト物品",
+            "KR": "테스트 아이템"
+        },
         "iconId": "item_test",
-        "i18nKey": "item_test_name",
         "rarity": 3,
         "storageKind": "Normal",
         "categoryType": "Product",

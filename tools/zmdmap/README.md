@@ -9,7 +9,7 @@ zmdmap**下载**已发布数据，并投影进入库的数据。原 Node 实现�
 | 目录 | 放什么 | 入不入库 |
 | --- | --- | --- |
 | `data/raw/` | 原样产物：下载来的六份（只有世界坐标）与本地生成的结果 | 不入库 |
-| `data/` | 可以直接用的数据：投影后的六份，以及不需要投影的那几份（`energy_point_gems.json`、`weapons.json`） | 入库 |
+| `data/` | 可以直接用的数据：投影后的六份，以及不需要投影的那几份（`energy_point_gems.json`、`weapons.json`、`item_mini_table.json`） | 入库 |
 
 ## 子命令
 
@@ -51,6 +51,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | `datasets/collect_points.py` | `collect_points.json` | pipeline |
 | `datasets/essence.py` | `energy_point_gems.json`（基质筛选的能量淤积点） | plain |
 | `datasets/weapons.py` | `weapons.json`（基质筛选与图标识别共用的武器表） | plain |
+| `datasets/items.py` | `item_mini_table.json`（图标识别的物品表，带五语名字） | plain |
 
 `pipeline` 去向的数据先进 `data/raw/`，再由投影补上底图像素；`plain` 去向不需要投影，直接进 `data/`。
 要加一份新数据，就在 `datasets/` 加一个同签名的 `build_*`，再在 `DATASETS` 里登记一行。
@@ -126,7 +127,7 @@ CI 只需要出数据时用 `uv run --no-default-groups zmdmap generate`：`clic
 入 pipeline 的六份产物都只带游戏世界坐标，落在**不入库**的 `tools/zmdmap/data/raw/`；底图像素由投影
 步骤按 BaseNav 的 zone 表算出来，进入库的 `tools/zmdmap/data/*.json`。上游发布的数据不含底图像素，
 所以 `fetch` 下载完必须先投影才能被各任务生成器读取。免投影的那几份（`energy_point_gems.json`、
-`weapons.json`）直接落在 `tools/zmdmap/data/`，各工具按需读取。
+`weapons.json`、`item_mini_table.json`）直接落在 `tools/zmdmap/data/`，各工具按需读取。
 
 整条链路（同步兄弟仓库 → 本地生成 → 投影）也在本入口，用开关控制后两步：
 

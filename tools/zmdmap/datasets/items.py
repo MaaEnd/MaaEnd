@@ -9,6 +9,9 @@
 
 - ``names{五语}``：物品名，五语直接给文本。上游那份的 ``name`` 是文本 id 的 xxh3 哈希，消费端还得再下
   五份 ``lang_*.json``（每份约 950 KB）才能还原名字；这里直接给文本，免掉那五份 i18n 包。
+- ``nameId``：名字的文本 id。消费端按「名字 + 图标」去重时用得上——上游那份是拿哈希去重的，而哈希就是
+  文本 id 的函数，所以按文本 id 去重与上游结果一致；只按文本去重会把「同一句文案挂在两个文本 id 上」
+  的条目误并。
 - ``regionRestricted``：仅当物品由「只在某些地区存在」的工厂建筑产出时才写 ``true``。
 
 配方类（配方/配方升级/装备配方）是制造说明而不是可用物品，名字 id 为 0 的（如 ``item_port_*`` 工厂摆件）
@@ -77,6 +80,7 @@ def build_items(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, dict[str,
         containers = fluid_containers.get(item_id)
         output[item_id] = {
             "name": ref_text(table_cfg_dir, name_ref),
+            "nameId": text_id_of(name_ref),
             "names": texts_of(table_cfg_dir, text_id_of(name_ref)),
             "category": category,
             "storageKind": "ValuableDepot" if from_depot else "Normal",

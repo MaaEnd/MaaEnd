@@ -40,7 +40,7 @@ uv run zmdmap fetch --nav path/to/base.nav.gz    # 指定 nav 数据
 uv run zmdmap fetch --only collect_points        # 只投影其中几份
 ```
 
-`fetch` 还会把不需要投影的那几份（EssenceFilter 用的 `energy_point_gems.json`、`weapons.json`）直接下载到 `tools/zmdmap/data/`。
+`fetch` 还会把不需要投影的那几份（EssenceFilter 用的 `energy_point_gems.json`、`weapons.json`，IconRecognition 用的 `item_mini_table.json`）直接下载到 `tools/zmdmap/data/`。
 
 完整生成某个任务时使用对应的 pnpm 命令。这些命令都会先 `fetch:zmdmap`，再执行当前任务自己的生成链路：
 
