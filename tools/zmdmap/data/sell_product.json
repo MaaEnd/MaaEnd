@@ -652,6 +652,16 @@
                 "ko_kr": "리노"
             }
         },
+        "chr_0036_jsspsi": {
+            "id": "chr_0036_jsspsi",
+            "names": {
+                "zh_cn": "祀",
+                "zh_tw": "祀",
+                "en_us": "Si",
+                "ja_jp": "スー",
+                "ko_kr": "사"
+            }
+        },
         "chr_0038_purrche": {
             "id": "chr_0038_purrche",
             "names": {
@@ -744,12 +754,12 @@
                             "activity_id": ""
                         },
                         {
-                            "item_id": "item_bottled_rec_hp_4",
+                            "item_id": "item_bottled_food_4",
                             "unit_price": 16,
                             "activity_id": ""
                         },
                         {
-                            "item_id": "item_bottled_food_4",
+                            "item_id": "item_bottled_rec_hp_4",
                             "unit_price": 16,
                             "activity_id": ""
                         },
@@ -809,12 +819,12 @@
                             "activity_id": ""
                         },
                         {
-                            "item_id": "item_bottled_rec_hp_4",
+                            "item_id": "item_bottled_food_4",
                             "unit_price": 16,
                             "activity_id": ""
                         },
                         {
-                            "item_id": "item_bottled_food_4",
+                            "item_id": "item_bottled_rec_hp_4",
                             "unit_price": 16,
                             "activity_id": ""
                         },
@@ -1202,7 +1212,8 @@
                         "chr_0024_deepfin",
                         "chr_0030_zhuangfy",
                         "chr_0031_mifu",
-                        "chr_0032_lizhiyan"
+                        "chr_0032_lizhiyan",
+                        "chr_0036_jsspsi"
                     ]
                 },
                 {
@@ -1229,7 +1240,8 @@
                         "chr_0017_yvonne",
                         "chr_0019_karin",
                         "chr_0029_pograni",
-                        "chr_0030_zhuangfy"
+                        "chr_0030_zhuangfy",
+                        "chr_0036_jsspsi"
                     ]
                 }
             ]
@@ -1457,7 +1469,8 @@
                         "chr_0018_dapan",
                         "chr_0030_zhuangfy",
                         "chr_0031_mifu",
-                        "chr_0032_lizhiyan"
+                        "chr_0032_lizhiyan",
+                        "chr_0036_jsspsi"
                     ]
                 },
                 {
@@ -1587,12 +1600,12 @@
                             "activity_id": ""
                         },
                         {
-                            "item_id": "item_bottled_rec_hp_2",
+                            "item_id": "item_bottled_food_2",
                             "unit_price": 27,
                             "activity_id": ""
                         },
                         {
-                            "item_id": "item_bottled_food_2",
+                            "item_id": "item_bottled_rec_hp_2",
                             "unit_price": 27,
                             "activity_id": ""
                         },
@@ -1892,7 +1905,8 @@
                         "chr_0009_azrila",
                         "chr_0011_seraph",
                         "chr_0017_yvonne",
-                        "chr_0033_camille"
+                        "chr_0033_camille",
+                        "chr_0036_jsspsi"
                     ]
                 },
                 {
@@ -1972,12 +1986,12 @@
                     "level": 3,
                     "trade_items": [
                         {
-                            "item_id": "item_bottled_rec_hp_3",
+                            "item_id": "item_bottled_food_3",
                             "unit_price": 70,
                             "activity_id": ""
                         },
                         {
-                            "item_id": "item_bottled_food_3",
+                            "item_id": "item_bottled_rec_hp_3",
                             "unit_price": 70,
                             "activity_id": ""
                         },
@@ -2017,12 +2031,12 @@
                     "level": 4,
                     "trade_items": [
                         {
-                            "item_id": "item_bottled_rec_hp_3",
+                            "item_id": "item_bottled_food_3",
                             "unit_price": 70,
                             "activity_id": ""
                         },
                         {
-                            "item_id": "item_bottled_food_3",
+                            "item_id": "item_bottled_rec_hp_3",
                             "unit_price": 70,
                             "activity_id": ""
                         },
