@@ -82,10 +82,10 @@
         "recognition": "TemplateMatch",
         "roi": "CheckThilluText",
         "roi_offset": [
-            -18,
+            -20,
             0,
             0,
-            28
+            50
         ],
         "template": "EnvironmentMonitoring/PhotoIcon.png",
         "threshold": 0.8,
@@ -145,11 +145,11 @@
             241
         ],
         "expected": [
-            "拍摄悬浮的“表象”",
-            "拍攝懸浮的「表象」",
-            "(?i)Photo:\\s*The\\s*Floating\\s*\"Æthillu\"",
-            "浮いている「イーサルー」の写真を撮る",
-            "떠 있는 '잔영'을 촬영하기"
+            "拍摄悬浮的.?表象",
+            "拍攝懸浮的.?表象",
+            "(?i)Photo:\\s*The\\s*Floating\\s*.?Æthillu",
+            "浮いている.?イーサルー.?の写真を撮る",
+            "떠 있는 .?잔영.?을 촬영하기"
         ],
         "replace": [],
         "pre_delay": 0,

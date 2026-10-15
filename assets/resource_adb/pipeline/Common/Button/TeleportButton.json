@@ -2,6 +2,10 @@
     "__TeleportButton": {
         "recognition": {
             "param": {
+                "template": [
+                    "AdbOnly/Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                ],
                 "threshold": 0.7
             }
         }
@@ -9,6 +13,10 @@
     "__QuickTeleportButton": {
         "recognition": {
             "param": {
+                "template": [
+                    "AdbOnly/Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                ],
                 "threshold": 0.7
             }
         }

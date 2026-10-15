@@ -30,20 +30,25 @@
         "desc": "寻找四号谷地筛选标志（仅识别）",
         "recognition": "TemplateMatch",
         "roi": [
-            20,
-            440,
-            140,
-            260
+            2,
+            520,
+            236,
+            200
         ],
         "template": "SeizeDeliveryJobs/DepotNodePage/FilterValleyIV.png",
         "order_by": "Score"
     },
     "SeizeDeliveryJobsJobListIsValleyIVFilter": {
         "desc": "在运送委托列表检查到四号谷地筛选",
-        "recognition": "And",
-        "all_of": [
-            "__SeizeDeliveryJobsRecoFilterValleyIV"
+        "recognition": "TemplateMatch",
+        "roi": [
+            4,
+            638,
+            234,
+            82
         ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/FilterValleyIV.png",
+        "order_by": "Score",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -116,20 +121,25 @@
         "desc": "寻找武陵筛选标志（仅识别）",
         "recognition": "TemplateMatch",
         "roi": [
-            20,
-            440,
-            140,
-            260
+            2,
+            520,
+            236,
+            200
         ],
         "template": "SeizeDeliveryJobs/DepotNodePage/FilterWuling.png",
         "order_by": "Score"
     },
     "SeizeDeliveryJobsJobListIsWulingFilter": {
         "desc": "在运送委托列表检查到武陵筛选",
-        "recognition": "And",
-        "all_of": [
-            "__SeizeDeliveryJobsRecoFilterWuling"
+        "recognition": "TemplateMatch",
+        "roi": [
+            4,
+            638,
+            234,
+            82
         ],
+        "template": "SeizeDeliveryJobs/DepotNodePage/FilterWuling.png",
+        "order_by": "Score",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

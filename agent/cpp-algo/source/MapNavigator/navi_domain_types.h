@@ -40,8 +40,10 @@ namespace mapnavigator
 //            （转视角搜索 / 对准了前进 / 走过头退一步），全程不读小地图。命中 find_stop 即算到位，
 //            位置走到 find_arrive 附近同样算到位（两者都给就先到先算）。带 target 先走到锚点再找，
 //            不带就是就地开找的控制节点
-// ZIPLINE  - 滑索上索点：精确抵达后停车，把镜头转向下索点再交互上索，然后等滑行自己结束。
-//            只由滑索规划生成，不手写：能不能滑取决于两端的落差与跨度，那是规划器算出来的
+// ZIPLINE  - 滑索上索点：精确抵达后停车，把镜头转向下索点再交互上索，然后等滑行自己结束；
+//            链尾落地会先把朝向摆到下一段走路的规划点再下索。只由滑索规划生成，不手写：能不能滑
+//            取决于两端的落差与跨度，那是规划器算出来的
+// TRIGGER  - 只能做路线终点：整条路线行进中定时跑 trigger_node，不论走到哪，命中即算导航成功；走到 target 未命中也算成功
 #define NAVI_ACTION_TYPES(X) \
     X(RUN)                   \
     X(SPRINT)                \
@@ -56,24 +58,24 @@ namespace mapnavigator
     X(COLLECT)               \
     X(DIG)                   \
     X(FIND)                  \
-    X(ZIPLINE)
+    X(ZIPLINE)               \
+    X(TRIGGER)
 
 enum class ActionType
 {
 #define NAVI_X_(name) name,
     NAVI_ACTION_TYPES(NAVI_X_)
 #undef NAVI_X_
-    MEOJSON_ENUM_RANGE(RUN, ZIPLINE)
+    MEOJSON_ENUM_RANGE(RUN, TRIGGER)
 };
 
 // 每种动作的静态策略, 一种动作一行; 到点后做什么见 semantic_nodes 的到点分发
 struct ActionTraits
 {
     bool strict_arrival = false;     // 到点必须精确停住, 线路上的 strict_arrival 只能再加严
-    bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 只对线路明写 strict_arrival 的点
+    bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 除 INTERACT 外只对线路明写 strict_arrival 的点
     bool walk_approach = false;      // 接近段允许切走路
     bool walk_at_startup = false;    // 起步位移还没确认也允许走路
-    bool settle_walking = false;     // 末端纠正前先切走路
     bool route_boundary = false;     // 全局规划分段的固有边界
     double commit_distance = 0.0;    // 判定圈下限 px, 0 = 不放宽
 };
@@ -90,7 +92,7 @@ constexpr ActionTraits TraitsOf(ActionType action)
     case ActionType::FIGHT:
         return { .strict_arrival = true, .settles_at_arrival = true };
     case ActionType::INTERACT:
-        return { .strict_arrival = true, .walk_approach = true };
+        return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
     case ActionType::TRANSFER:
         return { .strict_arrival = true, .settles_at_arrival = true };
     case ActionType::PORTAL:
@@ -109,7 +111,6 @@ constexpr ActionTraits TraitsOf(ActionType action)
             .settles_at_arrival = true,
             .walk_approach = true,
             .walk_at_startup = true,
-            .settle_walking = true,
             .route_boundary = true,
         };
     // 不设 strict_arrival：锚点只是「站这儿开始找」，收尾由视觉伺服完成
@@ -117,6 +118,9 @@ constexpr ActionTraits TraitsOf(ActionType action)
         return { .walk_approach = true, .route_boundary = true };
     case ActionType::ZIPLINE:
         return { .strict_arrival = true, .walk_approach = true };
+    // 设成边界才会被滑索规划原样保留，否则会被换成不带 trigger_node 的规划点
+    case ActionType::TRIGGER:
+        return { .strict_arrival = true, .settles_at_arrival = true, .route_boundary = true };
     }
     return {};
 }
@@ -155,6 +159,10 @@ struct Waypoint
     // NAVMESH only: height of the overlapping deck this waypoint sits on. Pins the goal span for the leg
     // ending here and the start span for the leg leaving it. Unset -> full span set, unchanged.
     std::optional<double> target_deck_y;
+    // navmesh 规划出的点专用: 规划线在这一点所在面的高, 运行中重规划用它定起点层
+    std::optional<double> route_floor_y;
+    // 台沿下落的落点专用: 起跳点。沿起跳→落点方向越过本点才算到
+    std::optional<std::array<double, 2>> drop_from;
     // Authored path only: make this node a hard boundary between globally planned legs. Coordinate-bearing
     // movement nodes are optional route/action hints by default. HEADING is an explicit control command;
     // COLLECT and DIG are task-producing markers. Those three are intrinsic boundaries even without this flag.
@@ -167,8 +175,8 @@ struct Waypoint
     // INTERACT 专用: 行进预筛读 roi/template/threshold 的 TemplateMatch 节点, 留给提示长得不一样的业务;
     // 留空用出厂那份
     std::string interact_scan;
-    // INTERACT 专用: rec 模式, 只认提示不按键。判定圈、行进中提示停车都照旧, 按不按、按哪个留给业务侧决定。
-    // 写在路线顶层是整条路线的默认, 点上只能开不能关
+    // INTERACT 专用: rec 模式, 只认提示不按键。判定圈、行进中提示停车都照旧, 按不按、按哪个留给业务侧决定;
+    // 到点纠正后仍认不出提示判导航失败。写在路线顶层是整条路线的默认, 点上只能开不能关
     bool interact_rec;
     // FIND 专用：目标识别节点名，与 find_text 二选一
     std::string find_target;
@@ -178,6 +186,8 @@ struct Waypoint
     std::string find_stop;
     // FIND 专用：走到这个坐标附近也算到位。给了它才读定位, 判定只看 x/y 距离, 不参与转向
     std::optional<std::array<double, 2>> find_arrive;
+    // TRIGGER 专用：命中即算导航成功的识别节点名，只跑识别不执行动作
+    std::string trigger_node;
     // ZIPLINE only: 这一跳的计划(两端架子、落点仰角、备用站位)。只由滑索规划写入; 缺这个字段的
     // ZIPLINE 点是配置写错了, 执行侧拒绝
     std::optional<ZiplineHopPlan> zipline_hop;
@@ -215,8 +225,18 @@ struct Waypoint
 
     bool RequiresStrictArrival() const { return has_position && (strict_arrival || Traits().strict_arrival); }
 
-    // 末端纠正到位才验收的点, 只认线路明写的 strict_arrival
-    bool SettlesAtArrival() const { return has_position && authored_strict_arrival && Traits().settles_at_arrival; }
+    // 末端纠正到位才验收的点: INTERACT 不看线路写没写 strict_arrival, 异步那种认不出提示才在到点处理里纠正;
+    // 其余只认线路明写的 strict_arrival
+    bool SettlesAtArrival() const
+    {
+        if (!has_position || !Traits().settles_at_arrival) {
+            return false;
+        }
+        if (action == ActionType::INTERACT) {
+            return !IsAsyncInteract();
+        }
+        return authored_strict_arrival;
+    }
 
     // 顺着走过去就算数的点: 走廊跟随、经过即推进都只对这种点生效
     bool IsContinuousRun() const { return has_position && action == ActionType::RUN && !RequiresStrictArrival(); }
@@ -237,6 +257,8 @@ struct Waypoint
     bool IsHeadingOnly() const { return action == ActionType::HEADING; }
 
     bool IsFindPoint() const { return action == ActionType::FIND; }
+
+    bool IsTriggerPoint() const { return action == ActionType::TRIGGER; }
 
     bool IsIntrinsicRouteBoundary() const { return Traits().route_boundary; }
 

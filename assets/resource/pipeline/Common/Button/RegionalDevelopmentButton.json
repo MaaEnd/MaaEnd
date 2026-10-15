@@ -24,6 +24,7 @@
         "desc": "使用 Alt + 点击大世界中的地区建设按钮（按住 Alt 键）",
         "pre_delay": 0,
         "action": "KeyDown",
+        "auto_up": true,
         "key": 164, // 0xA4	Left Alt key
         "post_delay": 0,
         "rate_limit": 0,

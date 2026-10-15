@@ -131,7 +131,7 @@
         "desc": "识别弹窗中的文本",
         "recognition": "And",
         "all_of": [
-            "CancelButton",
+            "GrayCancelButton",
             "YellowConfirmButtonType1",
             {
                 "recognition": "Custom",
@@ -149,7 +149,7 @@
         "desc": "点击取消放弃",
         "recognition": "And",
         "all_of": [
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",

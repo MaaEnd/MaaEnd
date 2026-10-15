@@ -87,6 +87,9 @@ private:
 // 二项比例的 Wilson 置信下界，样本少时会自动给出保守的结果。
 double WilsonLowerBound(int64_t hits, int64_t total, double z);
 
+// 中位数（偶数个取上中位），空集返回 0。
+int64_t Median(const std::vector<int64_t>& samples);
+
 } // namespace latency
 
 } // namespace mapnavigator

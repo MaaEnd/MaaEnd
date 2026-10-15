@@ -64,7 +64,7 @@ func storeDailyGoodsPrices(now time.Time, loc *time.Location, region string, uid
 }
 
 func resolveDailyStoragePath() string {
-	return filepath.Join("debug", "record", dailyStorageFileName)
+	return fsutil.OutputPath("debug", "record", dailyStorageFileName)
 }
 
 func upsertDailyStorageRecord(path string, record dailyStorageRecord) error {

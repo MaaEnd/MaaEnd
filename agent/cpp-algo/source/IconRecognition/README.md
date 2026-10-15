@@ -7,7 +7,8 @@
 运行时只读取公开资源：
 
 - `assets/data/IconRecognition/recognition_items.json`
-- `assets/resource/image/IconRecognition/<rarity>/*.png`
+- `assets/resource/image/IconRecognition/<rarity>/*.png`（常规图标）
+- `assets/resource/image/IconRecognition/Big/<rarity>/*.png`（拒识后使用的备用大图）
 - `assets/locales/interface/*.json`
 
 详细文档：

@@ -30,8 +30,6 @@ constexpr double kSupportLengthRatio = 0.5;
 constexpr double kLongEdgeWeight = 0.8;
 // 未经形态学过滤的局部边缘权重；调高提高破损边框召回，也会引入更多纹理噪声。
 constexpr double kLocalEdgeWeight = 0.2;
-// 判定 cell 非空的最低平均灰度；调高会把暗物品视为空，调低会接受更多暗背景。
-constexpr double kOccupiedCellBrightness = 8.0;
 
 cv::Mat normalize_percentile(const cv::Mat& values, double selected_percentile = kNormalizationPercentile)
 {
@@ -198,34 +196,6 @@ std::vector<float> MedianProjection(const cv::Mat& values, bool x_axis)
             sample_count % 2 == 0 ? 0.5F * (samples[sample_count / 2 - 1] + samples[sample_count / 2]) : samples[sample_count / 2];
     }
     return result;
-}
-
-double GridOccupancyScore(const cv::Mat& image, const GridLayout& layout)
-{
-    if (image.empty() || layout.cells.empty()) {
-        return 0.0;
-    }
-    int active = 0;
-    for (const auto& cell : layout.cells) {
-        const cv::Rect clipped = cell.cell_box & cv::Rect(0, 0, image.cols, image.rows);
-        if (clipped.width <= 0 || clipped.height <= 0) {
-            continue;
-        }
-        cv::Mat gray;
-        if (image.channels() == 4) {
-            cv::cvtColor(image(clipped), gray, cv::COLOR_BGRA2GRAY);
-        }
-        else if (image.channels() == 3) {
-            cv::cvtColor(image(clipped), gray, cv::COLOR_BGR2GRAY);
-        }
-        else {
-            gray = image(clipped);
-        }
-        if (cv::mean(gray)[0] > kOccupiedCellBrightness) {
-            ++active;
-        }
-    }
-    return static_cast<double>(active) / layout.cells.size();
 }
 
 } // namespace iconrecognition::detail

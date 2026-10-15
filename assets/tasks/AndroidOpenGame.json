@@ -5,13 +5,12 @@
             "label": "$task.AndroidOpenGame.label",
             "entry": "OpenGame",
             "description": "$task.AndroidOpenGame.description",
-            "controller": [
-                "ADB",
-                "CloudADB",
-                "PlayCover"
-            ],
             "group": [
                 "other_menu"
+            ],
+            "controller": [
+                "ADB",
+                "CloudADB"
             ],
             "option": [
                 "ClientVersion",
@@ -27,7 +26,6 @@
                 "PlayCover"
             ],
             "label": "$option.ClientVersion.label",
-            "default_case": "CN",
             "cases": [
                 {
                     "name": "CN",
@@ -117,7 +115,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "CN"
         },
         "ClientVersionCloudLocked": {
             "type": "select",
@@ -126,7 +125,6 @@
             ],
             "label": "$option.ClientVersionCloudLocked.label",
             "description": "$option.ClientVersionCloudLocked.description",
-            "default_case": "Cloud",
             "cases": [
                 {
                     "name": "Cloud",
@@ -150,7 +148,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Cloud"
         }
     }
 }

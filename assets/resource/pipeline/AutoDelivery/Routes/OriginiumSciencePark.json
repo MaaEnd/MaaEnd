@@ -1,6 +1,6 @@
 {
     "AutoDeliveryRouteDepotDomain1Lv005Depot1": {
-        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点（domain_1_lv005_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点(domain_1_lv005_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -23,12 +23,13 @@
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
-                        804.72
+                        803.314
                     ],
                     "target_deck_y": 93.098
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -42,7 +43,7 @@
         }
     },
     "AutoDeliveryRouteDepotDomain1Lv005Depot1WithZipline": {
-        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点，允许使用滑索（domain_1_lv005_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点，允许使用滑索(domain_1_lv005_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -65,12 +66,13 @@
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
-                        804.72
+                        803.314
                     ],
                     "target_deck_y": 93.098
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -84,7 +86,7 @@
         }
     },
     "AutoDeliveryRouteDepotRetryDomain1Lv005Depot1": {
-        "desc": "AutoDelivery 仓储站位修正路线：源石研究园仓储节点（domain_1_lv005_depot_1）",
+        "desc": "AutoDelivery 仓储站位修正路线：源石研究园仓储节点(domain_1_lv005_depot_1)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -107,11 +109,12 @@
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
-                        804.72
+                        803.314
                     ],
                     "target_deck_y": 93.098
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -125,7 +128,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00501": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格（deliver_target_map01_lv005_01）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格(deliver_target_map01_lv005_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -141,10 +144,28 @@
                         1132.831,
                         900.497
                     ],
-                    "target_deck_y": 90.519
+                    "target_deck_y": 90.519,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.831,
+                        900.497
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "英格",
+                        "(?i)Ingol",
+                        "インゴル",
+                        "잉골"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -158,7 +179,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00501WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格，允许使用滑索（deliver_target_map01_lv005_01）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格，允许使用滑索(deliver_target_map01_lv005_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -174,10 +195,28 @@
                         1132.831,
                         900.497
                     ],
-                    "target_deck_y": 90.519
+                    "target_deck_y": 90.519,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.831,
+                        900.497
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "英格",
+                        "(?i)Ingol",
+                        "インゴル",
+                        "잉골"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -191,7 +230,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00501": {
-        "desc": "AutoDelivery 终点站位修正路线：英格（deliver_target_map01_lv005_01）",
+        "desc": "AutoDelivery 终点站位修正路线：英格(deliver_target_map01_lv005_01)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -216,9 +255,27 @@
                         1132.831,
                         900.497
                     ],
-                    "target_deck_y": 90.519
+                    "target_deck_y": 90.519,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.831,
+                        900.497
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "英格",
+                        "(?i)Ingol",
+                        "インゴル",
+                        "잉골"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -232,7 +289,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00502": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特（deliver_target_map01_lv005_02）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特(deliver_target_map01_lv005_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -264,10 +321,28 @@
                         1161.84,
                         826.06
                     ],
-                    "target_deck_y": 87.27
+                    "target_deck_y": 87.27,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1161.84,
+                        826.06
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "基特",
+                        "(?i)Kitt",
+                        "キット",
+                        "킷"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -281,7 +356,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00502WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特，允许使用滑索（deliver_target_map01_lv005_02）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特，允许使用滑索(deliver_target_map01_lv005_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -313,10 +388,28 @@
                         1161.84,
                         826.06
                     ],
-                    "target_deck_y": 87.27
+                    "target_deck_y": 87.27,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1161.84,
+                        826.06
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "基特",
+                        "(?i)Kitt",
+                        "キット",
+                        "킷"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -330,7 +423,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00502": {
-        "desc": "AutoDelivery 终点站位修正路线：基特（deliver_target_map01_lv005_02）",
+        "desc": "AutoDelivery 终点站位修正路线：基特(deliver_target_map01_lv005_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -355,9 +448,27 @@
                         1161.842,
                         826.062
                     ],
-                    "target_deck_y": 87.394
+                    "target_deck_y": 87.394,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1161.842,
+                        826.062
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "基特",
+                        "(?i)Kitt",
+                        "キット",
+                        "킷"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -371,7 +482,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00503": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜（deliver_target_map01_lv005_03）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜(deliver_target_map01_lv005_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -387,10 +498,28 @@
                         968.209,
                         824.369
                     ],
-                    "target_deck_y": 95.898
+                    "target_deck_y": 95.898,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        968.209,
+                        824.369
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "嘉娜",
+                        "(?i)Jana",
+                        "ヤナ",
+                        "야나"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -404,7 +533,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00503WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜，允许使用滑索（deliver_target_map01_lv005_03）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜，允许使用滑索(deliver_target_map01_lv005_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -420,10 +549,28 @@
                         968.209,
                         824.369
                     ],
-                    "target_deck_y": 95.898
+                    "target_deck_y": 95.898,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        968.209,
+                        824.369
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "嘉娜",
+                        "(?i)Jana",
+                        "ヤナ",
+                        "야나"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -437,7 +584,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00503": {
-        "desc": "AutoDelivery 终点站位修正路线：嘉娜（deliver_target_map01_lv005_03）",
+        "desc": "AutoDelivery 终点站位修正路线：嘉娜(deliver_target_map01_lv005_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -462,9 +609,27 @@
                         968.209,
                         824.369
                     ],
-                    "target_deck_y": 95.898
+                    "target_deck_y": 95.898,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        968.209,
+                        824.369
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "嘉娜",
+                        "(?i)Jana",
+                        "ヤナ",
+                        "야나"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -478,7 +643,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle02": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽（deliver_target_map01_lv005_recycle_02）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽(deliver_target_map01_lv005_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -500,13 +665,28 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        905.299,
+                        906.705,
                         764.145
                     ],
-                    "target_deck_y": 87.331
+                    "target_deck_y": 87.331,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        906.705,
+                        764.145
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -520,7 +700,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle02WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽，允许使用滑索（deliver_target_map01_lv005_recycle_02）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽，允许使用滑索(deliver_target_map01_lv005_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -542,13 +722,28 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        905.299,
+                        906.705,
                         764.145
                     ],
-                    "target_deck_y": 87.331
+                    "target_deck_y": 87.331,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        906.705,
+                        764.145
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -562,7 +757,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv005Recycle02": {
-        "desc": "AutoDelivery 终点站位修正路线：学术复读羽兽（deliver_target_map01_lv005_recycle_02）",
+        "desc": "AutoDelivery 终点站位修正路线：学术复读羽兽(deliver_target_map01_lv005_recycle_02)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -584,12 +779,27 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        905.299,
+                        906.705,
                         764.145
                     ],
-                    "target_deck_y": 87.331
+                    "target_deck_y": 87.331,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        906.705,
+                        764.145
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -603,7 +813,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle03": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组（deliver_target_map01_lv005_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组(deliver_target_map01_lv005_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -625,13 +835,28 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1183.458,
-                        817.116
+                        1182.464,
+                        816.122
                     ],
-                    "target_deck_y": 96.809
+                    "target_deck_y": 96.809,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1182.464,
+                        816.122
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": false
+            "zip": false,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -645,7 +870,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle03WithZipline": {
-        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组，允许使用滑索（deliver_target_map01_lv005_recycle_03）",
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组，允许使用滑索(deliver_target_map01_lv005_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -667,13 +892,28 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1183.458,
-                        817.116
+                        1182.464,
+                        816.122
                     ],
-                    "target_deck_y": 96.809
+                    "target_deck_y": 96.809,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1182.464,
+                        816.122
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
-            "zip": true
+            "zip": true,
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -687,7 +927,7 @@
         }
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv005Recycle03": {
-        "desc": "AutoDelivery 终点站位修正路线：采购-醇化合物工厂模组（deliver_target_map01_lv005_recycle_03）",
+        "desc": "AutoDelivery 终点站位修正路线：采购-醇化合物工厂模组(deliver_target_map01_lv005_recycle_03)",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -709,12 +949,27 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1183.458,
-                        817.116
+                        1182.464,
+                        816.122
                     ],
-                    "target_deck_y": 96.809
+                    "target_deck_y": 96.809,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1182.464,
+                        816.122
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
-            ]
+            ],
+            "heading_source": "camera"
         },
         "post_delay": 0,
         "rate_limit": 0,

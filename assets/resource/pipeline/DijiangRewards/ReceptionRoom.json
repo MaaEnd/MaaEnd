@@ -1891,7 +1891,7 @@
                     0,
                     532,
                     468,
-                    236
+                    188
                 ],
                 "method": 40,
                 "lower": [
@@ -1907,10 +1907,7 @@
                 "connected": true,
                 "count": 3000
             }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        }
     },
     "ReceptionRoomSendCluesQuickGiveDuplicatesText": {
         "desc": "[会客室·赠予] 快速赠予重复线索按钮文字",
@@ -1926,10 +1923,7 @@
                     "중복 단서 빠른 증정"
                 ]
             }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
+        }
     },
     "ReceptionRoomSendCluesQuickGiveClose": {
         "desc": "[会客室·赠予] 快速赠予完成后 IMS A3 累加奖励",
@@ -1945,14 +1939,14 @@
         },
         "pre_wait_freezes": {
             "time": 300,
-            "threshold": 0.97,
-            "timeout": 1500,
             "target": [
                 528,
                 299,
                 222,
                 131
-            ]
+            ],
+            "threshold": 0.97,
+            "timeout": 1500
         },
         "pre_delay": 0,
         "action": {
@@ -1986,13 +1980,13 @@
         },
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 2000,
             "target": [
                 500,
                 0,
                 280,
                 200
-            ]
+            ],
+            "timeout": 2000
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -2206,13 +2200,13 @@
         },
         "pre_wait_freezes": {
             "time": 80,
-            "timeout": 1000,
             "target": [
                 0,
                 0,
                 0,
                 0
-            ]
+            ],
+            "timeout": 1000
         },
         "pre_delay": 0,
         "action": {
@@ -2223,13 +2217,13 @@
         },
         "post_wait_freezes": {
             "time": 100,
-            "timeout": 1000,
             "target": [
                 859,
                 189,
                 388,
                 119
-            ]
+            ],
+            "timeout": 1000
         },
         "post_delay": 0,
         "rate_limit": 0,

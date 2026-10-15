@@ -29,10 +29,11 @@
                     0
                 ],
                 "expected": [
-                    "激发", // 激发
-                    "觸發", // 觸發
-                    "Trigger", // Trigger
-                    "トリガー" // トリガー
+                    "激发",
+                    "激發",
+                    "(?i)Activate",
+                    "解放",
+                    "활성화"
                 ]
             }
         }
@@ -52,7 +53,8 @@
                     "开启挑战",
                     "開啟挑戰",
                     "Start",
-                    "挑戦"
+                    "挑戦",
+                    "도전\\s*시작"
                 ]
             }
         }
@@ -107,7 +109,8 @@
                     "领取", // 领取奖励
                     "領取", // 領取獎勵
                     "Claim", // Claim Rewards
-                    "報酬" // 報酬受取
+                    "報酬", // 報酬受取
+                    "획득" // 보상 획득
                 ]
             }
         }
@@ -128,8 +131,63 @@
                     "放弃|重置", // 放弃奖励并重置
                     "放棄|重置", // 放棄獎勵並重置
                     "Abandon|Reset", // Abandon Rewards and Reset
-                    "受取せず|にリセット" // 受取せずにリセット
+                    "受取せず|にリセット", // 受取せずにリセット
+                    "포기|초기화" // 보상 포기 및 초기화
                 ]
+            }
+        }
+    },
+    "__AutoEssenceRecoApproachInteractText": {
+        "desc": "走向激发点时边走边认的交互提示文字表，只给寻路读取 expected",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                "expected": [
+                    // @i18n-skip
+                    // 激发 / 领取奖励 / 放弃奖励并重置
+                    "激发",
+                    "激發",
+                    "(?i)Activate",
+                    "解放",
+                    "활성화",
+                    "领取",
+                    "領取",
+                    "Claim",
+                    "報酬",
+                    "획득",
+                    "放弃|重置",
+                    "放棄|重置",
+                    "Abandon|Reset",
+                    "受取せず|にリセット",
+                    "포기|초기화"
+                ]
+            }
+        }
+    },
+    "__AutoEssenceRecoApproachInteractScan": {
+        "desc": "走向激发点时边走边认的交互图标预筛，只给寻路读取 roi/template",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                // 激发行用专属图标，领取 / 放弃行用通用交互图标，任一命中即停车
+                "template": [
+                    "AutoEssence/EssenceTrigger.png",
+                    "MapNavigator/ObstacleDevice/InteractButton.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.75
             }
         }
     },
@@ -151,6 +209,59 @@
                     "該当地域の刻印券が不足しているため、刻印指定は適用されませんが、続行しますか？",
                     "해당 지역 각인권이 부족하여 이번 도전에서는 사전 각인이 적용되지 않습니다. 정말 이대로 도전을 시작하시겠습니까?"
                 ]
+            }
+        }
+    },
+    "__AutoEssenceRecoChooseOverrideEngraveNow": {
+        "desc": "战利品领取界面「进行刻写」区域文案（仅识别）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    41,
+                    358,
+                    394,
+                    212
+                ],
+                "expected": [
+                    "进行刻写",
+                    "刻寫",
+                    "Engrave Now",
+                    "刻印券を使用",
+                    "각인하기"
+                ]
+            }
+        }
+    },
+    "__AutoEssenceRecoEssenceOverrideOnToggle": {
+        "desc": "战利品领取界面刻写开关「开」态（仅识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    66,
+                    124,
+                    472,
+                    460
+                ],
+                "template": "AutoEssence/EssenceOverrideOn.png",
+                "order_by": "Score"
+            }
+        }
+    },
+    "__AutoEssenceRecoEssenceOverrideOffToggle": {
+        "desc": "战利品领取界面刻写开关「关」态（仅识别）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    66,
+                    124,
+                    472,
+                    460
+                ],
+                "template": "AutoEssence/EssenceOverrideOff.png",
+                "order_by": "Score"
             }
         }
     },

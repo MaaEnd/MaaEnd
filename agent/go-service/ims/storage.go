@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/rs/zerolog/log"
 )
 
@@ -32,7 +33,7 @@ var (
 )
 
 func defaultRecordPath() string {
-	return filepath.Join("debug", "record", recordFileName)
+	return fsutil.OutputPath("debug", "record", recordFileName)
 }
 
 func emptyRecord() recordFile {

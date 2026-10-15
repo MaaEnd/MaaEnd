@@ -5,6 +5,9 @@
             "label": "$task.AutoEcoFarm.label",
             "entry": "AutoEcoFarmTask",
             "description": "$task.AutoEcoFarm.description",
+            "group": [
+                "open_world"
+            ],
             "controller": [
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
@@ -14,9 +17,6 @@
             "option": [
                 "SelectFarm",
                 "StashBackpackSubTask"
-            ],
-            "group": [
-                "open_world"
             ]
         }
     ],
@@ -24,7 +24,6 @@
         "SelectFarm": {
             "type": "switch",
             "label": "$task.AutoEcoFarm.option.SelectFarm.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -36,12 +35,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "GotoValleyIV": {
             "type": "switch",
             "label": "$task.AutoEcoFarm.option.GotoValleyIV.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -59,12 +58,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "GotoWulin": {
             "type": "switch",
             "label": "$task.AutoEcoFarm.option.GotoWulin.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -82,7 +81,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         }
     }
 }

@@ -23,6 +23,7 @@
         "action": {
             "type": "KeyDown",
             "param": {
+                "auto_up": true,
                 "key": 87 //w键
             }
         },
@@ -76,6 +77,7 @@
         "action": {
             "type": "KeyDown",
             "param": {
+                "auto_up": true,
                 "key": 87 //w键
             }
         },
@@ -239,6 +241,7 @@
         "action": {
             "type": "KeyDown",
             "param": {
+                "auto_up": true,
                 "key": 18 //alt键
             }
         },
@@ -334,6 +337,7 @@
         "action": {
             "type": "KeyDown",
             "param": {
+                "auto_up": true,
                 "key": 87 //w键
             }
         },

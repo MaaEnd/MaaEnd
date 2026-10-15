@@ -3,16 +3,16 @@
         {
             "name": "BatchDeleteFriends",
             "label": "$task.BatchDeleteFriends.label",
-            "description": "$task.BatchDeleteFriends.description",
             "entry": "BatchDeleteFriendsMain",
-            "option": [
-                "BatchDeleteFriendsInactiveDays"
+            "description": "$task.BatchDeleteFriends.description",
+            "group": [
+                "dijiang_ship"
             ],
             "controller": [
                 "Win32-Front"
             ],
-            "group": [
-                "dijiang_ship"
+            "option": [
+                "BatchDeleteFriendsInactiveDays"
             ]
         }
     ],
@@ -20,7 +20,6 @@
         "BatchDeleteFriendsInactiveDays": {
             "type": "select",
             "label": "$option.BatchDeleteFriendsInactiveDays.label",
-            "default_case": "Days30",
             "cases": [
                 {
                     "name": "Days1",
@@ -100,7 +99,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Days30"
         }
     }
 }

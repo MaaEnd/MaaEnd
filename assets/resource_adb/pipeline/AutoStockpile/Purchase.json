@@ -18,29 +18,33 @@
                 "custom_action": "BetterSliding",
                 "custom_action_param": {
                     "ClampTargetToSliderMax": true,
-                    "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                    "DecreaseButton": {
+                        "template": "AutoStockpile/DecreaseButton.png"
+                    },
                     "Direction": "right",
-                    "IncreaseButton": "AutoStockpile/IncreaseButton.png",
+                    "IncreaseButton": {
+                        "template": "AutoStockpile/IncreaseButton.png"
+                    },
                     "SliderQuantity": {
-                        "Box": [
+                        "roi": [
                             303,
                             516,
                             111,
                             47
+                        ]
+                    },
+                    "SliderQuantityFilter": {
+                        "lower": [
+                            20,
+                            150,
+                            150
                         ],
-                        "Filter": {
-                            "lower": [
-                                20,
-                                150,
-                                150
-                            ],
-                            "upper": [
-                                35,
-                                255,
-                                255
-                            ],
-                            "method": 40
-                        }
+                        "upper": [
+                            35,
+                            255,
+                            255
+                        ],
+                        "method": 40
                     },
                     "TargetQuantity": 1
                 }

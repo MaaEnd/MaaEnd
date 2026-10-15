@@ -20,13 +20,19 @@ struct AdbCameraSwipeDriverConfig
     int origin_y_numerator = 1;
     int origin_y_denominator = 2;
     int origin_y_offset = -96;
+    // 中心对称起落, 单笔过长时按下点落进左侧摇杆区, 那一笔不转镜头
+    int max_stroke_dx = 270;
 
     int turn_swipe_duration_ms = kAdbTouchTurnProfile.swipe_duration_ms;
 
-    int touch_down_hold_ms = 8;
+    // 游戏逐帧采样触点, 与按下或抬起同帧的位移会整步丢失; 两端停留要盖过负载高时的一帧
+    int touch_down_hold_ms = 100;
+    // 手指离按下点不超过起拖阈值时游戏不认拖动, 阈值内的位移整段作废, 丢多少随帧率和步长变;
+    // 第一步直接移出阈值 (PlayCover 上约 10px), 余量留给阈值换算到参考坐标更大的设备
+    int drag_start_lead = 32;
     int move_steps = 6;
     int move_step_delay_ms = 10;
-    int end_hold_ms = 30;
+    int end_hold_ms = 100;
 
     int post_swipe_settle_ms = kAdbTouchTurnProfile.post_swipe_settle_ms;
 };
@@ -43,15 +49,13 @@ private:
     {
         cv::Size resolution {};
         cv::Point center {};
-        int left_limit = 0;
-        int right_limit = 0;
         int up_limit = 0;
         int down_limit = 0;
     };
 
     std::optional<ScreenGeometry> GetScreenGeometry() const;
-    bool ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx) const;
-    bool ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx) const;
+    bool ExecuteSwipe(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
+    bool ExecuteStableDrag(const ScreenGeometry& geometry, int swipe_dx, int swipe_dy) const;
     bool PostTouchDown(const cv::Point& point) const;
     bool PostTouchMove(const cv::Point& point) const;
     bool PostTouchUp() const;

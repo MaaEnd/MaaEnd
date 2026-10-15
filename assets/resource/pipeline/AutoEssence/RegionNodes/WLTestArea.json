@@ -13,6 +13,7 @@
     },
     "GotoTriggerPointMaybeTeleport_WLTestArea": {
         "desc": "强制传送到最近锚点后前往激发点",
+        "max_hit": 3, // 连续传送重走的上限，计数在 AutoEssenceDispatcher 清零
         "action": {
             "type": "Custom",
             "param": {
@@ -38,35 +39,15 @@
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
                     "enable_bootstrap_navmesh": false,
+                    // 不要补 ZONE：路线跨 L5_322 / L5_321 两层，打完后人停在 L5_321，首点 ZONE 校验必定失败
                     "path": [
                         {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_L5_322"
-                        },
-                        {
-                            "action": "RUN",
-                            "target": [
-                                225.66,
-                                94.04
-                            ],
-                            "target_tier": "Wuling_L5_322"
-                        },
-                        {
-                            "action": "RUN",
-                            "target": [
-                                119.26,
-                                95.21
-                            ],
-                            "target_tier": "Wuling_L5_321"
-                        },
-                        {
-                            "action": "RUN",
+                            "action": "NAVMESH",
                             "target": [
                                 86.12,
                                 95.53
                             ],
-                            "target_tier": "Wuling_L5_321",
-                            "strict_arrival": true
+                            "target_tier": "Wuling_L5_321"
                         }
                     ]
                 }
@@ -100,13 +81,18 @@
                             "zone_id": "Wuling_L5_321"
                         },
                         {
-                            "action": "RUN",
+                            "action": "INTERACT",
                             "target": [
                                 78.86,
                                 95.64
                             ],
                             "target_tier": "Wuling_L5_321",
-                            "strict_arrival": true
+                            "strict_arrival": true,
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoApproachInteractText"
+                            },
+                            "interact_scan": "__AutoEssenceRecoApproachInteractScan",
+                            "interact_rec": true
                         }
                     ]
                 }
@@ -115,6 +101,9 @@
         "post_delay": 1500,
         "next": [
             "AutoEssenceDispatcher"
+        ],
+        "on_error": [
+            "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

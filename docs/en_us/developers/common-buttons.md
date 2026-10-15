@@ -73,13 +73,13 @@
 
 ---
 
-## CancelButton
+## WhiteCancelButton
 
 **Description**: General cancel button with text, white background, and **X-shaped** icon.
 
-<!-- Screenshot: docs/developers/images/common-buttons/CancelButton.png -->
+<!-- Screenshot: docs/developers/images/common-buttons/WhiteCancelButton.png -->
 
-![CancelButton](https://github.com/user-attachments/assets/849665ba-661e-4838-b30b-faedb3cba652)
+![WhiteCancelButton](https://github.com/user-attachments/assets/849665ba-661e-4838-b30b-faedb3cba652)
 
 | Item | Description |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -87,6 +87,23 @@
 | **Search Range** | **Full-screen search**, with no fixed ROI. Buttons of this type appearing anywhere on the screen will be recognized and clicked. |
 | **Action** | Single click. |
 | **Usage Condition** | Use when a cancel button with **white background + X icon** appears on the interface. Distinguish from confirmation buttons (circular ring/checkmark) to avoid accidental clicks on confirmation. |
+
+---
+
+## GrayCancelButton
+
+**Description**: General cancel button with text, **gray background**, and **X-shaped** icon.
+
+<!-- Screenshot: tests/MaaEndTestset/Win32/Official_CN/四号谷地_地区建设_仓储节点_送货任务_确认转交.png -->
+
+![GrayCancelButton](https://raw.githubusercontent.com/MaaEnd/MaaEndTestset/main/Win32/Official_CN/%E5%9B%9B%E5%8F%B7%E8%B0%B7%E5%9C%B0_%E5%9C%B0%E5%8C%BA%E5%BB%BA%E8%AE%BE_%E4%BB%93%E5%82%A8%E8%8A%82%E7%82%B9_%E9%80%81%E8%B4%A7%E4%BB%BB%E5%8A%A1_%E7%A1%AE%E8%AE%A4%E8%BD%AC%E4%BA%A4.png)
+
+| Item | Description |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Recognition Method** | `And`: first locate the gray button background via color matching (`GrayButtonBackground`), then perform template matching (X icon) within the background ROI, matching normal → Hover state in short-circuit order, and finally use the background box as the click target (`box_index` selects the background box). |
+| **Search Range** | **Full-screen search**, with no fixed ROI. Buttons of this type appearing anywhere on the screen will be recognized and clicked. |
+| **Action** | Single click, followed by an 80ms freeze wait. |
+| **Usage Condition** | Use when a cancel button with **gray background + X icon** appears on the interface. For example, the gray cancel button beside the yellow confirm button in a "Confirm?" dialog; using this node avoids accidentally clicking confirm. |
 
 ---
 
@@ -183,7 +200,8 @@
 | `WhiteConfirmButtonType2` | Confirm button with white background + checkmark icon |
 | `YellowConfirmButtonType1` | Confirm button with yellow background + circular ring icon |
 | `YellowConfirmButtonType2` | Confirm button with yellow background + checkmark icon |
-| `CancelButton` | Cancel button with white background + X icon |
+| `WhiteCancelButton` | Cancel button with white background + X icon |
+| `GrayCancelButton` | Cancel button with gray background + X icon |
 | `TeleportButton` | Teleport button in the lower right corner of the map interface |
 | `QuickTeleportButton` | Quick-teleport button to the left of it on the map interface |
 | `CloseRewardsButton` | Checkmark close button in the lower middle of the reward interface |

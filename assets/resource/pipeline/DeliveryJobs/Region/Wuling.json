@@ -43,7 +43,9 @@
         },
         "anchor": {
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
-            "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+            "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
+            // 残留委托转交不可用时降级送货，送完要回发起遍历的这个地区循环
+            "DeliveryJobsAfterAutoDelivery": "DeliveryJobsWulingLoop"
         },
         "post_delay": 0,
         "rate_limit": 0,

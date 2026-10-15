@@ -10,6 +10,9 @@
 - pnpm 10+
 - Go 1.25.6+
 
+> [!NOTE]
+> 上面这些只够跑桌面端。要出 Android 包，还得额外准备 JDK、Android SDK、NDK 和 Ninja，见 [Android 构建环境准备](./android-build-env.md)。
+
 ### 检查本地环境
 
 ```bash
@@ -43,7 +46,13 @@ pnpm install
 | `--cpp-algo-pr <N>` | 从指定 PR 的最新成功 CI run 下载 cpp-algo（用于快速测试尚未合并的 PR 改动） |
 | `--cpp-algo-run <ID>` | 从指定 workflow run ID 下载 cpp-algo |
 
-> `--cpp-algo-pr` 和 `--cpp-algo-run` 互斥，二选一。不指定时会根据当前工作区分支选择对应的成功 CI 构建；在主分支 `v2` 上仅使用最新的 push 构建。非主分支会优先匹配当前提交的构建，避免误用 `v2` 的 cpp-algo。
+> `--cpp-algo-pr` 和 `--cpp-algo-run` 互斥，二选一；两者都表示明确指定，不再做任何推断。
+>
+> 不指定时的选取规则：
+>
+> - **主分支 `v2`**：取 `v2` 上最近一次成功的 push 构建（最新提交若未触发 CI，则沿提交向前找）。
+> - **其他分支**：依次尝试「当前提交 → 当前分支名 → 由当前提交反查 PR → `v2`」。本地分支名常与远程不同（如 `pr-4945` 实为 `feat/android-agent-ci`），因此以提交为准。
+> - 回退到 `v2` 产物时会打印告警——那意味着你拿到的是 `v2` 的 agent，而不是本分支的构建；需要本分支产物时用 `--cpp-algo-run <ID>` 明确指定。
 
 ### 编辑器（推荐）
 
@@ -69,15 +78,64 @@ pnpm install
 
 ### 提交规范 (Conventional Commits)
 
-本项目的代码提交严格遵循 [约定式提交规范 (Conventional Commits)](https://www.conventionalcommits.org/zh-hans/v1.0.0/)。清晰的 Commit 历史能帮助 Reviewer 快速理解你的意图。每次提交请使用以下前缀：
+本项目的代码提交严格遵循 [约定式提交规范 (Conventional Commits)](https://www.conventionalcommits.org/zh-hans/v1.0.0/)。清晰的 Commit 历史能帮助 Reviewer 快速理解你的意图。
 
-- `feat:` 新增功能（例如：写了新的 Pipeline 节点）
-- `fix:` 修复 Bug（例如：修正了某处 ROI 坐标错误）
-- `docs:` 仅文档更改
-- `style:` 不影响代码含义的更改（空白、格式、缺少分号等）
-- `chore:` 日常构建过程或辅助工具的变动（不涉及生产代码）
+提交标题的格式是 `类型(范围): 描述`。范围可以省略，一般写模块或任务名，会显示在更新日志里。可用的类型以 [`.github/cliff.toml`](../../../.github/cliff.toml) 为准：发版时 git-cliff 按它把提交归入更新日志的各个分组。
+
+| 类型 | 用途 | 更新日志分组 |
+| --- | --- | --- |
+| `feat` | 新增功能（例如：写了新的 Pipeline 节点） | ✨ 新功能 |
+| `fix` | 修复 Bug（例如：修正了某处 ROI 坐标错误） | 🐛 Bug修复 |
+| `refactor` | 重构：调整代码结构，不改变功能 | 🚜 代码重构 |
+| `perf` | 优化现有功能（速度、准确性、容错等） | 🚀 性能优化 |
+| `docs` | 仅文档更改 | 📚 文档 |
+| `style` | 不影响代码含义的更改（空白、格式等） | 🎨 样式 |
+| `test` | 新增或修改测试（例如 `tests/` 下的节点测试） | 🧪 测试 |
+| `ci` | CI 工作流与配置（`.github/workflows/` 等） | ⚙️ 持续集成 |
+| `chore` | 日常构建过程或辅助工具的变动（不涉及生产代码） | 🔧 日常维护 |
+| `chore(deps)` | 依赖升级 | 📦 依赖更新 |
+| `ai` | AI 协作相关：skill（`.agents/skills/`）、`AGENTS.md`、AI 相关工作流等 | 🤖 人工智能 |
+| `revert` | 撤销之前的提交 | ◀️ 撤销 |
+
+- 拼错或大小写不对的类型（如 `pref`、`doc`、`CI`）不会报错，但不会归入正确的分组：git-cliff 会直接用类型名当分组名，在更新日志末尾多出类似「Pref」这样的分组（见 v2.23.0）。`cliff.toml` 还兼容 `rft`、`styles` 两种旧写法，但新提交请尽可能用上表的新写法。
+- PR 一般以 squash 方式合并：PR 标题成为提交标题，PR 描述成为提交正文。所以 PR 标题也要按上面的格式写。
 
 > **示例**：`feat(OutpostTrading): 新增地区建设自动售卖 Pipeline`
+
+#### 特殊标记
+
+下面两个标记写在 commit message 里会产生额外效果，存在关键词就生效。
+
+- 虽然写在标题还是正文都会生效，但请写在正文里，避免标题将标记带入 changelog。
+- 由于 PR 一般以 squash 方式合并，PR 描述会成为提交正文，只是提到标记时（例如修改相关文档或 CI），不要写出带方括号的完整标记，否则该 PR 也会意外触发标记。CodeRabbit 生成的摘要同样会写进 PR 描述，合并前请检查最终的 squash commit message。
+
+`[skip changelog]`
+
+标题或正文中含有该标记的提交不会出现在更新日志里，一般只有 bot 的自动格式化、同步等提交使用。
+
+`[blame ignore]`
+
+仓库根目录的 `.git-blame-ignore-revs` 列出了 `git blame` 时要跳过的提交，GitHub 网页的 Blame 视图会自动读取它，避免格式化提交覆盖真正的更改。如果你的 PR 只做全量格式化、批量排序等**不改变代码含义**的机械改动，请在 **PR 描述**里加上该标记：
+
+- 如上所述，squash 合并后 PR 描述就是提交正文，标记随之进入 commit message。[`blame-ignore.yml`](../../../.github/workflows/blame-ignore.yml) 每天扫描 commit message，把带标记的提交追加到 `.git-blame-ignore-revs`，若非必要请勿手动编辑该文件。
+- 带标记的 PR 必须只放纯格式化改动。由于整个 squash commit 都会被 blame 跳过，夹带的逻辑修改将无法通过 blame 追溯。
+- [`format.yml`](../../../.github/workflows/format.yml) 的自动格式化提交已自带该标记，无需额外处理。
+
+本地使用 `git blame` 时，执行以下命令即可同样跳过这些提交（Git 2.52 及以上）：
+
+```bash
+git config blame.ignoreRevsFile ":(optional).git-blame-ignore-revs"
+```
+
+`:(optional)` 表示文件不存在时跳过这项配置，这样签出没有该文件的版本（例如 `archive/v1` 分支，或添加该文件之前的提交）时，`git blame` 也能照常使用。
+
+Git 2.52 之前不支持此前缀，会把它当成文件名的一部分，导致 `git blame` 报错，请改用：
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+这样配置后，在没有该文件的版本里执行 `git blame` 会报错 `could not open object name list`，加上 `--no-ignore-revs-file` 即可临时跳过这项配置。
 
 ### 关于子模块 (Submodule) 更新
 

@@ -41,14 +41,12 @@ func ScanShelfSlotsPC(ctx *maa.Context, img image.Image) []SlotRecord {
 	return buildSlotRecords(ctx, img, hits, slotAssignPC)
 }
 
-func recordDiscountAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect) string {
-	var ctrl *maa.Controller
-	if ctx != nil && ctx.GetTasker() != nil {
-		ctrl = ctx.GetTasker().GetController()
-	}
+// adb 由调用方按货架布局给出，这里不取 controller：agent 侧每次 GetController 都会销毁上一次返回的对象，
+// 在逐槽循环里再取一次，RecordShelfSnapshotsAction.Run 手里那个 ctrl 就成了悬空指针。
+func recordDiscountAtNameBox(ctx *maa.Context, img image.Image, nameBox maa.Rect, adb bool) string {
 	// 覆写 roi 为当前槽位名称框，并显式指定 roi_offset（与 pipeline 一致）。
 	// 不可先 applyROIOffset 再只覆写 roi：流水线仍会再叠一层 roi_offset。
-	override := recordItemDiscountPipelineOverride(nameBox, ctrl)
+	override := recordItemDiscountPipelineOverride(nameBox, adb)
 	detail, err := ctx.RunRecognition(pipelineNodeRecordItemDiscount, img, override)
 	if err != nil || detail == nil || !detail.Hit {
 		return discountNone

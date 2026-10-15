@@ -77,6 +77,7 @@ def _build_navtest(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
         start.get("path") or [],
         exported=bool(start.get("exported")),
         zip_enabled=bool(start.get("zip")),
+        heading_source=start.get("heading_source", "character"),
         assert_target=start.get("assert_target"),
         zipline_account_id=str(start.get("zipline_account_id") or ""),
     )

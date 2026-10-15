@@ -30,6 +30,16 @@
             "CreditShoppingNothingToBuy"
         ]
     },
+    "CreditShoppingSwipeShelfDown": {
+        "desc": "货架滑动露出下方商品（Win32 一屏可见，无需滑动）",
+        "recognition": "DirectHit",
+        "action": "DoNothing"
+    },
+    "CreditShoppingSwipeShelfUp": {
+        "desc": "货架滑回首屏（Win32 一屏可见，无需滑动）",
+        "recognition": "DirectHit",
+        "action": "DoNothing"
+    },
     "CreditShippingCanNotToBuy": {
         "desc": "刷新流程中无法购买（选项：没有可购买物品时=执行刷新）",
         "enabled": false,
@@ -52,13 +62,13 @@
         "action": "Click",
         "post_wait_freezes": {
             "time": 500,
-            "timeout": 2000,
             "target": [
                 77,
                 101,
                 158,
                 178
-            ]
+            ],
+            "timeout": 2000
         },
         "next": [
             "CreditShoppingShopping",

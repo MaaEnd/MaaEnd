@@ -113,13 +113,15 @@
                 "custom_action": "ClearHitCount",
                 "custom_action_param": {
                     "nodes": [
-                        "PullCountCalculatorFindCarryToNextVoucher"
+                        "PullCountCalculatorFindCarryToNextVoucher",
+                        "PullCountCalculatorFindIntroLetter"
                     ]
                 }
             }
         },
         "next": [
             "PullCountCalculatorFindCarryToNextVoucher",
+            "PullCountCalculatorFindIntroLetter",
             "PullCountCalculatorPageDone"
         ]
     },
@@ -144,6 +146,7 @@
         "action": "DoNothing",
         "next": [
             "PullCountCalculatorClickCarryToNextVoucher",
+            "PullCountCalculatorFindIntroLetter",
             "PullCountCalculatorPageDone"
         ]
     },
@@ -187,12 +190,109 @@
                 "only_rec": true
             }
         },
+        "action": "DoNothing",
+        "next": [
+            "PullCountCalculatorCarryToNextVoucherQuantityOCR"
+        ]
+    },
+    "PullCountCalculatorCarryToNextVoucherQuantityOCR": {
+        "desc": "识别特许寻访凭证格子底部的堆叠数量；PC 96px 格子底部取 18px 数量带",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "PullCountCalculatorFindCarryToNextVoucher",
+                "roi_offset": [
+                    -7,
+                    78,
+                    14,
+                    -64
+                ],
+                "expected": [
+                    "\\d"
+                ],
+                "only_rec": true
+            }
+        },
         "action": "Custom",
         "custom_action": "PullCountCalculatorAction",
         "custom_action_param": {
             "stage": "record_voucher"
         },
-        "target": "PullCountCalculatorFindCarryToNextVoucher",
+        "target": "PullCountCalculatorCarryToNextVoucherTitleOCR",
+        "next": [
+            "PullCountCalculatorFindIntroLetter",
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorFindIntroLetter": {
+        "desc": "查找寻访情报书图标，命中后按一份统计",
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    30,
+                    60,
+                    950,
+                    580
+                ],
+                "template": "PullCountCalculator/IntroLetter.Template.png",
+                "green_mask": true,
+                "threshold": 0.78,
+                "order_by": "Vertical"
+            }
+        },
+        "action": "DoNothing",
+        "next": [
+            "PullCountCalculatorClickIntroLetter",
+            "PullCountCalculatorPageDone"
+        ]
+    },
+    "PullCountCalculatorClickIntroLetter": {
+        "desc": "点击寻访情报书图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InStashValuablesTab",
+                    "PullCountCalculatorFindIntroLetter"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "PullCountCalculatorFindIntroLetter"
+            }
+        },
+        "post_wait_freezes": 150,
+        "next": [
+            "PullCountCalculatorIntroLetterTitleOCR"
+        ]
+    },
+    "PullCountCalculatorIntroLetterTitleOCR": {
+        "desc": "确认选中的物品是寻访情报书，计入十抽",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    980,
+                    58,
+                    260,
+                    36
+                ],
+                "expected": [
+                    ".*(寻访情报书|尋訪情報書).*"
+                ],
+                "only_rec": true
+            }
+        },
+        "action": "Custom",
+        "custom_action": "PullCountCalculatorAction",
+        "custom_action_param": {
+            "stage": "record_intro_letter"
+        },
         "next": [
             "PullCountCalculatorPageDone"
         ]

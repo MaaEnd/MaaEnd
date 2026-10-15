@@ -17,5 +17,61 @@
     },
     "ADBSpecial": {
         "enabled": true
+    },
+    "CreditShoppingSwipeShelfDown": {
+        "desc": "货架滑动露出下方商品（ADB）",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    500
+                ],
+                "end": [
+                    640,
+                    300
+                ],
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                74,
+                103,
+                1131,
+                538
+            ],
+            "threshold": 0.98,
+            "timeout": 2000
+        }
+    },
+    "CreditShoppingSwipeShelfUp": {
+        "desc": "货架滑回首屏（ADB）",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    300
+                ],
+                "end": [
+                    640,
+                    500
+                ],
+                "duration": 500
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                74,
+                103,
+                1131,
+                538
+            ],
+            "threshold": 0.98,
+            "timeout": 2000
+        }
     }
 }

@@ -40,20 +40,23 @@ type Request struct {
 	ItemFilters []string
 	ItemIDs     []string
 	Deduplicate bool
-	// TolerateEmptyGrid treats grid_detection_failed as "no items" instead of
-	// a hard error. A3 (rewards add) sets this so an empty popup cannot block
-	// closing the rewards UI. A2 (depot sync) leaves it false: a missing grid
-	// usually means the wrong screen.
+	// TolerateEmptyGrid treats grid_detection_failed and IconRecognition
+	// exception as "no items" instead of a hard error. A3 (rewards add) sets
+	// this so an empty popup or a catalog load failure cannot block closing
+	// the rewards UI. A2 (depot sync) leaves it false: a missing grid usually
+	// means the wrong screen.
 	TolerateEmptyGrid bool
 }
 
-func isADBController() bool {
-	return strings.EqualFold(strings.TrimSpace(pienv.ControllerType()), "Adb")
+// isADBController 判断当前控制器是否走触控 + 移动端 UI（ADB / PlayCover / Android 原生）。
+// ctrl 由调用方传入；PI_CONTROLLER 缺失时用它兜底，否则移动端会误用桌面 ROI。
+func isADBController(ctrl *maa.Controller) bool {
+	return pienv.IsAdbLikeControllerType(pienv.ResolveControllerKind(ctrl))
 }
 
-// DefaultROI returns the reference ROI for gridType on the current controller.
-func DefaultROI(gridType string) []int {
-	adb := isADBController()
+// defaultROI returns the reference ROI for gridType on the current controller.
+func defaultROI(ctrl *maa.Controller, gridType string) []int {
+	adb := isADBController(ctrl)
 	switch strings.TrimSpace(gridType) {
 	case GridValuables:
 		if adb {
@@ -108,9 +111,9 @@ func NormalizeStringList(values []string, label string) ([]string, error) {
 	return out, nil
 }
 
-func normalizeROI(roi []int, gridType string) ([]int, error) {
+func normalizeROI(ctrl *maa.Controller, roi []int, gridType string) ([]int, error) {
 	if len(roi) == 0 {
-		roi = DefaultROI(gridType)
+		roi = defaultROI(ctrl, gridType)
 	}
 	if len(roi) != 4 {
 		return nil, fmt.Errorf("roi must have 4 ints [x,y,w,h]")
@@ -123,12 +126,12 @@ func normalizeROI(roi []int, gridType string) ([]int, error) {
 	return out, nil
 }
 
-func recognizeIcons(ctx *maa.Context, img image.Image, req Request) ([]iconrecognition.Match, error) {
+func recognizeIcons(ctx *maa.Context, ctrl *maa.Controller, img image.Image, req Request) ([]iconrecognition.Match, error) {
 	gridType := strings.TrimSpace(req.GridType)
 	if gridType == "" {
 		return nil, fmt.Errorf("grid_type is required")
 	}
-	roi, err := normalizeROI(req.ROI, gridType)
+	roi, err := normalizeROI(ctrl, req.ROI, gridType)
 	if err != nil {
 		return nil, err
 	}
@@ -189,8 +192,10 @@ func recognizeIcons(ctx *maa.Context, img image.Image, req Request) ([]iconrecog
 }
 
 // emptyMatches reports whether IconRecognition returned no usable items.
-// no_match is always empty. grid_detection_failed is empty only when
-// tolerateEmptyGrid is set (A3). Other structured errors stay hard failures.
+// no_match is always empty. grid_detection_failed and exception are empty
+// only when tolerateEmptyGrid is set (A3): a missing catalog or a grid that
+// cannot be read must not block the close-rewards click. Other structured
+// errors stay hard failures.
 func emptyMatches(parsed iconrecognition.Detail, tolerateEmptyGrid bool) (empty bool, err error) {
 	code := iconrecognition.ErrorCode("")
 	message := ""
@@ -205,6 +210,14 @@ func emptyMatches(parsed iconrecognition.Detail, tolerateEmptyGrid bool) (empty 
 				Str("error_code", string(code)).
 				Str("message", message).
 				Msg("grid detection found no cells, treat as empty")
+			return true, nil
+		}
+		if tolerateEmptyGrid && code == iconrecognition.ErrorCodeException {
+			log.Error().
+				Str("component", "iconqty").
+				Str("error_code", string(code)).
+				Str("message", message).
+				Msg("IconRecognition exception, skip reward update")
 			return true, nil
 		}
 		return false, fmt.Errorf("IconRecognition %s: %s", code, message)

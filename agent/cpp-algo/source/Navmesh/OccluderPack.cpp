@@ -5,13 +5,18 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <mutex>
 #include <numbers>
 #include <numeric>
+#include <optional>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 
+#include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
 
+#include "BaseNavReader.h"
 #include "NavVarint.h"
 
 // 求交要与烘焙端逐位相同,不许把乘加合成一条指令。
@@ -88,6 +93,11 @@ constexpr double kSettleDrop = 2.0;
 constexpr double kSettleClamp = 1.0;
 // 三角裁进竖直柱子后最多几个顶点:三角本身 3 个,四刀每刀最多多出一个。
 constexpr size_t kClipMaxVertices = 8;
+// 台沿下落判定用的容差。
+constexpr double kBaryEps = 1e-9;
+constexpr double kFlatDet = 1e-12;
+constexpr double kColumnEdge = 1e-6;
+constexpr double kCurtainMinLength = 1e-9;
 
 uint16_t ReadU16(const uint8_t*& cursor)
 {
@@ -511,6 +521,183 @@ void VisitTree(const std::vector<BoxNode>& nodes, const std::vector<uint32_t>& o
     }
 }
 
+// 世界里的一张面。
+struct Face
+{
+    Vec3 v[3];
+    bool up = false;
+};
+
+// 盒子 [lo, hi] 碰得到的面。
+std::vector<Face> FacesInBox(const OccluderScene& scene, const Vec3& lo, const Vec3& hi)
+{
+    std::vector<Face> faces;
+    const auto reaches = [&](const Vec3& node_lo, const Vec3& node_hi) {
+        return BoxBox(lo, hi, node_lo, node_hi);
+    };
+    VisitTree(scene.instance_nodes, scene.instance_order, reaches, [&](uint32_t index) {
+        const OccluderScene::Instance& inst = scene.instances[index];
+        if (!BoxBox(lo, hi, inst.lo, inst.hi)) {
+            return;
+        }
+        Mat3 a = inst.m;
+        if (inst.invertible && !Inverse(inst.m, a)) {
+            return;
+        }
+        const double facing = Det(a) < 0.0 ? -1.0 : 1.0;
+        const OccluderScene::Template& tpl = scene.templates[inst.tpl];
+        const auto take = [&](uint32_t k) {
+            Face face;
+            for (size_t c = 0; c < 3; ++c) {
+                face.v[c] = Add(Mul(a, tpl.verts[tpl.tris[k][c]]), inst.t);
+            }
+            face.up = facing * Cross(Sub(face.v[1], face.v[0]), Sub(face.v[2], face.v[0]))[1] < 0.0;
+            faces.push_back(face);
+        };
+        if (!inst.invertible || tpl.nodes.empty()) {
+            for (uint32_t k = 0; k < tpl.tris.size(); ++k) {
+                take(k);
+            }
+            return;
+        }
+        Vec3 local_lo;
+        Vec3 local_hi;
+        local_lo.fill(std::numeric_limits<double>::infinity());
+        local_hi.fill(-std::numeric_limits<double>::infinity());
+        for (uint32_t corner = 0; corner < 8; ++corner) {
+            Vec3 w;
+            for (size_t j = 0; j < 3; ++j) {
+                w[j] = ((corner >> j) & 1U) == 0 ? lo[j] : hi[j];
+            }
+            const Vec3 l = Mul(inst.m, Sub(w, inst.t));
+            for (size_t j = 0; j < 3; ++j) {
+                local_lo[j] = std::fmin(local_lo[j], l[j]);
+                local_hi[j] = std::fmax(local_hi[j], l[j]);
+            }
+        }
+        const auto local_reaches = [&](const Vec3& node_lo, const Vec3& node_hi) {
+            return BoxBox(local_lo, local_hi, node_lo, node_hi);
+        };
+        VisitTree(tpl.nodes, tpl.order, local_reaches, take);
+    });
+    const size_t n = scene.block_n;
+    const double cell = scene.cell;
+    for (const OccluderScene::Block& block : scene.blocks) {
+        if (!BoxBox(lo, hi, block.lo, block.hi)) {
+            continue;
+        }
+        const double last = static_cast<double>(n - 2);
+        const double u0 = std::fmax(std::floor((lo[0] - block.x0) / cell) - 1.0, 0.0);
+        const double u1 = std::fmin(std::floor((hi[0] - block.x0) / cell) + 1.0, last);
+        const double v0 = std::fmax(std::floor((lo[2] - block.z0) / cell) - 1.0, 0.0);
+        const double v1 = std::fmin(std::floor((hi[2] - block.z0) / cell) + 1.0, last);
+        if (!(u0 <= u1 && v0 <= v1)) {
+            continue;
+        }
+        const auto sample = [&](size_t u, size_t v) {
+            return Vec3 { block.x0 + static_cast<double>(u) * cell,
+                          scene.lattice_a + scene.lattice_b * static_cast<double>(block.k[v * n + u]),
+                          block.z0 + static_cast<double>(v) * cell };
+        };
+        for (size_t v = static_cast<size_t>(v0); v <= static_cast<size_t>(v1); ++v) {
+            for (size_t u = static_cast<size_t>(u0); u <= static_cast<size_t>(u1); ++u) {
+                const size_t c = v * (n - 1) + u;
+                if (!block.holes.empty() && ((block.holes[c / 8] >> (c % 8)) & 1U) != 0) {
+                    continue;
+                }
+                const Vec3 p00 = sample(u, v);
+                const Vec3 p01 = sample(u, v + 1);
+                const Vec3 p10 = sample(u + 1, v);
+                const Vec3 p11 = sample(u + 1, v + 1);
+                faces.push_back(Face { .v = { p00, p01, p10 }, .up = true });
+                faces.push_back(Face { .v = { p10, p01, p11 }, .up = true });
+            }
+        }
+    }
+    return faces;
+}
+
+// 三角在 (x, z) 处的高。
+std::optional<double> HeightAt(const Vec3 (&tri)[3], double x, double z)
+{
+    const Vec3& a = tri[0];
+    const Vec3& b = tri[1];
+    const Vec3& c = tri[2];
+    const double det = (b[2] - c[2]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[2] - c[2]);
+    if (std::fabs(det) < kFlatDet) {
+        return std::nullopt;
+    }
+    const double l0 = ((b[2] - c[2]) * (x - c[0]) + (c[0] - b[0]) * (z - c[2])) / det;
+    const double l1 = ((c[2] - a[2]) * (x - c[0]) + (a[0] - c[0]) * (z - c[2])) / det;
+    const double l2 = 1.0 - l0 - l1;
+    if (l0 < -kBaryEps || l1 < -kBaryEps || l2 < -kBaryEps) {
+        return std::nullopt;
+    }
+    return l0 * a[1] + l1 * b[1] + l2 * c[1];
+}
+
+// 三角穿不穿过 a → b 上方高度 (lo, hi) 的竖直帘。
+bool CrossesCurtain(const Vec3 (&tri)[3], double ax, double az, double bx, double bz, double lo, double hi)
+{
+    const double dx = bx - ax;
+    const double dz = bz - az;
+    const double len = std::hypot(dx, dz);
+    if (len < kCurtainMinLength) {
+        return false;
+    }
+    const double ux = dx / len;
+    const double uz = dz / len;
+    using Point = std::array<double, 2>;
+    double side[3] {};
+    double along[3] {};
+    for (size_t k = 0; k < 3; ++k) {
+        side[k] = (tri[k][2] - az) * ux - (tri[k][0] - ax) * uz;
+        along[k] = (tri[k][0] - ax) * ux + (tri[k][2] - az) * uz;
+    }
+    std::vector<Point> section;
+    for (size_t k = 0; k < 3; ++k) {
+        const size_t j = (k + 1) % 3;
+        if (side[k] == 0.0) {
+            section.push_back({ along[k], tri[k][1] });
+        }
+        if ((side[k] < 0.0 && side[j] > 0.0) || (side[k] > 0.0 && side[j] < 0.0)) {
+            const double t = side[k] / (side[k] - side[j]);
+            section.push_back({ along[k] + t * (along[j] - along[k]), tri[k][1] + t * (tri[j][1] - tri[k][1]) });
+        }
+    }
+    const auto clip = [&](auto&& inside) {
+        std::vector<Point> kept;
+        for (size_t i = 0; i < section.size(); ++i) {
+            const Point& cur = section[i];
+            const Point& next = section[(i + 1) % section.size()];
+            const double dc = inside(cur);
+            const double dn = inside(next);
+            if (dc >= 0.0) {
+                kept.push_back(cur);
+            }
+            if ((dc > 0.0 && dn < 0.0) || (dc < 0.0 && dn > 0.0)) {
+                const double t = dc / (dc - dn);
+                kept.push_back({ cur[0] + t * (next[0] - cur[0]), cur[1] + t * (next[1] - cur[1]) });
+            }
+        }
+        section = std::move(kept);
+    };
+    clip([&](const Point& p) { return p[0]; });
+    clip([&](const Point& p) { return len - p[0]; });
+    clip([&](const Point& p) { return p[1] - lo; });
+    clip([&](const Point& p) { return hi - p[1]; });
+    if (section.empty()) {
+        return false;
+    }
+    double y_lo = std::numeric_limits<double>::infinity();
+    double y_hi = -std::numeric_limits<double>::infinity();
+    for (const Point& p : section) {
+        y_lo = std::fmin(y_lo, p[1]);
+        y_hi = std::fmax(y_hi, p[1]);
+    }
+    return y_hi > lo && y_lo < hi;
+}
+
 bool DecodeTemplates(OccluderScene& scene, uint32_t count, Stream* st)
 {
     scene.templates.resize(count);
@@ -924,99 +1111,7 @@ double OccluderScene::groundHeight(const OccluderPoint& base) const
     const double top = start + kSettlePlateAbove;
     const Vec3 lo { x0, bottom - kSettleDrop, z0 };
     const Vec3 hi { x1, top, z1 };
-
-    // 盒子里的每个面,放到世界里,记下朝不朝上
-    struct Face
-    {
-        Vec3 v[3];
-        bool up = false;
-    };
-
-    std::vector<Face> faces;
-    const auto reaches = [&](const Vec3& node_lo, const Vec3& node_hi) {
-        return BoxBox(lo, hi, node_lo, node_hi);
-    };
-    VisitTree(instance_nodes, instance_order, reaches, [&](uint32_t index) {
-        const Instance& inst = instances[index];
-        if (!BoxBox(lo, hi, inst.lo, inst.hi)) {
-            return;
-        }
-        Mat3 a = inst.m;
-        if (inst.invertible && !Inverse(inst.m, a)) {
-            return;
-        }
-        // 镜像的摆放把绕序反过来,朝向跟着翻
-        const double facing = Det(a) < 0.0 ? -1.0 : 1.0;
-        const Template& tpl = templates[inst.tpl];
-        const auto take = [&](uint32_t k) {
-            Face face;
-            for (size_t c = 0; c < 3; ++c) {
-                face.v[c] = Add(Mul(a, tpl.verts[tpl.tris[k][c]]), inst.t);
-            }
-            face.up = facing * Cross(Sub(face.v[1], face.v[0]), Sub(face.v[2], face.v[0]))[1] < 0.0;
-            faces.push_back(face);
-        };
-        if (!inst.invertible || tpl.nodes.empty()) {
-            for (uint32_t k = 0; k < tpl.tris.size(); ++k) {
-                take(k);
-            }
-            return;
-        }
-        // 盒子八个角换进模板局部系,取装得下它们的盒子去问模板的树
-        Vec3 local_lo;
-        Vec3 local_hi;
-        local_lo.fill(std::numeric_limits<double>::infinity());
-        local_hi.fill(-std::numeric_limits<double>::infinity());
-        for (uint32_t corner = 0; corner < 8; ++corner) {
-            Vec3 w;
-            for (size_t j = 0; j < 3; ++j) {
-                w[j] = ((corner >> j) & 1U) == 0 ? lo[j] : hi[j];
-            }
-            const Vec3 l = Mul(inst.m, Sub(w, inst.t));
-            for (size_t j = 0; j < 3; ++j) {
-                local_lo[j] = std::fmin(local_lo[j], l[j]);
-                local_hi[j] = std::fmax(local_hi[j], l[j]);
-            }
-        }
-        const auto local_reaches = [&](const Vec3& node_lo, const Vec3& node_hi) {
-            return BoxBox(local_lo, local_hi, node_lo, node_hi);
-        };
-        VisitTree(tpl.nodes, tpl.order, local_reaches, take);
-    });
-    // 地形处处朝上;挖了洞的格没有面
-    const size_t n = block_n;
-    for (const Block& block : blocks) {
-        if (!BoxBox(lo, hi, block.lo, block.hi)) {
-            continue;
-        }
-        const double last = static_cast<double>(n - 2);
-        const double u0 = std::fmax(std::floor((x0 - block.x0) / cell) - 1.0, 0.0);
-        const double u1 = std::fmin(std::floor((x1 - block.x0) / cell) + 1.0, last);
-        const double v0 = std::fmax(std::floor((z0 - block.z0) / cell) - 1.0, 0.0);
-        const double v1 = std::fmin(std::floor((z1 - block.z0) / cell) + 1.0, last);
-        if (!(u0 <= u1 && v0 <= v1)) {
-            continue;
-        }
-        const auto sample = [&](size_t u, size_t v) {
-            return Vec3 { block.x0 + static_cast<double>(u) * cell,
-                          lattice_a + lattice_b * static_cast<double>(block.k[v * n + u]),
-                          block.z0 + static_cast<double>(v) * cell };
-        };
-        for (size_t v = static_cast<size_t>(v0); v <= static_cast<size_t>(v1); ++v) {
-            for (size_t u = static_cast<size_t>(u0); u <= static_cast<size_t>(u1); ++u) {
-                const size_t c = v * (n - 1) + u;
-                if (!block.holes.empty() && ((block.holes[c / 8] >> (c % 8)) & 1U) != 0) {
-                    continue;
-                }
-                const Vec3 p00 = sample(u, v);
-                const Vec3 p01 = sample(u, v + 1);
-                const Vec3 p10 = sample(u + 1, v);
-                const Vec3 p11 = sample(u + 1, v + 1);
-                faces.push_back(Face { .v = { p00, p01, p10 }, .up = true });
-                faces.push_back(Face { .v = { p10, p01, p11 }, .up = true });
-            }
-        }
-    }
+    const std::vector<Face> faces = FacesInBox(*this, lo, hi);
 
     // 每个面裁到占地格里,看它的高度范围:贴上薄板就是原地碰上了,否则薄板往下落时先碰到最高的那个朝上面
     bool touching = false;
@@ -1059,6 +1154,62 @@ double OccluderScene::groundHeight(const OccluderPoint& base) const
     }
     const double ground = std::isfinite(landed) ? landed : base.y;
     return std::fmin(std::fmax(ground, base.y - kSettleClamp), base.y + kSettleClamp);
+}
+
+bool OccluderScene::dropBlocked(const OccluderPoint& take, const OccluderPoint& land, double climb, double height) const
+{
+    struct Level
+    {
+        double y = 0.0;
+        bool up = false;
+    };
+
+    const auto column = [&](const OccluderPoint& at, double bottom, double top) {
+        std::vector<Level> levels;
+        for (const Face& face : FacesInBox(*this, Vec3 { at.x, bottom, at.z }, Vec3 { at.x, top, at.z })) {
+            const std::optional<double> y = HeightAt(face.v, at.x, at.z);
+            if (y.has_value() && *y > bottom && *y < top) {
+                levels.push_back(Level { .y = *y, .up = face.up });
+            }
+        }
+        return levels;
+    };
+    const auto floor_under = [&](const std::vector<Level>& levels, double y) {
+        std::optional<double> best;
+        for (const Level& level : levels) {
+            if (level.up && std::fabs(level.y - y) <= climb && (!best.has_value() || level.y > *best)) {
+                best = level.y;
+            }
+        }
+        return best;
+    };
+    const std::vector<Level> at_take = column(take, take.y - climb - kColumnEdge, take.y + climb + kColumnEdge);
+    const std::vector<Level> at_land = column(land, land.y - climb - kColumnEdge, std::fmax(take.y, land.y + climb + kColumnEdge));
+    if (!floor_under(at_land, land.y).has_value()) {
+        return false;
+    }
+    // 落点头顶有实体
+    for (const Level& level : at_land) {
+        if (!level.up && level.y > land.y + climb && level.y < take.y) {
+            return true;
+        }
+    }
+    // 起跳路径有实体
+    const std::optional<double> take_floor = floor_under(at_take, take.y);
+    if (!take_floor.has_value()) {
+        return false;
+    }
+    const double base = std::fmax(*take_floor, take.y);
+    const double lo = base + climb;
+    const double hi = base + height;
+    const Vec3 box_lo { std::fmin(take.x, land.x), lo, std::fmin(take.z, land.z) };
+    const Vec3 box_hi { std::fmax(take.x, land.x), hi, std::fmax(take.z, land.z) };
+    for (const Face& face : FacesInBox(*this, box_lo, box_hi)) {
+        if (CrossesCurtain(face.v, take.x, take.z, land.x, land.z, lo, hi)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 std::shared_ptr<const OccluderScene> DecodeOccluderScene(const uint8_t* data, size_t size, std::string_view zone_name)
@@ -1116,6 +1267,41 @@ std::filesystem::path OccluderSidecarPath(const std::filesystem::path& main_pack
     }
     name += ".occluder.gz";
     return main_pack.parent_path() / MAA_NS::path(name);
+}
+
+std::shared_ptr<const OccluderScene> LoadOccluderScene(const std::filesystem::path& path, const std::string& zone_name)
+{
+    static std::mutex mutex;
+    static std::unordered_map<std::string, std::shared_ptr<const OccluderScene>> cache;
+    std::error_code ec;
+    std::filesystem::path absolute = std::filesystem::absolute(path, ec);
+    if (ec) {
+        absolute = path;
+    }
+    const std::string cache_key = MAA_NS::path_to_utf8_string(absolute.lexically_normal()) + "#" + zone_name;
+
+    const std::lock_guard<std::mutex> lock(mutex);
+    if (const auto iter = cache.find(cache_key); iter != cache.end()) {
+        return iter->second;
+    }
+    std::shared_ptr<const OccluderScene> scene;
+    std::vector<uint8_t> bytes;
+    const BaseNavLoadResult read = ReadNavFileBytes(path, &bytes);
+    if (read.status != BaseNavLoadStatus::Success) {
+        LogError << "Failed to read the occluder pack." << VAR(path) << VAR(read.message);
+    }
+    else {
+        scene = DecodeOccluderScene(bytes.data(), bytes.size(), zone_name);
+        if (!scene) {
+            LogError << "Failed to decode the occluder scene." << VAR(path) << VAR(zone_name) << VAR(bytes.size());
+        }
+        else {
+            LogInfo << "Occluder scene loaded." << VAR(zone_name) << VAR(scene->templates.size()) << VAR(scene->instances.size())
+                    << VAR(scene->blocks.size());
+        }
+    }
+    cache.emplace(cache_key, scene);
+    return scene;
 }
 
 } // namespace navmesh

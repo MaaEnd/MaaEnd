@@ -408,7 +408,10 @@
         }
     },
     "OutpostTradingReserveQuantityReached": {
-        "desc": "本次交易已达到保留数量，将当前物品标记为本次任务无需再次处理",
+        "desc": "[运行时覆盖] 本次交易已达到保留数量，将当前物品标记为本次任务无需再次处理",
+        // enabled 运行时由 BetterSliding 覆写：本节点名写在 <地点>BetterSliding 的 TargetReachableOverrideEnable
+        // 参数里，每次滑动结束都由它统一写回「解析后的目标可达」这一判定。
+        // 静态 false 只是默认值（判定发生前不启用），不要当成固定值。
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -424,7 +427,10 @@
         ]
     },
     "OutpostTradingReserveAlreadySatisfied": {
-        "desc": "保留数量大于等于当前库存，继续选择下一个优先物品",
+        "desc": "[运行时覆盖] 保留数量大于等于当前库存，继续选择下一个优先物品",
+        // enabled 运行时由 BetterSliding 覆写：本节点名写在 <地点>BetterSliding 的 OutOfRangeOverrideEnable
+        // 参数里，每次滑动结束都由它统一写回「目标超出可滑动范围」这一判定。
+        // 静态 false 只是默认值（判定发生前不启用）。
         "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,

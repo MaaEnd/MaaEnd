@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {Overlay} from "./static/js/gl/overlay.js";
+import {Camera} from "./static/js/camera.js";
 
 function renderWithMarker(mode, markerKey) {
   const overlay = Object.create(Overlay.prototype);
@@ -35,6 +36,80 @@ function renderWithMarker(mode, markerKey) {
   );
   return markers;
 }
+
+test("collapses repeated zipline rides to two directional lines at every zoom level", () => {
+  const overlay = Object.create(Overlay.prototype);
+  const camera = new Camera();
+  const strokes = [];
+  const arrows = [];
+  overlay._strokeLogPolyline = (view, points, style) =>
+    strokes.push({points: points.map((point) => view.worldToCanvas(...point)), style});
+  overlay._drawLogArrow = (view, from, to) => arrows.push([view.worldToCanvas(...from), view.worldToCanvas(...to)]);
+  overlay._drawLogCaption = () => assert.fail("ride captions belong in the sidebar, not on the map");
+  const forward = {from: [0, 0], to: [100, 0], landed: true, offTarget: true};
+  const returning = {from: [100, 0], to: [0, 0], landed: true, returning: true};
+  const ziplines = [forward, returning, forward, returning, forward, returning, {...forward, landed: false}];
+  const original = JSON.stringify(ziplines);
+  for (const scale of [camera.minScale, 0.25, 1, 8, camera.maxScale]) {
+    camera.viewScale = scale;
+    camera.centerOn(50, 0, 800, 600);
+    strokes.length = arrows.length = 0;
+    overlay._drawLogAnalysis(camera, {showZipline: true, ziplines});
+    assert.equal(strokes.length, 2);
+    assert.equal(arrows.length, 2);
+    assert.ok(arrows[0][0][0] < arrows[0][1][0]);
+    assert.ok(arrows[1][0][0] > arrows[1][1][0]);
+    const gap = Math.abs(strokes[0].points[0][1] - strokes[1].points[0][1]);
+    assert.ok(gap > 0 && gap <= 6);
+    assert.ok(strokes.every((stroke) => stroke.points.flat().every(Number.isFinite)));
+    assert.deepEqual(
+      strokes.map((stroke) => stroke.style.color),
+      ["#f87171", "#f59e0b"],
+    );
+    assert.ok(strokes.every((stroke) => stroke.style.dash.length === 0));
+  }
+  assert.equal(JSON.stringify(ziplines), original);
+  strokes.length = 0;
+  overlay._drawLogAnalysis(camera, {showZipline: true, ziplines: [forward, forward]});
+  assert.equal(strokes.length, 1);
+  assert.deepEqual(strokes[0].points, [camera.worldToCanvas(0, 0), camera.worldToCanvas(100, 0)]);
+  strokes.length = 0;
+  overlay._drawLogAnalysis(camera, {showZipline: false, ziplines});
+  assert.equal(strokes.length, 0);
+});
+
+test("draws replan jumps as dashed measured-track edges under the observed layer toggle", () => {
+  const overlay = Object.create(Overlay.prototype);
+  const camera = new Camera();
+  const strokes = [];
+  overlay._strokeLogPolyline = (_view, points, style) => strokes.push({points, style});
+  const observed = [
+    [
+      [0, 0],
+      [2, 0],
+    ],
+    [
+      [20, 0],
+      [22, 0],
+    ],
+  ];
+  const observedReplans = [
+    [
+      [2, 0],
+      [20, 0],
+    ],
+  ];
+  overlay._drawLogAnalysis(camera, {showObserved: true, observed, observedReplans});
+  assert.deepEqual(
+    strokes.map((stroke) => stroke.points),
+    [...observed, ...observedReplans],
+  );
+  assert.ok(strokes.slice(0, 2).every((stroke) => !stroke.style.dash));
+  assert.deepEqual(strokes[2].style, {color: "#94a3b8", width: 2, dash: [7, 5]});
+  strokes.length = 0;
+  overlay._drawLogAnalysis(camera, {showObserved: false, observed, observedReplans});
+  assert.equal(strokes.length, 0);
+});
 
 test("draws the game-position reference marker in edit mode", () => {
   assert.deepEqual(renderWithMarker("edit", "editLocateHint"), [{x: 12, y: 34, label: "游戏当前位置", rot: 90}]);

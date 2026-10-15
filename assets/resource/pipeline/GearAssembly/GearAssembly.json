@@ -40,13 +40,13 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
+            "time": 300,
             "target": [
                 0,
                 644,
                 135,
                 32
-            ],
-            "time": 300
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -78,13 +78,13 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
+            "time": 300,
             "target": [
                 0,
                 644,
                 135,
                 32
-            ],
-            "time": 300
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -116,13 +116,13 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -300,
                 -150,
                 300,
                 150
-            ],
-            "time": 200
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -150,13 +150,13 @@
         },
         // 因切换装备不需要等待加载，且不好判断上一个装备动画是否完成淡出，因此使用post_wait_freezes等待动画完成
         "post_wait_freezes": {
+            "time": 300,
             "target": [
                 -300,
                 -150,
                 300,
                 150
-            ],
-            "time": 300
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -191,13 +191,13 @@
             "param": {}
         },
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -300,
                 -150,
                 300,
                 150
-            ],
-            "time": 200
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -222,13 +222,13 @@
             }
         },
         "pre_wait_freezes": {
+            "time": 80,
             "target": [
                 -300,
                 -150,
                 300,
                 150
-            ],
-            "time": 80
+            ]
         },
         "pre_delay": 0,
         "action": {
@@ -396,13 +396,13 @@
         },
         // 因切换装备不需要等待加载，且不好判断上一个装备动画是否完成淡出，因此使用post_wait_freezes等待动画完成
         "post_wait_freezes": {
+            "time": 300,
             "target": [
                 -300,
                 -150,
                 300,
                 150
-            ],
-            "time": 300
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

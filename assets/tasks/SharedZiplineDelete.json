@@ -4,9 +4,8 @@
             "name": "SharedZiplineDelete",
             "label": "$task.SharedZiplineDelete.label",
             "entry": "SharedZiplineDeleteMain",
-            "option": [
-                "SharedZiplineDeleteValleyIV",
-                "SharedZiplineDeleteWuling"
+            "group": [
+                "open_world"
             ],
             "controller": [
                 "Linux-Gamescope",
@@ -14,8 +13,9 @@
                 "Linux-Wlroots",
                 "Win32-Front"
             ],
-            "group": [
-                "open_world"
+            "option": [
+                "SharedZiplineDeleteValleyIV",
+                "SharedZiplineDeleteWuling"
             ]
         }
     ],
@@ -23,7 +23,6 @@
         "SharedZiplineDeleteValleyIV": {
             "type": "switch",
             "label": "$global.region.ValleyIV",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -39,19 +38,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "SharedZiplineDeleteValleyIVRegions": {
             "type": "checkbox",
             "label": "$option.SharedZiplineDeleteRegions.label",
-            "default_case": [
-                "VFTheHub",
-                "VFValleyPass",
-                "VFOriginiumSciencePark",
-                "VFAburreyQuarry",
-                "VFOriginLodespring",
-                "VFPowerPlateau"
-            ],
             "cases": [
                 {
                     "name": "VFTheHub",
@@ -107,12 +99,19 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "VFTheHub",
+                "VFValleyPass",
+                "VFOriginiumSciencePark",
+                "VFAburreyQuarry",
+                "VFOriginLodespring",
+                "VFPowerPlateau"
             ]
         },
         "SharedZiplineDeleteWuling": {
             "type": "switch",
             "label": "$global.region.Wuling",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -128,22 +127,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "SharedZiplineDeleteWulingRegions": {
             "type": "checkbox",
             "label": "$option.SharedZiplineDeleteRegions.label",
-            "default_case": [
-                "WLWulingCity",
-                "WLJingyuValley",
-                "WLQingboStockade",
-                "WLMarkerStone",
-                "WLTestArea",
-                "WLSwordVaultDale",
-                "WLYinglungPass",
-                "WLNorthWulingExclusionZone",
-                "WLSnowyForest"
-            ],
             "cases": [
                 {
                     "name": "WLWulingCity",
@@ -226,6 +215,17 @@
                         }
                     }
                 }
+            ],
+            "default_case": [
+                "WLWulingCity",
+                "WLJingyuValley",
+                "WLQingboStockade",
+                "WLMarkerStone",
+                "WLTestArea",
+                "WLSwordVaultDale",
+                "WLYinglungPass",
+                "WLNorthWulingExclusionZone",
+                "WLSnowyForest"
             ]
         }
     }

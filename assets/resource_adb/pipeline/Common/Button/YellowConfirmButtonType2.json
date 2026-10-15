@@ -1,5 +1,6 @@
 {
     "__YellowConfirmButtonType2IconStable": {
+        "template": "AdbOnly/Common/Button/YellowConfirmButtonType2.png",
         "threshold": 0.7
     },
     "__YellowConfirmButtonType2IconHover": {

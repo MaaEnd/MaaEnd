@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/rs/zerolog/log"
 )
 
@@ -80,7 +81,7 @@ func Loaded() bool {
 // Missing file yields an empty loaded inventory. Per-group counts sum all levels.
 func LoadFile(path string) error {
 	if path == "" {
-		path = inventoryFilePath
+		path = fsutil.OutputPath(inventoryFilePath)
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {

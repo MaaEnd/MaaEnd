@@ -7,6 +7,7 @@ import (
 	"slices"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -76,11 +77,8 @@ func inventoryFailed(err error) bool {
 
 func finishInventory(ctx *maa.Context, st *RunState) bool {
 	groups, total := st.Inventory.exportGroups()
-	path, err := filepath.Abs(inventoryExportPath)
-	if err == nil {
-		err = writeInventoryFile(path, groups)
-	}
-	if err != nil {
+	path := fsutil.OutputPath(inventoryExportPath)
+	if err := writeInventoryFile(path, groups); err != nil {
 		return inventoryFailed(err)
 	}
 	log.Info().Str("component", "EssenceInventory").Str("path", path).

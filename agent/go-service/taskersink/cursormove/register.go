@@ -6,12 +6,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// 暂时禁用前台每次移动鼠标
+// make go vet happy
+const enabled = false
+
 // Register adds the cursor-move sinks when the controller is Win32.
 func Register() {
 	// if pienv.ControllerName() != "Win32-Front" {
 	// 	return
 	// }
-	return
+	if !enabled {
+		return
+	}
 
 	sink := &CursorMoveSink{}
 	maa.AgentServerAddContextSink(sink)

@@ -1,0 +1,42 @@
+{
+    "BatchUseDetectorFindValleyIVItem": {
+        "next": [
+            "BatchUseDetectorFindValleyIVDetector",
+            "BatchUseDetectorFindValleyIVCompass",
+            "[JumpBack]BatchUseDetectorSwipeNextPage",
+            "BatchUseDetectorFindNoItem"
+        ]
+    },
+    "BatchUseDetectorFindValleyIVDetector": {
+        "roi": [
+            100,
+            85,
+            790,
+            535
+        ]
+    },
+    "BatchUseDetectorConfirmValleyIVDetectorName": {
+        "roi": [
+            905,
+            76,
+            165,
+            40
+        ]
+    },
+    "BatchUseDetectorFindValleyIVCompass": {
+        "roi": [
+            100,
+            85,
+            790,
+            535
+        ]
+    },
+    "BatchUseDetectorConfirmValleyIVCompassName": {
+        "roi": [
+            905,
+            76,
+            165,
+            40
+        ]
+    }
+}

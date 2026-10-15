@@ -280,24 +280,24 @@
         "box_index": 1,
         "pre_wait_freezes": {
             "time": 400,
-            "timeout": 5000,
             "target": [
                 230,
                 250,
                 800,
                 200
-            ]
+            ],
+            "timeout": 5000
         },
         "action": "Click",
         "post_wait_freezes": {
             "time": 400,
-            "timeout": 2000,
             "target": [
                 500,
                 0,
                 280,
                 200
-            ]
+            ],
+            "timeout": 2000
         },
         "next": [
             "ResourceRecycleRegionEnd"

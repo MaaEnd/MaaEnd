@@ -504,7 +504,11 @@ void ZoneClean::release()
     walkable = std::vector<uint8_t>();
 }
 
-std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const
+std::optional<ZoneClean::SnapHit> ZoneClean::snap(
+    const WorldPoint& p,
+    double radius,
+    std::optional<double> floor_y,
+    const std::function<bool(int32_t, const WorldPoint&)>& accept) const
 {
     const double r = std::max(0.0, radius);
     const int nr = r >= kSnapFallbackRadius ? 1 : 2;
@@ -534,6 +538,42 @@ std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double ra
                 const double delta = std::fabs(triHeight(mesh, t) - *floor_y);
                 k = { delta <= static_cast<double>(kBaseNavFloorBand) ? 0.0 : 1.0, dist, delta, isl };
             }
+            if (!have || k < bk) {
+                if (accept && !accept(t, sp)) {
+                    continue;
+                }
+                have = true;
+                bk = k;
+                best = { t, sp, dist };
+            }
+        }
+        if (have) {
+            return best;
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<ZoneClean::SnapHit> ZoneClean::snapOnDeck(const WorldPoint& p, double radius, double deck_y) const
+{
+    const double r = std::max(0.0, radius);
+    const int nr = r >= kSnapFallbackRadius ? 1 : 2;
+    for (int ri = 0; ri < nr; ++ri) {
+        const double rr = ri == 0 ? r : kSnapFallbackRadius;
+        bool have = false;
+        std::array<double, 4> bk {};
+        SnapHit best;
+        for (const int32_t t : mesh.trisNear(p, rr)) {
+            if (walkable[static_cast<size_t>(t)] == 0) {
+                continue;
+            }
+            const auto& tri = mesh.T[static_cast<size_t>(t)];
+            const auto [sp, dist] = closestOnTri(p, { mesh.v(tri[0]), mesh.v(tri[1]), mesh.v(tri[2]) });
+            if (dist > rr) {
+                continue;
+            }
+            const double delta = std::fabs(triHeight(mesh, t) - deck_y);
+            const std::array<double, 4> k = { delta <= kDeckBand ? 0.0 : 1.0, dist, delta, static_cast<double>(t) };
             if (!have || k < bk) {
                 have = true;
                 bk = k;

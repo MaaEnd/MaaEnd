@@ -4,8 +4,10 @@
             "name": "AutoEssence",
             "label": "$task.AutoEssence.label",
             "entry": "AutoEssenceSchedule",
+            "group": [
+                "sanity_sink"
+            ],
             "controller": [
-                "ADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
@@ -16,9 +18,6 @@
                 "AutoEssenceSchedule",
                 "AutoEssenceMenu",
                 "AutoFightSettingFull"
-            ],
-            "group": [
-                "sanity_sink"
             ]
         }
     ],
@@ -26,15 +25,6 @@
         "AutoEssenceSchedule": {
             "type": "checkbox",
             "label": "$option.TaskSchedule.label",
-            "default_case": [
-                "AutoEssenceScheduleMonday",
-                "AutoEssenceScheduleTuesday",
-                "AutoEssenceScheduleWednesday",
-                "AutoEssenceScheduleThursday",
-                "AutoEssenceScheduleFriday",
-                "AutoEssenceScheduleSaturday",
-                "AutoEssenceScheduleSunday"
-            ],
             "cases": [
                 {
                     "name": "AutoEssenceScheduleMonday",
@@ -113,147 +103,31 @@
                         }
                     }
                 }
-            ]
-        },
-        "AutoEssenceChooseLocation": {
-            "type": "checkbox",
-            "label": "$option.AutoEssenceChooseLocation.label",
-            "description": "$option.AutoEssenceChooseLocation.description",
-            "default_case": [
-                "VFTheHub",
-                "VFOriginiumSciencePark",
-                "VFOriginLodespring",
-                "VFPowerPlateau",
-                "WLWulingCity",
-                "WLQingboStockade",
-                "WLMarkerStone",
-                "WLTestArea",
-                "WLSwordVaultDale",
-                "WLYinglungPass",
-                "WLNorthWulingExclusionZone",
-                "WLSnowyForest"
             ],
-            "cases": [
-                {
-                    "name": "VFTheHub",
-                    "label": "$global.region.TheHub",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_VFTheHub": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "VFOriginiumSciencePark",
-                    "label": "$global.region.OriginiumSciencePark",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_VFOriginiumSciencePark": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "VFOriginLodespring",
-                    "label": "$global.region.OriginLodespring",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_VFOriginLodespring": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "VFPowerPlateau",
-                    "label": "$global.region.PowerPlateau",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_VFPowerPlateau": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "WLWulingCity",
-                    "label": "$global.region.WulingCity",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_WLWulingCity": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "WLQingboStockade",
-                    "label": "$global.region.QingboStockade",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_WLQingboStockade": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "WLMarkerStone",
-                    "label": "$global.region.MarkerStone",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_WLMarkerStone": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "WLTestArea",
-                    "label": "$global.region.TestArea",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_WLTestArea": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "WLSwordVaultDale",
-                    "label": "$global.region.SwordVaultDale",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_WLSwordVaultDale": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "WLYinglungPass",
-                    "label": "$global.region.YinglungPass",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_WLYinglungPass": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "WLNorthWulingExclusionZone",
-                    "label": "$global.region.NorthWulingExclusionZone",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "WLSnowyForest",
-                    "label": "$global.region.SnowyForest",
-                    "pipeline_override": {
-                        "GotoTriggerPointSetAnchor_WLSnowyForest": {
-                            "enabled": true
-                        }
-                    }
-                }
+            "default_case": [
+                "AutoEssenceScheduleMonday",
+                "AutoEssenceScheduleTuesday",
+                "AutoEssenceScheduleWednesday",
+                "AutoEssenceScheduleThursday",
+                "AutoEssenceScheduleFriday",
+                "AutoEssenceScheduleSaturday",
+                "AutoEssenceScheduleSunday"
             ]
         },
         "AutoEssenceMenu": {
             "type": "select",
             "label": "$option.AutoEssenceMenu.label",
             "description": "$option.AutoEssenceMenu.description",
-            "default_case": "Random",
             "cases": [
                 {
                     "name": "Random",
                     "label": "$option.AutoEssenceMenu.cases.Random.label",
                     "description": "$option.AutoEssenceMenu.cases.Random.description",
+                    "option": [
+                        "AutoEssenceChooseLocation",
+                        "AutoEssenceObtainMode",
+                        "AutoEssenceRepeatCount"
+                    ],
                     // 随机模式不配置预刻写词条：跳过条件检查/调整，直接开刷；
                     // 未选词条时由 AutoEssenceDismissWarningPreEngrave 关闭警告弹窗
                     "pipeline_override": {
@@ -262,12 +136,7 @@
                                 "AutoEssenceClickEssenceStartButton"
                             ]
                         }
-                    },
-                    "option": [
-                        "AutoEssenceChooseLocation",
-                        "AutoEssenceObtainMode",
-                        "AutoEssenceRepeatCount"
-                    ]
+                    }
                 },
                 {
                     "name": "Location",
@@ -283,6 +152,14 @@
                     "name": "Target",
                     "label": "$option.AutoEssenceMenu.cases.Target.label",
                     "description": "$option.AutoEssenceMenu.cases.Target.description",
+                    "option": [
+                        "AutoEssenceWeaponTypeSword",
+                        "AutoEssenceWeaponTypeClaymore",
+                        "AutoEssenceWeaponTypePistol",
+                        "AutoEssenceWeaponTypeWand",
+                        "AutoEssenceWeaponTypeLance",
+                        "AutoEssenceObtainModeClaimOnlyForcedFilter"
+                    ],
                     "pipeline_override": {
                         "AutoEssenceMain": {
                             "max_hit": 999999,
@@ -310,23 +187,15 @@
                         "AutoEssenceAfterBattleRunEndLootReport": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceWeaponTypeSword",
-                        "AutoEssenceWeaponTypeClaymore",
-                        "AutoEssenceWeaponTypePistol",
-                        "AutoEssenceWeaponTypeWand",
-                        "AutoEssenceWeaponTypeLance",
-                        "AutoEssenceObtainModeClaimOnlyForcedFilter"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "Random"
         },
         "AutoEssenceObtainMode": {
             "type": "select",
             "label": "$option.AutoEssenceObtainMode.label",
             "description": "$option.AutoEssenceObtainMode.description",
-            "default_case": "ObtainScaling2",
             "cases": [
                 {
                     "name": "Discard",
@@ -352,6 +221,11 @@
                 {
                     "name": "ObtainScaling1",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling1.label",
+                    "option": [
+                        "AutoEssenceDoOverride",
+                        "EssenceFilterAfterBattle",
+                        "AutoUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "AutoEssenceClickObtainButton": {
                             "enabled": true
@@ -362,19 +236,22 @@
                         "AutoEssenceChooseScaling2": {
                             "enabled": false
                         },
+                        "AutoEssenceLowSpFallbackScaling1": {
+                            "enabled": false
+                        },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
                         }
-                    },
-                    "option": [
-                        "AutoEssenceDoOverride",
-                        "EssenceFilterAfterBattle",
-                        "AutoUseSpMedication"
-                    ]
+                    }
                 },
                 {
                     "name": "ObtainScaling2",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling2.label",
+                    "option": [
+                        "AutoEssenceDoOverride",
+                        "EssenceFilterAfterBattle",
+                        "AutoUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "AutoEssenceClickObtainButton": {
                             "enabled": true
@@ -385,27 +262,30 @@
                         "AutoEssenceChooseScaling2": {
                             "enabled": true
                         },
+                        "AutoEssenceLowSpFallbackScaling1": {
+                            "enabled": true
+                        },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
                         }
-                    },
-                    "option": [
-                        "AutoEssenceDoOverride",
-                        "EssenceFilterAfterBattle",
-                        "AutoUseSpMedication"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "ObtainScaling2"
         },
         "AutoEssenceObtainModeClaimOnly": {
             "type": "select",
             "label": "$option.AutoEssenceObtainMode.label",
             "description": "$option.AutoEssenceObtainMode.description",
-            "default_case": "ObtainScaling2",
             "cases": [
                 {
                     "name": "ObtainScaling1",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling1.label",
+                    "option": [
+                        "AutoEssenceDoOverride",
+                        "EssenceFilterAfterBattle",
+                        "AutoUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "AutoEssenceClickObtainButton": {
                             "enabled": true
@@ -416,19 +296,22 @@
                         "AutoEssenceChooseScaling2": {
                             "enabled": false
                         },
+                        "AutoEssenceLowSpFallbackScaling1": {
+                            "enabled": false
+                        },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
                         }
-                    },
-                    "option": [
-                        "AutoEssenceDoOverride",
-                        "EssenceFilterAfterBattle",
-                        "AutoUseSpMedication"
-                    ]
+                    }
                 },
                 {
                     "name": "ObtainScaling2",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling2.label",
+                    "option": [
+                        "AutoEssenceDoOverride",
+                        "EssenceFilterAfterBattle",
+                        "AutoUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "AutoEssenceClickObtainButton": {
                             "enabled": true
@@ -439,27 +322,28 @@
                         "AutoEssenceChooseScaling2": {
                             "enabled": true
                         },
+                        "AutoEssenceLowSpFallbackScaling1": {
+                            "enabled": true
+                        },
                         "AutoEssenceDismissWarningSanityLowContinue": {
                             "enabled": false
                         }
-                    },
-                    "option": [
-                        "AutoEssenceDoOverride",
-                        "EssenceFilterAfterBattle",
-                        "AutoUseSpMedication"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "ObtainScaling2"
         },
         "AutoEssenceObtainModeClaimOnlyForcedFilter": {
             "type": "select",
             "label": "$option.AutoEssenceObtainMode.label",
             "description": "$option.AutoEssenceObtainMode.description",
-            "default_case": "ObtainScaling2",
             "cases": [
                 {
                     "name": "ObtainScaling1",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling1.label",
+                    "option": [
+                        "AutoUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "AutoEssenceClickObtainButton": {
                             "enabled": true
@@ -468,6 +352,9 @@
                             "enabled": false
                         },
                         "AutoEssenceChooseScaling2": {
+                            "enabled": false
+                        },
+                        "AutoEssenceLowSpFallbackScaling1": {
                             "enabled": false
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
@@ -485,14 +372,14 @@
                         "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoUseSpMedication"
-                    ]
+                    }
                 },
                 {
                     "name": "ObtainScaling2",
                     "label": "$option.AutoEssenceObtainMode.cases.ObtainScaling2.label",
+                    "option": [
+                        "AutoUseSpMedication"
+                    ],
                     "pipeline_override": {
                         "AutoEssenceClickObtainButton": {
                             "enabled": true
@@ -501,6 +388,9 @@
                             "enabled": false
                         },
                         "AutoEssenceChooseScaling2": {
+                            "enabled": true
+                        },
+                        "AutoEssenceLowSpFallbackScaling1": {
                             "enabled": true
                         },
                         "AutoEssenceDismissWarningSanityLowContinue": {
@@ -518,17 +408,14 @@
                         "AutoEssenceDismissWarningEngravePermitInsufficientCancel": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoUseSpMedication"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "ObtainScaling2"
         },
         "AutoUseSpMedication": {
             "type": "select",
             "label": "$option.AutoUseSpMedication.label",
-            "default_case": "UseMedication",
             "cases": [
                 {
                     "name": "EndTask",
@@ -548,6 +435,9 @@
                 {
                     "name": "UseMedication",
                     "label": "$option.AutoUseSpMedication.cases.UseMedication.label",
+                    "option": [
+                        "AutoEssenceSpMedicationExpireWithinDays"
+                    ],
                     "pipeline_override": {
                         "AutoEssenceDismissWarningSanityLowStop": {
                             "enabled": false
@@ -558,17 +448,14 @@
                         "AutoEssenceLowSpUseMedication": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoEssenceSpMedicationExpireWithinDays"
-                    ]
+                    }
                 }
-            ]
+            ],
+            "default_case": "UseMedication"
         },
         "AutoEssenceSpMedicationExpireWithinDays": {
-            "label": "$option.AutoUseSpMedicationExpireWithinDays.label",
             "type": "select",
-            "default_case": "Days3",
+            "label": "$option.AutoUseSpMedicationExpireWithinDays.label",
             "cases": [
                 {
                     "name": "All",
@@ -635,13 +522,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Days3"
         },
         "AutoEssenceDoOverride": {
             "type": "switch",
             "label": "$option.AutoEssenceDoOverride.label",
             "description": "$option.AutoEssenceDoOverride.description",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -677,7 +564,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "AutoEssenceRepeatCount": {
             "type": "input",
@@ -687,9 +575,9 @@
                     "name": "AutoEssenceRepeatCountValue",
                     "label": "$option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.label",
                     "description": "$option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.description",
+                    "default": "5",
                     "pipeline_type": "int",
-                    "verify": "^(([1-9])|([1-9][0-9]))$",
-                    "default": "5"
+                    "verify": "^(([1-9])|([1-9][0-9]))$"
                 }
             ],
             "pipeline_override": {
@@ -708,10 +596,14 @@
         "EssenceFilterAfterBattle": {
             "type": "switch",
             "label": "$option.EssenceFilterAfterBattle.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleSelectWeaponRarity",
+                        "EssenceFilterAfterBattleSelectEssence",
+                        "EssenceFilterAfterBattleSelectExtraRules"
+                    ],
                     "pipeline_override": {
                         "EssenceFilterAfterBattleStart": {
                             "enabled": true
@@ -719,12 +611,7 @@
                         "AutoEssenceAfterBattleRunEndLootReport": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "EssenceFilterAfterBattleSelectWeaponRarity",
-                        "EssenceFilterAfterBattleSelectEssence",
-                        "EssenceFilterAfterBattleSelectExtraRules"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -737,12 +624,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EssenceFilterAfterBattleSelectWeaponRarity": {
             "type": "switch",
             "label": "$option.SelectWeaponRarity.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -755,12 +642,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "EssenceFilterAfterBattleRarity6Weapon": {
             "type": "switch",
             "label": "$option.Rarity6Weapon.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -782,12 +669,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "EssenceFilterAfterBattleRarity5Weapon": {
             "type": "switch",
             "label": "$option.Rarity5Weapon.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -809,12 +696,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "EssenceFilterAfterBattleRarity4Weapon": {
             "type": "switch",
             "label": "$option.Rarity4Weapon.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -836,12 +723,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EssenceFilterAfterBattleSelectEssence": {
             "type": "switch",
             "label": "$option.SelectEssence.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -853,12 +740,12 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "EssenceFilterAfterBattleFlawlessEssence": {
             "type": "switch",
             "label": "$option.FlawlessEssence.label",
-            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -890,12 +777,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Yes"
         },
         "EssenceFilterAfterBattlePureEssence": {
             "type": "switch",
             "label": "$option.PureEssence.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -927,12 +814,12 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EssenceFilterAfterBattleSelectExtraRules": {
             "type": "switch",
             "label": "$option.SelectExtraRules.label",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -945,13 +832,13 @@
                 {
                     "name": "No"
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EssenceFilterAfterBattleKeepFuturePromising": {
             "type": "switch",
             "label": "$option.KeepFuturePromising.label",
             "description": "$option.KeepFuturePromising.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -977,13 +864,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EssenceFilterAfterBattleLockFuturePromising": {
             "type": "switch",
             "label": "$option.LockFuturePromising.label",
             "description": "$option.LockFuturePromising.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -1005,7 +892,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EssenceFilterAfterBattleFuturePromisingMinTotal": {
             "type": "input",
@@ -1016,9 +904,9 @@
                     "name": "EssenceFilterAfterBattleFuturePromisingMinTotal",
                     "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
                     "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
+                    "default": "6",
                     "pipeline_type": "int",
-                    "verify": "^[3-9]$|^1[0-5]$",
-                    "default": "6"
+                    "verify": "^[3-9]$|^1[0-5]$"
                 }
             ],
             "pipeline_override": {
@@ -1033,7 +921,6 @@
             "type": "switch",
             "label": "$option.KeepSlot3Level3Practical.label",
             "description": "$option.KeepSlot3Level3Practical.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -1059,13 +946,13 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EssenceFilterAfterBattleLockSlot3Practical": {
             "type": "switch",
             "label": "$option.LockSlot3Practical.label",
             "description": "$option.LockSlot3Practical.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -1087,7 +974,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         },
         "EssenceFilterAfterBattleSlot3MinLevel": {
             "type": "input",
@@ -1098,9 +986,9 @@
                     "name": "EssenceFilterAfterBattleSlot3MinLevel",
                     "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
                     "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
+                    "default": "3",
                     "pipeline_type": "int",
-                    "verify": "^[1-3]$",
-                    "default": "3"
+                    "verify": "^[1-3]$"
                 }
             ],
             "pipeline_override": {
@@ -1115,7 +1003,6 @@
             "type": "switch",
             "label": "$option.DiscardUnmatched.label",
             "description": "$option.DiscardUnmatched.description",
-            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -1137,7 +1024,8 @@
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "No"
         }
     }
 }

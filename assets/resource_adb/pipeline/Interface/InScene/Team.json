@@ -1,0 +1,12 @@
+{
+    // 手机端编队界面左上角图标比 PC 模板大约 25%，PC 模板只有 0.56 分
+    "InTeam": {
+        "recognition": {
+            "param": {
+                "template": [
+                    "AdbOnly/ProtocolSpace/TeamChooseIcon.png"
+                ]
+            }
+        }
+    }
+}

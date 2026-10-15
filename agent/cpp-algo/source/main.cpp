@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <system_error>
+#include <thread>
 
 #include <meojson/json.hpp>
 
@@ -10,8 +11,10 @@
 #include <MaaUtils/Platform.h>
 
 #include "Common/CrashHandler.h"
+#include "Common/MacAppHost.h"
 #include "Common/ParentProcessWatcher.h"
 #include "Common/SystemMonitor.h"
+#include "Common/output_paths.h"
 #include "EssenceGridScan/EssenceGridScan.h"
 #include "IconRecognition/IconRecognitionRecognition.h"
 #include "MapLocator/MapLocateAction.h"
@@ -26,7 +29,7 @@
 
 namespace
 {
-constexpr const char* kLogDir = "./debug/cpp-algo/debug";
+constexpr const char* kLogDir = "debug/cpp-algo/debug";
 
 bool initialize_logging()
 {
@@ -67,7 +70,7 @@ bool initialize_logging()
     }
 
     // AgentServer 只支持日志选项，图像保存等配置由主进程负责。
-    std::string log_dir = logging ? kLogDir : "";
+    std::string log_dir = logging ? MAA_NS::path_to_utf8_string(common::OutputPath(MAA_NS::path(kLogDir))) : "";
     if (!MaaGlobalSetOption(MaaGlobalOption_LogDir, log_dir.data(), log_dir.size())) {
         std::cerr << "Failed to set AgentServer LogDir" << std::endl;
         return false;
@@ -82,6 +85,14 @@ bool initialize_logging()
 
 int main(int argc, char** argv)
 {
+    try {
+        common::StartupDir();
+    }
+    catch (const std::filesystem::filesystem_error& error) {
+        std::cerr << "Failed to capture startup working directory: " << error.what() << std::endl;
+        return -1;
+    }
+
 #ifdef _WIN32
     if (!setup_dll_directory()) {
         std::cerr << "Warning: Failed to set DLL directory to maafw" << std::endl;
@@ -99,7 +110,7 @@ int main(int argc, char** argv)
     }
 
     // 转储落到 maafw.log 同一目录，报 issue 打包日志时会一并带上。
-    common::InstallCrashHandler(MAA_NS::path(kLogDir));
+    common::InstallCrashHandler(common::OutputPath(MAA_NS::path(kLogDir)));
 
     // 父进程一旦退出立刻结束自己，避免 MXU/MFAA 崩溃后 cpp-algo 残留。
     common::StartParentProcessWatcher();
@@ -126,8 +137,8 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomRecognition("MapFind", worldmap::MapFindRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
-#ifdef MAAEND_HAVE_WEBVIEW2
-    // 导入要开一个内嵌浏览器让用户自己登录, 而这个控件只有 Windows 有实现,
+#if defined(MAAEND_HAVE_WEBVIEW2) || defined(MAAEND_HAVE_WEBKIT)
+    // 导入要开一个内嵌浏览器让用户自己登录, 而这个控件只有 Windows 和 macOS 有实现,
     // 其余平台把这个动作名留给各自的实现
     MaaAgentServerRegisterCustomAction("ZiplineImport", zipline::ZiplineImportActionRun, nullptr);
 #endif
@@ -136,7 +147,16 @@ int main(int argc, char** argv)
 
     MaaAgentServerStartUp(identifier);
 
+#ifdef __APPLE__
+    std::thread agent([] {
+        MaaAgentServerJoin();
+        common::macapp::QuitMainLoop();
+    });
+    common::macapp::RunMainLoop();
+    agent.join();
+#else
     MaaAgentServerJoin();
+#endif
 
     MaaAgentServerShutDown();
 

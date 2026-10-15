@@ -1,0 +1,42 @@
+{
+    "BatchUseDetectorFind${LocationId}Item": {
+        "next": [
+            "BatchUseDetectorFind${Detector}",
+            "BatchUseDetectorFind${Compass}",
+            "[JumpBack]BatchUseDetectorSwipeNextPage",
+            "BatchUseDetectorFindNoItem"
+        ]
+    },
+    "BatchUseDetectorFind${Detector}": {
+        "roi": [
+            100,
+            85,
+            790,
+            535
+        ]
+    },
+    "BatchUseDetectorConfirm${Detector}Name": {
+        "roi": [
+            905,
+            76,
+            165,
+            40
+        ]
+    },
+    "BatchUseDetectorFind${Compass}": {
+        "roi": [
+            100,
+            85,
+            790,
+            535
+        ]
+    },
+    "BatchUseDetectorConfirm${Compass}Name": {
+        "roi": [
+            905,
+            76,
+            165,
+            40
+        ]
+    }
+}

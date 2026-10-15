@@ -10,6 +10,7 @@
 - `https://assets.fz.wiki/output_maaend/weapons.json`
 - `https://assets.fz.wiki/output_beyondmap/i18n/{locale}/lang.json`
 - `https://assets.fz.wiki/output_image/itemicon/<url-encoded-iconId>.png@raw`
+- `https://assets.fz.wiki/output_image/itemiconbig/<url-encoded-iconId>.png@raw`（仅备用大图名单）
 
 普通物品语言路径使用 `zh-CN/zh-TW/en-US/ja-JP/ko-KR`，武器名称读取 `weapons.json` 的 `CN/TC/EN/JP/KR` key。
 
@@ -25,13 +26,13 @@ python tools/icon_recognition/download.py
 python tools/icon_recognition/download.py --dry-run
 ```
 
-下载结果写入 `tools/icon_recognition/.cache/downloads/`。该目录只作为下载工具缓存，不参与生产或测试运行。远端表和语言文件每次运行都会校验；有效 PNG 按 `iconId` 增量复用。
+下载结果写入 `tools/icon_recognition/.cache/downloads/`。该目录只作为下载工具缓存，不参与生产或测试运行。远端表和语言文件每次运行都会校验；图标来源不变时通过 ETag/Last-Modified 检查更新，切换来源地址时重新下载。
+
+普通图标从 `itemicon` 下载。`big_icon_ids.json` 按 `iconId` 维护备用大图名单；名单内的图标额外从 `itemiconbig` 下载到独立的 `big_images/` 缓存。两类图标都要求源 PNG 是边长为 2 的整数次幂的正方形；不合规的图片会下载失败，不自动缩放或补边。新增名单条目后须先重新下载，再发布。
 
 物品黑名单维护在 `tools/icon_recognition/blacklist.json`，按 `storageKind`、`categoryType` 和物品 ID 规则过滤，不直接写入下载脚本。
 
 上游表中缺失但必须发布的固定物品集中维护在 `tools/icon_recognition/fixed_items.json`。下载、catalog 和多语言生成都从该文件读取，不要在各脚本内重复硬编码物品字段。
-
-原始图标必须是正方形，边长必须为 2 的整数次幂，例如 128x128 或 256x256。遇到非标准图片时下载失败并写入报告，不执行自动拉伸或补边。
 
 ## 生成发布资源
 
@@ -54,6 +55,7 @@ python tools/icon_recognition/publish.py --fixed-only
 - `tools/icon_recognition/.cache/downloads/weapons.json`
 - `tools/icon_recognition/.cache/downloads/lang_*.json`
 - `tools/icon_recognition/.cache/downloads/images/`
+- `tools/icon_recognition/.cache/downloads/big_images/`（仅备用大图）
 
 默认输出：
 
@@ -81,7 +83,7 @@ python tools/icon_recognition/publish.py --fixed-only
 
 固定物品的 `iconId`、i18n key、rarity、`storageKind` 和 `categoryType` 均以 `fixed_items.json` 为唯一事实来源。当前 9 项都使用“独立资源”分类，并发布到各自的 `Isolate:<categoryType>` 候选集。
 
-最终图标位于 `assets/resource/image/IconRecognition/<rarity>/<iconId>.png`。识别时从这里的 128 或 256 原图直接缩放到目标 cell 尺寸，不经过固定中间尺寸。
+普通图标仍位于 `assets/resource/image/IconRecognition/<rarity>/<iconId>.png`，名单中的备用图位于 `assets/resource/image/IconRecognition/Big/<rarity>/<iconId>.png`；地区禁用标识仍位于 `Overlay/`。识别器先使用普通图的现有尺寸与亚像素搜索，仍拒识时才尝试 Big（先常规尺寸，再尝试贵重品库或奖励界面的备用尺寸）。Big 不作为独立物品或 UI 图标发布；增加备用图只需维护名单并重新下载、发布。
 
 ## 校验与故障恢复
 

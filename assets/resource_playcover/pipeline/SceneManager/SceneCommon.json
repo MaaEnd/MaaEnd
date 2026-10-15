@@ -15,7 +15,12 @@
             "param": {
                 "any_of": [
                     "CloseButtonType1",
-                    "ProtosyncMenuButton"
+                    "ProtosyncMenuButton",
+                    // 点击登录到加载界面出现之间有一段不可预测的空窗期，可能会导致 __ScenePrivateLoginContinueDisappeared 成功但后续应该进入的 SceneWaitLoadingExit 识别失败
+                    // 最终会进入 __ScenePrivateLoginCloseDialog 按一次 ESC 然后跳回并在之后几轮正常进入 SceneWaitLoadingExit 并继续
+                    // 其他控制器没有影响，但 PlayCover 的 ESC 被映射进入此任务必定会识别失败，所以在这里也加个识别等待加载界面
+                    // 副作用是会点一下 Logo 但应该没什么影响
+                    "SceneWaitLoadingExit"
                 ]
             }
         },

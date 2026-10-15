@@ -93,6 +93,17 @@ if(WIN32)
         RUNTIME DESTINATION agent)
 endif()
 
+if(APPLE)
+    set(cpp_algo_objcxx_src
+        ${CMAKE_CURRENT_SOURCE_DIR}/Common/MacAppHost.mm
+        ${CMAKE_CURRENT_SOURCE_DIR}/Common/WebKitWindow.mm
+    )
+    target_sources(cpp-algo PRIVATE ${cpp_algo_objcxx_src})
+    set_source_files_properties(${cpp_algo_objcxx_src} PROPERTIES COMPILE_OPTIONS -fobjc-arc)
+    target_link_libraries(cpp-algo PRIVATE "-framework Cocoa" "-framework WebKit")
+    target_compile_definitions(cpp-algo PRIVATE MAAEND_HAVE_WEBKIT)
+endif()
+
 add_dependencies(cpp-algo MaaUtils)
 
 if(MAAEND_BUILD_ICON_RECOGNITION_TESTS)

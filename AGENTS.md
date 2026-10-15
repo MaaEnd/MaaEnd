@@ -68,6 +68,7 @@
 - **流程控制**：禁止在 Go 中编写大规模的业务流程，流程控制应交由 Pipeline JSON 负责。
 - **注册机制**：新增、重命名或删除自定义动作/识别时，需同步修改对应子包 `register.go`；新增或删除子包时，还需在 `registerAll()` 中接入或移除。
 - **参数极简**：新增或修改 Custom Recognition / Action 时，`custom_recognition_param` / `custom_action_param` 应尽可能简单——用户未明确要求的参数不要自行添加，避免擅自设计大量接口。
+- **句柄生命周期**：回调里的 `ctx` / `tasker` / `controller` / `resource` 只在本次回调内有效；同一回调内 `GetController()` / `GetResource()` 只调用一次并往下传，再次调用会使上一次返回的对象失效。详见 [Go Service 编写指南](.agents/skills/go-service-guide/SKILL.md) 的「句柄生命周期」一节。
 
 ### 3. Cpp Algo 规范
 
@@ -97,6 +98,7 @@
     - 缩进宽度以 `.prettierrc` 为唯一准则，通常是 4 个空格。
     - 数组格式受 `prettier-plugin-multiline-arrays` 插件影响，数组元素必须换行排列（阈值为 1）。
     - 提交前请务必执行格式化，确保代码风格统一。
+- **Markdown 约束**：新增、修改 `.md` 前先读 [docs-guide](.agents/skills/docs-guide/SKILL.md)，按其中的写法和 markdownlint 规则处理。
 
 ## 审查重点
 
@@ -107,6 +109,7 @@
 - **截图效率**：检查 `next` 列表是否足够完善。理想情况下，应能覆盖当前操作后所有可能的预期画面，实现“一次心跳，立即命中”。
 - **坐标合法性**：所有新定义的 `roi` 或 `target` 坐标必须基于 **1280x720** 分辨率。
 - **代码格式化**：确保代码符合 `.prettierrc` 规范，特别是 JSON 中的缩进格式。
+- **文档改动**：按 [docs-guide](.agents/skills/docs-guide/SKILL.md) 检查，特别是中英文文档是否一起改了。
 - **国际化缺失**：检查新增任务是否在 `assets/locales/` 文件夹中配置了多语言文本。
 - **文件夹命名**：检查资源目录下是否有以下划线 `_` 开头的文件夹名（Android 打包逻辑无法处理，需改为普通命名）。
 - **OCR 完整文本**：OCR 节点的 `expected` 默认必须写完整文本，禁止为了"图省事"写片段。仅当 OCR 引擎对完整文本识别不稳定，确需截断/正则才能稳定命中时，才允许写片段，此时必须在 `expected` 数组中加 `// @i18n-skip`，并在数组上方用普通 JSON 注释保留**完整原文**，方便审查与多语言对照。
@@ -122,3 +125,4 @@
 - [MaaFramework 项目接口 V2](https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/docs/en_us/3.3-ProjectInterfaceV2.md)
 - [MaaEnd 开发者文档（中文索引）](docs/zh_cn/developers/README.md) · [English index](docs/en_us/developers/README.md)
 - [Go Service `pkg/` 公共包](docs/zh_cn/developers/go-service-pkg.md)（And 解包、条件计算等）
+- [Android 构建环境准备](docs/zh_cn/developers/android-build-env.md)（JDK / Android SDK / NDK / Ninja 安装与环境变量）

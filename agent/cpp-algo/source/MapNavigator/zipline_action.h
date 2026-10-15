@@ -26,8 +26,8 @@ Result AbandonZipline(const Context& ctx, const char* reason, const char* detail
 // 人还站在架子上、新路线又用不上这根架子时下来。没站在上面就什么也不发
 void LeaveZiplineTower(const Context& ctx);
 
-// 当前航点就是从脚下这根架子起滑的一跳: 人已经站在上面, 不用走过去也不用再按上索
-bool CurrentHopStartsUnderfoot(const Context& ctx);
+// 链首从脚下这根架子起滑时跳过它前面的接近点, 返回 true
+bool SkipToHopUnderfoot(const Context& ctx, const char* reason);
 
 } // namespace semantic_nodes
 

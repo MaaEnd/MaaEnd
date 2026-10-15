@@ -77,8 +77,8 @@ _通过 `pre_wait_freezes`、`post_wait_freezes` 等待画面静止，或增加�
 2、当某个子任务失败后再跑一次。
 _重试只能略微提高成功率，并不能根本解决问题，只会让代码变得难以维护，最后演变成，A失败了换成B试试，B失败了换成C试试，A重试3次，B重试2次，问题变得难以定位。_
 
-3、当一个节点出现死循环后加max*hit。
-*出现死循环一般都是识别问题、逻辑缺陷导致，盲目加 `max_hit` 只会让逻辑中断，类似在代码里盲目抛异常跳出任务，出现难以预估的后果\_
+3、当一个节点出现死循环后加 `max_hit`。
+_出现死循环一般都是识别问题、逻辑缺陷导致，盲目加 `max_hit` 只会让逻辑中断，类似在代码里盲目抛异常跳出任务，出现难以预估的后果_
 
 **推荐：** 遇到bug时找问题根因，详细到具体哪个节点失败、哪个识别不符合预期，游戏因为触发了什么导致误触/没反应，去修补对应节点的识别、操作问题。
 
@@ -112,6 +112,37 @@ Go Service 仅用于处理 Pipeline 难以实现的复杂图像算法或特殊�
 
 一句话：**Pipeline 管流程，Go 管难点。**
 _没有必要的 Go 逻辑会大大增加代码复杂度，造成下一位开发者开发调试极其困难、跨平台适配十分艰难_
+
+### 回调里的句柄怎么用
+
+从 maa-framework-go v4.0.0-beta.19 起，Custom 的 `Run`、EventSink 各方法里拿到的 `ctx`、`tasker`、`controller`、`resource` 都只是**借用**，用错了不会编译报错，而是运行时出问题：
+
+- **只在本次回调内用。** 回调返回后这些对象全部失效（`ctx.GetTasker()` 返回 `nil`，其余方法返回 `maa.ErrClosed`）。不要存进包级变量，不要交给回调返回后还在跑的 goroutine。
+- **一次回调里 controller 只取一次，取到后往下传。** 每调用一次 `GetController()`，上一次拿到的那个就被销毁了，再用它是释放后使用，go-service 会随机崩溃。`GetResource()` 同理。辅助函数需要 controller 就加一个 `*maa.Controller` 参数，不要自己再从 `ctx` 取。
+- **取到后先判空。** 与客户端断连时 `GetTasker()` / `GetController()` 会返回 `nil`，而回调里的空指针 panic 会直接结束整个 go-service 进程。
+- **判断控制器类型用 `pienv.ControllerType()`**，不要为此去取 controller 调 `GetInfo()`。PI 协议允许 Client 省略 `PI_CONTROLLER`，需要兜底时用 `pienv.ResolveControllerKind(ctrl)`，`ctrl` 取[上面](#回调里的句柄怎么用)已经传下来的那个，仍然不要重新 `GetController()`。
+- **识别未命中返回 `nil, false`。** 返回了非 nil 的结果，即使未命中，`Box` 和 `Detail` 也会写进识别详情。
+
+```go
+// ❌ capture 内部又取了一次 controller，Run 手里的 ctrl 随即失效
+ctrl := ctx.GetTasker().GetController()
+img := capture(ctx)
+ctrl.PostClick(x, y).Wait()
+
+// ✅ 入口取一次并判空，往下传
+tasker := ctx.GetTasker()
+if tasker == nil {
+    return false
+}
+ctrl := tasker.GetController()
+if ctrl == nil {
+    return false
+}
+img := capture(ctrl)
+ctrl.PostClick(x, y).Wait()
+```
+
+完整规则见 [Go Service 编写指南](../../../.agents/skills/go-service-guide/SKILL.md) 的「句柄生命周期」一节，绑定侧的变更见 [maa-framework-go beta.19 迁移指南](https://github.com/MaaXYZ/maa-framework-go/blob/v4.0.0-beta.19/docs/migration/v4.0.0-beta.19.md)。
 
 ## Cpp Algo 规范
 
@@ -233,8 +264,6 @@ uv run build-and-install --cpp-algo
 
 - 文件夹统一使用无下划线的普通命名，如 `Private`、`Button`；
 - 此限制仅针对**文件夹名**。任务名（pipeline JSON 中的键名）仍可使用 `__` 前缀，如 `__AutoAltClickAltKeyDownAction`，两者互不影响。
-
-<a id="ocr-与-i18n"></a>
 
 ## OCR 与 i18n
 

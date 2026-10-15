@@ -83,13 +83,13 @@
         "desc": "A2 采购中心识别（page_dedup=false，地区重建）。顶部货币静止后识别；结束后走 Lock",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 929,
                 0,
                 245,
                 68
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },
@@ -117,13 +117,13 @@
         "desc": "A2 采购中心静默识别（notify_ui=false）。不播报物品名与数量；供万能跳转顺手缓存",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
+            "time": 300,
             "target": [
                 929,
                 0,
                 245,
                 68
             ],
-            "time": 300,
             "threshold": 0.97,
             "timeout": 1500
         },

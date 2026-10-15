@@ -9,7 +9,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/windows"
@@ -278,7 +278,7 @@ func controllerHwndWin32(controller *maa.Controller) (uintptr, error) {
 	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
 		return 0, fmt.Errorf("failed to parse controller info: %w", err)
 	}
-	if info.Type != "" && !strings.EqualFold(info.Type, control.CONTROL_TYPE_WIN32) {
+	if info.Type != "" && pienv.NormalizeControllerKind(info.Type) != pienv.ControllerKindWin32 {
 		return 0, fmt.Errorf("controller type is %q, not win32", info.Type)
 	}
 	if info.HWnd == 0 {

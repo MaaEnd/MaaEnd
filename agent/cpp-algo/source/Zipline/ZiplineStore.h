@@ -36,7 +36,7 @@ struct ZiplineMapRecord
 class ZiplineStore
 {
 public:
-    // 锚在 exe 上（<exe>/../debug/record/Ziplines.json），不随工作目录漂移。
+    // 锚在启动时的工作目录，不随后续工作目录变化而漂移。
     static std::filesystem::path DefaultPath();
 
     // 文件不存在按空库处理并返回 true，只有内容坏掉才返回 false：首次导入不该被当成故障。

@@ -240,6 +240,16 @@ The `AutoAltSwipeAction` implementation is located in `agent/go-service/common/a
     - `end_hold?: int`: Hold duration after the swipe ends in milliseconds.
     - `only_hover?: bool`: Whether to only hover swipe.
 
+### AutoSwipeClickAction
+
+The `AutoSwipeClickAction` implementation is located in `agent/go-service/common/autoalt`. It runs `__AutoSwipeClickHoverAction`, then `__AutoSwipeClickClickAction`.
+
+On PC, the hover swipe moves from the screen center to the current recognition box, waits 200 milliseconds, then clicks. The ADB resource overrides the hover node with `DoNothing`, so only the click runs.
+
+- Parameters: None.
+
+The target position is determined by the Pipeline node's `box`.
+
 ---
 
 ## Custom Recognition
@@ -568,5 +578,6 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Alt + Click at specified position | `AutoAltClickAction` |
 | Ctrl + Click at specified position | `AutoCtrlClickAction` |
 | Alt + Swipe | `AutoAltSwipeAction` |
+| Hover from the screen center to the recognition box, then click | `AutoSwipeClickAction` |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

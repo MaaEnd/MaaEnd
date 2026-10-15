@@ -14,7 +14,7 @@ IMS（Item Management System）在 go-service 进程内维护培养道具的数�
 
 代号 `A1` / `A2` / `A3`、`R1` / `R2` 只表示实现顺序，不表示优先级。其中 **A2 虽是第二个写的动作，却是整个 IMS 的核心**。
 
-落盘路径：`./debug/record/IMS.json`（相对运行目录）。
+落盘路径：`debug/record/IMS.json`（相对 go-service 启动时的工作目录，由 `fsutil.OutputPath` 解析）。
 
 ---
 
@@ -178,7 +178,7 @@ A3 在**奖励播报界面**用与 A2 相同的路径：一次 IconRecognition�
 
 A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
-若从未成功做过 A2（`hasData=false`），A3 仍会识别奖励，但**不写入缓存**，且动作仍返回成功，避免卡住关奖励等后续流程。空奖励（IconRecognition `no_match` / `grid_detection_failed`）以及磁盘 hydrate 失败同样视为成功。命中物品时在识别结束后输出一条 HTML 汇总（同 ID 多堆数量先合并，模板 `ims.add_item_summary`，含图标），不提示「未初始化 / 不写入缓存」等 IMS 头尾信息。
+若从未成功做过 A2（`hasData=false`），A3 仍会识别奖励，但**不写入缓存**，且动作仍返回成功，避免卡住关奖励等后续流程。空奖励（IconRecognition `no_match` / `grid_detection_failed`）以及磁盘 hydrate 失败同样视为成功。IconRecognition `exception`，以及带 `item_ids` 时在候选项解析阶段读不到 `recognition_items.json`，都会记录错误并按空奖励继续，随后仍走到关闭奖励的点击。参数非法（JSON 无法解析、空值、重复、未知 `item_id`）仍然失败。命中物品时在识别结束后输出一条 HTML 汇总（同 ID 多堆数量先合并，模板 `ims.add_item_summary`，含图标），不提示「未初始化 / 不写入缓存」等 IMS 头尾信息。
 
 有缓存时同样输出一条汇总；不叠 Pipeline Starting/Succeeded focus。
 

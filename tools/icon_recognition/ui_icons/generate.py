@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -269,6 +269,7 @@ def generate_ui_icons(
     config_path: str | Path | None = None,
     output_root: str | Path | None = None,
     mask_root: str | Path | None = None,
+    refresh_item_ids: Collection[str] = (),
 ) -> dict[str, int]:
     defaults = default_paths()
     catalog_path = catalog_path or defaults["catalog"]
@@ -300,15 +301,7 @@ def generate_ui_icons(
     stats = {"selected": len(selected), "generated": 0, "skipped": 0, "missing": 0}
     for item_id, record in selected:
         destination = output_root / f"{_validate_item_id(item_id)}.png"
-        if destination.is_file():
-            try:
-                with Image.open(destination) as existing:
-                    if existing.size == (TARGET_SIZE, TARGET_SIZE):
-                        stats["skipped"] += 1
-                        continue
-            except OSError:
-                pass
-            # 已有文件即使尺寸异常也不覆盖，避免破坏 CI 优化过的资源。
+        if destination.is_file() and item_id not in refresh_item_ids:
             stats["skipped"] += 1
             continue
         try:
@@ -330,6 +323,17 @@ def generate_ui_icons(
         except FileNotFoundError:
             stats["missing"] += 1
             continue
+        if destination.is_file():
+            try:
+                with Image.open(destination) as existing:
+                    if (
+                        existing.size == base.size
+                        and existing.convert("RGBA").tobytes() == base.tobytes()
+                    ):
+                        stats["skipped"] += 1
+                        continue
+            except OSError:
+                pass
         base.save(destination)
         stats["generated"] += 1
     if stats["missing"]:
