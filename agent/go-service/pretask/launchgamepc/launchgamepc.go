@@ -33,8 +33,9 @@ const (
 
 	pipelineEntry = "GameLauncherMain"
 
-	waitTimeout  = 30 * time.Second
-	pollInterval = 500 * time.Millisecond
+	launcherWindowTimeout = 60 * time.Second
+	gameWindowTimeout     = 120 * time.Second
+	pollInterval          = 5 * time.Second
 )
 
 // 与 interface.json 中 Win32-Front 的窗口匹配规则保持一致，供 MXU 后续连接。
@@ -172,10 +173,11 @@ func Run(args []string) bool {
 	log.Info().
 		Str("component", component).
 		Str("title", info.windowTitle).
-		Dur("timeout", waitTimeout).
+		Dur("timeout", launcherWindowTimeout).
 		Msg("waiting for launcher window")
 	titleRegex := regexp.MustCompile("^" + regexp.QuoteMeta(info.windowTitle) + "$")
-	hWnd, ok := waitWindow(launcherClassRegex, titleRegex, waitTimeout)
+	// 此处避免使用进程名判断，避免游戏启动期间触发 ACE。
+	hWnd, ok := waitWindow(launcherClassRegex, titleRegex, launcherWindowTimeout)
 	if !ok {
 		log.Error().
 			Str("component", component).
@@ -198,9 +200,9 @@ func Run(args []string) bool {
 
 	log.Info().
 		Str("component", component).
-		Dur("timeout", waitTimeout).
+		Dur("timeout", gameWindowTimeout).
 		Msg("waiting for game window")
-	if !waitGame(waitTimeout) {
+	if !waitGame(gameWindowTimeout) {
 		log.Error().
 			Str("component", component).
 			Msg("game window not found after launching")
@@ -335,23 +337,15 @@ func waitWindow(classRegex, titleRegex *regexp.Regexp, timeout time.Duration) (u
 	}
 }
 
-// waitGame 先等游戏进程，再等 MXU 将要连接的游戏窗口出现，二者共用同一超时。
+// waitGame 等待 MXU 将要连接的游戏窗口出现。只枚举窗口，不打开游戏进程句柄，避免游戏启动期间触发 ACE。
 func waitGame(timeout time.Duration) bool {
-	deadline := time.Now().Add(timeout)
-	for {
-		if isProcessRunning(gameProcessName, "") {
-			if _, ok := findWindow(gameClassRegex, gameWindowRegex); ok {
-				log.Info().
-					Str("component", component).
-					Msg("game window is ready")
-				return true
-			}
-		}
-		if time.Now().After(deadline) {
-			return false
-		}
-		time.Sleep(pollInterval)
+	if _, ok := waitWindow(gameClassRegex, gameWindowRegex, timeout); !ok {
+		return false
 	}
+	log.Info().
+		Str("component", component).
+		Msg("game window is ready")
+	return true
 }
 
 func runLauncherPipeline(hWnd unsafe.Pointer) bool {

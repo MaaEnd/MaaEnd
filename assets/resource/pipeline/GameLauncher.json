@@ -9,21 +9,16 @@
     },
     "GameLauncherSelectEndfield": {
         "desc": "点击左侧栏的终末地图标",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    20,
-                    60,
-                    100,
-                    600
-                ],
-                "template": "GameLauncher/EndfieldIcon.png"
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            60,
+            100,
+            600
+        ],
+        "template": "GameLauncher/EndfieldIcon.png",
+        "green_mask": true,
+        "action": "Click",
         "next": [
             "GameLauncherClickStartGame"
         ]
@@ -31,19 +26,13 @@
     "GameLauncherClickStartGame": {
         "desc": "已选中终末地，点击右下角开始游戏",
         "max_hit": 3,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "GameLauncherStartGameYellow",
-                    "GameLauncherStartGameText"
-                ],
-                "box_index": 1
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow",
+            "GameLauncherStartGameText"
+        ],
+        "box_index": 1,
+        "action": "Click",
         "post_delay": 3000, // 这里暂时不调用RepeatUntilAction，先保持纯pipeline
         "next": [
             "GameLauncherInGame",
@@ -52,64 +41,52 @@
     },
     "GameLauncherInGame": {
         "desc": "右下角按钮显示游戏中，启动成功",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    -320,
-                    -140,
-                    320,
-                    140
-                ],
-                "expected": [
-                    // @i18n-skip
-                    "游戏中"
-                ]
-            }
-        }
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "游戏中"
+        ]
     },
     "GameLauncherStartGameYellow": {
         "desc": "右下角开始游戏按钮的黄色底",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    -320,
-                    -140,
-                    320,
-                    140
-                ],
-                "lower": [
-                    240,
-                    240,
-                    0
-                ],
-                "upper": [
-                    255,
-                    255,
-                    40
-                ],
-                "connected": true,
-                "count": 4000
-            }
-        }
+        "recognition": "ColorMatch",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "lower": [
+            240,
+            240,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            40
+        ],
+        "connected": true,
+        "count": 4000
     },
     "GameLauncherStartGameText": {
         "desc": "右下角开始游戏按钮",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    -320,
-                    -140,
-                    320,
-                    140
-                ],
-                "expected": [
-                    // @i18n-skip
-                    "开始游戏"
-                ]
-            }
-        }
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "开始游戏"
+        ]
     }
 }
