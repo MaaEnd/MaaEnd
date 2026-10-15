@@ -451,7 +451,7 @@
         "desc": "确认接取任务后，根据当前仓储节点模式处理首次任务详情",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType2",
+            "YellowConfirmButtonType1",
             "DeliveryJobsInCargoRedistributionBid"
         ],
         "pre_delay": 0,
