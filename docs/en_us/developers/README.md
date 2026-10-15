@@ -53,7 +53,7 @@ It is recommended to read in the following order:
 | [Component Guide](./components-guide.md) | Project architecture, where to make changes, reusable node directory |
 | [Tools & Debugging](./tools-and-debug.md) | Development tools list, common debugging entry points, community group info |
 | [Node Testing](./node-testing.md) | How to write and run node tests to verify stable recognition hits |
-| [Android Build Environment Setup](./android-build-env.md) | Installing JDK / Android SDK / NDK / Ninja and setting environment variables (for the build steps, see `Android/README.md`) |
+| [Android Build Environment Setup](./android-build-env.md) | Installing JDK / Android SDK / NDK / CMake and setting environment variables (for the build steps, see `Android/README.md`) |
 | [Go Service `pkg/` Shared Packages](./go-service-pkg.md) | Common utilities such as And unwrapping, condition evaluation, OCR numbers, i18n / focus / resource reading |
 | [Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol/) | Full text of MaaFramework official Pipeline protocol |
 | [Release Process](./release-process.md) | Release cycle, branch model, where to submit PRs, automation details |
@@ -90,6 +90,8 @@ Consult as needed. Only required when using the corresponding component.
 | [MapNavigator](./components/map-navigator.md) | Path navigation Action, supports record-free target-based pathfinding and GUI recording |
 | [WorldMap](./components/world-map.md) | World map coordinate recognition, confirms the icon at a base map coordinate and hands back its screen position |
 | [IMS (Item Management System)](./components/ims.md) | Cultivation-item cache: A2 sync / A1 delta / A3 add, R1 quantity gate / R2 readiness gate |
+| [CaptureUid](./components/capture-uid.md) | Generic UID acquisition and caching; outputs a hash (default), masked, or raw UID per `output_type` |
+| [IconRecognition](./components/icon-recognition.md) | C++ Custom Recognition that locates and classifies item icons inside a known screen and ROI |
 
 ### Task Maintenance Documents (`tasks/`)
 

@@ -53,7 +53,7 @@ flowchart TD
 | [组件指南](./components-guide.md) | 项目架构、判断改哪、可复用节点目录 |
 | [工具与调试](./tools-and-debug.md) | 开发工具清单、常用调试入口、交流群信息 |
 | [节点测试](./node-testing.md) | 如何编写和运行节点测试，验证识别是否稳定命中 |
-| [Android 构建环境准备](./android-build-env.md) | JDK / Android SDK / NDK / Ninja 安装与环境变量（构建步骤见 `Android/README.md`） |
+| [Android 构建环境准备](./android-build-env.md) | JDK / Android SDK / NDK / CMake 安装与环境变量（构建步骤见 `Android/README.md`） |
 | [Go Service `pkg/` 公共包](./go-service-pkg.md) | And 解包、条件计算、OCR 数值、i18n / focus / 资源读取等通用工具 |
 | [Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/) | MaaFramework 官方 Pipeline 协议全文 |
 | [发版流程](./release-process.md) | 发版周期、分支模型、PR 往哪提、自动化说明 |
@@ -90,6 +90,8 @@ flowchart TD
 | [MapNavigator 路径导航](./components/map-navigator.md) | 路径导航 Action，支持免录制的目标式寻路与 GUI 录制 |
 | [WorldMap 大地图识别](./components/world-map.md) | 大地图坐标识别，按区域底图坐标确认图标并交回屏幕位置 |
 | [IMS 物品管理系统](./components/ims.md) | 培养道具缓存：A2 同步 / A1 加减 / A3 累加，R1 数量门禁 / R2 就绪门禁 |
+| [CaptureUid 获取 UID](./components/capture-uid.md) | 通用 UID 获取与缓存，按 `output_type` 输出哈希（默认）、打码或原始 UID |
+| [IconRecognition 物品图标识别](./components/icon-recognition.md) | C++ Custom Recognition，在已知界面和 ROI 内定位并分类物品图标 |
 
 ### 任务维护文档（`tasks/`）
 

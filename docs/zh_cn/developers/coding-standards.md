@@ -27,7 +27,7 @@ _Custom 代码通常只能由作者本人维护。若连作者都看不懂，就
 
 ### 命名：PascalCase
 
-节点名称使用 PascalCase，同一任务内以任务名或模块名为前缀。例如 `ResellMain`、`DailyProtocolPassInMenu`、`RealTimeAutoFightEntry`。
+节点名称使用 PascalCase，同一任务内以任务名或模块名为前缀。例如 `AutoSellPressStockRedistribution`、`DailyProtocolPassInMenu`、`RealTimeAutoSkipEntry`。
 
 ### 禁止硬延迟
 
@@ -163,15 +163,15 @@ pnpm format:md     # Markdown 格式化（改了 md 文档时）
 `pnpm check` 与 `pnpm test` **按需执行**：
 
 ```bash
-pnpm check         # 资源和 schema 检查
+pnpm check         # 资源检查
 pnpm test          # 节点测试
 ```
 
 - 改动包含 `tests/**` 内容（新增/修改用例、测试截图、`hits` / `box` 期望）→ **先在本地跑 `pnpm test`**；若同时改了 `assets/**` 或 `tools/schema/**`，一并跑 `pnpm check`。
-- 其他改动（Pipeline、Go、Cpp、文档等）→ 不必在本地跑这两条命令，提 PR 后由 CI 校验，跟进 CI 状态即可。
+- 其他改动（Pipeline、Go、Cpp、文档等）→ 不必在本地跑这两条命令，提 PR 后跟进相应 CI 即可（Go 由 `go-check.yml` 校验，纯文档改动不触发 PR CI）。
 - 需要本地自查时（例如调试某个识别节点的命中率、确认改动的影响范围），可随时单独执行。
 
-CI 与这些命令的对应关系：`pnpm check` + `uv run tools/validate_schema.py`（[`check.yml`](../../../.github/workflows/check.yml)）、`pnpm test`（[`test.yml`](../../../.github/workflows/test.yml)，改动 `assets/**` 或 `tests/**` 时触发）、`pnpm format:all`（[`format.yml`](../../../.github/workflows/format.yml)，定时全量格式化并自动提交）。
+CI 与这些命令的对应关系：`pnpm check` + `uv run tools/validate_schema.py`（[`check.yml`](../../../.github/workflows/check.yml)）、`pnpm test`（[`test.yml`](../../../.github/workflows/test.yml)，目标为 `v2` 的 PR 或推送改动 `assets/**`、`tests/**` 或 `agent/cpp-algo/**` 时触发）、`pnpm format:all`（[`format.yml`](../../../.github/workflows/format.yml)，定时全量格式化并自动提交）。
 
 ## 配套文件
 
@@ -181,7 +181,7 @@ MaaEnd 里一个功能改动常常不只改一个地方。
 
 - `assets/tasks/*.json`
 - `assets/resource/pipeline/**/*.json`
-- `assets/locales/interface/zh_cn.json`
+- `assets/locales/interface/*.json`（全部语言）
 - `assets/interface.json`
 - `tests/**/*.json`
 
@@ -208,7 +208,7 @@ MaaEnd 里一个功能改动常常不只改一个地方。
 - 无参数或允许任意值透传时，无需创建空参数 Schema
 - 无需修改已引用上述两个 Custom Schema 的 `tools/schema/pipeline.schema.json`
 
-> MXU 是面向终端用户的 GUI，不建议用于日常开发调试。上述开发工具可以极大程度提高开发效率。
+> MXU 是面向终端用户的 GUI，不建议用于日常开发调试。[开发工具](./tools-and-debug.md#开发工具)可以极大程度提高开发效率。
 
 ## 调试工作流
 
@@ -248,7 +248,7 @@ uv run build-and-install --cpp-algo
 
 ### 分辨率：720p 基准
 
-所有图片、坐标（`roi`、`target`、`box`）均以 **1280x720** 为基准。MaaFramework 在运行时会根据用户设备自动转换。推荐使用上述开发工具进行截图和坐标换算。
+所有图片、坐标（`roi`、`target`、`box`）均以 **1280x720** 为基准。MaaFramework 在运行时会根据用户设备自动转换。推荐使用[开发工具](./tools-and-debug.md#开发工具)进行截图和坐标换算。
 
 ### HDR / 颜色管理
 
@@ -256,7 +256,7 @@ uv run build-and-install --cpp-algo
 
 ### 资源文件夹链接
 
-资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的**，修改需手动同步或运行 `build-and-install`。
+资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是文件硬链接**，git 检出新版本或被工具重写后链接会断开，修改后需手动同步或运行 `build-and-install`。
 
 ### 文件夹命名
 
@@ -271,7 +271,7 @@ uv run build-and-install --cpp-algo
 
 ### 写法要求
 
-- `expected` 写完整文本，不要只写片段。例如应写"这是一段示例内容"，而不是只写"示例内容"。
+- `expected` 写完整文本，不要只写片段。例如应写 `这是一段示例内容`，而不是只写 `示例内容`。
 - 仅当 OCR 引擎对完整文本识别不稳定（如夹杂百分号、特殊符号、易混字符），确需用片段或手写正则才能稳定命中时，才允许跳过自动处理。**截断不是默认手段，而是兜底手段。**
 
 要求：

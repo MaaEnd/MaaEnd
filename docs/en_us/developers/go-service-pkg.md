@@ -23,9 +23,9 @@ Roughly sorted by how often they are reused day to day:
 | [`resource`](#resource-locating-and-reading-resource-files) | Find files under `resource/` / `assets/` by relative path | JSON configs such as the goods catalog and outpost data |
 | [`fsutil`](#fsutil-output-paths-and-atomic-file-writes) | Path base for persistent output; temporary file + rename to avoid half-written files | Logs / debug / persistent caches |
 | [`levenshtein`](#levenshtein-edit-distance) | Rune-level edit distance | OCR / fuzzy name matching |
-| [`iconrecognition`](#iconrecognition--iconqty) | Shared structures for IconRecognition parameters and detail | Grid-scanning logic in IMS, stockpiling, delivery, etc. |
+| [`iconrecognition`](#iconrecognition--iconqty) | Shared structures for IconRecognition parameters and detail | IMS (via `iconqty`), Outpost Trading goods recognition |
 | [`iconqty`](#iconrecognition--iconqty) | Grid scanning + in-cell quantity OCR | IMS A2 / A3 |
-| [`minicv`](#minicv-lightweight-cv) | Pure-Go CV such as template matching and circle detection | When you need local matching and do not want to go through a Pipeline template node |
+| [`minicv`](#minicv-lightweight-cv) | Pure-Go CV such as template matching and circle masks | When you need local matching and do not want to go through a Pipeline template node |
 | [`parentwatch`](#parentwatch-parent-process-monitoring) | Exit when the parent process exits, to avoid an orphaned Agent | Only at `main` startup |
 
 ---
@@ -187,7 +187,7 @@ Reads the quantity in OCR text as an `int`:
 
 - English magnitudes: `k` / `m` / `b` (case-insensitive)
 - Chinese / Korean: `万` `萬` `만`, `亿` `億` `억`
-- Common forms of decimals and thousands-separator commas
+- Decimals and a single thousands-separator comma (e.g. `12,345`)
 
 | Function | Purpose |
 | --- | --- |
@@ -262,7 +262,7 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 
 Path: `pkg/levenshtein/`
 
-`Distance(a, b int)` compares by **rune**, which suits approximate name matching under CJK OCR noise. The threshold is up to the business code.
+`Distance(a, b string) int` compares by **rune**, which suits approximate name matching under CJK OCR noise. The threshold is up to the business code.
 
 ### `iconrecognition` / `iconqty`
 
@@ -277,7 +277,7 @@ For the detailed protocol and Pipeline usage, see [IconRecognition](./components
 
 Path: `pkg/minicv/`
 
-Pure-Go template matching (with a SIMD-accelerated path), integral images, circle detection, etc. Suitable for local matching inside the Agent; anything that can be expressed with a Pipeline `TemplateMatch` should still be written in Pipeline first.
+Pure-Go template matching (with a SIMD-accelerated path), integral images, circle-mask templates, in-circle statistics, filled-circle drawing, etc. Suitable for local matching inside the Agent; anything that can be expressed with a Pipeline `TemplateMatch` should still be written in Pipeline first.
 
 ### `parentwatch`: Parent process monitoring
 
@@ -296,7 +296,7 @@ Call `Start()` only once, at `main` startup: when the parent process exits, it c
 | Turn OCR text into an integer | `ocrnum` |
 | Conditions like `{A}+{B}<100` | Pipeline → `ExpressionRecognition`; in Go → `boolexpr` |
 | Read a JSON config with comments | `jsonclean` (or via `resource.ReadJsonResource`) |
-| Tell Adb from Win32 | `pienv.ControllerType()` |
+| Tell Adb from Win32 | `pienv.ResolveControllerKind(ctrl)` + `IsAdbLikeControllerType()` |
 | Scan backpack cells and read quantities | `iconrecognition` + `iconqty` |
 | Decide where logs / records / exported files are written | `fsutil.OutputPath` |
 | Write files without leaving half-written content | `fsutil.WriteFileAtomic` |

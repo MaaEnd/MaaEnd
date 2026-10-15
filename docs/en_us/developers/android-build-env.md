@@ -28,7 +28,7 @@ After setting things up, **be sure to reopen your terminal**: windows that are a
 | --- | --- | --- |
 | JDK 17 or later | Compiles the app; Gradle needs it | Windows `winget install Microsoft.OpenJDK.21`; macOS `brew install openjdk` |
 | Android SDK | Provides the Android packaging tools | [1.1](#11-install-the-android-sdk) |
-| Android NDK | Cross-compiles the C++ agent (cpp-algo) | `sdkmanager --install "ndk;29.0.13599879"` |
+| Android NDK | Cross-compiles the C++ agent (cpp-algo); go-service's cgo build also uses its clang | `sdkmanager --install "ndk;29.0.13599879"` |
 | CMake ≥ 3.28 | Configures and builds cpp-algo | [1.2](#12-choose-a-cmake) |
 | Go 1.25.6+ | Cross-compiles go-service | [Ultra Basic Getting Started Guide](./super-basic-introduction.md) 2.6 |
 | uv | Runs the Python scripts in the repository | [Quick Start](./getting-started.md) |
@@ -105,7 +105,7 @@ Once you see `OK  environment ready`, you can go to [Android/README.md](../../..
 
 > [!WARNING]
 >
-> **Installing is not enough on its own; the SDK path must be set.** Otherwise the very first item of the check reports `ANDROID_HOME / ANDROID_SDK_ROOT is not set`.
+> **Installing is not enough on its own; the SDK path must be set.** Otherwise the check's Android SDK item reports `ANDROID_HOME / ANDROID_SDK_ROOT is not set`.
 
 ---
 
@@ -115,7 +115,7 @@ Once you see `OK  environment ready`, you can go to [Android/README.md](../../..
 uv run tools/build_android_agents.py --check-env
 ```
 
-It only reports: it does not install anything, and it does not scan your disk for dependencies. If everything is green, you can start building; if there is a MISS, fix the items one by one following the hints. Each one says which environment variable to set and what to install.
+It only reports: it does not install anything, and it does not scan your disk for dependencies; Go is only checked for presence on `PATH`, not for its version. If everything is green, you can start building; if there is a MISS, fix the items one by one following the hints. Each one says which environment variable to set and what to install.
 
 <details>
 <summary>What a passing check looks like</summary>
@@ -125,6 +125,7 @@ Android build environment check
   Windows AMD64, python 3.14.2
 
 OK  environment ready: JDK 17+, Android SDK, Android NDK, CMake >= 3.28, Ninja, Go, MaaUtils submodule
+run: uv run tools/build_android_agents.py
 ```
 
 The second line is your own system and Python version (on macOS it will be `Darwin arm64`); it **does not need to match the above exactly**.
@@ -143,11 +144,11 @@ The package name is missing the decimal part. After API 36, version numbers are 
 
 > [!NOTE]
 >
-> It is labeled `Warning:` rather than `Error:`, so it is easy to skim past, but the exit code is **1**, and if even one package name in the command is wrong, **the whole command counts as failed** (it returns 1 even if the other packages were installed).
+> It is labeled `Warning:` rather than `Error:`, so it is easy to skim past, but the exit code is **1**, and if even one package name in the command is wrong, **the whole command counts as failed** (none of the other packages in that command get installed either).
 
 ### `Java version 17 or higher is required`
 
-`sdkmanager` did not find a JDK. Install a JDK 17+ and set `JAVA_HOME`, then open a new terminal and try again.
+The Java that `sdkmanager` found is older than 17 (the `java` from `JAVA_HOME` or `PATH` is too old). Install a JDK 17+ and set `JAVA_HOME`, then open a new terminal and try again.
 
 ### `CMake was unable to find a build program corresponding to "Ninja Multi-Config"`
 

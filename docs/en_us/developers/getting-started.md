@@ -248,7 +248,7 @@ This node will recognize this image. When a recognition hit occurs, it will exec
 
 Coding Standard: Using hard delays like `pre_delay` or `post_delay` is not recommended because performance varies greatly across devices. Waiting times for animations differ completely between 10 fps and 60 fps. Hard delays can mask many issues; what works in a development environment may not work in a user environment.
 
-Use `pre_wait_freezes` or `post_wait_freezes` only when necessary to wait for the screen to stabilize; otherwise, delays should be avoided as much as possible. For example, `"post_wait_freezes": 100` in the text above means waiting 100 ms after pixel changes in the `roi` area `[400, 200, 480, 320]` have stopped.
+Use `pre_wait_freezes` or `post_wait_freezes` only when necessary to wait for the screen to stabilize; otherwise, delays should be avoided as much as possible. For example, `"post_wait_freezes": 100` in the text above means that after the click, the node waits until the matched area (not the whole `roi`) has shown no significant change for 100 ms in a row, and then recognizes `next`.
 
 The next step in `OutpostTradingLoop` should continue using a recognition node to confirm entry into the Regional Development interface, rather than assuming the click was successful. The most important rule for an FSM is: recognize and confirm the current state first, then perform the operation.
 
@@ -276,7 +276,7 @@ The `InRegionalDevelopment` called in `all_of` above is a recognition node alrea
 
 > **💡 Advanced Tip: Combinational Recognition (And / Or)**
 >
-> In addition to traditional basic methods like `TemplateMatch` (template matching) and `Color` (color matching), the Pipeline also supports using logical conditions **`And`** and **`Or`** to combine multiple recognition nodes. This is very useful when dealing with complex or variable UI states.
+> In addition to traditional basic methods like `TemplateMatch` (template matching) and `ColorMatch` (color matching), the Pipeline also supports using logical conditions **`And`** and **`Or`** to combine multiple recognition nodes. This is very useful when dealing with complex or variable UI states.
 >
 > For specific syntax and advanced usage of combinational recognition, please refer to the [MaaFramework Official Documentation - Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol#and).
 
@@ -388,7 +388,7 @@ Create or modify a JSON file under `assets/tasks/` to define the task entry node
                 "WulingSell"
             ],
             "group": [
-                "daily"
+                "regional_development"
             ]
         }
     ]

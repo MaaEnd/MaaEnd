@@ -1,6 +1,6 @@
 # Development Guide - Node Testing
 
-This document describes how node tests are currently written in MaaEnd. The rules here follow `maatools.config.mts`, `tools/schema/test.schema.json`, and the existing files under `tests/`.
+This document describes how node tests are currently written in MaaEnd. The rules here follow `maatools.config.mts`, `tests/scripts/loader.mts`, `tools/schema/test.schema.json`, and the existing files under `tests/`.
 
 ## What Node Tests Are For
 
@@ -19,7 +19,7 @@ tests/
 |- MaaEndTestset/
 |  |- Win32/Official_CN/*.png
 |  `- ADB/Official_CN/*.png
-|- Common/Button/test_button.json
+|- Common/Button/test_close_button.json
 |- DeliveryJobs/test_region.json
 `- ...
 ```
@@ -27,7 +27,7 @@ tests/
 - Test definition files can be placed anywhere under `tests/`, but the filename must match `test_*.json`.
 - Test screenshots live under `tests/MaaEndTestset/`.
 - The `image` field must contain the full screenshot file name, including its extension, for example `xxx.png`.
-- The real screenshot path is resolved by `maatools.config.mts`; in practice it points under `tests/MaaEndTestset/<controller>/<resource>/` and matches the concrete screenshot file from `image`.
+- The real screenshot path is resolved by `tests/scripts/loader.mts` (under the `test.casesCwd` root in `maatools.config.mts`); in practice it points under `tests/MaaEndTestset/<controller>/<resource>/` and matches the concrete screenshot file from `image`.
 
 With the current config:
 
@@ -37,7 +37,7 @@ With the current config:
 - `resource = "官服"` maps to `tests/MaaEndTestset/*/Official_CN/`.
 - If either `controller` or `resource` is an array, tests are expanded as a Cartesian product.
 
-If you add a new resource server or controller enum, update the mapping in `maatools.config.mts` as well.
+If you add a new resource server or controller enum, besides adding the test files, also update the mapping (`resourceMap` / `controllerMap`) in `tests/scripts/loader.mts`.
 
 ## File Schema
 
@@ -48,7 +48,7 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
     "configs": {
         "name": "(Win32/ADB-官服)Common Buttons",
         "resource": ["官服"],
-        "controller": ["Win32", "ADB"],
+        "controller": ["Win32", "ADB"]
     },
     "cases": [
         {
@@ -60,12 +60,12 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
                     "node": "RegionalDevelopmentButton",
                     "box": {
                         "Win32": [223, 32, 32, 19],
-                        "ADB": [220, 30, 34, 20],
-                    },
-                },
-            ],
-        },
-    ],
+                        "ADB": [220, 30, 34, 20]
+                    }
+                }
+            ]
+        }
+    ]
 }
 ```
 
@@ -75,7 +75,7 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
 - `resource`: resource server name. It can be either a single string or an array of strings. The current repo uses `官服`.
 - `controller`: controller type. It can be either a single string or an array of strings. The current repo uses `Win32` and `ADB`.
 
-When `controller` or `resource` is an array, `maatools.config.mts` expands the file into multiple test groups using the Cartesian product of controller and resource values.
+When `controller` or `resource` is an array, `tests/scripts/loader.mts` expands the file into multiple test groups using the Cartesian product of controller and resource values.
 
 For example:
 
@@ -84,7 +84,7 @@ For example:
 
 expands into four groups: `ADB-官服`, `ADB-B服`, `Win32-官服`, and `Win32-B服`.
 
-Only use values that already have mappings in `maatools.config.mts` and screenshots in the test set.
+Only use values that already have mappings in `tests/scripts/loader.mts` and screenshots in the test set.
 
 ### `cases`
 
@@ -99,20 +99,20 @@ Only use values that already have mappings in `maatools.config.mts` and screensh
 
 1. Check only node hits:
 
-```json
-"hits": ["InWorld", "CloseButtonType1"]
-```
+   ```json
+   "hits": ["InWorld", "CloseButtonType1"]
+   ```
 
 1. Check both node hit and bounding box:
 
-```json
-"hits": [
-    {
-        "node": "RegionalDevelopmentButton",
-        "box": [223, 32, 32, 19]
-    }
-]
-```
+   ```json
+   "hits": [
+       {
+           "node": "RegionalDevelopmentButton",
+           "box": [223, 32, 32, 19]
+       }
+   ]
+   ```
 
 `box` can also be a matrix object so different controllers or resources use different rectangles:
 
@@ -129,7 +129,7 @@ Only use values that already have mappings in `maatools.config.mts` and screensh
 ]
 ```
 
-The current lookup priority in `maatools.config.mts` is:
+The current lookup priority in `tests/scripts/loader.mts` is:
 
 - `controller:resource`
 - `controller/resource`
@@ -140,9 +140,9 @@ The current lookup priority in `maatools.config.mts` is:
 - `default`
 - `*`
 
-The final value passed to `maa-tools` is still a fixed `[x, y, width, height]` rectangle, and all four values must be integers greater than or equal to 0.
+The final value passed to `maa-tools` is still a fixed `[x, y, width, height]` rectangle, and all four values must be integers greater than or equal to 0. The check passes when the actual hit box lies entirely inside this rectangle; it does not have to match exactly.
 
-If nothing should hit on a screenshot, use an empty array:
+If none of the nodes tested in this file (the nodes listed in other cases' `hits`) should hit on a screenshot, use an empty array:
 
 ```json
 "hits": []
@@ -156,7 +156,7 @@ Negative cases like this are important for catching false positives.
 
 Follow the existing pattern and group tests by module or node family, for example:
 
-- `tests/Common/Button/test_button.json`
+- `tests/Common/Button/test_close_button.json`
 - `tests/DeliveryJobs/test_region.json`
 - `tests/EnvironmentMonitoring/test_job.json`
 
@@ -262,15 +262,15 @@ Even so, whether or not comments are allowed, keep files readable before committ
 {
     "configs": {
         "name": "(Multi-controller/multi-resource) Example Node Test",
-        // Only use this form when mappings and screenshots exist for every combination
+        // Only write it this way when the mappings exist in tests/scripts/loader.mts and the test set has the matching screenshots
         "resource": ["官服", "B服"],
-        "controller": ["Win32", "ADB"],
+        "controller": ["Win32", "ADB"]
     },
     "cases": [
         {
             "name": "World home page",
             "image": "帝江号_大世界.png",
-            "hits": ["InWorld"],
+            "hits": ["InWorld"]
         },
         {
             "name": "Check controller-specific box positions",
@@ -280,17 +280,17 @@ Even so, whether or not comments are allowed, keep files readable before committ
                     "node": "SpecialButtonWithOffset",
                     "box": {
                         "ADB": [91, 587, 274, 48],
-                        "Win32": [100, 600, 250, 50],
-                    },
-                },
-            ],
+                        "Win32": [100, 600, 250, 50]
+                    }
+                }
+            ]
         },
         {
             "name": "Negative case: should not hit",
             "image": "武陵_拍照模式_拍摄目标未达成.png",
-            "hits": [],
-        },
-    ],
+            "hits": []
+        }
+    ]
 }
 ```
 
@@ -299,7 +299,7 @@ Even so, whether or not comments are allowed, keep files readable before committ
 After adding or editing node tests, check at least these items:
 
 - The file name matches `test_*.json`.
-- `configs.resource` and `configs.controller` are mapped in `maatools.config.mts`.
+- `configs.resource` and `configs.controller` are mapped in `tests/scripts/loader.mts`.
 - If `configs.controller` or `configs.resource` is an array, confirm screenshots exist for every expanded combination.
 - If `box` is a matrix object, confirm every required combination can be resolved, or provide a suitable `default`.
 - `image` includes the full file name with extension, and points to a real screenshot in the resolved directory.
@@ -317,11 +317,11 @@ That is what makes node tests useful as a safety net during refactors, threshold
 
 ### What's the difference between `default` and `*` in a `box` matrix?
 
-`default` is the fallback when no specific controller/resource key matches. `*` is a wildcard that matches any controller or resource. In priority order, `default` ranks higher than `*` (`*` is the lowest priority). In most cases, `default` alone is sufficient — only use `*` if you specifically need its behavior.
+Both `default` and `*` are fallback keys, used only when none of the controller/resource keys match; `default` is checked before `*`. They behave the same, so `default` alone is enough.
 
 ### Where do screenshots come from?
 
-Use the Maa Pipeline Support VS Code extension (`Ctrl+Shift+P` → `Maa: Screenshot`) to capture them, then place them under `tests/MaaEndTestset/<controller>/<resource>/`.
+Use the Maa Pipeline Support VS Code extension (`Ctrl+Shift+P` → `Maa: take screenshot`) to capture them, then place them under `tests/MaaEndTestset/<controller>/<resource>/`.
 
 ### How to debug test failures?
 

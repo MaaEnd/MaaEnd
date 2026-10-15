@@ -33,7 +33,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### SubTask
 
-`SubTask` 实现位于 `agent/go-service/subtask`，用于顺序执行一组子任务。
+`SubTask` 实现位于 `agent/go-service/common/subtask`，用于顺序执行一组子任务。
 
 - 参数：
     - `sub: string[]`：子任务名列表，必填。
@@ -41,7 +41,7 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `strict?: bool`：某个子任务失败时当前 Action 是否返回失败，默认 `true`。
     - `random_choice?: int`：若指定且大于 `0`，则先将 `sub` 列表随机打乱，再从中挑选不超过该数量的子任务执行；超过列表长度时按列表长度处理。默认不随机，按原顺序执行全部子任务。
 
-    执行前会先剔除 `sub` 中无法解析或 `enabled` 为 `false` 的子任务节点（未显式声明 `enabled` 的节点视为启用），随后才进行随机挑选与执行。若过滤（及随机挑选）后没有可执行的子任务，当前 Action 不视为失败，仅记录一条 warn 日志并返回成功。
+    执行前会先剔除 `sub` 中无法解析或 `enabled` 为 `false` 的子任务节点（未显式声明 `enabled` 的节点视为启用），随后才进行随机挑选与执行。若过滤后没有可执行的子任务，当前 Action 记录一条 error 日志并返回失败。
 
 示例文件：[`SubTask.json`](../../../assets/resource/pipeline/Interface/Example/SubTask.json)
 
@@ -52,7 +52,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 提供三个 Custom Action，通过相同的 `key` 关联同一次收集：
 
 - `FailureCollectorReset`：重置指定 `key` 的收集状态，必须在所有 RunTask 之前调用。
-- `FailureCollectorRunTask`：执行 `task` 子任务。成功则继续；失败时按发生顺序记录 `failure_task` 并可选执行 `recovery_task`，Action 本身始终返回成功以保证 Pipeline 继续执行后续节点。
+- `FailureCollectorRunTask`：执行 `task` 子任务。成功则继续；失败时按发生顺序记录 `failure_task` 并可选执行 `recovery_task`，子任务失败时 Action 本身仍返回成功，以保证 Pipeline 继续执行后续节点（参数无效或取不到 `task` 节点时返回失败）。
 - `FailureCollectorFinish`：按失败发生顺序依次执行本轮记录的全部 `failure_task` 节点，随后清空状态。存在失败记录时返回失败，否则返回成功。
 
 - 参数：
@@ -61,7 +61,7 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `FailureCollectorRunTask`：
         - `key: string`：收集标识，必填。
         - `task: string`：要执行的子任务 Pipeline 节点名，必填。该节点被禁用（`Enabled = false`）时直接跳过，不视为失败。
-        - `failure_task: string`：子任务失败时记录的 Pipeline 节点名，必填。该节点通常通过 `focus` 向 Agent 输出用户提示信息。
+        - `failure_task: string`：子任务失败时记录的 Pipeline 节点名，必填。该节点通常通过 `focus` 在客户端输出用户提示信息。
         - `recovery_task?: string`：子任务失败后执行的恢复任务节点名，可选。
     - `FailureCollectorFinish`：
         - `key: string`：收集标识，必填。
@@ -70,7 +70,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### ClearHitCount
 
-`ClearHitCount` 实现位于 `agent/go-service/clearhitcount`，用于清除指定节点的命中计数。
+`ClearHitCount` 实现位于 `agent/go-service/common/clearhitcount`，用于清除指定节点的命中计数。
 
 - 参数：
     - `nodes: string[]`：要清理的节点名列表，必填。
@@ -124,7 +124,7 @@ Action 节点用于执行自定义动作。常见写法如下：
     - `custom_action?: string`：已注册的自定义动作名（如 `AutoAltClickAction`），与 `action` 二选一。
     - `custom_action_param?: object`：透传给内层自定义动作的参数。
     - `repeat_count?: int`：最大尝试次数；省略或 `<= 0` 时默认 `3`。
-    - `interval_ms?: int`：每次动作后的等待窗口（毫秒）；窗口内每 `500ms` 截图识别一次，命中则提前成功；省略或 `0` 时默认 `3000`；负值非法。
+    - `interval_ms?: int`：每次动作后的等待窗口（毫秒）；窗口内每 `500ms` 截图识别一次，条件满足则提前成功；省略或 `0` 时默认 `3000`；负值非法。
 - `RepeatUntilFoundAction` 额外参数：
     - `wait_nodes: string[]`：等待出现的 Pipeline 节点名列表，必填。
 - `RepeatUntilNotFoundAction` 额外参数：
@@ -142,9 +142,9 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### CameraScanAction
 
-`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作从中心按九宫格螺旋扫描前方区域；仍未命中时，复位镜头并按中、上、下三档俯仰分别离散旋转一圈。每次镜头移动前和移动后都会截图识别，复位动作不识别；任一目标命中即成功，完整扫描后仍未命中则失败。
+`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作从中心按九宫格螺旋扫描前方区域；仍未命中时，复位镜头并按中、上、下三档俯仰分别离散旋转一圈。每一步移动前、后各截图识别一次（一步可能连续移动多格，中间不识别），复位那一步不识别；任一目标命中即成功，完整扫描后仍未命中则失败。
 
-- `wait_nodes: string[]`：每次镜头移动前、后检查的 Pipeline 识别节点，必填；任一节点命中即成功。复位动作不检查。
+- `wait_nodes: string[]`：每一步移动前、后检查的 Pipeline 识别节点，必填；任一节点命中即成功。复位那一步不检查。
 - `aim_target?: bool`：命中后是否从屏幕中心滑向该识别结果的 `Box` 中心，默认 `false`。
 - `move_up?: string`：上移镜头节点，默认 `__CameraScanMoveUp`。
 - `move_down?: string`：下移镜头节点，默认 `__CameraScanMoveDown`。
@@ -179,7 +179,9 @@ Action 节点用于执行自定义动作。常见写法如下：
 `AttachToExpectedRegexAction` 实现位于 `agent/go-service/common/attachregex`，用于通用地读取目标节点自身 `attach` 中的关键词，并把合并后的白名单正则写回该目标 OCR 节点的 `expected`。
 
 - 参数：
-    - `target: string`：目标节点名（将被覆盖 `expected`），必填。
+    - `target: string` / `targets: string[]`：目标节点名（将被覆盖 `expected`），至少填一个；`targets` 可一次处理多个节点。
+    - `substring?: bool`：可选，默认 `false`，生成精确匹配 `^(…)$`；为 `true` 时生成子串匹配 `.*(…).*`。
+    - `keywords?: string`：可选。改用该字符串生成正则（按 `,`、`，`、`;`、`；`、`、` 和空白拆分并去重），不读取 `attach`。
 
 处理规则：
 
@@ -202,7 +204,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 兼容性说明：
 
 - 信用点商店已切换为直接使用 `AttachToExpectedRegexAction`。
-- 若需要覆盖多个目标节点，建议在 Pipeline 中拆成多个 `Custom` 节点并通过 `next` 串联。
+- 需要覆盖多个目标节点时，用 `targets` 一次处理。
 - 若多个节点需要相同白名单，应在任务配置中分别把同一份 `attach` 写入各自节点。
 - 其他任务也建议优先使用通用名，避免与具体业务耦合。
 
@@ -283,13 +285,14 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 参数：
 
 - `expression: string`：必填。表达式最终必须计算为布尔值。
-- `box_node?: string`：可选。命中后返回哪个识别节点的结果框；若该节点是 `And`，则会先执行该节点，再按其原生 `box_index` 从本次识别返回结果中直接读取对应子识别结果的框。
+- `box_node?: string`：可选。命中后返回哪个识别节点的结果框；若该节点是 `And`，则会先执行该节点，再按其原生 `box_index` 从本次识别返回结果中读取对应子识别结果的框（子项若仍是 `And` 节点名引用，会沿其 `box_index` 继续下钻）。
+- `focus_matched_resolved_expression?: bool` / `focus_unmatched_resolved_expression?: bool`：可选，默认 `false`。为 `true` 时，命中 / 未命中后通过 `maafocus` 输出代入数值后的表达式（如 `120<300 匹配`）。
 
 占位规则：
 
 - 使用 `{节点名}` 引用其他识别节点。
 - 被引用节点会以当前图片 `arg.Img` 执行一次识别。
-- 若被引用节点是 `And`，当前实现会先执行该 `And` 节点本身，再按该节点原生 `box_index` 从本次识别返回结果中直接读取对应子识别结果，并将其视为该节点的最终取值来源。
+- 若被引用节点是 `And`，当前实现会先执行该 `And` 节点本身，再按该节点原生 `box_index` 从本次识别返回结果中读取对应子识别结果（子项若仍是 `And` 节点名引用，会沿其 `box_index` 继续下钻），并将其视为该节点的最终取值来源。
 - 当前实现会从被引用节点的 OCR 结果中提取数值参与计算，并支持常见缩写格式，例如 `1.38万`、`13.8K`、`22.01M`；这类值会先换算为整数再参与表达式计算。
 
 支持的运算：
@@ -308,7 +311,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
         "param": {
             "custom_recognition": "ExpressionRecognition",
             "custom_recognition_param": {
-                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}",
+                "expression": "{CreditShoppingReserveCreditOCRInternal}<300",
                 "box_node": "CreditShoppingReserveCreditOCRInternal"
             }
         }
@@ -326,7 +329,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 - 表达式结果必须是布尔值，否则识别失败。
 - 被引用节点当前应能返回可解析的 OCR 数值结果，否则表达式求值失败。
-- 对 `And` 节点，`box_index` 指向的本次子识别结果当前需要直接包含可解析的 OCR 数值结果。
+- 对 `And` 节点，沿 `box_index` 最终选中的子识别结果当前需要包含可解析的 OCR 数值结果。
 - 表达式中的整数字面量，以及 OCR 换算后的数值，若超出当前平台 `int` 可表示范围，会自动钳制到 `int` 最大值或最小值（正溢出取最大值，负溢出取最小值），并输出警告日志；表达式会继续求值，而不是直接失败。
 - 该识别器只负责表达式求值，不负责业务语义本身，业务侧应在 Pipeline 中自行组织节点与阈值。
 - 若要对 **IMS 缓存物品数量**做同类布尔表达式，请用 IMS R1 `ItemQuantitySatisfied`（占位符为 `{物品ID}`，见 [IMS 文档](./components/ims.md#r1itemquantitysatisfied)），不要对本识别器传入物品 ID。
@@ -420,7 +423,7 @@ Pipeline 组织：把本识别放在滑动节点**之前**；命中走「到底�
 }
 ```
 
-检测算法由两个滚动条 Recognition 共享：在 ROI 的每一行查找 `min(R, G, B) >= 200` 的白色像素，填补最长 2 行的内部断点，再从长度至少 5px 的连续段中选择最长段。
+检测算法由两个滚动条 Recognition 共享：对 ROI 每一行取最亮 3 个像素的 `min(R, G, B)` 均值，与 ROI 左右各 3px 背景的中位数比较，归一化增亮比例 `>= 0.45` 的行记为滑块行；填补最长 2 行的内部断点后，从长度至少 5px 的连续段中选择累计对比度最高的一段。
 
 ```json
 {
@@ -542,7 +545,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 
 ### ScheduleRecognition
 
-`ScheduleRecognition` 实现位于 `agent/go-service/common/schedule`，用于按星期几判断当前任务是否应继续执行。它只返回识别是否命中，不在 Go 中直接运行子任务；后续流程应通过 Pipeline 的 `next` 组织。
+`ScheduleRecognition` 实现位于 `agent/go-service/common/schedule`，用于按星期几判断当前任务是否应继续执行（按游戏日计算，本地时间每天 04:00 前算作前一天）。它只返回识别是否命中，不在 Go 中直接运行子任务；后续流程应通过 Pipeline 的 `next` 组织。
 
 - 参数：无。
 - `attach` 字段（写在当前识别节点中，可以在任务配置中合并）：
@@ -554,7 +557,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
     - `saturday: bool` — 周六是否执行。
     - `sunday: bool` — 周日是否执行。
 
-省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会发出一条“今日跳过”的本地化提示并返回未命中。
+省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会通过 `maafocus` 输出本地化提示（`schedule.skip_today`）并返回未命中。
 
 ## 小结
 

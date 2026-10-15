@@ -27,7 +27,7 @@ _Custom code is usually only maintainable by the original author. If even the au
 
 ### Naming: PascalCase
 
-Node names use PascalCase, prefixed with the task name or module name within the same task. For example, `ResellMain`, `DailyProtocolPassInMenu`, `RealTimeAutoFightEntry`.
+Node names use PascalCase, prefixed with the task name or module name within the same task. For example, `AutoSellPressStockRedistribution`, `DailyProtocolPassInMenu`, `RealTimeAutoSkipEntry`.
 
 ### Prohibit Hard Delays
 
@@ -163,15 +163,15 @@ pnpm format:md     # Markdown formatting (when Markdown docs are changed)
 Run `pnpm check` and `pnpm test` **as needed**:
 
 ```bash
-pnpm check         # Resource and schema check
+pnpm check         # Resource check
 pnpm test          # Node testing
 ```
 
 - Changes that include `tests/**` content (new or modified test cases, test screenshots, `hits` / `box` expectations) → **run `pnpm test` locally first**; if you also changed `assets/**` or `tools/schema/**`, run `pnpm check` as well.
-- Other changes (Pipeline, Go, Cpp, docs, etc.) → no need to run these two commands locally; CI validates them after you open a PR, so just follow the CI status.
+- Other changes (Pipeline, Go, Cpp, docs, etc.) → no need to run these two commands locally; follow the relevant CI after opening a PR (Go is checked by `go-check.yml`; docs-only changes trigger no PR CI).
 - When you want to check something locally (for example, debugging the hit rate of a recognition node or confirming the scope of a change), you can run either command on its own at any time.
 
-How CI maps to these commands: `pnpm check` + `uv run tools/validate_schema.py` ([`check.yml`](../../../.github/workflows/check.yml)), `pnpm test` ([`test.yml`](../../../.github/workflows/test.yml), triggered when `assets/**` or `tests/**` changes), `pnpm format:all` ([`format.yml`](../../../.github/workflows/format.yml), scheduled full formatting with automatic commits).
+How CI maps to these commands: `pnpm check` + `uv run tools/validate_schema.py` ([`check.yml`](../../../.github/workflows/check.yml)), `pnpm test` ([`test.yml`](../../../.github/workflows/test.yml), triggered when a PR to or a push on `v2` changes `assets/**`, `tests/**` or `agent/cpp-algo/**`), `pnpm format:all` ([`format.yml`](../../../.github/workflows/format.yml), scheduled full formatting with automatic commits).
 
 ## Supporting Files
 
@@ -181,7 +181,7 @@ A functional change in MaaEnd often involves more than one place.
 
 - `assets/tasks/*.json`
 - `assets/resource/pipeline/**/*.json`
-- `assets/locales/interface/zh_cn.json`
+- `assets/locales/interface/*.json` (all languages)
 - `assets/interface.json`
 - `tests/**/*.json`
 
@@ -208,7 +208,7 @@ When adding, modifying, renaming, or removing either type of Custom component de
 - Do not create an empty parameter Schema for a component with no parameters or one that intentionally accepts arbitrary values
 - Do not modify `tools/schema/pipeline.schema.json`; it already references both Custom Schemas
 
-> MXU is a GUI for end-users and is not recommended for daily development and debugging. The above development tools can greatly improve development efficiency.
+> MXU is a GUI for end-users and is not recommended for daily development and debugging. The [development tools](./tools-and-debug.md#development-tools) can greatly improve development efficiency.
 
 ## Debug Workflow
 
@@ -248,7 +248,7 @@ uv run build-and-install --cpp-algo
 
 ### Resolution: 720p Base
 
-All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. MaaFramework automatically converts based on the user's device at runtime. It is recommended to use the above development tools for screenshots and coordinate conversion.
+All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. MaaFramework automatically converts based on the user's device at runtime. It is recommended to use the [development tools](./tools-and-debug.md#development-tools) for screenshots and coordinate conversion.
 
 ### HDR / Color Management
 
@@ -256,7 +256,7 @@ All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. M
 
 ### Resource Folder Link
 
-The resource folder is in a linked state. Modifying `assets` is equivalent to modifying the content in `install`; no additional copying is needed. **However, `interface.json` is a copy**; modification requires manual sync or running `build-and-install`.
+The resource folder is in a linked state. Modifying `assets` is equivalent to modifying the content in `install`; no additional copying is needed. **However, `interface.json` is a file hard link**, which breaks when git checks out a new version of the file or a tool rewrites it; after changes, sync it manually or run `build-and-install`.
 
 ### Folder Naming
 
@@ -271,7 +271,7 @@ Developers do not need to manually maintain multi-language OCR; just write the e
 
 ### Writing Requirements
 
-- `expected` should contain the complete text, not just a fragment. For example, write "This is an example content" instead of just "example content."
+- `expected` should contain the complete text, not just a fragment. For example, write `这是一段示例内容` (a piece of sample text) instead of just `示例内容` (sample text).
 - Only when the OCR engine is unstable in recognizing complete text (e.g., containing percent signs, special symbols, easily confused characters) and it is truly necessary to use fragments or handwritten regular expressions for stable matching is skipping automatic processing allowed. **Truncation is not a default method but a fallback.**
 
 Requirements:

@@ -23,10 +23,10 @@ The execution path for a task:
 
 | Change Type | Where to Look |
 | -------------------------------------------------------- | ------------------------------------- |
-| Interface text, task names, option text | `assets/locales/interface/zh_cn.json` |
+| Interface text, task names, option text | `assets/locales/interface/*.json` (all languages) |
 | Task orchestration, entry nodes, UI options | `assets/tasks/**/*.json` |
 | Recognition, clicking, jumping, waiting, process details | `assets/resource/pipeline/**/*.json` |
-| Complex logic (algorithms, traversal, calculations) | `agent/go-service/**` |
+| Complex logic (algorithms, traversal, calculations) | `agent/go-service/**`; single recognition algorithms (OpenCV / ONNX) live in `agent/cpp-algo/**` |
 | Utilities shared across features (And unwrapping, expressions, OCR numbers, i18n…) | `agent/go-service/pkg/**` ([docs](./go-service-pkg.md)) |
 
 ## Pipeline Reusable Nodes
@@ -66,6 +66,12 @@ The following tasks have dedicated maintenance documentation. **You must read th
 | AutoStockpile (Auto Stockpile) | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md) |
 | DijiangRewards (Base Rewards) | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
 | CreditShopping (Credit Shop) | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
+| AutoStockStaple (Buy Staple Goods) | [tasks/auto-stockstaple-maintain.md](./tasks/auto-stockstaple-maintain.md) |
+| EnvironmentMonitoring (Environment Monitoring) | [tasks/environment-monitoring-maintain.md](./tasks/environment-monitoring-maintain.md) |
+| OutpostTrading (Outpost Trading) | [tasks/outpost-trading-maintain.md](./tasks/outpost-trading-maintain.md) |
+| SeizeDeliveryJobs (Accept Commission & Delivery) | [tasks/seize-delivery-jobs-maintain.md](./tasks/seize-delivery-jobs-maintain.md) |
+| GiftOperator (Gift to Operator) | [tasks/gift-operator-maintain.md](./tasks/gift-operator-maintain.md) |
+| DeliveryJobs (Delivery Jobs) | [tasks/delivery-jobs-maintain.md](./tasks/delivery-jobs-maintain.md) |
 
 ## External Documentation
 
