@@ -61,15 +61,24 @@
             "[Anchor]AutoUseSpMedicationInPrepareFinishNoUseAnchor"
         ]
     },
+    // 在奖励界面会同时出现领取奖励的黄色按钮和添加理智的确认黄色按钮，导致误识别，因此这里不用YellowButton识别
     "__AutoUseSpMedicationUseEmergencySpBooster": {
-        "desc": "点击详情页的使用按钮",
+        "desc": "点击恢复理智对话框的确认按钮",
         "recognition": {
-            "type": "And",
+            "type": "OCR",
             "param": {
-                "all_of": [
-                    "YellowConfirmButtonType2"
+                "roi": [
+                    860,
+                    465,
+                    300,
+                    90
                 ],
-                "box_index": 0
+                "expected": [
+                    "确认",
+                    "確定",
+                    "(?i)Confirm",
+                    "확인"
+                ]
             }
         },
         "action": "Click",
