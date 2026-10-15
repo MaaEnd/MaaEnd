@@ -1,13 +1,16 @@
 """MaaEnd 侧的数据读取层。
 
-``data/scripts`` 下与 endfield-workflow 的 ``src/beyond_map/processors/maaend/`` 同名的
+``tools/zmdmap`` 下与 endfield-workflow 的 ``src/beyond_map/processors/maaend/`` 同名的
 文件是那边 ``build_*`` 的逐字副本（只差 import 行）：流水线里那些函数从 ``RunContext``
 取数据，这里用同样的接口把本地兄弟仓库读进来：
 
-- TableCfg：``../BeyondTableCfg/TableCfg``（``ctx.table_cfg``）；
-- JsonData：``../BeyondMemoryPack/JsonData``（``ctx.json_data``，GameplayConfig 按属性
+- TableCfg：默认 ``../BeyondTableCfg/TableCfg``（``ctx.table_cfg``）；
+- JsonData：默认 ``../BeyondMemoryPack/JsonData``（``ctx.json_data``，GameplayConfig 按属性
   名读，``base_path`` 是 JsonData 根目录，LevelData 在它下面）；
 - 五语言文本：TableCfg 里的 ``I18nTextTable_{CN,TC,EN,JP,KR}.json``（``ctx.i18n``）。
+
+两个输入目录的默认值是「与 MaaEnd 平级的兄弟仓库」，由 :mod:`tools.zmdmap.paths` 解析，
+可用 CLI 参数或环境变量覆盖。
 
 只有这个文件是 MaaEnd 专有的：那边的上下文来自流水线缓存，这边直接读盘。
 """

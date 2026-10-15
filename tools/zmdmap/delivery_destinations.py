@@ -12,7 +12,7 @@ pack 的 zone 表投影，这里不做任何换算。
 import re
 from typing import Any
 
-from local_context import (
+from .local_context import (
     DomainDepotTargetType,
     I18nText,
     LanguageCode,
@@ -22,7 +22,7 @@ from local_context import (
     load_json_dict,
     logger,
 )
-from coords import COORD_TEXT, COORD_Y_NOTE, read_xyz
+from .coords import COORD_TEXT, COORD_Y_NOTE, read_xyz
 
 # MaaEnd 侧硬编码的 5 种语言（zh_cn/zh_tw/en_us/ja_jp/ko_kr），
 # 对应 I18nTextTable_{CN,TC,EN,JP,KR}.json 后缀。

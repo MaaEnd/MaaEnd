@@ -5,7 +5,7 @@
 ``collect_points`` 共用这一套。
 """
 
-from local_context import LevelBasicInfoEntry
+from .local_context import LevelBasicInfoEntry
 
 ID_LEVEL_FACTOR = 10**8
 # indie_dgXXX 各自一张底图，其余关卡按 mapXX / base01 / dung01 归图。

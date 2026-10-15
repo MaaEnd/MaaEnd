@@ -4,13 +4,13 @@
 ``collect_points``）只发布游戏世界坐标 x/z（送货点另有世界高度 y）：投影参数
 （``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）与底图像素都属于 BaseNav pack，只有
 MaaEnd 手里有，换算由 MaaEnd 侧 ``tools/pipeline-generate/fetch-data.mjs`` 在下载完
-发布数据后完成。本文件与 MaaEnd 的 ``tools/pipeline-generate/data/scripts/coords.py``
-逐字对应（只差 import 行）。
+发布数据后完成。本文件与 endfield-workflow 侧
+``src/beyond_map/processors/maaend/coords.py`` 逐字对应（只差 import 行与文件路径提及）。
 """
 
 from typing import Any, cast
 
-# 三份带坐标数据的 coord 说明（MaaEnd data/scripts/coords.py::COORD_TEXT 同文）。
+# 三份带坐标数据的 coord 说明（与 workflow 侧 coords.py::COORD_TEXT 同文）。
 COORD_TEXT = (
     "x/z = 游戏世界坐标（米）；数据本身不含底图像素，投影由消费侧按 BaseNav pack 的 "
     "zone 表完成：u = sx*x + tx, v = -sy*z + ty。map 是底图 ID"

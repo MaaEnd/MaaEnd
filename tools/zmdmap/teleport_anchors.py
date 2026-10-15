@@ -11,9 +11,9 @@
 
 from typing import Any
 
-from local_context import RunContext, logger
-from coords import COORD_TEXT, read_xz
-from levels import build_level_index, level_of, map_of_level
+from .local_context import RunContext, logger
+from .coords import COORD_TEXT, read_xz
+from .levels import build_level_index, level_of, map_of_level
 
 CAMPFIRE_TEMPLATE_ID = "mark_sp_campfire"
 

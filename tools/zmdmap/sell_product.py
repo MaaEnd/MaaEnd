@@ -5,7 +5,7 @@
 
 from typing import Any
 
-from local_context import I18nText, LanguageCode, RunContext, logger
+from .local_context import I18nText, LanguageCode, RunContext, logger
 
 MAAEND_LOCALES: tuple[tuple[str, LanguageCode], ...] = (
     ("zh_cn", LanguageCode.ZH_CN),

@@ -5,7 +5,7 @@
 // assets/resource/model 子模块的 map/navmesh/base.nav.gz；本地没有时按该子模块当前
 // 版本从远端取，也可以显式传 --nav。
 //
-// fetch-data.mjs 下载完发布数据后调用它；本地用 data/scripts/generate.py 重新生成
+// fetch-data.mjs 下载完发布数据后调用它；本地用 `uv run zmdmap`（tools/zmdmap）重新生成
 // data/raw/ 之后，也可以只跑投影（node tools/pipeline-generate/fetch-data.mjs --project-only）。
 
 import {closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, writeFileSync} from "node:fs";
@@ -446,7 +446,7 @@ export async function projectData({rawDir, outDir, nav, repoRoot, only, force = 
         const sourcePath = resolve(rawDir, fileName);
         if (!existsSync(sourcePath)) {
             throw new Error(
-                `缺少原始数据文件：${sourcePath}（先跑 pnpm fetch:zmdmap 下载，或先用 data/scripts/generate.py 本地生成）`,
+                `缺少原始数据文件：${sourcePath}（先跑 pnpm fetch:zmdmap 下载，或先用 uv run zmdmap 本地生成）`,
             );
         }
         const result = projectDataset(fileName, readDataset(sourcePath), zones, skippedMaps);

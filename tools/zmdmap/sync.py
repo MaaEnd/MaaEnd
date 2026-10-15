@@ -1,0 +1,193 @@
+"""同步放数据的兄弟仓库，以及预检输入是否齐备。
+
+只做 ``git fetch`` + ``--ff-only`` 快进合并：工作区有未提交改动、处于分离头指针、没有配置上游
+时一律只提示并跳过该仓库 —— **绝不** stash / reset / 覆盖本地改动。
+
+这一层原来是 ``tools/pipeline-generate/sync_and_generate.py`` 里的同步步骤，现在由
+``uv run zmdmap --sync`` 触发。
+"""
+
+from __future__ import annotations
+
+import subprocess
+from dataclasses import dataclass
+from pathlib import Path
+
+from .paths import (
+    MODEL_SUBMODULE_PATH,
+    NAVMESH_DIR,
+    NAVMESH_FILES,
+    PIPELINE_DATA_DIR,
+    REPO_ROOT,
+    WORKSPACE_REPO_NAMES,
+)
+
+# 状态 -> 单字符标记，打印同步结果时用。标记只用 GBK 能编出来的字符：Windows 中文控制台
+# 编不出 ✘ / ⚠ 这类符号，写出去就是 UnicodeEncodeError。
+SYNC_MARKS = {"updated": "↓", "current": "=", "pending": "→", "skipped": "·", "missing": "·"}
+SYNC_MARK_UNKNOWN = "x"
+
+
+@dataclass
+class RepoOutcome:
+    """一个仓库的同步结果。"""
+
+    name: str
+    state: str
+    detail: str
+    ok: bool = True
+
+
+def last_lines(text: str, count: int = 1) -> str:
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    return " / ".join(lines[-count:])
+
+
+def git(repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    """在指定仓库里跑一条 git 命令，输出合并返回，不抛异常。"""
+    try:
+        return subprocess.run(
+            ["git", "-C", str(repo), *args],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except OSError as error:  # git 不在 PATH
+        return subprocess.CompletedProcess(
+            args=["git", *args], returncode=127, stdout=f"无法执行 git：{error}", stderr=""
+        )
+
+
+def sync_repo(name: str, repo: Path, *, dry_run: bool) -> RepoOutcome:
+    """fetch + 仅快进合并到上游；任何会动到本地改动的路径都只跳过。"""
+    if not (repo / ".git").exists():
+        return RepoOutcome(name, "missing", f"{repo} 不是 git 仓库，跳过同步")
+
+    if git(repo, "status", "--porcelain").stdout.strip():
+        return RepoOutcome(name, "skipped", "工作区有未提交改动，跳过同步（不动你的文件）")
+
+    branch = git(repo, "rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
+    if not branch or branch == "HEAD":
+        return RepoOutcome(name, "skipped", "处于分离头指针状态，跳过同步")
+
+    upstream = git(repo, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
+    if upstream.returncode != 0 or not upstream.stdout.strip():
+        return RepoOutcome(name, "skipped", f"{branch} 没有配置上游分支，跳过同步")
+    upstream_ref = upstream.stdout.strip()
+
+    fetched = git(repo, "fetch", "--prune", "origin")
+    if fetched.returncode != 0:
+        return RepoOutcome(name, "failed", f"git fetch 失败：{last_lines(fetched.stdout)}", ok=False)
+
+    head = git(repo, "rev-parse", "--short", "HEAD").stdout.strip()
+    target = git(repo, "rev-parse", "--short", upstream_ref).stdout.strip()
+    behind = git(repo, "rev-list", "--count", f"HEAD..{upstream_ref}").stdout.strip() or "?"
+
+    if head == target:
+        return RepoOutcome(name, "current", f"已是最新（{branch} @ {head}）")
+
+    if dry_run:
+        subjects = git(repo, "log", "--oneline", f"HEAD..{upstream_ref}").stdout.strip()
+        detail = f"可更新 {head} → {target}（{behind} 个提交）"
+        if subjects:
+            detail += f"：{last_lines(subjects, 3)}"
+        return RepoOutcome(name, "pending", detail)
+
+    merged = git(repo, "merge", "--ff-only", upstream_ref)
+    if merged.returncode != 0:
+        return RepoOutcome(
+            name, "failed", f"无法快进到 {upstream_ref}（本地与远端分叉），需要人工处理", ok=False
+        )
+    after = git(repo, "rev-parse", "--short", "HEAD").stdout.strip()
+    return RepoOutcome(name, "updated", f"{head} → {after}（{behind} 个提交，{branch}）")
+
+
+def submodule_upstream(repo: Path) -> str | None:
+    """子模块处于分离头指针，按 origin/HEAD → origin/main → origin/master 找可比较的上游。"""
+    default = git(repo, "rev-parse", "--abbrev-ref", "origin/HEAD").stdout.strip()
+    candidates = [default] if default and default != "origin/HEAD" else []
+    candidates += ["origin/main", "origin/master"]
+    for candidate in candidates:
+        if git(repo, "rev-parse", "--verify", "--quiet", candidate).returncode == 0:
+            return candidate
+    return None
+
+
+def sync_model_submodule(*, update: bool) -> RepoOutcome:
+    """报告（或更新）assets/resource/model：BaseNav 数据包，投影用的 zone 表来源。"""
+    name = "assets/resource/model"
+    repo = MODEL_SUBMODULE_PATH
+    if not (repo / ".git").exists():
+        return RepoOutcome(name, "missing", f"{repo} 尚未初始化；投影会改用远端 navmesh")
+
+    fetched = git(repo, "fetch", "--prune", "origin")
+    if fetched.returncode != 0:
+        return RepoOutcome(name, "failed", f"git fetch 失败：{last_lines(fetched.stdout)}", ok=False)
+
+    upstream = submodule_upstream(repo)
+    head = git(repo, "rev-parse", "--short", "HEAD").stdout.strip()
+    if upstream is None:
+        return RepoOutcome(name, "current", f"停在 {head}（找不到可比较的上游）")
+
+    target = git(repo, "rev-parse", "--short", upstream).stdout.strip()
+    behind = git(repo, "rev-list", "--count", f"HEAD..{upstream}").stdout.strip() or "0"
+    if head == target:
+        return RepoOutcome(name, "current", f"已是最新（{head}）")
+    if not update:
+        return RepoOutcome(
+            name, "pending", f"{head} → {target}（落后 {behind} 个提交；--update-model 才会更新）"
+        )
+
+    merged = git(repo, "merge", "--ff-only", upstream)
+    if merged.returncode != 0:
+        return RepoOutcome(name, "failed", f"无法快进到 {upstream}，需要人工处理", ok=False)
+    return RepoOutcome(name, "updated", f"{head} → {target}（{behind} 个提交）")
+
+
+def sync_workspace(
+    workspace: Path, *, dry_run: bool, update_model: bool
+) -> tuple[list[RepoOutcome], bool]:
+    """同步 workspace 下的兄弟仓库（外加 navmesh 子模块）。
+
+    返回 ``(各仓库结果, 是否有失败)``。
+    """
+    outcomes: list[RepoOutcome] = []
+    failed = False
+    for name in WORKSPACE_REPO_NAMES:
+        outcome = sync_repo(name, workspace / name, dry_run=dry_run)
+        failed = failed or not outcome.ok
+        outcomes.append(outcome)
+
+    model = sync_model_submodule(update=update_model and not dry_run)
+    failed = failed or not model.ok
+    outcomes.append(model)
+    return outcomes, failed
+
+
+def preflight(table_cfg_dir: Path, json_data_dir: Path, *, check_navmesh: bool) -> list[str]:
+    """生成/投影前的提示项；返回问题列表（只提示，不阻止）。"""
+    problems: list[str] = []
+    if not table_cfg_dir.is_dir():
+        problems.append(f"缺少 TableCfg 目录：{table_cfg_dir}")
+    if not json_data_dir.is_dir():
+        problems.append(f"缺少 JsonData 目录：{json_data_dir}")
+    elif not (json_data_dir / "GameplayConfig" / "LevelMapMark.json").is_file():
+        problems.append(f"缺少 {json_data_dir / 'GameplayConfig' / 'LevelMapMark.json'}")
+    if check_navmesh and not any((NAVMESH_DIR / name).exists() for name in NAVMESH_FILES):
+        problems.append("本地没有 navmesh（投影会改用远端 nav 数据，需要联网）")
+    return problems
+
+
+def changed_data_files(dataset_names: list[str]) -> list[str]:
+    """入库 data/ 目录里与本次生成相关的改动（git status 的原始行）。"""
+    expected = {f"{name}.json" for name in dataset_names} | {"version.txt"}
+    changed = git(
+        REPO_ROOT, "status", "--porcelain", "--", str(PIPELINE_DATA_DIR)
+    ).stdout.strip()
+    return [
+        line
+        for line in changed.splitlines()
+        if Path(line[3:].strip()).name in expected
+    ]

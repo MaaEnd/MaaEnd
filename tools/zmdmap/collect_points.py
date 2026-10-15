@@ -9,9 +9,9 @@ AutoCollect 采集路线的数据源：``WorldEntityRegistry`` 中 ``detailId`` 
 
 from typing import Any
 
-from local_context import RunContext, WorldEntityRegistryData, logger
-from coords import COORD_TEXT, read_xz
-from levels import build_level_index, level_of, map_of_level
+from .local_context import RunContext, WorldEntityRegistryData, logger
+from .coords import COORD_TEXT, read_xz
+from .levels import build_level_index, level_of, map_of_level
 
 DOODAD_PREFIX = "int_doodad_"
 

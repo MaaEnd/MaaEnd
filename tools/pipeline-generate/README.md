@@ -17,7 +17,7 @@ MaaEnd 使用六份由 zmdmap 数据 CI 生成并发布的精简游戏数据：
 
 ```text
 BeyondTableCfg/TableCfg ─┐
-                        ├→ data/scripts/generate.py → data/raw/*.json（世界坐标，不入库）
+                        ├→ uv run zmdmap → data/raw/*.json（世界坐标，不入库）
 BeyondMemoryPack/JsonData┘
                                      ↓ fetch-data.mjs（按 BaseNav zone 表投影）
                         data/*.json（含 u/v 与 maps，入库）→ 各任务生成器 → assets/…
@@ -58,25 +58,27 @@ pnpm generate:SeizeDeliveryJobs
 
 ## 本地生成脚本
 
-`data/scripts/` 下的脚本与 `endfield-workflow` 的 `src/beyond_map/processors/maaend/` 一一对应，改哪边都要同步另一处；`coords.py` / `levels.py` / 六个 `build_*` 逐字相同，只有 import 行不同——那边从流水线的 `RunContext` 取数据，这边由 `local_context.py` 读本地兄弟仓库。细节见 [`data/scripts/README.md`](data/scripts/README.md)。
+六个 `build_*` 与 `endfield-workflow` 的 `src/beyond_map/processors/maaend/` 一一对应，改哪边都要同步另一处；`coords.py` / `levels.py` / 六个 `build_*` 逐字相同，只有 import 行不同——那边从流水线的 `RunContext` 取数据，这边由 `local_context.py` 读本地兄弟仓库。生成器现在统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`。
 
-默认目录按当前 MaaEnd 仓库的兄弟目录解析，因此三个仓库位于同一 `Endfield` 目录时无需传路径：
-
-```shell
-uv run tools/pipeline-generate/data/scripts/generate.py            # 六份都生成到 data/raw/
-uv run tools/pipeline-generate/data/scripts/generate.py --list     # 列出数据集名
-uv run tools/pipeline-generate/data/scripts/generate.py --only collect_points
-```
-
-仓库不在默认相对位置时用 `--table-cfg-dir` / `--json-data-dir` 覆盖；`--out-dir` 可把结果写到临时目录做本地/CI 等价校验（生成结果与已有文件相同时跳过写入，`--force` 强制重写）。生成完还要跑一次投影，才是生成器读取的 `data/*.json`。
-
-`tools/pipeline-generate/sync_and_generate.py` 把「同步兄弟仓库 → 本地生成 → 投影」串成一条命令：
+默认按当前 MaaEnd 仓库的兄弟目录解析输入，因此三个仓库位于同一 `Endfield` 目录时无需传路径：
 
 ```shell
-uv run python tools/pipeline-generate/sync_and_generate.py --dry-run          # 只报告会做什么
-uv run python tools/pipeline-generate/sync_and_generate.py --update-model     # 顺带更新 navmesh 子模块
-uv run python tools/pipeline-generate/sync_and_generate.py --no-sync --only sell_product
+uv run zmdmap                        # 六份都生成到 data/raw/
+uv run zmdmap --list                 # 列出数据集名
+uv run zmdmap --only collect_points  # 只生成一份（可重复给）
 ```
+
+仓库不在默认相对位置时用 `--table-cfg-dir` / `--json-data-dir` 覆盖，或改用环境变量 `ZMDMAP_TABLE_CFG_DIR` / `ZMDMAP_JSON_DATA_DIR`（命令行 > 环境变量 > 默认）；`--out-dir` 可把结果写到临时目录做本地/CI 等价校验（生成结果与已有文件相同时跳过写入，`--force` 强制重写）。生成完还要跑一次投影，才是生成器读取的 `data/*.json`。
+
+`uv run zmdmap` 同时是「同步兄弟仓库 → 本地生成 → 投影」的总入口，用两个开关控制后两步：
+
+```shell
+uv run zmdmap --dry-run                           # 只报告会做什么
+uv run zmdmap --sync                              # 先同步兄弟仓库，再生成
+uv run zmdmap --sync --update-model --project     # 连 navmesh 子模块一起更新并投影入库
+```
+
+它只对干净的工作区做快进合并，绝不 stash / reset / 覆盖本地改动；本地重算不会改 `data/version.txt`（那是「已发布数据版本」）。
 
 它只对干净的工作区做快进合并，绝不 stash / reset / 覆盖本地改动；本地重算不会改 `data/version.txt`（那是「已发布数据版本」）。
 

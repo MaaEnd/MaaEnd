@@ -5,7 +5,7 @@
 
 from typing import Any
 
-from local_context import I18nText, LanguageCode, RunContext, logger
+from .local_context import I18nText, LanguageCode, RunContext, logger
 
 # MaaEnd 侧硬编码的 5 种语言（zh_cn/zh_tw/en_us/ja_jp/ko_kr），
 # 对应 I18nTextTable_{CN,TC,EN,JP,KR}.json 后缀。
