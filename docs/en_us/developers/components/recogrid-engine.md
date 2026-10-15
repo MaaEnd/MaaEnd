@@ -18,7 +18,7 @@ flowchart LR
 | Module | Owns | Does not own |
 | --- | --- | --- |
 | `RecoGrid` | Rows, columns, cell rectangles, occupancy, pHash, and comparison features for one image | Frame history, scroll order, business quality, clicks |
-| `GridTracker` | Adjacent-frame alignment, global coordinates, deduplication, order, and end confirmation | Image segmentation, template loading, Pipeline routing |
+| `GridTracker` | Adjacent-frame alignment, global row/column indices, deduplication, order, and end confirmation | Image segmentation, template loading, Pipeline routing |
 | `EssenceGrid` | Essence quality, lock/discard thumbnails, pending queue, and Maa callbacks | Skill OCR, match rules, actual UI actions |
 | Go `essencefilter` | OCR normalization, target combination matching, Lock/Discard/Skip decisions | Grid recognition and button clicks |
 | Pipeline | Screenshot timing, clicks, swipes, waits, and post-action verification | Image algorithms and match data structures |

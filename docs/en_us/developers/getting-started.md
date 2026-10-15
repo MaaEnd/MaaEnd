@@ -200,7 +200,7 @@ Recognition nodes require template images. Use the [Development Tools](./tools-a
 - All images and coordinates are based on **1280×720**. In the image below, we use **Maa Pipeline Support**; you don't need to switch the game resolution yourself, the framework will automatically resize images.
 
 > [!NOTE]
-> When taking screenshots, ensure HDR, night mode, and filters from Nvidia or game++ etc. are disabled, as colors will interfere with recognition. Use the color picker tool to verify if the color code is standard.
+> When taking screenshots, ensure HDR, night mode, and filters from Nvidia or GamePP etc. are disabled, as colors will interfere with recognition. Use the color picker tool to verify if the color code is standard.
 
 ![screenshot](https://github.com/user-attachments/assets/c9bb7157-97e4-4049-bb0a-e937456456f8)
 

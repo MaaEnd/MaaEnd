@@ -46,13 +46,13 @@ The following content is intended for maintainers (those with release permission
 ### Release Cycle
 
 ```text
-Daily     Beta (vX.Y.Z-beta.N) → Based on v2 (No Beta on Thursdays; RC is released instead)
+Daily         Beta (vX.Y.Z-beta.N) → Based on v2 (No Beta on Thursdays; RC is released instead)
     Thursday  RC (vX.Y.Z-rc.N) → Based on v2
-           ├─ CI automatically creates the release/vX.Y branch
-           └─ Thereafter, the release branch only accepts fix PRs
+              ├─ CI automatically creates the release/vX.Y branch
+              └─ Thereafter, the release branch only accepts fix PRs
     Friday    Stable (vX.Y.0) → Based on release/vX.Y
-           ├─ CI automatically cleans up old release/v* branches
-           └─ Hotfixes (vX.Y.1, vX.Y.2 …) can be released as needed
+              ├─ CI automatically cleans up old release/v* branches
+              └─ Hotfixes (vX.Y.1, vX.Y.2 …) can be released as needed
 ```
 
 ### Release Operations

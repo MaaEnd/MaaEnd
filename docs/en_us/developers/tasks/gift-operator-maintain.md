@@ -1,4 +1,4 @@
-# Development Manual - Gift Operator Maintenance Documentation
+# Development Manual - Gift to Operator Maintenance Documentation
 
 This document explains the file distribution and two execution routes of `GiftOperator`.  
 This documentation was last updated on June 28, 2026.
@@ -10,11 +10,11 @@ This documentation was last updated on June 28, 2026.
 | `assets/interface.json` | Task mounting (`dijiang_ship` group) |
 | `assets/tasks/GiftOperator.json` | Task entry and interface options |
 | `assets/resource/pipeline/GiftOperator/GiftOperatorMain.json` | Entry, Dijiang ship location |
-| `assets/resource/pipeline/GiftOperator/GiftOperatorNavigation.json` | Pathfinding and contact point interaction |
+| `assets/resource/pipeline/GiftOperator/GiftOperatorNavigation.json` | Pathfinding and Operator Contact Panel interaction |
 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` | Contact interface operator selection |
 | `assets/resource/pipeline/GiftOperator/GiftOperatorGiftFlow.json` | Gift giving / receiving during dialogue |
 | `assets/resource/pipeline/GiftOperator/GiftOperatorBagFull.json` | Bag full handling |
-| `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | Operator identification for receive-only mode |
+| `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | Operator identification for "Only Receive Gifts" mode |
 | `assets/resource/image/GiftOperator/` | Win32 recognition images |
 | `assets/resource_adb/image/GiftOperator/` | ADB recognition images |
 | `assets/resource_adb/pipeline/GiftOperator/` | ADB Pipeline mirror |
@@ -31,15 +31,15 @@ When adding a new operator, at least the following 6 locations need to be update
 | 2 | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png` | ADB operator avatar template; processed similarly |
 | 3 | `assets/tasks/GiftOperator.json` → `SelectOperator` | Add a case to provide selectable operators in the UI and supply operator information for the "Receive Only" route |
 | 4 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | OCR recognition and whitelist for each operator in "Receive Only" mode |
-| 5 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | Append `GiftOperatorSelect_<Name>` to the `next` array at the "Receive Only" operator selection node; otherwise, the operator node will not be triggered |
+| 5 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | Append `GiftOperatorSelect_<Name>` to the `next` array at the "Only Receive Gifts" operator selection node; otherwise, the operator node will not be triggered |
 | 6 | `assets/locales/interface/*.json` → `operator.<Name>` | Operator display name for each language |
 
 ## Route 1: Default (Give + Receive)
 
-Corresponds to the "Receive Only" option being disabled. Configurable gift recipient and quantity.
+Corresponds to the "Only Receive Gifts" option being disabled. Configurable gift recipient and quantity.
 
 1. Store bag before starting the task, then enter the Dijiang ship bridge world.
-2. Navigate to the operator contact point and open the contact interface.
+2. Navigate to the Operator Contact Panel and open the contact interface.
 3. Select operators (must pass [Selection State Verification](#selection-state-verification) after clicking; implementation in `GiftOperatorContact.json`):
     - **Any**: Switch to trust ascending order, select three consecutive operators (including those at max trust); verify sequence number 1 → 2 → 3 for each click, confirm the call only after all three are selected.
     - **Specific Operator**: Match the target operator in the list using the avatar template, then verify the selection state before calling.
@@ -50,16 +50,16 @@ Corresponds to the "Receive Only" option being disabled. Configurable gift recip
     - Can receive gift → Collect gift, skip dialogue, leave.
 7. Number of gifts given is controlled by the "Gift Quantity" option, default allows multiple consecutive gifts.
 
-## Route 2: Receive Only
+## Route 2: Only Receive Gifts
 
-Corresponds to the "Receive Only" option being enabled. No longer actively gives gifts, only receives gifts from operators.
+Corresponds to the "Only Receive Gifts" option being enabled. No longer actively gives gifts, only receives gifts from operators.
 
-1. Similarly, store the bag first, then navigate to the operator contact point.
+1. Similarly, store the bag first, then navigate to the Operator Contact Panel.
 2. In the contact list, [identify operators with gift icons](#receive-mode-how-to-correctly-select-the-target-operator) (implementation in `GiftOperatorContact.json` and `Operator/Operator.json`), rather than selecting by trust order or specific operator.
 3. Confirm the call, enter dialogue, prioritize clicking "Accept Gift".
 4. After receiving:
-    - **Accept All Gifts** disabled → Skip dialogue, then leave, task ends.
-    - **Accept All Gifts** enabled → Return to the start of the task, continue finding the next operator with a gift; only leave when no selectable operators remain in the contact interface.
+    - **Accept all gifts** disabled → Skip dialogue, then leave, task ends.
+    - **Accept all gifts** enabled → Return to the start of the task, continue finding the next operator with a gift; only leave when no selectable operators remain in the contact interface.
 5. If the bag is full, prompt and end the task.
 
 ## Special Handling
@@ -72,7 +72,7 @@ In this task, "clicking once" does not equal "selected". The contact point opera
 Selection highlight color → Text background color within the highlighted area → OCR read key text
 ```
 
-#### Contact Point Operator Selection
+#### Operator Selection at the Operator Contact Panel
 
 Implementation is in `GiftOperatorContact.json`. After clicking a list row, use `And` to simultaneously satisfy:
 
@@ -115,7 +115,7 @@ Receive mode cannot rely on OCR of operator names to directly click the list. In
 
 Avatar templates must be processed by `fill_gift_operator_green_box.py` (green border + upper-right mask); otherwise, `green_mask` matching is unstable. Win32 and ADB each have their own set of images and must be processed separately.
 
-If no operator with a gift is found on the current screen, the list scrolls up to 2 times; if still not found, it falls into "no selectable operator", which can serve as a round-end condition when "Accept All Gifts" is enabled.
+If no operator with a gift is found on the current screen, the list scrolls up to 2 times; if still not found, it falls into "no selectable operator", which can serve as a round-end condition when "Accept all gifts" is enabled.
 
 ### After Calling Operator: What to Do If Dialogue Button Not Found
 

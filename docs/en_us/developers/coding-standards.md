@@ -88,7 +88,7 @@ If you truly run into a problem that cannot be solved (such as the game's own an
 
 ### Handling Pop-ups and Loading
 
-A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, loading can be waited through, and it can automatically jump past when not in the target scenario.
+A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, loading can be waited through, and when it is not in the target scene it can automatically navigate there.
 
 Common practice is to add to `next`:
 
@@ -280,7 +280,7 @@ Requirements:
 2. Add a normal JSON comment above the array to retain the **complete original text** for review, multilingual reference, and future restoration of complete matching after OCR engine upgrades.
 
 ```jsonc
-// OCR engine is unstable with percent signs in "stable production 100%", using truncated match
+// OCR engine is unstable with the percent sign in "稳定生产 100%", using truncated match
 "expected": [
     // "稳定生产 100%"
     // @i18n-skip

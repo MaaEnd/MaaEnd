@@ -17,8 +17,8 @@ This document was updated on June 6, 2026.
 | `assets/resource/pipeline/AutoStockStaple/General/Goods.json` | Item OCR within the purchase popup |
 | `assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json` | OCR of held quantity in the top-right corner of the popup |
 | `assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json` | Popup branch dispatch, item exclusion, purchase confirmation |
-| `assets/resource/pipeline/AutoStockStaple/General/Template.json` | Common templates for sold-out, dispatch tickets, purchase confirmation, etc. |
-| `assets/resource/pipeline/Interface/InScene/StockStaple.json` | Region and stable supply interface scene recognition |
+| `assets/resource/pipeline/AutoStockStaple/General/Template.json` | Common templates for sold-out, stock bills, purchase confirmation, etc. |
+| `assets/resource/pipeline/Interface/InScene/StockStaple.json` | Region and staple goods interface scene recognition |
 | `assets/resource_adb/pipeline/AutoStockStaple/` | ADB ROI offset mirror (must be checked in sync with Win32) |
 | `agent/go-service/autostockstaple/action.go` | Calculates purchase quantity and drives BetterSliding |
 | `agent/go-service/common/attachregex/action.go` | Merges attach keywords into an OCR whitelist regex |
@@ -29,13 +29,13 @@ This document was updated on June 6, 2026.
 
 1. Check if today is within the [execution cycle](#execution-cycle); if not, end directly.
 2. Read the user-selected purchase items, [merge them into a product name OCR whitelist](#attach-and-whitelist-initialization) (implementation in `Main.json` + `attachregex/action.go`).
-3. Sequentially enter enabled regions (Valley IV / Wuling) based on options, and jump to the stable supply interface for that region.
+3. Sequentially enter enabled regions (Valley IV / Wuling) based on options, and jump to the staple goods interface for that region.
 4. Loop scan on the list page, judging sequentially each round:
-    - Whether remaining dispatch tickets are [below the retention threshold](#dispatch-ticket-retention-threshold) → stop scanning this region.
+    - Whether remaining stock bills are [below the retention threshold](#stock-bill-retention-threshold) → stop scanning this region.
     - Whether a [buyable target item is recognized](#item-recognition-chain) → click to enter the purchase popup.
     - Whether it is sold out → stop scanning this region.
     - Otherwise, swipe down the list to continue searching (max 25 swipes per region).
-5. Handle the purchase popup according to the [three-branch quantity control](#quantity-control-three-branches): exit due to insufficient tickets / purchase if under the limit / exclude if the limit is reached.
+5. Handle the purchase popup according to the [three-branch quantity control](#quantity-control-three-branches): exit due to insufficient stock bills / purchase if under the limit / exclude if the limit is reached.
 6. End after all enabled regions are completed.
 
 > Recognizing and clicking an item in the list does not equal a successful purchase; an order is only placed when the quantity control reaches the confirmation step.
@@ -54,15 +54,15 @@ This task does not rely on runtime concatenation of user input strings, but rath
 2. The task entry executes `AttachToExpectedRegexAction`, reads all attach keywords, and merges them into a `^(alias1|alias2|...)$` regex, which overrides the item name OCR node on the list page.
 3. Keys where `attach` is `false` are excluded and no longer enter the whitelist.
 
-The Exclude branch (when an item has reached its target or is removed due to insufficient tickets) also triggers re-initialization, ensuring subsequent list scans do not click on excluded items.  
+The Exclude branch (when an item has reached its target or is removed due to insufficient stock bills) also triggers re-initialization, ensuring subsequent list scans do not click on excluded items.  
 The exclusion action uses `PipelineOverrideAction` to set the corresponding `attach.{slug}` to `false`.
 
-### Dispatch Ticket Retention Threshold
+### Stock Bill Retention Threshold
 
 Implemented in `ValleyIV.json` / `Wuling.json` (node names for Wuling have the suffix `Wuling`).
 
-The **first check** in the scan loop: the dispatch ticket OCR reading in the top-right corner is compared using an expression with the user-configured retention threshold.  
-If "retention threshold > current remaining tickets", it indicates there are not enough tickets to continue, ending the region scan; otherwise, it continues searching for items.
+The **first check** in the scan loop: the stock bill OCR reading in the top-right corner is compared using an expression with the user-configured retention threshold.  
+If "retention threshold > current remaining stock bills", it indicates there are not enough stock bills to continue, ending the region scan; otherwise, it continues searching for items.
 
 The list scan phase does **not** judge whether the unit price is affordable; affordability is handled within the purchase popup.
 
@@ -86,9 +86,9 @@ Only when all four match is the item clicked, entering quantity control.
 Implementation distributed across `General/QuantityControl.json`, `Goods.json`, `GoodsCountValidate.json`, and `autostockstaple/action.go`.  
 After the popup opens, it attempts the dedicated branch for each item sequentially; each item has a fixed three-way path:
 
-#### Branch 1: Insufficient Dispatch Tickets
+#### Branch 1: Insufficient Stock Bills
 
-When the bottom red "Insufficient Dispatch Tickets" prompt is identified in the popup:
+When the bottom red `调度券不足` (insufficient stock bills) prompt is identified in the popup:
 
 1. Exclude the item from the attach whitelist.
 2. Re-merge the regex whitelist.
@@ -179,16 +179,16 @@ The discount threshold is controlled by `AutoStockMinDiscountValleyIV` (select),
 - **Numeric tiers** (`-95%` … `-50%`): Rewrites the expression of `AutoStockDiscountCompareValleyIV` (`ExpressionRecognition`) to `{AutoStockInStapleItemDiscountsValleyIV} <= -{tier value}`; the discount OCR value is compared against the threshold and only matching items are hit.
 - **Any**: Replaces the discount OCR node entirely by `ColorMatch` (full-range threshold `[0,0,0]`–`[255,255,255]` with `count` defaulting to 1, so any non-empty ROI passes and the presence of a discount color block does not affect the result), and reverts the `all_of` of `AutoStockBuyItemValleyIVTask` to 3 members — equivalent to buying all selected items, with the discount comparison skipped.
 
-Tiers list only the discounts that actually occur in the stable supply shop (`-95/-90/-85/-80/-75/-70/-65/-50`), defaulting to `-50%`. Items without a discount badge produce no OCR text and never match any numeric tier; select "Any" to buy them.
+Tiers list only the discounts that actually occur for staple goods (`-95/-90/-85/-80/-75/-70/-65/-50`), defaulting to `-50%`. Items without a discount badge produce no OCR text and never match any numeric tier; select "Any" to buy them.
 
 ### 4. Judgment of "Affordability"
 
-Unlike the Credit Store, the stable supply list scan **does not** have a separate "unit price ColorMatch / CanAfford" node. Affordability is handled in two layers:
+Unlike the Credit Store, the staple goods list scan **does not** have a separate "unit price ColorMatch / CanAfford" node. Affordability is handled in two layers:
 
 | Stage | Mechanism |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Before List Scan | `AutoStockTargetCanNotBuyValleyIV`: Whether remaining dispatch tickets are still above the retention threshold |
-| Within Purchase Popup | `AutoStockStapleGoodsStockBillInsufficientValidate`: Recognizes the bottom red "Insufficient Dispatch Tickets" prompt |
+| Before List Scan | `AutoStockTargetCanNotBuyValleyIV`: Whether remaining stock bills are still above the retention threshold |
+| Within Purchase Popup | `AutoStockStapleGoodsStockBillInsufficientValidate`: Recognizes the bottom red `调度券不足` (insufficient stock bills) prompt |
 
 Therefore, the `And` conditions for `AutoStockBuyItemValleyIVTask` are:
 
@@ -233,7 +233,7 @@ Buy:     {ValleyEngravingPermitLimit} > {AutoStockStapleGoodsCountValidate}
 Exclude: {ValleyEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}
 ```
 
-### Branch 1: Insufficient Dispatch Tickets, Direct Exit
+### Branch 1: Insufficient Stock Bills, Direct Exit
 
 `AutoStockStapleQuantityControl{Item}StockBillInsufficient` combines:
 
@@ -304,7 +304,7 @@ This task involves several types of runtime overrides; do not confuse them durin
 
 ## Adding a New Item
 
-When adding a new stable demand supply item, the following typically need to be modified in sync:
+When adding a new staple demand supply item, the following typically need to be modified in sync:
 
 1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**: Add `AutoStockStapleGoods{Item}` OCR node and multilingual `expected`.
 2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**: Add `{Item}Validate` / `{Item}ExcludeValidate` expression nodes.
@@ -316,7 +316,7 @@ During maintenance, directly edit the above Pipeline and task configuration; **d
 
 ## Adding a New Region (Referencing Valley IV)
 
-If a third region for stable supply purchase is added in the future, a set of nodes can be copied corresponding to Valley IV:
+If a third region for staple goods purchase is added in the future, a set of nodes can be copied corresponding to Valley IV:
 
 1. Create `assets/resource/pipeline/AutoStockStaple/{Region}.json`:
     - `{Region}InStaple` scan loop (the four-branch `next` structure remains unchanged).
@@ -337,14 +337,14 @@ The existing Wuling implementation is a mirror of Valley IV; you can directly di
 | Target item not recognized in list | `AttachToExpectedRegexAction`'s `expected` regex in `go-service.log`; whether anchor `AutoStockInStapleItem` matched |
 | Item recognized but not purchased | Whether quantity control went to `Exclude` or `StockBillInsufficient`; `AutoStockStapleQuantityControl{Item}Buy/Exclude` in `maafw*.log` |
 | Purchase quantity is incorrect | `threshold/current_count/target` in `AutoStockStapleQuantityControlAction` log; BetterSliding ROI |
-| Scanning stops even though dispatch tickets seem sufficient | `AutoStockTargetCompareValleyIV` expression and user input `{ReserveValleyIV}` |
+| Scanning stops even though stock bills seem sufficient | `AutoStockTargetCompareValleyIV` expression and user input `{ReserveValleyIV}` |
 | Repeatedly clicking the same reached-target item | Whether `{Item}RemoveFilter` and `ResetRecognitionParams` executed after Exclude |
 
 Log analysis can reference the skill: `.agents/skills/autostockstaple-log-analysis/SKILL.md`.
 
 ## Differences from AutoStockpile
 
-| Aspect | AutoStockStaple (Stable Demand) | AutoStockpile (Flexible Stockpiling) |
+| Aspect | AutoStockStaple (Staple Demand) | AutoStockpile (Elastic Demand) |
 | ---------------- | ----------------------------------- | ------------------------------------ |
 | Decision Core | Pipeline + minimal Go | Go Service dominated |
 | Item Location | List time anchor + OCR offset chain | Template matching + OCR mapping |

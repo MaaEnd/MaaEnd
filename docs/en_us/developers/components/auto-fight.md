@@ -2,7 +2,7 @@
 
 ## 1. AutoFight Introduction
 
-**AutoFight** is an in-combat automation module in MaaEnd. After the user enters the game combat scene, it automatically performs operations such as basic attacks, skills, chain combos, ultimate skills, dodging, and target locking until the battle ends and exits.
+**AutoFight** is an in-combat automation module in MaaEnd. After the user enters the game combat scene, it automatically performs operations such as basic attacks, skills, link skills, ultimates, dodging, and target locking until the battle ends and exits.
 
 ### Core Concepts
 
@@ -61,7 +61,7 @@ The `__AutoFight*` nodes defined in `MainLoop.json`, `Action.json`, and `Recogni
 - The structure, names, and logic of these nodes may change with version updates.
 - If "automatic combat" capability is needed, please use one of the three interfaces above.
 
-## 4. Rotation Implementation and TODO
+## 4. Timeline Implementation and TODO
 
 Rotation (skill rotation/timeline) refers to the scheduling logic of "what operation to perform at what timing" within combat. The current implementation **does not have an independent rotation data format**, and all are written in `agent/go-service/autofight/autofight.go`, belonging to implicit, hardcoded rules.
 

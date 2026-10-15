@@ -126,7 +126,7 @@
 
 ## QuickTeleportButton
 
-**Description**: "Go to teleport" button (quick teleport), sitting to the left of the teleport button in the lower right corner of the map interface.
+**Description**: Go-to-teleport button (quick teleport), sitting to the left of the teleport button in the lower right corner of the map interface.
 
 <!-- Screenshot: tests/MaaEndTestset/Win32/Official_CN/武陵_地图_拍摄巨兽心脏_前往传送.png -->
 
@@ -137,7 +137,7 @@
 | **Recognition Method** | Same as `TeleportButton`, with button ROI `[1000, 600, 120, 120]` (720p) and threshold 0.87. |
 | **Search Range** | **Restricted area** ROI `[1000, 600, 120, 120]` (720p); only effective on the map interface. |
 | **Action** | Single click. |
-| **Usage Condition** | Use when "Go to teleport" must be clicked on the map interface (it pans the map viewport to the target teleport point); usually followed by a click on `TeleportButton` to finish the teleport. |
+| **Usage Condition** | Use when the go-to-teleport button must be clicked on the map interface (it pans the map viewport to the target teleport point); usually followed by a click on `TeleportButton` to finish the teleport. |
 
 ---
 
@@ -203,7 +203,7 @@
 | `WhiteCancelButton` | Cancel button with white background + X icon |
 | `GrayCancelButton` | Cancel button with gray background + X icon |
 | `TeleportButton` | Teleport button in the lower right corner of the map interface |
-| `QuickTeleportButton` | Quick-teleport button to the left of it on the map interface |
+| `QuickTeleportButton` | Quick-teleport button to the left of the teleport button on the map interface |
 | `CloseRewardsButton` | Checkmark close button in the lower middle of the reward interface |
 | `CloseButtonType1` | Upper right X that only closes the interface (freezes under ESC) |
 | `CloseButtonType2` | Universal upper right X for closing the interface or ESC (use this to avoid freezes when ESC may appear) |

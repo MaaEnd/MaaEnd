@@ -10,7 +10,7 @@ Use the `Custom` recognition type with the fixed registration name `IconRecognit
 
 ### Find an item by ID
 
-Use a top-level key from [`assets/data/IconRecognition/recognition_items.json`](/assets/data/IconRecognition/recognition_items.json) as the item ID:
+`item_ids` takes top-level keys from [`assets/data/IconRecognition/recognition_items.json`](/assets/data/IconRecognition/recognition_items.json):
 
 ```json
 {

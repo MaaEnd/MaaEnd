@@ -1,10 +1,10 @@
-# Developer Manual - WorldMap
+# Developer Manual - WorldMap World Map Recognition
 
 WorldMap is a native C++ coordinate recognition system for the open world map. A node only states "which zone, which coordinate on that zone's base map"; WorldMap works out where that coordinate currently sits on screen, pans the map over if it has to, confirms that the named icon really is there, and hands the screen position back to the node. **What happens with that position is the node's own `action`** — a teleport point gets clicked, another use may only want the coordinate.
 
 It shares its template matching core and its base map images with [MapLocator](./map-locator.md). The difference: MapLocator reads the minimap and answers "where is the character", WorldMap reads the full screen map and answers "where is this coordinate drawn right now".
 
-- [Developer Manual - WorldMap](#developer-manual---worldmap)
+- [Developer Manual - WorldMap World Map Recognition](#developer-manual---worldmap-world-map-recognition)
     - [MapFind](#mapfind)
         - [Node parameters](#node-parameters)
         - [Judging a set of candidates in one call](#judging-a-set-of-candidates-in-one-call)
@@ -151,7 +151,7 @@ Take another branch when the point at that coordinate is still locked:
 }
 ```
 
-Try the recycling stations of one sub-area in turn, and let the one that hits decide which delivery route comes next:
+Try the Resource Recycle Stations of one sub-area in turn, and let the one that hits decide which delivery route comes next:
 
 ```json
 {
@@ -195,7 +195,7 @@ The icon table is `assets/resource/image/SceneManager/MapIcons.json`, one entry 
 | `scale` | `[0.90, 1.35]` | Bounds of the scale sweep |
 | `scale_step` | `0.025` | Step of the scale ladder |
 | `threshold` | `0.55` | Match score floor |
-| `gate` | `10.0` | Maximum offset between the match and the expected position, in base map pixels. Ignored when `radius` is set |
+| `gate` | `10.0` | Maximum offset between the match and the expected position, in base map pixels. Ignored when `radius` is above zero |
 | `radius` | `0` | Above zero, the icon floats within this radius (base map pixels) and is searched across that range instead of confirmed in a small fixed window |
 | `gold_ratio` | `0` | Gold pixel fraction required to read as unlocked. Zero skips the check entirely, which also leaves `state` with nothing to judge |
 | `occluded_by_player` | `false` | This kind of icon gets covered by the player marker, so the marker fallback is allowed when it cannot be recognised |
@@ -212,13 +212,13 @@ Three entries exist today:
 >
 > The unlock threshold for `Core` was only ever calibrated against unlocked captures. The author has no locked account and could not capture one, so **the locked side has never been verified**. It does not affect the normal flow for unlocked points — that branch is only reached once an icon is confirmed and its gold ratio falls below the gate. `TeleportAnchor` carries no `gold_ratio` at all, so asking for `state` on it raises an error rather than returning an uncalibrated verdict.
 
-**`RecycleBin`**, the resource recycling station. A sub-area holds several of them, a delivery job names exactly one, and the map draws **an icon on every one of them**: the one the job names is blue, the rest are white, and the shape is identical. Normalised correlation is insensitive to overall brightness, so the blue template still scores 0.65 against a white icon and clears the 0.55 threshold — on score alone both candidates confirm, which is no discrimination at all. Discrimination therefore goes to `gold_ratio`: measured 0.92 on the named one against 0.05 on the others, so a gate at 0.5 leaves over 0.4 of margin on either side.
+**`RecycleBin`**, the Resource Recycle Station. A sub-area holds several of them, a delivery job names exactly one, and the map draws **an icon on every one of them**: the one the job names is blue, the rest are white, and the shape is identical. Normalised correlation is insensitive to overall brightness, so the blue template still scores 0.65 against a white icon and clears the 0.55 threshold — on score alone both candidates confirm, which is no discrimination at all. Discrimination therefore goes to `gold_ratio`: measured 0.92 on the named one against 0.05 on the others, so a gate at 0.5 leaves over 0.4 of margin on either side.
 
 > [!NOTE]
 >
 > `RecycleBin` borrows the `gold_ratio` and `state` fields, but what it judges is not lock state — it is "is this the one the current delivery job names". The mechanism is exactly the same, saturation measured over the pixels the template marks out; only the name does not fit. Nodes need not write `state`: the default already asks for the blue one, and a white one fails on the spot as a state mismatch and yields to the next candidate.
 >
-> This threshold was calibrated from one blue and one white icon in a single capture. The margin on both sides is wide, but that one pair is the whole sample. Blue is also not exclusive to this icon — the same map carries other blue icons, they simply sit far enough from the recycling station coordinates never to fall inside that small fixed window.
+> This threshold was calibrated from one blue and one white icon in a single capture. The margin on both sides is wide, but that one pair is the whole sample. Blue is also not exclusive to this icon — the same map carries other blue icons, they simply sit far enough from the Recycle Station coordinates never to fall inside that small fixed window.
 
 ---
 

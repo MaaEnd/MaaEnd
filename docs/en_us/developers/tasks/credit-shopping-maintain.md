@@ -11,7 +11,7 @@ CreditShopping/
 ├── Flow/                  # Main shopping flow
 │   ├── Entry.json         # Entry detection + whitelist init
 │   ├── Scan.json          # Shelf scan gate + snapshot (triggers buy decision loop)
-│   ├── BuyAction.json     # 3-tier purchase / blacklist / stable refresh / nothing to buy
+│   ├── BuyAction.json     # 3-tier purchase / blacklist / prudent refresh / nothing to buy
 │   ├── BuyItem.json       # Purchase confirm / failure / force-buy price reserve check
 │   └── Special.json       # Shelf swipe utility nodes / unable to buy on refresh / refresh item
 ├── Credit/                # Credit management
@@ -47,7 +47,7 @@ Other related files:
     - A target item in some tier [is affordable but credit is insufficient](#automatic-credit-replenishment) → jump to base to replenish credit and return.
     - Whether it matches [Priority Purchase 1 / 2 / 3](#three-tier-purchase-priority) → confirm purchase directly.
     - Whether the current credit is [below the reserve threshold](#credit-point-reserve-threshold) → end the task.
-    - Whether refresh attempts are exhausted, whether to trigger [stable refresh to direct purchase](#force-strategy-and-refresh).
+    - Whether refresh attempts are exhausted, whether to trigger [prudent refresh switching to direct purchase](#force-strategy-and-refresh).
     - Follow the [force strategy](#force-strategy-and-refresh) to purchase any affordable item / refresh the shelf / end directly.
 4. After confirm, enter the reward UI: IMS A3 adds cultivation items and announces them, then close and continue scanning. Force-buy checks reserve via "held − price" before confirm.
 
@@ -152,10 +152,10 @@ The fallback after all three tiers fail to match is determined by `CreditShoppin
 | Ignore Blacklist | Purchase any affordable, not sold-out item; before confirm, `BuyItemBelowReserve` checks reserve via "held − price", and cancels/stops if insufficient |
 | Refresh | Attempt to refresh the shelf; can expand to "stable refresh" and "check price before direct buy" |
 
-**Stable Refresh**: If "Current credit − Refresh cost < Stable refresh threshold" and there are still purchasable items on the shelf, then do not refresh, but directly purchase instead.  
-This threshold and the "Reserve Credit Points" are two independent conditions; do not mix them.
+**Prudent refresh**: If "Current credit − Refresh cost < Prudent refresh threshold" and there are still purchasable items on the shelf, then do not refresh, but directly purchase instead.  
+This threshold and "Reserved Credits" are two independent conditions; do not mix them.
 
-**Check price before direct buy** (Refresh sub-option, default on): When enabled, refresh-exhausted / prudent direct buys check reserve via "held − price" before confirm and cancel/stop if insufficient; when disabled, buy first, then the reserved-credits node decides whether to stop.
+**Check price before direct buy** (Refresh sub-option, default on): When enabled, refresh-exhausted / prudent direct buys check reserve via "held − price" before confirm and cancel/stop if insufficient; when disabled, buy first, then the "Reserved Credits" node decides whether to stop.
 
 ## Paths to Modify When Adding New Items
 
@@ -172,7 +172,7 @@ After adding a case, remember to check whether `default_case` also needs to incl
 | Target item not recognized | The merged attach regex; recognition chain from black → pink layer by layer |
 | Affordable but not purchasing | The tier's reserve threshold / unconditional purchase switch |
 | Unaffordable but not replenishing credit | The tier's AutoGetCredits switch; the unaffordable side's whitelist and discount |
-| Abnormal refresh behavior | `CreditShoppingForce`; stable refresh threshold |
+| Abnormal refresh behavior | `CreditShoppingForce`; prudent refresh threshold |
 | Inconsistent behavior between options | `CreditShopping.json`'s `pipeline_override` and scan `next` order |
 
 Maintenance location is done in four layers: Entry (`GoToShop.json`) → Scan Decision (`Flow/`) → Recognition Chain (`Item/`) → Parameter Assembly (task options + Go).

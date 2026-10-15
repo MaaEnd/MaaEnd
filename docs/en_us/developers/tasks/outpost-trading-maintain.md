@@ -38,17 +38,17 @@ Per outpost (OutpostTrading{LocationId}Sell)
   │    └─ AfterSellOperator → [Anchor]…Target    post-sell: assign production operators per global plan
   └─ return to the region node for the next outpost
 
-OutpostTradingSellLoop (unlimited rounds; vouchers checked first each round)
-  ├─ [Anchor]ZeroMoneyHandler     vouchers exhausted → OutpostTradingSellLoopEnd (post-sell)
+OutpostTradingSellLoop (unlimited rounds; stock bills checked first each round)
+  ├─ [Anchor]ZeroMoneyHandler     stock bills insufficient → OutpostTradingSellLoopEnd (post-sell)
   ├─ [Anchor]CurrentGoodsReady    current goods match the current selection rules → adopt → OutpostTradingAtSell
   └─ OutpostTradingChangeGoods    click "Switch Goods" → ResetGoodsSelection → ChangeGoodsRelay
        ├─ [Anchor]SelectPriorityItem → SelectNewGoodConfirm → [Anchor]CommitPriorityItem
-       │    → OutpostTradingAtSell: re-check vouchers → out of stock → [Anchor]MarkOutOfStock
+       │    → OutpostTradingAtSell: re-check stock bills → out of stock → [Anchor]MarkOutOfStock
        │      → "select goods" prompt → retry switching once → [Anchor]BetterSliding applies the reserve rule → trade/skip
        └─ [Anchor]PriorityItemsExhausted → CloseGoodsAfterExhausted → SellLoopEnd
 ```
 
-Task-level termination: if outpost management is locked, SceneManager cannot enter and the task stops; the dialog for exceeding the outpost's exchangeable stock bill limit is handled by `OutpostTradingAidQuotaExceededStop`, which stops the task without auto-confirming.
+Task-level termination: if outpost management is locked, SceneManager cannot enter and the task stops; the dialog saying the goods have "exceeded the stock bill reserves of the outpost" is handled by `OutpostTradingAidQuotaExceededStop`, which stops the task without auto-confirming.
 
 > [!IMPORTANT]
 >
@@ -60,9 +60,9 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 
 | Strategy | Ordering | Notes |
 | ---------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
-| Rarity (default) | rarity desc → unit price desc → stable source order | may pick bottom half-visible items with unknown stock |
-| Price | unit price desc → rarity desc → stable order | same as above |
-| Stock | local stock desc → unit price → rarity → stable order | requires recognized stock and a unit price no lower than the user's minimum |
+| Rarity Priority (default) | rarity desc → unit price desc → stable source order | may pick bottom half-visible items with unknown stock |
+| Unit Price Priority | unit price desc → rarity desc → stable order | same as above |
+| Stock Priority | local stock desc → unit price → rarity → stable order | requires recognized stock and a unit price no lower than the user's minimum |
 
 ### Selection Recognition (`OutpostTradingPriorityItem` custom recognizer)
 
@@ -82,16 +82,16 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 
 ### Priority Selling (master switch, off by default, decoupled from region toggles)
 
-- Expands "sell only preferred goods" plus a per-region toggle with 6 slots (listing only items sellable in that region).
+- Expands "Sell Priority Goods Only" plus a per-region toggle with 6 slots (listing only items sellable in that region).
 - Entering a region switches that region's priority list; slots are tried 1→6; duplicated items keep only the earliest slot.
-- Strict mode (only preferred) applies only to regions whose priority config is also enabled: those regions sell only explicitly configured items, while other regions keep selling per the selected strategy; an enabled region with no applicable item ends normally after two stable empty-candidate confirmations.
+- Strict mode (Sell Priority Goods Only) applies only to regions whose priority config is also enabled: those regions sell only explicitly configured items, while other regions keep selling per the selected strategy; an enabled region with no applicable item ends normally after two stable empty-candidate confirmations.
 
 ### Reserve Rules (6 independent slots)
 
-- Two modes: keep a quantity / never sell (internally quantity `-1`); quantity `0` means keep nothing; for duplicated items the later slot wins.
+- Two modes: Keep Specified Quantity / Never Sell (internally quantity `-1`); quantity `0` means keep nothing; for duplicated items the later slot wins.
 - Activity items are sold in one batch against the activity quota, so reserve rules never apply to them and the slots list no activity items; priority selling options are unaffected.
-- "Keep a quantity" uses BetterSliding `ReverseTarget` to sell only the excess; reaching the reserve in one trade, or stock already at/below the reserve, both `satisfy` the item for this task so later outposts skip it during selection.
-- "Never sell" excludes the item during selection recognition — no goods switching, never marked out of stock.
+- "Keep Specified Quantity" uses BetterSliding `ReverseTarget` to sell only the excess; reaching the reserve in one trade, or stock already at/below the reserve, both `satisfy` the item for this task so later outposts skip it during selection.
+- "Never Sell" excludes the item during selection recognition — no goods switching, never marked out of stock.
 
 ### Out of Stock
 
@@ -126,7 +126,7 @@ Selling operator not found / scan failure → stop the task (never trade with th
 
 - Account partitions keyed by CaptureUID's 16-char lowercase hex salted hash (`unknown` when not captured); keys are never re-normalized, avoiding collisions.
 - `operators` is a full-list snapshot of `updated_at` + `ids` (missing fields = never scanned; empty array = scanned, nothing relevant); `locations` stores each outpost's prosperity-maxed state. Both use stable IDs from `selection_data.json` — no Chinese names, independent of client language.
-- No snapshot → full scan before selling; "force refresh operator cache" → rescan once on first region entry this task, reused afterwards. Partial scrolling scans inside outposts never overwrite the snapshot.
+- No snapshot → full scan before selling; "Force Refresh Operator Cache" → rescan once on first region entry this task, reused afterwards. Partial scrolling scans inside outposts never overwrite the snapshot.
 - If a known operator on duty is missing from the snapshot before selling → invalidate the snapshot and run one full rescan (at most once per task).
 - Prosperity is re-recognized on every outpost entry and written back; state changes re-plan unfinished outposts immediately, while completed post-sell assignments stay locked.
 - No format version, no migration of legacy formats; corrupted JSON or incompatible top-level structure voids the whole cache, while a malformed single-account partition only voids that account.

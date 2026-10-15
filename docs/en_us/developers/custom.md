@@ -57,7 +57,7 @@ Three Custom Actions are provided, linked into one collection by a shared `key`:
 
 - Parameters:
     - `FailureCollectorReset`:
-        - `key: string`: Collection identifier. Required. Must be consistent and globally unique within the same flow.
+        - `key: string`: Collection identifier. Required. Must stay the same throughout one flow and be globally unique.
     - `FailureCollectorRunTask`:
         - `key: string`: Collection identifier. Required.
         - `task: string`: The subtask Pipeline node to run. Required. When the target node is disabled (`Enabled = false`), it is skipped and not treated as a failure.

@@ -2,7 +2,7 @@
 
 > **Who is this document for?**
 >
-> You opened [Getting Started](./getting-started.md), saw `git clone`, `pnpm install`, `Pipeline`, `PR`... and are completely lost, not knowing where to start.
+> You opened [Quick Start](./getting-started.md), saw `git clone`, `pnpm install`, `Pipeline`, `PR`... and are completely lost, not knowing where to start.
 >
 > This document is for you — it doesn't teach you to write code; it teaches you "how to understand what others are talking about."
 >
@@ -305,13 +305,13 @@ This is the basic shape of a Pipeline node.
 Each Pipeline node does three things:
 
 ```text
-┌─────────────────┐
+┌──────────────────────────────────┐
 │  Recognize (Look at the screen)  │  "Is what I'm looking for on the screen?"
-├─────────────────┤
-│  Act (Do something)    │  "Yes? Then click/swipe/press it!"
-├─────────────────┤
-│  Next Step (Jump)  │  "Then go to which node to continue?"
-└─────────────────┘
+├──────────────────────────────────┤
+│  Act (Do something)              │  "Yes? Then click/swipe/press it!"
+├──────────────────────────────────┤
+│  Next Step (Jump)                │  "Then go to which node to continue?"
+└──────────────────────────────────┘
 ```
 
 > [!WARNING]

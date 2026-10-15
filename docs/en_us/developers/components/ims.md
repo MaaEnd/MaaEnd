@@ -24,9 +24,9 @@ A2 means “look at the current screen and record item quantities”. Callers mu
 
 | Entry | Screen |
 | --- | --- |
-| `SyncItemData` | Valuables **Progression** tab |
+| `SyncItemData` | Valuables Vault **Progression** tab |
 | `SyncShopItemData` | **Procurement Center** (Origeometry / Oroberyl header counts) |
-| `SyncValuablesItemData` | Valuables **Valuables** tab (e.g. Chartered HH Permit) |
+| `SyncValuablesItemData` | Valuables Vault **Valuables** tab (e.g. Chartered HH Permit) |
 | `SyncDepotItemData` | Combined **Valley IV + Wuling left-side depots** on the Dijiang depot/backpack screen (normal collectables; excludes the right-side backpack) |
 
 Tasks that must declare “I want a fresh cache” should call the matching entry explicitly (it goes to Skipped if already scanned).
@@ -114,7 +114,7 @@ Remaining pages/regions: transaction_mode = continue
 Complete-success endpoint: transaction_mode = commit
 ```
 
-`begin` replaces unfinished staging left on the same runner. `continue` and `commit` must match the staging TaskID. `commit` needs neither `grid_type` nor `items` and performs no screenshot; with `notify_ui: true`, it sorts by localized item name and prints one icon HTML summary after a successful commit. Omitting `transaction_mode` preserves the original immediate-persist behavior.
+`begin` replaces unfinished staging left on the same runner. `continue` and `commit` must match the staging TaskID. `commit` needs neither `grid_type` nor `items` and performs no screenshot; with `notify_ui: true`, it sorts by localized item name and prints one icon HTML summary after a successful commit. Omitting `transaction_mode` keeps the original behavior in which every A2 call persists immediately.
 
 ```text
 First: SyncItemDataRunFull (page_dedup = false, region rebuild)
@@ -171,7 +171,7 @@ A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`,
 | | A2 | A3 |
 | --- | --- | --- |
 | Write mode | **Absolute:** the scanned count becomes current stock | **Computed:** the scanned count is added to existing stock |
-| Typical use | Full Valuables sync (`valuables`) | Rewards popup “how much more did we get?” (`rewards`) |
+| Typical use | Full Valuables Vault sync (`valuables`) | Rewards popup “how much more did we get?” (`rewards`) |
 | Establishes readiness | Yes (writes `updated_at`, sets `hasData`) | No |
 
 ### Works without a cache

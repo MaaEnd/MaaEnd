@@ -42,15 +42,15 @@ It is recommended to read in the following order:
 
 | Document | Description |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| [Super Basic Introduction](./super-basic-introduction.md) | For absolute beginners: what are Git, Terminal, VS Code, JSON, and how to use them |
-| [Getting Started](./getting-started.md) | Set up environment, run the program, make your first change and PR within 10 minutes |
+| [Ultra Basic Getting Started Guide](./super-basic-introduction.md) | For absolute beginners: what are Git, Terminal, VS Code, JSON, and how to use them |
+| [Quick Start](./getting-started.md) | Set up environment, run the program, make your first change and PR within 10 minutes |
 
 ### Tier 2 — Reference Manual
 
 | Document | Description |
 | ----------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | [DeepWiki — MaaEnd](https://deepwiki.com/MaaEnd/MaaEnd) | Online project documentation overview with AI |
-| [Components Guide](./components-guide.md) | Project architecture, where to make changes, reusable node directory |
+| [Component Guide](./components-guide.md) | Project architecture, where to make changes, reusable node directory |
 | [Tools & Debugging](./tools-and-debug.md) | Development tools list, common debugging entry points, community group info |
 | [Node Testing](./node-testing.md) | How to write and run node tests to verify stable recognition hits |
 | [Android Build Environment Setup](./android-build-env.md) | Installing JDK / Android SDK / NDK / Ninja and setting environment variables (for the build steps, see `Android/README.md`) |
@@ -82,10 +82,10 @@ Consult as needed. Only required when using the corresponding component.
 | Document | Description |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | [AutoDelivery](./components/auto-delivery.md) | A single entry handles depot pickup and delivery at the destination, and provides stage exit anchors |
-| [AutoFight](./components/auto-fight.md) | In-battle automation module, automatically performs normal attacks, skills, chain skills, etc. |
+| [AutoFight](./components/auto-fight.md) | In-battle automation module, automatically performs basic attacks, skills, link skills, etc. |
 | [CharacterController](./components/character-controller.md) | Character view rotation, movement, and automatic movement towards target |
 | [BetterSliding](./components/better-sliding.md) | Common custom action for adjusting discrete quantity sliders by target value |
-| [RecoGrid / GridTracker / EssenceGrid](./components/recogrid-engine.md) | Layered single-frame recognition, cross-frame tracking, and Essence business integration |
+| [RecoGrid / GridTracker / EssenceGrid](./components/recogrid-engine.md) | Layered architecture of single-frame grid recognition, cross-frame tracking, and the Essence business instance |
 | [MapLocator](./components/map-locator.md) | AI + CV based minimap positioning system, outputs region, coordinates, and orientation |
 | [MapNavigator](./components/map-navigator.md) | Path navigation Action, supports record-free target-based pathfinding and GUI recording |
 | [WorldMap](./components/world-map.md) | World map coordinate recognition, confirms the icon at a base map coordinate and hands back its screen position |
@@ -100,7 +100,7 @@ Only required when maintaining the corresponding task.
 | [AutoStockpile](./tasks/auto-stockpile-maintain.md) | Product templates, product mapping, price thresholds, and region extension maintenance |
 | [AutoStockStaple](./tasks/auto-stockstaple-maintain.md) | Regular expression initialization, product recognition chain, quantity control |
 | [DijiangRewards](./tasks/dijiang-rewards-maintain.md) | Main flow, stage responsibilities, and interface option override logic |
-| [CreditShopping](./tasks/credit-shopping-maintain.md) | Purchase priority, credit linkage, refresh strategy, and product extension |
+| [CreditShopping](./tasks/credit-shopping-maintain.md) | Purchase priority, credit-replenishment linkage, refresh strategy, and product extension |
 | [EnvironmentMonitoring](./tasks/environment-monitoring-maintain.md) | Observation point route data, `pipeline-generate` automatic generation and new point integration process |
 | [OutpostTrading](./tasks/outpost-trading-maintain.md) | Main flow, zmdmap compact game data sync, automatic operators, and dynamic selling-loop maintenance |
 | [SeizeDeliveryJobs](./tasks/seize-delivery-jobs-maintain.md) | Data-driven endpoint generation, landmark-name maintenance, fallback text, and locale synchronization |

@@ -63,7 +63,7 @@ A corresponding JSON Schema file is provided for third-party tools to validate t
 - **Do not contain** the old `captured_at_utc` field. This field is deprecated in files with `schema_version ≥ 2`.
 - A new record with the same `server_date + region + uid` **overwrites** the old record. Different `uid` values on the same server date and region are kept independently.
 - At most **120 distinct** `server_date` values are retained. When exceeded, the earliest date and all its region records are discarded.
-- Writes use a same-directory temporary file + rename **atomic write** process. Readers can safely read `ElasticGoodsPrices.json` at any time without seeing a partially written file.
+- Writes use a same-directory temporary file + rename **atomic write** process. No matter when readers read the file, they never see a half-written file.
 - Write failures only log a warning and continue AutoStockpile; the task is not aborted.
 
 ---
