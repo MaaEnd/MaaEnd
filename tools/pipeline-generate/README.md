@@ -67,19 +67,19 @@ pnpm generate:SeizeDeliveryJobs
 默认按当前 MaaEnd 仓库的兄弟目录解析输入，因此三个仓库位于同一 `Endfield` 目录时无需传路径：
 
 ```shell
-uv run zmdmap generate                        # 八份都生成到 tools/zmdmap/data/
-uv run zmdmap generate --list                 # 列出数据集名、文件名与去向
+uv run zmdmap generate                        # 九份都生成到 data/raw/ 并入库到 data/
+uv run zmdmap generate --list                 # 列出数据集名、文件名与入库方式
 uv run zmdmap generate --only collect_points  # 只生成一份（可重复给）
 ```
 
-仓库不在默认相对位置时用 `--table-cfg-dir` / `--json-data-dir` 覆盖，或改用环境变量 `ZMDMAP_TABLE_CFG_DIR` / `ZMDMAP_JSON_DATA_DIR`（命令行 > 环境变量 > 默认）；`--out-dir` / `--data-dir` 可把结果写到临时目录做本地/CI 等价校验（生成结果与已有文件相同时跳过写入，`--force` 强制重写）。生成完还要跑一次投影，才是生成器读取的那六份。
+仓库不在默认相对位置时用 `--table-cfg-dir` / `--json-data-dir` 覆盖，或改用环境变量 `ZMDMAP_TABLE_CFG_DIR` / `ZMDMAP_JSON_DATA_DIR`（命令行 > 环境变量 > 默认）；`--out-dir` / `--data-dir` 可把结果写到临时目录做本地/CI 等价校验（生成结果与已有文件相同时跳过写入，`--force` 强制重写）。生成默认接着入库：带坐标的三份投影、其余原样复制，生成器读的就是入库后的那几份。
 
-`uv run zmdmap generate` 同时是「同步兄弟仓库 → 本地生成 → 投影」的总入口，用两个开关控制后两步：
+`uv run zmdmap generate` 同时是「同步兄弟仓库 → 本地生成 → 入库」的总入口：
 
 ```shell
 uv run zmdmap generate --dry-run                           # 只报告会做什么
-uv run zmdmap generate --sync                              # 先同步兄弟仓库，再生成
-uv run zmdmap generate --sync --project                    # 同步兄弟仓库、生成并投影入库
+uv run zmdmap generate --sync                              # 先同步兄弟仓库，再生成并入库
+uv run zmdmap generate --sync --raw-only                   # 同步、生成，只要原始形态
 ```
 
 它只对干净的工作区做快进合并，绝不 stash / reset / 覆盖本地改动；本地重算不会改 `version.txt`（那是「已发布数据版本」）。
