@@ -16,6 +16,7 @@ import json5
 
 from fixed_items import FIXED_ITEMS
 from text import clean_text
+from tools.zmdmap import read_payload
 
 
 LOCALE_MAP = {
@@ -157,9 +158,11 @@ def generate_locales(
     locale_root: str | Path,
 ) -> dict[str, int]:
     catalog = load_json_object(catalog_path)
+    # catalog 是本工具写出来的本地文件，另外两份是 zmdmap 数据：最前面有 version / sha256，
+    # 用 read_payload 去掉，别让元数据混进名字索引。
     source = build_source_index(
-        load_json_object(item_source_path),
-        load_json_object(weapon_source_path),
+        read_payload(Path(item_source_path)),
+        read_payload(Path(weapon_source_path)),
     )
     locale_directory = Path(locale_root)
     counts: dict[str, int] = {}
