@@ -2457,6 +2457,7 @@
     "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">UIDの表示が不完全です。UID非表示MODを有効にすると、画面左上の文字が欠落し、認識に影響します。</span>",
     "task.SceneManager.focus.osd_check_failed": "<span style=\"color: red; font-weight: bold;\">画面にオーバーレイが検出されました。フレームレート／ハードウェア監視オーバーレイ（FPS、CPU、GPU、Afterburner など）を閉じてから再試行してください</span>",
     "task.SceneManager.focus.screenshot_stable_abnormal": "<span style=\"color: red; font-weight: bold;\">現在の環境認識に異常があります。D3D11 でゲームを起動するか、ウィンドウモードかつゲーム解像度がデスクトップ解像度より低い状態にして再試行してください。</span>",
+    "task.SceneManager.focus.screenshot_stable_white": "<span style=\"color: red; font-weight: bold;\">「前処理プログラム」によるゲーム起動には対応していません。前処理プログラムを削除し、代わりに「🚀 ゲーム起動（PC）」タスクを追加してください。</span>",
     "task.SeizeDeliveryJobs.description": "武陵・四号谷地の倉庫ノードの配送依頼を自動で受注します",
     "task.SeizeDeliveryJobs.focus.deliveryCannotTeleport": "現在の任務は受取済みのため、配送中は高速転送できません",
     "task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00501": "配達先を検出：合成コール工場（下）",

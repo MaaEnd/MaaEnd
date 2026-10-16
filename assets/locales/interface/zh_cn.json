@@ -2457,6 +2457,7 @@
     "task.SceneManager.focus.mod_check_failed_prefix": "<span style=\"color: red; font-weight: bold;\">UID显示不完整，开启UID隐藏MOD会导致画面左上方文字缺失，影响识别</span>",
     "task.SceneManager.focus.osd_check_failed": "<span style=\"color: red; font-weight: bold;\">屏幕存在遮挡，请关闭帧率/硬件监控悬浮窗（如 FPS、CPU、GPU、Afterburner 等）后重试</span>",
     "task.SceneManager.focus.screenshot_stable_abnormal": "<span style=\"color: red; font-weight: bold;\">当前环境识别异常，请使用 D3D11 启动游戏，或切换到窗口化且游戏分辨率小于桌面分辨率重试</span>",
+    "task.SceneManager.focus.screenshot_stable_white": "<span style=\"color: red; font-weight: bold;\">不支持通过「前置程序」启动游戏，请删除前置程序，并改为添加「🚀启动游戏（PC）」任务</span>",
     "task.SeizeDeliveryJobs.description": "自动抢武陵、四号谷地仓储节点的送货委托",
     "task.SeizeDeliveryJobs.focus.deliveryCannotTeleport": "当前任务已经取货，送货阶段无法快速传送",
     "task.SeizeDeliveryJobs.focus.endpointDeliverTargetMap01Lv00501": "命中送货终点：醇化合物工厂（下）",
