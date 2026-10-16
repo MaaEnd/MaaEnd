@@ -26,6 +26,7 @@ Roughly sorted by how often they are reused day to day:
 | [`iconrecognition`](#iconrecognition--iconqty) | Shared structures for IconRecognition parameters and detail | IMS (via `iconqty`), Outpost Trading goods recognition |
 | [`iconqty`](#iconrecognition--iconqty) | Grid scanning + in-cell quantity OCR | IMS A2 / A3 |
 | [`minicv`](#minicv-lightweight-cv) | Pure-Go CV such as template matching and circle masks | When you need local matching and do not want to go through a Pipeline template node |
+| [`gamesetting`](#gamesetting-game-settings-registry) | Read and write the game settings registry, detect the server region, and locate the launcher install directory (Windows only) | `LaunchGamePC`, `CloseGamePC`, resolution / HDR checks |
 | [`parentwatch`](#parentwatch-parent-process-monitoring) | Exit when the parent process exits, to avoid an orphaned Agent | Only at `main` startup |
 
 ---
@@ -257,6 +258,20 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 - The cpp-algo counterpart is `common::OutputPath` (`source/Common/output_paths.h`); files shared by both sides (such as `debug/record/random_salt.txt` and `Ziplines.json`) line up because they use the same base.
 
 **Atomic writes**: `WriteFileAtomic(path, content, perm)`: writes a temporary file in the same directory, then renames it. Suitable for debug dumps and overwritable caches; **durability across power loss is not guaranteed** (no directory fsync).
+
+### `gamesetting`: Game settings registry
+
+Path: `pkg/gamesetting/`
+
+The game's graphics, language and other settings are stored in the registry under `HKCU\Software\Hypergryph\Endfield` (CN and Bilibili servers) or `HKCU\Software\Gryphline\Endfield` (Global server); this package reads and writes those values.
+
+- `ApplyAll(region, Settings)`: writes display mode / resolution, language, graphics quality, frame rate and AutoHDR in one go, with values matching the case names of the `LaunchGamePC` options; call it only while the game is not running
+- `SetRegion` / `ResolveRegion`: set the server region explicitly, or detect it from the SDK DLLs in the directory of the running `Endfield.exe`
+- `GetXxx` / `SetXxx`: read or write a single value; they do not detect the region and keep using the last selected registry path (CN server by default); to read for the current region, use `IsVideoFullScreen` and `GetResolvedVideoResolutionWidth` / `GetResolvedVideoResolutionHeight`
+- `IsAutoHDREnabled` / `ApplyAutoHDR`: read and write Windows' Auto HDR setting for `Endfield.exe` (`HKCU\Software\Microsoft\DirectX\UserGpuPreferences`); the HDR check uses the former
+- `FindLauncherInstallDir(uninstallKey)`: read the launcher install directory from its uninstall entry
+
+Registry access only works on Windows: on other platforms most functions return `ErrUnsupported`, `Apply` returns `false`, and `IsAutoHDREnabled` reports Auto HDR as off.
 
 ### `levenshtein`: Edit distance
 

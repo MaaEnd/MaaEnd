@@ -267,10 +267,11 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 
 - `ApplyAll(region, Settings)`：一次写入显示模式 / 分辨率、语言、画质、帧率、AutoHDR，取值与 `LaunchGamePC` 选项的 case 名一致；需在游戏未运行时调用
 - `SetRegion` / `ResolveRegion`：显式指定区服，或根据运行中 `Endfield.exe` 目录下的 SDK DLL 自动判定
-- `GetXxx` / `SetXxx`：单项读写，供分辨率、HDR 检查等只读场景使用
+- `GetXxx` / `SetXxx`：单项读写，不判定区服，沿用上次选定的注册表路径（默认国服）；要按当前区服读取，用 `IsVideoFullScreen`、`GetResolvedVideoResolutionWidth` / `GetResolvedVideoResolutionHeight`
+- `IsAutoHDREnabled` / `ApplyAutoHDR`：读写 Windows 对 `Endfield.exe` 的自动 HDR 设置（`HKCU\Software\Microsoft\DirectX\UserGpuPreferences`），HDR 检查用前者
 - `FindLauncherInstallDir(uninstallKey)`：从卸载项读取启动器安装目录
 
-仅 Windows 有效，其他平台返回 `ErrUnsupported`。
+注册表读写仅 Windows 有效：其他平台上多数函数返回 `ErrUnsupported`，`Apply` 返回 `false`，`IsAutoHDREnabled` 视为未开启。
 
 ### `levenshtein`：编辑距离
 
