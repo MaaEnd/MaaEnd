@@ -2,9 +2,9 @@
     "task": [
         {
             "name": "LaunchGameLinux",
-            "label": "启动游戏（Linux）",
-            "description": "在鹰角启动器中启动终末地。鹰角启动器可通过前置程序拉起。",
+            "label": "$task.LaunchGameLinux.label",
             "entry": "GameLauncherMain",
+            "description": "$task.LaunchGameLinux.description",
             "controller": [
                 "Linux-Gamescope",
                 "Linux-Wlroots"
@@ -20,7 +20,7 @@
     "option": {
         "ExitLauncher": {
             "type": "switch",
-            "label": "启动游戏后退出鹰角启动器",
+            "label": "$option.ExitLauncher.label",
             "cases": [
                 {
                     "name": "Yes",
