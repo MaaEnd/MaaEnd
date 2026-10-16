@@ -421,10 +421,28 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesSelectClues": {
+                        "ReceptionRoomSendCluesSendMain": {
                             "max_hit": 3
                         },
-                        "ClueItemCount": {
+                        "ClueOneCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSevenCount": {
                             "expected": "^(?:[3-9]|[1-9]\\d+)$"
                         }
                     }
@@ -465,7 +483,25 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "ReceptionRoomSendCluesSelectClues": {
+                        "ReceptionRoomSendClueOne": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueTwo": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueThree": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueFour": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueFive": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueSix": {
+                            "enabled": false
+                        },
+                        "ReceptionRoomSendClueSeven": {
                             "enabled": false
                         },
                         "ReceptionRoomSendCluesQuickGiveDuplicates": {
@@ -479,7 +515,29 @@
                 },
                 {
                     "name": "No",
-                    "option": []
+                    "pipeline_override": {
+                        "ReceptionRoomSendClueOne": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueTwo": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueThree": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueFour": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueFive": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueSix": {
+                            "enabled": true
+                        },
+                        "ReceptionRoomSendClueSeven": {
+                            "enabled": true
+                        }
+                    }
                 }
             ]
         },
@@ -606,7 +664,7 @@
                 }
             ],
             "pipeline_override": {
-                "ReceptionRoomSendCluesSelectClues": {
+                "ReceptionRoomSendCluesSendMain": {
                     "max_hit": "{MaxClueSend}"
                 }
             }

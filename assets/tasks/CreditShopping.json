@@ -65,7 +65,7 @@
                 "ReceptionRoomSendCluesDirect": {
                     "enabled": true
                 },
-                "ReceptionRoomSendCluesSelectClues": {
+                "ReceptionRoomSendCluesSendMain": {
                     "max_hit": "{MaxClueSendWhenInsufficient}"
                 }
             }
