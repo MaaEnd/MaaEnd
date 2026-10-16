@@ -51,7 +51,8 @@
         "expected": [
             // @i18n-skip
             "游戏中",
-            "遊戲中"
+            "遊戲中",
+            "(?i)\\bRunning\\b"
         ]
     },
     "GameLauncherExit": {
@@ -91,7 +92,8 @@
         "expected": [
             // @i18n-skip
             "开始游戏",
-            "開始遊戲"
+            "開始遊戲",
+            "(?i)\\bPlay\\b"
         ]
     }
 }
