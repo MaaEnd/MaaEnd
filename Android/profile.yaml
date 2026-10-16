@@ -12,11 +12,6 @@ include:
   - data/**
   - locales/**
 
-# exclude 只从上面 include 的目录里再剔除，写不在 include 里的目录没有作用
-exclude:
-  # ProtocolSpace 只支持桌面控制器；MaaFramework 按需加载模型，缺失不影响资源加载
-  - resource/model/detect/ProtocolSpace/**
-
 # 出 agent（仓库根）：
 #   uv run tools/build_android_agents.py
 # 产物落到 Android/agent-dist/<abi>/jniLibs/lib*.so，由 MaaFwApp syncAgentJniLibs 进 APK。
