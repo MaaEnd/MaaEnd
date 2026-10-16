@@ -32,6 +32,8 @@ from localization import (
 from text import validate_identifier
 from ui_icons.generate import generate_ui_icons
 
+from tools.zmdmap import read_payload
+
 
 @dataclass(frozen=True)
 class PublishPaths:
@@ -193,8 +195,8 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     source, removals = apply_item_blacklist(source)
     catalog = build_catalog(source, paths.image_root)
     localization_source = build_source_index(
-        load_json_object(paths.localization_item_source),
-        load_json_object(paths.weapon_source),
+        read_payload(paths.localization_item_source),
+        read_payload(paths.weapon_source),
     )
     zh_cn_values = build_locale_values(
         catalog,

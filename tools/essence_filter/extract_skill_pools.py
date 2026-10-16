@@ -19,6 +19,8 @@ from typing import Dict, List, Set, Tuple
 
 import json5
 
+from tools.zmdmap import read_payload
+
 LANGS = ("CN", "TC", "EN", "JP", "KR")
 
 DEFAULT_MATCHER_CONFIG = Path("assets/data/EssenceFilter/matcher_config.json")
@@ -273,8 +275,11 @@ def main() -> int:
         print(f"[ERROR] 输入文件不存在: {input_path}", file=sys.stderr)
         return 1
 
-    with input_path.open("r", encoding="utf-8") as f:
-        weapons_data = json.load(f)
+    try:
+        weapons_data = read_payload(input_path)
+    except ValueError as error:
+        print(f"[ERROR] {error}", file=sys.stderr)
+        return 1
 
     if not isinstance(weapons_data, dict):
         print("[ERROR] weapons_output 应为 JSON object", file=sys.stderr)

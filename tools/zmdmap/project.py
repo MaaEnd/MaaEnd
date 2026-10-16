@@ -88,6 +88,23 @@ def read_payload_hash(path: Path) -> str | None:
     return payload_hash(payload_of(data))
 
 
+def read_payload(path: Path) -> Any:
+    """读数据文件里的数据本体：去掉最前面的元数据字段，读不到就报错。
+
+    别的工具读 ``tools/zmdmap/data/*.json`` 用这个（只要本体时也可以用 :func:`payload_of` 处理自己读进来
+    的 JSON），不必自己知道元数据是哪几个字段。
+    """
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as error:
+        raise ValueError(
+            f"缺少 zmdmap 数据 {path}（先跑 uv run zmdmap fetch，或 uv run zmdmap generate）"
+        ) from error
+    except json.JSONDecodeError as error:
+        raise ValueError(f"{path} 不是合法 JSON：{error}") from error
+    return payload_of(data)
+
+
 def write_manifest(out_dir: Path, file_names: Sequence[str], version: str | None) -> Path | None:
     """把发布清单写进 ``out_dir``：版本 + 每份原始形态的本体指纹；内容没变时返回 ``None``。
 

@@ -15,6 +15,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from tools.zmdmap import read_payload
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ZMDMAP_DATA_DIR = REPO_ROOT / "tools" / "zmdmap" / "data"
 DATA_DIR = REPO_ROOT / "assets" / "data" / "EssenceFilter"
@@ -22,15 +24,6 @@ LANGS = ("CN", "TC", "EN", "JP", "KR")
 
 WEAPONS_SOURCE = ZMDMAP_DATA_DIR / "weapons.json"
 WEAPONS_RUNTIME = DATA_DIR / "weapons_output.json"
-
-
-def _load(path: Path) -> Any:
-    if not path.is_file():
-        raise ValueError(f"缺少 zmdmap 数据 {path}（先跑 uv run zmdmap fetch 或 zmdmap generate）")
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
-        raise ValueError(f"{path} 不是合法 JSON：{error}") from error
 
 
 def _valid_weapons(data: Any) -> bool:
@@ -44,7 +37,7 @@ def _valid_weapons(data: Any) -> bool:
 
 
 def main() -> int:
-    weapons = _load(WEAPONS_SOURCE)
+    weapons = read_payload(WEAPONS_SOURCE)
     if not _valid_weapons(weapons):
         raise ValueError(f"{WEAPONS_SOURCE} 为空或结构无效")
 

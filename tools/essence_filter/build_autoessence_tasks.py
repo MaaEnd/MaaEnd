@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from tools.zmdmap import read_payload
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "assets" / "data" / "EssenceFilter"
 ZMDMAP_DATA_DIR = REPO_ROOT / "tools" / "zmdmap" / "data"
@@ -497,7 +499,7 @@ def main() -> int:
     parser.add_argument("--location-keys", type=Path, default=LOCATION_KEYS_GO)
     args = parser.parse_args()
 
-    weapons = json.loads(args.weapons.read_text(encoding="utf-8"))
+    weapons = read_payload(args.weapons)
     locations = json.loads(args.locations.read_text(encoding="utf-8"))
     pools = json.loads(args.skill_pools.read_text(encoding="utf-8"))
     location_keys = parse_location_keys(args.location_keys.read_text(encoding="utf-8"))

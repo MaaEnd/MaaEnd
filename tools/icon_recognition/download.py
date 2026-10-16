@@ -28,8 +28,9 @@ import httpx
 import json5
 
 from fixed_items import FIXED_ITEMS
-
 from text import clean_text, validate_identifier
+
+from tools.zmdmap import read_payload
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -799,12 +800,12 @@ def probe_icon_downloadable(icon_id: str, *, timeout: float) -> bool:
 
 def load_item_table(data_dir: str | Path = ZMDMAP_DATA_DIR) -> dict[str, Any]:
     """zmdmap 的物品表。"""
-    return _load_json(Path(data_dir) / ITEM_TABLE_NAME)
+    return read_payload(Path(data_dir) / ITEM_TABLE_NAME)
 
 
 def load_weapon_table(data_dir: str | Path = ZMDMAP_DATA_DIR) -> dict[str, Any]:
     """zmdmap 的武器表。"""
-    return _load_json(Path(data_dir) / WEAPON_TABLE_NAME)
+    return read_payload(Path(data_dir) / WEAPON_TABLE_NAME)
 
 
 def run(
