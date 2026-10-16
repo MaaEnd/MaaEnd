@@ -9,7 +9,7 @@ MaaEnd 使用由 zmdmap 数据 CI 生成并发布的精简游戏数据，落在 
 - `teleport_anchors.json`：营地（地图传送锚点）的底图像素 `u` / `v` 与传送 ID；
 - `collect_points.json`：可交互采集物的底图像素 `u` / `v`。
 
-这些文件都是按任务需要裁剪出的游戏数据，不是完整的上游数据快照：除了最前面的两个元数据字段（`version`：这份数据来自哪一版游戏数据；`sha256`：数据本体的内容指纹），不放别的来源元数据，字段说明也不放进 JSON（字段含义见 [`tools/zmdmap`](../zmdmap/README.md) 与各数据集模块）。
+这些文件都是按任务需要裁剪出的游戏数据，不是完整的上游数据快照：除了最前面的两个元数据字段（`version`：这份数据来自哪一版游戏数据；`sha256`：这份数据**原始形态**（只带世界坐标的那一份）的内容指纹，入库投影后照抄、不重算），不放别的来源元数据，字段说明也不放进 JSON（字段含义见 [`tools/zmdmap`](../zmdmap/README.md) 与各数据集模块）。
 
 ## 数据流
 
@@ -53,7 +53,7 @@ pnpm generate:SeizeDeliveryJobs
 
 ## 投影
 
-`tools/zmdmap/project.py` 做的事就是换算：把条目里的 `x` / `z` 按原位置换成 `u = sx*x + tx`、`v = -sy*z + ty`（`y` 是世界高度，不参与换算、原样保留），加上 `maps` 块（本次用到的底图及其 zone 参数），并把不需要投影的数据原样带到入库目录。
+`tools/zmdmap/utils/project.py` 做的事就是换算：把条目里的 `x` / `z` 按原位置换成 `u = sx*x + tx`、`v = -sy*z + ty`（`y` 是世界高度，不参与换算、原样保留），加上 `maps` 块（本次用到的底图及其 zone 参数），并把不需要投影的数据原样带到入库目录。
 
 - nav 数据缺省读 `assets/resource/model` 子模块的 `map/navmesh/base.nav.gz`；本地没有时按该子模块当前版本从远端取，`--nav` 可指定别的本地文件或 URL。
 - 没有对应 zone 的底图（如 `blackbox`）整图跳过并打印一行。
@@ -61,7 +61,7 @@ pnpm generate:SeizeDeliveryJobs
 
 ## 本地生成脚本
 
-`datasets/`（一份数据一个模块）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：各数据集的 `Dataset.build` 通过 `utils/game_data.py` 读 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`；`coords.py` / `levels.py` 等共用件在 `utils/`，语言表这类跨模块常量在 `constants.py`。
+`datasets/`（一份数据一个模块）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：各数据集的 `Dataset.build` 通过 `utils/game_data.py` 读 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`（记录取值、关卡索引也在那里）；路径与语言表这类静态配置在 `utils/config.py`，其余共用件在 `utils/`。
 
 默认按当前 MaaEnd 仓库的兄弟目录解析输入，因此各仓库位于同一 `Endfield` 目录时无需传路径：
 

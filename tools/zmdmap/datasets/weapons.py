@@ -18,7 +18,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ..constants import UPSTREAM_LOCALES
+from ..utils.config import UPSTREAM_LOCALES
 from ..utils.game_data import Record, as_text, logger, read_table_cfg, ref_texts, texts_of, text_id_of
 from .base import Dataset
 

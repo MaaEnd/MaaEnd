@@ -4,23 +4,25 @@ BaseNav 包是二进制：头部是 ``BNAV``，版本 >= 5 时 zone 表的位置
 （``find_geo_zone_table``），再按版本取定长的 zone 结构加变长的 zone 名。文件可能是 gzip
 的一段前缀，所以按「多读一点、解出来够用就停」的方式反复尝试。
 
-nav 数据默认读 ``assets/resource/model`` 子模块里的 ``map/navmesh/base.nav.gz``；本地没有时按
-该子模块当前提交从远端取（Range 请求只拉前缀），``--nav`` 可以指定别的本地文件或 URL。
+nav 数据默认读 ``assets/resource/model`` 子模块里的 ``map/navmesh/base.nav.gz``；本地没有时按该子模块当前
+提交从远端取（Range 请求只拉前缀），``--nav`` 可以指定别的本地文件或 URL。远端那一趟走
+:mod:`tools.zmdmap.utils.http` —— 与数据下载同一套 UA / 超时 / 重试，反复加长前缀时也复用同一条连接。
 """
 
 from __future__ import annotations
 
-import json
 import math
 import re
 import struct
 import zlib
 from collections.abc import Callable
 from pathlib import Path
-from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 
-USER_AGENT = "MaaEnd-pipeline"
+import httpx
+
+from .config import MODEL_SUBPATH, NAVMESH_FILES, NAVMESH_SUBPATH
+from .http import get, new_client
+
 NAV_MAGIC = b"BNAV"
 NAV_HEADER_SIZE = 64
 NAV_GEO_TAG = b"BGEO"
@@ -28,7 +30,6 @@ NAV_GEO_HEADER_SIZE = 72
 NAV_PREFIX_BYTES = 64 * 1024
 NAV_PREFIX_LIMIT = 8 * 1024 * 1024
 NAV_COMPRESSED_START = 256 * 1024
-NAV_CANDIDATES = ("base.nav.gz", "base.nav")
 NAV_SUBMODULE_API = "https://api.github.com/repos/MaaEnd/MaaEnd/contents/assets/resource/model?ref=v2"
 NAV_REMOTE_TEMPLATE = "https://raw.githubusercontent.com/MaaEnd/MaaEnd-AI/{sha}/map/navmesh/base.nav.gz"
 
@@ -41,15 +42,15 @@ class NavPrefixTooShort(Exception):
     """nav 数据只读到一段前缀，需要再读多一点。"""
 
 
-def _read_remote(url: str, count: int) -> bytes:
-    request = Request(url, headers={"Range": f"bytes=0-{count - 1}", "User-Agent": USER_AGENT})
+def _read_remote(client: httpx.Client, url: str, count: int) -> bytes:
+    """读远端文件的开头 ``count`` 字节（Range 请求；服务端不认 Range 就整份读回来）。"""
     try:
-        with urlopen(request, timeout=60) as response:
-            return response.read()
-    except HTTPError as error:
-        raise ValueError(f"读取 nav 数据失败：{error.code} {error.reason}") from error
-    except URLError as error:
-        raise ValueError(f"读取 nav 数据失败：{error.reason}") from error
+        response = get(client, url, headers={"Range": f"bytes=0-{count - 1}"})
+    except httpx.HTTPError as error:
+        raise ValueError(f"读取 nav 数据失败：{error}") from error
+    if response.status_code >= 400:
+        raise ValueError(f"读取 nav 数据失败：{response.status_code} {response.reason_phrase}")
+    return response.content
 
 
 def _read_file_prefix(path: Path, count: int) -> bytes:
@@ -141,52 +142,53 @@ def _read_decompressed(read: Reader, size: int) -> bytes:
     raise ValueError("没能读完 nav 数据的 zone 表")
 
 
-def _resolve_nav_submodule_sha() -> str:
-    request = Request(
-        NAV_SUBMODULE_API,
-        headers={"User-Agent": USER_AGENT, "Accept": "application/vnd.github+json"},
-    )
+def _resolve_nav_submodule_sha(client: httpx.Client) -> str:
+    """查 model 子模块当前提交（GitHub API 上 ``v2`` 分支的那份）。"""
     try:
-        with urlopen(request, timeout=60) as response:
-            body = json.loads(response.read().decode("utf-8"))
-    except HTTPError as error:
-        raise ValueError(f"查询 assets/resource/model 版本失败：{error.code}") from error
-    except URLError as error:
-        raise ValueError(f"查询 assets/resource/model 版本失败：{error.reason}") from error
+        response = get(client, NAV_SUBMODULE_API, headers={"Accept": "application/vnd.github+json"})
+    except httpx.HTTPError as error:
+        raise ValueError(f"查询 assets/resource/model 版本失败：{error}") from error
+    if response.status_code >= 400:
+        raise ValueError(f"查询 assets/resource/model 版本失败：{response.status_code}")
+    body = response.json()
     sha = body.get("sha") if isinstance(body, dict) else None
     if not isinstance(sha, str) or not sha:
         raise ValueError("没能确定 assets/resource/model 的版本")
     return sha
 
 
-def resolve_nav_source(nav: str | None, repo_root: Path) -> tuple[str, Reader]:
-    """定下 nav 数据的来源，返回 ``(日志用的标签, 读前缀的函数)``。"""
+def resolve_nav_source(client: httpx.Client, nav: str | None, repo_root: Path) -> tuple[str, Reader]:
+    """定下 nav 数据的来源，返回 ``(日志用的标签, 读前缀的函数)``；远端读取用 ``client``。"""
     if nav:
         if re.match(r"^https?://", nav):
-            return nav, lambda count: _read_remote(nav, count)
+            return nav, lambda count: _read_remote(client, nav, count)
         path = Path(nav).expanduser().resolve()
         if not path.exists():
             raise ValueError(f"nav 数据不存在：{path}")
         return str(path), lambda count: _read_file_prefix(path, count)
 
-    nav_dir = repo_root / "assets" / "resource" / "model" / "map" / "navmesh"
-    for name in NAV_CANDIDATES:
+    nav_dir = repo_root.joinpath(*MODEL_SUBPATH, *NAVMESH_SUBPATH)
+    for name in NAVMESH_FILES:
         candidate = nav_dir / name
         if candidate.exists():
             return str(candidate), lambda count: _read_file_prefix(candidate, count)
 
-    url = NAV_REMOTE_TEMPLATE.format(sha=_resolve_nav_submodule_sha())
-    return url, lambda count: _read_remote(url, count)
+    url = NAV_REMOTE_TEMPLATE.format(sha=_resolve_nav_submodule_sha(client))
+    return url, lambda count: _read_remote(client, url, count)
 
 
 def load_nav_zones(nav: str | None, repo_root: Path) -> dict[str, NavZone]:
-    """读出 zone 表：``zone 名 -> {zone_id, size, sx, tx, sy, ty}``。"""
-    label, read = resolve_nav_source(nav, repo_root)
-    print(f"[project] nav 数据：{label}")
-    size = NAV_PREFIX_BYTES
-    while size <= NAV_PREFIX_LIMIT:
-        try:
-            return parse_nav_zones(_read_decompressed(read, size), label)
-        except NavPrefixTooShort:
-            size *= 2
-    raise ValueError(f"没能读全 zone 表：{label}")
+    """读出 zone 表：``zone 名 -> {zone_id, size, sx, tx, sy, ty}``。
+
+    前缀不够就得加长重读（见 :data:`NAV_PREFIX_BYTES`），几次读取共用同一个客户端，重试之间不重握连接。
+    """
+    with new_client() as client:
+        label, read = resolve_nav_source(client, nav, repo_root)
+        print(f"[materialize] nav 数据：{label}")
+        size = NAV_PREFIX_BYTES
+        while size <= NAV_PREFIX_LIMIT:
+            try:
+                return parse_nav_zones(_read_decompressed(read, size), label)
+            except NavPrefixTooShort:
+                size *= 2
+        raise ValueError(f"没能读全 zone 表：{label}")
