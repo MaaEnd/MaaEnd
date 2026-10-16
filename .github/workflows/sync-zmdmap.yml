@@ -90,6 +90,79 @@ jobs:
             **Version Information:**
             - Version: ${{ steps.version.outputs.version }}
 
+  sync-seize-delivery-jobs:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+
+      # 这个任务生成器复用 AutoDelivery 的模型与文案，脚本自己只 fetch delivery_destinations 那一份数据。
+      - name: Generate pipeline data
+        run: |
+          pnpm generate:SeizeDeliveryJobs
+
+      - name: Get version info
+        id: version
+        run: |
+          echo "version=$(jq -r .version tools/zmdmap/data/delivery_destinations.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          add-paths: |
+            tools/zmdmap
+            tools/pipeline-generate
+            assets
+          commit-message: "chore: sync zmdmap seize delivery jobs data ${{ steps.version.outputs.version }}"
+          branch: chore/sync-zmdmap-seize-delivery-jobs
+          title: "chore: sync zmdmap seize delivery jobs data ${{ steps.version.outputs.version }}"
+          body: |
+            ## Summary
+
+            This PR automatically synchronized zmdmap data used by the SeizeDeliveryJobs generator and regenerated its pipeline and task artifacts.
+
+            Please review the changes before merging it.
+
+            **Generated Tasks:**
+            - SeizeDeliveryJobs
+
+            **Version Information:**
+            - Version: ${{ steps.version.outputs.version }}
+
   sync-essence-filter:
     runs-on: ubuntu-latest
     env:
