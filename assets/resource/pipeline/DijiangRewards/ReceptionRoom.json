@@ -1421,7 +1421,7 @@
         },
         "rate_limit": 0,
         "next": [
-            //"ReceptionRoomSendCluesClickSend"
+            "ReceptionRoomSendCluesClickSend"
         ]
     },
     "ReceptionRoomSendClueTwo": {
@@ -1450,7 +1450,7 @@
         },
         "rate_limit": 0,
         "next": [
-            //"ReceptionRoomSendCluesClickSend"
+            "ReceptionRoomSendCluesClickSend"
         ]
     },
     "ReceptionRoomSendClueThree": {
@@ -1479,7 +1479,7 @@
         },
         "rate_limit": 0,
         "next": [
-            //"ReceptionRoomSendCluesClickSend"
+            "ReceptionRoomSendCluesClickSend"
         ]
     },
     "ReceptionRoomSendClueFour": {
@@ -1508,7 +1508,7 @@
         },
         "rate_limit": 0,
         "next": [
-            //"ReceptionRoomSendCluesClickSend"
+            "ReceptionRoomSendCluesClickSend"
         ]
     },
     "ReceptionRoomSendClueFive": {
@@ -1537,7 +1537,7 @@
         },
         "rate_limit": 0,
         "next": [
-            //"ReceptionRoomSendCluesClickSend"
+            "ReceptionRoomSendCluesClickSend"
         ]
     },
     "ReceptionRoomSendClueSix": {
@@ -1566,7 +1566,7 @@
         },
         "rate_limit": 0,
         "next": [
-            //"ReceptionRoomSendCluesClickSend"
+            "ReceptionRoomSendCluesClickSend"
         ]
     },
     "ReceptionRoomSendClueSeven": {
@@ -1595,7 +1595,7 @@
         },
         "rate_limit": 0,
         "next": [
-            //"ReceptionRoomSendCluesClickSend"
+            "ReceptionRoomSendCluesClickSend"
         ]
     },
     "ReceptionRoomSendCluesClickSend": {
