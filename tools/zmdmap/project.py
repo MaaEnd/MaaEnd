@@ -26,6 +26,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+from .constants import MANIFEST_FILE
 from .datasets import PROJECT_FILES, dataset_of
 from .navmesh import NavZone, load_nav_zones
 from .paths import ZMDMAP_DATA_DIR, REPO_ROOT
@@ -76,6 +77,38 @@ def read_version(path: Path) -> str | None:
     except (OSError, ValueError):
         return None
     return version_of(data)
+
+
+def read_payload_hash(path: Path) -> str | None:
+    """读数据文件的本体指纹（按文件里的内容重算，不信它自称的那个）；读不到返回 ``None``。"""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return payload_hash(payload_of(data))
+
+
+def write_manifest(out_dir: Path, file_names: Sequence[str], version: str | None) -> Path | None:
+    """把发布清单写进 ``out_dir``：版本 + 每份原始形态的本体指纹；内容没变时返回 ``None``。
+
+    清单是发布端与 ``fetch`` 之间的约定：有了它就不必再问版本接口，也能认出「同一个版本号下重新发布过」。
+    清单里收哪些文件按 ``out_dir`` 里实际存在的算，所以只生成一部分时清单照样是完整的。
+    """
+    files = {
+        file_name: digest
+        for file_name in sorted(file_names)
+        if (digest := read_payload_hash(out_dir / file_name)) is not None
+    }
+    manifest: dict[str, Any] = {}
+    if version:
+        manifest[VERSION_KEY] = version
+    manifest["files"] = files
+
+    path = out_dir / MANIFEST_FILE
+    if is_unchanged(path, manifest):
+        return None
+    path.write_text(dump_json(manifest), encoding="utf-8", newline="\n")
+    return path
 
 
 def with_metadata(data: Any, version: str | None = None) -> Any:

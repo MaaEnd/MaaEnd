@@ -117,7 +117,7 @@ jobs:
           enable-cache: true
 
       - name: Fetch zmdmap data
-        run: uv run --frozen --no-default-groups zmdmap fetch
+        run: uv run --frozen --no-default-groups zmdmap fetch --only weapons --only energy_point_gems
 
       # 依赖就地声明：uv 按 uv.lock 建环境，再叠加这里点名的包，不必单独装 python 或 pip install。
       - name: Generate EssenceFilter data
@@ -177,7 +177,7 @@ jobs:
           enable-cache: true
 
       - name: Fetch zmdmap data
-        run: uv run --frozen --no-default-groups zmdmap fetch
+        run: uv run --frozen --no-default-groups zmdmap fetch --only item_mini_table --only weapons
 
       # 图标脚本要 json5（读物品表）与 pillow（合成 UI 图标），httpx 已经是核心依赖。
       - name: Download icon resources

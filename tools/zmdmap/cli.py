@@ -32,7 +32,7 @@
     uv run zmdmap generate --only collect_points       # 只生成一份（可重复给）
     uv run zmdmap generate --sync                     # 先同步兄弟仓库，再生成
     uv run zmdmap fetch                               # 下载已发布数据并入库
-    uv run zmdmap fetch --cache-bust                  # 强制重新下载（CI 上默认开启）
+    uv run zmdmap fetch --force                       # 重新下载（带时间戳，不走远端缓存）
     uv run zmdmap fetch --only collect_points          # 只下载/入库这一份（各任务生成器都这么用）
     uv run zmdmap fetch --no-download --only collect_points  # 不下载，只用 data/raw/ 重新入库
 """
@@ -47,6 +47,7 @@ from typing import Any, TypeVar
 
 import click
 
+from .constants import MANIFEST_FILE
 from .datasets import (
     DATASETS,
     DATASET_NAMES,
@@ -65,7 +66,7 @@ from .paths import (
     json_data_dir_in,
     table_cfg_dir_in,
 )
-from .project import copy_files, project_data, read_version, with_metadata
+from .project import copy_files, project_data, read_version, with_metadata, write_manifest
 from .sync import (
     SYNC_MARK_UNKNOWN,
     SYNC_MARKS,
@@ -377,9 +378,17 @@ def generate_command(
             version=version,
             force=force,
         )
+        manifest_path = write_manifest(
+            out_dir, [dataset.file_name for dataset in DATASETS], version
+        )
+        if manifest_path is not None:
+            click.echo(f"  {MANIFEST_FILE} -> {manifest_path}")
     except click.ClickException as error:
         generated_ok = False
         click.echo(f"  x {error.message}")
+    except OSError as error:
+        generated_ok = False
+        click.echo(f"  x 写 {MANIFEST_FILE} 失败：{error}")
     generate_seconds = time.monotonic() - started
 
     materialized_ok: bool | None = None
@@ -422,11 +431,10 @@ def generate_command(
 @data_dir_option()
 @only_option(verb="下载并入库")
 @nav_option()
-@click.option("--force", is_flag=True, help="重新下载，并重写未变化的输出文件")
 @click.option(
-    "--cache-bust",
+    "--force",
     is_flag=True,
-    help="请求带时间戳绕开远端缓存（CI 上自动开启，同时意味着强制下载；同一次运行只下载一次）",
+    help="重新下载（请求带时间戳，不走远端缓存），并重写未变化的输出文件",
 )
 @click.option(
     "--download/--no-download",
@@ -440,7 +448,6 @@ def fetch_command(
     only: tuple[str, ...],
     nav: str | None,
     force: bool,
-    cache_bust: bool,
     download: bool,
     raw_only: bool,
 ) -> None:
@@ -455,9 +462,7 @@ def fetch_command(
         click.echo("── 下载 ──────────────────────────────────────────")
         click.echo(f"   {len(pipeline_files) + len(plain_files)} 份：{'、'.join((*pipeline_files, *plain_files))}")
         try:
-            download_published(
-                raw_dir, pipeline_files, plain_files, force=force, cache_bust=cache_bust
-            )
+            download_published(raw_dir, pipeline_files, plain_files, force=force)
         except (OSError, ValueError) as error:
             raise click.ClickException(str(error)) from error
     else:

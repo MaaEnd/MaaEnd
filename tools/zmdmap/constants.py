@@ -47,3 +47,7 @@ UPSTREAM_LOCALES: tuple[tuple[str, str], ...] = tuple(
 VERSION_API = "https://api.zmdmap.com/api/v1/endfield/version"
 DATA_BASE_URL = "https://voice.fz.wiki/output_maaend"
 USER_AGENT = "MaaEnd-pipeline"
+
+#: 发布目录里的清单（``<DATA_BASE_URL>/manifest.json``）：这批数据是哪一版、每份原始形态的内容指纹。
+#: 有它就不必再问版本接口，也能认出一份数据在同一个版本号下被重新发布过。
+MANIFEST_FILE = "manifest.json"

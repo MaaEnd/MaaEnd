@@ -29,12 +29,11 @@ zmdmap 发布精简游戏数据（只有世界坐标）
                          tools/zmdmap/data/*.json
 ```
 
-`uv run zmdmap fetch`（也就是 `pnpm fetch:zmdmap`）按 zmdmap 版本接口判断要不要重新下载（版本未变化、且这次要的那几份都在时跳过下载，网络检查失败时保留现有缓存），**下载与否都会跑一次投影**：
+`uv run zmdmap fetch`（也就是 `pnpm fetch:zmdmap`）按上游的发布清单 `manifest.json` 逐份判断要不要重新下载（清单给出这批数据是哪一版、每份的内容指纹：内容一致就跳过，只是版本号变了就只改写文件里的 `version`；清单还没发布时退回版本接口），本地与 CI 同一套判断，**下载与否都会跑一次投影**：
 
 ```shell
 pnpm fetch:zmdmap                                # 下载（必要时）+ 投影到 tools/zmdmap/data/*.json
-uv run zmdmap fetch --force                      # 忽略版本缓存，强制重新下载
-uv run zmdmap fetch --cache-bust                 # 同上，并绕过远端缓存
+uv run zmdmap fetch --force                      # 忽略清单判断直接重下，并带时间戳不走远端缓存
 uv run zmdmap fetch --no-download                # 不下载，只用 data/raw/ 重新投影
 uv run zmdmap fetch --nav path/to/base.nav.gz    # 指定 nav 数据
 uv run zmdmap fetch --only collect_points        # 只下载/投影其中几份
