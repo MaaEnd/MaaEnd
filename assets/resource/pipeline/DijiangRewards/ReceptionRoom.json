@@ -1366,39 +1366,6 @@
         "timeout": 5000,
         "rate_limit": 0
     },
-    // "ReceptionRoomSendCluesSelectClues": {
-    //     "desc": "[会客室·线索] 在赠予界面选择自有库存数量 3–20 的线索并点击，以便发送",
-    //     "recognition": {
-    //         "type": "And",
-    //         "param": {
-    //             "all_of": [
-    //                 "ClueItem",
-    //                 "ClueItemCountColor",
-    //                 "ClueItemCount"
-    //             ],
-    //             "box_index": 2
-    //         }
-    //     },
-    //     "pre_delay": 0,
-    //     "action": {
-    //         "type": "Click"
-    //     },
-    //     "post_wait_freezes": {
-    //         "time": 1000,
-    //         "target": [
-    //             1128,
-    //             0,
-    //             83,
-    //             42
-    //         ]
-    //     },
-    //     "post_delay": 0,
-    //     "timeout": 5000,
-    //     "rate_limit": 0,
-    //     "next": [
-    //         //"ReceptionRoomSendCluesClickSend"
-    //     ]
-    // },
     "ReceptionRoomSendCluesSendMain": {
         "desc": "[会客室·线索] 赠送主节点：1-7 任一有可送线索时命中，统一消耗最大赠送次数",
         "recognition": {
