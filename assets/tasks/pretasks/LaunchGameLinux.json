@@ -21,7 +21,12 @@
             "label": "启动游戏后退出鹰角启动器",
             "cases": [
                 {
-                    "name": "Yes"
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "GameLauncherExit": {
+                            "enabled": true
+                        }
+                    }
                 },
                 {
                     "name": "No"

@@ -14,6 +14,15 @@
             100,
             100
         ],
-        "template": "SceneManager/LoginExit.png"
+        "template": "SceneManager/LoginExit.png",
+        "next": [
+            "GameLauncherExit"
+        ]
+    },
+    "GameLauncherExit": {
+        "desc": "退出鹰角启动器",
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "ExitGameLauncherAction"
     }
 }
