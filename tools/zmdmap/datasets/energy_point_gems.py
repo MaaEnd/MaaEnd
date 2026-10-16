@@ -1,9 +1,10 @@
 """EssenceFilter 用的能量淤积点。
 
 ``tools/essence_filter/`` 的生成步骤从站点下载的 ``energy_point_gems.json`` 字段很多，但它们
-真正读到的只有这里的几项（中文名字、体力消耗、两栏词条名），所以只从本地 TableCfg 取这些：
+真正读到的只有这里的几项（中文名字、地区标识、体力消耗、两栏词条名），所以只从本地 TableCfg 取这些：
 
 - ``pointName``：``WorldEnergyPointTable`` 的 ``gameName``；
+- ``levelId``：``WorldEnergyPointTable`` 的 ``levelId``（地区标识，一个地区一个，且随游戏数据稳定）；
 - ``costStamina``：点自己的，没有就用 ``GameMechanicTable`` 的；
 - ``secAttrTermNames`` / ``skillTermNames``：``WorldEnergyPointGroupTable`` 的词条 id 经
   ``GemTable.tagName`` 换成中文名，查不到就留 id 本身。
@@ -45,6 +46,7 @@ class EnergyPointGems(Dataset):
             rows.append(
                 {
                     "pointName": ref_text(table_cfg_dir, point.get("gameName")) or mechanics_id,
+                    "levelId": as_text(point.get("levelId")),
                     "costStamina": point.get("costStamina")
                     or (mechanic.get("costStamina") if mechanic else None),
                     "secAttrTermNames": _term_names(table_cfg_dir, gems, group.get("secAttrTermIds")),

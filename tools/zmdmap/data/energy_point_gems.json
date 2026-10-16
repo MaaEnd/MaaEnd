@@ -1,9 +1,10 @@
 {
     "version": "1.6.3",
-    "sha256": "b890b42f17171c1119bc6aff421ddc14fb0f34e7e64ecc7a3f97161e7057d8ef",
+    "sha256": "b89cbf37abafe972ff2feecd6ad2184ce3cb501964839702869b9716b039baef",
     "gems": [
         {
             "pointName": "能量淤积点·枢纽区",
+            "levelId": "map01_lv001",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -28,6 +29,7 @@
         },
         {
             "pointName": "能量淤积点·枢纽区",
+            "levelId": "map01_lv001",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -52,6 +54,7 @@
         },
         {
             "pointName": "能量淤积点·枢纽区",
+            "levelId": "map01_lv001",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -76,6 +79,7 @@
         },
         {
             "pointName": "重度能量淤积点·枢纽区",
+            "levelId": "map01_lv001",
             "costStamina": 50,
             "secAttrTermNames": [
                 "攻击提升",
@@ -100,6 +104,7 @@
         },
         {
             "pointName": "重度能量淤积点·枢纽区",
+            "levelId": "map01_lv001",
             "costStamina": 60,
             "secAttrTermNames": [
                 "攻击提升",
@@ -124,6 +129,7 @@
         },
         {
             "pointName": "重度能量淤积点·枢纽区",
+            "levelId": "map01_lv001",
             "costStamina": 70,
             "secAttrTermNames": [
                 "攻击提升",
@@ -148,6 +154,7 @@
         },
         {
             "pointName": "重度能量淤积点·枢纽区",
+            "levelId": "map01_lv001",
             "costStamina": 80,
             "secAttrTermNames": [
                 "攻击提升",
@@ -172,6 +179,7 @@
         },
         {
             "pointName": "能量淤积点·源石研究园",
+            "levelId": "map01_lv005",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -196,6 +204,7 @@
         },
         {
             "pointName": "能量淤积点·源石研究园",
+            "levelId": "map01_lv005",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -220,6 +229,7 @@
         },
         {
             "pointName": "能量淤积点·源石研究园",
+            "levelId": "map01_lv005",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -244,6 +254,7 @@
         },
         {
             "pointName": "重度能量淤积点·源石研究园",
+            "levelId": "map01_lv005",
             "costStamina": 50,
             "secAttrTermNames": [
                 "攻击提升",
@@ -268,6 +279,7 @@
         },
         {
             "pointName": "重度能量淤积点·源石研究园",
+            "levelId": "map01_lv005",
             "costStamina": 60,
             "secAttrTermNames": [
                 "攻击提升",
@@ -292,6 +304,7 @@
         },
         {
             "pointName": "重度能量淤积点·源石研究园",
+            "levelId": "map01_lv005",
             "costStamina": 70,
             "secAttrTermNames": [
                 "攻击提升",
@@ -316,6 +329,7 @@
         },
         {
             "pointName": "重度能量淤积点·源石研究园",
+            "levelId": "map01_lv005",
             "costStamina": 80,
             "secAttrTermNames": [
                 "攻击提升",
@@ -340,6 +354,7 @@
         },
         {
             "pointName": "能量淤积点·矿脉源区",
+            "levelId": "map01_lv006",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -364,6 +379,7 @@
         },
         {
             "pointName": "能量淤积点·矿脉源区",
+            "levelId": "map01_lv006",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -388,6 +404,7 @@
         },
         {
             "pointName": "能量淤积点·矿脉源区",
+            "levelId": "map01_lv006",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -412,6 +429,7 @@
         },
         {
             "pointName": "重度能量淤积点·矿脉源区",
+            "levelId": "map01_lv006",
             "costStamina": 50,
             "secAttrTermNames": [
                 "生命提升",
@@ -436,6 +454,7 @@
         },
         {
             "pointName": "重度能量淤积点·矿脉源区",
+            "levelId": "map01_lv006",
             "costStamina": 60,
             "secAttrTermNames": [
                 "生命提升",
@@ -460,6 +479,7 @@
         },
         {
             "pointName": "重度能量淤积点·矿脉源区",
+            "levelId": "map01_lv006",
             "costStamina": 70,
             "secAttrTermNames": [
                 "生命提升",
@@ -484,6 +504,7 @@
         },
         {
             "pointName": "重度能量淤积点·矿脉源区",
+            "levelId": "map01_lv006",
             "costStamina": 80,
             "secAttrTermNames": [
                 "生命提升",
@@ -508,6 +529,7 @@
         },
         {
             "pointName": "能量淤积点·供能高地",
+            "levelId": "map01_lv007",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -532,6 +554,7 @@
         },
         {
             "pointName": "能量淤积点·供能高地",
+            "levelId": "map01_lv007",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -556,6 +579,7 @@
         },
         {
             "pointName": "能量淤积点·供能高地",
+            "levelId": "map01_lv007",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -580,6 +604,7 @@
         },
         {
             "pointName": "重度能量淤积点·供能高地",
+            "levelId": "map01_lv007",
             "costStamina": 50,
             "secAttrTermNames": [
                 "攻击提升",
@@ -604,6 +629,7 @@
         },
         {
             "pointName": "重度能量淤积点·供能高地",
+            "levelId": "map01_lv007",
             "costStamina": 60,
             "secAttrTermNames": [
                 "攻击提升",
@@ -628,6 +654,7 @@
         },
         {
             "pointName": "重度能量淤积点·供能高地",
+            "levelId": "map01_lv007",
             "costStamina": 70,
             "secAttrTermNames": [
                 "攻击提升",
@@ -652,6 +679,7 @@
         },
         {
             "pointName": "重度能量淤积点·供能高地",
+            "levelId": "map01_lv007",
             "costStamina": 80,
             "secAttrTermNames": [
                 "攻击提升",
@@ -676,6 +704,7 @@
         },
         {
             "pointName": "能量淤积点·武陵城",
+            "levelId": "map02_lv002",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -700,6 +729,7 @@
         },
         {
             "pointName": "能量淤积点·武陵城",
+            "levelId": "map02_lv002",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -724,6 +754,7 @@
         },
         {
             "pointName": "能量淤积点·武陵城",
+            "levelId": "map02_lv002",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -748,6 +779,7 @@
         },
         {
             "pointName": "重度能量淤积点·武陵城",
+            "levelId": "map02_lv002",
             "costStamina": 50,
             "secAttrTermNames": [
                 "攻击提升",
@@ -772,6 +804,7 @@
         },
         {
             "pointName": "重度能量淤积点·武陵城",
+            "levelId": "map02_lv002",
             "costStamina": 60,
             "secAttrTermNames": [
                 "攻击提升",
@@ -796,6 +829,7 @@
         },
         {
             "pointName": "重度能量淤积点·武陵城",
+            "levelId": "map02_lv002",
             "costStamina": 70,
             "secAttrTermNames": [
                 "攻击提升",
@@ -820,6 +854,7 @@
         },
         {
             "pointName": "重度能量淤积点·武陵城",
+            "levelId": "map02_lv002",
             "costStamina": 80,
             "secAttrTermNames": [
                 "攻击提升",
@@ -844,6 +879,7 @@
         },
         {
             "pointName": "能量淤积点·清波寨",
+            "levelId": "map02_lv003",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -868,6 +904,7 @@
         },
         {
             "pointName": "能量淤积点·清波寨",
+            "levelId": "map02_lv003",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -892,6 +929,7 @@
         },
         {
             "pointName": "能量淤积点·清波寨",
+            "levelId": "map02_lv003",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -916,6 +954,7 @@
         },
         {
             "pointName": "重度能量淤积点·清波寨",
+            "levelId": "map02_lv003",
             "costStamina": 50,
             "secAttrTermNames": [
                 "生命提升",
@@ -940,6 +979,7 @@
         },
         {
             "pointName": "重度能量淤积点·清波寨",
+            "levelId": "map02_lv003",
             "costStamina": 60,
             "secAttrTermNames": [
                 "生命提升",
@@ -964,6 +1004,7 @@
         },
         {
             "pointName": "重度能量淤积点·清波寨",
+            "levelId": "map02_lv003",
             "costStamina": 70,
             "secAttrTermNames": [
                 "生命提升",
@@ -988,6 +1029,7 @@
         },
         {
             "pointName": "重度能量淤积点·清波寨",
+            "levelId": "map02_lv003",
             "costStamina": 80,
             "secAttrTermNames": [
                 "生命提升",
@@ -1012,6 +1054,7 @@
         },
         {
             "pointName": "能量淤积点·首墩",
+            "levelId": "map02_lv004",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1036,6 +1079,7 @@
         },
         {
             "pointName": "能量淤积点·首墩",
+            "levelId": "map02_lv004",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1060,6 +1104,7 @@
         },
         {
             "pointName": "能量淤积点·首墩",
+            "levelId": "map02_lv004",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1084,6 +1129,7 @@
         },
         {
             "pointName": "重度能量淤积点·首墩",
+            "levelId": "map02_lv004",
             "costStamina": 50,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1108,6 +1154,7 @@
         },
         {
             "pointName": "重度能量淤积点·首墩",
+            "levelId": "map02_lv004",
             "costStamina": 60,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1132,6 +1179,7 @@
         },
         {
             "pointName": "重度能量淤积点·首墩",
+            "levelId": "map02_lv004",
             "costStamina": 70,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1156,6 +1204,7 @@
         },
         {
             "pointName": "重度能量淤积点·首墩",
+            "levelId": "map02_lv004",
             "costStamina": 80,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1180,6 +1229,7 @@
         },
         {
             "pointName": "能量淤积点·试验园区",
+            "levelId": "map02_lv005",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -1204,6 +1254,7 @@
         },
         {
             "pointName": "能量淤积点·试验园区",
+            "levelId": "map02_lv005",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -1228,6 +1279,7 @@
         },
         {
             "pointName": "能量淤积点·试验园区",
+            "levelId": "map02_lv005",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -1252,6 +1304,7 @@
         },
         {
             "pointName": "重度能量淤积点·试验园区",
+            "levelId": "map02_lv005",
             "costStamina": 50,
             "secAttrTermNames": [
                 "生命提升",
@@ -1276,6 +1329,7 @@
         },
         {
             "pointName": "重度能量淤积点·试验园区",
+            "levelId": "map02_lv005",
             "costStamina": 60,
             "secAttrTermNames": [
                 "生命提升",
@@ -1300,6 +1354,7 @@
         },
         {
             "pointName": "重度能量淤积点·试验园区",
+            "levelId": "map02_lv005",
             "costStamina": 70,
             "secAttrTermNames": [
                 "生命提升",
@@ -1324,6 +1379,7 @@
         },
         {
             "pointName": "重度能量淤积点·试验园区",
+            "levelId": "map02_lv005",
             "costStamina": 80,
             "secAttrTermNames": [
                 "生命提升",
@@ -1348,6 +1404,7 @@
         },
         {
             "pointName": "能量淤积点·藏剑谷",
+            "levelId": "map02_lv006",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1372,6 +1429,7 @@
         },
         {
             "pointName": "能量淤积点·藏剑谷",
+            "levelId": "map02_lv006",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1396,6 +1454,7 @@
         },
         {
             "pointName": "能量淤积点·藏剑谷",
+            "levelId": "map02_lv006",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1420,6 +1479,7 @@
         },
         {
             "pointName": "重度能量淤积点·藏剑谷",
+            "levelId": "map02_lv006",
             "costStamina": 50,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1444,6 +1504,7 @@
         },
         {
             "pointName": "重度能量淤积点·藏剑谷",
+            "levelId": "map02_lv006",
             "costStamina": 60,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1468,6 +1529,7 @@
         },
         {
             "pointName": "重度能量淤积点·藏剑谷",
+            "levelId": "map02_lv006",
             "costStamina": 70,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1492,6 +1554,7 @@
         },
         {
             "pointName": "重度能量淤积点·藏剑谷",
+            "levelId": "map02_lv006",
             "costStamina": 80,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1516,6 +1579,7 @@
         },
         {
             "pointName": "能量淤积点·应龙关",
+            "levelId": "map02_lv007",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1540,6 +1604,7 @@
         },
         {
             "pointName": "能量淤积点·应龙关",
+            "levelId": "map02_lv007",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1564,6 +1629,7 @@
         },
         {
             "pointName": "能量淤积点·应龙关",
+            "levelId": "map02_lv007",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1588,6 +1654,7 @@
         },
         {
             "pointName": "重度能量淤积点·应龙关",
+            "levelId": "map02_lv007",
             "costStamina": 50,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1612,6 +1679,7 @@
         },
         {
             "pointName": "重度能量淤积点·应龙关",
+            "levelId": "map02_lv007",
             "costStamina": 60,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1636,6 +1704,7 @@
         },
         {
             "pointName": "重度能量淤积点·应龙关",
+            "levelId": "map02_lv007",
             "costStamina": 70,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1660,6 +1729,7 @@
         },
         {
             "pointName": "重度能量淤积点·应龙关",
+            "levelId": "map02_lv007",
             "costStamina": 80,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1684,6 +1754,7 @@
         },
         {
             "pointName": "能量淤积点·北部禁区",
+            "levelId": "map02_lv008",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -1708,6 +1779,7 @@
         },
         {
             "pointName": "能量淤积点·北部禁区",
+            "levelId": "map02_lv008",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -1732,6 +1804,7 @@
         },
         {
             "pointName": "能量淤积点·北部禁区",
+            "levelId": "map02_lv008",
             "costStamina": 0,
             "secAttrTermNames": [
                 "生命提升",
@@ -1756,6 +1829,7 @@
         },
         {
             "pointName": "重度能量淤积点·北部禁区",
+            "levelId": "map02_lv008",
             "costStamina": 50,
             "secAttrTermNames": [
                 "生命提升",
@@ -1780,6 +1854,7 @@
         },
         {
             "pointName": "重度能量淤积点·北部禁区",
+            "levelId": "map02_lv008",
             "costStamina": 60,
             "secAttrTermNames": [
                 "生命提升",
@@ -1804,6 +1879,7 @@
         },
         {
             "pointName": "重度能量淤积点·北部禁区",
+            "levelId": "map02_lv008",
             "costStamina": 70,
             "secAttrTermNames": [
                 "生命提升",
@@ -1828,6 +1904,7 @@
         },
         {
             "pointName": "重度能量淤积点·北部禁区",
+            "levelId": "map02_lv008",
             "costStamina": 80,
             "secAttrTermNames": [
                 "生命提升",
@@ -1852,6 +1929,7 @@
         },
         {
             "pointName": "能量淤积点·雪松林",
+            "levelId": "map02_lv009",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1876,6 +1954,7 @@
         },
         {
             "pointName": "能量淤积点·雪松林",
+            "levelId": "map02_lv009",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1900,6 +1979,7 @@
         },
         {
             "pointName": "能量淤积点·雪松林",
+            "levelId": "map02_lv009",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1924,6 +2004,7 @@
         },
         {
             "pointName": "重度能量淤积点·雪松林",
+            "levelId": "map02_lv009",
             "costStamina": 50,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1948,6 +2029,7 @@
         },
         {
             "pointName": "重度能量淤积点·雪松林",
+            "levelId": "map02_lv009",
             "costStamina": 60,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1972,6 +2054,7 @@
         },
         {
             "pointName": "重度能量淤积点·雪松林",
+            "levelId": "map02_lv009",
             "costStamina": 70,
             "secAttrTermNames": [
                 "攻击提升",
@@ -1996,6 +2079,7 @@
         },
         {
             "pointName": "重度能量淤积点·雪松林",
+            "levelId": "map02_lv009",
             "costStamina": 80,
             "secAttrTermNames": [
                 "攻击提升",
@@ -2020,6 +2104,7 @@
         },
         {
             "pointName": "能量淤积点·祀的画",
+            "levelId": "map02_lv010",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -2044,6 +2129,7 @@
         },
         {
             "pointName": "能量淤积点·祀的画",
+            "levelId": "map02_lv010",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -2068,6 +2154,7 @@
         },
         {
             "pointName": "能量淤积点·祀的画",
+            "levelId": "map02_lv010",
             "costStamina": 0,
             "secAttrTermNames": [
                 "攻击提升",
@@ -2092,6 +2179,7 @@
         },
         {
             "pointName": "重度能量淤积点·祀的画",
+            "levelId": "map02_lv010",
             "costStamina": 50,
             "secAttrTermNames": [
                 "攻击提升",
@@ -2116,6 +2204,7 @@
         },
         {
             "pointName": "重度能量淤积点·祀的画",
+            "levelId": "map02_lv010",
             "costStamina": 60,
             "secAttrTermNames": [
                 "攻击提升",
@@ -2140,6 +2229,7 @@
         },
         {
             "pointName": "重度能量淤积点·祀的画",
+            "levelId": "map02_lv010",
             "costStamina": 70,
             "secAttrTermNames": [
                 "攻击提升",
@@ -2164,6 +2254,7 @@
         },
         {
             "pointName": "重度能量淤积点·祀的画",
+            "levelId": "map02_lv010",
             "costStamina": 80,
             "secAttrTermNames": [
                 "攻击提升",

@@ -5,7 +5,7 @@
 - 输入的 energy_point_gems.json 中，slot2 来自 secAttrTermNames（如「攻击提升」），
   slot3 来自 skillTermNames（如「强攻」）。
 - 仅保留 costStamina > 0（重度）词条，并按 pointName 去重（同地点多 worldLevel 只取一条）。
-- 输出：每个 location 含 name、slot2_ids/slot3_ids（当前 skill_pools 的 id）、slot2/slot3（完整条目）。
+- 输出：每个 location 含 name、level_id、slot2_ids/slot3_ids（当前 skill_pools 的 id）、slot2/slot3（完整条目）。
 """
 
 from __future__ import annotations
@@ -183,6 +183,7 @@ def main() -> int:
         out_locations.append(
             {
                 "name": name,
+                "level_id": loc.get("levelId"),
                 "slot2_ids": slot2_ids,
                 "slot3_ids": slot3_ids,
                 "slot2": slot2_entries,

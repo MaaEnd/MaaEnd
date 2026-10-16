@@ -47,7 +47,8 @@ uv run tools/essence_filter/extract_skill_pools.py
 
 ## build_locations.py
 
-从 `energy_point_gems.json` 解析地点词条并映射到 `skill_pools.json`，生成 `locations.json`。
+从 `energy_point_gems.json` 解析地点词条并映射到 `skill_pools.json`，生成 `locations.json`
+（每个地点带 `level_id`，即源数据里的 `levelId`，运行时按它认地区）。
 通过 `--data-version` 接收本轮数据版本（CI 传 `tools/zmdmap/data/energy_point_gems.json` 里 `version` 字段的值），在生成成功后
 更新数据日期；未提供时保留原日期。
 
@@ -65,7 +66,7 @@ uv run tools/essence_filter/build_locations.py
 | `--skill-pools` | `assets/data/EssenceFilter/skill_pools.json` | 当前技能池 |
 | `--output` / `-o` | `assets/data/EssenceFilter/locations.json` | 输出 locations |
 | `--debug` | 关闭 | 打印未匹配项以便排查 |
-| `--data-version` | 不更新 | 本轮数据版本，格式为 `YYYY-MM-DD HH:MM:SS UTC` |
+| `--data-version` | 不更新 | 本轮数据版本，取 `energy_point_gems.json` 的 `version`（如 `1.6.3`） |
 
 ### 解析规则
 
@@ -73,7 +74,7 @@ uv run tools/essence_filter/build_locations.py
 - 按 `pointName` 去重；同地点多个 `worldLevel` 只取第一条。
 - `secAttrTermNames` 作为 slot2 来源：先去后缀（`伤害提升`/`效率提升`/`强度提升`/`提升`），再按别名映射（如 `源石技艺` -> `源石技艺强度`、`终结技` -> `终结技充能`）。
 - `skillTermNames` 作为 slot3 来源：按中文名直接匹配。
-- 输出格式保持不变：`name`、`slot2_ids`、`slot3_ids`、`slot2`、`slot3`。
+- 输出：`name`、`level_id`、`slot2_ids`、`slot3_ids`、`slot2`、`slot3`。
 
 ## build_autoessence_tasks.py
 
@@ -85,5 +86,5 @@ uv run tools/essence_filter/build_autoessence_tasks.py
 
 - 目标模式只收录 5、6 星武器，按稀有度从高到低、武器 ID 升序排列，6 星作为默认勾选。
 - 武器图标写成 `resource/image/UI/Item/<武器 ID>.png`。这个路径对应已发布的 UI 图标，不使用站点 `weapons.json` 里的 `icon_path`。缺少对应 PNG 时生成失败。
-- 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区中文名到节点 key 的对照在 `agent/go-service/autoessence/locations.go`。新地区要先补上这条对照和 `RegionNodes` 下的节点，再运行生成器。
+- 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区 `level_id` 到节点 key 的对照在 `agent/go-service/autoessence/locations.go` 的 `locationLevelToKey`，key 到 interface 文案（`$global.region.*`）的对照在同文件的 `locationLabelKeys`。新地区要先把这两张表补上、五语言文案补齐，并补上 `RegionNodes` 下的节点，再运行生成器（缺哪一项就报哪一项）。
 - 武器显示名 `★稀有度 名称` 会同步到各语言的 interface locale。词条显示名仍使用已有的 `option.AutoEssenceSkill.*`，缺文案时生成失败。

@@ -3,7 +3,7 @@
 
 武器来自 weapons_output.json：只收录 5、6 星，6 星作为默认勾选。
 图标路径按物品 ID 写成 resource/image/UI/Item/<id>.png，不使用站点 JSON 里的 icon_path。
-地区来自 locations.json，中文名到节点 key 的对照读取 locations.go。
+地区来自 locations.json，level_id 到节点 key 的对照读取 locations.go。
 """
 
 from __future__ import annotations
@@ -87,13 +87,13 @@ IMPORT_BLOCK_RE = re.compile(
 
 
 def parse_location_keys(source: str) -> dict[str, str]:
-    start = source.find("locationNameToKey")
+    start = source.find("locationLevelToKey")
     if start < 0:
-        raise ValueError("locations.go 里没有 locationNameToKey")
+        raise ValueError("locations.go 里没有 locationLevelToKey")
     body = source[start : source.find("}", start)]
-    keys = {name: key for name, key in LOCATION_KEY_RE.findall(body)}
+    keys = {level_id: key for level_id, key in LOCATION_KEY_RE.findall(body)}
     if not keys:
-        raise ValueError("locationNameToKey 为空")
+        raise ValueError("locationLevelToKey 为空")
     return keys
 
 
@@ -336,11 +336,12 @@ def resolve_locations(
     seen: set[str] = set()
     for location in locations:
         name = location.get("name")
-        key = location_keys.get(name)
+        level_id = location.get("level_id")
+        key = location_keys.get(level_id)
         if not key:
             raise ValueError(
-                f"locations.json 的 {name!r} 没有地区 key。"
-                "请先在 locations.go 的 locationNameToKey 和 RegionNodes 中补上该地区"
+                f"locations.json 的 {name!r}（level_id {level_id!r}）没有地区 key。"
+                "请先在 locations.go 的 locationLevelToKey 和 RegionNodes 中补上该地区"
             )
         if key in seen:
             raise ValueError(f"地区 key 重复: {key}")
