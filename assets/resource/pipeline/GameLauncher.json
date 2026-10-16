@@ -50,7 +50,8 @@
         ],
         "expected": [
             // @i18n-skip
-            "游戏中"
+            "游戏中",
+            "遊戲中"
         ]
     },
     "GameLauncherStartGameYellow": {
@@ -86,7 +87,8 @@
         ],
         "expected": [
             // @i18n-skip
-            "开始游戏"
+            "开始游戏",
+            "開始遊戲"
         ]
     }
 }
