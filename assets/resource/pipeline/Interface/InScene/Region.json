@@ -681,7 +681,8 @@
         "desc": "在本地仓储节点界面",
         "recognition": "And",
         "all_of": [
-            "CheckLocalDepotNodeText"
+            "CheckLocalDepotNodeText",
+            "CheckNodeOverviewText"
         ],
         "pre_wait_freezes": {
             "time": 80,
