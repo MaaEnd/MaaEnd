@@ -5,12 +5,12 @@
             "label": "$task.LaunchGameLinux.label",
             "entry": "GameLauncherMain",
             "description": "$task.LaunchGameLinux.description",
+            "group": [
+                "other_menu"
+            ],
             "controller": [
                 "Linux-Gamescope",
                 "Linux-Wlroots"
-            ],
-            "group": [
-                "other_menu"
             ],
             "option": [
                 "ExitLauncher"
@@ -25,8 +25,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "GameLauncherExit": {
-                            "enabled": true
+                        "GameLauncherInGame": {
+                            "next": [
+                                "GameLauncherExit"
+                            ]
                         }
                     }
                 },
