@@ -1,4 +1,4 @@
-"""从 BaseNav 数据包读出投影用的 zone 表（原 ``project.mjs`` 的 nav 部分）。
+"""从 BaseNav 数据包读出投影用的 zone 表。
 
 BaseNav 包是二进制：头部是 ``BNAV``，版本 >= 5 时 zone 表的位置要去扫 ``BGEO`` 标记
 （``find_geo_zone_table``），再按版本取定长的 zone 结构加变长的 zone 名。文件可能是 gzip

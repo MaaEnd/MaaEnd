@@ -28,10 +28,7 @@
 | 路线 JSON Schema | `tools/schema/environment_monitoring_routes.schema.json` | `routes.json` 的字段约束（必填项、字段组合、坐标数组形状），通过 `.vscode/settings.json` 自动关联，提供 IDE 字段补全和校验 |
 | 失败收集参数 Schema | `tools/schema/components/failure_collector.schema.json` | 通用失败收集 Custom Action 的参数约束；动作名称注册在 `tools/schema/custom.action.schema.json` |
 | 路线同步逻辑 | `tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs` | 在生成前自动同步 `routes.json` 的 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序 |
-| 路线解析逻辑 | `tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs` | 将 `routes.json` 条目解析为模板需要的寻路识别/动作参数，并统一处理未适配降级 |
-| 规范化任务模型 | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | 统一读取 zmdmap 精简游戏数据与 `routes.json`，生成路线和终端模板共享的观察点任务模型 |
-| 终端列表数据 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-data.mjs` | 从 `model.mjs` 的规范化任务和自动派生的终端列表生成各终端 `next` |
-| zmdmap 精简游戏数据 | `tools/zmdmap/data/environment_monitoring.json` | zmdmap 数据 CI 从 TableCfg 裁剪并发布的终端、观察点及五语言名称；MaaEnd 通过 `pnpm fetch:zmdmap` 更新 |
+| zmdmap 精简游戏数据 | `tools/zmdmap/data/environment_monitoring.json` | 终端、观察点及五语言名称；MaaEnd 通过 `pnpm fetch:zmdmap` 更新 |
 | 生成器配置 | `tools/pipeline-generate/EnvironmentMonitoring/generator/config.json` | 单观察点输出配置：`outputPattern: "${Station}/${Id}.json"` |
 | 终端生成器配置 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | 合并到单文件的终端输出配置：`outputFile: "Terminals.json"` |
 | 多语言文案 | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` 的 label / description、`not_adapted` 提示，以及 `sync-routes.mjs` 自动维护的 `route.{Id}.failed` 失败提示（观察点识别走 OCR） |
@@ -272,7 +269,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### 1. 更新游戏数据
 
-运行 `pnpm fetch:zmdmap`（只要这份数据时用 `pnpm fetch:zmdmap --only environment_monitoring`）：它把 `tools/zmdmap/data/environment_monitoring.json` 里的 `version` 字段与 zmdmap 的版本接口比一下，不一致才重新下载这份文件。原始 TableCfg 的解析在 `tools/zmdmap/datasets/environment_monitoring.py`，由 zmdmap 数据 CI 克隆本仓库后跑 `uv run zmdmap generate` 完成，不属于 MaaEnd 日常生成流程。
+运行 `pnpm fetch:zmdmap`（只要这份数据时用 `pnpm fetch:zmdmap --only environment_monitoring`）从 zmdmap 获取这份精简游戏数据。
 
 ### 2. 检查路线适配状态
 

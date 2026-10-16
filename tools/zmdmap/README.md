@@ -1,10 +1,10 @@
 # zmdmap 精简游戏数据（`uv run zmdmap`）
 
-`tools/zmdmap` 是 MaaEnd 各任务所需精简游戏数据的统一入口：既能从本地游戏数据**生成**，也能从 zmdmap **下载**已发布数据，再入库成可以直接用的形式。原 Node 实现（`fetch-data.mjs` / `project.mjs`）已全部移植到这里的 Python 模块，不再需要 Node。
+`tools/zmdmap` 是 MaaEnd 各任务所需精简游戏数据的统一入口：既能从本地游戏数据**生成**，也能从 zmdmap **下载**已发布数据，再入库成可以直接用的形式。整套工具是 Python：入口是 `uv run zmdmap`（等价 `python -m tools.zmdmap`）。
 
 数据都先出**原始形态**（只带游戏世界坐标）进 `data/raw/`，再由**入库**步骤进 `data/`：带坐标的把世界坐标按 BaseNav 的 zone 表**原位**换成底图像素（`x` 的位置给 `u`、`z` 的位置给 `v`，其余字段与键序都不动），其余数据原样复制。原始形态就是上游发布的形态——数据 CI 生成并发布的就是它，MaaEnd 这边下载后自己完成投影与复制。
 
-每份数据的**最前面**写着两个元数据字段：`version`（来自哪一版游戏数据）与 `sha256`（内容指纹，见[产出](#产出)）。所以不必另记「本地是哪一版、内容是哪一份」：下载时按 `version` 逐份判断要不要重下，本地重算沿用原有版本、`--version` 或兄弟仓库能给出版本时就更新它。
+每份数据的**最前面**写着两个元数据字段：`version`（来自哪一版游戏数据）与 `sha256`（内容指纹，见[产出](#产出)）。所以不必另记「本地是哪一版、内容是哪一份」：下载时按发布清单里的内容指纹逐份判断要不要重下，本地重算沿用原有版本、`--version` 或兄弟仓库能给出版本时就更新它。
 
 数据树也在本目录下：
 
@@ -41,7 +41,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 ### 生成：精简游戏数据（`datasets/`）
 
-`datasets/` 下**一个模块就是一份数据**：模块名既是数据集名，也是产物文件名（`datasets/collect_points.py` 生成 `collect_points.json`）。每个模块定义一个 `datasets/base.py` 的 `Dataset` 子类，实现 `build(table_cfg_dir, json_data_dir)`（只用到其中一个目录的也照这个签名收），并用 `needs_projection` 声明入库时要不要投影；`datasets/__init__.py` 扫包把这些子类收成 `DATASETS`（需要投影的在前，其余按名字排），`uv run zmdmap generate` 按这个顺序逐个调用 `build`，把原始形态写进 `--out-dir`——没有需要手工维护的登记表。需要投影的数据在子类上用 `projection_containers` 列出条目数组所在的键，`project.py` 直接读这份声明，不再另存一份对照表。
+`datasets/` 下**一个模块就是一份数据**：模块名既是数据集名，也是产物文件名（`datasets/collect_points.py` 生成 `collect_points.json`）。每个模块定义一个 `datasets/base.py` 的 `Dataset` 子类，实现 `build(table_cfg_dir, json_data_dir)`（只用到其中一个目录的也照这个签名收），并用 `needs_projection` 声明入库时要不要投影；`datasets/__init__.py` 扫包把这些子类收成 `DATASETS`（需要投影的在前，其余按名字排），`uv run zmdmap generate` 按这个顺序逐个调用 `build`，把原始形态写进 `--out-dir`——没有需要手工维护的登记表。需要投影的数据在子类上用 `projection_containers` 列出条目数组所在的键，`project.py` 直接读这份声明，两边不各存一份。
 
 | 文件 | 数据 | 入库 |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 要加一份新数据，就在 `datasets/` 加一个同名模块、定义 `Dataset` 子类并实现 `build`，再声明要不要投影（需要投影的用 `projection_containers` 列出条目数组所在的键）。
 
-各份数据共用的手法收在 `Dataset` 上，不用各抄一份：`localized_names`（表里的文本引用 → 五语字典，五语缺一即报错）、`level_index`（读 `LevelBasicInfoTable` 建 `idNum -> levelId`），组装错误统一用 `DatasetError`（cli 会补上数据集名）。取数逻辑仍留在各自模块里。
+各份数据共用的手法收在 `Dataset` 上，不用各抄一份：`localized_names`（表里的文本引用 → 五语字典，五语缺一即报错）、`level_index`（读 `LevelBasicInfoTable` 建 `idNum -> levelId`），组装错误统一用 `DatasetError`（cli 会补上数据集名）。取数逻辑在各份数据的模块里。
 
 ### 常量（`constants.py`）
 
@@ -75,19 +75,19 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 | 文件 | 说明 |
 | --- | --- |
-| `fetch.py` | 读发布清单（没有就问版本接口）+ 按数据集下载与缓存（原 `fetch-data.mjs`） |
-| `project.py` | 带坐标的数据按 BaseNav zone 表把 x/z 原位换成 u/v、其余原样复制（原 `project.mjs`） |
+| `fetch.py` | 读发布清单（没有就问版本接口）+ 按数据集下载与缓存 |
+| `project.py` | 带坐标的数据按 BaseNav zone 表把 x/z 原位换成 u/v、其余原样复制 |
 | `navmesh.py` | 从 `BNAV` / `BGEO` 二进制 nav 数据里读出 zone 表 |
 | `paths.py` | 输入 / 输出路径的默认值与环境变量名 |
 | `cli.py` | `uv run zmdmap` 的入口，跑 `datasets/` 里的数据集 / 下载 / 入库 |
 
-入库 JSON 用 Python 的 `json` 序列化（`ensure_ascii=False`、缩进 4），并且统一写 LF（仓库的 `.gitattributes` 是 `eol=lf`）。与原 Node 实现只在数字写法上有差别（整型浮点写成 `520.0` 而不是 `520`），值与键顺序一致——移植时已用原 JS 投影器逐份比对过解析后的结构。
+入库 JSON 用 Python 的 `json` 序列化（`ensure_ascii=False`、缩进 4），并且统一写 LF（仓库的 `.gitattributes` 是 `eol=lf`）。整型浮点会带小数点（`520.0` 而不是 `520`），解析出来的值与键顺序不受影响。
 
 要下哪几份由发布清单（`<DATA_BASE_URL>/manifest.json`）说了算：清单给出「这批数据是哪一版」与「每份原始形态的内容指纹」，`fetch` 逐份比指纹——一致的跳过下载（只是版本号变了就按清单改写文件里的 `version`），不一致的才下，下完再核对一遍拿到的内容。清单还没发布时退回版本接口，按文件里的 `version` 逐份比。于是既不必问版本接口，也认得「同一个版本号下重新发布过」；请求上的 `t` 参数优先用清单给的指纹，同一份内容的 URL 稳定、内容一变就是新 URL，自然绕开远端缓存。
 
 清单本身每次都**带一个时间戳**去取（它只有几百字节，回源不心疼）：它决定了后面下哪几份，被远端缓存住就等于拿旧索引判断，整批都得跟着错。实测这个 CDN 只看 URL —— 请求头带 `Cache-Control: no-cache` 也照样命中缓存（`Age` 不变），换个带时间戳的 URL 才真的回源。数据文件不需要靠它区分新老：它们的 URL 自带清单给的内容指纹，内容一变就是新 URL。
 
-所以本地与 CI 是同一套判断：先取清单，清单里的指纹变了才下，且只下变了的那些（CI 上不再整包强制重下，也不再需要「这次运行下过没有」的标记）。`--force` 是唯一的手动手段：不看清单直接重下这几份，并把请求 URL 上的指纹换成时间戳，把「不走远端缓存」贯彻到底。
+所以本地与 CI 是同一套判断：先取清单，清单里的指纹变了才下，且只下变了的那些。`--force` 是唯一的手动手段：不看清单直接重下这几份，并把请求 URL 上的指纹换成时间戳，把「不走远端缓存」贯彻到底。
 
 ## `generate` 的开关
 
@@ -159,6 +159,17 @@ uv run zmdmap fetch                               # 下载 → 入库（等同 p
 | `ref_texts(dir, ref)` / `ref_text(dir, ref, lang)` | 表里 `{"id", "text"}` 文本引用的各语言 / 单语文本 |
 
 读出来的 JSON 会换成属性可访问的 `Record`，`Dataset.build` 里直接写 `entry.position.x`；几个函数都按「目录 + 文件名」缓存，多份数据共用同一次读取。
+
+## 给其他工具读数据
+
+数据文件最前面的 `version` / `sha256` 是元数据，别的工具不必自己跳过它们：`tools.zmdmap` 直接提供两个入口。
+
+| 入口 | 作用 |
+| --- | --- |
+| `read_payload(path)` | 读数据文件并去掉 `version` / `sha256`，返回数据本体；文件缺失或不是合法 JSON 时给出明确报错 |
+| `payload_of(data)` | 只做「去掉 `version` / `sha256`」这一步；非对象的数据原样返回 |
+
+两者都从包上直接 import（`from tools.zmdmap import read_payload`）。EssenceFilter 与 IconRecognition 的生成脚本就是这么读 `weapons.json` / `item_mini_table.json` / `energy_point_gems.json` 的。
 
 ## 校验
 

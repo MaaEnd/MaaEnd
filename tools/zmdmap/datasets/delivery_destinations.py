@@ -1,7 +1,6 @@
-"""MaaEnd 精简游戏数据 substep: delivery_destinations.json.
+"""送货目的地（``delivery_destinations.json``）：普通收货 NPC 与回收站，以及它们所属的仓储节点。
 
-从 TableCfg + GameplayConfig 生成送货目的地
-（普通收货 NPC / 回收站）及其所属仓储节点。
+数据来自 TableCfg + GameplayConfig。
 
 只发布游戏世界坐标 x/y/z：仓储节点与回收站的 y 取自 ``LevelMapMark.pos.y``，
 普通收货 NPC 的取自 ``NpcProxyTable.position.y``，都原样交给 MaaEnd 当

@@ -1,13 +1,13 @@
 """读取本地游戏数据。
 
-``build_*`` 只从本地游戏数据的表目录取数据：
+各份数据的 ``Dataset.build`` 只从本地游戏数据的表目录取数据：
 
 - TableCfg：``<workspace>/BeyondTableCfg/TableCfg``，一批 ``<表名>.json``，另有各语言文本表
   ``I18nTextTable_{CN,TC,EN,JP,KR}.json``；
 - JsonData：``<workspace>/BeyondMemoryPack/JsonData``，数据在 ``GameplayConfig/<表名>.json``。
 
 目录默认取与 MaaEnd 平级的兄弟仓库（见 :mod:`tools.zmdmap.paths`），可用 CLI 参数或环境变量
-覆盖。读出来的 JSON 换成属性可访问的 ``Record``，``build_*`` 里就能直接写 ``entry.position.x``。
+覆盖。读出来的 JSON 换成属性可访问的 ``Record``，``build`` 里就能直接写 ``entry.position.x``。
 """
 
 from __future__ import annotations

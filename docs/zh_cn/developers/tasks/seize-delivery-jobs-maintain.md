@@ -121,22 +121,9 @@ SeizeDeliveryJobsScanTarget
 
 ### 输入数据流
 
-区域仓储节点和终点节点都使用与 `AutoDelivery` 相同的目录模型：
+区域仓储节点和终点节点都使用与 `AutoDelivery` 相同的目录模型（`tools/pipeline-generate/AutoDelivery/model.mjs`）。
 
-```text
-zmdmap
-  └─ tools/zmdmap/data/delivery_destinations.json
-       └─ AutoDelivery/model.mjs
-            ├─ destinations（地图、区域、MapFind zone、终点 u/v 坐标和收货人名称）
-            │    └─ endpoint-filter-data.mjs → 终点行、区域 candidates 行和调度器行
-            │         ├─ endpoint-labels.mjs → 校验 endpoint-labels.json 的地点名与方位
-            │         ├─ endpoint-candidates-data.mjs / endpoint-dispatcher-data.mjs → 再导出上述行
-            │         └─ task-data.mjs → 任务 case 与终点开关，并调用 sync-locales.mjs 同步五语言文案
-            └─ depots（仓储及其所属地图）
-                 └─ commission-data.mjs → 每张地图的仓储入口、文本确认和地区筛选行
-```
-
-`delivery_destinations.json` 是 zmdmap 的精简数据，不要手工编辑。运行 `pnpm fetch:zmdmap` 会更新它以及同目录的其他任务数据。`AutoDelivery/model.mjs` 还会读取 `tools/pipeline-generate/AutoDelivery/routes.json` 来校验路线覆盖；新增终点若要支持完整自动送货，还必须先让 `AutoDelivery` 生成对应路线和运行时目录。生成器只能看到 `depots` 中存在的仓储，因此没有仓储条目的地图不会出现在 `SeizeDeliveryJobsCommission.json` 里。
+`delivery_destinations.json` 是 zmdmap 的精简数据，不要手工编辑。运行 `pnpm fetch:zmdmap` 会连同同目录的其他任务数据一起更新。新增终点若要支持完整自动送货，必须让 `AutoDelivery` 先生成对应的路线和运行时目录；另外，只有 `depots` 里有仓储的地图会出现在 `SeizeDeliveryJobsCommission.json` 里。
 
 ### 生成器配置和产物
 

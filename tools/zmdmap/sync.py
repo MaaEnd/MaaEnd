@@ -3,7 +3,7 @@
 只做 ``git fetch`` + ``--ff-only`` 快进合并：工作区有未提交改动、处于分离头指针、没有配置上游
 时一律只提示并跳过该仓库 —— **绝不** stash / reset / 覆盖本地改动。
 
-这一层由 ``uv run zmdmap generate --sync`` 触发（原 ``tools/pipeline-generate/sync_and_generate.py``）。
+这一层由 ``uv run zmdmap generate --sync`` 触发。
 """
 
 from __future__ import annotations

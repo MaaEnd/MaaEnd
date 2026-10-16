@@ -1,7 +1,4 @@
-"""MaaEnd 精简游戏数据 substep: sell_product.json.
-
-从 TableCfg 生成据点、可售物品、据点特性与匹配干员。
-"""
+"""据点交易（``sell_product.json``）：据点、可售物品、据点特性与匹配干员，都取自 TableCfg。"""
 
 from pathlib import Path
 from typing import Any

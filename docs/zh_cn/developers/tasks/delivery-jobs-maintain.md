@@ -176,7 +176,7 @@ flowchart TD
 >
 > **判断「能不能转交」之前必须先让页面稳定。** 转交按钮在不在，同时决定「按仓储节点配置处理」和「一律送掉」两个去向：页面还在渲染时先判，会把本该转交的委托当成抢来的直接送掉。所以 `DeliveryJobsEnsureOngoingDeliveryMission` 之后先过 `DeliveryJobsWaitOngoingMissionDetail`（`And(AutoDeliveryInDeliveryMissionDetail)` + 详情区域 `pre_wait_freezes 200ms`），稳定后才由 `DeliveryJobsCheckTransferJobAvailable` 判断——这与入口 A 边上那个门节点 `DeliveryJobsWait{Depot}DeliveryMissionDetail` 是同一个思路。
 
-任务详情里的区域名与仓储节点名在五种语言下逐字一致，Go 侧才能用区域 ID 直接拼出 `DeliveryJobsOngoingDeliveryFor{ID}` 这个节点名；这条恒等关系由 `model.mjs` 在生成时断言，两边不各写一套映射。Go 侧仓储节点名取自 `global.region.{DepotId}`，与节点名后缀同源。
+任务详情里的区域名与仓储节点名在五种语言下逐字一致，Go 侧才能用区域 ID 直接拼出 `DeliveryJobsOngoingDeliveryFor{ID}` 这个节点名（仓储节点名取自 `global.region.{DepotId}`）。
 
 这条链路会改动正常流程，因此每一步都向用户输出 Focus 提示，说明原因与采取的行为；本任务的提示都以 🚚 开头，与其他模块的提示（如全自动送货阶段的 🚛）在运行日志里区分开：
 
@@ -190,8 +190,6 @@ flowchart TD
 | `DeliveryJobsTransferOngoingJob` | 🚚 按该送货任务所属仓储节点的设置转交它 | `task.DeliveryJobs.OngoingDeliveryTransferred`（interface locale） |
 | `DeliveryJobsTransferUnavailable` | 🚚 抢来的送货委托不能转交，准备自动送货 | `task.DeliveryJobs.OngoingDeliveryTransferUnavailable`（interface locale） |
 | `DeliveryJobsDeliverOngoingByAutoDelivery`（动作失败） | 🚚 自动送货未能送达 | `task.DeliveryJobs.AutoDeliveryFailed`（interface locale） |
-
-检测由 `DeliveryJobsOngoingDelivery` 在识别到提示文案时输出，归属由 Go 侧在解析出区域后输出，两个出口各自说明自己采取的行为；每条只说该步骤新增的信息。自动送货的失败原因挂在公共调用节点的动作失败上，开关开或关都会提示，开关只决定失败后是否转交；开关只作用于 `DeliveryJobsDeliverByAutoDelivery`，降级路径 `DeliveryJobsDeliverOngoingByAutoDelivery` 不读这个开关。
 
 ## 全自动送货
 

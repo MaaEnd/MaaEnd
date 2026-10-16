@@ -121,22 +121,9 @@ Each generated `SeizeDeliveryJobsEndpointFilter<EndpointId>` leaf is disabled by
 
 ### Input Data Flow
 
-Both the area depot nodes and the destination nodes use the same catalog model as `AutoDelivery`:
+Both the area depot nodes and the destination nodes use the same catalog model as `AutoDelivery` (`tools/pipeline-generate/AutoDelivery/model.mjs`).
 
-```text
-zmdmap
-  └─ tools/zmdmap/data/delivery_destinations.json
-       └─ AutoDelivery/model.mjs
-            ├─ destinations (map, area, MapFind zone, destination u/v coordinates, recipient names)
-            │    └─ endpoint-filter-data.mjs → destination rows, area candidate rows, and dispatcher rows
-            │         ├─ endpoint-labels.mjs → validates the location names and directions in endpoint-labels.json
-            │         ├─ endpoint-candidates-data.mjs / endpoint-dispatcher-data.mjs → re-export those rows
-            │         └─ task-data.mjs → task cases and destination switches, then calls sync-locales.mjs for locale text
-            └─ depots (depot and its owning map)
-                 └─ commission-data.mjs → per-map depot entry, depot confirmation, and region filter rows
-```
-
-`delivery_destinations.json` is compact zmdmap data and must not be edited manually. `pnpm fetch:zmdmap` updates it along with the other task data files. `AutoDelivery/model.mjs` also reads `tools/pipeline-generate/AutoDelivery/routes.json` to validate route overrides. A new destination that should work with full automatic delivery must also first have `AutoDelivery` generate its routes and runtime catalog. The generator only sees depots listed in `depots`, so a map without a depot entry never appears in `SeizeDeliveryJobsCommission.json`.
+`delivery_destinations.json` is compact zmdmap data and must not be edited manually. `pnpm fetch:zmdmap` updates it along with the other task data files. A new destination that should work with full automatic delivery must first have `AutoDelivery` generate its routes and runtime catalog; a map only appears in `SeizeDeliveryJobsCommission.json` when it has a depot entry in `depots`.
 
 ### Generator Configurations and Outputs
 

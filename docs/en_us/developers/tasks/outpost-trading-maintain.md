@@ -140,7 +140,7 @@ Selling operator not found, or a pre-/post-sell list scan failure (including the
 
 ## Generator and Maintenance
 
-The generator lives in `tools/pipeline-generate/OutpostTrading/`. The outpost extraction lives in `tools/zmdmap/datasets/sell_product.py`: the zmdmap data CI clones this repository and runs `uv run zmdmap generate` to extract and publish `tools/zmdmap/data/sell_product.json` from TableCfg. This compact game data keeps only outposts, sellable items and their activity ids, outpost features, and operator matches; MaaEnd downloads it through `uv run zmdmap fetch`. `model.mjs` centrally defines outposts, regions, and i18n keys, and each `*-data.mjs` is the minimal data projection for its template.
+The generator lives in `tools/pipeline-generate/OutpostTrading/`. Outpost data is published by zmdmap and updated through `pnpm fetch:zmdmap` (`uv run zmdmap fetch`); see the [generator README](../../../../tools/pipeline-generate/OutpostTrading/README.md) for the data flow and the roles of each generator file.
 
 | Maintenance entry | Generated artifact |
 | ------------------------------- | ----------------------------------------------------------------- |

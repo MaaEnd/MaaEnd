@@ -26,7 +26,7 @@ REGISTRY: dict[str, type[Dataset]] = {}
 class DatasetError(ValueError):
     """数据组装错误：表里的引用对不上、缺文本之类的。
 
-    cli 会拿数据集名当前缀（``[collect_points] …``），所以各份数据不再各建一个错误类。
+    cli 会拿数据集名当前缀（``[collect_points] …``）：各份数据统一抛它，不各建一个错误类。
     """
 
 

@@ -1,7 +1,7 @@
 """EssenceFilter 用的能量淤积点。
 
-``tools/essence_filter/`` 的生成步骤从站点下载的 ``energy_point_gems.json`` 字段很多，但它们
-真正读到的只有这里的几项（中文名字、地区标识、体力消耗、两栏词条名），所以只从本地 TableCfg 取这些：
+``tools/essence_filter/`` 的生成步骤真正读到的只有这里的几项（中文名字、地区标识、体力消耗、
+两栏词条名），所以只从本地 TableCfg 取这些：
 
 - ``pointName``：``WorldEnergyPointTable`` 的 ``gameName``；
 - ``levelId``：``WorldEnergyPointTable`` 的 ``levelId``（地区标识，一个地区一个，且随游戏数据稳定）；
@@ -9,9 +9,9 @@
 - ``secAttrTermNames`` / ``skillTermNames``：``WorldEnergyPointGroupTable`` 的词条 id 经
   ``GemTable.tagName`` 换成中文名，查不到就留 id 本身。
 
-产物默认落 ``tools/zmdmap/data/energy_point_gems.json``（不需要投影）：字段名沿用消费端现在读的那套；
-顶层是 ``{"version": …, "sha256": …, "gems": [...]}`` 而不是裸数组 —— 裸数组塞不下元数据字段，消费端
-只改一行读法。
+产物默认落 ``tools/zmdmap/data/energy_point_gems.json``（不需要投影），字段名沿用消费端读的那套。
+顶层是 ``{"version": …, "sha256": …, "gems": [...]}``：元数据字段和数据放在同一个文件里，所以数据本体
+挂在 ``gems`` 下；消费端用 :func:`tools.zmdmap.read_payload` 读，不必自己跳过元数据。
 """
 
 from __future__ import annotations

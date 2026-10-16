@@ -1,7 +1,4 @@
-"""MaaEnd 精简游戏数据 substep: environment_monitoring.json.
-
-从 TableCfg 生成监测终端、观察点与五语言名称。
-"""
+"""环境监测（``environment_monitoring.json``）：监测终端、观察点与五语言名称，都取自 TableCfg。"""
 
 from pathlib import Path
 from typing import Any

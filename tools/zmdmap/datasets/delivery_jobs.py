@@ -1,7 +1,4 @@
-"""MaaEnd 精简游戏数据 substep: delivery_jobs.json.
-
-从 TableCfg 生成地区、仓储节点及其可装箱物品数据。
-"""
+"""运送委托（``delivery_jobs.json``）：地区、仓储节点及其可装箱物品，都取自 TableCfg。"""
 
 from pathlib import Path
 from typing import Any

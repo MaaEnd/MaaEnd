@@ -1,4 +1,4 @@
-"""把 ``data/raw/`` 里的原始数据材料化进入库的 ``data/*.json``（原 ``project.mjs``）。
+"""把 ``data/raw/`` 里的原始数据材料化进入库的 ``data/*.json``。
 
 入库看数据集是否需要投影（``datasets/`` 里的 ``Dataset.needs_projection``）：需要投影的按 zone 表补底图
 像素（:func:`project_data`），不需要投影的由 :func:`copy_files` 原样复制。
@@ -8,12 +8,12 @@
 下载或本地生成出来的原始数据要再过这一步：把 x/z 原位换成底图像素 ``u = sx*x + tx``、
 ``v = -sy*z + ty``（``y`` 是世界高度，原样留着），并把本次用到的 zone 写进 ``maps``。
 
-说明字段不再进数据文件：字段含义写在 ``datasets/`` 的模块与文档里。例外是最前面的两个元数据字段：
+数据文件里只有数据字段，字段含义写在 ``datasets/`` 的模块与各任务文档里；最前面两个元数据字段是例外：
 ``version``（这份数据来自哪一版游戏数据）与 ``sha256``（数据本体的内容指纹，投影后按投影后的本体重算），
 有了它们就不必再另外记「本地是哪一版、内容是哪一份」。
 
-输出用 Python 的 ``json`` 序列化（``ensure_ascii=False``、缩进 4）：与旧 Node 实现只在数字写法上
-有差别（整型浮点写成 ``520.0`` 而不是 ``520``），不影响语义。
+输出用 Python 的 ``json`` 序列化（``ensure_ascii=False``、缩进 4、LF 换行）：整型浮点会带小数点
+（``520.0`` 而不是 ``520``），解析出来的值与键顺序不受影响。
 """
 
 from __future__ import annotations
@@ -145,7 +145,7 @@ def with_metadata(data: Any, version: str | None = None) -> Any:
 
 
 def round3(value: float) -> float:
-    """按精确值取三位小数、逢半取偶（``round`` 就是这个语义，旧 Node 实现是它的等价模拟）。"""
+    """按精确值取三位小数、逢半取偶（Python 的 ``round`` 就是这个语义）。"""
     return round(value, 3)
 
 
@@ -208,8 +208,8 @@ def project_entries(
             raise ValueError(f"{label} 条目的 map 不是字符串")
         if "x" not in entry and "u" in entry:
             raise ValueError(
-                f"{label} 的原始数据只有 u/v、没有世界坐标 x/z：上游还是旧格式的发布数据，"
-                "等 zmdmap 重新发布后再跑 uv run zmdmap fetch"
+                f"{label} 的原始数据是投影过的形态（只有 u/v、没有 x/z）：data/raw/ 里这份不是当前发布的"
+                "原始形态，等 zmdmap 重新发布后再跑 uv run zmdmap fetch"
             )
 
         zone = used_zones.get(map_id)
@@ -268,7 +268,7 @@ def project_dataset(
             f"{file_name}[{container}]",
         )
     projected["maps"] = describe_zones(used_zones)
-    # 投影之后内容变了，指纹按投影后的本体重算；版本还是原来那份数据的版本。
+    # 投影之后内容变了，指纹按投影后的本体重算；版本沿用原始数据那份。
     return with_metadata(projected, version_of(data))
 
 

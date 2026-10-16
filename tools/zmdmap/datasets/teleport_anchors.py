@@ -1,6 +1,4 @@
-"""MaaEnd 精简游戏数据 substep: teleport_anchors.json.
-
-营地，也就是地图上的传送锚点：取 ``LevelMapMark`` 中
+"""营地，也就是地图上的传送锚点（``teleport_anchors.json``）：取 ``LevelMapMark`` 中
 ``templateId == mark_sp_campfire`` 的标记，``detailedData.teleportValidationId``
 即传送到该点时用的锚点 ID。任何要「先传送再走路」的任务都吃这份数据，
 ``collect_points`` 也用它把采集物分圈。

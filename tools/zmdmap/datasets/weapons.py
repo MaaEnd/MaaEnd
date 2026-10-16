@@ -9,8 +9,8 @@
 
 数据来自 ``WeaponBasicTable`` + ``ForesightWeaponTable`` + ``ItemTable`` + ``SkillPatchTable``：
 前者是已上线的武器，后者是还没上线的前瞻武器（同一把武器上线后会出现在 ``WeaponBasicTable`` 里，
-所以要先按 id、再按五语名字去重）。上游那份 ``weapons.json`` 里的 ``icon_path``、``foresight``、
-``skill_ids`` 与其余语言的字段都没读，这里不生成。
+所以要先按 id、再按五语名字去重）。输出里不含 ``icon_path``、``foresight``、``skill_ids`` 与其余语言的
+字段：消费端没有读它们。
 """
 
 from __future__ import annotations

@@ -28,10 +28,7 @@ The core maintenance points for Environment Monitoring are as follows:
 | Route JSON Schema | `tools/schema/environment_monitoring_routes.schema.json` | Field constraints for `routes.json` (required fields, field combinations, coordinate array shapes), automatically associated via `.vscode/settings.json`, providing IDE field completion and validation |
 | Failure Collector Parameter Schema | `tools/schema/components/failure_collector.schema.json` | Parameter constraints for generic Failure Collector Custom Actions; action names are registered in `tools/schema/custom.action.schema.json` |
 | Route Sync Logic | `tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs` | Automatically syncs `MissionId` / `Name` / `Id` in `routes.json` before generation and sorts by `MissionId` |
-| Route Resolution Logic | `tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs` | Parses `routes.json` entries into pathfinding recognition/action parameters required by the template and uniformly handles unadapted fallbacks |
-| Normalized Mission Model | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | Reads the zmdmap compact game data and `routes.json` once and builds the observation-point mission model shared by the route and terminal templates |
-| Terminal List Data | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-data.mjs` | Generates each terminal's `next` from the normalized missions in `model.mjs` and the automatically derived terminal list |
-| zmdmap Compact Game Data | `tools/zmdmap/data/environment_monitoring.json` | Terminals, observation points, and five-language names extracted from TableCfg and published by the zmdmap data CI; updated in MaaEnd by `pnpm fetch:zmdmap` |
+| zmdmap Compact Game Data | `tools/zmdmap/data/environment_monitoring.json` | Terminals, observation points, and five-language names; updated in MaaEnd by `pnpm fetch:zmdmap` |
 | Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/config.json` | Single observation point output configuration: `outputPattern: "${Station}/${Id}.json"` |
 | Terminal Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | Terminal output configuration merged into a single file: `outputFile: "Terminals.json"` |
 | Multilingual Text | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` label / description, the `not_adapted` notice, and the `route.{Id}.failed` failure messages maintained by `sync-routes.mjs` (observation points are recognized via OCR) |
@@ -272,7 +269,7 @@ New observation points generally come from game updates, appearing as an additio
 
 ### 1. Update Game Data
 
-Run `pnpm fetch:zmdmap` (use `pnpm fetch:zmdmap --only environment_monitoring` for just this file). It compares the `version` field inside `tools/zmdmap/data/environment_monitoring.json` with the zmdmap version API and only re-downloads that file when the two differ. Raw TableCfg parsing lives in `tools/zmdmap/datasets/environment_monitoring.py`; the zmdmap data CI clones this repository and runs `uv run zmdmap generate` for it, so it is not part of the routine MaaEnd generation flow.
+Run `pnpm fetch:zmdmap` (use `pnpm fetch:zmdmap --only environment_monitoring` for just this file) to fetch this compact game data from zmdmap.
 
 ### 2. Check Route Adaptation Status
 

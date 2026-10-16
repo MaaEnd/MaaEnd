@@ -11,8 +11,8 @@
 ``data/`` 与 ``data/raw/`` 都是 zmdmap 自己的数据树（``tools/zmdmap/data/``）：``raw/`` 放原样
 产物（不入库），``data/`` 放可以直接用的、入库的数据。
 
-``generate`` 按固定顺序跑同一批数据集（``datasets/`` 里的 ``Dataset`` 子类，需要投影的在前），产物只带
-游戏世界坐标；底图像素由 ``project`` 按 BaseNav 的 zone 表补上。
+``generate`` 按固定顺序跑 ``datasets/`` 里的全部 ``Dataset`` 子类（需要投影的在前），产物只带游戏世界
+坐标；底图像素由 ``project`` 按 BaseNav 的 zone 表补上。
 
 输入默认取与 MaaEnd 平级的兄弟仓库（由 ``--workspace`` 定位），三档优先级为
 「命令行 > 环境变量 > 默认」：
