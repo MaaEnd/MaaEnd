@@ -41,6 +41,6 @@ const (
 )
 
 const (
-	flawlessEssenceName = "无暇基质"
+	flawlessEssenceName = "无瑕基质"
 	pureEssenceName     = "高纯基质"
 )

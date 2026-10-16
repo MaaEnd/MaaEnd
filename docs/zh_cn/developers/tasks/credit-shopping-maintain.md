@@ -2,7 +2,7 @@
 
 本文说明 `CreditShopping` 的文件分布与执行流程。  
 购买条件不是几个独立开关，而是从 `Item/` 串到 `Flow/` 的整条筛选链，维护时需按链路理解。  
-该文档更新于 2026 年 7 月 13 日。
+该文档更新于 2026 年 10 月 15 日。
 
 ## 文件路径
 
@@ -13,17 +13,16 @@ CreditShopping/
 │   ├── Scan.json          # 货架扫描门控 + 快照（触发购买决策循环）
 │   ├── BuyAction.json     # 三档购买 / 黑名单 / 稳健刷新 / 无物可买
 │   ├── BuyItem.json       # 购买确认 / 失败 / 强制购买价格阈值检查
-│   └── Special.json       # 货架滑动工具节点 / 刷新时无法购买 / 刷新商品
+│   └── Special.json       # ADB 滑动 / 货架滑动工具节点 / 刷新时无法购买 / 刷新商品
 ├── Credit/                # 信用点管理
 │   ├── Reserve.json       # 保留阈值检测 + 当前信用点 OCR
 │   ├── AutoGetCredits.json# 自动补信用（买不起时跳基建）
 │   └── ClaimCredit.json   # 领取待收取信用（含 IMS A3 累加）
 ├── Item/                  # 货架商品识别（识别链）
 │   ├── ShelfBase.json     # 锚点 CreditIcon + 售罄 + 价格判断
-│   ├── Priority1.json     # 优先购买 1 白名单 + 折扣
-│   ├── Priority2.json     # 优先购买 2 白名单 + 折扣
-│   ├── Priority3.json     # 优先购买 3 白名单 + 折扣
-│   └── Blacklist.json     # 黑名单过滤 + 折扣
+│   ├── Priority1.json     # 购买物品选项1 白名单 + 折扣
+│   ├── Priority2.json     # 购买物品选项2 白名单 + 折扣
+│   └── Priority3.json     # 购买物品选项3 白名单 + 折扣
 ├── GoToShop.json           # 导航到商店并切到信用交易所页签
 ├── record.json             # 货架快照时记录商品名与折扣
 └── Reflash.json            # 刷新按钮 / 花费 / 次数用尽 / 无法刷新
@@ -33,9 +32,9 @@ CreditShopping/
 
 | 路径 | 作用 |
 | --------------------------------------------------------- | -------------------------------------- |
-| `assets/interface.json` | 任务挂载（`other_menu` / `daily` 组） |
+| `assets/interface.json` | 任务挂载（`other_menu` 组；另被 `DailyFull` / `QuickDaily` 预设引用） |
 | `assets/tasks/CreditShopping.json` | 任务入口、三档购买、保留阈值、刷新选项 |
-| `assets/resource/pipeline/DijiangRewards/NeedCredit.json` | 信用不足时回基建补信用 |
+| `assets/resource/pipeline/DijiangRewards/Entry.json`（`NeedCredit`）、`ReceptionRoom.json` | 信用不足时回基建补信用 |
 | `agent/go-service/common/attachregex/action.go` | attach 关键词合并为 OCR 白名单正则 |
 | `assets/locales/interface/*.json` | 任务、选项与 focus 文案 |
 
@@ -44,8 +43,8 @@ CreditShopping/
 1. 进入信用交易所页签；若不在商店则先导航（`GoToShop.json`），再[领取待收取信用](#领取信用)（`Credit/ClaimCredit.json`）。
 2. 进入扫描循环前，[一次性初始化各档商品名白名单](#attach-与白名单初始化)（`Flow/Entry.json` + `attachregex/action.go`）。
 3. 每轮对当前货架快照，按固定优先级依次判断（`Flow/Scan.json` → `Flow/BuyAction.json`）：
-    - 某档目标商品[买得起但信用不够](#自动补信用) → 跳基建补信用后回来。
-    - 是否命中[优先购买 1 / 2 / 3](#三档购买优先级) → 直接确认购买。
+    - 某档开启了「自动获取信用点」，且该档目标商品[买不起（信用不够）](#自动补信用) → 跳基建补信用后回来；未开启的档位不做此判断。
+    - 是否命中[购买物品选项 1 / 2 / 3](#三档购买优先级) → 直接确认购买。
     - 当前信用是否[低于保留阈值](#保留信用点阈值) → 结束任务。
     - 刷新次数是否已用尽、是否触发[稳健刷新改直购](#强制策略与刷新)。
     - 按[强制策略](#强制策略与刷新)购买任意可买品 / 刷新货架 / 直接结束。
@@ -61,9 +60,9 @@ CreditShopping/
 
 ### 货架快照与两屏合并
 
-ADB 一屏装不下整排商品：第一排名称可见时看不到自己的折扣，第二排同理，所以 `RecordShelfSnapshotsAction`（`Flow/Scan.json` 的 `CreditShoppingScanItemAction`）在 ADB 下分两次截图，再按 slot 合并。
+ADB 一屏装不下两排商品：第一排的名称和折扣完整可见时看不到第二排名称，滑到第二排完整可见时又看不到第一排折扣，所以 `RecordShelfSnapshotsAction`（`Flow/Scan.json` 的 `CreditShoppingScanItemAction`）在 ADB 下分两次截图，再按 slot 合并。快照只写入 `CreditShoppingShelfSnapshots.json` 供分析，不参与购买判断；「保留货架记录」关闭时该节点改为 `DoNothing`。
 
-两次截图之间的滑动不直接操作控制器，而是 `ctx.RunAction` 调 `CreditShoppingSwipeShelfDown` / `CreditShoppingSwipeShelfUp` 两个工具节点：base 里是 Win32 的 `DoNothing`（一屏可见），实际的滑动参数与稳定等待由 `resource_adb` 覆盖。平台差异因此留在资源包里，Go 侧不滑动、也不做平台判断。
+滑动不直接操作控制器，而是 `ctx.RunAction` 调两个工具节点：两次截图之间调 `CreditShoppingSwipeShelfDown`，第二次截图后调 `CreditShoppingSwipeShelfUp` 滑回首屏。base 里两者是 Win32 的 `DoNothing`（一屏可见），实际的滑动参数与稳定等待由 `resource_adb` 覆盖。平台差异因此留在资源包里：Go 侧不直接滑动，只用 `isADBController` 选择单屏或两屏路径。
 
 Win32 走 `slotAssignPC` 单屏路径，不经过这两个节点。
 
@@ -84,8 +83,8 @@ Go 只负责参数装配；何时买、怎么买由 Pipeline 决定。
 - 黑：信用点商品卡片锚点（`Item/ShelfBase.json` — `CreditIcon`）
 - 蓝：是否未售罄（`Item/ShelfBase.json` — `NotSoldOut`）
 - 红：买得起 / 买不起（`Item/ShelfBase.json` — `CanAfford` / `CanNotAfford`，两条链在此分叉）
-- 绿：商品名 OCR（白名单，各档 `Item/Priority{N}.json` / `Item/Blacklist.json`）
-- 粉：折扣 OCR（各档 `Item/Priority{N}.json` / `Item/Blacklist.json`）
+- 绿：商品名 OCR（白名单，各档 `Item/Priority{N}.json`）
+- 粉：折扣 OCR（各档 `Item/Priority{N}.json`）
 
 #### 购买链
 
@@ -110,11 +109,11 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 
 三档结构相同，默认策略不同（`CreditShopping.json`）：
 
-| 档位 | 默认「无条件购买」 | 默认「自动补信用」 | 典型用途 |
+| 档位 | 默认「无条件购买」 | 默认「自动获取信用点」 | 典型用途 |
 | ---------- | ------------------ | ------------------ | ------------------------ |
-| 优先购买 1 | 开 | 开 | 信用快见底也值得买的刚需 |
-| 优先购买 2 | 关 | 关 | 需满足保留阈值才买 |
-| 优先购买 3 | 关 | 关 | 同上，更低优先级 |
+| 购买物品选项1 | 开 | 开 | 信用快见底也值得买的刚需 |
+| 购买物品选项2 | 关 | 关 | 需满足保留阈值才买 |
+| 购买物品选项3 | 关 | 关 | 同上，更低优先级 |
 
 每档可独立配置：勾选商品、最低折扣、是否跳过保留阈值、买不起时是否允许补信用。  
 三档都未命中后，才由统一的保留阈值节点负责兜底退出。
@@ -127,10 +126,10 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 
 ### 自动补信用
 
-某档开启了「自动补信用」，且[补信用识别链](#补信用链)命中时，跳转到 `NeedCredit.json`（`Credit/AutoGetCredits.json`）：
+某档开启了「自动获取信用点」，且[补信用识别链](#补信用链)命中时，经 `GoToNeedCredit`（`Credit/AutoGetCredits.json`）跳转到 `NeedCredit` 节点（`DijiangRewards/Entry.json`）：
 
 1. 回基建会客室，按配置赠送线索或开启线索交流。
-2. 赠送次数由 `CreditShoppingClueSend` 控制（`0` = 不送）。
+2. 逐条赠送次数由 `CreditShoppingClueSend` 控制（`0` = 不逐条赠送；开启「快速赠予重复线索」时仍会一键赠送）。
 3. 可赠送的线索库存下限由 `CreditShoppingClueStockLimit` 控制（默认保留 2 个，即库存 ≥ 3 才送）。
 4. 「快速赠予重复线索」由 `CreditShoppingQuickGiveDuplicateClues` 控制（默认关；开启后进入赠予界面优先一键赠送）。
 
@@ -149,8 +148,8 @@ ShelfBase → 白名单 → 折扣 → 进入补信用判断
 | 策略 | 行为 |
 | ---------- | -------------------------------- |
 | 退出 | 不买任意品、不刷新，直接结束 |
-| 忽略黑名单 | 购买任意买得起且未售罄的商品；确认前用 `BuyItemBelowReserve` 按「持有 − 价格」检查保留阈值，不足则取消并停止 |
-| 刷新 | 尝试刷新货架；可展开「稳健刷新」「直购前检查价格」 |
+| 购买所有物品 | 购买任意买得起且未售罄的商品；确认前用 `BuyItemBelowReserve` 按「持有 − 价格」检查保留阈值，不足则取消并停止 |
+| 执行刷新 | 尝试刷新货架；可展开「稳健模式刷新」「直购前检查价格」 |
 
 **稳健刷新**：若「当前信用 − 刷新花费 < 稳健刷新阈值」且架上仍有可买品，则不刷新、改为直接购买。  
 该阈值与「保留信用点」是两套独立条件，不要混用。

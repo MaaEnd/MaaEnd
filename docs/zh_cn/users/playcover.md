@@ -51,11 +51,7 @@ PlayCover 适配正在跟随 ADB 适配稳步进行中。我们几乎没有 macO
 在 MaaEnd 界面右上角的连接设置中选择 `PlayCover` 控制器，连接地址填入游戏标题栏方括号中的内容，例如 `localhost:<端口号>`。
 
 ### 自动启动游戏
-<!--
-> [!WARNING]
-> 
-> 上游 GUI 客户端存在问题导致 PlayCover 无法自动启动游戏并开始任务，需等待 [修复 PR](https://github.com/MistEO/MXU/pull/377) 合入主线并同步下游。
--->
+
 添加 `特殊任务` - `前置程序` 任务，在 `程序路径` 中填入游戏的 Unix 可执行文件路径，而非 .app 路径。如 `/Users/<账户名称>/Library/Containers/io.playcover.PlayCover/Applications/com.hypergryph.endfield.app/Endfield`。
 
 ### 自动关闭游戏

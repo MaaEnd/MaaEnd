@@ -1,0 +1,3379 @@
+{
+    "version": "1.6.3",
+    "sha256": "e36da53f11d9a18509938609a94f5e7d9d6956c0333a1aadb08d10703e818ab5",
+    "wpn_claym_0003": {
+        "internal_id": "wpn_claym_0003",
+        "icon_id": "wpn_claym_0003",
+        "rarity": 4,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "工业零点一",
+            "TC": "工業零點一",
+            "EN": "Industry 0.1",
+            "JP": "工業零点一",
+            "KR": "공업 0.1"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·小",
+                "攻击提升·小",
+                "压制·应急强化"
+            ],
+            "TC": [
+                "力量提升·小",
+                "攻擊提升·小",
+                "壓制·緊急強化"
+            ],
+            "EN": [
+                "Strength [S]",
+                "ATK [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "JP": [
+                "筋力UP・小",
+                "攻撃力UP・小",
+                "圧制・応急強化"
+            ],
+            "KR": [
+                "힘 증가 · 소",
+                "공격력 증가 · 소",
+                "억제 · 비상 부스트"
+            ]
+        }
+    },
+    "wpn_claym_0004": {
+        "internal_id": "wpn_claym_0004",
+        "icon_id": "wpn_claym_0004",
+        "rarity": 6,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "典范",
+            "TC": "典範",
+            "EN": "Exemplar",
+            "JP": "鑑",
+            "KR": "모범"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·大",
+                "攻击提升·大",
+                "压制·多层斩断"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "攻擊提升·大",
+                "壓制·多層斬斷"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "ATK [L]",
+                "Suppression: Stacked Hew"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "攻撃力UP・大",
+                "圧制・多層切断"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "공격력 증가 · 대",
+                "억제 · 다층 절단"
+            ]
+        }
+    },
+    "wpn_claym_0006": {
+        "internal_id": "wpn_claym_0006",
+        "icon_id": "wpn_claym_0006",
+        "rarity": 6,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "昔日精品",
+            "TC": "昔日精品",
+            "EN": "Former Finery",
+            "JP": "昔日の逸品",
+            "KR": "과거의 일품"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "生命提升·大",
+                "效益·切碎疗法"
+            ],
+            "TC": [
+                "意志提升·大",
+                "生命提升·大",
+                "效益·切碎療法"
+            ],
+            "EN": [
+                "Will [L]",
+                "HP [L]",
+                "Efficacy: Mincing Therapy"
+            ],
+            "JP": [
+                "意志UP・大",
+                "HPアップ・大",
+                "効率・切断療法"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "생명력 증가 · 대",
+                "효율 · 절개 의료법"
+            ]
+        }
+    },
+    "wpn_claym_0007": {
+        "internal_id": "wpn_claym_0007",
+        "icon_id": "wpn_claym_0007",
+        "rarity": 6,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "大雷斑",
+            "TC": "大雷斑",
+            "EN": "Thunderberge",
+            "JP": "大雷斑",
+            "KR": "천둥의 흔적"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·大",
+                "生命提升·大",
+                "医疗·塔罗斯之眼"
+            ],
+            "TC": [
+                "力量提升·大",
+                "生命提升·大",
+                "醫療·塔羅斯之眼"
+            ],
+            "EN": [
+                "Strength [L]",
+                "HP [L]",
+                "Medicant: Eye of Talos"
+            ],
+            "JP": [
+                "筋力UP・大",
+                "HPアップ・大",
+                "治癒・タロスの目"
+            ],
+            "KR": [
+                "힘 증가 · 대",
+                "생명력 증가 · 대",
+                "의료 · 탈로스의 눈"
+            ]
+        }
+    },
+    "wpn_claym_0008": {
+        "internal_id": "wpn_claym_0008",
+        "icon_id": "wpn_claym_0008",
+        "rarity": 6,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "破碎君王",
+            "TC": "破碎君王",
+            "EN": "Sundered Prince",
+            "JP": "破砕君主",
+            "KR": "분쇄의 군주"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·大",
+                "暴击率提升·大",
+                "粉碎·君王威慑"
+            ],
+            "TC": [
+                "力量提升·大",
+                "暴擊率提升·大",
+                "粉碎·君王威懾"
+            ],
+            "EN": [
+                "Strength [L]",
+                "Critical Rate [L]",
+                "Crusher: Princely Deterrence"
+            ],
+            "JP": [
+                "筋力UP・大",
+                "会心率UP・大",
+                "破砕・君主威圧"
+            ],
+            "KR": [
+                "힘 증가 · 대",
+                "치명타 확률 증가 · 대",
+                "분쇄 · 군왕의 위세"
+            ]
+        }
+    },
+    "wpn_claym_0009": {
+        "internal_id": "wpn_claym_0009",
+        "icon_id": "wpn_claym_0009",
+        "rarity": 4,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "淬火者",
+            "TC": "淬火者",
+            "EN": "Quencher",
+            "JP": "鍛冶師",
+            "KR": "불꽃의 시험"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·小",
+                "生命提升·小",
+                "粉碎·淬砺成兵"
+            ],
+            "TC": [
+                "意志提升·小",
+                "生命提升·小",
+                "粉碎·淬礪成兵"
+            ],
+            "EN": [
+                "Will [S]",
+                "HP [S]",
+                "Crusher: Honed into Legion"
+            ],
+            "JP": [
+                "意志UP・小",
+                "HPアップ・小",
+                "破砕・鍛錬の兵"
+            ],
+            "KR": [
+                "의지 증가 · 소",
+                "생명력 증가 · 소",
+                "분쇄 · 훈련된 전사"
+            ]
+        }
+    },
+    "wpn_claym_0010": {
+        "internal_id": "wpn_claym_0010",
+        "icon_id": "wpn_claym_0010",
+        "rarity": 3,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "达尔霍夫7",
+            "TC": "達爾霍夫7",
+            "EN": "Darhoff 7",
+            "JP": "ダルホフ7",
+            "KR": "다호프 7"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·小",
+                "强攻·武装整备"
+            ],
+            "TC": [
+                "主能力提升·小",
+                "強攻·武裝整備"
+            ],
+            "EN": [
+                "Main Attribute [S]",
+                "Assault: Armament Prep"
+            ],
+            "JP": [
+                "メイン能力UP・小",
+                "強攻・武装整備"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 소",
+                "강공 · 무장 정비"
+            ]
+        }
+    },
+    "wpn_claym_0011": {
+        "internal_id": "wpn_claym_0011",
+        "icon_id": "wpn_claym_0011",
+        "rarity": 5,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "探骊",
+            "TC": "探驪",
+            "EN": "Seeker of Dark Lung",
+            "JP": "探龍",
+            "KR": "검은 추적자"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·中",
+                "终结技充能效率提升·中",
+                "迸发·钩玄猎秘"
+            ],
+            "TC": [
+                "力量提升·中",
+                "終結技蓄能效率提升·中",
+                "迸發·鉤玄獵秘"
+            ],
+            "EN": [
+                "Strength [M]",
+                "ULT Efficiency [M]",
+                "Detonate: Seeker of the Esoteric"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "必殺技効率UP・中",
+                "噴発・鉤玄探求"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "궁극기 충전 효율 증가 · 중",
+                "방출 · 꿰뚫는 이치"
+            ]
+        }
+    },
+    "wpn_claym_0012": {
+        "internal_id": "wpn_claym_0012",
+        "icon_id": "wpn_claym_0012",
+        "rarity": 5,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "终点之声",
+            "TC": "終點之聲",
+            "EN": "Finishing Call",
+            "JP": "最期の声",
+            "KR": "최후의 메아리"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·中",
+                "生命提升·中",
+                "医疗·骑士荣光"
+            ],
+            "TC": [
+                "力量提升·中",
+                "生命提升·中",
+                "醫療·騎士榮光"
+            ],
+            "EN": [
+                "Strength [M]",
+                "HP [M]",
+                "Medicant: Glory of Knighthood"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "HPアップ・中",
+                "治癒・騎士の栄光"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "생명력 증가 · 중",
+                "의료 · 기사의 영광"
+            ]
+        }
+    },
+    "wpn_claym_0013": {
+        "internal_id": "wpn_claym_0013",
+        "icon_id": "wpn_claym_0013",
+        "rarity": 6,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "赫拉芬格",
+            "TC": "赫拉芬格",
+            "EN": "Khravengger",
+            "JP": "クラヴェンガー",
+            "KR": "헤라펜거"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·大",
+                "攻击提升·大",
+                "迸发·切骨之寒"
+            ],
+            "TC": [
+                "力量提升·大",
+                "攻擊提升·大",
+                "迸發·切骨之寒"
+            ],
+            "EN": [
+                "Strength [L]",
+                "ATK [L]",
+                "Detonate: Bonechilling"
+            ],
+            "JP": [
+                "筋力UP・大",
+                "攻撃力UP・大",
+                "噴発・切骨の寒さ"
+            ],
+            "KR": [
+                "힘 증가 · 대",
+                "공격력 증가 · 대",
+                "방출 · 사무치는 추위"
+            ]
+        }
+    },
+    "wpn_claym_0014": {
+        "internal_id": "wpn_claym_0014",
+        "icon_id": "wpn_claym_0014",
+        "rarity": 5,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "古渠",
+            "TC": "古渠",
+            "EN": "Ancient Canal",
+            "JP": "千古恒常",
+            "KR": "고대의 강줄기"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·中",
+                "源石技艺强度提升·中",
+                "残暴·千秋旧土"
+            ],
+            "TC": [
+                "力量提升·中",
+                "源石技藝強度提升·中",
+                "殘暴·千秋舊土"
+            ],
+            "EN": [
+                "Strength [M]",
+                "Arts Intensity [M]",
+                "Brutality: Lands of Yore"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "アーツ強度UP・中",
+                "残虐・千秋の旧土"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "오리지늄 아츠 강도 증가 · 중",
+                "잔혹 · 천추의 대지"
+            ]
+        }
+    },
+    "wpn_claym_0015": {
+        "internal_id": "wpn_claym_0015",
+        "icon_id": "wpn_claym_0015",
+        "rarity": 5,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "O.B.J.重荷",
+            "TC": "O.B.J.重荷",
+            "EN": "OBJ Heavy Burden",
+            "JP": "O.B.J.重責",
+            "KR": "O.B.J. 헤비 버든"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·中",
+                "生命提升·中",
+                "效益·坚韧心性"
+            ],
+            "TC": [
+                "力量提升·中",
+                "生命提升·中",
+                "效益·堅韌心性"
+            ],
+            "EN": [
+                "Strength [M]",
+                "HP [M]",
+                "Efficacy: Tenacious Will"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "HPアップ・中",
+                "効率・忍耐力"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "생명력 증가 · 중",
+                "효율 · 강인한 의지"
+            ]
+        }
+    },
+    "wpn_claym_0016": {
+        "internal_id": "wpn_claym_0016",
+        "icon_id": "wpn_claym_0016",
+        "rarity": 6,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "幻想苦痛",
+            "TC": "幻想苦痛",
+            "EN": "Phantom Pain",
+            "JP": "ファントムペイン",
+            "KR": "환상통"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·大",
+                "源石技艺强度提升·大",
+                "压制·苦痛重叠"
+            ],
+            "TC": [
+                "力量提升·大",
+                "源石技藝強度提升·大",
+                "壓制·苦痛重疊"
+            ],
+            "EN": [
+                "Strength [L]",
+                "Arts Intensity [L]",
+                "Suppression: Layered Suffering"
+            ],
+            "JP": [
+                "筋力UP・大",
+                "アーツ強度UP・大",
+                "圧制・多重苦"
+            ],
+            "KR": [
+                "힘 증가 · 대",
+                "오리지늄 아츠 강도 증가 · 대",
+                "억제 · 고통 누적"
+            ]
+        }
+    },
+    "wpn_claym_0017": {
+        "internal_id": "wpn_claym_0017",
+        "icon_id": "wpn_claym_0017",
+        "rarity": 6,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "赤缨",
+            "TC": "赤纓",
+            "EN": "Amaranthine Tassel",
+            "JP": "赤纓",
+            "KR": "적영"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·大",
+                "攻击提升·大",
+                "巧技·赤断"
+            ],
+            "TC": [
+                "力量提升·大",
+                "攻擊提升·大",
+                "巧技·赤斷"
+            ],
+            "EN": [
+                "Strength [L]",
+                "ATK [L]",
+                "Combative: Amaranthine Cleave"
+            ],
+            "JP": [
+                "筋力UP・大",
+                "攻撃力UP・大",
+                "巧技・赤断"
+            ],
+            "KR": [
+                "힘 증가 · 대",
+                "공격력 증가 · 대",
+                "기예 · 붉은색의 단절"
+            ]
+        }
+    },
+    "wpn_claym_0018": {
+        "internal_id": "wpn_claym_0018",
+        "icon_id": "wpn_claym_0018",
+        "rarity": 6,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "玉中身",
+            "TC": "玉中身",
+            "EN": "Jade Vessel",
+            "JP": "玉中身",
+            "KR": "옥에 깃든 형체"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "寒冷伤害提升·大",
+                "效益·落墨添彩"
+            ],
+            "TC": [
+                "智識提升·大",
+                "寒冷傷害提升·大",
+                "效益·落墨添彩"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Cryo DMG [L]",
+                "Efficacy: Dabbles of Ink"
+            ],
+            "JP": [
+                "知性UP・大",
+                "寒冷ダメージUP・大",
+                "効率・墨筆の彩り"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "냉기 피해 증가 · 대",
+                "효율 · 먹빛에 더한 색채"
+            ]
+        }
+    },
+    "wpn_claym_0019": {
+        "internal_id": "wpn_claym_0019",
+        "icon_id": "wpn_claym_0019",
+        "rarity": 6,
+        "weapon_type": "Claymores",
+        "names": {
+            "CN": "悠久传承",
+            "TC": "悠久傳承",
+            "EN": "Long Heritage",
+            "JP": "悠久の継承",
+            "KR": "유구한 전승"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "寒冷伤害提升·大",
+                "效益·秘辛史话"
+            ],
+            "TC": [
+                "智識提升·大",
+                "寒冷傷害提升·大",
+                "效益·秘辛史話"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Cryo DMG [L]",
+                "Efficacy: Secret History"
+            ],
+            "JP": [
+                "知性UP・大",
+                "寒冷ダメージUP・大",
+                "効率・秘史"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "냉기 피해 증가 · 대",
+                "효율 · 숨겨진 역사"
+            ]
+        }
+    },
+    "wpn_funnel_0001": {
+        "internal_id": "wpn_funnel_0001",
+        "icon_id": "wpn_funnel_0001",
+        "rarity": 4,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "全自动骇新星",
+            "TC": "全自動駭新星",
+            "EN": "Hypernova Auto",
+            "JP": "オート・ハイパーノヴァ",
+            "KR": "오토 하이퍼노바"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·小",
+                "法术提升·小",
+                "昂扬·远途起始"
+            ],
+            "TC": [
+                "智識提升·小",
+                "法術提升·小",
+                "昂揚·遠途起始"
+            ],
+            "EN": [
+                "Intellect [S]",
+                "Arts DMG [S]",
+                "Inspiring: Start of a Saga"
+            ],
+            "JP": [
+                "知性UP・小",
+                "アーツダメージUP・小",
+                "昂揚・遠路の始まり"
+            ],
+            "KR": [
+                "지능 증가 · 소",
+                "아츠 피해 증가 · 소",
+                "사기 · 원정의 시작"
+            ]
+        }
+    },
+    "wpn_funnel_0002": {
+        "internal_id": "wpn_funnel_0002",
+        "icon_id": "wpn_funnel_0002",
+        "rarity": 3,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "吉米尼12",
+            "TC": "吉米尼12",
+            "EN": "Jiminy 12",
+            "JP": "ジミニ12",
+            "KR": "지미니 12"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·小",
+                "强攻·武装整备"
+            ],
+            "TC": [
+                "主能力提升·小",
+                "強攻·武裝整備"
+            ],
+            "EN": [
+                "Main Attribute [S]",
+                "Assault: Armament Prep"
+            ],
+            "JP": [
+                "メイン能力UP・小",
+                "強攻・武装整備"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 소",
+                "강공 · 무장 정비"
+            ]
+        }
+    },
+    "wpn_funnel_0003": {
+        "internal_id": "wpn_funnel_0003",
+        "icon_id": "wpn_funnel_0003",
+        "rarity": 4,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "荧光雷羽",
+            "TC": "螢光雷羽",
+            "EN": "Fluorescent Roc",
+            "JP": "蛍光雷羽",
+            "KR": "섬광 번개"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·小",
+                "攻击提升·小",
+                "压制·应急强化"
+            ],
+            "TC": [
+                "意志提升·小",
+                "攻擊提升·小",
+                "壓制·緊急強化"
+            ],
+            "EN": [
+                "Will [S]",
+                "ATK [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "JP": [
+                "意志UP・小",
+                "攻撃力UP・小",
+                "圧制・応急強化"
+            ],
+            "KR": [
+                "의지 증가 · 소",
+                "공격력 증가 · 소",
+                "억제 · 비상 부스트"
+            ]
+        }
+    },
+    "wpn_funnel_0004": {
+        "internal_id": "wpn_funnel_0004",
+        "icon_id": "wpn_funnel_0004",
+        "rarity": 5,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "迷失荒野",
+            "TC": "迷失荒野",
+            "EN": "Wild Wanderer",
+            "JP": "荒野迷走",
+            "KR": "황무지의 방랑자"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·中",
+                "电磁伤害提升·中",
+                "附术·荒芜集簇"
+            ],
+            "TC": [
+                "智識提升·中",
+                "電磁傷害提升·中",
+                "附術·荒蕪集簇"
+            ],
+            "EN": [
+                "Intellect [M]",
+                "Electric DMG [M]",
+                "Infliction: Wilderness Cluster"
+            ],
+            "JP": [
+                "知性UP・中",
+                "電磁ダメージUP・中",
+                "付術・荒廃集積"
+            ],
+            "KR": [
+                "지능 증가 · 중",
+                "전기 피해 증가 · 중",
+                "고통 · 황무지 군집"
+            ]
+        }
+    },
+    "wpn_funnel_0005": {
+        "internal_id": "wpn_funnel_0005",
+        "icon_id": "wpn_funnel_0005",
+        "rarity": 5,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "悼亡诗",
+            "TC": "悼亡詩",
+            "EN": "Stanza of Memorials",
+            "JP": "弔いの詩",
+            "KR": "망자의 노래"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·中",
+                "攻击提升·中",
+                "夜幕·冢火成莹"
+            ],
+            "TC": [
+                "智識提升·中",
+                "攻擊提升·中",
+                "夜幕·塚火成瑩"
+            ],
+            "EN": [
+                "Intellect [M]",
+                "ATK [M]",
+                "Twilight: Lustrous Pyre"
+            ],
+            "JP": [
+                "知性UP・中",
+                "攻撃力UP・中",
+                "夜幕・灯火の煌き"
+            ],
+            "KR": [
+                "지능 증가 · 중",
+                "공격력 증가 · 중",
+                "어둠 · 무덤 위의 불씨"
+            ]
+        }
+    },
+    "wpn_funnel_0006": {
+        "internal_id": "wpn_funnel_0006",
+        "icon_id": "wpn_funnel_0006",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "作品：蚀迹",
+            "TC": "作品：蝕跡",
+            "EN": "Opus: Etch Figure",
+            "JP": "作品：蝕跡",
+            "KR": "작품: 침식 흔적"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "自然伤害提升·大",
+                "压制·碛岩蚀痕"
+            ],
+            "TC": [
+                "意志提升·大",
+                "自然傷害提升·大",
+                "壓制·磧岩蝕痕"
+            ],
+            "EN": [
+                "Will [L]",
+                "Nature DMG [L]",
+                "Suppression: Tillite Etchings"
+            ],
+            "JP": [
+                "意志UP・大",
+                "自然ダメージUP・大",
+                "圧制・モレーン蝕痕"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "자연 피해 증가 · 대",
+                "억제 · 빙퇴석의 침식 흔적"
+            ]
+        }
+    },
+    "wpn_funnel_0007": {
+        "internal_id": "wpn_funnel_0007",
+        "icon_id": "wpn_funnel_0007",
+        "rarity": 5,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "莫奈何",
+            "TC": "莫奈何",
+            "EN": "Monaihe",
+            "JP": "術無",
+            "KR": "무가내하"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·中",
+                "终结技充能效率提升·中",
+                "昂扬·榫卯分析法"
+            ],
+            "TC": [
+                "意志提升·中",
+                "終結技蓄能效率提升·中",
+                "昂揚·榫卯分析法"
+            ],
+            "EN": [
+                "Will [M]",
+                "ULT Efficiency [M]",
+                "Inspiring: Mortise-and-Tenon Analysis"
+            ],
+            "JP": [
+                "意志UP・中",
+                "必殺技効率UP・中",
+                "昂揚・接続分析法"
+            ],
+            "KR": [
+                "의지 증가 · 중",
+                "궁극기 충전 효율 증가 · 중",
+                "사기 · 순묘 분석법"
+            ]
+        }
+    },
+    "wpn_funnel_0008": {
+        "internal_id": "wpn_funnel_0008",
+        "icon_id": "wpn_funnel_0010",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "爆破单元",
+            "TC": "爆破單元",
+            "EN": "Detonation Unit",
+            "JP": "破壊ユニット",
+            "KR": "폭발 유닛"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·大",
+                "源石技艺强度提升·大",
+                "迸发·冠军威赫"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "源石技藝強度提升·大",
+                "迸發·冠軍威赫"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Arts Intensity [L]",
+                "Detonate: Imposing Champion"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "アーツ強度UP・大",
+                "噴発・勝者威圧"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "오리지늄 아츠 강도 증가 · 대",
+                "방출 · 우승자의 위세"
+            ]
+        }
+    },
+    "wpn_funnel_0009": {
+        "internal_id": "wpn_funnel_0009",
+        "icon_id": "wpn_funnel_0009",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "遗忘",
+            "TC": "遺忘",
+            "EN": "Oblivion",
+            "JP": "遺忘",
+            "KR": "망각"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "法术提升·大",
+                "夜幕·耻辱"
+            ],
+            "TC": [
+                "智識提升·大",
+                "法術提升·大",
+                "夜幕·恥辱"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Arts DMG [L]",
+                "Twilight: Humiliation"
+            ],
+            "JP": [
+                "知性UP・大",
+                "アーツダメージUP・大",
+                "夜幕・屈辱"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "아츠 피해 증가 · 대",
+                "어둠 · 치욕"
+            ]
+        }
+    },
+    "wpn_funnel_0010": {
+        "internal_id": "wpn_funnel_0010",
+        "icon_id": "wpn_funnel_0008",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "骑士精神",
+            "TC": "騎士精神",
+            "EN": "Chivalric Virtues",
+            "JP": "騎士精神",
+            "KR": "기사도 정신"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "生命提升·大",
+                "医疗·侵蚀性狂热"
+            ],
+            "TC": [
+                "意志提升·大",
+                "生命提升·大",
+                "醫療·侵蝕性狂熱"
+            ],
+            "EN": [
+                "Will [L]",
+                "HP [L]",
+                "Medicant: Blight Fervor"
+            ],
+            "JP": [
+                "意志UP・大",
+                "HPアップ・大",
+                "治癒・侵蝕性狂熱"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "생명력 증가 · 대",
+                "의료 · 침식성 광기의 불꽃"
+            ]
+        }
+    },
+    "wpn_funnel_0011": {
+        "internal_id": "wpn_funnel_0011",
+        "icon_id": "wpn_funnel_0011",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "使命必达",
+            "TC": "使命必達",
+            "EN": "Delivery Guaranteed",
+            "JP": "使命必達",
+            "KR": "사명의 길"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "终结技充能效率提升·大",
+                "追袭·不辱使命"
+            ],
+            "TC": [
+                "意志提升·大",
+                "終結技蓄能效率提升·大",
+                "追襲·不辱使命"
+            ],
+            "EN": [
+                "Will [L]",
+                "ULT Efficiency [L]",
+                "Pursuit: Duty Fulfilled"
+            ],
+            "JP": [
+                "意志UP・大",
+                "必殺技効率UP・大",
+                "追襲・使命遂行"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "궁극기 충전 효율 증가 · 대",
+                "추격 · 굴하지 않는 사명"
+            ]
+        }
+    },
+    "wpn_funnel_0012": {
+        "internal_id": "wpn_funnel_0012",
+        "icon_id": "wpn_funnel_0012",
+        "rarity": 5,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "布道自由",
+            "TC": "佈道自由",
+            "EN": "Freedom to Proselytize",
+            "JP": "布教の自由",
+            "KR": "선교의 자유"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·中",
+                "治疗效率提升·中",
+                "医疗·信仰救赎"
+            ],
+            "TC": [
+                "意志提升·中",
+                "治療效率提升·中",
+                "醫療·信仰救贖"
+            ],
+            "EN": [
+                "Will [M]",
+                "Treatment Efficiency [M]",
+                "Medicant: Redemption of Faith"
+            ],
+            "JP": [
+                "意志UP・中",
+                "回復効率UP・中",
+                "治癒・信仰救済"
+            ],
+            "KR": [
+                "의지 증가 · 중",
+                "치유 효율 증가 · 중",
+                "의료 · 신앙의 구원"
+            ]
+        }
+    },
+    "wpn_funnel_0013": {
+        "internal_id": "wpn_funnel_0013",
+        "icon_id": "wpn_funnel_0013",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "沧溟星梦",
+            "TC": "滄溟星夢",
+            "EN": "Dreams of the Starry Beach",
+            "JP": "蒼星の囁き",
+            "KR": "바다와 별의 꿈"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "治疗效率提升·大",
+                "附术·潮汐低语"
+            ],
+            "TC": [
+                "智識提升·大",
+                "治療效率提升·大",
+                "附術·潮汐低語"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Treatment Efficiency [L]",
+                "Infliction: Tidal Murmurs"
+            ],
+            "JP": [
+                "知性UP・大",
+                "回復効率UP・大",
+                "付術・潮汐の囁き"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "치유 효율 증가 · 대",
+                "고통 · 밀물과 썰물의 속삭임"
+            ]
+        }
+    },
+    "wpn_funnel_0014": {
+        "internal_id": "wpn_funnel_0014",
+        "icon_id": "wpn_funnel_0014",
+        "rarity": 5,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "O.B.J.术识",
+            "TC": "O.B.J.術識",
+            "EN": "OBJ Arts Identifier",
+            "JP": "O.B.J.術識",
+            "KR": "O.B.J. 아츠 아이덴티티"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·中",
+                "源石技艺强度提升·中",
+                "追袭·术法升华"
+            ],
+            "TC": [
+                "智識提升·中",
+                "源石技藝強度提升·中",
+                "追襲·術法昇華"
+            ],
+            "EN": [
+                "Intellect [M]",
+                "Arts Intensity [M]",
+                "Pursuit: Transcendent Arts"
+            ],
+            "JP": [
+                "知性UP・中",
+                "アーツ強度UP・中",
+                "追襲・アーツ昇華"
+            ],
+            "KR": [
+                "지능 증가 · 중",
+                "오리지늄 아츠 강도 증가 · 중",
+                "추격 · 아츠 승화"
+            ]
+        }
+    },
+    "wpn_funnel_0015": {
+        "internal_id": "wpn_funnel_0015",
+        "icon_id": "wpn_funnel_0015",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "孤舟",
+            "TC": "孤舟",
+            "EN": "Lone Barge",
+            "JP": "孤舟",
+            "KR": "고독한 나룻배"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "攻击提升·大",
+                "压制·流霆"
+            ],
+            "TC": [
+                "意志提升·大",
+                "攻擊提升·大",
+                "壓制·流霆"
+            ],
+            "EN": [
+                "Will [L]",
+                "ATK [L]",
+                "Suppression: Streaming Blitz"
+            ],
+            "JP": [
+                "意志UP・大",
+                "攻撃力UP・大",
+                "圧制・流電"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "공격력 증가 · 대",
+                "억제 · 떠도는 번개"
+            ]
+        }
+    },
+    "wpn_funnel_0016": {
+        "internal_id": "wpn_funnel_0016",
+        "icon_id": "wpn_funnel_0016",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "四二式·肃阵",
+            "TC": "四二式·肅陣",
+            "EN": "Type 42: Solemn Phalanx",
+            "JP": "四二式・粛陣",
+            "KR": "42식 · 척결"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "终结技充能效率提升·大",
+                "迸发·陷坚挫锐"
+            ],
+            "TC": [
+                "智識提升·大",
+                "終結技蓄能效率提升·大",
+                "迸發·陷堅挫銳"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "ULT Efficiency [L]",
+                "Detonate: Debilitating Assault"
+            ],
+            "JP": [
+                "知性UP・大",
+                "必殺技効率UP・大",
+                "噴発・堅陣破り"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "궁극기 충전 효율 증가 · 대",
+                "방출 · 철벽 돌파"
+            ]
+        }
+    },
+    "wpn_funnel_0017": {
+        "internal_id": "wpn_funnel_0017",
+        "icon_id": "wpn_funnel_0017",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "雾中微光",
+            "TC": "霧中微光",
+            "EN": "Flickers in the Mist",
+            "JP": "朧光",
+            "KR": "안개 속 불빛"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "电磁伤害提升·大",
+                "效益·微光层叠"
+            ],
+            "TC": [
+                "意志提升·大",
+                "電磁傷害提升·大",
+                "效益·微光層疊"
+            ],
+            "EN": [
+                "Will [L]",
+                "Electric DMG [L]",
+                "Efficacy: Overlapping Flickers"
+            ],
+            "JP": [
+                "意志UP・大",
+                "電磁ダメージUP・大",
+                "効率・重なる微光"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "전기 피해 증가 · 대",
+                "효율 · 중첩된 빛"
+            ]
+        }
+    },
+    "wpn_funnel_0018": {
+        "internal_id": "wpn_funnel_0018",
+        "icon_id": "wpn_funnel_0018",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "联结点",
+            "TC": "聯結點",
+            "EN": "Junction Point",
+            "JP": "連結点",
+            "KR": "공명점"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "终结技充能效率提升·大",
+                "效益·回环"
+            ],
+            "TC": [
+                "智識提升·大",
+                "終結技蓄能效率提升·大",
+                "效益·回環"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "ULT Efficiency [L]",
+                "Efficacy: Feedback Loop"
+            ],
+            "JP": [
+                "知性UP・大",
+                "必殺技効率UP・大",
+                "効率・回環"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "궁극기 충전 효율 증가 · 대",
+                "효율 · 순환"
+            ]
+        }
+    },
+    "wpn_funnel_0019": {
+        "internal_id": "wpn_funnel_0019",
+        "icon_id": "wpn_funnel_0019",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "寒夜幽影",
+            "TC": "寒夜幽影",
+            "EN": "Umbra of Frigid Eventide",
+            "JP": "寒夜の影",
+            "KR": "추운 밤의 그림자"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "攻击提升·大",
+                "迸发·猎人本能"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "攻擊提升·大",
+                "迸發·獵人本能"
+            ],
+            "EN": [
+                "Agility [L]",
+                "ATK [L]",
+                "Detonate: Hunter Instinct"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "攻撃力UP・大",
+                "噴発・狩人の本能"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "공격력 증가 · 대",
+                "방출 · 사냥꾼의 본능"
+            ]
+        }
+    },
+    "wpn_funnel_0020": {
+        "internal_id": "wpn_funnel_0020",
+        "icon_id": "wpn_funnel_0020",
+        "rarity": 6,
+        "weapon_type": "Wand",
+        "names": {
+            "CN": "苦难的尽头",
+            "TC": "苦難的盡頭",
+            "EN": "Suffering's End",
+            "JP": "苦難の果",
+            "KR": "고난의 끝"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "自然伤害提升·大",
+                "迸发·长夜拂晓"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "自然傷害提升·大",
+                "迸發·長夜拂曉"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Nature DMG [L]",
+                "Detonate: Dawn of the Long Night"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "自然ダメージUP・大",
+                "噴発・長夜の暁"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "자연 피해 증가 · 대",
+                "방출 · 긴 밤의 여명"
+            ]
+        }
+    },
+    "wpn_lance_0003": {
+        "internal_id": "wpn_lance_0003",
+        "icon_id": "wpn_lance_0003",
+        "rarity": 4,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "寻路者道标",
+            "TC": "尋路者道標",
+            "EN": "Pathfinder's Beacon",
+            "JP": "開拓者の道標",
+            "KR": "개척자의 이정표"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·小",
+                "攻击提升·小",
+                "昂扬·远途起始"
+            ],
+            "TC": [
+                "敏捷提升·小",
+                "攻擊提升·小",
+                "昂揚·遠途起始"
+            ],
+            "EN": [
+                "Agility [S]",
+                "ATK [S]",
+                "Inspiring: Start of a Saga"
+            ],
+            "JP": [
+                "敏捷UP・小",
+                "攻撃力UP・小",
+                "昂揚・遠路の始まり"
+            ],
+            "KR": [
+                "민첩 증가 · 소",
+                "공격력 증가 · 소",
+                "사기 · 원정의 시작"
+            ]
+        }
+    },
+    "wpn_lance_0004": {
+        "internal_id": "wpn_lance_0004",
+        "icon_id": "wpn_lance_0004",
+        "rarity": 5,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "嵌合正义",
+            "TC": "嵌合正義",
+            "EN": "Chimeric Justice",
+            "JP": "正義嵌合",
+            "KR": "키메라의 정의"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·中",
+                "终结技充能效率提升·中",
+                "残暴·愤怒接合"
+            ],
+            "TC": [
+                "力量提升·中",
+                "終結技蓄能效率提升·中",
+                "殘暴·憤怒接合"
+            ],
+            "EN": [
+                "Strength [M]",
+                "ULT Efficiency [M]",
+                "Brutality: Cemented Fury"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "必殺技効率UP・中",
+                "残虐・憤怒接合"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "궁극기 충전 효율 증가 · 중",
+                "잔혹 · 분노의 융합"
+            ]
+        }
+    },
+    "wpn_lance_0006": {
+        "internal_id": "wpn_lance_0006",
+        "icon_id": "wpn_lance_0006",
+        "rarity": 5,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "向心之引",
+            "TC": "向心之引",
+            "EN": "Cohesive Traction",
+            "JP": "求心の槍",
+            "KR": "중심력"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·中",
+                "电磁伤害提升·中",
+                "压制·同心圆"
+            ],
+            "TC": [
+                "意志提升·中",
+                "電磁傷害提升·中",
+                "壓制·同心圓"
+            ],
+            "EN": [
+                "Will [M]",
+                "Electric DMG [M]",
+                "Suppression: Concentric Circles"
+            ],
+            "JP": [
+                "意志UP・中",
+                "電磁ダメージUP・中",
+                "圧制・同心円"
+            ],
+            "KR": [
+                "의지 증가 · 중",
+                "전기 피해 증가 · 중",
+                "억제 · 동심원"
+            ]
+        }
+    },
+    "wpn_lance_0007": {
+        "internal_id": "wpn_lance_0007",
+        "icon_id": "wpn_lance_0007",
+        "rarity": 6,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "灯火使命",
+            "TC": "燈火使命",
+            "EN": "Beacon of Duty",
+            "JP": "灯火の使命",
+            "KR": "등불의 사명"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "终结技充能效率提升·大",
+                "效益·灯火灼身"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "終結技蓄能效率提升·大",
+                "效益·燈火灼身"
+            ],
+            "EN": [
+                "Agility [L]",
+                "ULT Efficiency [L]",
+                "Efficacy: Fuel for the Torch"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "必殺技効率UP・大",
+                "効率・灯火燃焼"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "궁극기 충전 효율 증가 · 대",
+                "효율 · 불빛 연소"
+            ]
+        }
+    },
+    "wpn_lance_0008": {
+        "internal_id": "wpn_lance_0008",
+        "icon_id": "wpn_lance_0008",
+        "rarity": 4,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "天使杀手",
+            "TC": "天使殺手",
+            "EN": "Aggeloslayer",
+            "JP": "アンゲロス・スレイヤー",
+            "KR": "아겔로스 사냥꾼"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·小",
+                "法术提升·小",
+                "压制·应急强化"
+            ],
+            "TC": [
+                "意志提升·小",
+                "法術提升·小",
+                "壓制·緊急強化"
+            ],
+            "EN": [
+                "Will [S]",
+                "Arts DMG [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "JP": [
+                "意志UP・小",
+                "アーツダメージUP・小",
+                "圧制・応急強化"
+            ],
+            "KR": [
+                "의지 증가 · 소",
+                "아츠 피해 증가 · 소",
+                "억제 · 비상 부스트"
+            ]
+        }
+    },
+    "wpn_lance_0009": {
+        "internal_id": "wpn_lance_0009",
+        "icon_id": "wpn_lance_0009",
+        "rarity": 3,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "奥佩罗77",
+            "TC": "奧佩羅77",
+            "EN": "Opero 77",
+            "JP": "オッペロ77",
+            "KR": "오페로 77"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·小",
+                "强攻·武装整备"
+            ],
+            "TC": [
+                "主能力提升·小",
+                "強攻·武裝整備"
+            ],
+            "EN": [
+                "Main Attribute [S]",
+                "Assault: Armament Prep"
+            ],
+            "JP": [
+                "メイン能力UP・小",
+                "強攻・武装整備"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 소",
+                "강공 · 무장 정비"
+            ]
+        }
+    },
+    "wpn_lance_0010": {
+        "internal_id": "wpn_lance_0010",
+        "icon_id": "wpn_lance_0010",
+        "rarity": 6,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "骁勇",
+            "TC": "驍勇",
+            "EN": "Valiant",
+            "JP": "勇猛",
+            "KR": "용사"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "物理伤害提升·大",
+                "巧技·美德盈利"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "物理傷害提升·大",
+                "巧技·美德盈利"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Physical DMG [L]",
+                "Combative: Virtuous Gain"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "物理ダメージUP・大",
+                "巧技・美徳収益"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "물리 피해 증가 · 대",
+                "기예 · 좋은 품성의 결실"
+            ]
+        }
+    },
+    "wpn_lance_0011": {
+        "internal_id": "wpn_lance_0011",
+        "icon_id": "wpn_lance_0011",
+        "rarity": 6,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "J.E.T.",
+            "TC": "J.E.T.",
+            "EN": "JET",
+            "JP": "J.E.T.",
+            "KR": "J.E.T."
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·大",
+                "攻击提升·大",
+                "压制·太空物理学"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "攻擊提升·大",
+                "壓制·太空物理學"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "ATK [L]",
+                "Suppression: Astrophysics"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "攻撃力UP・大",
+                "圧制・宇宙空間物理学"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "공격력 증가 · 대",
+                "억제 · 천체 물리학"
+            ]
+        }
+    },
+    "wpn_lance_0012": {
+        "internal_id": "wpn_lance_0012",
+        "icon_id": "wpn_lance_0012",
+        "rarity": 6,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "负山",
+            "TC": "負山",
+            "EN": "Mountain Bearer",
+            "JP": "負山",
+            "KR": "산의 지배자"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "物理伤害提升·大",
+                "效益·山川在我"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "物理傷害提升·大",
+                "效益·山川在我"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Physical DMG [L]",
+                "Efficacy: Weight of Mountain"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "物理ダメージUP・大",
+                "効率・山河在り"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "물리 피해 증가 · 대",
+                "효율 · 하나 되는 자연"
+            ]
+        }
+    },
+    "wpn_lance_0013": {
+        "internal_id": "wpn_lance_0013",
+        "icon_id": "wpn_lance_0013",
+        "rarity": 5,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "O.B.J.尖峰",
+            "TC": "O.B.J.尖峰",
+            "EN": "OBJ Razorhorn",
+            "JP": "O.B.J.鋭矛",
+            "KR": "O.B.J. 스파이크"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·中",
+                "物理伤害提升·中",
+                "附术·攀越冰峰"
+            ],
+            "TC": [
+                "意志提升·中",
+                "物理傷害提升·中",
+                "附術·攀越冰峰"
+            ],
+            "EN": [
+                "Will [M]",
+                "Physical DMG [M]",
+                "Infliction: Conquest of Icy Peaks"
+            ],
+            "JP": [
+                "意志UP・中",
+                "物理ダメージUP・中",
+                "付術・氷山を越えて"
+            ],
+            "KR": [
+                "의지 증가 · 중",
+                "물리 피해 증가 · 중",
+                "고통 · 빙산을 넘어서"
+            ]
+        }
+    },
+    "wpn_lance_0014": {
+        "internal_id": "wpn_lance_0014",
+        "icon_id": "wpn_lance_0014",
+        "rarity": 6,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "曜夜的首演",
+            "TC": "曜夜的首演",
+            "EN": "Bedazzling Night Debut",
+            "JP": "プリズムナイトデビュー",
+            "KR": "찬란한 밤의 데뷔"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "治疗效率提升·大",
+                "医疗·闪耀帷幕"
+            ],
+            "TC": [
+                "意志提升·大",
+                "治療效率提升·大",
+                "醫療·閃耀帷幕"
+            ],
+            "EN": [
+                "Will [L]",
+                "Treatment Efficiency [L]",
+                "Medicant: Shimmering Curtain"
+            ],
+            "JP": [
+                "意志UP・大",
+                "回復効率UP・大",
+                "治癒・閃耀の幕"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "치유 효율 증가 · 대",
+                "의료 · 찬란한 장막"
+            ]
+        }
+    },
+    "wpn_lance_0015": {
+        "internal_id": "wpn_lance_0015",
+        "icon_id": "wpn_lance_0015",
+        "rarity": 6,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "镀红祝福",
+            "TC": "鍍紅祝福",
+            "EN": "Blessing of Lustrous Carmine",
+            "JP": "カーマインヴェール",
+            "KR": "붉게 물든 가호"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "灼热伤害提升·大",
+                "流转·汲罪"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "灼熱傷害提升·大",
+                "流轉·汲罪"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Heat DMG [L]",
+                "Flow: Absolver of Guilt"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "灼熱ダメージUP・大",
+                "流回・汲罪"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "열기 피해 증가 · 대",
+                "흐름 · 심판"
+            ]
+        }
+    },
+    "wpn_lance_0016": {
+        "internal_id": "wpn_lance_0016",
+        "icon_id": "wpn_lance_0016",
+        "rarity": 6,
+        "weapon_type": "Lance",
+        "names": {
+            "CN": "黄金时代",
+            "TC": "黃金時代",
+            "EN": "Golden Age",
+            "JP": "黄金時代",
+            "KR": "전성기"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "治疗效率提升·大",
+                "追袭·大英雄"
+            ],
+            "TC": [
+                "意志提升·大",
+                "治療效率提升·大",
+                "追襲·大英雄"
+            ],
+            "EN": [
+                "Will [L]",
+                "Treatment Efficiency [L]",
+                "Pursuit: Great Hero"
+            ],
+            "JP": [
+                "意志UP・大",
+                "回復効率UP・大",
+                "追襲・大英雄"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "치유 효율 증가 · 대",
+                "추격 · 위대한 영웅"
+            ]
+        }
+    },
+    "wpn_pistol_0001": {
+        "internal_id": "wpn_pistol_0001",
+        "icon_id": "wpn_pistol_0001",
+        "rarity": 3,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "佩科5",
+            "TC": "佩科5",
+            "EN": "Peco 5",
+            "JP": "ペッコ5",
+            "KR": "페코 5"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·小",
+                "强攻·武装整备"
+            ],
+            "TC": [
+                "主能力提升·小",
+                "強攻·武裝整備"
+            ],
+            "EN": [
+                "Main Attribute [S]",
+                "Assault: Armament Prep"
+            ],
+            "JP": [
+                "メイン能力UP・小",
+                "強攻・武装整備"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 소",
+                "강공 · 무장 정비"
+            ]
+        }
+    },
+    "wpn_pistol_0002": {
+        "internal_id": "wpn_pistol_0002",
+        "icon_id": "wpn_pistol_0002",
+        "rarity": 4,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "呼啸守卫",
+            "TC": "呼嘯守衛",
+            "EN": "Howling Guard",
+            "JP": "ロアーガード",
+            "KR": "하울링 가드"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·小",
+                "攻击提升·小",
+                "压制·应急强化"
+            ],
+            "TC": [
+                "智識提升·小",
+                "攻擊提升·小",
+                "壓制·緊急強化"
+            ],
+            "EN": [
+                "Intellect [S]",
+                "ATK [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "JP": [
+                "知性UP・小",
+                "攻撃力UP・小",
+                "圧制・応急強化"
+            ],
+            "KR": [
+                "지능 증가 · 소",
+                "공격력 증가 · 소",
+                "억제 · 비상 부스트"
+            ]
+        }
+    },
+    "wpn_pistol_0003": {
+        "internal_id": "wpn_pistol_0003",
+        "icon_id": "wpn_pistol_0003",
+        "rarity": 4,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "长路",
+            "TC": "長路",
+            "EN": "Long Road",
+            "JP": "長路",
+            "KR": "끝없는 여정"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·小",
+                "法术提升·小",
+                "追袭·生生不息"
+            ],
+            "TC": [
+                "力量提升·小",
+                "法術提升·小",
+                "追襲·生生不息"
+            ],
+            "EN": [
+                "Strength [S]",
+                "Arts DMG [S]",
+                "Pursuit: Unending Cycle"
+            ],
+            "JP": [
+                "筋力UP・小",
+                "アーツダメージUP・小",
+                "追襲・生々流転"
+            ],
+            "KR": [
+                "힘 증가 · 소",
+                "아츠 피해 증가 · 소",
+                "추격 · 끝없는 순환"
+            ]
+        }
+    },
+    "wpn_pistol_0004": {
+        "internal_id": "wpn_pistol_0004",
+        "icon_id": "wpn_pistol_0004",
+        "rarity": 5,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "理性告别",
+            "TC": "理性告別",
+            "EN": "Rational Farewell",
+            "JP": "合理的決別",
+            "KR": "이성적인 작별"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·中",
+                "灼热伤害提升·中",
+                "追袭·旧时之援"
+            ],
+            "TC": [
+                "力量提升·中",
+                "灼熱傷害提升·中",
+                "追襲·舊時之援"
+            ],
+            "EN": [
+                "Strength [M]",
+                "Heat DMG [M]",
+                "Pursuit: Aid from the Past"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "灼熱ダメージUP・中",
+                "追襲・往時の援助"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "열기 피해 증가 · 중",
+                "추격 · 옛 시절의 원조"
+            ]
+        }
+    },
+    "wpn_pistol_0005": {
+        "internal_id": "wpn_pistol_0005",
+        "icon_id": "wpn_pistol_0005",
+        "rarity": 6,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "领航者",
+            "TC": "領航者",
+            "EN": "Navigator",
+            "JP": "ナビゲーター",
+            "KR": "항로의 개척자"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "寒冷伤害提升·大",
+                "附术·远影孤帆"
+            ],
+            "TC": [
+                "智識提升·大",
+                "寒冷傷害提升·大",
+                "附術·遠影孤帆"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Cryo DMG [L]",
+                "Infliction: Lone and Distant Sail"
+            ],
+            "JP": [
+                "知性UP・大",
+                "寒冷ダメージUP・大",
+                "付術・遠影孤帆"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "냉기 피해 증가 · 대",
+                "고통 · 외로운 항해"
+            ]
+        }
+    },
+    "wpn_pistol_0006": {
+        "internal_id": "wpn_pistol_0006",
+        "icon_id": "wpn_pistol_0006",
+        "rarity": 5,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "作品：众生",
+            "TC": "作品：眾生",
+            "EN": "Opus: The Living",
+            "JP": "作品：衆生",
+            "KR": "작품: 중생"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·中",
+                "法术提升·中",
+                "附术·众生的归途"
+            ],
+            "TC": [
+                "敏捷提升·中",
+                "法術提升·中",
+                "附術·眾生的歸途"
+            ],
+            "EN": [
+                "Agility [M]",
+                "Arts DMG [M]",
+                "Infliction: Road Home for All Life"
+            ],
+            "JP": [
+                "敏捷UP・中",
+                "アーツダメージUP・中",
+                "付術・衆生の帰路"
+            ],
+            "KR": [
+                "민첩 증가 · 중",
+                "아츠 피해 증가 · 중",
+                "고통 · 중생의 귀로"
+            ]
+        }
+    },
+    "wpn_pistol_0007": {
+        "internal_id": "wpn_pistol_0007",
+        "icon_id": "wpn_pistol_0007",
+        "rarity": 6,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "望乡",
+            "TC": "望鄉",
+            "EN": "Home Longing",
+            "JP": "望郷",
+            "KR": "향수"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "寒冷伤害提升·大",
+                "压制·旧时月"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "寒冷傷害提升·大",
+                "壓制·舊時月"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Cryo DMG [L]",
+                "Suppression: Olden Moon"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "寒冷ダメージUP・大",
+                "圧制・在りし日の皓月"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "냉기 피해 증가 · 대",
+                "억제 · 옛 시절의 달"
+            ]
+        }
+    },
+    "wpn_pistol_0008": {
+        "internal_id": "wpn_pistol_0008",
+        "icon_id": "wpn_pistol_0008",
+        "rarity": 6,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "楔子",
+            "TC": "楔子",
+            "EN": "Wedge",
+            "JP": "楔",
+            "KR": "쐐기"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·大",
+                "暴击率提升·大",
+                "附术·文明楔子"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "暴擊率提升·大",
+                "附術·文明楔子"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Critical Rate [L]",
+                "Infliction: Wedge of Civilization"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "会心率UP・大",
+                "付術・文明楔"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "치명타 확률 증가 · 대",
+                "고통 · 문명의 쐐기"
+            ]
+        }
+    },
+    "wpn_pistol_0009": {
+        "internal_id": "wpn_pistol_0009",
+        "icon_id": "wpn_pistol_0009",
+        "rarity": 6,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "同类相食",
+            "TC": "同類相食",
+            "EN": "Clannibal",
+            "JP": "同類共食",
+            "KR": "클래니벌"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·大",
+                "法术提升·大",
+                "附术·残酷清洗"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "法術提升·大",
+                "附術·殘酷清洗"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Arts DMG [L]",
+                "Infliction: Vicious Purge"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "アーツダメージUP・大",
+                "付術・残酷粛清"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "아츠 피해 증가 · 대",
+                "고통 · 가차 없는 숙청"
+            ]
+        }
+    },
+    "wpn_pistol_0010": {
+        "internal_id": "wpn_pistol_0010",
+        "icon_id": "wpn_pistol_0010",
+        "rarity": 6,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "艺术暴君",
+            "TC": "藝術暴君",
+            "EN": "Artzy Tyrannical",
+            "JP": "芸術の独裁者",
+            "KR": "예술의 폭군"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "暴击率提升·大",
+                "切骨·艺术暴论"
+            ],
+            "TC": [
+                "智識提升·大",
+                "暴擊率提升·大",
+                "切骨·藝術暴論"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Critical Rate [L]",
+                "Fracture: Artzy Exaggeration"
+            ],
+            "JP": [
+                "知性UP・大",
+                "会心率UP・大",
+                "切骨・芸術暴論"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "치명타 확률 증가 · 대",
+                "골절 · 예술적 폭론"
+            ]
+        }
+    },
+    "wpn_pistol_0011": {
+        "internal_id": "wpn_pistol_0011",
+        "icon_id": "wpn_pistol_0011",
+        "rarity": 6,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "落草",
+            "TC": "落草",
+            "EN": "Brigand's Calling",
+            "JP": "落草",
+            "KR": "반항"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "攻击提升·大",
+                "迸发·荡寇仇"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "攻擊提升·大",
+                "迸發·蕩寇仇"
+            ],
+            "EN": [
+                "Agility [L]",
+                "ATK [L]",
+                "Detonate: Brigand's Bane"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "攻撃力UP・大",
+                "噴発・平賊の仇"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "공격력 증가 · 대",
+                "방출 · 토벌의 원한"
+            ]
+        }
+    },
+    "wpn_pistol_0012": {
+        "internal_id": "wpn_pistol_0012",
+        "icon_id": "wpn_pistol_0012",
+        "rarity": 5,
+        "weapon_type": "Pistol",
+        "names": {
+            "CN": "O.B.J.迅极",
+            "TC": "O.B.J.迅極",
+            "EN": "OBJ Velocitous",
+            "JP": "O.B.J.迅速",
+            "KR": "O.B.J. 벨로시투스"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·中",
+                "终结技充能效率提升·中",
+                "迸发·迅击"
+            ],
+            "TC": [
+                "敏捷提升·中",
+                "終結技蓄能效率提升·中",
+                "迸發·迅擊"
+            ],
+            "EN": [
+                "Agility [M]",
+                "ULT Efficiency [M]",
+                "Detonate: Rapid Strike"
+            ],
+            "JP": [
+                "敏捷UP・中",
+                "必殺技効率UP・中",
+                "噴発・速攻"
+            ],
+            "KR": [
+                "민첩 증가 · 중",
+                "궁극기 충전 효율 증가 · 중",
+                "방출 · 신속한 일격"
+            ]
+        }
+    },
+    "wpn_sword_0003": {
+        "internal_id": "wpn_sword_0003",
+        "icon_id": "wpn_sword_0003",
+        "rarity": 3,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "塔尔11",
+            "TC": "塔爾11",
+            "EN": "Tarr 11",
+            "JP": "タール11",
+            "KR": "타르 11"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·小",
+                "强攻·武装整备"
+            ],
+            "TC": [
+                "主能力提升·小",
+                "強攻·武裝整備"
+            ],
+            "EN": [
+                "Main Attribute [S]",
+                "Assault: Armament Prep"
+            ],
+            "JP": [
+                "メイン能力UP・小",
+                "強攻・武装整備"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 소",
+                "강공 · 무장 정비"
+            ]
+        }
+    },
+    "wpn_sword_0005": {
+        "internal_id": "wpn_sword_0005",
+        "icon_id": "wpn_sword_0005",
+        "rarity": 5,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "钢铁余音",
+            "TC": "鋼鐵餘音",
+            "EN": "Sundering Steel",
+            "JP": "鋼鉄余音",
+            "KR": "강철의 여운"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·中",
+                "物理伤害提升·中",
+                "巧技·旧火余音"
+            ],
+            "TC": [
+                "敏捷提升·中",
+                "物理傷害提升·中",
+                "巧技·舊火餘音"
+            ],
+            "EN": [
+                "Agility [M]",
+                "Physical DMG [M]",
+                "Combative: Anthem of Cinder"
+            ],
+            "JP": [
+                "敏捷UP・中",
+                "物理ダメージUP・中",
+                "巧技・残火の余韻"
+            ],
+            "KR": [
+                "민첩 증가 · 중",
+                "물리 피해 증가 · 중",
+                "기예 · 옛 불의 잔향"
+            ]
+        }
+    },
+    "wpn_sword_0006": {
+        "internal_id": "wpn_sword_0006",
+        "icon_id": "wpn_sword_0006",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "熔铸火焰",
+            "TC": "熔鑄火焰",
+            "EN": "Forgeborn Scathe",
+            "JP": "フレイムフォージ",
+            "KR": "용조의 불꽃"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "攻击提升·大",
+                "夜幕·嘶鸣烈火"
+            ],
+            "TC": [
+                "智識提升·大",
+                "攻擊提升·大",
+                "夜幕·嘶鳴烈火"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "ATK [L]",
+                "Twilight: Blazing Wail"
+            ],
+            "JP": [
+                "知性UP・大",
+                "攻撃力UP・大",
+                "夜幕・咆哮する烈火"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "공격력 증가 · 대",
+                "어둠 · 울부짖는 불길"
+            ]
+        }
+    },
+    "wpn_sword_0007": {
+        "internal_id": "wpn_sword_0007",
+        "icon_id": "wpn_sword_0007",
+        "rarity": 5,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "坚城铸造者",
+            "TC": "堅城鑄造者",
+            "EN": "Fortmaker",
+            "JP": "堅城鋳造者",
+            "KR": "불사의 성주"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·中",
+                "终结技充能效率提升·中",
+                "昂扬·残城归途"
+            ],
+            "TC": [
+                "智識提升·中",
+                "終結技蓄能效率提升·中",
+                "昂揚·殘城歸途"
+            ],
+            "EN": [
+                "Intellect [M]",
+                "ULT Efficiency [M]",
+                "Inspiring: Back to the Broken City"
+            ],
+            "JP": [
+                "知性UP・中",
+                "必殺技効率UP・中",
+                "昂揚・残城崩壊"
+            ],
+            "KR": [
+                "지능 증가 · 중",
+                "궁극기 충전 효율 증가 · 중",
+                "사기 · 잔성의 귀로"
+            ]
+        }
+    },
+    "wpn_sword_0008": {
+        "internal_id": "wpn_sword_0008",
+        "icon_id": "wpn_sword_0008",
+        "rarity": 4,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "显锋",
+            "TC": "顯鋒",
+            "EN": "Prominent Edge",
+            "JP": "顕鋒",
+            "KR": "드러난 칼날"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·小",
+                "物理伤害提升·小",
+                "压制·应急强化"
+            ],
+            "TC": [
+                "敏捷提升·小",
+                "物理傷害提升·小",
+                "壓制·緊急強化"
+            ],
+            "EN": [
+                "Agility [S]",
+                "Physical DMG [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "JP": [
+                "敏捷UP・小",
+                "物理ダメージUP・小",
+                "圧制・応急強化"
+            ],
+            "KR": [
+                "민첩 증가 · 소",
+                "물리 피해 증가 · 소",
+                "억제 · 비상 부스트"
+            ]
+        }
+    },
+    "wpn_sword_0009": {
+        "internal_id": "wpn_sword_0009",
+        "icon_id": "wpn_sword_0009",
+        "rarity": 4,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "浪潮",
+            "TC": "浪潮",
+            "EN": "Wave Tide",
+            "JP": "潮流",
+            "KR": "거대한 격랑"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·小",
+                "攻击提升·小",
+                "追袭·生生不息"
+            ],
+            "TC": [
+                "智識提升·小",
+                "攻擊提升·小",
+                "追襲·生生不息"
+            ],
+            "EN": [
+                "Intellect [S]",
+                "ATK [S]",
+                "Pursuit: Unending Cycle"
+            ],
+            "JP": [
+                "知性UP・小",
+                "攻撃力UP・小",
+                "追襲・生々流転"
+            ],
+            "KR": [
+                "지능 증가 · 소",
+                "공격력 증가 · 소",
+                "추격 · 끝없는 순환"
+            ]
+        }
+    },
+    "wpn_sword_0010": {
+        "internal_id": "wpn_sword_0010",
+        "icon_id": "wpn_sword_0010",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "黯色火炬",
+            "TC": "黯色火炬",
+            "EN": "Umbral Torch",
+            "JP": "ダークトーチ",
+            "KR": "암흑의 횃불"
+        },
+        "skills": {
+            "CN": [
+                "智识提升·大",
+                "灼热伤害提升·大",
+                "附术·觊觎堆叠"
+            ],
+            "TC": [
+                "智識提升·大",
+                "灼熱傷害提升·大",
+                "附術·覬覦堆疊"
+            ],
+            "EN": [
+                "Intellect [L]",
+                "Heat DMG [L]",
+                "Infliction: Covetous Buildup"
+            ],
+            "JP": [
+                "知性UP・大",
+                "灼熱ダメージUP・大",
+                "付術・欲望堆積"
+            ],
+            "KR": [
+                "지능 증가 · 대",
+                "열기 피해 증가 · 대",
+                "고통 · 쌓이는 탐욕"
+            ]
+        }
+    },
+    "wpn_sword_0011": {
+        "internal_id": "wpn_sword_0011",
+        "icon_id": "wpn_sword_0011",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "扶摇",
+            "TC": "扶搖",
+            "EN": "Rapid Ascent",
+            "JP": "フーヤオ",
+            "KR": "부요"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·大",
+                "暴击率提升·大",
+                "夜幕·青云"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "暴擊率提升·大",
+                "夜幕·青雲"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Critical Rate [L]",
+                "Twilight: Azure Clouds"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "会心率UP・大",
+                "夜幕・青雲"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "치명타 확률 증가 · 대",
+                "어둠 · 청운"
+            ]
+        }
+    },
+    "wpn_sword_0012": {
+        "internal_id": "wpn_sword_0012",
+        "icon_id": "wpn_sword_0012",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "热熔切割器",
+            "TC": "熱熔切割器",
+            "EN": "Thermite Cutter",
+            "JP": "テルミット・カッター",
+            "KR": "테르밋 커터"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "攻击提升·大",
+                "流转·高热解放"
+            ],
+            "TC": [
+                "意志提升·大",
+                "攻擊提升·大",
+                "流轉·高熱解放"
+            ],
+            "EN": [
+                "Will [L]",
+                "ATK [L]",
+                "Flow: Thermal Release"
+            ],
+            "JP": [
+                "意志UP・大",
+                "攻撃力UP・大",
+                "流回・高熱解放"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "공격력 증가 · 대",
+                "흐름 · 고열 방출"
+            ]
+        }
+    },
+    "wpn_sword_0013": {
+        "internal_id": "wpn_sword_0013",
+        "icon_id": "wpn_sword_0013",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "显赫声名",
+            "TC": "顯赫聲名",
+            "EN": "Eminent Repute",
+            "JP": "輝かしき名声",
+            "KR": "위대한 이름"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·大",
+                "物理伤害提升·大",
+                "残暴·规行矩止"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "物理傷害提升·大",
+                "殘暴·規行矩止"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Physical DMG [L]",
+                "Brutality: Disciplinarian"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "物理ダメージUP・大",
+                "残虐・規則遵守"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "물리 피해 증가 · 대",
+                "잔혹 · 엄격한 규율"
+            ]
+        }
+    },
+    "wpn_sword_0014": {
+        "internal_id": "wpn_sword_0014",
+        "icon_id": "wpn_sword_0014",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "白夜新星",
+            "TC": "白夜新星",
+            "EN": "White Night Nova",
+            "JP": "白夜新星",
+            "KR": "백야의 별"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·大",
+                "源石技艺强度提升·大",
+                "附术·白夜新星"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "源石技藝強度提升·大",
+                "附術·白夜新星"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Arts Intensity [L]",
+                "Infliction: White Night Nova"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "アーツ強度UP・大",
+                "付術・白夜新星"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "오리지늄 아츠 강도 증가 · 대",
+                "고통 · 백야의 별"
+            ]
+        }
+    },
+    "wpn_sword_0015": {
+        "internal_id": "wpn_sword_0015",
+        "icon_id": "wpn_sword_0015",
+        "rarity": 5,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "仰止",
+            "TC": "仰止",
+            "EN": "Aspirant",
+            "JP": "仰止",
+            "KR": "숭배의 시선"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·中",
+                "物理伤害提升·中",
+                "夜幕·高山仰止"
+            ],
+            "TC": [
+                "敏捷提升·中",
+                "物理傷害提升·中",
+                "夜幕·高山仰止"
+            ],
+            "EN": [
+                "Agility [M]",
+                "Physical DMG [M]",
+                "Twilight: Imposing Peak"
+            ],
+            "JP": [
+                "敏捷UP・中",
+                "物理ダメージUP・中",
+                "夜幕・高山仰止"
+            ],
+            "KR": [
+                "민첩 증가 · 중",
+                "물리 피해 증가 · 중",
+                "어둠 · 우러러보는 경지"
+            ]
+        }
+    },
+    "wpn_sword_0016": {
+        "internal_id": "wpn_sword_0016",
+        "icon_id": "wpn_sword_0016",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "不知归",
+            "TC": "不知歸",
+            "EN": "Never Rest",
+            "JP": "不知帰",
+            "KR": "끝없는 방랑"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "攻击提升·大",
+                "流转·轮回"
+            ],
+            "TC": [
+                "意志提升·大",
+                "攻擊提升·大",
+                "流轉·輪迴"
+            ],
+            "EN": [
+                "Will [L]",
+                "ATK [L]",
+                "Flow: Reincarnation"
+            ],
+            "JP": [
+                "意志UP・大",
+                "攻撃力UP・大",
+                "流回・輪廻"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "공격력 증가 · 대",
+                "흐름 · 윤회"
+            ]
+        }
+    },
+    "wpn_sword_0017": {
+        "internal_id": "wpn_sword_0017",
+        "icon_id": "wpn_sword_0017",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "光荣记忆",
+            "TC": "光榮記憶",
+            "EN": "Glorious Memory",
+            "JP": "栄光の記憶",
+            "KR": "찬란했던 기억"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "暴击率提升·大",
+                "夜幕·余辉未消"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "暴擊率提升·大",
+                "夜幕·餘輝未消"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Critical Rate [L]",
+                "Twilight: Lingering Glow"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "会心率UP・大",
+                "夜幕・消えぬ輝き"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "치명타 확률 증가 · 대",
+                "어둠 · 사라지지 않은 여광"
+            ]
+        }
+    },
+    "wpn_sword_0018": {
+        "internal_id": "wpn_sword_0018",
+        "icon_id": "wpn_sword_0018",
+        "rarity": 5,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "十二问",
+            "TC": "十二問",
+            "EN": "Twelve Questions",
+            "JP": "十二問",
+            "KR": "십이문"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·中",
+                "攻击提升·中",
+                "附术·竭心诘问"
+            ],
+            "TC": [
+                "敏捷提升·中",
+                "攻擊提升·中",
+                "附術·竭心詰問"
+            ],
+            "EN": [
+                "Agility [M]",
+                "ATK [M]",
+                "Infliction: Sincere Interrogation"
+            ],
+            "JP": [
+                "敏捷UP・中",
+                "攻撃力UP・中",
+                "付術・全力追及"
+            ],
+            "KR": [
+                "민첩 증가 · 중",
+                "공격력 증가 · 중",
+                "고통 · 파고드는 추궁"
+            ]
+        }
+    },
+    "wpn_sword_0019": {
+        "internal_id": "wpn_sword_0019",
+        "icon_id": "wpn_sword_0019",
+        "rarity": 5,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "O.B.J.轻芒",
+            "TC": "O.B.J.輕芒",
+            "EN": "OBJ Edge of Lightness",
+            "JP": "O.B.J.軽刃",
+            "KR": "O.B.J. 엣지 오브 라이트"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·中",
+                "攻击提升·中",
+                "流转·不羁锋芒"
+            ],
+            "TC": [
+                "敏捷提升·中",
+                "攻擊提升·中",
+                "流轉·不羈鋒芒"
+            ],
+            "EN": [
+                "Agility [M]",
+                "ATK [M]",
+                "Flow: Unbridled Edge"
+            ],
+            "JP": [
+                "敏捷UP・中",
+                "攻撃力UP・中",
+                "流回・自由奔放"
+            ],
+            "KR": [
+                "민첩 증가 · 중",
+                "공격력 증가 · 중",
+                "흐름 · 거침없는 예리함"
+            ]
+        }
+    },
+    "wpn_sword_0020": {
+        "internal_id": "wpn_sword_0020",
+        "icon_id": "wpn_sword_0020",
+        "rarity": 5,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "逐鳞3.0",
+            "TC": "逐鱗3.0",
+            "EN": "Finchaser 3.0",
+            "JP": "フィンチェイサー3.0",
+            "KR": "린수를 찾아서 3.0"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·中",
+                "寒冷伤害提升·中",
+                "压制·逐鳞意"
+            ],
+            "TC": [
+                "力量提升·中",
+                "寒冷傷害提升·中",
+                "壓制·逐鱗意"
+            ],
+            "EN": [
+                "Strength [M]",
+                "Cryo DMG [M]",
+                "Suppression: Fin Chaser's Intent"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "寒冷ダメージUP・中",
+                "圧制・鱗獣追い"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "냉기 피해 증가 · 중",
+                "억제 · 린수를 향한 의지"
+            ]
+        }
+    },
+    "wpn_sword_0021": {
+        "internal_id": "wpn_sword_0021",
+        "icon_id": "wpn_sword_0021",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "宏愿",
+            "TC": "宏願",
+            "EN": "Grand Vision",
+            "JP": "大願",
+            "KR": "장대한 염원"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "攻击提升·大",
+                "附术·长愿"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "攻擊提升·大",
+                "附術·長願"
+            ],
+            "EN": [
+                "Agility [L]",
+                "ATK [L]",
+                "Infliction: Long Time Wish"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "攻撃力UP・大",
+                "付術・長願"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "공격력 증가 · 대",
+                "고통 · 간절한 소망"
+            ]
+        }
+    },
+    "wpn_sword_0021_ink": {
+        "internal_id": "wpn_sword_0021_ink",
+        "icon_id": "wpn_sword_0021",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "宏愿",
+            "TC": "宏願",
+            "EN": "Grand Vision",
+            "JP": "大願",
+            "KR": "장대한 염원"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "攻击提升·大",
+                "附术·长愿"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "攻擊提升·大",
+                "附術·長願"
+            ],
+            "EN": [
+                "Agility [L]",
+                "ATK [L]",
+                "Infliction: Long Time Wish"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "攻撃力UP・大",
+                "付術・長願"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "공격력 증가 · 대",
+                "고통 · 간절한 소망"
+            ]
+        }
+    },
+    "wpn_sword_0022": {
+        "internal_id": "wpn_sword_0022",
+        "icon_id": "wpn_sword_0022",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "狼之绯",
+            "TC": "狼之緋",
+            "EN": "Lupine Scarlet",
+            "JP": "狼緋",
+            "KR": "늑대의 혈흔"
+        },
+        "skills": {
+            "CN": [
+                "敏捷提升·大",
+                "暴击率提升·大",
+                "切骨·群狼啃噬"
+            ],
+            "TC": [
+                "敏捷提升·大",
+                "暴擊率提升·大",
+                "切骨·群狼啃噬"
+            ],
+            "EN": [
+                "Agility [L]",
+                "Critical Rate [L]",
+                "Fracture: Gnashing Wolves"
+            ],
+            "JP": [
+                "敏捷UP・大",
+                "会心率UP・大",
+                "切骨・噛みつく群狼"
+            ],
+            "KR": [
+                "민첩 증가 · 대",
+                "치명타 확률 증가 · 대",
+                "골절 · 군랑의 포식"
+            ]
+        }
+    },
+    "wpn_sword_0023": {
+        "internal_id": "wpn_sword_0023",
+        "icon_id": "wpn_sword_0023",
+        "rarity": 5,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "点心时刻",
+            "TC": "點心時刻",
+            "EN": "Dessert Moment",
+            "JP": "スイーツタイム",
+            "KR": "간식 시간"
+        },
+        "skills": {
+            "CN": [
+                "力量提升·中",
+                "治疗效率提升·中",
+                "医疗·甜与梦"
+            ],
+            "TC": [
+                "力量提升·中",
+                "治療效率提升·中",
+                "醫療·甜與夢"
+            ],
+            "EN": [
+                "Strength [M]",
+                "Treatment Efficiency [M]",
+                "Medicant: Sweetness and Dreams"
+            ],
+            "JP": [
+                "筋力UP・中",
+                "回復効率UP・中",
+                "治癒・甘さと夢"
+            ],
+            "KR": [
+                "힘 증가 · 중",
+                "치유 효율 증가 · 중",
+                "의료 · 달콤한 꿈"
+            ]
+        }
+    },
+    "wpn_sword_0024": {
+        "internal_id": "wpn_sword_0024",
+        "icon_id": "wpn_sword_0024",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "聚合工业",
+            "TC": "聚合工業",
+            "EN": "Complexed Industry",
+            "JP": "複合工業",
+            "KR": "응집 공업"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "电磁伤害提升·大",
+                "迸发·聚合效益"
+            ],
+            "TC": [
+                "意志提升·大",
+                "電磁傷害提升·大",
+                "迸發·聚合效益"
+            ],
+            "EN": [
+                "Will [L]",
+                "Electric DMG [L]",
+                "Detonate: Complexed Advantage"
+            ],
+            "JP": [
+                "意志UP・大",
+                "電磁ダメージUP・大",
+                "噴発・集約効率"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "전기 피해 증가 · 대",
+                "방출 · 집약 효과"
+            ]
+        }
+    },
+    "wpn_sword_0026": {
+        "internal_id": "wpn_sword_0026",
+        "icon_id": "wpn_sword_0026",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "遥望",
+            "TC": "遙望",
+            "EN": "Farsight",
+            "JP": "ファーサイト",
+            "KR": "조망"
+        },
+        "skills": {
+            "CN": [
+                "主能力提升·大",
+                "源石技艺强度提升·大",
+                "强攻·明日之愿"
+            ],
+            "TC": [
+                "主能力提升·大",
+                "源石技藝強度提升·大",
+                "強攻·明日之願"
+            ],
+            "EN": [
+                "Main Attribute [L]",
+                "Arts Intensity [L]",
+                "Assault: Vision for Tomorrow"
+            ],
+            "JP": [
+                "メイン能力UP・大",
+                "アーツ強度UP・大",
+                "強攻・明日への祈り"
+            ],
+            "KR": [
+                "주요 능력치 증가 · 대",
+                "오리지늄 아츠 강도 증가 · 대",
+                "강공 · 내일의 희망"
+            ]
+        }
+    },
+    "wpn_sword_0025": {
+        "internal_id": "wpn_sword_0025",
+        "icon_id": "wpn_sword_0025",
+        "rarity": 6,
+        "weapon_type": "Sword",
+        "names": {
+            "CN": "唤月",
+            "TC": "喚月",
+            "EN": "Lunar Calling",
+            "JP": "問月",
+            "KR": "환월"
+        },
+        "skills": {
+            "CN": [
+                "意志提升·大",
+                "攻击提升·大",
+                "附术·垂星渡野"
+            ],
+            "TC": [
+                "意志提升·大",
+                "攻擊提升·大",
+                "附術·垂星渡野"
+            ],
+            "EN": [
+                "Will [L]",
+                "ATK [L]",
+                "Infliction: Coursing Stars"
+            ],
+            "JP": [
+                "意志UP・大",
+                "攻撃力UP・大",
+                "付術・星流る荒野"
+            ],
+            "KR": [
+                "의지 증가 · 대",
+                "공격력 증가 · 대",
+                "고통 · 별빛의 들판"
+            ]
+        }
+    }
+}

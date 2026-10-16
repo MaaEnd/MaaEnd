@@ -76,7 +76,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 ### 2. 添加模板图片
 
-将商品详情页截图保存到对应目录：
+在弹性需求物资的商品列表里截取该商品的图片，保存到对应目录：
 
 ```text
 assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
@@ -145,7 +145,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 文件：`assets/resource/pipeline/AutoStockpile/DecisionLoop.json`
 
-新增 `AutoStockpileDecision{NewRegion}` 节点，在 `action.param.custom_action_param` 中写入 `"Region": "{NewRegion}"`。
+新增 `AutoStockpileDecision{NewRegion}` 节点，在 `action.param.custom_action_param` 中写入 `"Region": "{NewRegion}"`；若新地区详情页的现金图标与现有的不同，还要把新模板加入 `AutoStockpileEnsureCashAnchor` 的 `template`。
 
 ### 5. Go 逻辑
 
@@ -190,7 +190,7 @@ var regionBases = map[string]int{
 4. 按商品 **ID 去重合并**（同 ID 保留首屏结果；仅下滑后次屏才出现的 ID 记入 `SecondPageOnlyIDs`）。内部扫屏顺序为 page0=首屏、page1=次屏（0-based）；字段名表示**仅第二屏（page1）**，不是第一屏（page0）。
 5. 调用 `AutoStockpileSwipeShelfUp` 滑回首屏。
 
-任一滑动/次屏扫描失败时降级为仅首屏结果，不中断任务。
+下滑或次屏截图/扫描失败时降级为仅首屏结果，不中断任务；滑回首屏失败只记录警告，仍使用合并结果。
 
 选中商品后：
 

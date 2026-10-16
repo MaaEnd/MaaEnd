@@ -123,9 +123,9 @@ Pipeline、Go Service 和 C++ API 使用同一套识别语义，只是字段承�
 | 运行时 `type` | 画面要求 | 网格 profile |
 | --- | --- | --- |
 | Win32、Linux、MacOS | 1280x720 | 标准 720p UI |
-| Adb、PlayCover | 1280x720、240 dpi | ADB 放大 UI |
+| Adb、PlayCover、native_android | 1280x720、240 dpi | ADB 放大 UI |
 
-Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile；CloudADB 的运行时 `type` 是 `Adb`。除 Win32/Adb 外，上表中的兼容映射暂没有独立截图数据验证，后续可能根据实际画面调整。其他控制器、直接 C++ 调用或上下文不可用时从请求 ROI 的图像证据推断。证据不足时返回 `exception`，调用方不能指定比例。检测器只在内存中临时归一化画面以定位网格，返回前会把格子坐标映射回原图；物品模板仍按原图格子尺寸生成并在原图上匹配，因此 `cell_box`、`item_box` 始终是原图坐标。`single_roi` 不执行网格检测，也不会缩放输入图。
+Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile；CloudADB 的运行时 `type` 是 `Adb`。除 Win32/Adb 外，上表中的兼容映射暂没有独立截图数据验证，后续可能根据实际画面调整。其他控制器、直接 C++ 调用或上下文不可用时从请求 ROI 的图像证据推断。证据不足时返回 `grid_detection_failed`，调用方不能指定比例。检测器只在内存中临时归一化画面以定位网格，返回前会把格子坐标映射回原图；物品模板仍按原图格子尺寸生成并在原图上匹配，因此 `cell_box`、`item_box` 始终是原图坐标。`single_roi` 不执行网格检测，也不会缩放输入图。
 
 组件不会根据 controller profile 猜测、移动或扩大请求 ROI。调用方始终负责传入完全位于图片内、且完整覆盖目标格子的原生 ROI；图像回退只读取该 ROI 内的像素。奖励界面应继续传入覆盖整组奖励的大 ROI，控制器类型和物品数量都不应由调用方用于改写 ROI。
 
@@ -139,14 +139,14 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | `additional_item_filters` | string[] | 否 | `[]` | 在基础过滤器与 `item_ids` 取交集后，额外并入这些分类 |
 | `excluded_item_ids` | string[] | 否 | `[]` | 从候选集合中排除指定物品 ID |
 | `item_recheck_filters` | string[] | 否 | `[]` | 与 `item_ids` 均非空时生效；格式与 `item_filters` 相同；用于对已命中的候选格进行单格复核 |
-| `recognize_region_unavailable` | boolean | 否 | `false` | 仅在背包/仓库（`transfer`）和储存站（`port_storager`）场景生效。开启后，格子的常规识别未命中时，会继续尝试识别因当前地区限制而无法使用的物品。帝江号不会出现这种状态，因此无需开启 |
+| `recognize_region_unavailable` | boolean | 否 | `false` | 仅在背包/仓库（`transfer`）和便捷存取站（`port_storager`）场景生效。开启后，格子的常规识别未命中时，会继续尝试识别因当前地区限制而无法使用的物品。帝江号不会出现这种状态，因此无需开启 |
 | `threshold` | number | 否 | `0.85` | 物品命中的最低最终分数，所有网格类型统一按该值判断 |
 | `subpixel_threshold` | number | 否 | `0.60` | 基础分达到该值但低于 `threshold` 时，在图标附近尝试更细的位置偏移 |
 | `deduplicate` | boolean | 否 | `false` | 同一个 `item_id` 命中多个格子时，只保留分数最高的一项 |
-| `debug` | boolean | 否 | `false` | 正常执行到结果汇总阶段时会收集网格和格子诊断；提前返回的 `invalid_image` 或 `exception` 可能不包含诊断。debug 控制性能计时和 Custom debug 文件写入 |
+| `debug` | boolean | 否 | `false` | 正常执行到结果汇总阶段时会收集网格和格子诊断；提前返回的 `invalid_image`、`invalid_argument`、`grid_detection_failed` 或 `exception` 可能不包含诊断。debug 控制性能计时和 Custom debug 文件写入 |
 
 - **`threshold` 与 `subpixel_threshold`**：阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。基础分低于 `subpixel_threshold` 时，组件认为当前候选明显不可靠，不再尝试更细的位置偏移，也不会把它放入 `matches`。基础分位于两个阈值之间时，组件会继续细化位置；只有最终分达到 `threshold`，并且没有被低纹理检查拒绝，结果才会返回。送货界面的数量条和贵重品库的头像区域会从模板匹配遮罩中排除，但不会绕过统一阈值。调整阈值前应先检查 ROI、画面稳定性和候选分类。
-- **候选集合顺序**：最终候选为 `(((item_filters 或界面默认值) ∩ item_ids) ∪ additional_item_filters) - excluded_item_ids`；未提供 `item_ids` 时跳过交集。`excluded_item_ids` 在候选集合计算的最后一步应用，因此其中的物品最终不会参与识别。各候选数组中的重复值均按一次处理；`item_ids` / `excluded_item_ids` 中的未知 ID、格式错误或无法匹配 catalog 的 filter，以及最终空候选都会返回 `invalid_argument`。
+- **候选集合顺序**：最终候选为 `(((item_filters 或界面默认值) ∩ item_ids) ∪ additional_item_filters) - excluded_item_ids`；未提供 `item_ids` 时跳过交集。`excluded_item_ids` 在候选集合计算的最后一步应用，因此其中的物品不会作为候选返回；`item_recheck_filters` 的复核模板集合不应用此排除。各候选数组中的重复值均按一次处理；`item_ids` / `excluded_item_ids` 中的未知 ID、格式错误或无法匹配 catalog 的 filter，以及最终空候选都会返回 `invalid_argument`。
 - **共享图标与代表项**：筛选后按 `(iconId, fluidIconId)` 去重，同一图标身份只参与一次评分。alias 范围只取 `(item_filters 或界面默认值) ∪ additional_item_filters`，再排除 `excluded_item_ids`，不会从完整 catalog 补充。未精准请求时，代表项按 catalog 的 `sortId1`、`sortId2`、`item_id` 降序选择；缺少成对 sort 字段的物品排在后面。精准请求同组中的某个 ID 时，该 ID 优先作为代表：请求 `a` 返回 `a` 并把 `b` 放入 `aliases`，请求 `b` 则返回 `b` 并把 `a` 放入 `aliases`，前提是两者都在上述 alias 范围内且未被排除。若一次请求包含同组多个 ID，按 catalog 顺序选择代表。
 - **`item_recheck_filters`**：使用 `item_ids` 查找指定物品时，范围外但外观相似的物品可能被误识别为目标物品。`item_recheck_filters` 只复核来自原始 `item_ids` 的命中，不复核 `additional_item_filters` 追加的物品。相比不传 `item_ids`、仅使用 `item_filters` 识别整个网格，这种方式只复核已命中的格子，通常更快。建议同时设置 `deduplicate: true`，避免重复复核同一物品。
 
@@ -176,17 +176,20 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 ```json
 {
     "item_copper_ore": {
-        "name": "铜矿",
+        "name": "赤铜矿",
         "category": "矿物",
         "storageKind": "Normal",
         "categoryType": "Ore",
         "rarity": 1,
-        "iconId": "item_copper_ore"
+        "iconId": "item_copper_ore",
+        "fluidIconId": "",
+        "sortId1": -80,
+        "sortId2": 4
     }
 }
 ```
 
-调用时使用 `item_copper_ore`，不要使用 `iconId`、多语言 key 或显示名称。`iconId` 只用于定位发布图标文件。catalog 的 `name` 是下载时写入的中文名称，仅方便阅读；运行时 `matches[].name` 仍由 `item_id` 推导 locale key。仅地区受限物品额外包含 `regionRestricted: true`，普通物品不导出该字段。
+调用时使用 `item_copper_ore`，不要使用 `iconId`、多语言 key 或显示名称。`iconId` 只用于定位发布图标文件，以及与 `fluidIconId` 一起判定共享图标身份。catalog 的 `name` 是下载时写入的中文名称，仅方便阅读；运行时 `matches[].name` 仍由 `item_id` 推导 locale key。仅地区受限物品额外包含 `regionRestricted: true`，普通物品不导出该字段。
 
 ### `item_filters` 分类
 
@@ -218,6 +221,11 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | `Isolate` | `Gold` | 折金票 |
 | `Isolate` | `Diamond` | 嵌晶玉 |
 | `Isolate` | `WeaponGold` | 武库配额 |
+| `Isolate` | `DomainGold` | 调度券（武陵 / 谷地） |
+| `Isolate` | `Originium` | 衍质源石 |
+| `Isolate` | `SpaceshipGold` | 信用 |
+| `Isolate` | `AdventureExp` | 行动资历 |
+| `Isolate` | `BPExp` | 通行证经验 |
 
 通配写法如 `Normal:*`、`ValuableDepot:*`、`Isolate:*`。通配符只用于 `categoryType`，不支持 `*:Ore`。
 
@@ -232,7 +240,7 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | `grid_type` | string | 本次请求的网格类型；参数解析前失败时可能不存在 |
 | `roi` | integer[4] | 请求 ROI，格式为 `[x,y,width,height]` |
 | `matches` | array | 实际返回给调用方的物品，按分数和位置排序 |
-| `error` | object | 失败时出现，包含稳定的 `code` 和可读 `message` |
+| `error` | object | 未命中（`no_match`）或失败时出现，包含稳定的 `code` 和可读 `message` |
 
 `matches[]` 字段：
 
@@ -259,12 +267,14 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | `code` | 触发条件 | 调用方处理 |
 | --------------- | -------------------------------------- | ------------------------------------------------- |
 | `invalid_image` | 输入图片为空 | 检查截图或直接调用输入；请求未进入正常识别 |
-| `exception` | 参数校验、资源加载、网格检测或匹配异常 | 可记录 `message` 排查，但不要依赖其文本做业务分支 |
+| `invalid_argument` | 参数校验失败：参数或 attach 格式错误、`grid_type` / ROI / 阈值不合法、未知 ID 或 filter、最终候选为空等 | 修正节点参数、attach 或直接调用输入；不要按“未找到物品”处理 |
+| `grid_detection_failed` | 网格检测无法生成正式格子，包括无法从 ROI 选出控制器 profile | 检查当前界面和 ROI 是否对应该 `grid_type`；请求未进入逐格匹配 |
+| `exception` | 资源加载、网格检测或匹配异常 | 可记录 `message` 排查，但不要依赖其文本做业务分支 |
 | `no_match` | 识别正常完成，但没有找到足够可靠的物品 | 按“本次未找到物品”处理，不表示组件异常 |
 
-三种情况均返回 `MAA_FALSE`，但含义不同。`invalid_image` 和 `exception` 表示请求没有正常完成；`no_match` 表示截图、参数解析、网格定位和逐格匹配均未发生异常，但所有已定位格子的候选分数都不够高，或候选被低纹理检查拒绝。网格检测无法生成正式格子时返回 `exception`，不属于 `no_match`。`no_match` 时 `matched=false`、`matches=[]`，调用方通常应按“目标物品当前不存在”继续业务流程，而不是把它当成组件故障。
+五种情况均返回 `MAA_FALSE`，但含义不同。`invalid_image`、`invalid_argument`、`grid_detection_failed` 和 `exception` 表示请求没有正常完成；`no_match` 表示截图、参数解析、网格定位和逐格匹配均未发生异常，但所有已定位格子的候选分数都不够高、候选被低纹理检查拒绝，或命中未通过 `item_recheck_filters` 复核。网格检测无法生成正式格子时返回 `grid_detection_failed`，不属于 `no_match`。`no_match` 时 `matched=false`、`matches=[]`，调用方通常应按“目标物品当前不存在”继续业务流程，而不是把它当成组件故障。
 
-`no_match` 会保留已解析的 `grid_type` 和 `roi`。解析期间发生的 `exception` 可能没有完整请求字段。
+`no_match` 会保留已解析的 `grid_type` 和 `roi`。解析期间发生的 `invalid_argument` 或 `exception` 可能没有完整请求字段。
 
 ## 参考界面
 
@@ -481,13 +491,13 @@ const iconrecognition::RecognitionResult result = recognizer.recognize(image, re
 
 ## Debug 输出
 
-`debug=true` 时，Custom 入口把本次识别保存到 `exe_dir/../debug/vision/IconRecognition`：
+`debug=true` 时，Custom 入口把本次识别保存到启动工作目录下的 `debug/vision/IconRecognition`：
 
 - `raw/<stem>.png`：输入原图；
 - `annotated/<stem>.png`：ROI、格子、候选框和分数标注；
 - `detail/<stem>.json`：公开结果和内部诊断。
 
-三个文件使用相同 stem，合称一组。组件会自动清理较旧的组。正常执行到结果汇总阶段时，核心 C++ 结果保留网格和格子诊断；提前返回的 `invalid_image` 或 `exception` 可能不包含诊断。`debug=true` 时还会附加性能诊断。Custom 回调的公开 detail 不包含这些内部字段，只有 debug 文件和人工测试输出会附加它们。
+三个文件使用相同 stem，合称一组。组件会自动清理较旧的组。正常执行到结果汇总阶段时，核心 C++ 结果保留网格和格子诊断；提前返回的 `invalid_image`、`invalid_argument`、`grid_detection_failed` 或 `exception` 可能不包含诊断。`debug=true` 时还会附加性能诊断。Custom 回调的公开 detail 不包含这些内部字段，只有 debug 文件和人工测试输出会附加它们。
 
 ## 测试与内部实现
 

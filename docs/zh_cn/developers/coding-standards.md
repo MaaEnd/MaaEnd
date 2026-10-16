@@ -27,7 +27,7 @@ _Custom 代码通常只能由作者本人维护。若连作者都看不懂，就
 
 ### 命名：PascalCase
 
-节点名称使用 PascalCase，同一任务内以任务名或模块名为前缀。例如 `ResellMain`、`DailyProtocolPassInMenu`、`RealTimeAutoFightEntry`。
+节点名称使用 PascalCase，同一任务内以任务名或模块名为前缀。例如 `AutoSellPressStockRedistribution`、`DailyProtocolPassInMenu`、`RealTimeAutoSkipEntry`。
 
 ### 禁止硬延迟
 
@@ -55,12 +55,12 @@ _Custom 代码通常只能由作者本人维护。若连作者都看不懂，就
 
 例如：
 
-1、在界面跳转中，需要 识别 跳转按钮 → 点击 跳转按钮 → 识别 界面已跳转完成。
-_你没法保证点完 关闭按钮 之后画面是否还和之前一样。极端情况下游戏弹出新池子公告，直接点 下一个节点 可能点到抽卡里去。_
-_你没法保证界面跳转过程中是否需要后台加载，导致画面卡住，直接点击 下一个节点 可能没有反应。_
+1. 在界面跳转中，需要 识别 跳转按钮 → 点击 跳转按钮 → 识别 界面已跳转完成。
+   _你没法保证点完 关闭按钮 之后画面是否还和之前一样。极端情况下游戏弹出新池子公告，直接点 下一个节点 可能点到抽卡里去。_
+   _你没法保证界面跳转过程中是否需要后台加载，导致画面卡住，直接点击 下一个节点 可能没有反应。_
 
-2、在点击会更改账号数据的按钮时，需要 识别 提交按钮 → 点击 提交按钮 → 识别 按钮点击成功。
-_你没法保证每个用户的网络都是顺畅的，点击按钮事件未与服务器成功交互，整个交互界面会卡死不动，怎么点都没反应。_
+2. 在点击会更改账号数据的按钮时，需要 识别 提交按钮 → 点击 提交按钮 → 识别 按钮点击成功。
+   _你没法保证每个用户的网络都是顺畅的，点击按钮事件未与服务器成功交互，整个交互界面会卡死不动，怎么点都没反应。_
 
 ### 不要盲目重试、添加限制
 
@@ -71,14 +71,14 @@ _你没法保证每个用户的网络都是顺畅的，点击按钮事件未与�
 
 例如：
 
-1、当点击没反应时再点一次。
-_通过 `pre_wait_freezes`、`post_wait_freezes` 等待画面静止，或增加中间节点确认按钮可点击后再执行。第二次点击可能已作用于下一界面的其他元素。详见 [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)。_
+1. 当点击没反应时再点一次。
+   _通过 `pre_wait_freezes`、`post_wait_freezes` 等待画面静止，或增加中间节点确认按钮可点击后再执行。第二次点击可能已作用于下一界面的其他元素。详见 [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)。_
 
-2、当某个子任务失败后再跑一次。
-_重试只能略微提高成功率，并不能根本解决问题，只会让代码变得难以维护，最后演变成，A失败了换成B试试，B失败了换成C试试，A重试3次，B重试2次，问题变得难以定位。_
+2. 当某个子任务失败后再跑一次。
+   _重试只能略微提高成功率，并不能根本解决问题，只会让代码变得难以维护，最后演变成，A失败了换成B试试，B失败了换成C试试，A重试3次，B重试2次，问题变得难以定位。_
 
-3、当一个节点出现死循环后加 `max_hit`。
-_出现死循环一般都是识别问题、逻辑缺陷导致，盲目加 `max_hit` 只会让逻辑中断，类似在代码里盲目抛异常跳出任务，出现难以预估的后果_
+3. 当一个节点出现死循环后加 `max_hit`。
+   _出现死循环一般都是识别问题、逻辑缺陷导致，盲目加 `max_hit` 只会让逻辑中断，类似在代码里盲目抛异常跳出任务，出现难以预估的后果_
 
 **推荐：** 遇到bug时找问题根因，详细到具体哪个节点失败、哪个识别不符合预期，游戏因为触发了什么导致误触/没反应，去修补对应节点的识别、操作问题。
 
@@ -163,15 +163,15 @@ pnpm format:md     # Markdown 格式化（改了 md 文档时）
 `pnpm check` 与 `pnpm test` **按需执行**：
 
 ```bash
-pnpm check         # 资源和 schema 检查
+pnpm check         # 资源检查
 pnpm test          # 节点测试
 ```
 
 - 改动包含 `tests/**` 内容（新增/修改用例、测试截图、`hits` / `box` 期望）→ **先在本地跑 `pnpm test`**；若同时改了 `assets/**` 或 `tools/schema/**`，一并跑 `pnpm check`。
-- 其他改动（Pipeline、Go、Cpp、文档等）→ 不必在本地跑这两条命令，提 PR 后由 CI 校验，跟进 CI 状态即可。
+- 其他改动（Pipeline、Go、Cpp、文档等）→ 不必在本地跑这两条命令，提 PR 后跟进相应 CI 即可（Go 由 `go-check.yml` 校验，纯文档改动不触发 PR CI）。
 - 需要本地自查时（例如调试某个识别节点的命中率、确认改动的影响范围），可随时单独执行。
 
-CI 与这些命令的对应关系：`pnpm check` + `uv run tools/validate_schema.py`（[`check.yml`](../../../.github/workflows/check.yml)）、`pnpm test`（[`test.yml`](../../../.github/workflows/test.yml)，改动 `assets/**` 或 `tests/**` 时触发）、`pnpm format:all`（[`format.yml`](../../../.github/workflows/format.yml)，定时全量格式化并自动提交）。
+CI 与这些命令的对应关系：`pnpm check` + `uv run tools/validate_schema.py`（[`check.yml`](../../../.github/workflows/check.yml)）、`pnpm test`（[`test.yml`](../../../.github/workflows/test.yml)，目标为 `v2` 的 PR 或推送改动 `assets/**`、`tests/**` 或 `agent/cpp-algo/**` 时触发）、`pnpm format:all`（[`format.yml`](../../../.github/workflows/format.yml)，定时全量格式化并自动提交）。
 
 ## 配套文件
 
@@ -181,7 +181,7 @@ MaaEnd 里一个功能改动常常不只改一个地方。
 
 - `assets/tasks/*.json`
 - `assets/resource/pipeline/**/*.json`
-- `assets/locales/interface/zh_cn.json`
+- `assets/locales/interface/*.json`（全部语言）
 - `assets/interface.json`
 - `tests/**/*.json`
 
@@ -208,7 +208,7 @@ MaaEnd 里一个功能改动常常不只改一个地方。
 - 无参数或允许任意值透传时，无需创建空参数 Schema
 - 无需修改已引用上述两个 Custom Schema 的 `tools/schema/pipeline.schema.json`
 
-> MXU 是面向终端用户的 GUI，不建议用于日常开发调试。上述开发工具可以极大程度提高开发效率。
+> MXU 是面向终端用户的 GUI，不建议用于日常开发调试。[开发工具](./tools-and-debug.md#开发工具)可以极大程度提高开发效率。
 
 ## 调试工作流
 
@@ -248,7 +248,7 @@ uv run build-and-install --cpp-algo
 
 ### 分辨率：720p 基准
 
-所有图片、坐标（`roi`、`target`、`box`）均以 **1280x720** 为基准。MaaFramework 在运行时会根据用户设备自动转换。推荐使用上述开发工具进行截图和坐标换算。
+所有图片、坐标（`roi`、`target`、`box`）均以 **1280x720** 为基准。MaaFramework 在运行时会根据用户设备自动转换。推荐使用[开发工具](./tools-and-debug.md#开发工具)进行截图和坐标换算。
 
 ### HDR / 颜色管理
 
@@ -256,7 +256,7 @@ uv run build-and-install --cpp-algo
 
 ### 资源文件夹链接
 
-资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的**，修改需手动同步或运行 `build-and-install`。
+资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是文件硬链接**，git 检出新版本或被工具重写后链接会断开，修改后需手动同步或运行 `build-and-install`。
 
 ### 文件夹命名
 
@@ -271,7 +271,7 @@ uv run build-and-install --cpp-algo
 
 ### 写法要求
 
-- `expected` 写完整文本，不要只写片段。例如应写"这是一段示例内容"，而不是只写"示例内容"。
+- `expected` 写完整文本，不要只写片段。例如应写 `这是一段示例内容`，而不是只写 `示例内容`。
 - 仅当 OCR 引擎对完整文本识别不稳定（如夹杂百分号、特殊符号、易混字符），确需用片段或手写正则才能稳定命中时，才允许跳过自动处理。**截断不是默认手段，而是兜底手段。**
 
 要求：

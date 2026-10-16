@@ -100,13 +100,13 @@ corepack enable pnpm
 
 项目底层依赖 Go 编译运行，所以**必须安装**。好消息是：你不需要学 Go 语法，也不需要写 Go 代码，装好放着就行。去 [go.dev](https://go.dev/) 下载安装（1.25.6+）。项目里用 Go 写的那部分逻辑在 `agent/go-service/` 下，你现在不用碰。
 
-> 上面装的这些（Node / uv / Go / pnpm）现在**装好放着就行**——第三章只需要 Git，它们要等真正跑项目时才用得到。
+> 上面装的这些（Node / uv / Go / pnpm）现在**装好放着就行**——第三章只用到 Git 和 VS Code，它们要等真正跑项目时才用得到。
 
 ### 🎯 检查点
 
 > - [ ] Git 装好了
 > - [ ] 会打开终端了（会 `cd` 和 `ls`）
-> - [ ] VS Code 装好了，推荐插件装上了
+> - [ ] VS Code 装好了（推荐插件等 clone 完再装）
 > - [ ] `node --version` 有输出
 > - [ ] `pnpm --version` 有输出
 > - [ ] `uv --version` 有输出
@@ -175,10 +175,13 @@ git submodule update --init --recursive
 
 ---
 
+clone 完之后两条线路都一样：现在用 VS Code 打开项目文件夹，在扩展面板搜 `@recommended`，把 [2.3](#23-vs-code) 说的推荐插件装上。
+
 ### 🎯 检查点
 
 > - [ ] 在 GitHub 上 fork 了 MaaEnd（复制到自己名下）
 > - [ ] 把副本 clone 到了本地
+> - [ ] 用 VS Code 打开了项目，装好了推荐插件
 
 ---
 
@@ -367,20 +370,20 @@ git submodule update --init --recursive
 | `"action"` → `"type": "Click"` | 识别到了就点击，默认点击识别到的位置 |
 | `"pre_delay": 0` | 识别到后、执行动作前等待多少毫秒。这个节点画面通常稳定，设 0 |
 | `"post_delay": 0` | 执行动作后、开始识别 next 前等待多少毫秒。这里用 `post_wait_freezes` 代替了 |
-| `"post_wait_freezes": 400` | 执行动作后等画面不动了，再多等 400 毫秒。比固定 `post_delay` 更靠谱 |
+| `"post_wait_freezes": 400` | 执行动作后，等识别到的那块区域连续 400 毫秒没有明显变化再继续。比固定 `post_delay` 更靠谱 |
 | `"next": ["EssenceFilterCheckInInventory"]` | 做完后依次尝试 next 里的节点，命中第一个就停 |
 
-> 延迟字段只在必要时用：`pre_delay` 等画面出现，`post_delay` 等动画播完，`post_wait_freezes` 等画面稳定。大多数节点设 0 就行。上面这个节点点完会触发标签页切换动画，所以用 `post_wait_freezes: 400` 等画面彻底稳定。
+> 延迟字段只在必要时用：`pre_delay`、`post_delay` 只是固定等待，不看画面；要等画面稳定用 `post_wait_freezes`。大多数节点设 0 就行。上面这个节点点完会触发标签页切换动画，所以用 `post_wait_freezes: 400` 等画面彻底稳定。
 >
 > 这里只拆了最常用的字段，实际可用的远不止这些——完整的字段列表见 [MaaFramework Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol/)（官方文档）。
 
 ### 5.3 下一步的跳转逻辑
 
 ```json
-"next": ["OutpostTradingSchedule", "OutpostTradingTaskEnd"]
+"next": ["EssenceFilterSwitchTab", "EssenceFilterInitNormalize", "[JumpBack]SceneEnterMenuValuables"]
 ```
 
-Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个。所以把**最可能出现的状态写在最前面**：任务刚启动时多半还在主界面，先试 `OutpostTradingSchedule`；万一已经卖完了，再试 `OutpostTradingTaskEnd` 让任务收尾。候选越多越好，能在一轮"截图 → 识别 → 动作"的循环中命中。
+Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个。上面是 5.2 那个节点的上一步 `EssenceFilterMain` 的 `next`：在贵重品库里、武器基质页签还没选中时命中 `EssenceFilterSwitchTab`，点它；页签已经选中时命中 `EssenceFilterInitNormalize`；两个都不命中（比如不在贵重品库），才轮到兜底的 `[JumpBack]SceneEnterMenuValuables`：先进贵重品库，再回来按顺序重试。所以把**最可能出现的状态写在最前面**，兜底的跳转放最后。候选越多越好，能在一轮"截图 → 识别 → 动作"的循环中命中。
 
 ### 5.4 常用识别方式速查
 
@@ -394,10 +397,10 @@ Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个�
 
 ### 5.5 怎么自己截一张识别模板
 
-> 前提：先启动 MaaEnd 客户端，连上你的游戏或模拟器，插件才能截到真实的游戏画面。
+> 前提：先启动游戏或模拟器，并在插件的控制面板里选择控制器连上它，插件才能截到真实的游戏画面。
 
 1. 截图以 1280×720 为基准/推荐，但无需手动切换分辨率（framework 会自动缩放）
-2. VS Code 里 `Ctrl+Shift+P` → `Maa: Screenshot`（需要装了 Maa Pipeline Support 插件）
+2. VS Code 里 `Ctrl+Shift+P` → `Maa: 打开截图工具`（需要装了 Maa Pipeline Support 插件）
 3. 在截图上框选你要识别的区域
 4. 需要的话使用绿色掩码去除干扰识别的区域——将不希望匹配的部分涂绿 RGB: (0, 255, 0)，匹配时会跳过绿色区域。装了插件可以直接在截图上涂绿，不要手动 PS
 5. 把处理好的截图存成 PNG，放到 `assets/resource/image/你的任务名/` 文件夹里（没有就新建）
@@ -421,7 +424,7 @@ Pipeline 会**按顺序尝试**——先试第一个，不命中才试第二个�
 
 > 任务：给项目加一个按钮识别——一个 Pipeline 节点 + 一张模板图。不用写代码，人人都能干。
 >
-> 第三章你已经 fork 并 clone 了自己的副本（`你的用户名/MaaEnd`）。这一章在副本上把贡献流程走完：开分支 → 改文件 → commit → push → 开 PR。开 PR 在网页上做；其余步骤都给了 GitHub Desktop 和终端两种做法，选顺手的一种。
+> 第三章你已经 fork 并 clone 了自己的副本（`你的用户名/MaaEnd`）。这一章在副本上把贡献流程走完：开分支 → 改文件 → commit → push → 开 PR。开 PR 在网页上做；开分支、commit、push 都给了 GitHub Desktop 和终端两种做法（commit 和 push 还可以用 VS Code），选顺手的一种。
 
 ### 第 0 步：告诉 Git 你是谁（一次性设置）
 
@@ -450,7 +453,7 @@ git config --global user.email
 能分别输出你刚填的名字和邮箱，就说明设置成功了。
 
 > [!TIP]
-> **万一你已经 commit 了才发现没设置，或者设错了名字？** 把上面两条命令再敲一遍改成正确的，再 `git commit --amend --reset-author` 就能把上一次提交的作者信息一起改掉。这条只改最近一次提交。
+> **万一你已经 commit 了才发现没设置，或者设错了名字？** 把上面两条命令再敲一遍改成正确的，再 `git commit --amend --reset-author` 就能把上一次提交的作者信息一起改掉。这条只改最近一次提交；如果这次提交已经 push 过，改完后要用 `git push --force-with-lease` 才能推上去。
 
 > [!NOTE]
 > **我只用 GitHub Desktop / VS Code 提交，也要设置吗？**
@@ -494,9 +497,9 @@ git config --global user.email
 
 | 方式 | 操作 |
 | -------------------- | ---------------------------------------------------------- |
-| GitHub Desktop | 顶部出现 **Push origin** 按钮，点一下 |
+| GitHub Desktop | 新分支第一次推送时，顶部按钮是 **Publish branch**，点一下；以后再推送时它会变成 **Push origin** |
 | 终端 | `git push -u origin feat/add-sell-button` |
-| VS Code | 点左下角"同步更改"按钮 |
+| VS Code | 新分支第一次推送时，点源代码管理视图里的 **Publish Branch**（发布分支）按钮；以后再推送点"同步更改" |
 
 **为什么要 `-u`？** 你本地新建的分支，GitHub 那边还不存在。`-u`（`--set-upstream` 的缩写）做两件事：
 
@@ -600,7 +603,7 @@ Push（上传）
 
 > [!NOTE]
 > **外部资源**
-
+>
 > 以下链接指向 MaaEnd 以外的独立项目或第三方服务，供拓展参考。
 
 - [MaaFramework 官网](https://maafw.com/)——MaaEnd 底层框架

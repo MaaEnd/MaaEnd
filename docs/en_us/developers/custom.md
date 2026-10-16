@@ -5,10 +5,12 @@
 - `Custom Action`: Executes action logic, such as subtask scheduling, state cleanup, and complex interactions.
 - `Custom Recognition`: Executes recognition logic, returns whether it matches, and optionally provides detailed recognition results.
 
-Go implementations in the project are typically located under `agent/go-service/` and are registered via:
+Go implementations in the project are typically located under `agent/go-service/` and use:
 
 - `maa.AgentServerRegisterCustomAction(...)`
 - `maa.AgentServerRegisterCustomRecognition(...)`
+
+to complete registration.
 
 ---
 
@@ -31,7 +33,7 @@ Action nodes are used to execute custom actions. A common format is as follows:
 
 ### SubTask
 
-The `SubTask` implementation is located in `agent/go-service/subtask` and is used to execute a series of subtasks sequentially.
+The `SubTask` implementation is located in `agent/go-service/common/subtask` and is used to execute a series of subtasks sequentially.
 
 - Parameters:
     - `sub: string[]`: required list of subtask names.
@@ -39,7 +41,7 @@ The `SubTask` implementation is located in `agent/go-service/subtask` and is use
     - `strict?: bool`: whether the current action should fail when a subtask fails. Default is `true`.
     - `random_choice?: int`: if set and greater than `0`, the `sub` list is shuffled and at most this many subtasks are picked to run; values exceeding the list length are clamped to it. Defaults to running every subtask in order.
 
-    Before the random pick, subtask nodes in `sub` that cannot be resolved or whose `enabled` is `false` are filtered out (a node without an explicit `enabled` counts as enabled). If no runnable subtask remains after filtering (and the random pick), the action is not treated as a failure: it logs a single warning and returns success.
+    Before the random pick, subtask nodes in `sub` that cannot be resolved or whose `enabled` is `false` are filtered out (a node without an explicit `enabled` counts as enabled). If no runnable subtask remains after filtering, the action logs an error and returns failure.
 
 Example file: [`SubTask.json`](../../../assets/resource/pipeline/Interface/Example/SubTask.json)
 
@@ -50,16 +52,16 @@ Example file: [`SubTask.json`](../../../assets/resource/pipeline/Interface/Examp
 Three Custom Actions are provided, linked into one collection by a shared `key`:
 
 - `FailureCollectorReset`: Resets the collection state for the given `key`. Must be called before all RunTask invocations.
-- `FailureCollectorRunTask`: Runs the subtask specified by `task`. On success, proceeds normally; on failure, records `failure_task` in occurrence order and optionally runs `recovery_task`. The Action itself always returns success so the Pipeline continues.
+- `FailureCollectorRunTask`: Runs the subtask specified by `task`. On success, proceeds normally; on failure, records `failure_task` in occurrence order and optionally runs `recovery_task`. A subtask failure still makes the Action return success so the Pipeline continues (it fails only on invalid parameters or when the `task` node cannot be found).
 - `FailureCollectorFinish`: Runs every recorded `failure_task` node in failure order, then clears the state. Returns failure when any failures were recorded, success otherwise.
 
 - Parameters:
     - `FailureCollectorReset`:
-        - `key: string`: Collection identifier. Required. Must be consistent and globally unique within the same flow.
+        - `key: string`: Collection identifier. Required. Must stay the same throughout one flow and be globally unique.
     - `FailureCollectorRunTask`:
         - `key: string`: Collection identifier. Required.
         - `task: string`: The subtask Pipeline node to run. Required. When the target node is disabled (`Enabled = false`), it is skipped and not treated as a failure.
-        - `failure_task: string`: The Pipeline node recorded on failure. Required. This node typically uses `focus` to surface a user-visible message through the Agent.
+        - `failure_task: string`: The Pipeline node recorded on failure. Required. This node typically uses `focus` to show a user-visible message in the client.
         - `recovery_task?: string`: A recovery task node to run after a failure. Optional.
     - `FailureCollectorFinish`:
         - `key: string`: Collection identifier. Required.
@@ -68,7 +70,7 @@ Example file: [`AutoCollect.json`](../../../assets/resource/pipeline/AutoCollect
 
 ### ClearHitCount
 
-The `ClearHitCount` implementation is located in `agent/go-service/clearhitcount` and is used to clear the hit count of specified nodes.
+The `ClearHitCount` implementation is located in `agent/go-service/common/clearhitcount` and is used to clear the hit count of specified nodes.
 
 - Parameters:
     - `nodes: string[]`: A list of node names to clear. Required.
@@ -89,7 +91,7 @@ The `FocusOCRAction` implementation is located in `agent/go-service/common/focus
 Parameters:
 
 - `node: string`: Required. Pipeline recognition node name (OCR, or an `And` whose `box_index` points at OCR).
-- `focus: string`: Optional. `maafocus` message. `%s` is the OCR text, e.g. `Current sanity: %s`. If omitted, the raw text is printed.
+- `focus: string`: Optional. `maafocus` message. `%s` is the OCR text, e.g. `当前理智 %s` (Current sanity %s). If omitted, the raw text is printed.
 
 Example file: [`FocusOCRAction.json`](../../../assets/resource/pipeline/Interface/Example/FocusOCRAction.json)
 
@@ -101,7 +103,7 @@ Example file: [`FocusOCRAction.json`](../../../assets/resource/pipeline/Interfac
             "custom_action": "FocusOCRAction",
             "custom_action_param": {
                 "node": "CommonSanityText",
-                "focus": "Current sanity: %s"
+                "focus": "当前理智 %s"
             }
         }
     }
@@ -115,20 +117,20 @@ The node's own recognition still belongs in Pipeline for routing. This Action on
 Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in or custom action, then poll recognition inside a wait window. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
 
 - `RepeatUntilFoundAction`: succeeds when **any** `wait_nodes` entry hits.
-- `RepeatUntilNotFoundAction`: succeeds when `wait_node` misses.
+- `RepeatUntilNotFoundAction`: succeeds when `wait_node` **misses**.
 
 - Shared parameters:
     - `action: string`: Built-in action type (e.g. `Click`). Mutually exclusive with `custom_action`.
     - `custom_action?: string`: Registered custom action name (e.g. `AutoAltClickAction`). Mutually exclusive with `action`.
     - `custom_action_param?: object`: Forwarded to the nested custom action.
     - `repeat_count?: int`: Maximum attempts. Defaults to `3` when omitted or `<= 0`.
-    - `interval_ms?: int`: Wait window after each action, in milliseconds. Within the window, screencap/recognize every `500ms` and succeed early on a hit. Defaults to `3000` when omitted or `0`. Negative values are invalid.
+    - `interval_ms?: int`: Wait window after each action, in milliseconds. Within the window, screencap/recognize every `500ms` and succeed early once the condition is met. Defaults to `3000` when omitted or `0`. Negative values are invalid.
 - `RepeatUntilFoundAction` extra:
     - `wait_nodes: string[]`: Pipeline node names to wait for. Required.
 - `RepeatUntilNotFoundAction` extra:
     - `wait_node: string`: Single Pipeline node name to wait until it disappears. Required.
 
-The target position always uses the recognition `box` that triggered this Action (optionally adjusted by outer `target` / `target_offset`). The loop aborts immediately and returns failure when the tasker reports stopping.
+The target position always uses the recognition `box` that triggered this Action (optionally adjusted by outer `target` / `target_offset`). The loop aborts immediately and returns failure when the tasker reports stopping (`Stopping`).
 
 Example file: [`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/Interface/Example/RepeatUntilFoundAction.json)
 
@@ -140,9 +142,9 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 
 ### CameraScanAction
 
-`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out nine-grid spiral, then resets the camera and performs discrete yaw rings at middle, upper, and lower pitch levels. It recognizes before and after every camera movement except reset, succeeds when any target hits, and fails after the complete scan misses.
+`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out nine-grid spiral; if nothing hits, it resets the camera and performs discrete yaw rings at middle, upper, and lower pitch levels. It recognizes once before and once after each scan step (a step may move the camera several times, with no recognition in between), except the reset step; it succeeds when any target hits, and fails after the complete scan misses.
 
-- `wait_nodes: string[]`: Pipeline recognition nodes checked before and after every camera movement. Required; any hit succeeds. Reset movements are not checked.
+- `wait_nodes: string[]`: Pipeline recognition nodes checked before and after each scan step. Required; any hit succeeds. The reset step is not checked.
 - `aim_target?: bool`: Whether to swipe from the screen center to the hit recognition result's `Box` center before returning. Defaults to `false`.
 - `move_up?: string`: Node for one upward camera step. Defaults to `__CameraScanMoveUp`.
 - `move_down?: string`: Node for one downward camera step. Defaults to `__CameraScanMoveDown`.
@@ -177,7 +179,9 @@ Example file: [`PipelineOverride.json`](../../../assets/resource/pipeline/Interf
 The `AttachToExpectedRegexAction` implementation is located in `agent/go-service/common/attachregex`. It is used to generically read keywords from the target node's own `attach` and write the merged allowlist regex back to the target OCR node's `expected`.
 
 - Parameters:
-    - `target: string`: The target node name (which will have its `expected` overwritten). Required.
+    - `target: string` / `targets: string[]`: Target node name(s) whose `expected` is overwritten; at least one is required, and `targets` handles several nodes at once.
+    - `substring?: bool`: Optional, default `false` (exact match `^(…)$`); `true` generates a substring match `.*(…).*`.
+    - `keywords?: string`: Optional. Builds the regex from this string instead of `attach` (split on `,` `，` `;` `；` `、` and whitespace, deduplicated).
 
 Processing Rules:
 
@@ -200,7 +204,7 @@ Example:
 Compatibility Notes:
 
 - The Credit Shop has been switched to directly use `AttachToExpectedRegexAction`.
-- If multiple target nodes need to be overridden, it is recommended to split them into multiple `Custom` nodes in the Pipeline and link them via `next`.
+- To override several target nodes, list them in `targets`.
 - If multiple nodes require the same allowlist, the same `attach` should be written into their respective nodes in the task configuration.
 - Other tasks are also recommended to use the generic name to avoid coupling with specific business logic.
 
@@ -276,18 +280,19 @@ Recognition nodes are used to execute custom recognition. A common format is as 
 
 ### ExpressionRecognition
 
-The `ExpressionRecognition` implementation is located in `agent/go-service/common/expressionrecognition`. It is used to evaluate boolean expressions composed of numerical recognition nodes.
+The `ExpressionRecognition` implementation is located in `agent/go-service/common/expressionrecognition`. It is used to evaluate boolean expressions composed of numerical recognition nodes. Under the hood it reuses `pkg/recogtarget` (And unwrapping), `pkg/ocrnum` (OCR → integer), and `pkg/boolexpr` (placeholders and evaluation); see [Go Service `pkg/` Shared Packages](./go-service-pkg.md) for details.
 
 Parameters:
 
 - `expression: string`: Required. The expression must ultimately evaluate to a boolean value.
-- `box_node?: string`: Optional. Which recognition node's result box to return upon a match; if the node is `And`, it will first execute that node, then read the corresponding sub-recognition result's box directly from the current recognition results based on its native `box_index`.
+- `box_node?: string`: Optional. Which recognition node's result box to return upon a match; if the node is `And`, it will first execute that node, then read the corresponding sub-recognition result's box from the current recognition results based on its native `box_index` (if that child is again an `And` node referenced by name, it follows that node's `box_index` further down).
+- `focus_matched_resolved_expression?: bool` / `focus_unmatched_resolved_expression?: bool`: Optional, default `false`. When `true`, prints the value-substituted expression via `maafocus` after a match / miss (e.g. `120<300 matched`).
 
 Placeholder Rules:
 
 - Use `{NodeName}` to reference other recognition nodes.
 - Referenced nodes are executed once with the current image `arg.Img`.
-- If a referenced node is `And`, the current implementation first executes the `And` node itself, then reads the corresponding sub-recognition result directly from the current recognition results based on that node's native `box_index`, and treats it as the final source for that node's value.
+- If a referenced node is `And`, the current implementation first executes the `And` node itself, then reads the corresponding sub-recognition result from the current recognition results based on that node's native `box_index` (if that child is again an `And` node referenced by name, it follows that node's `box_index` further down), and treats it as the final source for that node's value.
 - The current implementation extracts numerical values from the referenced node's OCR results to participate in the calculation and supports common abbreviation formats, such as `1.38万`, `13.8K`, `22.01M`; these values are converted to integers before participating in the expression calculation.
 
 Supported Operations:
@@ -306,7 +311,7 @@ Example:
         "param": {
             "custom_recognition": "ExpressionRecognition",
             "custom_recognition_param": {
-                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}",
+                "expression": "{CreditShoppingReserveCreditOCRInternal}<300",
                 "box_node": "CreditShoppingReserveCreditOCRInternal"
             }
         }
@@ -324,7 +329,7 @@ Important Notes:
 
 - The expression result must be a boolean value; otherwise, recognition fails.
 - Referenced nodes should currently return a parseable OCR numerical result; otherwise, expression evaluation fails.
-- For `And` nodes, the sub-recognition result pointed to by `box_index` currently needs to directly contain a parseable OCR numerical result.
+- For `And` nodes, the sub-recognition result finally selected via `box_index` currently needs to contain a parseable OCR numerical result.
 - Integer literals in expressions, and values converted from OCR, if they exceed the range representable by the platform's `int`, are automatically clamped to the `int` maximum or minimum (positive overflow takes the maximum, negative overflow takes the minimum), and a warning log is output; expression evaluation continues rather than failing immediately.
 - This recognizer is only responsible for expression evaluation, not for the business semantics itself; the business side should organize nodes and thresholds within the Pipeline.
 - For the same kind of boolean expression over **IMS cached item quantities**, use IMS R1 `ItemQuantitySatisfied` (`{ITEM_ID}` placeholders; see [IMS docs](./components/ims.md#r1-itemquantitysatisfied)). Do not pass item IDs to this recognizer.
@@ -418,7 +423,7 @@ Output:
 }
 ```
 
-Both scrollbar recognizers share the same detector: search each ROI row for a pixel where `min(R, G, B) >= 200`, fill internal gaps up to 2 rows, and select the longest continuous segment whose length is at least 5px.
+Both scrollbar recognizers share the same detector: for each ROI row it averages `min(R, G, B)` of the 3 brightest pixels and compares it with the median of the 3px background strips left and right of the ROI; rows whose normalized brightening is `>= 0.45` count as thumb rows. After filling internal gaps of up to 2 rows, it picks, among continuous segments at least 5px long, the one with the highest cumulative contrast.
 
 ```json
 {
@@ -540,7 +545,7 @@ Notes:
 
 ### ScheduleRecognition
 
-The `ScheduleRecognition` implementation is located in `agent/go-service/common/schedule`. It is used to determine whether the current task should continue executing based on the day of the week. It only returns whether recognition matches; it does not directly run subtasks in Go; subsequent flows should be organized via the Pipeline's `next`.
+The `ScheduleRecognition` implementation is located in `agent/go-service/common/schedule`. It is used to determine whether the current task should continue executing based on the day of the week (game days start at 04:00 local time). It only returns whether recognition matches; it does not directly run subtasks in Go; subsequent flows should be organized via the Pipeline's `next`.
 
 - Parameters: None.
 - `attach` field (written in the current recognition node, can be merged in the task configuration):
@@ -552,7 +557,7 @@ The `ScheduleRecognition` implementation is located in `agent/go-service/common/
     - `saturday: bool` — Whether to execute on Saturday.
     - `sunday: bool` — Whether to execute on Sunday.
 
-When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits a localized prompt "Skipping today" and returns no match.
+When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits the localized `schedule.skip_today` message via `maafocus` and returns no match.
 
 ## Summary
 

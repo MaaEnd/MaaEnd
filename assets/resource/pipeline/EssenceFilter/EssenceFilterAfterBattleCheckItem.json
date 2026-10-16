@@ -83,7 +83,7 @@
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "是无暇基质"
+            "Node.Recognition.Succeeded": "是无瑕基质"
         }
     },
     "EssenceFilterAfterBattleIsPure": {
@@ -155,7 +155,7 @@
         ]
     },
     "EssenceFilterAfterBattleTierBoundaryFlawlessNotice": {
-        "desc": "仅选无暇：战后检测到高纯基质，关闭详情后退出",
+        "desc": "仅选无瑕：战后检测到高纯基质，关闭详情后退出",
         "recognition": {
             "type": "DirectHit",
             "param": {}
@@ -198,7 +198,7 @@
         ]
     },
     "EssenceFilterAfterBattleTierSkipPureOnlyNotice": {
-        "desc": "仅选高纯：战后检测到无暇基质，跳过",
+        "desc": "仅选高纯：战后检测到无瑕基质，跳过",
         "recognition": {
             "type": "DirectHit",
             "param": {}

@@ -1,6 +1,6 @@
 # IMS（物品管理系统）
 
-IMS（Item Management System）在 go-service 进程内维护培养道具的数量缓存，供任务做「够不够」「要不要刷」等判断。流程编排仍由 Pipeline 负责；IMS 只提供识别与动作。
+IMS（Item Management System）在 go-service 进程内维护培养道具等物品的数量缓存，供任务做「够不够」「要不要刷」等判断。流程编排仍由 Pipeline 负责；IMS 只提供识别与动作。
 
 整套能力一共 **2 个识别器 + 3 个动作**：
 
@@ -60,7 +60,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | 字段 | 说明 |
 | --- | --- |
 | `grid_type` | 网格界面。培养/珍品页用 `valuables`；走 IconRecognition 扫库时必填 |
-| `roi` | 可选；省略则用 IconRecognition 参考 ROI（贵重品库 Win32 `[24,76,950,570]` / ADB `[100,85,790,540]`） |
+| `roi` | 可选；省略则用 IconRecognition 参考 ROI（贵重品库 Win32 `[24,76,950,570]` / ADB `[100,85,790,540]`）；`transfer` 没有默认值，必须显式传入 |
 | `item_filters` | 缩小 IconRecognition **候选模板**（如培养页 `ValuableDepot:SpecialItem`）；不限制「只缓存哪些 ID」 |
 | `items` | **定点数量节点**（地区重建仍需保留）：缓存 ID → Pipeline 识别节点。节点可以是纯 OCR，或 And 且 `box_index` 指向 OCR 数字结果（顶栏货币、采购中心等） |
 | `deduplicate` | IconRecognition 去重；A2 默认 `true` |
@@ -69,7 +69,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | `transaction_mode` | 可选的 TaskID 级暂存：`begin` 开始并扫描、`continue` 继续扫描、`commit` 不识别画面而只提交完整 staging；省略时保持扫描后立即落盘 |
 | `notify_ui` | 是否播报命中物品；默认 `true`。扫描结束后输出一条带图标的 HTML 汇总；事务扫描阶段按页汇总，`commit` 则汇总本事务实际命中物品的最终去重数量 |
 
-提供 `grid_type`（IconRecognition 扫库）与 `items` 至少其一。采购中心等可只传 `items`（如 `item_originium_recharge` / `item_diamond`）。`items` 里的键在 `page_dedup=false` 时一律参与地区重建（未命中则从缓存删除）。
+提供 `grid_type`（IconRecognition 扫库）与 `items` 至少其一。采购中心等可只传 `items`（如 `item_originium_recharge` / `item_diamond`）。`items` 里的键在 `merge_mode: replace` 且 `page_dedup=false` 时一律参与地区重建（未命中则从缓存删除）。
 
 示例（培养素材页）：
 
@@ -106,6 +106,14 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 `sum` 合并的是两个界面上的**绝对库存快照**，不能替代 A3 的奖励增量语义，也不应脱离完整的「首区域 replace → 第二区域 sum」流程单独调用。普通翻页仍使用默认 `replace`：第 1 页地区重建；后续页只覆写当页可见 ID，避免抹掉前面页。预留入口 `SyncItemData` 的默认链路为：
 
+```text
+初次：SyncItemDataRunFull（page_dedup = false，地区重建）
+  next[0]：[JumpBack]SyncItemDataScrollPage → 滑动后 SyncItemDataRunInc（page_dedup = true）
+  next[1]：SyncItemDataLock（扫描结束）
+```
+
+额外翻页由 `SyncItemDataScrollPage` 控制：该节点默认 `enabled=false`，目前没有任何控制器资源开启它，因此实际只扫描首屏。需要翻页时先在对应控制器的资源里开启该节点，再用 `max_hit`（当前为 1）控制额外翻页次数；`max_hit` 用尽后 JumpBack 不再命中，走 Lock。
+
 跨多个页面或库存区域且要求“中断时不污染正式缓存”时，可在同一 Pipeline TaskID 内使用：
 
 ```text
@@ -116,19 +124,11 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 `begin` 会替换同 runner 上一次未完成的 staging；`continue` / `commit` 必须与 staging 的 TaskID 一致。`commit` 不要求 `grid_type` 或 `items`，也不会再次截图；当 `notify_ui: true` 时，会在提交成功后按本地化物品名排序并输出一条带图标的 HTML 汇总。省略 `transaction_mode` 时，兼容原有每次 A2 调用立即持久化的行为。
 
-```text
-初次：SyncItemDataRunFull（page_dedup = false，地区重建）
-  next[0]：[JumpBack]SyncItemDataScrollPage → 滑动后 SyncItemDataRunInc（page_dedup = true）
-  next[1]：SyncItemDataLock（扫描结束）
-```
-
-额外翻页次数只改 `SyncItemDataScrollPage.max_hit`（当前为 1）。`max_hit` 用尽后 JumpBack 不再命中，走 Lock。该节点在 Win32-Front 默认 `enabled=false`，ADB 资源开启并覆盖为上滑。
-
 ### 同 Resource 只真正扫库一次（实现细节）
 
 上述规范由各入口节点内部自动完成，业务侧只需反复调用对应入口：
 
-1. **首次调用**：真正进入目标界面扫库，写好缓存后，用 Resource 级覆盖把「再扫一次」的通路关掉，且本次运行内不再打开。
+1. **首次调用**：真正进入目标界面扫库，写好缓存后，用 Resource 级覆盖把「再扫一次」的通路关掉，且本次运行内不再打开（切换账号会重新打开全部入口）。
 2. **再次调用**：入口仍可进入，但会立刻判定「本轮已经同步过」，跳过扫库并继续后续业务。
 3. **下次冷启动**：重新加载 Resource / 重启客户端后，通路恢复；下一个 IMS 任务会重新扫库。
 
@@ -162,7 +162,7 @@ A3 在**奖励播报界面**用与 A2 相同的路径：一次 IconRecognition�
 | `grid_type` | 默认 `rewards` |
 | `roi` | 可选；默认奖励界面参考 ROI（Win32 `[39,82,1205,511]` / ADB `[178,140,935,440]`） |
 | `item_filters` | 可选；省略则用 rewards 默认候选（`Isolate:*` + `ValuableDepot:*`） |
-| `item_ids` | 可选；与 `item_filters` **取并集**（先展开 filter 再合并 ID）。仅有 `item_ids` 时按 catalog 推导覆盖用 filter。用于从大类中精确追加子集（如基建快速收取只要武器检查单元/装置，不要模具/套组） |
+| `item_ids` | 可选；与 `item_filters` **取并集**（先展开 filter 再合并 ID）。仅有 `item_ids` 时按 catalog 推导覆盖用 filter。用于从大类中精确选取子集（如选剑演武的 `TrialOfSwordmancyFightSuccess` 只传 `item_domain_jinlong_coupon`：只累加武陵调度券，不含同属 `Isolate:DomainGold` 的谷地调度券） |
 
 `custom_action_param` 可为 `{}`。**不会**更新同步时间戳 / 就绪状态。
 
@@ -176,7 +176,7 @@ A3 在**奖励播报界面**用与 A2 相同的路径：一次 IconRecognition�
 
 ### 不依赖缓存也能跑
 
-A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
+A3 **不要求 IMS 缓存已经存在**。
 
 若从未成功做过 A2（`hasData=false`），A3 仍会识别奖励，但**不写入缓存**，且动作仍返回成功，避免卡住关奖励等后续流程。空奖励（IconRecognition `no_match` / `grid_detection_failed`）以及磁盘 hydrate 失败同样视为成功。IconRecognition `exception`，以及带 `item_ids` 时在候选项解析阶段读不到 `recognition_items.json`，都会记录错误并按空奖励继续，随后仍走到关闭奖励的点击。参数非法（JSON 无法解析、空值、重复、未知 `item_id`）仍然失败。命中物品时在识别结束后输出一条 HTML 汇总（同 ID 多堆数量先合并，模板 `ims.add_item_summary`，含图标），不提示「未初始化 / 不写入缓存」等 IMS 头尾信息。
 
@@ -186,7 +186,7 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 >
 > 参考 Pipeline：`AddItemDataOnRewards` → `AddItemDataCloseRewards`。
 >
-> 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励等）、`DijiangRewardsFastCollectAddItemData`（基建快速收取，独立候选）、`CreditShoppingClaimConfirm`（信用商店：玉/折金票/武库配额/信用 + `ValuableDepot:SpecialItem`）、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`。
+> 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励等）、`DijiangRewardsFastCollectAddItemData`（基建快速收取，独立候选）、`CreditShoppingClaimConfirm`（信用商店：玉/折金票/武库配额/信用 + `ValuableDepot:SpecialItem`）、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`、`SceneNoticeRewardsConfirmWithAnchor`、`ReceptionRoomSendCluesQuickGiveClose`（会客室快速赠予）、`AutoDeliveryCloseRewardDialog`（自动送货）、`ProtocolSpaceRewardAddItemData`（协议空间）、`TrialOfSwordmancyFightSuccess`（选剑演武）。
 
 ---
 
@@ -344,7 +344,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 
 - 会话内以进程内存为准；热路径不反复读盘。
 - A2 非事务调用、A2 事务 `commit`、A1、A3（在 `hasData` 时）成功写入会同步落盘，供下次冷启动恢复；A2 的事务 `begin` / `continue` 不会修改正式缓存。
-- `ClearCache`（测试 / 账号切换）清空内存，且**不会**再从磁盘灌回。
+- `ClearCache` 清空内存，且**不会**再从磁盘灌回。
 - 缓存允许小幅偏差，靠周期 A2 纠偏。
 
 ### Go 辅助 API（测试）

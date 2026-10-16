@@ -20,6 +20,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/closegame"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/exitlauncher"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expendable"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/failurecollector"
@@ -71,6 +72,7 @@ func registerAll() {
 	failurecollector.Register()
 	clearhitcount.Register()
 	closegame.Register()
+	exitlauncher.Register()
 	pipelineoverride.Register()
 	expressionrecognition.Register()
 	focusocr.Register()

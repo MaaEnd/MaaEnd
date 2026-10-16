@@ -5,8 +5,8 @@
 ## 数据流
 
 ```text
-zmdmap 数据 CI：TableCfg → data/scripts/sell_product_data.py → 发布精简游戏数据 sell_product.json
-MaaEnd：fetch-data.mjs → data/sell_product.json
+zmdmap 数据 CI：TableCfg → tools/zmdmap/datasets/sell_product.py（uv run zmdmap generate）→ 发布精简游戏数据 sell_product.json
+MaaEnd：uv run zmdmap fetch → data/sell_product.json
                       → 本目录生成器 → assets/ 下的生成产物（不要手改）
 ```
 

@@ -25,8 +25,8 @@ const request = {
   task_id: 200000001,
 };
 
-function position(timestamp, x, y, {status = 0} = {}) {
-  return `[${timestamp}][INF][position_provider.cpp][mapnavigator::PositionProvider::Capture] MapLocator [status=${status}] [position.zoneId=Wuling_Base] [position.x=${x}] [position.y=${y}]`;
+function position(timestamp, x, y, {status = 0, functionName = "captureImpl"} = {}) {
+  return `[${timestamp}][INF][position_provider.cpp][mapnavigator::PositionProvider::${functionName}] MapLocator [status=${status}] [position.zoneId=Wuling_Base] [position.x=${x}] [position.y=${y}]`;
 }
 
 const lines = [
@@ -572,6 +572,29 @@ test("extracts measured ground tracks without connecting zipline rides", () => {
   const points = logRunPoints(run);
   assert.ok(points.some(([x, y]) => x === 940.8 && y === 1699.8));
   assert.ok(points.some(([x, y]) => x === 724.98 && y === 1596.8));
+});
+
+test("parses measured ground tracks from the legacy Capture and current captureImpl log frames", () => {
+  for (const functionName of ["Capture", "captureImpl"]) {
+    const [run] = parseMapNavigatorLog(
+      [
+        lines[0],
+        position("2026-08-26 11:42:21.000", 965.5, 1803.38, {functionName}),
+        position("2026-08-26 11:42:22.000", 955.8, 1777.7, {functionName}),
+        lines.at(-1),
+      ].join("\n"),
+    );
+    assert.deepEqual(
+      run.observedWalks,
+      [
+        [
+          [965.5, 1803.38],
+          [955.8, 1777.7],
+        ],
+      ],
+      functionName,
+    );
+  }
 });
 
 test("resumes measured tracking after a zipline phase ends without a confirmed landing", () => {

@@ -1,13 +1,13 @@
 # Development Guide - Node Testing
 
-This document describes how node tests are currently written in MaaEnd. The rules here follow `maatools.config.mts`, `tools/schema/test.schema.json`, and the existing files under `tests/`.
+This document describes how node tests are currently written in MaaEnd. The rules here follow `maatools.config.mts`, `tests/scripts/loader.mts`, `tools/schema/test.schema.json`, and the existing files under `tests/`.
 
 ## What Node Tests Are For
 
 Node tests verify which nodes should hit, and which should not hit, on a static screenshot.
 
-- Good for validating recognition nodes, reusable nodes, and scene-detection nodes.
-- Good for regression coverage when templates, thresholds, or ROI are changed.
+- Good for validating whether recognition nodes, reusable nodes, and scene-detection nodes are stable.
+- Good for regression coverage of reused nodes, so that changing templates or ROI does not break existing scenes.
 - Not a replacement for full workflow debugging; sequence correctness still needs to be checked in development tools and on real runs.
 
 ## Directory Layout
@@ -19,7 +19,7 @@ tests/
 |- MaaEndTestset/
 |  |- Win32/Official_CN/*.png
 |  `- ADB/Official_CN/*.png
-|- Common/Button/test_button.json
+|- Common/Button/test_close_button.json
 |- DeliveryJobs/test_region.json
 `- ...
 ```
@@ -27,7 +27,7 @@ tests/
 - Test definition files can be placed anywhere under `tests/`, but the filename must match `test_*.json`.
 - Test screenshots live under `tests/MaaEndTestset/`.
 - The `image` field must contain the full screenshot file name, including its extension, for example `xxx.png`.
-- The real screenshot path is resolved by `maatools.config.mts`; in practice it points under `tests/MaaEndTestset/<controller>/<resource>/` and matches the concrete screenshot file from `image`.
+- The real screenshot path is resolved by `tests/scripts/loader.mts` (under the `test.casesCwd` root in `maatools.config.mts`); in practice it points under `tests/MaaEndTestset/<controller>/<resource>/` and matches the concrete screenshot file from `image`.
 
 With the current config:
 
@@ -37,7 +37,7 @@ With the current config:
 - `resource = "官服"` maps to `tests/MaaEndTestset/*/Official_CN/`.
 - If either `controller` or `resource` is an array, tests are expanded as a Cartesian product.
 
-If you add a new resource server or controller enum, update the mapping in `maatools.config.mts` as well.
+If you add a new resource server or controller enum, besides adding the test files, also update the mapping (`resourceMap` / `controllerMap`) in `tests/scripts/loader.mts`.
 
 ## File Schema
 
@@ -48,7 +48,7 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
     "configs": {
         "name": "(Win32/ADB-官服)Common Buttons",
         "resource": ["官服"],
-        "controller": ["Win32", "ADB"],
+        "controller": ["Win32", "ADB"]
     },
     "cases": [
         {
@@ -60,12 +60,12 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
                     "node": "RegionalDevelopmentButton",
                     "box": {
                         "Win32": [223, 32, 32, 19],
-                        "ADB": [220, 30, 34, 20],
-                    },
-                },
-            ],
-        },
-    ],
+                        "ADB": [220, 30, 34, 20]
+                    }
+                }
+            ]
+        }
+    ]
 }
 ```
 
@@ -75,7 +75,7 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
 - `resource`: resource server name. It can be either a single string or an array of strings. The current repo uses `官服`.
 - `controller`: controller type. It can be either a single string or an array of strings. The current repo uses `Win32` and `ADB`.
 
-When `controller` or `resource` is an array, `maatools.config.mts` expands the file into multiple test groups using the Cartesian product of controller and resource values.
+When `controller` or `resource` is an array, `tests/scripts/loader.mts` expands the file into multiple test groups using the Cartesian product of controller and resource values.
 
 For example:
 
@@ -84,7 +84,7 @@ For example:
 
 expands into four groups: `ADB-官服`, `ADB-B服`, `Win32-官服`, and `Win32-B服`.
 
-Only use values that already have mappings in `maatools.config.mts` and screenshots in the test set.
+Only use values that already have mappings in `tests/scripts/loader.mts` and screenshots in the test set.
 
 ### `cases`
 
@@ -99,20 +99,20 @@ Only use values that already have mappings in `maatools.config.mts` and screensh
 
 1. Check only node hits:
 
-```json
-"hits": ["InWorld", "CloseButtonType1"]
-```
+   ```json
+   "hits": ["InWorld", "CloseButtonType1"]
+   ```
 
 1. Check both node hit and bounding box:
 
-```json
-"hits": [
-    {
-        "node": "RegionalDevelopmentButton",
-        "box": [223, 32, 32, 19]
-    }
-]
-```
+   ```json
+   "hits": [
+       {
+           "node": "RegionalDevelopmentButton",
+           "box": [223, 32, 32, 19]
+       }
+   ]
+   ```
 
 `box` can also be a matrix object so different controllers or resources use different rectangles:
 
@@ -129,7 +129,7 @@ Only use values that already have mappings in `maatools.config.mts` and screensh
 ]
 ```
 
-The current lookup priority in `maatools.config.mts` is:
+The current lookup priority in `tests/scripts/loader.mts` is:
 
 - `controller:resource`
 - `controller/resource`
@@ -140,9 +140,9 @@ The current lookup priority in `maatools.config.mts` is:
 - `default`
 - `*`
 
-The final value passed to `maa-tools` is still a fixed `[x, y, width, height]` rectangle, and all four values must be integers greater than or equal to 0.
+The final value passed to `maa-tools` is still a fixed `[x, y, width, height]` rectangle, and all four values must be integers greater than or equal to 0. The check passes when the actual hit box lies entirely inside this rectangle; it does not have to match exactly.
 
-If nothing should hit on a screenshot, use an empty array:
+If none of the nodes tested in this file (the nodes listed in other cases' `hits`) should hit on a screenshot, use an empty array:
 
 ```json
 "hits": []
@@ -156,7 +156,7 @@ Negative cases like this are important for catching false positives.
 
 Follow the existing pattern and group tests by module or node family, for example:
 
-- `tests/Common/Button/test_button.json`
+- `tests/Common/Button/test_close_button.json`
 - `tests/DeliveryJobs/test_region.json`
 - `tests/EnvironmentMonitoring/test_job.json`
 
@@ -198,14 +198,14 @@ If you also care whether it hits the correct target location, especially for ful
 
 Based on the current pipeline guidelines, prioritize screenshots like these:
 
-- Frames around transitions where recognition is easy to miss.
+- Frames around transitions where recognition is easy to get wrong.
 - Screens with multiple clickable elements where misclicks are likely.
 - Hover, selected, disabled, reward-popup, or other special states.
 - Screens that differ slightly between ADB and Win32.
 
 ## Relation To Pipeline Guidelines
 
-Node tests should support the current pipeline design rules:
+Node tests do not exist in isolation; they should support the current pipeline design rules:
 
 - If a node is responsible for a key state decision, it should usually have tests so that the first `next` scan remains reliable.
 - If you added intermediate recognition nodes to avoid `pre_delay` or `post_delay`, add tests for those intermediate nodes too.
@@ -226,7 +226,8 @@ In this repository, `package.json` maps that command to `maa-tools test`, and CI
 `maa-tools test` does not start agents, so it cannot test custom recognitions that agents provide. `MapLocateAssertLocation` location nodes are tested by a standalone Python runner instead: run `pnpm test:map-locate` or `uv run python tests/MapLocateAssertLocation/map_locate.py`. In CI this is the `map-locate-test` job. See the [location node screenshot test](../../../tests/MapLocateAssertLocation/README.md) for the case format, sample requirements, and prerequisites.
 
 Route pathfinding connectivity is checked by another standalone runner: run `uv run python tests/MapNavmeshConnectivity/navmesh_connectivity.py`. It sends the start and goal from its case file to the agent for route planning; a successful plan counts as connected. It does not need screenshots. In CI this is the `Run navmesh connectivity tests` step of the `map-locate-test` job. See the [connectivity test](../../../tests/MapNavmeshConnectivity/README.md) for the case format and pass criteria.
-Ordinary node test logs are written to:
+
+By default, ordinary node test logs are written to:
 
 ```text
 tests/maatools/
@@ -251,9 +252,9 @@ The repository already maps `tests/**/*.json` to `tools/schema/test.schema.json`
 That means:
 
 - New test files get schema validation and completion in the editor.
-- Comments are allowed, just like in existing test files.
+- Comments are allowed, just like in existing test files, which makes it easy to keep temporary notes on negative cases.
 
-Even so, keep committed files clean and readable; avoid leaving large blocks of temporary comments behind.
+Even so, whether or not comments are allowed, keep files readable before committing; avoid leaving meaningless comment blocks behind.
 
 ## Complete Example
 
@@ -261,15 +262,15 @@ Even so, keep committed files clean and readable; avoid leaving large blocks of 
 {
     "configs": {
         "name": "(Multi-controller/multi-resource) Example Node Test",
-        // Only use this form when mappings and screenshots exist for every combination
+        // Only write it this way when the mappings exist in tests/scripts/loader.mts and the test set has the matching screenshots
         "resource": ["官服", "B服"],
-        "controller": ["Win32", "ADB"],
+        "controller": ["Win32", "ADB"]
     },
     "cases": [
         {
             "name": "World home page",
             "image": "帝江号_大世界.png",
-            "hits": ["InWorld"],
+            "hits": ["InWorld"]
         },
         {
             "name": "Check controller-specific box positions",
@@ -279,17 +280,17 @@ Even so, keep committed files clean and readable; avoid leaving large blocks of 
                     "node": "SpecialButtonWithOffset",
                     "box": {
                         "ADB": [91, 587, 274, 48],
-                        "Win32": [100, 600, 250, 50],
-                    },
-                },
-            ],
+                        "Win32": [100, 600, 250, 50]
+                    }
+                }
+            ]
         },
         {
             "name": "Negative case: should not hit",
             "image": "武陵_拍照模式_拍摄目标未达成.png",
-            "hits": [],
-        },
-    ],
+            "hits": []
+        }
+    ]
 }
 ```
 
@@ -298,7 +299,7 @@ Even so, keep committed files clean and readable; avoid leaving large blocks of 
 After adding or editing node tests, check at least these items:
 
 - The file name matches `test_*.json`.
-- `configs.resource` and `configs.controller` are mapped in `maatools.config.mts`.
+- `configs.resource` and `configs.controller` are mapped in `tests/scripts/loader.mts`.
 - If `configs.controller` or `configs.resource` is an array, confirm screenshots exist for every expanded combination.
 - If `box` is a matrix object, confirm every required combination can be resolved, or provide a suitable `default`.
 - `image` includes the full file name with extension, and points to a real screenshot in the resolved directory.
@@ -316,11 +317,11 @@ That is what makes node tests useful as a safety net during refactors, threshold
 
 ### What's the difference between `default` and `*` in a `box` matrix?
 
-`default` is the fallback when no specific controller/resource key matches. `*` is a wildcard that matches any controller or resource. In priority order, `default` ranks higher than `*` (`*` is the lowest priority). In most cases, `default` alone is sufficient — only use `*` if you specifically need its behavior.
+Both `default` and `*` are fallback keys, used only when none of the controller/resource keys match; `default` is checked before `*`. They behave the same, so `default` alone is enough.
 
 ### Where do screenshots come from?
 
-Use the Maa Pipeline Support VS Code extension (`Ctrl+Shift+P` → `Maa: Screenshot`) to capture them, then place them under `tests/MaaEndTestset/<controller>/<resource>/`.
+Use the Maa Pipeline Support VS Code extension (`Ctrl+Shift+P` → `Maa: take screenshot`) to capture them, then place them under `tests/MaaEndTestset/<controller>/<resource>/`.
 
 ### How to debug test failures?
 

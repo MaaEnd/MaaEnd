@@ -70,6 +70,11 @@
                         "DailyProtocolPassRewards": "Yes"
                     }
                 }
+            ],
+            "pretask": [
+                {
+                    "name": "LaunchGamePC"
+                }
             ]
         }
     ]

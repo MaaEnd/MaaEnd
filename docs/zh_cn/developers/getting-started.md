@@ -248,7 +248,7 @@ Pipeline 的核心逻辑是类似**有限状态机（FSM）/决策树（Decision
 
 编码规范：不推荐使用 `pre_delay` 或 `post_delay` 这类硬延迟，因为不同设备的性能差距很大。10 帧和 60 帧在过动画时要等待的时间完全不同，硬延迟会掩盖很多问题，开发环境能跑不代表用户环境能跑。
 
-只在必须等画面稳定时才使用 `pre_wait_freezes` 或 `post_wait_freezes`，其他时候应该尽量避免延迟。例如上文中 `"post_wait_freezes": 100` 表示在 `roi` 区域 `[400, 200, 480, 320]` 内像素变化结束后，再等待 100 ms。
+只在必须等画面稳定时才使用 `pre_wait_freezes` 或 `post_wait_freezes`，其他时候应该尽量避免延迟。例如上文中 `"post_wait_freezes": 100` 表示点击后，等识别命中的那块区域（不是整个 `roi`）连续 100 ms 没有明显变化，再去识别 `next`。
 
 下一步 `OutpostTradingLoop` 里应继续用识别节点确认已进入地区建设界面，而不是假设点击一定成功。FSM 最重要的是：先识别、确认当前状态，然后再进行操作。
 
@@ -276,7 +276,7 @@ Pipeline 的核心逻辑是类似**有限状态机（FSM）/决策树（Decision
 
 > **💡 进阶提示：组合识别 (And / Or)**
 >
-> 除了传统的 `TemplateMatch` (模板匹配)、`Color` (颜色匹配) 等基础方法外，Pipeline 还支持使用逻辑条件 **`And` (与)** 和 **`Or` (或)** 来组合多个识别节点。这在处理复杂或多变的 UI 状态时非常有用。
+> 除了传统的 `TemplateMatch` (模板匹配)、`ColorMatch` (颜色匹配) 等基础方法外，Pipeline 还支持使用逻辑条件 **`And` (与)** 和 **`Or` (或)** 来组合多个识别节点。这在处理复杂或多变的 UI 状态时非常有用。
 >
 > 关于组合识别的具体语法和高级用法，请参阅 [MaaFramework 官方文档 - Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol#and)。
 
@@ -388,7 +388,7 @@ Pipeline 跑通后，补齐配套：
                 "WulingSell"
             ],
             "group": [
-                "daily"
+                "regional_development"
             ]
         }
     ]

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	gamesetting "github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
+	gamesetting "github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/gamesetting"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/shirou/gopsutil/v4/process"
