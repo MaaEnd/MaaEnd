@@ -335,6 +335,8 @@ constexpr int32_t kZiplineRideTimeoutMs = 30000;
 constexpr int32_t kZiplineRideLostFixes = 3;
 // 起滑按完先等这么久再开始量位移, 免得把起步前的几帧当成没滑起来
 constexpr int32_t kZiplineLaunchSettleMs = 400;
+// 滑完小地图重新出现后先等这么久再收定位, 刚出现的几帧画面还没稳定
+constexpr int32_t kZiplineLandingSettleMs = 400;
 // 瞄准精度只能在按左键之前保证: 按下去人就滑走了, 半空里没有跟随层能把方向修回来。走路那套
 // 40 度容差是靠跟随层善后才敢留的, 这里不能用
 constexpr double kZiplineAimToleranceDeg = 6.0;

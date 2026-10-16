@@ -140,6 +140,7 @@ private:
     int miss_streak_ = 0;
     int settle_hits_ = 0;
     bool riding_entered_ = false;
+    std::optional<Clock::time_point> minimap_back_at_;
     std::optional<Clock::time_point> unknown_deadline_;
 
     // 瞄准闭环: 一次只发一个批次, 等朝向读数跟上并稳定后再算剩余
