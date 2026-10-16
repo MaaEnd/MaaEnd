@@ -27,9 +27,8 @@ const (
 	regionGlobal   = "Global"
 	regionBilibili = "Bilibili"
 
-	gameProcessName     = "Endfield.exe"
-	launcherProcessName = "Games.exe"
-	launcherExeName     = "Launcher.exe"
+	gameProcessName = "Endfield.exe"
+	launcherExeName = "Launcher.exe"
 
 	pipelineEntry = "GameLauncherMain"
 
@@ -167,12 +166,8 @@ func Run(args []string) bool {
 		Str("install_dir", installDir).
 		Msg("launcher install directory found")
 
-	if isProcessRunning(launcherProcessName, installDir) {
-		log.Info().
-			Str("component", component).
-			Str("install_dir", installDir).
-			Msg("launcher is already running, skip starting")
-	} else if err := startLauncher(installDir); err != nil {
+	// 启动器最小化到托盘时进程仍在但窗口不可见，因此无论进程是否存在都执行一次以唤出窗口。
+	if err := startLauncher(installDir); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", component).
