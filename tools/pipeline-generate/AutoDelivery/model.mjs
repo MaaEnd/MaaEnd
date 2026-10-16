@@ -2,7 +2,7 @@ import {readFileSync} from "node:fs";
 
 import {BASE_NAV_ZONE_IMAGE_PARTS} from "../../MapNavigator/web/static/js/model.js";
 
-const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
+const catalogSource = JSON.parse(readFileSync(new URL("../../zmdmap/data/delivery_destinations.json", import.meta.url), "utf8"));
 export const mapSources = catalogSource.maps ?? {};
 
 const routeSource = JSON.parse(readFileSync(new URL("./routes.json", import.meta.url), "utf8"));

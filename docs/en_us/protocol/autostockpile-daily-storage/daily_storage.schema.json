@@ -83,7 +83,7 @@
             "type": "object"
         }
     },
-    "$id": "https://raw.githubusercontent.com/MaaEnd/MaaEnd/main/docs/en_us/protocol/autostockpile-daily-storage/daily_storage.schema.json",
+    "$id": "https://raw.githubusercontent.com/MaaEnd/MaaEnd/v2/docs/en_us/protocol/autostockpile-daily-storage/daily_storage.schema.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "additionalProperties": false,
     "description": "Format definition for the ElasticGoodsPrices.json file written by the AutoStockpile task.",

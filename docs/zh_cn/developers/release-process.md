@@ -72,13 +72,13 @@
 ### Hotfix 流程
 
 1. 基于 `release/vX.Y` 创建 fix 分支，提交修复
-2. 提 PR 到 `release/vX.Y`，合入
-3. CI 自动 cherry-pick 到 `v2`，在 v2 上出现一条 `fix: cherry-pick #N from release/vX.Y to v2` 的 PR——**直接合入即可**
+2. 提 PR 到 `release/vX.Y`，用 squash 方式合入（提交标题以 `(#N)` 结尾才会触发自动 cherry-pick）
+3. CI 自动 cherry-pick 到 `v2`，在 v2 上出现一条标题为 `<原 PR 标题> (cherry-pick of #N)` 的 PR——**直接合入即可**
 4. 在 release 分支上打新 tag（如 `v2.16.1`）触发发版
 
 ### Cherry-pick PR 有冲突怎么办
 
-手动解决冲突，向 `fix/pr-N` 分支推送修复，然后合入。
+若 CI 里 cherry-pick 本身冲突，工作流会直接失败，既不推送 `fix/pr-N` 也不建 PR：需基于 `v2` 手动创建 `fix/pr-N`，cherry-pick 并解决冲突后推送，再向 `v2` 提 PR，并在 PR 描述里加上 `[skip changelog]`。若 PR 已建好、之后才与 `v2` 冲突，手动解决冲突，向 `fix/pr-N` 分支推送修复，然后合入。
 
 ### 旧 release 分支何时删除
 

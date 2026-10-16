@@ -3,13 +3,19 @@ name = "maaend"
 version = "0.0.0"
 description = "Python dependencies for MaaEnd development scripts"
 requires-python = ">=3.10"
-dependencies = []
+# zmdmap 的 CLI 用 click、下载数据用 httpx；放核心依赖是为了让 CI 能
+# `uv run --no-default-groups zmdmap` 只装这两个包就出数据，不必拉 scripts 组里的 maafw / fastapi / numpy。
+dependencies = [
+    "click>=8.1,<9.0",
+    "httpx>=0.28,<1.0",
+]
 
 [project.scripts]
 build-and-install = "tools.setup.build_and_install:main"
 map-navigator = "tools.MapNavigator.main:main"
 sentry-report = "tools.sentry.cli:main"
 setup-workspace = "tools.setup.setup_workspace:main"
+zmdmap = "tools.zmdmap.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13"]
@@ -52,5 +58,5 @@ default-groups = ["scripts"]
 package = true
 
 [tool.uv.build-backend]
-module-name = ["tools.MapNavigator", "tools.sentry", "tools.setup"]
+module-name = ["tools.MapNavigator", "tools.sentry", "tools.setup", "tools.zmdmap"]
 module-root = ""

@@ -2,13 +2,13 @@
 
 本文说明 `DijiangRewards` 的文件分布与执行流程。  
 设计核心是「总控中枢分发 + 子阶段回跳」：各子阶段彼此独立，选项只改阶段入口或分支，不动主流程骨架。  
-该文档更新于 2026 年 10 月 7 日。
+该文档更新于 2026 年 10 月 14 日。
 
 ## 文件路径
 
 | 路径 | 作用 |
 | -------------------------------------------------------------------- | --------------------------------------- |
-| `assets/interface.json` | 任务挂载（`dijiang_ship` / `daily` 组） |
+| `assets/interface.json` | 任务挂载（`dijiang_ship` 组；另被 `DailyFull` / `QuickDaily` 预设引用） |
 | `assets/tasks/DijiangRewards.json` | 任务入口、阶段开关、会客室与培养舱选项 |
 | `assets/resource/pipeline/DijiangRewards/Entry.json` | 进入帝江号总控中枢 |
 | `assets/resource/pipeline/DijiangRewards/MainFlow.json` | 总控中枢按顺序分发各子阶段 |
@@ -17,7 +17,7 @@
 | `assets/resource/pipeline/DijiangRewards/ReceptionRoom.json` | 会客室线索收集、交流、赠予 |
 | `assets/resource/pipeline/DijiangRewards/Manufacturing.json` | 制造舱收菜、补货、助力 |
 | `assets/resource/pipeline/DijiangRewards/GrowthChamber.json` | 培养舱领奖、再次种植、选材培养 |
-| `assets/resource/pipeline/DijiangRewards/NeedCredit.json` | 供信用点商店联动的补信用子流程 |
+| `assets/resource/pipeline/DijiangRewards/Entry.json` → `NeedCredit` | 供信用点商店联动的补信用入口，进入会客室流程 |
 | `assets/resource/pipeline/DijiangRewards/Template/Location.json` | 各舱室界面定位 |
 | `assets/resource/pipeline/DijiangRewards/Template/TextTemplate.json` | 按钮与状态 OCR 模板 |
 | `assets/resource/pipeline/DijiangRewards/Template/Status.json` | 红点、数量、库存等辅助识别 |
@@ -91,7 +91,7 @@
 
 | 模式 | 实际行为 |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `DoNothing`（不培养） | 只收成熟奖励，不进选材 |
+| `DoNothing`（不种植） | 只收成熟奖励，不进选材 |
 | `GrowAgain`（再次种植） | 关闭普通培养；领奖关闭后尝试「再次种植」并确认（[#2003](https://github.com/MaaEnd/MaaEnd/pull/2003) 后由领奖关闭触发，非详情页直接点） |
 | `Any`（界面显示「指定材料」） | 展开材料多选、提取基核和排序子选项，再从勾选材料中寻找可用目标 |
 
@@ -121,13 +121,15 @@
 ```text
 DijiangRewards
 ├── AutoStartExchange          # 会客室是否主动开线索交流
+│   └── WaitExchangeBeforeStart  # 线索齐全时等待当前交流结束；开启后展开 WaitExchangeBeforeStartThreshold
 ├── StageTaskSetting           # 展开阶段细分开关
 │   ├── FastCollect            # 一键收取
 │   ├── RecoveryEmotionStage
+│   │   └── RecoveryEmotionCabins  # 指定舱室，默认全选五个
 │   ├── ReceptionRoomStage
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
-├── ClueSetting                # 展开线索赠送次数 / 库存阈值
+├── ClueSetting                # 展开 SendCluesDirect / ClueSend / ClueStockLimit（直接赠予 / 溢出后赠送 / 库存上限）
 ├── QuickGiveDuplicateClues    # 快速赠予重复线索，默认关
 └── SelectToGrow               # 培养舱主模式
     ├── DoNothing

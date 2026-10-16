@@ -23,9 +23,10 @@
 | [`resource`](#resource资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
 | [`fsutil`](#fsutil输出路径与原子写文件) | 持久化输出的路径基准；临时文件 + rename，避免半截写入 | 日志 / debug / 持久化缓存 |
 | [`levenshtein`](#levenshtein编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
-| [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS、囤货、送货等扫格逻辑 |
+| [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS（经 `iconqty`）、据点交易商品识别 |
 | [`iconqty`](#iconrecognition--iconqty) | 扫格 + 格内数量 OCR | IMS A2 / A3 |
-| [`minicv`](#minicv轻量-cv) | 模板匹配、圆检测等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
+| [`minicv`](#minicv轻量-cv) | 模板匹配、圆形掩码等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
+| [`gamesetting`](#gamesetting游戏设置注册表) | 读写游戏设置注册表、判定区服、定位启动器安装目录（仅 Windows） | `LaunchGamePC`、`CloseGamePC`、分辨率 / HDR 检查 |
 | [`parentwatch`](#parentwatch父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
 
 ---
@@ -187,7 +188,7 @@ return matched, nil
 
 - 英文量级：`k` / `m` / `b`（大小写不敏感）
 - 中文 / 韩文：`万` `萬` `만`、`亿` `億` `억`
-- 小数与千分位逗号的常见写法
+- 小数与单个千分位逗号（如 `12,345`）
 
 | 函数 | 用途 |
 | --------- | -------------------------------- |
@@ -258,11 +259,25 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 
 **原子写**：`WriteFileAtomic(path, content, perm)`：同目录临时文件写完再 rename。适合 debug 落盘、可覆盖的缓存；**不保证掉电持久性**（不做目录 fsync）。
 
+### `gamesetting`：游戏设置注册表
+
+路径：`pkg/gamesetting/`
+
+游戏的画面、语言等设置保存在注册表 `HKCU\Software\Hypergryph\Endfield`（国服、B 服）或 `HKCU\Software\Gryphline\Endfield`（国际服），本包负责读写这些值。
+
+- `ApplyAll(region, Settings)`：一次写入显示模式 / 分辨率、语言、画质、帧率、AutoHDR，取值与 `LaunchGamePC` 选项的 case 名一致；需在游戏未运行时调用
+- `SetRegion` / `ResolveRegion`：显式指定区服，或根据运行中 `Endfield.exe` 目录下的 SDK DLL 自动判定
+- `GetXxx` / `SetXxx`：单项读写，不判定区服，沿用上次选定的注册表路径（默认国服）；要按当前区服读取，用 `IsVideoFullScreen`、`GetResolvedVideoResolutionWidth` / `GetResolvedVideoResolutionHeight`
+- `IsAutoHDREnabled` / `ApplyAutoHDR`：读写 Windows 对 `Endfield.exe` 的自动 HDR 设置（`HKCU\Software\Microsoft\DirectX\UserGpuPreferences`），HDR 检查用前者
+- `FindLauncherInstallDir(uninstallKey)`：从卸载项读取启动器安装目录
+
+注册表读写仅 Windows 有效：其他平台上多数函数返回 `ErrUnsupported`，`Apply` 返回 `false`，`IsAutoHDREnabled` 视为未开启。
+
 ### `levenshtein`：编辑距离
 
 路径：`pkg/levenshtein/`
 
-`Distance(a, b int)`，按 **rune** 比较，适合中日韩 OCR 噪声下的名称近似匹配。阈值由业务自行决定。
+`Distance(a, b string) int`，按 **rune** 比较，适合中日韩 OCR 噪声下的名称近似匹配。阈值由业务自行决定。
 
 ### `iconrecognition` / `iconqty`
 
@@ -277,7 +292,7 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 
 路径：`pkg/minicv/`
 
-纯 Go 模板匹配（含 SIMD 加速路径）、积分图、圆检测等。适合 Agent 内本地匹配；能用 Pipeline `TemplateMatch` 表达的优先仍写 Pipeline。
+纯 Go 模板匹配（含 SIMD 加速路径）、积分图、圆形掩码模板、圆内统计与实心圆绘制等。适合 Agent 内本地匹配；能用 Pipeline `TemplateMatch` 表达的优先仍写 Pipeline。
 
 ### `parentwatch`：父进程监视
 
@@ -296,7 +311,7 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 | OCR 文本变整数 | `ocrnum` |
 | `{A}+{B}<100` 这类条件 | Pipeline → `ExpressionRecognition`；Go 内 → `boolexpr` |
 | 读带注释的 JSON 配置 | `jsonclean`（或经 `resource.ReadJsonResource`） |
-| 区分 Adb / Win32 | `pienv.ControllerType()` |
+| 区分 Adb / Win32 | `pienv.ResolveControllerKind(ctrl)` + `IsAdbLikeControllerType()` |
 | 扫背包格子并读数量 | `iconrecognition` + `iconqty` |
 | 决定日志 / 记录 / 导出文件写到哪 | `fsutil.OutputPath` |
 | 写文件不留半截内容 | `fsutil.WriteFileAtomic` |

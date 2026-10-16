@@ -1,0 +1,24 @@
+{
+    "GameLauncherClickStartGame": {
+        "next": [
+            "GameLauncherInGame",
+            "GameLauncherClickStartGame",
+            "[JumpBack]SceneWaitBlackScreenLoadingExit"
+        ]
+    },
+    "GameLauncherInGame": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            -100,
+            100,
+            100
+        ],
+        "template": "SceneManager/LoginExit.png"
+    },
+    "GameLauncherExit": {
+        "desc": "退出鹰角启动器",
+        "action": "Custom",
+        "custom_action": "ExitGameLauncherAction"
+    }
+}

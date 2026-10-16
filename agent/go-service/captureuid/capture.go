@@ -12,8 +12,8 @@ import (
 	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/gamesetting"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )

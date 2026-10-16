@@ -27,7 +27,7 @@ _Custom code is usually only maintainable by the original author. If even the au
 
 ### Naming: PascalCase
 
-Node names use PascalCase, prefixed with the task name or module name within the same task. For example, `ResellMain`, `DailyProtocolPassInMenu`, `RealTimeAutoFightEntry`.
+Node names use PascalCase, prefixed with the task name or module name within the same task. For example, `AutoSellPressStockRedistribution`, `DailyProtocolPassInMenu`, `RealTimeAutoSkipEntry`.
 
 ### Prohibit Hard Delays
 
@@ -42,8 +42,8 @@ Use `pre_wait_freezes` / `post_wait_freezes` only when it is absolutely necessar
 
 ### `next` Hit on the First Round
 
-Expand the `next` list as much as possible to ensure that any game screen is expected, achieving the target node hit with a single screenshot.  
-**The project generally rejects all forms of retry mechanisms. All tasks must be completed in a single process, unless encountering an unsolvable problem, which must be discussed in the development group.**
+Expand the `next` list as much as possible to ensure that any game screen is expected, achieving the target node hit with a single screenshot and **executing the operation only once**.
+Use linear flows as much as possible to improve speed and stability.
 
 ### Recognize → Operate → Recognize Again
 
@@ -59,14 +59,15 @@ For example:
    _You cannot guarantee that the screen will still be the same after clicking the close button. In extreme cases, a game might pop up a new pool announcement, and directly clicking the next node might lead you into the gacha system._
    _You cannot guarantee whether background loading is needed during interface navigation, causing the screen to freeze. Directly clicking the next node might have no effect._
 
-2. When clicking a button that changes account data, you need to recognize the submit button → click the submit button → recognize that the button click was successful.\_
+2. When clicking a button that changes account data, you need to recognize the submit button → click the submit button → recognize that the button click was successful.
    _You cannot guarantee that every user's network is smooth. If the button click event does not successfully interact with the server, the entire interactive interface may freeze and become unresponsive, no matter how many times you click._
 
 ### Do Not Blindly Retry or Add Limits
 
-**Recommended:** When encountering a bug, find the root cause, specifying which node failed, which recognition did not meet expectations, and what the game triggered that caused the unintended interaction or lack of response. Then fix the recognition and operation issues of the corresponding node.
+**The project rejects the following two kinds of retries:**
 
-**Prohibited:** Trying the same operation again, blindly adding max_hit.
+1. **Retries that easily cause infinite loops** — after a failure, the operation retries itself, fails again, and loops endlessly until it times out.
+2. **Retries that mask failures** — using retries to paper over a failure instead of fixing the real problem.
 
 For example:
 
@@ -79,9 +80,15 @@ For example:
 3. Adding `max_hit` after a node enters an infinite loop.
    _An infinite loop is usually caused by recognition issues or logical flaws. Blindly adding `max_hit` will only interrupt the logic, similar to blindly throwing exceptions in code to break out of a task, leading to unpredictable consequences._
 
+**Recommended:** When encountering a bug, find the root cause, specifying which node failed, which recognition did not meet expectations, and what the game triggered that caused the unintended interaction or lack of response. Then fix the recognition and operation issues of the corresponding node.
+
+**Prohibited:** Trying the same operation again, blindly adding max_hit.
+
+If you truly run into a problem that cannot be solved (such as the game's own animation freezing or network fluctuations), a limited number of retries may be introduced after discussion in the development group.
+
 ### Handling Pop-ups and Loading
 
-A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, loading can be waited through, and it can automatically jump past when not in the target scenario.
+A good process is not just "the main flow works," but: the normal main flow works, pop-ups can be handled, loading can be waited through, and when it is not in the target scene it can automatically navigate there.
 
 Common practice is to add to `next`:
 
@@ -103,7 +110,7 @@ Go Service is only for handling complex image algorithms or special interaction 
 
 For example, in a product purchase task, Go Service only does price comparison, product traversal, etc.; opening product details, clicking buy, returning to the list, etc., are handled by Pipeline.
 
-In one sentence: **Pipeline manages the process, Go manages the difficulties.**  
+In one sentence: **Pipeline manages the process, Go manages the difficulties.**
 _Unnecessary Go logic greatly increases code complexity, making it extremely difficult for the next developer to develop and debug, and very challenging for cross-platform adaptation._
 
 ### Using Handles Inside Callbacks
@@ -113,7 +120,7 @@ Since maa-framework-go v4.0.0-beta.19, the `ctx`, `tasker`, `controller`, and `r
 - **Use them only within the current callback.** They all become invalid once the callback returns (`ctx.GetTasker()` returns `nil`, other methods return `maa.ErrClosed`). Do not store them in package-level variables or hand them to a goroutine that keeps running after the callback returns.
 - **Get the controller once per callback and pass it down.** Every call to `GetController()` destroys the object returned by the previous call; using the old one is a use-after-free and crashes go-service at random. The same applies to `GetResource()`. If a helper needs the controller, give it a `*maa.Controller` parameter instead of fetching it from `ctx` again.
 - **Check for nil before use.** `GetTasker()` / `GetController()` return `nil` when the client has disconnected, and a nil-pointer panic inside a callback terminates the whole go-service process.
-- **Use `pienv.ControllerType()` to tell controller types apart.** Do not fetch the controller and call `GetInfo()` just for that.
+- **Use `pienv.ControllerType()` to tell controller types apart.** Do not fetch the controller and call `GetInfo()` just for that. The PI protocol allows the Client to omit `PI_CONTROLLER`. When you need a fallback, use `pienv.ResolveControllerKind(ctrl)`, where `ctrl` is the one already passed down as described [above](#using-handles-inside-callbacks); still do not call `GetController()` again.
 - **Return `nil, false` when a recognition does not match.** If you return a non-nil result, its `Box` and `Detail` are written into the recognition detail even on a miss.
 
 ```go
@@ -135,7 +142,7 @@ img := capture(ctrl)
 ctrl.PostClick(x, y).Wait()
 ```
 
-See the "句柄生命周期" section of the [Go Service guide](../../../.agents/skills/go-service-guide/SKILL.md) for the full rules, and the [maa-framework-go beta.19 migration guide](https://github.com/MaaXYZ/maa-framework-go/blob/v4.0.0-beta.19/docs/migration/v4.0.0-beta.19.md) for the binding-side changes.
+See the "句柄生命周期" (handle lifecycle) section of the [Go Service guide](../../../.agents/skills/go-service-guide/SKILL.md) for the full rules, and the [maa-framework-go beta.19 migration guide](https://github.com/MaaXYZ/maa-framework-go/blob/v4.0.0-beta.19/docs/migration/v4.0.0-beta.19.md) for the binding-side changes.
 
 ## Cpp Algo Standards
 
@@ -145,14 +152,26 @@ Refer to the [MaaFramework Development Standards](https://github.com/MaaXYZ/MaaF
 
 ## Pre-submission Check
 
+By default you only need to format; there is no need to run the full checks locally:
+
 ```bash
 pnpm format        # JSON/YAML formatting
-pnpm format:go     # Go formatting
-pnpm check         # Resource and schema check
+pnpm format:go     # Go formatting (when agent/go-service/ is changed)
+pnpm format:md     # Markdown formatting (when Markdown docs are changed)
+```
+
+Run `pnpm check` and `pnpm test` **as needed**:
+
+```bash
+pnpm check         # Resource check
 pnpm test          # Node testing
 ```
 
-CI is also built around these validations: `pnpm check`, `uv run tools/validate_schema.py`, `pnpm test`, `pnpm format:all`.
+- Changes that include `tests/**` content (new or modified test cases, test screenshots, `hits` / `box` expectations) → **run `pnpm test` locally first**; if you also changed `assets/**` or `tools/schema/**`, run `pnpm check` as well.
+- Other changes (Pipeline, Go, Cpp, docs, etc.) → no need to run these two commands locally; follow the relevant CI after opening a PR (Go is checked by `go-check.yml`; docs-only changes trigger no PR CI).
+- When you want to check something locally (for example, debugging the hit rate of a recognition node or confirming the scope of a change), you can run either command on its own at any time.
+
+How CI maps to these commands: `pnpm check` + `uv run tools/validate_schema.py` ([`check.yml`](../../../.github/workflows/check.yml)), `pnpm test` ([`test.yml`](../../../.github/workflows/test.yml), triggered when a PR to or a push on `v2` changes `assets/**`, `tests/**` or `agent/cpp-algo/**`), `pnpm format:all` ([`format.yml`](../../../.github/workflows/format.yml), scheduled full formatting with automatic commits).
 
 ## Supporting Files
 
@@ -162,7 +181,7 @@ A functional change in MaaEnd often involves more than one place.
 
 - `assets/tasks/*.json`
 - `assets/resource/pipeline/**/*.json`
-- `assets/locales/interface/zh_cn.json`
+- `assets/locales/interface/*.json` (all languages)
 - `assets/interface.json`
 - `tests/**/*.json`
 
@@ -189,7 +208,7 @@ When adding, modifying, renaming, or removing either type of Custom component de
 - Do not create an empty parameter Schema for a component with no parameters or one that intentionally accepts arbitrary values
 - Do not modify `tools/schema/pipeline.schema.json`; it already references both Custom Schemas
 
-> MXU is a GUI for end-users and is not recommended for daily development and debugging. The above development tools can greatly improve development efficiency.
+> MXU is a GUI for end-users and is not recommended for daily development and debugging. The [development tools](./tools-and-debug.md#development-tools) can greatly improve development efficiency.
 
 ## Debug Workflow
 
@@ -229,7 +248,7 @@ uv run build-and-install --cpp-algo
 
 ### Resolution: 720p Base
 
-All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. MaaFramework automatically converts based on the user's device at runtime. It is recommended to use the above development tools for screenshots and coordinate conversion.
+All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. MaaFramework automatically converts based on the user's device at runtime. It is recommended to use the [development tools](./tools-and-debug.md#development-tools) for screenshots and coordinate conversion.
 
 ### HDR / Color Management
 
@@ -237,7 +256,7 @@ All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. M
 
 ### Resource Folder Link
 
-The resource folder is in a linked state. Modifying `assets` is equivalent to modifying the content in `install`; no additional copying is needed. **However, `interface.json` is a copy**; modification requires manual sync or running `build-and-install`.
+The resource folder is in a linked state. Modifying `assets` is equivalent to modifying the content in `install`; no additional copying is needed. **However, `interface.json` is a file hard link**, which breaks when git checks out a new version of the file or a tool rewrites it; after changes, sync it manually or run `build-and-install`.
 
 ### Folder Naming
 
@@ -252,7 +271,7 @@ Developers do not need to manually maintain multi-language OCR; just write the e
 
 ### Writing Requirements
 
-- `expected` should contain the complete text, not just a fragment. For example, write "This is an example content" instead of just "example content."
+- `expected` should contain the complete text, not just a fragment. For example, write `这是一段示例内容` (a piece of sample text) instead of just `示例内容` (sample text).
 - Only when the OCR engine is unstable in recognizing complete text (e.g., containing percent signs, special symbols, easily confused characters) and it is truly necessary to use fragments or handwritten regular expressions for stable matching is skipping automatic processing allowed. **Truncation is not a default method but a fallback.**
 
 Requirements:
@@ -261,7 +280,7 @@ Requirements:
 2. Add a normal JSON comment above the array to retain the **complete original text** for review, multilingual reference, and future restoration of complete matching after OCR engine upgrades.
 
 ```jsonc
-// OCR engine is unstable with percent signs in "stable production 100%", using truncated match
+// OCR engine is unstable with the percent sign in "稳定生产 100%", using truncated match
 "expected": [
     // "稳定生产 100%"
     // @i18n-skip
@@ -273,7 +292,7 @@ Default writing (recommended, automatic i18n processing):
 
 ```jsonc
 "expected": [
-    "This is an example content"
+    "这是一段示例内容"
 ]
 ```
 

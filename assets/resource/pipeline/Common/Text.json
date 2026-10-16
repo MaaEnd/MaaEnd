@@ -119,6 +119,26 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "CheckNodeOverviewText": {
+        "desc": "检查「本地仓储节点」界面顶部的文字，来确认已经进入了本地仓储节点界面",
+        "recognition": "OCR",
+        "roi": [
+            54,
+            113,
+            246,
+            102
+        ],
+        "expected": [
+            "节点一览",
+            "節點一覽",
+            "Node Overview",
+            "ボックス一覧",
+            "노드 목록"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "CheckCourierInfoText": {
         "desc": "检查「我转交的委托」界面中的运送人信息文字，来确认已经进入了运送人信息界面",
         "recognition": "OCR",

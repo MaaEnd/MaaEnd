@@ -1,9 +1,9 @@
 package hdrcheck
 
 import (
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/gamesetting"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )

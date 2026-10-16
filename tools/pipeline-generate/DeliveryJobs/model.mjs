@@ -8,8 +8,8 @@ const INTERFACE_LOCALES = [
     "ko_kr",
 ];
 
-const deliveryJobsData = readJsonc(new URL("../data/delivery_jobs.json", import.meta.url));
-const deliveryDestinationsData = readJsonc(new URL("../data/delivery_destinations.json", import.meta.url));
+const deliveryJobsData = readJsonc(new URL("../../zmdmap/data/delivery_jobs.json", import.meta.url));
+const deliveryDestinationsData = readJsonc(new URL("../../zmdmap/data/delivery_destinations.json", import.meta.url));
 const iconRecognitionItems = readJsonc(
     new URL("../../../assets/data/IconRecognition/recognition_items.json", import.meta.url),
 );

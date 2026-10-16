@@ -9,6 +9,7 @@
 const REQUEST_PREFIX = "[req=";
 const REQUEST_SUFFIX = "] [ipc_addr_=";
 const OBSERVED_MIN_STEP = 1.0;
+const OBSERVED_CAPTURE_MARKER = /PositionProvider::(?:Capture|captureImpl)/;
 
 const REASON_TEXT = Object.freeze({
   "the walk is too short for any zipline to pay off": "路程太短，上索固定开销无法回本",
@@ -688,7 +689,7 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
       current._planning = false;
     }
 
-    if (line.includes("PositionProvider::Capture") && line.includes("MapLocator")) {
+    if (OBSERVED_CAPTURE_MARKER.test(line) && line.includes("MapLocator")) {
       addObservedPosition(current, line);
     } else if (line.includes("NAVMESH generated path.")) addWalk(current, line);
     else if (line.includes("ZiplineRoute: picked")) rememberZiplinePick(current, line);

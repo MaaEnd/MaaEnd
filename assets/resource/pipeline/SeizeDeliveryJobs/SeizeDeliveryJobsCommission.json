@@ -80,7 +80,8 @@
         "all_of": [
             "__SeizeDeliveryJobsRecoFilterValleyIV"
         ],
-        "pre_delay": 0,
+        // 游戏自带的切换地区 5s 内置 CD
+        "pre_delay": 5000,
         "action": "Click",
         "post_delay": 0,
         "next": [
@@ -171,7 +172,8 @@
         "all_of": [
             "__SeizeDeliveryJobsRecoFilterWuling"
         ],
-        "pre_delay": 0,
+        // 游戏自带的切换地区 5s 内置 CD
+        "pre_delay": 5000,
         "action": "Click",
         "post_delay": 0,
         "next": [

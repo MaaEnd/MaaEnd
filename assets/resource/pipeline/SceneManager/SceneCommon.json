@@ -21,6 +21,42 @@
                 "custom_recognition": "ScreenshotStableRecognition"
             }
         },
+        "next": [
+            "__ScenePrivateScreenshotStableAbnormalWhite",
+            "__ScenePrivateScreenshotStableAbnormalDefault"
+        ]
+    },
+    "__ScenePrivateScreenshotStableAbnormalWhite": {
+        "desc": "画面不变且大面积为白色，通常是通过前置程序直接启动游戏导致",
+        "recognition": "ColorMatch",
+        "roi": [
+            540,
+            310,
+            200,
+            100
+        ],
+        "lower": [
+            240,
+            240,
+            240
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 18000,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "content": "$task.SceneManager.focus.screenshot_stable_white",
+                "display": "modal"
+            }
+        }
+    },
+    "__ScenePrivateScreenshotStableAbnormalDefault": {
+        "desc": "画面不变的其他情况",
         "action": "Custom",
         "custom_action": "FalseAction",
         "focus": {

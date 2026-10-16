@@ -1058,6 +1058,149 @@
                 }
             ]
         },
+        "research_Tales": {
+            "id": "research_Tales",
+            "names": {
+                "zh_cn": "奇闻巧记",
+                "zh_tw": "奇聞巧記"
+            },
+            "page": "investigate",
+            "fileCategory": "investigate",
+            "tagIds": [
+                "investigate"
+            ],
+            "relatedItemIds": [
+                "paper_map02_research8_1",
+                "paper_map02_research8_2",
+                "paper_map02_research8_3",
+                "paper_map02_research8_4",
+                "paper_map02_research8_5",
+                "paper_map02_research8_6",
+                "report_map02_research8_7"
+            ],
+            "order": 8,
+            "groups": [
+                {
+                    "id": "research_Tales_1",
+                    "names": {
+                        "zh_cn": "农食不辍",
+                        "zh_tw": "農食不輟"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research8_1",
+                            "pageId": "nar_paper_map02_research8_1_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research8_2",
+                            "pageId": "nar_paper_map02_research8_2_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_Tales_2",
+                    "names": {
+                        "zh_cn": "高山仰止",
+                        "zh_tw": "高山仰止"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research8_3",
+                            "pageId": "nar_paper_map02_research8_3_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research8_4",
+                            "pageId": "nar_paper_map02_research8_4_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_Tales_3",
+                    "names": {
+                        "zh_cn": "铁树墨花",
+                        "zh_tw": "鐵樹墨花"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research8_5",
+                            "pageId": "nar_paper_map02_research8_5_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research8_6",
+                            "pageId": "nar_paper_map02_research8_6_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_Tales_4",
+                    "names": {
+                        "zh_cn": "血浓于水",
+                        "zh_tw": "血濃於水"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "report_map02_research8_7",
+                            "pageId": "nar_report_map02_research8_7_1"
+                        }
+                    ]
+                }
+            ]
+        },
+        "research_010prts": {
+            "id": "research_010prts",
+            "names": {
+                "zh_cn": "化物的行为方式",
+                "zh_tw": "化物的行為方式"
+            },
+            "page": "investigate",
+            "fileCategory": "investigate",
+            "tagIds": [
+                "investigate"
+            ],
+            "relatedItemIds": [
+                "paper_map02_research10_2",
+                "paper_map02_research10_1",
+                "paper_map02_research10_4",
+                "paper_map02_research10_3"
+            ],
+            "order": 10,
+            "groups": [
+                {
+                    "id": "research_010prts_1",
+                    "names": {
+                        "zh_cn": "求变",
+                        "zh_tw": "求變"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research10_2",
+                            "pageId": "nar_paper_map02_research10_2_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research10_1",
+                            "pageId": "nar_paper_map02_research10_1_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_010prts_2",
+                    "names": {
+                        "zh_cn": "快乐",
+                        "zh_tw": "快樂"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_research10_4",
+                            "pageId": "nar_paper_map02_research10_4_1"
+                        },
+                        {
+                            "itemId": "paper_map02_research10_3",
+                            "pageId": "nar_paper_map02_research10_3_1"
+                        }
+                    ]
+                }
+            ]
+        },
         "media_1": {
             "id": "media_1",
             "names": {
@@ -1640,6 +1783,29 @@
                 }
             ],
             "order": 201050012
+        },
+        "media_map02_16017": {
+            "id": "media_map02_16017",
+            "names": {
+                "zh_cn": "写生者的探讨",
+                "zh_tw": "寫生者的探討"
+            },
+            "page": "multi_media",
+            "fileCategory": "media",
+            "tagIds": [
+                "multi_media"
+            ],
+            "pages": [
+                {
+                    "id": "nar_media_map02_16017_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "写生者的探讨",
+                        "zh_tw": "寫生者的探討"
+                    }
+                }
+            ],
+            "order": 201060015
         },
         "paper_sm1l5m1_1": {
             "id": "paper_sm1l5m1_1",
@@ -7649,6 +7815,643 @@
             ],
             "order": 201053014
         },
+        "paper_map02_16001": {
+            "id": "paper_map02_16001",
+            "names": {
+                "zh_cn": "寻觅者的留言",
+                "zh_tw": "尋覓者的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16001_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "寻觅者的留言",
+                        "zh_tw": "尋覓者的留言"
+                    }
+                }
+            ],
+            "order": 201060001
+        },
+        "paper_map02_16002": {
+            "id": "paper_map02_16002",
+            "names": {
+                "zh_cn": "《“浣清”二字考略》",
+                "zh_tw": "《「浣清」二字考略》"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16002_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "《“浣清”二字考略》",
+                        "zh_tw": "《「浣清」二字考略》"
+                    }
+                }
+            ],
+            "order": 201060002
+        },
+        "paper_map02_16003": {
+            "id": "paper_map02_16003",
+            "names": {
+                "zh_cn": "潦草的菜谱推演",
+                "zh_tw": "潦草的食譜推演"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16003_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "潦草的菜谱推演",
+                        "zh_tw": "潦草的食譜推演"
+                    }
+                }
+            ],
+            "order": 201060003
+        },
+        "paper_map02_16004": {
+            "id": "paper_map02_16004",
+            "names": {
+                "zh_cn": "食材备忘",
+                "zh_tw": "食材備忘"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16004_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "食材备忘",
+                        "zh_tw": "食材備忘"
+                    }
+                }
+            ],
+            "order": 201060004
+        },
+        "paper_map02_16005": {
+            "id": "paper_map02_16005",
+            "names": {
+                "zh_cn": "“手不停”的猜测",
+                "zh_tw": "「手不停」的猜測"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16005_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "“手不停”的猜测",
+                        "zh_tw": "「手不停」的猜測"
+                    }
+                }
+            ],
+            "order": 201060005
+        },
+        "paper_map02_16006": {
+            "id": "paper_map02_16006",
+            "names": {
+                "zh_cn": "“跑得快”的猜测",
+                "zh_tw": "「跑得快」的猜測"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16006_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "“跑得快”的猜测",
+                        "zh_tw": "「跑得快」的猜測"
+                    }
+                }
+            ],
+            "order": 201060006
+        },
+        "paper_map02_16007": {
+            "id": "paper_map02_16007",
+            "names": {
+                "zh_cn": "“大嗓门”的猜测",
+                "zh_tw": "「大嗓門」的猜測"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16007_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "“大嗓门”的猜测",
+                        "zh_tw": "「大嗓門」的猜測"
+                    }
+                }
+            ],
+            "order": 201060007
+        },
+        "paper_map02_16008": {
+            "id": "paper_map02_16008",
+            "names": {
+                "zh_cn": "写生者极度狂喜后的认真留言",
+                "zh_tw": "寫生者極度狂喜後的認真留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16008_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "写生者极度狂喜后的认真留言",
+                        "zh_tw": "寫生者極度狂喜後的認真留言"
+                    }
+                }
+            ],
+            "order": 201060008
+        },
+        "paper_map02_16010": {
+            "id": "paper_map02_16010",
+            "names": {
+                "zh_cn": "待整理的采访记录",
+                "zh_tw": "待整理的採訪紀錄"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16010_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "待整理的采访记录",
+                        "zh_tw": "待整理的採訪紀錄"
+                    }
+                }
+            ],
+            "order": 201060009
+        },
+        "paper_map02_16011": {
+            "id": "paper_map02_16011",
+            "names": {
+                "zh_cn": "墨魉的留言",
+                "zh_tw": "墨魎的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16011_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "墨魉的留言",
+                        "zh_tw": "墨魎的留言"
+                    }
+                }
+            ],
+            "order": 201060010
+        },
+        "paper_map02_16012": {
+            "id": "paper_map02_16012",
+            "names": {
+                "zh_cn": "有关烟火钱的留言",
+                "zh_tw": "有關煙火錢的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16012_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "有关烟火钱的留言",
+                        "zh_tw": "有關煙火錢的留言"
+                    }
+                }
+            ],
+            "order": 201060011
+        },
+        "paper_map02_16013": {
+            "id": "paper_map02_16013",
+            "names": {
+                "zh_cn": "误入者的留言",
+                "zh_tw": "誤入者的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16013_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "误入者的留言",
+                        "zh_tw": "誤入者的留言"
+                    }
+                }
+            ],
+            "order": 201060012
+        },
+        "paper_map02_16014": {
+            "id": "paper_map02_16014",
+            "names": {
+                "zh_cn": "食客的留言",
+                "zh_tw": "食客的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16014_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "食客的留言",
+                        "zh_tw": "食客的留言"
+                    }
+                }
+            ],
+            "order": 201060013
+        },
+        "paper_map02_16016": {
+            "id": "paper_map02_16016",
+            "names": {
+                "zh_cn": "注视者的沉思",
+                "zh_tw": "注視者的沉思"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16016_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "注视者的沉思（其一）",
+                        "zh_tw": "注視者的沉思（其一）"
+                    }
+                },
+                {
+                    "id": "nar_paper_map02_16016_2",
+                    "order": 2,
+                    "names": {
+                        "zh_cn": "注视者的沉思（其二）",
+                        "zh_tw": "注視者的沉思（其二）"
+                    }
+                },
+                {
+                    "id": "nar_paper_map02_16016_3",
+                    "order": 3,
+                    "names": {
+                        "zh_cn": "注视者的沉思（其三）",
+                        "zh_tw": "注視者的沉思（其三）"
+                    }
+                }
+            ],
+            "order": 201060014
+        },
+        "paper_map02_16021": {
+            "id": "paper_map02_16021",
+            "names": {
+                "zh_cn": "极度简陋的墨魉",
+                "zh_tw": "極度簡陋的墨魎"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16021_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "极度简陋的墨魉",
+                        "zh_tw": "極度簡陋的墨魎"
+                    }
+                }
+            ],
+            "order": 201060016
+        },
+        "paper_map02_16022": {
+            "id": "paper_map02_16022",
+            "names": {
+                "zh_cn": "观月者的留字",
+                "zh_tw": "觀月者的留字"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_16022_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "观月者的留字",
+                        "zh_tw": "觀月者的留字"
+                    }
+                }
+            ],
+            "order": 201060017
+        },
+        "paper_map02_research8_1": {
+            "id": "paper_map02_research8_1",
+            "names": {
+                "zh_cn": "温柔的奇闻集",
+                "zh_tw": "溫柔的奇聞集"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research8_1_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "温柔的奇闻集",
+                        "zh_tw": "溫柔的奇聞集"
+                    }
+                }
+            ],
+            "order": 201062401
+        },
+        "paper_map02_research8_2": {
+            "id": "paper_map02_research8_2",
+            "names": {
+                "zh_cn": "爽朗的奇闻集",
+                "zh_tw": "爽朗的奇聞集"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research8_2_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "爽朗的奇闻集",
+                        "zh_tw": "爽朗的奇聞集"
+                    }
+                }
+            ],
+            "order": 201062402
+        },
+        "paper_map02_research8_3": {
+            "id": "paper_map02_research8_3",
+            "names": {
+                "zh_cn": "有力的奇闻集",
+                "zh_tw": "有力的奇聞集"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research8_3_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "有力的奇闻集",
+                        "zh_tw": "有力的奇聞集"
+                    }
+                }
+            ],
+            "order": 201062403
+        },
+        "paper_map02_research8_4": {
+            "id": "paper_map02_research8_4",
+            "names": {
+                "zh_cn": "微醺的奇闻集",
+                "zh_tw": "微醺的奇聞集"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research8_4_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "微醺的奇闻集",
+                        "zh_tw": "微醺的奇聞集"
+                    }
+                }
+            ],
+            "order": 201062404
+        },
+        "paper_map02_research8_5": {
+            "id": "paper_map02_research8_5",
+            "names": {
+                "zh_cn": "火热的奇闻集",
+                "zh_tw": "火熱的奇聞集"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research8_5_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "火热的奇闻集",
+                        "zh_tw": "火熱的奇聞集"
+                    }
+                }
+            ],
+            "order": 201062405
+        },
+        "paper_map02_research8_6": {
+            "id": "paper_map02_research8_6",
+            "names": {
+                "zh_cn": "超然的奇闻集",
+                "zh_tw": "超然的奇聞集"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research8_6_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "超然的奇闻集",
+                        "zh_tw": "超然的奇聞集"
+                    }
+                }
+            ],
+            "order": 201062406
+        },
+        "report_map02_research8_7": {
+            "id": "report_map02_research8_7",
+            "names": {
+                "zh_cn": "被妥善保存的信纸",
+                "zh_tw": "被妥善保存的信紙"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_report_map02_research8_7_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "被妥善保存的信纸",
+                        "zh_tw": "被妥善保存的信紙"
+                    }
+                }
+            ],
+            "order": 201062407
+        },
+        "paper_map02_research10_1": {
+            "id": "paper_map02_research10_1",
+            "names": {
+                "zh_cn": "给大小姐的信（草稿）",
+                "zh_tw": "給大小姐的信（草稿）"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research10_1_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "给大小姐的信（草稿）",
+                        "zh_tw": "給大小姐的信（草稿）"
+                    }
+                }
+            ],
+            "order": 201062801
+        },
+        "paper_map02_research10_2": {
+            "id": "paper_map02_research10_2",
+            "names": {
+                "zh_cn": "无奈墨魉的留字",
+                "zh_tw": "無奈墨魎的留字"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research10_2_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "无奈墨魉的留字",
+                        "zh_tw": "無奈墨魎的留字"
+                    }
+                }
+            ],
+            "order": 201062802
+        },
+        "paper_map02_research10_3": {
+            "id": "paper_map02_research10_3",
+            "names": {
+                "zh_cn": "思考者的留言",
+                "zh_tw": "思考者的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research10_3_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "思考者的留言",
+                        "zh_tw": "思考者的留言"
+                    }
+                }
+            ],
+            "order": 201062803
+        },
+        "paper_map02_research10_4": {
+            "id": "paper_map02_research10_4",
+            "names": {
+                "zh_cn": "墨魉的欢快留言",
+                "zh_tw": "墨魎的歡快留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_research10_4_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "墨魉的欢快留言",
+                        "zh_tw": "墨魎的歡快留言"
+                    }
+                }
+            ],
+            "order": 201062804
+        },
         "digital_sm1l1m4_1": {
             "id": "digital_sm1l1m4_1",
             "names": {
@@ -11425,6 +12228,52 @@
             ],
             "order": 1050003
         },
+        "document_v1d6_1": {
+            "id": "document_v1d6_1",
+            "names": {
+                "zh_cn": "祀的画",
+                "zh_tw": "祀的畫"
+            },
+            "page": "document",
+            "fileCategory": "document",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_document_v1d6_1_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "祀的画",
+                        "zh_tw": "祀的畫"
+                    }
+                }
+            ],
+            "order": 1060001
+        },
+        "document_v1d6_2": {
+            "id": "document_v1d6_2",
+            "names": {
+                "zh_cn": "化物",
+                "zh_tw": "化物"
+            },
+            "page": "document",
+            "fileCategory": "document",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_document_v1d6_2_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "化物",
+                        "zh_tw": "化物"
+                    }
+                }
+            ],
+            "order": 1060002
+        },
         "report_map01_research1_17": {
             "id": "report_map01_research1_17",
             "names": {
@@ -11815,6 +12664,52 @@
                 }
             ],
             "order": 201053001
+        },
+        "report_map02_research8_8": {
+            "id": "report_map02_research8_8",
+            "names": {
+                "zh_cn": "奇人辑录",
+                "zh_tw": "奇人輯錄"
+            },
+            "page": "document",
+            "fileCategory": "report",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_report_map02_research8_8_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "奇人辑录",
+                        "zh_tw": "奇人輯錄"
+                    }
+                }
+            ],
+            "order": 201062408
+        },
+        "report_map02_research10_5": {
+            "id": "report_map02_research10_5",
+            "names": {
+                "zh_cn": "有关化物的行为方式的调查报告",
+                "zh_tw": "有關化物的行為方式的調查報告"
+            },
+            "page": "document",
+            "fileCategory": "report",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_report_map02_research10_5_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "有关化物的行为方式的调查报告",
+                        "zh_tw": "有關化物的行為方式的調查報告"
+                    }
+                }
+            ],
+            "order": 201062805
         }
     }
 }

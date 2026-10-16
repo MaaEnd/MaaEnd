@@ -1653,7 +1653,10 @@
                 179,
                 41
             ]
-        }
+        },
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
     },
     "ReceptionRoomSendCluesSelectFriend": {
         "desc": "[会客室·线索] 先识别缺失线索的好友",

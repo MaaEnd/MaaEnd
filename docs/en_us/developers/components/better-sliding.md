@@ -59,9 +59,9 @@ The following 6 fields are recommended to be passed via the calling node's `atta
 | ------------------------- | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TargetQuantity` | `int` (positive integer) | Yes | Target quantity. The desired final slider value, which must be greater than 0. |
 | `TargetQuantityType` | `string` | No | How to interpret `TargetQuantity`. `"Value"` (default): absolute count; `"Percentage"`: percentage of `availableQuantity` (1–100), rounded and clamped to `[1, availableQuantity]`. |
-| `ReverseTarget` | `bool` | No | When `true`, resolves the target from the available quantity: Value mode uses `availableQuantity - TargetQuantity`; Percentage mode uses the remaining percentage. Default `false`. |
+| `ReverseTarget` | `bool` | No | When `true`, resolves the target in reverse from the available quantity: Value mode uses `availableQuantity - TargetQuantity`; Percentage mode uses the remaining percentage. Default `false`. |
 | `FineTuneQuantity` | `bool` or `int` | No | Whether to keep fine-tuning via Increase/Decrease after the precise click. `true` (default): always fine-tune; `false`: never fine-tune; integer `N` (must be `>= 1`): fine-tune only when `abs(current - target) <= N`. |
-| `FineTuneFallback` | `string` | No | Takes effect only when this run decides not to fine-tune. `"none"` (default): no compensation, finish directly; `"more"` / `"less"`: compensate toward increasing/decreasing the quantity and re-check. See [No-Fine-Tune Semantics](#no-fine-tune-semantics). |
+| `FineTuneFallback` | `string` | No | Takes effect only when this run decides not to fine-tune, and controls the behavior in that case. `"none"` (default): no compensation, finish directly; `"more"` / `"less"`: compensate toward increasing/decreasing the quantity and re-check. See [No-Fine-Tune Semantics](#no-fine-tune-semantics). |
 | `ResetBeforeFindStart` | `bool` | No | When `true`, first swipes toward the minimum before matching the slider start position, so the recorded start position is the minimum value. Default `false`. |
 
 > [!note]
@@ -69,7 +69,7 @@ The following 6 fields are recommended to be passed via the calling node's `atta
 >
 > | TargetQuantityType | ReverseTarget | Effective target |
 > | ------------------ | ------------- | ---------------------------------------------------------------------------------------------- |
-> | `"Value"` | `false` | `TargetQuantity` |
+> | `"Value"` | `false` | `TargetQuantity` (original value) |
 > | `"Value"` | `true` | `availableQuantity - TargetQuantity` (not clamped, may be < 1) |
 > | `"Percentage"` | `false` | `round(availableQuantity × TargetQuantity / 100)`, clamped to `[1, availableQuantity]` |
 > | `"Percentage"` | `true` | `round(availableQuantity × (100 - TargetQuantity) / 100)`, clamped to `[1, availableQuantity]` |
@@ -89,7 +89,7 @@ In addition to the 6 fields above, all other parameters can only be read from `c
 | `AvailableQuantity` | `string` or `object` | No | OCR recognition parameters for the total available quantity, overriding and enabling `BetterSlidingGetAvailableQuantity`. The slider endpoint value is used as the calculation reference only when `AvailableQuantity` is not provided at all (or is `null`). |
 | `AvailableQuantityFilter` | `string` or `object` | No | ColorMatch recognition parameters used to preprocess the available-quantity OCR, overriding the `BetterSlidingAvailableQuantityFilter` node. Default: not configured. |
 | `CenterPointOffset` | `int[2]` | No | Click offset relative to the center point of the slider's recognition box `[x, y]`, negative values left/up, positive right/down. The default depends on the controller: `[-10, 0]` on desktop (Win32 / macOS / Linux) and `[-12, 0]` on mobile (ADB / CloudADB / PlayCover). |
-| `ClampTargetToSliderMax` | `bool` | No | When `true`, a target above `sliderMaxQuantity` is clamped to the maximum selectable slider quantity. Default `false`. |
+| `ClampTargetToSliderMax` | `bool` | No | When `true`, a target above `sliderMaxQuantity` is clamped to the maximum selectable slider quantity and execution continues. Default `false`. |
 | `OutOfRangeOverrideEnable` | `string` | No | When the resolved target is outside the slidable range, enables the specified Pipeline node and returns success; when the field is unset (default `""`), the action fails directly. |
 | `TargetReachableOverrideEnable` | `string` | No | When the resolved target needs no clamping and falls within `[1, sliderMaxQuantity]`, enables the specified Pipeline node. Default `""`. |
 
@@ -129,7 +129,7 @@ Constraints and behavior:
 - **Buttons are picked by the slider's endpoint side**: when the direction is known and the slider start box has been recognized, the Custom action automatically fills `roi` / `order_by` / `index` into the button patch, restricting the match to the endpoint side of the slider's row (column) — the "+" and "−" buttons are both white circles differing by a single stroke, so score ordering often mistakes "−" for "+". Fields declared explicitly in the patch take precedence and are never overwritten; with an unknown direction or a missing start box, score ordering is kept.
 - **Arrays are button-only**: passing an array for any parameter other than `IncreaseButton` / `DecreaseButton` fails immediately; a button array is coordinates, not a recognition patch.
 - **Filter and `color_filter` precedence**: `SliderQuantityFilter` / `AvailableQuantityFilter` are written to the corresponding built-in filter node and their node name is put into the quantity patch's `color_filter`; if the quantity patch already declares `color_filter`, the patch wins (a warning is logged, since the built-in filter node is then overwritten without being referenced). No `color_filter` is written when the filter is not configured.
-- **A Filter's String reference should point to a ColorMatch node**: `color_filter` is resolved during recognition by node name and requires the node's recognition type to be ColorMatch; pointing at another type makes recognition fail. This is not validated at the parameter level, so make sure the referenced type is correct.
+- **A Filter's String reference should point to a ColorMatch node**: the String only copies the referenced node's `recognition.param` into the built-in ColorMatch filter node, and `color_filter` always points at that built-in node; referencing another type copies parameters that do not make sense for ColorMatch, so the filter will not work as intended. This is not validated at the parameter level, so make sure the referenced type is correct.
 - **`AvailableQuantityFilter` works standalone**: when `AvailableQuantity` is not provided at the same time, the filter parameters are still written to the built-in node, but `BetterSlidingGetAvailableQuantity` stays `enabled: false` (no warning).
 - **Quantity-mode criteria**: the presence of any filter parameter makes this a quantity-mode run (leaving swipe-only mode).
 
@@ -143,7 +143,7 @@ When `TargetQuantityType` is `"Value"` (case-insensitive), `TargetQuantity` is `
 | `false` (default) | Performs no recognition, swipe, or click and returns success directly. **The caller must ensure the slider is already at its initial value 1.** |
 
 > [!note]
-> `Percentage` mode and `ReverseTarget: true` do not short-circuit: their effective target depends on the `availableQuantity` read at runtime, so it cannot be decided before entering the flow.
+> `Percentage` mode and `ReverseTarget: true` do not short-circuit: their effective target depends on the `availableQuantity` read at runtime, which cannot be decided before entering the flow, so they still run the full flow.
 
 ### No-Fine-Tune Semantics
 
@@ -171,7 +171,7 @@ When `TargetQuantityType` is `"Value"` (case-insensitive), `TargetQuantity` is `
 > On a minimum-value short circuit, BetterSliding does not read `sliderMaxQuantity`, but it still enables the node referenced by `TargetReachableOverrideEnable` (the target is the slider minimum and therefore always reachable), while `OutOfRangeOverrideEnable` stays `false`.
 
 > [!important]
-> `TargetReachableOverrideEnable` only means that the **resolved target is reachable**; it is unrelated to the final adjustment result. The decision is made when the target quantity and slider maximum are read, and is not changed afterwards regardless of whether fine-tuning or nudging actually hits the target. It only means that the caller's next operation can reach the target; it does not mean that operation has succeeded. Selling, purchasing, and similar flows must still confirm the outer transaction in Pipeline before recording the business target as completed.
+> `TargetReachableOverrideEnable` only means that the **resolved target is reachable**; it is unrelated to the final adjustment result. The decision is made when the target quantity and slider maximum are read, and is not changed afterwards regardless of whether fine-tuning or nudging actually hits the target. It only means that the caller's next operation can reach the target; it does not mean that operation has succeeded. For example, selling, purchasing, and similar flows must still confirm in the outer Pipeline that the transaction succeeded before recording the business target as completed.
 
 ### Example
 

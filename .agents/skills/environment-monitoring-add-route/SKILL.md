@@ -23,7 +23,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 
 运行 `generator/sync-routes.mjs` 时会：
 
-1. 从 `tools/pipeline-generate/data/environment_monitoring.json` 收集观察点；
+1. 从 `tools/zmdmap/data/environment_monitoring.json` 收集观察点；
 2. 按 `MissionId` 刷新 `Name` 和 `Id`；
 3. 为数据源中新增的任务创建仅含 `MissionId` / `Name` / `Id` 的 metadata-only 条目；
 4. 按 `MissionId` 排序 `routes.json`；

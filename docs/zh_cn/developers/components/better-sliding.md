@@ -129,7 +129,7 @@
 - **按钮按滑条端点一侧挑选**：方向已知且已识别到滑条起点框时，Custom 会自动为按钮补丁补上 `roi` / `order_by` / `index`，把匹配限定在滑条所在行（列）的端点一侧——「+」「−」都是白色圆形按钮，只差中间一笔，按分数常把「−」当成「+」。补丁里显式声明的 `roi` / `order_by` / `index` 优先，不会被覆盖；方向未知或起点缺失时保持按分数匹配。
 - **数组仅按钮可用**：除 `IncreaseButton` / `DecreaseButton` 外的参数写数组会直接报错；按钮数组是坐标而非识别补丁。
 - **Filter 与 `color_filter` 的优先级**：`SliderQuantityFilter` / `AvailableQuantityFilter` 会写入对应内建 Filter 节点，并把节点名填进 Quantity 补丁的 `color_filter`；若 Quantity 补丁自身已声明 `color_filter`，以补丁为准（此时会输出 Warn，提示内建 Filter 节点被覆写但无人引用）。未配置 Filter 时不写 `color_filter`。
-- **Filter 的 String 引用应指向 ColorMatch 节点**：`color_filter` 在识别阶段按节点名查找并要求其识别类型为 ColorMatch，指向其他类型会识别失败。参数层面不做校验，请自行保证引用类型正确。
+- **Filter 的 String 引用应指向 ColorMatch 节点**：String 只会把被引用节点的 `recognition.param` 复制进内建的 ColorMatch Filter 节点，`color_filter` 指向的始终是内建节点；引用其他类型的节点时，复制过去的参数套在 ColorMatch 上不会按预期过滤。参数层面不做校验，请自行保证引用类型正确。
 - **`AvailableQuantityFilter` 可独立配置**：未同时提供 `AvailableQuantity` 时，Filter 参数仍会写入内建节点，但 `BetterSlidingGetAvailableQuantity` 保持 `enabled: false`（不告警）。
 - **定量模式判据**：任意一个 Filter 参数存在即视为定量模式（退出仅滑动模式）。
 

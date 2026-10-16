@@ -1,24 +1,27 @@
 package autoessence
 
-// locationNameToKey maps locations.json display names to AutoEssence RegionNodes keys.
-var locationNameToKey = map[string]string{
-	"重度能量淤积点·枢纽区":   "VFTheHub",
-	"重度能量淤积点·源石研究园": "VFOriginiumSciencePark",
-	"重度能量淤积点·矿脉源区":  "VFOriginLodespring",
-	"重度能量淤积点·供能高地":  "VFPowerPlateau",
-	"重度能量淤积点·武陵城":   "WLWulingCity",
-	"重度能量淤积点·清波寨":   "WLQingboStockade",
-	"重度能量淤积点·首墩":    "WLMarkerStone",
-	"重度能量淤积点·试验园区":  "WLTestArea",
-	"重度能量淤积点·藏剑谷":   "WLSwordVaultDale",
-	"重度能量淤积点·应龙关":   "WLYinglungPass",
-	"重度能量淤积点·北部禁区":  "WLNorthWulingExclusionZone",
-	"重度能量淤积点·雪松林":   "WLSnowyForest",
+// locationLevelToKey maps locations.json level_id to AutoEssence RegionNodes keys.
+//
+// 用 level_id（WorldEnergyPointTable 的 levelId）而不是显示名：levelId 与地区一一对应，不会随中文文案
+// 或翻译改动而变化；显示名只在报错信息里用。
+var locationLevelToKey = map[string]string{
+	"map01_lv001": "VFTheHub",
+	"map01_lv005": "VFOriginiumSciencePark",
+	"map01_lv006": "VFOriginLodespring",
+	"map01_lv007": "VFPowerPlateau",
+	"map02_lv002": "WLWulingCity",
+	"map02_lv003": "WLQingboStockade",
+	"map02_lv004": "WLMarkerStone",
+	"map02_lv005": "WLTestArea",
+	"map02_lv006": "WLSwordVaultDale",
+	"map02_lv007": "WLYinglungPass",
+	"map02_lv008": "WLNorthWulingExclusionZone",
+	"map02_lv009": "WLSnowyForest",
 }
 
-// LocationKeyByName returns the pipeline location key for a locations.json name.
-func LocationKeyByName(name string) (string, bool) {
-	key, ok := locationNameToKey[name]
+// LocationKeyByLevel returns the pipeline location key for a locations.json level_id.
+func LocationKeyByLevel(levelID string) (string, bool) {
+	key, ok := locationLevelToKey[levelID]
 	return key, ok
 }
 

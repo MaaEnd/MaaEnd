@@ -491,3 +491,7 @@ tests/maatools
 Android/agent-dist/
 *.jks
 *.jks.b64
+
+# 精简数据的原始形态（只带世界坐标）：`uv run zmdmap fetch` 下载或 `uv run zmdmap generate`
+# 本地生成，再由 fetch 的投影步骤换算成入库的 data/*.json
+tools/zmdmap/data/raw/

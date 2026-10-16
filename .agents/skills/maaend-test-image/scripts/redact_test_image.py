@@ -26,12 +26,17 @@ from maa.toolkit import Toolkit
 import numpy as np
 from PIL import Image as PILImage
 
+# 同目录脚本：uv 按路径执行时脚本目录已在 sys.path 上，显式加一次以便直接 import。
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from detect_screenshot_platform import (  # noqa: E402
+    UID_FIXED_ROIS as FIXED_ROIS,
+    covers,
+    detect_platform,
+    format_extra_rois,
+)
+
 
 SUPPORTED_CONTROLLERS = {"adb": "ADB", "win32": "Win32"}
-FIXED_ROIS = {
-    "ADB": [84, 690, 114, 18],
-    "Win32": [70, 696, 90, 13],
-}
 EXPECTED_SIZE = (1280, 720)
 
 
@@ -227,6 +232,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="额外纯绿色遮盖区域，可重复传入",
     )
     parser.add_argument("--force", action="store_true", help="允许替换已有目标图片")
+    parser.add_argument(
+        "--skip-platform-check",
+        action="store_true",
+        help="跳过「原图平台与目标路径一致」的检查（确认平台无误时使用）",
+    )
     parser.add_argument("--repo", type=Path, help="MaaEnd 仓库根目录")
     return parser
 
@@ -258,7 +268,27 @@ def main() -> None:
 
     image = read_image(source)
     fixed_roi = FIXED_ROIS[controller]
-    validate_image_and_rois(image, [fixed_roi, *args.extra_roi])
+    extras = list(args.extra_roi)
+    validate_image_and_rois(image, [fixed_roi, *extras])
+
+    # 先按原图判定平台，避免把 ADB 截图按 Win32 的固定 ROI 打码（尾部数字会留在图里）。
+    detection = detect_platform(image)
+    print(f"平台判定：{detection.describe()}")
+    if not args.skip_platform_check and detection.platform is not None and detection.platform != controller:
+        raise SystemExit(
+            f"原图平台判定为 {detection.platform}，与目标路径的 {controller} 不一致。\n"
+            f"- 若原图来自 {detection.platform}，请把目标改到 tests/MaaEndTestset/{detection.platform}/<resource>/ 下；\n"
+            "- 若确认平台无误（例如同平台下 UID 文字更长），用 --skip-platform-check 并用 --extra-roi 补齐遮盖范围。"
+        )
+    if detection.confidence == "unknown":
+        print(f"提示：无法判定平台（{detection.reason}），按目标路径的 {controller} 处理，请务必目视复核。")
+    if detection.text_box is not None and not any(covers(roi, detection.text_box) for roi in [fixed_roi, *extras]):
+        suggested = format_extra_rois(detection.suggested_extra_rois) or "--extra-roi x,y,w,h"
+        raise SystemExit(
+            f"UID 文字 {detection.text_box} 没有被固定 ROI {fixed_roi} 与额外 ROI 完全盖住；"
+            f"请补 {suggested}，或按平台更新 FIXED_ROIS。"
+        )
+
     fill_roi(image, fixed_roi)
 
     tasker, resource, ocr_controller = build_tasker(repo)

@@ -2,7 +2,7 @@
 
 本文说明 `EnvironmentMonitoring`（环境监测）任务的 Pipeline 组织、路线数据、终端分组、自动生成机制及新观察点的接入方式。
 
-环境监测的核心特点是 **「数据驱动 + 模板批量生成」**：每个观察点对应的 Pipeline JSON 不直接手写，而是通过 [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) 工具，将 `tools/pipeline-generate/EnvironmentMonitoring/` 下的模板/路线配置和 `tools/pipeline-generate/data/environment_monitoring.json` 批量渲染到 `assets/resource/pipeline/EnvironmentMonitoring/` 中。维护工作的重心在 **生成配置与 zmdmap 精简游戏数据**，而不是手改 JSON。
+环境监测的核心特点是 **「数据驱动 + 模板批量生成」**：每个观察点对应的 Pipeline JSON 不直接手写，而是通过 [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) 工具，将 `tools/pipeline-generate/EnvironmentMonitoring/` 下的模板/路线配置和 `tools/zmdmap/data/environment_monitoring.json` 批量渲染到 `assets/resource/pipeline/EnvironmentMonitoring/` 中。维护工作的重心在 **生成配置与 zmdmap 精简游戏数据**，而不是手改 JSON。
 
 > [!WARNING]
 >
@@ -14,7 +14,7 @@
 
 | 模块 | 路径 | 作用 |
 | ------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 任务入口 | `assets/tasks/EnvironmentMonitoring.json` | interface 任务定义（无可配置选项，控制器 = Win32-Front / Linux / ADB） |
+| 任务入口 | `assets/tasks/EnvironmentMonitoring.json` | interface 任务定义（无可配置选项，控制器 = Win32-Front / Linux / ADB / CloudADB / PlayCover） |
 | 主流程 Pipeline | `assets/resource/pipeline/EnvironmentMonitoring.json` | 主入口节点 `EnvironmentMonitoringMain`，循环识别两个监测终端 |
 | 终端分组（生成） | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | 城郊监测终端 / 首墩监测终端的入口节点与各自的观察点 `next` 列表（**生成**） |
 | 终端跳转 | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json` | `EnvironmentMonitoringGoTo*` 与 `Select*` 节点，从主菜单进入对应终端 |
@@ -25,16 +25,13 @@
 | 观察点模板 | `tools/pipeline-generate/EnvironmentMonitoring/generator/template.json` | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照） |
 | 终端模板 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-template.json` | 终端分组节点模板 |
 | 路线/坐标数据 | `tools/pipeline-generate/EnvironmentMonitoring/routes.json` | 按观察点 `MissionId` 匹配的路线覆盖（传送点、地图、路径）；`Name` 仅供人工阅读，`Id` 是最终模板节点 ID，方便搜索生成节点/文件名 |
-| 路线 JSON Schema | `tools/schema/environment_monitoring_routes.schema.json` | `routes.json` 的字段约束（必填项、枚举、坐标数组形状），通过 `.vscode/settings.json` 自动关联，提供 IDE 字段补全和校验 |
+| 路线 JSON Schema | `tools/schema/environment_monitoring_routes.schema.json` | `routes.json` 的字段约束（必填项、字段组合、坐标数组形状），通过 `.vscode/settings.json` 自动关联，提供 IDE 字段补全和校验 |
 | 失败收集参数 Schema | `tools/schema/components/failure_collector.schema.json` | 通用失败收集 Custom Action 的参数约束；动作名称注册在 `tools/schema/custom.action.schema.json` |
 | 路线同步逻辑 | `tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs` | 在生成前自动同步 `routes.json` 的 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序 |
-| 路线解析逻辑 | `tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs` | 将 `routes.json` 条目解析为模板需要的寻路识别/动作参数，并统一处理未适配降级 |
-| 规范化任务模型 | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | 统一读取 zmdmap 精简游戏数据与 `routes.json`，生成路线和终端模板共享的观察点任务模型 |
-| 终端列表数据 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-data.mjs` | 从 `model.mjs` 的规范化任务和自动派生的终端列表生成各终端 `next` |
-| zmdmap 精简游戏数据 | `tools/pipeline-generate/data/environment_monitoring.json` | zmdmap 数据 CI 从 TableCfg 裁剪并发布的终端、观察点及五语言名称；MaaEnd 通过 `pnpm fetch:zmdmap` 更新 |
+| zmdmap 精简游戏数据 | `tools/zmdmap/data/environment_monitoring.json` | 终端、观察点及五语言名称；MaaEnd 通过 `pnpm fetch:zmdmap` 更新 |
 | 生成器配置 | `tools/pipeline-generate/EnvironmentMonitoring/generator/config.json` | 单观察点输出配置：`outputPattern: "${Station}/${Id}.json"` |
 | 终端生成器配置 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | 合并到单文件的终端输出配置：`outputFile: "Terminals.json"` |
-| 多语言文案 | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` 的 label / description（任务级；观察点名走 OCR） |
+| 多语言文案 | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` 的 label / description、`not_adapted` 提示，以及 `sync-routes.mjs` 自动维护的 `route.{Id}.failed` 失败提示（观察点识别走 OCR） |
 | 通用组件依赖 | `agent/cpp-algo/source/MapLocator/`、`agent/cpp-algo/source/MapNavigator/` | 定位与寻路统一走 `MapLocateAssertLocation` + `MapNavigateAction`（详见 [map-locator.md](../components/map-locator.md)、[map-navigator.md](../components/map-navigator.md)） |
 | 场景跳转依赖 | `assets/resource/pipeline/SceneManager/`、`Interface/` | `SceneEnterWorldWuling*`、`SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring`（详见 [scene-manager.md](../scene-manager.md)） |
 
@@ -59,8 +56,8 @@ EnvironmentMonitoringMain
 每个观察点 `{Id}Job` 内部的链路（由 `template.json` 渲染）：
 
 ```text
-{Id}Job                              （识别该观察点列表项）
-  ├─ Accept{Id}                      （委托可接 → 点击接取）
+{Id}Job                              （识别该观察点列表项，经 FailureCollectorRunTask 执行 {Id}Execute，下列为 {Id}Execute 的 next）
+  ├─ Accept{Id}                      （委托可接 → 点击接取 → GoTo{Id}Mission）
   └─ GoTo{Id}Mission                 （委托已接 → 点击前往）
        └─ {Id}TrackOrGoTo
             ├─ Track{Id}             （存在「开始追踪」按钮则点击）
@@ -72,12 +69,12 @@ EnvironmentMonitoringMain
                       ├─ 默认传送：GoTo{Id}
                       │    ├─ 寻路路线
                       │    │    ├─ GoTo{Id}StartPos （已在起点 → 寻路）
-                      │    │    └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
+                      │    │    └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap} → GoTo{Id}Move
                       │    └─ 传送后直拍
                       │         └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
                       │              ├─ 无 Heading → {Id}TakePhoto
                       │              └─ 有 Heading → GoTo{Id}Move（仅原地调整朝向）
-                      └─ QuickTeleport: true
+                      └─ QuickTeleport: true（不经过 GoTo{Id}）
                            ├─ Track{Id} → {Id}InQuickTeleportMap
                            └─ AlreadyTracked{Id} → {Id}OpenTrackedMissionMap → {Id}InQuickTeleportMap
                                 └─ {Id}QuickTeleportSelect   （点击“前往传送”）
@@ -93,8 +90,9 @@ GoTo{Id}Move                         （寻路动作；直拍有 Heading 时只�
        ├─ 无 FightAfterMove → {Id}TakePhoto
        └─ 有 FightAfterMove → [JumpBack]AutoFight → GoTo{Id}MoveAfterFight
                                                    └─ {Id}TakePhoto
-       ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
-       └─ next: EnvironmentMonitoringTakePhoto
+{Id}TakePhoto                        （包装节点：设置 anchor，再进入公共拍照流程）
+  ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
+  └─ next: EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照）
   └─ [Anchor]EnvironmentMonitoringBackToTerminal
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
@@ -147,9 +145,9 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 
 如果出现新的 Station，**生成器侧（`routes.json` + `model.mjs`）零改动**：`MONITORING_TERMINAL_IDS` 自动从 `environment_monitoring.json` 派生，`GoToMonitoringTerminal` 锚点名按 `EnvironmentMonitoringGoTo{Station}` 模板拼接。但生成出来的 Pipeline 引用的下列**手写联动节点**必须先补齐，否则 MaaFramework 运行时会报「引用了未定义的任务」：
 
-1. `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`：新增 `EnvironmentMonitoringGoTo{Station}MonitoringTerminal` 与 `EnvironmentMonitoringSelect{Station}MonitoringTerminal` 节点。
-2. `assets/resource/pipeline/EnvironmentMonitoring.json` 的 `EnvironmentMonitoringLoop.next`：加入 `[JumpBack]{Station}MonitoringTerminal`。
-3. 如有新文本识别节点（如 `EnvironmentMonitoringCheck{Station}MonitoringTerminalText`、`EnvironmentMonitoringIn{Station}MonitoringTerminal`），在 Pipeline 中补齐（手写）。
+1. `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`：新增 `EnvironmentMonitoringGoTo{Station}` 与 `EnvironmentMonitoringSelect{Station}` 节点。
+2. `assets/resource/pipeline/EnvironmentMonitoring.json` 的 `EnvironmentMonitoringLoop.next`：加入 `[JumpBack]{Station}`。
+3. 生成的 `Terminals.json` 还引用 `EnvironmentMonitoringCheck{Station}Text`、`EnvironmentMonitoringIn{Station}`，需在 `assets/resource/pipeline/Interface/InScene/Region.json` 中补齐（手写）。
 
 ## 自动生成机制
 
@@ -177,7 +175,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `EnterMap` | `routes.json[*].EnterMap`，默认传送入口；可填写任意已定义、能作为 SubTask 正常返回的 Pipeline 节点名，不限制名称前缀；启用 `QuickTeleport` 时不会使用，可省略 |
 | `QuickTeleport` | `routes.json[*].QuickTeleport`，可选布尔值，默认 `false`；启用后从追踪任务地图依次点击“前往传送”和“传送”，不调用 `EnterMap` |
 | `NavZoneId` / `NavAssert` / `NavPath` | `routes.json[*]`，寻路路线的写法；`NavPath` 必填，普通传送还需 `NavZoneId` / `NavAssert`，生成 `MapLocateAssertLocation` + `MapNavigateAction`（`Heading` 会追加 `HEADING` 动作）；路线自己接管传送落点，传送后不再复核起点 |
-| `FightAfterMove` | 仅完整寻路路线可选的独立 MapNavigator `path` 数组；存在时首次寻路后执行一次 `AutoFight`，再沿此路径归位。路线级 `Heading` 同样追加在末尾；直拍路线不得配置 |
+| `FightAfterMove` | 仅完整寻路路线可选的独立 MapNavigator `path` 数组；存在时首次寻路后若进入战斗则执行 `AutoFight`（未进战直接跳过），再沿此路径归位。路线级 `Heading` 同样追加在末尾；直拍路线不得配置 |
 | `CameraScanAction` | 公共镜头扫描动作；参数与扫描顺序固定在 `TakePhoto.json` 和 Go Service 中，不需要路线配置 |
 | `OcrReplace` | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断 |
 | `ExpectedText` | 由 `environment_monitoring.json` 的 `mission.names` 自动展开（5 语言，英文转柔性正则） |
@@ -233,7 +231,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 - `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `NavAssert` 矩形内，普通传送路线用它决定要不要调用 `EnterMap`；`QuickTeleport` 从固定传送落点直接开始寻路，不进入该节点，可省略 `NavZoneId` / `NavAssert`。
 - `MapNavigateAction`（动作）：`NavPath` 原样作为它的 path，其中 `NAVMESH` 航点可按需携带 `target_tier` / `target_deck_y`；断言坐标取 `NavZoneId` 分区。传送后直接进入寻路动作，不再复核起点。
-- `FightAfterMove`（仅完整寻路路线可选）：直接填写与 `NavPath` 相同格式的独立 path。首次寻路后先执行 `AutoFight`，再由第二个 `MapNavigateAction` 沿此路径归位；不要复用首次前往路线。直拍路线无需战斗，不配置该字段。
+- `FightAfterMove`（仅完整寻路路线可选）：直接填写与 `NavPath` 相同格式的独立 path。首次寻路后若进入战斗先执行 `AutoFight`（未进战则跳过），再由第二个 `MapNavigateAction` 沿此路径归位；不要复用首次前往路线。直拍路线无需战斗，不配置该字段。
 - `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `EnvironmentMonitoringBackToTerminal` anchor，再进入公共拍照流程。
 - 传送后直拍不执行寻路，配置 `Heading` 时生成一条只含 `HEADING` 动作的 `MapNavigateAction`，原地调整角色朝向再拍照。
 
@@ -259,7 +257,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### 主菜单入口
 
-环境监测主入口节点 `EnvironmentMonitoringMain` 通过 `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` 进入终端选择界面。该节点维护在 `assets/resource/pipeline/Interface/InScene/Region.json`，新增地区监测终端时需要确认主菜单入口已能进入对应界面。
+环境监测主入口节点 `EnvironmentMonitoringMain` 通过 `[JumpBack]SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` 进入终端选择界面。该节点维护在 `assets/resource/pipeline/Interface/SceneRegionalDevelopment.json`（终端界面识别节点在 `Interface/InScene/Region.json`），新增地区监测终端时需要确认主菜单入口已能进入对应界面。
 
 ## 添加新观察点
 
@@ -271,7 +269,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### 1. 更新游戏数据
 
-运行 `pnpm fetch:zmdmap`，会按 `tools/pipeline-generate/data/version.txt` 检查 zmdmap 数据版本，并在版本变化时下载 `tools/pipeline-generate/data/environment_monitoring.json`。原始 TableCfg 的解析由 zmdmap 数据 CI 中的 `data/scripts/environment_monitoring_data.py` 完成，不属于 MaaEnd 日常生成流程。
+运行 `pnpm fetch:zmdmap`（只要这份数据时用 `pnpm fetch:zmdmap --only environment_monitoring`）从 zmdmap 获取这份精简游戏数据。
 
 ### 2. 检查路线适配状态
 
@@ -325,10 +323,10 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 > [!IMPORTANT]
 >
-> `routes.json` 是严格 JSON：双引号、不允许行内注释、不允许尾随逗号。上述代码块里的 `//` 只是文档示意，写进真实文件会让 JSON 解析失败。
+> `routes.json` 按 JSONC 读取，但 `sync-routes.mjs` 同步时会把它重写为标准 JSON（双引号、无注释、无尾随逗号），写进去的注释会被删掉。上述代码块里的 `//` 只是文档示意。
 >
 > `MissionId` 是 `model.mjs` 的匹配键，会与 `environment_monitoring.json` 中的 `mission_id` 精确匹配。`Name` 只供人工阅读，`Id` 只供人工搜索生成节点/文件名；如果与当前游戏数据不一致，生成器会直接刷新为当前正确值，不影响匹配。
-
+>
 > 重新生成 EnvironmentMonitoring 时，`sync-routes.mjs` 会先按环境监测数据自动刷新 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序。手写条目时必须填写 `MissionId`；如果数据中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
 
 ### 4. 录制坐标和路径
@@ -336,7 +334,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 如果传送点不能直接拍照，参考 [map-navigator.md](../components/map-navigator.md) 用 GUI 工具录制路线，把录出来的起点矩形填入 `NavAssert`、整条 path 原样复制进 `NavPath`。`QuickTeleport` 路线不执行起点断言，不需要录制 `NavZoneId` / `NavAssert`。若 `NAVMESH` 终点存在上下重叠可走面，在工具中选定目标面，让导出的航点携带 `target_deck_y`。随后在游戏中确认：
 
 - `NavZoneId` 填 MapLocate 的 `zone_id`（如 `Wuling_Base`），它决定 `NavAssert` 坐标按哪个分区解释；终点落在分层平台上时，`NavPath` 里的 `NAVMESH` 动作按 tier 坐标写并带上 `target_tier`；目标点存在上下重叠面时带上工具选出的 `target_deck_y`。
-- `routes.json` 中 `NavPath` 与 `FightAfterMove` 的前置 `ZONE` 表示传送落地后角色所在的地图，供 WebUI 选择初始地图；必须按实测落地地图填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图。多分区或过图路径还应保留录制工具导出的必要 `ZONE`。
+- `routes.json` 中 `NavPath` 的前置 `ZONE` 表示传送落地后角色所在的地图，`FightAfterMove` 的前置 `ZONE` 表示清场结束、开始归位时所在的地图，供 WebUI 选择初始地图；必须按实测填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图。多分区或过图路径还应保留录制工具导出的必要 `ZONE`。
 
 - 站位是否能让 `EnvironmentMonitoringTakePhoto` 正常进入拍照模式。目标未命中时会自动执行公共九宫格 + fallback 镜头扫描，无需记录单向滑屏配置。
 
@@ -356,7 +354,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 确认生成出的两类文件：
 
 - `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json`
-- `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json`（`{Station}MonitoringTerminalLoop.next` 中包含 `[JumpBack]{Id}Job`）
+- `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json`（`{Station}Loop.next` 中包含 `[JumpBack]{Id}Job`）
 
 这里的 `{Id}` 是生成结果里的节点 ID。通常直接看生成出的文件名即可确认；维护 `routes.json` 时不需要提前手算。
 
@@ -376,11 +374,11 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 中新增/修改条目是否字段齐全。
 2. `routes.json` 中新增条目的 `MissionId` 是否能匹配 `environment_monitoring.json` 的 `mission_id`；`Id` 由生成器自动刷新。
-3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种；直拍路线没有任何地图、寻路或 `FightAfterMove` 字段，新增寻路路线的 `ZONE` 按实测传送落地地图填写，不能从 `target_tier` 推断，且普通传送路线补齐真实 `NavZoneId` / `NavAssert`；配置 `FightAfterMove` 时确认它是具备相同落地地图上下文的实测独立归位 path。
-4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringTerminalFinish` 收尾。
+3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种；直拍路线没有任何地图、寻路或 `FightAfterMove` 字段，新增寻路路线的 `ZONE` 按实测传送落地地图填写，不能从 `target_tier` 推断，且普通传送路线补齐真实 `NavZoneId` / `NavAssert`；配置 `FightAfterMove` 时确认它是实测的独立归位 path，前置 `ZONE` 按清场结束时所在的地图填写。
+4. 重生成的 `Terminals.json` 中各 `{Station}Loop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringTerminalFinish` 收尾。
 5. 若填写了 `EnterMap`，其引用的节点确实存在于 `assets/resource/pipeline/`，并能作为 SubTask 完整执行后正常返回。
 6. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.json` / `terminals-template.json` 中扩展）。
-7. JSON 文件遵循 `.prettierrc` 格式（生成器自带 `format: true`，但提交前 `pnpm prettier --write` 一遍更稳）。
+7. JSON 文件遵循 `.prettierrc` 格式（生成器自带 `format: true`，但提交前运行一遍 `pnpm format` 更稳）。
 
 ## 常见坑
 
@@ -389,7 +387,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 - **把 `Id` 当匹配键**：`Id` 只是最终模板节点 ID，方便搜索生成节点/文件名；匹配仍然只看 `MissionId`。
 - **`Id` 与 `environment_monitoring.json` 英文名漂移**：当游戏侧改英文名后，自动算出的 `Id` 会变，可能带来生成文件重命名或旧文件残留；重新生成后 `routes.json` 里的 `Id` 会同步刷新。
 - **默认传送路线的 `EnterMap` 写了不存在或无法正常返回的节点**：生成本身不校验节点引用及运行行为，运行时会在 `GoTo{Id}NotAtStartPos` 失败；只有明确启用 `QuickTeleport: true` 时才能省略。
-- **路线经过未解锁区域 / 战斗 / 互动物**：寻路组件不处理战斗、剧情、过图和机关交互，路径只能选纯通行段。
+- **路线经过未解锁区域 / 战斗 / 互动物**：寻路组件不会自行处理战斗、剧情和机关交互；过图须保留录制工具导出的 `ZONE` / `PORTAL`，沿途稳定遇敌改用 `FightAfterMove`，其余路段只选纯通行段。
 - **把缺路线数据误写成直拍**：只有游戏实测确认传送落点能完成拍照时，才能保留只有传送入口的精简配置；缺少真实路线数据时应继续保留 metadata-only 未适配条目。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
 - **`anchor` 占位符名一致性**：`template.json` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。

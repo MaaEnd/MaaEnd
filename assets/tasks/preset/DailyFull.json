@@ -109,6 +109,11 @@
                         ]
                     }
                 }
+            ],
+            "pretask": [
+                {
+                    "name": "LaunchGamePC"
+                }
             ]
         }
     ]

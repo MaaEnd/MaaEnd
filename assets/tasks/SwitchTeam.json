@@ -82,6 +82,28 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "SwitchTeamTeamChoose06",
+                    "label": "06",
+                    "pipeline_override": {
+                        "SwitchTeamChooseTextRecognition": {
+                            "expected": [
+                                "06"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "SwitchTeamTeamChoose07",
+                    "label": "07",
+                    "pipeline_override": {
+                        "SwitchTeamChooseTextRecognition": {
+                            "expected": [
+                                "07"
+                            ]
+                        }
+                    }
                 }
             ],
             "default_case": "SwitchTeamTeamChoose01"
