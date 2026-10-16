@@ -476,8 +476,8 @@
         "desc": "调度申请界面单击「快速转交」，把本次委托立刻转交出去",
         "recognition": "And",
         "all_of": [
-            // 快速转交按钮与「开始运送」同形状，但图标是「圆环」而不是「对号」：
-            // 只认白色圆环确认按钮，靠图标把两个按钮区分开。
+            // 「快速转交」与「开始运送」同形状、图标同为圆环，只差底色：
+            // 这里认白底的 WhiteConfirmButtonType1，开始运送是黄底的 YellowConfirmButtonType1。
             "WhiteConfirmButtonType1",
             "DeliveryJobsInCargoRedistributionBid"
         ],
