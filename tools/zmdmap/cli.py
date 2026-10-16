@@ -11,10 +11,8 @@
 ``data/`` 与 ``data/raw/`` 都是 zmdmap 自己的数据树（``tools/zmdmap/data/``）：``raw/`` 放原样
 产物（不入库），``data/`` 放可以直接用的、入库的数据。
 
-``generate`` 按固定顺序跑同一批 ``build_*``
-（delivery_jobs -> environment_monitoring -> sell_product -> delivery_destinations ->
-teleport_anchors -> collect_points -> essence_points -> weapons -> items），产物只带游戏世界坐标；
-底图像素由 ``project`` 按 BaseNav 的 zone 表补上。
+``generate`` 按固定顺序跑同一批数据集（``datasets/`` 里的 ``Dataset`` 子类，需要投影的在前），产物只带
+游戏世界坐标；底图像素由 ``project`` 按 BaseNav 的 zone 表补上。
 
 输入默认取与 MaaEnd 平级的兄弟仓库（由 ``--workspace`` 定位），三档优先级为
 「命令行 > 环境变量 > 默认」：
@@ -49,10 +47,8 @@ from typing import Any, TypeVar
 import click
 
 from .datasets import (
-    COPY,
     DATASETS,
     DATASET_NAMES,
-    PROJECT,
     Dataset,
     files_of,
     select_datasets,
@@ -118,7 +114,7 @@ def check_input_dir(label: str, path: Path, option: str, env_name: str) -> None:
 
 
 def generate_datasets(
-    datasets: Sequence[Dataset],
+    datasets: Sequence[type[Dataset]],
     table_cfg_dir: Path,
     json_data_dir: Path,
     out_dir: Path,
@@ -283,7 +279,7 @@ def generate_command(
     """从本地 TableCfg / JsonData 生成精简数据（带坐标的投影，其余原样复制）。"""
     if list_datasets:
         for dataset in DATASETS:
-            how = "投影" if dataset.materialize == PROJECT else "复制"
+            how = "投影" if dataset.needs_projection else "复制"
             click.echo(f"{dataset.name}\t{dataset.file_name}\t{how}")
         return
 
@@ -294,8 +290,8 @@ def generate_command(
     out_dir = out_dir.expanduser().resolve()
     data_dir = data_dir.expanduser().resolve()
     datasets = select_datasets(only)
-    pipeline_files = files_of(datasets, materialize=PROJECT)
-    plain_files = files_of(datasets, materialize=COPY)
+    pipeline_files = files_of(datasets, projected=True)
+    plain_files = files_of(datasets, projected=False)
 
     click.echo(f"[zmdmap] 工作区（兄弟仓库）：{workspace}（{parameter_source(ctx, 'workspace')}）")
     click.echo(f"[zmdmap] TableCfg：{table_cfg_dir}（{parameter_source(ctx, 'table_cfg_dir')}）")
@@ -410,8 +406,8 @@ def fetch_command(
     raw_dir = out_dir.expanduser().resolve()
     data_dir = data_dir.expanduser().resolve()
     datasets = select_datasets(only)
-    pipeline_files = files_of(datasets, materialize=PROJECT)
-    plain_files = files_of(datasets, materialize=COPY)
+    pipeline_files = files_of(datasets, projected=True)
+    plain_files = files_of(datasets, projected=False)
 
     if download:
         click.echo("── 下载 ──────────────────────────────────────────")

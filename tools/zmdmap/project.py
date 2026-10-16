@@ -1,12 +1,12 @@
 """把 ``data/raw/`` 里的原始数据材料化进入库的 ``data/*.json``（原 ``project.mjs``）。
 
-入库看数据集是否需要投影：需要投影的按下表的 zone 表补底图像素（:func:`project_data`），不需要投影的由
-:func:`copy_files` 原样复制。
+入库看数据集是否需要投影（``datasets/`` 里的 ``Dataset.needs_projection``）：需要投影的按 zone 表补底图
+像素（:func:`project_data`），不需要投影的由 :func:`copy_files` 原样复制。
 
 带坐标的数据只发布游戏世界坐标 x/z（送货点另有世界高度 y），而底图像素与投影参数
 （``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）都在 BaseNav 包里 —— 只有 MaaEnd 手里有。所以
-下载或本地生成出来的原始数据要再过这一步：``u = sx*x + tx``、``v = -sy*z + ty``，并把本次用到
-的 zone 写进 ``maps``。
+下载或本地生成出来的原始数据要再过这一步：把 x/z 原位换成底图像素 ``u = sx*x + tx``、
+``v = -sy*z + ty``（``y`` 是世界高度，原样留着），并把本次用到的 zone 写进 ``maps``。
 
 输出用 Python 的 ``json`` 序列化（``ensure_ascii=False``、缩进 4）：与旧 Node 实现只在数字写法上
 有差别（整型浮点写成 ``520.0`` 而不是 ``520``），不影响语义。
@@ -21,28 +21,23 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+from .datasets import PROJECT_FILES, dataset_of
 from .navmesh import NavZone, load_nav_zones
 from .paths import ZMDMAP_DATA_DIR, REPO_ROOT
 
 VERSION_FILE = "version.txt"
 
+#: 投影前的世界坐标轴与投影后原位顶替它的底图像素轴，一一对应（x -> u、z -> v）。
+#: ``y`` 是世界高度，不参与换算，原样保留。
+WORLD_AXES = ("x", "z")
+PIXEL_AXES = ("u", "v")
+
 #: 投影后 ``coord`` 的说明（原始数据同名字段说明的是世界坐标，两者别混）。
 PROJECTED_COORD_TEXT = (
     "u/v = MapLocator 底图像素，原点左上、y 向下；BaseNav 顶点也是这个平面（u, v, height），"
-    "直接喂寻路即可。x/z 是投影前的世界坐标，maps 里的 zone / sx / tx / sy / ty 原样取自"
-    "BaseNav pack 的 zone 表，换算为 u = sx*x + tx, v = -sy*z + ty"
+    "直接喂寻路即可。世界坐标 x/z 已在入库时按原位置换成 u/v（u = sx*x + tx, v = -sy*z + ty），"
+    "maps 里的 zone / sx / tx / sy / ty 原样取自 BaseNav pack 的 zone 表"
 )
-#: 送货点数据的 coord 在通用说明后再补一句 y 的用途。
-COORD_Y_NOTE = "y 是未换算的世界高度，直接作为 NAVMESH 终点的 target_deck_y 用来在重叠可走面中选中目标层"
-
-#: 带世界坐标的数据集 -> 条目数组所在的键；只有这些需要投影，其余原样复制进 ``data/``。
-COORDINATE_DATASETS: dict[str, tuple[str, ...]] = {
-    "delivery_destinations.json": ("depots", "destinations"),
-    "teleport_anchors.json": ("anchors",),
-    "collect_points.json": ("points",),
-}
-#: 投影的输入文件（只有带坐标的那几份）。
-PROJECT_FILES: tuple[str, ...] = tuple(COORDINATE_DATASETS)
 
 
 def dump_json(value: Any) -> str:
@@ -63,6 +58,16 @@ def _read_axes(entry: dict[str, Any], axes: tuple[str, ...], label: str) -> list
             raise ValueError(f"{label} 的 {axis} 不是数值")
         values.append(float(value))
     return values
+
+
+def replace_world_axes(entry: dict[str, Any], u: float, v: float) -> dict[str, Any]:
+    """按原键序把世界坐标换成底图像素：``x`` 的位置给 ``u``、``z`` 的位置给 ``v``，其余字段原样。"""
+    renames = dict(zip(WORLD_AXES, PIXEL_AXES, strict=True))
+    pixels = dict(zip(WORLD_AXES, (u, v), strict=True))
+    replaced: dict[str, Any] = {}
+    for key, value in entry.items():
+        replaced[renames.get(key, key)] = pixels.get(key, value)
+    return replaced
 
 
 def resolve_zone(zones: dict[str, NavZone], map_id: str) -> dict[str, Any]:
@@ -120,9 +125,9 @@ def project_entries(
         entry_id = entry.get("id")
         if entry_id is None:
             entry_id = ""
-        x, z = _read_axes(entry, ("x", "z"), f"{label} {entry_id}")
+        x, z = _read_axes(entry, WORLD_AXES, f"{label} {entry_id}")
         u, v = project_to_pixel(zone, x, z, f"{label} {entry_id}")
-        projected.append({**entry, "u": u, "v": v})
+        projected.append(replace_world_axes(entry, u, v))
     return projected
 
 
@@ -147,14 +152,14 @@ def project_dataset(
     zones: dict[str, NavZone],
     skipped_maps: set[str],
 ) -> Any:
-    """投影一份数据；不带坐标的数据集原样返回。"""
-    containers = COORDINATE_DATASETS.get(file_name)
-    if containers is None:
+    """投影一份数据；不需要投影的数据集原样返回。"""
+    dataset = dataset_of(file_name)
+    if dataset is None or not dataset.needs_projection:
         return data
 
     used_zones: dict[str, dict[str, Any]] = {}
     projected = dict(data)
-    for container in containers:
+    for container in dataset.projection_containers:
         projected[container] = project_entries(
             data.get(container) if isinstance(data, dict) else None,
             zones,
@@ -162,8 +167,8 @@ def project_dataset(
             skipped_maps,
             f"{file_name}[{container}]",
         )
-    y_note = f"；{COORD_Y_NOTE}" if file_name == "delivery_destinations.json" else ""
-    projected["coord"] = f"{PROJECTED_COORD_TEXT}{y_note}"
+    note = f"；{dataset.projection_note}" if dataset.projection_note else ""
+    projected["coord"] = f"{PROJECTED_COORD_TEXT}{note}"
     projected["maps"] = describe_zones(used_zones)
     return projected
 
@@ -244,8 +249,7 @@ def project_data(
 ) -> dict[str, Any]:
     """把 ``raw_dir`` 里带坐标的原始数据投影到 ``out_dir``（缺省就是入库的 data/）。"""
     files = select_files(only)
-    need_zones = any(name in COORDINATE_DATASETS for name in files)
-    zones = load_nav_zones(nav, repo_root) if need_zones else {}
+    zones = load_nav_zones(nav, repo_root) if files else {}
 
     skipped_maps: set[str] = set()
     pending: list[tuple[str, Path, Any]] = []

@@ -13,6 +13,7 @@ from typing import Any
 from ..utils.game_data import Record, logger, read_gameplay_config
 from ..utils.coords import COORD_TEXT, read_xz
 from ..utils.levels import build_level_index, level_of, map_of_level
+from .base import Dataset
 
 DOODAD_PREFIX = "int_doodad_"
 
@@ -50,20 +51,27 @@ def _build_doodads(
         )
     return doodads
 
-def build_collect_points(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-    """Data chain: WorldEntityRegistry -> 采集物，LevelBasicInfoTable 提供 ID 前缀
-    到关卡的对照。
-    """
-    points = _build_doodads(json_data_dir, read_gameplay_config(json_data_dir, "WorldEntityRegistry"))
-    if not points:
-        raise CollectPointError("WorldEntityRegistry 里一个可交互采集物都没有")
+class CollectPoints(Dataset):
+    """AutoCollect 采集路线的采集物（``collect_points.json``）。"""
 
-    logger.info(f"Built maaend collect_points: {len(points)} points")
-    return {
-        "text": {
-            "points": "可交互采集物，detailId 以 int_doodad_ 开头",
-        },
-        "coord": COORD_TEXT,
-        "count": len(points),
-        "points": points,
-    }
+    needs_projection = True
+    projection_containers = ("points",)
+
+    @classmethod
+    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+        """Data chain: WorldEntityRegistry -> 采集物，LevelBasicInfoTable 提供 ID 前缀
+        到关卡的对照。
+        """
+        points = _build_doodads(json_data_dir, read_gameplay_config(json_data_dir, "WorldEntityRegistry"))
+        if not points:
+            raise CollectPointError("WorldEntityRegistry 里一个可交互采集物都没有")
+
+        logger.info(f"Built maaend collect_points: {len(points)} points")
+        return {
+            "text": {
+                "points": "可交互采集物，detailId 以 int_doodad_ 开头",
+            },
+            "coord": COORD_TEXT,
+            "count": len(points),
+            "points": points,
+        }

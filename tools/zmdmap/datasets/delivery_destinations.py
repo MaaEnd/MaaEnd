@@ -23,6 +23,7 @@ from ..utils.game_data import (
     read_table_cfg,
 )
 from ..utils.coords import COORD_TEXT, COORD_Y_NOTE, read_xyz
+from .base import Dataset
 
 # 富文本标签（如 <@qu.key>…</>）剥除。
 RICH_TEXT_TAG = re.compile(r"<[^<>]*>")
@@ -364,70 +365,78 @@ def _check_unique_names(destinations: list[dict[str, Any]]) -> None:
             dupes = sorted({value for value in values if values.count(value) > 1})
             raise DeliveryDestinationError(f"{locale} 的 name 有重复：{dupes}")
 
-def build_delivery_destinations(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-    """Data chain: DomainDepotDeliverTargetTable -> delivery points; the
-    point's position comes from NpcProxyTable (npc) or LevelMapMark
-    (recycle_bin), names/areas from DomainDepotBuyerTable/LevelDescTable;
-    DomainDepotTable -> depots + level linkage. 坐标按游戏世界坐标发布，
-    底图像素由 MaaEnd 侧投影。
-    """
-    deliver_target_table = read_table_cfg(table_cfg_dir, "DomainDepotDeliverTargetTable")
-    buyer_table = read_table_cfg(table_cfg_dir, "DomainDepotBuyerTable")
-    depot_table = read_table_cfg(table_cfg_dir, "DomainDepotTable")
-    recycle_bin_table = read_table_cfg(table_cfg_dir, "RecycleBinTable")
-    level_desc_table = read_table_cfg(table_cfg_dir, "LevelDescTable")
+class DeliveryDestinations(Dataset):
+    """送货目的地（普通收货 NPC / 回收站）及其所属仓储节点（``delivery_destinations.json``）。"""
 
-    npc_positions = read_gameplay_config(json_data_dir, "NpcProxyTable").dataTable
-    mark_index = _build_mark_index(read_gameplay_config(json_data_dir, "LevelMapMark"))
+    needs_projection = True
+    projection_containers = ("depots", "destinations")
+    projection_note = COORD_Y_NOTE
 
-    depot_by_level = _build_depots_by_level(depot_table)
-    depot_pose = _load_depot_pose(json_data_dir, depot_by_level)
-    depots = _build_depots(table_cfg_dir, depot_table, mark_index, depot_pose)
-    destinations = _build_delivery_destinations(
-        table_cfg_dir,
-        json_data_dir,
-        deliver_target_table,
-        buyer_table,
-        recycle_bin_table,
-        level_desc_table,
-        npc_positions,
-        mark_index,
-        depot_by_level,
-    )
-    _check_unique_names(destinations)
+    @classmethod
+    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+        """Data chain: DomainDepotDeliverTargetTable -> delivery points; the
+        point's position comes from NpcProxyTable (npc) or LevelMapMark
+        (recycle_bin), names/areas from DomainDepotBuyerTable/LevelDescTable;
+        DomainDepotTable -> depots + level linkage. 坐标按游戏世界坐标发布，
+        底图像素由 MaaEnd 侧投影。
+        """
+        deliver_target_table = read_table_cfg(table_cfg_dir, "DomainDepotDeliverTargetTable")
+        buyer_table = read_table_cfg(table_cfg_dir, "DomainDepotBuyerTable")
+        depot_table = read_table_cfg(table_cfg_dir, "DomainDepotTable")
+        recycle_bin_table = read_table_cfg(table_cfg_dir, "RecycleBinTable")
+        level_desc_table = read_table_cfg(table_cfg_dir, "LevelDescTable")
 
-    logger.info(
-        f"Built maaend delivery_destinations: {len(depots)} depots, {len(destinations)} destinations"
-    )
-    return {
-        "text": {
-            "name": (
-                "取自 DomainDepotBuyerTable.buyerName；普通收货任务用作 OCR 目标，"
-                "回收站任务仅保留为数据标识"
-            ),
-            "mission": (
-                "委托目标文案，已剥掉 <@qu.key>…</> 富文本标签；回收站任务用作 OCR 目标，"
-                "同区域重复时保持歧义失败"
-            ),
-            "area": "任务详情页显示的关卡名，取自 LevelDescTable.showName",
-            "serial_id": "资源回收站在当前区域内显示的序号，取自 RecycleBinTable.serialId",
-            "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
-            "depots": (
-                "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId；"
-                "y 为世界高度，取自 LevelMapMark.pos.y，用作 NAVMESH 终点的 target_deck_y；"
-                "yaw 为朝向（绕 Y 轴欧拉角，度），取自 LevelData 交互实体 rotation.y，缺省为 0"
-            ),
-            "destinations": (
-                "普通收货 NPC 的 y 取自 NpcProxyTable.position.y，资源回收站的 y 取自 LevelMapMark.pos.y，"
-                "均用作 NAVMESH 终点的 target_deck_y；"
-                "普通收货 NPC 的 yaw 取自 NpcProxyTable.rotation.y；"
-                "资源回收站的 yaw 取自 LevelData 交互实体 rotation.y 并翻转 180 度，缺省为 0"
-            ),
-        },
-        "coord": f"{COORD_TEXT}；{COORD_Y_NOTE}",
-        "ocr_key": "name",
-        "depot_count": len(depots),
-        "count": len(destinations),
-        "depots": depots,
-        "destinations": destinations,
-    }
+        npc_positions = read_gameplay_config(json_data_dir, "NpcProxyTable").dataTable
+        mark_index = _build_mark_index(read_gameplay_config(json_data_dir, "LevelMapMark"))
+
+        depot_by_level = _build_depots_by_level(depot_table)
+        depot_pose = _load_depot_pose(json_data_dir, depot_by_level)
+        depots = _build_depots(table_cfg_dir, depot_table, mark_index, depot_pose)
+        destinations = _build_delivery_destinations(
+            table_cfg_dir,
+            json_data_dir,
+            deliver_target_table,
+            buyer_table,
+            recycle_bin_table,
+            level_desc_table,
+            npc_positions,
+            mark_index,
+            depot_by_level,
+        )
+        _check_unique_names(destinations)
+
+        logger.info(
+            f"Built maaend delivery_destinations: {len(depots)} depots, {len(destinations)} destinations"
+        )
+        return {
+            "text": {
+                "name": (
+                    "取自 DomainDepotBuyerTable.buyerName；普通收货任务用作 OCR 目标，"
+                    "回收站任务仅保留为数据标识"
+                ),
+                "mission": (
+                    "委托目标文案，已剥掉 <@qu.key>…</> 富文本标签；回收站任务用作 OCR 目标，"
+                    "同区域重复时保持歧义失败"
+                ),
+                "area": "任务详情页显示的关卡名，取自 LevelDescTable.showName",
+                "serial_id": "资源回收站在当前区域内显示的序号，取自 RecycleBinTable.serialId",
+                "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
+                "depots": (
+                    "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId；"
+                    "y 为世界高度，取自 LevelMapMark.pos.y，用作 NAVMESH 终点的 target_deck_y；"
+                    "yaw 为朝向（绕 Y 轴欧拉角，度），取自 LevelData 交互实体 rotation.y，缺省为 0"
+                ),
+                "destinations": (
+                    "普通收货 NPC 的 y 取自 NpcProxyTable.position.y，资源回收站的 y 取自 LevelMapMark.pos.y，"
+                    "均用作 NAVMESH 终点的 target_deck_y；"
+                    "普通收货 NPC 的 yaw 取自 NpcProxyTable.rotation.y；"
+                    "资源回收站的 yaw 取自 LevelData 交互实体 rotation.y 并翻转 180 度，缺省为 0"
+                ),
+            },
+            "coord": f"{COORD_TEXT}；{COORD_Y_NOTE}",
+            "ocr_key": "name",
+            "depot_count": len(depots),
+            "count": len(destinations),
+            "depots": depots,
+            "destinations": destinations,
+        }

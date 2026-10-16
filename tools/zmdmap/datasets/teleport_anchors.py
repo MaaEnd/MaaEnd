@@ -15,13 +15,14 @@ from typing import Any
 from ..utils.game_data import logger, read_gameplay_config
 from ..utils.coords import COORD_TEXT, read_xz
 from ..utils.levels import build_level_index, level_of, map_of_level
+from .base import Dataset
 
 CAMPFIRE_TEMPLATE_ID = "mark_sp_campfire"
 
 class TeleportAnchorError(ValueError):
     """teleport_anchors 数据组装错误。"""
 
-def build_anchors(json_data_dir: Path) -> list[dict[str, Any]]:
+def _build_anchors(json_data_dir: Path) -> list[dict[str, Any]]:
     """营地列表（按 markInstId 数值升序）。"""
     level_map_mark = read_gameplay_config(json_data_dir, "LevelMapMark")
     levels = build_level_index(read_gameplay_config(json_data_dir, "LevelBasicInfoTable"))
@@ -64,21 +65,28 @@ def build_anchors(json_data_dir: Path) -> list[dict[str, Any]]:
     anchors.sort(key=lambda item: int(item["id"]))
     return anchors
 
-def build_teleport_anchors(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
-    """Data chain: LevelMapMark 的营地标记 -> 传送锚点；LevelBasicInfoTable 提供
-    ID 前缀到关卡的对照。
-    """
-    anchors = build_anchors(json_data_dir)
-    logger.info(f"Built maaend teleport_anchors: {len(anchors)} anchors")
-    return {
-        "text": {
-            "anchors": (
-                "营地，取自 LevelMapMark 中 templateId=mark_sp_campfire 的标记；x/z 即它在大世界里的位置"
-            ),
-            "teleport_id": "传送到该营地时用的锚点 ID，取自标记的 detailedData.teleportValidationId",
-            "level": "所属关卡 ID，取自 LevelBasicInfoTable；ID 除以 10^8 即关卡 idNum",
-        },
-        "coord": COORD_TEXT,
-        "count": len(anchors),
-        "anchors": anchors,
-    }
+class TeleportAnchors(Dataset):
+    """营地（地图上的传送锚点）（``teleport_anchors.json``）。"""
+
+    needs_projection = True
+    projection_containers = ("anchors",)
+
+    @classmethod
+    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
+        """Data chain: LevelMapMark 的营地标记 -> 传送锚点；LevelBasicInfoTable 提供
+        ID 前缀到关卡的对照。
+        """
+        anchors = _build_anchors(json_data_dir)
+        logger.info(f"Built maaend teleport_anchors: {len(anchors)} anchors")
+        return {
+            "text": {
+                "anchors": (
+                    "营地，取自 LevelMapMark 中 templateId=mark_sp_campfire 的标记；坐标即它在大世界里的位置"
+                ),
+                "teleport_id": "传送到该营地时用的锚点 ID，取自标记的 detailedData.teleportValidationId",
+                "level": "所属关卡 ID，取自 LevelBasicInfoTable；ID 除以 10^8 即关卡 idNum",
+            },
+            "coord": COORD_TEXT,
+            "count": len(anchors),
+            "anchors": anchors,
+        }

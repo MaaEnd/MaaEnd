@@ -2,14 +2,14 @@
 
 `tools/zmdmap` 是 MaaEnd 各任务所需精简游戏数据的统一入口：既能从本地游戏数据**生成**，也能从 zmdmap **下载**已发布数据，再入库成可以直接用的形式。原 Node 实现（`fetch-data.mjs` / `project.mjs`）已全部移植到这里的 Python 模块，不再需要 Node。
 
-数据都先出**原始形态**（只带游戏世界坐标）进 `data/raw/`，再由**入库**步骤进 `data/`：带坐标的按 BaseNav 的 zone 表投影，其余原样复制。原始形态就是上游发布的形态——数据 CI 生成并发布的就是它，MaaEnd 这边下载后自己完成投影与复制。
+数据都先出**原始形态**（只带游戏世界坐标）进 `data/raw/`，再由**入库**步骤进 `data/`：带坐标的把世界坐标按 BaseNav 的 zone 表**原位**换成底图像素（`x` 的位置给 `u`、`z` 的位置给 `v`，其余字段与键序都不动），其余数据原样复制。原始形态就是上游发布的形态——数据 CI 生成并发布的就是它，MaaEnd 这边下载后自己完成投影与复制。
 
 数据树也在本目录下：
 
 | 目录 | 放什么 | 入不入库 |
 | --- | --- | --- |
 | `data/raw/` | 原始形态：下载来的（只有世界坐标）与本地生成的结果 | 不入库 |
-| `data/` | 可以直接用的数据：投影后的，以及原样复制的 | 入库 |
+| `data/` | 可以直接用的数据：投影后的（x/z 原位换成 u/v），以及原样复制的 | 入库 |
 
 ## 子命令
 
@@ -37,21 +37,21 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 ### 生成：精简游戏数据（`datasets/`）
 
-`datasets/__init__.py` 的 `DATASETS` 登记了每份数据的顺序、文件名与**入库方式**（`materialize`）；`uv run zmdmap generate` 按这个顺序逐个调用 `build_*`，把原始形态写进 `--out-dir`。每个 `build_*` 的入参都是 `(table_cfg_dir, json_data_dir)`，只从本地兄弟仓库取数据（只用到其中一个目录的也照这个签名收）。
+`datasets/` 下**一个模块就是一份数据**：模块名既是数据集名，也是产物文件名（`datasets/collect_points.py` 生成 `collect_points.json`）。每个模块定义一个 `datasets/base.py` 的 `Dataset` 子类，实现 `build(table_cfg_dir, json_data_dir)`（只用到其中一个目录的也照这个签名收），并用 `needs_projection` 声明入库时要不要投影；`datasets/__init__.py` 扫包把这些子类收成 `DATASETS`（需要投影的在前，其余按名字排），`uv run zmdmap generate` 按这个顺序逐个调用 `build`，把原始形态写进 `--out-dir`——没有需要手工维护的登记表。需要投影的数据在子类上用 `projection_containers` 列出条目数组所在的键，`project.py` 直接读这份声明，不再另存一份对照表。
 
 | 文件 | 数据 | 入库 |
 | --- | --- | --- |
+| `datasets/collect_points.py` | `collect_points.json` | 投影 |
 | `datasets/delivery_destinations.py` | `delivery_destinations.json` | 投影 |
 | `datasets/teleport_anchors.py` | `teleport_anchors.json` | 投影 |
-| `datasets/collect_points.py` | `collect_points.json` | 投影 |
 | `datasets/delivery_jobs.py` | `delivery_jobs.json` | 复制 |
+| `datasets/energy_point_gems.py` | `energy_point_gems.json`（基质筛选的能量淤积点） | 复制 |
 | `datasets/environment_monitoring.py` | `environment_monitoring.json` | 复制 |
+| `datasets/item_mini_table.py` | `item_mini_table.json`（图标识别的物品表，带多语言名字） | 复制 |
 | `datasets/sell_product.py` | `sell_product.json` | 复制 |
-| `datasets/essence.py` | `energy_point_gems.json`（基质筛选的能量淤积点） | 复制 |
 | `datasets/weapons.py` | `weapons.json`（基质筛选与图标识别共用的武器表） | 复制 |
-| `datasets/items.py` | `item_mini_table.json`（图标识别的物品表，带多语言名字） | 复制 |
 
-要加一份新数据，就在 `datasets/` 加一个同签名的 `build_*`，再在 `DATASETS` 里登记一行并选好入库方式。
+要加一份新数据，就在 `datasets/` 加一个同名模块、定义 `Dataset` 子类并实现 `build`，再声明要不要投影（需要投影的用 `projection_containers` 列出条目数组所在的键）。
 
 ### 常量（`constants.py`）
 
@@ -70,10 +70,10 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | 文件 | 说明 |
 | --- | --- |
 | `fetch.py` | 版本接口 + 发布 CDN 的下载与缓存（原 `fetch-data.mjs`） |
-| `project.py` | 带坐标的数据按 BaseNav zone 表投影、其余原样复制（原 `project.mjs`） |
+| `project.py` | 带坐标的数据按 BaseNav zone 表把 x/z 原位换成 u/v、其余原样复制（原 `project.mjs`） |
 | `navmesh.py` | 从 `BNAV` / `BGEO` 二进制 nav 数据里读出 zone 表 |
 | `paths.py` | 输入 / 输出路径的默认值与环境变量名 |
-| `cli.py` | `uv run zmdmap` 的入口，跑 `datasets/` 里的 `build_*` / 下载 / 入库 |
+| `cli.py` | `uv run zmdmap` 的入口，跑 `datasets/` 里的数据集 / 下载 / 入库 |
 
 入库 JSON 用 Python 的 `json` 序列化（`ensure_ascii=False`、缩进 4），并且统一写 LF（仓库的 `.gitattributes` 是 `eol=lf`）。与原 Node 实现只在数字写法上有差别（整型浮点写成 `520.0` 而不是 `520`），值与键顺序一致——移植时已用原 JS 投影器逐份比对过解析后的结构。
 
@@ -114,7 +114,7 @@ CI 只需要出数据时用 `uv run --no-default-groups zmdmap generate --raw-on
 
 ## 产出
 
-产物都先落在**不入库**的 `tools/zmdmap/data/raw/`，只带游戏世界坐标；带坐标的由入库步骤按 BaseNav 的 zone 表算出底图像素，进入库的 `tools/zmdmap/data/*.json`，其余原样复制过去。上游发布的数据就是这个原始形态，`fetch` 下载完必须先入库才能被各任务生成器读取。
+产物都先落在**不入库**的 `tools/zmdmap/data/raw/`，只带游戏世界坐标；带坐标的由入库步骤按 BaseNav 的 zone 表把 `x` / `z` 原位换成底图像素 `u` / `v`，进入库的 `tools/zmdmap/data/*.json`，其余原样复制过去。上游发布的数据就是这个原始形态，`fetch` 下载完必须先入库才能被各任务生成器读取。
 
 整条链路（同步兄弟仓库 → 本地生成 → 入库）也在本入口：
 
@@ -136,7 +136,7 @@ uv run zmdmap fetch                               # 下载 → 入库（等同 p
 | `localized_text(dir, text_id, lang)` | `<table_cfg_dir>/I18nTextTable_<后缀>.json` |
 | `ref_texts(dir, ref)` / `ref_text(dir, ref, lang)` | 表里 `{"id", "text"}` 文本引用的各语言 / 单语文本 |
 
-读出来的 JSON 会换成属性可访问的 `Record`，`build_*` 里直接写 `entry.position.x`；几个函数都按「目录 + 文件名」缓存，多份数据共用同一次读取。
+读出来的 JSON 会换成属性可访问的 `Record`，`Dataset.build` 里直接写 `entry.position.x`；几个函数都按「目录 + 文件名」缓存，多份数据共用同一次读取。
 
 ## 校验
 

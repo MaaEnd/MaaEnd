@@ -3,17 +3,17 @@
 MaaEnd 使用由 zmdmap 数据 CI 生成并发布的精简游戏数据，落在 [`tools/zmdmap/data/`](../zmdmap/data/)：
 
 - `delivery_jobs.json`：地区、仓储节点及其可装箱物品；
-- `delivery_destinations.json`：仓储和送货终点的多语言文本、世界坐标、底图像素与归属关系；
+- `delivery_destinations.json`：仓储和送货终点的多语言文本、底图像素 `u` / `v`、世界高度 `y` 与归属关系；
 - `environment_monitoring.json`：监测终端、观察点与各语言名称；
 - `sell_product.json`：据点、可售物品、据点特性与匹配干员；
-- `teleport_anchors.json`：营地（地图传送锚点）的世界坐标、底图像素与传送 ID；
-- `collect_points.json`：可交互采集物的世界坐标与底图像素。
+- `teleport_anchors.json`：营地（地图传送锚点）的底图像素 `u` / `v` 与传送 ID；
+- `collect_points.json`：可交互采集物的底图像素 `u` / `v`。
 
 这些文件都是按任务需要裁剪出的游戏数据，不是完整的上游数据快照，也不包含数据生产端的版本或来源元数据。MaaEnd 通过 `version.txt` 单独记录当前数据版本。
 
 ## 数据流
 
-zmdmap 的数据树就在 `tools/zmdmap/`：`data/raw/` 放原样产物（不入库），`data/` 放可以直接用的数据（入库）。上游发布的数据**只带游戏世界坐标**，不含底图像素：投影参数（`zone` / `sx` / `tx` / `sy` / `ty`）属于 BaseNav 数据包，只有 MaaEnd 手里有。所以下载下来的原始数据先落在不入库的 `tools/zmdmap/data/raw/`，再由投影步骤（`uv run zmdmap fetch` 的一部分）按 BaseNav 的 zone 表投影/材料化进入库的 `tools/zmdmap/data/*.json` —— 各任务生成器只读这一份。
+zmdmap 的数据树就在 `tools/zmdmap/`：`data/raw/` 放原样产物（不入库），`data/` 放可以直接用的数据（入库）。上游发布的数据**只带游戏世界坐标**，不含底图像素：投影参数（`zone` / `sx` / `tx` / `sy` / `ty`）属于 BaseNav 数据包，只有 MaaEnd 手里有。所以下载下来的原始数据先落在不入库的 `tools/zmdmap/data/raw/`，再由投影步骤（`uv run zmdmap fetch` 的一部分）按 BaseNav 的 zone 表把 `x` / `z` 原位换成 `u` / `v` 进入库的 `tools/zmdmap/data/*.json` —— 各任务生成器只读这一份。
 
 ```text
 BeyondTableCfg/TableCfg ─┐
@@ -54,7 +54,7 @@ pnpm generate:SeizeDeliveryJobs
 
 ## 投影
 
-`tools/zmdmap/project.py` 做的事就是换算：`u = sx*x + tx`、`v = -sy*z + ty`，加上 `maps` 块（本次用到的底图及其 zone 参数），并把不带坐标的数据与 `version.txt` 原样带到入库目录。
+`tools/zmdmap/project.py` 做的事就是换算：把条目里的 `x` / `z` 按原位置换成 `u = sx*x + tx`、`v = -sy*z + ty`（`y` 是世界高度，不参与换算、原样保留），加上 `maps` 块（本次用到的底图及其 zone 参数），并把不需要投影的数据与 `version.txt` 原样带到入库目录。
 
 - nav 数据缺省读 `assets/resource/model` 子模块的 `map/navmesh/base.nav.gz`；本地没有时按该子模块当前版本从远端取，`--nav` 可指定别的本地文件或 URL。
 - 没有对应 zone 的底图（如 `blackbox`）整图跳过并打印一行。
@@ -62,7 +62,7 @@ pnpm generate:SeizeDeliveryJobs
 
 ## 本地生成脚本
 
-`build_*`（`datasets/`）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：`datasets/` 里的 `build_*` 通过 `utils/game_data.py` 读 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`；`coords.py` / `levels.py` 等共用件在 `utils/`，语言表这类跨模块常量在 `constants.py`。
+`datasets/`（一份数据一个模块）与下载/入库统一放在 [`tools/zmdmap`](../zmdmap/README.md)，入口是 `uv run zmdmap`（子命令 `generate` / `fetch`）。生成只读本地兄弟仓库：各数据集的 `Dataset.build` 通过 `utils/game_data.py` 读 `BeyondTableCfg/TableCfg` 与 `BeyondMemoryPack/JsonData`；`coords.py` / `levels.py` 等共用件在 `utils/`，语言表这类跨模块常量在 `constants.py`。
 
 默认按当前 MaaEnd 仓库的兄弟目录解析输入，因此各仓库位于同一 `Endfield` 目录时无需传路径：
 

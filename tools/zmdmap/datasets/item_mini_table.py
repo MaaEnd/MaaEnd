@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from ..utils.game_data import as_text, logger, read_table_cfg, ref_text, texts_of, text_id_of
+from .base import Dataset
 
 # 配方 / 配方升级 / 装备配方：制造说明，不是可用物品。
 _FORMULA_TYPES = frozenset({"EquipFormula", "FormulaUnlock", "FormulaLevelUp"})
@@ -32,74 +33,78 @@ _FORMULA_TYPES = frozenset({"EquipFormula", "FormulaUnlock", "FormulaLevelUp"})
 _REINCLUDED_DEPOT_TYPES = frozenset({"CommercialItem", "SpecialItem"})
 
 
-def build_items(table_cfg_dir: Path, json_data_dir: Path) -> dict[str, dict[str, Any]]:
-    """背包物品与它们所在的页签、图标、稀有度、排序与五语名字。"""
-    items = read_table_cfg(table_cfg_dir, "ItemTable")
-    showing_types = read_table_cfg(table_cfg_dir, "ItemShowingTypeTable")
-    depots = read_table_cfg(table_cfg_dir, "ValuableDepot")
+class ItemMiniTable(Dataset):
+    """图标识别的物品表，带多语言名字（``item_mini_table.json``）。"""
 
-    # 背包页签（showingType -> 中文名）。
-    showing_type_names = {
-        as_text(row.get("type")): ref_text(table_cfg_dir, row.get("name"))
-        for row in showing_types.values()
-    }
-    showing_type_names = {key: name for key, name in showing_type_names.items() if name}
+    @classmethod
+    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, dict[str, Any]]:
+        """背包物品与它们所在的页签、图标、稀有度、排序与五语名字。"""
+        items = read_table_cfg(table_cfg_dir, "ItemTable")
+        showing_types = read_table_cfg(table_cfg_dir, "ItemShowingTypeTable")
+        depots = read_table_cfg(table_cfg_dir, "ValuableDepot")
 
-    # 仓库页签：除了重新收进来的两个，其余（武器/装备/任务物品…）一律不收。
-    depot_names: dict[str, str] = {}
-    non_hidden_depot_types: set[str] = set()
-    for depot in depots.values():
-        if depot.get("isHidden"):
-            continue
-        depot_type = as_text(depot.get("type"))
-        non_hidden_depot_types.add(depot_type)
-        depot_names[depot_type] = ref_text(table_cfg_dir, depot.get("name")) or depot_type
-    excluded_depot_types = non_hidden_depot_types - _REINCLUDED_DEPOT_TYPES
-
-    fluid_type_by_item, fluid_by_full_container, fluid_containers = _fluid_maps(table_cfg_dir)
-    region_restricted_items = _region_restricted_items(table_cfg_dir)
-
-    output: dict[str, dict[str, Any]] = {}
-    for item_id, item in items.items():
-        category = showing_type_names.get(as_text(item.get("showingType")))
-        valuable_tab = as_text(item.get("valuableTabType"))
-        if valuable_tab in _REINCLUDED_DEPOT_TYPES:
-            # 仓库页签收进来的条目：分类用页签名，不是背包页签名。
-            category = depot_names.get(valuable_tab, category)
-        if category is None or valuable_tab in excluded_depot_types:
-            # 没有背包页签（或页签未登记），或者同时出现在仓库里。
-            continue
-        if as_text(item.get("type")) in _FORMULA_TYPES:
-            continue
-        name_ref = item.get("name")
-        if text_id_of(name_ref) == 0:
-            # 没有名字（如工厂摆件）不是真正的背包物品。
-            continue
-
-        from_depot = valuable_tab in _REINCLUDED_DEPOT_TYPES
-        containers = fluid_containers.get(item_id)
-        output[item_id] = {
-            "name": ref_text(table_cfg_dir, name_ref),
-            "nameId": text_id_of(name_ref),
-            "names": texts_of(table_cfg_dir, text_id_of(name_ref)),
-            "category": category,
-            "storageKind": "ValuableDepot" if from_depot else "Normal",
-            "categoryType": valuable_tab if from_depot else as_text(item.get("showingType")),
-            "iconId": as_text(item.get("iconId")),
-            "rarity": item.get("rarity"),
-            "sortId1": item.get("sortId1"),
-            "sortId2": item.get("sortId2"),
-            "fluidType": fluid_type_by_item.get(item_id),
-            # 纯流体是自己，满容器是里面装的流体。
-            "fluid": item_id if containers is not None else fluid_by_full_container.get(item_id),
-            "fullContainers": containers["full"] if containers is not None else [],
-            "emptyContainers": containers["empty"] if containers is not None else [],
+        # 背包页签（showingType -> 中文名）。
+        showing_type_names = {
+            as_text(row.get("type")): ref_text(table_cfg_dir, row.get("name"))
+            for row in showing_types.values()
         }
-        if item_id in region_restricted_items:
-            output[item_id]["regionRestricted"] = True
+        showing_type_names = {key: name for key, name in showing_type_names.items() if name}
 
-    logger.info(f"物品 mini table {len(output)} 条")
-    return output
+        # 仓库页签：除了重新收进来的两个，其余（武器/装备/任务物品…）一律不收。
+        depot_names: dict[str, str] = {}
+        non_hidden_depot_types: set[str] = set()
+        for depot in depots.values():
+            if depot.get("isHidden"):
+                continue
+            depot_type = as_text(depot.get("type"))
+            non_hidden_depot_types.add(depot_type)
+            depot_names[depot_type] = ref_text(table_cfg_dir, depot.get("name")) or depot_type
+        excluded_depot_types = non_hidden_depot_types - _REINCLUDED_DEPOT_TYPES
+
+        fluid_type_by_item, fluid_by_full_container, fluid_containers = _fluid_maps(table_cfg_dir)
+        region_restricted_items = _region_restricted_items(table_cfg_dir)
+
+        output: dict[str, dict[str, Any]] = {}
+        for item_id, item in items.items():
+            category = showing_type_names.get(as_text(item.get("showingType")))
+            valuable_tab = as_text(item.get("valuableTabType"))
+            if valuable_tab in _REINCLUDED_DEPOT_TYPES:
+                # 仓库页签收进来的条目：分类用页签名，不是背包页签名。
+                category = depot_names.get(valuable_tab, category)
+            if category is None or valuable_tab in excluded_depot_types:
+                # 没有背包页签（或页签未登记），或者同时出现在仓库里。
+                continue
+            if as_text(item.get("type")) in _FORMULA_TYPES:
+                continue
+            name_ref = item.get("name")
+            if text_id_of(name_ref) == 0:
+                # 没有名字（如工厂摆件）不是真正的背包物品。
+                continue
+
+            from_depot = valuable_tab in _REINCLUDED_DEPOT_TYPES
+            containers = fluid_containers.get(item_id)
+            output[item_id] = {
+                "name": ref_text(table_cfg_dir, name_ref),
+                "nameId": text_id_of(name_ref),
+                "names": texts_of(table_cfg_dir, text_id_of(name_ref)),
+                "category": category,
+                "storageKind": "ValuableDepot" if from_depot else "Normal",
+                "categoryType": valuable_tab if from_depot else as_text(item.get("showingType")),
+                "iconId": as_text(item.get("iconId")),
+                "rarity": item.get("rarity"),
+                "sortId1": item.get("sortId1"),
+                "sortId2": item.get("sortId2"),
+                "fluidType": fluid_type_by_item.get(item_id),
+                # 纯流体是自己，满容器是里面装的流体。
+                "fluid": item_id if containers is not None else fluid_by_full_container.get(item_id),
+                "fullContainers": containers["full"] if containers is not None else [],
+                "emptyContainers": containers["empty"] if containers is not None else [],
+            }
+            if item_id in region_restricted_items:
+                output[item_id]["regionRestricted"] = True
+
+        logger.info(f"物品 mini table {len(output)} 条")
+        return output
 
 
 def _fluid_maps(
