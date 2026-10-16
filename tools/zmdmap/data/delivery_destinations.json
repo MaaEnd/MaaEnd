@@ -1,17 +1,4 @@
 {
-    "text": {
-        "name": "取自 DomainDepotBuyerTable.buyerName；普通收货任务用作 OCR 目标，回收站任务仅保留为数据标识",
-        "mission": "委托目标文案，已剥掉 <@qu.key>…</> 富文本标签；回收站任务用作 OCR 目标，同区域重复时保持歧义失败",
-        "area": "任务详情页显示的关卡名，取自 LevelDescTable.showName",
-        "serial_id": "资源回收站在当前区域内显示的序号，取自 RecycleBinTable.serialId",
-        "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
-        "depots": "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId；y 为世界高度，取自 LevelMapMark.pos.y，用作 NAVMESH 终点的 target_deck_y；yaw 为朝向（绕 Y 轴欧拉角，度），取自 LevelData 交互实体 rotation.y，缺省为 0",
-        "destinations": "普通收货 NPC 的 y 取自 NpcProxyTable.position.y，资源回收站的 y 取自 LevelMapMark.pos.y，均用作 NAVMESH 终点的 target_deck_y；普通收货 NPC 的 yaw 取自 NpcProxyTable.rotation.y；资源回收站的 yaw 取自 LevelData 交互实体 rotation.y 并翻转 180 度，缺省为 0"
-    },
-    "coord": "u/v = MapLocator 底图像素，原点左上、y 向下；BaseNav 顶点也是这个平面（u, v, height），直接喂寻路即可。世界坐标 x/z 已在入库时按原位置换成 u/v（u = sx*x + tx, v = -sy*z + ty），maps 里的 zone / sx / tx / sy / ty 原样取自 BaseNav pack 的 zone 表；y 是未换算的世界高度，直接作为 NAVMESH 终点的 target_deck_y 用来在重叠可走面中选中目标层",
-    "ocr_key": "name",
-    "depot_count": 5,
-    "count": 22,
     "depots": [
         {
             "id": "domain_1_lv005_depot_1",

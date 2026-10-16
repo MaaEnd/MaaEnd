@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from ..utils.game_data import logger, read_gameplay_config
-from ..utils.coords import COORD_TEXT, read_xz
+from ..utils.coords import read_xz
 from ..utils.levels import build_level_index, level_of, map_of_level
 from .base import Dataset
 
@@ -78,15 +78,4 @@ class TeleportAnchors(Dataset):
         """
         anchors = _build_anchors(json_data_dir)
         logger.info(f"Built maaend teleport_anchors: {len(anchors)} anchors")
-        return {
-            "text": {
-                "anchors": (
-                    "营地，取自 LevelMapMark 中 templateId=mark_sp_campfire 的标记；坐标即它在大世界里的位置"
-                ),
-                "teleport_id": "传送到该营地时用的锚点 ID，取自标记的 detailedData.teleportValidationId",
-                "level": "所属关卡 ID，取自 LevelBasicInfoTable；ID 除以 10^8 即关卡 idNum",
-            },
-            "coord": COORD_TEXT,
-            "count": len(anchors),
-            "anchors": anchors,
-        }
+        return {"anchors": anchors}

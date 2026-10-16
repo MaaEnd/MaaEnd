@@ -1,9 +1,4 @@
 {
-    "text": {
-        "points": "可交互采集物，detailId 以 int_doodad_ 开头"
-    },
-    "coord": "u/v = MapLocator 底图像素，原点左上、y 向下；BaseNav 顶点也是这个平面（u, v, height），直接喂寻路即可。世界坐标 x/z 已在入库时按原位置换成 u/v（u = sx*x + tx, v = -sy*z + ty），maps 里的 zone / sx / tx / sy / ty 原样取自 BaseNav pack 的 zone 表",
-    "count": 5832,
     "points": [
         {
             "id": "200060396",

@@ -8,6 +8,8 @@
 下载或本地生成出来的原始数据要再过这一步：把 x/z 原位换成底图像素 ``u = sx*x + tx``、
 ``v = -sy*z + ty``（``y`` 是世界高度，原样留着），并把本次用到的 zone 写进 ``maps``。
 
+说明字段不再进数据文件：字段含义写在 ``datasets/`` 的模块与文档里。
+
 输出用 Python 的 ``json`` 序列化（``ensure_ascii=False``、缩进 4）：与旧 Node 实现只在数字写法上
 有差别（整型浮点写成 ``520.0`` 而不是 ``520``），不影响语义。
 """
@@ -31,13 +33,6 @@ VERSION_FILE = "version.txt"
 #: ``y`` 是世界高度，不参与换算，原样保留。
 WORLD_AXES = ("x", "z")
 PIXEL_AXES = ("u", "v")
-
-#: 投影后 ``coord`` 的说明（原始数据同名字段说明的是世界坐标，两者别混）。
-PROJECTED_COORD_TEXT = (
-    "u/v = MapLocator 底图像素，原点左上、y 向下；BaseNav 顶点也是这个平面（u, v, height），"
-    "直接喂寻路即可。世界坐标 x/z 已在入库时按原位置换成 u/v（u = sx*x + tx, v = -sy*z + ty），"
-    "maps 里的 zone / sx / tx / sy / ty 原样取自 BaseNav pack 的 zone 表"
-)
 
 
 def dump_json(value: Any) -> str:
@@ -167,8 +162,6 @@ def project_dataset(
             skipped_maps,
             f"{file_name}[{container}]",
         )
-    note = f"；{dataset.projection_note}" if dataset.projection_note else ""
-    projected["coord"] = f"{PROJECTED_COORD_TEXT}{note}"
     projected["maps"] = describe_zones(used_zones)
     return projected
 

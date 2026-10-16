@@ -23,8 +23,6 @@ class Dataset(ABC):
     needs_projection: ClassVar[bool] = False
     #: 需要投影时，条目数组在数据里的键（按投影顺序）。
     projection_containers: ClassVar[tuple[str, ...]] = ()
-    #: 需要投影时，投影后的 ``coord`` 说明在通用说明后再补的一句；没有就不补。
-    projection_note: ClassVar[str] = ""
 
     #: 数据集名（= 模块名）与产物文件名，定义子类时自动填上。
     name: ClassVar[str]

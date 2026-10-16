@@ -1,11 +1,4 @@
 {
-    "text": {
-        "anchors": "营地，取自 LevelMapMark 中 templateId=mark_sp_campfire 的标记；x/z 即它在大世界里的位置",
-        "teleport_id": "传送到该营地时用的锚点 ID，取自标记的 detailedData.teleportValidationId",
-        "level": "所属关卡 ID，取自 LevelBasicInfoTable；ID 除以 10^8 即关卡 idNum"
-    },
-    "coord": "u/v = MapLocator 底图像素，原点左上、y 向下；BaseNav 顶点也是这个平面（u, v, height），直接喂寻路即可。世界坐标 x/z 已在入库时按原位置换成 u/v（u = sx*x + tx, v = -sy*z + ty），maps 里的 zone / sx / tx / sy / ty 原样取自 BaseNav pack 的 zone 表",
-    "count": 117,
     "anchors": [
         {
             "id": "200001237",

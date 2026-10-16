@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from ..utils.game_data import Record, logger, read_gameplay_config
-from ..utils.coords import COORD_TEXT, read_xz
+from ..utils.coords import read_xz
 from ..utils.levels import build_level_index, level_of, map_of_level
 from .base import Dataset
 
@@ -67,11 +67,4 @@ class CollectPoints(Dataset):
             raise CollectPointError("WorldEntityRegistry 里一个可交互采集物都没有")
 
         logger.info(f"Built maaend collect_points: {len(points)} points")
-        return {
-            "text": {
-                "points": "可交互采集物，detailId 以 int_doodad_ 开头",
-            },
-            "coord": COORD_TEXT,
-            "count": len(points),
-            "points": points,
-        }
+        return {"points": points}

@@ -62,7 +62,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | 文件 | 说明 |
 | --- | --- |
 | `utils/game_data.py` | 读 TableCfg / GameplayConfig 与各语言文本表 |
-| `utils/coords.py` | 世界坐标读取与 `coord` 文案 |
+| `utils/coords.py` | 世界坐标读取 |
 | `utils/levels.py` | ID 前缀 → 关卡 → 底图 |
 
 ### 下载与入库
@@ -115,6 +115,8 @@ CI 只需要出数据时用 `uv run --no-default-groups zmdmap generate --raw-on
 ## 产出
 
 产物都先落在**不入库**的 `tools/zmdmap/data/raw/`，只带游戏世界坐标；带坐标的由入库步骤按 BaseNav 的 zone 表把 `x` / `z` 原位换成底图像素 `u` / `v`，进入库的 `tools/zmdmap/data/*.json`，其余原样复制过去。上游发布的数据就是这个原始形态，`fetch` 下载完必须先入库才能被各任务生成器读取。
+
+数据文件里只放数据字段，不带字段说明：字段含义写在 `datasets/` 的模块与各任务文档里。
 
 整条链路（同步兄弟仓库 → 本地生成 → 入库）也在本入口：
 
