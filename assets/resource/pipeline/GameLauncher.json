@@ -54,6 +54,9 @@
             "遊戲中"
         ]
     },
+    "GameLauncherExit": {
+        "desc": "不写这个节点 CI 会报错"
+    },
     "GameLauncherStartGameYellow": {
         "desc": "右下角开始游戏按钮的黄色底",
         "recognition": "ColorMatch",
