@@ -204,6 +204,7 @@
     "import": [
         // pretask
         "tasks/pretasks/LaunchGamePC.json",
+        "tasks/pretasks/LaunchGameLinux.json",
         // group: regional_development
         "tasks/OutpostTrading.json",
         "tasks/SeizeDeliveryJobs.json",

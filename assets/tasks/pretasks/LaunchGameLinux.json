@@ -1,0 +1,33 @@
+// 本任务并非 pretask，但与 LaunchGamePC 共用部分实现，因此并列放置
+{
+    "task": [
+        {
+            "name": "LaunchGameLinux",
+            "label": "启动游戏（Linux）",
+            "description": "在鹰角启动器中启动终末地。鹰角启动器可通过前置程序拉起。",
+            "entry": "GameLauncherMain",
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-Wlroots"
+            ],
+            "option": [
+                "ExitLauncher"
+            ]
+        }
+    ],
+    "option": {
+        "ExitLauncher": {
+            "type": "switch",
+            "label": "启动游戏后退出鹰角启动器",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        }
+    }
+}
