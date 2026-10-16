@@ -52,9 +52,7 @@
             // @i18n-skip
             "游戏中",
             "遊戲中",
-            "(?i)In\\s*game",
-            "プレイ中",
-            "게임\\s*중"
+            "(?i)\\bRunning\\b"
         ]
     },
     "GameLauncherExit": {
@@ -95,9 +93,7 @@
             // @i18n-skip
             "开始游戏",
             "開始遊戲",
-            "(?i)Start\\s*game",
-            "ゲーム開始",
-            "게임\\s*시작"
+            "(?i)\\bPlay\\b"
         ]
     }
 }
