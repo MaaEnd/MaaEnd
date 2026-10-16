@@ -6,9 +6,8 @@
 from pathlib import Path
 from typing import Any
 
-from ..constants import MAAEND_LOCALES
-from ..utils.game_data import Record, localized_text, logger, read_table_cfg
-from .base import Dataset
+from ..utils.game_data import logger, read_table_cfg
+from .base import Dataset, DatasetError
 
 class DeliveryJobs(Dataset):
     """地区、仓储节点及其可装箱物品（``delivery_jobs.json``）。"""
@@ -48,20 +47,20 @@ class DeliveryJobs(Dataset):
         for depot_id in sorted(depot_table.keys()):
             entry = depot_table[depot_id]
             if entry.domainDepotId and entry.domainDepotId != depot_id:
-                raise ValueError(
+                raise DatasetError(
                     f"DomainDepotTable 键 {depot_id} 与 domainDepotId {entry.domainDepotId} 不一致"
                 )
             region_id = entry.domainId
             if region_id not in domain_table:
-                raise ValueError(f"仓储节点 {depot_id} 引用了未知地区 {region_id}")
+                raise DatasetError(f"仓储节点 {depot_id} 引用了未知地区 {region_id}")
             used_region_ids.add(region_id)
 
             level_record = depot_level_table.get(depot_id)
             if level_record is None:
-                raise ValueError(f"仓储节点 {depot_id} 缺少等级配置")
+                raise DatasetError(f"仓储节点 {depot_id} 缺少等级配置")
             level_list = level_record.levelList
             if not level_list:
-                raise ValueError(f"仓储节点 {depot_id} 没有等级配置")
+                raise DatasetError(f"仓储节点 {depot_id} 没有等级配置")
 
             fillable_item_ids: set[str] = set()
             for level_value in sorted(
@@ -81,7 +80,7 @@ class DeliveryJobs(Dataset):
 
             depots[depot_id] = {
                 "region_id": region_id,
-                "names": _build_localized_names(entry.depotName, table_cfg_dir, f"仓储节点 {depot_id}"),
+                "names": cls.localized_names(entry.depotName, table_cfg_dir, f"仓储节点 {depot_id}"),
                 "fillable_items": fillable_items,
             }
 
@@ -90,9 +89,9 @@ class DeliveryJobs(Dataset):
         for region_id in sorted(used_region_ids):
             entry = domain_table[region_id]
             if entry.domainName is None:
-                raise ValueError(f"地区 {region_id} 缺少 domainName")
+                raise DatasetError(f"地区 {region_id} 缺少 domainName")
             regions[region_id] = {
-                "names": _build_localized_names(entry.domainName, table_cfg_dir, f"地区 {region_id}"),
+                "names": cls.localized_names(entry.domainName, table_cfg_dir, f"地区 {region_id}"),
             }
 
         # ── 物品 ─────────────────────────────────────────────────────
@@ -100,9 +99,9 @@ class DeliveryJobs(Dataset):
         for item_id in sorted(used_item_ids):
             item_entry = item_table.get(item_id)
             if item_entry is None:
-                raise ValueError(f"ItemTable 缺少可装箱物品 {item_id}")
+                raise DatasetError(f"ItemTable 缺少可装箱物品 {item_id}")
             items[item_id] = {
-                "names": _build_localized_names(item_entry.name, table_cfg_dir, f"物品 {item_id}"),
+                "names": cls.localized_names(item_entry.name, table_cfg_dir, f"物品 {item_id}"),
             }
 
         logger.info(
@@ -115,22 +114,3 @@ class DeliveryJobs(Dataset):
             "items": items,
         }
 
-def _build_localized_names(
-    ref: Record,
-    table_cfg_dir: Path,
-    label: str,
-) -> dict[str, str]:
-    """把 ``ref`` 里的文本 id 解析成 MaaEnd 需要的五语言字典。"""
-    if ref.text:
-        return {locale: ref.text for locale, _ in MAAEND_LOCALES}
-    text_id = ref.id
-    if not text_id:
-        raise ValueError(f"{label} 缺少 i18n id")
-
-    names: dict[str, str] = {}
-    for locale, lang_code in MAAEND_LOCALES:
-        text = localized_text(table_cfg_dir, text_id, lang_code)
-        if not text:
-            raise ValueError(f"{label} 在 {locale} 中缺少文本 {text_id}")
-        names[locale] = text
-    return names

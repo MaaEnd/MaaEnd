@@ -14,56 +14,10 @@ from typing import Any
 
 from ..utils.game_data import logger, read_gameplay_config
 from ..utils.coords import read_xz
-from ..utils.levels import build_level_index, level_of, map_of_level
-from .base import Dataset
+from ..utils.levels import level_of, map_of_level
+from .base import Dataset, DatasetError
 
 CAMPFIRE_TEMPLATE_ID = "mark_sp_campfire"
-
-class TeleportAnchorError(ValueError):
-    """teleport_anchors 数据组装错误。"""
-
-def _build_anchors(json_data_dir: Path) -> list[dict[str, Any]]:
-    """营地列表（按 markInstId 数值升序）。"""
-    level_map_mark = read_gameplay_config(json_data_dir, "LevelMapMark")
-    levels = build_level_index(read_gameplay_config(json_data_dir, "LevelBasicInfoTable"))
-
-    anchors: list[dict[str, Any]] = []
-    for group_key in sorted(level_map_mark):
-        level_id = level_of(levels, group_key)
-        if level_id is None:
-            logger.warning(f"LevelMapMark 分组 {group_key} 没有对应关卡，整组跳过")
-            continue
-        map_id = map_of_level(level_id)
-
-        for mark in level_map_mark[group_key]:
-            basic = mark.basicData
-            if basic.templateId != CAMPFIRE_TEMPLATE_ID:
-                continue
-
-            label = f"营地 {basic.markInstId}"
-            x, z = read_xz(basic.pos, f"LevelMapMark[{basic.markInstId}].pos")
-
-            detailed = mark.detailedData or {}
-            teleport_id = detailed.get("teleportValidationId")
-            if not isinstance(teleport_id, str) or not teleport_id:
-                logger.warning(f"{label} 缺少 teleportValidationId")
-                teleport_id = ""
-
-            anchors.append(
-                {
-                    "id": basic.markInstId,
-                    "teleport_id": teleport_id,
-                    "map": map_id,
-                    "level": level_id,
-                    "x": x,
-                    "z": z,
-                }
-            )
-
-    if not anchors:
-        raise TeleportAnchorError("LevelMapMark 里一个营地都没有")
-    anchors.sort(key=lambda item: int(item["id"]))
-    return anchors
 
 class TeleportAnchors(Dataset):
     """营地（地图上的传送锚点）（``teleport_anchors.json``）。"""
@@ -75,7 +29,47 @@ class TeleportAnchors(Dataset):
     def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
         """Data chain: LevelMapMark 的营地标记 -> 传送锚点；LevelBasicInfoTable 提供
         ID 前缀到关卡的对照。
+
+        只认 ``templateId == mark_sp_campfire`` 的标记，按 markInstId 数值升序。
         """
-        anchors = _build_anchors(json_data_dir)
+        level_map_mark = read_gameplay_config(json_data_dir, "LevelMapMark")
+        levels = cls.level_index(json_data_dir)
+
+        anchors: list[dict[str, Any]] = []
+        for group_key in sorted(level_map_mark):
+            level_id = level_of(levels, group_key)
+            if level_id is None:
+                logger.warning(f"LevelMapMark 分组 {group_key} 没有对应关卡，整组跳过")
+                continue
+            map_id = map_of_level(level_id)
+
+            for mark in level_map_mark[group_key]:
+                basic = mark.basicData
+                if basic.templateId != CAMPFIRE_TEMPLATE_ID:
+                    continue
+
+                label = f"营地 {basic.markInstId}"
+                x, z = read_xz(basic.pos, f"LevelMapMark[{basic.markInstId}].pos")
+
+                detailed = mark.detailedData or {}
+                teleport_id = detailed.get("teleportValidationId")
+                if not isinstance(teleport_id, str) or not teleport_id:
+                    logger.warning(f"{label} 缺少 teleportValidationId")
+                    teleport_id = ""
+
+                anchors.append(
+                    {
+                        "id": basic.markInstId,
+                        "teleport_id": teleport_id,
+                        "map": map_id,
+                        "level": level_id,
+                        "x": x,
+                        "z": z,
+                    }
+                )
+
+        if not anchors:
+            raise DatasetError("LevelMapMark 里一个营地都没有")
+        anchors.sort(key=lambda item: int(item["id"]))
         logger.info(f"Built maaend teleport_anchors: {len(anchors)} anchors")
         return {"anchors": anchors}

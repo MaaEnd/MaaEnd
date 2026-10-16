@@ -6,9 +6,8 @@
 from pathlib import Path
 from typing import Any
 
-from ..constants import MAAEND_LOCALES
-from ..utils.game_data import Record, localized_text, logger, read_table_cfg
-from .base import Dataset
+from ..utils.game_data import logger, read_table_cfg
+from .base import Dataset, DatasetError
 
 # settlement tag 增强字段 -> 输出中的 bonus 类型名。
 SETTLEMENT_BONUS_FIELDS: dict[str, str] = {
@@ -38,7 +37,7 @@ class SellProduct(Dataset):
             tag_entry = character_tag_table[operator_id]
             character = character_table.get(operator_id)
             if character is None:
-                raise ValueError(f"CharacterTable 缺少干员 {operator_id}")
+                raise DatasetError(f"CharacterTable 缺少干员 {operator_id}")
 
             tags = [
                 tag_entry.blocTagId,
@@ -49,7 +48,7 @@ class SellProduct(Dataset):
                 {
                     "id": operator_id,
                     "tags": [tag for tag in tags if tag],
-                    "names": _build_localized_names(
+                    "names": cls.localized_names(
                         character.name, table_cfg_dir, f"干员 {operator_id}"
                     ),
                 }
@@ -81,7 +80,7 @@ class SellProduct(Dataset):
                     # itemId 优先取 value 字段，缺失时 fallback 到 map key。
                     item_id = trade_value.itemId or trade_key
                     if item_id not in item_table:
-                        raise ValueError(
+                        raise DatasetError(
                             f"据点 {settlement_id} 引用了 ItemTable 中不存在的物品 {item_id}"
                         )
                     used_item_ids.add(item_id)
@@ -104,7 +103,7 @@ class SellProduct(Dataset):
             for settlement_tag_id in settlement.wantTagIdGroup:
                 tag_entry = settlement_tag_table.get(settlement_tag_id)
                 if tag_entry is None:
-                    raise ValueError(f"据点特性 {settlement_tag_id} 不存在")
+                    raise DatasetError(f"据点特性 {settlement_tag_id} 不存在")
                 required_tags = tag_entry.enhanceCharTagId
                 features.append(
                     {
@@ -124,7 +123,7 @@ class SellProduct(Dataset):
             settlements[settlement_id] = {
                 "id": settlement_id,
                 "region_id": settlement.domainId,
-                "names": _build_localized_names(
+                "names": cls.localized_names(
                     settlement.settlementName, table_cfg_dir, f"据点 {settlement_id}"
                 ),
                 "prosperity_levels": prosperity_levels,
@@ -137,7 +136,7 @@ class SellProduct(Dataset):
             entry = item_table[item_id]
             items[item_id] = {
                 "id": item_id,
-                "names": _build_localized_names(entry.name, table_cfg_dir, f"售卖物品 {item_id}"),
+                "names": cls.localized_names(entry.name, table_cfg_dir, f"售卖物品 {item_id}"),
                 "rarity": entry.rarity,
             }
 
@@ -151,22 +150,3 @@ class SellProduct(Dataset):
             "settlements": settlements,
         }
 
-def _build_localized_names(
-    ref: Record,
-    table_cfg_dir: Path,
-    label: str,
-) -> dict[str, str]:
-    """把 ``ref`` 里的文本 id 解析成 MaaEnd 需要的五语言字典。"""
-    if ref.text:
-        return {locale: ref.text for locale, _ in MAAEND_LOCALES}
-    text_id = ref.id
-    if not text_id:
-        raise ValueError(f"{label} 缺少 i18n id")
-
-    names: dict[str, str] = {}
-    for locale, lang_code in MAAEND_LOCALES:
-        text = localized_text(table_cfg_dir, text_id, lang_code)
-        if not text:
-            raise ValueError(f"{label} 在 {locale} 中缺少文本 {text_id}")
-        names[locale] = text
-    return names

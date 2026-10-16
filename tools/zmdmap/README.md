@@ -53,6 +53,8 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 要加一份新数据，就在 `datasets/` 加一个同名模块、定义 `Dataset` 子类并实现 `build`，再声明要不要投影（需要投影的用 `projection_containers` 列出条目数组所在的键）。
 
+各份数据共用的手法收在 `Dataset` 上，不用各抄一份：`localized_names`（表里的文本引用 → 五语字典，五语缺一即报错）、`level_index`（读 `LevelBasicInfoTable` 建 `idNum -> levelId`），组装错误统一用 `DatasetError`（cli 会补上数据集名）。取数逻辑仍留在各自模块里。
+
 ### 常量（`constants.py`）
 
 跨模块共用的常量：各语言的 key 写法（文本表后缀 `CN` / MaaEnd locale 名 `zh_cn`）、zmdmap 版本接口与发布地址。语言只写映射表，其余由它们推出来，避免各处各抄一份。
