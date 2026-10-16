@@ -12,6 +12,7 @@
         "label": "$pretask.LaunchGamePC.label",
         "option": [
             "LaunchGamePCRegion",
+            "LaunchGamePCLauncherPath",
             "LaunchGamePCGameSetting"
         ]
     },
@@ -34,6 +35,38 @@
                 }
             ],
             "default_case": "CN"
+        },
+        "LaunchGamePCLauncherPath": {
+            "type": "select",
+            "label": "$option.LaunchGamePCLauncherPath.label",
+            "cases": [
+                {
+                    "name": "Auto",
+                    "label": "$option.LaunchGamePCLauncherPath.cases.Auto.label"
+                },
+                {
+                    "name": "Manual",
+                    "label": "$option.LaunchGamePCLauncherPath.cases.Manual.label",
+                    "option": [
+                        "LaunchGamePCLauncherExe"
+                    ]
+                }
+            ],
+            "default_case": "Auto"
+        },
+        "LaunchGamePCLauncherExe": {
+            "type": "input",
+            "label": "$option.LaunchGamePCLauncherExe.label",
+            "inputs": [
+                {
+                    "name": "LauncherExe",
+                    "label": "$option.LaunchGamePCLauncherExe.LauncherExe.label",
+                    "default": "",
+                    "pipeline_type": "string",
+                    "verify": "^\"?.+[\\\\/][Ll]auncher\\.exe\"?$",
+                    "pattern_msg": "$option.LaunchGamePCLauncherExe.LauncherExe.pattern_msg"
+                }
+            ]
         },
         "LaunchGamePCGameSetting": {
             "type": "switch",
