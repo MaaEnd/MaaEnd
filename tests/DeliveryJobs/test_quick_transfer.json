@@ -1,0 +1,45 @@
+{
+    "configs": {
+        "name": "转交委托，测试调度申请「快速转交」",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "name": "四号谷地调度申请：识别「快速转交」按钮",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请_快速转交.png",
+            "hits": [
+                "DeliveryJobsInCargoRedistributionBid",
+                "DeliveryJobsQuickTransfer"
+            ]
+        },
+        {
+            "name": "四号谷地「快速转交」确认弹窗",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_快速转交_确认.png",
+            "hits": [
+                "DeliveryJobsQuickTransferConfirm",
+                "DeliveryJobsCheckQuickTransferConfirmText"
+            ]
+        },
+        {
+            // 武陵只有 Win32 截图，ADB 组合缺图，测试工具会跳过该图
+            "name": "武陵调度申请：识别「快速转交」按钮",
+            "image": "武陵_地区建设_仓储节点_货物装箱_调度申请_快速转交.png",
+            "hits": [
+                "DeliveryJobsInCargoRedistributionBid",
+                "DeliveryJobsQuickTransfer"
+            ]
+        },
+        {
+            "name": "武陵「快速转交」确认弹窗",
+            "image": "武陵_地区建设_仓储节点_货物装箱_快速转交_确认.png",
+            "hits": [
+                "DeliveryJobsQuickTransferConfirm",
+                "DeliveryJobsCheckQuickTransferConfirmText"
+            ]
+        }
+    ]
+}
