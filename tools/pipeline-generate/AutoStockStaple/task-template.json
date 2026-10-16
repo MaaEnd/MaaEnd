@@ -1,0 +1,946 @@
+{
+    "task": [
+        {
+            "name": "AutoStockStaple",
+            "label": "$task.AutoStockStaple.label",
+            "entry": "AutoStockStapleSchedule",
+            "description": "$task.AutoStockStaple.description",
+            "group": [
+                "regional_development"
+            ],
+            "controller": [
+                "ADB",
+                "CloudADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front"
+            ],
+            "option": [
+                "AutoStockStapleSchedule",
+                "AutoStockStapleValleyIV",
+                "AutoStockStapleWuling"
+            ]
+        }
+    ],
+    "option": {
+        "AutoStockStapleSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "cases": [
+                {
+                    "name": "AutoStockStapleScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleScheduleEnabled": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleScheduleEnabled": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleScheduleEnabled": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleScheduleEnabled": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleScheduleEnabled": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleScheduleEnabled": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoStockStapleScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "AutoStockStapleScheduleEnabled": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": [
+                "AutoStockStapleScheduleMonday",
+                "AutoStockStapleScheduleTuesday",
+                "AutoStockStapleScheduleWednesday",
+                "AutoStockStapleScheduleThursday",
+                "AutoStockStapleScheduleFriday",
+                "AutoStockStapleScheduleSaturday",
+                "AutoStockStapleScheduleSunday"
+            ]
+        },
+        "AutoStockStapleValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockStapleValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockStapleValleyIV.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockReserveValleyIV",
+                        "AutoStockBuyDailyGoodsValleyIV",
+                        "AutoStockBuyStockFactoryGoodsValleyIV",
+                        "AutoStockBuyCulturalGoodsValleyIV",
+                        "AutoStockMinDiscountValleyIV"
+                    ],
+                    "pipeline_override": {
+                        "AutoStockStapleValleyIV": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoStockReserveValleyIV": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.description",
+            "inputs": [
+                {
+                    "name": "ReserveValleyIV",
+                    "label": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.description",
+                    "default": "240000",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockReserveValleyIV.inputs.ReserveValleyIV.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockTargetCompareValleyIV": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ReserveValleyIV}>{AutoStockCurrentStockBill}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "AutoStockBuyDailyGoodsValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIV.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyDailyGoodsValleyIVItems",
+                        "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit",
+                        "AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoStockBuyDailyGoodsValleyIVItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVItems.description",
+            "cases": []
+        },
+        "AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.description",
+            "inputs": [
+                {
+                    "name": "ValleyEngravingPermitLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.description",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {}
+        },
+        "AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.description",
+            "inputs": [
+                {
+                    "name": "ValleyFoodAndBuffLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.description",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit.inputs.ValleyFoodAndBuffLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {}
+        },
+        "AutoStockBuyStockFactoryGoodsValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIV.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyStockFactoryGoodsValleyIVItems",
+                        "AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoStockBuyStockFactoryGoodsValleyIVItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVItems.description",
+            "cases": [],
+            "default_case": [
+                "KeenValleyDetector",
+                "KeenValleyCompass"
+            ]
+        },
+        "AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.description",
+            "inputs": [
+                {
+                    "name": "ValleyDetectorCompassLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.description",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsValleyIVDetectorCompassLimit.inputs.ValleyDetectorCompassLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {}
+        },
+        "AutoStockBuyCulturalGoodsValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIV.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIV.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyCulturalGoodsValleyIVItems",
+                        "AutoStockBuyCulturalGoodsValleyIVGiftLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoStockBuyCulturalGoodsValleyIVItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVItems.description",
+            "cases": []
+        },
+        "AutoStockBuyCulturalGoodsValleyIVGiftLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.description",
+            "inputs": [
+                {
+                    "name": "ValleyGiftLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.description",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsValleyIVGiftLimit.inputs.ValleyGiftLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {}
+        },
+        "AutoStockMinDiscountValleyIV": {
+            "type": "select",
+            "label": "$option.DiscountValue.label",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "AutoStockInStapleItemName",
+                                    "roi_offset": [
+                                        37,
+                                        -190,
+                                        10,
+                                        28
+                                    ],
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-95%",
+                    "label": "$option.DiscountValue.cases.-95%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-90%",
+                    "label": "$option.DiscountValue.cases.-90%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-85%",
+                    "label": "$option.DiscountValue.cases.-85%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-80%",
+                    "label": "$option.DiscountValue.cases.-80%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-75%",
+                    "label": "$option.DiscountValue.cases.-75%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-70%",
+                    "label": "$option.DiscountValue.cases.-70%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-65%",
+                    "label": "$option.DiscountValue.cases.-65%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-50%",
+                    "label": "$option.DiscountValue.cases.-50%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65",
+                                        "-60",
+                                        "-55",
+                                        "-50"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "-50%"
+        },
+        "AutoStockStapleWuling": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockStapleWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockStapleWuling.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockReserveWuling",
+                        "AutoStockBuyDailyGoodsWuling",
+                        "AutoStockBuyStockFactoryGoodsWuling",
+                        "AutoStockBuyCulturalGoodsWuling",
+                        "AutoStockMinDiscountWuling"
+                    ],
+                    "pipeline_override": {
+                        "AutoStockStapleWuling": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoStockReserveWuling": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockReserveWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockReserveWuling.description",
+            "inputs": [
+                {
+                    "name": "ReserveWuling",
+                    "label": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.description",
+                    "default": "240000",
+                    "pipeline_type": "int",
+                    "verify": "^(?:[2-9][4-9]\\d{4}|[3-9]\\d{5}|[1-9]\\d{6,})$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockReserveWuling.inputs.ReserveWuling.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockTargetCompareWuling": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{ReserveWuling}>{AutoStockCurrentStockBill}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "AutoStockBuyDailyGoodsWuling": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWuling.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyDailyGoodsWulingItems",
+                        "AutoStockBuyDailyGoodsWulingEngravingPermitLimit",
+                        "AutoStockBuyDailyGoodsWulingFoodAndBuffLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoStockBuyDailyGoodsWulingItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingItems.description",
+            "cases": []
+        },
+        "AutoStockBuyDailyGoodsWulingEngravingPermitLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingEngravingPermitLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.description",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingEngravingPermitLimit.inputs.WulingEngravingPermitLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {}
+        },
+        "AutoStockBuyDailyGoodsWulingFoodAndBuffLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingFoodAndBuffLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.description",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyDailyGoodsWulingFoodAndBuffLimit.inputs.WulingFoodAndBuffLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {}
+        },
+        "AutoStockBuyStockFactoryGoodsWuling": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWuling.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyStockFactoryGoodsWulingItems",
+                        "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit",
+                        "AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoStockBuyStockFactoryGoodsWulingItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingItems.description",
+            "cases": [],
+            "default_case": [
+                "WulingArtificingCatalyst",
+                "KeenWulingDetector",
+                "KeenWulingCompass"
+            ]
+        },
+        "AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingArtificingCatalystLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.description",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingArtificingCatalystLimit.inputs.WulingArtificingCatalystLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {}
+        },
+        "AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingDetectorCompassLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.description",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyStockFactoryGoodsWulingDetectorCompassLimit.inputs.WulingDetectorCompassLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {}
+        },
+        "AutoStockBuyCulturalGoodsWuling": {
+            "type": "switch",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockBuyCulturalGoodsWulingItems",
+                        "AutoStockBuyCulturalGoodsWulingGiftLimit"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "AutoStockBuyCulturalGoodsWulingItems": {
+            "type": "checkbox",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingItems.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingItems.description",
+            "cases": []
+        },
+        "AutoStockBuyCulturalGoodsWulingGiftLimit": {
+            "type": "input",
+            "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.label",
+            "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.description",
+            "inputs": [
+                {
+                    "name": "WulingGiftLimit",
+                    "label": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.label",
+                    "description": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.description",
+                    "default": "20",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWulingGiftLimit.inputs.WulingGiftLimit.pattern_msg"
+                }
+            ],
+            "pipeline_override": {}
+        },
+        "AutoStockMinDiscountWuling": {
+            "type": "select",
+            "label": "$option.DiscountValue.label",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "AutoStockInStapleItemName",
+                                    "roi_offset": [
+                                        37,
+                                        -190,
+                                        10,
+                                        28
+                                    ],
+                                    "method": 40,
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-95%",
+                    "label": "$option.DiscountValue.cases.-95%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-90%",
+                    "label": "$option.DiscountValue.cases.-90%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-85%",
+                    "label": "$option.DiscountValue.cases.-85%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-80%",
+                    "label": "$option.DiscountValue.cases.-80%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-75%",
+                    "label": "$option.DiscountValue.cases.-75%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-70%",
+                    "label": "$option.DiscountValue.cases.-70%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-65%",
+                    "label": "$option.DiscountValue.cases.-65%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-50%",
+                    "label": "$option.DiscountValue.cases.-50%.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65",
+                                        "-60",
+                                        "-55",
+                                        "-50"
+                                    ],
+                                    "order_by": "Expected"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "-50%"
+        }
+    }
+}

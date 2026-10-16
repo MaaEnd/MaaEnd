@@ -1,5 +1,5 @@
 {
-    "AutoStockStapleGoodsValleyEngravingPermit": {
+    "AutoStockStapleGoodsItemGemStableEnergyPointTundra": {
         "desc": "谷地刻写券",
         "recognition": {
             "type": "OCR",
@@ -20,7 +20,61 @@
             }
         }
     },
-    "AutoStockStapleGoodsKunstTube": {
+    "AutoStockStapleGoodsItemAgfly1Agmelee1Moss21": {
+        "desc": "星融果冻",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    269,
+                    0
+                ],
+                "expected": [
+                    "星融果冻",
+                    "星融果凍",
+                    "(?i)Cosmo-Melto\\s*Jelly",
+                    "星解けのゼリー",
+                    "스타 퓨전 젤리"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemAgrange1Erhound1Sp11": {
+        "desc": "雅各布的遗产",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    23,
+                    0
+                ],
+                "expected": [
+                    "雅各布的遗产",
+                    "雅各布的遺產",
+                    "(?i)Jakub's\\s*Legacy",
+                    "ヤコブの遺産",
+                    "제이컵의 유산"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemBottledInsec22": {
         "desc": "附术铁瓶",
         "recognition": {
             "type": "OCR",
@@ -41,57 +95,7 @@
             }
         }
     },
-    "AutoStockStapleGoodsJakubsLegacy": {
-        "desc": "雅各布的遗产",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "roi_offset": [
-                    0,
-                    0,
-                    23,
-                    0
-                ],
-                "expected": [
-                    "雅各布的遗产",
-                    "雅各的遺產",
-                    "(?i)Jakub\\s*'\\s*s\\s*Legacy",
-                    "ヤコブの遺産",
-                    "雅各布的遺產",
-                    "(?i)Jakub's\\s*Legacy",
-                    "야코브의 유산"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsPulledSlugMeat": {
-        "desc": "手撕虫肉",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "expected": [
-                    "手撕虫肉",
-                    "手撕蟲肉",
-                    "(?i)Pulled\\s*Slug\\s*Meat",
-                    "虫肉ジャーキー",
-                    "손으로 뜯은 벌레 고기"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsHazefyreBlossom": {
+    "AutoStockStapleGoodsItemErhound1Agmelee1Moss11": {
         "desc": "雾火之花",
         "recognition": {
             "type": "OCR",
@@ -107,12 +111,12 @@
                     "霧火之花",
                     "(?i)Hazefyre\\s*Blossom",
                     "霧火の花",
-                    "화염 불꽃"
+                    "안갯불에 물든 꽃"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsCartilageCookie": {
+    "AutoStockStapleGoodsItemLbmob1Lbshamman1Sp11": {
         "desc": "软骨饼干",
         "recognition": {
             "type": "OCR",
@@ -134,42 +138,13 @@
                     "軟骨餅乾",
                     "(?i)Cartilage\\s*Tack",
                     "軟骨入りサブレ",
-                    "(?i)Cartilage\\s*Cookie",
-                    "뼈 쿠키"
+                    "연골 과자"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsCosmoMeltoJelly": {
-        "desc": "星融果冻",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "roi_offset": [
-                    0,
-                    0,
-                    269,
-                    0
-                ],
-                "expected": [
-                    "星融果冻",
-                    "星融果凍",
-                    "(?i)Cosmo\\s*-\\s*Melto\\s*Jelly",
-                    "星解けのゼリー",
-                    "(?i)Cosmo\\s*Melto\\s*Jelly",
-                    "코스모 멜토 젤리"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsKeenValleyDetector": {
-        "desc": "新锐谷地探物器",
+    "AutoStockStapleGoodsItemSlimeml1Erhound1Agfly11": {
+        "desc": "手撕虫肉",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -180,17 +155,16 @@
                     147
                 ],
                 "expected": [
-                    "新锐谷地探物器",
-                    "新銳谷地探測器",
-                    "(?i)Keen\\s*Valley\\s*Detector",
-                    "新型谷地専用探知機",
-                    "新銳谷地探物器",
-                    "신예 협곡 탐지기"
+                    "手撕虫肉",
+                    "手撕蟲肉",
+                    "(?i)Pulled\\s*Slug\\s*Meat",
+                    "虫肉ジャーキー",
+                    "손으로 찢은 벌레 고기"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsKeenValleyCompass": {
+    "AutoStockStapleGoodsItemTundraDetectorCoin3": {
         "desc": "新锐谷地罗盘",
         "recognition": {
             "type": "OCR",
@@ -212,41 +186,13 @@
                     "新銳谷地羅盤",
                     "(?i)Keen\\s*Valley\\s*Compass",
                     "新型谷地専用コンパス",
-                    "신예 협곡 나이프"
+                    "첨단 협곡 나침반"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsBreezeOfKjersch": {
-        "desc": "耶尔什微风",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "roi_offset": [
-                    0,
-                    0,
-                    216,
-                    0
-                ],
-                "expected": [
-                    "耶尔什微风",
-                    "耶爾什微風",
-                    "(?i)Breeze\\s*of\\s*Kjersch",
-                    "イェルシェのそよ風",
-                    "(?i)Breeze\\s*Of\\s*Kjersch",
-                    "예르시 미풍"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsTidestoneSpecimen": {
-        "desc": "浪潮海石",
+    "AutoStockStapleGoodsItemTundraDetectorTrchest3": {
+        "desc": "新锐谷地探物器",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -257,62 +203,16 @@
                     147
                 ],
                 "expected": [
-                    "浪潮海石",
-                    "(?i)Tidestone\\s*Specimen",
-                    "潮汐晶石",
-                    "파도 바위"
+                    "新锐谷地探物器",
+                    "新銳谷地探測器",
+                    "(?i)Keen\\s*Valley\\s*Detector",
+                    "新型谷地専用探知機",
+                    "첨단 협곡 탐지기"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsSimonchShawl": {
-        "desc": "塞梦珂披巾",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "roi_offset": [
-                    0,
-                    0,
-                    135,
-                    0
-                ],
-                "expected": [
-                    "塞梦珂披巾",
-                    "塞夢珂披巾",
-                    "(?i)Simonch\\s*Shawl",
-                    "シモンクのショール",
-                    "시몬치 셔워"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsFrontiersWatch": {
-        "desc": "《前沿瞭望》",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "expected": [
-                    "《前沿瞭望》",
-                    "(?i)Frontiers\\s*Watch",
-                    "『Frontiers』",
-                    "《프론티어스 와치》"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsAuryleneCamera": {
+    "AutoStockStapleGoodsItemGiftTundra1": {
         "desc": "醚质相机",
         "recognition": {
             "type": "OCR",
@@ -334,12 +234,12 @@
                     "醚質相機",
                     "(?i)Aurylene\\s*Camera",
                     "オーリレンカメラ",
-                    "아우리렌 카메라"
+                    "오리렌 카메라"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsCosmicGatePuzzle": {
+    "AutoStockStapleGoodsItemGiftTundra2": {
         "desc": "星门锁",
         "recognition": {
             "type": "OCR",
@@ -355,12 +255,12 @@
                     "星門鎖",
                     "(?i)Cosmic\\s*Gate\\s*Puzzle",
                     "星門パズル",
-                    "코스믹 게이트 퍼즐"
+                    "스타게이트 자물쇠"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsSurfingFestivalTicket": {
+    "AutoStockStapleGoodsItemGiftTundra3": {
         "desc": "冲浪大赛门票",
         "recognition": {
             "type": "OCR",
@@ -387,7 +287,101 @@
             }
         }
     },
-    "AutoStockStapleGoodsWulingEngravingPermit": {
+    "AutoStockStapleGoodsItemGiftTundra4": {
+        "desc": "耶尔什微风",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    216,
+                    0
+                ],
+                "expected": [
+                    "耶尔什微风",
+                    "耶爾什微風",
+                    "(?i)Breeze\\s*of\\s*Kjersch",
+                    "イェルシェのそよ風",
+                    "옐시의 산들바람"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftTundra5": {
+        "desc": "浪潮海石",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "浪潮海石",
+                    "(?i)Tidestone\\s*Specimen",
+                    "潮汐晶石",
+                    "물결석"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftTundra6": {
+        "desc": "塞梦珂披巾",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    135,
+                    0
+                ],
+                "expected": [
+                    "塞梦珂披巾",
+                    "塞夢珂披巾",
+                    "(?i)Simonch\\s*Shawl",
+                    "シモンクのショール",
+                    "사이몬크 머플러"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftTundra7": {
+        "desc": "《前沿瞭望》",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "《前沿瞭望》",
+                    "(?i)Frontiers\\s*Watch",
+                    "『Frontiers』",
+                    "<전선의 조망>"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGemStableEnergyPointWuling": {
         "desc": "武陵刻写券",
         "recognition": {
             "type": "OCR",
@@ -403,12 +397,12 @@
                     "武陵刻寫券",
                     "(?i)Wuling\\s*Engraving\\s*Permit",
                     "武陵刻印券",
-                    "월릉 각인권"
+                    "무릉 각인권"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsFortifyingInfusion": {
+    "AutoStockStapleGoodsItemCorp3Grass11": {
         "desc": "正本补元汤剂",
         "recognition": {
             "type": "OCR",
@@ -424,12 +418,12 @@
                     "正本補元湯劑",
                     "(?i)Fortifying\\s*Infusion",
                     "滋養強壮の煎じ薬",
-                    "정본 보충 육탕제"
+                    "원기 회복 탕약"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsGardenFriedRice": {
+    "AutoStockStapleGoodsItemCorp4Grass21": {
         "desc": "锦素炒饭",
         "recognition": {
             "type": "OCR",
@@ -451,41 +445,12 @@
                     "錦素炒飯",
                     "(?i)Garden\\s*Fried\\s*Rice",
                     "野菜たっぷりチャーハン",
-                    "원예 죽밥"
+                    "채소 볶음밥"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsMasterPansEggPudding": {
-        "desc": "潘师傅蛋羹",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "roi_offset": [
-                    0,
-                    0,
-                    296,
-                    0
-                ],
-                "expected": [
-                    "潘师傅蛋羹",
-                    "潘師傅蒸蛋",
-                    "(?i)Master\\s*Pan\\s*'\\s*s\\s*Egg\\s*Pudding",
-                    "ダパン師匠の茶碗蒸し",
-                    "潘師傅蛋羹",
-                    "(?i)Master\\s*Pan's\\s*Egg\\s*Pudding",
-                    "판 스토커 달걀 푸딩"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsEchoingRemedy": {
+    "AutoStockStapleGoodsItemEthillu1Wgslime1Wgthorns11": {
         "desc": "回响秘剂",
         "recognition": {
             "type": "OCR",
@@ -506,7 +471,76 @@
             }
         }
     },
-    "AutoStockStapleGoodsRindFlavoredSprouts": {
+    "AutoStockStapleGoodsItemHscrane1Hsmob1Grass11": {
+        "desc": "潘师傅蛋羹",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    296,
+                    0
+                ],
+                "expected": [
+                    "潘师傅蛋羹",
+                    "潘師傅蒸蛋",
+                    "(?i)Master\\s*Pan's\\s*Egg\\s*Pudding",
+                    "ダパン師匠の茶碗蒸し",
+                    "판 사부의 계란찜"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemInkbiter1Wgshoal11": {
+        "desc": "草本清凉饮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "草本清凉饮",
+                    "草本清涼飲",
+                    "(?i)Herbal\\s*Tisane",
+                    "薬草清涼飲料",
+                    "약초 청량 음료"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemInkkirin1Hscrane11": {
+        "desc": "酥麻炸虫蛹",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "酥麻炸虫蛹",
+                    "酥麻炸蟲蛹",
+                    "(?i)Numbing\\s*Crispy\\s*Pupae",
+                    "シビカリさなぎフライ",
+                    "바삭한 번데기 튀김"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemJzmonk1Hsmob11": {
         "desc": "陈皮拌笋",
         "recognition": {
             "type": "OCR",
@@ -522,12 +556,75 @@
                     "陳皮拌筍",
                     "(?i)Rind-Flavored\\s*Sprouts",
                     "陳皮と筍の和え物",
-                    "Rind-Flavored Sprouts"
+                    "진피 죽순 무침"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsWulingArtificingCatalyst": {
+    "AutoStockStapleGoodsItemKlbuds1Hsfly11": {
+        "desc": "洗灾秘剂",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "洗灾秘剂",
+                    "洗災秘劑",
+                    "(?i)Ruin-Purger\\s*Remedy",
+                    "厄除の秘薬",
+                    "재앙 정화의 비약"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemKlcreatures1Wgthorns11": {
+        "desc": "蓄石秘剂",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "蓄石秘剂",
+                    "蓄石秘劑",
+                    "(?i)Stonehold\\s*Remedy",
+                    "蓄石の秘薬",
+                    "축석의 비약"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemSlwood1Hshog11": {
+        "desc": "香焗兽肝",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "香焗兽肝",
+                    "香焗獸肝",
+                    "(?i)Sear-Toasted\\s*Liver",
+                    "レバーの塩蒸し焼き",
+                    "향신료로 구운 비스트의 간"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemEquipEnhanceWuling": {
         "desc": "武陵精锻助剂",
         "recognition": {
             "type": "OCR",
@@ -543,34 +640,12 @@
                     "武陵精鍛助劑",
                     "(?i)Wuling\\s*Artificing\\s*Catalyst",
                     "武陵加工強化剤",
-                    "월릉 정련 도움제"
+                    "무릉 정밀 단조제"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsKeenWulingDetector": {
-        "desc": "新锐武陵探物器",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "expected": [
-                    "新锐武陵探物器",
-                    "新銳武陵探測器",
-                    "(?i)Keen\\s*Wuling\\s*Detector",
-                    "新型武陵専用探知機",
-                    "新銳武陵探物器",
-                    "신예 월릉 탐지기"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsKeenWulingCompass": {
+    "AutoStockStapleGoodsItemWulingDetectorCoin3": {
         "desc": "新锐武陵罗盘",
         "recognition": {
             "type": "OCR",
@@ -592,12 +667,54 @@
                     "新銳武陵羅盤",
                     "(?i)Keen\\s*Wuling\\s*Compass",
                     "新型武陵専用コンパス",
-                    "신예 월릉 나이프"
+                    "첨단 무릉 나침반"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsEurekaTeabox": {
+    "AutoStockStapleGoodsItemWulingDetectorStar": {
+        "desc": "武陵塔晶探针",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "武陵塔晶探针",
+                    "武陵塔晶探針",
+                    "(?i)Wuling\\s*Talosite\\s*Probe",
+                    "武陵タロサイト探査機",
+                    "무릉 탈로사이트 탐침기"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemWulingDetectorTrchest3": {
+        "desc": "新锐武陵探物器",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "新锐武陵探物器",
+                    "新銳武陵探測器",
+                    "(?i)Keen\\s*Wuling\\s*Detector",
+                    "新型武陵専用探知機",
+                    "첨단 무릉 탐지기"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftJinlong1": {
         "desc": "岳研茶盒",
         "recognition": {
             "type": "OCR",
@@ -612,12 +729,96 @@
                     "岳研茶盒",
                     "(?i)Eureka\\s*Teabox",
                     "岳研茶詰合せ",
-                    "예루카 티박스"
+                    "악연 찻잎 세트"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsYinglungDumbbells": {
+    "AutoStockStapleGoodsItemGiftJinlong10": {
+        "desc": "黑森林浆果酱",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "黑森林浆果酱",
+                    "黑森林漿果醬",
+                    "(?i)Myrkwood\\s*Berry\\s*Preserve",
+                    "「黒き森」のベリージャム",
+                    "검은 숲의 베리잼"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftJinlong11": {
+        "desc": "奇迹蛋糕",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "奇迹蛋糕",
+                    "奇蹟蛋糕",
+                    "(?i)Miracle\\s*Cake",
+                    "ミラクルケーキ",
+                    "기적의 케이크"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftJinlong12": {
+        "desc": "缘缘庄拼图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "缘缘庄拼图",
+                    "緣緣莊拼圖",
+                    "(?i)Yuanyuan\\s*Manor\\s*Jigsaw",
+                    "縁縁荘のパズル",
+                    "인연 마을 퍼즐"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftJinlong13": {
+        "desc": "木雕剑",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": [
+                    "木雕剑",
+                    "木雕劍",
+                    "(?i)Wooden\\s*Sword",
+                    "木彫りの剣",
+                    "장식용 목검"
+                ]
+            }
+        }
+    },
+    "AutoStockStapleGoodsItemGiftJinlong2": {
         "desc": "应龙哑铃",
         "recognition": {
             "type": "OCR",
@@ -633,12 +834,12 @@
                     "應龍啞鈴",
                     "(?i)Yinglung\\s*Dumbbells",
                     "応龍ダンベル",
-                    "영룡 덤벨"
+                    "응룡의 아령"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsWovenAggelos": {
+    "AutoStockStapleGoodsItemGiftJinlong3": {
         "desc": "草编天使",
         "recognition": {
             "type": "OCR",
@@ -660,12 +861,12 @@
                     "草編天使",
                     "(?i)Woven\\s*Aggelos",
                     "草で編んだアンゲロス",
-                    "초반 천사"
+                    "짚으로 엮은 아겔로스"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsScrimshawOfThePack": {
+    "AutoStockStapleGoodsItemGiftJinlong4": {
         "desc": "狼群骨雕",
         "recognition": {
             "type": "OCR",
@@ -686,55 +887,12 @@
                     "狼群骨雕",
                     "(?i)Scrimshaw\\s*of\\s*the\\s*Pack",
                     "骨の彫刻",
-                    "(?i)Scrimshaw\\s*Of\\s*The\\s*Pack",
-                    "늑대 뼈 문신"
+                    "울프팀의 뼈 조각상"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsFinNChips": {
-        "desc": "炸鳞薯条",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "expected": [
-                    "炸鳞薯条",
-                    "炸鱗薯條",
-                    "(?i)Fin-n-Chips",
-                    "鱗獣アンドチップス",
-                    "Fin-n-Chips"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsBizarroCupcake": {
-        "desc": "怪味纸杯蛋糕",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "expected": [
-                    "怪味纸杯蛋糕",
-                    "怪味杯子蛋糕",
-                    "(?i)Bizarro\\s*Cupcake",
-                    "複雑な味のカップケーキ",
-                    "Bizarro Cupcake"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsChubbyLungFangxingMemorabilia": {
+    "AutoStockStapleGoodsItemGiftJinlong5": {
         "desc": "龙泡泡·方兴纪念",
         "recognition": {
             "type": "OCR",
@@ -754,19 +912,15 @@
                 "expected": [
                     "龙泡泡·方兴纪念",
                     "龍泡泡·方興紀念",
-                    "(?i)Chubby\\s*Lung\\s*:\\s*Fangxing\\s*Memorabilia",
-                    "龍泡泡・方興記念",
                     "(?i)Chubby\\s*Lung:\\s*Fangxing\\s*Memorabilia",
-                    "드래곤 버블 · 방흥 에디션",
-                    "方兴纪念",
-                    "方興紀念",
-                    "方興記念"
+                    "龍泡泡・方興記念",
+                    "드래곤 버블 · 방흥 에디션"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsStoneholdRemedy": {
-        "desc": "蓄石秘剂",
+    "AutoStockStapleGoodsItemGiftJinlong6": {
+        "desc": "炸鳞薯条",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -777,17 +931,17 @@
                     147
                 ],
                 "expected": [
-                    "蓄石秘剂",
-                    "蓄石秘劑",
-                    "(?i)Stonehold\\s*Remedy",
-                    "蓄石の秘薬",
-                    "축석의 비약"
+                    "炸鳞薯条",
+                    "炸鱗薯條",
+                    "(?i)Fin-n-Chips",
+                    "鱗獣アンドチップス",
+                    "린수 앤 칩스"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsRuinPurgerRemedy": {
-        "desc": "洗灾秘剂",
+    "AutoStockStapleGoodsItemGiftJinlong7": {
+        "desc": "怪味纸杯蛋糕",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -798,37 +952,16 @@
                     147
                 ],
                 "expected": [
-                    "洗灾秘剂",
-                    "洗災秘劑",
-                    "(?i)Ruin\\s*-\\s*Purger\\s*Remedy",
-                    "厄除の秘薬",
-                    "재앙 정화의 비약"
+                    "怪味纸杯蛋糕",
+                    "怪味杯子蛋糕",
+                    "(?i)Bizarro\\s*Cupcake",
+                    "複雑な味のカップケーキ",
+                    "기묘한 컵케이크"
                 ]
             }
         }
     },
-    "AutoStockStapleGoodsWulingTalositeProbe": {
-        "desc": "武陵塔晶探针",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "expected": [
-                    "武陵塔晶探针",
-                    "武陵塔晶探針",
-                    "(?i)Wuling\\s*Talosite\\s*Probe",
-                    "武陵タロサイト探査機",
-                    "무릉 유령수정 탐침기"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsFowlbeastPaperKite": {
+    "AutoStockStapleGoodsItemGiftJinlong8": {
         "desc": "羽兽剪纸风筝",
         "recognition": {
             "type": "OCR",
@@ -849,7 +982,7 @@
             }
         }
     },
-    "AutoStockStapleGoodsSwingingGentlemanClassicalAlbum": {
+    "AutoStockStapleGoodsItemGiftJinlong9": {
         "desc": "《摇摆绅士古典特辑》",
         "recognition": {
             "type": "OCR",
@@ -860,87 +993,12 @@
                     269,
                     147
                 ],
-                // 完整原文：《摇摆绅士古典特辑》 / 《搖擺紳士古典特輯》
-                // 货架/购买页长书名常被 OCR 截断，需前缀与截断变体才能稳定命中
                 "expected": [
-                    // @i18n-skip
                     "《摇摆绅士古典特辑》",
                     "《搖擺紳士古典特輯》",
                     "(?i)Der\\s*Schwingende\\s*Gentleman\\s*Classical\\s*Album",
                     "『スウィングジェントルのクラシックアルバム』",
-                    "<스윙 젠틀맨 고전 특집>",
-                    "《摇摆绅士",
-                    "《搖擺紳士",
-                    "《摇摆绅士古典特",
-                    "《搖擺紳士古典特",
-                    "《摇摆绅士典特",
-                    "《搖擺紳士典特",
-                    "(?i)Der\\sSchwingende",
-                    "『スウィン",
-                    "<스윙 젠틀"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsSearToastedLiver": {
-        "desc": "香焗兽肝",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "expected": [
-                    "香焗兽肝",
-                    "香焗獸肝",
-                    "(?i)Sear\\s*-\\s*Toasted\\s*Liver",
-                    "レバーの塩蒸し焼き",
-                    "향신료로 구운 비스트의 간"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsMyrkwoodBerryPreserve": {
-        "desc": "黑森林浆果酱",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "expected": [
-                    "黑森林浆果酱",
-                    "黑森林漿果醬",
-                    "(?i)Myrkwood\\s*Berry\\s*Preserve",
-                    "「黒き森」のベリージャム",
-                    "검은 숲의 베리잼"
-                ]
-            }
-        }
-    },
-    "AutoStockStapleGoodsMiracleCake": {
-        "desc": "奇迹蛋糕",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    418,
-                    122,
-                    269,
-                    147
-                ],
-                "expected": [
-                    "奇迹蛋糕",
-                    "奇蹟蛋糕",
-                    "(?i)Miracle\\s*Cake",
-                    "ミラクルケーキ",
-                    "기적의 케이크"
+                    "<스윙 젠틀맨 고전 특집>"
                 ]
             }
         }

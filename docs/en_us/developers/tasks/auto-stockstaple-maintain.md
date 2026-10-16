@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `AutoStockStaple`.  
 It takes **Valley IV** as the main line; the **Wuling** Pipeline structure is completely symmetrical, differing only in the regional suffix and scene recognition.  
-This document was updated on October 15, 2026.
+This document was updated on October 17, 2026.
 
 ## File Paths
 
@@ -49,12 +49,12 @@ Implemented in `Main.json`. The days of the week selected by the user are writte
 
 This task does not rely on runtime concatenation of user input strings, but rather:
 
-1. User selects items in the interface (after the category switch is on, the item checkboxes are nested under it) → `assets/tasks/AutoStockStaple.json` writes the multilingual item names into `attach.{slug}`.
+1. User selects items in the interface (after the category switch is on, the item checkboxes are nested under it) → `assets/tasks/AutoStockStaple.json` writes the multilingual item names into `attach.{item_id}`.
 2. The task entry executes `AttachToExpectedRegexAction`, reads all attach keywords, and merges them into a `^(alias1|alias2|...)$` regex, which overrides the item name OCR node on the list page.
 3. Keys where `attach` is `false` are excluded and no longer enter the whitelist.
 
 The Exclude branch (when an item has reached its target or is removed due to insufficient stock bills) also triggers re-initialization, ensuring subsequent list scans do not click on excluded items.  
-The exclusion action uses `PipelineOverrideAction` to set the corresponding `attach.{slug}` to `false`.
+The exclusion action uses `PipelineOverrideAction` to set the corresponding `attach.{item_id}` to `false`.
 
 ### Stock Bill Retention Threshold
 
@@ -120,13 +120,50 @@ Matched when `limit <= current_held_quantity`:
 | After Item Exclusion | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove attach key and refresh whitelist |
 | Before Confirming Purchase | `AutoStockStapleQuantityControlAction` | Calculate difference and override BetterSliding target quantity |
 
-## Paths to Modify When Adding a New Item
+## Data Source and Rebuild
 
-1. `Goods.json`, `GoodsCountValidate.json` and `QuantityControl.json` under `assets/resource/pipeline/AutoStockStaple/General/` (popup item OCR, limit comparison expressions, quantity control branches; there is no generator, edit them directly)
-2. `assets/tasks/AutoStockStaple.json` (checkbox case + limit override)
-3. `assets/locales/interface/*.json` (options and the `quantity_control.buy.*` / `reached.*` / `stock_bill_insufficient.*` focus text)
+`tools/zmdmap/datasets/stock_staple.py` builds the product roster, categories, prices, and names in five languages from raw TableCfg. The consumer maintains no fixed product binding table. The data relationships are:
 
-For what to change in each file, see [Adding a New Item](#adding-a-new-item) below.
+```text
+DomainDataTable → ShopGroupTable → ShopTable → ShopGoodsTable
+                                           ├ RewardTable → ItemTable → five I18nTextTable languages
+                                           ├ ShopGoodsTagTable → localized category names
+                                           └ ShopChannelDevelopmentTable → supply by channel level
+                  ↓
+stock_staple.json → AutoStockStaple/generate.mjs
+                  ├ assets/tasks/AutoStockStaple.json
+                  ├ General/{Goods,GoodsCountValidate,QuantityControl}.json
+                  └ task text in assets/locales/interface/*.json
+```
+
+Only recurring goods (`limitCountRefreshType` other than `None/0`) in regular regional shops (`shopRefreshType=None/0`) are selected; one-time goods and fluctuating shops are excluded. `goods` preserves prices, discounts, currencies, reward quantities, refresh types, unlock conditions, and channel supply records by goods ID. Task options are then deduplicated by `item_id`, preserving different price tiers of the same item.
+
+Under `tools/pipeline-generate/AutoStockStaple/`, `task-template.json` stores task policies and empty product groups, `pipeline-template.json` stores the shared flow and per-item node template, and `messages.json` stores fixed UI messages and event text patterns in five languages. `recognition-offsets.json` preserves existing recognition geometry adjustments only; it does not determine roster membership, and new items require no entry. Item option names follow the existing naming convention: remove apostrophes from the upstream English name and convert it to PascalCase. Attach keys and messages use game `item_id` values; node suffixes use their PascalCase form. Schedule, quantity limits, discounts, and reserved bill options remain unchanged. When an upstream name differs from an old English alias, that product needs to be selected again; no alias binding table is added.
+
+Download the published upstream data and generate all task artifacts:
+
+```shell
+pnpm generate:AutoStockStaple
+```
+
+With local raw tables, the same rebuild works offline. It only needs the eight business tables above and `I18nTextTable_{CN,TC,EN,JP,KR}.json`, without JsonData, navmesh, other compact datasets, or website query APIs:
+
+```shell
+uv run zmdmap generate --only stock_staple --table-cfg-dir /path/to/TableCfg
+node tools/pipeline-generate/AutoStockStaple/generate.mjs
+```
+
+The generator does not read the previous task or item nodes, so deleted outputs can be rebuilt directly. Shared locale files replace only keys managed by this task and preserve other tasks; missing or incorrect task text is regenerated, while a wholly unparseable shared file fails to avoid overwriting other tasks. UI icons continue to reference existing `resource/image/UI/Item/<item_id>.png` assets maintained by the existing icon publishing workflow; they are not roster inputs.
+
+`.github/workflows/sync-zmdmap.yml` runs the same command in the existing synchronization job. Like other datasets, `stock_staple` is automatically discovered, built, and included in the manifest by zmdmap, then downloaded and materialized through the existing `fetch` command. Valid caches can rebuild missing materialized copies; changed manifest hashes trigger downloads even within the same version. Downloaded content with a hash mismatch or invalid JSON fails while preserving the previous cache.
+
+Regression tests use a standard-library temporary HTTP server and small raw tables. They cover publishing, downloading, item additions/removals/renames, same-version updates, corrupt caches, missing outputs, price tiers, localized references, and runtime node connections without external services:
+
+```shell
+uv run --frozen --no-default-groups python -m unittest tools.zmdmap.test_stock_staple -v
+```
+
+Static prices preserve complete sales data. Runtime purchasing still recognizes actual discounts, held quantities, and stock bills through the existing flow rather than calculating the current transaction from configured prices.
 
 ## Paths to Modify When Adding a New Region
 
@@ -152,7 +189,7 @@ Offset sequentially based on the anchor:
 3. `AutoStockInStapleItemName`: OCR recognizes the item name, `expected` written during runtime initialization.
 4. `AutoStockInStapleItemName_Expected`: `And` combination of the above three, `box_index: 2` takes the box from the item name OCR.
 
-Item names selected by the user are written into multilingual aliases via `AutoStockInStapleItemName.attach.{slug}`; at task start, `AttachToExpectedRegexAction` merges them into:
+Item names selected by the user are written into multilingual aliases via `AutoStockInStapleItemName.attach.{item_id}`; at task start, `AttachToExpectedRegexAction` merges them into:
 
 ```text
 ^(alias1|alias2|...)$
@@ -226,12 +263,12 @@ Exclude: {ValleyEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}
 
 `AutoStockStapleQuantityControl{Item}StockBillInsufficient` combines:
 
-- Current item OCR (e.g., `AutoStockStapleGoodsValleyEngravingPermit`)
+- Current item OCR (e.g., `AutoStockStapleGoodsItemGemStableEnergyPointTundra`)
 - `AutoStockStapleGoodsStockBillInsufficientValidate` (bottom red area ColorMatch)
 
 Upon match:
 
-1. `[JumpBack]` to `{Item}RemoveFilter`, **excludes** the item from `AutoStockInStapleItemName.attach` (`attach.{slug}: false`), and triggers `AutoStockStapleQuantityControlResetRecognitionParams` to regenerate the whitelist regex.
+1. `[JumpBack]` to `{Item}RemoveFilter`, **excludes** the item from `AutoStockInStapleItemName.attach` (`attach.{item_id}: false`), and triggers `AutoStockStapleQuantityControlResetRecognitionParams` to regenerate the whitelist regex.
 2. Close the purchase popup (`AutoStockStapleQuantityControlCloseBuyWindow`).
 
 This ensures subsequent list scans do not repeatedly click unaffordable items.
@@ -292,15 +329,11 @@ This task involves several types of runtime overrides; do not confuse them durin
 
 ## Adding a New Item
 
-When adding a new staple demand supply item, the following typically need to be modified in sync:
+After upstream tables add a product, republish `stock_staple.json` and run `pnpm generate:AutoStockStaple`. Product cases, name OCR, quantity comparison nodes, three purchase branches, and localized messages are generated together. Do not manually add product names, binding tables, or legacy aliases.
 
-1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**: Add `AutoStockStapleGoods{Item}` OCR node and multilingual `expected`.
-2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**: Add `{Item}Validate` / `{Item}ExcludeValidate` expression nodes.
-3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**: Append `{Item}` control node in `AutoStockStapleQuantityControl.next`, and complete sub-nodes like Buy / Exclude / StockBillInsufficient / RemoveFilter (refer to existing items in the same region for examples).
-4. **`assets/tasks/AutoStockStaple.json`**: Add a case in the `{Category}Items` multiple-choice box nested under the corresponding region's category switch, writing `AutoStockInStapleItemName.attach.{slug}`. The quantity limit override is not in the case but in a `{Category}…Limit` input option under the same category switch (e.g. `AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit`; one option can cover several items): add the limit expressions for `AutoStockStapleGoods{Item}Validate` / `AutoStockStapleGoods{Item}ExcludeValidate` to its `pipeline_override`.
-5. **`assets/locales/interface/*.json`**: Add `option.CreditShoppingItems.cases.{Item}.label` and focus text (e.g., `quantity_control.buy.*`).
+Existing quantity grouping remains task policy: the engraving-permit ID family in household goods uses the engraving-permit limit, while other household goods use the food/buff limit; the equipment-enhancement material ID family in industrial goods uses the artificing-catalyst limit, while the rest use the detector limit; cultural goods use the gift limit. New categories or regions requiring navigation fail explicitly until their task templates and flows are adapted. If screenshots show a product name exceeding the default OCR area, adjust only `recognition-offsets.json` and regenerate.
 
-During maintenance, directly edit the above Pipeline and task configuration; **do not** rely on code generators to overwrite outputs.
+Edit generator templates for flow changes; do not directly edit generated tasks, product nodes, or product messages.
 
 ## Adding a New Region (Referencing Valley IV)
 
@@ -314,7 +347,7 @@ If a third region for staple goods purchase is added in the future, a set of nod
 2. Add `[JumpBack]AutoStockStaple{Region}` sub-task and SceneManager jump in `Main.json`.
 3. Add scene OCR in `StockStaple.json` or the regional InScene file.
 4. Add `AutoStockInStapleItemDiscounts{Region}` in `Item.json` (even with the same layout, since `AutoStockMinDiscount{Region}` overrides this node per region), and add its `roi_offset` to the `resource_adb` `Item.json`.
-5. Add region switch and option group in `assets/tasks/AutoStockStaple.json`.
+5. Add regional switches and option groups in `task-template.json`, connect the region ID to its navigation suffix in the generator, and regenerate.
 
 The existing Wuling implementation is a mirror of Valley IV; you can directly diff `ValleyIV.json` and `Wuling.json` to see the differences.
 

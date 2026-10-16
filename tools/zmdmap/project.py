@@ -314,7 +314,11 @@ def copy_files(raw_dir: Path, out_dir: Path, file_names: Sequence[str], *, force
             )
         text = source_path.read_text(encoding="utf-8")
         output_path = out_dir / file_name
-        if not force and output_path.exists() and output_path.read_text(encoding="utf-8") == text:
+        try:
+            unchanged = not force and output_path.read_text(encoding="utf-8") == text
+        except (OSError, UnicodeError):
+            unchanged = False
+        if unchanged:
             print(f"[project] {file_name} 未变化，跳过写入")
             continue
         output_path.write_text(text, encoding="utf-8", newline="\n")
