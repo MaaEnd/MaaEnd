@@ -2285,7 +2285,7 @@
     "task.ItemTransfer.same_region_skipped": "目的地と出発元の倉庫が同じため、スキップしました",
     "task.ItemTransfer.store_unverified": "現在のアイテムが倉庫に収納されたことを確認できないため、タスクを停止しました",
     "task.Keymap.focus.interact_failed": "インタラクトに失敗しました。 ゲーム-設定-操作 と MaaEnd-設定-タスク設定-キー割り当て設定 が一致しているか確認してください。",
-    "task.LaunchGameLinux.description": "ハイパーグリフランチャーでエンドフィールドを起動します。ランチャーは前置プログラムから起動できます。",
+    "task.LaunchGameLinux.description": "ハイパーグリフランチャー画面内の「ゲーム開始」ボタンをクリックするだけです。ハイパーグリフランチャー自体の起動は、前置プログラムまたは独自のスクリプトで行ってください。",
     "task.LaunchGameLinux.label": "ゲーム起動（Linux）",
     "task.OpenGame.focus.start_app_failed": "アプリの起動に失敗しました",
     "task.OpenGame.focus.start_up_game_failed": "ゲームの起動に失敗しました",

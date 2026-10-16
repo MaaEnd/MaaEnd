@@ -2285,7 +2285,7 @@
     "task.ItemTransfer.same_region_skipped": "Destination and source warehouses are the same; skipped",
     "task.ItemTransfer.store_unverified": "Could not verify whether the current item was stored; the task was stopped",
     "task.Keymap.focus.interact_failed": "Interaction failed. Please confirm  Game-Settings-Controls  matches  MaaEnd-Settings-Task Settings-Key Binding Settings.",
-    "task.LaunchGameLinux.description": "Launch Endfield from the Hypergryph Launcher. The launcher can be started by a pretask.",
+    "task.LaunchGameLinux.description": "Only clicks the Start Game button inside the Hypergryph Launcher window. Starting the Hypergryph Launcher itself should be done by a pretask or your own script.",
     "task.LaunchGameLinux.label": "Launch Game (Linux)",
     "task.OpenGame.focus.start_app_failed": "Failed to launch the app",
     "task.OpenGame.focus.start_up_game_failed": "Failed to start the game",
