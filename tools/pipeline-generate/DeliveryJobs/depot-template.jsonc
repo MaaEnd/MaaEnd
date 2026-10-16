@@ -175,7 +175,6 @@
         "anchor": {
             "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItems${RegionId}",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-            "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
             "DeliveryJobsGoToDepot": "${DepotScene}",
             "DeliveryJobsReturnToDepotNode": "${DepotScene}"
         },
