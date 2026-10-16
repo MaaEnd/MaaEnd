@@ -101,20 +101,34 @@ def read_manifest() -> Manifest | None:
     return parse_manifest(response.text)
 
 
-def manifest_plan(raw_dir: Path, file_names: Sequence[str], manifest: Manifest) -> list[str]:
-    """按清单挑出内容变了的文件：本地没有、读不出来、清单里没有、指纹对不上的都算要重下。
+def manifest_plan(
+    target_dir: Path, file_names: Sequence[str], manifest: Manifest
+) -> tuple[list[str], list[str]]:
+    """按清单挑出要重下的文件，并另列出「不在这批里、保持本地原样」的那几份。
 
-    比的是本地文件里**自称的** ``sha256`` 与清单里记的指纹（:func:`tools.zmdmap.utils.datafile.read_hash`）
-    —— 只读字段、不读本体。与文件里写的 ``version`` 无关：上游只换了版本号、内容没变时不必重下，本地那份
-    也一个字都不会改。
+    比的是 ``target_dir`` 里同名文件**自称的** ``sha256`` 与清单里记的指纹
+    （:func:`tools.zmdmap.utils.datafile.read_hash`）—— 只读字段、不读本体。与文件里写的 ``version``
+    无关：上游只换了版本号、内容没变时不必重下，本地那份也一个字都不会改。
+
+    清单列的是「这一批发了哪几份」（``generate --only`` 就只列那几份），所以清单里没有的那份不是「过期」、
+    是「这批没它」：本地已经有就不动它，本地也没有才只能下回来，否则这份数据就彻底缺了。
+
+    ``target_dir`` 是「本地这份数据」所在的地方：入库模式下就是入库目录（``data/``，它在仓库里，新克隆
+    下来也有），``--raw-only`` 下是原始形态目录自己（那正是它的产物）。原始形态目录是 ``.gitignore`` 的
+    本地缓存，空着不代表本地数据旧，所以默认不拿它当参照。
     """
-    return [
-        file_name
-        for file_name in file_names
-        if (expected := manifest.files.get(file_name)) is None
-        or (local := read_hash(raw_dir / file_name)) is None
-        or local != expected
-    ]
+    todo: list[str] = []
+    unlisted: list[str] = []
+    for file_name in file_names:
+        local = read_hash(target_dir / file_name)
+        expected = manifest.files.get(file_name)
+        if local is None:  # 本地没有：只能下回来，清单里有没有都一样
+            todo.append(file_name)
+        elif expected is None:  # 不在这批里：保持本地那份
+            unlisted.append(file_name)
+        elif local != expected:  # 指纹对不上：过期了
+            todo.append(file_name)
+    return todo, unlisted
 
 
 def _download_json(
@@ -241,16 +255,18 @@ def fetch_and_cache(
 
 def download(
     raw_dir: Path,
+    target_dir: Path,
     projected_files: Sequence[str],
     plain_files: Sequence[str],
     *,
     force: bool = False,
-) -> str | None:
-    """按需下载清单里这几份数据到 ``raw_dir``；返回清单给的版本（没有清单时为 ``None``）。
+) -> list[str]:
+    """按需把这几份数据下载到 ``raw_dir``；返回这次**真的下过**的文件名（也就是还要入库的那几份）。
 
-    本地是不是最新以清单为准：逐份拿本地文件里**自称的** ``sha256`` 跟清单比，一样的跳过下载，不一样的才下
-    —— 不必问任何接口，也认得「同一个版本号下重新发布过」。清单还没发布时不比对，这几份直接下载；
-    ``version`` 与 ``sha256`` 都沿用数据文件自带的（上游 ``generate`` 写进文件的那份），这里不改它们。
+    本地是不是最新以发布清单为准：逐份拿 ``target_dir`` 里同名文件**自称的** ``sha256`` 跟清单比，一样的跳过
+    下载，不一样的才下 —— 不必问任何接口，也认得「同一个版本号下重新发布过」；``version`` 不参与比较。
+    清单还没发布时不比对，这几份直接下载；``version`` 与 ``sha256`` 都沿用数据文件自带的（上游 ``generate``
+    写进文件的那份），这里不改它们。
 
     ``force`` 是不比对、直接重下这几份，并且请求 URL 上的 ``t`` 用时间戳而不是清单指纹 —— 「怀疑远端说辞」
     时的唯一手段（这个 CDN 只看 URL，请求头说了不算）。CI 上没有额外开关：本地与 CI 跑的是同一套判断。
@@ -263,13 +279,18 @@ def download(
     if force:
         print("[fetch-data] 强制下载（--force），不比对本地内容")
     elif manifest is not None:
-        todo = manifest_plan(raw_dir, todo, manifest)
+        todo, unlisted = manifest_plan(target_dir, todo, manifest)
         label = f"v{version}" if version else "清单没写版本"
+        if unlisted:
+            print(
+                f"[fetch-data] 清单里没有这几份，保持本地原样：{'、'.join(unlisted)}",
+                file=sys.stderr,
+            )
         if todo:
             print(f"[fetch-data] 清单 {label}：{len(todo)} 份内容有变化")
         else:
             print(f"[fetch-data] 本地内容与清单一致（{label}），跳过下载")
-            return version
+            return []
     else:
         print(
             f"[fetch-data] 上游还没发布 {MANIFEST_FILE}，不比对本地内容，直接下载"
@@ -278,6 +299,7 @@ def download(
         )
 
     hashes = manifest.files if manifest is not None else {}
+    written = list(todo)
     if todo:
         pending = set(todo)
         missing = fetch_and_cache(
@@ -290,8 +312,10 @@ def download(
         )
         if missing:
             print(f"[fetch-data] 上游还没发布：{', '.join(missing)}", file=sys.stderr)
+            unpublished = set(missing)
+            written = [file_name for file_name in todo if file_name not in unpublished]
     print(f"[fetch-data] 完成，当前版本: v{version}" if version else "[fetch-data] 完成")
-    return version
+    return written
 
 
 @click.command(name="fetch")
@@ -352,20 +376,38 @@ def fetch_command(
         click.echo("── 下载 ──────────────────────────────────────────")
         files = (*pipeline_files, *plain_files)
         click.echo(f"   {len(files)} 份：{'、'.join(files)}")
+        # 跟清单比的是「本地这份数据」：入库模式下比入库目录里那一份（它在仓库里，新克隆下来就有），
+        # --raw-only 下产出的就是原始形态、比它自己。原始形态目录是 .gitignore 的本地缓存，空着不算旧。
+        target_dir = raw_dir if raw_only else data_dir
         try:
-            download(raw_dir, pipeline_files, plain_files, force=force)
+            pending = set(download(raw_dir, target_dir, pipeline_files, plain_files, force=force))
         except (OSError, ValueError) as error:
             raise click.ClickException(str(error)) from error
     else:
         click.echo("── 下载：跳过（--no-download），直接用现有 data/raw/")
+        pending = set((*pipeline_files, *plain_files))
 
     if raw_only:
         click.echo("入库：未执行（--raw-only）")
         return
 
+    if not pending:
+        # 本地已经是清单里那一批，一份都不用下；原始形态可能根本不在（.gitignore 的缓存），
+        # 拿它重投影反而会把入库数据改回旧内容，所以这一步整个跳过。
+        click.echo("\n── 入库 ──────────────────────────────────────────")
+        click.echo("   跳过：本地数据已经是清单里那一批（原始形态目录没有也不影响）")
+        report_data_changes(data_dir, [dataset.file_name for dataset in datasets])
+        return
+
     click.echo("\n── 入库（原始形态 -> data/）─────────────────────")
-    projected = run_projection(raw_dir, data_dir, pipeline_files, nav=nav, force=force)
-    copied = copy_plain(raw_dir, data_dir, plain_files, force=force)
+    projected = run_projection(
+        raw_dir, data_dir, [file_name for file_name in pipeline_files if file_name in pending],
+        nav=nav, force=force,
+    )
+    copied = copy_plain(
+        raw_dir, data_dir, [file_name for file_name in plain_files if file_name in pending],
+        force=force,
+    )
     click.echo("\n── 汇总 ──────────────────────────────────────────")
     click.echo(f"入库：正常（投影 {projected} 份、复制 {copied} 份，输出到 {data_dir}）")
     report_data_changes(data_dir, [dataset.file_name for dataset in datasets])

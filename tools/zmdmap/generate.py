@@ -79,12 +79,13 @@ def check_input_dir(label: str, path: Path, option: str, env_name: str) -> None:
 
 
 def write_manifest(out_dir: Path, file_names: Sequence[str], version: str | None) -> Path | None:
-    """把发布清单写进 ``out_dir``：版本 + 每份原始形态的本体指纹（按文件里的内容重算）；内容没变时返回 ``None``。
+    """把发布清单写进 ``out_dir``：版本 + 这一批每份原始形态的本体指纹（按目录里那份文件重算）；内容没变时返回 ``None``。
 
     清单是发布端与 ``fetch`` 之间的约定：``fetch`` 拿本地文件里自称的 ``sha256``（:func:`read_hash`）跟它比，
-    一样就不重下，也认得「同一个版本号下重新发布过」。清单里的指纹按发布出去的内容重算、不采信文件自称的
-    值，所以本地那份被改坏了会被发现并重新下载。清单里收哪些文件按 ``out_dir`` 里实际存在的算，所以只生成
-    一部分时清单照样是完整的；清单本身不入库，只跟着原始形态一起发布。
+    一样就不重下，也认得「同一个版本号下重新发布过」。收哪几份跟着这一批走：``generate --only`` 就只列那几份，
+    ``out_dir`` 里其余的（上一次生成或 ``fetch`` 下载留下的旧文件）不算这一批，``fetch`` 会保持本地原样。指纹
+    按目录里那份文件的内容重算，不照抄文件自称的值 —— 清单要说的是「发布的这批字节是什么」，这一批里内容没变、
+    这次没重写的也照它现在的内容算。清单本身不入库，只跟着原始形态一起发布。
     """
     files = {
         file_name: digest
@@ -298,7 +299,7 @@ def generate_command(
             force=force,
         )
         manifest_path = write_manifest(
-            out_dir, [dataset.file_name for dataset in DATASETS], version
+            out_dir, [dataset.file_name for dataset in datasets], version
         )
         if manifest_path is not None:
             click.echo(f"  {MANIFEST_FILE} -> {manifest_path}")

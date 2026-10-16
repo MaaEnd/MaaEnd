@@ -100,8 +100,8 @@ def read_hash(path: Path) -> str | None:
 def read_payload_hash(path: Path) -> str | None:
     """按文件里的**内容**重算本体指纹；读不出来返回 ``None``。
 
-    发布端（``generate`` 写发布清单）用它：清单说的是「发布出去的这份内容是什么」，按内容重算最实在、
-    不采信文件自称的值 —— 这样本地那份被改坏了，``fetch`` 一比就能发现并重新下载。
+    发布端（``generate`` 写发布清单）用它：清单说的是「发布出去的这份内容是什么」，所以按内容重算，而不是
+    照抄文件里那个自称值 —— 那个值来自写这份文件的某一次运行，未必就是现在这份内容。
     """
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
