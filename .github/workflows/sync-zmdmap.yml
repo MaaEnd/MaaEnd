@@ -48,9 +48,9 @@ jobs:
           pnpm install --frozen-lockfile
 
       # 不必先整包下载：下面的 generate 脚本各自只 fetch 自己用得到的那几份数据。
+      # generate:DeliveryJobs 的第一条就是 generate:AutoDelivery，不必再单独跑一遍。
       - name: Generate pipeline data
         run: |
-          pnpm generate:AutoDelivery
           pnpm generate:DeliveryJobs
           pnpm generate:EnvironmentMonitoring
           pnpm generate:OutpostTrading
