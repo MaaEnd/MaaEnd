@@ -9,6 +9,7 @@
             "[JumpBack]VisitFriendsClueExchangeFull",
             "VisitFriendsFull",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpenPriority",
+            "[JumpBack]VisitFriendsPrioritySearchNext",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpenRemark",
             "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
             "VisitFriendsMenuScanScrollFinish",
@@ -238,6 +239,9 @@
                     "attach": {
                         "ready": false
                     }
+                },
+                "VisitFriendsPrioritySearchNext": {
+                    "enabled": false
                 }
             }
         },
@@ -275,6 +279,9 @@
                     "attach": {
                         "ready": false
                     }
+                },
+                "VisitFriendsPrioritySearchNext": {
+                    "enabled": false
                 }
             }
         },

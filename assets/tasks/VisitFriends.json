@@ -82,15 +82,10 @@
                     "name": "Yes",
                     "option": [
                         "VisitFriendsPriority",
+                        "VisitFriendsPrioritySearchEnable",
                         "BtwAutoStockpileElasticGoodsEnable"
                     ],
                     "pipeline_override": {
-                        "VisitFriendsWaitFriendNameLoaded": {
-                            "next": [
-                                "VisitFriendsPriorityInit",
-                                "VisitFriendsMenuScan"
-                            ]
-                        },
                         "VisitFriendsPriorityInit": {
                             "enabled": true
                         },
@@ -140,8 +135,44 @@
                         "keywords": "{PriorityName}",
                         "substring": true
                     }
+                },
+                "VisitFriendsPrioritySearchInit": {
+                    "custom_action_param": {
+                        "texts": "{PriorityName}"
+                    }
                 }
             }
+        },
+        "VisitFriendsPrioritySearchEnable": {
+            "type": "switch",
+            "controller": [
+                "ADB",
+                "CloudADB",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front"
+            ],
+            "label": "$option.VisitFriendsPrioritySearchEnable.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "VisitFriendsPrioritySearchInit": {
+                            "enabled": true
+                        },
+                        "VisitFriendsPrioritySearchNext": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
         },
         "ProductionAssistControl": {
             "type": "checkbox",
