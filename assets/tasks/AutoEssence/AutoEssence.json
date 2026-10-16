@@ -17,6 +17,7 @@
             "option": [
                 "AutoEssenceSchedule",
                 "AutoEssenceMenu",
+                "AutoEssenceCycleThreshold",
                 "AutoFightSettingFull"
             ]
         }
@@ -1026,6 +1027,27 @@
                 }
             ],
             "default_case": "No"
+        },
+        "AutoEssenceCycleThreshold": {
+            "type": "input",
+            "label": "$option.AutoEssenceCycleThreshold.label",
+            "description": "$option.AutoEssenceCycleThreshold.description",
+            "inputs": [
+                {
+                    "name": "AutoEssenceCycleThresholdValue",
+                    "label": "$option.AutoEssenceCycleThreshold.inputs.AutoEssenceCycleThresholdValue.label",
+                    "default": "480",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d*$"
+                }
+            ],
+            "pipeline_override": {
+                "CombatProtocolMain": {
+                    "attach": {
+                        "threshold_auto_essence": "{AutoEssenceCycleThresholdValue}"
+                    }
+                }
+            }
         }
     }
 }

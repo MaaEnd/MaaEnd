@@ -14,6 +14,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/bettersliding"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/combatprotocol"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/attachregex"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoalt"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/camerascan"
@@ -114,6 +115,7 @@ func registerAll() {
 	ziplineimport.Register()
 	pullcount.Register()
 	trialofswordmancy.Register()
+	combatprotocol.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

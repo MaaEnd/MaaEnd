@@ -108,6 +108,7 @@ Only required when maintaining the corresponding task.
 | [SeizeDeliveryJobs](./tasks/seize-delivery-jobs-maintain.md) | Data-driven endpoint generation, landmark-name maintenance, fallback text, and locale synchronization |
 | [GiftOperator](./tasks/gift-operator-maintain.md) | Navigation pathfinding, contact operator selection, gift giving/receiving branches, and operator extension maintenance |
 | [DeliveryJobs](./tasks/delivery-jobs-maintain.md) | Depot node handling modes, anchor landing rules, bid branches, and cargo packing priority maintenance |
+| [CombatProtocol](./tasks/combat-protocol-maintain.md) | Rotation rules, state file, integration points into the two combat tasks, and extension steps |
 
 ### Third-Party Protocol Documents (`protocol/`)
 

@@ -1,0 +1,229 @@
+{
+    "CombatProtocolMain": {
+        "desc": "循环作战协议入口：读取选项配置、恢复轮换状态并播报本轮作战任务",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CombatProtocolEnter"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "CombatProtocolRunAutoEssence",
+            "CombatProtocolRunProtocolSpace"
+        ],
+        "attach": {
+            "mode": "sanity",
+            "slots": [],
+            "slot_thresholds": []
+        }
+    },
+    "CombatProtocolStopAfterRotation": {
+        "desc": "本轮槽位已达标：结束本次运行（客户端随后自动启动下一个槽位）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CombatProtocolState",
+                "custom_recognition_param": {
+                    "expect": "rotated"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0
+    },
+    "CombatProtocolRunAutoEssence": {
+        "desc": "当前槽位为基质刷取：进入其主流程（不经过星期计划门控；也用于达标前的一局继续）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CombatProtocolState",
+                "custom_recognition_param": {
+                    "expect": "AutoEssence"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceMain"
+        ]
+    },
+    "CombatProtocolRunProtocolSpace": {
+        "desc": "当前槽位为协议空间：进入其入口（从任意界面经场景导航进入，不经过星期计划门控）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CombatProtocolState",
+                "custom_recognition_param": {
+                    "expect": "ProtocolSpace"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceEntry"
+        ]
+    },
+    "CombatProtocolAccumulateAutoEssence": {
+        "desc": "一局基质刷取完成后：累计本局理智消耗（达标则结束本次运行，否则继续本槽位）",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CombatProtocolAccumulate",
+                "custom_action_param": {
+                    "task": "AutoEssence"
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "CombatProtocolStopAfterRotation",
+            "CombatProtocolRunAutoEssence"
+        ]
+    },
+    "CombatProtocolAccumulateProtocolSpace": {
+        "desc": "一局协议空间领奖完成后：累计本局理智消耗（达标则结束本次运行，否则继续本槽位）",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CombatProtocolAccumulate",
+                "custom_action_param": {
+                    "task": "ProtocolSpace"
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "CombatProtocolStopAfterRotation",
+            "CombatProtocolContinueProtocolSpace"
+        ]
+    },
+    "CombatProtocolContinueProtocolSpace": {
+        "desc": "轮换判断：下一局继续执行协议空间（点击继续进入下一轮）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CombatProtocolState",
+                "custom_recognition_param": {
+                    "expect": "ProtocolSpace"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceRewardClaimSuccessContinue"
+        ]
+    },
+    "CombatProtocolCouponResetAutoEssence": {
+        "desc": "每局领奖前清空理智消耗许可标记",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CombatProtocolSetCoupon",
+                "custom_action_param": {
+                    "used": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceChooseScaling1",
+            "AutoEssenceAfterChooseScaling"
+        ]
+    },
+    "CombatProtocolCouponMarkAutoEssence": {
+        "desc": "识别到双倍领取：标记本局使用了理智消耗许可",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CombatProtocolSetCoupon",
+                "custom_action_param": {
+                    "used": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceAfterChooseScaling"
+        ]
+    },
+    "CombatProtocolCouponClearAutoEssence": {
+        "desc": "双倍领取理智不足回退单倍：清除理智消耗许可标记",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CombatProtocolSetCoupon",
+                "custom_action_param": {
+                    "used": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceLowSpFallbackConfirmObtain"
+        ]
+    },
+    "CombatProtocolCouponResetProtocolSpace": {
+        "desc": "每局领奖选择前清空理智消耗许可标记",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CombatProtocolSetCoupon",
+                "custom_action_param": {
+                    "used": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceRewardUsePermit",
+            "ProtocolSpaceRewardDontUsePermit",
+            "ProtocolSpaceRewardClaim"
+        ]
+    },
+    "CombatProtocolCouponMarkProtocolSpace": {
+        "desc": "识别到使用理智消耗许可：标记本局使用了消耗券",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CombatProtocolSetCoupon",
+                "custom_action_param": {
+                    "used": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceRewardClaim"
+        ]
+    },
+    "CombatProtocolCouponClearProtocolSpace": {
+        "desc": "双倍领取理智不足回退单倍：清除理智消耗许可标记",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CombatProtocolSetCoupon",
+                "custom_action_param": {
+                    "used": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceRewardFallbackSingleClaim"
+        ]
+    }
+}

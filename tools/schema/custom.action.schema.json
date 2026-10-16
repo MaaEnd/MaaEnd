@@ -44,6 +44,9 @@
                 "CaptureUid",
                 "ClearHitCount",
                 "CloseGameAction",
+                "CombatProtocolAccumulate",
+                "CombatProtocolEnter",
+                "CombatProtocolSetCoupon",
                 "CreditShoppingScanItemAction",
                 "DeliveryJobsResolveOngoingDepotAction",
                 "ERROR",
@@ -338,6 +341,51 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilNotFoundParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "CombatProtocolAccumulate" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": [ "task" ],
+						"properties": {
+							"task": {
+								"type": "string",
+								"enum": [ "AutoEssence", "ProtocolSpace" ]
+							}
+						}
+					}
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "CombatProtocolSetCoupon" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": [ "used" ],
+						"properties": {
+							"used": { "type": "boolean" }
+						}
+					}
 				},
 				"required": [ "custom_action_param" ]
 			}

@@ -559,6 +559,23 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 
 省略某个工作日标志时，默认视为 `false`（当天不执行）。若当天不在调度范围内，该 Recognition 会通过 `maafocus` 输出本地化提示（`schedule.skip_today`）并返回未命中。
 
+### CombatProtocol 循环作战协议
+
+`CombatProtocol*` 实现位于 `agent/go-service/combatprotocol`，为「循环作战协议」任务服务：拖入容器的每个作战任务条目是一个独立的轮换槽位（可以有多个同型任务、各带自身配置），按理智累计消耗或游戏日期在槽位间轮换，并将轮换状态持久化到 `debug/record/CombatProtocol.json`。各节点只读写状态并返回路由判断，流程仍由 Pipeline 组织。
+
+- `CombatProtocolEnter`（Action，无参数）：容器入口。读取 `CombatProtocolMain` 节点的 `attach` 槽位表并与持久化状态对齐（模式或槽位序列变化整体重置轮换，仅阈值变化原位更新），在日期模式下跨游戏日推进槽位，并播报本轮执行的槽位（第 x/y 位）。
+- `CombatProtocolState`（Recognition，参数 `expect: "AutoEssence" | "ProtocolSpace" | "rotated"`）：`expect` 为任务名时，当前槽位指向该任务则命中（用于运行分发）；`expect` 为 `"rotated"` 时，本局刚发生达标轮换则命中（用于结束本次运行）。
+- `CombatProtocolAccumulate`（Action，参数 `task: "AutoEssence" | "ProtocolSpace"`）：一局完成后把本局理智消耗（未使用理智消耗许可记 80，使用记 160）累计到当前槽位。理智模式下达到该槽位阈值时清空其累计、标记轮次完成、推进到下一个槽位并置位「已轮换」标记；日期模式不累计。
+- `CombatProtocolSetCoupon`（Action，参数 `used: bool`）：记录或清除「本局使用理智消耗许可」，供累计节点计量；每局领奖开始与双倍回退单倍时清除。
+
+`attach` 字段写在 `CombatProtocolMain` 节点，由客户端（MXU）在装配运行时写入：
+
+- `mode: string` — `"sanity"` 按理智累计、`"date"` 按日期（来自轮换模式选项）。
+- `slots: string[]` — 槽位表，按条目顺序列出任务名（可含同型重复）；为空时回退为默认顺序（基质刷取 480 → 协议空间 240）。
+- `slot_thresholds: int[]` — 与 `slots` 对应的逐槽位阈值；缺省时按任务默认值（基质刷取 480、协议空间 240）。
+
+任务失败由注册的 TaskerEventSink 记录：理智模式下标记当前槽位为失败并推进到下一个槽位；日期模式下只标记（轮换由日期驱动）。状态文件损坏时改名备份为 `CombatProtocol.json.corrupt-<utc>` 并重置；schema 版本不符时按新版本重置。
+
 ## 小结
 
 写 Pipeline 时，内置的 `TemplateMatch` / `OCR` / `Click` / `Swipe` 能解决绝大多数需求。遇到它们搞不定的——比如要比较两个 OCR 数值、运行时动态调参数、批量跑子任务——再来查这篇，看有没有现成的 Custom 能用。
@@ -580,6 +597,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | 通过滚动条位置判断列表是否已到顶或到底 | `ScrollbarCompleteRecognition` |
 | 消费性点选（visited 排除） | `ExpendableRecognition` |
 | 按星期几门控后续节点 | `ScheduleRecognition` |
+| 按理智累计或日期轮换作战任务 | `CombatProtocol*` |
 | 在指定位置 Alt + 点击 | `AutoAltClickAction` |
 | 在指定位置 Ctrl + 点击 | `AutoCtrlClickAction` |
 | Alt + 滑动 | `AutoAltSwipeAction` |

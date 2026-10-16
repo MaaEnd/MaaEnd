@@ -559,6 +559,23 @@ The `ScheduleRecognition` implementation is located in `agent/go-service/common/
 
 When a weekday flag is omitted, it defaults to `false` (do not execute that day). If the current day is not within the scheduling range, this Recognition emits the localized `schedule.skip_today` message via `maafocus` and returns no match.
 
+### CombatProtocol Cycle
+
+The `CombatProtocol*` components live in `agent/go-service/combatprotocol` and serve the "Combat Protocol Cycle" task: every combat task entry dragged into the container is an independent rotation slot (several entries of the same task with different configs are allowed), rotated by accumulated sanity consumption or by game date, with the rotation state persisted to `debug/record/CombatProtocol.json`. The components only read and write the state and return routing decisions; the flow is still organized by the Pipeline.
+
+- `CombatProtocolEnter` (Action, no parameters): container entry. It reads the slot table from the `CombatProtocolMain` node's `attach` and reconciles it with the persisted state (a mode or slot-sequence change resets the whole rotation; threshold-only changes update in place), advances the slot across a new game day in date mode, and announces the slot about to run (position x/y).
+- `CombatProtocolState` (Recognition, parameter `expect: "AutoEssence" | "ProtocolSpace" | "rotated"`): with a task name it hits when the current slot runs that task (run dispatch); with `"rotated"` it hits when this battle just advanced the rotation (used to end the current run).
+- `CombatProtocolAccumulate` (Action, parameter `task: "AutoEssence" | "ProtocolSpace"`): after one completed battle, adds its sanity consumption (80 without the sanity consumption permit, 160 with it) to the current slot. In sanity mode, reaching the slot's threshold clears its accumulator, marks the turn completed, advances to the next slot and sets the "rotated" flag; date mode does not accumulate.
+- `CombatProtocolSetCoupon` (Action, parameter `used: bool`): records or clears "this battle uses the sanity consumption permit" for the accumulator to meter; it is cleared at the start of every claim flow and when a double claim falls back to single.
+
+The `attach` block lives on the `CombatProtocolMain` node and is written by the client (MXU) when assembling a run:
+
+- `mode: string` — `"sanity"` for sanity-accumulation, `"date"` for date-based (from the rotation mode option).
+- `slots: string[]` — the slot table: task names in entry order (same-type duplicates allowed); when empty it falls back to the default order (Essence Farm 480 → Protocol Space 240).
+- `slot_thresholds: int[]` — per-slot thresholds parallel to `slots`; missing values fall back to the task defaults (Essence Farm 480, Protocol Space 240).
+
+Task failures are recorded by the registered TaskerEventSink: in sanity mode the current slot is marked as failed and the rotation advances to the next slot; in date mode it is only marked (the calendar drives the rotation). A corrupt state file is renamed aside as `CombatProtocol.json.corrupt-<utc>` and reset; an outdated schema resets to the current version.
+
 ## Summary
 
 When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe` can handle most needs. When they fall short—for example, comparing two OCR values, dynamically adjusting parameters at runtime, or batch running subtasks—then refer to this document to see if there's an existing Custom action or recognition to use.
@@ -580,6 +597,7 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Detect a list top or bottom by scrollbar position | `ScrollbarCompleteRecognition` |
 | Consumable pick (visited exclusion) | `ExpendableRecognition` |
 | Gate subsequent nodes by day of week | `ScheduleRecognition` |
+| Rotate combat tasks by sanity accumulation or date | `CombatProtocol*` |
 | Alt + Click at specified position | `AutoAltClickAction` |
 | Ctrl + Click at specified position | `AutoCtrlClickAction` |
 | Alt + Swipe | `AutoAltSwipeAction` |

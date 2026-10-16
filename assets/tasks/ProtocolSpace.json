@@ -19,6 +19,7 @@
             ],
             "option": [
                 "ProtocolSpaceSchedule",
+                "ProtocolSpaceCycleThreshold",
                 "AutoFightSetting",
                 "ProtocolSpaceTeamChoose",
                 "ProtocolSpaceMode"
@@ -1441,6 +1442,27 @@
                                 "expression": "{item_weapon_break_low}>={SupplyPlanLimit_CAST_DIE}"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "ProtocolSpaceCycleThreshold": {
+            "type": "input",
+            "label": "$option.ProtocolSpaceCycleThreshold.label",
+            "description": "$option.ProtocolSpaceCycleThreshold.description",
+            "inputs": [
+                {
+                    "name": "ProtocolSpaceCycleThresholdValue",
+                    "label": "$option.ProtocolSpaceCycleThreshold.inputs.ProtocolSpaceCycleThresholdValue.label",
+                    "default": "240",
+                    "pipeline_type": "int",
+                    "verify": "^[1-9]\\d*$"
+                }
+            ],
+            "pipeline_override": {
+                "CombatProtocolMain": {
+                    "attach": {
+                        "threshold_protocol_space": "{ProtocolSpaceCycleThresholdValue}"
                     }
                 }
             }

@@ -1,0 +1,153 @@
+{
+    "task": [
+        {
+            "name": "CombatProtocol",
+            "label": "$task.CombatProtocol.label",
+            "entry": "CombatProtocolMain",
+            "description": "$task.CombatProtocol.description",
+            "group": [
+                "sanity_sink"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "PlayCover",
+                "Win32-Front"
+            ],
+            "option": [
+                "CombatProtocolMode"
+            ]
+        }
+    ],
+    "option": {
+        "CombatProtocolMode": {
+            "type": "select",
+            "label": "$option.CombatProtocolMode.label",
+            "cases": [
+                {
+                    "name": "SanityCycle",
+                    "label": "$option.CombatProtocolMode.cases.SanityCycle.label",
+                    "pipeline_override": {
+                        "CombatProtocolMain": {
+                            "attach": {
+                                "mode": "sanity"
+                            }
+                        },
+                        // 无条件循环：把两个任务自身的循环次数上限恢复为 UINT_MAX（协议默认值，
+                        // 即无上限），避免子任务选项里的次数上限截断容器内的轮换循环。
+                        "AutoEssenceMain": {
+                            "max_hit": 4294967295
+                        },
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 4294967295
+                        },
+                        // 两种模式共用同一组静态覆写：把两个作战任务的循环控制、理智消耗
+                        // 许可标记与失败路由接入容器。除 attach.mode 外两个 case 完全相同，
+                        // 因此各存一份。
+                        "AutoEssenceOnSuccess": {
+                            "next": [
+                                "CombatProtocolAccumulateAutoEssence"
+                            ]
+                        },
+                        "AutoEssenceChooseScalingPre": {
+                            "next": [
+                                "CombatProtocolCouponResetAutoEssence"
+                            ]
+                        },
+                        "AutoEssenceChooseScaling2": {
+                            "next": [
+                                "CombatProtocolCouponMarkAutoEssence"
+                            ]
+                        },
+                        "AutoEssenceLowSpFallbackScaling1": {
+                            "next": [
+                                "CombatProtocolCouponClearAutoEssence"
+                            ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessNext": {
+                            "next": [
+                                "CombatProtocolAccumulateProtocolSpace"
+                            ]
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "next": [
+                                "CombatProtocolCouponResetProtocolSpace"
+                            ]
+                        },
+                        "ProtocolSpaceRewardUsePermit": {
+                            "next": [
+                                "CombatProtocolCouponMarkProtocolSpace"
+                            ]
+                        },
+                        "ProtocolSpaceRewardFallbackSingle": {
+                            "next": [
+                                "CombatProtocolCouponClearProtocolSpace"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DateCycle",
+                    "label": "$option.CombatProtocolMode.cases.DateCycle.label",
+                    "pipeline_override": {
+                        "CombatProtocolMain": {
+                            "attach": {
+                                "mode": "date"
+                            }
+                        },
+                        // 无条件循环：把两个任务自身的循环次数上限恢复为 UINT_MAX（协议默认值，
+                        // 即无上限），避免子任务选项里的次数上限截断容器内的轮换循环。
+                        "AutoEssenceMain": {
+                            "max_hit": 4294967295
+                        },
+                        "ProtocolSpaceRewardClaimSuccessContinue": {
+                            "max_hit": 4294967295
+                        },
+                        "AutoEssenceOnSuccess": {
+                            "next": [
+                                "CombatProtocolAccumulateAutoEssence"
+                            ]
+                        },
+                        "AutoEssenceChooseScalingPre": {
+                            "next": [
+                                "CombatProtocolCouponResetAutoEssence"
+                            ]
+                        },
+                        "AutoEssenceChooseScaling2": {
+                            "next": [
+                                "CombatProtocolCouponMarkAutoEssence"
+                            ]
+                        },
+                        "AutoEssenceLowSpFallbackScaling1": {
+                            "next": [
+                                "CombatProtocolCouponClearAutoEssence"
+                            ]
+                        },
+                        "ProtocolSpaceRewardClaimSuccessNext": {
+                            "next": [
+                                "CombatProtocolAccumulateProtocolSpace"
+                            ]
+                        },
+                        "ProtocolSpaceRewardSelectClaim": {
+                            "next": [
+                                "CombatProtocolCouponResetProtocolSpace"
+                            ]
+                        },
+                        "ProtocolSpaceRewardUsePermit": {
+                            "next": [
+                                "CombatProtocolCouponMarkProtocolSpace"
+                            ]
+                        },
+                        "ProtocolSpaceRewardFallbackSingle": {
+                            "next": [
+                                "CombatProtocolCouponClearProtocolSpace"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "SanityCycle"
+        }
+    }
+}

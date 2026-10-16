@@ -34,6 +34,16 @@ func gameWeekday(now time.Time) time.Weekday {
 	return t.Weekday()
 }
 
+// GameDate returns the current game date in "2006-01-02" form, using the same
+// game-day rule as gameWeekday: each day starts at 04:00 local time.
+func GameDate(now time.Time) string {
+	t := now.Local()
+	if t.Hour() < gameDayBoundaryHour {
+		t = t.AddDate(0, 0, -1)
+	}
+	return t.Format("2006-01-02")
+}
+
 // ScheduleRecognition reports a hit only on weekdays enabled in attach.
 type ScheduleRecognition struct{}
 

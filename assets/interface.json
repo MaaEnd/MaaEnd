@@ -247,6 +247,7 @@
         "tasks/AutoEssence/Location/WLSnowyForest.json",
         "tasks/AutoEssence/Target/Target.json",
         "tasks/ProtocolSpace.json",
+        "tasks/CombatProtocol.json",
         // group: dijiang_ship
         "tasks/DijiangRewards.json",
         "tasks/VisitFriends.json",
