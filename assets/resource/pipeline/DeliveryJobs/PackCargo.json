@@ -560,8 +560,10 @@
         "recognition": "And",
         "all_of": [
             "InClaimDeliveryJobsNode",
-            "DeliveryJobsCheckLocalDepotNodeTabText"
+            // 复用公共文字节点，「本地仓储节点」标签页与主界面标题在同一位置，不需要另建一份
+            "CheckLocalDepotNodeText"
         ],
+        // box_index 1：用「本地仓储节点」文字框作为点击目标，点回标签页
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
@@ -570,27 +572,6 @@
         "next": [
             "InLocalDepotNode"
         ]
-    },
-    "DeliveryJobsCheckLocalDepotNodeTabText": {
-        "desc": "检查仓储节点界面顶部「本地仓储节点」标签页的文本",
-        "recognition": "OCR",
-        // 标签页文字比主界面的本地仓储节点标题更宽，独占标签页区域
-        "roi": [
-            35,
-            62,
-            185,
-            63
-        ],
-        "expected": [
-            "本地仓储节点",
-            "本地區倉儲節點",
-            "(?i)Local\\s*Depot\\s*Node",
-            "地域保管ボックス",
-            "현재 지역 저장고 노드"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "DeliveryJobsDeliverQuickly": {
         "desc": "提示尽快送达，单击一下，会直接回到大世界界面。跳出循环",
