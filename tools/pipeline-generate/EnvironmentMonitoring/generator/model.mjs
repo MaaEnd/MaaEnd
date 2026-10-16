@@ -16,7 +16,7 @@ function loadEnvironmentMonitoringData() {
         return readEnvironmentMonitoringData();
     } catch {
         console.error(
-            "[EnvironmentMonitoring] 数据文件缺失，请先运行 pnpm fetch:zmdmap 或 pnpm generate:EnvironmentMonitoring",
+            "[EnvironmentMonitoring] 数据文件缺失，请先运行 pnpm fetch:zmdmap --only environment_monitoring 或 pnpm generate:EnvironmentMonitoring",
         );
         process.exit(1);
     }

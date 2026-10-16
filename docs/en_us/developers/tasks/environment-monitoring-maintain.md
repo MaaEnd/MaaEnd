@@ -272,7 +272,7 @@ New observation points generally come from game updates, appearing as an additio
 
 ### 1. Update Game Data
 
-Run `pnpm fetch:zmdmap`. It checks the zmdmap data version against `tools/zmdmap/data/version.txt` and downloads `tools/zmdmap/data/environment_monitoring.json` when the version changes. Raw TableCfg parsing lives in `tools/zmdmap/datasets/environment_monitoring.py`; the zmdmap data CI clones this repository and runs `uv run zmdmap generate` for it, so it is not part of the routine MaaEnd generation flow.
+Run `pnpm fetch:zmdmap` (use `pnpm fetch:zmdmap --only environment_monitoring` for just this file). It compares the `version` field inside `tools/zmdmap/data/environment_monitoring.json` with the zmdmap version API and only re-downloads that file when the two differ. Raw TableCfg parsing lives in `tools/zmdmap/datasets/environment_monitoring.py`; the zmdmap data CI clones this repository and runs `uv run zmdmap generate` for it, so it is not part of the routine MaaEnd generation flow.
 
 ### 2. Check Route Adaptation Status
 

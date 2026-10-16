@@ -48,7 +48,7 @@ uv run tools/essence_filter/extract_skill_pools.py
 ## build_locations.py
 
 从 `energy_point_gems.json` 解析地点词条并映射到 `skill_pools.json`，生成 `locations.json`。
-通过 `--data-version` 接收本轮数据版本（CI 传 `tools/zmdmap/data/version.txt` 的内容），在生成成功后
+通过 `--data-version` 接收本轮数据版本（CI 传 `tools/zmdmap/data/energy_point_gems.json` 里 `version` 字段的值），在生成成功后
 更新数据日期；未提供时保留原日期。
 
 ### 用法

@@ -8,7 +8,9 @@
 下载或本地生成出来的原始数据要再过这一步：把 x/z 原位换成底图像素 ``u = sx*x + tx``、
 ``v = -sy*z + ty``（``y`` 是世界高度，原样留着），并把本次用到的 zone 写进 ``maps``。
 
-说明字段不再进数据文件：字段含义写在 ``datasets/`` 的模块与文档里。
+说明字段不再进数据文件：字段含义写在 ``datasets/`` 的模块与文档里。例外是最前面的两个元数据字段：
+``version``（这份数据来自哪一版游戏数据）与 ``sha256``（数据本体的内容指纹，投影后按投影后的本体重算），
+有了它们就不必再另外记「本地是哪一版、内容是哪一份」。
 
 输出用 Python 的 ``json`` 序列化（``ensure_ascii=False``、缩进 4）：与旧 Node 实现只在数字写法上
 有差别（整型浮点写成 ``520.0`` 而不是 ``520``），不影响语义。
@@ -16,6 +18,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import sys
@@ -27,7 +30,11 @@ from .datasets import PROJECT_FILES, dataset_of
 from .navmesh import NavZone, load_nav_zones
 from .paths import ZMDMAP_DATA_DIR, REPO_ROOT
 
-VERSION_FILE = "version.txt"
+#: 数据文件最前面的两个元数据字段：这份数据来自哪一版游戏数据，以及数据本体的内容指纹。
+#: ``sha256`` 只用来说明「内容是不是同一份」，不参与业务，消费端可以忽略。
+VERSION_KEY = "version"
+HASH_KEY = "sha256"
+METADATA_KEYS = (VERSION_KEY, HASH_KEY)
 
 #: 投影前的世界坐标轴与投影后原位顶替它的底图像素轴，一一对应（x -> u、z -> v）。
 #: ``y`` 是世界高度，不参与换算，原样保留。
@@ -38,6 +45,53 @@ PIXEL_AXES = ("u", "v")
 def dump_json(value: Any) -> str:
     """入库 JSON 的写法：缩进 4、非 ASCII 原样输出、结尾一个换行。"""
     return json.dumps(value, ensure_ascii=False, indent=4) + "\n"
+
+
+def payload_of(data: Any) -> Any:
+    """去掉最前面的元数据字段之后的数据本体。"""
+    if not isinstance(data, dict):
+        return data
+    return {key: value for key, value in data.items() if key not in METADATA_KEYS}
+
+
+def payload_hash(payload: Any) -> str:
+    """数据本体的 sha256：键序无关（排序后紧凑序列化），数值写法与数组顺序照旧。
+
+    与文件怎么排版无关，所以重新格式化不会换指纹；同一份内容无论谁生成，指纹都一样。
+    """
+    text = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def version_of(data: Any) -> str | None:
+    """解析好的数据里记的版本；没有、或不是非空字符串时返回 ``None``。"""
+    value = data.get(VERSION_KEY) if isinstance(data, dict) else None
+    return value if isinstance(value, str) and value else None
+
+
+def read_version(path: Path) -> str | None:
+    """读数据文件里记的版本；读不到（没文件 / 没字段 / 字段不是非空字符串）返回 ``None``。"""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return version_of(data)
+
+
+def with_metadata(data: Any, version: str | None = None) -> Any:
+    """把版本与内容指纹写在数据本体前面；``version`` 不给时沿用数据里已有的版本。
+
+    ``sha256`` 按传进来的数据本体重算，所以对已经是「元数据 + 本体」形态的数据也安全（幂等）。
+    """
+    payload = payload_of(data)
+    if not isinstance(payload, dict):
+        return payload
+    metadata: dict[str, Any] = {}
+    stamp = version or version_of(data)
+    if stamp:
+        metadata[VERSION_KEY] = stamp
+    metadata[HASH_KEY] = payload_hash(payload)
+    return {**metadata, **payload}
 
 
 def round3(value: float) -> float:
@@ -152,18 +206,20 @@ def project_dataset(
     if dataset is None or not dataset.needs_projection:
         return data
 
+    payload = payload_of(data)
     used_zones: dict[str, dict[str, Any]] = {}
-    projected = dict(data)
+    projected = dict(payload)
     for container in dataset.projection_containers:
         projected[container] = project_entries(
-            data.get(container) if isinstance(data, dict) else None,
+            payload.get(container) if isinstance(payload, dict) else None,
             zones,
             used_zones,
             skipped_maps,
             f"{file_name}[{container}]",
         )
     projected["maps"] = describe_zones(used_zones)
-    return projected
+    # 投影之后内容变了，指纹按投影后的本体重算；版本还是原来那份数据的版本。
+    return with_metadata(projected, version_of(data))
 
 
 def select_files(only: tuple[str, ...] | list[str] | None) -> list[str]:
@@ -193,20 +249,6 @@ def is_unchanged(output_path: Path, data: Any) -> bool:
         return output_path.read_text(encoding="utf-8") == dump_json(data)
     except (OSError, UnicodeDecodeError):
         return False
-
-
-def copy_version(raw_dir: Path, out_dir: Path, force: bool) -> None:
-    """把原始数据的版本号带到入库目录（``version.txt`` 不带尾换行）。"""
-    source = raw_dir / VERSION_FILE
-    if not source.exists():
-        print(f"[project] 没有 {source}，保留 data/{VERSION_FILE} 不变", file=sys.stderr)
-        return
-    version = source.read_text(encoding="utf-8").strip()
-    target = out_dir / VERSION_FILE
-    if not force and target.exists() and target.read_text(encoding="utf-8").strip() == version:
-        return
-    target.write_text(version, encoding="utf-8", newline="\n")
-    print(f"[project] {VERSION_FILE} -> {target}")
 
 
 def copy_files(raw_dir: Path, out_dir: Path, file_names: Sequence[str], *, force: bool = False) -> int:
@@ -264,8 +306,6 @@ def project_data(
     for file_name, output_path, result in pending:
         output_path.write_text(dump_json(result), encoding="utf-8", newline="\n")
         print(f"[project] {file_name} -> {output_path}")
-    if len(files) == len(PROJECT_FILES):
-        copy_version(raw_dir, out_dir, force)
     if skipped_maps:
         names = ", ".join(sorted(skipped_maps))
         print(f"[project] 以下底图没有对应的 BaseNav zone，其条目未纳入：{names}", file=sys.stderr)

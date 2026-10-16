@@ -8,8 +8,9 @@
 - ``secAttrTermNames`` / ``skillTermNames``：``WorldEnergyPointGroupTable`` 的词条 id 经
   ``GemTable.tagName`` 换成中文名，查不到就留 id 本身。
 
-产物默认落 ``tools/zmdmap/data/energy_point_gems.json``（不需要投影），文件名与字段名沿用消费端
-现在读的那套，所以那几个生成步骤一行都不用改。
+产物默认落 ``tools/zmdmap/data/energy_point_gems.json``（不需要投影）：字段名沿用消费端现在读的那套；
+顶层是 ``{"version": …, "sha256": …, "gems": [...]}`` 而不是裸数组 —— 裸数组塞不下元数据字段，消费端
+只改一行读法。
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ class EnergyPointGems(Dataset):
     """EssenceFilter 用的能量淤积点（``energy_point_gems.json``）。"""
 
     @classmethod
-    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> list[dict[str, Any]]:
+    def build(cls, table_cfg_dir: Path, json_data_dir: Path) -> dict[str, Any]:
         """能量淤积点：名字、体力消耗与两组词条名（中文）。"""
         points = read_table_cfg(table_cfg_dir, "WorldEnergyPointTable")
         groups = read_table_cfg(table_cfg_dir, "WorldEnergyPointGroupTable")
@@ -52,7 +53,7 @@ class EnergyPointGems(Dataset):
             )
 
         logger.info(f"能量淤积点 {len(rows)} 条")
-        return rows
+        return {"gems": rows}
 
 
 def _term_names(table_cfg_dir: Path, gems: Record, term_ids: Any) -> list[str]:

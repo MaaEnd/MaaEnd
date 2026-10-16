@@ -272,7 +272,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### 1. 更新游戏数据
 
-运行 `pnpm fetch:zmdmap`，会按 `tools/zmdmap/data/version.txt` 检查 zmdmap 数据版本，并在版本变化时下载 `tools/zmdmap/data/environment_monitoring.json`。原始 TableCfg 的解析在 `tools/zmdmap/datasets/environment_monitoring.py`，由 zmdmap 数据 CI 克隆本仓库后跑 `uv run zmdmap generate` 完成，不属于 MaaEnd 日常生成流程。
+运行 `pnpm fetch:zmdmap`（只要这份数据时用 `pnpm fetch:zmdmap --only environment_monitoring`）：它把 `tools/zmdmap/data/environment_monitoring.json` 里的 `version` 字段与 zmdmap 的版本接口比一下，不一致才重新下载这份文件。原始 TableCfg 的解析在 `tools/zmdmap/datasets/environment_monitoring.py`，由 zmdmap 数据 CI 克隆本仓库后跑 `uv run zmdmap generate` 完成，不属于 MaaEnd 日常生成流程。
 
 ### 2. 检查路线适配状态
 

@@ -4,6 +4,8 @@
 
 数据都先出**原始形态**（只带游戏世界坐标）进 `data/raw/`，再由**入库**步骤进 `data/`：带坐标的把世界坐标按 BaseNav 的 zone 表**原位**换成底图像素（`x` 的位置给 `u`、`z` 的位置给 `v`，其余字段与键序都不动），其余数据原样复制。原始形态就是上游发布的形态——数据 CI 生成并发布的就是它，MaaEnd 这边下载后自己完成投影与复制。
 
+每份数据的**最前面**写着两个元数据字段：`version`（来自哪一版游戏数据）与 `sha256`（内容指纹，见[产出](#产出)）。所以不必另记「本地是哪一版、内容是哪一份」：下载时按 `version` 逐份判断要不要重下，本地重算沿用原有版本、`--version` 或兄弟仓库能给出版本时就更新它。
+
 数据树也在本目录下：
 
 | 目录 | 放什么 | 入不入库 |
@@ -18,16 +20,18 @@
 | `generate` | 从本地 TableCfg / JsonData 生成到 `data/raw/`，再入库（`--raw-only` 时只出原始形态） |
 | `fetch` | 从 zmdmap 下载已发布的数据到 `data/raw/`，再入库（`--raw-only` 时只下载） |
 
-不带子命令时只打印帮助。`fetch` 的两个步骤各由一个开关控制：`--download/--no-download`、`--raw-only`。
+不带子命令时只打印帮助。`fetch` 的两个步骤各由一个开关控制：`--download/--no-download`、`--raw-only`。两个子命令的 `--only` 都只处理列出的数据集；对 `fetch` 来说，它同时决定**下哪几份**与入库哪几份（缺省全部），各任务生成器就靠它只取自己用得到的数据，不必每次把整包拖下来。
 
 ```shell
 uv run zmdmap                                     # 打印帮助
 uv run zmdmap generate                            # 生成到 data/raw/ 并入库到 data/
 uv run zmdmap generate --raw-only                 # 只出原始形态（发布用的就是这一份）
+uv run zmdmap generate --version 1.6.4            # 指定这批数据的版本（默认从兄弟仓库读）
 uv run zmdmap generate --list                     # 列出数据集名、文件名与入库方式（每行一个）
 uv run zmdmap generate --only collect_points      # 只生成一份（可重复给：--only a --only b）
 uv run zmdmap generate --out-dir /tmp/x --force
 uv run zmdmap fetch                               # 下载已发布数据并入库
+uv run zmdmap fetch --only sell_product            # 只下载 → 只入库这一份
 uv run zmdmap fetch --no-download                 # 不下载，只用现有 data/raw/ 重新入库
 ```
 
@@ -71,7 +75,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 | 文件 | 说明 |
 | --- | --- |
-| `fetch.py` | 版本接口 + 发布 CDN 的下载与缓存（原 `fetch-data.mjs`） |
+| `fetch.py` | 版本接口 + 按数据集下载与缓存（原 `fetch-data.mjs`） |
 | `project.py` | 带坐标的数据按 BaseNav zone 表把 x/z 原位换成 u/v、其余原样复制（原 `project.mjs`） |
 | `navmesh.py` | 从 `BNAV` / `BGEO` 二进制 nav 数据里读出 zone 表 |
 | `paths.py` | 输入 / 输出路径的默认值与环境变量名 |
@@ -86,10 +90,11 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | 开关 | 作用 |
 | --- | --- |
 | `--sync` | 生成前先同步兄弟仓库（只对干净工作区做快进合并） |
+| `--version` | 指定写进每份数据的版本（默认从兄弟仓库的提交标题 `Client:x.y.z` 读，兄弟仓库不在工作区里时读 TableCfg 所在仓库） |
 | `--raw-only` | 只出原始形态（只写 `--out-dir`），不做入库 |
 | `--dry-run` | 只报告会做什么（不合并、不生成、不入库） |
 
-只对干净的工作区做快进合并，绝不 stash / reset / 覆盖本地改动；本地重算不会改 `data/version.txt`（那是「已发布数据版本」的标记）。
+只对干净的工作区做快进合并，绝不 stash / reset / 覆盖本地改动；本地重算不会凭空改掉版本号（版本写在每份数据里，见上）。
 
 `assets/resource/model` 子模块不参与同步：投影用的 navmesh 一律取当前仓库里检出的那一版。
 
@@ -118,7 +123,12 @@ CI 只需要出数据时用 `uv run --no-default-groups zmdmap generate --raw-on
 
 产物都先落在**不入库**的 `tools/zmdmap/data/raw/`，只带游戏世界坐标；带坐标的由入库步骤按 BaseNav 的 zone 表把 `x` / `z` 原位换成底图像素 `u` / `v`，进入库的 `tools/zmdmap/data/*.json`，其余原样复制过去。上游发布的数据就是这个原始形态，`fetch` 下载完必须先入库才能被各任务生成器读取。
 
-数据文件里只放数据字段，不带字段说明：字段含义写在 `datasets/` 的模块与各任务文档里。
+数据文件里只放数据字段，不带字段说明：字段含义写在 `datasets/` 的模块与各任务文档里。例外是最前面的两个元数据字段：
+
+- `version`：这份数据来自哪一版游戏数据。`generate` 从兄弟仓库的提交标题读（或 `--version` 指定），本地重算沿用原有值；`fetch` 用它逐份判断要不要重下。
+- `sha256`：**数据本体**（不含这两个字段）的内容指纹。写入时按这一份的本体重算——本地生成按生成结果、下载的按下载到的内容、入库投影后按投影后的本体重算，所以带坐标的那几份入库前后的指纹不同。算法固定：本体按键名排序后紧凑序列化（`ensure_ascii=False`、`separators=(",", ":")`）再取 UTF-8 字节的 sha256，于是重新排版、调整键序都不换指纹，内容或数组顺序一变就换。它只用来说明「内容是不是同一份」，不参与业务；`fetch` 拿到带指纹的发布文件时会顺手核对一遍。
+
+有了这两个字段，就不必再另外维护「本地是哪一版、内容是哪一份」的记录。
 
 整条链路（同步兄弟仓库 → 本地生成 → 入库）也在本入口：
 
@@ -150,4 +160,4 @@ uv run zmdmap fetch                               # 下载 → 入库（等同 p
 uv run zmdmap generate --force --out-dir <临时目录> --data-dir <临时目录>
 ```
 
-再逐份比对 `tools/zmdmap/data/` 下的同名文件。只改注释、重命名这类不动输出的改动，应当零差异；动了取数逻辑就看差异是否符合预期。注意入库数据是「上一次生成（或下载）的快照」，与已发布版本不一定是同一版（`data/version.txt` 记的是发布版本）。
+再逐份比对 `tools/zmdmap/data/` 下的同名文件。只改注释、重命名这类不动输出的改动，应当零差异；动了取数逻辑就看差异是否符合预期。注意入库数据是「上一次生成（或下载）的快照」：各份数据可能停在不同版本上，要确认某一份是哪一版就看它自己的 `version` 字段。

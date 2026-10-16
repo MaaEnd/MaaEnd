@@ -1,4 +1,6 @@
 {
+    "version": "1.6.3",
+    "sha256": "1a16f73ec344e5c65f872c2acf775139c5ad4f732f79bf87200e0f9cb8d5b742",
     "regions": {
         "domain_1": {
             "names": {

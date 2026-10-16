@@ -101,15 +101,17 @@ def main() -> int:
     args = parser.parse_args()
 
     with args.energy_points.open("r", encoding="utf-8") as f:
-        energy_points = json.load(f)
+        energy_points_data = json.load(f)
     with args.skill_pools.open("r", encoding="utf-8") as f:
         pools = json.load(f)
 
     pool_slot2 = pools.get("slot2") or []
     pool_slot3 = pools.get("slot3") or []
 
+    # zmdmap 那份数据顶层是对象（最前面是 version / sha256 两个元数据字段），能量淤积点条目在 gems 里。
+    energy_points = energy_points_data.get("gems") if isinstance(energy_points_data, dict) else None
     if not isinstance(energy_points, list):
-        raise ValueError("energy_point_gems.json 应为 JSON array")
+        raise ValueError("energy_point_gems.json 应为带 gems 数组的对象")
 
     pool2_by_cn = {_norm_key(e.get("cn") or ""): e for e in pool_slot2}
     pool3_by_cn = {_norm_key(e.get("cn") or ""): e for e in pool_slot3}

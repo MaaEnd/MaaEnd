@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -24,6 +25,11 @@ from .paths import (
 # 编不出 ✘ / ⚠ 这类符号，写出去就是 UnicodeEncodeError。
 SYNC_MARKS = {"updated": "↓", "current": "=", "pending": "→", "skipped": "·", "missing": "·"}
 SYNC_MARK_UNKNOWN = "x"
+
+#: 兄弟仓库提交标题里的游戏数据版本，如 ``Client:1.6.3 Data:…``。
+DATA_VERSION_RE = re.compile(r"Client:([0-9][0-9A-Za-z._-]*)")
+#: 往上翻多少个提交找版本号（合并 / revert 提交的标题里可能没有）。
+DATA_VERSION_LOOKBACK = 20
 
 
 @dataclass
@@ -102,6 +108,34 @@ def sync_repo(name: str, repo: Path, *, dry_run: bool) -> RepoOutcome:
     return RepoOutcome(name, "updated", f"{head} → {after}（{behind} 个提交，{branch}）")
 
 
+def repo_data_version(repo: Path) -> str | None:
+    """这个仓库提交标题里的游戏数据版本（``Client:1.6.3``），读不到返回 ``None``。
+
+    合并 / revert 提交会盖住标题，所以往上翻几个提交找。
+    """
+    if not (repo / ".git").exists():
+        return None
+    result = git(repo, "log", f"-{DATA_VERSION_LOOKBACK}", "--format=%s")
+    for line in result.stdout.splitlines():
+        match = DATA_VERSION_RE.search(line)
+        if match:
+            return match.group(1)
+    return None
+
+
+def data_version(workspace: Path) -> str | None:
+    """工作区下兄弟仓库提交标题里的游戏数据版本（``Client:1.6.3``），读不到返回 ``None``。
+
+    数据文件里的 ``version`` 字段就是这个值：给 ``zmdmap generate`` 用，免得每份数据各写各的版本，
+    也免得另外维护一份「当前是哪一版」的记录。
+    """
+    for name in WORKSPACE_REPO_NAMES:
+        version = repo_data_version(workspace / name)
+        if version:
+            return version
+    return None
+
+
 def sync_workspace(workspace: Path, *, dry_run: bool) -> tuple[list[RepoOutcome], bool]:
     """同步 workspace 下的兄弟仓库。
 
@@ -132,7 +166,7 @@ def preflight(table_cfg_dir: Path, json_data_dir: Path, *, check_navmesh: bool) 
 
 def changed_data_files(file_names: list[str]) -> list[str]:
     """入库 data/ 目录里与本次生成相关的改动（git status 的原始行）。"""
-    expected = {*file_names, "version.txt"}
+    expected = set(file_names)
     changed = git(
         REPO_ROOT, "status", "--porcelain", "--", str(ZMDMAP_DATA_DIR)
     ).stdout.strip()

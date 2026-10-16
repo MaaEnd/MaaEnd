@@ -47,11 +47,7 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
 
-      # 这个 job 只下载一次：下面的 generate 脚本各自也会 fetch:zmdmap，同一次运行里会直接复用。
-      - name: Fetch zmdmap data
-        run: |
-          pnpm fetch:zmdmap
-
+      # 不必先整包下载：下面的 generate 脚本各自只 fetch 自己用得到的那几份数据。
       - name: Generate pipeline data
         run: |
           pnpm generate:AutoDelivery
@@ -62,7 +58,8 @@ jobs:
       - name: Get version info
         id: version
         run: |
-          echo "version=$(cat tools/zmdmap/data/version.txt)" >> "$GITHUB_OUTPUT"
+          # 版本写在每份数据的最前面（version 字段），不再有单独的 version.txt。
+          echo "version=$(jq -r .version tools/zmdmap/data/delivery_destinations.json)" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -127,7 +124,7 @@ jobs:
         run: |
           uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/sync_zmdmap.py
           uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/extract_skill_pools.py
-          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/build_locations.py --data-version "$(cat tools/zmdmap/data/version.txt)"
+          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/build_locations.py --data-version "$(jq -r '.version // "unknown"' tools/zmdmap/data/energy_point_gems.json)"
           uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/build_autoessence_tasks.py
 
       - name: Create Pull Request

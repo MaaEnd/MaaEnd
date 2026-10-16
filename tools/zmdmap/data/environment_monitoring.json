@@ -1,4 +1,6 @@
 {
+    "version": "1.6.3",
+    "sha256": "995c093bbe439ac91eedb4769b8144daf74fd272e3281cd31d8bb6835d78268d",
     "terminals": {
         "kitestation_002_1": {
             "id": "kitestation_002_1",
