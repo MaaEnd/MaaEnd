@@ -225,6 +225,29 @@
             }
         ]
     },
+    "InMapWulingSisPainting": {
+        "desc": "在武陵-祀的画地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    80
+                ],
+                "expected": [
+                    "祀的画",
+                    "祀的畫",
+                    "(?i)Si\\s*'\\s*s\\s*Painting",
+                    "スーの絵",
+                    "사의 그림"
+                ]
+            }
+        ]
+    },
     "InMapDijiang": {
         "desc": "在帝江号地图界面",
         "recognition": "And",
