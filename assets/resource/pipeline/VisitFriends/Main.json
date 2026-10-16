@@ -70,14 +70,14 @@
             "VisitFriendsMenuScan"
         ]
     },
-    "VisitFriendsPriorityRemarkInit": {
+    "VisitFriendsPriorityInit": {
         "desc": "初始化优先好友名 OCR 正则",
         "enabled": false,
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "target": "VisitFriendsRecognitionItemNamePriorityRemarkByEnterButton",
+            "target": "VisitFriendsRecognitionItemNamePriorityByEnterButton",
             "keywords": "",
             "substring": true
         },
