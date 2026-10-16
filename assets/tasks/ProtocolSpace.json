@@ -936,7 +936,7 @@
                     "pipeline_override": {
                         "ProtocolSpaceFindTargetRecognition": {
                             "template": [
-                                "ProtocolSpace/AdvancedProgression6.png",
+                                "ProtocolSpace/AdvancedProgression6.png"
                             ]
                         }
                     }
