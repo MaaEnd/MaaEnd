@@ -5,7 +5,8 @@ MaaEnd 使用由 zmdmap 数据 CI 生成并发布的精简游戏数据，落在 
 - `delivery_jobs.json`：地区、仓储节点及其可装箱物品；
 - `delivery_destinations.json`：仓储和送货终点的多语言文本、底图像素 `u` / `v`、世界高度 `y` 与归属关系；
 - `environment_monitoring.json`：监测终端、观察点与各语言名称；
-- `sell_product.json`：据点、可售物品、据点特性与匹配干员；
+- `sell_product.json`：据点、可售物品、据点特性与匹配干员 ID；
+- `operators.json`：下载 `sell_product` 入库时自动拆出的完整干员目录，供据点交易与赠礼共用，不单独下载；
 - `teleport_anchors.json`：营地（地图传送锚点）的底图像素 `u` / `v` 与传送 ID；
 - `collect_points.json`：可交互采集物的底图像素 `u` / `v`。
 
@@ -48,6 +49,7 @@ pnpm generate:AutoDelivery
 pnpm generate:DeliveryJobs
 pnpm generate:EnvironmentMonitoring
 pnpm generate:OutpostTrading
+pnpm generate:GiftOperator
 pnpm generate:SeizeDeliveryJobs
 ```
 

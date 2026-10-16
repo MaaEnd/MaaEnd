@@ -1,6 +1,7 @@
 import {mkdirSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
+import {operatorCatalog as sharedOperatorCatalog} from "../utils/operators.mjs";
 
 import {
     getOperatorCaseName,
@@ -121,7 +122,7 @@ export function buildLocationOperatorOrder(
     acceptedBonusTypes,
     operators,
     targetUsage,
-    operatorCatalog = settlementData.operators,
+    operatorCatalog = sharedOperatorCatalog,
 ) {
     const accepted = new Set(acceptedBonusTypes);
     const featureCounts = buildOperatorFeatureCounts(settlement, operatorCatalog);
@@ -229,7 +230,7 @@ export function buildOutpostTradingSelectionData() {
     for (const [
         ,
         operator,
-    ] of Object.entries(settlementData.operators || {}).sort(([left], [right]) => left.localeCompare(right))) {
+    ] of Object.entries(sharedOperatorCatalog).sort(([left], [right]) => left.localeCompare(right))) {
         registerOperator(operators, operator);
     }
 

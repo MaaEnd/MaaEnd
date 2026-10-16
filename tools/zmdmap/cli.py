@@ -178,7 +178,7 @@ def run_projection(
 
 
 def copy_plain(raw_dir: Path, data_dir: Path, file_names: Sequence[str], *, force: bool) -> int:
-    """把不需要投影的那几份原样复制进 ``data_dir``；返回写入份数。"""
+    """把不需要投影的那几份入库到 ``data_dir``；返回写入份数。"""
     if not file_names:
         return 0
     try:
@@ -191,7 +191,10 @@ def report_data_changes(data_dir: Path, file_names: Sequence[str]) -> None:
     """入库目录的改动（只在入库目录就是默认的 data/ 时报）。"""
     if data_dir != ZMDMAP_DATA_DIR:
         return
-    changed = changed_data_files(list(file_names))
+    materialized_files = list(file_names)
+    if "sell_product.json" in materialized_files:
+        materialized_files.append("operators.json")
+    changed = changed_data_files(materialized_files)
     if changed:
         click.echo("data/*.json 改动：")
         for line in changed:

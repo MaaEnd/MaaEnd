@@ -6,9 +6,9 @@ import {parseJsonc, readJsonc} from "../jsonc.mjs";
 import {outpostTradingLocaleEntries, outpostTradingLocations} from "./model.mjs";
 import {outpostTradingItemLocaleEntries} from "./selection-data.mjs";
 
-// 根据统一的 sell_product.json 自动维护 OutpostTrading 使用的国际化键。
+// 根据公共 sell_product.json 与 operators.json 自动维护 OutpostTrading 使用的国际化键。
 //
-// 这个脚本负责按数据源顺序同步据点，并补齐 locale 尚未登记的干员和物品：
+// 这个脚本负责按数据源顺序同步据点与干员名称，并补齐 locale 尚未登记的物品：
 // 1. key 由 model.mjs 统一生成，避免同步脚本和 Pipeline 生成器采用不同命名规则；
 // 2. 据点名始终以当前游戏数据的五语言文本为准，已有 locale 值也会同步覆盖；
 // 3. 新键插入对应的业务分组，不追加到整个 JSON 的末尾；
@@ -80,13 +80,17 @@ export function rebuildSettlementMessages(messages, fileLocale, insertBeforeKey)
 }
 
 /**
- * 把缺失的国际化条目插入指定锚点之前。
+ * 同步官方干员名称，把缺失的条目插入指定锚点之前。
  *
  * messages 保持原 JSON 的插入顺序；entries 来自 model.mjs，包含统一生成的 key 和数据源五语言名称。
  * 只重建内存对象，不在此函数中写文件，方便据点与干员两组数据串联处理。
  */
-function insertMissingMessages(messages, entries, fileLocale, insertBeforeKey) {
-    // Object.hasOwn 可正确处理值为空字符串的已有键；只要 key 存在，就视为人工维护内容并保留。
+function syncOperatorMessages(messages, entries, fileLocale, insertBeforeKey) {
+    // 干员名称由公共目录校验五语完整性；已有键也必须随数据更新。
+    messages = {...messages};
+    for (const {key, names} of entries) {
+        if (Object.hasOwn(messages, key)) messages[key] = names[fileLocale];
+    }
     const missingEntries = entries.filter(({key}) => !Object.hasOwn(messages, key));
     if (missingEntries.length === 0) {
         return {
@@ -103,10 +107,7 @@ function insertMissingMessages(messages, entries, fileLocale, insertBeforeKey) {
     ] of Object.entries(messages)) {
         if (key === insertBeforeKey) {
             for (const entry of missingEntries) {
-                // 优先使用当前 locale 的官方名称；极端情况下该语言缺值时依次回退简中、英文，
-                // 最后才显示 key，确保生成的 JSON 始终有合法字符串且缺失来源容易定位。
-                syncedMessages[entry.key] =
-                    entry.names[fileLocale] || entry.names.zh_cn || entry.names.en_us || entry.key;
+                syncedMessages[entry.key] = entry.names[fileLocale];
             }
             inserted = true;
         }
@@ -210,7 +211,7 @@ export function syncOutpostTradingLocaleCatalogs() {
         const stationResult = rebuildSettlementMessages(originalMessages, fileLocale, "task.VisitFriends.label");
 
         // Endministrator 是干员列表的固定末项；新干员插在它之前，保持选项和 locale 的固定分组顺序。
-        const operatorResult = insertMissingMessages(
+        const operatorResult = syncOperatorMessages(
             stationResult.messages,
             outpostTradingLocaleEntries.operators,
             fileLocale,

@@ -1,0 +1,346 @@
+{
+    "version": "1.6.4",
+    "sha256": "15e5c8731e4a28eb09447c87672a7d45c21143681cc7c70a9cade0c9bae1510c",
+    "operators": {
+        "chr_0002_endminm": {
+            "id": "chr_0002_endminm",
+            "names": {
+                "zh_cn": "管理员",
+                "zh_tw": "管理員",
+                "en_us": "Endministrator",
+                "ja_jp": "管理人",
+                "ko_kr": "관리자"
+            }
+        },
+        "chr_0003_endminf": {
+            "id": "chr_0003_endminf",
+            "names": {
+                "zh_cn": "管理员",
+                "zh_tw": "管理員",
+                "en_us": "Endministrator",
+                "ja_jp": "管理人",
+                "ko_kr": "관리자"
+            }
+        },
+        "chr_0004_pelica": {
+            "id": "chr_0004_pelica",
+            "names": {
+                "zh_cn": "佩丽卡",
+                "zh_tw": "佩麗卡",
+                "en_us": "Perlica",
+                "ja_jp": "ペリカ",
+                "ko_kr": "펠리카"
+            }
+        },
+        "chr_0005_chen": {
+            "id": "chr_0005_chen",
+            "names": {
+                "zh_cn": "陈千语",
+                "zh_tw": "陳千語",
+                "en_us": "Chen Qianyu",
+                "ja_jp": "チェン・センユー",
+                "ko_kr": "진천우"
+            }
+        },
+        "chr_0006_wolfgd": {
+            "id": "chr_0006_wolfgd",
+            "names": {
+                "zh_cn": "狼卫",
+                "zh_tw": "狼衛",
+                "en_us": "Wulfgard",
+                "ja_jp": "ウルフガード",
+                "ko_kr": "울프가드"
+            }
+        },
+        "chr_0007_ikut": {
+            "id": "chr_0007_ikut",
+            "names": {
+                "zh_cn": "弧光",
+                "zh_tw": "弧光",
+                "en_us": "Arclight",
+                "ja_jp": "アークライト",
+                "ko_kr": "아크라이트"
+            }
+        },
+        "chr_0009_azrila": {
+            "id": "chr_0009_azrila",
+            "names": {
+                "zh_cn": "余烬",
+                "zh_tw": "餘燼",
+                "en_us": "Ember",
+                "ja_jp": "エンバー",
+                "ko_kr": "엠버"
+            }
+        },
+        "chr_0011_seraph": {
+            "id": "chr_0011_seraph",
+            "names": {
+                "zh_cn": "赛希",
+                "zh_tw": "賽希",
+                "en_us": "Xaihi",
+                "ja_jp": "ザイヒ",
+                "ko_kr": "자이히"
+            }
+        },
+        "chr_0012_avywen": {
+            "id": "chr_0012_avywen",
+            "names": {
+                "zh_cn": "艾维文娜",
+                "zh_tw": "艾維文娜",
+                "en_us": "Avywenna",
+                "ja_jp": "アイビーエナ",
+                "ko_kr": "아비웨나"
+            }
+        },
+        "chr_0013_aglina": {
+            "id": "chr_0013_aglina",
+            "names": {
+                "zh_cn": "洁尔佩塔",
+                "zh_tw": "潔爾佩塔",
+                "en_us": "Gilberta",
+                "ja_jp": "ギルベルタ",
+                "ko_kr": "질베르타"
+            }
+        },
+        "chr_0014_aurora": {
+            "id": "chr_0014_aurora",
+            "names": {
+                "zh_cn": "昼雪",
+                "zh_tw": "晝雪",
+                "en_us": "Snowshine",
+                "ja_jp": "スノーシャイン",
+                "ko_kr": "스노우샤인"
+            }
+        },
+        "chr_0015_lifeng": {
+            "id": "chr_0015_lifeng",
+            "names": {
+                "zh_cn": "黎风",
+                "zh_tw": "黎風",
+                "en_us": "Lifeng",
+                "ja_jp": "リーフォン",
+                "ko_kr": "여풍"
+            }
+        },
+        "chr_0016_laevat": {
+            "id": "chr_0016_laevat",
+            "names": {
+                "zh_cn": "莱万汀",
+                "zh_tw": "萊萬汀",
+                "en_us": "Laevatain",
+                "ja_jp": "レーヴァテイン",
+                "ko_kr": "레바테인"
+            }
+        },
+        "chr_0017_yvonne": {
+            "id": "chr_0017_yvonne",
+            "names": {
+                "zh_cn": "伊冯",
+                "zh_tw": "伊馮",
+                "en_us": "Yvonne",
+                "ja_jp": "イヴォンヌ",
+                "ko_kr": "이본"
+            }
+        },
+        "chr_0018_dapan": {
+            "id": "chr_0018_dapan",
+            "names": {
+                "zh_cn": "大潘",
+                "zh_tw": "大潘",
+                "en_us": "Da Pan",
+                "ja_jp": "ダパン",
+                "ko_kr": "판"
+            }
+        },
+        "chr_0019_karin": {
+            "id": "chr_0019_karin",
+            "names": {
+                "zh_cn": "秋栗",
+                "zh_tw": "秋栗",
+                "en_us": "Akekuri",
+                "ja_jp": "アケクリ",
+                "ko_kr": "아케쿠리"
+            }
+        },
+        "chr_0020_meurs": {
+            "id": "chr_0020_meurs",
+            "names": {
+                "zh_cn": "卡契尔",
+                "zh_tw": "卡契爾",
+                "en_us": "Catcher",
+                "ja_jp": "キャッチャー",
+                "ko_kr": "카치르"
+            }
+        },
+        "chr_0021_whiten": {
+            "id": "chr_0021_whiten",
+            "names": {
+                "zh_cn": "埃特拉",
+                "zh_tw": "埃特拉",
+                "en_us": "Estella",
+                "ja_jp": "エステーラ",
+                "ko_kr": "에스텔라"
+            }
+        },
+        "chr_0022_bounda": {
+            "id": "chr_0022_bounda",
+            "names": {
+                "zh_cn": "萤石",
+                "zh_tw": "螢石",
+                "en_us": "Fluorite",
+                "ja_jp": "フローライト",
+                "ko_kr": "플루라이트"
+            }
+        },
+        "chr_0023_antal": {
+            "id": "chr_0023_antal",
+            "names": {
+                "zh_cn": "安塔尔",
+                "zh_tw": "安塔爾",
+                "en_us": "Antal",
+                "ja_jp": "アンタル",
+                "ko_kr": "안탈"
+            }
+        },
+        "chr_0024_deepfin": {
+            "id": "chr_0024_deepfin",
+            "names": {
+                "zh_cn": "阿列什",
+                "zh_tw": "阿列什",
+                "en_us": "Alesh",
+                "ja_jp": "アレッシュ",
+                "ko_kr": "알레쉬"
+            }
+        },
+        "chr_0025_ardelia": {
+            "id": "chr_0025_ardelia",
+            "names": {
+                "zh_cn": "艾尔黛拉",
+                "zh_tw": "艾爾黛拉",
+                "en_us": "Ardelia",
+                "ja_jp": "アルデリア",
+                "ko_kr": "아델리아"
+            }
+        },
+        "chr_0026_lastrite": {
+            "id": "chr_0026_lastrite",
+            "names": {
+                "zh_cn": "别礼",
+                "zh_tw": "別禮",
+                "en_us": "Last Rite",
+                "ja_jp": "ラストライト",
+                "ko_kr": "라스트 라이트"
+            }
+        },
+        "chr_0027_tangtang": {
+            "id": "chr_0027_tangtang",
+            "names": {
+                "zh_cn": "汤汤",
+                "zh_tw": "湯湯",
+                "en_us": "Tangtang",
+                "ja_jp": "タンタン",
+                "ko_kr": "탕탕"
+            }
+        },
+        "chr_0028_wulfa": {
+            "id": "chr_0028_wulfa",
+            "names": {
+                "zh_cn": "洛茜",
+                "zh_tw": "洛西",
+                "en_us": "Rossi",
+                "ja_jp": "ロッシ",
+                "ko_kr": "로시"
+            }
+        },
+        "chr_0029_pograni": {
+            "id": "chr_0029_pograni",
+            "names": {
+                "zh_cn": "骏卫",
+                "zh_tw": "駿衛",
+                "en_us": "Pogranichnik",
+                "ja_jp": "ポグラニチニク",
+                "ko_kr": "포그라니치니크"
+            }
+        },
+        "chr_0030_zhuangfy": {
+            "id": "chr_0030_zhuangfy",
+            "names": {
+                "zh_cn": "庄方宜",
+                "zh_tw": "莊方宜",
+                "en_us": "Zhuang Fangyi",
+                "ja_jp": "ゾアン・ファンイ",
+                "ko_kr": "장방이"
+            }
+        },
+        "chr_0031_mifu": {
+            "id": "chr_0031_mifu",
+            "names": {
+                "zh_cn": "弭弗",
+                "zh_tw": "弭弗",
+                "en_us": "Mi Fu",
+                "ja_jp": "ミ・フ",
+                "ko_kr": "미브"
+            }
+        },
+        "chr_0032_lizhiyan": {
+            "id": "chr_0032_lizhiyan",
+            "names": {
+                "zh_cn": "诀",
+                "zh_tw": "訣",
+                "en_us": "Arcane",
+                "ja_jp": "オクギ",
+                "ko_kr": "결"
+            }
+        },
+        "chr_0033_camille": {
+            "id": "chr_0033_camille",
+            "names": {
+                "zh_cn": "卡缪",
+                "zh_tw": "卡繆",
+                "en_us": "Camille",
+                "ja_jp": "カミーユ",
+                "ko_kr": "카뮤"
+            }
+        },
+        "chr_0034_typhoea": {
+            "id": "chr_0034_typhoea",
+            "names": {
+                "zh_cn": "提弗洛斯",
+                "zh_tw": "提弗洛斯",
+                "en_us": "Typhoeus",
+                "ja_jp": "ティフォロス",
+                "ko_kr": "티프로스"
+            }
+        },
+        "chr_0035_liino": {
+            "id": "chr_0035_liino",
+            "names": {
+                "zh_cn": "梨诺",
+                "zh_tw": "梨諾",
+                "en_us": "Liino",
+                "ja_jp": "リーノ",
+                "ko_kr": "리노"
+            }
+        },
+        "chr_0036_jsspsi": {
+            "id": "chr_0036_jsspsi",
+            "names": {
+                "zh_cn": "祀",
+                "zh_tw": "祀",
+                "en_us": "Si",
+                "ja_jp": "スー",
+                "ko_kr": "사"
+            }
+        },
+        "chr_0038_purrche": {
+            "id": "chr_0038_purrche",
+            "names": {
+                "zh_cn": "噗切娜",
+                "zh_tw": "噗切娜",
+                "en_us": "Purrchena",
+                "ja_jp": "プチエナ",
+                "ko_kr": "푸치나"
+            }
+        }
+    }
+}

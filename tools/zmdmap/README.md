@@ -2,7 +2,7 @@
 
 `tools/zmdmap` 是 MaaEnd 各任务所需精简游戏数据的统一入口：既能从本地游戏数据**生成**，也能从 zmdmap **下载**已发布数据，再入库成可以直接用的形式。整套工具是 Python：入口是 `uv run zmdmap`（等价 `python -m tools.zmdmap`）。
 
-数据都先出**原始形态**（只带游戏世界坐标）进 `data/raw/`，再由**入库**步骤进 `data/`：带坐标的把世界坐标按 BaseNav 的 zone 表**原位**换成底图像素（`x` 的位置给 `u`、`z` 的位置给 `v`，其余字段与键序都不动），其余数据原样复制。原始形态就是上游发布的形态——数据 CI 生成并发布的就是它，MaaEnd 这边下载后自己完成投影与复制。
+数据都先出**原始形态**（只带游戏世界坐标）进 `data/raw/`，再由**入库**步骤进 `data/`：带坐标的把世界坐标按 BaseNav 的 zone 表**原位**换成底图像素（`x` 的位置给 `u`、`z` 的位置给 `v`，其余字段与键序都不动），`sell_product` 拆出公共干员目录，其余数据原样复制。原始形态就是上游发布的形态——数据 CI 生成并发布的就是它，MaaEnd 这边下载后自己完成入库。
 
 每份数据的**最前面**写着两个元数据字段：`version`（来自哪一版游戏数据）与 `sha256`（内容指纹，见[产出](#产出)）。所以不必另记「本地是哪一版、内容是哪一份」：下载时按发布清单里的内容指纹逐份判断要不要重下，本地重算沿用原有版本、`--version` 或兄弟仓库能给出版本时就更新它。
 
@@ -11,7 +11,7 @@
 | 目录 | 放什么 | 入不入库 |
 | --- | --- | --- |
 | `data/raw/` | 原始形态：下载来的（只有世界坐标）与本地生成的结果 | 不入库 |
-| `data/` | 可以直接用的数据：投影后的（x/z 原位换成 u/v），以及原样复制的 | 入库 |
+| `data/` | 可以直接用的数据：投影后的（x/z 原位换成 u/v）、拆出的干员目录，以及原样复制的 | 入库 |
 
 ## 子命令
 
@@ -31,7 +31,7 @@ uv run zmdmap generate --list                     # 列出数据集名、文件�
 uv run zmdmap generate --only collect_points      # 只生成一份（可重复给：--only a --only b）
 uv run zmdmap generate --out-dir /tmp/x --force
 uv run zmdmap fetch                               # 下载已发布数据并入库
-uv run zmdmap fetch --only sell_product            # 只下载 → 只入库这一份
+uv run zmdmap fetch --only sell_product            # 下载据点交易数据，入库时同时拆出 operators.json
 uv run zmdmap fetch --no-download                 # 不下载，只用现有 data/raw/ 重新入库
 ```
 
@@ -52,7 +52,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | `datasets/energy_point_gems.py` | `energy_point_gems.json`（基质筛选的能量淤积点） | 复制 |
 | `datasets/environment_monitoring.py` | `environment_monitoring.json` | 复制 |
 | `datasets/item_mini_table.py` | `item_mini_table.json`（图标识别的物品表，带多语言名字） | 复制 |
-| `datasets/sell_product.py` | `sell_product.json` | 复制 |
+| `datasets/sell_product.py` | `sell_product.json` | 拆出 `operators.json`，据点与物品保留在 `sell_product.json` |
 | `datasets/weapons.py` | `weapons.json`（基质筛选与图标识别共用的武器表） | 复制 |
 
 要加一份新数据，就在 `datasets/` 加一个同名模块、定义 `Dataset` 子类并实现 `build`，再声明要不要投影（需要投影的用 `projection_containers` 列出条目数组所在的键）。
@@ -86,6 +86,10 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 要下哪几份由发布清单（`<DATA_BASE_URL>/manifest.json`）说了算：清单给出「这批数据是哪一版」与「每份原始形态的内容指纹」，`fetch` 逐份比指纹——一致的跳过下载（只是版本号变了就按清单改写文件里的 `version`），不一致的才下，下完再核对一遍拿到的内容。清单还没发布时退回版本接口，按文件里的 `version` 逐份比。于是既不必问版本接口，也认得「同一个版本号下重新发布过」；请求上的 `t` 参数优先用清单给的指纹，同一份内容的 URL 稳定、内容一变就是新 URL，自然绕开远端缓存。
 
 清单本身每次都**带一个时间戳**去取（它只有几百字节，回源不心疼）：它决定了后面下哪几份，被远端缓存住就等于拿旧索引判断，整批都得跟着错。实测这个 CDN 只看 URL —— 请求头带 `Cache-Control: no-cache` 也照样命中缓存（`Age` 不变），换个带时间戳的 URL 才真的回源。数据文件不需要靠它区分新老：它们的 URL 自带清单给的内容指纹，内容一变就是新 URL。
+
+本地内容正确但 `sha256` 字段损坏时直接修正元数据；入库会覆盖损坏的目标文件。下载内容与清单指纹不符，或清单列出的文件返回 404 时停止本次更新，不用旧缓存冒充更新成功。
+
+`sell_product` 入库时把原始数据中的完整 `operators` 拆成 `data/operators.json`，并从 `data/sell_product.json` 移除该字段。两份文件沿用原始数据版本，各自重算内容指纹；`data/raw/sell_product.json` 保持上游形态。`operators.json` 不注册为上游数据集，不单独下载，也不手工维护：运行 `fetch --only sell_product` 或 `generate --only sell_product` 即可重建，原始缓存未变化时同样会修复缺失、错误或残旧的入库文件。只读取 ID 和五语言名称的公共目录不会根据本地头像文件过滤干员。
 
 所以本地与 CI 是同一套判断：先取清单，清单里的指纹变了才下，且只下变了的那些。`--force` 是唯一的手动手段：不看清单直接重下这几份，并把请求 URL 上的指纹换成时间戳，把「不走远端缓存」贯彻到底。
 

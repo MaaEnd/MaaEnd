@@ -1,5 +1,5 @@
+// 由 tools/pipeline-generate/GiftOperator/generate.mjs 生成。
 {
-    //这个文件中存放着在收取礼物模式下,识别到每个干员后进行覆盖的节点
     "GiftOperatorSelect_Perlica": {
         "recognition": {
             "type": "TemplateMatch",
@@ -30,126 +30,6 @@
                                 "Perlica",
                                 "ペリカ",
                                 "펠리카"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Yvonne": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Yvonne.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "伊冯",
-                                "伊馮",
-                                "Yvonne",
-                                "イヴォンヌ",
-                                "이본"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Ardelia": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Ardelia.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "艾尔黛拉",
-                                "艾爾黛拉",
-                                "Ardelia",
-                                "アルデリア",
-                                "아델리아"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Gilberta": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Gilberta.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "洁尔佩塔",
-                                "潔爾佩塔",
-                                "Gilberta",
-                                "ギルベルタ",
-                                "질베르타"
                             ]
                         }
                     }
@@ -240,166 +120,6 @@
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
     },
-    "GiftOperatorSelect_Antal": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Antal.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "安塔尔",
-                                "安塔爾",
-                                "Antal",
-                                "アンタル",
-                                "안탈"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Xaihi": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Xaihi.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "赛希",
-                                "賽希",
-                                "Xaihi",
-                                "ザイヒ",
-                                "자이히"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Lifeng": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Lifeng.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "黎风",
-                                "黎風",
-                                "Lifeng",
-                                "リーフォン",
-                                "여풍"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Catcher": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Catcher.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "卡契尔",
-                                "卡契爾",
-                                "Catcher",
-                                "キャッチャー",
-                                "카치르"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
     "GiftOperatorSelect_Arclight": {
         "recognition": {
             "type": "TemplateMatch",
@@ -426,210 +146,9 @@
                         "GiftOperatorName": {
                             "expected": [
                                 "弧光",
-                                "弧光",
                                 "Arclight",
                                 "アークライト",
                                 "아크라이트"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Avywenna": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Avywenna.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "艾维文娜",
-                                "艾維文娜",
-                                "Avywenna",
-                                "アイビーエナ",
-                                "아비웨나"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Laevatain": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Laevatain.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "莱万汀",
-                                "萊萬汀",
-                                "Laevatain",
-                                "レーヴァテイン",
-                                "레바테인"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Alesh": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Alesh.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "阿列什",
-                                "阿列什",
-                                "Alesh",
-                                "アレッシュ",
-                                "알레쉬"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Pogranichnik": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Pogranichnik.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "骏卫",
-                                "駿衛",
-                                "Pogranichnik",
-                                "ポグラニチニク",
-                                "포그라니치니크"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_LastRite": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/LastRite.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "别礼",
-                                "別禮",
-                                "Last Rite",
-                                "ラストライト",
-                                "라스트 라이트"
                             ]
                         }
                     }
@@ -680,6 +199,126 @@
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
     },
+    "GiftOperatorSelect_Xaihi": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Xaihi.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "赛希",
+                                "賽希",
+                                "Xaihi",
+                                "ザイヒ",
+                                "자이히"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Avywenna": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Avywenna.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "艾维文娜",
+                                "艾維文娜",
+                                "Avywenna",
+                                "アイビーエナ",
+                                "아비웨나"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Gilberta": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Gilberta.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "洁尔佩塔",
+                                "潔爾佩塔",
+                                "Gilberta",
+                                "ギルベルタ",
+                                "질베르타"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
     "GiftOperatorSelect_Snowshine": {
         "recognition": {
             "type": "TemplateMatch",
@@ -720,6 +359,126 @@
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
     },
+    "GiftOperatorSelect_Lifeng": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Lifeng.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "黎风",
+                                "黎風",
+                                "Lifeng",
+                                "リーフォン",
+                                "여풍"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Laevatain": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Laevatain.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "莱万汀",
+                                "萊萬汀",
+                                "Laevatain",
+                                "レーヴァテイン",
+                                "레바테인"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Yvonne": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Yvonne.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "伊冯",
+                                "伊馮",
+                                "Yvonne",
+                                "イヴォンヌ",
+                                "이본"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
     "GiftOperatorSelect_DaPan": {
         "recognition": {
             "type": "TemplateMatch",
@@ -746,10 +505,127 @@
                         "GiftOperatorName": {
                             "expected": [
                                 "大潘",
-                                "大潘",
                                 "Da Pan",
                                 "ダパン",
                                 "판"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Akekuri": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Akekuri.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "秋栗",
+                                "Akekuri",
+                                "アケクリ",
+                                "아케쿠리"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Catcher": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Catcher.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "卡契尔",
+                                "卡契爾",
+                                "Catcher",
+                                "キャッチャー",
+                                "카치르"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Estella": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Estella.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "埃特拉",
+                                "Estella",
+                                "エステーラ",
+                                "에스텔라"
                             ]
                         }
                     }
@@ -800,7 +676,7 @@
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
     },
-    "GiftOperatorSelect_Akekuri": {
+    "GiftOperatorSelect_Antal": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -812,7 +688,7 @@
                     128
                 ],
                 "template": [
-                    "GiftOperator/Operators/Akekuri.png"
+                    "GiftOperator/Operators/Antal.png"
                 ],
                 "green_mask": true
             }
@@ -825,11 +701,11 @@
                     "patch": {
                         "GiftOperatorName": {
                             "expected": [
-                                "秋栗",
-                                "秋栗",
-                                "Akekuri",
-                                "アケクリ",
-                                "아케쿠리"
+                                "安塔尔",
+                                "安塔爾",
+                                "Antal",
+                                "アンタル",
+                                "안탈"
                             ]
                         }
                     }
@@ -840,7 +716,7 @@
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
     },
-    "GiftOperatorSelect_Estella": {
+    "GiftOperatorSelect_Alesh": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -852,7 +728,7 @@
                     128
                 ],
                 "template": [
-                    "GiftOperator/Operators/Estella.png"
+                    "GiftOperator/Operators/Alesh.png"
                 ],
                 "green_mask": true
             }
@@ -865,11 +741,130 @@
                     "patch": {
                         "GiftOperatorName": {
                             "expected": [
-                                "埃特拉",
-                                "埃特拉",
-                                "Estella",
-                                "エステーラ",
-                                "에스텔라"
+                                "阿列什",
+                                "Alesh",
+                                "アレッシュ",
+                                "알레쉬"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Ardelia": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Ardelia.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "艾尔黛拉",
+                                "艾爾黛拉",
+                                "Ardelia",
+                                "アルデリア",
+                                "아델리아"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_LastRite": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/LastRite.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "别礼",
+                                "別禮",
+                                "Last Rite",
+                                "ラストライト",
+                                "라스트 라이트"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Tangtang": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Tangtang.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "汤汤",
+                                "湯湯",
+                                "Tangtang",
+                                "タンタン",
+                                "탕탕"
                             ]
                         }
                     }
@@ -920,7 +915,7 @@
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
     },
-    "GiftOperatorSelect_Tangtang": {
+    "GiftOperatorSelect_Pogranichnik": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -932,7 +927,7 @@
                     128
                 ],
                 "template": [
-                    "GiftOperator/Operators/Tangtang.png"
+                    "GiftOperator/Operators/Pogranichnik.png"
                 ],
                 "green_mask": true
             }
@@ -945,11 +940,11 @@
                     "patch": {
                         "GiftOperatorName": {
                             "expected": [
-                                "汤汤",
-                                "湯湯",
-                                "Tangtang",
-                                "タンタン",
-                                "탕탕"
+                                "骏卫",
+                                "駿衛",
+                                "Pogranichnik",
+                                "ポグラニチニク",
+                                "포그라니치니크"
                             ]
                         }
                     }
@@ -1026,50 +1021,9 @@
                         "GiftOperatorName": {
                             "expected": [
                                 "弭弗",
-                                "弭弗",
                                 "Mi Fu",
                                 "ミ・フ",
-                                "미푸"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "next": [
-            "GiftOperatorSelectSpecifiedOpSuccess"
-        ]
-    },
-    "GiftOperatorSelect_Camille": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": "GiftOperatorSelectGiftOp",
-                "roi_offset": [
-                    -48,
-                    -36,
-                    165,
-                    128
-                ],
-                "template": [
-                    "GiftOperator/Operators/Camille.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverrideAction",
-                "custom_action_param": {
-                    "patch": {
-                        "GiftOperatorName": {
-                            "expected": [
-                                "卡缪",
-                                "卡繆",
-                                "Camille",
-                                "カミーユ",
-                                "카뮤"
+                                "미브"
                             ]
                         }
                     }
@@ -1120,6 +1074,85 @@
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
     },
+    "GiftOperatorSelect_Camille": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Camille.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "卡缪",
+                                "卡繆",
+                                "Camille",
+                                "カミーユ",
+                                "카뮤"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSelect_Typhoeus": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Typhoeus.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "提弗洛斯",
+                                "Typhoeus",
+                                "ティフォロス",
+                                "티프로스"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
     "GiftOperatorSelect_Liino": {
         "recognition": {
             "type": "TemplateMatch",
@@ -1160,7 +1193,7 @@
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
     },
-    "GiftOperatorSelect_Typhoeus": {
+    "GiftOperatorSelect_Si": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1172,7 +1205,7 @@
                     128
                 ],
                 "template": [
-                    "GiftOperator/Operators/Typhoeus.png"
+                    "GiftOperator/Operators/Si.png"
                 ],
                 "green_mask": true
             }
@@ -1185,11 +1218,10 @@
                     "patch": {
                         "GiftOperatorName": {
                             "expected": [
-                                "提弗洛斯",
-                                "提弗洛斯",
-                                "Typhoeus",
-                                "ティフォロス",
-                                "티프로스"
+                                "祀",
+                                "Si",
+                                "スー",
+                                "사"
                             ]
                         }
                     }
@@ -1225,7 +1257,6 @@
                     "patch": {
                         "GiftOperatorName": {
                             "expected": [
-                                "噗切娜",
                                 "噗切娜",
                                 "Purrchena",
                                 "プチエナ",

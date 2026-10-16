@@ -5,9 +5,9 @@
 逐份比（版本接口也查不到、而本地那几份齐时，就先用本地的）。下哪几份由调用方给出 —— 各任务生成器只要自己用的那几份，就只下那几份，不必被整包牵着走。
 
 本地已是最新时跳过下载：逐份比内容指纹，一样的跳过（版本号变了就按清单改写文件里的 ``version``），
-不一样的才下，下完核对一遍拿到的内容（不符只提示、不当失败）；本地与 CI 跑的是同一套判断。清单本身每次
+不一样的才下，下完核对一遍拿到的内容（与清单不符则停止，不覆盖缓存）；本地与 CI 跑的是同一套判断。清单本身每次
 都带时间戳取 —— 它只有几百字节，却决定了整批判断，被远端缓存住就会拿旧索引判断。无论下载与否都会跑一次
-入库。上游还没发布的数据只提示、不当失败：本地可以用 ``uv run zmdmap generate --only <名字>`` 生成。
+入库。未列入清单且上游还没发布的数据只提示、不当失败：本地可以用 ``uv run zmdmap generate --only <名字>`` 生成。
 
 发布的都是**原始形态**（只带游戏世界坐标），一律先落不入库的 ``data/raw/``，再由
 :mod:`tools.zmdmap.project` 材料化进入库的 ``data/``：需要投影的补上底图像素，不需要投影的原样复制。
@@ -219,10 +219,9 @@ def _download_json(
     payload = payload_of(data)
     digest = payload_hash(payload)
     if expect and digest != expect:
-        print(
-            f"[fetch-data] {file_name} 与清单不符：清单 {expect}，拿到 {digest}"
-            "（远端缓存串了？可以加 --force 再试）",
-            file=sys.stderr,
+        raise DownloadError(
+            file_name,
+            f"与清单不符：清单 {expect}，拿到 {digest}",
         )
     if isinstance(data, dict):
         if not version_of(data):
@@ -277,7 +276,7 @@ def fetch_and_cache(
             except DownloadError as error:
                 failures[file_name] = error
 
-    # 需要投影的数据必须齐全；原样复制的允许上游还没发布（404 时跳过）。
+    # 需要投影或已列入清单的数据必须齐全；未发布的普通数据允许 404 时跳过。
     for file_name in projected_files:
         if file_name in failures:
             raise failures[file_name]
@@ -287,7 +286,7 @@ def fetch_and_cache(
         error = failures.get(file_name)
         if error is None:
             continue
-        if error.status_code != 404:
+        if error.status_code != 404 or file_name in hashes:
             raise error
         print(
             f"[fetch-data] 上游还没发布 {file_name}，跳过"
@@ -300,15 +299,15 @@ def fetch_and_cache(
 
 
 def _restamp(path: Path, version: str) -> None:
-    """内容与清单一致、只有版本号变了：只改写文件里的元数据，不用重下。"""
+    """内容与清单一致：修正版本或损坏的指纹元数据，不用重下。"""
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return
-    if version_of(data) == version:
+    if version_of(data) == version and data.get(HASH_KEY) == payload_hash(payload_of(data)):
         return
     path.write_text(dump_json(with_metadata(data, version)), encoding="utf-8", newline="\n")
-    print(f"[fetch-data] {path.name} 内容一致，版本改写为 v{version}")
+    print(f"[fetch-data] {path.name} 内容一致，元数据更新为 v{version}")
 
 
 def download(

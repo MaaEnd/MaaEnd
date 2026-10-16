@@ -1,6 +1,9 @@
 import {readFileSync} from "node:fs";
 import {resolve} from "node:path";
 import {dataDir} from "../utils/paths.mjs";
+import {getOperatorCaseName, isAdminOperator, operatorCatalog, toPascalCase} from "../utils/operators.mjs";
+
+export {getOperatorCaseName, isAdminOperator, toPascalCase};
 
 let loadedSettlementData;
 try {
@@ -19,26 +22,9 @@ export function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// 将数据源里的 id 或英文名称转换成统一格式的选项/节点后缀。
-export function toPascalCase(str) {
-    return str
-        .split(/[^a-zA-Z0-9]+/)
-        .filter(Boolean)
-        .map((part) => part[0].toUpperCase() + part.slice(1))
-        .join("");
-}
-
 // 在保留原始顺序的前提下去掉空值和重复候选。
 export function uniqueArray(items) {
     return [...new Set(items.filter(Boolean))];
-}
-
-export function isAdminOperator(operator) {
-    return operator.names?.en_us === "Endministrator" || operator.names?.zh_cn === "管理员";
-}
-
-export function getOperatorCaseName(operator) {
-    return toPascalCase(operator.names?.en_us || operator.id);
 }
 
 // 英文地名匹配允许空格和连字符有轻微 OCR 差异。
@@ -155,7 +141,7 @@ export const outpostTradingLocationsNewestFirst = outpostTradingRegionsNewestFir
 
 // 国际化同步器消费的最小数据视图。命名规则与所有模板共享同一模型。
 export const outpostTradingLocaleEntries = {
-    operators: Object.values(settlementData.operators || {})
+    operators: Object.values(operatorCatalog)
         .filter((operator) => !isAdminOperator(operator))
         .map((operator) => ({
             key: `operator.${getOperatorCaseName(operator)}`,

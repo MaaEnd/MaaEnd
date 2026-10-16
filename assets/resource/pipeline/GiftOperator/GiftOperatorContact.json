@@ -128,7 +128,6 @@
             }
         },
         "next": [
-            //每一个节点命中后,将GiftOperatorName覆盖为对应干员名字
             "GiftOperatorSelect_Akekuri",
             "GiftOperatorSelect_Alesh",
             "GiftOperatorSelect_Antal",
@@ -153,6 +152,7 @@
             "GiftOperatorSelect_Pogranichnik",
             "GiftOperatorSelect_Purrchena",
             "GiftOperatorSelect_Rossi",
+            "GiftOperatorSelect_Si",
             "GiftOperatorSelect_Snowshine",
             "GiftOperatorSelect_Tangtang",
             "GiftOperatorSelect_Typhoeus",

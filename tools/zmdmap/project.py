@@ -1,7 +1,8 @@
 """把 ``data/raw/`` 里的原始数据材料化进入库的 ``data/*.json``。
 
 入库看数据集是否需要投影（``datasets/`` 里的 ``Dataset.needs_projection``）：需要投影的按 zone 表补底图
-像素（:func:`project_data`），不需要投影的由 :func:`copy_files` 原样复制。
+像素（:func:`project_data`），不需要投影的由 :func:`copy_files` 入库；sell_product 的干员目录
+拆到 operators.json，供据点交易与赠礼共用。
 
 带坐标的数据只发布游戏世界坐标 x/z（送货点另有世界高度 y），而底图像素与投影参数
 （``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）都在 BaseNav 包里 —— 只有 MaaEnd 手里有。所以
@@ -26,7 +27,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from .constants import MANIFEST_FILE
+from .constants import LOCALE_NAMES, MANIFEST_FILE
 from .datasets import PROJECT_FILES, dataset_of
 from .navmesh import NavZone, load_nav_zones
 from .paths import ZMDMAP_DATA_DIR, REPO_ROOT
@@ -301,8 +302,29 @@ def is_unchanged(output_path: Path, data: Any) -> bool:
         return False
 
 
+def split_operators(data: dict[str, Any]) -> dict[str, Any]:
+    """从本次 sell_product 原始数据拆出完整干员目录，不依赖旧入库文件。"""
+    payload = payload_of(data)
+    operators = payload.pop("operators", None)
+    if not isinstance(operators, dict) or not operators:
+        raise ValueError("sell_product 缺少非空 operators 目录")
+    for operator_id, operator in operators.items():
+        if not isinstance(operator, dict) or operator.get("id") != operator_id:
+            raise ValueError(f"sell_product 干员 ID 不一致：{operator_id}")
+        names = operator.get("names")
+        for locale in LOCALE_NAMES.values():
+            name = names.get(locale) if isinstance(names, dict) else None
+            if not isinstance(name, str) or not name.strip():
+                raise ValueError(f"sell_product 干员 {operator_id} 缺少 {locale} 名称")
+    version = version_of(data)
+    return {
+        "sell_product.json": with_metadata(payload, version),
+        "operators.json": with_metadata({"operators": operators}, version),
+    }
+
+
 def copy_files(raw_dir: Path, out_dir: Path, file_names: Sequence[str], *, force: bool = False) -> int:
-    """不需要投影的数据：原样从 ``raw_dir`` 复制进 ``out_dir``；返回写入份数。"""
+    """不需要投影的数据入库；sell_product 同时拆出 operators，返回写入份数。"""
     out_dir.mkdir(parents=True, exist_ok=True)
     written = 0
     for file_name in file_names:
@@ -313,13 +335,20 @@ def copy_files(raw_dir: Path, out_dir: Path, file_names: Sequence[str], *, force
                 "（先跑 uv run zmdmap fetch 下载，或 uv run zmdmap generate 本地生成）"
             )
         text = source_path.read_text(encoding="utf-8")
-        output_path = out_dir / file_name
-        if not force and output_path.exists() and output_path.read_text(encoding="utf-8") == text:
-            print(f"[project] {file_name} 未变化，跳过写入")
-            continue
-        output_path.write_text(text, encoding="utf-8", newline="\n")
-        print(f"[project] {file_name} -> {output_path}")
-        written += 1
+        outputs = {file_name: text}
+        if file_name == "sell_product.json":
+            data = json.loads(text)
+            if not isinstance(data, dict):
+                raise ValueError("sell_product 不是对象")
+            outputs = {name: dump_json(value) for name, value in split_operators(data).items()}
+        for name, content in outputs.items():
+            output_path = out_dir / name
+            if not force and output_path.exists() and output_path.read_bytes() == content.encode("utf-8"):
+                print(f"[project] {name} 未变化，跳过写入")
+                continue
+            output_path.write_text(content, encoding="utf-8", newline="\n")
+            print(f"[project] {name} -> {output_path}")
+            written += 1
     return written
 
 
