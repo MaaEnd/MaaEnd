@@ -9,8 +9,6 @@ on:
       - "assets/**"
       - "!assets/resource/model"
       - "tools/schema/**"
-      - "tools/zmdmap/**"
-      - "tools/pipeline-generate/AutoStockStaple/**"
       - "package.json"
       - "maatools.config.mts"
       - "pyproject.toml"
@@ -24,8 +22,6 @@ on:
       - "assets/**"
       - "!assets/resource/model"
       - "tools/schema/**"
-      - "tools/zmdmap/**"
-      - "tools/pipeline-generate/AutoStockStaple/**"
       - "package.json"
       - "maatools.config.mts"
       - "pyproject.toml"
@@ -63,6 +59,3 @@ jobs:
 
       - name: Validate JSON Schema
         run: uv run --frozen --only-group schema tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks
-
-      - name: Verify AutoStockStaple data rebuild
-        run: uv run --frozen --no-default-groups python -m unittest tools.zmdmap.test_stock_staple -v

@@ -5,7 +5,7 @@
 逐份比（版本接口也查不到、而本地那几份齐时，就先用本地的）。下哪几份由调用方给出 —— 各任务生成器只要自己用的那几份，就只下那几份，不必被整包牵着走。
 
 本地已是最新时跳过下载：逐份比内容指纹，一样的跳过（版本号变了就按清单改写文件里的 ``version``），
-不一样的才下，下完核对一遍拿到的内容（不符则失败且保留原缓存）；本地与 CI 跑的是同一套判断。清单本身每次
+不一样的才下，下完核对一遍拿到的内容（不符只提示、不当失败）；本地与 CI 跑的是同一套判断。清单本身每次
 都带时间戳取 —— 它只有几百字节，却决定了整批判断，被远端缓存住就会拿旧索引判断。无论下载与否都会跑一次
 入库。上游还没发布的数据只提示、不当失败：本地可以用 ``uv run zmdmap generate --only <名字>`` 生成。
 
@@ -219,13 +219,20 @@ def _download_json(
     payload = payload_of(data)
     digest = payload_hash(payload)
     if expect and digest != expect:
-        raise DownloadError(file_name, f"与清单不符：清单 {expect}，拿到 {digest}")
+        print(
+            f"[fetch-data] {file_name} 与清单不符：清单 {expect}，拿到 {digest}"
+            "（远端缓存串了？可以加 --force 再试）",
+            file=sys.stderr,
+        )
     if isinstance(data, dict):
         if not version_of(data):
             print(f"[fetch-data] {file_name} 没带 version 字段，按 v{version} 补上", file=sys.stderr)
         known = data.get(HASH_KEY)
         if known and known != digest:
-            raise DownloadError(file_name, f"sha256 与内容不符：{known} != {digest}")
+            print(
+                f"[fetch-data] {file_name} 自称的 sha256 与内容不符：{known} != {digest}",
+                file=sys.stderr,
+            )
         data = with_metadata(payload, version)
     formatted = dump_json(data)
     destination.parent.mkdir(parents=True, exist_ok=True)

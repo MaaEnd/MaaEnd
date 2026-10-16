@@ -1,9 +1,10 @@
-import {mkdirSync, readFileSync, writeFileSync} from "node:fs";
+import {readFileSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
-import {fileURLToPath, pathToFileURL} from "node:url";
+import {fileURLToPath} from "node:url";
 import {format, resolveConfig} from "prettier";
+import {applyEdits, modify} from "jsonc-parser";
 
-import {readJsonc} from "../jsonc.mjs";
+import {parseJsonc, readJsonc} from "../jsonc.mjs";
 import {repoRoot} from "../utils/paths.mjs";
 
 const directory = dirname(fileURLToPath(import.meta.url));
@@ -14,11 +15,10 @@ const locales = [
     "ja_jp",
     "ko_kr",
 ];
-// 地区界面和数量上限是任务策略；商品成员、名称和分类全部由 stock_staple 提供。
+// 地区界面和数量上限是任务策略；新增商品及其名称和分类由 stock_staple 提供。
 const regions = {domain_1: "ValleyIV", domain_2: "Wuling"};
 const categories = {household: "DailyGoods", industry: "StockFactoryGoods", crafts: "CulturalGoods"};
 const namePrefix = "task.AutoStockStaple.item.";
-const categoryPrefix = "task.AutoStockStaple.category.";
 const focusPrefix = "task.AutoStockStaple.focus.quantity_control.";
 const events = [
     "buy",
@@ -103,7 +103,7 @@ function limitOption(region, category, itemId) {
     };
 }
 
-export function buildArtifacts(data) {
+function buildAdditions(data, task, pipelines, translations) {
     for (const key of [
         "regions",
         "categories",
@@ -114,21 +114,23 @@ export function buildArtifacts(data) {
             throw new Error(`stock_staple: missing ${key}`);
         }
     }
-    const task = readJsonc(resolve(directory, "task-template.json"));
     const template = readJsonc(resolve(directory, "pipeline-template.json"));
-    const offsets = readJsonc(resolve(directory, "recognition-offsets.json"));
     const messages = readJsonc(resolve(directory, "messages.json"));
-    const pipelines = {
-        Goods: {},
-        GoodsCountValidate: template.GoodsCountValidate,
-        QuantityControl: template.QuantityControl,
-    };
-    const translations = Object.fromEntries(
-        locales.map((locale) => [
-            locale,
-            {...messages[locale].ui},
-        ]),
-    );
+    // 用现有选项的图标路径识别 item_id，不另存商品绑定表。
+    const existing = new Map();
+    const usedCaseNames = new Set();
+    for (const [
+        name,
+        option,
+    ] of Object.entries(task.option)) {
+        if (!name.endsWith("Items")) continue;
+        for (const entry of option.cases) {
+            const itemId = entry.icon?.match(/\/Item\/([^/]+)\.png$/)?.[1];
+            if (!itemId || existing.has(itemId)) throw new Error(`${name}: missing or duplicate item icon ID`);
+            existing.set(itemId, entry);
+            usedCaseNames.add(entry.name);
+        }
+    }
     const selected = new Map();
     const reachedGoods = new Set();
 
@@ -179,30 +181,37 @@ export function buildArtifacts(data) {
             aId.localeCompare(bId, "en"),
     );
     const usedNodeIds = new Set();
-    const usedCaseNames = new Set();
+    let added = 0;
     for (const [
         itemId,
         goods,
     ] of ordered) {
         const names = namesOf(data.items[itemId], itemId);
+        const previous = existing.get(itemId);
+        // 已有手写配置原样保留。生成项也只补缺失节点，不改已存在的配置。
+        if (previous && !Object.hasOwn(previous.pipeline_override.AutoStockInStapleItemName.attach, itemId)) continue;
         const suffix = nodeId(itemId);
-        const name = caseName(names);
-        if (!name || usedCaseNames.has(name)) throw new Error(`Invalid or duplicate item option: ${name}`);
+        const name = previous?.name ?? caseName(names);
+        if (!name || (!previous && usedCaseNames.has(name)))
+            throw new Error(`Invalid or duplicate item option: ${name}`);
         usedCaseNames.add(name);
         if (usedNodeIds.has(suffix)) throw new Error(`Node ID collision: ${suffix}`);
         usedNodeIds.add(suffix);
         const region = regions[goods.region_id];
         const category = goods.category_id;
         const option = task.option[`AutoStockBuy${categories[category]}${region}Items`];
-        option.label = `$${categoryPrefix}${category}`;
-        option.cases.push({
-            name,
-            label: `$${namePrefix}${itemId}`,
-            icon: `resource/image/UI/Item/${itemId}.png`,
-            pipeline_override: {
-                AutoStockInStapleItemName: {attach: {[itemId]: locales.map((locale) => names[locale])}},
-            },
-        });
+        if (!option) throw new Error(`Missing shop option for ${region}/${category}`);
+        if (!previous) {
+            option.cases.push({
+                name,
+                label: `$${namePrefix}${itemId}`,
+                icon: `resource/image/UI/Item/${itemId}.png`,
+                pipeline_override: {
+                    AutoStockInStapleItemName: {attach: {[itemId]: locales.map((locale) => names[locale])}},
+                },
+            });
+            added++;
+        }
         const limits = limitOption(region, category, itemId);
         const limit = task.option[limits.option];
         if (!limit) throw new Error(`Missing quantity policy: ${limits.option}`);
@@ -219,7 +228,7 @@ export function buildArtifacts(data) {
                 "<=",
             ],
         ]) {
-            limit.pipeline_override[`AutoStockStapleGoods${suffix}${ending}`] = {
+            limit.pipeline_override[`AutoStockStapleGoods${suffix}${ending}`] ??= {
                 recognition: {
                     param: {
                         custom_recognition_param: {
@@ -229,10 +238,9 @@ export function buildArtifacts(data) {
                 },
             };
         }
-        const nodes = substitute(template.item, {NodeId: suffix, ItemId: itemId, Name: names.zh_cn});
+        const nodes = substitute(template, {NodeId: suffix, ItemId: itemId, Name: names.zh_cn});
         const recognition = nodes[`AutoStockStapleGoods${suffix}`].recognition.param;
         recognition.expected = expectedNames(names);
-        if (offsets[itemId]) recognition.roi_offset = offsets[itemId];
         for (const [
             name,
             node,
@@ -242,87 +250,112 @@ export function buildArtifacts(data) {
                 : name.endsWith("Validate")
                   ? "GoodsCountValidate"
                   : "Goods";
-            pipelines[file][name] = node;
+            pipelines[file][name] ??= node;
         }
-        pipelines.QuantityControl.AutoStockStapleQuantityControl.next.push(`AutoStockStapleQuantityControl${suffix}`);
+        const branches = pipelines.QuantityControl.AutoStockStapleQuantityControl.next;
+        const branch = `AutoStockStapleQuantityControl${suffix}`;
+        if (!branches.includes(branch)) branches.push(branch);
         for (const locale of locales) {
-            translations[locale][`${namePrefix}${itemId}`] = names[locale];
-            translations[locale][`${categoryPrefix}${category}`] = data.categories[category].names[locale];
+            translations[locale][`${namePrefix}${itemId}`] ??= names[locale];
             for (const event of events) {
-                translations[locale][`${focusPrefix}${event}.${itemId}`] = substitute(messages[locale].events[event], {
+                translations[locale][`${focusPrefix}${event}.${itemId}`] ??= substitute(messages[locale][event], {
                     Name: names[locale],
                 });
             }
         }
     }
-    return {task, pipelines, translations};
+    return added;
 }
 
-export async function generate({
-    root = repoRoot,
-    dataPath = resolve(root, "tools/zmdmap/data/stock_staple.json"),
-} = {}) {
-    const data = JSON.parse(readFileSync(dataPath, "utf8"));
-    const {task, pipelines, translations} = buildArtifacts(data);
-    const outputs = new Map([
-        [
-            resolve(root, "assets/tasks/AutoStockStaple.json"),
-            task,
-        ],
-    ]);
-    for (const [
-        name,
-        nodes,
-    ] of Object.entries(pipelines)) {
-        outputs.set(resolve(root, `assets/resource/pipeline/AutoStockStaple/General/${name}.json`), nodes);
-    }
-    for (const locale of locales) {
-        const path = resolve(root, `assets/locales/interface/${locale}.json`);
-        let messages = {};
-        try {
-            messages = readJsonc(path);
-        } catch (error) {
-            if (error.code !== "ENOENT") throw error;
-        }
-        // 只替换此生成器拥有的键，旧商品移除后不会留在名称或提示目录里。
-        const remaining = Object.fromEntries(
-            Object.entries(messages).filter(
-                ([key]) =>
-                    !key.startsWith(namePrefix) &&
-                    !key.startsWith(categoryPrefix) &&
-                    !events.some((event) => key.startsWith(`${focusPrefix}${event}.`)),
-            ),
+// 仅插入新增键和数组尾部，保留原 JSONC 注释、OCR 特例和已有成员顺序。
+function appendChanges(text, before, after, path = []) {
+    if (JSON.stringify(before) === JSON.stringify(after)) return text;
+    const edit = (target, value) => {
+        text = applyEdits(
+            text,
+            modify(text, target, value, {formattingOptions: {insertSpaces: true, tabSize: 4, eol: "\n"}}),
         );
-        outputs.set(path, {...remaining, ...translations[locale]});
-    }
-    const config = await resolveConfig(resolve(repoRoot, ".prettierrc.mjs"));
-    // 先构建、校验并格式化全部产物，任何数据错误都在写入之前暴露。
-    const formatted = await Promise.all(
-        [...outputs].map(
-            async ([
-                path,
+    };
+    if (before === undefined) {
+        edit(path, after);
+    } else if (Array.isArray(before) && Array.isArray(after)) {
+        if (JSON.stringify(before) !== JSON.stringify(after.slice(0, before.length)))
+            throw new Error(`Existing array changed: ${path.join(".")}`);
+        for (const value of after.slice(before.length))
+            edit(
+                [
+                    ...path,
+                    -1,
+                ],
                 value,
-            ]) => [
+            );
+    } else if (before && after && typeof before === "object" && typeof after === "object") {
+        for (const key of new Set([
+            ...Object.keys(before),
+            ...Object.keys(after),
+        ])) {
+            text = appendChanges(text, before[key], after[key], [
+                ...path,
+                key,
+            ]);
+        }
+    } else {
+        throw new Error(`Existing value changed: ${path.join(".")}`);
+    }
+    return text;
+}
+
+async function generate() {
+    const data = readJsonc(resolve(repoRoot, "tools/zmdmap/data/stock_staple.json"));
+    const documents = [];
+    const load = (relative) => {
+        const path = resolve(repoRoot, relative);
+        const text = readFileSync(path, "utf8");
+        const before = parseJsonc(text, path);
+        const value = structuredClone(before);
+        documents.push({path, text, before, value});
+        return value;
+    };
+    const task = load("assets/tasks/AutoStockStaple.json");
+    const pipelines = Object.fromEntries(
+        [
+            "Goods",
+            "GoodsCountValidate",
+            "QuantityControl",
+        ].map((name) => [
+            name,
+            load(`assets/resource/pipeline/AutoStockStaple/General/${name}.json`),
+        ]),
+    );
+    const translations = Object.fromEntries(
+        locales.map((locale) => [
+            locale,
+            load(`assets/locales/interface/${locale}.json`),
+        ]),
+    );
+    const added = buildAdditions(data, task, pipelines, translations);
+    const config = await resolveConfig(resolve(repoRoot, ".prettierrc.mjs"));
+    // 全部构建、校验成功后再写入；没有增量时连格式和文件时间也不改。
+    const formatted = await Promise.all(
+        documents
+            .filter(({before, value}) => JSON.stringify(before) !== JSON.stringify(value))
+            .map(async ({path, text, before, value}) => [
                 path,
-                await format(JSON.stringify(value, null, 4), {
+                await format(appendChanges(text, before, value), {
                     ...config,
                     filepath: path,
                     parser: "json",
                     endOfLine: "lf",
                 }),
-            ],
-        ),
+            ]),
     );
     for (const [
         path,
         text,
     ] of formatted) {
-        mkdirSync(dirname(path), {recursive: true});
         writeFileSync(path, text, "utf8");
     }
-    console.log(`[AutoStockStaple] Generated ${Object.keys(pipelines.Goods).length} items from stock_staple`);
+    console.log(`[AutoStockStaple] Added ${added} items; updated ${formatted.length} files`);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-    await generate();
-}
+await generate();

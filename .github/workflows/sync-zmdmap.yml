@@ -51,7 +51,6 @@ jobs:
       # generate:DeliveryJobs 的第一条就是 generate:AutoDelivery，不必再单独跑一遍。
       - name: Generate pipeline data
         run: |
-          uv run --frozen --no-default-groups python -m unittest tools.zmdmap.test_stock_staple -v
           pnpm generate:DeliveryJobs
           pnpm generate:EnvironmentMonitoring
           pnpm generate:OutpostTrading

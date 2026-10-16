@@ -60,7 +60,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 各份数据共用的手法收在 `Dataset` 上，不用各抄一份：`localized_names`（表里的文本引用 → 五语字典，五语缺一即报错）、`level_index`（读 `LevelBasicInfoTable` 建 `idNum -> levelId`），组装错误统一用 `DatasetError`（cli 会补上数据集名）。取数逻辑在各份数据的模块里。
 
-只读 TableCfg 的数据集可声明 `requires_json_data = False`，单独生成时不要求无关的 JsonData 目录。`stock_staple` 从地区商店、商品、奖励、物品、分类与渠道供货表生成，不依赖其他精简数据或人工商品绑定表；消费链见[稳定需求物资维护文档](../../docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md#数据来源与重建)。
+只读 TableCfg 的数据集可声明 `requires_json_data = False`，单独生成时不要求无关的 JsonData 目录。`stock_staple` 从地区商店、商品、奖励、物品、分类与渠道供货表生成，不依赖其他精简数据或人工商品绑定表；消费链见[稳定需求物资维护文档](../../docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md#数据来源与增量更新)。
 
 ### 常量（`constants.py`）
 
@@ -92,7 +92,7 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 
 所以本地与 CI 是同一套判断：先取清单，清单里的指纹变了才下，且只下变了的那些。`--force` 是唯一的手动手段：不看清单直接重下这几份，并把请求 URL 上的指纹换成时间戳，把「不走远端缓存」贯彻到底。
 
-下载内容与清单或文件自带的指纹不符时会报错，保留已有缓存。离线重建可使用 `fetch --no-download` 或 `generate`。入库副本缺失、损坏或残旧时，即使原始缓存无需下载，也会重新复制。
+离线重建可使用 `fetch --no-download` 或 `generate`。入库副本缺失、损坏或残旧时，即使原始缓存无需下载，也会重新复制。
 
 ## `generate` 的开关
 
