@@ -1,4 +1,16 @@
 {
+    "GiftOperatorSelectSpecifiedOp": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    520,
+                    130,
+                    690,
+                    390
+                ]
+            }
+        }
+    },
     "GiftOperatorContacChooseSortOrder": {
         "recognition": {
             "param": {
