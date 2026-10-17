@@ -78,13 +78,13 @@ uv run tools/essence_filter/build_locations.py
 
 ## build_autoessence_tasks.py
 
-从 `weapons.json`、`skill_pools.json`、`locations.json` 生成基质刷取的目标模式和地区模式。
+从 `weapons.json`、`skill_pools.json`、`locations.json` 生成基质刷取的目标模式和地区模式，以及基质筛选（EssenceFilter）的目标武器选项。
 
 ```bash
 uv run tools/essence_filter/build_autoessence_tasks.py
 ```
 
-- 目标模式只收录 5、6 星武器，按稀有度从高到低、武器 ID 升序排列，6 星作为默认勾选。
+- 目标武器选项只收录 5、6 星武器，按稀有度从高到低、武器 ID 升序排列，6 星作为默认勾选。同一份武器数据分别写入两个任务的目标选项：基质刷取的 `assets/tasks/AutoEssence/Target/Target.json`（勾选后写到 `AutoEssenceTargetPlan.attach`）和基质筛选的 `assets/tasks/EssenceFilter/Target/Target.json`（勾选后写到 `EssenceFilterInit.attach`）。EssenceFilter 任务里的「筛选模式」选项引用后者，选项树本身写在 `assets/tasks/EssenceFilter.json`，不参与生成。
 - 武器图标写成 `resource/image/UI/Item/<武器 ID>.png`。这个路径对应已发布的 UI 图标，不使用站点 `weapons.json` 里的 `icon_path`。缺少对应 PNG 时生成失败。
 - 地区模式按 `locations.json` 的顺序生成地区列表、每个地区的附加/技能词条，以及随机模式的地区多选。地区 `level_id` 到节点 key 的对照在 `agent/go-service/autoessence/locations.go` 的 `locationLevelToKey`，key 到 interface 文案（`$global.region.*`）的对照在同文件的 `locationLabelKeys`。新地区要先把这两张表补上、五语言文案补齐，并补上 `RegionNodes` 下的节点，再运行生成器（缺哪一项就报哪一项）。
-- 武器显示名 `★稀有度 名称` 会同步到各语言的 interface locale。词条显示名仍使用已有的 `option.AutoEssenceSkill.*`，缺文案时生成失败。
+- 武器显示名 `★稀有度 名称` 会同步到各语言的 interface locale。词条显示名仍使用已有的 `option.AutoEssenceSkill.*`；目标选项的武器类型与「选择武器」文案使用 `option.AutoEssence*` / `option.EssenceFilter*` 键，缺文案时生成失败。

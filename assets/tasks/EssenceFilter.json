@@ -57,7 +57,7 @@
                 {
                     "name": "No",
                     "option": [
-                        "SelectWeaponRarity",
+                        "SelectFilterMode",
                         "SelectEssence",
                         "SelectExtraRules",
                         "SkipThumbLock",
@@ -73,6 +73,31 @@
                 }
             ],
             "default_case": "No"
+        },
+        "SelectFilterMode": {
+            "type": "select",
+            "label": "$option.SelectFilterMode.label",
+            "cases": [
+                {
+                    "name": "Rarity",
+                    "label": "$option.SelectWeaponRarity.label",
+                    "option": [
+                        "SelectWeaponRarity"
+                    ]
+                },
+                {
+                    "name": "Target",
+                    "label": "$option.SelectFilterMode.cases.Target.label",
+                    "option": [
+                        "EssenceFilterWeaponTypeSword",
+                        "EssenceFilterWeaponTypeClaymore",
+                        "EssenceFilterWeaponTypePistol",
+                        "EssenceFilterWeaponTypeWand",
+                        "EssenceFilterWeaponTypeLance"
+                    ]
+                }
+            ],
+            "default_case": "Rarity"
         },
         "SelectWeaponRarity": {
             "type": "switch",

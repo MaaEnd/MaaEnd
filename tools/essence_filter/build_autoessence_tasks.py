@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""从基质数据生成基质刷取的目标模式和地区模式选项。
+"""从基质数据生成基质刷取的目标模式和地区模式选项，以及基质筛选的目标武器选项。
 
 武器来自 weapons_output.json：只收录 5、6 星，6 星作为默认勾选。
 图标路径按物品 ID 写成 resource/image/UI/Item/<id>.png，不使用站点 JSON 里的 icon_path。
@@ -23,6 +23,9 @@ ZMDMAP_DATA_DIR = REPO_ROOT / "tools" / "zmdmap" / "data"
 TASK_DIR = REPO_ROOT / "assets" / "tasks" / "AutoEssence"
 LOCATION_DIR = TASK_DIR / "Location"
 TARGET_PATH = TASK_DIR / "Target" / "Target.json"
+ESSENCE_FILTER_TARGET_PATH = (
+    REPO_ROOT / "assets" / "tasks" / "EssenceFilter" / "Target" / "Target.json"
+)
 AUTO_ESSENCE_TASK = TASK_DIR / "AutoEssence.json"
 INTERFACE_PATH = REPO_ROOT / "assets" / "interface.json"
 PIPELINE_PATH = (
@@ -273,7 +276,12 @@ def build_choose_location(keys: list[str]) -> dict[str, Any]:
     }
 
 
-def build_target(grouped: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
+def build_weapon_target(
+    grouped: dict[str, list[dict[str, Any]]],
+    *,
+    name_prefix: str,
+    override_node: str,
+) -> dict[str, Any]:
     options: dict[str, Any] = {}
     missing_icons: list[str] = []
     for weapon_type, suffix in WEAPON_GROUPS:
@@ -294,14 +302,14 @@ def build_target(grouped: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
                     "label": f"$weapon.{weapon_id}",
                     "icon": icon,
                     "pipeline_override": {
-                        "AutoEssenceTargetPlan": {"attach": {weapon_id: True}},
+                        override_node: {"attach": {weapon_id: True}},
                     },
                 }
             )
         if missing_icons:
             continue
-        type_name = f"AutoEssenceWeaponType{suffix}"
-        list_name = f"AutoEssenceWeapons{suffix}"
+        type_name = f"{name_prefix}WeaponType{suffix}"
+        list_name = f"{name_prefix}Weapons{suffix}"
         options[type_name] = {
             "type": "switch",
             "label": f"$option.{type_name}.label",
@@ -313,7 +321,7 @@ def build_target(grouped: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
         }
         options[list_name] = {
             "type": "checkbox",
-            "label": "$option.AutoEssenceSelectWeapons.label",
+            "label": f"$option.{name_prefix}SelectWeapons.label",
             "cases": cases,
             "default_case": [
                 str(weapon["id"]) for weapon in weapons if int(weapon["rarity"]) == DEFAULT_RARITY
@@ -366,6 +374,13 @@ def skill_labels(locations: list[dict[str, Any]], slot1: list[dict[str, Any]]) -
         for entry in location["slot3"]:
             labels.add(f"option.AutoEssenceSkill.s3_{int(entry['id'])}")
     return labels
+
+
+def weapon_target_labels(name_prefix: str) -> set[str]:
+    return {
+        *(f"option.{name_prefix}WeaponType{suffix}.label" for _, suffix in WEAPON_GROUPS),
+        f"option.{name_prefix}SelectWeapons.label",
+    }
 
 
 def dumps(data: Any) -> str:
@@ -509,6 +524,7 @@ def main() -> int:
     resolved = resolve_locations(locations, location_keys, set(zh_cn))
     grouped = select_weapons(weapons)
     labels = skill_labels([location for _, location in resolved], pools["slot1"])
+    labels |= weapon_target_labels("AutoEssence") | weapon_target_labels("EssenceFilter")
     for locale_name in LOCALE_LANG:
         locale = json.loads((LOCALE_DIR / f"{locale_name}.json").read_text(encoding="utf-8"))
         missing = sorted(label for label in labels if label not in locale)
@@ -521,7 +537,16 @@ def main() -> int:
         LOCATION_DIR / "Slot1.json": build_slot1(pools["slot1"]),
         LOCATION_DIR / "SelectLocation.json": build_select_location(keys),
         LOCATION_DIR / "ChooseLocation.json": build_choose_location(keys),
-        TARGET_PATH: build_target(grouped),
+        TARGET_PATH: build_weapon_target(
+            grouped,
+            name_prefix="AutoEssence",
+            override_node="AutoEssenceTargetPlan",
+        ),
+        ESSENCE_FILTER_TARGET_PATH: build_weapon_target(
+            grouped,
+            name_prefix="EssenceFilter",
+            override_node="EssenceFilterInit",
+        ),
     }
     for key, location in resolved:
         outputs[LOCATION_DIR / f"{key}.json"] = build_secondary(key, location)
@@ -556,7 +581,7 @@ def main() -> int:
         for path in written:
             print(f"updated {path.relative_to(REPO_ROOT)}")
     else:
-        print("AutoEssence task options are up to date")
+        print("AutoEssence / EssenceFilter task options are up to date")
     return 0
 
 

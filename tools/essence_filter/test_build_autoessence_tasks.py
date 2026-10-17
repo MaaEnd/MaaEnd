@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from build_autoessence_tasks import (
     OCR_ROI,
+    build_weapon_target,
     ocr_expected,
     parse_location_keys,
     resolve_locations,
@@ -18,6 +19,7 @@ from build_autoessence_tasks import (
     strip_choose_location,
     sync_anchor_list,
     weapon_icon,
+    weapon_target_labels,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -149,6 +151,60 @@ class TextRewriteTest(unittest.TestCase):
         self.assertIn('"GotoTriggerPointSetAnchor_WLWulingCity"', updated)
         self.assertNotIn("WLSnowyForest", updated)
         self.assertEqual(updated.count("GotoTriggerPointSetAnchor"), 2)
+
+
+class WeaponTargetOptionsTest(unittest.TestCase):
+    def grouped(self):
+        return {
+            "Sword": [{"id": "wpn_sword_0010", "rarity": 6}],
+            "Claymores": [{"id": "wpn_claym_0004", "rarity": 5}],
+            "Pistol": [{"id": "wpn_pistol_0011", "rarity": 6}],
+            "Wand": [{"id": "wpn_funnel_0019", "rarity": 5}],
+            "Lance": [{"id": "wpn_lance_0010", "rarity": 6}],
+        }
+
+    def test_autoessence_override_node(self):
+        options = build_weapon_target(
+            self.grouped(),
+            name_prefix="AutoEssence",
+            override_node="AutoEssenceTargetPlan",
+        )["option"]
+        self.assertIn("AutoEssenceWeaponTypeSword", options)
+        checkbox = options["AutoEssenceWeaponsSword"]
+        self.assertEqual(checkbox["label"], "$option.AutoEssenceSelectWeapons.label")
+        self.assertEqual(checkbox["default_case"], ["wpn_sword_0010"])
+        self.assertEqual(
+            checkbox["cases"][0]["pipeline_override"],
+            {"AutoEssenceTargetPlan": {"attach": {"wpn_sword_0010": True}}},
+        )
+
+    def test_essence_filter_override_node(self):
+        options = build_weapon_target(
+            self.grouped(),
+            name_prefix="EssenceFilter",
+            override_node="EssenceFilterInit",
+        )["option"]
+        self.assertIn("EssenceFilterWeaponTypeClaymore", options)
+        checkbox = options["EssenceFilterWeaponsClaymore"]
+        self.assertEqual(checkbox["label"], "$option.EssenceFilterSelectWeapons.label")
+        self.assertEqual(checkbox["default_case"], [])
+        self.assertEqual(
+            checkbox["cases"][0]["pipeline_override"],
+            {"EssenceFilterInit": {"attach": {"wpn_claym_0004": True}}},
+        )
+
+    def test_label_keys(self):
+        self.assertEqual(
+            weapon_target_labels("EssenceFilter"),
+            {
+                "option.EssenceFilterWeaponTypeSword.label",
+                "option.EssenceFilterWeaponTypeClaymore.label",
+                "option.EssenceFilterWeaponTypePistol.label",
+                "option.EssenceFilterWeaponTypeWand.label",
+                "option.EssenceFilterWeaponTypeLance.label",
+                "option.EssenceFilterSelectWeapons.label",
+            },
+        )
 
 
 class SecondaryShapeTest(unittest.TestCase):

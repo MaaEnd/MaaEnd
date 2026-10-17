@@ -217,6 +217,7 @@
         "tasks/Weapon.json",
         "tasks/BatchUseDetector.json",
         "tasks/EssenceFilter.json",
+        "tasks/EssenceFilter/Target/Target.json",
         "tasks/DecomposeWeaponEssence.json",
         // group: open_world
         "tasks/ResourceRecycleStation.json",
