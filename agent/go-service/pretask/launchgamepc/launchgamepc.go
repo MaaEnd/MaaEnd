@@ -28,6 +28,7 @@ const (
 	regionGlobal   = "Global"
 	regionBilibili = "Bilibili"
 	regionTapTap   = "TapTap"
+	regionSteam    = "Steam"
 
 	gameProcessName = "Endfield.exe"
 	launcherExeName = "Launcher.exe"
@@ -48,8 +49,8 @@ var (
 
 // launcherInfo 描述各区服启动器：uninstallKey 为注册表 Uninstall 下的键名，
 // protocolKey 为启动器注册的 URL 协议键名，作为卸载项缺失时的备选；
-// launchURL 非空时不查找安装目录，改为打开该链接拉起启动器（TapTap 版直接运行 Launcher.exe 会提示需要重启应用）；
-// windowTitle 为启动器主窗口标题（B 服与 TapTap 版相同）。
+// launchURL 非空时不查找安装目录，改为打开该链接拉起启动器或游戏（TapTap 版直接运行 Launcher.exe 会提示需要重启应用）；
+// windowTitle 为启动器主窗口标题（B 服与 TapTap 版相同），为空表示没有启动器（Steam 版直接拉起游戏）。
 type launcherInfo struct {
 	uninstallKey string
 	protocolKey  string
@@ -77,6 +78,9 @@ var launchers = map[string]launcherInfo{
 		launchURL:   "taptap://taptap.com/app?app_id=232326&auto_launch=true",
 		windowTitle: "明日方舟：终末地",
 	},
+	regionSteam: {
+		launchURL: "steam://rungameid/4732690",
+	},
 }
 
 type launchGamePCOptions struct {
@@ -94,9 +98,10 @@ type launchGamePCOptions struct {
 	AutoHDR         string `json:"LaunchGamePCAutoHDR"`
 }
 
-// settingRegion 把启动器区服映射为游戏设置的注册表区服：B 服与国服共用 Hypergryph 路径。
+// settingRegion 把启动器区服映射为游戏设置的注册表区服：B 服、TapTap 与国服共用 Hypergryph 路径，
+// Steam 与国际服共用 Gryphline 路径。
 func settingRegion(region string) string {
-	if region == regionGlobal {
+	if region == regionGlobal || region == regionSteam {
 		return regionGlobal
 	}
 	return regionCN
@@ -178,31 +183,7 @@ func Run(args []string) bool {
 		Str("component", component).
 		Msg("MAA framework initialized")
 
-	log.Info().
-		Str("component", component).
-		Str("title", info.windowTitle).
-		Dur("timeout", launcherWindowTimeout).
-		Msg("waiting for launcher window")
-	titleRegex := regexp.MustCompile("^" + regexp.QuoteMeta(info.windowTitle) + "$")
-	// 此处避免使用进程名判断，避免游戏启动期间触发 ACE。
-	hWnd, ok := waitWindow(launcherClassRegex, titleRegex, launcherWindowTimeout)
-	if !ok {
-		log.Error().
-			Str("component", component).
-			Str("title", info.windowTitle).
-			Msg("launcher window not found")
-		return false
-	}
-	log.Info().
-		Str("component", component).
-		Str("title", info.windowTitle).
-		Msg("launcher window found")
-
-	log.Info().
-		Str("component", component).
-		Str("entry", pipelineEntry).
-		Msg("running launcher pipeline")
-	if !runLauncherPipeline(hWnd) {
+	if info.windowTitle != "" && !runLauncher(info.windowTitle) {
 		return false
 	}
 
@@ -221,6 +202,35 @@ func Run(args []string) bool {
 		Str("component", component).
 		Msg("game launched")
 	return true
+}
+
+// runLauncher 等待启动器窗口出现后执行启动器 pipeline。
+func runLauncher(windowTitle string) bool {
+	log.Info().
+		Str("component", component).
+		Str("title", windowTitle).
+		Dur("timeout", launcherWindowTimeout).
+		Msg("waiting for launcher window")
+	titleRegex := regexp.MustCompile("^" + regexp.QuoteMeta(windowTitle) + "$")
+	// 此处避免使用进程名判断，避免游戏启动期间触发 ACE。
+	hWnd, ok := waitWindow(launcherClassRegex, titleRegex, launcherWindowTimeout)
+	if !ok {
+		log.Error().
+			Str("component", component).
+			Str("title", windowTitle).
+			Msg("launcher window not found")
+		return false
+	}
+	log.Info().
+		Str("component", component).
+		Str("title", windowTitle).
+		Msg("launcher window found")
+
+	log.Info().
+		Str("component", component).
+		Str("entry", pipelineEntry).
+		Msg("running launcher pipeline")
+	return runLauncherPipeline(hWnd)
 }
 
 // startLauncherFromInstallDir 按任务设置或注册表找到安装目录并运行 Launcher.exe。
