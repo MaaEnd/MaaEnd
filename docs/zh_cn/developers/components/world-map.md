@@ -226,13 +226,15 @@ WorldMap 属于识别层，只负责在已经打开的大地图上把坐标解�
 
 ## 传送点接线
 
-传送点节点写在 `assets/resource/pipeline/SceneManager/SceneTeleport<区域>.json`，填进 `__ScenePrivateMapTeleportPickAnchor` 槽位；入口节点写在 `Interface/Scene<区域>.json`，绑定该槽位并经由 `__ScenePrivateMap<子区域>EnterWorldAnchorWithPick` 进入——后者负责把地图切到主图层，并用 `all_of` 确认当前确实在该子区域的地图界面，顺带先往最小缩一把。
+普通传送锚点由 `pnpm generate:SceneTeleport` 按营地数据生成：`MapFind` 节点在 `assets/resource/pipeline/SceneManager/SceneTeleportAnchor.json`，入口节点在 `Interface/SceneTeleportAnchor.json`，坐标与 desc 都取自营地数据，子区域与序号登记在 [`tools/pipeline-generate/SceneTeleport`](../../../../tools/pipeline-generate/SceneTeleport/README.md) 的 `anchors.json`。基建传送点等其它图标仍手写在 `SceneManager/SceneTeleport<区域>.json` 与 `Interface/Scene<区域>.json`，接法相同。
+
+传送点节点填进 `__ScenePrivateMapTeleportPickAnchor` 槽位；入口节点绑定该槽位并经由 `__ScenePrivateMap<子区域>EnterWorldAnchorWithPick` 进入——后者负责把地图切到主图层，并用 `all_of` 确认当前确实在该子区域的地图界面，顺带先往最小缩一把。
 
 `...EnterWorldAnchorWithPick` 里那条 `[JumpBack]__ScenePrivateMapZoomOut` 是提前量、不是必需品：`MapFind` 自己会调 `SceneMapZoomOutWithoutReco`。新接子区域时照着现有的 `...EnterWorldAnchorWithPick` 抄一份就行，漏了也不会因此认不出来。
 
 子区域的确认闸在 `...EnterWorldAnchorWithPick` 上，`MapFind` 节点自己不再重复一遍——`recognition` 槽位让给了 `MapFind`，而视口求解本身就是更强的「在不在这张图上」判据。
 
-加完新点后建议复核两件事：每个 `MapFind` 节点有且仅有一个入口节点绑定它、`at` 落在该区域底图范围内。
+手写新点后建议复核两件事：每个 `MapFind` 节点有且仅有一个入口节点绑定它、`at` 落在该区域底图范围内。
 
 绑错入口尤其要紧：入口决定了地图被切到哪个子区域。切错了视口照样求解得出来（底图上两个子区域都在），只是目标落在画面之外很远的地方，节点会一路拖到地图边界才判失败——不会点错，但要空耗十几秒。
 

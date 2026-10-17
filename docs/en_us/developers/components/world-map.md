@@ -226,13 +226,15 @@ Four entries exist today:
 
 ## Wiring up teleport points
 
-Teleport nodes live in `assets/resource/pipeline/SceneManager/SceneTeleport<Zone>.json` and fill the `__ScenePrivateMapTeleportPickAnchor` slot; entry nodes live in `Interface/Scene<Zone>.json`, bind that slot and route through `__ScenePrivateMap<SubArea>EnterWorldAnchorWithPick`, which switches the map to its main layer, uses `all_of` to confirm that this really is that sub-area's map screen, and gives the zoom a head start on the way.
+Regular teleport anchors are generated from the camp data by `pnpm generate:SceneTeleport`: the `MapFind` nodes go to `assets/resource/pipeline/SceneManager/SceneTeleportAnchor.json` and the entry nodes to `Interface/SceneTeleportAnchor.json`. Coordinates and descs come from the camp data; sub-areas and indices are registered in `anchors.json` under [`tools/pipeline-generate/SceneTeleport`](../../../../tools/pipeline-generate/SceneTeleport/README.md). Other icons such as base teleports are still hand-written in `SceneManager/SceneTeleport<Zone>.json` and `Interface/Scene<Zone>.json`, wired the same way.
+
+Teleport nodes fill the `__ScenePrivateMapTeleportPickAnchor` slot; entry nodes bind that slot and route through `__ScenePrivateMap<SubArea>EnterWorldAnchorWithPick`, which switches the map to its main layer, uses `all_of` to confirm that this really is that sub-area's map screen, and gives the zoom a head start on the way.
 
 The `[JumpBack]__ScenePrivateMapZoomOut` in `...EnterWorldAnchorWithPick` is a head start, not a requirement: `MapFind` calls `SceneMapZoomOutWithoutReco` on its own. When wiring up a new sub-area, copy an existing `...EnterWorldAnchorWithPick`; leaving it out costs nothing in recognition.
 
 The sub-area check lives on `...EnterWorldAnchorWithPick`; the `MapFind` node no longer repeats it — the `recognition` slot went to `MapFind`, and solving the viewport is itself the stronger test of "are we on this map at all".
 
-After adding points, two things are worth re-checking: every `MapFind` node is bound by exactly one entry node, and its `at` lies inside that zone's base map.
+After hand-writing points, two things are worth re-checking: every `MapFind` node is bound by exactly one entry node, and its `at` lies inside that zone's base map.
 
 Binding the wrong entry matters most, because the entry decides which sub-area the map gets switched to. Get it wrong and the viewport still solves (both sub-areas are on the same base map); the target simply lands far off screen, and the node pans all the way to the map edge before failing — nothing is misclicked, but a dozen seconds are burnt.
 

@@ -69,71 +69,6 @@
             "[JumpBack]SceneEnterMapAny"
         ]
     },
-    "SceneEnterWorldValleyIVTheHub1": {
-        "desc": "从任意界面进入四号谷地-枢纽区-旧供水设施东侧大世界",
-        "pre_delay": 0,
-        "anchor": {
-            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVEnterValleyIVTheHub1"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__ScenePrivateMapValleyIVTheHubEnterWorldAnchorWithPick",
-            "[JumpBack]SceneEnterMapValleyIVTheHub"
-        ]
-    },
-    "SceneEnterWorldValleyIVTheHub2": {
-        "desc": "从任意界面进入四号谷地-枢纽区-岩丘通道大世界",
-        "pre_delay": 0,
-        "anchor": {
-            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVEnterValleyIVTheHub2"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__ScenePrivateMapValleyIVTheHubEnterWorldAnchorWithPick",
-            "[JumpBack]SceneEnterMapValleyIVTheHub"
-        ]
-    },
-    "SceneEnterWorldValleyIVTheHub3": {
-        "desc": "从任意界面进入四号谷地-枢纽区-南部草甸大世界",
-        "pre_delay": 0,
-        "anchor": {
-            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVEnterValleyIVTheHub3"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__ScenePrivateMapValleyIVTheHubEnterWorldAnchorWithPick",
-            "[JumpBack]SceneEnterMapValleyIVTheHub"
-        ]
-    },
-    "SceneEnterWorldValleyIVValleyPass0": {
-        "desc": "从任意界面进入四号谷地-谷地通道-谷地要塞大世界",
-        "pre_delay": 0,
-        "anchor": {
-            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVEnterValleyIVValleyPass0"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__ScenePrivateMapValleyIVValleyPassEnterWorldAnchorWithPick",
-            "[JumpBack]SceneEnterMapValleyIVValleyPass"
-        ]
-    },
-    "SceneEnterWorldValleyIVAburreyQuarry0": {
-        "desc": "从任意界面进入四号谷地-阿伯莉采石场-采石场入口大世界",
-        "pre_delay": 0,
-        "anchor": {
-            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVEnterValleyIVAburreyQuarry0"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldAnchorWithPick",
-            "[JumpBack]SceneEnterMapValleyIVAburreyQuarry"
-        ]
-    },
     "SceneEnterWorldValleyIVOriginiumSciencePark0": {
         "desc": "从任意界面进入四号谷地-源石研究园-矿脉源区入口大世界",
         "pre_delay": 0,
@@ -314,18 +249,6 @@
             "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
         ]
     },
-    "SceneEnterWorldValleyIVOriginLodespring3": {
-        "desc": "从任意界面进入四号谷地-矿脉源区-矿区医疗站大世界",
-        "pre_delay": 0,
-        "anchor": {
-            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVEnterValleyIVOriginLodespring3"
-        },
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchorWithPick",
-            "[JumpBack]SceneEnterMapValleyIVOriginLodespring"
-        ]
-    },
     "SceneEnterWorldValleyIVOriginLodespring4": {
         "desc": "从任意界面进入四号谷地-矿脉源区-裂地者营地大世界",
         "pre_delay": 0,
@@ -403,18 +326,6 @@
         "rate_limit": 0,
         "next": [
             "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor",
-            "[JumpBack]SceneEnterMapValleyIVPowerPlateau"
-        ]
-    },
-    "SceneEnterWorldValleyIVPowerPlateau3": {
-        "desc": "从任意界面进入四号谷地-供能高地-疏散区大世界",
-        "pre_delay": 0,
-        "anchor": {
-            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapValleyIVEnterValleyIVPowerPlateau3"
-        },
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchorWithPick",
             "[JumpBack]SceneEnterMapValleyIVPowerPlateau"
         ]
     }
