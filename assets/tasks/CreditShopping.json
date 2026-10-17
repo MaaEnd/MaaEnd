@@ -65,7 +65,7 @@
                 "ReceptionRoomSendCluesDirect": {
                     "enabled": true
                 },
-                "ReceptionRoomSendCluesSelectClues": {
+                "ReceptionRoomSendCluesSendMain": {
                     "max_hit": "{MaxClueSendWhenInsufficient}"
                 }
             }
@@ -100,10 +100,55 @@
             "description": "$option.CreditShoppingClueStockLimit.description",
             "cases": [
                 {
+                    "name": "0",
+                    "label": "$option.CreditShoppingClueStockLimit.cases.0.label",
+                    "pipeline_override": {
+                        "ClueOneCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueSevenCount": {
+                            "expected": "^[1-9]\\d*$"
+                        }
+                    }
+                },
+                {
                     "name": "1",
                     "label": "$option.CreditShoppingClueStockLimit.cases.1.label",
                     "pipeline_override": {
-                        "ClueItemCount": {
+                        "ClueOneCount": {
+                            "expected": "^(?:[2-9]|1[0-9]|20)$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^(?:[2-9]|1[0-9]|20)$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^(?:[2-9]|1[0-9]|20)$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^(?:[2-9]|1[0-9]|20)$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^(?:[2-9]|1[0-9]|20)$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^(?:[2-9]|1[0-9]|20)$"
+                        },
+                        "ClueSevenCount": {
                             "expected": "^(?:[2-9]|1[0-9]|20)$"
                         }
                     }
@@ -112,7 +157,25 @@
                     "name": "2",
                     "label": "$option.CreditShoppingClueStockLimit.cases.2.label",
                     "pipeline_override": {
-                        "ClueItemCount": {
+                        "ClueOneCount": {
+                            "expected": "^(20|[3-9]|1[0-9])$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^(20|[3-9]|1[0-9])$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^(20|[3-9]|1[0-9])$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^(20|[3-9]|1[0-9])$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^(20|[3-9]|1[0-9])$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^(20|[3-9]|1[0-9])$"
+                        },
+                        "ClueSevenCount": {
                             "expected": "^(20|[3-9]|1[0-9])$"
                         }
                     }

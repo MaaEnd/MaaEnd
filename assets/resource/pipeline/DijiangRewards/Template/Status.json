@@ -322,5 +322,234 @@
                 "order_by": "Vertical"
             }
         }
+    },
+    "ClueOne": {
+        "desc": "[会客室·线索] 一号线索的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    37,
+                    127,
+                    54,
+                    491
+                ],
+                "expected": "1"
+            }
+        }
+    },
+    "ClueTwo": {
+        "desc": "[会客室·线索] 二号线索的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    37,
+                    127,
+                    54,
+                    491
+                ],
+                "expected": "2"
+            }
+        }
+    },
+    "ClueThree": {
+        "desc": "[会客室·线索] 三号线索的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    37,
+                    127,
+                    54,
+                    491
+                ],
+                "expected": "3"
+            }
+        }
+    },
+    "ClueFour": {
+        "desc": "[会客室·线索] 四号线索的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    37,
+                    127,
+                    54,
+                    491
+                ],
+                "expected": "4"
+            }
+        }
+    },
+    "ClueFive": {
+        "desc": "[会客室·线索] 五号线索的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    37,
+                    127,
+                    54,
+                    491
+                ],
+                "expected": "5"
+            }
+        }
+    },
+    "ClueSix": {
+        "desc": "[会客室·线索] 六号线索的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    37,
+                    127,
+                    54,
+                    491
+                ],
+                "expected": "6"
+            }
+        }
+    },
+    "ClueSeven": {
+        "desc": "[会客室·线索] 七号线索的 OCR 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    37,
+                    127,
+                    54,
+                    491
+                ],
+                "expected": "7"
+            }
+        }
+    },
+    "ClueOneCount": {
+        "desc": "[会客室·线索] 一号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueOne",
+                "roi_offset": [
+                    281,
+                    37,
+                    -13,
+                    -30
+                ],
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueTwoCount": {
+        "desc": "[会客室·线索] 二号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueTwo",
+                "roi_offset": [
+                    281,
+                    37,
+                    -13,
+                    -30
+                ],
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueThreeCount": {
+        "desc": "[会客室·线索] 三号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueThree",
+                "roi_offset": [
+                    281,
+                    37,
+                    -13,
+                    -30
+                ],
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueFourCount": {
+        "desc": "[会客室·线索] 四号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueFour",
+                "roi_offset": [
+                    281,
+                    37,
+                    -13,
+                    -30
+                ],
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueFiveCount": {
+        "desc": "[会客室·线索] 五号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueFive",
+                "roi_offset": [
+                    281,
+                    37,
+                    -13,
+                    -30
+                ],
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueSixCount": {
+        "desc": "[会客室·线索] 六号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueSix",
+                "roi_offset": [
+                    281,
+                    37,
+                    -13,
+                    -30
+                ],
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "ClueSevenCount": {
+        "desc": "[会客室·线索] 七号线索的库存数量（大于 0）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueSeven",
+                "roi_offset": [
+                    281,
+                    37,
+                    -13,
+                    -30
+                ],
+                "expected": "^[1-9]\\d*$"
+            }
+        }
+    },
+    "HasClueOne": {
+        "desc": "[会客室·线索] 是否有一号线索库存",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueOne",
+                    "ClueOneCount"
+                ]
+            }
+        }
     }
 }
