@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 )
@@ -19,7 +20,7 @@ type Engine struct {
 
 	slotIndicesOnce sync.Once
 
-	// Cache exact targets by rarity selection.
+	// Cache exact targets by target-weapon / rarity selection.
 	targetsCacheMu sync.Mutex
 	targetsCache   map[string][]SkillCombination
 }
@@ -118,7 +119,7 @@ func isMatchTraceEnabled() bool {
 
 // MatchOCR matches one OCR result and returns a unified MatchResult.
 func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult, error) {
-	targets, err := e.getTargetsByRarity(opts)
+	targets, err := e.getTargets(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -402,20 +403,51 @@ func (e *Engine) assignSlotForOCRText(text string) (int, bool) {
 	return 0, false
 }
 
-// BuildTargets builds exact-matching target combinations based on rarity toggles.
+// BuildTargets builds exact-matching target combinations from the selected target
+// weapons, or from the rarity toggles when no target weapon is selected.
 func (e *Engine) BuildTargets(opts EssenceFilterOptions) []SkillCombination {
-	targets, _ := e.getTargetsByRarity(opts)
+	targets, _ := e.getTargets(opts)
 	return targets
 }
 
-func (e *Engine) getTargetsByRarity(opts EssenceFilterOptions) ([]SkillCombination, error) {
-	key := rarityKey(opts)
+func (e *Engine) getTargets(opts EssenceFilterOptions) ([]SkillCombination, error) {
+	key := targetsCacheKey(opts)
 
 	e.targetsCacheMu.Lock()
 	defer e.targetsCacheMu.Unlock()
 
 	if v, ok := e.targetsCache[key]; ok {
 		return v, nil
+	}
+
+	weapons := e.selectTargetWeapons(opts)
+	targets := make([]SkillCombination, 0, len(weapons))
+	for _, w := range weapons {
+		targets = append(targets, SkillCombination{
+			Weapon:        w,
+			SkillsChinese: w.SkillsChinese,
+			SkillIDs:      w.SkillIDs,
+		})
+	}
+	e.targetsCache[key] = targets
+	return targets, nil
+}
+
+// selectTargetWeapons resolves an explicit target weapon list first; the rarity
+// toggles only apply when no target weapon is selected.
+func (e *Engine) selectTargetWeapons(opts EssenceFilterOptions) []WeaponData {
+	if ids := normalizedTargetWeaponIDs(opts.TargetWeaponIDs); len(ids) > 0 {
+		want := make(map[string]struct{}, len(ids))
+		for _, id := range ids {
+			want[id] = struct{}{}
+		}
+		weapons := make([]WeaponData, 0, len(ids))
+		for _, w := range e.data.Weapons {
+			if _, ok := want[w.InternalID]; ok {
+				weapons = append(weapons, w)
+			}
+		}
+		return weapons
 	}
 
 	var selected []int
@@ -428,10 +460,8 @@ func (e *Engine) getTargetsByRarity(opts EssenceFilterOptions) ([]SkillCombinati
 	if opts.Rarity4Weapon {
 		selected = append(selected, 4)
 	}
-
 	if len(selected) == 0 {
-		e.targetsCache[key] = []SkillCombination{}
-		return e.targetsCache[key], nil
+		return nil
 	}
 
 	weapons := make([]WeaponData, 0, len(e.data.Weapons))
@@ -443,17 +473,25 @@ func (e *Engine) getTargetsByRarity(opts EssenceFilterOptions) ([]SkillCombinati
 			}
 		}
 	}
+	return weapons
+}
 
-	targets := make([]SkillCombination, 0, len(weapons))
-	for _, w := range weapons {
-		targets = append(targets, SkillCombination{
-			Weapon:        w,
-			SkillsChinese: w.SkillsChinese,
-			SkillIDs:      w.SkillIDs,
-		})
+func normalizedTargetWeaponIDs(ids []string) []string {
+	out := make([]string, 0, len(ids))
+	for _, id := range ids {
+		if id = strings.TrimSpace(id); id != "" {
+			out = append(out, id)
+		}
 	}
-	e.targetsCache[key] = targets
-	return targets, nil
+	slices.Sort(out)
+	return slices.Compact(out)
+}
+
+func targetsCacheKey(opts EssenceFilterOptions) string {
+	if ids := normalizedTargetWeaponIDs(opts.TargetWeaponIDs); len(ids) > 0 {
+		return "target:" + strings.Join(ids, ",")
+	}
+	return rarityKey(opts)
 }
 
 func rarityKey(opts EssenceFilterOptions) string {

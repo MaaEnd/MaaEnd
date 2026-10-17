@@ -66,6 +66,10 @@ type MatcherConfig struct {
 
 // EssenceFilterOptions is the subset of EssenceFilter attach options needed for matching.
 type EssenceFilterOptions struct {
+	// TargetWeaponIDs are weapon internal IDs selected in target mode.
+	// When non-empty, only these weapons are kept; the rarity switches are ignored.
+	TargetWeaponIDs []string
+
 	// Rarity selection; if none selected, exact matching is disabled.
 	Rarity6Weapon bool `json:"rarity6_weapon"`
 	Rarity5Weapon bool `json:"rarity5_weapon"`

@@ -9,6 +9,11 @@ type EssenceFilterOptions struct {
 	FlawlessEssence bool `json:"flawless_essence"`
 	PureEssence     bool `json:"pure_essence"`
 
+	// TargetWeapons are weapon internal IDs selected in target mode, read from
+	// attach keys "wpn_<weapon id>": true; when non-empty, the rarity switches
+	// are ignored and only these weapons are matched.
+	TargetWeapons []string `json:"-"`
+
 	// 保留未来可期基质：三种词条且总等级 >= n
 	KeepFuturePromising     bool `json:"keep_future_promising"`
 	FuturePromisingMinTotal int  `json:"future_promising_min_total"`

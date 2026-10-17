@@ -108,10 +108,13 @@ func buildInitViewModel(st *RunState) InitViewModel {
 	return vm
 }
 
-func reportInitSelection(ctx *maa.Context, weaponRarity []int, essenceTypes []string) {
-	if len(weaponRarity) == 0 {
+func reportInitSelection(ctx *maa.Context, weaponRarity []int, essenceTypes []string, targetCount int) {
+	switch {
+	case targetCount > 0:
+		reportSimpleByKey(ctx, "focus.init.selected_targets", targetCount)
+	case len(weaponRarity) == 0:
 		reportSimpleByKey(ctx, "focus.init.no_weapon_rarity")
-	} else {
+	default:
 		reportSimpleByKey(ctx, "focus.init.selected_rarity", rarityListToString(weaponRarity))
 	}
 	reportSimpleByKey(ctx, "focus.init.selected_essence", essenceListToString(essenceTypes))
