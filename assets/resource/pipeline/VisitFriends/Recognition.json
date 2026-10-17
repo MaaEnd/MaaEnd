@@ -105,9 +105,9 @@
             "param": {
                 "roi": "VisitFriendsRecognitionItemOnline",
                 "roi_offset": [
-                    0,
+                    -16,
                     -62,
-                    135,
+                    151,
                     62
                 ],
                 "expected": [
