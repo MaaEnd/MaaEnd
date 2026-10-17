@@ -40,6 +40,25 @@ func snapshotRecordKey(e snapshotEntry) string {
 	return e.UID + "\x00" + e.GameDate + "\x00" + fmt.Sprintf("%d", e.RefreshIndex)
 }
 
+// shelfSnapshotExists 判断该 UID、游戏日、刷新次数是否已有货架快照。
+func shelfSnapshotExists(path, uid, gameDate string, refreshIndex int) (bool, error) {
+	storage, err := readSnapshotFile(path)
+	if err != nil {
+		return false, err
+	}
+	key := snapshotRecordKey(snapshotEntry{
+		UID:          uid,
+		GameDate:     gameDate,
+		RefreshIndex: refreshIndex,
+	})
+	for _, r := range storage.Records {
+		if snapshotRecordKey(r) == key {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func upsertShelfSnapshots(path string, entries []snapshotEntry) (upserted int, err error) {
 	if len(entries) == 0 {
 		return 0, nil
@@ -54,25 +73,27 @@ func upsertShelfSnapshots(path string, entries []snapshotEntry) (upserted int, e
 	}
 	for _, e := range entries {
 		key := snapshotRecordKey(e)
-		if i, exists := indexByKey[key]; exists {
-			storage.Records[i] = e
+		if _, exists := indexByKey[key]; exists {
 			log.Info().
 				Str("component", component).
 				Str("uid", e.UID).
 				Str("game_date", e.GameDate).
 				Int("refresh_index", e.RefreshIndex).
-				Msg("credit shopping shelf snapshot overwritten")
-		} else {
-			indexByKey[key] = len(storage.Records)
-			storage.Records = append(storage.Records, e)
-			log.Info().
-				Str("component", component).
-				Str("uid", e.UID).
-				Str("game_date", e.GameDate).
-				Int("refresh_index", e.RefreshIndex).
-				Msg("credit shopping shelf snapshot appended")
+				Msg("credit shopping shelf snapshot already recorded, keep first")
+			continue
 		}
+		indexByKey[key] = len(storage.Records)
+		storage.Records = append(storage.Records, e)
+		log.Info().
+			Str("component", component).
+			Str("uid", e.UID).
+			Str("game_date", e.GameDate).
+			Int("refresh_index", e.RefreshIndex).
+			Msg("credit shopping shelf snapshot appended")
 		upserted++
+	}
+	if upserted == 0 {
+		return 0, nil
 	}
 	if len(storage.Records) > maxSnapshotRecords {
 		storage.Records = storage.Records[len(storage.Records)-maxSnapshotRecords:]
