@@ -2,6 +2,7 @@ package autoessence
 
 import (
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"testing"
 
@@ -309,5 +310,16 @@ func TestLocationKeyByLevel(t *testing.T) {
 	}
 	if _, ok := LocationKeyByLevel("不存在"); ok {
 		t.Fatal("expected miss")
+	}
+}
+
+func TestBuildTargetFilterAttach(t *testing.T) {
+	attach := buildTargetFilterAttach([]string{"wpn_sword_0006", "wpn_pistol_0011"})
+	want := map[string]any{
+		"wpn_sword_0006":  true,
+		"wpn_pistol_0011": true,
+	}
+	if !reflect.DeepEqual(attach, want) {
+		t.Fatalf("attach = %v, want %v", attach, want)
 	}
 }

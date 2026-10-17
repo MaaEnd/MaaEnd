@@ -75,7 +75,7 @@ Init 语言探测节点见 Pipeline `EssenceFilter/DetectLanguage.json`（库存
 
 `EssenceFilterOptions` 来自 MaaFramework 已合并的 `EssenceFilterInit.attach`，包括武器稀有度、基质品质、扩展规则、未匹配废弃、导出选项。`input_language` 可选：省略或 `AUTO` 时由屏幕 OCR 探测；显式 `CN|TC|EN|JP|KR` 则强制该语言。
 
-目标模式由 `attach` 里的一组 `wpn_<武器 ID>: true` 传入（任务选项「筛选模式 → 目标模式」）。只要存在目标武器，就只匹配这些武器，稀有度开关不生效；目标武器全部不在武器数据中时 Init 直接失败，部分缺失时跳过缺失项并在界面上提示。
+目标模式由 `attach` 里的一组 `wpn_<武器 ID>: true` 传入（任务选项「筛选模式 → 目标模式」）。只要存在目标武器，就只匹配这些武器，稀有度开关不生效；目标武器全部不在武器数据中时 Init 直接失败，部分缺失时跳过缺失项并在界面上提示。基质刷取的目标模式会把同一条勾选清单写进 `EssenceFilterAfterBattleInit.attach`，因此战后筛选也自动只锁勾选的武器，不需要额外选项。
 
 `skip_thumb_lock` / `skip_thumb_discard` 属于 C++ `EssenceGridAdvance.attach`，不在 Go 状态中重复保存。
 

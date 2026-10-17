@@ -1243,7 +1243,7 @@
     "option.AutoEssenceMenu.cases.Location.label": "地区模式",
     "option.AutoEssenceMenu.cases.Random.description": "从勾选的地区中随机选取一个进行刷取",
     "option.AutoEssenceMenu.cases.Random.label": "随机模式",
-    "option.AutoEssenceMenu.cases.Target.description": "按武器类型勾选刷取目标；默认勾选全部 6 星武器；强制开启战后基质筛选",
+    "option.AutoEssenceMenu.cases.Target.description": "按武器类型勾选刷取目标；默认勾选全部 6 星武器；强制开启战后基质筛选，且只锁定勾选武器的基质",
     "option.AutoEssenceMenu.cases.Target.label": "目标选择",
     "option.AutoEssenceMenu.description": "在随机模式、地区模式与目标选择之间切换",
     "option.AutoEssenceMenu.label": "刷取设置",

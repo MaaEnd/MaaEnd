@@ -1243,7 +1243,7 @@
     "option.AutoEssenceMenu.cases.Location.label": "Region",
     "option.AutoEssenceMenu.cases.Random.description": "Randomly pick one region from those selected",
     "option.AutoEssenceMenu.cases.Random.label": "Random",
-    "option.AutoEssenceMenu.cases.Target.description": "Pick farming targets by weapon type. All 6-star weapons are selected by default. Post-battle essence filtering is always enabled.",
+    "option.AutoEssenceMenu.cases.Target.description": "Pick farming targets by weapon type. All 6-star weapons are selected by default. Post-battle essence filtering is always enabled and only locks essences for the selected weapons.",
     "option.AutoEssenceMenu.cases.Target.label": "Targets",
     "option.AutoEssenceMenu.description": "Switch between random mode, region mode, and target selection",
     "option.AutoEssenceMenu.label": "Farming setup",

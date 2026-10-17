@@ -1243,7 +1243,7 @@
     "option.AutoEssenceMenu.cases.Location.label": "地域モード",
     "option.AutoEssenceMenu.cases.Random.description": "選択した地域からランダムに1つを選んで周回します",
     "option.AutoEssenceMenu.cases.Random.label": "ランダムモード",
-    "option.AutoEssenceMenu.cases.Target.description": "武器タイプごとに周回目標を選択します。6星武器はデフォルトですべて選択されます。戦後の基質フィルタは常に有効です。",
+    "option.AutoEssenceMenu.cases.Target.description": "武器タイプごとに周回目標を選択します。6星武器はデフォルトですべて選択されます。戦後の基質フィルタは常に有効で、選択した武器の基質のみロックします。",
     "option.AutoEssenceMenu.cases.Target.label": "目標選択",
     "option.AutoEssenceMenu.description": "ランダムモード、地域モード、目標選択を切り替えます",
     "option.AutoEssenceMenu.label": "周回設定",
