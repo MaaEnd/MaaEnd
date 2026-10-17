@@ -217,14 +217,14 @@ def sync_workspace(workspace: Path, *, dry_run: bool) -> tuple[list[RepoOutcome]
     return outcomes, failed
 
 
-def preflight(table_cfg_dir: Path, json_data_dir: Path, *, check_navmesh: bool) -> list[str]:
+def preflight(table_cfg_dir: Path, json_data_dir: Path, *, check_navmesh: bool, check_json_data: bool = True) -> list[str]:
     """生成/投影前的提示项；返回问题列表（只提示，不阻止）。"""
     problems: list[str] = []
     if not table_cfg_dir.is_dir():
         problems.append(f"缺少 TableCfg 目录：{table_cfg_dir}")
-    if not json_data_dir.is_dir():
+    if check_json_data and not json_data_dir.is_dir():
         problems.append(f"缺少 JsonData 目录：{json_data_dir}")
-    elif not (json_data_dir / "GameplayConfig" / "LevelMapMark.json").is_file():
+    elif check_json_data and not (json_data_dir / "GameplayConfig" / "LevelMapMark.json").is_file():
         problems.append(f"缺少 {json_data_dir / 'GameplayConfig' / 'LevelMapMark.json'}")
     if check_navmesh and not any((NAVMESH_DIR / name).exists() for name in NAVMESH_FILES):
         problems.append("本地没有 navmesh（投影会改用远端 nav 数据，需要联网）")

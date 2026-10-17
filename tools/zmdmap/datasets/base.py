@@ -34,6 +34,8 @@ class Dataset(ABC):
 
     #: 入库时是否需要投影：需要投影的按 BaseNav 的 zone 表把世界坐标换成底图像素，其余原样复制。
     needs_projection: ClassVar[bool] = False
+    #: 只消费 TableCfg 的数据集可关闭 JsonData 目录预检。
+    requires_json_data: ClassVar[bool] = True
     #: 需要投影时，条目数组在数据里的键（按投影顺序）。
     projection_containers: ClassVar[tuple[str, ...]] = ()
 

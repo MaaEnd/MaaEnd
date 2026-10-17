@@ -2,7 +2,7 @@
 
 本文说明 `AutoStockStaple` 的文件分布与执行流程。  
 以 **四号谷地** 为主线；**武陵** Pipeline 结构完全对称，仅地区后缀与场景识别不同。  
-该文档更新于 2026 年 10 月 15 日。
+该文档更新于 2026 年 10 月 17 日。
 
 ## 文件路径
 
@@ -120,13 +120,46 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 | 物品被排除后 | `PipelineOverrideAction` + 再次 `AttachToExpectedRegexAction` | 剔除 attach 键并刷新白名单 |
 | 确认购买前 | `AutoStockStapleQuantityControlAction` | 算差值并 override BetterSliding 目标数量 |
 
-## 新增物品时需改的路径
+## 数据来源与增量更新
 
-1. `assets/resource/pipeline/AutoStockStaple/General/` 下的 `Goods.json`、`GoodsCountValidate.json`、`QuantityControl.json`（弹窗物品 OCR、上限比较表达式、数量控制分支；没有生成器，直接编辑）
-2. `assets/tasks/AutoStockStaple.json`（勾选 case + 上限 override）
-3. `assets/locales/interface/*.json`（选项与 `quantity_control.buy.*` / `reached.*` / `stock_bill_insufficient.*` focus 文案）
+商品名单、分类、价格与五语名称由 `tools/zmdmap/datasets/stock_staple.py` 从原始 TableCfg 生成，消费端不维护固定商品绑定表。数据关系如下：
 
-逐项改法见下文[新增物品](#新增物品)。
+```text
+DomainDataTable → ShopGroupTable → ShopTable → ShopGoodsTable
+                                           ├ RewardTable → ItemTable → 五语 I18nTextTable
+                                           ├ ShopGoodsTagTable → 五语分类名称
+                                           └ ShopChannelDevelopmentTable → 渠道等级供货量
+                  ↓
+stock_staple.json → AutoStockStaple/generate.mjs
+                  ├ assets/tasks/AutoStockStaple.json
+                  ├ General/{Goods,GoodsCountValidate,QuantityControl}.json
+                  └ assets/locales/interface/*.json 中的任务文本
+```
+
+只选择地区常规商店（`shopRefreshType=None/0`）中定期补货（`limitCountRefreshType` 非 `None/0`）的商品；一次性商品与弹性商店不纳入。`goods` 按售卖配置 ID 保留价格、折扣、币种、奖励数量、刷新类型、解锁条件和渠道供货记录；任务选项再按 `item_id` 去重，因此同物品的不同价格档不会丢失。
+
+现有任务、Pipeline 与语言文件作为基线。生成器从任务选项的 `resource/image/UI/Item/<item_id>.png` 路径识别已收录物品，只补上游新增项，不另外维护商品绑定表。已有商品的 key、名称、OCR 特例、ROI、节点顺序与数量策略原样保留；上游改名、分类变化或移除商品不会自动改写或删除已有配置，因此原来的勾选不会失效。
+
+`tools/pipeline-generate/AutoStockStaple/pipeline-template.json` 只保存新增商品的节点模板，`messages.json` 保存五语提示句式。新增选项名由上游英文名称去掉撇号后转成 PascalCase；attach 和提示使用游戏 `item_id`，节点后缀使用其 PascalCase。已有生成项只补缺失节点和文案，不覆盖现存值；没有增量时不写文件。
+
+下载上游发布数据并增量补充任务配置：
+
+```shell
+pnpm generate:AutoStockStaple
+```
+
+有本地原表时，可离线重建数据并完成同样的增量更新；只需要上图的八张业务表及 `I18nTextTable_{CN,TC,EN,JP,KR}.json`，不需要 JsonData、navmesh、其他精简表或网站查询接口：
+
+```shell
+uv run zmdmap generate --only stock_staple --table-cfg-dir /path/to/TableCfg
+node tools/pipeline-generate/AutoStockStaple/generate.mjs
+```
+
+基线文件整份缺失或损坏时，先从 Git 恢复，再运行增量更新；上游商品表不保存历史 OCR 修正，不能用于还原这些手写配置。生成器在所有输入可解析、所有新增项构建成功后才写入，保留 JSONC 注释和其他任务的语言内容。UI 图标继续由仓库既有图标发布链维护。
+
+`.github/workflows/sync-zmdmap.yml` 在现有数据同步任务中运行同一命令。`stock_staple` 与其他数据集一样，由 zmdmap 自动发现、生成并纳入发布清单，再通过现有 `fetch` 下载入库。有效缓存可重建缺失、损坏或残旧的入库副本；清单指纹变化会重新下载，即使版本号未变。
+
+静态价格用于保留完整售卖数据；运行时购买仍按原流程识别实际折扣、持有量和调度券，不用配置价格推算当次成交结果。
 
 ## 新增地区时需改的路径
 
@@ -292,15 +325,11 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 
 ## 新增物品
 
-新增一种稳定需求物资时，通常需要同步修改：
+上游原表新增商品后，重新发布 `stock_staple.json`，再运行 `pnpm generate:AutoStockStaple`；商品 case、名称 OCR、数量比较节点、三路购买分支和五语文案会一起生成。不再手工添加商品名、绑定表或旧别名。
 
-1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**：新增 `AutoStockStapleGoods{Item}` OCR 节点及多语言 `expected`。
-2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**：新增 `{Item}Validate` / `{Item}ExcludeValidate` 表达式节点。
-3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**：在 `AutoStockStapleQuantityControl.next` 中追加 `{Item}` 控制节点，并补齐 Buy / Exclude / StockBillInsufficient / RemoveFilter 等子节点（可参考同地区已有物品的写法）。
-4. **`assets/tasks/AutoStockStaple.json`**：在对应地区类目 switch 下的 `{类目}Items` 多选框中增加 case，写入 `AutoStockInStapleItemName.attach.{slug}`。数量上限 override 不在 case 里，而在同一类目 switch 下的 `{类目}…Limit` 输入项（如 `AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit`，一项可管多个物品）：在它的 `pipeline_override` 中补上 `AutoStockStapleGoods{Item}Validate` / `AutoStockStapleGoods{Item}ExcludeValidate` 的上限表达式。
-5. **`assets/locales/interface/*.json`**：补充 `option.CreditShoppingItems.cases.{Item}.label` 与 focus 文案（如 `quantity_control.buy.*`）。
+现有数量分组沿用任务策略：生活用品中的刻写券 ID 家族使用刻写券上限，其余使用食物增益上限；工业用品中的装备强化材料 ID 家族使用强化催化剂上限，其余使用探测器上限；文化用品使用礼物上限。新增类目或需要新导航的地区会明确报错，应先适配任务选项与流程。若有截图证明某件商品需要 OCR 修正，直接修改该商品节点；增量更新会保留这些修正。
 
-维护时请直接编辑上述 Pipeline 与任务配置，**不要**依赖代码生成器覆盖产物。
+已有流程仍在任务与 Pipeline 文件中维护；单商品模板只决定以后新增的节点，不会覆盖已有节点。
 
 ## 新增地区（参考四号谷地）
 
@@ -314,7 +343,7 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 2. 在 `Main.json` 增加 `[JumpBack]AutoStockStaple{Region}` 子任务与 SceneManager 跳转。
 3. 在 `StockStaple.json` 或地区 InScene 文件中补充场景 OCR。
 4. 在 `Item.json` 增加 `AutoStockInStapleItemDiscounts{Region}`（布局相同也要单独建，`AutoStockMinDiscount{Region}` 按地区改写该节点），并在 `resource_adb` 的 `Item.json` 补它的 `roi_offset`。
-5. 在 `assets/tasks/AutoStockStaple.json` 增加地区 switch 及选项组。
+5. 在 `assets/tasks/AutoStockStaple.json` 增加地区 switch 及空物品选项组，在生成器中接入地区 ID 与导航后缀，再运行增量更新。
 
 武陵现有实现即为四号谷地的镜像，可直接 diff `ValleyIV.json` 与 `Wuling.json` 查看差异点。
 

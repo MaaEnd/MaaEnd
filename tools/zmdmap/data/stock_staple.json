@@ -1,0 +1,2550 @@
+{
+    "sha256": "38b1a5f3ffe17207d4c677769b3337d4f6b46af44b5a9681842e6f4566f68ba2",
+    "regions": {
+        "domain_1": {
+            "names": {
+                "zh_cn": "四号谷地",
+                "zh_tw": "四號谷地",
+                "en_us": "Valley IV",
+                "ja_jp": "四号谷地",
+                "ko_kr": "4번 협곡"
+            },
+            "shop_group_id": "domainshop_map01",
+            "sort_id": 1,
+            "goods_ids": [
+                "domainshop_goods_map01_4003",
+                "domainshop_goods_map01_4004",
+                "domainshop_goods_map01_4007",
+                "domainshop_goods_map01_4008",
+                "domainshop_goods_map01_4011",
+                "domainshop_goods_map01_4012",
+                "domainshop_goods_map01_5001",
+                "domainshop_goods_map01_5002",
+                "domainshop_goods_map01_6005",
+                "domainshop_goods_map01_6006",
+                "domainshop_goods_map01_6007",
+                "domainshop_goods_map01_6008",
+                "domainshop_goods_map01_7008",
+                "domainshop_goods_map01_7009",
+                "domainshop_goods_map01_7010",
+                "domainshop_goods_map01_7011",
+                "domainshop_goods_map01_7012",
+                "domainshop_goods_map01_7013",
+                "domainshop_goods_map01_7014",
+                "domainshop_goods_map01_7015",
+                "domainshop_goods_map01_7016",
+                "domainshop_goods_map01_7017",
+                "domainshop_goods_map01_7018",
+                "domainshop_goods_map01_7019",
+                "domainshop_goods_map01_7020",
+                "domainshop_goods_map01_7021"
+            ]
+        },
+        "domain_2": {
+            "names": {
+                "zh_cn": "武陵",
+                "zh_tw": "武陵",
+                "en_us": "Wuling",
+                "ja_jp": "武陵",
+                "ko_kr": "무릉"
+            },
+            "shop_group_id": "domainshop_map02",
+            "sort_id": 2,
+            "goods_ids": [
+                "domainshop_goods_map02_001_1_12",
+                "domainshop_goods_map02_001_1_13",
+                "domainshop_goods_map02_001_1_14",
+                "domainshop_goods_map02_001_1_15",
+                "domainshop_goods_map02_001_2_3",
+                "domainshop_goods_map02_001_2_4",
+                "domainshop_goods_map02_001_2_13",
+                "domainshop_goods_map02_001_2_14",
+                "domainshop_goods_map02_001_2_15",
+                "domainshop_goods_map02_001_2_16",
+                "domainshop_goods_map02_001_2_17",
+                "domainshop_goods_map02_001_2_18",
+                "domainshop_goods_map02_001_2_19",
+                "domainshop_goods_map02_001_2_20",
+                "domainshop_goods_map02_001_3_18",
+                "domainshop_goods_map02_001_3_19",
+                "domainshop_goods_map02_001_3_20",
+                "domainshop_goods_map02_001_3_21",
+                "domainshop_goods_map02_004_1_3",
+                "domainshop_goods_map02_004_1_4",
+                "domainshop_goods_map02_004_2_3",
+                "domainshop_goods_map02_004_3_3",
+                "domainshop_goods_map02_004_3_4",
+                "domainshop_goods_map02_004_3_5",
+                "domainshop_goods_map02_004_3_6",
+                "domainshop_goods_map02_004_4_3",
+                "domainshop_goods_map02_004_4_4",
+                "domainshop_goods_map02_004_4_5",
+                "domainshop_goods_map02_007_1_03",
+                "domainshop_goods_map02_007_1_04",
+                "domainshop_goods_map02_007_1_07",
+                "domainshop_goods_map02_007_2_02",
+                "domainshop_goods_map02_007_2_03",
+                "domainshop_goods_map02_007_2_05",
+                "domainshop_goods_map02_007_1_08",
+                "domainshop_goods_map02_007_3_4",
+                "domainshop_goods_map02_007_3_5",
+                "domainshop_goods_map02_007_3_6",
+                "domainshop_goods_map02_007_3_7"
+            ]
+        }
+    },
+    "categories": {
+        "household": {
+            "names": {
+                "zh_cn": "日用消耗",
+                "zh_tw": "日用消耗",
+                "en_us": "Consumable Goods",
+                "ja_jp": "消耗品",
+                "ko_kr": "일상 소비"
+            },
+            "sort_id": 2
+        },
+        "industry": {
+            "names": {
+                "zh_cn": "工业货品",
+                "zh_tw": "工業製品",
+                "en_us": "Factory Goods",
+                "ja_jp": "特殊製品",
+                "ko_kr": "공업 상품"
+            },
+            "sort_id": 3
+        },
+        "crafts": {
+            "names": {
+                "zh_cn": "人文物产",
+                "zh_tw": "人文物產",
+                "en_us": "Cultural Goods",
+                "ja_jp": "特産品",
+                "ko_kr": "인문 물산"
+            },
+            "sort_id": 4
+        }
+    },
+    "items": {
+        "item_erhound_1_agmelee_1_moss_1_1": {
+            "names": {
+                "zh_cn": "雾火之花",
+                "zh_tw": "霧火之花",
+                "en_us": "Hazefyre Blossom",
+                "ja_jp": "霧火の花",
+                "ko_kr": "안갯불에 물든 꽃"
+            },
+            "icon_id": "item_erhound_1_agmelee_1_moss_1_1"
+        },
+        "item_lbmob_1_lbshamman_1_sp_1_1": {
+            "names": {
+                "zh_cn": "软骨饼干",
+                "zh_tw": "軟骨餅乾",
+                "en_us": "Cartilage Tack",
+                "ja_jp": "軟骨入りサブレ",
+                "ko_kr": "연골 과자"
+            },
+            "icon_id": "item_lbmob_1_lbshamman_1_sp_1_1"
+        },
+        "item_bottled_insec2_2": {
+            "names": {
+                "zh_cn": "附术铁瓶",
+                "zh_tw": "附術鐵瓶",
+                "en_us": "Kunst Tube",
+                "ja_jp": "付術鉄瓶",
+                "ko_kr": "아츠가 부여된 금속 병"
+            },
+            "icon_id": "item_bottled_insec2_2"
+        },
+        "item_agfly_1_agmelee_1_moss_2_1": {
+            "names": {
+                "zh_cn": "星融果冻",
+                "zh_tw": "星融果凍",
+                "en_us": "Cosmo-Melto Jelly",
+                "ja_jp": "星解けのゼリー",
+                "ko_kr": "스타 퓨전 젤리"
+            },
+            "icon_id": "item_agfly_1_agmelee_1_moss_2_1"
+        },
+        "item_agrange_1_erhound_1_sp_1_1": {
+            "names": {
+                "zh_cn": "雅各布的遗产",
+                "zh_tw": "雅各布的遺產",
+                "en_us": "Jakub's Legacy",
+                "ja_jp": "ヤコブの遺産",
+                "ko_kr": "제이컵의 유산"
+            },
+            "icon_id": "item_agrange_1_erhound_1_sp_1_1"
+        },
+        "item_slimeml_1_erhound_1_agfly_1_1": {
+            "names": {
+                "zh_cn": "手撕虫肉",
+                "zh_tw": "手撕蟲肉",
+                "en_us": "Pulled Slug Meat",
+                "ja_jp": "虫肉ジャーキー",
+                "ko_kr": "손으로 찢은 벌레 고기"
+            },
+            "icon_id": "item_slimeml_1_erhound_1_agfly_1_1"
+        },
+        "item_gem_stable_energy_point_tundra": {
+            "names": {
+                "zh_cn": "谷地刻写券",
+                "zh_tw": "谷地刻寫券",
+                "en_us": "Valley Engraving Permit",
+                "ja_jp": "谷地刻印券",
+                "ko_kr": "협곡 각인권"
+            },
+            "icon_id": "item_gem_stable_energy_point_tundra"
+        },
+        "item_tundra_detector_trchest_3": {
+            "names": {
+                "zh_cn": "新锐谷地探物器",
+                "zh_tw": "新銳谷地探測器",
+                "en_us": "Keen Valley Detector",
+                "ja_jp": "新型谷地専用探知機",
+                "ko_kr": "첨단 협곡 탐지기"
+            },
+            "icon_id": "item_tundra_detector_trchest_3"
+        },
+        "item_tundra_detector_coin_3": {
+            "names": {
+                "zh_cn": "新锐谷地罗盘",
+                "zh_tw": "新銳谷地羅盤",
+                "en_us": "Keen Valley Compass",
+                "ja_jp": "新型谷地専用コンパス",
+                "ko_kr": "첨단 협곡 나침반"
+            },
+            "icon_id": "item_tundra_detector_coin_3"
+        },
+        "item_gift_tundra_1": {
+            "names": {
+                "zh_cn": "醚质相机",
+                "zh_tw": "醚質相機",
+                "en_us": "Aurylene Camera",
+                "ja_jp": "オーリレンカメラ",
+                "ko_kr": "오리렌 카메라"
+            },
+            "icon_id": "item_gift_tundra_1"
+        },
+        "item_gift_tundra_2": {
+            "names": {
+                "zh_cn": "星门锁",
+                "zh_tw": "星門鎖",
+                "en_us": "Cosmic Gate Puzzle",
+                "ja_jp": "星門パズル",
+                "ko_kr": "스타게이트 자물쇠"
+            },
+            "icon_id": "item_gift_tundra_2"
+        },
+        "item_gift_tundra_3": {
+            "names": {
+                "zh_cn": "冲浪大赛门票",
+                "zh_tw": "衝浪大賽門票",
+                "en_us": "Surfing Festival Ticket",
+                "ja_jp": "サーフィン大会のチケット",
+                "ko_kr": "서핑대회 입장권"
+            },
+            "icon_id": "item_gift_tundra_3"
+        },
+        "item_gift_tundra_4": {
+            "names": {
+                "zh_cn": "耶尔什微风",
+                "zh_tw": "耶爾什微風",
+                "en_us": "Breeze of Kjersch",
+                "ja_jp": "イェルシェのそよ風",
+                "ko_kr": "옐시의 산들바람"
+            },
+            "icon_id": "item_gift_tundra_4"
+        },
+        "item_gift_tundra_5": {
+            "names": {
+                "zh_cn": "浪潮海石",
+                "zh_tw": "浪潮海石",
+                "en_us": "Tidestone Specimen",
+                "ja_jp": "潮汐晶石",
+                "ko_kr": "물결석"
+            },
+            "icon_id": "item_gift_tundra_5"
+        },
+        "item_gift_tundra_6": {
+            "names": {
+                "zh_cn": "塞梦珂披巾",
+                "zh_tw": "塞夢珂披巾",
+                "en_us": "Simonch Shawl",
+                "ja_jp": "シモンクのショール",
+                "ko_kr": "사이몬크 머플러"
+            },
+            "icon_id": "item_gift_tundra_6"
+        },
+        "item_gift_tundra_7": {
+            "names": {
+                "zh_cn": "《前沿瞭望》",
+                "zh_tw": "《前沿瞭望》",
+                "en_us": "Frontiers Watch",
+                "ja_jp": "『Frontiers』",
+                "ko_kr": "<전선의 조망>"
+            },
+            "icon_id": "item_gift_tundra_7"
+        },
+        "item_gift_jinlong_1": {
+            "names": {
+                "zh_cn": "岳研茶盒",
+                "zh_tw": "岳研茶盒",
+                "en_us": "Eureka Teabox",
+                "ja_jp": "岳研茶詰合せ",
+                "ko_kr": "악연 찻잎 세트"
+            },
+            "icon_id": "item_gift_jinlong_1"
+        },
+        "item_gift_jinlong_2": {
+            "names": {
+                "zh_cn": "应龙哑铃",
+                "zh_tw": "應龍啞鈴",
+                "en_us": "Yinglung Dumbbells",
+                "ja_jp": "応龍ダンベル",
+                "ko_kr": "응룡의 아령"
+            },
+            "icon_id": "item_gift_jinlong_2"
+        },
+        "item_wuling_detector_trchest_3": {
+            "names": {
+                "zh_cn": "新锐武陵探物器",
+                "zh_tw": "新銳武陵探測器",
+                "en_us": "Keen Wuling Detector",
+                "ja_jp": "新型武陵専用探知機",
+                "ko_kr": "첨단 무릉 탐지기"
+            },
+            "icon_id": "item_wuling_detector_trchest_3"
+        },
+        "item_wuling_detector_coin_3": {
+            "names": {
+                "zh_cn": "新锐武陵罗盘",
+                "zh_tw": "新銳武陵羅盤",
+                "en_us": "Keen Wuling Compass",
+                "ja_jp": "新型武陵専用コンパス",
+                "ko_kr": "첨단 무릉 나침반"
+            },
+            "icon_id": "item_wuling_detector_coin_3"
+        },
+        "item_corp3_grass1_1": {
+            "names": {
+                "zh_cn": "正本补元汤剂",
+                "zh_tw": "正本補元湯劑",
+                "en_us": "Fortifying Infusion",
+                "ja_jp": "滋養強壮の煎じ薬",
+                "ko_kr": "원기 회복 탕약"
+            },
+            "icon_id": "item_corp3_grass1_1"
+        },
+        "item_corp4_grass2_1": {
+            "names": {
+                "zh_cn": "锦素炒饭",
+                "zh_tw": "錦素炒飯",
+                "en_us": "Garden Fried Rice",
+                "ja_jp": "野菜たっぷりチャーハン",
+                "ko_kr": "채소 볶음밥"
+            },
+            "icon_id": "item_corp4_grass2_1"
+        },
+        "item_gem_stable_energy_point_wuling": {
+            "names": {
+                "zh_cn": "武陵刻写券",
+                "zh_tw": "武陵刻寫券",
+                "en_us": "Wuling Engraving Permit",
+                "ja_jp": "武陵刻印券",
+                "ko_kr": "무릉 각인권"
+            },
+            "icon_id": "item_gem_stable_energy_point_wuling"
+        },
+        "item_equip_enhance_wuling": {
+            "names": {
+                "zh_cn": "武陵精锻助剂",
+                "zh_tw": "武陵精鍛助劑",
+                "en_us": "Wuling Artificing Catalyst",
+                "ja_jp": "武陵加工強化剤",
+                "ko_kr": "무릉 정밀 단조제"
+            },
+            "icon_id": "item_equip_enhance_wuling"
+        },
+        "item_hscrane_1_hsmob_1_grass_1_1": {
+            "names": {
+                "zh_cn": "潘师傅蛋羹",
+                "zh_tw": "潘師傅蒸蛋",
+                "en_us": "Master Pan's Egg Pudding",
+                "ja_jp": "ダパン師匠の茶碗蒸し",
+                "ko_kr": "판 사부의 계란찜"
+            },
+            "icon_id": "item_hscrane_1_hsmob_1_grass_1_1"
+        },
+        "item_gift_jinlong_3": {
+            "names": {
+                "zh_cn": "草编天使",
+                "zh_tw": "草編天使",
+                "en_us": "Woven Aggelos",
+                "ja_jp": "草で編んだアンゲロス",
+                "ko_kr": "짚으로 엮은 아겔로스"
+            },
+            "icon_id": "item_gift_jinlong_3"
+        },
+        "item_gift_jinlong_4": {
+            "names": {
+                "zh_cn": "狼群骨雕",
+                "zh_tw": "狼群骨雕",
+                "en_us": "Scrimshaw of the Pack",
+                "ja_jp": "骨の彫刻",
+                "ko_kr": "울프팀의 뼈 조각상"
+            },
+            "icon_id": "item_gift_jinlong_4"
+        },
+        "item_ethillu_1_wgslime_1_wgthorns_1_1": {
+            "names": {
+                "zh_cn": "回响秘剂",
+                "zh_tw": "迴響秘劑",
+                "en_us": "Echoing Remedy",
+                "ja_jp": "回響の秘薬",
+                "ko_kr": "메아리의 비약"
+            },
+            "icon_id": "item_ethillu_1_wgslime_1_wgthorns_1_1"
+        },
+        "item_gift_jinlong_5": {
+            "names": {
+                "zh_cn": "龙泡泡·方兴纪念",
+                "zh_tw": "龍泡泡·方興紀念",
+                "en_us": "Chubby Lung: Fangxing Memorabilia",
+                "ja_jp": "龍泡泡・方興記念",
+                "ko_kr": "드래곤 버블 · 방흥 에디션"
+            },
+            "icon_id": "item_gift_jinlong_5"
+        },
+        "item_jzmonk_1_hsmob_1_1": {
+            "names": {
+                "zh_cn": "陈皮拌笋",
+                "zh_tw": "陳皮拌筍",
+                "en_us": "Rind-Flavored Sprouts",
+                "ja_jp": "陳皮と筍の和え物",
+                "ko_kr": "진피 죽순 무침"
+            },
+            "icon_id": "item_jzmonk_1_hsmob_1_1"
+        },
+        "item_gift_jinlong_6": {
+            "names": {
+                "zh_cn": "炸鳞薯条",
+                "zh_tw": "炸鱗薯條",
+                "en_us": "Fin-n-Chips",
+                "ja_jp": "鱗獣アンドチップス",
+                "ko_kr": "린수 앤 칩스"
+            },
+            "icon_id": "item_gift_jinlong_6"
+        },
+        "item_gift_jinlong_7": {
+            "names": {
+                "zh_cn": "怪味纸杯蛋糕",
+                "zh_tw": "怪味杯子蛋糕",
+                "en_us": "Bizarro Cupcake",
+                "ja_jp": "複雑な味のカップケーキ",
+                "ko_kr": "기묘한 컵케이크"
+            },
+            "icon_id": "item_gift_jinlong_7"
+        },
+        "item_slwood_1_hshog_1_1": {
+            "names": {
+                "zh_cn": "香焗兽肝",
+                "zh_tw": "香焗獸肝",
+                "en_us": "Sear-Toasted Liver",
+                "ja_jp": "レバーの塩蒸し焼き",
+                "ko_kr": "향신료로 구운 비스트의 간"
+            },
+            "icon_id": "item_slwood_1_hshog_1_1"
+        },
+        "item_gift_jinlong_10": {
+            "names": {
+                "zh_cn": "黑森林浆果酱",
+                "zh_tw": "黑森林漿果醬",
+                "en_us": "Myrkwood Berry Preserve",
+                "ja_jp": "「黒き森」のベリージャム",
+                "ko_kr": "검은 숲의 베리잼"
+            },
+            "icon_id": "item_gift_jinlong_10"
+        },
+        "item_gift_jinlong_11": {
+            "names": {
+                "zh_cn": "奇迹蛋糕",
+                "zh_tw": "奇蹟蛋糕",
+                "en_us": "Miracle Cake",
+                "ja_jp": "ミラクルケーキ",
+                "ko_kr": "기적의 케이크"
+            },
+            "icon_id": "item_gift_jinlong_11"
+        },
+        "item_gift_jinlong_8": {
+            "names": {
+                "zh_cn": "羽兽剪纸风筝",
+                "zh_tw": "羽獸剪紙風箏",
+                "en_us": "Fowlbeast Paper Kite",
+                "ja_jp": "羽獣の切り紙凧",
+                "ko_kr": "파울비스트 종이 연"
+            },
+            "icon_id": "item_gift_jinlong_8"
+        },
+        "item_gift_jinlong_9": {
+            "names": {
+                "zh_cn": "《摇摆绅士古典特辑》",
+                "zh_tw": "《搖擺紳士古典特輯》",
+                "en_us": "Der Schwingende Gentleman Classical Album",
+                "ja_jp": "『スウィングジェントルのクラシックアルバム』",
+                "ko_kr": "<스윙 젠틀맨 고전 특집>"
+            },
+            "icon_id": "item_gift_jinlong_9"
+        },
+        "item_wuling_detector_star": {
+            "names": {
+                "zh_cn": "武陵塔晶探针",
+                "zh_tw": "武陵塔晶探針",
+                "en_us": "Wuling Talosite Probe",
+                "ja_jp": "武陵タロサイト探査機",
+                "ko_kr": "무릉 탈로사이트 탐침기"
+            },
+            "icon_id": "item_wuling_detector_star"
+        },
+        "item_klcreatures_1_wgthorns_1_1": {
+            "names": {
+                "zh_cn": "蓄石秘剂",
+                "zh_tw": "蓄石秘劑",
+                "en_us": "Stonehold Remedy",
+                "ja_jp": "蓄石の秘薬",
+                "ko_kr": "축석의 비약"
+            },
+            "icon_id": "item_klcreatures_1_wgthorns_1_1"
+        },
+        "item_klbuds_1_hsfly_1_1": {
+            "names": {
+                "zh_cn": "洗灾秘剂",
+                "zh_tw": "洗災秘劑",
+                "en_us": "Ruin-Purger Remedy",
+                "ja_jp": "厄除の秘薬",
+                "ko_kr": "재앙 정화의 비약"
+            },
+            "icon_id": "item_klbuds_1_hsfly_1_1"
+        },
+        "item_inkbiter_1_wgshoal_1_1": {
+            "names": {
+                "zh_cn": "草本清凉饮",
+                "zh_tw": "草本清涼飲",
+                "en_us": "Herbal Tisane",
+                "ja_jp": "薬草清涼飲料",
+                "ko_kr": "약초 청량 음료"
+            },
+            "icon_id": "item_inkbiter_1_wgshoal_1_1"
+        },
+        "item_inkkirin_1_hscrane_1_1": {
+            "names": {
+                "zh_cn": "酥麻炸虫蛹",
+                "zh_tw": "酥麻炸蟲蛹",
+                "en_us": "Numbing Crispy Pupae",
+                "ja_jp": "シビカリさなぎフライ",
+                "ko_kr": "바삭한 번데기 튀김"
+            },
+            "icon_id": "item_inkkirin_1_hscrane_1"
+        },
+        "item_gift_jinlong_12": {
+            "names": {
+                "zh_cn": "缘缘庄拼图",
+                "zh_tw": "緣緣莊拼圖",
+                "en_us": "Yuanyuan Manor Jigsaw",
+                "ja_jp": "縁縁荘のパズル",
+                "ko_kr": "인연 마을 퍼즐"
+            },
+            "icon_id": "item_gift_jinlong_12"
+        },
+        "item_gift_jinlong_13": {
+            "names": {
+                "zh_cn": "木雕剑",
+                "zh_tw": "木雕劍",
+                "en_us": "Wooden Sword",
+                "ja_jp": "木彫りの剣",
+                "ko_kr": "장식용 목검"
+            },
+            "icon_id": "item_gift_jinlong_13"
+        }
+    },
+    "goods": {
+        "domainshop_goods_map01_4003": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "household",
+            "item_id": "item_erhound_1_agmelee_1_moss_1_1",
+            "count": 1,
+            "price": 120000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 40,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_4004": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "household",
+            "item_id": "item_lbmob_1_lbshamman_1_sp_1_1",
+            "count": 1,
+            "price": 120000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 40,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_4007": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "household",
+            "item_id": "item_bottled_insec2_2",
+            "count": 1,
+            "price": 200000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_2",
+                    "level": 4,
+                    "count": 40,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_4008": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "household",
+            "item_id": "item_agfly_1_agmelee_1_moss_2_1",
+            "count": 1,
+            "price": 120000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_2",
+                    "level": 4,
+                    "count": 40,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_4011": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "household",
+            "item_id": "item_agrange_1_erhound_1_sp_1_1",
+            "count": 1,
+            "price": 200000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_3",
+                    "level": 4,
+                    "count": 40,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_4012": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "household",
+            "item_id": "item_slimeml_1_erhound_1_agfly_1_1",
+            "count": 1,
+            "price": 200000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_3",
+                    "level": 4,
+                    "count": 40,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_5001": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "household",
+            "item_id": "item_gem_stable_energy_point_tundra",
+            "count": 1,
+            "price": 800000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_2",
+                    "level": 4,
+                    "count": 12,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                },
+                {
+                    "channel_id": "domainshop_channel_map01_3",
+                    "level": 4,
+                    "count": 12,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_5002": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "household",
+            "item_id": "item_gem_stable_energy_point_tundra",
+            "count": 1,
+            "price": 800000,
+            "discount": 0.5,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 6,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                },
+                {
+                    "channel_id": "domainshop_channel_map01_3",
+                    "level": 3,
+                    "count": 6,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_6005": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "industry",
+            "item_id": "item_tundra_detector_trchest_3",
+            "count": 1,
+            "price": 100000,
+            "discount": 0.5,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_2",
+                    "level": 3,
+                    "count": 5,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_6006": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "industry",
+            "item_id": "item_tundra_detector_coin_3",
+            "count": 1,
+            "price": 100000,
+            "discount": 0.5,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_2",
+                    "level": 3,
+                    "count": 5,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_6007": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "industry",
+            "item_id": "item_tundra_detector_trchest_3",
+            "count": 1,
+            "price": 100000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_2",
+                    "level": 4,
+                    "count": 5,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                },
+                {
+                    "channel_id": "domainshop_channel_map01_3",
+                    "level": 4,
+                    "count": 10,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_6008": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "industry",
+            "item_id": "item_tundra_detector_coin_3",
+            "count": 1,
+            "price": 100000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_2",
+                    "level": 4,
+                    "count": 5,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                },
+                {
+                    "channel_id": "domainshop_channel_map01_3",
+                    "level": 4,
+                    "count": 10,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7008": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_1",
+            "count": 1,
+            "price": 30000,
+            "discount": 0.2,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 3,
+                    "count": 10,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7009": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_2",
+            "count": 1,
+            "price": 30000,
+            "discount": 0.2,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 3,
+                    "count": 10,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7010": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_3",
+            "count": 1,
+            "price": 30000,
+            "discount": 0.2,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 3,
+                    "count": 10,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7011": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_4",
+            "count": 1,
+            "price": 30000,
+            "discount": 0.2,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 3,
+                    "count": 10,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7012": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_5",
+            "count": 1,
+            "price": 30000,
+            "discount": 0.2,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 3,
+                    "count": 10,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7013": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_6",
+            "count": 1,
+            "price": 30000,
+            "discount": 0.2,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 3,
+                    "count": 10,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7014": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_7",
+            "count": 1,
+            "price": 30000,
+            "discount": 0.2,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 3,
+                    "count": 10,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7015": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_1",
+            "count": 1,
+            "price": 30000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 60,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7016": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_2",
+            "count": 1,
+            "price": 30000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 60,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7017": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_3",
+            "count": 1,
+            "price": 30000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 60,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7018": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_4",
+            "count": 1,
+            "price": 30000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 60,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7019": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_5",
+            "count": 1,
+            "price": 30000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 60,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7020": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_6",
+            "count": 1,
+            "price": 30000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 60,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map01_7021": {
+            "region_id": "domain_1",
+            "shop_id": "domainshop_page_com_map01",
+            "category_id": "crafts",
+            "item_id": "item_gift_tundra_7",
+            "count": 1,
+            "price": 30000,
+            "discount": 1,
+            "currency_id": "item_domain_tundra_coupon",
+            "currency_names": {
+                "zh_cn": "谷地调度券",
+                "zh_tw": "谷地調度券",
+                "en_us": "Valley Stock Bill",
+                "ja_jp": "谷地取引券",
+                "ko_kr": "협곡 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map01_1",
+                    "level": 4,
+                    "count": 60,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_1_12": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_1",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.05,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 1,
+                    "count": 30,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_1_13": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_2",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.05,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 1,
+                    "count": 30,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_1_14": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_wuling_detector_trchest_3",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.05,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 1,
+                    "count": 10,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_1_15": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_wuling_detector_coin_3",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.05,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 1,
+                    "count": 10,
+                    "version_start": "v0d8d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_3": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_corp3_grass1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.1,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 40,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_4": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_corp4_grass2_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.1,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 40,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_13": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_gem_stable_energy_point_wuling",
+            "count": 1,
+            "price": 2400000,
+            "discount": 0.05,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 15,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_14": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_equip_enhance_wuling",
+            "count": 1,
+            "price": 1200000,
+            "discount": 0.05,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 40,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_15": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_gem_stable_energy_point_wuling",
+            "count": 1,
+            "price": 2400000,
+            "discount": 0.1,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 10,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_16": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_equip_enhance_wuling",
+            "count": 1,
+            "price": 1200000,
+            "discount": 0.1,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 20,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_17": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_1",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.1,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 30,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_18": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_2",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.1,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 30,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_19": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_wuling_detector_trchest_3",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.1,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 5,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_2_20": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_wuling_detector_coin_3",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.1,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 2,
+                    "count": 5,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_3_18": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_hscrane_1_hsmob_1_grass_1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.15,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 3,
+                    "count": 40,
+                    "version_start": "v1d1d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_3_19": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_3",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.15,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 3,
+                    "count": 30,
+                    "version_start": "v1d1d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_3_20": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_4",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.15,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 3,
+                    "count": 30,
+                    "version_start": "v1d1d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_001_3_21": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_equip_enhance_wuling",
+            "count": 1,
+            "price": 1200000,
+            "discount": 0.15,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_1",
+                    "level": 3,
+                    "count": 20,
+                    "version_start": "v1d1d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_1_3": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_ethillu_1_wgslime_1_wgthorns_1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.2,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 1,
+                    "count": 40,
+                    "version_start": "v1d2d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_1_4": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_5",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.2,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 1,
+                    "count": 30,
+                    "version_start": "v1d2d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_2_3": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_equip_enhance_wuling",
+            "count": 1,
+            "price": 1200000,
+            "discount": 0.25,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 2,
+                    "count": 20,
+                    "version_start": "v1d3d4",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_3_3": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_jzmonk_1_hsmob_1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.3,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 3,
+                    "count": 40,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_3_4": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_6",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.3,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 3,
+                    "count": 30,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_3_5": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_7",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.3,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 3,
+                    "count": 30,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_3_6": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_equip_enhance_wuling",
+            "count": 1,
+            "price": 1200000,
+            "discount": 0.35,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 3,
+                    "count": 20,
+                    "version_start": "v1d3d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_4_3": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_slwood_1_hshog_1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.5,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 4,
+                    "count": 40,
+                    "version_start": "v1d5d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_4_4": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_10",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.4,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 4,
+                    "count": 30,
+                    "version_start": "v1d5d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_004_4_5": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_11",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.4,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_2",
+                    "level": 4,
+                    "count": 30,
+                    "version_start": "v1d5d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_1_03": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_8",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.4,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 1,
+                    "count": 30,
+                    "version_start": "v1d4d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_1_04": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_9",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.4,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 1,
+                    "count": 30,
+                    "version_start": "v1d4d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_1_07": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_wuling_detector_star",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.25,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 1,
+                    "count": 10,
+                    "version_start": "v1d4d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_2_02": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_klcreatures_1_wgthorns_1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.4,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 2,
+                    "count": 40,
+                    "version_start": "v1d4d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_2_03": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_klbuds_1_hsfly_1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.4,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 2,
+                    "count": 40,
+                    "version_start": "v1d4d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_2_05": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_equip_enhance_wuling",
+            "count": 1,
+            "price": 1200000,
+            "discount": 0.5,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 50,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 2,
+                    "count": 20,
+                    "version_start": "v1d4d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_1_08": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "industry",
+            "item_id": "item_wuling_detector_star",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.5,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 60,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 2,
+                    "count": 5,
+                    "version_start": "v1d4d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_3_4": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_inkbiter_1_wgshoal_1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.5,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 3,
+                    "count": 40,
+                    "version_start": "v1d6d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_3_5": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "household",
+            "item_id": "item_inkkirin_1_hscrane_1_1",
+            "count": 1,
+            "price": 300000,
+            "discount": 0.5,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 100,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 3,
+                    "count": 40,
+                    "version_start": "v1d6d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_3_6": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_12",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.4,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 3,
+                    "count": 30,
+                    "version_start": "v1d6d0",
+                    "time_id": ""
+                }
+            ]
+        },
+        "domainshop_goods_map02_007_3_7": {
+            "region_id": "domain_2",
+            "shop_id": "domainshop_page_com_map02",
+            "category_id": "crafts",
+            "item_id": "item_gift_jinlong_13",
+            "count": 1,
+            "price": 90000,
+            "discount": 0.4,
+            "currency_id": "item_domain_jinlong_coupon",
+            "currency_names": {
+                "zh_cn": "武陵调度券",
+                "zh_tw": "武陵調度券",
+                "en_us": "Wuling Stock Bill",
+                "ja_jp": "武陵取引券",
+                "ko_kr": "무릉 관리권"
+            },
+            "refresh_type": 2,
+            "limit_count": 0,
+            "sort_id": 70,
+            "unlock_conditions": [],
+            "channel_supply": [
+                {
+                    "channel_id": "domainshop_channel_map02_3",
+                    "level": 3,
+                    "count": 30,
+                    "version_start": "v1d6d0",
+                    "time_id": ""
+                }
+            ]
+        }
+    }
+}

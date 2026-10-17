@@ -60,7 +60,7 @@ def should_skip(output_path: Path, data: Any, force: bool) -> bool:
         return False
     try:
         current = json.loads(output_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (OSError, ValueError):
         return False
     return current == data
 
@@ -262,7 +262,8 @@ def generate_command(
             click.echo(f"  [{mark}] {outcome.name:<20} {outcome.detail}")
 
     problems = preflight(
-        table_cfg_dir, json_data_dir, check_navmesh=not raw_only and bool(pipeline_files)
+        table_cfg_dir, json_data_dir, check_navmesh=not raw_only and bool(pipeline_files),
+        check_json_data=any(dataset.requires_json_data for dataset in datasets),
     )
     if problems:
         click.echo("\n── 预检提示 ─────────────────────────────────────")
@@ -283,7 +284,8 @@ def generate_command(
         return
 
     check_input_dir("TableCfg", table_cfg_dir, "--table-cfg-dir", TABLE_CFG_DIR_ENV)
-    check_input_dir("JsonData", json_data_dir, "--json-data-dir", JSON_DATA_DIR_ENV)
+    if any(dataset.requires_json_data for dataset in datasets):
+        check_input_dir("JsonData", json_data_dir, "--json-data-dir", JSON_DATA_DIR_ENV)
 
     click.echo("\n── 生成（原始形态）──────────────────────────────")
     started = time.monotonic()
