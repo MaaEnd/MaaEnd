@@ -101,7 +101,7 @@
             "cases": [
                 {
                     "name": "0",
-                    "label": "$option.ClueStockLimit.cases.0.label",
+                    "label": "$option.CreditShoppingClueStockLimit.cases.0.label",
                     "pipeline_override": {
                         "ClueOneCount": {
                             "expected": "^[1-9]\\d*$"
