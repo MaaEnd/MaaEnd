@@ -1,0 +1,53 @@
+{
+    "SeizeDeliveryJobsFailedChanceExhausted": {
+        "roi": [
+            900,
+            638,
+            110,
+            50
+        ]
+    },
+    "__SeizeDeliveryJobsRecoFilterOther": {
+        "roi": [
+            40,
+            638,
+            240,
+            45
+        ]
+    },
+    "__SeizeDeliveryJobsRecoFilterAll": {
+        "roi": [
+            40,
+            480,
+            240,
+            155
+        ]
+    },
+    "SeizeDeliveryJobsJobListIsAllFilter": {
+        "roi": [
+            40,
+            638,
+            240,
+            45
+        ]
+    },
+    "SeizeDeliveryJobsIsSeizeSuccess": {
+        "roi": [
+            700,
+            570,
+            120,
+            100
+        ]
+    },
+    "SeizeDeliveryJobsRefresh": {
+        "roi": [
+            1020,
+            638,
+            230,
+            45
+        ],
+        "template": [
+            "SeizeDeliveryJobs/DepotNodePage/JobRefresh.png"
+        ]
+    }
+}

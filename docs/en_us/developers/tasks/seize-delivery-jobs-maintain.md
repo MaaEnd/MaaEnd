@@ -135,6 +135,9 @@ Both the area depot nodes and the destination nodes use the same catalog model a
 | `endpoint-candidates-config.json` | `endpoint-candidates-template.jsonc` | `SeizeDeliveryJobsEndpointCandidates.json` | No |
 | `endpoint-dispatcher-config.json` | `endpoint-dispatcher-template.jsonc` | `SeizeDeliveryJobsEndpointDispatcher.json` | No |
 | `endpoint-filter-config.json` | `endpoint-filter-template.json` | `SeizeDeliveryJobsDestinations.json` | No |
+| `commission-adb-config.json` | `commission-adb-template.jsonc` | `resource_adb/.../SeizeDeliveryJobsCommission.json` | No |
+| `endpoint-candidates-adb-config.json` | `endpoint-candidates-adb-template.jsonc` | `resource_adb/.../SeizeDeliveryJobsEndpointCandidates.json` | No |
+| `endpoint-dispatcher-adb-config.json` | `endpoint-dispatcher-adb-template.jsonc` | `resource_adb/.../SeizeDeliveryJobsEndpointDispatcher.json` | No |
 | `task-config.json` | `task-template.jsonc` | `assets/tasks/SeizeDeliveryJobs.json` | No |
 
 During task rendering, `task-data.mjs` calls `syncSeizeDeliveryJobsLocales()`, which writes area labels, destination labels, and match messages to the five `assets/locales/interface/*.json` files. Area labels only fill missing values; destination labels and match messages are rewritten on every run from `endpoint-labels.json` (location name or source recipient name, plus the direction).
@@ -356,6 +359,29 @@ In destination-filter mode, `scannedJobItems` and `currentIndex` are temporary p
 - A refreshed job list must be scanned again; old dynamic boxes must never be reused.
 
 If a new branch leaves the job list or refreshes job data, connect it to an explicit reset node. Otherwise the next iteration may use stale dynamic click coordinates.
+
+## ADB / CloudADB / PlayCover Adaptation
+
+ADB loads `resource_adb`; CloudADB additionally loads `resource_cloud_adb`, while PlayCover additionally loads `resource_playcover`. The controller allowlist lives in `task-template.jsonc`; regenerate after changing it instead of editing only `assets/tasks/SeizeDeliveryJobs.json`.
+
+### Templates and Row Offsets
+
+- Mobile templates live in `assets/resource_adb/image/SeizeDeliveryJobs/DepotNodePage/`. Touch refresh only needs `JobRefresh.png`, with no Hover template.
+- `ValleyIVToken.png` / `WulingToken.png` are complete, stable 50×37 crops; calibrate the mobile offsets from them.
+- `JobViewButton.png` uses the complete right-hand rounded edge.
+- `find_target.go` picks offsets via `rowOffsetsForController(pienv.ControllerKind())`: `Adb`, `native_android`, and `PlayCover` use the mobile offsets, all other types the desktop ones.
+- Mobile offsets are voucher → reward `[0, 31, 3, -13]`, reward → origin `[-220, -40, 70, 15]`, reward → accept `[210, -9, 130, 20]`, and reward → location `[-220, -15, 80, 20]`.
+- Go overrides every per-row OCR ROI at runtime; verify `rowOffsetsForController()` when re-calibrating.
+
+### Generated Overlays and Closing Maps
+
+The three `*-adb-config.json` configs in the table above share the base data sources; `run-all.mjs SeizeDeliveryJobs` generates their overlays under `resource_adb/pipeline/SeizeDeliveryJobs/`. Do not edit these artifacts when adding maps or areas.
+
+The mobile area-title ROI and dispatcher freeze target both use `[40, 18, 280, 40]`; acceptance keeps the base freeze target `[2, 164, 264, 103]` (it covers the static transport precautions on the left of the success screen), so do not move it onto the crate or the animated bottom banner. `SeizeDeliveryJobsMapReadyToClose` recognizes a supported area and the public `CloseButtonType1` and returns the close-button box, reusing only that recognition without running its actions or routing.
+
+- ADB's two `SeizeDeliveryJobsPressEscAfter*` nodes send BACK (key=4).
+- CloudADB and PlayCover do not support keys, so both nodes are overridden to `Click` (which clicks the close button above).
+- All three controllers recognize the loaded job list after closing the map before accepting or scanning again. No hard delays or private scene-node calls are introduced.
 
 ## Common Problems and Triage
 

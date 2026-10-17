@@ -1,0 +1,18 @@
+{
+    "__SeizeDeliveryJobsRecoFilter${MapName}": {
+        "roi": [
+            40,
+            480,
+            240,
+            155
+        ]
+    },
+    "SeizeDeliveryJobsJobListIs${MapName}Filter": {
+        "roi": [
+            40,
+            638,
+            240,
+            45
+        ]
+    }
+}

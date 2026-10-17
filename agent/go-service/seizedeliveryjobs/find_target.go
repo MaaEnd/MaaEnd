@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -21,14 +22,31 @@ const (
 	minRewardNode           = "__SeizeDeliveryJobsMinReward"
 )
 
-// 链式 roi 偏移（照搬原档位 And 的 sub 间相对 offset）。
+// jobRowOffsets 定义调度券 → 奖励 → 出发地 / 接取 / 查看位置的链式 ROI 偏移。
 // box + offset = 下一个识别的 roi。
-var (
-	offsetWulingToReward = [4]int{0, 30, 0, -20}
-	offsetRewardToOrigin = [4]int{-229, -38, 50, 14}
-	offsetRewardToAccept = [4]int{226, -4, 70, 12}
-	offsetRewardToView   = [4]int{-215, -8, 34, 10}
-)
+type jobRowOffsets struct {
+	tokenToReward  [4]int
+	rewardToOrigin [4]int
+	rewardToAccept [4]int
+	rewardToView   [4]int
+}
+
+func rowOffsetsForController(controllerKind string) jobRowOffsets {
+	if pienv.IsAdbLikeControllerType(controllerKind) {
+		return jobRowOffsets{
+			tokenToReward:  [4]int{0, 31, 3, -13},
+			rewardToOrigin: [4]int{-220, -40, 70, 15},
+			rewardToAccept: [4]int{210, -9, 130, 20},
+			rewardToView:   [4]int{-220, -15, 80, 20},
+		}
+	}
+	return jobRowOffsets{
+		tokenToReward:  [4]int{0, 30, 0, -20},
+		rewardToOrigin: [4]int{-229, -38, 50, 14},
+		rewardToAccept: [4]int{226, -4, 70, 12},
+		rewardToView:   [4]int{-215, -8, 34, 10},
+	}
+}
 
 // readMinReward 从单价仓库节点（__SeizeDeliveryJobsMinReward）读取价格下限（单位：万）。
 // 该节点的 expected 由 tasks 覆写为用户输入值（{Reward}）。
@@ -179,13 +197,14 @@ func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJ
 		return nil, false
 	}
 
+	offsets := rowOffsetsForController(pienv.ControllerKind())
 	var items []deliveryJobItem
 	for _, wf := range commissionFD.Filtered {
 		if len(wf.Box) < 4 {
 			continue
 		}
 		// 价格（基于 CommissionToken box 偏移）
-		rewardText, rewardBox, ok := ocrFirst(ctx, img, recoRewardNode, offsetBox(wf.Box, offsetWulingToReward))
+		rewardText, rewardBox, ok := ocrFirst(ctx, img, recoRewardNode, offsetBox(wf.Box, offsets.tokenToReward))
 		if !ok || len(rewardBox) < 4 {
 			continue
 		}
@@ -198,9 +217,9 @@ func scanJobs(ctx *maa.Context, img image.Image, minReward float64) ([]deliveryJ
 			continue
 		}
 		// 出发地 / 接取 / 查看位置（基于 RewardOcr box 偏移）；任一 OCR 未命中即跳过，避免下游拿到空 box
-		originText, _, originOk := ocrFirst(ctx, img, recoOriginNode, offsetBox(rewardBox, offsetRewardToOrigin))
-		_, acceptBox, acceptOk := ocrFirst(ctx, img, recoAcceptNode, offsetBox(rewardBox, offsetRewardToAccept))
-		_, viewBox, viewOk := ocrFirst(ctx, img, recoViewLocationNode, offsetBox(rewardBox, offsetRewardToView))
+		originText, _, originOk := ocrFirst(ctx, img, recoOriginNode, offsetBox(rewardBox, offsets.rewardToOrigin))
+		_, acceptBox, acceptOk := ocrFirst(ctx, img, recoAcceptNode, offsetBox(rewardBox, offsets.rewardToAccept))
+		_, viewBox, viewOk := ocrFirst(ctx, img, recoViewLocationNode, offsetBox(rewardBox, offsets.rewardToView))
 		if !originOk || !acceptOk || !viewOk {
 			log.Debug().
 				Str("component", "SeizeDeliveryJobs").

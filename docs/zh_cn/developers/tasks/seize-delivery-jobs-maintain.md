@@ -135,6 +135,9 @@ SeizeDeliveryJobsScanTarget
 | `endpoint-candidates-config.json` | `endpoint-candidates-template.jsonc` | `SeizeDeliveryJobsEndpointCandidates.json` | 否 |
 | `endpoint-dispatcher-config.json` | `endpoint-dispatcher-template.jsonc` | `SeizeDeliveryJobsEndpointDispatcher.json` | 否 |
 | `endpoint-filter-config.json` | `endpoint-filter-template.json` | `SeizeDeliveryJobsDestinations.json` | 否 |
+| `commission-adb-config.json` | `commission-adb-template.jsonc` | `resource_adb/.../SeizeDeliveryJobsCommission.json` | 否 |
+| `endpoint-candidates-adb-config.json` | `endpoint-candidates-adb-template.jsonc` | `resource_adb/.../SeizeDeliveryJobsEndpointCandidates.json` | 否 |
+| `endpoint-dispatcher-adb-config.json` | `endpoint-dispatcher-adb-template.jsonc` | `resource_adb/.../SeizeDeliveryJobsEndpointDispatcher.json` | 否 |
 | `task-config.json` | `task-template.jsonc` | `assets/tasks/SeizeDeliveryJobs.json` | 否 |
 
 生成时 `task-data.mjs` 调用 `syncSeizeDeliveryJobsLocales()`，向五个 `assets/locales/interface/*.json` 写入区域标签、终点标签和命中提示。区域标签只补缺失值；终点标签与命中提示每次生成都按 `endpoint-labels.json`（地点名或数据源收货人名称 + 方位）重写。
@@ -356,6 +359,29 @@ Go 从 `__SeizeDeliveryJobsMinReward.expected[0]` 读取任务输入，并把奖
 - 委托列表刷新后必须重新扫描，不能继续使用旧 box。
 
 如果新增分支会离开委托列表或刷新委托数据，必须明确接入 reset 节点，否则下一轮可能使用已经失效的动态点击坐标。
+
+## ADB / CloudADB / PlayCover 适配维护
+
+ADB 加载 `resource_adb`；CloudADB 再加载 `resource_cloud_adb`，PlayCover 再加载 `resource_playcover`。控制器白名单在 `task-template.jsonc` 中维护，改后需重新生成，不要只改 `assets/tasks/SeizeDeliveryJobs.json`。
+
+### 模板与行内偏移
+
+- 移动端模板位于 `assets/resource_adb/image/SeizeDeliveryJobs/DepotNodePage/`；触摸端刷新只用 `JobRefresh.png`，无 Hover 模板。
+- 调度券模板 `ValleyIVToken.png` / `WulingToken.png` 从完整、稳定的图案裁取，尺寸 50×37，再标定移动偏移。
+- `JobViewButton.png` 取按钮右侧完整圆角轮廓。
+- `find_target.go` 的 `rowOffsetsForController()` 按 `pienv.ControllerKind()` 选布局：`Adb`、`native_android`、`PlayCover`用移动偏移，其余用桌面偏移。
+- 移动偏移依次为：调度券 → 奖励 `[0, 31, 3, -13]`，奖励 → 出发地 `[-220, -40, 70, 15]`，奖励 → 接取 `[210, -9, 130, 20]`，奖励 → 查看位置 `[-220, -15, 80, 20]`。
+- Go 每次 OCR 都覆写 ROI；重标偏移时必须同时核验 `rowOffsetsForController()`。
+
+### 生成产物与关闭地图
+
+上表三个 `*-adb-config.json` 与基础配置共用数据源，由 `run-all.mjs SeizeDeliveryJobs` 一并生成 `resource_adb/pipeline/SeizeDeliveryJobs/` 下的覆盖；新增地区 / 区域时不要手改这些产物。
+
+移动端地图区域标题 ROI 与守卫冻结框统一为 `[40, 18, 280, 40]`；接取动作沿用基础冻结框 `[2, 164, 264, 103]`（覆盖接取成功页左侧的静态运送注意事项），不要改到箱体或底部动画横幅。`SeizeDeliveryJobsMapReadyToClose` 同时确认受支持区域与右上角 `CloseButtonType1`，返回关闭按钮的 box，只复用公共按钮识别，不执行其动作与流程。
+
+- ADB 的两个 `SeizeDeliveryJobsPressEscAfter*` 节点执行 BACK（key=4）。
+- CloudADB、PlayCover 不支持按键，将这两个节点覆盖为 `Click`（点击上述关闭按钮）。
+- 三种控制器关闭地图后先识别加载完成的委托列表，再接取或继续扫描；不引入硬延迟，也不调用 `__ScenePrivateAnyExit`。
 
 ## 常见问题与排查顺序
 
