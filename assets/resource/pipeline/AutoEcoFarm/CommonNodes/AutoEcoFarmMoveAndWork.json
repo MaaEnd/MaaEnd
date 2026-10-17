@@ -23,8 +23,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 87, //w键
-                "auto_up": true
+                "auto_up": true,
+                "key": 87 //w键
             }
         },
         "post_delay": 0,
@@ -77,8 +77,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 87, //w键
-                "auto_up": true
+                "auto_up": true,
+                "key": 87 //w键
             }
         },
         "post_delay": 0,
@@ -241,8 +241,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 18, //alt键
-                "auto_up": true
+                "auto_up": true,
+                "key": 18 //alt键
             }
         },
         "next": [
@@ -337,8 +337,8 @@
         "action": {
             "type": "KeyDown",
             "param": {
-                "key": 87, //w键
-                "auto_up": true
+                "auto_up": true,
+                "key": 87 //w键
             }
         },
         "post_delay": 0,

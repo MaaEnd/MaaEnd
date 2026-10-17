@@ -49,6 +49,7 @@
         ],
         "pre_delay": 0,
         "action": "KeyDown",
+        "auto_up": true,
         "key": 82, // R 0x52
         "post_delay": 0,
         "rate_limit": 0,
@@ -57,8 +58,7 @@
         ],
         "on_error": [
             "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError"
-        ],
-        "auto_up": true
+        ]
     },
     "_AutoEcoFarmEnterCameraModeFallbackSelectTool": {
         "desc": "通用快捷键回退进入选择工具界面",
