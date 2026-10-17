@@ -1652,6 +1652,7 @@
     "option.LaunchGamePCLauncherPath.label": "啟動器路徑",
     "option.LaunchGamePCRegion.cases.Bilibili.label": "B服",
     "option.LaunchGamePCRegion.cases.CN.label": "國服",
+    "option.LaunchGamePCRegion.cases.Epic.label": "Epic",
     "option.LaunchGamePCRegion.cases.Global.label": "國際服",
     "option.LaunchGamePCRegion.cases.Steam.label": "Steam",
     "option.LaunchGamePCRegion.cases.TapTap.label": "TapTap",

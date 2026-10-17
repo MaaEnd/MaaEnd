@@ -29,6 +29,7 @@ const (
 	regionBilibili = "Bilibili"
 	regionTapTap   = "TapTap"
 	regionSteam    = "Steam"
+	regionEpic     = "Epic"
 
 	gameProcessName = "Endfield.exe"
 	launcherExeName = "Launcher.exe"
@@ -51,7 +52,7 @@ var (
 // protocolKey 为启动器注册的 URL 协议键名，作为卸载项缺失时的备选；
 // launchURL 非空时不查找安装目录，改为打开该链接拉起启动器或游戏（TapTap 版直接运行 Launcher.exe 会提示需要重启应用）；
 // windowRegex 匹配启动器主窗口标题（B 服与 TapTap 版相同），为 nil 表示没有启动器（Steam 版直接拉起游戏）；
-// settingRegion 为游戏设置所在的注册表区服：B 服、TapTap 与国服共用 Hypergryph 路径，Steam 与国际服共用 Gryphline 路径。
+// settingRegion 为游戏设置所在的注册表区服：B 服、TapTap 与国服共用 Hypergryph 路径，Steam、Epic 与国际服共用 Gryphline 路径。
 type launcherInfo struct {
 	uninstallKey  string
 	protocolKey   string
@@ -86,6 +87,11 @@ var launchers = map[string]launcherInfo{
 	},
 	regionSteam: {
 		launchURL:     "steam://rungameid/4732690",
+		settingRegion: regionGlobal,
+	},
+	regionEpic: {
+		launchURL:     "com.epicgames.launcher://apps/14d53b5d3fcb4526a69d59f35c9dd28f%3A6838c695288a4fcea4486285edebcfdf%3Abcd55b0d87c245dd867f5b1bd496f1df?action=launch&silent=true",
+		windowRegex:   regexp.MustCompile(`^Arknights: Endfield$`),
 		settingRegion: regionGlobal,
 	},
 }

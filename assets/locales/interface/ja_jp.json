@@ -1652,6 +1652,7 @@
     "option.LaunchGamePCLauncherPath.label": "ランチャーのパス",
     "option.LaunchGamePCRegion.cases.Bilibili.label": "bilibiliサーバー",
     "option.LaunchGamePCRegion.cases.CN.label": "中国サーバー",
+    "option.LaunchGamePCRegion.cases.Epic.label": "Epic",
     "option.LaunchGamePCRegion.cases.Global.label": "グローバルサーバー",
     "option.LaunchGamePCRegion.cases.Steam.label": "Steam",
     "option.LaunchGamePCRegion.cases.TapTap.label": "TapTap",
