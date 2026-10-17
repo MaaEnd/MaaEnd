@@ -4,7 +4,8 @@
 
 - TableCfg：``<workspace>/BeyondTableCfg/TableCfg``，一批 ``<表名>.json``，另有各语言文本表
   ``I18nTextTable_{CN,TC,EN,JP,KR}.json``；
-- JsonData：``<workspace>/BeyondMemoryPack/JsonData``，数据在 ``GameplayConfig/<表名>.json``。
+- JsonData：``<workspace>/BeyondMemoryPack/JsonData``，数据在 ``GameplayConfig/<表名>.json``，关卡地图配置在
+  ``UILevelMapLoadConfig/<关卡>.json``。
 
 目录默认取与 MaaEnd 平级的兄弟仓库（见 :mod:`tools.zmdmap.utils.config`），可用 CLI 参数或环境变量
 覆盖。读出来的 JSON 换成属性可访问的 ``Record``，``build`` 里就能直接写 ``entry.position.x``。
@@ -114,6 +115,19 @@ def read_gameplay_config(json_data_dir: Path, name: str) -> Record:
     if name == "WorldEntityRegistry":
         _fill_world_entity_defaults(data)
     return data
+
+
+@lru_cache(maxsize=None)
+def read_level_map_config(json_data_dir: Path, level_id: str) -> Record:
+    """``<json_data_dir>/UILevelMapLoadConfig/<level_id>.json``。"""
+    return _as_record(
+        wrap(
+            _read_json(
+                json_data_dir / "UILevelMapLoadConfig" / f"{level_id}.json", "UILevelMapLoadConfig"
+            )
+        ),
+        "UILevelMapLoadConfig",
+    )
 
 
 # ``WorldEntityRegistry`` 里有几十条实体没有 ``detailId``：读进来时补上默认值，

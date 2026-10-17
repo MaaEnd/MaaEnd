@@ -10,7 +10,6 @@ NAVMESH 终点的 ``target_deck_y``；``yaw`` 是朝向（度）：仓储与回�
 这里不做任何换算。
 """
 
-import re
 from pathlib import Path
 from typing import Any
 
@@ -23,9 +22,6 @@ from ..utils.game_data import (
     read_xyz,
 )
 from .base import Dataset, DatasetError
-
-# 富文本标签（如 <@qu.key>…</>）剥除。
-RICH_TEXT_TAG = re.compile(r"<[^<>]*>")
 
 # DomainDepotDeliverTargetTable.entityType 枚举 -> 输出 kind。
 ENTITY_TYPE_KINDS = {
@@ -40,16 +36,6 @@ _DEPOT_SYSTEM_COMPONENT = "DomainDepotSystemComponent"
 
 _RECYCLE_INTERACTIVE_ID = "int_doodad_core_recycle"
 _RECYCLE_SYSTEM_COMPONENT = "RecycleBinSystemComponent"
-
-def _strip_rich_text(names: dict[str, str], label: str) -> dict[str, str]:
-    """剥掉每个语言的富文本标签，剥完后为空则报错。"""
-    stripped: dict[str, str] = {}
-    for locale, text in names.items():
-        value = RICH_TEXT_TAG.sub("", text).strip()
-        if not value:
-            raise DatasetError(f"{label} 在 {locale} 中为空")
-        stripped[locale] = value
-    return stripped
 
 def _build_mark_index(
     level_map_mark: dict[str, list[Any]],
@@ -302,7 +288,7 @@ class DeliveryDestinations(Dataset):
                 "kind": kind,
                 **({"serial_id": serial_id} if serial_id is not None else {}),
                 "name": Dataset.localized_names(buyer.buyerName, table_cfg_dir, f"收货人 {buyer_id}"),
-                "mission": _strip_rich_text(
+                "mission": Dataset.plain_names(
                     Dataset.localized_names(mission_ref, table_cfg_dir, f"{label}任务目标"),
                     f"{label}任务目标",
                 ),
