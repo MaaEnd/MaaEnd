@@ -22,15 +22,6 @@
                 "EnterCameraModeKeyUp": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "_AutoEcoFarmEnterCameraModeFallback": {
-                    "key": "{KeymapUseCurrentQuickTool.primary}"
-                },
-                "_AutoEcoFarmEnterCameraModeFallbackRelease": {
-                    "key": "{KeymapUseCurrentQuickTool.primary}"
-                },
-                "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError": {
-                    "key": "{KeymapUseCurrentQuickTool.primary}"
-                },
                 "AutoCollectClick": {
                     "key": "{KeymapInteract.primary}"
                 },

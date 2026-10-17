@@ -71,6 +71,21 @@
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
+    "__ScenePrivateMapAnyEnterMapWulingSisPainting": {
+        "desc": "在任意地图界面，进入武陵-祀的画地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingSisPaintingSuccess",
+            "__ScenePrivateMapOverviewEnterMapWulingSisPainting",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
+        ]
+    },
     "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess": {
         "desc": "在地图界面，成功进入武陵-景玉谷地图",
         "recognition": "And",
@@ -126,6 +141,16 @@
         "recognition": "And",
         "all_of": [
             "InMapWulingSwordVaultDale"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapAnyEnterMapWulingSisPaintingSuccess": {
+        "desc": "在地图界面，成功进入武陵-祀的画地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingSisPainting"
         ],
         "pre_wait_freezes": 100,
         "pre_delay": 0,
@@ -295,6 +320,32 @@
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
             "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSwordVaultDale",
             "__ScenePrivateMapOverviewWulingEnterMapWulingSwordVaultDale"
+        ]
+    },
+    "__ScenePrivateMapOverviewEnterMapWulingSisPainting": {
+        "desc": "在地图总览界面，进入武陵-祀的画地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSisPainting"
         ]
     },
     "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingJingyuValley": {
@@ -511,6 +562,45 @@
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingSwordVaultDaleSuccess"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSisPainting": {
+        "desc": "在武陵总览界面，识别并进入武陵-祀的画地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    230,
+                    0,
+                    1050,
+                    720
+                ],
+                "expected": [
+                    "祀的画",
+                    "祀的畫",
+                    "(?i)Si\\s*'\\s*s\\s*Painting",
+                    "スーの絵",
+                    "사의 그림"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true,
+                "target_offset": [
+                    0,
+                    -15,
+                    -20,
+                    -10
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingSisPaintingSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldAnchor": {
