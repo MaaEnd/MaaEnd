@@ -141,15 +141,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -266,15 +266,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -451,15 +451,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -576,15 +576,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -761,15 +761,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -868,15 +868,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -1017,15 +1017,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -1147,15 +1147,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -1333,15 +1333,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -1463,15 +1463,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [

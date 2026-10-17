@@ -231,3 +231,7 @@ func IsAutoHDREnabled() (bool, error) {
 func FindLauncherInstallDir(_ string) (string, error) {
 	return "", ErrUnsupported
 }
+
+func FindLauncherInstallDirByProtocol(_ string) (string, error) {
+	return "", ErrUnsupported
+}

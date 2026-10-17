@@ -6,7 +6,7 @@
 普通收货 NPC 的取自 ``NpcProxyTable.position.y``，都原样交给 MaaEnd 当
 NAVMESH 终点的 ``target_deck_y``；``yaw`` 是朝向（度）：仓储与回收站取自 LevelData 交互实体的
 ``rotation.y``（回收站再翻转 180 度），普通收货 NPC 取自 ``NpcProxyTable.rotation.y``，缺省为 0。
-底图像素由 MaaEnd 侧的入库步骤（``tools/zmdmap/project.py``）按 BaseNav pack 的 zone 表算出，
+底图像素由 MaaEnd 侧的入库步骤（``tools/zmdmap/utils/project.py``）按 BaseNav pack 的 zone 表算出，
 这里不做任何换算。
 """
 
@@ -20,8 +20,8 @@ from ..utils.game_data import (
     logger,
     read_gameplay_config,
     read_table_cfg,
+    read_xyz,
 )
-from ..utils.coords import read_xyz
 from .base import Dataset, DatasetError
 
 # 富文本标签（如 <@qu.key>…</>）剥除。
