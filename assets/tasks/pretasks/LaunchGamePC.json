@@ -32,6 +32,10 @@
                 {
                     "name": "Bilibili",
                     "label": "$option.LaunchGamePCRegion.cases.Bilibili.label"
+                },
+                {
+                    "name": "TapTap",
+                    "label": "$option.LaunchGamePCRegion.cases.TapTap.label"
                 }
             ],
             "default_case": "CN"

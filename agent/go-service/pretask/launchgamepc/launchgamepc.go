@@ -2,6 +2,7 @@ package launchgamepc
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -26,6 +27,7 @@ const (
 	regionCN       = "CN"
 	regionGlobal   = "Global"
 	regionBilibili = "Bilibili"
+	regionTapTap   = "TapTap"
 
 	gameProcessName = "Endfield.exe"
 	launcherExeName = "Launcher.exe"
@@ -45,16 +47,36 @@ var (
 )
 
 // launcherInfo 描述各区服启动器：uninstallKey 为注册表 Uninstall 下的键名，
-// windowTitle 为启动器主窗口标题（三个区服各不相同）。
+// protocolKey 为启动器注册的 URL 协议键名，作为卸载项缺失时的备选；
+// launchURL 非空时不查找安装目录，改为打开该链接拉起启动器（TapTap 版直接运行 Launcher.exe 会提示需要重启应用）；
+// windowTitle 为启动器主窗口标题（B 服与 TapTap 版相同）。
 type launcherInfo struct {
 	uninstallKey string
+	protocolKey  string
+	launchURL    string
 	windowTitle  string
 }
 
 var launchers = map[string]launcherInfo{
-	regionCN:       {uninstallKey: "33a0a6296a20400d503c59ac0fd6341e", windowTitle: "鹰角启动器"},
-	regionGlobal:   {uninstallKey: "d9f71f86325c5b9733268efda40413c8", windowTitle: "GRYPHLINK"},
-	regionBilibili: {uninstallKey: "d957df99efbdf610162fd47c00ceaba7", windowTitle: "明日方舟：终末地"},
+	regionCN: {
+		uninstallKey: "33a0a6296a20400d503c59ac0fd6341e",
+		protocolKey:  "hypergryphlauncher-abYeZZ16BPluCFyT",
+		windowTitle:  "鹰角启动器",
+	},
+	regionGlobal: {
+		uninstallKey: "d9f71f86325c5b9733268efda40413c8",
+		protocolKey:  "gryphlinklauncher-TiaytKBUIEdoEwRT",
+		windowTitle:  "GRYPHLINK",
+	},
+	regionBilibili: {
+		uninstallKey: "d957df99efbdf610162fd47c00ceaba7",
+		protocolKey:  "hypergryphlauncher-RhAij5MdwvTWpQ8N",
+		windowTitle:  "明日方舟：终末地",
+	},
+	regionTapTap: {
+		launchURL:   "taptap://taptap.com/app?app_id=232326&auto_launch=true",
+		windowTitle: "明日方舟：终末地",
+	},
 }
 
 type launchGamePCOptions struct {
@@ -131,48 +153,16 @@ func Run(args []string) bool {
 			Msg("game setting is disabled, skip applying")
 	}
 
-	var installDir string
-	if opts.LauncherPath == "Manual" {
-		launcherPath := filepath.Clean(strings.Trim(strings.TrimSpace(opts.LauncherExe.LauncherExe), `"`))
-		_, err := os.Stat(launcherPath)
-		if err == nil && !strings.EqualFold(filepath.Base(launcherPath), launcherExeName) {
-			err = fmt.Errorf("path is not %s", launcherExeName)
-		}
-		if err != nil {
+	if info.launchURL != "" {
+		if err := openLaunchURL(info.launchURL); err != nil {
 			log.Error().
 				Err(err).
 				Str("component", component).
-				Str("launcher_path", launcherPath).
-				Msg("填写的 Launcher.exe 路径无效，请检查任务设置中的路径")
+				Str("url", info.launchURL).
+				Msg("failed to open launch url")
 			return false
 		}
-		installDir = filepath.Dir(launcherPath)
-	} else {
-		dir, err := gamesetting.FindLauncherInstallDir(info.uninstallKey)
-		if err != nil {
-			log.Error().
-				Err(err).
-				Str("component", component).
-				Str("region", opts.Region).
-				Str("uninstall_key", info.uninstallKey).
-				Msg("无法找到启动器，请在任务设置中手动填写路径")
-			return false
-		}
-		installDir = dir
-	}
-	log.Info().
-		Str("component", component).
-		Str("region", opts.Region).
-		Str("install_dir", installDir).
-		Msg("launcher install directory found")
-
-	// 启动器最小化到托盘时进程仍在但窗口不可见，因此无论进程是否存在都执行一次以唤出窗口。
-	if err := startLauncher(installDir); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", component).
-			Str("install_dir", installDir).
-			Msg("failed to start launcher")
+	} else if !startLauncherFromInstallDir(opts, info) {
 		return false
 	}
 
@@ -231,6 +221,72 @@ func Run(args []string) bool {
 		Str("component", component).
 		Msg("game launched")
 	return true
+}
+
+// startLauncherFromInstallDir 按任务设置或注册表找到安装目录并运行 Launcher.exe。
+func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bool {
+	var installDir string
+	if opts.LauncherPath == "Manual" {
+		launcherPath := filepath.Clean(strings.Trim(strings.TrimSpace(opts.LauncherExe.LauncherExe), `"`))
+		_, err := os.Stat(launcherPath)
+		if err == nil && !strings.EqualFold(filepath.Base(launcherPath), launcherExeName) {
+			err = fmt.Errorf("path is not %s", launcherExeName)
+		}
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("component", component).
+				Str("launcher_path", launcherPath).
+				Msg("填写的 Launcher.exe 路径无效，请检查任务设置中的路径")
+			return false
+		}
+		installDir = filepath.Dir(launcherPath)
+	} else {
+		dir, err := findLauncherInstallDir(info)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("component", component).
+				Str("region", opts.Region).
+				Msg("无法找到启动器，请在任务设置中手动填写路径")
+			return false
+		}
+		installDir = dir
+	}
+	log.Info().
+		Str("component", component).
+		Str("region", opts.Region).
+		Str("install_dir", installDir).
+		Msg("launcher install directory found")
+
+	// 启动器最小化到托盘时进程仍在但窗口不可见，因此无论进程是否存在都执行一次以唤出窗口。
+	if err := startLauncher(installDir); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", component).
+			Str("install_dir", installDir).
+			Msg("failed to start launcher")
+		return false
+	}
+	return true
+}
+
+// findLauncherInstallDir 先查 Uninstall 卸载项，找不到再查 URL 协议键。
+func findLauncherInstallDir(info launcherInfo) (string, error) {
+	var errs []error
+	if info.uninstallKey != "" {
+		dir, err := gamesetting.FindLauncherInstallDir(info.uninstallKey)
+		if err == nil {
+			return dir, nil
+		}
+		errs = append(errs, err)
+	}
+	dir, err := gamesetting.FindLauncherInstallDirByProtocol(info.protocolKey)
+	if err == nil {
+		return dir, nil
+	}
+	errs = append(errs, err)
+	return "", errors.Join(errs...)
 }
 
 func parseOptions(args []string) launchGamePCOptions {
@@ -304,6 +360,19 @@ func startLauncher(installDir string) error {
 		Str("component", component).
 		Str("path", exePath).
 		Msg("launcher started")
+	return cmd.Process.Release()
+}
+
+// openLaunchURL 交给系统的协议处理程序打开链接；不经过 cmd，避免 & 被解析。
+func openLaunchURL(url string) error {
+	cmd := exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	log.Info().
+		Str("component", component).
+		Str("url", url).
+		Msg("launch url opened")
 	return cmd.Process.Release()
 }
 

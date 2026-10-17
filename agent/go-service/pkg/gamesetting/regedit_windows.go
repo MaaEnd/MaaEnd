@@ -5,6 +5,7 @@ package gamesetting
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -738,9 +739,53 @@ func FindLauncherInstallDir(uninstallKey string) (string, error) {
 		}
 		dir, _, err := k.GetStringValue("InstallLocation")
 		k.Close()
-		if err == nil && dir != "" {
-			return dir, nil
+		if err != nil || dir == "" {
+			continue
 		}
+		// 启动器被移动或删除后卸载项可能残留，确认 Launcher.exe 仍存在
+		if _, err := os.Stat(filepath.Join(dir, "Launcher.exe")); err != nil {
+			log.Warn().
+				Err(err).
+				Str("uninstall_key", uninstallKey).
+				Str("install_location", dir).
+				Msg("launcher not found in uninstall InstallLocation")
+			continue
+		}
+		return dir, nil
 	}
 	return "", fmt.Errorf("uninstall key %s not found", uninstallKey)
+}
+
+// FindLauncherInstallDirByProtocol 读取启动器注册的 URL 协议（HKCR\<protocolKey>\shell\open\command）
+// 中的 Launcher.exe 路径。TapTap 版不写 Uninstall 卸载项，只能由此找到。
+func FindLauncherInstallDirByProtocol(protocolKey string) (string, error) {
+	k, err := registry.OpenKey(registry.CLASSES_ROOT, protocolKey+`\shell\open\command`, registry.QUERY_VALUE)
+	if err != nil {
+		return "", fmt.Errorf("protocol key %s not found: %w", protocolKey, err)
+	}
+	defer k.Close()
+
+	command, _, err := k.GetStringValue("")
+	if err != nil {
+		return "", fmt.Errorf("protocol key %s has no command: %w", protocolKey, err)
+	}
+
+	// 形如 "D:\...\Launcher.exe" "%1"，取第一个引号内的路径
+	exePath := strings.TrimSpace(command)
+	if strings.HasPrefix(exePath, `"`) {
+		exePath = exePath[1:]
+		if i := strings.Index(exePath, `"`); i >= 0 {
+			exePath = exePath[:i]
+		}
+	} else if i := strings.Index(exePath, " "); i >= 0 {
+		exePath = exePath[:i]
+	}
+	if !strings.EqualFold(filepath.Base(exePath), "Launcher.exe") {
+		return "", fmt.Errorf("protocol key %s command is not Launcher.exe: %s", protocolKey, command)
+	}
+	// 卸载后协议键可能残留，确认文件仍存在
+	if _, err := os.Stat(exePath); err != nil {
+		return "", fmt.Errorf("protocol key %s points to missing launcher: %w", protocolKey, err)
+	}
+	return filepath.Dir(exePath), nil
 }
