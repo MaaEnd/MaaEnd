@@ -21,6 +21,7 @@
         "generate:DeliveryJobs": "pnpm generate:AutoDelivery && pnpm fetch:zmdmap --only delivery_jobs && node tools/pipeline-generate/DeliveryJobs/sync-locales.mjs && node tools/pipeline-generate/DeliveryJobs/prepare.mjs && node tools/pipeline-generate/run-all.mjs DeliveryJobs",
         "generate:EnvironmentMonitoring": "pnpm fetch:zmdmap --only environment_monitoring && node tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs && node tools/pipeline-generate/run-all.mjs EnvironmentMonitoring",
         "generate:OutpostTrading": "pnpm fetch:zmdmap --only sell_product && node tools/pipeline-generate/OutpostTrading/sync-locales.mjs && node tools/pipeline-generate/OutpostTrading/selection-data.mjs && node tools/pipeline-generate/run-all.mjs OutpostTrading",
+        "generate:GiftOperator": "pnpm fetch:zmdmap --only sell_product && node tools/pipeline-generate/GiftOperator/generate.mjs",
         "generate:SeizeDeliveryJobs": "pnpm fetch:zmdmap --only delivery_destinations && node tools/pipeline-generate/run-all.mjs SeizeDeliveryJobs"
     },
     "devDependencies": {
