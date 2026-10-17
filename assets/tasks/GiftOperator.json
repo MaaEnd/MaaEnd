@@ -981,6 +981,36 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Si",
+                    "label": "$operator.Si",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Si.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "祀",
+                                "祀",
+                                "Si",
+                                "スー",
+                                "사"
+                            ]
+                        }
+                    }
                 }
             ],
             "default_case": "Any"
