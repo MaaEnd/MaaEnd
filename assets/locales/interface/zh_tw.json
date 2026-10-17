@@ -1634,7 +1634,7 @@
     "option.LaunchGamePCFrameRate.cases.Fps60.label": "60",
     "option.LaunchGamePCFrameRate.cases.Unchanged.label": "不修改",
     "option.LaunchGamePCFrameRate.label": "幀率",
-    "option.LaunchGamePCGameSetting.description": "啟動遊戲前修改遊戲設定。如需在關閉遊戲時修改設定（例如改回日常使用的設定），請新增「關閉遊戲（PC）」任務並開啟「關閉後設定遊戲」。",
+    "option.LaunchGamePCGameSetting.description": "關閉時設定遊戲請新增「關閉遊戲（PC）」任務",
     "option.LaunchGamePCGameSetting.label": "啟動前設定遊戲",
     "option.LaunchGamePCGraphicsQuality.cases.High.label": "高",
     "option.LaunchGamePCGraphicsQuality.cases.Low.label": "低",

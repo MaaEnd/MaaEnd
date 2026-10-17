@@ -1634,7 +1634,7 @@
     "option.LaunchGamePCFrameRate.cases.Fps60.label": "60",
     "option.LaunchGamePCFrameRate.cases.Unchanged.label": "변경 안 함",
     "option.LaunchGamePCFrameRate.label": "프레임률",
-    "option.LaunchGamePCGameSetting.description": "게임 실행 전에 게임 설정을 적용합니다. 게임 종료 시 설정을 변경하려면(예: 평소 설정으로 되돌리기) \"게임 종료 (PC)\" 작업을 추가하고 \"종료 후 게임 설정 적용\"을 켜 주세요.",
+    "option.LaunchGamePCGameSetting.description": "종료 시 설정하려면 \"게임 종료 (PC)\" 작업을 추가",
     "option.LaunchGamePCGameSetting.label": "실행 전 게임 설정 적용",
     "option.LaunchGamePCGraphicsQuality.cases.High.label": "높음",
     "option.LaunchGamePCGraphicsQuality.cases.Low.label": "낮음",

@@ -1634,7 +1634,7 @@
     "option.LaunchGamePCFrameRate.cases.Fps60.label": "60",
     "option.LaunchGamePCFrameRate.cases.Unchanged.label": "変更しない",
     "option.LaunchGamePCFrameRate.label": "フレームレート",
-    "option.LaunchGamePCGameSetting.description": "ゲーム起動前にゲーム設定を適用します。ゲーム終了時に設定を変更したい場合（普段の設定に戻すなど）は、「ゲーム終了（PC）」タスクを追加し、「終了後にゲーム設定を適用」を有効にしてください。",
+    "option.LaunchGamePCGameSetting.description": "終了時に設定するには「ゲーム終了（PC）」タスクを追加",
     "option.LaunchGamePCGameSetting.label": "起動前にゲーム設定を適用",
     "option.LaunchGamePCGraphicsQuality.cases.High.label": "高",
     "option.LaunchGamePCGraphicsQuality.cases.Low.label": "低",

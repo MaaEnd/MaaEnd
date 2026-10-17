@@ -1634,7 +1634,7 @@
     "option.LaunchGamePCFrameRate.cases.Fps60.label": "60",
     "option.LaunchGamePCFrameRate.cases.Unchanged.label": "Do not change",
     "option.LaunchGamePCFrameRate.label": "Frame Rate",
-    "option.LaunchGamePCGameSetting.description": "Applies game settings before launching. To change settings when the game closes (e.g. to restore your usual settings), add the \"Close Game (PC)\" task and enable \"Apply game settings after close\".",
+    "option.LaunchGamePCGameSetting.description": "To apply settings on close, add the \"Close Game (PC)\" task",
     "option.LaunchGamePCGameSetting.label": "Apply game settings before launch",
     "option.LaunchGamePCGraphicsQuality.cases.High.label": "High",
     "option.LaunchGamePCGraphicsQuality.cases.Low.label": "Low",

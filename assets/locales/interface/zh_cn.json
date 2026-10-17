@@ -1634,7 +1634,7 @@
     "option.LaunchGamePCFrameRate.cases.Fps60.label": "60",
     "option.LaunchGamePCFrameRate.cases.Unchanged.label": "不修改",
     "option.LaunchGamePCFrameRate.label": "帧率",
-    "option.LaunchGamePCGameSetting.description": "启动游戏前修改游戏设置。如需在关闭游戏时修改设置（例如改回日常使用的设置），请添加「关闭游戏（PC）」任务并开启「关闭后设置游戏」。",
+    "option.LaunchGamePCGameSetting.description": "关闭时设置游戏请添加「关闭游戏（PC）」任务",
     "option.LaunchGamePCGameSetting.label": "启动前设置游戏",
     "option.LaunchGamePCGraphicsQuality.cases.High.label": "高",
     "option.LaunchGamePCGraphicsQuality.cases.Low.label": "低",
