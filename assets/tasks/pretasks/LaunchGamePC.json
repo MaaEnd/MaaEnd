@@ -40,6 +40,10 @@
                 {
                     "name": "Steam",
                     "label": "$option.LaunchGamePCRegion.cases.Steam.label"
+                },
+                {
+                    "name": "Epic",
+                    "label": "$option.LaunchGamePCRegion.cases.Epic.label"
                 }
             ],
             "default_case": "CN"
