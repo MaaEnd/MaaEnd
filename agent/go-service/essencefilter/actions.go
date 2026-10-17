@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -88,6 +89,27 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	matchOpts := matchOptsFromPipeline(opts)
 	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
+	if len(opts.TargetWeapons) > 0 {
+		found := make(map[string]bool, len(st.TargetSkillCombinations))
+		for _, combo := range st.TargetSkillCombinations {
+			found[combo.Weapon.InternalID] = true
+		}
+		missing := make([]string, 0)
+		for _, id := range opts.TargetWeapons {
+			if !found[id] {
+				missing = append(missing, id)
+			}
+		}
+		switch {
+		case len(st.TargetSkillCombinations) == 0:
+			log.Error().Str("component", "EssenceFilter").Str("step", "ValidateTargetWeapons").Strs("missing", missing).Msg("no target weapon found in data")
+			reportColoredByKey(ctx, "#ff0000", "focus.error.target_weapon_missing", strings.Join(missing, ", "))
+			return false
+		case len(missing) > 0:
+			log.Warn().Str("component", "EssenceFilter").Str("step", "ValidateTargetWeapons").Strs("missing", missing).Msg("some target weapons not found in data")
+			reportColoredByKey(ctx, "#ffb300", "focus.warn.target_weapon_missing", strings.Join(missing, ", "))
+		}
+	}
 	st.MatchedCombinationSummary = make(map[string]*matchapi.SkillCombinationSummary)
 	currentRun = st
 	if opts.ExportInventory {
@@ -97,7 +119,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		}
 		reportSimpleByKey(ctx, "inventory.started")
 	}
-	reportInitSelection(ctx, weaponRarity, essenceTypes)
+	reportInitSelection(ctx, weaponRarity, essenceTypes, len(opts.TargetWeapons))
 
 	names := make([]string, 0, len(st.TargetSkillCombinations))
 	for _, combo := range st.TargetSkillCombinations {

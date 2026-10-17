@@ -3,6 +3,7 @@ package essencefilter
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -11,6 +12,10 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
+
+// targetWeaponAttachPrefix marks the per-weapon attach flags written by the
+// target-mode option cases ("wpn_<weapon id>": true).
+const targetWeaponAttachPrefix = "wpn_"
 
 func inventoryPreset(opts EssenceFilterOptions) EssenceFilterOptions {
 	if !opts.ExportInventory {
@@ -45,6 +50,7 @@ func matchOptsFromPipeline(opts *EssenceFilterOptions) matchapi.EssenceFilterOpt
 		return matchapi.EssenceFilterOptions{}
 	}
 	return matchapi.EssenceFilterOptions{
+		TargetWeaponIDs:          opts.TargetWeapons,
 		Rarity6Weapon:            opts.Rarity6Weapon,
 		Rarity5Weapon:            opts.Rarity5Weapon,
 		Rarity4Weapon:            opts.Rarity4Weapon,
@@ -56,6 +62,24 @@ func matchOptsFromPipeline(opts *EssenceFilterOptions) matchapi.EssenceFilterOpt
 		LockSlot3Practical:       opts.LockSlot3Practical,
 		DiscardUnmatched:         opts.DiscardUnmatched,
 	}
+}
+
+// selectedTargetWeapons collects the target-mode attach flags ("wpn_<weapon id>": true).
+// Non-boolean or false values are ignored so a cleared checkbox never becomes a target.
+func selectedTargetWeapons(attach map[string]json.RawMessage) []string {
+	ids := make([]string, 0, len(attach))
+	for key, value := range attach {
+		if !strings.HasPrefix(key, targetWeaponAttachPrefix) {
+			continue
+		}
+		var on bool
+		if err := json.Unmarshal(value, &on); err != nil || !on {
+			continue
+		}
+		ids = append(ids, key)
+	}
+	sort.Strings(ids)
+	return ids
 }
 
 func getOptionsFromAttach(ctx *maa.Context, nodeName string) (*EssenceFilterOptions, error) {
@@ -74,6 +98,14 @@ func getOptionsFromAttach(ctx *maa.Context, nodeName string) (*EssenceFilterOpti
 	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
 		log.Error().Err(err).Str("node", nodeName).Msg("failed to unmarshal options")
 		return nil, err
+	}
+
+	// attach keys are open-ended; the target weapon list is carried by "wpn_*" flags.
+	var rawWrapper struct {
+		Attach map[string]json.RawMessage `json:"attach"`
+	}
+	if err := json.Unmarshal([]byte(raw), &rawWrapper); err == nil {
+		wrapper.Attach.TargetWeapons = selectedTargetWeapons(rawWrapper.Attach)
 	}
 
 	return &wrapper.Attach, nil

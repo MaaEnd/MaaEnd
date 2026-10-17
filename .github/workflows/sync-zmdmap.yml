@@ -210,6 +210,7 @@ jobs:
             tools/zmdmap
             assets/data/EssenceFilter
             assets/tasks/AutoEssence
+            assets/tasks/EssenceFilter
             assets/interface.json
             assets/resource/pipeline/AutoEssence
             assets/locales/interface
@@ -219,7 +220,7 @@ jobs:
           body: |
             ## Summary
 
-            This PR synchronized the latest EssenceFilter compact game data from zmdmap and regenerated dependent data files and AutoEssence task options.
+            This PR synchronized the latest EssenceFilter compact game data from zmdmap and regenerated dependent data files, AutoEssence task options and EssenceFilter target weapon options.
 
             Please review the changes before merging it.
 

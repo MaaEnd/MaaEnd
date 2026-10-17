@@ -39,8 +39,9 @@ ocr := matchapi.OCRInput{
 }
 
 opts := matchapi.EssenceFilterOptions{
-    // exact 精确匹配只在你选择了稀有度时才启用
-    Rarity6Weapon: true,
+    // exact 精确匹配由 TargetWeaponIDs 或稀有度开关二选一启用
+    TargetWeaponIDs: []string{"wpn_sword_0006"}, // 目标模式：非空时只匹配这些武器，稀有度开关不生效
+    Rarity6Weapon:   true,                       // 未传 TargetWeaponIDs 时才按稀有度选择
 
     KeepFuturePromising: false,
     KeepSlot3Level3Practical: false,

@@ -18,6 +18,9 @@ const (
 	nodeOnComplete         = "AutoEssenceOnComplete"
 	nodeDispatcher         = "AutoEssenceDispatcher"
 	nodeLootReportJumpBack = "[JumpBack]AutoEssenceAfterBattleRunEndLootReport"
+	// nodeAfterBattleFilterInit 是战后基质筛选的初始化节点，目标模式下由本包写入
+	// 勾选武器的 attach，使锁定范围与刷取目标一致。
+	nodeAfterBattleFilterInit = "EssenceFilterAfterBattleInit"
 	// nodeForceTeleportOnce 是「整次任务只传送一次」的守卫节点：max_hit=1，计数只在顶层任务开始时归零。
 	// 目标模式换淤积点后由本动作清零它的计数，重新武装「先传送到新点最近锚点」这条到达流程；
 	// 传送之后有没有走到、走没走通，仍然由该节点下游的地区导航链自己判断。
@@ -121,6 +124,12 @@ func (a *TargetPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
+	// 目标模式：战后筛选只锁勾选的目标武器。attach 是字典合并，
+	// rarity / 基质品质等预设不受影响。
+	engravePatch[nodeAfterBattleFilterInit] = map[string]any{
+		"attach": buildTargetFilterAttach(selected),
+	}
+
 	// 换了淤积点：清零「整次任务只传送一次」的计数，让分发器先把人送到新点的最近锚点。
 	// 否则人还站在旧点，会直接认到旧点的「激发」并用新方案的预刻写条件在旧点开战。
 	// 这里只负责重新武装，传送完走没走到由地区导航链判断。
@@ -186,6 +195,16 @@ func (a *TargetPlanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Msg("farm plan selected")
 
 	return overrideNext(ctx, arg.CurrentTaskName, anchor)
+}
+
+// buildTargetFilterAttach turns the selected target weapon IDs into the
+// after-battle filter's "wpn_<weapon id>": true flags.
+func buildTargetFilterAttach(selected []string) map[string]any {
+	attach := make(map[string]any, len(selected))
+	for _, id := range selected {
+		attach[id] = true
+	}
+	return attach
 }
 
 func fixedSlotLabel(slot int) string {
