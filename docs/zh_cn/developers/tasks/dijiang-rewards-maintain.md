@@ -122,17 +122,31 @@
 
 ```text
 DijiangRewards
-├── AutoStartExchange          # 会客室是否主动开线索交流
-│   └── WaitExchangeBeforeStart  # 线索齐全时等待当前交流结束；开启后展开 WaitExchangeBeforeStartThreshold
 ├── StageTaskSetting           # 展开阶段细分开关
 │   ├── FastCollect            # 一键收取
+│   │   └── FastCollectClue         # 决定是否收取线索的子选项
+│   │   └── FastCollectProduction   # 决定是否收取产物的子选项
 │   ├── RecoveryEmotionStage
 │   │   └── RecoveryEmotionCabins  # 指定舱室，默认全选五个
 │   ├── ReceptionRoomStage
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
 ├── ClueSetting                # 展开 SendCluesDirect / ClueSend / ClueStockLimit（直接赠予 / 溢出后赠送 / 库存上限）
-├── QuickGiveDuplicateClues    # 快速赠予重复线索，默认关
+│   ├── AutoStartExchange          # 会客室是否主动开线索交流
+│   │   └── WaitExchangeBeforeStart  # 线索齐全时等待当前交流结束；开启后展开 WaitExchangeBeforeStartThreshold
+│   ├── SendCluesDirect
+│   ├── ClueSend        # 线索最多赠送的数量
+│   ├── ClueStockLimit  # 线索最多保留的数量
+│   ├── QuickGiveDuplicateClues # 快速赠予重复线索，默认关
+│   ├── CustomSendClues
+│   │   └── Checkbox
+│   │       ├── ClueOne
+│   │       ├── ClueTwo
+│   │       ├── ClueThree
+│   │       ├── ClueFour
+│   │       ├── ClueFive
+│   │       ├── ClueSix
+│   │       └── ClueSeven
 └── SelectToGrow               # 培养舱主模式
     ├── DoNothing
     ├── GrowAgain

@@ -122,21 +122,35 @@ When maintaining Growth Chamber issues, first confirm the current `SelectToGrow`
 
 ```text
 DijiangRewards
-├── AutoStartExchange          # Whether the Reception Room actively starts clue exchange
-│   └── WaitExchangeBeforeStart  # Wait when all clues are placed; Yes expands WaitExchangeBeforeStartThreshold
 ├── StageTaskSetting           # Expand stage sub-switches
 │   ├── FastCollect            # One-click collect
+│   │   └── FastCollectClue         # Sub-option that decides whether to collect clue
+│   │   └── FastCollectProduction   # Sub-option that decides whether to collect production
 │   ├── RecoveryEmotionStage
 │   │   └── RecoveryEmotionCabins  # Cabins to include; all five by default
 │   ├── ReceptionRoomStage
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
 ├── ClueSetting                # Expands SendCluesDirect / ClueSend / ClueStockLimit (direct send / send excess / stock limit)
-├── QuickGiveDuplicateClues    # Give Away All Duplicates; off by default
+│   ├── AutoStartExchange          # Whether the Reception Room actively starts clue exchange
+│   │   └── WaitExchangeBeforeStart  # Wait when all clues are placed; Yes expands WaitExchangeBeforeStartThreshold
+│   ├── SendCluesDirect
+│   ├── ClueSend        # Max clue send limit
+│   ├── ClueStockLimit  # Max clue keep limit
+│   ├── QuickGiveDuplicateClues # Give Away All Duplicates; off by default
+│   ├── CustomSendClues
+│   │   └── Checkbox
+│   │       ├── ClueOne
+│   │       ├── ClueTwo
+│   │       ├── ClueThree
+│   │       ├── ClueFour
+│   │       ├── ClueFive
+│   │       ├── ClueSix
+│   │       └── ClueSeven
 └── SelectToGrow               # Growth Chamber main mode
     ├── DoNothing
     ├── GrowAgain
-    └── Any (displayed as "Specified Materials")
+    └── Any（界面显示「指定材料」）
         ├── SelectToGrowItems   # Multi-select 18 materials; all selected by default
         ├── AutoExtractSeed
         ├── SortBy
