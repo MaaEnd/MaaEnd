@@ -5,7 +5,7 @@ The Nailong theme is maintained in the MaaEnd repository and built on a pinned M
 ## Source and Build Entry Points
 
 - `tools/client/nailong/client.json`: official MXU source URL, pinned commit and custom version.
-- `tools/client/nailong/theme.patch`: source changes for the theme, cursor tracking, interactive phrases and development demo.
+- `tools/client/nailong/theme.patch`: source changes for the theme, cursor tracking and interactive phrases.
 - `tools/client/nailong/assets/`: background, images, animation and image-editing prompts.
 - `tools/client/nailong/client.mjs`: source preparation, testing, development and build entry point.
 - `.cache/nailong-client/`: local working directory generated from official sources; not committed.
@@ -27,7 +27,7 @@ pnpm client:build
 
 The client installation step in `setup-workspace` calls this same entry point instead of downloading the official generic MXU binary. Existing Python environment preparation and agent build procedures remain unchanged.
 
-## Development and Demo
+## Local Development
 
 ```bash
 pnpm client:dev
@@ -37,7 +37,7 @@ The development entry point copies files such as MaaEnd's `assets/interface.json
 
 Select the fourth theme, “奶龙” (Nailong), in settings. Background opacity is adjustable, and desktop eyes keep tracking the cursor outside the window. Clicking the bottom-right mascot switches between four phrases; connection waiting displays `Thinking...`.
 
-Development builds show a “主题演示” (Theme demo) switch beside the task button. It tests “进入战斗模式” (Enter battle mode), “退出战斗模式” (Exit battle mode) and “模拟完成” (Simulate completion) without the game, elevation or runtime libraries. Demo state exists independently in memory and never changes real connections or task states. Hotkeys, scheduled entry points and the dashboard cannot start real tasks during the demo. Production builds hide the demo entry point.
+Task controls and completion animations use real task states; the theme demo entry point and simulated states have been removed. Theme assets use WebP, retaining the animation's original frame count and frame durations. Cursor reads slow down when stationary and stop when background opacity is 0 or the page is hidden; tracking resumes when visible again.
 
 ## Release Integration
 

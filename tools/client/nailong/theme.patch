@@ -110,14 +110,14 @@ index 8bd0343..b28fb2a 100644
          {/* WebUI 模式下的连接断开覆盖层 */}
          <ConnectionLostOverlay />
 diff --git a/src/components/ConnectionPanel.tsx b/src/components/ConnectionPanel.tsx
-index 499d1d7..1c9c697 100644
+index 499d1d7..92794dc 100644
 --- a/src/components/ConnectionPanel.tsx
 +++ b/src/components/ConnectionPanel.tsx
 @@ -35,6 +35,7 @@ import {
    isDesktopWindowControllerType,
  } from '@/utils/controller';
  import { getInterfaceLangKey } from '@/i18n';
-+import thinkingUrl from '@/assets/nailong/thinking.png';
++import thinkingUrl from '@/assets/nailong/thinking.webp';
  import {
    startGlobalCallbackListener,
    waitForCtrlResult,
@@ -147,18 +147,10 @@ index 499d1d7..1c9c697 100644
              {controllers.length > 1 && (
                <div className="flex items-center justify-between gap-2">
 diff --git a/src/components/DashboardView.tsx b/src/components/DashboardView.tsx
-index 29dac3e..b681861 100644
+index 29dac3e..8d25de4 100644
 --- a/src/components/DashboardView.tsx
 +++ b/src/components/DashboardView.tsx
-@@ -24,6 +24,7 @@ import {
- } from 'lucide-react';
- import clsx from 'clsx';
- import { useAppStore } from '@/stores/appStore';
-+import { useNailongDemoStore } from '@/stores/nailongDemoStore';
- import { maaService } from '@/services/maaService';
- import { buildTaskOptionSummary } from '@/services/telemetryService';
- import { collectPasswordPlaintextsFromRunnableTasks } from '@/utils/passwordOptionValues';
-@@ -60,6 +61,7 @@ function InstanceCard({ instanceId, instanceName, isActive, onSelect }: Instance
+@@ -60,6 +60,7 @@ function InstanceCard({ instanceId, instanceName, isActive, onSelect }: Instance
    const { t } = useTranslation();
    const {
      instances,
@@ -166,17 +158,7 @@ index 29dac3e..b681861 100644
      instanceConnectionStatus,
      instanceTaskStatus,
      instanceScreenshotStreaming,
-@@ -212,6 +214,9 @@ function InstanceCard({ instanceId, instanceName, isActive, onSelect }: Instance
-     async (e: React.MouseEvent) => {
-       e.stopPropagation();
- 
-+      // 主题演示只由主界面的模拟按钮控制，中控台不启动真实任务。
-+      if (import.meta.env.DEV && useNailongDemoStore.getState().enabled) return;
-+
-       if (!instance || (!canRun && !isRunning)) return;
- 
-       if (isRunning) {
-@@ -778,9 +783,9 @@ function InstanceCard({ instanceId, instanceName, isActive, onSelect }: Instance
+@@ -778,9 +779,9 @@ function InstanceCard({ instanceId, instanceName, isActive, onSelect }: Instance
                  : isStopping
                    ? t('taskList.stoppingTasks')
                    : isRunning
@@ -189,7 +171,7 @@ index 29dac3e..b681861 100644
              }
            >
 diff --git a/src/components/LogsPanel.tsx b/src/components/LogsPanel.tsx
-index 9019f15..6eb145a 100644
+index 9019f15..ff41b86 100644
 --- a/src/components/LogsPanel.tsx
 +++ b/src/components/LogsPanel.tsx
 @@ -22,6 +22,7 @@ import { clearPersistedRuntimeLogs } from '@/utils/runtimeLogPersistence';
@@ -225,22 +207,23 @@ index 9019f15..6eb145a 100644
          )}
        </div>
  
-+      <NailongCompanion />
++      {theme === 'nailong' && <NailongCompanion />}
 +
        {/* 右键菜单 */}
        {menuState.isOpen && (
          <ContextMenu items={menuState.items} position={menuState.position} onClose={hideMenu} />
 diff --git a/src/components/NailongBackground.tsx b/src/components/NailongBackground.tsx
 new file mode 100644
-index 0000000..5e93f29
+index 0000000..fea18cc
 --- /dev/null
 +++ b/src/components/NailongBackground.tsx
-@@ -0,0 +1,123 @@
+@@ -0,0 +1,124 @@
 +import { useEffect, useRef } from 'react';
 +import { invoke } from '@tauri-apps/api/core';
-+import backgroundUrl from '@/assets/nailong/background.png';
++import backgroundUrl from '@/assets/nailong/background.webp';
 +import { isTauri } from '@/utils/paths';
 +import { createLogger } from '@/utils/logger';
++import { trackNailongCursor } from '@/utils/nailongCursor';
 +import {
 +  getNailongImageLayout,
 +  getNailongPupilOffset,
@@ -250,7 +233,6 @@ index 0000000..5e93f29
 +} from '@/utils/nailongGaze';
 +
 +const log = createLogger('NailongBackground');
-+const CURSOR_POLL_INTERVAL = 33;
 +
 +interface NailongBackgroundProps {
 +  opacity: number;
@@ -260,19 +242,18 @@ index 0000000..5e93f29
 +export function NailongBackground({ opacity }: NailongBackgroundProps) {
 +  const layerRef = useRef<HTMLDivElement>(null);
 +  const pupilRefs = useRef<(HTMLDivElement | null)[]>([]);
++  const trackingEnabled = opacity > 0;
 +
 +  useEffect(() => {
 +    const layer = layerRef.current;
-+    if (!layer) return;
++    if (!layer || !trackingEnabled) return;
 +
-+    let disposed = false;
-+    let timer: ReturnType<typeof setTimeout> | undefined;
 +    let pointer: GazePoint | null = null;
++    let bounds = layer.getBoundingClientRect();
++    let layout = getNailongImageLayout(bounds.width, bounds.height);
 +
 +    /** 使用同一 cover 坐标系放置背景与瞳孔，不触发整页 React 重渲染。 */
 +    const updatePupils = () => {
-+      const bounds = layer.getBoundingClientRect();
-+      const layout = getNailongImageLayout(bounds.width, bounds.height);
 +      for (const [index, eye] of NAILONG_EYES.entries()) {
 +        const pupil = pupilRefs.current[index];
 +        if (!pupil) continue;
@@ -284,51 +265,53 @@ index 0000000..5e93f29
 +          : eye;
 +        const offset = getNailongPupilOffset(eye, imagePointer);
 +        const radius = NAILONG_PUPIL_RADIUS * layout.scale;
-+        pupil.style.width = `${radius * 2}px`;
-+        pupil.style.height = `${radius * 2}px`;
 +        pupil.style.transform = `translate3d(${layout.x + (eye.x + offset.x) * layout.scale - radius}px, ${layout.y + (eye.y + offset.y) * layout.scale - radius}px, 0)`;
 +      }
 +    };
 +
-+    /** 仅串行读取当前指针；切换主题后取消调度，迟到的响应也不再更新界面。 */
-+    const pollDesktopCursor = async () => {
-+      try {
-+        if (!document.hidden) {
-+          const position = await invoke<GazePoint | null>('get_nailong_cursor_position');
-+          if (disposed) return;
-+          if (position) {
-+            pointer = position;
-+            updatePupils();
-+          }
-+        }
-+        if (!disposed) timer = setTimeout(pollDesktopCursor, CURSOR_POLL_INTERVAL);
-+      } catch (error) {
-+        if (!disposed) log.warn('读取桌面鼠标位置失败，已停止追视:', error);
++    /** 仅在布局变化时读取尺寸及设置瞳孔大小，避免每次鼠标移动都测量布局。 */
++    const updateLayout = () => {
++      bounds = layer.getBoundingClientRect();
++      layout = getNailongImageLayout(bounds.width, bounds.height);
++      const diameter = NAILONG_PUPIL_RADIUS * layout.scale * 2;
++      for (const pupil of pupilRefs.current) {
++        if (!pupil) continue;
++        pupil.style.width = `${diameter}px`;
++        pupil.style.height = `${diameter}px`;
 +      }
++      updatePupils();
 +    };
 +
 +    /** 浏览器端使用页面指针事件，桌面端的窗口外追视交给原生接口。 */
 +    const handlePointerMove = (event: PointerEvent) => {
++      if (pointer?.x === event.clientX && pointer?.y === event.clientY) return;
 +      pointer = { x: event.clientX, y: event.clientY };
 +      updatePupils();
 +    };
 +
-+    const observer = new ResizeObserver(updatePupils);
++    const observer = new ResizeObserver(updateLayout);
 +    observer.observe(layer);
-+    updatePupils();
++    updateLayout();
++    let stopTracking: (() => void) | undefined;
 +    if (isTauri()) {
-+      void pollDesktopCursor();
++      stopTracking = trackNailongCursor(
++        () => invoke<GazePoint | null>('get_nailong_cursor_position'),
++        (position) => {
++          pointer = position;
++          updatePupils();
++        },
++        (error) => log.warn('读取桌面鼠标位置失败，已停止追视:', error),
++      );
 +    } else {
 +      window.addEventListener('pointermove', handlePointerMove);
 +    }
 +
 +    return () => {
-+      disposed = true;
-+      clearTimeout(timer);
++      stopTracking?.();
 +      observer.disconnect();
 +      window.removeEventListener('pointermove', handlePointerMove);
 +    };
-+  }, []);
++  }, [trackingEnabled]);
 +
 +  return (
 +    <div
@@ -361,11 +344,11 @@ index 0000000..5e93f29
 +}
 diff --git a/src/components/NailongBattleDecoration.tsx b/src/components/NailongBattleDecoration.tsx
 new file mode 100644
-index 0000000..fba8d4e
+index 0000000..72d81c4
 --- /dev/null
 +++ b/src/components/NailongBattleDecoration.tsx
 @@ -0,0 +1,10 @@
-+import battleUrl from '@/assets/nailong/battle.jpg';
++import battleUrl from '@/assets/nailong/battle.webp';
 +
 +/** 将战斗表情放在启停按钮上方，裁去原图文字且不拦截点击。 */
 +export function NailongBattleDecoration() {
@@ -377,17 +360,16 @@ index 0000000..fba8d4e
 +}
 diff --git a/src/components/NailongCompanion.tsx b/src/components/NailongCompanion.tsx
 new file mode 100644
-index 0000000..40f8243
+index 0000000..1077d14
 --- /dev/null
 +++ b/src/components/NailongCompanion.tsx
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,67 @@
 +import { useState } from 'react';
 +import { useTranslation } from 'react-i18next';
 +import clsx from 'clsx';
 +import { useAppStore } from '@/stores/appStore';
-+import { useNailongDemoStore } from '@/stores/nailongDemoStore';
-+import standingUrl from '@/assets/nailong/standing-smile.png';
-+import workingUrl from '@/assets/nailong/working.gif';
++import standingUrl from '@/assets/nailong/standing-smile.webp';
++import workingUrl from '@/assets/nailong/working.webp';
 +
 +const CATCHPHRASE_KEYS = ['cheer', 'andy', 'spicy', 'keepGoing'] as const;
 +
@@ -395,32 +377,14 @@ index 0000000..40f8243
 +export function NailongCompanion() {
 +  const { t } = useTranslation();
 +  const [catchphraseIndex, setCatchphraseIndex] = useState(0);
-+  const theme = useAppStore((state) => state.theme);
 +  const instance = useAppStore((state) =>
 +    state.instances.find((item) => item.id === state.activeInstanceId),
 +  );
 +  const taskStatus = useAppStore((state) =>
 +    state.activeInstanceId ? state.instanceTaskStatus[state.activeInstanceId] : null,
 +  );
-+  const {
-+    enabled: demoEnabled,
-+    phases: demoPhases,
-+    setPhase: setDemoPhase,
-+  } = useNailongDemoStore();
-+  const isDemoMode = import.meta.env.DEV && demoEnabled;
-+  const demoPhase = instance ? demoPhases[instance.id] : undefined;
-+  const isRunning = isDemoMode ? demoPhase === 'running' : instance?.isRunning;
-+  const completed = isDemoMode ? demoPhase === 'completed' : taskStatus === 'Succeeded';
-+
-+  /** 仅结束主题演示，真实任务状态和完成回调保持不变。 */
-+  const completeDemo = () => {
-+    if (!instance || !isDemoMode) return;
-+    setDemoPhase(instance.id, 'completed');
-+    useAppStore.getState().addLog(instance.id, {
-+      type: 'info',
-+      message: t('nailong.demoCompleted'),
-+    });
-+  };
++  const isRunning = instance?.isRunning;
++  const completed = taskStatus === 'Succeeded';
 +
 +  /** 从其余三句中等概率抽取，确保每次点击都会更换文案。 */
 +  const changeCatchphrase = () => {
@@ -431,13 +395,8 @@ index 0000000..40f8243
 +    );
 +  };
 +
-+  if (theme !== 'nailong') return null;
-+
 +  return (
 +    <div className="shrink-0">
-+      {isDemoMode && (
-+        <p className="px-3 pt-2 text-xs text-text-secondary">{t('nailong.demoHint')}</p>
-+      )}
 +      {isRunning ? (
 +        <div className="nailong-working">
 +          <img className="nailong-working-gif" src={workingUrl} alt="" />
@@ -445,15 +404,6 @@ index 0000000..40f8243
 +          <div>
 +            <p className="font-medium text-text-primary">{t('nailong.working')}</p>
 +            <p className="mt-1 text-xs text-text-secondary">{t('nailong.workingHint')}</p>
-+            {isDemoMode && (
-+              <button
-+                type="button"
-+                onClick={completeDemo}
-+                className="mt-1 text-xs text-accent underline"
-+              >
-+                {t('nailong.completeDemo')}
-+              </button>
-+            )}
 +          </div>
 +        </div>
 +      ) : (
@@ -469,7 +419,7 @@ index 0000000..40f8243
 +            title={t('nailong.changeCatchphrase')}
 +          >
 +            <img
-+              key={`${instance?.id}-${taskStatus}-${demoPhase}`}
++              key={`${instance?.id}-${taskStatus}`}
 +              className={clsx('nailong-standing', completed && 'nailong-celebrating')}
 +              src={standingUrl}
 +              alt=""
@@ -511,97 +461,26 @@ index db97741..18511f9 100644
            ) : (
              <Sun className="w-4 h-4 text-text-secondary" />
 diff --git a/src/components/Toolbar.tsx b/src/components/Toolbar.tsx
-index 505ea10..57da659 100644
+index 505ea10..d69dd00 100644
 --- a/src/components/Toolbar.tsx
 +++ b/src/components/Toolbar.tsx
-@@ -44,6 +44,8 @@ import {
+@@ -44,6 +44,7 @@ import {
  } from '@/utils/controller';
  import { buildPlayCoverControllerConfig } from '@/utils/playCoverController';
  import { SchedulePanel } from './SchedulePanel';
 +import { NailongBattleDecoration } from './NailongBattleDecoration';
-+import { useNailongDemoStore } from '@/stores/nailongDemoStore';
  import type {
    Instance,
    TaskItem,
-@@ -154,6 +156,8 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+@@ -154,6 +155,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
    const { t } = useTranslation();
    const {
      getActiveInstance,
-+    instances,
 +    theme,
      selectAllTasks,
      collapseAllTasks,
      updateInstance,
-@@ -210,6 +214,19 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
-   const startingRef = useRef(false);
- 
-   const instance = getActiveInstance();
-+  const {
-+    enabled: demoEnabled,
-+    phases: demoPhases,
-+    setEnabled: setDemoEnabled,
-+    setPhase: setDemoPhase,
-+  } = useNailongDemoStore();
-+  const isDemoMode = import.meta.env.DEV && theme === 'nailong' && demoEnabled;
-+  const demoPhase = instance ? demoPhases[instance.id] : undefined;
-+
-+  // 离开奶龙主题时清除演示，不将模拟运行带入普通主题。
-+  useEffect(() => {
-+    if (theme !== 'nailong' && demoEnabled) setDemoEnabled(false);
-+  }, [theme, demoEnabled, setDemoEnabled]);
-   const tasks = instance?.selectedTasks || [];
-   const anyExpanded = tasks.some((t) => t.expanded);
- 
-@@ -221,6 +238,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
-   const isPreActionControlledInstance =
-     Boolean(instanceId) && preActionControlledInstanceId === instanceId;
-   const isStartStopRunning = Boolean(instance?.isRunning) || isPreActionControlledInstance;
-+  const isButtonRunning = isDemoMode ? demoPhase === 'running' : isStartStopRunning;
- 
-   // 检查是否有保存的设备和资源配置（用于权限检查等）
-   const currentControllerName =
-@@ -336,6 +354,11 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
-         return false;
-       };
- 
-+      // 演示期间拒绝定时、快捷键等真实启动入口，避免意外执行游戏操作。
-+      if (import.meta.env.DEV && useNailongDemoStore.getState().enabled) {
-+        return failStart(t('nailong.demoHint'));
-+      }
-+
-       const tasksToRun = filterTasksForRun(targetTasks, { startFromTaskId, singleTaskId });
-       if (tasksToRun.length === 0) {
-         if (singleTaskId || startFromTaskId) {
-@@ -1485,6 +1508,17 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
-   const handleStartStop = async () => {
-     if (!instance) return;
- 
-+    // 演示提前返回，绝不进入权限检查、预任务、设备连接或真实启停路径。
-+    if (isDemoMode) {
-+      const running = demoPhase === 'running';
-+      setDemoPhase(instance.id, running ? 'idle' : 'running');
-+      addLog(instance.id, {
-+        type: 'info',
-+        message: t(running ? 'nailong.demoStopped' : 'nailong.demoStarted'),
-+      });
-+      return;
-+    }
-+
-     if (isStartStopRunning) {
-       // 停止任务
-       try {
-@@ -1650,7 +1684,9 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
-   }, [instance?.id, instance?.isRunning, isStopping]);
- 
-   // canRun 只检查是否有启用的任务；运行中时按钮用于停止，不应禁用
--  const isDisabled = (tasks.length === 0 || !canRun) && !isStartStopRunning;
-+  const isDisabled = isDemoMode
-+    ? !instance
-+    : (tasks.length === 0 || !canRun) && !isStartStopRunning;
- 
-   // 获取启动按钮的文本
-   const getStartButtonText = () => {
-@@ -1666,7 +1702,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+@@ -1666,7 +1668,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
            return t('taskList.startingTasks');
        }
      }
@@ -610,34 +489,7 @@ index 505ea10..57da659 100644
    };
  
    // 获取按钮的 title 提示
-@@ -1745,6 +1781,26 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
- 
-       {/* 右侧执行按钮组 */}
-       <div className="flex items-center gap-2 relative">
-+        {import.meta.env.DEV && theme === 'nailong' && (
-+          <label
-+            className="flex items-center gap-1 text-xs text-text-secondary"
-+            title={t('nailong.demoHint')}
-+          >
-+            <input
-+              type="checkbox"
-+              checked={demoEnabled}
-+              disabled={
-+                instances.some((item) => item.isRunning) ||
-+                isStarting ||
-+                isStopping ||
-+                isPreActionControlledInstance
-+              }
-+              onChange={(event) => setDemoEnabled(event.target.checked)}
-+              className="accent-accent"
-+            />
-+            {t('nailong.demoMode')}
-+          </label>
-+        )}
-         {/* 定时执行按钮和状态气泡 */}
-         <ScheduleButton
-           enabledCount={instance?.schedulePolicies?.filter((p) => p.enabled).length || 0}
-@@ -1767,46 +1823,52 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+@@ -1767,46 +1769,52 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
          />
  
          {/* 开始/停止按钮 */}
@@ -685,14 +537,14 @@ index 505ea10..57da659 100644
 +          {theme === 'nailong' && <NailongBattleDecoration />}
 +          <button
 +            data-role="start-stop-button"
-+            data-battle-state={isStopping ? 'stopping' : isButtonRunning ? 'running' : 'idle'}
++            data-battle-state={isStopping ? 'stopping' : isStartStopRunning ? 'running' : 'idle'}
 +            onClick={handleStartStop}
 +            disabled={isDisabled || isStopping || (isStarting && !isStartStopRunning)}
 +            className={clsx(
 +              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
 +              isStopping
 +                ? 'bg-warning text-white'
-+                : isButtonRunning
++                : isStartStopRunning
 +                  ? 'bg-error hover:bg-error/90 text-white'
 +                  : isStarting
 +                    ? 'bg-success text-white'
@@ -707,7 +559,7 @@ index 505ea10..57da659 100644
 +                <Loader2 className="w-4 h-4 animate-spin" />
 +                <span>{t('taskList.stoppingTasks')}</span>
 +              </>
-+            ) : isButtonRunning ? (
++            ) : isStartStopRunning ? (
 +              <>
 +                <StopCircle className="w-4 h-4" />
 +                <span>{t(theme === 'nailong' ? 'nailong.exitBattle' : 'taskList.stopTasks')}</span>
@@ -1017,18 +869,12 @@ index 79de815..5f14a32 100644
      </section>
    );
 diff --git a/src/i18n/locales/en-US.ts b/src/i18n/locales/en-US.ts
-index dd052f0..acf31ff 100644
+index dd052f0..1f01e72 100644
 --- a/src/i18n/locales/en-US.ts
 +++ b/src/i18n/locales/en-US.ts
-@@ -1,4 +1,22 @@
+@@ -1,4 +1,16 @@
  export default {
 +  nailong: {
-+    demoMode: 'Theme demo',
-+    demoHint: 'Theme demo: no game connection or real tasks',
-+    demoStarted: '[Theme demo] Battle mode entered. Visual effects only.',
-+    demoStopped: '[Theme demo] Battle mode exited.',
-+    demoCompleted: '[Theme demo] Completion simulated. No real tasks executed.',
-+    completeDemo: 'Simulate completion',
 +    enterBattle: 'Enter battle mode',
 +    exitBattle: 'Exit battle mode',
 +    cheer: 'Ga ga di la xia!',
@@ -1043,7 +889,7 @@ index dd052f0..acf31ff 100644
    // Common
    common: {
      confirm: 'Confirm',
-@@ -61,6 +79,9 @@ export default {
+@@ -61,6 +73,9 @@ export default {
      theme: 'Theme',
      themeLight: 'Light',
      themeDark: 'Dark',
@@ -1054,18 +900,12 @@ index dd052f0..acf31ff 100644
      themeSystem: 'System',
      showOptionPreview: 'Show Option Preview',
 diff --git a/src/i18n/locales/ja-JP.ts b/src/i18n/locales/ja-JP.ts
-index 52e6a68..212e49e 100644
+index 52e6a68..ce86fd6 100644
 --- a/src/i18n/locales/ja-JP.ts
 +++ b/src/i18n/locales/ja-JP.ts
-@@ -1,4 +1,22 @@
+@@ -1,4 +1,16 @@
  export default {
 +  nailong: {
-+    demoMode: 'テーマデモ',
-+    demoHint: 'テーマデモ：ゲームへの接続や実際のタスク実行は行いません',
-+    demoStarted: '[テーマデモ] 戦闘モード開始。表示効果のみです。',
-+    demoStopped: '[テーマデモ] 戦闘モード終了。',
-+    demoCompleted: '[テーマデモ] 完了をシミュレートしました。実際のタスクは未実行です。',
-+    completeDemo: '完了をシミュレート',
 +    enterBattle: '戦闘モードに入る',
 +    exitBattle: '戦闘モードを終了',
 +    cheer: 'ガガディラシャ！',
@@ -1080,7 +920,7 @@ index 52e6a68..212e49e 100644
    // 共通
    common: {
      confirm: '確定',
-@@ -60,6 +78,8 @@ export default {
+@@ -60,6 +72,8 @@ export default {
      theme: 'テーマ',
      themeLight: 'ライト',
      themeDark: 'ダーク',
@@ -1090,18 +930,12 @@ index 52e6a68..212e49e 100644
      themeSystem: 'システムに従う',
      showOptionPreview: 'オプションプレビューを表示',
 diff --git a/src/i18n/locales/ko-KR.ts b/src/i18n/locales/ko-KR.ts
-index 0491740..37abba9 100644
+index 0491740..d064f5f 100644
 --- a/src/i18n/locales/ko-KR.ts
 +++ b/src/i18n/locales/ko-KR.ts
-@@ -1,4 +1,22 @@
+@@ -1,4 +1,16 @@
  export default {
 +  nailong: {
-+    demoMode: '테마 데모',
-+    demoHint: '테마 데모: 게임 연결 및 실제 작업 실행 없음',
-+    demoStarted: '[테마 데모] 전투 모드 진입. 시각 효과만 표시합니다.',
-+    demoStopped: '[테마 데모] 전투 모드 종료.',
-+    demoCompleted: '[테마 데모] 완료를 시뮬레이션했습니다. 실제 작업은 실행하지 않았습니다.',
-+    completeDemo: '완료 시뮬레이션',
 +    enterBattle: '전투 모드 진입',
 +    exitBattle: '전투 모드 종료',
 +    cheer: '가가디라샤!',
@@ -1116,7 +950,7 @@ index 0491740..37abba9 100644
    // 공통
    common: {
      confirm: '확인',
-@@ -60,6 +78,8 @@ export default {
+@@ -60,6 +72,8 @@ export default {
      theme: '테마',
      themeLight: '라이트',
      themeDark: '다크',
@@ -1126,18 +960,12 @@ index 0491740..37abba9 100644
      themeSystem: '시스템 설정',
      showOptionPreview: '옵션 미리보기 표시',
 diff --git a/src/i18n/locales/zh-CN.ts b/src/i18n/locales/zh-CN.ts
-index cdbca16..bbb0dc1 100644
+index cdbca16..6e142d1 100644
 --- a/src/i18n/locales/zh-CN.ts
 +++ b/src/i18n/locales/zh-CN.ts
-@@ -1,4 +1,22 @@
+@@ -1,4 +1,16 @@
  export default {
 +  nailong: {
-+    demoMode: '主题演示',
-+    demoHint: '主题演示：不连接游戏，不执行真实任务',
-+    demoStarted: '[主题演示] 进入战斗模式，仅演示奶龙运行效果。',
-+    demoStopped: '[主题演示] 已退出战斗模式。',
-+    demoCompleted: '[主题演示] 模拟完成，未执行真实任务。',
-+    completeDemo: '模拟完成',
 +    enterBattle: '进入战斗模式',
 +    exitBattle: '退出战斗模式',
 +    cheer: '嘎嘎滴辣虾',
@@ -1152,7 +980,7 @@ index cdbca16..bbb0dc1 100644
    // 通用
    common: {
      confirm: '确定',
-@@ -61,6 +79,8 @@ export default {
+@@ -61,6 +73,8 @@ export default {
      theme: '主题',
      themeLight: '浅色',
      themeDark: '深色',
@@ -1162,18 +990,12 @@ index cdbca16..bbb0dc1 100644
      accentColor: '强调色',
      showOptionPreview: '显示选项预览',
 diff --git a/src/i18n/locales/zh-TW.ts b/src/i18n/locales/zh-TW.ts
-index fa4098b..dfb1836 100644
+index fa4098b..757031c 100644
 --- a/src/i18n/locales/zh-TW.ts
 +++ b/src/i18n/locales/zh-TW.ts
-@@ -1,4 +1,22 @@
+@@ -1,4 +1,16 @@
  export default {
 +  nailong: {
-+    demoMode: '主題演示',
-+    demoHint: '主題演示：不連接遊戲，不執行真實任務',
-+    demoStarted: '[主題演示] 進入戰鬥模式，僅演示奶龍運行效果。',
-+    demoStopped: '[主題演示] 已退出戰鬥模式。',
-+    demoCompleted: '[主題演示] 模擬完成，未執行真實任務。',
-+    completeDemo: '模擬完成',
 +    enterBattle: '進入戰鬥模式',
 +    exitBattle: '退出戰鬥模式',
 +    cheer: '嘎嘎滴辣蝦',
@@ -1188,7 +1010,7 @@ index fa4098b..dfb1836 100644
    // 通用
    common: {
      confirm: '確定',
-@@ -60,6 +78,8 @@ export default {
+@@ -60,6 +72,8 @@ export default {
      theme: '主題',
      themeLight: '淺色',
      themeDark: '深色',
@@ -1380,33 +1202,6 @@ index c49f937..384dc0d 100644
  .has-background-image .bg-bg-secondary {
    background-color: var(--mxu-bg-secondary) !important;
  }
-diff --git a/src/stores/nailongDemoStore.ts b/src/stores/nailongDemoStore.ts
-new file mode 100644
-index 0000000..292606b
---- /dev/null
-+++ b/src/stores/nailongDemoStore.ts
-@@ -0,0 +1,21 @@
-+import { create } from 'zustand';
-+
-+export type NailongDemoPhase = 'idle' | 'running' | 'completed';
-+
-+interface NailongDemoState {
-+  enabled: boolean;
-+  phases: Record<string, NailongDemoPhase>;
-+  setEnabled: (enabled: boolean) => void;
-+  setPhase: (instanceId: string, phase: NailongDemoPhase) => void;
-+}
-+
-+/** 仅存放主题演示状态，不写入配置，也不触碰真实连接、任务或调度器。 */
-+export const useNailongDemoStore = create<NailongDemoState>((set) => ({
-+  enabled: false,
-+  phases: {},
-+  /** 开关演示时清空状态，避免再次进入时残留运行效果。 */
-+  setEnabled: (enabled) => set({ enabled, phases: {} }),
-+  /** 按实例更新演示阶段，关闭演示后不再接受状态变更。 */
-+  setPhase: (instanceId, phase) =>
-+    set((state) => (state.enabled ? { phases: { ...state.phases, [instanceId]: phase } } : state)),
-+}));
 diff --git a/src/stores/types.ts b/src/stores/types.ts
 index 6ba8cf3..74ce2b4 100644
 --- a/src/stores/types.ts
@@ -1556,6 +1351,65 @@ index 0931274..a0fdec9 100644
    accentColor?: AccentColor; // 强调色
    language: 'system' | 'zh-CN' | 'zh-TW' | 'en-US' | 'ja-JP' | 'ko-KR';
    backgroundImage?: string; // 背景图片路径
+diff --git a/src/utils/nailongCursor.ts b/src/utils/nailongCursor.ts
+new file mode 100644
+index 0000000..c738956
+--- /dev/null
++++ b/src/utils/nailongCursor.ts
+@@ -0,0 +1,53 @@
++import type { GazePoint } from './nailongGaze';
++
++/** 串行读取桌面指针，静止时降频、页面隐藏时暂停，释放后忽略迟到的响应。 */
++export function trackNailongCursor(
++  readPosition: () => Promise<GazePoint | null>,
++  updatePosition: (position: GazePoint) => void,
++  onError: (error: unknown) => void,
++): () => void {
++  let disposed = false;
++  let pending = false;
++  let timer: ReturnType<typeof setTimeout> | undefined;
++  let previous: GazePoint | null = null;
++
++  /** 只在坐标发生变化时更新瞳孔；保留低频读取以发现窗口外的再次移动。 */
++  const poll = async () => {
++    if (disposed || pending || document.hidden) return;
++    pending = true;
++    let changed = false;
++    try {
++      const position = await readPosition();
++      if (disposed) return;
++      changed = !!position && (position.x !== previous?.x || position.y !== previous?.y);
++      if (changed && position) {
++        previous = position;
++        if (!document.hidden) updatePosition(position);
++      }
++      if (!document.hidden) timer = setTimeout(poll, changed ? 33 : 150);
++    } catch (error) {
++      if (!disposed) {
++        disposed = true;
++        document.removeEventListener('visibilitychange', handleVisibility);
++        onError(error);
++      }
++    } finally {
++      pending = false;
++    }
++  };
++
++  /** 暂停隐藏页面的计时器，恢复可见时立即读取，不依赖窗口是否获得焦点。 */
++  const handleVisibility = () => {
++    clearTimeout(timer);
++    previous = null;
++    if (!document.hidden) void poll();
++  };
++
++  document.addEventListener('visibilitychange', handleVisibility);
++  void poll();
++  return () => {
++    disposed = true;
++    clearTimeout(timer);
++    document.removeEventListener('visibilitychange', handleVisibility);
++  };
++}
 diff --git a/src/utils/nailongGaze.ts b/src/utils/nailongGaze.ts
 new file mode 100644
 index 0000000..4c68f9a
@@ -1595,39 +1449,153 @@ index 0000000..4c68f9a
 +  const factor = Math.min(0.15, MAX_PUPIL_OFFSET / (Math.hypot(dx, dy) || 1));
 +  return { x: dx * factor, y: dy * factor };
 +}
-diff --git a/tests/nailongDemo.test.ts b/tests/nailongDemo.test.ts
+diff --git a/tests/nailongCursor.test.ts b/tests/nailongCursor.test.ts
 new file mode 100644
-index 0000000..aa97883
+index 0000000..b275488
 --- /dev/null
-+++ b/tests/nailongDemo.test.ts
-@@ -0,0 +1,28 @@
++++ b/tests/nailongCursor.test.ts
+@@ -0,0 +1,142 @@
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
-+import { useNailongDemoStore } from '../src/stores/nailongDemoStore.ts';
++import { trackNailongCursor } from '../src/utils/nailongCursor.ts';
++import type { GazePoint } from '../src/utils/nailongGaze.ts';
 +
-+test('theme demo supports start, stop and completion independently per instance', () => {
-+  const demo = useNailongDemoStore.getState();
-+  demo.setEnabled(true);
-+  demo.setPhase('first', 'running');
-+  demo.setPhase('second', 'running');
-+  demo.setPhase('first', 'completed');
-+  assert.equal(useNailongDemoStore.getState().phases.first, 'completed');
-+  assert.equal(useNailongDemoStore.getState().phases.second, 'running');
-+  demo.setPhase('second', 'idle');
-+  assert.equal(useNailongDemoStore.getState().phases.second, 'idle');
-+  demo.setEnabled(false);
++/** Run the real scheduler with a controllable document and clock, restoring globals afterwards. */
++async function withClock(
++  check: (clock: {
++    document: EventTarget & { hidden: boolean };
++    delays: () => number[];
++    tick: () => Promise<void>;
++  }) => Promise<void>,
++) {
++  const originalDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');
++  const originalSetTimeout = globalThis.setTimeout;
++  const originalClearTimeout = globalThis.clearTimeout;
++  const document = Object.assign(new EventTarget(), { hidden: false });
++  const timers = new Map<number, { callback: () => void; delay: number }>();
++  let id = 0;
++  Object.defineProperty(globalThis, 'document', { configurable: true, value: document });
++  globalThis.setTimeout = ((callback: () => void, delay: number) => {
++    timers.set(++id, { callback, delay });
++    return id;
++  }) as unknown as typeof setTimeout;
++  globalThis.clearTimeout = ((timer: number) => {
++    timers.delete(timer);
++  }) as unknown as typeof clearTimeout;
++  try {
++    await check({
++      document,
++      delays: () => [...timers.values()].map((timer) => timer.delay),
++      tick: async () => {
++        const next = timers.entries().next().value;
++        assert.ok(next, 'expected a scheduled cursor read');
++        timers.delete(next[0]);
++        next[1].callback();
++        await Promise.resolve();
++      },
++    });
++  } finally {
++    globalThis.setTimeout = originalSetTimeout;
++    globalThis.clearTimeout = originalClearTimeout;
++    if (originalDocument) Object.defineProperty(globalThis, 'document', originalDocument);
++    else Reflect.deleteProperty(globalThis, 'document');
++  }
++}
++
++test('stationary cursors do not render again and use the slower polling interval', async () => {
++  await withClock(async (clock) => {
++    let position = { x: 10, y: 20 };
++    const updates: GazePoint[] = [];
++    const stop = trackNailongCursor(
++      async () => position,
++      (p) => updates.push(p),
++      assert.fail,
++    );
++    await Promise.resolve();
++    assert.deepEqual(clock.delays(), [33]);
++    await clock.tick();
++    assert.equal(updates.length, 1);
++    assert.deepEqual(clock.delays(), [150]);
++    position = { x: -1000, y: 2000 };
++    await clock.tick();
++    assert.deepEqual(updates.at(-1), position);
++    assert.deepEqual(clock.delays(), [33]);
++    stop();
++    assert.deepEqual(clock.delays(), []);
++  });
 +});
 +
-+test('closing demo clears all simulated runs and rejects late state updates', () => {
-+  const demo = useNailongDemoStore.getState();
-+  demo.setEnabled(true);
-+  demo.setPhase('first', 'running');
-+  demo.setEnabled(false);
-+  demo.setPhase('first', 'completed');
-+  assert.deepEqual(useNailongDemoStore.getState().phases, {});
-+  demo.setEnabled(true);
-+  assert.deepEqual(useNailongDemoStore.getState().phases, {});
-+  demo.setEnabled(false);
++test('hidden pages stop all polling and resume once on becoming visible', async () => {
++  await withClock(async (clock) => {
++    let reads = 0;
++    clock.document.hidden = true;
++    const stop = trackNailongCursor(
++      async () => {
++        reads++;
++        return { x: 1, y: 2 };
++      },
++      () => {},
++      assert.fail,
++    );
++    assert.equal(reads, 0);
++    assert.deepEqual(clock.delays(), []);
++    clock.document.hidden = false;
++    clock.document.dispatchEvent(new Event('visibilitychange'));
++    await Promise.resolve();
++    assert.equal(reads, 1);
++    clock.document.hidden = true;
++    clock.document.dispatchEvent(new Event('visibilitychange'));
++    assert.deepEqual(clock.delays(), []);
++    stop();
++    clock.document.hidden = false;
++    clock.document.dispatchEvent(new Event('visibilitychange'));
++    assert.equal(reads, 1);
++  });
++});
++
++test('a pending native read stays serial and cannot update after disposal', async () => {
++  await withClock(async (clock) => {
++    let resolvePosition!: (position: GazePoint) => void;
++    let reads = 0;
++    let updates = 0;
++    const stop = trackNailongCursor(
++      () => {
++        reads++;
++        return new Promise((resolve) => {
++          resolvePosition = resolve;
++        });
++      },
++      () => {
++        updates++;
++      },
++      assert.fail,
++    );
++    clock.document.dispatchEvent(new Event('visibilitychange'));
++    assert.equal(reads, 1);
++    stop();
++    resolvePosition({ x: 1, y: 2 });
++    await Promise.resolve();
++    assert.equal(updates, 0);
++    assert.deepEqual(clock.delays(), []);
++  });
++});
++
++test('native failures report once without a retry loop', async () => {
++  await withClock(async (clock) => {
++    const errors: unknown[] = [];
++    const failure = new Error('cursor unavailable');
++    const stop = trackNailongCursor(
++      async () => {
++        throw failure;
++      },
++      () => assert.fail(),
++      (error) => errors.push(error),
++    );
++    await Promise.resolve();
++    assert.deepEqual(errors, [failure]);
++    assert.deepEqual(clock.delays(), []);
++    stop();
++  });
 +});
 diff --git a/tests/nailongGaze.test.ts b/tests/nailongGaze.test.ts
 new file mode 100644

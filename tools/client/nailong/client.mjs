@@ -137,7 +137,10 @@ function prepare() {
     tauri.version = settings.version;
     writeFileSync(join(cache, "src-tauri/tauri.conf.json"), `${JSON.stringify(tauri, null, 2)}\n`);
     const cargoPath = join(cache, "src-tauri/Cargo.toml");
-    const cargo = readFileSync(cargoPath, "utf8").replace(/^version = "[^"]+"/m, `version = "${settings.version}"`);
+    // Tauri writes LF here during builds; use the same format before recording the cache digest.
+    const cargo = readFileSync(cargoPath, "utf8")
+        .replace(/\r\n/g, "\n")
+        .replace(/^version = "[^"]+"/m, `version = "${settings.version}"`);
     writeFileSync(cargoPath, cargo);
     const lockPath = join(cache, "src-tauri/Cargo.lock");
     const lock = readFileSync(lockPath, "utf8").replace(
@@ -176,7 +179,7 @@ function prepareRuntime() {
             cpSync(source, destination);
         }
     }
-    // Use already installed agents and MaaFramework when available; theme demo does not need them.
+    // Use already installed agents and MaaFramework when available.
     for (const name of [
         "agent",
         "maafw",

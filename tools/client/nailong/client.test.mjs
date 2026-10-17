@@ -36,8 +36,10 @@ test("preparation is repeatable and uses the pinned official source", () => {
         {cwd: join(root, ".cache/nailong-client"), encoding: "utf8"},
     );
     assert.equal(head.stdout.trim(), settings.commit);
-    const installedAsset = readFileSync(join(root, ".cache/nailong-client/src/assets/nailong/working.gif"));
-    assert.deepEqual(installedAsset, readFileSync(join(directory, "assets/working.gif")));
+    const cargo = readFileSync(join(root, ".cache/nailong-client/src-tauri/Cargo.toml"), "utf8");
+    assert.ok(!cargo.includes("\r\n"), "Cargo.toml must keep Tauri's LF format after builds");
+    const installedAsset = readFileSync(join(root, ".cache/nailong-client/src/assets/nailong/working.webp"));
+    assert.deepEqual(installedAsset, readFileSync(join(directory, "assets/working.webp")));
 });
 
 test("preparation preserves and rejects local edits instead of overwriting them", () => {
