@@ -75,8 +75,23 @@ struct FlowState
     bool corner_walk = false;
 };
 
+// pad 的 x/y 是板心, zone_id 是起跳所在区
+struct JumpPadState
+{
+    NaviPosition pad {};
+    std::chrono::steady_clock::time_point started {};
+    std::chrono::steady_clock::time_point jumped_at {};
+    std::chrono::steady_clock::time_point launched_at {};
+    std::optional<NaviPosition> last_fix;
+    int still_reads = 0;
+    int jumps = 0;
+    int nudges = 0;
+    bool launched = false;
+};
+
 struct SemanticState
 {
+    JumpPadState jump_pad;
     std::chrono::steady_clock::time_point transfer_wait_started {};
     NaviPosition transfer_anchor_pos {};
     int transfer_stable_hits = 0;
@@ -89,6 +104,7 @@ struct SemanticState
 
     void ResetTransient()
     {
+        jump_pad = {};
         transfer_wait_started = {};
         transfer_anchor_pos = {};
         transfer_stable_hits = 0;

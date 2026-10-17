@@ -149,7 +149,7 @@ Ordinary coordinate actions can use the same object form to declare that point's
 }
 ```
 
-This form applies to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER`, as well as `HEADING` with a `target`. `target_tier` **only interprets the coordinate of the current node**: it does not switch zones, does not change the context of following nodes, and cannot replace the `ZONE` / `PORTAL` required for an actual area transition.
+This form applies to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER`, as well as `HEADING` with a `target`. `target_tier` **only interprets the coordinate of the current node**: it does not switch zones, does not change the context of following nodes, and cannot replace the `ZONE` / `PORTAL` required for an actual area transition.
 
 The field also supports camelCase `targetTier`. An unknown tier on `NAVMESH` keeps the compatibility behavior of logging a warning and treating the target as base coordinates. An ordinary coordinate point that explicitly declares a nonexistent tier fails outright instead of silently moving toward the wrong location.
 
@@ -347,6 +347,7 @@ Only `INTERACT` points can take these fields — on any other action they are ig
 | `TRIGGER` | Route end point: recognizes `trigger_node` while walking; navigation succeeds on a hit or on reaching `target`, see [Ending on a Recognition Hit](#ending-on-a-recognition-hit-trigger) |
 | `NAVMESH` | Plans a route automatically from the current localization and moves to `target`; must use the object form above |
 | `TRANSFER` | Waits in place for an external force (story, teleport, etc.) to move the character to the next segment, then continues from the following points |
+| `JUMP_PAD` | Jump pad: stands on the pad center, jumps when needed, steps and retries if it did not launch, then continues from the following points after landing; see [Jump Pads](#jump-pads-jump_pad) |
 | `PORTAL` | Map transition point: after triggering, walks blind for a short distance and waits for the area switch |
 | `HEADING` | Turns the camera to the specified orientation, then presses `W` once to make the orientation take effect |
 
@@ -354,7 +355,7 @@ Only `INTERACT` points can take these fields — on any other action they are ig
 
 Without ziplines enabled, the navigator executes strictly in `path` order. Ordinary points and actions are all kept, and `NAVMESH` is expanded point by point too.
 
-Only with ziplines enabled does the navigator try to skip intermediate points, planning directly from the start of the current interval to its end. When the direct plan succeeds, the intermediate movement and reachability fallback points are skipped; when it fails, the author path is still executed point by point. Such optional points include `NAVMESH`, `RUN`, `SPRINT`, `JUMP`, `FIGHT`, `TRANSFER`, `PORTAL`, and `INTERACT`.
+Only with ziplines enabled does the navigator try to skip intermediate points, planning directly from the start of the current interval to its end. When the direct plan succeeds, the intermediate movement and reachability fallback points are skipped; when it fails, the author path is still executed point by point. Such optional points include `NAVMESH`, `RUN`, `SPRINT`, `JUMP`, `FIGHT`, `TRANSFER`, `JUMP_PAD`, `PORTAL`, and `INTERACT`.
 
 The following nodes are always kept and need no `required`:
 
@@ -366,14 +367,14 @@ The following nodes are always kept and need no `required`:
 
 With ziplines enabled, if another node must also be reached and executed, add `"required": true`. That node ends the current optimization interval, and the rest of the route starts again from there. The array form has no slot for this field, so required points must use the object form.
 
-For example, when the business flow must trigger a teleport, write:
+For example, when the route must go over a particular jump pad, write:
 
 ```json
 {
-    "action": "TRANSFER",
+    "action": "JUMP_PAD",
     "target": [
-        1002.89,
-        304.52
+        1001.89,
+        305.68
     ],
     "required": true
 }
@@ -438,7 +439,7 @@ You can also give a coordinate to turn in the direction "current position → th
 
 > [!NOTE]
 >
-> Point editing on the page covers path points with coordinates (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER / NAVMESH`): it can edit `required` and `target_tier` per point, choose `target_deck_y` for a single `NAVMESH` target, and derive `ZONE` declarations from area information. `HEADING` is a non-coordinate control node outside this editing model; it is recommended to add and maintain it manually after exporting the `path`. Likewise, the `find_target` / `find_text` / `find_stop` / `find_arrive` fields of `FIND` and the `trigger_node` of `TRIGGER` are written by hand after exporting — the tool only preserves them as they are.
+> Point editing on the page covers path points with coordinates (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER / NAVMESH`): it can edit `required` and `target_tier` per point, choose `target_deck_y` for a single `NAVMESH` target, and derive `ZONE` declarations from area information. `HEADING` is a non-coordinate control node outside this editing model; it is recommended to add and maintain it manually after exporting the `path`. Likewise, the `find_target` / `find_text` / `find_stop` / `find_arrive` fields of `FIND` and the `trigger_node` of `TRIGGER` are written by hand after exporting — the tool only preserves them as they are.
 
 ---
 
@@ -545,7 +546,7 @@ Paste the `path` exported by the recording tool into it and you have a complete 
 
 > [!WARNING]
 >
-> Adjacent path points should be reachable from one another in one continuous walk. The navigator cannot pass through models or understand business mechanisms; segments such as map transitions, jump pads, falls, and ascent mechanisms can be split into `PORTAL` / `TRANSFER` / business nodes as an author-path fallback. With ziplines enabled, nodes that must be passed or executed should be marked `required`.
+> Adjacent path points should be reachable from one another in one continuous walk. The navigator cannot pass through models or understand business mechanisms; jump pads use `JUMP_PAD`, and segments such as map transitions, falls, and ascent mechanisms can be split into `PORTAL` / `TRANSFER` / business nodes as an author-path fallback. With ziplines enabled, nodes that must be passed or executed should be marked `required`.
 
 ---
 
@@ -1007,10 +1008,76 @@ The hit screen often covers the minimap. The navigator loses its position then, 
 
 ---
 
+## Jump Pads `JUMP_PAD`
+
+There are two kinds of jump pads: ones that launch the character as soon as it steps on, and ones that need a jump while standing on them. Both are written as the same point, with `target` at the pad center; the navigator decides whether to jump:
+
+```json
+[
+    {
+        "action": "NAVMESH",
+        "target": [
+            1001.4,
+            302.0
+        ]
+    },
+    {
+        "action": "JUMP_PAD",
+        "target": [
+            1001.89,
+            305.68
+        ]
+    },
+    [
+        995.79,
+        320.78
+    ],
+    {
+        "action": "NAVMESH",
+        "target": [
+            1021.31,
+            368.82
+        ]
+    }
+]
+```
+
+### Runtime Behavior
+
+1. Walks in and stops once inside the arrival band;
+2. Waits until the character stands still. If it is more than 0.5 from the center, turns the camera toward the center and holds forward for a short step until it is within that range; a pad that launches on contact launches during such a step;
+3. Still on the pad once within range, it jumps. If the character is still on the pad 1.2 seconds after the jump, that jump did not launch: the range tightens to 0.25, it steps again and jumps again;
+4. Moving more than 3 from the center counts as launched; two consecutive unchanged fixes after that count as landed, and the route continues with the following points from the landing spot. The landing spot is set by the pad and does not depend on the facing at the jump.
+
+### Writing Tips
+
+- `target` must be the pad center. A pad that needs a jump only reacts within about 0.8 of its center; off-center, the jump is just a regular jump in place.
+- Stop the previous point 3–4 away from the pad on the walkable side. Pads often sit at cliff edges, so never place the approach point over the drop.
+- Follow `JUMP_PAD` directly with the landing spot as a plain point, then continue with `NAVMESH` as usual. Each leg is planned from the point before it; without the landing point, the next leg would start from the pad side.
+
+### Failure
+
+`MapNavigateAction` returns false when:
+
+| Reason | Meaning |
+| -------------------------- | ------------------------------------------------------------ |
+| `jump_pad_not_reached` | The step budget ran out before the character stood within range |
+| `jump_pad_not_launched` | Three jumps did not launch, or no launch within 20 seconds of reaching the pad |
+| `jump_pad_landing_timeout` | Did not stand still within 15 seconds after launch |
+
+### Related Files
+
+| File | Responsibility | When Changes Are Needed |
+| ------------------------------------------------------ | -------------------------------------------- | --------------------------------- |
+| The business's own route JSON | The `JUMP_PAD` point, its approach point and landing point | Add or adjust a jump pad segment |
+| `agent/cpp-algo/source/MapNavigator/jump_pad_action.cpp` | Standing, jumping, launch and landing detection | Maintained by cpp-algo developers |
+
+---
+
 ## Practical Tips
 
 1. **Prefer `NAVMESH`; record only when semantics are needed.** For plain-movement routes, place the points by hand in the path editor, confirm them with planning, and copy; adjust a target the preview cannot reach on the spot instead of waiting for it to fail at runtime. Only routes with semantics such as interactions and map transitions need recording.
 2. **Record rather than hand-write.** Walking through once in reality is usually more accurate than filling coordinates by feeling; if the precision of the recorded points is insufficient, move more slowly.
 3. **Keep the starting state stable.** Before recording, tidy up the character's position and viewpoint, which significantly reduces later point correction.
-4. **Keep special action points few and precise.** Add `INTERACT`, `TRANSFER`, and `PORTAL` only where an interaction or an area switch is needed; with ziplines enabled, points that must be executed should be marked `required`. `HEADING`, `COLLECT`, `DIG`, `FIND`, and `TRIGGER` are always kept.
+4. **Keep special action points few and precise.** Add `INTERACT`, `JUMP_PAD`, `TRANSFER`, and `PORTAL` only where an interaction, a jump pad, or an area switch is needed; with ziplines enabled, points that must be executed should be marked `required`. `HEADING`, `COLLECT`, `DIG`, `FIND`, and `TRIGGER` are always kept.
 5. **Always check map transition points on cross-area routes.** Automatic addition of `PORTAL` is only a semantic annotation and does not mean every cross-area boundary is inherently reasonable.
