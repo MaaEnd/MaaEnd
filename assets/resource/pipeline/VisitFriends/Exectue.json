@@ -717,10 +717,10 @@
         "enabled": false,
         "recognition": "OCR",
         "roi": [
-            0,
-            0,
-            1280,
-            720
+            -400,
+            70,
+            400,
+            90
         ],
         "expected": [
             "快速拜访下位",
@@ -728,10 +728,13 @@
             "Visit.*Next",
             "快速訪問.*次へ"
         ],
-        "pre_delay": 0,
+        "pre_wait_freezes": 100,
         "action": "Custom",
-        "custom_action": "AutoAltClickAction",
-        "post_delay": 0,
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_node": "VisitFriendsEnterShipSuccess"
+        },
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
             "VisitFriendsEnterShipSuccess"
