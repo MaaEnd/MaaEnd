@@ -1,0 +1,1683 @@
+diff --git a/src-tauri/src/commands/mod.rs b/src-tauri/src/commands/mod.rs
+index 954ebdf..d6c14e1 100644
+--- a/src-tauri/src/commands/mod.rs
++++ b/src-tauri/src/commands/mod.rs
+@@ -22,6 +22,7 @@ pub mod download;
+ pub mod file_ops;
+ pub mod maa_agent;
+ pub mod maa_core;
++pub mod nailong;
+ pub mod notification;
+ pub mod state;
+ pub mod system;
+diff --git a/src-tauri/src/commands/nailong.rs b/src-tauri/src/commands/nailong.rs
+new file mode 100644
+index 0000000..e1590f2
+--- /dev/null
++++ b/src-tauri/src/commands/nailong.rs
+@@ -0,0 +1,28 @@
++//! 奶龙主题的桌面指针坐标接口。
++
++#[derive(serde::Serialize)]
++pub struct CursorPosition {
++    x: f64,
++    y: f64,
++}
++
++/// 将全局屏幕物理坐标转换为当前 WebView 的逻辑坐标，支持窗口外指针及 DPI 缩放。
++#[tauri::command]
++pub fn get_nailong_cursor_position(
++    window: tauri::WebviewWindow,
++) -> Result<Option<CursorPosition>, String> {
++    if window.is_minimized().map_err(|error| error.to_string())? {
++        return Ok(None);
++    }
++    let cursor = window
++        .cursor_position()
++        .map_err(|error| error.to_string())?;
++    let origin = window.inner_position().map_err(|error| error.to_string())?;
++    let scale = window.scale_factor().map_err(|error| error.to_string())?;
++
++    // 使用客户区原点，而非含系统标题栏的窗口外框原点，避免垂直追视偏移。
++    Ok(Some(CursorPosition {
++        x: (cursor.x - f64::from(origin.x)) / scale,
++        y: (cursor.y - f64::from(origin.y)) / scale,
++    }))
++}
+diff --git a/src-tauri/src/lib.rs b/src-tauri/src/lib.rs
+index 6cd8b24..2568109 100644
+--- a/src-tauri/src/lib.rs
++++ b/src-tauri/src/lib.rs
+@@ -298,6 +298,7 @@ pub fn run() {
+             commands::download::download_file,
+             commands::download::cancel_download,
+             // 系统相关命令
++            commands::nailong::get_nailong_cursor_position,
+             commands::system::is_elevated,
+             commands::system::is_workstation_locked,
+             commands::system::is_autostart,
+diff --git a/src/App.tsx b/src/App.tsx
+index 8bd0343..b28fb2a 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -16,6 +16,7 @@ import {
+   ConnectionPanel,
+ } from '@/components';
+ import { BackgroundOverlay } from '@/components/BackgroundOverlay';
++import { NailongBackground } from '@/components/NailongBackground';
+ import { isAllowedSettingsHotkey } from '@/components/FormControls';
+ import type { BadPathType } from '@/components';
+ import {
+@@ -1795,7 +1796,7 @@ function App() {
+ 
+   const toaster = (
+     <Toaster
+-      theme={resolveThemeMode(theme)}
++      theme={resolveThemeMode(theme) === 'dark' ? 'dark' : 'light'}
+       position="bottom-center"
+       toastOptions={{
+         className: '!bg-bg-secondary !text-text-primary !border-border',
+@@ -1807,9 +1808,13 @@ function App() {
+   if (currentPage === 'settings') {
+     return (
+       <div
+-        className={`h-full flex flex-col bg-bg-primary relative ${backgroundImageDataUrl ? 'has-background-image' : ''}`}
++        className={`h-full flex flex-col bg-bg-primary relative ${theme === 'nailong' ? 'has-background-image nailong-theme' : backgroundImageDataUrl ? 'has-background-image' : ''}`}
+       >
+-        <BackgroundOverlay imageDataUrl={backgroundImageDataUrl} opacity={backgroundOpacity} />
++        {theme === 'nailong' ? (
++          <NailongBackground opacity={backgroundOpacity} />
++        ) : (
++          <BackgroundOverlay imageDataUrl={backgroundImageDataUrl} opacity={backgroundOpacity} />
++        )}
+         <div className="relative z-10 h-full flex flex-col">
+           <ConnectionLostOverlay />
+           <TitleBar />
+@@ -1890,9 +1895,13 @@ function App() {
+   // 主页面
+   return (
+     <div
+-      className={`h-full flex flex-col bg-bg-primary relative ${backgroundImageDataUrl ? 'has-background-image' : ''}`}
++      className={`h-full flex flex-col bg-bg-primary relative ${theme === 'nailong' ? 'has-background-image nailong-theme' : backgroundImageDataUrl ? 'has-background-image' : ''}`}
+     >
+-      <BackgroundOverlay imageDataUrl={backgroundImageDataUrl} opacity={backgroundOpacity} />
++      {theme === 'nailong' ? (
++        <NailongBackground opacity={backgroundOpacity} />
++      ) : (
++        <BackgroundOverlay imageDataUrl={backgroundImageDataUrl} opacity={backgroundOpacity} />
++      )}
+       <div className="relative z-10 h-full flex flex-col">
+         {/* WebUI 模式下的连接断开覆盖层 */}
+         <ConnectionLostOverlay />
+diff --git a/src/components/ConnectionPanel.tsx b/src/components/ConnectionPanel.tsx
+index 499d1d7..1c9c697 100644
+--- a/src/components/ConnectionPanel.tsx
++++ b/src/components/ConnectionPanel.tsx
+@@ -35,6 +35,7 @@ import {
+   isDesktopWindowControllerType,
+ } from '@/utils/controller';
+ import { getInterfaceLangKey } from '@/i18n';
++import thinkingUrl from '@/assets/nailong/thinking.png';
+ import {
+   startGlobalCallbackListener,
+   waitForCtrlResult,
+@@ -82,6 +83,7 @@ export function ConnectionPanel() {
+     registerResIdName,
+     registerResBatch,
+     addLog,
++    theme,
+   } = useAppStore();
+ 
+   // 获取当前活动实例
+@@ -1532,6 +1534,16 @@ export function ConnectionPanel() {
+           {/* 分隔线放在 overflow-hidden 内部，避免展开瞬间闪烁 */}
+           <div className="border-t border-border" />
+           <div className="p-3 space-y-3">
++            {theme === 'nailong' &&
++              (!isConnected ||
++                isSearching ||
++                isConnecting ||
++                storedConnectionStatus === 'Connecting') && (
++                <div className="nailong-connection-help">
++                  <img src={thinkingUrl} alt="" />
++                  <p>{t('nailong.waiting')}</p>
++                </div>
++              )}
+             {/* 控制器选择 - 标题和按钮同一行 */}
+             {controllers.length > 1 && (
+               <div className="flex items-center justify-between gap-2">
+diff --git a/src/components/DashboardView.tsx b/src/components/DashboardView.tsx
+index 29dac3e..b681861 100644
+--- a/src/components/DashboardView.tsx
++++ b/src/components/DashboardView.tsx
+@@ -24,6 +24,7 @@ import {
+ } from 'lucide-react';
+ import clsx from 'clsx';
+ import { useAppStore } from '@/stores/appStore';
++import { useNailongDemoStore } from '@/stores/nailongDemoStore';
+ import { maaService } from '@/services/maaService';
+ import { buildTaskOptionSummary } from '@/services/telemetryService';
+ import { collectPasswordPlaintextsFromRunnableTasks } from '@/utils/passwordOptionValues';
+@@ -60,6 +61,7 @@ function InstanceCard({ instanceId, instanceName, isActive, onSelect }: Instance
+   const { t } = useTranslation();
+   const {
+     instances,
++    theme,
+     instanceConnectionStatus,
+     instanceTaskStatus,
+     instanceScreenshotStreaming,
+@@ -212,6 +214,9 @@ function InstanceCard({ instanceId, instanceName, isActive, onSelect }: Instance
+     async (e: React.MouseEvent) => {
+       e.stopPropagation();
+ 
++      // 主题演示只由主界面的模拟按钮控制，中控台不启动真实任务。
++      if (import.meta.env.DEV && useNailongDemoStore.getState().enabled) return;
++
+       if (!instance || (!canRun && !isRunning)) return;
+ 
+       if (isRunning) {
+@@ -778,9 +783,9 @@ function InstanceCard({ instanceId, instanceName, isActive, onSelect }: Instance
+                 : isStopping
+                   ? t('taskList.stoppingTasks')
+                   : isRunning
+-                    ? t('taskList.stopTasks')
++                    ? t(theme === 'nailong' ? 'nailong.exitBattle' : 'taskList.stopTasks')
+                     : canRun
+-                      ? t('taskList.startTasks')
++                      ? t(theme === 'nailong' ? 'nailong.enterBattle' : 'taskList.startTasks')
+                       : t('dashboard.noEnabledTasks')
+             }
+           >
+diff --git a/src/components/LogsPanel.tsx b/src/components/LogsPanel.tsx
+index 9019f15..6eb145a 100644
+--- a/src/components/LogsPanel.tsx
++++ b/src/components/LogsPanel.tsx
+@@ -22,6 +22,7 @@ import { clearPersistedRuntimeLogs } from '@/utils/runtimeLogPersistence';
+ import { getAllLogsFromBackend } from '@/utils/logStdout';
+ import { loadPersistedRuntimeLogs, mergeRuntimeLogs } from '@/utils/runtimeLogPersistence';
+ import type { LogEntry } from '@/stores/types';
++import { NailongCompanion } from './NailongCompanion';
+ 
+ const DEFAULT_VISIBLE_LOG_LIMIT = 500;
+ const EXPANDED_LOG_LIMIT = 2000;
+@@ -53,6 +54,7 @@ export function LogsPanel() {
+     instanceLogs,
+     clearLogs,
+     setMaxLogsPerInstance,
++    theme,
+   } = useAppStore();
+   const { state: menuState, show: showMenu, hide: hideMenu } = useContextMenu();
+   const { exportModal, handleExportLogs, closeExportModal, openExportedFile } = useExportLogs();
+@@ -230,7 +232,11 @@ export function LogsPanel() {
+       className={clsx(
+         'flex flex-col bg-bg-secondary rounded-lg ring-1 ring-inset ring-border overflow-hidden',
+         // 2.5rem = TabBar h-10；若 TabBar 高度变更需同步更新
+-        isMobile ? 'h-[calc(100dvh-2.5rem)]' : 'flex-1 min-h-50',
++        isMobile
++          ? 'h-[calc(100dvh-2.5rem)]'
++          : theme === 'nailong'
++            ? 'flex-1 min-h-40'
++            : 'flex-1 min-h-50',
+       )}
+     >
+       {/* 标题栏（桌面端可点击展开/折叠上方面板，移动端仅显示标题） */}
+@@ -379,6 +385,8 @@ export function LogsPanel() {
+         )}
+       </div>
+ 
++      <NailongCompanion />
++
+       {/* 右键菜单 */}
+       {menuState.isOpen && (
+         <ContextMenu items={menuState.items} position={menuState.position} onClose={hideMenu} />
+diff --git a/src/components/NailongBackground.tsx b/src/components/NailongBackground.tsx
+new file mode 100644
+index 0000000..5e93f29
+--- /dev/null
++++ b/src/components/NailongBackground.tsx
+@@ -0,0 +1,123 @@
++import { useEffect, useRef } from 'react';
++import { invoke } from '@tauri-apps/api/core';
++import backgroundUrl from '@/assets/nailong/background.png';
++import { isTauri } from '@/utils/paths';
++import { createLogger } from '@/utils/logger';
++import {
++  getNailongImageLayout,
++  getNailongPupilOffset,
++  NAILONG_EYES,
++  NAILONG_PUPIL_RADIUS,
++  type GazePoint,
++} from '@/utils/nailongGaze';
++
++const log = createLogger('NailongBackground');
++const CURSOR_POLL_INTERVAL = 33;
++
++interface NailongBackgroundProps {
++  opacity: number;
++}
++
++/** 显示奶龙内置背景，桌面端读取全局指针，窗口外也能持续追视。 */
++export function NailongBackground({ opacity }: NailongBackgroundProps) {
++  const layerRef = useRef<HTMLDivElement>(null);
++  const pupilRefs = useRef<(HTMLDivElement | null)[]>([]);
++
++  useEffect(() => {
++    const layer = layerRef.current;
++    if (!layer) return;
++
++    let disposed = false;
++    let timer: ReturnType<typeof setTimeout> | undefined;
++    let pointer: GazePoint | null = null;
++
++    /** 使用同一 cover 坐标系放置背景与瞳孔，不触发整页 React 重渲染。 */
++    const updatePupils = () => {
++      const bounds = layer.getBoundingClientRect();
++      const layout = getNailongImageLayout(bounds.width, bounds.height);
++      for (const [index, eye] of NAILONG_EYES.entries()) {
++        const pupil = pupilRefs.current[index];
++        if (!pupil) continue;
++        const imagePointer = pointer
++          ? {
++              x: (pointer.x - bounds.left - layout.x) / layout.scale,
++              y: (pointer.y - bounds.top - layout.y) / layout.scale,
++            }
++          : eye;
++        const offset = getNailongPupilOffset(eye, imagePointer);
++        const radius = NAILONG_PUPIL_RADIUS * layout.scale;
++        pupil.style.width = `${radius * 2}px`;
++        pupil.style.height = `${radius * 2}px`;
++        pupil.style.transform = `translate3d(${layout.x + (eye.x + offset.x) * layout.scale - radius}px, ${layout.y + (eye.y + offset.y) * layout.scale - radius}px, 0)`;
++      }
++    };
++
++    /** 仅串行读取当前指针；切换主题后取消调度，迟到的响应也不再更新界面。 */
++    const pollDesktopCursor = async () => {
++      try {
++        if (!document.hidden) {
++          const position = await invoke<GazePoint | null>('get_nailong_cursor_position');
++          if (disposed) return;
++          if (position) {
++            pointer = position;
++            updatePupils();
++          }
++        }
++        if (!disposed) timer = setTimeout(pollDesktopCursor, CURSOR_POLL_INTERVAL);
++      } catch (error) {
++        if (!disposed) log.warn('读取桌面鼠标位置失败，已停止追视:', error);
++      }
++    };
++
++    /** 浏览器端使用页面指针事件，桌面端的窗口外追视交给原生接口。 */
++    const handlePointerMove = (event: PointerEvent) => {
++      pointer = { x: event.clientX, y: event.clientY };
++      updatePupils();
++    };
++
++    const observer = new ResizeObserver(updatePupils);
++    observer.observe(layer);
++    updatePupils();
++    if (isTauri()) {
++      void pollDesktopCursor();
++    } else {
++      window.addEventListener('pointermove', handlePointerMove);
++    }
++
++    return () => {
++      disposed = true;
++      clearTimeout(timer);
++      observer.disconnect();
++      window.removeEventListener('pointermove', handlePointerMove);
++    };
++  }, []);
++
++  return (
++    <div
++      ref={layerRef}
++      aria-hidden="true"
++      className="absolute inset-0 overflow-hidden pointer-events-none"
++      style={{
++        backgroundImage: `url("${backgroundUrl}")`,
++        backgroundSize: 'cover',
++        backgroundPosition: 'center',
++        opacity: opacity / 100,
++      }}
++    >
++      {NAILONG_EYES.map((_, index) => (
++        <div
++          key={index}
++          ref={(element) => {
++            pupilRefs.current[index] = element;
++          }}
++          className="absolute left-0 top-0 rounded-full"
++          style={{
++            background: 'radial-gradient(circle at 38% 27%, #191b18, #080a08 80%)',
++            transition: 'transform 70ms linear',
++            willChange: 'transform',
++          }}
++        />
++      ))}
++    </div>
++  );
++}
+diff --git a/src/components/NailongBattleDecoration.tsx b/src/components/NailongBattleDecoration.tsx
+new file mode 100644
+index 0000000..fba8d4e
+--- /dev/null
++++ b/src/components/NailongBattleDecoration.tsx
+@@ -0,0 +1,10 @@
++import battleUrl from '@/assets/nailong/battle.jpg';
++
++/** 将战斗表情放在启停按钮上方，裁去原图文字且不拦截点击。 */
++export function NailongBattleDecoration() {
++  return (
++    <span className="nailong-battle-character" aria-hidden="true">
++      <img src={battleUrl} alt="" />
++    </span>
++  );
++}
+diff --git a/src/components/NailongCompanion.tsx b/src/components/NailongCompanion.tsx
+new file mode 100644
+index 0000000..40f8243
+--- /dev/null
++++ b/src/components/NailongCompanion.tsx
+@@ -0,0 +1,100 @@
++import { useState } from 'react';
++import { useTranslation } from 'react-i18next';
++import clsx from 'clsx';
++import { useAppStore } from '@/stores/appStore';
++import { useNailongDemoStore } from '@/stores/nailongDemoStore';
++import standingUrl from '@/assets/nailong/standing-smile.png';
++import workingUrl from '@/assets/nailong/working.gif';
++
++const CATCHPHRASE_KEYS = ['cheer', 'andy', 'spicy', 'keepGoing'] as const;
++
++/** 根据当前实例的真实任务状态，显示工作动图或微笑陪伴。 */
++export function NailongCompanion() {
++  const { t } = useTranslation();
++  const [catchphraseIndex, setCatchphraseIndex] = useState(0);
++  const theme = useAppStore((state) => state.theme);
++  const instance = useAppStore((state) =>
++    state.instances.find((item) => item.id === state.activeInstanceId),
++  );
++  const taskStatus = useAppStore((state) =>
++    state.activeInstanceId ? state.instanceTaskStatus[state.activeInstanceId] : null,
++  );
++  const {
++    enabled: demoEnabled,
++    phases: demoPhases,
++    setPhase: setDemoPhase,
++  } = useNailongDemoStore();
++  const isDemoMode = import.meta.env.DEV && demoEnabled;
++  const demoPhase = instance ? demoPhases[instance.id] : undefined;
++  const isRunning = isDemoMode ? demoPhase === 'running' : instance?.isRunning;
++  const completed = isDemoMode ? demoPhase === 'completed' : taskStatus === 'Succeeded';
++
++  /** 仅结束主题演示，真实任务状态和完成回调保持不变。 */
++  const completeDemo = () => {
++    if (!instance || !isDemoMode) return;
++    setDemoPhase(instance.id, 'completed');
++    useAppStore.getState().addLog(instance.id, {
++      type: 'info',
++      message: t('nailong.demoCompleted'),
++    });
++  };
++
++  /** 从其余三句中等概率抽取，确保每次点击都会更换文案。 */
++  const changeCatchphrase = () => {
++    setCatchphraseIndex(
++      (current) =>
++        (current + 1 + Math.floor(Math.random() * (CATCHPHRASE_KEYS.length - 1))) %
++        CATCHPHRASE_KEYS.length,
++    );
++  };
++
++  if (theme !== 'nailong') return null;
++
++  return (
++    <div className="shrink-0">
++      {isDemoMode && (
++        <p className="px-3 pt-2 text-xs text-text-secondary">{t('nailong.demoHint')}</p>
++      )}
++      {isRunning ? (
++        <div className="nailong-working">
++          <img className="nailong-working-gif" src={workingUrl} alt="" />
++          <img className="nailong-working-still" src={standingUrl} alt="" />
++          <div>
++            <p className="font-medium text-text-primary">{t('nailong.working')}</p>
++            <p className="mt-1 text-xs text-text-secondary">{t('nailong.workingHint')}</p>
++            {isDemoMode && (
++              <button
++                type="button"
++                onClick={completeDemo}
++                className="mt-1 text-xs text-accent underline"
++              >
++                {t('nailong.completeDemo')}
++              </button>
++            )}
++          </div>
++        </div>
++      ) : (
++        <div className="nailong-companion">
++          <p className="nailong-companion-speech" aria-live="polite">
++            {t(`nailong.${CATCHPHRASE_KEYS[catchphraseIndex]}`)}
++          </p>
++          <button
++            type="button"
++            className="nailong-companion-button"
++            onClick={changeCatchphrase}
++            aria-label={t('nailong.changeCatchphrase')}
++            title={t('nailong.changeCatchphrase')}
++          >
++            <img
++              key={`${instance?.id}-${taskStatus}-${demoPhase}`}
++              className={clsx('nailong-standing', completed && 'nailong-celebrating')}
++              src={standingUrl}
++              alt=""
++              draggable={false}
++            />
++          </button>
++        </div>
++      )}
++    </div>
++  );
++}
+diff --git a/src/components/TabBar.tsx b/src/components/TabBar.tsx
+index db97741..18511f9 100644
+--- a/src/components/TabBar.tsx
++++ b/src/components/TabBar.tsx
+@@ -167,9 +167,10 @@ export function TabBar() {
+     }
+   };
+ 
++  // 奶龙按浅色外观参与工具栏的明暗切换。
+   const toggleTheme = () => {
+     const currentMode = resolveThemeMode(theme);
+-    setTheme(currentMode === 'light' ? 'dark' : 'light');
++    setTheme(currentMode === 'dark' ? 'light' : 'dark');
+   };
+ 
+   const langKey = getInterfaceLangKey(language);
+@@ -583,10 +584,10 @@ export function TabBar() {
+           onClick={toggleTheme}
+           className="p-2 rounded-md hover:bg-bg-hover transition-colors"
+           title={
+-            resolveThemeMode(theme) === 'light' ? t('settings.themeDark') : t('settings.themeLight')
++            resolveThemeMode(theme) === 'dark' ? t('settings.themeLight') : t('settings.themeDark')
+           }
+         >
+-          {resolveThemeMode(theme) === 'light' ? (
++          {resolveThemeMode(theme) !== 'dark' ? (
+             <Moon className="w-4 h-4 text-text-secondary" />
+           ) : (
+             <Sun className="w-4 h-4 text-text-secondary" />
+diff --git a/src/components/Toolbar.tsx b/src/components/Toolbar.tsx
+index 505ea10..57da659 100644
+--- a/src/components/Toolbar.tsx
++++ b/src/components/Toolbar.tsx
+@@ -44,6 +44,8 @@ import {
+ } from '@/utils/controller';
+ import { buildPlayCoverControllerConfig } from '@/utils/playCoverController';
+ import { SchedulePanel } from './SchedulePanel';
++import { NailongBattleDecoration } from './NailongBattleDecoration';
++import { useNailongDemoStore } from '@/stores/nailongDemoStore';
+ import type {
+   Instance,
+   TaskItem,
+@@ -154,6 +156,8 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+   const { t } = useTranslation();
+   const {
+     getActiveInstance,
++    instances,
++    theme,
+     selectAllTasks,
+     collapseAllTasks,
+     updateInstance,
+@@ -210,6 +214,19 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+   const startingRef = useRef(false);
+ 
+   const instance = getActiveInstance();
++  const {
++    enabled: demoEnabled,
++    phases: demoPhases,
++    setEnabled: setDemoEnabled,
++    setPhase: setDemoPhase,
++  } = useNailongDemoStore();
++  const isDemoMode = import.meta.env.DEV && theme === 'nailong' && demoEnabled;
++  const demoPhase = instance ? demoPhases[instance.id] : undefined;
++
++  // 离开奶龙主题时清除演示，不将模拟运行带入普通主题。
++  useEffect(() => {
++    if (theme !== 'nailong' && demoEnabled) setDemoEnabled(false);
++  }, [theme, demoEnabled, setDemoEnabled]);
+   const tasks = instance?.selectedTasks || [];
+   const anyExpanded = tasks.some((t) => t.expanded);
+ 
+@@ -221,6 +238,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+   const isPreActionControlledInstance =
+     Boolean(instanceId) && preActionControlledInstanceId === instanceId;
+   const isStartStopRunning = Boolean(instance?.isRunning) || isPreActionControlledInstance;
++  const isButtonRunning = isDemoMode ? demoPhase === 'running' : isStartStopRunning;
+ 
+   // 检查是否有保存的设备和资源配置（用于权限检查等）
+   const currentControllerName =
+@@ -336,6 +354,11 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+         return false;
+       };
+ 
++      // 演示期间拒绝定时、快捷键等真实启动入口，避免意外执行游戏操作。
++      if (import.meta.env.DEV && useNailongDemoStore.getState().enabled) {
++        return failStart(t('nailong.demoHint'));
++      }
++
+       const tasksToRun = filterTasksForRun(targetTasks, { startFromTaskId, singleTaskId });
+       if (tasksToRun.length === 0) {
+         if (singleTaskId || startFromTaskId) {
+@@ -1485,6 +1508,17 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+   const handleStartStop = async () => {
+     if (!instance) return;
+ 
++    // 演示提前返回，绝不进入权限检查、预任务、设备连接或真实启停路径。
++    if (isDemoMode) {
++      const running = demoPhase === 'running';
++      setDemoPhase(instance.id, running ? 'idle' : 'running');
++      addLog(instance.id, {
++        type: 'info',
++        message: t(running ? 'nailong.demoStopped' : 'nailong.demoStarted'),
++      });
++      return;
++    }
++
+     if (isStartStopRunning) {
+       // 停止任务
+       try {
+@@ -1650,7 +1684,9 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+   }, [instance?.id, instance?.isRunning, isStopping]);
+ 
+   // canRun 只检查是否有启用的任务；运行中时按钮用于停止，不应禁用
+-  const isDisabled = (tasks.length === 0 || !canRun) && !isStartStopRunning;
++  const isDisabled = isDemoMode
++    ? !instance
++    : (tasks.length === 0 || !canRun) && !isStartStopRunning;
+ 
+   // 获取启动按钮的文本
+   const getStartButtonText = () => {
+@@ -1666,7 +1702,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+           return t('taskList.startingTasks');
+       }
+     }
+-    return t('taskList.startTasks');
++    return t(theme === 'nailong' ? 'nailong.enterBattle' : 'taskList.startTasks');
+   };
+ 
+   // 获取按钮的 title 提示
+@@ -1745,6 +1781,26 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+ 
+       {/* 右侧执行按钮组 */}
+       <div className="flex items-center gap-2 relative">
++        {import.meta.env.DEV && theme === 'nailong' && (
++          <label
++            className="flex items-center gap-1 text-xs text-text-secondary"
++            title={t('nailong.demoHint')}
++          >
++            <input
++              type="checkbox"
++              checked={demoEnabled}
++              disabled={
++                instances.some((item) => item.isRunning) ||
++                isStarting ||
++                isStopping ||
++                isPreActionControlledInstance
++              }
++              onChange={(event) => setDemoEnabled(event.target.checked)}
++              className="accent-accent"
++            />
++            {t('nailong.demoMode')}
++          </label>
++        )}
+         {/* 定时执行按钮和状态气泡 */}
+         <ScheduleButton
+           enabledCount={instance?.schedulePolicies?.filter((p) => p.enabled).length || 0}
+@@ -1767,46 +1823,52 @@ export function Toolbar({ showAddPanel, onToggleAddPanel, className }: ToolbarPr
+         />
+ 
+         {/* 开始/停止按钮 */}
+-        <button
+-          data-role="start-stop-button"
+-          onClick={handleStartStop}
+-          disabled={isDisabled || isStopping || (isStarting && !isStartStopRunning)}
+-          className={clsx(
+-            'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+-            isStopping
+-              ? 'bg-warning text-white'
+-              : isStartStopRunning
+-                ? 'bg-error hover:bg-error/90 text-white'
+-                : isStarting
+-                  ? 'bg-success text-white'
+-                  : isDisabled
+-                    ? 'bg-bg-active text-text-tertiary cursor-not-allowed'
+-                    : 'bg-accent hover:bg-accent-hover text-white',
+-          )}
+-          title={getButtonTitle()}
+-        >
+-          {isStopping ? (
+-            <>
+-              <Loader2 className="w-4 h-4 animate-spin" />
+-              <span>{t('taskList.stoppingTasks')}</span>
+-            </>
+-          ) : isStartStopRunning ? (
+-            <>
+-              <StopCircle className="w-4 h-4" />
+-              <span>{t('taskList.stopTasks')}</span>
+-            </>
+-          ) : isStarting ? (
+-            <>
+-              <Loader2 className="w-4 h-4 animate-spin" />
+-              <span>{getStartButtonText()}</span>
+-            </>
+-          ) : (
+-            <>
+-              <Play className="w-4 h-4" />
+-              <span>{t('taskList.startTasks')}</span>
+-            </>
+-          )}
+-        </button>
++        <div className={theme === 'nailong' ? 'nailong-battle-control' : undefined}>
++          {theme === 'nailong' && <NailongBattleDecoration />}
++          <button
++            data-role="start-stop-button"
++            data-battle-state={isStopping ? 'stopping' : isButtonRunning ? 'running' : 'idle'}
++            onClick={handleStartStop}
++            disabled={isDisabled || isStopping || (isStarting && !isStartStopRunning)}
++            className={clsx(
++              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
++              isStopping
++                ? 'bg-warning text-white'
++                : isButtonRunning
++                  ? 'bg-error hover:bg-error/90 text-white'
++                  : isStarting
++                    ? 'bg-success text-white'
++                    : isDisabled
++                      ? 'bg-bg-active text-text-tertiary cursor-not-allowed'
++                      : 'bg-accent hover:bg-accent-hover text-white',
++            )}
++            title={getButtonTitle()}
++          >
++            {isStopping ? (
++              <>
++                <Loader2 className="w-4 h-4 animate-spin" />
++                <span>{t('taskList.stoppingTasks')}</span>
++              </>
++            ) : isButtonRunning ? (
++              <>
++                <StopCircle className="w-4 h-4" />
++                <span>{t(theme === 'nailong' ? 'nailong.exitBattle' : 'taskList.stopTasks')}</span>
++              </>
++            ) : isStarting ? (
++              <>
++                <Loader2 className="w-4 h-4 animate-spin" />
++                <span>{getStartButtonText()}</span>
++              </>
++            ) : (
++              <>
++                <Play className="w-4 h-4" />
++                <span>
++                  {t(theme === 'nailong' ? 'nailong.enterBattle' : 'taskList.startTasks')}
++                </span>
++              </>
++            )}
++          </button>
++        </div>
+       </div>
+     </div>
+   );
+diff --git a/src/components/settings/AppearanceSection.tsx b/src/components/settings/AppearanceSection.tsx
+index 79de815..5f14a32 100644
+--- a/src/components/settings/AppearanceSection.tsx
++++ b/src/components/settings/AppearanceSection.tsx
+@@ -23,6 +23,7 @@ interface AppearanceSectionProps {
+   onDeleteAccent: (id: string) => void;
+ }
+ 
++/** 显示语言、主题与背景设置，并即时应用外观选择。 */
+ export function AppearanceSection({
+   onOpenCreateAccentModal,
+   onOpenEditAccentModal,
+@@ -119,13 +120,15 @@ export function AppearanceSection({
+           <Palette className="w-5 h-5 text-accent" />
+           <span className="font-medium text-text-primary">{t('settings.theme')}</span>
+         </div>
+-        <div className="flex gap-2">
+-          {(['system', 'light', 'dark'] as const).map((t_) => (
++        <div className="grid grid-cols-4 gap-2">
++          {(['system', 'light', 'dark', 'nailong'] as const).map((t_) => (
+             <button
+               key={t_}
++              type="button"
++              aria-pressed={theme === t_}
+               onClick={() => setTheme(t_)}
+               className={clsx(
+-                'flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
++                'px-2 sm:px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                 theme === t_
+                   ? 'bg-accent text-white'
+                   : 'bg-bg-tertiary text-text-secondary hover:bg-bg-hover',
+@@ -137,75 +140,77 @@ export function AppearanceSection({
+         </div>
+       </div>
+ 
+-      {/* 强调色 */}
+-      <div className="bg-bg-secondary rounded-xl p-4 border border-border space-y-4">
+-        <div className="flex items-center gap-3 mb-3">
+-          <Palette className="w-5 h-5 text-accent" />
+-          <span className="font-medium text-text-primary">{t('settings.accentColor')}</span>
+-        </div>
+-        <DndContext
+-          sensors={sensors}
+-          collisionDetection={closestCenter}
+-          onDragEnd={handleAccentDragEnd}
+-        >
+-          <SortableContext items={customAccentIds} strategy={rectSortingStrategy}>
+-            <div className="grid grid-cols-3 gap-2">
+-              {accentColors.map((accent) => {
+-                const isSelected = accentColor === accent.name;
+-                if (accent.isCustom) {
+-                  const customAccent = customAccents.find((a) => a.name === accent.name);
+-                  if (!customAccent) return null;
++      {/* 奶龙使用固定配色，普通主题保留强调色设置。 */}
++      {theme !== 'nailong' && (
++        <div className="bg-bg-secondary rounded-xl p-4 border border-border space-y-4">
++          <div className="flex items-center gap-3 mb-3">
++            <Palette className="w-5 h-5 text-accent" />
++            <span className="font-medium text-text-primary">{t('settings.accentColor')}</span>
++          </div>
++          <DndContext
++            sensors={sensors}
++            collisionDetection={closestCenter}
++            onDragEnd={handleAccentDragEnd}
++          >
++            <SortableContext items={customAccentIds} strategy={rectSortingStrategy}>
++              <div className="grid grid-cols-3 gap-2">
++                {accentColors.map((accent) => {
++                  const isSelected = accentColor === accent.name;
++                  if (accent.isCustom) {
++                    const customAccent = customAccents.find((a) => a.name === accent.name);
++                    if (!customAccent) return null;
++                    return (
++                      <SortableAccentTile
++                        key={customAccent.id}
++                        accent={accent}
++                        customAccent={customAccent}
++                        isSelected={isSelected}
++                        onSelect={() => setAccentColor(accent.name as AccentColor)}
++                        onEdit={() => onOpenEditAccentModal(customAccent)}
++                        onDelete={() => onDeleteAccent(customAccent.id)}
++                      />
++                    );
++                  }
++
+                   return (
+-                    <SortableAccentTile
+-                      key={customAccent.id}
+-                      accent={accent}
+-                      customAccent={customAccent}
+-                      isSelected={isSelected}
+-                      onSelect={() => setAccentColor(accent.name as AccentColor)}
+-                      onEdit={() => onOpenEditAccentModal(customAccent)}
+-                      onDelete={() => onDeleteAccent(customAccent.id)}
+-                    />
++                    <button
++                      key={accent.name}
++                      onClick={() => setAccentColor(accent.name as AccentColor)}
++                      className={clsx(
++                        'relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-bg-tertiary border',
++                        isSelected
++                          ? 'ring-2 ring-offset-2 ring-offset-bg-secondary border-transparent'
++                          : 'border-border hover:bg-bg-hover',
++                      )}
++                      style={
++                        isSelected
++                          ? ({ '--tw-ring-color': accent.color } as CSSProperties)
++                          : undefined
++                      }
++                    >
++                      <span
++                        className="w-4 h-4 rounded-full flex-shrink-0 border border-border-strong"
++                        style={{ backgroundColor: accent.color }}
++                      />
++                      <span className="truncate text-text-secondary">{accent.label}</span>
++                    </button>
+                   );
+-                }
++                })}
+ 
+-                return (
+-                  <button
+-                    key={accent.name}
+-                    onClick={() => setAccentColor(accent.name as AccentColor)}
+-                    className={clsx(
+-                      'relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-bg-tertiary border',
+-                      isSelected
+-                        ? 'ring-2 ring-offset-2 ring-offset-bg-secondary border-transparent'
+-                        : 'border-border hover:bg-bg-hover',
+-                    )}
+-                    style={
+-                      isSelected
+-                        ? ({ '--tw-ring-color': accent.color } as CSSProperties)
+-                        : undefined
+-                    }
+-                  >
+-                    <span
+-                      className="w-4 h-4 rounded-full flex-shrink-0 border border-border-strong"
+-                      style={{ backgroundColor: accent.color }}
+-                    />
+-                    <span className="truncate text-text-secondary">{accent.label}</span>
+-                  </button>
+-                );
+-              })}
+-
+-              {/* + 新增自定义强调色 */}
+-              <button
+-                type="button"
+-                onClick={onOpenCreateAccentModal}
+-                className="flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium bg-bg-tertiary border-2 border-dashed border-border hover:bg-bg-hover text-text-muted transition-colors"
+-                title={t('settings.addCustomAccent')}
+-              >
+-                <span className="text-sm">+</span>
+-              </button>
+-            </div>
+-          </SortableContext>
+-        </DndContext>
+-      </div>
++                {/* + 新增自定义强调色 */}
++                <button
++                  type="button"
++                  onClick={onOpenCreateAccentModal}
++                  className="flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium bg-bg-tertiary border-2 border-dashed border-border hover:bg-bg-hover text-text-muted transition-colors"
++                  title={t('settings.addCustomAccent')}
++                >
++                  <span className="text-sm">+</span>
++                </button>
++              </div>
++            </SortableContext>
++          </DndContext>
++        </div>
++      )}
+ 
+       {/* 背景图片 */}
+       <div className="bg-bg-secondary rounded-xl p-4 border border-border space-y-4">
+@@ -213,59 +218,62 @@ export function AppearanceSection({
+           <Image className="w-5 h-5 text-accent" />
+           <span className="font-medium text-text-primary">{t('settings.backgroundImage')}</span>
+         </div>
+-        <div className="space-y-3">
+-          <div className="flex gap-2">
+-            <button
+-              onClick={async () => {
+-                if (!isTauri()) return;
+-                try {
+-                  const { open } = await import('@tauri-apps/plugin-dialog');
+-                  const file = await open({
+-                    multiple: false,
+-                    filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp'] }],
+-                  });
+-                  if (Array.isArray(file)) {
+-                    if (file[0]) setBackgroundImage(file[0]);
+-                  } else if (file) {
+-                    setBackgroundImage(file);
+-                  }
+-                } catch (err) {
+-                  console.error('Failed to select background image:', err);
+-                }
+-              }}
+-              disabled={!isTauri()}
+-              className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-bg-tertiary text-text-secondary hover:bg-bg-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+-            >
+-              {t('settings.selectBackgroundImage')}
+-            </button>
+-            {backgroundImage && (
++        {theme === 'nailong' ? (
++          <p className="text-sm text-text-secondary">{t('settings.nailongBackground')}</p>
++        ) : (
++          <div className="space-y-3">
++            <div className="flex gap-2">
+               <button
+-                onClick={() => setBackgroundImage(undefined)}
+-                className="px-4 py-2.5 rounded-lg text-sm font-medium bg-bg-tertiary text-text-secondary hover:bg-bg-hover transition-colors"
++                onClick={async () => {
++                  if (!isTauri()) return;
++                  try {
++                    const { open } = await import('@tauri-apps/plugin-dialog');
++                    const file = await open({
++                      multiple: false,
++                      filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp'] }],
++                    });
++                    if (Array.isArray(file)) {
++                      if (file[0]) setBackgroundImage(file[0]);
++                    } else if (file) {
++                      setBackgroundImage(file);
++                    }
++                  } catch (err) {
++                    console.error('Failed to select background image:', err);
++                  }
++                }}
++                disabled={!isTauri()}
++                className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium bg-bg-tertiary text-text-secondary hover:bg-bg-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+               >
+-                {t('settings.removeBackgroundImage')}
++                {t('settings.selectBackgroundImage')}
+               </button>
+-            )}
++              {backgroundImage && (
++                <button
++                  onClick={() => setBackgroundImage(undefined)}
++                  className="px-4 py-2.5 rounded-lg text-sm font-medium bg-bg-tertiary text-text-secondary hover:bg-bg-hover transition-colors"
++                >
++                  {t('settings.removeBackgroundImage')}
++                </button>
++              )}
++            </div>
+           </div>
+-          {backgroundImage && (
+-            <div className="space-y-2">
+-              <div className="flex items-center justify-between">
+-                <span className="text-sm text-text-secondary">
+-                  {t('settings.backgroundOpacity')}
+-                </span>
+-                <span className="text-sm text-text-primary font-medium">{backgroundOpacity}%</span>
+-              </div>
+-              <input
+-                type="range"
+-                min="0"
+-                max="100"
+-                value={backgroundOpacity}
+-                onChange={(e) => setBackgroundOpacity(Number(e.target.value))}
+-                className="w-full"
+-              />
++        )}
++        {(theme === 'nailong' || backgroundImage) && (
++          <div className="space-y-2">
++            <div className="flex items-center justify-between">
++              <span className="text-sm text-text-secondary">{t('settings.backgroundOpacity')}</span>
++              <span className="text-sm text-text-primary font-medium">{backgroundOpacity}%</span>
+             </div>
+-          )}
+-        </div>
++            <input
++              type="range"
++              aria-label={t('settings.backgroundOpacity')}
++              min="0"
++              max="100"
++              value={backgroundOpacity}
++              onChange={(e) => setBackgroundOpacity(Number(e.target.value))}
++              className="w-full"
++            />
++          </div>
++        )}
+       </div>
+     </section>
+   );
+diff --git a/src/i18n/locales/en-US.ts b/src/i18n/locales/en-US.ts
+index dd052f0..acf31ff 100644
+--- a/src/i18n/locales/en-US.ts
++++ b/src/i18n/locales/en-US.ts
+@@ -1,4 +1,22 @@
+ export default {
++  nailong: {
++    demoMode: 'Theme demo',
++    demoHint: 'Theme demo: no game connection or real tasks',
++    demoStarted: '[Theme demo] Battle mode entered. Visual effects only.',
++    demoStopped: '[Theme demo] Battle mode exited.',
++    demoCompleted: '[Theme demo] Completion simulated. No real tasks executed.',
++    completeDemo: 'Simulate completion',
++    enterBattle: 'Enter battle mode',
++    exitBattle: 'Exit battle mode',
++    cheer: 'Ga ga di la xia!',
++    andy: 'Andy~',
++    spicy: 'So spicy!',
++    keepGoing: 'Ganbatte!',
++    changeCatchphrase: 'Click Nailong for another phrase',
++    waiting: 'Thinking...',
++    working: 'Nailong is hard at work',
++    workingHint: 'Take a break. Leave it to me.',
++  },
+   // Common
+   common: {
+     confirm: 'Confirm',
+@@ -61,6 +79,9 @@ export default {
+     theme: 'Theme',
+     themeLight: 'Light',
+     themeDark: 'Dark',
++    themeNailong: 'Nailong',
++    nailongBackground:
++      'The Nailong background is applied automatically, with eyes that follow your cursor.',
+     accentColor: 'Accent Color',
+     themeSystem: 'System',
+     showOptionPreview: 'Show Option Preview',
+diff --git a/src/i18n/locales/ja-JP.ts b/src/i18n/locales/ja-JP.ts
+index 52e6a68..212e49e 100644
+--- a/src/i18n/locales/ja-JP.ts
++++ b/src/i18n/locales/ja-JP.ts
+@@ -1,4 +1,22 @@
+ export default {
++  nailong: {
++    demoMode: 'テーマデモ',
++    demoHint: 'テーマデモ：ゲームへの接続や実際のタスク実行は行いません',
++    demoStarted: '[テーマデモ] 戦闘モード開始。表示効果のみです。',
++    demoStopped: '[テーマデモ] 戦闘モード終了。',
++    demoCompleted: '[テーマデモ] 完了をシミュレートしました。実際のタスクは未実行です。',
++    completeDemo: '完了をシミュレート',
++    enterBattle: '戦闘モードに入る',
++    exitBattle: '戦闘モードを終了',
++    cheer: 'ガガディラシャ！',
++    andy: 'アンディ〜',
++    spicy: '辛い！',
++    keepGoing: 'がんばって！',
++    changeCatchphrase: 'ナイロンをクリックしてセリフを変更',
++    waiting: 'Thinking...',
++    working: 'ナイロンは頑張っています',
++    workingHint: '少し休んで、私に任せて。',
++  },
+   // 共通
+   common: {
+     confirm: '確定',
+@@ -60,6 +78,8 @@ export default {
+     theme: 'テーマ',
+     themeLight: 'ライト',
+     themeDark: 'ダーク',
++    themeNailong: '奶龍',
++    nailongBackground: '奶龍の背景が自動で適用され、目がマウスカーソルを追いかけます。',
+     accentColor: 'アクセントカラー',
+     themeSystem: 'システムに従う',
+     showOptionPreview: 'オプションプレビューを表示',
+diff --git a/src/i18n/locales/ko-KR.ts b/src/i18n/locales/ko-KR.ts
+index 0491740..37abba9 100644
+--- a/src/i18n/locales/ko-KR.ts
++++ b/src/i18n/locales/ko-KR.ts
+@@ -1,4 +1,22 @@
+ export default {
++  nailong: {
++    demoMode: '테마 데모',
++    demoHint: '테마 데모: 게임 연결 및 실제 작업 실행 없음',
++    demoStarted: '[테마 데모] 전투 모드 진입. 시각 효과만 표시합니다.',
++    demoStopped: '[테마 데모] 전투 모드 종료.',
++    demoCompleted: '[테마 데모] 완료를 시뮬레이션했습니다. 실제 작업은 실행하지 않았습니다.',
++    completeDemo: '완료 시뮬레이션',
++    enterBattle: '전투 모드 진입',
++    exitBattle: '전투 모드 종료',
++    cheer: '가가디라샤!',
++    andy: '앤디~',
++    spicy: '매워!',
++    keepGoing: '간바테!',
++    changeCatchphrase: '나이롱을 눌러 다른 문구 보기',
++    waiting: 'Thinking...',
++    working: '나이롱이 열심히 일하고 있어요',
++    workingHint: '잠시 쉬세요. 저에게 맡겨요.',
++  },
+   // 공통
+   common: {
+     confirm: '확인',
+@@ -60,6 +78,8 @@ export default {
+     theme: '테마',
+     themeLight: '라이트',
+     themeDark: '다크',
++    themeNailong: 'Nailong',
++    nailongBackground: '나이룽 배경이 자동으로 적용되며 눈이 마우스 커서를 따라갑니다.',
+     accentColor: '강조 색상',
+     themeSystem: '시스템 설정',
+     showOptionPreview: '옵션 미리보기 표시',
+diff --git a/src/i18n/locales/zh-CN.ts b/src/i18n/locales/zh-CN.ts
+index cdbca16..bbb0dc1 100644
+--- a/src/i18n/locales/zh-CN.ts
++++ b/src/i18n/locales/zh-CN.ts
+@@ -1,4 +1,22 @@
+ export default {
++  nailong: {
++    demoMode: '主题演示',
++    demoHint: '主题演示：不连接游戏，不执行真实任务',
++    demoStarted: '[主题演示] 进入战斗模式，仅演示奶龙运行效果。',
++    demoStopped: '[主题演示] 已退出战斗模式。',
++    demoCompleted: '[主题演示] 模拟完成，未执行真实任务。',
++    completeDemo: '模拟完成',
++    enterBattle: '进入战斗模式',
++    exitBattle: '退出战斗模式',
++    cheer: '嘎嘎滴辣虾',
++    andy: '安迪~',
++    spicy: '猴辣',
++    keepGoing: '干巴叠',
++    changeCatchphrase: '点点奶龙，换一句',
++    waiting: 'Thinking...',
++    working: '奶龙正在认真干活',
++    workingHint: '你去歇一会儿，交给我。',
++  },
+   // 通用
+   common: {
+     confirm: '确定',
+@@ -61,6 +79,8 @@ export default {
+     theme: '主题',
+     themeLight: '浅色',
+     themeDark: '深色',
++    themeNailong: '奶龙',
++    nailongBackground: '自动使用奶龙背景，眼睛会跟随鼠标。',
+     themeSystem: '系统',
+     accentColor: '强调色',
+     showOptionPreview: '显示选项预览',
+diff --git a/src/i18n/locales/zh-TW.ts b/src/i18n/locales/zh-TW.ts
+index fa4098b..dfb1836 100644
+--- a/src/i18n/locales/zh-TW.ts
++++ b/src/i18n/locales/zh-TW.ts
+@@ -1,4 +1,22 @@
+ export default {
++  nailong: {
++    demoMode: '主題演示',
++    demoHint: '主題演示：不連接遊戲，不執行真實任務',
++    demoStarted: '[主題演示] 進入戰鬥模式，僅演示奶龍運行效果。',
++    demoStopped: '[主題演示] 已退出戰鬥模式。',
++    demoCompleted: '[主題演示] 模擬完成，未執行真實任務。',
++    completeDemo: '模擬完成',
++    enterBattle: '進入戰鬥模式',
++    exitBattle: '退出戰鬥模式',
++    cheer: '嘎嘎滴辣蝦',
++    andy: '安迪~',
++    spicy: '猴辣',
++    keepGoing: '干巴疊',
++    changeCatchphrase: '點點奶龍，換一句',
++    waiting: 'Thinking...',
++    working: '奶龍正在認真工作',
++    workingHint: '你去休息一下，交給我。',
++  },
+   // 通用
+   common: {
+     confirm: '確定',
+@@ -60,6 +78,8 @@ export default {
+     theme: '主題',
+     themeLight: '淺色',
+     themeDark: '深色',
++    themeNailong: '奶龍',
++    nailongBackground: '自動使用奶龍背景，眼睛會跟隨滑鼠。',
+     accentColor: '強調色',
+     themeSystem: '系統',
+     showOptionPreview: '顯示選項預覽',
+diff --git a/src/index.css b/src/index.css
+index c49f937..384dc0d 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -515,6 +515,178 @@ body {
+   backdrop-filter: blur(12px);
+ }
+ 
++/* 奶龙背景色彩较鲜明，卡片增加遮罩以保持文字可读。 */
++.has-background-image.nailong-theme {
++  --mxu-bg-primary: color-mix(in srgb, var(--color-bg-primary) 65%, transparent);
++  --mxu-bg-secondary: color-mix(in srgb, var(--color-bg-secondary) 68%, transparent);
++  --mxu-bg-tertiary: color-mix(in srgb, var(--color-bg-tertiary) 65%, transparent);
++  --mxu-bg-hover: color-mix(in srgb, var(--color-bg-hover) 75%, transparent);
++}
++
++.nailong-theme .mxu-overlay-surface {
++  --mxu-bg-primary: color-mix(in srgb, var(--color-bg-primary) 94%, transparent);
++  --mxu-bg-secondary: color-mix(in srgb, var(--color-bg-secondary) 94%, transparent);
++  --mxu-bg-tertiary: color-mix(in srgb, var(--color-bg-tertiary) 92%, transparent);
++  --mxu-bg-hover: color-mix(in srgb, var(--color-bg-hover) 96%, transparent);
++}
++
++/* 奶龙主题装饰：独立布局区保留日志滚动空间，不覆盖任务操作。 */
++.nailong-battle-control {
++  position: relative;
++  padding-top: 42px;
++}
++
++.nailong-battle-character {
++  position: absolute;
++  left: -5px;
++  top: -3px;
++  width: 74px;
++  height: 56px;
++  overflow: hidden;
++  pointer-events: none;
++  mix-blend-mode: multiply;
++  transform-origin: center bottom;
++  transition: transform 180ms ease;
++}
++
++.nailong-battle-character img {
++  display: block;
++  width: 74px;
++  clip-path: inset(0 0 20% 0);
++}
++
++.nailong-battle-control:hover .nailong-battle-character {
++  transform: rotate(-5deg) translateY(-2px);
++}
++
++.nailong-battle-control [data-battle-state='idle']:not(:disabled) {
++  color: #69400c;
++  background: linear-gradient(130deg, #f8cd58, #efb430);
++  box-shadow: 0 3px 0 #d39824;
++}
++
++.nailong-battle-control [data-battle-state='running']:not(:disabled) {
++  color: #794623;
++  background: #f5d7a5;
++  box-shadow: 0 3px 0 #c69b59;
++}
++
++.nailong-companion {
++  display: flex;
++  align-items: center;
++  justify-content: flex-end;
++  gap: 8px;
++  min-height: 108px;
++  padding: 0 10px 4px;
++  flex-shrink: 0;
++}
++
++.nailong-companion-speech {
++  border: 1px solid var(--color-border);
++  border-radius: 12px 12px 2px 12px;
++  padding: 9px 12px;
++  background: var(--color-bg-secondary);
++  color: var(--color-text-secondary);
++  font-size: 12px;
++}
++
++.nailong-standing {
++  width: 92px;
++  height: 108px;
++  object-fit: contain;
++  flex-shrink: 0;
++}
++
++.nailong-companion-button {
++  flex-shrink: 0;
++  padding: 0;
++  border: 0;
++  border-radius: 12px;
++  background: transparent;
++  cursor: pointer;
++}
++
++.nailong-companion-button:focus-visible {
++  outline: 2px solid var(--color-accent);
++  outline-offset: 2px;
++}
++
++.nailong-companion-button:active {
++  transform: translateY(2px);
++}
++
++.nailong-celebrating {
++  animation: nailong-happy 700ms ease-in-out 2;
++}
++
++.nailong-working {
++  display: flex;
++  align-items: center;
++  gap: 10px;
++  margin: 8px 10px 10px;
++  border: 1px solid var(--color-border);
++  border-radius: 12px;
++  overflow: hidden;
++  background: var(--color-bg-tertiary);
++  font-size: 12px;
++  flex-shrink: 0;
++}
++
++.nailong-working img {
++  width: 66px;
++  height: 66px;
++  object-fit: cover;
++  flex-shrink: 0;
++}
++
++.nailong-working-still {
++  display: none;
++}
++
++.nailong-connection-help {
++  display: flex;
++  align-items: center;
++  gap: 10px;
++  border-radius: 10px;
++  background: var(--color-bg-tertiary);
++  color: var(--color-text-secondary);
++  font-size: 12px;
++}
++
++.nailong-connection-help img {
++  width: 62px;
++  height: 62px;
++  object-fit: cover;
++  border-radius: 10px;
++  mix-blend-mode: multiply;
++}
++
++@keyframes nailong-happy {
++  0%,
++  100% {
++    transform: translateY(0);
++  }
++  50% {
++    transform: translateY(-7px) rotate(3deg);
++  }
++}
++
++@media (prefers-reduced-motion: reduce) {
++  .nailong-celebrating {
++    animation: none;
++  }
++  .nailong-battle-character {
++    transition: none;
++  }
++  .nailong-working-gif {
++    display: none;
++  }
++  .nailong-working-still {
++    display: block;
++    object-fit: contain;
++  }
++}
++
+ .has-background-image .bg-bg-secondary {
+   background-color: var(--mxu-bg-secondary) !important;
+ }
+diff --git a/src/stores/nailongDemoStore.ts b/src/stores/nailongDemoStore.ts
+new file mode 100644
+index 0000000..292606b
+--- /dev/null
++++ b/src/stores/nailongDemoStore.ts
+@@ -0,0 +1,21 @@
++import { create } from 'zustand';
++
++export type NailongDemoPhase = 'idle' | 'running' | 'completed';
++
++interface NailongDemoState {
++  enabled: boolean;
++  phases: Record<string, NailongDemoPhase>;
++  setEnabled: (enabled: boolean) => void;
++  setPhase: (instanceId: string, phase: NailongDemoPhase) => void;
++}
++
++/** 仅存放主题演示状态，不写入配置，也不触碰真实连接、任务或调度器。 */
++export const useNailongDemoStore = create<NailongDemoState>((set) => ({
++  enabled: false,
++  phases: {},
++  /** 开关演示时清空状态，避免再次进入时残留运行效果。 */
++  setEnabled: (enabled) => set({ enabled, phases: {} }),
++  /** 按实例更新演示阶段，关闭演示后不再接受状态变更。 */
++  setPhase: (instanceId, phase) =>
++    set((state) => (state.enabled ? { phases: { ...state.phases, [instanceId]: phase } } : state)),
++}));
+diff --git a/src/stores/types.ts b/src/stores/types.ts
+index 6ba8cf3..74ce2b4 100644
+--- a/src/stores/types.ts
++++ b/src/stores/types.ts
+@@ -23,7 +23,7 @@ import type {
+   Win32Window,
+   GamescopeInstance,
+ } from '@/types/maa';
+-import type { AccentColor, CustomAccent } from '@/themes';
++import type { AccentColor, CustomAccent, ThemeMode } from '@/themes';
+ 
+ /** 单个任务的运行状态 */
+ export type TaskRunStatus = 'idle' | 'pending' | 'running' | 'succeeded' | 'failed';
+@@ -41,7 +41,7 @@ export interface LogEntry {
+   html?: string;
+ }
+ 
+-export type Theme = 'light' | 'dark' | 'system';
++export type Theme = ThemeMode | 'system';
+ export type Language = 'system' | 'zh-CN' | 'zh-TW' | 'en-US' | 'ja-JP' | 'ko-KR';
+ export type PageView = 'main' | 'settings';
+ 
+diff --git a/src/themes/index.ts b/src/themes/index.ts
+index 0ea6304..dc98bb9 100644
+--- a/src/themes/index.ts
++++ b/src/themes/index.ts
+@@ -19,6 +19,7 @@ const logger = createLogger('Theme');
+ // 静态导入所有主题预设（Vite 需要静态导入才能正确打包）
+ import lightTheme from './presets/light.json';
+ import darkTheme from './presets/dark.json';
++import nailongTheme from './presets/nailong.json';
+ import emeraldAccent from './presets/accents/emerald.json';
+ import lavaAccent from './presets/accents/lava.json';
+ import titaniumAccent from './presets/accents/titanium.json';
+@@ -33,6 +34,7 @@ import pearlAccent from './presets/accents/pearl.json';
+ const modeThemes: Record<ThemeMode, ModeTheme> = {
+   light: lightTheme as ModeTheme,
+   dark: darkTheme as ModeTheme,
++  nailong: nailongTheme as ModeTheme,
+ };
+ 
+ /** 强调色主题映射（内置预设） */
+@@ -115,12 +117,14 @@ function applyCSSVariables(mode: ModeTheme, accent: AccentTheme, isDark: boolean
+ 
+ /**
+  * 应用主题
+- * @param mode 主题模式 (light/dark)
++ * @param mode 主题模式 (light/dark/nailong)
+  * @param accent 强调色名称
+  */
+ export function applyTheme(mode: ThemeMode, accent: AccentColor): void {
+   const modeTheme = modeThemes[mode];
+-  const accentTheme = customAccentThemes[accent] || accentThemes[accent];
++  // 奶龙使用专属配色，保留用户的强调色选择供切回普通主题时恢复。
++  const accentTheme =
++    mode === 'nailong' ? nailongTheme.accent : customAccentThemes[accent] || accentThemes[accent];
+ 
+   if (!modeTheme || !accentTheme) {
+     logger.warn(`Theme not found: mode=${mode}, accent=${accent}`);
+diff --git a/src/themes/presets/nailong.json b/src/themes/presets/nailong.json
+new file mode 100644
+index 0000000..a802211
+--- /dev/null
++++ b/src/themes/presets/nailong.json
+@@ -0,0 +1,37 @@
++{
++  "name": "nailong",
++  "bg": {
++    "primary": "#fff8e5",
++    "secondary": "#fffdf5",
++    "tertiary": "#fff0c2",
++    "hover": "#ffe6a0",
++    "active": "#ffdc7c"
++  },
++  "text": {
++    "primary": "#5c3b18",
++    "secondary": "#78562e",
++    "tertiary": "#896839",
++    "muted": "#947c56"
++  },
++  "border": {
++    "default": "#f0dca5",
++    "strong": "#dfbc6b"
++  },
++  "shadow": {
++    "sm": "0 1px 2px 0 rgb(133 88 22 / 0.06)",
++    "md": "0 4px 6px -1px rgb(133 88 22 / 0.10), 0 2px 4px -2px rgb(133 88 22 / 0.08)",
++    "lg": "0 10px 15px -3px rgb(133 88 22 / 0.12), 0 4px 6px -4px rgb(133 88 22 / 0.08)"
++  },
++  "accent": {
++    "name": "nailong",
++    "label": {
++      "zh-CN": "奶龙",
++      "zh-TW": "奶龍",
++      "en-US": "Nailong"
++    },
++    "default": "#a86200",
++    "hover": "#875000",
++    "light": "#ffedb0",
++    "lightDark": "#ffedb0"
++  }
++}
+diff --git a/src/themes/types.ts b/src/themes/types.ts
+index 131dcd2..dc93d79 100644
+--- a/src/themes/types.ts
++++ b/src/themes/types.ts
+@@ -1,9 +1,9 @@
+ /**
+  * 主题系统类型定义
+- * 支持 Light/Dark 模式 + 多种强调色组合
++ * 支持 Light/Dark 模式与奶龙主题
+  */
+ 
+-/** 基础模式主题配置（light/dark） */
++/** 基础模式主题配置 */
+ export interface ModeTheme {
+   name: string;
+   bg: {
+@@ -61,7 +61,7 @@ export interface ThemeConfig {
+ }
+ 
+ /** 支持的主题模式 */
+-export type ThemeMode = 'light' | 'dark';
++export type ThemeMode = 'light' | 'dark' | 'nailong';
+ 
+ /** 预设强调色名称（内置） */
+ export type PresetAccentColor =
+diff --git a/src/types/config.ts b/src/types/config.ts
+index 0931274..a0fdec9 100644
+--- a/src/types/config.ts
++++ b/src/types/config.ts
+@@ -1,7 +1,7 @@
+ // MXU 配置文件结构 (mxu.json)
+ 
+ import type { ActionConfig, OptionValue } from './interface';
+-import type { AccentColor, CustomAccent } from '@/themes/types';
++import type { AccentColor, CustomAccent, ThemeMode } from '@/themes/types';
+ 
+ export const DEFAULT_MAX_LOGS_PER_INSTANCE = 500;
+ 
+@@ -134,7 +134,7 @@ export interface HotkeySettings {
+ 
+ // 应用设置
+ export interface AppSettings {
+-  theme: 'light' | 'dark' | 'system';
++  theme: ThemeMode | 'system';
+   accentColor?: AccentColor; // 强调色
+   language: 'system' | 'zh-CN' | 'zh-TW' | 'en-US' | 'ja-JP' | 'ko-KR';
+   backgroundImage?: string; // 背景图片路径
+diff --git a/src/utils/nailongGaze.ts b/src/utils/nailongGaze.ts
+new file mode 100644
+index 0000000..4c68f9a
+--- /dev/null
++++ b/src/utils/nailongGaze.ts
+@@ -0,0 +1,33 @@
++export interface GazePoint {
++  x: number;
++  y: number;
++}
++
++// --- 背景坐标与瞳孔范围 ---
++
++export const NAILONG_IMAGE_SIZE = { width: 1448, height: 1086 };
++export const NAILONG_EYES: readonly GazePoint[] = [
++  { x: 493, y: 381 },
++  { x: 954, y: 381 },
++];
++export const NAILONG_PUPIL_RADIUS = 56;
++const MAX_PUPIL_OFFSET = 35;
++
++/** 计算居中 cover 背景的缩放与裁切，让眼睛位置始终对齐原图。 */
++export function getNailongImageLayout(width: number, height: number) {
++  const scale = Math.max(width / NAILONG_IMAGE_SIZE.width, height / NAILONG_IMAGE_SIZE.height);
++  return {
++    scale,
++    x: (width - NAILONG_IMAGE_SIZE.width * scale) / 2,
++    y: (height - NAILONG_IMAGE_SIZE.height * scale) / 2,
++  };
++}
++
++/** 将指针方向映射到眼睛内部，限制瞳孔不会越过绿色眼球边缘。 */
++export function getNailongPupilOffset(eye: GazePoint, pointer: GazePoint): GazePoint {
++  const dx = pointer.x - eye.x;
++  const dy = pointer.y - eye.y;
++  // 近距离缓慢偏移，窗口外的远处指针仍保持方向，但位移不超过眼球边界。
++  const factor = Math.min(0.15, MAX_PUPIL_OFFSET / (Math.hypot(dx, dy) || 1));
++  return { x: dx * factor, y: dy * factor };
++}
+diff --git a/tests/nailongDemo.test.ts b/tests/nailongDemo.test.ts
+new file mode 100644
+index 0000000..aa97883
+--- /dev/null
++++ b/tests/nailongDemo.test.ts
+@@ -0,0 +1,28 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { useNailongDemoStore } from '../src/stores/nailongDemoStore.ts';
++
++test('theme demo supports start, stop and completion independently per instance', () => {
++  const demo = useNailongDemoStore.getState();
++  demo.setEnabled(true);
++  demo.setPhase('first', 'running');
++  demo.setPhase('second', 'running');
++  demo.setPhase('first', 'completed');
++  assert.equal(useNailongDemoStore.getState().phases.first, 'completed');
++  assert.equal(useNailongDemoStore.getState().phases.second, 'running');
++  demo.setPhase('second', 'idle');
++  assert.equal(useNailongDemoStore.getState().phases.second, 'idle');
++  demo.setEnabled(false);
++});
++
++test('closing demo clears all simulated runs and rejects late state updates', () => {
++  const demo = useNailongDemoStore.getState();
++  demo.setEnabled(true);
++  demo.setPhase('first', 'running');
++  demo.setEnabled(false);
++  demo.setPhase('first', 'completed');
++  assert.deepEqual(useNailongDemoStore.getState().phases, {});
++  demo.setEnabled(true);
++  assert.deepEqual(useNailongDemoStore.getState().phases, {});
++  demo.setEnabled(false);
++});
+diff --git a/tests/nailongGaze.test.ts b/tests/nailongGaze.test.ts
+new file mode 100644
+index 0000000..cd9691d
+--- /dev/null
++++ b/tests/nailongGaze.test.ts
+@@ -0,0 +1,34 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import {
++  getNailongImageLayout,
++  getNailongPupilOffset,
++  NAILONG_EYES,
++} from '../src/utils/nailongGaze.ts';
++
++test('wide windows crop the background vertically and keep the image centered', () => {
++  const layout = getNailongImageLayout(1448, 720);
++  assert.deepEqual(layout, { scale: 1, x: 0, y: -183 });
++});
++
++test('tall windows crop the background horizontally', () => {
++  assert.deepEqual(getNailongImageLayout(1000, 1086), { scale: 1, x: -224, y: 0 });
++});
++
++test('pupils point toward off-window cursors while staying inside the iris', () => {
++  for (const eye of NAILONG_EYES) {
++    for (const pointer of [
++      { x: -10000, y: -10000 },
++      { x: 10000, y: 10000 },
++    ]) {
++      const offset = getNailongPupilOffset(eye, pointer);
++      assert.ok(Math.hypot(offset.x, offset.y) <= 35 + Number.EPSILON * 35);
++      assert.equal(Math.sign(offset.x), Math.sign(pointer.x - eye.x));
++      assert.equal(Math.sign(offset.y), Math.sign(pointer.y - eye.y));
++    }
++  }
++});
++
++test('a pointer centered on the eye leaves the pupil at rest', () => {
++  assert.deepEqual(getNailongPupilOffset(NAILONG_EYES[0], NAILONG_EYES[0]), { x: 0, y: 0 });
++});
+diff --git a/tsconfig.json b/tsconfig.json
+index ecd246b..2de1300 100644
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -1,6 +1,7 @@
+ {
+   "compilerOptions": {
+     "target": "ES2020",
++    "types": ["vite/client"],
+     "useDefineForClassFields": true,
+     "lib": ["ES2021", "DOM", "DOM.Iterable"],
+     "module": "ESNext",

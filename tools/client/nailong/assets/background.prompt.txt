@@ -1,0 +1,4 @@
+Tool: built-in image_gen (edit)
+Source: user-supplied Cute Green-Eyed Smile Face image (1448 x 1086)
+
+Edit target: the attached 1448x1086 yellow smiling face image. Production asset preparation for a UI animated background. Make ONLY this local edit: remove both BLACK pupil disks, filling each with the continuous green iris surface and its original natural lighting/texture. The two eyes should be entirely green circles with their existing white glossy highlights, without ANY black pupils. Preserve exactly the original canvas composition, yellow background, smile, two eye positions, circle sizes, lighting, and original colors. Do not redraw or move the eyes, do not change mouth, add no other shapes, no text, no eyelids. We will overlay moving black pupils in application code. Keep original 4:3 aspect ratio, preserve visual layout as closely as possible.

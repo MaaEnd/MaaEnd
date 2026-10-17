@@ -1,4 +1,5 @@
 # 构建产物
+.cache/
 install/
 node_modules/
 .venv/

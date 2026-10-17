@@ -1,4 +1,5 @@
 node_modules/
+.cache/
 .venv/
 agent/go-service/vendor/
 agent/cpp-algo/MaaUtils/

@@ -8,3 +8,6 @@
 
 # Treat all json as jsonc
 **/*.json linguist-language=jsonc
+
+# Unified patches contain intentional single-space context lines.
+tools/client/nailong/*.patch -whitespace

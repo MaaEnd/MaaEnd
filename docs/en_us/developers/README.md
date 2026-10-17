@@ -53,6 +53,7 @@ It is recommended to read in the following order:
 | [Component Guide](./components-guide.md) | Project architecture, where to make changes, reusable node directory |
 | [Tools & Debugging](./tools-and-debug.md) | Development tools list, common debugging entry points, community group info |
 | [Node Testing](./node-testing.md) | How to write and run node tests to verify stable recognition hits |
+| [Nailong Custom Client](./nailong-client.md) | MaaEnd-owned interface patches, assets, development demo and release builds |
 | [Android Build Environment Setup](./android-build-env.md) | Installing JDK / Android SDK / NDK / CMake and setting environment variables (for the build steps, see `Android/README.md`) |
 | [Go Service `pkg/` Shared Packages](./go-service-pkg.md) | Common utilities such as And unwrapping, condition evaluation, OCR numbers, i18n / focus / resource reading |
 | [Pipeline Protocol](https://maafw.com/docs/3.1-PipelineProtocol/) | Full text of MaaFramework official Pipeline protocol |

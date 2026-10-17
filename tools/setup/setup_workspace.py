@@ -22,7 +22,6 @@ from .path_utils import is_directory_link, remove_directory_or_link
 
 PROJECT_BASE: Path = Path(__file__).resolve().parents[2]
 MFW_REPO: str = "MaaXYZ/MaaFramework"
-MXU_REPO: str = "MistEO/MXU"
 MAAEND_REPO: str = "MaaEnd/MaaEnd"
 MAIN_BRANCH: str = "v2"
 
@@ -102,7 +101,7 @@ try:
 except KeyError as e:
     raise RuntimeError(f"Unsupported OS for MaaFramework: {OS_KEYWORD}") from e
 
-MXU_DIST_NAME: str = "mxu.exe" if OS_KEYWORD == "win" else "mxu"
+MXU_DIST_NAME: str = "MaaEnd.exe" if OS_KEYWORD == "win" else "MaaEnd"
 CPP_ALGO_DIST_NAME: str = "cpp-algo.exe" if OS_KEYWORD == "win" else "cpp-algo"
 CPP_ALGO_COMPANION_FILES: tuple[str, ...] = (
     ("WebView2Loader.dll",) if OS_KEYWORD == "win" else ()
@@ -777,85 +776,32 @@ def install_mxu(
     update_mode: bool = False,
     local_version: str | None = None,
 ) -> tuple[bool, str | None, bool]:
-    """安装 MXU，若遇占用则提示用户手动处理"""
+    """从 MaaEnd 固定补丁构建客户端，不下载上游通用界面成品。"""
     real_install_root = install_root.resolve()
+    client_dir = PROJECT_BASE / "tools" / "client" / "nailong"
+    settings = json.loads((client_dir / "client.json").read_text(encoding="utf-8"))
+    stamp_path = real_install_root / "nailong-client.json"
+    installed_settings = None
+    if stamp_path.exists():
+        installed_settings = json.loads(stamp_path.read_text(encoding="utf-8"))
     mxu_path = real_install_root / MXU_DIST_NAME
-    mxu_installed = mxu_path.exists()
-
-    if skip_if_exist and mxu_installed:
+    if (skip_if_exist or update_mode) and mxu_path.exists() and installed_settings == settings:
         print(Console.ok(t("inf_mxu_installed_skip")))
-        return True, local_version, False
+        return True, settings["version"], False
 
-    url, filename, remote_version = get_latest_release_url(
-        MXU_REPO, ["mxu", OS_KEYWORD, ARCH_KEYWORD]
-    )
-    if not url or not filename:
-        print(Console.err(t("err_mxu_url_not_found")))
+    print(Console.info(t("inf_custom_client_build")))
+    try:
+        subprocess.run(
+            ["node", str(client_dir / "client.mjs"), "build", "--output", str(real_install_root)],
+            cwd=PROJECT_BASE,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as error:
+        print(Console.err(t("err_mxu_install_failed", error=error)))
         return False, local_version, False
-
-    if (
-        update_mode
-        and mxu_installed
-        and local_version
-        and remote_version
-        and compare_semver(local_version, remote_version) >= 0
-    ):
-        print(Console.ok(t("inf_mxu_latest_version", version=local_version)))
-        return True, local_version, False
-
-    cache_dir = ensure_cache_dir()
-    download_path = cache_dir / filename
-    if not download_file(url, download_path, resume=True):
-        return False, local_version, False
-
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-
-        if mxu_path.exists():
-            def _delete_mxu():
-                print(Console.info(t("inf_delete_old_file", path=mxu_path)))
-                mxu_path.unlink()
-            try:
-                if not _retry_on_permission(_delete_mxu, error_key="err_cannot_delete_mxu", name=MXU_DIST_NAME):
-                    return False, local_version, False
-            except Exception as e:
-                print(Console.err(t("err_unknown_error_delete_file", error=e)))
-                return False, local_version, False
-
-        print(Console.info(t("inf_extract_install_mxu")))
-        try:
-            extract_root = tmp_path / "extracted"
-            extract_root.mkdir(parents=True, exist_ok=True)
-
-            # 使用 shutil.unpack_archive 自动识别格式进行解压
-            shutil.unpack_archive(str(download_path), extract_root)
-
-            real_install_root.mkdir(parents=True, exist_ok=True)
-            target_files = [MXU_DIST_NAME]
-            if OS_KEYWORD == "win":
-                target_files.append("mxu.pdb")
-
-            copied = False
-            for item in extract_root.iterdir():
-                if item.name.lower() in [f.lower() for f in target_files]:
-                    dest = real_install_root / item.name
-                    shutil.copy2(item, dest)
-                    print(Console.ok(t("inf_updated_file", name=item.name)))
-                    if item.name.lower() == MXU_DIST_NAME.lower():
-                        copied = True
-
-            if not copied:
-                print(Console.err(t("err_mxu_not_found", name=MXU_DIST_NAME)))
-                return False, local_version, False
-            print(Console.ok(t("inf_mxu_install_complete")))
-            cleanup_cache_file(download_path)
-            version_to_write = remote_version or local_version
-            if version_to_write:
-                _update_component_version(install_root, "mxu", version_to_write)
-            return True, version_to_write, True
-        except Exception as e:
-            print(Console.err(t("err_mxu_install_failed", error=e)))
-            return False, local_version, False
+    _update_component_version(install_root, "mxu", settings["version"])
+    print(Console.ok(t("inf_mxu_install_complete")))
+    return True, settings["version"], True
 
 
 def find_cpp_algo_binary(search_root: Path) -> Path | None:

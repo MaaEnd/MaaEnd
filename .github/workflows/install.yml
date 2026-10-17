@@ -26,10 +26,10 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Git ref to build from (branch, tag, or commit SHA). Leave blank to use default branch.'
+        description: "Git ref to build from (branch, tag, or commit SHA). Leave blank to use default branch."
         required: false
         type: string
-        default: ''
+        default: ""
 
 jobs:
   meta:
@@ -102,11 +102,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - id: mxu-latest-release
-        uses: step-security/github-action-get-latest-release@v0.8.2
-        with:
-          repository: MistEO/MXU
-          excludes: ${{ (steps.set_tag.outputs.is_release == 'true' && steps.set_tag.outputs.is_prerelease == 'false') && 'prerelease, draft' || 'draft' }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+        name: Resolve MaaEnd custom client version
+        run: echo "release=v$(node -p 'require("./tools/client/nailong/client.json").version')" >> "$GITHUB_OUTPUT"
 
       # 校验 MaaUtils submodule 是否落后/分叉于本次构建所用 maafw 版锁定的 commit，
       # 不同步则联动触发 sync_maautils 工作流开修复 PR，并终止全部构建
@@ -207,7 +204,7 @@ jobs:
         if: matrix.os == 'linux'
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build cmake ccache
+          sudo apt-get install -y ninja-build cmake ccache libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install macOS dependencies
         if: matrix.os == 'macos'
@@ -309,16 +306,39 @@ jobs:
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download MXU
+      - name: Setup pnpm for custom client
         if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
-        uses: robinraju/release-downloader@v1
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js for custom client
+        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
+        uses: actions/setup-node@v6
         with:
-          repository: MistEO/MXU
-          fileName: "*${{ matrix.os }}-${{ matrix.arch }}*"
-          tag: ${{ needs.meta.outputs.mxu_version }}
-          out-file-path: "downloads/MXU"
-          extract: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          node-version: 22
+
+      - name: Setup Rust for custom client
+        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.os == 'win' && (matrix.arch == 'aarch64' && 'aarch64-pc-windows-msvc' || 'x86_64-pc-windows-msvc') || (matrix.os == 'macos' && (matrix.arch == 'aarch64' && 'aarch64-apple-darwin' || 'x86_64-apple-darwin') || 'x86_64-unknown-linux-gnu') }}
+
+      - name: Prepare MaaEnd custom client
+        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
+        run: node tools/client/nailong/client.mjs prepare
+
+      - name: Cache custom client Rust build
+        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: .cache/nailong-client/src-tauri -> target
+          shared-key: nailong-${{ matrix.os }}-${{ matrix.arch }}
+
+      - name: Build MaaEnd custom client
+        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
+        env:
+          CLIENT_TARGET: ${{ matrix.os }}-${{ matrix.arch }}
+        shell: bash
+        run: node tools/client/nailong/client.mjs build --target "$CLIENT_TARGET" --output .cache/client-dist
 
       - name: Install
         shell: bash
@@ -335,15 +355,10 @@ jobs:
           cp -r deps/share/MaaAgentBinary install/maafw/
           rm -rf install/maafw/MaaNode*
 
-          # 安装 MXU 并重命名为 MaaEnd
-          echo "Install MXU"
-          if [[ -d downloads/MXU ]]; then
-            rm -rf downloads/MXU*.zip downloads/MXU*.tgz
-            if [[ -f downloads/MXU/mxu.exe ]]; then
-              cp downloads/MXU/mxu.exe install/MaaEnd.exe
-            elif [[ -f downloads/MXU/mxu ]]; then
-              cp downloads/MXU/mxu install/MaaEnd
-            fi
+          # 安装由 MaaEnd 仓库维护补丁并构建的客户端
+          echo "Install MaaEnd custom client"
+          if [[ -d .cache/client-dist ]]; then
+            cp .cache/client-dist/* install/
           fi
 
           # 合并各 resource 的 pipeline JSON 文件（json5 已在依赖下载区安装）

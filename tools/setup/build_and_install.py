@@ -896,6 +896,8 @@ def main() -> None:
         if (
             not (install_dir / "mxu").exists()
             and not (install_dir / "mxu.exe").exists()
+            and not (install_dir / "MaaEnd").exists()
+            and not (install_dir / "MaaEnd.exe").exists()
         ):
             print()
             print(Console.warn(t("mxu_download_hint")))

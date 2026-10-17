@@ -2,6 +2,10 @@
     "name": "maaend",
     "private": true,
     "scripts": {
+        "client:prepare": "node tools/client/nailong/client.mjs prepare",
+        "client:test": "node tools/client/nailong/client.mjs test",
+        "client:build": "node tools/client/nailong/client.mjs build",
+        "client:dev": "node tools/client/nailong/client.mjs dev",
         "format": "prettier --write \"**/*.{json,jsonc,yml,yaml}\"",
         "format:web": "prettier --write \"tools/MapNavigator/web/static/*.{html,css,js}\" \"tools/MapNavigator/web/static/css/**/*.css\" \"tools/MapNavigator/web/static/js/**/*.js\" \"tools/MapNavigator/web/*.mjs\"",
         "format:aggressive": "prettier --print-width 20 --write \"assets/resource/pipeline/**/*.json\" && prettier --write \"assets/resource/pipeline/**/*.json\"",
