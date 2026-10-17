@@ -1,0 +1,42 @@
+{
+    "task": [
+        {
+            "name": "LaunchGameLinux",
+            "label": "$task.LaunchGameLinux.label",
+            "entry": "GameLauncherMain",
+            "description": "$task.LaunchGameLinux.description",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-Wlroots"
+            ],
+            "option": [
+                "ExitLauncher"
+            ]
+        }
+    ],
+    "option": {
+        "ExitLauncher": {
+            "type": "switch",
+            "label": "$option.ExitLauncher.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "GameLauncherInGame": {
+                            "next": [
+                                "GameLauncherExit"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        }
+    }
+}

@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
-  <img alt="LOGO" src="https://end.maafw.com/MaaEnd-Tiny-512.png" width="256" height="256" />
+  <img alt="LOGO" src="./docs/images/MaaEnd-Tiny-512.png" width="256" height="256" />
 </p>
 
 <div align="center">
@@ -110,7 +110,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 来和大家一起玩耍吧！
 
-- 💬 **用户 QQ 群**: [1082597011](https://qm.qq.com/q/F4FjKxkCRy)  
+- 💬 **用户 QQ 群**: [315101779](https://qm.qq.com/q/eXVfrZsbmg)  
   使用问题、功能建议、闲聊摸鱼，欢迎来撩~
 - 👨‍💻 **开发 QQ 群**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   这是干活群，欢迎开发者加入一起造轮子！（仅限技术讨论，使用问题请去用户群哦）

@@ -2,13 +2,23 @@ import {readFileSync} from "node:fs";
 
 import {BASE_NAV_ZONE_IMAGE_PARTS} from "../../MapNavigator/web/static/js/model.js";
 
-const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
+const catalogSource = JSON.parse(readFileSync(new URL("../../zmdmap/data/delivery_destinations.json", import.meta.url), "utf8"));
 export const mapSources = catalogSource.maps ?? {};
 
 const routeSource = JSON.parse(readFileSync(new URL("./routes.json", import.meta.url), "utf8"));
 
 const APPROACH_DISTANCE_METERS = 8;
+// 仓储节点与资源回收站的交互范围中心在实体正面 2 米处（回收站数据源的 yaw 已翻转到正面）。
+// 实体原点压在机体占地里，导航包把那块挖掉了，终点停到交互范围中心。
+const INTERACT_DISTANCE_METERS = 2;
 const COORDINATE_PRECISION = 3;
+
+// 交货路线末尾的交互点：行进中预筛到提示就停车，文本复核通过即结束导航，不按键；交货由业务侧识别交货图标后点击。
+const RECYCLE_BIN_INTERACT = {
+    interact_text: {node: "AutoDeliverySubmitGoodsInteractText"},
+    interact_scan: "AutoDeliverySubmitGoodsInteractScan",
+    interact_rec: true,
+};
 
 function assertArray(value, label) {
     if (!Array.isArray(value)) {
@@ -225,12 +235,10 @@ function roundCoordinate(value) {
     return Number(value.toFixed(COORDINATE_PRECISION));
 }
 
-export function buildYawApproachTarget(source, map, label, yawOverride = null) {
+function buildForwardTarget(source, map, label, yaw, meters) {
     if (!Number.isFinite(source.u) || !Number.isFinite(source.v) || source.u < 0 || source.v < 0) {
         throw new TypeError(`[AutoDelivery] ${label} 的 u/v 坐标无效`);
     }
-
-    const yaw = yawOverride ?? source.yaw;
     if (!Number.isFinite(yaw)) {
         throw new TypeError(`[AutoDelivery] ${label} 的 yaw 朝向无效`);
     }
@@ -240,12 +248,76 @@ export function buildYawApproachTarget(source, map, label, yawOverride = null) {
 
     const radians = (yaw * Math.PI) / 180;
     return [
-        roundCoordinate(source.u + APPROACH_DISTANCE_METERS * map.sx * Math.sin(radians)),
-        roundCoordinate(source.v - APPROACH_DISTANCE_METERS * map.sy * Math.cos(radians)),
+        roundCoordinate(source.u + meters * map.sx * Math.sin(radians)),
+        roundCoordinate(source.v - meters * map.sy * Math.cos(radians)),
     ];
 }
 
-export function buildNavmeshPath(source, label, {withApproachPoint = false, yaw = null, offset = null} = {}) {
+export function buildYawApproachTarget(source, map, label, yawOverride = null) {
+    return buildForwardTarget(source, map, label, yawOverride ?? source.yaw, APPROACH_DISTANCE_METERS);
+}
+
+// 交互范围跟着实体自身的朝向走，不吃给接近点用的 yaw 覆盖。
+function buildInteractTarget(source, label) {
+    return buildForwardTarget(source, readMap(source, label), label, source.yaw, INTERACT_DISTANCE_METERS);
+}
+
+function escapeRegExp(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// NPC 的交互提示只显示角色名，按五语言名称复核；写法与 tools/i18n 展开的 expected 一致。
+function buildNameExpected(name, label) {
+    const texts = [
+        assertNonEmptyString(name?.zh_cn, `${label}.name.zh_cn`),
+        assertNonEmptyString(name?.zh_tw, `${label}.name.zh_tw`),
+        `(?i)${assertNonEmptyString(name?.en_us, `${label}.name.en_us`)
+            .trim()
+            .split(/\s+/)
+            .map(escapeRegExp)
+            .join("\\s*")}`,
+        assertNonEmptyString(name?.ja_jp, `${label}.name.ja_jp`),
+        assertNonEmptyString(name?.ko_kr, `${label}.name.ko_kr`),
+    ];
+    return [...new Set(texts.map((text, index) => (index === 2 ? text : escapeRegExp(text))))];
+}
+
+// 人工路线的末点是裸坐标时挪到站位点；自动路线的末点 NAVMESH 已经落在站位点上。
+function withStandPoint(path, target) {
+    const last = path.at(-1);
+    return Array.isArray(last) && last.length === 2 ? [...path.slice(0, -1), target] : path;
+}
+
+// 路线末尾接交互点。末点是 NAVMESH 时原样保留并补 required：滑索规划会跳过不必经的点，层高要靠它带到底；
+// 交互点跟在同一坐标上。末点是裸坐标时整点换成交互点，落到 interactTarget（给了的话）。
+// interact 为 null 时不接，路线原样返回。
+function withInteractTail(path, interact, label, interactTarget = null) {
+    if (interact === null) {
+        return path;
+    }
+    const last = path.at(-1);
+    const head = path.slice(0, -1);
+    if (last && !Array.isArray(last) && last.action === "NAVMESH") {
+        return [
+            ...head,
+            {...last, required: true},
+            {action: "INTERACT", target: last.target, required: true, ...interact},
+        ];
+    }
+    if (Array.isArray(last) && last.length === 2) {
+        return [
+            ...head,
+            {action: "INTERACT", target: interactTarget ?? last, required: true, ...interact},
+        ];
+    }
+    throw new Error(`[AutoDelivery] ${label} 的末点 ${JSON.stringify(last)} 既不是 NAVMESH 也不是裸坐标，接不上交互点`);
+}
+
+export function buildNavmeshPath(
+    source,
+    label,
+    {withApproachPoint = false, yaw = null, offset = null, interactForward = false} = {},
+) {
     if (!Number.isFinite(source.u) || !Number.isFinite(source.v) || source.u < 0 || source.v < 0) {
         throw new TypeError(`[AutoDelivery] ${label} 的 u/v 坐标无效`);
     }
@@ -260,10 +332,12 @@ export function buildNavmeshPath(source, label, {withApproachPoint = false, yaw 
     const deckY = roundCoordinate(shifted.y);
     const destination = {
         action: "NAVMESH",
-        target: [
-            shifted.u,
-            shifted.v,
-        ],
+        target: interactForward
+            ? buildInteractTarget(shifted, label)
+            : [
+                  shifted.u,
+                  shifted.v,
+              ],
         target_deck_y: deckY,
     };
     if (!withApproachPoint) {
@@ -311,11 +385,18 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
         withApproachPoint: true,
         yaw: readYawOverride(override?.yaw, `仓储 ${id}`),
         offset: readOffset(override?.offset, `仓储 ${id}`),
+        interactForward: true,
     });
+    // 仓储路线不接交互点：只走到仓储节点、不取货的调用方也用这条路线，取货与认不出按钮时的兜底都在业务侧。
+    const standPoint = buildInteractTarget(source, `仓储 ${id}`);
     const zoneId = buildLocatorZoneId(source.map, `仓储 ${id}`);
-    const path = withZoneDeclaration(override?.path?.length ? override.path : defaultPath, zoneId, `仓储 ${id}`);
+    const path = withZoneDeclaration(
+        withStandPoint(override?.path?.length ? override.path : defaultPath, standPoint),
+        zoneId,
+        `仓储 ${id}`,
+    );
     const retryPath = withZoneDeclaration(
-        override?.retry_path?.length ? override.retry_path : defaultPath,
+        withStandPoint(override?.retry_path?.length ? override.retry_path : defaultPath, standPoint),
         zoneId,
         `仓储重试 ${id}`,
     );
@@ -369,29 +450,52 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
         const verifyName = readVerifyName(override?.verify_name, `终点 ${id}`, source.kind);
         const yaw = readYawOverride(override?.yaw, `终点 ${id}`);
         const offset = readOffset(override?.offset, `终点 ${id}`);
-        const withApproachPoint = source.kind === "recycle_bin";
+        const isRecycleBin = source.kind === "recycle_bin";
         const defaultPath = buildNavmeshPath(source, `终点 ${id}`, {
-            withApproachPoint,
+            withApproachPoint: isRecycleBin,
             yaw,
             offset,
+            interactForward: isRecycleBin,
         });
         const ownPath = override?.path?.length ? override.path : defaultPath;
         const defaultRetryPath = buildNavmeshPath(source, `终点重试 ${id}`, {
             withApproachPoint: true,
             yaw,
             offset,
+            interactForward: isRecycleBin,
         });
+        // 开了名称复核的终点不接交互点，照旧由业务侧复核名字后点击。
+        const interact = isRecycleBin
+            ? RECYCLE_BIN_INTERACT
+            : verifyName
+              ? null
+              : {
+                    interact_text: buildNameExpected(source.name, `终点 ${id}`),
+                    interact_scan: "AutoDeliverySubmitGoodsInteractScan",
+                    interact_rec: true,
+                };
+        const interactTarget = isRecycleBin ? buildInteractTarget(source, `终点 ${id}`) : null;
         const retryPath = withZoneDeclaration(
-            override?.retry_path?.length ? override.retry_path : defaultRetryPath,
+            withInteractTail(
+                override?.retry_path?.length ? override.retry_path : defaultRetryPath,
+                interact,
+                `终点重试 ${id}`,
+                interactTarget,
+            ),
             buildLocatorZoneId(depot.map, `终点 ${id}`),
             `终点重试 ${id}`,
         );
         // departurePath 会拼接到终点主路线之前，首点 ZONE 由 withZoneDeclaration 统一归一化。
         const path = withZoneDeclaration(
-            [
-                ...depot.departurePath,
-                ...ownPath,
-            ],
+            withInteractTail(
+                [
+                    ...depot.departurePath,
+                    ...ownPath,
+                ],
+                interact,
+                `终点 ${id}`,
+                interactTarget,
+            ),
             buildLocatorZoneId(depot.map, `终点 ${id}`),
             `终点 ${id}`,
         );

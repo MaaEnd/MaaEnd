@@ -72,7 +72,10 @@ void ObstacleDeviceRecovery::Start(const cv::Rect& base_roi)
         return;
     }
 
-    scanner_ = std::make_unique<RoiTemplateScanner>("device", base_roi, button_template, cv::Mat(), kObstacleDeviceMatchThreshold);
+    scanner_ = std::make_unique<RoiTemplateScanner>(
+        "device",
+        base_roi,
+        std::vector<ScanIcon> { ScanIcon { .templ = button_template, .threshold = kObstacleDeviceMatchThreshold } });
     LogInfo << "Blocking-device probe started." << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
 }
 

@@ -1,6 +1,6 @@
 # 开发手册 - 节点测试
 
-本文介绍 MaaEnd 当前使用的节点测试写法。内容以 `maatools.config.mts`、`tools/schema/test.schema.json` 和现有 `tests/` 用例为准。
+本文介绍 MaaEnd 当前使用的节点测试写法。内容以 `maatools.config.mts`、`tests/scripts/loader.mts`、`tools/schema/test.schema.json` 和现有 `tests/` 用例为准。
 
 ## 测试目标
 
@@ -19,7 +19,7 @@ tests/
 |- MaaEndTestset/
 |  |- Win32/Official_CN/*.png
 |  `- ADB/Official_CN/*.png
-|- Common/Button/test_button.json
+|- Common/Button/test_close_button.json
 |- DeliveryJobs/test_region.json
 `- ...
 ```
@@ -27,7 +27,7 @@ tests/
 - 测试定义文件放在 `tests/` 下任意子目录，文件名必须匹配 `test_*.json`。
 - 测试截图放在 `tests/MaaEndTestset/`。
 - `image` 字段必须填写完整的截图文件名，并显式包含扩展名，例如 `xxx.png`。
-- 实际截图路径由 `maatools.config.mts` 拼出；通常会落到 `tests/MaaEndTestset/<controller>/<resource>/` 下，并按 `image` 字段匹配具体图片文件。
+- 实际截图路径由 `tests/scripts/loader.mts` 拼出（根目录为 `maatools.config.mts` 的 `test.casesCwd`）；通常会落到 `tests/MaaEndTestset/<controller>/<resource>/` 下，并按 `image` 字段匹配具体图片文件。
 
 以当前配置为例：
 
@@ -37,7 +37,7 @@ tests/
 - `resource = "官服"` 时，截图目录为 `tests/MaaEndTestset/*/Official_CN/`。
 - `controller` 或 `resource` 只要有一方写成数组，就会按笛卡尔积展开测试矩阵。
 
-如果新增了新的资源服或控制器枚举，除了补测试文件，还要同步更新 `maatools.config.mts` 中的映射关系。
+如果新增了新的资源服或控制器枚举，除了补测试文件，还要同步更新 `tests/scripts/loader.mts` 中的映射关系（`resourceMap` / `controllerMap`）。
 
 ## 文件结构
 
@@ -48,7 +48,7 @@ tests/
     "configs": {
         "name": "(Win32/ADB-官服)通用按钮",
         "resource": ["官服"],
-        "controller": ["Win32", "ADB"],
+        "controller": ["Win32", "ADB"]
     },
     "cases": [
         {
@@ -60,12 +60,12 @@ tests/
                     "node": "RegionalDevelopmentButton",
                     "box": {
                         "Win32": [223, 32, 32, 19],
-                        "ADB": [220, 30, 34, 20],
-                    },
-                },
-            ],
-        },
-    ],
+                        "ADB": [220, 30, 34, 20]
+                    }
+                }
+            ]
+        }
+    ]
 }
 ```
 
@@ -75,7 +75,7 @@ tests/
 - `resource`：资源服名称，可以写单个字符串，也可以写字符串数组。当前仓库实际使用的是 `官服`。
 - `controller`：控制器类型，可以写单个字符串，也可以写字符串数组。当前仓库实际使用的是 `Win32` 和 `ADB`。
 
-当 `controller` 或 `resource` 写成数组时，`maatools.config.mts` 会把同一个测试文件展开为多组测试，并按控制器与资源的笛卡尔积去各自目录取图。
+当 `controller` 或 `resource` 写成数组时，`tests/scripts/loader.mts` 会把同一个测试文件展开为多组测试，并按控制器与资源的笛卡尔积去各自目录取图。
 
 例如：
 
@@ -84,7 +84,7 @@ tests/
 
 会展开为 4 组测试：`ADB-官服`、`ADB-B服`、`Win32-官服`、`Win32-B服`。
 
-前提是这些值都已经在 `maatools.config.mts` 中配置了映射，并且测试集目录下存在对应截图。
+前提是这些值都已经在 `tests/scripts/loader.mts` 中配置了映射，并且测试集目录下存在对应截图。
 
 ### `cases`
 
@@ -99,20 +99,20 @@ tests/
 
 1. 只校验节点命中：
 
-```json
-"hits": ["InWorld", "CloseButtonType1"]
-```
+   ```json
+   "hits": ["InWorld", "CloseButtonType1"]
+   ```
 
 1. 同时校验节点和识别框：
 
-```json
-"hits": [
-    {
-        "node": "RegionalDevelopmentButton",
-        "box": [223, 32, 32, 19]
-    }
-]
-```
+   ```json
+   "hits": [
+       {
+           "node": "RegionalDevelopmentButton",
+           "box": [223, 32, 32, 19]
+       }
+   ]
+   ```
 
 `box` 也可以写成矩阵对象，让不同控制器或资源使用不同的识别框：
 
@@ -129,7 +129,7 @@ tests/
 ]
 ```
 
-当前 `maatools.config.mts` 的匹配优先级如下：
+当前 `tests/scripts/loader.mts` 的匹配优先级如下：
 
 - `controller:resource`
 - `controller/resource`
@@ -140,9 +140,9 @@ tests/
 - `default`
 - `*`
 
-最终落到测试执行阶段的 `box` 仍然会被转换成固定的 `[x, y, width, height]` 数组，四个值都必须是大于等于 0 的整数。
+最终落到测试执行阶段的 `box` 仍然会被转换成固定的 `[x, y, width, height]` 数组，四个值都必须是大于等于 0 的整数。实际识别框完整落在这个矩形内即算通过，不要求完全相等。
 
-如果某张图不应该命中任何节点，写空数组即可：
+如果某张图不应该命中本文件测试的任何节点（即其他用例 `hits` 里出现过的节点），写空数组即可：
 
 ```json
 "hits": []
@@ -156,7 +156,7 @@ tests/
 
 建议像现有用例一样，以模块或节点族为单位拆分，例如：
 
-- `tests/Common/Button/test_button.json`
+- `tests/Common/Button/test_close_button.json`
 - `tests/DeliveryJobs/test_region.json`
 - `tests/EnvironmentMonitoring/test_job.json`
 
@@ -226,6 +226,7 @@ pnpm test
 `maa-tools test` 不启动 Agent，无法测试 Agent 提供的自定义识别。`MapLocateAssertLocation` 定位节点改用独立的 Python 执行器测试：运行 `pnpm test:map-locate`，或 `uv run python tests/MapLocateAssertLocation/map_locate.py`。CI 中对应的是 `map-locate-test` job。用例格式、样本要求和运行前提见[定位节点截图测试](../../../tests/MapLocateAssertLocation/README.md)。
 
 路线的寻路连通性由另一个独立执行器检查：运行 `uv run python tests/MapNavmeshConnectivity/navmesh_connectivity.py`，它按用例文件中的起点和终点交给 Agent 规划，规划成功即视为连通，不依赖截图。CI 中对应 `map-locate-test` job 的 `Run navmesh connectivity tests` 步骤。用例格式与判定方式见[连通性测试](../../../tests/MapNavmeshConnectivity/README.md)。
+
 普通节点测试日志默认输出到：
 
 ```text
@@ -261,15 +262,15 @@ pnpm check
 {
     "configs": {
         "name": "(多控制器/多资源)示例节点测试",
-        // 只有在 maatools.config.mts 中存在映射、且测试集中有对应截图时才应这样写
+        // 只有在 tests/scripts/loader.mts 中存在映射、且测试集中有对应截图时才应这样写
         "resource": ["官服", "B服"],
-        "controller": ["Win32", "ADB"],
+        "controller": ["Win32", "ADB"]
     },
     "cases": [
         {
             "name": "大世界主页",
             "image": "帝江号_大世界.png",
-            "hits": ["InWorld"],
+            "hits": ["InWorld"]
         },
         {
             "name": "验证不同控制器下的识别框位置",
@@ -279,17 +280,17 @@ pnpm check
                     "node": "SpecialButtonWithOffset",
                     "box": {
                         "ADB": [91, 587, 274, 48],
-                        "Win32": [100, 600, 250, 50],
-                    },
-                },
-            ],
+                        "Win32": [100, 600, 250, 50]
+                    }
+                }
+            ]
         },
         {
             "name": "负例：不应命中",
             "image": "武陵_拍照模式_拍摄目标未达成.png",
-            "hits": [],
-        },
-    ],
+            "hits": []
+        }
+    ]
 }
 ```
 
@@ -298,7 +299,7 @@ pnpm check
 在新增或修改节点测试后，建议至少自查以下几点：
 
 - 测试文件名是否符合 `test_*.json`。
-- `configs.resource` 和 `configs.controller` 是否能在 `maatools.config.mts` 中找到映射。
+- `configs.resource` 和 `configs.controller` 是否能在 `tests/scripts/loader.mts` 中找到映射。
 - 如果 `configs.controller` 或 `configs.resource` 写成数组，是否确认所有组合下都存在对应截图。
 - 如果 `box` 写成矩阵对象，是否确认所有需要的组合键都能命中，或提供了合适的 `default`。
 - `image` 是否写了完整文件名和扩展名，并且能在对应目录找到该截图。
@@ -316,11 +317,11 @@ pnpm check
 
 ### `box` 矩阵里 `default` 和 `*` 有什么区别
 
-`default` 是未匹配到任何 controller/resource 键时的兜底值。`*` 是通配符，匹配任意 controller 或 resource。优先顺序上 `default` 高于 `*`（`*` 是最低优先级），一般只写 `default` 就够了，除非确实需要 `*` 的行为。
+`default` 和 `*` 都是兜底键，只在前面的 controller/resource 键都没匹配时使用；`default` 先于 `*` 检查。两者效果相同，一般只写 `default`。
 
 ### 截图从哪来
 
-用 VS Code 的 Maa Pipeline Support 插件（`Ctrl+Shift+P` → `Maa: Screenshot`）截取，放到 `tests/MaaEndTestset/<controller>/<resource>/` 下。
+用 VS Code 的 Maa Pipeline Support 插件（`Ctrl+Shift+P` → `Maa: 截图`）截取，放到 `tests/MaaEndTestset/<controller>/<resource>/` 下。
 
 ### 测试跑失败了怎么看
 

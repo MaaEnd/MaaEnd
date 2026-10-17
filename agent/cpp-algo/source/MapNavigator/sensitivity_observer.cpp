@@ -40,10 +40,10 @@ void LogEstimate(const std::optional<Estimate>& estimate)
         return;
     }
     const double ratio = estimate->ratio;
-    const double se = estimate->se;
+    const double low = estimate->low;
+    const double high = estimate->high;
     const int sample_count = estimate->sample_count;
-    const double cmd_deg = estimate->cmd_deg;
-    LogInfo << "Turn sensitivity estimate." << VAR(ratio) << VAR(se) << VAR(sample_count) << VAR(cmd_deg);
+    LogInfo << "Turn sensitivity estimate." << VAR(ratio) << VAR(low) << VAR(high) << VAR(sample_count);
 }
 
 } // namespace
@@ -69,13 +69,18 @@ double TurnUnitsScale()
     return g_turn_units_scale.load();
 }
 
-void RecordTick(MaaContext* context, uint64_t tick_seq, int64_t now_ms, double heading_deg, double issued_delta_deg, bool degraded_fix)
+void RecordTick(
+    MaaContext* context,
+    uint64_t tick_seq,
+    std::optional<double> camera_heading_deg,
+    double issued_delta_deg,
+    bool degraded_fix)
 {
     std::optional<Verdict> verdict;
     std::optional<Estimate> estimate;
     {
         const std::lock_guard<std::mutex> guard(g_mutex);
-        verdict = g_detector.RecordTick(tick_seq, now_ms, heading_deg, issued_delta_deg, degraded_fix);
+        verdict = g_detector.RecordTick(tick_seq, camera_heading_deg, issued_delta_deg, degraded_fix);
         estimate = g_detector.TakeLastEstimate();
     }
 

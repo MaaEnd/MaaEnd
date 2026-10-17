@@ -202,22 +202,22 @@ record: no shelf slots captured, skip persist
 
 常见货架商品名对照（模板节点后缀 / JSON `id` → 中文）：
 
-| 内部名 / 节点后缀            | 商品名       |
+| 内部名 / 节点后缀 | 商品名 |
 | ---------------------------- | ------------ |
-| `ArmsInspector`              | 武器检查单元 |
-| `ArmsINSPKit`                | 武器检查装置 |
-| `ArsenalTicket`              | 武库配额     |
-| `Oroberyl`                   | 嵌晶玉       |
-| `TCreds`                     | 折金票       |
-| `Protoprism`                 | 协议棱柱     |
-| `Protohedron`                | 协议棱柱组   |
-| `Protodisk`                  | 协议圆盘     |
-| `Protoset`                   | 协议圆盘组   |
-| `ElementaryCombatRecord`     | 初级作战记录 |
-| `IntermediateCombatRecord`   | 中级作战记录 |
+| `ArmsInspector` | 武器检查单元 |
+| `ArmsINSPKit` | 武器检查装置 |
+| `ArsenalTicket` | 武库配额 |
+| `Oroberyl` | 嵌晶玉 |
+| `TCreds` | 折金票 |
+| `Protoprism` | 协议棱柱 |
+| `Protohedron` | 协议棱柱组 |
+| `Protodisk` | 协议圆盘 |
+| `Protoset` | 协议圆盘组 |
+| `ElementaryCombatRecord` | 初级作战记录 |
+| `IntermediateCombatRecord` | 中级作战记录 |
 | `ElementaryCognitiveCarrier` | 初级认知载体 |
-| `CastDie`                    | 强固模具     |
-| `HeavyCastDie`               | 重型强固模具 |
+| `CastDie` | 强固模具 |
+| `HeavyCastDie` | 重型强固模具 |
 
 ### 5. 判断刷新状态
 

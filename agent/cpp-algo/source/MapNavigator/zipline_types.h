@@ -84,6 +84,7 @@ enum class HopOutcome
     Unboardable, // 每个站位都走到过, 一次提示都没出来: 这根架子上不去, 别再拿它当上索点
     Lost,        // 落地定位一直对不上
     Dismounted,  // 主动下索交给恢复
+    AimFailed,   // 在架上瞄不准放弃
 };
 
 struct ZiplineHopRecord

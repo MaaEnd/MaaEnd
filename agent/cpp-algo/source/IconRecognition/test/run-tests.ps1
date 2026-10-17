@@ -29,8 +29,7 @@ $buildRoot = Join-Path $cppAlgoRoot "build"
 $testBuildRoot = Join-Path $buildRoot "source/IconRecognition/test"
 $mergedInputRoot = Join-Path $testBuildRoot "merged-input"
 $datasetManifestPath = Join-Path $testRoot "dataset-manifest.psd1"
-$localInputRoot = Join-Path $testRoot "input"
-$localExpectedPath = Join-Path $testRoot "input/expected.csv"
+$localInputBase = Join-Path $testRoot "input"
 $gridTypes = @(
     "trade",
     "transfer",
@@ -62,7 +61,7 @@ function Show-Usage {
   trade, transfer, port_storager, valuables, shipment, credit_trade, rewards, single_roi
 
 Side 仅用于 transfer 和 port_storager；默认使用 full。
-显式选择 test/input 中的本地图片时必须同时指定 GridType。
+manual 只叠加 test/input/<Dataset>/ 中的本地图片；显式选择本地图片时必须同时指定 GridType。
 Jobs 的命令行参数优先于本机配置；未配置时使用 1。
 "@
 }
@@ -265,6 +264,9 @@ function Prepare-DatasetInput {
 
 function Copy-LocalInputTrees {
     param([switch]$PreferLocalConflicts)
+    if (-not (Test-Path -LiteralPath $localInputRoot -PathType Container)) {
+        return
+    }
     foreach ($gridType in $gridTypes) {
         Copy-InputTree `
             -SourceRoot (Join-Path $localInputRoot $gridType) `
@@ -385,6 +387,10 @@ function Set-TestRuntimePath {
     ) | Where-Object { Test-Path -LiteralPath $_ }
     $env:PATH = ($runtimeDirectories -join ";") + ";" + $env:PATH
 }
+
+# 本地素材按控制器分目录，避免 Win32 截图被套用 ADB 的 ROI 与网格比例。
+$localInputRoot = if ($Dataset) { Join-Path $localInputBase $Dataset } else { $null }
+$localExpectedPath = if ($Dataset) { Join-Path $localInputRoot "expected.csv" } else { $null }
 
 Set-Location -LiteralPath $repoRoot
 switch ($Task) {

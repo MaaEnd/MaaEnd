@@ -20,6 +20,7 @@ type SkillPool struct {
 // Location records optional extra pools for a stage location.
 type Location struct {
 	Name     string `json:"name"`
+	LevelID  string `json:"level_id"`
 	Slot2IDs []int  `json:"slot2_ids"`
 	Slot3IDs []int  `json:"slot3_ids"`
 }

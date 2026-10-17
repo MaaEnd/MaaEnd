@@ -1,8 +1,6 @@
 # RecoGrid / GridTracker / EssenceGrid Architecture
 
-Essence inventory scanning is composed from three C++ modules instead of one
-stateful engine that owns recognition, tracking, classification, and business
-flow.
+Essence inventory scanning is composed of three C++ modules that can each be understood on their own, instead of one monolithic engine that owns recognition, tracking, and business flow:
 
 ```mermaid
 flowchart LR
@@ -20,12 +18,12 @@ flowchart LR
 | Module | Owns | Does not own |
 | --- | --- | --- |
 | `RecoGrid` | Rows, columns, cell rectangles, occupancy, pHash, and comparison features for one image | Frame history, scroll order, business quality, clicks |
-| `GridTracker` | Adjacent-frame alignment, global coordinates, deduplication, order, and end confirmation | Image segmentation, template loading, Pipeline routing |
-| `EssenceGrid` | Essence quality, lock/discard thumbnails, pending queue, and Maa callbacks | Skill OCR, match rules, UI actions |
-| Go `essencefilter` | OCR normalization, target matching, Lock/Discard/Skip decisions, and reports | Grid recognition and button clicks |
+| `GridTracker` | Adjacent-frame alignment, global row/column indices, deduplication, order, and end confirmation | Image segmentation, template loading, Pipeline routing |
+| `EssenceGrid` | Essence quality, lock/discard thumbnails, pending queue, and Maa callbacks | Skill OCR, match rules, actual UI actions |
+| Go `essencefilter` | OCR normalization, target combination matching, Lock/Discard/Skip decisions | Grid recognition and button clicks |
 | Pipeline | Screenshot timing, clicks, swipes, waits, and post-action verification | Image algorithms and match data structures |
 
-Source-level documentation:
+More precise module documentation lives next to the source code:
 
 - [RecoGrid README](../../../../agent/cpp-algo/source/RecoGrid/README.md)
 - [GridTracker README](../../../../agent/cpp-algo/source/GridTracker/README.md)
@@ -33,6 +31,8 @@ Source-level documentation:
 - [EssenceFilter Go README](../../../../agent/go-service/essencefilter/README.md)
 
 ## RecoGrid: one frame only
+
+Public entry point:
 
 ```cpp
 recogrid::GridFrame RecognizeGrid(
@@ -54,21 +54,22 @@ Recognition performs these steps:
 | --- | --- |
 | `detect.normalizedSize` | Coordinate base; MaaEnd normally uses `1280x720` |
 | `detect.roi` | Grid region |
-| row/column threshold ratios | Projection thresholds |
+| `rowThresholdRatio` / `colThresholdRatio` | Row/column projection thresholds |
 | `minRawSegmentLength` | Minimum raw segment length |
 | `minKeptSegmentRatio` | Segment size retained relative to the modal cell size |
 | `lockedRowHeight` / `lockedColWidth` | Cell size locked after the first frame to stabilize later detection |
-| `mask` | Fixed decorations excluded inside each cell |
+| `mask` | Ignores fixed corner badges or the bottom area inside each cell |
 | occupancy brightness options | Decide whether a cell contains content |
 
-`GridFrame` contains shape, modal cell size, diagnostics, and `GridCell`
-values. Each cell stores local coordinates, frame index, screen rectangle,
-features, and `occupied`.
+### Main outputs
 
-RecoGrid does not load item-classification templates or keep sessions. Invalid
-input returns an empty frame and lets the caller choose the retry policy.
+`GridFrame` contains the row and column counts, modal cell width and height, diagnostics, and the `GridCell` list. Each `GridCell` contains its local row and column, current-frame index, screen rectangle, features, and `occupied`.
 
-## GridTracker: order across frames
+RecoGrid does not load item-classification templates or keep sessions. An empty image, invalid channels, or no detected grid returns an empty `GridFrame`, and the caller decides how to retry.
+
+## GridTracker: order and end across frames
+
+Public entry point:
 
 ```cpp
 gridtracker::Result observe(
@@ -76,109 +77,105 @@ gridtracker::Result observe(
     const gridtracker::Options& options = {});
 ```
 
-Keep one tracker per scrolling task and call `reset()` for a new task.
+Each scrolling task holds one `GridTracker`. Call `reset()` when a new task starts.
+
+### Status
 
 | Status | Meaning | EssenceGrid route |
 | --- | --- | --- |
-| `Initial` | First valid frame | Process new cells, then scroll if empty |
-| `Advanced` | Forward progress or a shape refresh that does not prove the end | Process new cells, then scroll if empty |
-| `ConfirmingEnd` | First complete repeat | Scroll once more |
+| `Initial` | First valid frame | Process new cells; scroll if there are no candidates |
+| `Advanced` | Forward progress, or a baseline refresh at zero offset without a complete repeat (e.g., a row count change) | Process new cells; scroll if there are no candidates |
+| `ConfirmingEnd` | First complete repeat | Scroll once more to confirm |
 | `Repeated` | Second consecutive complete repeat | Finish |
-| `Rejected` | Empty, incompatible, or low-confidence frame | Return recognition failure and retry the same node |
+| `Rejected` | Empty frame, column count change, low-confidence alignment, or a complete zero-offset repeat below `repeat_match_ratio` | Return recognition failure and let Maa retry on the same screen |
 
-The tracker evaluates non-negative row offsets in the previous frame. It
-prefers a higher match ratio, then lower average feature distance, then more
-compared cells. A candidate must also satisfy minimum overlap rows and
-`min_match_ratio`.
+### Alignment and deduplication
 
-Accepted occupied cells are placed at
-`(viewport_start_row + local_row, col)`. Business code should consume
-`Result::new_cells` and must not maintain another coordinate-deduplication map.
+The tracker enumerates non-negative row offsets in the previous frame and chooses a candidate in this order:
 
-### Complete end confirmation
+1. higher ratio of matched cells;
+2. lower average feature distance;
+3. more cells taking part in the comparison.
 
-A zero offset is not sufficient. A complete repeat requires:
+A candidate must also satisfy minimum overlap rows and `min_match_ratio`. Once a positive offset is accepted, local rows are mapped to `viewport_start_row + local_row`.
+
+The business layer only consumes `Result::new_cells`. The tracker has already deduplicated by global `(row, col)`; the outer layer must not maintain a second deduplication table.
+
+### Why the end is confirmed twice
+
+`row_offset == 0` alone does not prove the end has been reached. A complete repeat requires all of:
 
 - identical row and column shape;
 - complete `rows * cols` cell vectors in both frames;
 - every cell participating in comparison;
 - `repeat_match_ratio` being met.
 
-The first complete repeat returns `ConfirmingEnd`; only the second consecutive
-repeat returns `Repeated`. Progress, shape changes, and rejected comparisons
-clear pending confirmation.
+The first complete repeat returns `ConfirmingEnd`, and Pipeline scrolls once more. Only a second consecutive repeat returns `Repeated`. Any valid progress, shape change, or failed recognition clears pending confirmation.
 
-## EssenceGrid: the business instance
+## EssenceGrid: the essence business instance
 
-`main.cpp` creates one `EssenceGrid` and passes it through `trans_arg` to:
+`main.cpp` creates one `EssenceGrid` and registers both of these through `trans_arg`:
 
 - `EssenceGridAdvanceRecognition`;
 - `EssenceGridPendingRecognition`.
 
-The instance owns one tracker, task id, merged configuration, thumbnail
-templates, the latest result, page queue, queue cursor, and pending cell. A new
-task id resets tracking and queue state.
+The instance holds the tracker, task id, merged configuration, thumbnail templates, current page queue, and pending cell. A change of task id resets the tracker and the queue.
 
 ### `EssenceGridAdvance.attach`
 
-| Field | Consumer |
+| Field | Purpose |
 | --- | --- |
-| Grid ROI, normalized size, projection and segment settings | RecoGrid |
-| `repeat_match_ratio` | GridTracker |
-| lock/discard thumbnail paths | Essence thumbnail classification |
-| `flawless_essence` / `pure_essence` | Essence quality filter |
-| `skip_thumb_lock` / `skip_thumb_discard` | Essence dispatch filter |
+| `roi`, `normalized_size`, row/column thresholds, segment parameters | Build the RecoGrid options |
+| `repeat_match_ratio` | Build the GridTracker options |
+| `thumb_lock_template_paths` | Recognize locked thumbnails |
+| `thumb_discard_template_path` | Recognize discarded thumbnails |
+| `flawless_essence` / `pure_essence` | Quality filter |
+| `skip_thumb_lock` / `skip_thumb_discard` | Thumbnail state filter |
 
-MaaFramework dictionary-merges base resources, task options, and controller
-overrides before C++ reads the final node data. Do not mirror these fields in Go.
+MaaFramework first dictionary-merges base resources, task options, and controller resources; C++ then reads the final `attach` through `MaaContextGetNodeData`. Do not mirror these fields in Go.
 
 ### Queue construction
 
 EssenceGrid processes only tracker `new_cells`:
 
-1. sample the bottom strip for gold/purple quality;
+1. sample the color at the bottom of the cell to judge Flawless/Pure quality;
 2. match lock/discard thumbnails in the lower-left cell region;
-3. apply quality and thumbnail filters;
+3. apply the quality and skip options;
 4. enqueue accepted cells;
-5. expose the pending screen rectangle for Pipeline to click.
+5. `PendingRecognition` returns the screen rectangle and Pipeline performs the click.
 
 ## Go and Pipeline
 
-After Pipeline clicks a cell, Pipeline OCR nodes read three skills and levels.
-Go normalizes the OCR result, performs matching, and chooses one actual action
-entry: `LockItem`, `DiscardItem`, or the skip route.
+After Pipeline clicks a cell, OCR nodes read the three skills and their levels. Go's `runUnifiedSkillDecision` only decides the branch:
 
-Pipeline owns button recognition, clicking, and `CheckLocked` /
-`CheckDiscarded` verification. Go must not route directly to a post-action
-check node, because doing so skips the operation.
+- target matched: go to `EssenceFilterLockItem`;
+- no match and discarding enabled: go to `EssenceFilterDiscardItem`;
+- otherwise: return to `EssenceGridAdvance`.
 
-## Controller overrides
+Pipeline owns the actual button recognition, clicking, and `EssenceFilterCheckLocked` / `EssenceFilterCheckDiscarded` verification. Go must not route directly to a post-action check node, because doing so skips the operation.
 
-The base resource defines Win32 geometry. `resource_adb` and other controller
-resources should override only geometry, templates, and swipe parameters that
-actually differ.
+## Controller differences
 
-Lock and discard buttons need separate ROIs. A Pipeline `Click` uses the box
-returned by template matching; one broad ROI can let a similar template select
-the neighboring button.
+The base resource defines Win32 geometry. `resource_adb` and other controller resources should override only the ROIs, templates, and swipe parameters that actually differ.
+
+Lock and discard buttons need separate ROIs. A Pipeline `Click` uses the box returned by template matching; one broad ROI can let a similar template select the neighboring button.
 
 ## Troubleshooting
 
 | Symptom | First owner to inspect |
 | --- | --- |
 | Wrong rows, columns, or cell rectangles | RecoGrid ROI and segment settings |
-| Wrong cumulative order, duplicates, or early finish | GridTracker offset, support, match ratio, and status |
-| Wrong quality or lock/discard thumbnail state | EssenceGrid HSV and templates |
-| Unexpected skill match | Go normalization, data, and match options |
+| Accumulated row misalignment, duplicates, or early finish | GridTracker offset, support, match ratio, and status |
+| Wrong quality or lock/discard thumbnail state | EssenceGrid HSV and thumbnail templates |
+| Unexpected skill match | Go OCR normalization, data, and match options |
 | Wrong or unconfirmed lock/discard click | Pipeline template, ROI, waits, and next order |
 
 ## Build
 
-The production executable composes all three modules:
+The three modules are ultimately composed by the production `cpp-algo`:
 
 ```powershell
 cmake --build agent\cpp-algo\build --config RelWithDebInfo --target cpp-algo
 ```
 
-`recogrid` and `grid-tracker` are independent static CMake libraries;
-EssenceGrid is compiled into `cpp-algo`.
+In CMake, `recogrid` and `grid-tracker` are independent static libraries; `EssenceGrid` is compiled into `cpp-algo`.

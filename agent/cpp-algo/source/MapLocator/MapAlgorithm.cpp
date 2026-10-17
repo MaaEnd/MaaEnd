@@ -30,7 +30,7 @@ cv::Mat GenerateMinimapMask(const cv::Mat& minimap, const ImageProcessingConfig&
         cv::Mat whiteMask = cv::Mat::zeros(h, w, CV_8UC1);
         cv::Mat colorIconMask = cv::Mat::zeros(h, w, CV_8UC1);
 
-        cv::inRange(workImg, cv::Scalar(255, 255, 255), cv::Scalar(255, 255, 255), whiteMask);
+        cv::inRange(workImg, cv::Scalar::all(cfg.whiteMaskFloor), cv::Scalar::all(255), whiteMask);
 
         if (cfg.useHsvWhiteMask) {
             cv::Mat hsvImg, hsvWhite;

@@ -1,6 +1,6 @@
 {
     "navigation.latency_slow": "<span style=\"color: red; font-weight: bold;\">寻路每拍耗时中位数 %d ms（正常约 110 ms）：截图 %d ms、图像处理 %d ms、定位 %d ms、转向下发 %d ms、其余 %d ms。这么慢会来不及转弯，容易撞墙或掉水。建议降低游戏画质与分辨率、关掉占用高的后台程序，并检查 GPU 占用是否过高。此提示不会中断任务。</span>",
-    "navigation.sensitivity_corrected": "<span style=\"font-weight: bold;\">寻路转向角度与指令持续不符：实测转过的角度约为指令角度的 %d%%（正常应在 100%% 附近），该结果由 %d 拍转向样本拟合得出。已按该比例自动校正后续转向量，本次运行期间持续生效，无需手动调整游戏灵敏度或鼠标DPI；若之后改动了这些设置，请重启程序以重新测量。此提示不会中断任务。</span>",
+    "navigation.sensitivity_corrected": "<span style=\"font-weight: bold;\">寻路转向角度与指令持续不符：实测转过的角度约为指令角度的 %d%%（正常应在 100%% 附近），该结果由 %d 次单独转向测得。已按该比例自动校正后续转向量，本次运行期间持续生效，无需手动调整游戏灵敏度或鼠标DPI；若之后改动了这些设置，请重启程序以重新测量。此提示不会中断任务。</span>",
     "zipline.account_unknown": "<span style=\"color: red; font-weight: bold;\">本次寻路未使用滑索：初始化时未能获取当前游戏账号 UID，无法安全选择账号对应的滑索坐标。</span>本次将全程步行，不会尝试其他账号的数据。此提示不会中断任务。",
     "zipline.import_done": "UID %d：滑索坐标已更新，共 %d 条。共保存 %d 个账号的滑索坐标。",
     "zipline.import_login_ok": "登录成功，正在导入/更新滑索",

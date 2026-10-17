@@ -46,7 +46,9 @@
             "image": "送货任务_大世界_资源回收站_可交货.png",
             "hits": [
                 "AutoDeliveryCheckSubmitGoodsButton",
-                "AutoDeliveryCheckSubmitGoodsTarget"
+                "AutoDeliveryCheckSubmitGoodsTarget",
+                "AutoDeliverySubmitGoodsInteractScan",
+                "AutoDeliverySubmitGoodsInteractText"
             ]
         },
         {
@@ -54,7 +56,8 @@
             "image": "送货任务_大世界_NPC可交货.png",
             "hits": [
                 "AutoDeliveryCheckSubmitGoodsButton",
-                "AutoDeliveryCheckSubmitGoodsTarget"
+                "AutoDeliveryCheckSubmitGoodsTarget",
+                "AutoDeliverySubmitGoodsInteractScan"
             ]
         }
     ]

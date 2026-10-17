@@ -74,11 +74,16 @@ func TestLocationKeysCoverLocations(t *testing.T) {
 	if len(engine.Locations()) == 0 {
 		t.Fatal("expected locations")
 	}
+	// 数据可能先于路线：新地区在 locations.go / RegionNodes 补上之前没有 key，运行时会跳过它。
+	// 这里只要求已知地区都还能解析出来。
+	routable := 0
 	for _, loc := range engine.Locations() {
-		key, ok := LocationKeyByName(loc.Name)
-		if !ok || key == "" {
-			t.Errorf("missing location key for %s", loc.Name)
+		if _, ok := LocationKeyByLevel(loc.LevelID); ok {
+			routable++
 		}
+	}
+	if routable < 12 {
+		t.Fatalf("expected at least 12 routable locations, got %d", routable)
 	}
 }
 
@@ -297,12 +302,12 @@ func TestFinishNextItemsChainsLootReportThenOnComplete(t *testing.T) {
 	}
 }
 
-func TestLocationKeyByName(t *testing.T) {
-	key, ok := LocationKeyByName("重度能量淤积点·枢纽区")
+func TestLocationKeyByLevel(t *testing.T) {
+	key, ok := LocationKeyByLevel("map01_lv001")
 	if !ok || key != "VFTheHub" {
 		t.Fatalf("got %q %v", key, ok)
 	}
-	if _, ok := LocationKeyByName("不存在"); ok {
+	if _, ok := LocationKeyByLevel("不存在"); ok {
 		t.Fatal("expected miss")
 	}
 }

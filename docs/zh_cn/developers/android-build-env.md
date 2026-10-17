@@ -26,9 +26,9 @@
 
 | 要装的东西 | 干什么用的 | 怎么装 |
 | ---------------- | -------------------------------- | ----------------------------------------------------------------------------------- |
-| JDK 17 及以上 | 编译 App，Gradle 要用 | Windows `winget install Microsoft.OpenJDK.21`；macOS `brew install openjdk` |
+| JDK 17 及以上 | 编译 App，Gradle 要用 | Windows `winget install Microsoft.OpenJDK.21`；macOS `brew install openjdk@21`，再把 `$(brew --prefix openjdk@21)/bin` 加到 `PATH` 最前面（brew 不会自动加） |
 | Android SDK | 提供各种 Android 打包工具 | [1.1](#11-装-android-sdk) |
-| Android NDK | 交叉编译 C++ agent（cpp-algo） | `sdkmanager --install "ndk;29.0.13599879"` |
+| Android NDK | 交叉编译 C++ agent（cpp-algo），go-service 的 cgo 也用它的 clang | `sdkmanager --install "ndk;29.0.13599879"` |
 | CMake ≥ 3.28 | 配置并构建 cpp-algo | [1.2](#12-选一份-cmake) |
 | Go 1.25.6+ | 交叉编译 go-service | [超基础入门](./super-basic-introduction.md) 2.6 |
 | uv | 跑仓库里的 Python 脚本 | [快速开始](./getting-started.md) |
@@ -41,7 +41,7 @@
 
 ### 1.1 装 Android SDK
 
-1. 去 [Android 命令行工具下载页](https://developer.android.com/studio#command-line-tools-only) 下载对应系统的 zip，解压到你想放的位置，例如 `<SDK>/cmdline-tools/latest`。
+1. 去 [Android 命令行工具下载页](https://developer.android.com/studio#command-line-tools-only) 下载对应系统的 zip。zip 里是一个 `cmdline-tools` 文件夹，解压后把它改名为 `latest`，放到 `<SDK>/cmdline-tools/` 下（`<SDK>` 是你选的 SDK 目录），让 `sdkmanager` 位于 `<SDK>/cmdline-tools/latest/bin`。
 2. 把 `<SDK>/cmdline-tools/latest/bin` 和 `<SDK>/platform-tools` 加进 `PATH`。
 3. 装组件：
 
@@ -79,7 +79,7 @@ sdkmanager --install "ndk;29.0.13599879"
 
 ### 1.3 检查点
 
-不确定齐没齐？**先跑体检**，它会逐项列出缺什么、怎么装：
+不确定齐没齐？**先跑体检**，它会逐项列出缺什么、怎么修：
 
 ```bash
 uv run tools/build_android_agents.py --check-env
@@ -105,7 +105,7 @@ uv run tools/build_android_agents.py --check-env
 
 > [!WARNING]
 >
-> **光装好还不够，SDK 路径必须配上。** 不配的话体检第一项就会报 `ANDROID_HOME / ANDROID_SDK_ROOT is not set`。
+> **光装好还不够，SDK 路径必须配上。** 不配的话体检的 Android SDK 一项就会报 `ANDROID_HOME / ANDROID_SDK_ROOT is not set`。
 
 ---
 
@@ -115,7 +115,7 @@ uv run tools/build_android_agents.py --check-env
 uv run tools/build_android_agents.py --check-env
 ```
 
-它只报告、不安装，也不会去扫描磁盘找依赖。全绿就可以开始构建；有 MISS 就照着提示逐条修，每条都写了该设哪个环境变量、该装什么。
+它只报告、不安装，也不会去扫描磁盘找依赖；Go 只检查 `PATH` 上有没有，不核对版本。全绿就可以开始构建；有 MISS 就照着提示逐条修，每条都写了现状和修法。
 
 <details>
 <summary>体检过了应该长什么样</summary>
@@ -125,6 +125,7 @@ Android build environment check
   Windows AMD64, python 3.14.2
 
 OK  environment ready: JDK 17+, Android SDK, Android NDK, CMake >= 3.28, Ninja, Go, MaaUtils submodule
+run: uv run tools/build_android_agents.py
 ```
 
 第二行是你自己的系统和 Python 版本（macOS 上会是 `Darwin arm64`），**不用和上面完全一致**。
@@ -143,11 +144,11 @@ OK  environment ready: JDK 17+, Android SDK, Android NDK, CMake >= 3.28, Ninja, 
 
 > [!NOTE]
 >
-> 它被标成 `Warning:` 而不是 `Error:`，很容易一眼扫过去，但退出码是 **1**，而且只要命令里有一个包名写错，**整条命令都算失败**（其它包即使装好了也返回 1）。
+> 它被标成 `Warning:` 而不是 `Error:`，很容易一眼扫过去，但退出码是 **1**，而且只要命令里有一个包名写错，**整条命令都算失败**（同一条命令里的其它包也一个都不会装）。
 
 ### `Java version 17 or higher is required`
 
-`sdkmanager` 没找到 JDK。装一个 JDK 17+ 并设置 `JAVA_HOME`，然后重开一个终端再试。
+`sdkmanager` 找到的 Java 低于 17（`JAVA_HOME` 或 `PATH` 上的 `java` 太旧）。装一个 JDK 17+ 并设置 `JAVA_HOME`，然后重开一个终端再试。
 
 ### `CMake was unable to find a build program corresponding to "Ninja Multi-Config"`
 

@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <deque>
 #include <limits>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <thread>
@@ -290,23 +292,149 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
     return result;
 }
 
-// One usable fix, skipping frames the locator held or blacked out. Reads taken while walking lag behind, and the
-// residual is judged from one of them on purpose: at a walk the lag is small, and standing still to re-measure is
-// exactly what this replaced. False when nothing usable comes back within the frame budget.
-bool CaptureCleanFix(const Context& ctx, NaviPosition* out_pos)
+// All waits in precise approach are cancellable, including the time spent holding forward.
+bool wait_for_strict_settle(
+    std::chrono::steady_clock::duration duration,
+    std::chrono::steady_clock::time_point deadline,
+    const std::function<bool()>& should_stop)
 {
-    for (int frame = 0; frame < kStrictSettleFixMaxFrames; ++frame) {
-        if (frame > 0) {
-            utils::SleepFor(kStrictSettleFixIntervalMs);
+    const auto until = std::chrono::steady_clock::now() + duration;
+    if (until > deadline) {
+        return false;
+    }
+    while (!should_stop()) {
+        const auto now = std::chrono::steady_clock::now();
+        if (now >= until) {
+            return true;
         }
-        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
-            || ctx.position_provider->LastCaptureWasBlackScreen()) {
-            continue;
-        }
-        *out_pos = *ctx.position;
-        return true;
+        std::this_thread::sleep_for(std::min(until - now, std::chrono::steady_clock::duration(std::chrono::milliseconds(kTargetTickMs))));
     }
     return false;
+}
+
+// Only fresh, accepted matches and confidence-checked camera headings may drive the stopped measurements.
+bool capture_strict_goal_fix(
+    const Context& ctx,
+    NaviPosition* out_pos,
+    std::chrono::steady_clock::time_point deadline,
+    const std::function<bool()>& should_stop)
+{
+    for (int frame = 0; frame < kStrictSettleFixMaxFrames; ++frame) {
+        if (should_stop() || std::chrono::steady_clock::now() >= deadline) {
+            break;
+        }
+        if (frame > 0 && !wait_for_strict_settle(std::chrono::milliseconds(kStrictSettleFixIntervalMs), deadline, should_stop)) {
+            break;
+        }
+        if (!ctx.position_provider->captureForStrictGoal(out_pos, ctx.session->current_zone_id())) {
+            continue;
+        }
+        if (should_stop() || std::chrono::steady_clock::now() >= deadline) {
+            break;
+        }
+        *ctx.position = *out_pos;
+        return true;
+    }
+    ctx.position->valid = false;
+    return false;
+}
+
+bool CaptureStillFix(
+    const Context& ctx,
+    NaviPosition* out_pos,
+    std::chrono::steady_clock::time_point deadline,
+    const std::function<bool()>& should_stop)
+{
+    std::optional<NaviPosition> first;
+    int still_reads = 0;
+    for (;;) {
+        NaviPosition fix {};
+        if (!capture_strict_goal_fix(ctx, &fix, deadline, should_stop)) {
+            return false;
+        }
+        if (first && std::hypot(fix.x - first->x, fix.y - first->y) <= kStrictSettleStillWu) {
+            ++still_reads;
+        }
+        else {
+            first = fix;
+            still_reads = 1;
+        }
+        if (still_reads >= kStrictSettleStillReads) {
+            *out_pos = fix;
+            return true;
+        }
+        if (!wait_for_strict_settle(std::chrono::milliseconds(kStrictSettleFixIntervalMs), deadline, should_stop)) {
+            return false;
+        }
+    }
+}
+
+struct PulseResponse
+{
+    double hold_ms = 0.0;
+    double travel = 0.0;
+};
+
+// 同一进程就是同一台机器、同一条按键链路, 量到的对应关系跨点、跨任务都成立
+std::mutex g_pulse_mutex;
+std::deque<PulseResponse> g_pulse_responses;
+
+double MedianOf(std::vector<double> values)
+{
+    const auto mid = values.begin() + static_cast<std::ptrdiff_t>(values.size() / 2);
+    std::nth_element(values.begin(), mid, values.end());
+    return *mid;
+}
+
+void RecordPulseResponse(double hold_ms, double travel)
+{
+    const std::lock_guard<std::mutex> guard(g_pulse_mutex);
+    g_pulse_responses.push_back({ .hold_ms = hold_ms, .travel = travel });
+    if (g_pulse_responses.size() > kStrictSettlePulseHistory) {
+        g_pulse_responses.pop_front();
+    }
+}
+
+// 位移随按键时长线性增长, 截距是起步和刹车的固定位移。斜率取所有样本两两斜率的中位数, 截距取残差中位数,
+// 个别被吞键、蹭墙的样本拉不动它。时长拉不开时按比例估, 偏差留给下一下纠正。
+int PlanPulseHoldMs(double residual, int max_hold_ms)
+{
+    std::vector<PulseResponse> samples;
+    {
+        const std::lock_guard<std::mutex> guard(g_pulse_mutex);
+        samples.assign(g_pulse_responses.begin(), g_pulse_responses.end());
+    }
+    if (samples.empty()) {
+        return kStrictSettleProbeHoldMs;
+    }
+
+    std::vector<double> slopes;
+    for (size_t i = 0; i < samples.size(); ++i) {
+        for (size_t j = i + 1; j < samples.size(); ++j) {
+            const double spread_ms = samples[j].hold_ms - samples[i].hold_ms;
+            if (std::abs(spread_ms) >= kStrictSettlePulseSpreadMs) {
+                slopes.push_back((samples[j].travel - samples[i].travel) / spread_ms);
+            }
+        }
+    }
+
+    double hold_ms = 0.0;
+    const double slope = slopes.empty() ? 0.0 : MedianOf(slopes);
+    if (slope > 0.0) {
+        std::vector<double> intercepts;
+        for (const PulseResponse& sample : samples) {
+            intercepts.push_back(sample.travel - slope * sample.hold_ms);
+        }
+        hold_ms = (residual - MedianOf(intercepts)) / slope;
+    }
+    else {
+        std::vector<double> rates;
+        for (const PulseResponse& sample : samples) {
+            rates.push_back(sample.travel / sample.hold_ms);
+        }
+        hold_ms = residual / MedianOf(rates);
+    }
+    return std::clamp(static_cast<int>(std::lround(hold_ms)), kStrictSettleMinHoldMs, max_hold_ms);
 }
 
 template <typename CanCaptureFrame>
@@ -333,7 +461,7 @@ bool CaptureStableHeadingImpl(const Context& ctx, double* out_heading, const Can
 
 } // namespace
 
-bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
+bool TurnToHeadingOnce(const Context& ctx, double heading_delta, const std::function<bool()>& should_stop)
 {
     if (std::abs(heading_delta) <= 1.0) {
         return true;
@@ -345,6 +473,9 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
     const int step_interval_ms = std::max<int>(kHeadingTurnStepIntervalMs, profile.min_send_interval_ms);
     LogInfo << "Heading-only node turn." << VAR(heading_delta) << VAR(step_count) << VAR(step_deg);
     for (int step = 0; step < step_count; ++step) {
+        if (should_stop && should_stop()) {
+            return false;
+        }
         int units = static_cast<int>(std::lround(step_deg * ctx.action_wrapper->DefaultTurnUnitsPerDegree()));
         if (units == 0) {
             units = step_deg > 0.0 ? 1 : -1;
@@ -456,86 +587,114 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
     return achieved;
 }
 
-bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint)
+bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std::function<bool()>& should_stop)
 {
-    const auto started = std::chrono::steady_clock::now();
-    // 全程按着前进键: 松手再转镜头只有镜头会动, 角色朝向不变, 迈出去的那步还是走老方向。按着转才跟
-    // 主循环的操舵是同一回事, 走路态本身就慢, 也没有需要先刹掉的滑行
-    ctx.motion_controller->SetForwardState(true);
+    // Even cancellation, rejected commands and exceptions must leave movement released.
+    struct StopOnExit
+    {
+        const Context& ctx;
 
-    // The first leg measured is whatever the approach covered since the tick's fix, each later one is the step this
-    // loop walked. Either way its direction is where the character was pointing, which the minimap arrow can report
-    // flipped, and it costs no probe step. Its length doubles as the calibration that sizes the next step.
-    NaviPosition step_from = *ctx.position;
-    int step_ms = 0;
-    std::optional<double> heading;
-    double wu_per_ms = 0.0;
-    int stalled_steps = 0;
+        ~StopOnExit() { StopMotionAndCommitment(ctx); }
+    } stop_on_exit { ctx };
 
-    for (int correction = 0; correction <= kStrictSettleMaxCorrections; ++correction) {
-        NaviPosition fix {};
-        if (!CaptureCleanFix(ctx, &fix)) {
-            StopMotionAndCommitment(ctx);
-            LogWarn << "Strict arrival settle gave up: no locator fix." << VAR(correction);
-            return false;
+    StopMotionAndCommitment(ctx);
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(kStrictSettleBudgetMs);
+    const StrictSettleInputProfile& input =
+        ctx.action_wrapper->uses_touch_backend() ? kStrictSettleTouchProfile : kStrictSettleKeyboardProfile;
+    int pulses = 0;
+    double residual = std::numeric_limits<double>::infinity();
+    const auto incomplete = [&](const char* reason) {
+        LogWarn << "Strict arrival not verified." << VAR(reason) << VAR(residual) << VAR(pulses);
+        return false;
+    };
+    const auto verified = [&]() {
+        LogInfo << "Strict arrival verified after settling." << VAR(residual) << VAR(pulses) << VAR(ctx.position->x)
+                << VAR(ctx.position->y);
+        return true;
+    };
+
+    NaviPosition fix {};
+    if (!CaptureStillFix(ctx, &fix, deadline, should_stop)) {
+        return incomplete(should_stop() ? "cancelled" : "no_settled_fix");
+    }
+
+    std::optional<double> previous_residual;
+    for (;;) {
+        residual = std::hypot(waypoint.x - fix.x, waypoint.y - fix.y);
+        if (residual <= kStrictSettleAcceptBandWu) {
+            return verified();
+        }
+        if (pulses == kStrictSettleMaxPulses) {
+            return incomplete("pulse_budget_exhausted");
+        }
+        // Overshoots within measurement tolerance may turn around; a larger increase is divergence.
+        if (previous_residual && residual > *previous_residual + kStrictSettleAcceptBandWu) {
+            return incomplete("diverging");
+        }
+        if (!ctx.action_wrapper->SupportsWalkToggle()) {
+            return incomplete("walking_unavailable");
         }
 
-        const double travelled = std::hypot(fix.x - step_from.x, fix.y - step_from.y);
-        if (travelled >= kStrictSettleStalledStepWu) {
-            heading = NaviMath::CalcTargetRotation(step_from.x, step_from.y, fix.x, fix.y);
-            stalled_steps = 0;
-            if (step_ms > 0) {
-                wu_per_ms = travelled / static_cast<double>(step_ms);
+        int turns = 0;
+        double bearing = 0.0;
+        for (;;) {
+            bearing = NaviMath::CalcTargetRotation(fix.x, fix.y, waypoint.x, waypoint.y);
+            const double heading_delta = NaviMath::CalcDeltaRotation(*fix.camera_angle, bearing);
+            if (std::abs(heading_delta) <= kStrictSettleHeadingToleranceDeg) {
+                break;
+            }
+            if (turns == kStrictSettleMaxHeadingTurns) {
+                return incomplete("camera_not_aligned");
+            }
+            LogInfo << "Strict arrival aligning while stopped." << VAR(bearing) << VAR(heading_delta) << VAR(turns);
+            if (should_stop() || std::chrono::steady_clock::now() >= deadline || !TurnToHeadingOnce(ctx, heading_delta, [&]() {
+                    return should_stop() || std::chrono::steady_clock::now() >= deadline;
+                })) {
+                return incomplete(should_stop() ? "cancelled" : "view_turn_failed_or_budget_exhausted");
+            }
+            ++turns;
+            if (!wait_for_strict_settle(std::chrono::milliseconds(kWaitAfterFirstTurnMs), deadline, should_stop)
+                || !capture_strict_goal_fix(ctx, &fix, deadline, should_stop)) {
+                return incomplete(should_stop() ? "cancelled" : "camera_feedback_unavailable");
+            }
+            // Use actual feedback, never the heading the command was meant to achieve.
+            residual = std::hypot(waypoint.x - fix.x, waypoint.y - fix.y);
+            if (residual <= kStrictSettleAcceptBandWu) {
+                return verified();
             }
         }
-        else if (step_ms > 0) {
-            ++stalled_steps;
+
+        const int hold_ms = PlanPulseHoldMs(residual, input.max_hold_ms);
+        const auto settle_reserve =
+            std::chrono::milliseconds(hold_ms + input.slide_ms + kStrictSettleStillReads * kStrictSettleFixIntervalMs);
+        if (should_stop() || std::chrono::steady_clock::now() + settle_reserve >= deadline) {
+            return incomplete(should_stop() ? "cancelled" : "budget_exhausted");
+        }
+        LogInfo << "Strict arrival forward pulse." << VAR(residual) << VAR(hold_ms) << VAR(pulses);
+        previous_residual = residual;
+        ++pulses;
+        const NaviPosition from = fix;
+        ctx.motion_controller->SetForwardState(true);
+        const auto pressed_at = std::chrono::steady_clock::now();
+        ctx.position->valid = false; // no valid stopped measurement remains once movement begins
+        const bool held = wait_for_strict_settle(std::chrono::milliseconds(hold_ms), deadline, should_stop);
+        ctx.motion_controller->SetForwardState(false);
+        const double held_ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - pressed_at).count();
+        if (!held || !CaptureStillFix(ctx, &fix, deadline, should_stop)) {
+            return incomplete(should_stop() ? "cancelled" : "budget_exhausted");
         }
 
-        const double residual = std::hypot(waypoint.x - fix.x, waypoint.y - fix.y);
-        if (residual <= kStrictSettleAcceptBandWu) {
-            StopMotionAndCommitment(ctx);
-            LogInfo << "Strict arrival verified." << VAR(residual) << VAR(correction) << VAR(fix.x) << VAR(fix.y);
-            return true;
+        // 挪得太少或偏得太多的这一下是被地形挡了, 不代表按键时长和位移的关系
+        const double travel = std::hypot(fix.x - from.x, fix.y - from.y);
+        const double deflection =
+            std::abs(NaviMath::CalcDeltaRotation(bearing, NaviMath::CalcTargetRotation(from.x, from.y, fix.x, fix.y)));
+        const bool usable = travel >= kStrictSettleStillWu && deflection <= kStrictSettlePulseDirectionToleranceDeg;
+        if (usable) {
+            RecordPulseResponse(held_ms, travel);
         }
-
-        const int64_t elapsed_ms =
-            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started).count();
-        if (correction == kStrictSettleMaxCorrections || stalled_steps >= kStrictSettleStalledSteps
-            || elapsed_ms >= kStrictSettleBudgetMs) {
-            StopMotionAndCommitment(ctx);
-            LogWarn << "Strict arrival settle gave up, accepting on band." << VAR(residual) << VAR(correction) << VAR(stalled_steps)
-                    << VAR(elapsed_ms) << VAR(fix.x) << VAR(fix.y);
-            return false;
-        }
-
-        const double bearing = NaviMath::CalcTargetRotation(fix.x, fix.y, waypoint.x, waypoint.y);
-        const double from_heading = heading ? *heading : NaviMath::NormalizeHeading(fix.angle);
-        // Sized by what is left, floored at the stationary latch: a shorter step cannot be told apart from not having
-        // moved, so it would also destroy the only test for a step that is being blocked.
-        const double step_wu = std::max(residual, kStrictSettleMinStepWu);
-        const int step_hold_ms =
-            wu_per_ms > 0.0 ? std::clamp(static_cast<int>(std::lround(step_wu / wu_per_ms)), kStrictSettleMinStepMs, kStrictSettleMaxStepMs)
-                            : kStrictSettleStepMs;
-
-        LogInfo << "Strict arrival correcting." << VAR(residual) << VAR(bearing) << VAR(from_heading) << VAR(step_wu) << VAR(step_hold_ms)
-                << VAR(correction);
-        const auto step_started = std::chrono::steady_clock::now();
-        if (!TurnToHeadingOnce(ctx, NaviMath::CalcDeltaRotation(from_heading, bearing))) {
-            StopMotionAndCommitment(ctx);
-            LogWarn << "Strict arrival settle gave up: view delta rejected." << VAR(residual) << VAR(correction);
-            return false;
-        }
-        heading = bearing;
-        utils::SleepFor(step_hold_ms);
-
-        // 转身那阵子人也在走, 所以这一步有多长要按真实经过的时间算, 拿 sleep 的长度会把速度估高
-        step_from = fix;
-        step_ms = static_cast<int>(
-            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - step_started).count());
+        LogInfo << "Strict arrival pulse landed." << VAR(held_ms) << VAR(travel) << VAR(deflection) << VAR(usable);
+        // 下一轮先判这次停稳后的读数, 第三下之后也照样判
     }
-    StopMotionAndCommitment(ctx);
-    return false;
 }
 
 bool RunRecognitionNode(
@@ -637,9 +796,6 @@ Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
     }
     if (phase == NaviPhase::WaitFind) {
         return TickFindTarget(ctx);
-    }
-    if (phase == NaviPhase::WaitTrigger) {
-        return TickTriggerWait(ctx);
     }
     if (ctx.runtime_state->semantic.portal_transit_active) {
         return TickPortalTransit(ctx);
@@ -779,6 +935,7 @@ Result ArriveInteract(const Context& ctx, const Waypoint& waypoint, const std::o
         if (!recognized && waypoint.HasPosition() && node_idx && !approach.PromptMissedAt(node_idx)
             && actual_distance > kStrictSettleAcceptBandWu) {
             approach.prompt_missed_node = node_idx;
+            approach.missed_at = std::chrono::steady_clock::now();
             // 起步按已确认算: 否则要先挪够起步距离才放行到点判定, 走路模式也开不了, 剩下这一两个单位就是小跑冲过去的
             ctx.runtime_state->route.Reset();
             ctx.runtime_state->route.startup_anchor_pos = *ctx.position;

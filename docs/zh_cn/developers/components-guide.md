@@ -23,10 +23,10 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 
 | 改动类型 | 该看哪里 |
 | -------------------------------- | ------------------------------------- |
-| 界面文案、任务名、选项文案 | `assets/locales/interface/zh_cn.json` |
+| 界面文案、任务名、选项文案 | `assets/locales/interface/*.json`（全部语言） |
 | 任务编排、入口节点、UI 选项 | `assets/tasks/**/*.json` |
 | 识别、点击、跳转、等待、流程细节 | `assets/resource/pipeline/**/*.json` |
-| 复杂逻辑（算法、遍历、计算） | `agent/go-service/**` |
+| 复杂逻辑（算法、遍历、计算） | `agent/go-service/**`；单个识别算法（OpenCV / ONNX）在 `agent/cpp-algo/**` |
 | 跨业务通用工具（And 解包、表达式、OCR 数值、i18n…） | `agent/go-service/pkg/**`（[文档](./go-service-pkg.md)） |
 
 ## Pipeline 可复用节点
@@ -66,6 +66,12 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 | AutoStockpile 自动囤货 | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md) |
 | DijiangRewards 基建任务 | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
 | CreditShopping 信用点商店 | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
+| AutoStockStaple 稳定需求物资 | [tasks/auto-stockstaple-maintain.md](./tasks/auto-stockstaple-maintain.md) |
+| EnvironmentMonitoring 环境监测 | [tasks/environment-monitoring-maintain.md](./tasks/environment-monitoring-maintain.md) |
+| OutpostTrading 据点交易 | [tasks/outpost-trading-maintain.md](./tasks/outpost-trading-maintain.md) |
+| SeizeDeliveryJobs 抢委托送货 | [tasks/seize-delivery-jobs-maintain.md](./tasks/seize-delivery-jobs-maintain.md) |
+| GiftOperator 赠送干员礼物 | [tasks/gift-operator-maintain.md](./tasks/gift-operator-maintain.md) |
+| DeliveryJobs 转交委托 | [tasks/delivery-jobs-maintain.md](./tasks/delivery-jobs-maintain.md) |
 
 ## 外部文档
 

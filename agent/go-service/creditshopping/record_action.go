@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -63,12 +63,8 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		return true
 	}
 
-	ctrlType, err := control.ResolveControlType(ctrl)
-	if err != nil {
-		log.Warn().Err(err).Str("component", component).Msg("record: controller type unknown, use Win32 7+3 layout")
-		ctrlType = control.CONTROL_TYPE_WIN32
-	}
-	layout := recordLayoutFromControlType(ctrlType)
+	kind := pienv.ResolveControllerKind(ctrl)
+	layout := recordLayoutFromControllerKind(kind)
 
 	slots := RecordShelfFromImage(ctx, img, layout)
 	if len(slots) == 0 {

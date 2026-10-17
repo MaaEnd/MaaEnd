@@ -54,6 +54,8 @@ Regions and tiers currently used in the repository:
 | `Tier2` | Large |
 | `Tier3` | Extreme |
 
+Price thresholds are produced only by the "region base + tier base + weekday adjustment" formula in `strategy.go`; there is no longer a JSON configuration entry, so adjusting the thresholds requires changing that formula.
+
 ## Adding an Item
 
 When adding a new item, two parts need to be maintained: the **item mapping** and the **template image**.
@@ -74,7 +76,7 @@ Add a new mapping from the item's Chinese name to the item ID under `zh_cn`:
 
 ### 2. Add Template Image
 
-Save a screenshot of the item detail page to the corresponding directory:
+Crop the item's picture from the elastic-demand goods list and save it to the corresponding directory:
 
 ```text
 assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
@@ -143,7 +145,7 @@ File: `assets/resource/pipeline/AutoStockpile/Main.json`
 
 File: `assets/resource/pipeline/AutoStockpile/DecisionLoop.json`
 
-Add a new `AutoStockpileDecision{NewRegion}` node, and write `"Region": "{NewRegion}"` in `action.param.custom_action_param`.
+Add a new `AutoStockpileDecision{NewRegion}` node, and write `"Region": "{NewRegion}"` in `action.param.custom_action_param`; if the new region's cash icon on the detail page differs from the existing ones, also add the new template to the `template` of `AutoStockpileEnsureCashAnchor`.
 
 ### 5. Go Logic
 
@@ -188,14 +190,14 @@ Recognition scans the elastic goods shelf for **at most two pages** so items bel
 4. Merge by goods **ID** (on duplicates keep the first-screen entry; IDs seen only after the swipe go into `SecondPageOnlyIDs`). Internally screens are page0 = first screen, page1 = second screen (0-based); the field means **second-screen-only (page1)**, not the first screen (page0).
 5. Run `AutoStockpileSwipeShelfUp` to restore the first screen.
 
-If swipe/second-screen scan fails, fall back to first-screen results without aborting.
+If the swipe down or the second-screen capture/scan fails, fall back to first-screen results without aborting; a failed swipe back up only logs a warning, and the merged results are still used.
 
 After selection:
 
-- If the chosen ID is in `SecondPageOnlyIDs` (second-screen / page1 only), swipe down once more before `AutoStockpileSelectedGoodsClick`.
+- If the chosen ID is in `SecondPageOnlyIDs` (visible only on the second screen / page1, e.g. the last row), `AutoStockpileSwipeShelfDown` runs once more before the click, and `AutoStockpileSelectedGoodsClick` then performs the template click.
 - If the item was already on the first screen (page0), click without an extra swipe.
 
 Swipe nodes:
 
 - Win32 default: `DoNothing` in `assets/resource/pipeline/AutoStockpile/Helper.json` (full list fits one screen).
-- ADB / PlayCover: real `Swipe` override in `assets/resource_adb/pipeline/AutoStockpile/Helper.json` (with horizontal end segment and `end_hold`). Coordinates are 720p; tune ADB `begin` / `end` and `post_wait_freezes.target` if devices miss or over-scroll.
+- ADB / PlayCover: real `Swipe` override in `assets/resource_adb/pipeline/AutoStockpile/Helper.json` (with horizontal end segment and `end_hold`). Coordinates are 720p; if real devices miss items or show too many duplicates, first tune the ADB-side `begin` / `end` and `post_wait_freezes.target`.

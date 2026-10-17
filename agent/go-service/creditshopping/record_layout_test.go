@@ -104,13 +104,17 @@ func TestRecordMatchItemsToSlots(t *testing.T) {
 	})
 }
 
-func TestRecordLayoutFromControlType(t *testing.T) {
-	adb := recordLayoutFromControlType("adb")
+func TestRecordLayoutFromControllerKind(t *testing.T) {
+	adb := recordLayoutFromControllerKind("adb")
 	if adb.topRow != 5 || adb.bottomRow != 5 {
 		t.Fatalf("adb layout = %+v", adb)
 	}
-	pc := recordLayoutFromControlType("win32")
+	pc := recordLayoutFromControllerKind("win32")
 	if pc.topRow != 7 || pc.bottomRow != 3 {
 		t.Fatalf("win32 layout = %+v", pc)
+	}
+	unknown := recordLayoutFromControllerKind("")
+	if unknown.topRow != 7 || unknown.bottomRow != 3 {
+		t.Fatalf("unknown layout = %+v", unknown)
 	}
 }

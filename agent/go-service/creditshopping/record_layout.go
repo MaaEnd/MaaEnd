@@ -5,7 +5,7 @@ import (
 	"sort"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/rs/zerolog/log"
 )
 
@@ -21,8 +21,10 @@ type recordShelfLayout struct {
 	bottomRow int
 }
 
-func recordLayoutFromControlType(controlType string) recordShelfLayout {
-	if controlType == control.CONTROL_TYPE_ADB {
+// recordLayoutFromControllerKind 按控制器类型返回货架骨架：触摸端（ADB / PlayCover /
+// 原生 Android）5+5，桌面端 7+3；类型未知时也按桌面处理。
+func recordLayoutFromControllerKind(kind string) recordShelfLayout {
+	if pienv.IsAdbLikeControllerType(kind) {
 		return recordShelfLayout{topRow: 5, bottomRow: 5}
 	}
 	return recordShelfLayout{topRow: 7, bottomRow: 3}

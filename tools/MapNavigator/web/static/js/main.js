@@ -376,6 +376,7 @@ class MapNavigatorApp {
       previewCoordX: $("preview-coord-x"),
       previewCoordY: $("preview-coord-y"),
       btnPreviewMark: $("btn-preview-mark"),
+      btnPreviewClear: $("btn-preview-clear"),
       btnPreviewCopyCoord: $("btn-preview-copy-coord"),
       btnPreviewCopyNavmesh: $("btn-preview-copy-navmesh"),
       coordinatePreviewDropdown: $("coordinate-preview-dropdown"),
@@ -958,6 +959,7 @@ class MapNavigatorApp {
   _wireEvents() {
     const e = this.els;
     e.btnPreviewMark.addEventListener("click", () => this._markPreviewCoordinate());
+    e.btnPreviewClear.addEventListener("click", () => this._clearPreviewPoint());
     e.btnPreviewCopyCoord.addEventListener("click", () => this._copyPreviewPoint("coordinates"));
     e.btnPreviewCopyNavmesh.addEventListener("click", () => this._copyPreviewPoint("navmesh"));
     for (const entry of [e.previewCoordX, e.previewCoordY]) {
@@ -3110,6 +3112,17 @@ class MapNavigatorApp {
     if (this._is3DView()) this._setViewMode("2d", {announce: false});
     this._focusEditLocateHint();
     setStatus(`已标出预览点: [${x}, ${y}]（${endpoint.positionZone}）。`, "#10b981");
+  }
+
+  /** Remove the reference marker (coordinate preview or game position); author points stay untouched. */
+  _clearPreviewPoint() {
+    if (!this.editLocateHint) {
+      setStatus("当前没有预览点。", "#f59e0b");
+      return;
+    }
+    this.editLocateHint = null;
+    setStatus("已清除预览点。", "#10b981");
+    this._paint();
   }
 
   /**
@@ -6031,6 +6044,10 @@ class MapNavigatorApp {
       this._clearEditPreviewStart();
       setStatus("已删除手动规划起点。", "#10b981");
       this._paint();
+      return;
+    }
+    if (this.state.selectedIndices.size === 0 && this._editLocateHintForDisplay()) {
+      this._clearPreviewPoint();
       return;
     }
     const result = this.state.editDeleteSelected();

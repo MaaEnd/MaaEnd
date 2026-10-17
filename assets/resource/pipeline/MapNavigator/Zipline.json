@@ -23,19 +23,16 @@
                 "threshold": 0.9
             }
         },
+        // 只等图标本身稳定：背景常动，等整块区域静止会等到菜单消失
         "pre_wait_freezes": {
             "time": 300,
-            "target": [
-                755,
-                330,
-                297,
-                312
-            ]
+            "target": true
         },
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "MapNavigatorZiplineMount"
+            "MapNavigatorZiplineMount",
+            "MapNavigatorZiplineMountEnd"
         ]
     },
     "MapNavigatorZiplineMountRetryWaitFreezes": {
@@ -48,7 +45,8 @@
                 330,
                 297,
                 312
-            ]
+            ],
+            "timeout": 2000
         },
         "pre_delay": 0,
         "post_delay": 0,

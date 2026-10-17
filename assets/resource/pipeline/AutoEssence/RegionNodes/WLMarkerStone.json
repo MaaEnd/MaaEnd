@@ -13,6 +13,7 @@
     },
     "GotoTriggerPointMaybeTeleport_WLMarkerStone": {
         "desc": "强制传送到最近锚点后前往激发点",
+        "max_hit": 3, // 连续传送重走的上限，计数在 AutoEssenceDispatcher 清零
         "action": {
             "type": "Custom",
             "param": {
@@ -83,13 +84,14 @@
                         {
                             "action": "INTERACT",
                             "target": [
-                                319.17,
-                                2318.36
+                                318.12,
+                                2318.38
                             ],
                             "strict_arrival": true,
                             "interact_text": {
                                 "node": "__AutoEssenceRecoApproachInteractText"
                             },
+                            "interact_scan": "__AutoEssenceRecoApproachInteractScan",
                             "interact_rec": true
                         }
                     ]

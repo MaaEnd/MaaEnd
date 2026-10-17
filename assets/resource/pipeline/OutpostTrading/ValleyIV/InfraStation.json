@@ -337,7 +337,7 @@
                     90
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -358,7 +358,7 @@
         "recognition": "And",
         "all_of": [
             "OutpostTradingOperatorAlreadyAssignedPrompt",
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -788,7 +788,7 @@
                     90
                 ]
             },
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -809,7 +809,7 @@
         "recognition": "And",
         "all_of": [
             "OutpostTradingOperatorAlreadyAssignedPrompt",
-            "CancelButton"
+            "GrayCancelButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -1234,10 +1234,16 @@
         ]
     },
     "OutpostTradingInfraStationBetterSliding": {
-        "desc": "基建前站使用 BetterSliding 设置售卖数量",
+        "desc": "[运行时覆盖] 基建前站使用 BetterSliding 设置售卖数量",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "BetterSliding",
+        // 下面这份参数是「全部卖出」的默认形态。OutpostTradingReserveSession（operation=apply）会在运行时
+        // 给本节点注入 attach.TargetQuantity / attach.ReverseTarget，BetterSliding 读 attach 时会用它覆盖
+        // 同名参数（agent/go-service/bettersliding/params.go 的 mergeAttachParams）：
+        //   · 普通货品配了保留规则 → attach.TargetQuantity=保留数量、ReverseTarget=true（只卖超出保留量的部分）
+        //   · 普通货品没配保留规则 → attach.TargetQuantity=999999、ReverseTarget=false（全部卖出）
+        //   · 活动货品 → 按活动额度整批卖出，attach.TargetQuantity=额度、ReverseTarget=false
         "custom_action_param": {
             "TargetQuantity": 999999,
             "ClampTargetToSliderMax": true,
@@ -1268,18 +1274,27 @@
             "IncreaseButton": {
                 "template": "OutpostTrading/IncreaseButton.png"
             },
+            // 这两个字段把本次滑动的判定回传给调用方：BetterSliding 每次结束都会把其中一个节点置 enabled=true，
+            // 另一个（若配置了）置 false。目标越界（调不到目标数量）→ AlreadySatisfied 置真；
+            // 目标可达 → QuantityReached 置真。两个结果节点本身静态都是 enabled:false。
+            // 判定语义见 docs/zh_cn/developers/components/better-sliding.md。
             "OutOfRangeOverrideEnable": "OutpostTradingReserveAlreadySatisfied",
             "TargetReachableOverrideEnable": "OutpostTradingReserveQuantityReached"
         },
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
+        // next 运行时由 OutpostTradingReserveSession 覆写（与上面注入 attach 的是同一次调用）：
+        //   · 普通货品按保留规则卖 → [OutpostTradingReserveAlreadySatisfied, OutpostTradingSellThenLoop]
+        //   · 普通货品全卖 / 活动货品按额度整批卖 → [OutpostTradingSell]
+        // 活动货品额度不足一件时不会走到本节点：会话会把 ApplyReserve 的 next 直接换成 OutpostTradingSellLoopEnd。
+        // 静态这份就是「未被覆写时全部卖出」的默认走向。
         "next": [
             "OutpostTradingSell"
         ]
     },
     "OutpostTradingInfraStationApplyReserve": {
-        "desc": "基建前站应用当前货品的独立保留规则",
+        "desc": "[运行时覆盖] 基建前站应用当前货品的独立保留规则",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -1287,10 +1302,15 @@
         "custom_action_param": {
             "operation": "apply",
             "location": "InfraStation",
+            // sliding_node 就是本次覆写的目标：会话改它的 next 与 attach（保留数量 / 反向计数）。
+            // 该节点在本文件里以 <地点>BetterSliding 定义。
             "sliding_node": "OutpostTradingInfraStationBetterSliding"
         },
         "post_delay": 0,
         "rate_limit": 0,
+        // next 运行时由本节点自己的 OutpostTradingReserveSession（operation=apply）覆写，每次执行都会重写：
+        // 一般情况仍指回 sliding_node 指定的 <地点>BetterSliding；活动货品额度不足一件时换成
+        // OutpostTradingSellLoopEnd（该物品无处可卖，直接收尾）。静态值只表示默认走向。
         "next": [
             "OutpostTradingInfraStationBetterSliding"
         ]

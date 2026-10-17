@@ -1,6 +1,6 @@
 {
-    "__AutoEssenceRecoEssenceTrigger": {
-        "desc": "正式识别并点击激发的大世界按钮（ADB）",
+    "__AutoEssenceRecoEssenceTriggerButton": {
+        "desc": "寻找激发的大世界按钮（仅识别，ADB）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -13,6 +13,36 @@
                 "template": "AdbOnly/AutoEssence/EssenceTrigger.png",
                 "green_mask": true,
                 "threshold": 0.75
+            }
+        }
+    },
+    "__AutoEssenceRecoApproachInteractScan": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    720,
+                    330,
+                    332,
+                    312
+                ],
+                "template": [
+                    "AdbOnly/AutoEssence/EssenceTrigger.png",
+                    "MapNavigator/ObstacleDevice/InteractButton.png"
+                ]
+            }
+        }
+    },
+    // 领奖时列表标题行也带这枚图标，图标旁的字确实是激发才算命中
+    "AutoEssenceClickTriggerButton": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEssenceRecoEssenceTriggerButton",
+                    "__AutoEssenceRecoEssenceTriggerText"
+                ],
+                "box_index": 0
             }
         }
     },
@@ -89,6 +119,45 @@
                         -75
                     ]
                 }
+            }
+        }
+    },
+    "__AutoEssenceEngraveCondition1HighlightColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    715,
+                    540,
+                    330,
+                    45
+                ]
+            }
+        }
+    },
+    "__AutoEssenceEngraveCondition2HighlightColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1055,
+                    540,
+                    170,
+                    45
+                ]
+            }
+        }
+    },
+    "AutoEssenceFindAttributeSelection": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1080,
+                    485,
+                    160,
+                    52
+                ]
             }
         }
     }

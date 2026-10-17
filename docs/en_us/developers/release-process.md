@@ -46,13 +46,13 @@ The following content is intended for maintainers (those with release permission
 ### Release Cycle
 
 ```text
-Daily     Beta (vX.Y.Z-beta.N) → Based on v2 (No Beta on Thursdays; RC is released instead)
+Daily         Beta (vX.Y.Z-beta.N) → Based on v2 (No Beta on Thursdays; RC is released instead)
     Thursday  RC (vX.Y.Z-rc.N) → Based on v2
-           ├─ CI automatically creates the release/vX.Y branch
-           └─ Thereafter, the release branch only accepts fix PRs
+              ├─ CI automatically creates the release/vX.Y branch
+              └─ Thereafter, the release branch only accepts fix PRs
     Friday    Stable (vX.Y.0) → Based on release/vX.Y
-           ├─ CI automatically cleans up old release/v* branches
-           └─ Hotfixes (vX.Y.1, vX.Y.2 …) can be released as needed
+              ├─ CI automatically cleans up old release/v* branches
+              └─ Hotfixes (vX.Y.1, vX.Y.2 …) can be released as needed
 ```
 
 ### Release Operations
@@ -72,13 +72,13 @@ Daily     Beta (vX.Y.Z-beta.N) → Based on v2 (No Beta on Thursdays; RC is rele
 ### Hotfix Process
 
 1. Create a fix branch based on `release/vX.Y`, commit the fix.
-2. Submit a PR to `release/vX.Y` and merge it.
-3. CI automatically cherry-picks to `v2`, resulting in a PR on v2 with the message `fix: cherry-pick #N from release/vX.Y to v2` — **just merge it directly**.
+2. Submit a PR to `release/vX.Y` and squash-merge it (only a commit title ending in `(#N)` triggers the automatic cherry-pick).
+3. CI automatically cherry-picks to `v2`, resulting in a PR on v2 titled `<original PR title> (cherry-pick of #N)` — **just merge it directly**.
 4. Create a new tag on the release branch (e.g., `v2.16.1`) to trigger the release.
 
 ### Handling Conflicts in Cherry-pick PRs
 
-Manually resolve the conflicts, push the fix to the `fix/pr-N` branch, and then merge.
+If the cherry-pick itself conflicts in CI, the workflow fails without pushing `fix/pr-N` or opening a PR: create `fix/pr-N` from `v2` yourself, cherry-pick and resolve the conflicts, push it, open the PR to `v2`, and add `[skip changelog]` to the PR description. If the PR already exists and only later conflicts with `v2`, manually resolve the conflicts, push the fix to the `fix/pr-N` branch, and then merge.
 
 ### When are Old Release Branches Deleted?
 

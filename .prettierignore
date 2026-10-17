@@ -10,13 +10,13 @@ agent/cpp-algo/source/IconRecognition/test/output/
 assets/resource/model/
 agent/cpp-algo/MaaUtils/
 tests/MaaEndTestset/
+Android/MaaFwApp/
 
 # 跳过 schema 目录，避免与 sync_schema_files 冲突
 tools/schema/
 
 # 从 zmdmap 获取的数据不需要格式化
-assets/data/ZmdMap/
-tools/pipeline-generate/data/*.json
+tools/zmdmap/data/*.json
 assets/data/AutoDelivery/delivery_destinations.json
 
 # 锁文件

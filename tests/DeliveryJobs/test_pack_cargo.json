@@ -49,12 +49,6 @@
             ]
         },
         {
-            "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请.png",
-            "hits": [
-                "DeliveryJobsInCargoRedistributionBid"
-            ]
-        },
-        {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请_有待运送的货物.png",
             "hits": [
                 "DeliveryJobsOngoingDelivery",

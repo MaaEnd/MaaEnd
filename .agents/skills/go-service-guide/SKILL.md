@@ -13,7 +13,7 @@ Go Service 仅处理 Pipeline 无法覆盖的复杂逻辑（图像算法、状�
 
 ## 目录结构
 
-```
+```text
 agent/go-service/
 ├── main.go                     # 入口：初始化、registerAll、启动 AgentServer
 ├── register.go                 # registerAll() 聚合各子包 Register()

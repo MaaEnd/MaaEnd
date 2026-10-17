@@ -3,11 +3,12 @@ package closegame
 import (
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
-	gamesetting "github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
+	gamesetting "github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/gamesetting"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/shirou/gopsutil/v4/process"
@@ -159,6 +160,11 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	if !params.ApplyGameSetting {
 		log.Info().Msg("CloseGameAction: skip game settings")
+		return true
+	}
+
+	if runtime.GOOS != "windows" {
+		log.Info().Msg("CloseGameAction: game settings are only supported on windows, skipped")
 		return true
 	}
 

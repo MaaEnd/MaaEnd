@@ -159,6 +159,7 @@
             "SharedZiplineDelete/MapSharedZipLine2.png"
         ],
         "green_mask": true,
+        "pre_wait_freezes": 100,
         "action": "Click",
         "post_wait_freezes": {
             "time": 100,
@@ -281,7 +282,8 @@
                     255
                 ],
                 "connected": false,
-                "count": 15
+                // 共享滑索图标实测 13~22 个蓝色像素，非共享为 0
+                "count": 8
             }
         ],
         "box_index": 0,
