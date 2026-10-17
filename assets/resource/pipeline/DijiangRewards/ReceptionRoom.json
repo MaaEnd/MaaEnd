@@ -1369,16 +1369,19 @@
     "ReceptionRoomSendCluesSendMain": {
         "desc": "[会客室·线索] 赠送主节点：1-7 任一有可送线索时命中，统一消耗最大赠送次数",
         "recognition": {
-            "type": "Or",
+            "type": "OCR",
             "param": {
-                "any_of": [
-                    "ReceptionRoomSendClueOne",
-                    "ReceptionRoomSendClueTwo",
-                    "ReceptionRoomSendClueThree",
-                    "ReceptionRoomSendClueFour",
-                    "ReceptionRoomSendClueFive",
-                    "ReceptionRoomSendClueSix",
-                    "ReceptionRoomSendClueSeven"
+                "roi": [
+                    11,
+                    6,
+                    360,
+                    51
+                ],
+                "expected": [
+                    "赠予自有线索",
+                    "贈予自有線索",
+                    "(?i)Send\\s*Local\\s*Clues",
+                    "譲り渡す"
                 ]
             }
         },
@@ -1412,6 +1415,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 1000,
             "target": [
                 1128,
                 0,
@@ -1441,6 +1445,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 1000,
             "target": [
                 1128,
                 0,
@@ -1470,6 +1475,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 1000,
             "target": [
                 1128,
                 0,
@@ -1499,6 +1505,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 1000,
             "target": [
                 1128,
                 0,
@@ -1528,6 +1535,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 1000,
             "target": [
                 1128,
                 0,
@@ -1557,6 +1565,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 1000,
             "target": [
                 1128,
                 0,
@@ -1586,6 +1595,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
+            "time": 1000,
             "target": [
                 1128,
                 0,

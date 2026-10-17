@@ -678,7 +678,25 @@
                     "name": "1",
                     "label": "$option.ClueStockLimit.cases.1.label",
                     "pipeline_override": {
-                        "ClueItemCount": {
+                        "ClueOneCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSevenCount": {
                             "expected": "^(?:[2-9]|[1-9]\\d+)$"
                         }
                     }
@@ -687,7 +705,25 @@
                     "name": "2",
                     "label": "$option.ClueStockLimit.cases.2.label",
                     "pipeline_override": {
-                        "ClueItemCount": {
+                        "ClueOneCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        },
+                        "ClueSevenCount": {
                             "expected": "^(?:[3-9]|[1-9]\\d+)$"
                         }
                     }
