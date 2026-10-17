@@ -1405,7 +1405,6 @@
     "option.CloseGamePCGameSettingGraphicsQuality.cases.Unchanged.label": "変更しない",
     "option.CloseGamePCGameSettingGraphicsQuality.cases.VeryLow.label": "最低",
     "option.CloseGamePCGameSettingGraphicsQuality.label": "画質",
-    "option.CloseGamePCGameSettingLanguage.description": "次回のゲーム起動時に反映されます。タスク終了後に普段使う言語へ戻す用途向けです。",
     "option.CloseGamePCGameSettingResolution.label": "解像度",
     "option.CloseGamePCGameSettingResolutionHeight.label": "高さ",
     "option.CloseGamePCGameSettingResolutionWidth.label": "幅",

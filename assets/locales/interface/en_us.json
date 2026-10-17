@@ -1405,7 +1405,6 @@
     "option.CloseGamePCGameSettingGraphicsQuality.cases.Unchanged.label": "Do not change",
     "option.CloseGamePCGameSettingGraphicsQuality.cases.VeryLow.label": "Very Low",
     "option.CloseGamePCGameSettingGraphicsQuality.label": "Graphics Quality",
-    "option.CloseGamePCGameSettingLanguage.description": "Takes effect the next time the game launches. Use this to restore your usual language after a run.",
     "option.CloseGamePCGameSettingResolution.label": "Resolution",
     "option.CloseGamePCGameSettingResolutionHeight.label": "Height",
     "option.CloseGamePCGameSettingResolutionWidth.label": "Width",

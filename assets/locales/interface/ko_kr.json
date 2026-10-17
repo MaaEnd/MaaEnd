@@ -1405,7 +1405,6 @@
     "option.CloseGamePCGameSettingGraphicsQuality.cases.Unchanged.label": "변경 안 함",
     "option.CloseGamePCGameSettingGraphicsQuality.cases.VeryLow.label": "매우 낮음",
     "option.CloseGamePCGameSettingGraphicsQuality.label": "화질",
-    "option.CloseGamePCGameSettingLanguage.description": "다음 게임 실행 시 적용됩니다. 작업이 끝난 뒤 평소 사용 언어로 되돌릴 때 사용하세요.",
     "option.CloseGamePCGameSettingResolution.label": "해상도",
     "option.CloseGamePCGameSettingResolutionHeight.label": "세로",
     "option.CloseGamePCGameSettingResolutionWidth.label": "가로",

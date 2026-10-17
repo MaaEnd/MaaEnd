@@ -1405,7 +1405,6 @@
     "option.CloseGamePCGameSettingGraphicsQuality.cases.Unchanged.label": "不修改",
     "option.CloseGamePCGameSettingGraphicsQuality.cases.VeryLow.label": "極低",
     "option.CloseGamePCGameSettingGraphicsQuality.label": "畫面品質",
-    "option.CloseGamePCGameSettingLanguage.description": "下次啟動遊戲時生效。可用於任務結束後把語言改回日常使用的語言。",
     "option.CloseGamePCGameSettingResolution.label": "解析度",
     "option.CloseGamePCGameSettingResolutionHeight.label": "高",
     "option.CloseGamePCGameSettingResolutionWidth.label": "寬",
