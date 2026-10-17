@@ -1,4 +1,4 @@
-"""读取本地游戏数据。
+"""读取本地游戏数据，以及从读进来的记录里取值、建索引。
 
 各份数据的 ``Dataset.build`` 只从本地游戏数据的表目录取数据：
 
@@ -6,8 +6,19 @@
   ``I18nTextTable_{CN,TC,EN,JP,KR}.json``；
 - JsonData：``<workspace>/BeyondMemoryPack/JsonData``，数据在 ``GameplayConfig/<表名>.json``。
 
-目录默认取与 MaaEnd 平级的兄弟仓库（见 :mod:`tools.zmdmap.paths`），可用 CLI 参数或环境变量
+目录默认取与 MaaEnd 平级的兄弟仓库（见 :mod:`tools.zmdmap.utils.config`），可用 CLI 参数或环境变量
 覆盖。读出来的 JSON 换成属性可访问的 ``Record``，``build`` 里就能直接写 ``entry.position.x``。
+
+记录里常取的另两类东西也在这里：
+
+- **世界坐标**：:func:`read_xz` / :func:`read_xyz` 从坐标记录取 x/z 或 x/y/z（y 是世界高度，原样透传给
+  NAVMESH 终点）。投影参数（``zone`` / ``sx`` / ``tx`` / ``sy`` / ``ty``）与底图像素属于 BaseNav pack，
+  只有 MaaEnd 手里有，换算由入库步骤（:mod:`tools.zmdmap.utils.project`）完成。
+- **关卡归属**：:func:`map_of_level` / :func:`build_level_index` / :func:`level_of` 走「ID 前缀 -> 关卡 ->
+  底图」。地图标记的分组 key 与世界实体 ID，除以 10^8 就是 ``LevelBasicInfoTable`` 的 ``idNum``，再由
+  关卡 ID 推出它挂在哪张底图上；``teleport_anchors`` 与 ``collect_points`` 共用这一套。
+
+数据文件里不放字段说明，说明写在 ``datasets/`` 的模块与文档里。
 """
 
 from __future__ import annotations
@@ -16,9 +27,9 @@ import json
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
-from ..constants import I18N_TABLE_SUFFIXES
+from .config import I18N_TABLE_SUFFIXES
 
 
 class Record(dict[str, Any]):
@@ -106,7 +117,7 @@ def read_gameplay_config(json_data_dir: Path, name: str) -> Record:
 
 
 # ``WorldEntityRegistry`` 里有几十条实体没有 ``detailId``：读进来时补上默认值，
-# 免得 ``build_*`` 里取值时分情况。
+# 免得各份数据的 ``build`` 里取值时分情况。
 WORLD_ENTITY_BRIEF_DEFAULTS = {"detailId": "", "position": {}}
 
 
@@ -176,3 +187,72 @@ def _inline_text(ref: Any) -> str:
     """文本引用里直接带的那份文本（没有就是空串）。"""
     inline = ref.get("text") if isinstance(ref, dict) else ""
     return inline if isinstance(inline, str) else ""
+
+
+# ── 世界坐标 ────────────────────────────────────────────────────────────────
+
+
+class CoordinateError(ValueError):
+    """坐标记录缺字段或不是数值。"""
+
+
+def _read_axes(pos: Any, axes: tuple[str, ...], label: str) -> tuple[float, ...]:
+    if not isinstance(pos, dict):
+        raise CoordinateError(f"{label} 不是坐标记录")
+    record = cast("dict[str, Any]", pos)
+    values: list[float] = []
+    for axis in axes:
+        number = record.get(axis)
+        if not isinstance(number, (int, float)) or isinstance(number, bool):
+            raise CoordinateError(f"{label} 缺少或不是数值的 {axis}")
+        values.append(float(number))
+    return tuple(values)
+
+
+def read_xz(pos: Any, label: str) -> tuple[float, float]:
+    """从坐标记录取 (x, z)；缺字段时报出是哪条数据。"""
+    x, z = _read_axes(pos, ("x", "z"), label)
+    return x, z
+
+
+def read_xyz(pos: Any, label: str) -> tuple[float, float, float]:
+    """从坐标记录取 (x, y, z)；y 是世界高度，原样透传给 NAVMESH 终点。"""
+    x, y, z = _read_axes(pos, ("x", "y", "z"), label)
+    return x, y, z
+
+
+# ── 关卡归属 ────────────────────────────────────────────────────────────────
+
+ID_LEVEL_FACTOR = 10**8
+# indie_dgXXX 各自一张底图，其余关卡按 mapXX / base01 / dung01 归图。
+INDIE_LEVEL_HEAD = "indie"
+
+
+class LevelIndexError(ValueError):
+    """关卡编号表有问题。"""
+
+
+def map_of_level(level_id: str) -> str:
+    """关卡 ID -> 底图 key。"""
+    head = level_id.split("_")[0]
+    return level_id if head == INDIE_LEVEL_HEAD else head
+
+
+def build_level_index(level_basic_info: dict[str, Record]) -> dict[int, str]:
+    """``idNum -> levelId``。"""
+    levels: dict[int, str] = {}
+    for level_id in sorted(level_basic_info):
+        id_num = level_basic_info[level_id].idNum
+        if id_num in levels:
+            raise LevelIndexError(f"idNum {id_num} 同时属于 {levels[id_num]} 和 {level_id}")
+        levels[id_num] = level_id
+    if not levels:
+        raise LevelIndexError("LevelBasicInfoTable 里一个关卡都没有")
+    return levels
+
+
+def level_of(levels: dict[int, str], raw_id: str) -> str | None:
+    """按 ID 前缀定位关卡；非数字 ID 或未登记的前缀都返回 None。"""
+    if not raw_id.isdigit():
+        return None
+    return levels.get(int(raw_id) // ID_LEVEL_FACTOR)

@@ -15,9 +15,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, ClassVar
 
-from ..constants import MAAEND_LOCALES
-from ..utils.game_data import localized_text, read_gameplay_config
-from ..utils.levels import build_level_index
+from ..utils.config import MAAEND_LOCALES
+from ..utils.game_data import build_level_index, localized_text, read_gameplay_config
 
 #: 数据集名（= 模块名）-> :class:`Dataset` 子类；子类定义时自动登记。
 REGISTRY: dict[str, type[Dataset]] = {}

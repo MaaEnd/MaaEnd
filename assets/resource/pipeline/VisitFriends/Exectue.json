@@ -65,8 +65,25 @@
             ]
         },
         "next": [
+            "[JumpBack]VisitFriendsQuickVisitNextEnable",
             "VisitFriendsEnterShipConfirm"
         ]
+    },
+    "VisitFriendsQuickVisitNextEnable": {
+        "desc": "普通链路首次进船时开启快速拜访下一位",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "VisitFriendsQuickVisitNext": {
+                    "enabled": true
+                }
+            }
+        },
+        "post_delay": 0
     },
     "VisitFriendsEnterShipConfirm": {
         "desc": "识别进入好友船的确认",
@@ -691,7 +708,33 @@
         "action": "Click",
         "next": [
             "VisitFriendsShipEnterStockRedistribution",
+            "VisitFriendsQuickVisitNext",
             "VisitFriendsWorldShipExitToMenuFriends"
+        ]
+    },
+    "VisitFriendsQuickVisitNext": {
+        "desc": "识别快速拜访下一位提示并点击",
+        "enabled": false,
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            720
+        ],
+        "expected": [
+            "快速拜访下位",
+            "快速拜訪下一位",
+            "Visit.*Next",
+            "快速訪問.*次へ"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "VisitFriendsEnterShipSuccess"
         ]
     },
     "VisitFriendsShipEnterStockRedistribution": {

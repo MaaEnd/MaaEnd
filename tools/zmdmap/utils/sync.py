@@ -1,19 +1,25 @@
-"""同步放数据的兄弟仓库，以及预检输入是否齐备。
+"""同步放数据的兄弟仓库，读出游戏数据版本，以及预检输入是否齐备。
 
 只做 ``git fetch`` + ``--ff-only`` 快进合并：工作区有未提交改动、处于分离头指针、没有配置上游
 时一律只提示并跳过该仓库 —— **绝不** stash / reset / 覆盖本地改动。
+
+游戏数据版本也从这里读（:func:`data_version`）：优先兄弟仓库数据里的资源构建号
+（``.beyond/ledger/*.json`` 的 ``last_res_version``，仓库处于 revert 提交时也仍然准），读不到再退回
+提交标题（``Client:… Data:…``，客户端版本只有这里有）；拼法见 :func:`compose_version`。
 
 这一层由 ``uv run zmdmap generate --sync`` 触发。
 """
 
 from __future__ import annotations
 
+import json
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from .paths import (
+from .config import (
     NAVMESH_DIR,
     NAVMESH_FILES,
     ZMDMAP_DATA_DIR,
@@ -26,10 +32,40 @@ from .paths import (
 SYNC_MARKS = {"updated": "↓", "current": "=", "pending": "→", "skipped": "·", "missing": "·"}
 SYNC_MARK_UNKNOWN = "x"
 
-#: 兄弟仓库提交标题里的游戏数据版本，如 ``Client:1.6.3 Data:…``。
-DATA_VERSION_RE = re.compile(r"Client:([0-9][0-9A-Za-z._-]*)")
+#: 资源构建号的长写法：游戏补丁接口的 ``res_version`` 与提交标题的 ``Data:`` 字段都是它，
+#: 如 ``initial_11010254-4_main_11010254-4``。
+RES_VERSION_RE = re.compile(r"initial_([0-9]+-[0-9]+)_main_([0-9]+-[0-9]+)")
+
+#: 兄弟仓库提交标题里的游戏数据版本，如 ``Client:1.6.3 Data:initial_11010254-4_main_11010254-4``：
+#: 客户端版本 + 可选的资源构建号（``Data:`` 字段）。它是数据里读不到构建号时的兜底，拼法见
+#: :func:`compose_version`。
+DATA_VERSION_RE = re.compile(r"Client:([0-9][0-9A-Za-z._-]*)(?:\s+Data:([0-9A-Za-z._-]+))?")
 #: 往上翻多少个提交找版本号（合并 / revert 提交的标题里可能没有）。
 DATA_VERSION_LOOKBACK = 20
+
+
+def res_short(res_version: str) -> str:
+    """资源构建号的短写法：``initial_X_main_Y`` 两半相同时缩成 ``X-Y``，否则原样返回。
+
+    短号就是游戏补丁接口 ``resources[].version`` 里的那个号，也是资源包路径（``main/11095949-5_…``）
+    里用的写法。
+    """
+    match = RES_VERSION_RE.fullmatch(res_version)
+    if match and match.group(1) == match.group(2):
+        return match.group(1)
+    return res_version
+
+
+def compose_version(client: str | None, res_version: str | None) -> str | None:
+    """版本标签「客户端版本 + 数据构建号」，如 ``1.6.3+11010254-4``；缺哪半就只写有的那半。
+
+    客户端版本不唯一（同一版客户端下会发布多批数据），带上构建号才分得清数据是哪一批。``+`` 用
+    semver 构建元数据的写法：不参与优先级比较 —— 数据是哪一份由 ``sha256`` 说了算，版本只是标签。
+    """
+    short = res_short(res_version) if res_version else None
+    if client and short:
+        return f"{client}+{short}"
+    return client or short
 
 
 @dataclass
@@ -108,32 +144,63 @@ def sync_repo(name: str, repo: Path, *, dry_run: bool) -> RepoOutcome:
     return RepoOutcome(name, "updated", f"{head} → {after}（{behind} 个提交，{branch}）")
 
 
-def repo_data_version(repo: Path) -> str | None:
-    """这个仓库提交标题里的游戏数据版本（``Client:1.6.3``），读不到返回 ``None``。
+def repo_data_build(repo: Path) -> str | None:
+    """这个仓库数据里的资源构建号（``initial_11010254-4_main_11010254-4``），读不到返回 ``None``。
 
-    合并 / revert 提交会盖住标题，所以往上翻几个提交找。
+    读 ``.beyond/ledger/*.json`` 的 ``state.last_res_version``：解包工具记在数据里的「这批数据来自哪个
+    资源构建」，比提交标题可靠 —— revert / 手动提交的标题会说谎，数据不会。
     """
-    if not (repo / ".git").exists():
-        return None
-    result = git(repo, "log", f"-{DATA_VERSION_LOOKBACK}", "--format=%s")
-    for line in result.stdout.splitlines():
-        match = DATA_VERSION_RE.search(line)
-        if match:
-            return match.group(1)
+    for ledger in sorted(repo.glob(".beyond/ledger/*.json")):
+        try:
+            data = json.loads(ledger.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        state = data.get("state") if isinstance(data, dict) else None
+        value = state.get("last_res_version") if isinstance(state, dict) else None
+        if isinstance(value, str) and value:
+            return value
     return None
+
+
+def repo_data_version(repo: Path) -> str | None:
+    """这个仓库的游戏数据版本（``1.6.3+11010254-4``），读不到返回 ``None``。
+
+    构建号优先取数据（:func:`repo_data_build`）；客户端版本只在提交标题里有，构建号读不到数据时
+    也用标题兜底。合并 / revert 提交会盖住标题，所以往上翻几个提交找，优先带 ``Data:`` 构建号的那条。
+    """
+    matched = None
+    if (repo / ".git").exists():
+        result = git(repo, "log", f"-{DATA_VERSION_LOOKBACK}", "--format=%s")
+        found = [
+            item
+            for line in result.stdout.splitlines()
+            if (item := DATA_VERSION_RE.search(line)) is not None
+        ]
+        matched = next((item for item in found if item.group(2) is not None), None)
+        if matched is None and found:
+            matched = found[0]
+    client = matched.group(1) if matched else None
+    res_version = repo_data_build(repo) or (matched.group(2) if matched else None)
+    return compose_version(client, res_version)
 
 
 def data_version(workspace: Path) -> str | None:
-    """工作区下兄弟仓库提交标题里的游戏数据版本（``Client:1.6.3``），读不到返回 ``None``。
+    """工作区下兄弟仓库的游戏数据版本（``1.6.3+11010254-4``），读不到返回 ``None``。
 
+    每个仓库都先看**数据**里的构建号、再退回提交标题（见 :func:`repo_data_version`），按
+    ``WORKSPACE_REPO_NAMES`` 的顺序取第一个有值的；几个仓库的版本不一致时提示一句再取第一个。
     数据文件里的 ``version`` 字段就是这个值：给 ``zmdmap generate`` 用，免得每份数据各写各的版本，
     也免得另外维护一份「当前是哪一版」的记录。
     """
+    found: list[tuple[str, str]] = []
     for name in WORKSPACE_REPO_NAMES:
         version = repo_data_version(workspace / name)
         if version:
-            return version
-    return None
+            found.append((name, version))
+    if len({version for _, version in found}) > 1:
+        detail = "、".join(f"{name} {version}" for name, version in found)
+        print(f"[zmdmap] 兄弟仓库数据版本不一致：{detail}；取 {found[0][1]}", file=sys.stderr)
+    return found[0][1] if found else None
 
 
 def sync_workspace(workspace: Path, *, dry_run: bool) -> tuple[list[RepoOutcome], bool]:

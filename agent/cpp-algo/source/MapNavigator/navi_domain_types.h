@@ -26,6 +26,7 @@ namespace mapnavigator
 //            { "node": ... } 指一个 OCR 节点，多条路线共用一张表。interact_scan 只换预筛看什么，得配着
 //            interact_text 用。动作恒为交互键，不可换；写 interact_rec 走 rec 模式，只认提示不按键。
 // TRANSFER - 精确抵达该点后停住，等待机关/跳板/回传等把角色转移到下一段可达路径
+// JUMP_PAD - 坐标写板心：站到板心起跳，没起飞朝板心补一步再按；落地站稳后接后面的点
 // PORTAL   - 跨区过渡节点，触发后进入盲走等待区域切换
 // HEADING  - 无坐标朝向节点，执行时只调整镜头到指定角度，再按下W继续前进
 // NAVMESH  - 语义寻路节点，读取 .nav 并从当前定位位置自动规划到 target
@@ -51,6 +52,7 @@ namespace mapnavigator
     X(FIGHT)                 \
     X(INTERACT)              \
     X(TRANSFER)              \
+    X(JUMP_PAD)              \
     X(PORTAL)                \
     X(HEADING)               \
     X(NAVMESH)               \
@@ -95,6 +97,9 @@ constexpr ActionTraits TraitsOf(ActionType action)
         return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
     case ActionType::TRANSFER:
         return { .strict_arrival = true, .settles_at_arrival = true };
+    // 不走通用末端纠正: 纠正途中就可能被弹走, 站位交给跳板相位自己补
+    case ActionType::JUMP_PAD:
+        return { .strict_arrival = true, .walk_approach = true };
     case ActionType::PORTAL:
         return { .strict_arrival = true, .commit_distance = kPortalCommitDistance };
     case ActionType::HEADING:

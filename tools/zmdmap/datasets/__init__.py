@@ -19,7 +19,7 @@
 
 每份数据先出原始形态（只带游戏世界坐标）进 ``raw/``，再由入库步骤进 ``data/``：需要投影的按 BaseNav 的
 zone 表投影，其余原样复制。要加一份新数据，就在 ``datasets/`` 下加一个同名模块、定义 ``Dataset`` 子类并
-实现 ``build``。共用的 ``coords.py`` / ``levels.py`` 与读取本地数据的 ``game_data.py`` 放在 ``utils/``；
+实现 ``build``。读取本地数据、记录取值与关卡索引都在 ``utils/game_data.py``，
 各数据集都用的手法（五语文本 ``localized_names``、关卡索引 ``level_index``）与组装错误 ``DatasetError``
 在 ``base.py`` 的 ``Dataset`` 上。
 """
