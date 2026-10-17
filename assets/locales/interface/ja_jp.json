@@ -1424,7 +1424,7 @@
     "option.ClueSendCustomize.cases.Tranquility.label": "静語伝道会",
     "option.ClueSendCustomize.cases.Hannabit.label": "衆生長地",
     "option.ClueSendCustomize.cases.Sesqa.label": "セシュカ",
-    "option.ClueSetting.description": "有効にすると手掛かり処理ルールを変更できます。無効時は既定動作として、各種類を 2 個まで残し、最大 3 件まで贈ります。",
+    "option.ClueSetting.description": "有効にすると手掛かり処理ルールを変更できます。",
     "option.ClueSetting.label": "手掛かり設定",
     "option.ClueStockLimit.cases.1.label": "1",
     "option.ClueStockLimit.cases.2.label": "2",

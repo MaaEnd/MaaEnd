@@ -1424,7 +1424,7 @@
     "option.ClueSendCustomize.cases.Tranquility.label": "寂语修会",
     "option.ClueSendCustomize.cases.Hannabit.label": "众生长地",
     "option.ClueSendCustomize.cases.Sesqa.label": "塞什卡",
-    "option.ClueSetting.description": "启用后可自定义线索规则；关闭时使用默认行为：每种线索最多保留 2 个，且最多赠送 3 次。",
+    "option.ClueSetting.description": "启用后可自定义线索规则",
     "option.ClueSetting.label": "线索设置",
     "option.ClueStockLimit.cases.1.label": "1",
     "option.ClueStockLimit.cases.2.label": "2",

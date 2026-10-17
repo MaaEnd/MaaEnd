@@ -1424,7 +1424,7 @@
     "option.ClueSendCustomize.cases.Tranquility.label": "Cabal of Tranquility",
     "option.ClueSendCustomize.cases.Hannabit.label": "Hannabit Circuit",
     "option.ClueSendCustomize.cases.Sesqa.label": "Seš'qa",
-    "option.ClueSetting.description": "Enable to customize clue rules. When disabled, the default behavior keeps up to 2 of each clue type and sends at most 3 clues.",
+    "option.ClueSetting.description": "Enable to customize clue rules. ",
     "option.ClueSetting.label": "Clue Settings",
     "option.ClueStockLimit.cases.1.label": "1",
     "option.ClueStockLimit.cases.2.label": "2",

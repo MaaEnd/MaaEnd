@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `DijiangRewards`.  
 The core design is "Control Nexus dispatching + sub-stage jump-back": each sub-stage is independent, and options only modify stage entry points or branches without altering the main flow skeleton.  
-This document was updated on October 14, 2026.
+This document was updated on October 17, 2026.
 
 ## File Paths
 
@@ -42,7 +42,7 @@ Each stage can be individually toggled via `StageTaskSetting`; by default, the r
 ### One-click Collect
 
 Implemented in `FastCollect.json`, directly clicks "products" and "clues" shortcuts at the Control Nexus for collection without entering the corresponding cabin.  
-Controlled by the `StageTaskSetting` → `FastCollect` switch, disabled by default.
+Controlled by the `StageTaskSetting` → `FastCollect` switch, disabled by default. When enabled, under `FastCollect` the user is able to choose to enable `FastCollectClue` and `FastCollectProduction`, by default enabled, When disabled skips the `FastCollect` task
 
 ### Recover Mood
 
@@ -56,6 +56,8 @@ Upon entering the Reception Room, attempt in order: handle exchange completion p
 
 When clue inventory is full, follow the [clue gifting](#clue-gifting) branch, which is not an independent top-level stage.  
 Whether to actively "start clue exchange" is controlled by `AutoStartExchange`, disabled by default, reserved for credit store linkage.
+
+CustomizeClueSending, disabled by default, allows the user to choose which clues to send, the ones not choosen are kept. The gifting logic follows the old implementation of `ReceptionRoomSendCluesClickSend`
 
 ### Manufacturing Cabin
 
