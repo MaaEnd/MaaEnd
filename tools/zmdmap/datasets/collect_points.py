@@ -3,15 +3,13 @@
 ``WorldEntityRegistry`` 中 ``detailId`` 以 ``int_doodad_`` 开头的可交互采集物，全量输出。
 
 只发布游戏世界坐标 x/z：投影参数属于 BaseNav pack，换算由 MaaEnd 侧的投影步骤
-（``tools/zmdmap/project.py``）完成，所以这里不做任何底图筛选。
+（``tools/zmdmap/utils/project.py``）完成，所以这里不做任何底图筛选。
 """
 
 from pathlib import Path
 from typing import Any
 
-from ..utils.game_data import logger, read_gameplay_config
-from ..utils.coords import read_xz
-from ..utils.levels import level_of, map_of_level
+from ..utils.game_data import level_of, logger, map_of_level, read_gameplay_config, read_xz
 from .base import Dataset, DatasetError
 
 DOODAD_PREFIX = "int_doodad_"
