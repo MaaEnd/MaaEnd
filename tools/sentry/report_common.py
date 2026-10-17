@@ -23,6 +23,14 @@ SUPPORTED_SENTRY_ENVIRONMENTS = frozenset(("beta", "stable"))
 MAAEND_RELEASE_PATTERN = re.compile(
     r"(?:^|\+)MaaEnd@v(\d+)\.(\d+)\.(\d+)(?:-(beta|rc)\.(\d+))?$"
 )
+# 发布流程会为同一版本同时创建桌面（MXU）与 Android（MaaFwApp）两个 release；
+# 报告的 spans 查询按 release 精确过滤，因此自动选版优先桌面端
+PREFERRED_RELEASE_CLIENT = "MXU"
+
+
+def release_client(release: str) -> str:
+    """取出 release 名称里的客户端标识（``MXU@2.7.1+MaaEnd@v2.32.0`` → ``MXU``）。"""
+    return release.partition("@")[0]
 
 
 def normalize_sentry_environment(environment: str) -> str:
@@ -211,7 +219,11 @@ def maaend_release_version_key(
 def select_latest_reported_maaend_release(
     rows: Sequence[dict[str, Any]], *, environment: str | None = None
 ) -> str | None:
-    """选择发布流程已 finalize 并记录 deploy 的最新 MaaEnd release。"""
+    """选择发布流程已 finalize 并记录 deploy 的最新 MaaEnd release。
+
+    同一版本会有桌面与 Android 两个 release，版本内优先桌面端：报告按 release
+    精确过滤 spans，选中 Android release 时统计里只剩 Android 用户。
+    """
     if environment is not None:
         environment = normalize_sentry_environment(environment)
     candidates: list[
@@ -240,17 +252,30 @@ def select_latest_reported_maaend_release(
             continue
         candidates.append((release_time, version, release))
 
-    return max(candidates)[2] if candidates else None
+    if not candidates:
+        return None
+    # 先按发布时间定出最新的 MaaEnd 版本，再只在该版本内挑桌面端；
+    # 不能整表优先桌面端，否则某版本缺了桌面 release 时会悄悄退回旧版本
+    latest_version = max(candidates)[1]
+    same_version = [
+        candidate for candidate in candidates if candidate[1] == latest_version
+    ]
+    preferred = [
+        candidate
+        for candidate in same_version
+        if release_client(candidate[2]) == PREFERRED_RELEASE_CLIENT
+    ]
+    return max(preferred or same_version)[2]
 
 
 def select_latest_maaend_release(
     rows: Sequence[dict[str, Any]], *, environment: str | None = None
 ) -> str:
-    """从 spans 中选择用户数达标的最新 MaaEnd release。"""
+    """从 spans 中选择用户数达标的最新 MaaEnd release，同一版本内优先桌面端。"""
     if environment is not None:
         environment = normalize_sentry_environment(environment)
     candidates: list[
-        tuple[tuple[int, int, int, int, int], int, int, str]
+        tuple[tuple[int, int, int, int, int], bool, int, int, str]
     ] = []
     for row in rows:
         release = row.get("release")
@@ -267,7 +292,15 @@ def select_latest_maaend_release(
         version = maaend_release_version_key(release, environment=environment)
         if version is None:
             continue
-        candidates.append((version, user_count, trace_count, release))
+        candidates.append(
+            (
+                version,
+                release_client(release) == PREFERRED_RELEASE_CLIENT,
+                user_count,
+                trace_count,
+                release,
+            )
+        )
 
     if not candidates:
         expected = (
@@ -289,7 +322,7 @@ def select_latest_maaend_release(
             f"且至少有 {MIN_RELEASE_UNIQUE_USERS} 位独立用户的 release，"
             "请通过 --release 显式指定。"
         )
-    return max(candidates)[3]
+    return max(candidates)[4]
 
 
 def query_sentry_releases(
@@ -314,6 +347,18 @@ def query_sentry_releases(
         verbose=verbose,
         timeout_seconds=timeout_seconds,
     )
+    # 新版 sentry CLI 的 `api --json` 会把响应包在 {status, statusText, body} 里，
+    # 旧版直接输出响应体，两种都要认；信封里的 HTTP 错误要原样报出来，
+    # 不能被下面「不是对象数组」的报错盖住
+    if isinstance(result, dict) and "status" in result and "body" in result:
+        status = result["status"]
+        if not isinstance(status, int) or not 200 <= status < 300:
+            status_line = f"HTTP {status} {result.get('statusText') or ''}".rstrip()
+            raise RuntimeError(
+                f"Sentry release API 请求失败（{status_line}）：\n"
+                f"{json.dumps(result['body'], ensure_ascii=False)}"
+            )
+        result = result["body"]
     if not isinstance(result, list) or not all(
         isinstance(row, dict) for row in result
     ):

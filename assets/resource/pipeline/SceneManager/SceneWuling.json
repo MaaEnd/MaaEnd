@@ -269,7 +269,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingTestArea",
+            // "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingTestArea", // OCR识别位置点击是雪松林，且识别效果很差
             "__ScenePrivateMapOverviewWulingEnterMapWulingTestArea"
         ]
     },
@@ -469,8 +469,8 @@
         "recognition": "DirectHit",
         "action": "Click",
         "target": [
-            672,
-            335
+            640,
+            347
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingTestAreaSuccess"
@@ -705,7 +705,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingYinglungPass",
+            // "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingYinglungPass", // OCR识别位置点击是雪松林，且识别效果很差
             "__ScenePrivateMapOverviewWulingEnterMapWulingYinglungPass"
         ]
     },
@@ -739,8 +739,8 @@
         "recognition": "DirectHit",
         "action": "Click",
         "target": [
-            730,
-            202
+            700,
+            180
         ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingYinglungPassSuccess"

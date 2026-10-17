@@ -26,6 +26,7 @@ namespace mapnavigator
 //            { "node": ... } 指一个 OCR 节点，多条路线共用一张表。interact_scan 只换预筛看什么，得配着
 //            interact_text 用。动作恒为交互键，不可换；写 interact_rec 走 rec 模式，只认提示不按键。
 // TRANSFER - 精确抵达该点后停住，等待机关/跳板/回传等把角色转移到下一段可达路径
+// JUMP_PAD - 坐标写板心：站到板心起跳，没起飞朝板心补一步再按；落地站稳后接后面的点
 // PORTAL   - 跨区过渡节点，触发后进入盲走等待区域切换
 // HEADING  - 无坐标朝向节点，执行时只调整镜头到指定角度，再按下W继续前进
 // NAVMESH  - 语义寻路节点，读取 .nav 并从当前定位位置自动规划到 target
@@ -43,7 +44,7 @@ namespace mapnavigator
 // ZIPLINE  - 滑索上索点：精确抵达后停车，把镜头转向下索点再交互上索，然后等滑行自己结束；
 //            链尾落地会先把朝向摆到下一段走路的规划点再下索。只由滑索规划生成，不手写：能不能滑
 //            取决于两端的落差与跨度，那是规划器算出来的
-// TRIGGER  - 只能做路线终点：整条路线行进中定时跑 trigger_node，不论走到哪，命中即算导航成功；到点未命中则原地等它
+// TRIGGER  - 只能做路线终点：整条路线行进中定时跑 trigger_node，不论走到哪，命中即算导航成功；走到 target 未命中也算成功
 #define NAVI_ACTION_TYPES(X) \
     X(RUN)                   \
     X(SPRINT)                \
@@ -51,6 +52,7 @@ namespace mapnavigator
     X(FIGHT)                 \
     X(INTERACT)              \
     X(TRANSFER)              \
+    X(JUMP_PAD)              \
     X(PORTAL)                \
     X(HEADING)               \
     X(NAVMESH)               \
@@ -76,7 +78,6 @@ struct ActionTraits
     bool settles_at_arrival = false; // 进圈后末端纠正到位才验收, 除 INTERACT 外只对线路明写 strict_arrival 的点
     bool walk_approach = false;      // 接近段允许切走路
     bool walk_at_startup = false;    // 起步位移还没确认也允许走路
-    bool settle_walking = false;     // 末端纠正前先切走路
     bool route_boundary = false;     // 全局规划分段的固有边界
     double commit_distance = 0.0;    // 判定圈下限 px, 0 = 不放宽
 };
@@ -96,6 +97,9 @@ constexpr ActionTraits TraitsOf(ActionType action)
         return { .strict_arrival = true, .settles_at_arrival = true, .walk_approach = true };
     case ActionType::TRANSFER:
         return { .strict_arrival = true, .settles_at_arrival = true };
+    // 不走通用末端纠正: 纠正途中就可能被弹走, 站位交给跳板相位自己补
+    case ActionType::JUMP_PAD:
+        return { .strict_arrival = true, .walk_approach = true };
     case ActionType::PORTAL:
         return { .strict_arrival = true, .commit_distance = kPortalCommitDistance };
     case ActionType::HEADING:
@@ -112,7 +116,6 @@ constexpr ActionTraits TraitsOf(ActionType action)
             .settles_at_arrival = true,
             .walk_approach = true,
             .walk_at_startup = true,
-            .settle_walking = true,
             .route_boundary = true,
         };
     // 不设 strict_arrival：锚点只是「站这儿开始找」，收尾由视觉伺服完成

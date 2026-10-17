@@ -11,7 +11,7 @@ The project can be understood as four layers:
 1. `assets/interface.json` — Defines the project entry point, controllers, resources, task import lists, and Agent startup items.
 2. `assets/tasks/**/*.json` — Defines how tasks are displayed in the UI, entry nodes, and options.
 3. `assets/resource/pipeline/**/*.json` — Defines "what to recognize, where to click, and where to go next". **This is the layer most frequently modified during daily development.**
-4. `agent/go-service/**` — Only contains complex logic that is difficult to express with Pipelines (complex recognition, calculations, traversal, special interactions).
+4. `agent/go-service/**` — Only contains complex logic that is difficult to express with Pipelines (complex recognition, calculations, traversal, special interactions). Utilities reused across features are in `agent/go-service/pkg/`; see [Go Service `pkg/` Shared Packages](./go-service-pkg.md).
 
 The execution path for a task:
 
@@ -23,10 +23,11 @@ The execution path for a task:
 
 | Change Type | Where to Look |
 | -------------------------------------------------------- | ------------------------------------- |
-| Interface text, task names, option text | `assets/locales/interface/zh_cn.json` |
+| Interface text, task names, option text | `assets/locales/interface/*.json` (all languages) |
 | Task orchestration, entry nodes, UI options | `assets/tasks/**/*.json` |
 | Recognition, clicking, jumping, waiting, process details | `assets/resource/pipeline/**/*.json` |
-| Complex logic (algorithms, traversal, calculations) | `agent/go-service/**` |
+| Complex logic (algorithms, traversal, calculations) | `agent/go-service/**`; single recognition algorithms (OpenCV / ONNX) live in `agent/cpp-algo/**` |
+| Utilities shared across features (And unwrapping, expressions, OCR numbers, i18n…) | `agent/go-service/pkg/**` ([docs](./go-service-pkg.md)) |
 
 ## Pipeline Reusable Nodes
 
@@ -45,11 +46,12 @@ The following nodes are implemented based on Go/C++ and have high business-speci
 | Node | Description | Documentation |
 | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | SubTask / ClearHitCount / ExpressionRecognition | Sub-task scheduling, count clearing, expression recognition | [custom.md](./custom.md) |
+| AutoDelivery | A single entry handles depot pickup and delivery at the destination, and provides stage exit anchors | [components/auto-delivery.md](./components/auto-delivery.md) |
 | AutoFight | Automatic operation during combat | [components/auto-fight.md](./components/auto-fight.md) |
 | CharacterController | Character view rotation, movement, facing targets | [components/character-controller.md](./components/character-controller.md) |
 | BetterSliding | Discrete quantity slider adjustment | [components/better-sliding.md](./components/better-sliding.md) |
 | MapLocator | AI + CV minimap positioning | [components/map-locator.md](./components/map-locator.md) |
-| MapNavigator | Automatic pathfinding: reaches a target coordinate without recording; routes with interactions can be recorded | [components/map-navigator.md](./components/map-navigator.md) |
+| MapNavigator | Automatic pathfinding: reaches a target coordinate without recording; routes with interactions or map transitions can be recorded | [components/map-navigator.md](./components/map-navigator.md) |
 | WorldMap | World map coordinate recognition: given a zone and a base map coordinate, confirms the icon and hands back its screen position | [components/world-map.md](./components/world-map.md) |
 | RecoGrid / GridTracker / EssenceGrid | C++ single-frame grid recognition, cross-frame tracking, and Essence integration | [components/recogrid-engine.md](./components/recogrid-engine.md) |
 | IconRecognition | C++ item icon recognition, fixed ROI, and Maa Custom Recognition | [components/icon-recognition.md](./components/icon-recognition.md) |
@@ -61,12 +63,18 @@ The following tasks have dedicated maintenance documentation. **You must read th
 
 | Task | Documentation |
 | ------------------------------------- | ------------------------------------------------------------------------ |
-| AutoStockpile (Automatic Stockpiling) | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md) |
-| DijiangRewards (Base Building Tasks) | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
-| CreditShopping (Credit Point Store) | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
+| AutoStockpile (Auto Stockpile) | [tasks/auto-stockpile-maintain.md](./tasks/auto-stockpile-maintain.md) |
+| DijiangRewards (Base Rewards) | [tasks/dijiang-rewards-maintain.md](./tasks/dijiang-rewards-maintain.md) |
+| CreditShopping (Credit Shop) | [tasks/credit-shopping-maintain.md](./tasks/credit-shopping-maintain.md) |
+| AutoStockStaple (Buy Staple Goods) | [tasks/auto-stockstaple-maintain.md](./tasks/auto-stockstaple-maintain.md) |
+| EnvironmentMonitoring (Environment Monitoring) | [tasks/environment-monitoring-maintain.md](./tasks/environment-monitoring-maintain.md) |
+| OutpostTrading (Outpost Trading) | [tasks/outpost-trading-maintain.md](./tasks/outpost-trading-maintain.md) |
+| SeizeDeliveryJobs (Accept Commission & Delivery) | [tasks/seize-delivery-jobs-maintain.md](./tasks/seize-delivery-jobs-maintain.md) |
+| GiftOperator (Gift to Operator) | [tasks/gift-operator-maintain.md](./tasks/gift-operator-maintain.md) |
+| DeliveryJobs (Delivery Jobs) | [tasks/delivery-jobs-maintain.md](./tasks/delivery-jobs-maintain.md) |
 
 ## External Documentation
 
 - [MaaFramework Official Documentation](https://maafw.com/)
-- [Pipeline Protocol](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/3.1-%E4%BB%BB%E5%8A%A1%E6%B5%81%E6%B0%B4%E7%BA%BF%E5%8D%8F%E8%AE%AE.md)
-- [Project Interface V2](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/3.3-ProjectInterfaceV2%E5%8D%8F%E8%AE%AE.md)
+- [Pipeline Protocol](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/en_us/3.1-PipelineProtocol.md)
+- [Project Interface V2](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/en_us/3.3-ProjectInterfaceV2.md)

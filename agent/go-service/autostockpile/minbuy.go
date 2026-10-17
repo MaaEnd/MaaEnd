@@ -2,25 +2,29 @@ package autostockpile
 
 import "github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 
-// syncMinBuyRegion 返回任务内 MinBuyRegion 缓存值；缓存为空时将其设为当前地区。
-// 保证「至少购买一个」只锁定本次运行首个访问的地区。
-func syncMinBuyRegion(region string) string {
-	if cached := getMinBuyRegion(); cached != "" {
-		return cached
+// claimMinBuyEligibility 判断当前地区是否仍可执行「至少购买一个」的保底降级。
+// 调用它即代表当前地区执行了一次购买决策，因此会把保底资格锁定到本次运行首个执行决策的地区：
+// 后续地区调用时缓存已被占用，返回 false，不再降级购买。
+//
+// EdgeCase 当调度券不足时可能出现「当前地区已被锁定，但无法购买」的情况，因少见此处不做额外判断。
+func claimMinBuyEligibility(minBuy bool, region string) bool {
+	if !minBuy {
+		return false
 	}
+	if cached := getMinBuyRegion(); cached != "" {
+		return cached == region
+	}
+
 	setMinBuyRegion(region)
-	return region
+	return true
 }
 
-// resolveMinBuyFallback 在正常选品失败且启用「至少购买一个」时，
+// resolveMinBuyFallback 在正常选品失败且当前地区保有保底资格时，
 // 将决策降级为当前地区的最低价商品（数量 1），用于完成每日任务。
-// 只有 MinBuyRegion 等于当前地区时才允许降级，其他地区不受影响。
+// minBuyEnabled 由 claimMinBuyEligibility 解析，已包含地区锁定判断。
 // 返回 true 表示已应用降级，调用方应改用返回的 SelectionResult 与 quantityDecision。
-func resolveMinBuyFallback(selection SelectionResult, data RecognitionData, region string, minBuyEnabled bool, reason string) (SelectionResult, quantityDecision, bool) {
+func resolveMinBuyFallback(selection SelectionResult, data RecognitionData, minBuyEnabled bool, reason string) (SelectionResult, quantityDecision, bool) {
 	if selection.Selected || !minBuyEnabled {
-		return selection, quantityDecision{}, false
-	}
-	if minBuyRegion := syncMinBuyRegion(region); minBuyRegion != region {
 		return selection, quantityDecision{}, false
 	}
 

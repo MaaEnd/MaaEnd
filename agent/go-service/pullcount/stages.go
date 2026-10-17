@@ -112,23 +112,35 @@ func handleFinish(ctx *maa.Context) bool {
 
 // --- Warehouse Scan Stages --- //
 
-// handleRecordVoucher stores one Pipeline-classified voucher for the selected template hit.
-func handleRecordVoucher(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+// handleRecordVoucher stores the voucher quantity or one fixed ten-pull dossier hit.
+func handleRecordVoucher(ctx *maa.Context, arg *maa.CustomActionArg, stage string) bool {
 	session, ok := requireSession(ctx)
 	if !ok {
 		return false
 	}
 
-	added := recordCarryToNextVoucher(session, voucherKey(arg))
+	pulls := introLetterPulls
+	if stage == stageRecordVoucher {
+		var err error
+		pulls, err = readIntegerFromRecognition(arg.RecognitionDetail)
+		if err != nil || pulls <= 0 {
+			log.Warn().Err(err).Str("component", componentName).Int("quantity", pulls).Msg("failed to read voucher quantity")
+			return false
+		}
+	}
+
+	added := recordCarryToNextVoucher(session, stage+":"+voucherKey(arg), pulls)
 	log.Info().
 		Str("component", componentName).
+		Str("stage", stage).
 		Bool("added", added).
+		Int("pulls", pulls).
 		Int("carry_to_next_pulls", session.Vouchers.CarryToNextPulls).
 		Msg("warehouse voucher recorded")
 	return true
 }
 
-// voucherKey builds a stable duplicate key from the template hit box passed by Pipeline.
+// voucherKey builds a stable duplicate key from the selected item title box passed by Pipeline.
 func voucherKey(arg *maa.CustomActionArg) string {
 	if arg == nil {
 		return "carry_to_next"
@@ -137,12 +149,12 @@ func voucherKey(arg *maa.CustomActionArg) string {
 	return fmt.Sprintf("%d:%d:%d:%d", box.X(), box.Y(), box.Width(), box.Height())
 }
 
-// recordCarryToNextVoucher adds one confirmed carry-over voucher unless the hit box was already counted.
-func recordCarryToNextVoucher(session *runSession, key string) bool {
+// recordCarryToNextVoucher adds the confirmed pull count unless the hit was already counted.
+func recordCarryToNextVoucher(session *runSession, key string, pulls int) bool {
 	if _, exists := session.VoucherHits[key]; exists {
 		return false
 	}
 	session.VoucherHits[key] = struct{}{}
-	session.Vouchers.CarryToNextPulls++
+	session.Vouchers.CarryToNextPulls += pulls
 	return true
 }

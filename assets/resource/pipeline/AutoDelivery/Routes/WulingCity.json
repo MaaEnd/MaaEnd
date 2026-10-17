@@ -22,8 +22,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        950.498,
-                        1832.767
+                        951.975,
+                        1832.507
                     ],
                     "target_deck_y": 278.757
                 }
@@ -65,8 +65,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        950.498,
-                        1832.767
+                        951.975,
+                        1832.507
                     ],
                     "target_deck_y": 278.757
                 }
@@ -108,8 +108,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        950.498,
-                        1832.767
+                        951.975,
+                        1832.507
                     ],
                     "target_deck_y": 278.757
                 }
@@ -144,7 +144,25 @@
                         538.031,
                         1250.27
                     ],
-                    "target_deck_y": 275.148
+                    "target_deck_y": 275.148,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        538.031,
+                        1250.27
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "苏白易",
+                        "蘇白易",
+                        "(?i)Su\\s*Baiyi",
+                        "スー・バイイー",
+                        "소백이"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -178,7 +196,25 @@
                         538.031,
                         1250.27
                     ],
-                    "target_deck_y": 275.148
+                    "target_deck_y": 275.148,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        538.031,
+                        1250.27
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "苏白易",
+                        "蘇白易",
+                        "(?i)Su\\s*Baiyi",
+                        "スー・バイイー",
+                        "소백이"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -221,7 +257,25 @@
                         538.031,
                         1250.27
                     ],
-                    "target_deck_y": 275.148
+                    "target_deck_y": 275.148,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        538.031,
+                        1250.27
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "苏白易",
+                        "蘇白易",
+                        "(?i)Su\\s*Baiyi",
+                        "スー・バイイー",
+                        "소백이"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -254,7 +308,24 @@
                         461.92,
                         1712.802
                     ],
-                    "target_deck_y": 315.37
+                    "target_deck_y": 315.37,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "普里莫·林德",
+                        "(?i)Primo\\s*Linde",
+                        "プリモ・リンデ",
+                        "프리모 린데"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -288,7 +359,24 @@
                         461.92,
                         1712.802
                     ],
-                    "target_deck_y": 315.37
+                    "target_deck_y": 315.37,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "普里莫·林德",
+                        "(?i)Primo\\s*Linde",
+                        "プリモ・リンデ",
+                        "프리모 린데"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -331,7 +419,24 @@
                         461.92,
                         1712.802
                     ],
-                    "target_deck_y": 315.37
+                    "target_deck_y": 315.37,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "普里莫·林德",
+                        "(?i)Primo\\s*Linde",
+                        "プリモ・リンデ",
+                        "프리모 린데"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -364,7 +469,24 @@
                         894.615,
                         1408.425
                     ],
-                    "target_deck_y": 265.279
+                    "target_deck_y": 265.279,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        894.615,
+                        1408.425
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "于施",
+                        "(?i)Yu\\s*Shi",
+                        "ユウ・シー",
+                        "우시"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -398,7 +520,24 @@
                         894.615,
                         1408.425
                     ],
-                    "target_deck_y": 265.279
+                    "target_deck_y": 265.279,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        894.615,
+                        1408.425
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "于施",
+                        "(?i)Yu\\s*Shi",
+                        "ユウ・シー",
+                        "우시"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -441,7 +580,24 @@
                         894.615,
                         1408.425
                     ],
-                    "target_deck_y": 265.279
+                    "target_deck_y": 265.279,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        894.615,
+                        1408.425
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "于施",
+                        "(?i)Yu\\s*Shi",
+                        "ユウ・シー",
+                        "우시"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -481,9 +637,23 @@
                     "action": "NAVMESH",
                     "target": [
                         513.135,
-                        1650.773
+                        1652.273
                     ],
-                    "target_deck_y": 325.819
+                    "target_deck_y": 325.819,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        513.135,
+                        1652.273
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -524,9 +694,23 @@
                     "action": "NAVMESH",
                     "target": [
                         513.135,
-                        1650.773
+                        1652.273
                     ],
-                    "target_deck_y": 325.819
+                    "target_deck_y": 325.819,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        513.135,
+                        1652.273
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -567,9 +751,23 @@
                     "action": "NAVMESH",
                     "target": [
                         513.135,
-                        1650.773
+                        1652.273
                     ],
-                    "target_deck_y": 325.819
+                    "target_deck_y": 325.819,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        513.135,
+                        1652.273
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"

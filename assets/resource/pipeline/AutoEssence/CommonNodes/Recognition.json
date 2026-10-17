@@ -29,10 +29,11 @@
                     0
                 ],
                 "expected": [
-                    "激发", // 激发
-                    "觸發", // 觸發
-                    "Trigger", // Trigger
-                    "トリガー" // トリガー
+                    "激发",
+                    "激發",
+                    "(?i)Activate",
+                    "解放",
+                    "활성화"
                 ]
             }
         }
@@ -52,7 +53,8 @@
                     "开启挑战",
                     "開啟挑戰",
                     "Start",
-                    "挑戦"
+                    "挑戦",
+                    "도전\\s*시작"
                 ]
             }
         }
@@ -107,7 +109,8 @@
                     "领取", // 领取奖励
                     "領取", // 領取獎勵
                     "Claim", // Claim Rewards
-                    "報酬" // 報酬受取
+                    "報酬", // 報酬受取
+                    "획득" // 보상 획득
                 ]
             }
         }
@@ -128,7 +131,8 @@
                     "放弃|重置", // 放弃奖励并重置
                     "放棄|重置", // 放棄獎勵並重置
                     "Abandon|Reset", // Abandon Rewards and Reset
-                    "受取せず|にリセット" // 受取せずにリセット
+                    "受取せず|にリセット", // 受取せずにリセット
+                    "포기|초기화" // 보상 포기 및 초기화
                 ]
             }
         }
@@ -148,18 +152,42 @@
                     // @i18n-skip
                     // 激发 / 领取奖励 / 放弃奖励并重置
                     "激发",
-                    "觸發",
-                    "Trigger",
-                    "トリガー",
+                    "激發",
+                    "(?i)Activate",
+                    "解放",
+                    "활성화",
                     "领取",
                     "領取",
                     "Claim",
                     "報酬",
+                    "획득",
                     "放弃|重置",
                     "放棄|重置",
                     "Abandon|Reset",
-                    "受取せず|にリセット"
+                    "受取せず|にリセット",
+                    "포기|초기화"
                 ]
+            }
+        }
+    },
+    "__AutoEssenceRecoApproachInteractScan": {
+        "desc": "走向激发点时边走边认的交互图标预筛，只给寻路读取 roi/template",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                // 激发行用专属图标，领取 / 放弃行用通用交互图标，任一命中即停车
+                "template": [
+                    "AutoEssence/EssenceTrigger.png",
+                    "MapNavigator/ObstacleDevice/InteractButton.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.75
             }
         }
     },

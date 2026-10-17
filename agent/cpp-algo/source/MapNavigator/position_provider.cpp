@@ -74,6 +74,23 @@ bool PositionProvider::Capture(
     const std::vector<maplocator::SearchHint>& search_hints,
     std::optional<double> camera_heading_prior)
 {
+    return captureImpl(out_pos, force_global_search, expected_zone_id, search_hints, heading_source_, false, camera_heading_prior);
+}
+
+bool PositionProvider::captureForStrictGoal(NaviPosition* out_pos, const std::string& expected_zone_id)
+{
+    return captureImpl(out_pos, false, expected_zone_id, {}, HeadingSource::Camera, true);
+}
+
+bool PositionProvider::captureImpl(
+    NaviPosition* out_pos,
+    bool force_global_search,
+    const std::string& expected_zone_id,
+    const std::vector<maplocator::SearchHint>& search_hints,
+    HeadingSource heading_source,
+    bool precise_position,
+    std::optional<double> camera_heading_prior)
+{
     if (out_pos == nullptr) {
         return false;
     }
@@ -83,7 +100,15 @@ bool PositionProvider::Capture(
     const auto capture_started_at = std::chrono::steady_clock::now();
 
     const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller_);
-    MaaControllerWait(controller_, screencap_id);
+    if (screencap_id == MaaInvalidId) {
+        LogWarn << "Position capture failed to dispatch screencap.";
+        return false;
+    }
+    const MaaStatus capture_status = MaaControllerWait(controller_, screencap_id);
+    if (capture_status != MaaStatus_Succeeded) {
+        LogWarn << "Position capture screencap did not succeed." << VAR(screencap_id) << VAR(capture_status);
+        return false;
+    }
     ScopedImageBuffer buffer;
 
     if (!MaaControllerCachedImage(controller_, buffer.Get()) || MaaImageBufferIsEmpty(buffer.Get())) {
@@ -93,6 +118,9 @@ bool PositionProvider::Capture(
 
     cv::Mat image = to_mat(buffer.Get());
     last_capture_was_black_screen_ = IsBlackScreen(image);
+    if (precise_position && last_capture_was_black_screen_) {
+        return false;
+    }
     if (frame_observer_) {
         frame_observer_(image);
     }
@@ -104,7 +132,8 @@ bool PositionProvider::Capture(
 
     maplocator::LocateOptions options;
     options.force_global_search = force_global_search;
-    options.reject_occluded_frames = heading_source_ != HeadingSource::Camera;
+    options.reject_occluded_frames = heading_source != HeadingSource::Camera;
+    options.precise_position = precise_position;
     options.expected_zone_id = expected_zone_id;
     options.search_hints = search_hints;
     options.camera_heading_prior = camera_heading_prior;
@@ -127,13 +156,19 @@ bool PositionProvider::Capture(
         return false;
     }
 
+    if (precise_position
+        && (!std::isfinite(locate_result.position->x) || !std::isfinite(locate_result.position->y)
+            || !std::isfinite(locate_result.position->score) || locate_result.position->score < options.loc_threshold)) {
+        return false;
+    }
+
     // An unsure camera reading is never the heading source, and on the touch backends never steered on either.
     const std::optional<double> confident_camera = locate_result.camRot && std::isfinite(locate_result.camRot->confidence)
                                                            && locate_result.camRot->confidence >= kNavigationCameraMinConfidence
                                                        ? std::optional<double>(locate_result.camRot->rot)
                                                        : std::nullopt;
     std::optional<double> heading = locate_result.rot;
-    if (heading_source_ == HeadingSource::Camera) {
+    if (heading_source == HeadingSource::Camera) {
         heading = confident_camera;
     }
     if (!heading || !std::isfinite(*heading) || *heading < 0.0 || *heading >= 360.0) {

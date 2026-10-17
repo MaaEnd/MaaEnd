@@ -136,7 +136,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	hits, err := iconqty.RecognizeQuantities(ctx, img, iconqty.Request{
+	hits, err := iconqty.RecognizeQuantities(ctx, ctrl, img, iconqty.Request{
 		GridType:          gridType,
 		ROI:               params.ROI,
 		ItemFilters:       scanFilters,

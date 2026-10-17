@@ -34,7 +34,7 @@
         "order_by": "Horizontal"
     },
     "AutoDeliveryCheckDeliveryMissionListComplete": {
-        "desc": "比较任务列表向下滑动前后的静止画面，确认列表已经到底",
+        "desc": "[运行时覆盖] 比较任务列表向下滑动前后的静止画面，确认列表已经到底",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
         "custom_recognition_param": {
@@ -52,6 +52,11 @@
         "next": [
             "AutoDeliveryDeliveryMissionNotFound"
         ],
+        // attach.ready 是识别器的运行期状态：首次执行时 ListCompleteRecognition 把 roi 内画面截成模板
+        // ListCompleteRecognition/AutoDeliveryCheckDeliveryMissionListComplete.png 并置 ready=true，
+        // 之后每轮用该模板判断列表是否已停住。
+        // AutoDeliverySelectDeliveryMissionFromList 在开始新一轮查找前用 PipelineOverrideAction 置回 false，
+        // 使固定画面被重新采集（否则上一轮的模板会一直沿用）。
         "attach": {
             "ready": false
         }

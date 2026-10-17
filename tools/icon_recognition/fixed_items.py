@@ -9,6 +9,8 @@ import json5
 
 
 FIXED_ITEMS_PATH = Path(__file__).with_name("fixed_items.json")
+#: 固定物品必须自带的多语言名字（key 与物品表 ``names`` 一致）。
+NAME_LANGUAGES = ("CN", "TC", "EN", "JP", "KR")
 
 
 def load_fixed_items(path: str | Path = FIXED_ITEMS_PATH) -> dict[str, dict[str, Any]]:
@@ -21,8 +23,8 @@ def load_fixed_items(path: str | Path = FIXED_ITEMS_PATH) -> dict[str, dict[str,
             raise ValueError("fixed_items.json 必须使用物品 ID 到对象的映射")
         required = {
             "name",
+            "names",
             "iconId",
-            "i18nKey",
             "rarity",
             "storageKind",
             "categoryType",
@@ -31,11 +33,14 @@ def load_fixed_items(path: str | Path = FIXED_ITEMS_PATH) -> dict[str, dict[str,
         missing = required - payload.keys()
         if missing:
             raise ValueError(f"{item_id} 缺少字段: {', '.join(sorted(missing))}")
+        names = payload["names"]
+        if not isinstance(names, dict) or any(
+            not isinstance(names.get(language), str) or not names[language]
+            for language in NAME_LANGUAGES
+        ):
+            raise ValueError(f"{item_id}.names 必须是 {', '.join(NAME_LANGUAGES)} 的非空映射")
         result[item_id] = dict(payload)
     return result
 
 
 FIXED_ITEMS = load_fixed_items()
-FIXED_NAME_KEYS = {
-    item_id: payload["i18nKey"] for item_id, payload in FIXED_ITEMS.items()
-}

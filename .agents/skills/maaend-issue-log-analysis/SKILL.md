@@ -52,11 +52,20 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
     如果在日志包内或 issue 附件中发现了 `.dmp` 文件，**立即读取 `.agents/skills/dmp-analysis/SKILL.md` 并严格按其流程执行**。不要跳过这一步，不要只凭日志文本猜测崩溃原因。
 
-    a. 按照 `dmp-analysis/SKILL.md` 的完整流程完成崩溃转储分析，包括：- 解析异常类型、崩溃地址、崩溃模块 - 提取 crashing thread 的完整堆栈帧 - 下载对应版本的 PDB 符号并使用 `dump_syms` + `minidump-stackwalk` 完成符号化
-    b. DMP 的进程 PID（通常在文件名中，如 `MaaEnd.exe.18188.dmp` → PID 18188）必须与 `maafw.log` 中的 `[Px<pid>]` 标签交叉验证，确认是同一次崩溃会话。
-    c. 最终报告中必须包含 **`## DMP 崩溃分析`** 区域（见 Output Format），内容包括：- 异常类型和异常码（如 `0xC0000409`），以及异常码的含义 - 崩溃模块和偏移 - **crashing thread 的全部有效堆栈帧**（module+offset 或符号化后的 function+line），不要省略或截断 - 关键模块列表
-    d. 如果堆栈中涉及 MaaFramework 或 MXU 的帧且已完成符号化（有函数名+源码行号），**必须**按对应版本 clone 上游仓库源码，定位到具体代码行，并以远端 GitHub `blob` 行号链接（尖括号包裹）的形式贴出。clone 命令参考：- `git clone --depth 1 --branch "v<VERSION>" https://github.com/MaaXYZ/MaaFramework.git .cache/upstream-src/MaaFramework` - `git clone --depth 1 --branch "v<VERSION>" https://github.com/MistEO/MXU.git .cache/upstream-src/MXU`
-    e. 如果符号化失败或无法下载 PDB，在报告中明确说明，但仍必须输出 module+offset 级别的堆栈。
+    1. 按照 `dmp-analysis/SKILL.md` 的完整流程完成崩溃转储分析，包括：
+        - 解析异常类型、崩溃地址、崩溃模块
+        - 提取 crashing thread 的完整堆栈帧
+        - 下载对应版本的 PDB 符号并使用 `dump_syms` + `minidump-stackwalk` 完成符号化
+    2. DMP 的进程 PID（通常在文件名中，如 `MaaEnd.exe.18188.dmp` → PID 18188）必须与 `maafw.log` 中的 `[Px<pid>]` 标签交叉验证，确认是同一次崩溃会话。
+    3. 最终报告中必须包含 **`## DMP 崩溃分析`** 区域（见 Output Format），内容包括：
+        - 异常类型和异常码（如 `0xC0000409`），以及异常码的含义
+        - 崩溃模块和偏移
+        - **crashing thread 的全部有效堆栈帧**（module+offset 或符号化后的 function+line），不要省略或截断
+        - 关键模块列表
+    4. 如果堆栈中涉及 MaaFramework 或 MXU 的帧且已完成符号化（有函数名+源码行号），**必须**按对应版本 clone 上游仓库源码，定位到具体代码行，并以远端 GitHub `blob` 行号链接（尖括号包裹）的形式贴出。clone 命令参考：
+        - `git clone --depth 1 --branch "v<VERSION>" https://github.com/MaaXYZ/MaaFramework.git .cache/upstream-src/MaaFramework`
+        - `git clone --depth 1 --branch "v<VERSION>" https://github.com/MistEO/MXU.git .cache/upstream-src/MXU`
+    5. 如果符号化失败或无法下载 PDB，在报告中明确说明，但仍必须输出 module+offset 级别的堆栈。
 
 6. 建立时间线。
     - 先从 issue 文本判断“用户觉得出问题的时刻”。
@@ -414,7 +423,6 @@ Frame 2: ...
 可能相关线索（待验证）：
 [根据日志/现象推测的可能方向，不保证准确，供参考]
 ```
-````
 
 </details>
 
@@ -431,7 +439,7 @@ Translate the complete conclusion directly into English and paste it here. Note 
 
 </details>
 
-```
+````
 
 ## Reminders
 
@@ -451,4 +459,3 @@ Translate the complete conclusion directly into English and paste it here. Note 
 - 如果回答里引用了具体代码行，直接给远端 GitHub `blob` 行号链接，用尖括号包裹，不要给本地路径加行号。
 - 如果日志和 issue 文字描述不一致，必须显式说明“证据未复现”还是“证据已复现但用户表述不精确”。
 - 如果证据表明问题已在新版本修复，明确建议用户升级；如果怀疑安装包、资源文件或配置损坏，明确建议重新下载或重建；如果判断为真实代码缺陷且暂无 workaround，明确建议等待开发者修复。
-```

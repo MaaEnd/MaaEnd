@@ -7,11 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/gamesetting"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -83,7 +82,10 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Int32("height", height).
 			Msg("Failed to detect controller type, falling back to aspect ratio check")
 	} else {
-		isADBController = controlType == control.CONTROL_TYPE_ADB
+		// 触控类控制器（ADB / PlayCover / 原生安卓）都按 1280×720 使用：PlayCover 在
+		// docs/zh_cn/users/playcover.md 里被要求设成该分辨率，原生安卓的触控空间也是 720p，
+		// 所以三者统一走精确分辨率检查，不能只与 adb 比较。
+		isADBController = pienv.IsAdbLikeControllerType(controlType)
 		log.Debug().
 			Uint64("task_id", detail.TaskID).
 			Str("entry", detail.Entry).
@@ -482,19 +484,18 @@ func (c *AspectRatioChecker) stopWithWarning(tasker *maa.Tasker, controllerDispl
 	tasker.PostStop()
 }
 
+// resolveControllerType 返回归一化后的控制器类别及其来源。
+// PI_CONTROLLER 优先；缺失或类型未知时回退到 controller.GetInfo()——PI 协议允许 Client
+// 省略变量，少了兜底会把 ADB 控制器当成未知/桌面端，从而放行 1600×900 这类桌面分辨率。
+// controller 必须是本回调里已取得并向下传递的那个（见编码规范「回调里的句柄怎么用」）。
 func resolveControllerType(controller *maa.Controller) (string, string, error) {
-	if controlType := normalizeControllerType(pienv.ControllerType()); controlType != "" {
-		return controlType, "pi_env", nil
+	if kind := pienv.ControllerKind(); kind != pienv.ControllerKindUnknown {
+		return kind, "pi_env", nil
 	}
-	controlType, err := control.GetControlType(controller)
-	if err != nil {
-		return "unknown", "controller_info", err
+	if kind := pienv.ResolveControllerKind(controller); kind != pienv.ControllerKindUnknown {
+		return kind, "controller_info", nil
 	}
-
-	if normalized := normalizeControllerType(controlType); normalized != "" {
-		return normalized, "controller_info", nil
-	}
-	return "unknown", "controller_info", nil
+	return "unknown", "unavailable", fmt.Errorf("controller type unavailable from both PI_CONTROLLER and controller.GetInfo()")
 }
 
 // isAspectRatio16x9 checks if the given dimensions are approximately 16:9
@@ -566,26 +567,17 @@ func displayController(name, controllerType string) string {
 
 func displayControllerType(controllerType string) string {
 	switch controllerType {
-	case control.CONTROL_TYPE_ADB:
+	case pienv.ControllerKindAdb:
 		return "ADB"
-	case control.CONTROL_TYPE_WIN32:
+	case pienv.ControllerKindWin32:
 		return "Win32"
-	case control.CONTROL_TYPE_LINUX:
+	case pienv.ControllerKindLinux:
 		return "Linux"
+	case pienv.ControllerKindMacOS:
+		return "macOS"
+	case pienv.ControllerKindPlayCover:
+		return "PlayCover"
 	default:
 		return controllerType
-	}
-}
-
-func normalizeControllerType(controllerType string) string {
-	switch strings.ToLower(strings.TrimSpace(controllerType)) {
-	case "adb":
-		return control.CONTROL_TYPE_ADB
-	case "win32":
-		return control.CONTROL_TYPE_WIN32
-	case "linux":
-		return control.CONTROL_TYPE_LINUX
-	default:
-		return ""
 	}
 }

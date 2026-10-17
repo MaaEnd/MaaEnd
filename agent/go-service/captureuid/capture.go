@@ -11,10 +11,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/gamesetting"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pretask/gamesetting"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -56,7 +55,7 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	if typ == "" {
 		return captureErr(allowUnknown, "cannot determine controller type")
 	}
-	if typ != control.CONTROL_TYPE_WIN32 {
+	if typ != pienv.ControllerKindWin32 {
 		return captureByOCR(ctx, ctrl, stayOnCurrentScreen, allowUnknown, outputType)
 	}
 
@@ -67,15 +66,11 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	return cacheAndFormat(raw, allowUnknown, outputType)
 }
 
+// controllerType 返回归一化后的控制器类别（见 pienv.ControllerKind*）。
+// PI_CONTROLLER 缺失时回退到 controller.GetInfo()：PI 协议允许 Client 省略变量，
+// 少了这层兜底会让 ADB 控制器误走 OCR 流程。ctrl 由调用方传入，本函数不自己取句柄。
 func controllerType(ctrl *maa.Controller) string {
-	if typ := strings.ToLower(strings.TrimSpace(pienv.ControllerType())); typ != "" {
-		return typ
-	}
-	typ, err := control.GetControlType(ctrl)
-	if err != nil {
-		return ""
-	}
-	return typ
+	return pienv.ResolveControllerKind(ctrl)
 }
 
 func captureByOCR(ctx *maa.Context, ctrl *maa.Controller, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {

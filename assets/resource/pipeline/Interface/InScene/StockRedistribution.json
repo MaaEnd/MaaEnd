@@ -64,5 +64,17 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "StockRedistributionTerminalInteractScan": {
+        "desc": "走向物资调度终端时边走边认的终端图标预筛，只给寻路读取 roi/template",
+        "recognition": "TemplateMatch",
+        "roi": [
+            755,
+            330,
+            297,
+            312
+        ],
+        "template": "AutoSell/StockRedistributionButton.png",
+        "threshold": 0.75
     }
 }

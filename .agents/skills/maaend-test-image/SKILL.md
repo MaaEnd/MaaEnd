@@ -84,13 +84,14 @@ uv run .agents/skills/maaend-test-image/scripts/redact_test_image.py `
   "tests\MaaEndTestset\ADB\Official_CN\四号谷地_确认转交.png"
 ```
 
-脚本使用 MaaEnd 自带的 OCR 模型并执行：
+脚本会先判定原图平台，再用 MaaEnd 自带的 OCR 模型脱敏：
 
 1. 校验截图为 1280×720；
-2. 用纯绿色 `RGB(0, 255, 0)` 覆盖 ADB 固定 ROI `[84, 690, 114, 18]` 或 Win32 固定 ROI `[70, 696, 90, 13]`；
-3. 用 `assets/resource/model/ocr/` 查找包含 `UID` 或 `#` 的区域；
-4. 用同样的纯绿色覆盖 OCR 命中框；
-5. 原子写入目标 PNG，外部原图不会先进入仓库。
+2. 按 UID 文字判定原图来自 `ADB` 还是 `Win32`（见下节），并校验与目标路径是否一致；
+3. 用纯绿色 `RGB(0, 255, 0)` 覆盖该平台的固定 ROI：ADB `[84, 690, 114, 18]`、Win32 `[70, 696, 90, 13]`；
+4. 用 `assets/resource/model/ocr/` 查找包含 `UID` 或 `#` 的区域；
+5. 用同样的纯绿色覆盖 OCR 命中框；
+6. 原子写入目标 PNG，外部原图不会先进入仓库。
 
 如果 OCR 漏掉其它私人信息，添加可重复的额外 ROI，格式为 `x,y,w,h`：
 
@@ -111,7 +112,19 @@ uv run .agents/skills/maaend-test-image/scripts/redact_test_image.py `
 - 图片内容、方向和 1280×720 分辨率未被改变；
 - 仓库中没有原始副本或 `.redacting-*` 临时文件。
 
+固定 ROI 在 OCR 之前就已经涂掉，所以固定 ROI 没盖全 UID 时，剩下的数字不含 `UID` / `#` 标记词，OCR 只会返回空结果、不会提示漏涂。两个平台的 UID 文字大小不同：把 ADB 截图按 Win32 的 ROI 打码会漏出尾部数字；把图放错平台目录同样会让用例失准，因为 `hits` 是按控制器矩阵跑的，ADB 截图在 Win32 矩阵下识别会失败。脚本会在打码前判定原图平台，与目标路径不一致时直接报错（确认平台无误时可用 `--skip-platform-check` 跳过，并用 `--extra-roi` 补齐遮盖范围）。
+
 OCR 只是辅助检查，视觉复核才是隐私安全的最终门槛。无法确认脱敏完整时，不要把图片加入测试或提交。
+
+### 判断截图平台
+
+需要单独确认某张原始截图的平台时：
+
+```powershell
+uv run .agents/skills/maaend-test-image/scripts/detect_screenshot_platform.py "C:\path\raw.png"
+```
+
+判定依据是底部 HUD 的 UID 文字范围：ADB 的文字更大（右边界约 x=196、高约 10），落在 `[84, 690, 114, 18]` 内；Win32 约 x=157、高约 8，落在 `[70, 696, 90, 13]` 内。两套 ROI 和判定阈值都在这个脚本里，`redact_test_image.py` 直接复用。平台明确时退出码为 0，判不出来（`unknown` / `ambiguous`）时为 2。只能拿原始截图来判：打过码的图里 UID 已被绿色块盖住，脚本会报 `unknown`。
 
 ## 编写测试用例
 
@@ -191,7 +204,7 @@ pnpm test
 
 随后确认：
 
-1. 每个新增 `image` 在对应 controller/resource 的目录下都存在；
+1. 每个新增 `image` 在对应 controller/resource 的目录下都存在，且该目录的平台与原图平台一致（`redact_test_image.py` 导入时已校验，事后移动或补图时要复查）；
 2. `tests/maatools/error_details.json` 没有本次用例的错误；
 3. `git diff --check` 没有文本问题；
 4. `git status --short` 和目标文件 diff 只包含预期变更。

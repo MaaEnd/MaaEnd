@@ -13,6 +13,7 @@ from build_autoessence_tasks import (
     OCR_ROI,
     ocr_expected,
     parse_location_keys,
+    resolve_locations,
     select_weapons,
     strip_choose_location,
     sync_anchor_list,
@@ -25,18 +26,37 @@ ROOT = Path(__file__).resolve().parents[2]
 class LocationKeyTest(unittest.TestCase):
     def test_parse_go_map(self):
         source = '''
-var locationNameToKey = map[string]string{
-	"重度能量淤积点·枢纽区":   "VFTheHub",
-	"重度能量淤积点·雪松林":   "WLSnowyForest",
+var locationLevelToKey = map[string]string{
+	"map01_lv001": "VFTheHub",
+	"map02_lv009": "WLSnowyForest",
 }
 '''
         self.assertEqual(
             parse_location_keys(source),
             {
-                "重度能量淤积点·枢纽区": "VFTheHub",
-                "重度能量淤积点·雪松林": "WLSnowyForest",
+                "map01_lv001": "VFTheHub",
+                "map02_lv009": "WLSnowyForest",
             },
         )
+
+    def test_resolves_by_level_id(self):
+        resolved = resolve_locations(
+            [{"name": "重度能量淤积点·枢纽区", "level_id": "map01_lv001"}],
+            {"map01_lv001": "VFTheHub"},
+            {"global.region.TheHub"},
+        )
+        self.assertEqual([key for key, _ in resolved], ["VFTheHub"])
+
+    def test_missing_key_reports_level_id(self):
+        with self.assertRaises(ValueError) as ctx:
+            resolve_locations(
+                [{"name": "重度能量淤积点·祀的画", "level_id": "map02_lv010"}],
+                {"map01_lv001": "VFTheHub"},
+                set(),
+            )
+        message = str(ctx.exception)
+        self.assertIn("map02_lv010", message)
+        self.assertIn("locationLevelToKey", message)
 
 
 class OcrExpectedTest(unittest.TestCase):

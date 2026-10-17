@@ -12,7 +12,7 @@ import "github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 
 ## 数据加载（默认）
 
-默认会从仓库的 `assets/data/EssenceFilter/*` 加载匹配数据（`matcher_config.json`、`skill_pools.json`、`weapons_output.json`、`locations.json`）。
+默认会从仓库的 `assets/data/EssenceFilter/*` 加载匹配数据（`matcher_config.json`、`skill_pools.json`、`weapons_output.json`、`locations.json`）。其中 `weapons_output.json` 由 `tools/essence_filter/sync_zmdmap.py` 从 zmdmap 的 `tools/zmdmap/data/weapons.json` 同步，`skill_pools.json` / `locations.json` 由 `tools/essence_filter/` 下的生成脚本产出。
 
 matchapi 只返回结构化匹配结果；面向用户的文案由上层 `essencefilter` 集成层基于 `MatchResult.Kind` 与扩展字段自行渲染，不属于 matchapi 输出的一部分。
 

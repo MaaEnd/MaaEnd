@@ -6,6 +6,8 @@
 
 #include <opencv2/core.hpp>
 
+#include "roi_template_scanner.h"
+
 struct MaaContext;
 
 namespace mapnavigator
@@ -16,11 +18,9 @@ namespace mapnavigator
 // retargets it for free. A route names the node; nothing here is a route-level number.
 struct PromptScanProfile
 {
-    std::string scan_node; // node it was read from; empty = the shipped default
-    cv::Rect base_roi {};  // in the authored base frame
-    cv::Mat templ;         // grayscale, base scale
-    cv::Mat mask;          // CV_8UC1 match mask; empty = match the whole template
-    double threshold = 0.0;
+    std::string scan_node;       // node it was read from; empty = the shipped default
+    cv::Rect base_roi {};        // in the authored base frame
+    std::vector<ScanIcon> icons; // one per authored template; any one matching flags the prompt
 };
 
 // Scan ROI of any node, read out of the pipeline rather than hardcoded, so editing that node retargets whoever
@@ -31,7 +31,7 @@ bool TryReadNodeRoi(MaaContext* context, const std::string& node_name, cv::Rect*
 // purpose: callers use it to decide whether a node can even back a template pre-filter before asking for one.
 std::string ReadNodeRecognitionType(MaaContext* context, const std::string& node_name);
 
-// Reads roi / template / threshold out of one TemplateMatch node and loads the template off disk; nothing else in
+// Reads roi / template / threshold out of one TemplateMatch node and loads every template off disk; nothing else in
 // the node is read. Every precondition the matcher and the scanner have is checked here, so a mis-authored node
 // costs one error line and no pre-filter instead of misbehaving at walking speed.
 // controller_type picks which resource overlay the template path resolves against; the caller already holds it.

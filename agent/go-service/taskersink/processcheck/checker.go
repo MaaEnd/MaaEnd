@@ -44,7 +44,13 @@ func (c *ProcessChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus,
 		return
 	}
 
-	if !strings.EqualFold(pienv.ControllerType(), "Win32") {
+	// 控制器类别优先取 PI_CONTROLLER；缺失时用 tasker 的 controller 兜底，否则 PI 变量
+	// 被客户端省略时，Win32 上这项进程检查会被静默跳过。仅兜底时才取句柄。
+	var ctrl *maa.Controller
+	if pienv.ControllerKind() == pienv.ControllerKindUnknown && tasker != nil {
+		ctrl = tasker.GetController()
+	}
+	if pienv.ResolveControllerKind(ctrl) != pienv.ControllerKindWin32 {
 		return
 	}
 

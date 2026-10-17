@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD033 MD041 -->
 <p align="center">
-  <img alt="LOGO" src="https://maaend.com/MaaEnd-Tiny-512.png" width="256" height="256" />
+  <img alt="LOGO" src="./docs/images/MaaEnd-Tiny-512.png" width="256" height="256" />
 </p>
 
 <div align="center">
@@ -106,7 +106,7 @@ Thanks to [zmdmap](https://zmdmap.com/) for providing information support to Maa
 
 Come hang out and chat with everyone:
 
-- 💬 **User QQ Group**: [1082597011](https://qm.qq.com/q/F4FjKxkCRy)  
+- 💬 **User QQ Group**: [315101779](https://qm.qq.com/q/eXVfrZsbmg)  
   For usage questions, feature requests, and casual chatting.
 - 👨‍💻 **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   Dedicated to development discussion. (For general usage questions, please go to the user group above.)

@@ -29,6 +29,7 @@ export const ActionType = Object.freeze({
   NAVMESH: 9,
   FIND: 10,
   TRIGGER: 11,
+  JUMP_PAD: 12,
 });
 
 const VALID_ACTION_INTS = new Set(Object.values(ActionType));
@@ -48,6 +49,7 @@ export const ACTION_COLORS = {
   [ActionType.NAVMESH]: "#ffffff",
   [ActionType.FIND]: "#e11d48",
   [ActionType.TRIGGER]: "#84cc16",
+  [ActionType.JUMP_PAD]: "#f472b6",
 };
 
 /** @type {Object<number,string>} display name per action. */
@@ -65,6 +67,7 @@ export const ACTION_NAMES = {
   [ActionType.NAVMESH]: "Navmesh",
   [ActionType.FIND]: "Find",
   [ActionType.TRIGGER]: "Trigger",
+  [ActionType.JUMP_PAD]: "JumpPad",
 };
 
 /** @type {Object<number,string>} export token per action (RUN..TRIGGER; NONE has none). */
@@ -81,6 +84,7 @@ export const ACTION_TOKENS = {
   [ActionType.NAVMESH]: "NAVMESH",
   [ActionType.FIND]: "FIND",
   [ActionType.TRIGGER]: "TRIGGER",
+  [ActionType.JUMP_PAD]: "JUMP_PAD",
 };
 
 /** @type {Object<string,number>} upper-case token → action int. */
@@ -98,6 +102,7 @@ export const ACTION_NAME_LOOKUP = {
   NAVMESH: ActionType.NAVMESH,
   FIND: ActionType.FIND,
   TRIGGER: ActionType.TRIGGER,
+  JUMP_PAD: ActionType.JUMP_PAD,
 };
 
 /** Actions shown in the UI dropdown, in order (RUN..TRIGGER). */
@@ -109,6 +114,7 @@ export const ACTION_MENU_TYPES = [
   ActionType.INTERACT,
   ActionType.PORTAL,
   ActionType.TRANSFER,
+  ActionType.JUMP_PAD,
   ActionType.COLLECT,
   ActionType.DIG,
   ActionType.NAVMESH,
@@ -127,6 +133,7 @@ export const BASE_NAV_ZONE_IMAGE_PARTS = {
   dung01: ["MapLocator", "Dung", "Dung01Base.png"],
   indie_dg005: ["MapLocator", "IndieDg005", "IndieDg005Base.png"],
   indie_dg007: ["MapLocator", "IndieDg007", "IndieDg007Base.png"],
+  indie_dg016: ["MapLocator", "IndieDg016", "IndieDg016Base.png"],
 };
 
 /** @type {string[]} */

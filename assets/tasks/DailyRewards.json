@@ -24,11 +24,35 @@
                 "DailyTaskRewards",
                 "DailyClaimDeliveryJobsRewards",
                 "DailyEventRewards",
-                "DailyProtocolPassRewards"
+                "DailyProtocolPassRewards",
+                "DailyActivityFullWarning"
             ]
         }
     ],
     "option": {
+        "DailyActivityFullWarning": {
+            "type": "switch",
+            "label": "$option.DailyActivityFullWarning.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyTaskActivityFullCheck": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyTaskActivityFullCheck": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
         "DailyEmailRewards": {
             "type": "switch",
             "label": "$option.DailyEmailRewards.label",

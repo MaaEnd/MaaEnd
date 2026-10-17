@@ -2,7 +2,7 @@
 
 本文件提供具体的重构示例，供修改代码时对照。
 
-## 成员变量命名：camelCase → snake*case*
+## 成员变量命名：camelCase → snake_case_
 
 ### MapTypes.h — `MapPosition`
 

@@ -25,13 +25,13 @@
 | 起点与间距 | `origin` / `pitch` | 规则网格第一条轴线的位置，以及相邻格子的平均距离 |
 | 回退 | `fallback` | 新证据不足或冲突时，继续采用结构候选的保守路径 |
 | 未接受候选 | `rejected` | 算法已检查该候选，但因分数不足或低纹理检查不通过而不把它放入公开结果；这不等于异常 |
-| 诊断信息 | `diagnostics` | 正常执行到结果汇总阶段时收集的内部决策依据；提前返回的 `invalid_image` 或 `exception` 可能不含诊断。仅 debug 文件和人工测试输出会保存它，不属于公开返回契约 |
+| 诊断信息 | `diagnostics` | 正常执行到结果汇总阶段时收集的内部决策依据；提前返回的 `invalid_image`、`invalid_argument`、`grid_detection_failed` 或 `exception` 可能不含诊断。仅 debug 文件和人工测试输出会保存它，不属于公开返回契约 |
 
 ## 格子定位
 
 普通界面先由 `GridDetector` 在请求 ROI 内寻找一个或多个格子。它只负责定位，不读取物品 catalog，也不决定最终匹配结果。定位结果随后统一转换为 `GridCell`，交给图标匹配阶段。
 
-当前网格定位复用两套 1280x720 controller profile：Win32 基准 UI，以及 ADB 放大 UI。Custom 入口按运行时 `type` 选择：`Win32`、`Linux`、`MacOS` 暂按标准 profile，`Adb`、`PlayCover` 暂按 ADB profile；CloudADB 的运行时 `type` 是 `Adb`，会自然落入后一组。除 Win32/Adb 外，这些兼容映射暂没有独立截图数据验证，后续可根据实际画面调整；直接 C++ 调用、上下文不可用或未知类型仍从 ROI 图像推断。调用方不能指定比例，证据不足时定位失败。
+当前网格定位复用两套 1280x720 controller profile：Win32 基准 UI，以及 ADB 放大 UI。Custom 入口按运行时 `type` 选择：`Win32`、`Linux`、`MacOS` 暂按标准 profile，`Adb`、`PlayCover`、`native_android` 暂按 ADB profile；CloudADB 的运行时 `type` 是 `Adb`，会自然落入后一组。除 Win32/Adb 外，这些兼容映射暂没有独立截图数据验证，后续可根据实际画面调整；直接 C++ 调用、上下文不可用或未知类型仍从 ROI 图像推断。调用方不能指定比例，证据不足时定位失败。
 
 选中 ADB profile 后，`GridDetector` 会临时把输入图归一化到标准 720p 网格逻辑密度，在归一化图上运行同一套定位算法，再把格子、布局和诊断坐标映射回输入原图。临时图在检测函数返回时释放；下游只接收原图坐标和内部选中的 profile 比例，不会继续使用归一化图。
 
@@ -61,7 +61,7 @@
 
 组件从发布物品目录和内置图标中准备候选模板，直接从原始图标资源生成当前原图格子的最终尺寸。基础匹配始终在输入原图上进行，同时考虑图标结构和 Lab 颜色；分数值得继续检查但尚未达到返回阈值时，再在原图像素空间尝试更细的位置偏移。
 
-候选集合先用 `item_filters`（空时使用界面默认值）选择分类；提供 `item_ids` 时与这些分类取交集，随后并入 `additional_item_filters`。`excluded_item_ids` 在候选集合计算的最后一步应用，因此其中的物品最终不会参与识别。筛选完成后，模板按 `(iconId, fluidIconId)` 去重，同一组只评分一次；alias 范围则来自 `(item_filters 或界面默认值) ∪ additional_item_filters`，再应用 `excluded_item_ids`，不会从未被过滤器选中的完整 catalog 补充物品。
+候选集合先用 `item_filters`（空时使用界面默认值）选择分类；提供 `item_ids` 时与这些分类取交集，随后并入 `additional_item_filters`。`excluded_item_ids` 在候选集合计算的最后一步应用，因此其中的物品不会作为候选返回（`item_recheck_filters` 的复核模板集合不应用此排除）。筛选完成后，模板按 `(iconId, fluidIconId)` 去重，同一组只评分一次；alias 范围则来自 `(item_filters 或界面默认值) ∪ additional_item_filters`，再应用 `excluded_item_ids`，不会从未被过滤器选中的完整 catalog 补充物品。
 
 catalog 加载后按 `sortId1`、`sortId2`、`item_id` 降序排列，没有成对 sort 字段的固定物品和武器排在有 sort 字段的物品之后。未精准请求同图标组中的某个 ID 时，排序最靠前的物品作为代表；精准请求时，请求 ID 优先成为代表，其余过滤范围内的同图标物品通过 `aliases` 返回。反查候选也按同一图标身份去重，但不保留 alias 列表；复核比较图标身份而不是代表 ID。`item_recheck_filters` 只复核原始 `item_ids` 的命中，不作用于附加分类带入的物品。
 
@@ -75,6 +75,6 @@ catalog 加载后按 `sortId1`、`sortId2`、`item_id` 降序排列，没有成�
 
 ## 返回、排序与去重
 
-只有最终分数达到请求阈值，而且没有被低纹理检查拒绝的结果，才进入公开 `matches`。同图标组存在其它过滤后物品时，代表项额外返回可选的 `aliases`，每项只包含 `item_id` 和对应的多语言 key `name`。数量条和头像处理只改变参与评分的模板遮罩，不会直接产生拒绝状态。未达到条件的候选不会返回给调用方，具体原因只写入内部诊断；网格定位和逐格匹配正常完成但没有任何候选进入结果时，对外返回 `no_match`，不是组件异常。网格检测无法生成正式格子时会返回 `exception`，不属于 `no_match`。
+只有最终分数达到请求阈值，而且没有被低纹理检查拒绝的结果，才进入公开 `matches`。同图标组存在其它过滤后物品时，代表项额外返回可选的 `aliases`，每项只包含 `item_id` 和对应的多语言 key `name`。数量条和头像处理只改变参与评分的模板遮罩，不会直接产生拒绝状态。未达到条件的候选不会返回给调用方，具体原因只写入内部诊断；网格定位和逐格匹配正常完成但没有任何候选进入结果时，对外返回 `no_match`，不是组件异常。网格检测无法生成正式格子时会返回 `grid_detection_failed`，不属于 `no_match`。
 
 准备返回的结果先按最终分数降序排列；同分时依次比较格子的 y、x 和物品 ID。启用去重后，每个物品 ID 只保留排序最靠前的格子。

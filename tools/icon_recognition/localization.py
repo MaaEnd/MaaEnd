@@ -1,4 +1,8 @@
-"""把 catalog item ID 同步到 MaaEnd 五语言 locale 文件。"""
+"""把 catalog item ID 同步到 MaaEnd 各语言 locale 文件。
+
+名字直接取自 zmdmap 数据与 ``fixed_items.json`` 里的 ``names``（多语言），不再查 ``lang_*.json`` 的
+哈希表。
+"""
 
 from __future__ import annotations
 
@@ -10,8 +14,9 @@ from typing import Any
 
 import json5
 
-from fixed_items import FIXED_NAME_KEYS
+from fixed_items import FIXED_ITEMS
 from text import clean_text
+from tools.zmdmap import read_payload
 
 
 LOCALE_MAP = {
@@ -29,29 +34,20 @@ def _name(
     key: str,
     language: str,
     fallback: object,
-    translations: Mapping[str, Any],
 ) -> str:
     names = payload.get("names")
     if isinstance(names, Mapping):
         if language not in names:
             raise ValueError(f"{key}.names 缺少大写语言 key: {language}")
         return clean_text(names[language], field=f"{key}.names.{language}")
-    name = payload.get("name")
-    if isinstance(name, str) and name in translations:
-        return clean_text(translations[name], field=f"{key}.name")
-    fixed_key = FIXED_NAME_KEYS.get(key)
-    if fixed_key and fixed_key in translations:
-        return clean_text(translations[fixed_key], field=f"{key}.name")
-    return clean_text(name or fallback, field=f"{key}.name")
+    return clean_text(payload.get("name") or fallback, field=f"{key}.name")
 
 
 def build_locale_values(
     catalog: Mapping[str, Any],
     source: Mapping[str, Any],
     language: str,
-    translations: Mapping[str, Any] | None = None,
 ) -> dict[str, str]:
-    selected_translations = translations or {}
     by_icon = {
         payload.get("iconId"): payload
         for payload in source.values()
@@ -64,11 +60,11 @@ def build_locale_values(
             raise ValueError(f"{item_id} source must be an object")
         record = catalog[item_id]
         fallback = record.get("name") if isinstance(record, Mapping) else None
-        localized = _name(payload, item_id, language, fallback, selected_translations)
+        localized = _name(payload, item_id, language, fallback)
         fluid_icon = record.get("fluidIconId") if isinstance(record, Mapping) else None
         if isinstance(fluid_icon, str) and fluid_icon:
             fluid = by_icon.get(fluid_icon, {})
-            fluid_name = _name(fluid, fluid_icon, language, fluid_icon, selected_translations)
+            fluid_name = _name(fluid, fluid_icon, language, fluid_icon)
             container_name = localized.split("(", 1)[0]
             localized = f"{container_name}({fluid_name})"
         values[f"iconRecognition.name.{item_id}"] = localized
@@ -131,7 +127,9 @@ def load_json_object(path: str | Path) -> dict[str, Any]:
 def build_source_index(
     items: Mapping[str, Any],
     weapons: Mapping[str, Any],
+    fixed_items: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """名字来源索引：物品表 + 武器表（含 ``internal_id`` 别名）+ 固定物品。"""
     result = dict(items)
     for top_key, payload in weapons.items():
         if not isinstance(top_key, str) or not isinstance(payload, Mapping):
@@ -145,6 +143,11 @@ def build_source_index(
             if existing is not None and existing is not payload:
                 raise ValueError(f"物品与武器本地化 ID 冲突: {alias}")
             result[alias] = payload
+    for item_id, payload in (fixed_items or FIXED_ITEMS).items():
+        existing = result.get(item_id)
+        if existing is not None and existing is not payload:
+            raise ValueError(f"固定物品与远端物品本地化 ID 冲突: {item_id}")
+        result[item_id] = payload
     return result
 
 
@@ -152,27 +155,19 @@ def generate_locales(
     catalog_path: str | Path,
     item_source_path: str | Path,
     weapon_source_path: str | Path,
-    language_root: str | Path,
     locale_root: str | Path,
 ) -> dict[str, int]:
     catalog = load_json_object(catalog_path)
+    # catalog 是本工具写出来的本地文件，另外两份是 zmdmap 数据：最前面有 version / sha256，
+    # 用 read_payload 去掉，别让元数据混进名字索引。
     source = build_source_index(
-        load_json_object(item_source_path),
-        load_json_object(weapon_source_path),
+        read_payload(Path(item_source_path)),
+        read_payload(Path(weapon_source_path)),
     )
-    language_directory = Path(language_root)
     locale_directory = Path(locale_root)
     counts: dict[str, int] = {}
-    for locale, (weapon_language, path_language) in LOCALE_MAP.items():
-        translations = load_json_object(
-            language_directory / f"lang_{path_language}.json"
-        )
-        values = build_locale_values(
-            catalog,
-            source,
-            weapon_language,
-            translations,
-        )
+    for locale, (weapon_language, _) in LOCALE_MAP.items():
+        values = build_locale_values(catalog, source, weapon_language)
         if len(values) != len(catalog):
             raise ValueError(f"{locale} 本地化 key 数与 catalog 不一致")
         update_interface_locale(locale_directory / f"{locale}.json", values)
@@ -181,11 +176,10 @@ def generate_locales(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="生成 IconRecognition 五语言名称")
+    parser = argparse.ArgumentParser(description="生成 IconRecognition 各语言名称")
     parser.add_argument("--catalog", type=Path, required=True)
     parser.add_argument("--item-source", type=Path, required=True)
     parser.add_argument("--weapon-source", type=Path, required=True)
-    parser.add_argument("--language-root", type=Path, required=True)
     parser.add_argument(
         "--locale-root",
         type=Path,
@@ -196,7 +190,6 @@ def main() -> int:
         args.catalog,
         args.item_source,
         args.weapon_source,
-        args.language_root,
         args.locale_root,
     )
     print(json.dumps(counts, ensure_ascii=False, indent=4))

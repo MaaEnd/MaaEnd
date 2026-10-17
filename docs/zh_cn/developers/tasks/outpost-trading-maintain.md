@@ -4,7 +4,7 @@
 
 ## 要点速览
 
-- **入口**：`assets/tasks/OutpostTrading.json` 的 `SellProduct` 任务 → Pipeline 入口 `OutpostTradingSchedule`（按星期门控）。task 名与全部 option 名是 `config/gui.json` 的持久化键，刻意保留旧名 `SellProduct*`，只有目录/文件/节点名改为 `OutpostTrading`。
+- **入口**：`assets/tasks/OutpostTrading.json` 的 `SellProduct` 任务 → Pipeline 入口 `OutpostTradingSchedule`（按星期门控）。task 名与全部 option 名是 MXU 配置 `config/mxu-MaaEnd.json` 的持久化键，刻意保留旧名 `SellProduct*`，只有目录/文件/节点名改为 `OutpostTrading`。
 - **职责边界**：Go 侧只有两个业务包——`goods/`（货品选品、保留、缺货、优先表）与 `operator/`（干员识别、派驻规划、缓存），两者互不依赖；顶层 `runtime.go` 组合两者输出据点计划提示。
 - **生成产物不要手改**：`assets/data/OutpostTrading/selection_data.json`、`assets/tasks/OutpostTrading.json`、`pipeline/OutpostTrading/{OperatorSession.json, Loop.json, {地区}/}`（Win32 与 ADB 两套）。一律改 `tools/pipeline-generate/OutpostTrading/` 下的模型/模板/投影后重新生成。
 - **状态分两类**：缺货集合、已尝试、已满足保留量都是**任务级会话状态**，不落盘，下次任务初始化时清空；唯一落盘的是 `debug/record/OutpostTradingCache.json`（按哈希 UID 隔离的干员快照 + 据点发展值状态）。
@@ -22,15 +22,15 @@ OutpostTradingSchedule ──命中星期──> OutpostTradingMain
   │    └─ ConfigureSelectionStrategy                           选品策略（稀有度/单价/库存）
   └─ OutpostTradingLoop                       按新地区优先遍历：武陵 → 四号谷地 → OutpostTradingTaskEnd
 
-每个地区（OutpostTrading{Region}Sell）
-  ├─ SceneManager 进本地区据点管理（SubTask）
+每个地区（OutpostTrading{Region} → OutpostTrading{Region}Sell）
+  ├─ SceneManager 先进本地区，再进本地区据点管理（两段 SubTask）
   ├─ {Region}InitializePrioritySession → RegisterPriorityItem1..6   切换本地区优先表
   ├─ {Region}PrepareOperatorCache → ScanOperatorList     无快照时完整扫描干员列表
   └─ [JumpBack] 按固定顺序逐个执行本地区据点 → 回到 OutpostTradingLoop
 
 每个据点（OutpostTrading{LocationId}Sell）
-  ├─ 绑定本据点锚点（ZeroMoneyHandler / SelectPriorityItem / CommitPriorityItem
-  │    / MarkOutOfStock / BetterSliding / 售前售后 OperatorTarget）
+  ├─ 绑定本据点锚点（ZeroMoneyHandler / CurrentGoodsReady / SelectPriorityItem / PriorityItemsExhausted
+  │    / CommitPriorityItem / MarkOutOfStock / BetterSliding；售前售后 OperatorTarget 由下方 SetOperatorAnchors 绑定）
   ├─ 识别据点发展值是否已满 → ReportLocationPlan（输出本据点售卖计划）
   ├─ SetOperatorAnchors → OutpostTradingSellMain
   │    ├─ BeforeSellOperator → [Anchor]…Target   售前：切到计划售卖干员
@@ -78,7 +78,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 - 据点主界面的货品槽位用 IconRecognition `single_roi` 识别当前选中的货品，候选只含本据点可售物品；Win32、ADB 两套 Pipeline 分别通过 `roi` 传入 `[1177,450,54,54]` 与 `[1151,393,66,66]`，Go 不硬编码平台坐标。
 - 稀有度和单价策略会复用正式选品规则，只有当前货品恰好是应用优先槽位、已尝试/缺货状态和保留规则后的下一候选时才沿用；否则落回「更换货品」流程扫描列表。
 - 优先槽位先于库存策略生效，因此库存策略也可沿用排除已尝试、缺货和保留规则后第一个可用的优先货品；当前货品不是该优先候选，或已无可用优先货品时，必须打开列表重新读取实时仓储数量，不能沿用普通候选。
-- 命中后由 `adopt` 操作把识别 detail 中的 `itemId` 登记为据点当前物品，状态效果与换货 `commit` 一致（记录已尝试、更新保留规则选中项），后续售卖、保留规则与缺货标记流程不区分货品来源。
+- 命中后由 `adopt` 操作把识别 detail 中的 `item_id` 登记为据点当前物品，状态效果与换货 `commit` 一致（记录已尝试、更新保留规则选中项），后续售卖、保留规则与缺货标记流程不区分货品来源。
 
 ### 优先售卖（默认关闭的总开关，与地区售卖开关解耦）
 
@@ -95,7 +95,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 
 ### 缺货
 
-换货后确认当前物品缺货 → `[Anchor]MarkOutOfStock` 按最后提交的 `itemId` 写入任务级缺货集合，后续据点选品直接跳过；不落盘，下次任务初始化时清空。
+换货或沿用后识别到当前物品库存不足（`OutpostTradingZeroProduct`：红色库存文字，或 1～3 位白色库存即 1～999 件）→ `[Anchor]MarkOutOfStock` 按据点当前物品（最后一次 `commit` / `adopt`）的 `item_id` 写入任务级缺货集合，后续据点选品直接跳过；不落盘，下次任务初始化时清空。
 
 ## 自动选择干员规则（Go `operator/`）
 
@@ -106,7 +106,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 1. 发展值 + 交易收益双加成；
 2. 仅发展值加成；
 3. 仅交易收益加成；
-4. 同档按游戏列表稳定序（命中该据点 `settlementFeatures` 数降序 → charId 数字降序，与稀有度无关）。
+4. 同档按游戏列表稳定序（命中该据点特性 `features` 的条数降序 → charId 数字降序，与稀有度无关）。
 
 据点发展值已满时发展值词条失效，只按交易收益分档。「完美候选」= 当前据点最高售卖档 ∩ 该据点恢复候选；账号有完美候选时只从中规划（即使被其他已启用据点占用也不降级绕开），没有才回退最高售卖档。当前派驻已在可用最高档时直接沿用，不打开列表。
 
@@ -120,7 +120,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 
 ### 失败策略
 
-售卖干员找不到 / 扫描失败 → 停止任务（避免带错干员交易）；恢复干员不可用 → 记录跳过，完成当前据点后继续任务。
+售卖干员找不到、售前或售后的列表扫描失败（含刷新重试一次后计划干员仍选不到）→ 停止任务（避免带错干员交易）；恢复干员完整扫描后仍无可用候选 → 记录跳过，完成当前据点后继续任务。
 
 ### 干员缓存（`debug/record/OutpostTradingCache.json`）
 
@@ -140,7 +140,7 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 
 ## 生成器与维护
 
-生成器位于 `tools/pipeline-generate/OutpostTrading/`。zmdmap 数据 CI 通过 `data/scripts/sell_product_data.py` 从 TableCfg 裁剪并发布 `tools/pipeline-generate/data/sell_product.json`，这份精简游戏数据只保留据点、可售物品及其活动标识、据点特性与干员匹配关系；MaaEnd 通过 `fetch-data.mjs` 下载该文件。`model.mjs` 统一定义据点/地区/多语言键，各 `*-data.mjs` 是对应模板的最小数据投影。
+生成器位于 `tools/pipeline-generate/OutpostTrading/`。据点数据由 zmdmap 发布，用 `pnpm fetch:zmdmap`（即 `uv run zmdmap fetch`）更新；数据流与生成器各文件的分工见[生成器 README](../../../../tools/pipeline-generate/OutpostTrading/README.md)。
 
 | 维护入口 | 生成产物 |
 | ------------------------------- | --------------------------------------------------------------- |
@@ -155,9 +155,9 @@ OutpostTradingSellLoop（不限次数，每轮先查调度券）
 手工维护（生成器不碰）：
 
 - `pipeline/OutpostTrading.json`：任务入口与初始化链；
-- `OutpostTrading/SellCore.json`、`ChangeGoods.json`：通用售卖循环与选货流程；
-- `OutpostTrading/OperatorScan.json`：干员缓存扫描；
-- `OutpostTrading/ReserveSession.json`：保留规则会话；
+- `OutpostTrading/SellCore.json`、`ChangeGoods.json`、`OutpostShared.json`：通用售卖循环、选货流程与据点界面识别；
+- `OutpostTrading/OperatorScan.json`、`Operator.json`：干员缓存扫描与联络干员界面识别；
+- `OutpostTrading/ReserveSession.json`：保留规则会话（`ConfigurePrioritySession` 也在此）；
 - `agent/go-service/outposttrading/` 全部 Go 代码：`goods/`（货品，含 `strategy/` 三个纯策略实现）、`operator/`（干员）、`internal/selectiondata/`（共享部署数据加载校验）、`internal/ocrmatch/`（共享 OCR 严格匹配）、`runtime.go`（`OutpostTradingLocationPlan` 组合提示）、`register.go`（聚合注册）。
 
 ```shell
@@ -186,4 +186,4 @@ node tools/pipeline-generate/run-all.mjs OutpostTrading
 git diff --check
 ```
 
-改动包含 `tests/**` 时本地跑 `pnpm test`；`pnpm check` / `pnpm test` 的其余情况交给 PR 的 CI 校验即可，详见[编码规范](../coding-standards.md#提交前检查)。
+改动包含 `tests/**` 时本地跑 `pnpm test`，若同时改了 `assets/**` 或 `tools/schema/**`，一并跑 `pnpm check`；其余情况不必在本地跑这两条命令，提 PR 后跟进相应 CI 即可，详见[编码规范](../coding-standards.md#提交前检查)。

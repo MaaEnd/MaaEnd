@@ -782,11 +782,12 @@ jobs:
 
   sentry_release:
     if: ${{ needs.meta.outputs.is_release == 'true' && github.repository_owner == 'MaaEnd' }}
-    needs: [meta, release]
+    needs: [meta, release, android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
           fetch-depth: 0
 
       - name: Resolve Sentry release
@@ -794,9 +795,14 @@ jobs:
         env:
           MAAEND_VERSION: ${{ needs.meta.outputs.tag }}
           MXU_VERSION: ${{ needs.meta.outputs.mxu_version }}
+          MAFW_APP_VERSION: ${{ needs.android.outputs.mafw_app_version }}
         run: |
           release="MXU@${MXU_VERSION#v}+MaaEnd@$MAAEND_VERSION"
           echo "release=$release" | tee -a "$GITHUB_OUTPUT"
+          # 外壳版本取自 APK 构建时 gradle 生成的值；取不到就只登记桌面 release
+          if [[ -n "$MAFW_APP_VERSION" ]]; then
+            echo "android_release=MaaFwApp@$MAFW_APP_VERSION+MaaEnd@$MAAEND_VERSION" | tee -a "$GITHUB_OUTPUT"
+          fi
 
       - name: Create Sentry release
         uses: getsentry/action-release@v3
@@ -810,3 +816,17 @@ jobs:
           set_commits: auto
           ignore_missing: true
           ignore_empty: true
+
+      # 外壳代码在 Aliothmoon/MaaFwApp，本仓库只 pin 一个 commit，没有可自动关联的
+      # 提交范围，所以只登记 release / deploy，不设 commits
+      - name: Create Android Sentry release
+        if: steps.sentry_release.outputs.android_release != ''
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: maaend
+          SENTRY_PROJECT: rust
+        with:
+          environment: ${{ needs.meta.outputs.is_prerelease == 'true' && 'beta' || 'stable' }}
+          release: ${{ steps.sentry_release.outputs.android_release }}
+          set_commits: skip

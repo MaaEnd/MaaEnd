@@ -9,8 +9,7 @@
             "image": "自动采集_普通路线1_定位点1.png",
             "hits": [
                 "AutoCollectCommonRoute1AssertLocation1",
-                "AutoCollectCommonRoute2AssertLocation1",
-                "AutoCollectRoute14AssertLocation1"
+                "AutoCollectCommonRoute2AssertLocation1"
             ]
         },
         {
@@ -96,6 +95,12 @@
             "image": "自动采集_路线13_定位点1.png",
             "hits": [
                 "AutoCollectRoute13AssertLocation1"
+            ]
+        },
+        {
+            "image": "自动采集_路线14_定位点1.png",
+            "hits": [
+                "AutoCollectRoute14AssertLocation1"
             ]
         },
         {

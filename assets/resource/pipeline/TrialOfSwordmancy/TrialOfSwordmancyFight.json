@@ -221,7 +221,7 @@
         "recognition": "And",
         "all_of": [
             "WhiteConfirmButtonType1",
-            "CancelButton"
+            "WhiteCancelButton"
         ],
         "pre_wait_freezes": {
             "time": 300,
@@ -294,7 +294,7 @@
         "desc": "战斗胜利后，点击离开",
         "recognition": "And",
         "all_of": [
-            "CancelButton"
+            "WhiteCancelButton"
         ],
         "pre_delay": 0,
         "action": "Click",

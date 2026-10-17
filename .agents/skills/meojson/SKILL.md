@@ -9,11 +9,11 @@ meojson is a header-only C++ JSON library, provided via MaaFramework deps. Inclu
 
 ## Core Types
 
-| Type           | Description                                                 |
+| Type | Description |
 | -------------- | ----------------------------------------------------------- |
-| `json::value`  | Universal JSON value (null/bool/number/string/array/object) |
-| `json::array`  | JSON array, wraps `std::vector<json::value>`                |
-| `json::object` | JSON object, wraps `std::map<std::string, json::value>`     |
+| `json::value` | Universal JSON value (null/bool/number/string/array/object) |
+| `json::array` | JSON array, wraps `std::vector<json::value>` |
+| `json::object` | JSON object, wraps `std::map<std::string, json::value>` |
 
 ## Parsing
 
@@ -227,12 +227,12 @@ MEO_JSONIZATION(MEO_OPT MEO_KEY("default") default_);
 
 ### Sub-Macros
 
-| Macro                  | Generates           |
+| Macro | Generates |
 | ---------------------- | ------------------- |
-| `MEO_TOJSON(...)`      | `to_json()` only    |
-| `MEO_FROMJSON(...)`    | `from_json()` only  |
-| `MEO_CHECKJSON(...)`   | `check_json()` only |
-| `MEO_JSONIZATION(...)` | All three           |
+| `MEO_TOJSON(...)` | `to_json()` only |
+| `MEO_FROMJSON(...)` | `from_json()` only |
+| `MEO_CHECKJSON(...)` | `check_json()` only |
+| `MEO_JSONIZATION(...)` | All three |
 
 ### Supported Field Types
 

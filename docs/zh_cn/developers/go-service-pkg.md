@@ -13,21 +13,21 @@
 
 | 包 | 一句话 | 典型调用方 |
 | ------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------- |
-| [`i18n`](#i18n-多语言文案) | `T` / `RenderHTML`，按客户端语言取文案 | 几乎所有要给用户看提示的 Action |
-| [`maafocus`](#maafocus-向客户端推-focus) | 把提示推到客户端 Focus UI | `FocusOCRAction`、战斗 / 据点交易等 |
-| [`recogtarget`](#recogtarget-and-识别解包) | 从 Pipeline 节点（含 `And`）选出真正要用的子识别结果 | `ExpressionRecognition`、`FocusOCRAction` |
-| [`boolexpr`](#boolexpr-条件计算) | `{占位符}` 替换 + 整型布尔表达式求值 | `ExpressionRecognition`、IMS R1 |
-| [`ocrnum`](#ocrnum-ocr-数值解析) | OCR 文本 → `int`（支持 `1.38万` / `13.8K` 等） | `ExpressionRecognition`、`iconqty` |
-| [`jsonclean`](#jsonclean-jsonc-清洗) | 去掉注释 / 尾逗号 / BOM，变成严格 JSON | `resource`、`i18n`、各类配置加载 |
-| [`pienv`](#pienv-project-interface-环境) | 读取 `PI_*` 环境变量（语言、控制器、资源） | `i18n`、`iconqty`、启动期逻辑 |
-| [`resource`](#resource-资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
+| [`i18n`](#i18n多语言文案) | `T` / `RenderHTML`，按客户端语言取文案 | 几乎所有要给用户看提示的 Action |
+| [`maafocus`](#maafocus向客户端推-focus) | 把提示推到客户端 Focus UI | `FocusOCRAction`、战斗 / 据点交易等 |
+| [`recogtarget`](#recogtargetand-识别解包) | 从 Pipeline 节点（含 `And`）选出真正要用的子识别结果 | `ExpressionRecognition`、`FocusOCRAction` |
+| [`boolexpr`](#boolexpr条件计算) | `{占位符}` 替换 + 整型布尔表达式求值 | `ExpressionRecognition`、IMS R1 |
+| [`ocrnum`](#ocrnumocr-数值解析) | OCR 文本 → `int`（支持 `1.38万` / `13.8K` 等） | `ExpressionRecognition`、`iconqty` |
+| [`jsonclean`](#jsoncleanjsonc-清洗) | 去掉注释 / 尾逗号 / BOM，变成严格 JSON | `resource`、`i18n`、各类配置加载 |
+| [`pienv`](#pienvproject-interface-环境) | 读取 `PI_*` 环境变量（语言、控制器、资源） | `i18n`、`iconqty`、启动期逻辑 |
+| [`resource`](#resource资源文件定位与读取) | 按相对路径找 `resource/` / `assets/` 下文件 | 商品目录、据点数据等 JSON 配置 |
 | [`fsutil`](#fsutil输出路径与原子写文件) | 持久化输出的路径基准；临时文件 + rename，避免半截写入 | 日志 / debug / 持久化缓存 |
-| [`levenshtein`](#levenshtein-编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
-| [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS、囤货、送货等扫格逻辑 |
+| [`levenshtein`](#levenshtein编辑距离) | rune 级编辑距离 | OCR / 名称模糊匹配 |
+| [`iconrecognition`](#iconrecognition--iconqty) | IconRecognition 参数与 detail 的公共结构 | IMS（经 `iconqty`）、据点交易商品识别 |
 | [`iconqty`](#iconrecognition--iconqty) | 扫格 + 格内数量 OCR | IMS A2 / A3 |
-| [`control`](#control-跨平台操控适配) | Win32 / ADB / macOS / Linux 统一操控接口 | 角色移动、镜头旋转等 |
-| [`minicv`](#minicv-轻量-cv) | 模板匹配、圆检测等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
-| [`parentwatch`](#parentwatch-父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
+| [`minicv`](#minicv轻量-cv) | 模板匹配、圆形掩码等纯 Go CV | 需要本地匹配且不想走 Pipeline 模板节点时 |
+| [`gamesetting`](#gamesetting游戏设置注册表) | 读写游戏设置注册表、判定区服、定位启动器安装目录（仅 Windows） | `LaunchGamePC`、`CloseGamePC`、分辨率 / HDR 检查 |
+| [`parentwatch`](#parentwatch父进程监视) | 父进程退出则结束自身，避免孤儿 Agent | 仅 `main` 启动期 |
 
 ---
 
@@ -137,7 +137,7 @@ return ocrnum.Extract(selected)
 | ---- | -------------------------- |
 | 算术 | `+` `-` `*` `/` `%` |
 | 比较 | `<` `<=` `>` `>=` `==` `!=` |
-| 逻辑 | `&&` ` | | ` `!` |
+| 逻辑 | `&&` `\|\|` `!` |
 | 分组 | `(...)` |
 
 字面量超出平台 `int` 范围时会钳制到 `IntMax` / `IntMin` 并打 warn，求值继续而不是直接失败（与 `ocrnum` 溢出策略一致）。
@@ -188,7 +188,7 @@ return matched, nil
 
 - 英文量级：`k` / `m` / `b`（大小写不敏感）
 - 中文 / 韩文：`万` `萬` `만`、`亿` `億` `억`
-- 小数与千分位逗号的常见写法
+- 小数与单个千分位逗号（如 `12,345`）
 
 | 函数 | 用途 |
 | --------- | -------------------------------- |
@@ -221,11 +221,13 @@ json.Unmarshal(jsonclean.Clean(raw), &out)
 
 - `ClientLanguage()` → 交给 `i18n`
 - `ControllerType()` / `ControllerName()` → 区分 Win32 / Adb 等
+- `ControllerKind()` / `NormalizeControllerKind()` / `IsAdbLikeControllerType()` → 归一化后的控制器类别（`adb` / `playcover` / `native_android` / `win32` / `macos` / `linux` / `gamepad`），大小写、`play_cover` 之类的别名都在这里消化
+- `ResolveControllerKind(ctrl)` → 归一化类别的兜底版：PI_CONTROLLER 缺失或类型未知时改用 `controller.GetInfo()` 判定。PI 协议允许 Client 省略不可用的变量，所以**不能假定 PI_CONTROLLER 一定存在**
 - `ResourceName()`、版本号等
 
 不要自己再 `os.Getenv("PI_...")` 散落解析。
 
-判断控制器类型一律用 `ControllerType()`，不要为此去取 controller 调 `GetInfo()`：同一回调里每多取一次 controller，之前拿到的那个就会失效（见[编码规范 · 回调里的句柄怎么用](./coding-standards.md#回调里的句柄怎么用)）。
+判断控制器类型优先用 `ControllerType()`，比较时走 `ControllerKind()` / `NormalizeControllerKind()`（不要各自 `ToLower` 拼字符串）。需要兼容「Client 省略 `PI_CONTROLLER`」时用 `ResolveControllerKind(ctrl)`——`ctrl` 必须是本回调里已经取得并向下传递的那个，不要为了判断类型再 `GetController()`：同一回调里每多取一次 controller，之前拿到的那个就会失效（见[编码规范 · 回调里的句柄怎么用](./coding-standards.md#回调里的句柄怎么用)）。ADB、PlayCover（含别名 `play_cover`）与 Android 原生共用「触控 + 移动端 UI」分支时，用 `IsAdbLikeControllerType()` 判断。
 
 ### `resource`：资源文件定位与读取
 
@@ -257,11 +259,25 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 
 **原子写**：`WriteFileAtomic(path, content, perm)`：同目录临时文件写完再 rename。适合 debug 落盘、可覆盖的缓存；**不保证掉电持久性**（不做目录 fsync）。
 
+### `gamesetting`：游戏设置注册表
+
+路径：`pkg/gamesetting/`
+
+游戏的画面、语言等设置保存在注册表 `HKCU\Software\Hypergryph\Endfield`（国服、B 服）或 `HKCU\Software\Gryphline\Endfield`（国际服），本包负责读写这些值。
+
+- `ApplyAll(region, Settings)`：一次写入显示模式 / 分辨率、语言、画质、帧率、AutoHDR，取值与 `LaunchGamePC` 选项的 case 名一致；需在游戏未运行时调用
+- `SetRegion` / `ResolveRegion`：显式指定区服，或根据运行中 `Endfield.exe` 目录下的 SDK DLL 自动判定
+- `GetXxx` / `SetXxx`：单项读写，不判定区服，沿用上次选定的注册表路径（默认国服）；要按当前区服读取，用 `IsVideoFullScreen`、`GetResolvedVideoResolutionWidth` / `GetResolvedVideoResolutionHeight`
+- `IsAutoHDREnabled` / `ApplyAutoHDR`：读写 Windows 对 `Endfield.exe` 的自动 HDR 设置（`HKCU\Software\Microsoft\DirectX\UserGpuPreferences`），HDR 检查用前者
+- `FindLauncherInstallDir(uninstallKey)`：从卸载项读取启动器安装目录
+
+注册表读写仅 Windows 有效：其他平台上多数函数返回 `ErrUnsupported`，`Apply` 返回 `false`，`IsAutoHDREnabled` 视为未开启。
+
 ### `levenshtein`：编辑距离
 
 路径：`pkg/levenshtein/`
 
-`Distance(a, b int)`，按 **rune** 比较，适合中日韩 OCR 噪声下的名称近似匹配。阈值由业务自行决定。
+`Distance(a, b string) int`，按 **rune** 比较，适合中日韩 OCR 噪声下的名称近似匹配。阈值由业务自行决定。
 
 ### `iconrecognition` / `iconqty`
 
@@ -272,17 +288,11 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 
 详细协议与 Pipeline 用法见 [IconRecognition](./components/icon-recognition.md)、[IMS](./components/ims.md)。
 
-### `control`：跨平台操控适配
-
-路径：`pkg/control/`
-
-`ControlAdaptor` 统一 Touch / Key / 镜头旋转 / 角色移动等；按平台有 Win32、ADB、macOS、Linux 实现。角色控制、自动战斗等「真正动手」的逻辑应走适配器，而不是直接调底层 Contorller API 散落各处。
-
 ### `minicv`：轻量 CV
 
 路径：`pkg/minicv/`
 
-纯 Go 模板匹配（含 SIMD 加速路径）、积分图、圆检测等。适合 Agent 内本地匹配；能用 Pipeline `TemplateMatch` 表达的优先仍写 Pipeline。
+纯 Go 模板匹配（含 SIMD 加速路径）、积分图、圆形掩码模板、圆内统计与实心圆绘制等。适合 Agent 内本地匹配；能用 Pipeline `TemplateMatch` 表达的优先仍写 Pipeline。
 
 ### `parentwatch`：父进程监视
 
@@ -301,7 +311,7 @@ path := fsutil.OutputPath("debug", "record", "IMS.json")
 | OCR 文本变整数 | `ocrnum` |
 | `{A}+{B}<100` 这类条件 | Pipeline → `ExpressionRecognition`；Go 内 → `boolexpr` |
 | 读带注释的 JSON 配置 | `jsonclean`（或经 `resource.ReadJsonResource`） |
-| 区分 Adb / Win32 | `pienv.ControllerType()` |
+| 区分 Adb / Win32 | `pienv.ResolveControllerKind(ctrl)` + `IsAdbLikeControllerType()` |
 | 扫背包格子并读数量 | `iconrecognition` + `iconqty` |
 | 决定日志 / 记录 / 导出文件写到哪 | `fsutil.OutputPath` |
 | 写文件不留半截内容 | `fsutil.WriteFileAtomic` |

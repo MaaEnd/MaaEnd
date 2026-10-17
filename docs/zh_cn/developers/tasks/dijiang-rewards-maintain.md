@@ -2,13 +2,13 @@
 
 本文说明 `DijiangRewards` 的文件分布与执行流程。  
 设计核心是「总控中枢分发 + 子阶段回跳」：各子阶段彼此独立，选项只改阶段入口或分支，不动主流程骨架。  
-该文档更新于 2026 年 8 月 29 日（已同步培养材料多选与动态 OCR 白名单设计）。
+该文档更新于 2026 年 10 月 14 日。
 
 ## 文件路径
 
 | 路径 | 作用 |
 | -------------------------------------------------------------------- | --------------------------------------- |
-| `assets/interface.json` | 任务挂载（`dijiang_ship` / `daily` 组） |
+| `assets/interface.json` | 任务挂载（`dijiang_ship` 组；另被 `DailyFull` / `QuickDaily` 预设引用） |
 | `assets/tasks/DijiangRewards.json` | 任务入口、阶段开关、会客室与培养舱选项 |
 | `assets/resource/pipeline/DijiangRewards/Entry.json` | 进入帝江号总控中枢 |
 | `assets/resource/pipeline/DijiangRewards/MainFlow.json` | 总控中枢按顺序分发各子阶段 |
@@ -17,7 +17,7 @@
 | `assets/resource/pipeline/DijiangRewards/ReceptionRoom.json` | 会客室线索收集、交流、赠予 |
 | `assets/resource/pipeline/DijiangRewards/Manufacturing.json` | 制造舱收菜、补货、助力 |
 | `assets/resource/pipeline/DijiangRewards/GrowthChamber.json` | 培养舱领奖、再次种植、选材培养 |
-| `assets/resource/pipeline/DijiangRewards/NeedCredit.json` | 供信用点商店联动的补信用子流程 |
+| `assets/resource/pipeline/DijiangRewards/Entry.json` → `NeedCredit` | 供信用点商店联动的补信用入口，进入会客室流程 |
 | `assets/resource/pipeline/DijiangRewards/Template/Location.json` | 各舱室界面定位 |
 | `assets/resource/pipeline/DijiangRewards/Template/TextTemplate.json` | 按钮与状态 OCR 模板 |
 | `assets/resource/pipeline/DijiangRewards/Template/Status.json` | 红点、数量、库存等辅助识别 |
@@ -46,9 +46,9 @@
 
 ### 恢复心情
 
-`RecoveryEmotionMain` 每轮中枢扫描只触发一次（`max_hit: 1`）。
+`RecoveryEmotionCabins` 默认全选五个舱室；全部取消时跳过本阶段。按游戏的心情升序列表，每页从左到右、从上到下检查 12 位干员的固定舱室标签。总控中枢、会客室、培养舱按对应颜色或完整名称识别；制造舱要求黄色和包含 I/II 的完整舱名，并优先判断 II。无安排卡片继续扫描下一位。
 
-选干员逻辑：点击左侧第一个干员 → 检查心情是否已满、剩余次数是否为 0 → 两者均为 false 时再点左侧第二个干员 → 收尾回总控中枢。
+按可用助力点数选择一至两名。点击后，以当前舱名框的固定偏移识别右上角黄色选中标记，命中后继续选人或确认，未命中则继续下一位；遍历完当前页才翻页。滑动先在起点按住并启动拖动，再翻过两排干员，终点保持 1 秒。每次翻页前后比较右侧滑条顶部位置，偏移不超过 3 px 视为未移动；连续三次未移动时结束查找，偏移超过 3 px 则扫描新页并重新计数。确认已选干员后返回总控中枢；首名未找到时关闭助力窗口、返回中枢并提示未找到。
 
 ### 会客室
 
@@ -91,7 +91,7 @@
 
 | 模式 | 实际行为 |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `DoNothing`（不培养） | 只收成熟奖励，不进选材 |
+| `DoNothing`（不种植） | 只收成熟奖励，不进选材 |
 | `GrowAgain`（再次种植） | 关闭普通培养；领奖关闭后尝试「再次种植」并确认（[#2003](https://github.com/MaaEnd/MaaEnd/pull/2003) 后由领奖关闭触发，非详情页直接点） |
 | `Any`（界面显示「指定材料」） | 展开材料多选、提取基核和排序子选项，再从勾选材料中寻找可用目标 |
 
@@ -121,13 +121,15 @@
 ```text
 DijiangRewards
 ├── AutoStartExchange          # 会客室是否主动开线索交流
+│   └── WaitExchangeBeforeStart  # 线索齐全时等待当前交流结束；开启后展开 WaitExchangeBeforeStartThreshold
 ├── StageTaskSetting           # 展开阶段细分开关
 │   ├── FastCollect            # 一键收取
 │   ├── RecoveryEmotionStage
+│   │   └── RecoveryEmotionCabins  # 指定舱室，默认全选五个
 │   ├── ReceptionRoomStage
 │   ├── ManufacturingStage
 │   └── GrowthChamberStage
-├── ClueSetting                # 展开线索赠送次数 / 库存阈值
+├── ClueSetting                # 展开 SendCluesDirect / ClueSend / ClueStockLimit（直接赠予 / 溢出后赠送 / 库存上限）
 ├── QuickGiveDuplicateClues    # 快速赠予重复线索，默认关
 └── SelectToGrow               # 培养舱主模式
     ├── DoNothing
