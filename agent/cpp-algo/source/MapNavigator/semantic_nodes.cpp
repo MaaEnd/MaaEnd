@@ -15,6 +15,7 @@
 #include "action_wrapper.h"
 #include "async_prompt_action.h"
 #include "find_action.h"
+#include "jump_pad_action.h"
 #include "motion_controller.h"
 #include "navi_config.h"
 #include "navi_math.h"
@@ -395,6 +396,8 @@ void RecordPulseResponse(double hold_ms, double travel)
     }
 }
 
+} // namespace
+
 // 位移随按键时长线性增长, 截距是起步和刹车的固定位移。斜率取所有样本两两斜率的中位数, 截距取残差中位数,
 // 个别被吞键、蹭墙的样本拉不动它。时长拉不开时按比例估, 偏差留给下一下纠正。
 int PlanPulseHoldMs(double residual, int max_hold_ms)
@@ -436,6 +439,9 @@ int PlanPulseHoldMs(double residual, int max_hold_ms)
     }
     return std::clamp(static_cast<int>(std::lround(hold_ms)), kStrictSettleMinHoldMs, max_hold_ms);
 }
+
+namespace
+{
 
 template <typename CanCaptureFrame>
 bool CaptureStableHeadingImpl(const Context& ctx, double* out_heading, const CanCaptureFrame& can_capture_frame)
@@ -797,6 +803,9 @@ Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
     if (phase == NaviPhase::WaitFind) {
         return TickFindTarget(ctx);
     }
+    if (phase == NaviPhase::WaitJumpPad) {
+        return TickJumpPad(ctx);
+    }
     if (ctx.runtime_state->semantic.portal_transit_active) {
         return TickPortalTransit(ctx);
     }
@@ -980,6 +989,8 @@ Result HandleArrival(const Context& ctx, const Waypoint& waypoint, double actual
     switch (waypoint.action) {
     case ActionType::TRANSFER:
         return ArriveTransfer(ctx, node_idx, actual_distance);
+    case ActionType::JUMP_PAD:
+        return ArriveJumpPad(ctx, waypoint, node_idx, actual_distance);
     case ActionType::PORTAL:
         return ArrivePortal(ctx, node_idx, actual_distance);
     case ActionType::ZIPLINE:

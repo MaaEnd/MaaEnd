@@ -63,6 +63,7 @@ class ActionType(IntEnum):
     NAVMESH = 9
     FIND = 10
     TRIGGER = 11
+    JUMP_PAD = 12
 
 
 ACTION_COLORS: dict[int, str] = {
@@ -79,6 +80,7 @@ ACTION_COLORS: dict[int, str] = {
     ActionType.NAVMESH: "#14b8a6",
     ActionType.FIND: "#e11d48",
     ActionType.TRIGGER: "#84cc16",
+    ActionType.JUMP_PAD: "#f472b6",
 }
 
 ACTION_NAMES: dict[int, str] = {
@@ -95,6 +97,7 @@ ACTION_NAMES: dict[int, str] = {
     ActionType.NAVMESH: "Navmesh",
     ActionType.FIND: "Find",
     ActionType.TRIGGER: "Trigger",
+    ActionType.JUMP_PAD: "JumpPad",
 }
 
 ACTION_TOKENS: dict[int, str] = {
@@ -110,6 +113,7 @@ ACTION_TOKENS: dict[int, str] = {
     ActionType.NAVMESH: "NAVMESH",
     ActionType.FIND: "FIND",
     ActionType.TRIGGER: "TRIGGER",
+    ActionType.JUMP_PAD: "JUMP_PAD",
 }
 
 ACTION_NAME_LOOKUP: dict[str, int] = {
@@ -126,6 +130,7 @@ ACTION_NAME_LOOKUP: dict[str, int] = {
     "NAVMESH": int(ActionType.NAVMESH),
     "FIND": int(ActionType.FIND),
     "TRIGGER": int(ActionType.TRIGGER),
+    "JUMP_PAD": int(ActionType.JUMP_PAD),
 }
 ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.RUN,
@@ -135,6 +140,7 @@ ACTION_MENU_TYPES: tuple[ActionType, ...] = (
     ActionType.INTERACT,
     ActionType.PORTAL,
     ActionType.TRANSFER,
+    ActionType.JUMP_PAD,
     ActionType.COLLECT,
     ActionType.DIG,
     ActionType.NAVMESH,

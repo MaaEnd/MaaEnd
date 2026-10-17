@@ -321,6 +321,14 @@ constexpr int32_t kRelocationWaitTimeoutMs = 15000;
 constexpr int32_t kRelocationStableFixes = 2;
 constexpr double kRelocationResumeMinDistance = 3.0;
 
+// --- Jump Pad Constants ---
+// 跳板只认板心约 0.8 以内, 按了没起飞时收紧到这一圈再按
+constexpr double kJumpPadRetryBandWu = 0.25;
+constexpr int32_t kJumpPadLaunchWindowMs = 1200; // 按跳后等起飞, 过了仍在板上算这一跳没起飞
+constexpr int32_t kJumpPadMaxJumps = 3;
+constexpr int32_t kJumpPadMaxNudges = 8;         // 转镜头与前进脉冲合计
+constexpr int32_t kJumpPadBudgetMs = 20000;      // 到板到起飞
+
 // --- Zipline Constants ---
 // 一跳分三步: 站上架子(仅链首)、把镜头对准落点、按左键起滑。滑行途中人悬在半空, 位置一路在动,
 // 所以判完成只认「进了落点圈」这一条, 任何「动了就算走完」的判据都会在起滑瞬间成立

@@ -149,7 +149,7 @@ uv run map-navigator --port 9000 --no-browser
 }
 ```
 
-该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
+该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
 
 字段也接受驼峰写法 `targetTier`。`NAVMESH` 的未知层名保持兼容行为：记录告警并把目标当作 base 坐标；普通坐标点显式声明了不存在的层名时会直接失败，避免静默走向错误位置。
 
@@ -347,6 +347,7 @@ uv run map-navigator --port 9000 --no-browser
 | `TRIGGER` | 路线终点：边走边识别 `trigger_node`，命中或走到 `target` 就算导航成功，见[识别命中即结束](#识别命中即结束-trigger) |
 | `NAVMESH` | 从当前定位自动规划路线并移动到 `target`；必须使用上方对象格式 |
 | `TRANSFER` | 原地等待外力（剧情、传送等）将角色送至下一段，再从后续点继续 |
+| `JUMP_PAD` | 跳板：站到板心，需要时按跳，没起飞就补步重按，落地后从后续点继续，见[跳板](#跳板-jump_pad) |
 | `PORTAL` | 过图点，触发后盲走一小段并等待区域切换 |
 | `HEADING` | 将镜头转到指定朝向，再按一次 `W` 使朝向生效 |
 
@@ -354,7 +355,7 @@ uv run map-navigator --port 9000 --no-browser
 
 未启用滑索时，导航器严格按照 `path` 的顺序执行。普通点和动作都会保留，`NAVMESH` 也会逐点展开。
 
-启用滑索后，导航器才会尝试跨过中间点，从当前区间的起点直接规划到末端。直达成功时，中间的移动和可达性兜底点会被跳过；直达失败时，仍按作者路径逐点执行。这类可选点包括 `NAVMESH`、`RUN`、`SPRINT`、`JUMP`、`FIGHT`、`TRANSFER`、`PORTAL` 和 `INTERACT`。
+启用滑索后，导航器才会尝试跨过中间点，从当前区间的起点直接规划到末端。直达成功时，中间的移动和可达性兜底点会被跳过；直达失败时，仍按作者路径逐点执行。这类可选点包括 `NAVMESH`、`RUN`、`SPRINT`、`JUMP`、`FIGHT`、`TRANSFER`、`JUMP_PAD`、`PORTAL` 和 `INTERACT`。
 
 以下节点始终保留，无需填写 `required`：
 
@@ -366,14 +367,14 @@ uv run map-navigator --port 9000 --no-browser
 
 启用滑索时，如果其他节点也必须抵达并执行，请添加 `"required": true`。该节点会结束当前优化区间，后续路线从这里重新开始。数组格式没有该字段，因此必经点必须使用对象格式。
 
-例如，业务流程必须触发一次传送时应写成：
+例如，路线必须经过某块跳板时应写成：
 
 ```json
 {
-    "action": "TRANSFER",
+    "action": "JUMP_PAD",
     "target": [
-        1002.89,
-        304.52
+        1001.89,
+        305.68
     ],
     "required": true
 }
@@ -438,7 +439,7 @@ uv run map-navigator --port 9000 --no-browser
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 与 `TRIGGER` 的 `trigger_node` 同样要导出后手写，工具只负责原样保留。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER / NAVMESH`），可为单点编辑 `required` 与 `target_tier`，也可为单个 `NAVMESH` 目标选择 `target_deck_y`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`FIND` 的 `find_target` / `find_text` / `find_stop` / `find_arrive` 与 `TRIGGER` 的 `trigger_node` 同样要导出后手写，工具只负责原样保留。
 
 ---
 
@@ -545,7 +546,7 @@ uv run map-navigator --port 9000 --no-browser
 
 > [!WARNING]
 >
-> 相邻路径点之间应当可以连贯走到。导航器无法穿模或理解业务机关；过图、跳板、下落、上升机关等路段可拆分为 `PORTAL` / `TRANSFER` / 业务节点作为作者路径兜底。启用滑索后，必须经过或执行的节点应标记为 `required`。
+> 相邻路径点之间应当可以连贯走到。导航器无法穿模或理解业务机关；跳板用 `JUMP_PAD`，过图、下落、上升机关等路段可拆分为 `PORTAL` / `TRANSFER` / 业务节点作为作者路径兜底。启用滑索后，必须经过或执行的节点应标记为 `required`。
 
 ---
 
@@ -1007,10 +1008,76 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 
 ---
 
+## 跳板 `JUMP_PAD`
+
+跳板有两种：踩上去就弹出去的，和站上去按跳才弹的。两种都写同一个点，坐标填跳板中心，导航自己判断要不要按跳：
+
+```json
+[
+    {
+        "action": "NAVMESH",
+        "target": [
+            1001.4,
+            302.0
+        ]
+    },
+    {
+        "action": "JUMP_PAD",
+        "target": [
+            1001.89,
+            305.68
+        ]
+    },
+    [
+        995.79,
+        320.78
+    ],
+    {
+        "action": "NAVMESH",
+        "target": [
+            1021.31,
+            368.82
+        ]
+    }
+]
+```
+
+### 运行行为
+
+1. 走路接近，进入判定圈后停车；
+2. 等人站定。离中心超过 0.5 就把镜头转向中心、按住前进补一小步，直到站进这个范围；补步途中踩上就弹的跳板会直接起飞；
+3. 站进范围后仍在板上就按跳。按跳 1.2 秒后还在板上，说明这一跳没起飞，范围收紧到 0.25 再补步、再按；
+4. 离开中心 3 以上即算起飞，此后连续两次定位不动算落地，从落点接着走后面的点。落点由跳板决定，与起跳时的朝向无关。
+
+### 写法要点
+
+- `target` 必须是跳板中心。要按跳的跳板只认中心约 0.8 以内，站偏了按下去只是原地普通跳。
+- 前一个点停在跳板外 3～4 的位置，从能走的一侧接近。跳板常在崖边，接近点不要放在悬空的一侧。
+- `JUMP_PAD` 后面紧跟落点，写成普通点，再往后照常用 `NAVMESH`。后面的路是从前一个点开始规划的，漏了落点，后面那段就会从跳板这一侧起算。
+
+### 失败的情况
+
+以下情况 `MapNavigateAction` 返回 false：
+
+| 原因 | 含义 |
+| -------------------------- | ------------------------------------------ |
+| `jump_pad_not_reached` | 补步次数用完仍没站进范围 |
+| `jump_pad_not_launched` | 按跳 3 次都没起飞，或到板 20 秒内一直没起飞 |
+| `jump_pad_landing_timeout` | 起飞后 15 秒内没有站定 |
+
+### 相关文件
+
+| 文件 | 职责 | 何时需要修改 |
+| ------------------------------------------------------ | ---------------------------- | ---------------------- |
+| 业务自己的路线 JSON | `JUMP_PAD` 点与前后的接近点、落点 | 新增或调整跳板路段 |
+| `agent/cpp-algo/source/MapNavigator/jump_pad_action.cpp` | 站位、按跳、起飞与落地判定 | 由 cpp-algo 维护者维护 |
+
+---
+
 ## 实践建议
 
 1. **首选 `NAVMESH`，需要语义再录制。** 纯移动路线在路径编辑器中手工打点并规划确认后即可复制；预览走不通的目标当场调整，不必等到运行时失败。只有含交互、过图等语义的路线才需要录制。
 2. **录制优于手写。** 实际走一遍通常比凭感觉填写坐标更准确；若录制时打点精度不足，可放慢移动速度。
 3. **保证起点状态稳定。** 录制前先调整好站位与视角，可显著减少后续的修点工作。
-4. **特殊动作点少而精。** 只在需要交互或切换区域的位置添加 `INTERACT`、`TRANSFER`、`PORTAL`；启用滑索后，必须执行的点应标记为 `required`。`HEADING`、`COLLECT`、`DIG`、`FIND`、`TRIGGER` 始终保留。
+4. **特殊动作点少而精。** 只在需要交互、过跳板或切换区域的位置添加 `INTERACT`、`JUMP_PAD`、`TRANSFER`、`PORTAL`；启用滑索后，必须执行的点应标记为 `required`。`HEADING`、`COLLECT`、`DIG`、`FIND`、`TRIGGER` 始终保留。
 5. **跨区域路线务必检查过图点。** 自动补充的 `PORTAL` 仅是语义标注，不代表每个跨区域边界都天然合理。

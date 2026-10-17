@@ -30,6 +30,7 @@ bool CaptureStableHeadingUntil(const Context& ctx, double* out_heading, std::chr
 bool CommitHeadingTurn(const Context& ctx, double heading_delta);
 // 复核转向结果并按需补一次。返回实际朝向；读不到稳定朝向时返回 fallback_heading。
 double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double fallback_heading);
+int PlanPulseHoldMs(double residual, int max_hold_ms);
 // 停车后按有效镜头观测对齐，仅前进脉冲，停稳后验收。所有退出释放输入。
 // false 是非致命的未达标结果，调用方保留到点动作；取消时不得再执行动作。
 bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint, const std::function<bool()>& should_stop);
