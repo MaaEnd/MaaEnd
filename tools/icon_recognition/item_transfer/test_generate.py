@@ -30,6 +30,49 @@ def make_item(category_type: str, sort_id1: int, sort_id2: int, storage_kind: st
 
 
 class ItemTransferGeneratorTest(unittest.TestCase):
+    def test_reserve_failure_only_disables_current_direction(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        pipeline = json5.loads(
+            (root / "assets/resource/pipeline/ItemTransfer.json").read_text(encoding="utf-8")
+        )
+        directions = [("Forward", "Origin", "Return"), ("Return", "Destination", "Forward")]
+        for direction, location, other in directions:
+            find = f"ItemTransferFind{direction}ItemInRepo"
+            allowed = f"ItemTransfer{direction}QuantityAllowed"
+            stop = f"ItemTransfer{direction}ReserveReached"
+            low = f"ItemTransfer{direction}QuantityAtReserve"
+            error = f"ItemTransfer{direction}QuantityError"
+            self.assertEqual(pipeline[find]["next"], [allowed, low, error])
+            self.assertEqual(
+                pipeline[allowed]["next"], ["[Anchor]ItemTransferCurrentRepoTransfer"]
+            )
+            self.assertEqual(pipeline[low]["next"], [stop])
+            self.assertEqual(pipeline[error]["next"], [stop])
+            self.assertIn("focus", pipeline[error])
+            self.assertNotIn("focus", pipeline[low])
+            patch = pipeline[stop]["custom_action_param"]["patch"]
+            self.assertEqual(patch, {f"ItemTransfer{direction}Gate": {"enabled": False}})
+            dispatch = f"ItemTransfer{location}Dispatch"
+            self.assertEqual(pipeline[stop]["next"], [dispatch])
+            self.assertIn(f"ItemTransfer{other}Gate", pipeline[dispatch]["next"])
+
+    def test_full_target_still_returns_items_to_source(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        pipeline = json5.loads(
+            (root / "assets/resource/pipeline/ItemTransfer.json").read_text(encoding="utf-8")
+        )
+        directions = [
+            ("Forward", "Origin", "ItemTransferForwardReturnToOriginRepo"),
+            ("Return", "Destination", "ItemTransferReturnReturnToDestinationRepo"),
+        ]
+        for direction, location, returned in directions:
+            full = pipeline[f"ItemTransfer{direction}TargetFull"]
+            self.assertEqual(full["next"], [f"ItemTransferSwitchRepoTo{location}"])
+            self.assertEqual(full["anchor"][f"ItemTransfer{location}ArrivedNext"], returned)
+            self.assertIn("ItemTransferBagSearchCurrentPage", pipeline[returned]["next"])
+        self.assertNotIn("ItemTransferClickSortAscending", pipeline)
+        self.assertNotIn("ItemTransferSwitchRepoToOriginReturn", pipeline)
+
     def test_category_type_order_covers_future_transfer_categories(self) -> None:
         self.assertEqual(
             getattr(generate, "CATEGORY_TYPE_ORDER", None),
@@ -57,21 +100,22 @@ class ItemTransferGeneratorTest(unittest.TestCase):
             "ItemTransferTransferReturnToBag",
             "ItemTransferTransferForwardToRepo",
             "ItemTransferTransferReturnToRepo",
-            "ItemTransferTransferToRepoReturn",
         )
 
         for node_name in ctrl_click_nodes:
-            self.assertEqual(
-                pipeline[node_name]["custom_action"],
-                "AutoCtrlClickAction",
-            )
+            source = pipeline[node_name]
+            self.assertEqual(source["action"], "DoNothing")
+            self.assertEqual(source["anchor"]["InventoryTransferSource"], node_name)
+            runner = pipeline[source["next"][0]]
+            self.assertEqual(runner["custom_action"], "SubTask")
+            self.assertEqual(runner["custom_action_param"]["sub"], ["InventoryTransferAll"])
 
     def test_ctrl_click_pipeline_nodes_generate_macos_key_mapping(self) -> None:
         repo_root = Path(__file__).resolve().parents[3]
         common_actions = json5.loads(
             (
                 repo_root
-                / "assets/resource/pipeline/Common/Private/AutoAltClick/Action.json"
+                / "assets/resource/pipeline/Common/Private/Inventory/Action.json"
             ).read_text(encoding="utf-8")
         )
         macos_keymap = json5.loads(
@@ -81,9 +125,9 @@ class ItemTransferGeneratorTest(unittest.TestCase):
         )
 
         expected_actions = {
-            "__AutoCtrlClickCtrlKeyDownAction": ("KeyDown", 17),
-            "__AutoCtrlClickCtrlKeyUpAction": ("KeyUp", 17),
-            "__AutoCtrlClickMouseClickAction": ("Click", None),
+            "__InventoryTransferAllBeginAction": ("KeyDown", 17),
+            "__InventoryTransferAllEndAction": ("KeyUp", 17),
+            "__InventoryTransferClickAction": ("Click", None),
         }
         for node_name, (action, key) in expected_actions.items():
             self.assertEqual(common_actions[node_name]["action"], action)
@@ -91,28 +135,97 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 self.assertEqual(common_actions[node_name]["key"], key)
 
         self.assertEqual(
-            macos_keymap["__AutoCtrlClickCtrlKeyDownAction"]["action"]["param"]["key"],
+            macos_keymap["__InventoryTransferAllBeginAction"]["action"]["param"]["key"],
             59,
         )
         self.assertEqual(
-            macos_keymap["__AutoCtrlClickCtrlKeyUpAction"]["action"]["param"]["key"],
+            macos_keymap["__InventoryTransferAllEndAction"]["action"]["param"]["key"],
             59,
         )
         self.assertFalse(
             any(node_name.startswith("ItemTransferCtrlKey") for node_name in macos_keymap)
         )
 
-    def test_ctrl_click_custom_action_is_registered_as_common_component(self) -> None:
-        repo_root = Path(__file__).resolve().parents[3]
-        schema = json5.loads(
-            (repo_root / "tools/schema/custom.action.schema.json").read_text(
+    def test_inventory_input_cleanup_for_all_modes(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        base = json5.loads(
+            (root / "assets/resource/pipeline/Common/Private/Inventory/Action.json").read_text(
                 encoding="utf-8"
             )
         )
-        custom_actions = schema["properties"]["custom_action"]["enum"]
+        adb = json5.loads(
+            (root / "assets/resource_adb/pipeline/Common/Private/Inventory/Action.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        menus = json5.loads(
+            (root / "assets/resource_adb/pipeline/Common/Private/Inventory/Recognition.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        for mode, key in [("All", 17), ("Stack", 16), ("Half", 18)]:
+            begin = f"__InventoryTransfer{mode}BeginAction"
+            end = f"__InventoryTransfer{mode}EndAction"
+            error = f"__InventoryTransfer{mode}ErrorEndAction"
+            self.assertTrue(base[begin]["auto_up"])
+            self.assertEqual(base[begin]["key"], key)
+            self.assertEqual(base[end]["key"], key)
+            self.assertEqual(base[error]["key"], key)
+            self.assertEqual(base[error]["next"], ["__InventoryTransferFailed"])
+            self.assertTrue(adb[begin]["auto_up"])
+            self.assertEqual(adb[begin]["contact"], 0)
+            for menu in adb[begin]["next"]:
+                self.assertEqual(menus[menu]["action"], "TouchDown")
+                self.assertEqual(menus[menu]["contact"], 1)
+                self.assertTrue(menus[menu]["auto_up"])
+                self.assertEqual(
+                    menus[menu]["next"], ["__InventoryTransferButtonTouchUp"]
+                )
+                self.assertEqual(menus[menu]["on_error"], adb[begin]["on_error"])
+            self.assertEqual(adb[end]["action"], "TouchUp")
+            self.assertEqual(adb[end]["contact"], 0)
+        release = adb["__InventoryTransferButtonTouchUp"]
+        self.assertEqual(release["contact"], 1)
+        self.assertEqual(release["next"], ["[Anchor]__InventoryTransferEnd"])
+        error = adb["__InventoryTransferErrorButtonTouchUp"]
+        source = adb[error["next"][0]]
+        self.assertEqual((error["contact"], source["contact"]), (1, 0))
+        self.assertEqual(source["next"], ["__InventoryTransferFailed"])
 
-        self.assertIn("AutoCtrlClickAction", custom_actions)
-        self.assertNotIn("ItemTransferCtrlClickAction", custom_actions)
+    def test_quantity_ocr_uses_matched_cell_and_expression_boundaries(self) -> None:
+        root = Path(__file__).resolve().parents[3]
+        pipeline = json5.loads(
+            (root / "assets/resource/pipeline/ItemTransfer.json").read_text(encoding="utf-8")
+        )
+        adb = json5.loads(
+            (root / "assets/resource_adb/pipeline/ItemTransfer.json").read_text(encoding="utf-8")
+        )
+        task = json5.loads(
+            (root / "assets/tasks/ItemTransfer.json").read_text(encoding="utf-8")
+        )
+        directions = [("Forward", "WarehouseReserve"), ("Return", "ReturnWarehouseReserve")]
+        for direction, option in directions:
+            ocr = f"ItemTransfer{direction}QuantityOCR"
+            roi = pipeline[ocr]["recognition"]["param"]
+            self.assertEqual(roi["roi"], f"ItemTransferFind{direction}ItemInRepo")
+            self.assertEqual(roi["roi_offset"], [0, 46, 0, -46])
+            self.assertEqual(
+                adb[ocr]["recognition"]["param"]["roi_offset"], [0, 58, 0, -58]
+            )
+            override = task["option"][option]["pipeline_override"]
+            allowed = override[f"ItemTransfer{direction}QuantityAllowed"]["recognition"]["param"]
+            low = override[f"ItemTransfer{direction}QuantityAtReserve"]["recognition"]["param"]
+            allowed = allowed["custom_recognition_param"]["expression"]
+            low = low["custom_recognition_param"]["expression"]
+            for quantity in [0, 99, 100, 101, 10000, -1]:
+                greater = allowed.replace("{" + ocr + "}", str(quantity)).replace("{Reserve}", "100")
+                smaller = (
+                    low.replace("{" + ocr + "}", str(quantity))
+                    .replace("{Reserve}", "100")
+                    .replace("&&", "and")
+                )
+                self.assertEqual(eval(greater, {"__builtins__": {}}), quantity > 100)
+                self.assertEqual(eval(smaller, {"__builtins__": {}}), 0 <= quantity <= 100)
 
     def test_select_transfer_items_filters_categories_and_ore_allowlist(self) -> None:
         catalog = {
@@ -201,7 +314,7 @@ class ItemTransferGeneratorTest(unittest.TestCase):
             forward["pipeline_override"],
             {
                 "ItemTransferClickForwardItemCategory": {
-                    "template": "ItemTransfer/Product.png",
+                    "custom_action_param": {"sub": ["SceneEnterMenuBackpackWithDepotProduct"]},
                 },
                 "ItemTransferFindForwardItemInRepo": self.item_id_override("item_product", "Normal:Product"),
                 "ItemTransferFindForwardItemInBag": self.item_id_override("item_product", "Normal:Product"),
@@ -211,7 +324,7 @@ class ItemTransferGeneratorTest(unittest.TestCase):
             backward["pipeline_override"],
             {
                 "ItemTransferClickReturnItemCategory": {
-                    "template": "ItemTransfer/Product.png",
+                    "custom_action_param": {"sub": ["SceneEnterMenuBackpackWithDepotProduct"]},
                 },
                 "ItemTransferFindReturnItemInRepo": self.item_id_override("item_product", "Normal:Product"),
                 "ItemTransferFindReturnItemInBag": self.item_id_override("item_product", "Normal:Product"),
