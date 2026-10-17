@@ -100,6 +100,33 @@
             "description": "$option.CreditShoppingClueStockLimit.description",
             "cases": [
                 {
+                    "name": "0",
+                    "label": "$option.ClueStockLimit.cases.0.label",
+                    "pipeline_override": {
+                        "ClueOneCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueFourCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueSixCount": {
+                            "expected": "^[1-9]\\d*$"
+                        },
+                        "ClueSevenCount": {
+                            "expected": "^[1-9]\\d*$"
+                        }
+                    }
+                },
+                {
                     "name": "1",
                     "label": "$option.CreditShoppingClueStockLimit.cases.1.label",
                     "pipeline_override": {
