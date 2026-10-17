@@ -25,6 +25,7 @@ type DetailError struct {
 	Message string    `json:"message"`
 }
 
+// Error 返回带稳定错误码的诊断信息。
 func (detail *DetailError) Error() string {
 	return fmt.Sprintf("IconRecognition %s: %s", detail.Code, detail.Message)
 }
