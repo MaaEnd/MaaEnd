@@ -21,7 +21,7 @@
             ],
             "option": [
                 "VisitFriendsRemark",
-                "VisitFriendsPriorityRemarkEnable",
+                "VisitFriendsPriorityEnable",
                 "ProductionAssistControl"
             ]
         }
@@ -43,10 +43,10 @@
                         "VisitFriendsMenuScanRemarkFallback": {
                             "enabled": true
                         },
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
+                        "VisitFriendsMenuScanPriorityFallbackToRemark": {
                             "enabled": true
                         },
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
+                        "VisitFriendsMenuScanPriorityFallbackToNormal": {
                             "enabled": false
                         }
                     }
@@ -63,10 +63,10 @@
                         "VisitFriendsMenuScanRemarkFallback": {
                             "enabled": false
                         },
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
+                        "VisitFriendsMenuScanPriorityFallbackToRemark": {
                             "enabled": false
                         },
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
+                        "VisitFriendsMenuScanPriorityFallbackToNormal": {
                             "enabled": true
                         }
                     }
@@ -74,27 +74,22 @@
             ],
             "default_case": "No"
         },
-        "VisitFriendsPriorityRemarkEnable": {
+        "VisitFriendsPriorityEnable": {
             "type": "switch",
-            "label": "$option.VisitFriendsPriorityRemarkEnable.label",
+            "label": "$option.VisitFriendsPriorityEnable.label",
             "cases": [
                 {
                     "name": "Yes",
                     "option": [
-                        "VisitFriendsPriorityRemark",
+                        "VisitFriendsPriority",
+                        "VisitFriendsPrioritySearchEnable",
                         "BtwAutoStockpileElasticGoodsEnable"
                     ],
                     "pipeline_override": {
-                        "VisitFriendsWaitFriendNameLoaded": {
-                            "next": [
-                                "VisitFriendsPriorityRemarkInit",
-                                "VisitFriendsMenuScan"
-                            ]
-                        },
-                        "VisitFriendsPriorityRemarkInit": {
+                        "VisitFriendsPriorityInit": {
                             "enabled": true
                         },
-                        "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+                        "VisitFriendsMenuScanTargetFriendOpenPriority": {
                             "enabled": true
                         },
                         "VisitFriendsMenuScanTargetFriendOpenRemark": {
@@ -108,13 +103,13 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "VisitFriendsMenuScanTargetFriendOpenPriorityRemark": {
+                        "VisitFriendsMenuScanTargetFriendOpenPriority": {
                             "enabled": false
                         },
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToRemark": {
+                        "VisitFriendsMenuScanPriorityFallbackToRemark": {
                             "enabled": false
                         },
-                        "VisitFriendsMenuScanPriorityRemarkFallbackToNormal": {
+                        "VisitFriendsMenuScanPriorityFallbackToNormal": {
                             "enabled": false
                         }
                     }
@@ -122,26 +117,62 @@
             ],
             "default_case": "No"
         },
-        "VisitFriendsPriorityRemark": {
+        "VisitFriendsPriority": {
             "type": "input",
-            "label": "$option.VisitFriendsPriorityRemark.label",
+            "label": "$option.VisitFriendsPriority.label",
             "inputs": [
                 {
-                    "name": "PriorityRemarkName",
-                    "label": "$option.VisitFriendsPriorityRemark.inputs.PriorityRemarkName.label",
+                    "name": "PriorityName",
+                    "label": "$option.VisitFriendsPriority.inputs.PriorityName.label",
                     "default": "",
                     "pipeline_type": "string"
                 }
             ],
             "pipeline_override": {
-                "VisitFriendsPriorityRemarkInit": {
+                "VisitFriendsPriorityInit": {
                     "custom_action_param": {
-                        "target": "VisitFriendsRecognitionItemNamePriorityRemarkByEnterButton",
-                        "keywords": "{PriorityRemarkName}",
+                        "target": "VisitFriendsRecognitionItemNamePriorityByEnterButton",
+                        "keywords": "{PriorityName}",
                         "substring": true
+                    }
+                },
+                "VisitFriendsPrioritySearchInit": {
+                    "custom_action_param": {
+                        "texts": "{PriorityName}"
                     }
                 }
             }
+        },
+        "VisitFriendsPrioritySearchEnable": {
+            "type": "switch",
+            "controller": [
+                "ADB",
+                "CloudADB",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front"
+            ],
+            "label": "$option.VisitFriendsPrioritySearchEnable.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "VisitFriendsPrioritySearchInit": {
+                            "enabled": true
+                        },
+                        "VisitFriendsPrioritySearchNext": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
         },
         "ProductionAssistControl": {
             "type": "checkbox",

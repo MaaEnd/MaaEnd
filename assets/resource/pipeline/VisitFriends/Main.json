@@ -67,21 +67,24 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "VisitFriendsPriorityInit",
             "VisitFriendsMenuScan"
         ]
     },
-    "VisitFriendsPriorityRemarkInit": {
+    "VisitFriendsPriorityInit": {
         "desc": "初始化优先好友名 OCR 正则",
         "enabled": false,
+        "max_hit": 1,
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "target": "VisitFriendsRecognitionItemNamePriorityRemarkByEnterButton",
+            "target": "VisitFriendsRecognitionItemNamePriorityByEnterButton",
             "keywords": "",
             "substring": true
         },
         "next": [
+            "VisitFriendsPrioritySearchInit",
             "VisitFriendsMenuScan"
         ]
     },

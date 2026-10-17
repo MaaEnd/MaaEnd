@@ -1,0 +1,94 @@
+{
+    "VisitFriendsPrioritySearchInit": {
+        "desc": "搜索模式初始化：解析优先好友名单到输入队列",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "TextInputInitAction",
+        "custom_action_param": {
+            "texts": ""
+        },
+        "anchor": {
+            "TextInputFocus": "VisitFriendsPrioritySearchFocusBox",
+            "TextInputSubmit": "VisitFriendsPrioritySearchWaitResult"
+        },
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScan"
+        ]
+    },
+    "VisitFriendsPrioritySearchNext": {
+        "desc": "白名单搜索分流：队列非空时走搜索流程",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsPrioritySearchExhausted",
+            "VisitFriendsPrioritySearchFocusBox",
+            "TextInputClearBox"
+        ]
+    },
+    "VisitFriendsPrioritySearchFocusBox": {
+        "desc": "点击搜索框占位文本使其获得焦点",
+        "recognition": "OCR",
+        "roi": [
+            175,
+            65,
+            190,
+            35
+        ],
+        "expected": [
+            "输入名称搜索好友",
+            "輸入名稱搜尋好友",
+            "(?i)Search\\s*friend\\s*by\\s*name",
+            "名前を入力して検索"
+        ],
+        "threshold": 0.7,
+        "pre_delay": 0,
+        "action": "Click",
+        "target_offset": [
+            30,
+            0,
+            0,
+            0
+        ],
+        "post_delay": 0,
+        "next": [
+            "TextInput"
+        ]
+    },
+    "VisitFriendsPrioritySearchExhausted": {
+        "desc": "白名单搜索队列耗尽：走既有回退链路",
+        "recognition": "Custom",
+        "custom_recognition": "TextInputExhaustedRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanPriorityFallbackToRemark",
+            "VisitFriendsMenuScanPriorityFallbackToNormal",
+            "VisitFriendsPrioritySearchDone"
+        ]
+    },
+    "VisitFriendsPrioritySearchWaitResult": {
+        "desc": "输入完成后持续识别过滤结果行：命中进白名单进船拜访链，3 秒内未出现视为未搜到，清空输入框搜索下一个",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 3000,
+        "next": [
+            "VisitFriendsMenuScanTargetFriendOpenPriority"
+        ],
+        "on_error": [
+            "VisitFriendsPrioritySearchNext"
+        ]
+    },
+    "VisitFriendsPrioritySearchDone": {
+        "desc": "优先好友已全部搜索拜访完成",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}
