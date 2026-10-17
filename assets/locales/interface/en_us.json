@@ -1414,7 +1414,7 @@
     "option.ClueSend.MaxClueSend.label": "Max clues to send",
     "option.ClueSend.label": "Send excess clues",
     "option.ClueSendCustomize.label": "Customize Clue Sending",
-    "option.ClueSendCustomize.description": "When enabled, selected clues will not be kept but instead sent out based on friends' requests. Unselected clues will be subject to the standard retention policy.",
+    "option.ClueSendCustomize.description": "When enabled, selected clues will not be kept but instead sent out based on friends' requests. Unselected clues will be subject to the standard retention policy as specified above.",
     "option.ClueSendCustomizeCheckbox.label": "Send Clue",
     "option.ClueSendCustomizeCheckbox.description": "When checked, the selected clue will be sent out based on friends' requests.",
     "option.ClueSendCustomize.cases.UWST.label": "UWST",

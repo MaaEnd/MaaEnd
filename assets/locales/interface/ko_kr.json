@@ -1414,7 +1414,7 @@
     "option.ClueSend.MaxClueSend.label": "최대 선물 개수 지정",
     "option.ClueSend.label": "초과한 단서를 선물",
     "option.ClueSendCustomize.label": "단서 전송 설정",
-    "option.ClueSendCustomize.description": "이 기능을 활성화하면 선택한 단서는 보관되지 않고 친구의 요청에 따라 전송됩니다. 선택하지 않은 단서는 일반 보관 정책이 적용됩니다.",
+    "option.ClueSendCustomize.description": "이 기능을 활성화하면 선택한 단서는 보관되지 않고 친구의 요청에 따라 전송됩니다. 선택하지 않은 단서는 위의 단서 상한에 따라 보관됩니다.",
     "option.ClueSendCustomizeCheckbox.label": "단서 전송",
     "option.ClueSendCustomizeCheckbox.description": "체크하면 선택한 단서가 친구의 요청에 따라 전송됩니다.",
     "option.ClueSendCustomize.cases.UWST.label": "UWST",

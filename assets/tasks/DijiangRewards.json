@@ -563,6 +563,9 @@
                     "pipeline_override": {
                         "ReceptionRoomSendClueOne": {
                             "enabled": true
+                        },
+                        "ClueOneCount": {
+                            "expected": "^[1-9]\\d*$"
                         }
                     }
                 },
@@ -573,6 +576,9 @@
                     "pipeline_override": {
                         "ReceptionRoomSendClueTwo": {
                             "enabled": true
+                        },
+                        "ClueTwoCount": {
+                            "expected": "^[1-9]\\d*$"
                         }
                     }
                 },
@@ -583,6 +589,9 @@
                     "pipeline_override": {
                         "ReceptionRoomSendClueThree": {
                             "enabled": true
+                        },
+                        "ClueThreeCount": {
+                            "expected": "^[1-9]\\d*$"
                         }
                     }
                 },
@@ -593,6 +602,9 @@
                     "pipeline_override": {
                         "ReceptionRoomSendClueFour": {
                             "enabled": true
+                        },
+                        "ClueFourCount": {
+                            "expected": "^[1-9]\\d*$"
                         }
                     }
                 },
@@ -603,6 +615,9 @@
                     "pipeline_override": {
                         "ReceptionRoomSendClueFive": {
                             "enabled": true
+                        },
+                        "ClueFiveCount": {
+                            "expected": "^[1-9]\\d*$"
                         }
                     }
                 },
@@ -613,6 +628,9 @@
                     "pipeline_override": {
                         "ReceptionRoomSendClueSix": {
                             "enabled": true
+                        },
+                        "ClueSixCount": {
+                            "expected": "^[1-9]\\d*$"
                         }
                     }
                 },
@@ -623,6 +641,9 @@
                     "pipeline_override": {
                         "ReceptionRoomSendClueSeven": {
                             "enabled": true
+                        },
+                        "ClueSevenCount": {
+                            "expected": "^[1-9]\\d*$"
                         }
                     }
                 }
