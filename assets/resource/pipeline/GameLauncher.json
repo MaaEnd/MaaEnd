@@ -1,15 +1,12 @@
 {
     "GameLauncherMain": {
         "desc": "在鹰角启动器中启动终末地",
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
             "GameLauncherSelectEndfield"
         ]
     },
     "GameLauncherSelectEndfield": {
         "desc": "点击左侧栏的终末地图标",
-        "max_hit": 3,
         "recognition": "TemplateMatch",
         "roi": [
             20,
@@ -21,10 +18,8 @@
         "green_mask": true,
         "pre_wait_freezes": 100,
         "action": "Click",
-        "post_wait_freezes": 500,
         "next": [
-            "GameLauncherEndfieldSelected",
-            "GameLauncherSelectEndfield"
+            "GameLauncherEndfieldSelected"
         ]
     },
     "GameLauncherEndfieldSelected": {
@@ -33,6 +28,7 @@
         "all_of": [
             "GameLauncherStartGameYellow"
         ],
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
