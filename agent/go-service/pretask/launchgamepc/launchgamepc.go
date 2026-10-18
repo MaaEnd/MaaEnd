@@ -223,6 +223,17 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 		Str("title", windowRegex.String()).
 		Msg("launcher window found")
 
+	if moved, err := moveLauncherToPrimaryMonitor(hWnd); err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", component).
+			Msg("failed to move launcher window to primary monitor")
+	} else if moved {
+		log.Info().
+			Str("component", component).
+			Msg("launcher window moved to primary monitor")
+	}
+
 	log.Info().
 		Str("component", component).
 		Str("entry", pipelineEntry).
