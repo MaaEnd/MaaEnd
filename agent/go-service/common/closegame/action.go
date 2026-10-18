@@ -28,7 +28,7 @@ type closeGameSettingParam struct {
 	GraphicsQuality        int             `json:"GraphicsQuality"`
 	FrameRate              int             `json:"FrameRate"`
 	AutoHDR                string          `json:"AutoHDR,omitempty"`
-	GameSettingLauncherDir string          `json:"GameSettingLauncherDir,omitempty"`
+	GameSettingWinePrefix  string          `json:"GameSettingWinePrefix,omitempty"`
 	GameSettingWineBin     string          `json:"GameSettingWineBin,omitempty"`
 }
 
@@ -102,8 +102,8 @@ func loadAttach(ctx *maa.Context, nodeName string) closeGameSettingParam {
 	if wrapper.Attach.AutoHDR != "" {
 		params.AutoHDR = wrapper.Attach.AutoHDR
 	}
-	if wrapper.Attach.GameSettingLauncherDir != "" {
-		params.GameSettingLauncherDir = wrapper.Attach.GameSettingLauncherDir
+	if wrapper.Attach.GameSettingWinePrefix != "" {
+		params.GameSettingWinePrefix = wrapper.Attach.GameSettingWinePrefix
 	}
 	if wrapper.Attach.GameSettingWineBin != "" {
 		params.GameSettingWineBin = wrapper.Attach.GameSettingWineBin
@@ -183,15 +183,15 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				Msg("CloseGameAction: invalid wine path")
 			return false
 		}
-		if params.GameSettingLauncherDir == "" {
-			log.Error().Msg("CloseGameAction: launcher dir not provided")
+		if params.GameSettingWinePrefix == "" {
+			log.Error().Msg("CloseGameAction: wine prefix not provided")
 			return false
 		}
-		if err := gamesetting.SetLauncherDir(params.GameSettingLauncherDir); err != nil {
+		if err := gamesetting.SetWinePrefix(params.GameSettingWinePrefix); err != nil {
 			log.Error().
 				Err(err).
-				Str("launcher_dir", params.GameSettingLauncherDir).
-				Msg("CloseGameAction: invalid launcher dir")
+				Str("wine_prefix", params.GameSettingWinePrefix).
+				Msg("CloseGameAction: invalid wine prefix")
 			return false
 		}
 	}

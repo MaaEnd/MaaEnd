@@ -428,8 +428,8 @@ func validateCachedUID(uid string) error {
 // winePrefix Linux 使用
 var winePrefix string
 
-// SetLauncherDir Linux 端调用
-func SetLauncherDir(dir string) error {
+// SetWinePrefix Linux 端调用
+func SetWinePrefix(dir string) error {
 	dir = strings.TrimSpace(dir)
 	if dir == "" {
 		return nil

@@ -33,7 +33,7 @@
                         "CloseGamePCGameSettingGraphicsQuality",
                         "CloseGamePCGameSettingFrameRate",
                         "CloseGamePCAutoHDR",
-                        "CloseGamePCGameSettingLauncherDir",
+                        "CloseGamePCWinePrefix",
                         "CloseGamePCGameSettingWineBin"
                     ],
                     "pipeline_override": {
@@ -57,25 +57,25 @@
             ],
             "default_case": "No"
         },
-        "CloseGamePCGameSettingLauncherDir": {
+        "CloseGamePCWinePrefix": {
             "type": "input",
             "controller": [
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots"
             ],
-            "label": "$option.CloseGamePCGameSettingLauncherDir.label",
+            "label": "$option.CloseGamePCWinePrefix.label",
             "inputs": [
                 {
-                    "name": "CloseGamePCGameSettingLauncherDir",
-                    "label": "$option.CloseGamePCGameSettingLauncherDir.label",
+                    "name": "CloseGamePCWinePrefix",
+                    "label": "$option.CloseGamePCWinePrefix.label",
                     "default": ""
                 }
             ],
             "pipeline_override": {
                 "CloseGamePC": {
                     "attach": {
-                        "GameSettingLauncherDir": "{CloseGamePCGameSettingLauncherDir}"
+                        "GameSettingWinePrefix": "{CloseGamePCWinePrefix}"
                     }
                 }
             }
