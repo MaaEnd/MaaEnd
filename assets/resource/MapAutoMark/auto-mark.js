@@ -293,17 +293,14 @@
     }
 
     async function handleEvent(type) {
-        // 标记请求进行中，丢弃新事件，避免并发写同一个点位。
-        if (state.busy) {
-            return;
-        }
         const t = now();
         const last = state.lastTypeAt[type] || 0;
         if (t - last < DEBOUNCE_MS) {
             return;
         }
         state.lastTypeAt[type] = t;
-        // “打开”只记录时刻，等随后的“获得”
+        // “打开”只记录时刻，等随后的“获得”。这一步不能受 busy 影响：
+        // 丢了这一刻，紧随其后的“获得”就会被当成孤立事件，开箱不生效。
         if (type === 'open') {
             state.openAt = t;
             return;
@@ -318,6 +315,13 @@
             }
             resolved = 'chest';
             state.openAt = 0;
+        }
+
+        // 只有真正要写点位时才需要独占：上一次标记还没回来就跳过这一次，
+        // 时刻与关联已经在上面处理完，不会丢。
+        if (state.busy) {
+            state.log.push({ at: t, type: resolved, result: 'busy-skip' });
+            return;
         }
 
         const got = collectCandidates(resolved);
