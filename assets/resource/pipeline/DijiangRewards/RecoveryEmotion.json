@@ -13,7 +13,7 @@
                 "box_index": 1
             }
         },
-        "pre_delay": 0,
+        "pre_delay": 600,
         "action": {
             "type": "Click",
             "param": {

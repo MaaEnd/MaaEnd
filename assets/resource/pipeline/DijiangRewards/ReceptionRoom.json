@@ -1132,7 +1132,7 @@
             }
         },
         "pre_wait_freezes": 200,
-        "pre_delay": 0,
+        "pre_delay": 600,
         "action": {
             "type": "Click"
         },
