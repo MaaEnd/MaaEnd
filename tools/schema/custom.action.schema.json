@@ -82,6 +82,7 @@
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
                 "RealTimeTaskAction",
+                "SklandMapMarkEvent",
                 "RepeatUntilFoundAction",
                 "RepeatUntilNotFoundAction",
                 "SceneManagerMenuListClickItemAction",

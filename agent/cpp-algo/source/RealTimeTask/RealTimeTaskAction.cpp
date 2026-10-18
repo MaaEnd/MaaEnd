@@ -1,8 +1,15 @@
 #include "RealTimeTaskAction.h"
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <iterator>
+#include <memory>
 #include <string>
+#include <thread>
 #include <type_traits>
 #include <vector>
 
@@ -12,6 +19,7 @@
 
 #include "Common/GameRegion.h"
 #include "Common/WebView2.h"
+#include "SklandMapMarkEvent.h"
 
 namespace realtimetask
 {
@@ -166,6 +174,64 @@ std::string BuildPipelineOverride(const std::vector<std::string>& nodes)
     return json::value(std::move(root)).dumps();
 }
 
+// LoadAutoMarkScript 读取地图自动标记助手脚本，作为 WebView2 的初始化脚本注入。
+// 脚本随资源一起分发，因此在安装目录下的 assets/resource 与打包后的 resource 两处查找。
+// 找不到时返回空串：此时地图照常打开，只是不会自动标记。
+std::string LoadAutoMarkScript()
+{
+    namespace fs = std::filesystem;
+
+    const fs::path candidates[] = {
+        fs::path("assets/resource/MapAutoMark/auto-mark.js"),
+        fs::path("resource/MapAutoMark/auto-mark.js"),
+    };
+
+    for (const auto& path : candidates) {
+        std::error_code ec;
+        if (!fs::exists(path, ec) || ec) {
+            continue;
+        }
+        std::ifstream in(path, std::ios::binary);
+        if (!in) {
+            continue;
+        }
+        std::string content { std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>() };
+        if (!content.empty()) {
+            LogInfo << "RealTimeTaskAction: loaded auto-mark script" << VAR(path.string()) << VAR(content.size());
+            return content;
+        }
+    }
+
+    LogWarn << "RealTimeTaskAction: auto-mark script not found, auto marking disabled";
+    return {};
+}
+
+// WaitForSklandMapReady 轮询地图页面里的自动标记助手，直到它报告就绪或超时。
+// 识别循环每轮截图都会把游戏窗口拉到前台；页面还在加载（例如首次登录）时就开始循环，
+// 用户会连登录框都点不到。所以先等页面把地图实例和登录态准备好。
+void WaitForSklandMapReady(WebView2* webview, MaaTasker* tasker, std::chrono::milliseconds timeout)
+{
+    auto ready = std::make_shared<std::atomic<bool>>(false);
+    const auto deadline = std::chrono::steady_clock::now() + timeout;
+
+    while (!ready->load() && !MaaTaskerStopping(tasker)) {
+        if (std::chrono::steady_clock::now() >= deadline) {
+            LogWarn << "RealTimeTaskAction: skland map not ready before timeout, start loop anyway";
+            break;
+        }
+        webview->ExecuteScript(
+            "!!(window.__maaMapMark && window.__maaMapMark.ready && window.__maaMapMark.ready())",
+            [ready](bool ok, std::string result) {
+                if (ok && result == "true") {
+                    ready->store(true);
+                }
+            });
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
+    LogInfo << "RealTimeTaskAction: skland map ready wait finished" << VAR(ready->load());
+}
+
 } // namespace
 
 MaaBool MAA_CALL RealTimeTaskActionRun(
@@ -218,10 +284,13 @@ MaaBool MAA_CALL RealTimeTaskActionRun(
             skmap_webview->SetOpacity(static_cast<double>(attach.skland_map_opacity) / 100.0);
             skmap_webview->SetURL(map_url);
             skmap_webview->SetSize(640, 360);
+            // document-start 注入自动标记助手；脚本拿不到时地图仍可正常打开。
+            skmap_webview->SetInitScript(LoadAutoMarkScript());
             if (!skmap_webview->Open()) {
                 LogError << "RealTimeTaskAction: skmap_webview open failed";
                 break;
             }
+            SetSklandMapWebView(skmap_webview);
             LogInfo << "RealTimeTaskAction: skland map opened" << VAR(map_url) << VAR(attach.skland_map_opacity);
         }
         if (attach.video_browser_enable) {
@@ -248,6 +317,12 @@ MaaBool MAA_CALL RealTimeTaskActionRun(
             break;
         }
 
+        // 只有开了地图悬浮窗才需要等页面就绪；没有悬浮窗时保持原有行为。
+        if (attach.skland_map_enable && skmap_webview) {
+            LogInfo << "RealTimeTaskAction: waiting for skland map to become ready";
+            WaitForSklandMapReady(skmap_webview.get(), tasker, std::chrono::minutes(5));
+        }
+
         while (!MaaTaskerStopping(tasker)) {
             const MaaTaskId child_id = MaaContextRunTask(context, kHolderNodeName, pipeline_override.c_str());
             if (child_id == MaaInvalidId) {
@@ -258,6 +333,8 @@ MaaBool MAA_CALL RealTimeTaskActionRun(
         LogInfo << "RealTimeTaskAction: tasker stopping signal received, exit loop";
         ret = true;
     } while (0);
+    // 事件节点只在循环期间有效，先注销再关窗口，避免悬空引用。
+    SetSklandMapWebView(nullptr);
     if (skmap_webview) {
         skmap_webview->Close();
     }

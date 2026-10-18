@@ -21,6 +21,7 @@
 #include "MapNavigator/MapNavigator.h"
 #include "MapNavmesh/MapNavmeshQuery.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
+#include "RealTimeTask/SklandMapMarkEvent.h"
 #include "Test/test.h"
 #include "WorldMap/WorldMapFind.h"
 #include "Zipline/ZiplineImportAction.h"
@@ -137,6 +138,7 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomRecognition("MapFind", worldmap::MapFindRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
+    MaaAgentServerRegisterCustomAction("SklandMapMarkEvent", realtimetask::SklandMapMarkEventRun, nullptr);
 #if defined(MAAEND_HAVE_WEBVIEW2) || defined(MAAEND_HAVE_WEBKIT)
     // 导入要开一个内嵌浏览器让用户自己登录, 而这个控件只有 Windows 和 macOS 有实现,
     // 其余平台把这个动作名留给各自的实现

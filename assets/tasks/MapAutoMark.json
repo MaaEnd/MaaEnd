@@ -1,0 +1,49 @@
+{
+    "task": [
+        {
+            "name": "MapAutoMark",
+            "label": "$task.MapAutoMark.label",
+            "entry": "MapAutoMarkMain",
+            "description": "$task.MapAutoMark.description",
+            "group": [
+                "realtime"
+            ],
+            "controller": [
+                "Win32-Front"
+            ],
+            "option": [
+                "MapAutoMarkTransparent"
+            ]
+        }
+    ],
+    "option": {
+        "MapAutoMarkTransparent": {
+            "type": "switch",
+            "label": "$task.MapAutoMark.option.MapAutoMarkTransparent.label",
+            "description": "$task.MapAutoMark.option.MapAutoMarkTransparent.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "MapAutoMarkMain": {
+                            "attach": {
+                                "skland_map_opacity": 40
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "MapAutoMarkMain": {
+                            "attach": {
+                                "skland_map_opacity": 100
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

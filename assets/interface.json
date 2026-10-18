@@ -228,6 +228,7 @@
         "tasks/ZiplineImport.json",
         "tasks/SharedZiplineDelete.json",
         "tasks/AeroSalvage.json",
+        "tasks/MapAutoMark.json",
         // group: sanity_sink
         "tasks/AutoEssence/AutoEssence.json",
         "tasks/AutoEssence/Location/ChooseLocation.json",

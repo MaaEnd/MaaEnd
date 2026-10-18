@@ -73,6 +73,11 @@ public:
     // 仅在 Open() 之前调用有效；之后调用会被忽略。
     void SetUserAgent(std::string user_agent);
 
+    // 设置首次导航前注入的初始化脚本，由 WebView2 在 document-start 阶段执行。
+    // 用于让外部脚本搭上页面创建的最早期，比如 hook 页面自己的 WebSocket。
+    // 仅在 Open() 之前调用有效；之后调用会被忽略。
+    void SetInitScript(std::string script);
+
     // 设置是否启用 WebView2 默认右键菜单（即「检查」「重新加载」等弹出菜单）。
     // 默认 true。设置为 false 后右键不会再弹出菜单。
     // 仅在 Open() 之前调用有效；之后调用会被忽略。
@@ -134,6 +139,7 @@ private:
     // 配置字段：仅在 Open() 之前由业务线程写入，UI 线程在 onControllerCreated 中读取一次。
     std::string initial_url_;
     std::string user_agent_;
+    std::string init_script_;
     bool clear_web_data_ = false;
     bool touch_emulation_ = false;
     bool context_menu_enabled_ = true;
@@ -174,6 +180,7 @@ public:
     void SetTouchEmulation(bool enabled);
     void SetContextMenuEnabled(bool enabled);
     void SetUserAgent(std::string user_agent);
+    void SetInitScript(std::string script);
 
     // 没有内嵌浏览器可执行，一律以失败回调，调用方按「取不到数据」处理。
     void ExecuteScript(std::string script, std::function<void(bool ok, std::string result_json)> on_done);

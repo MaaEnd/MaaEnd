@@ -172,6 +172,15 @@ void WebView2::SetUserAgent(std::string user_agent)
     user_agent_ = std::move(user_agent);
 }
 
+void WebView2::SetInitScript(std::string script)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::SetInitScript: ignored, must be called before Open()";
+        return;
+    }
+    init_script_ = std::move(script);
+}
+
 void WebView2::onUiThreadInit()
 {
     // WebView2 必须运行在 STA 线程上。CoInit 必须在任何 WebView2 调用之前完成。
@@ -365,6 +374,18 @@ void WebView2::onControllerCreated(HRESULT result, ICoreWebView2Controller* cont
         }
     }
 
+    // 初始化脚本必须在首次导航之前注册，才能在页面 document-start 阶段执行。
+    if (!init_script_.empty()) {
+        std::wstring wscript = utf8ToWide(init_script_);
+        HRESULT script_hr = webview_->AddScriptToExecuteOnDocumentCreated(wscript.c_str(), nullptr);
+        if (FAILED(script_hr)) {
+            LogError << "WebView2: AddScriptToExecuteOnDocumentCreated failed" << VAR(script_hr);
+        }
+        else {
+            LogInfo << "WebView2: init script registered" << VAR(init_script_.size());
+        }
+    }
+
     if (clear_web_data_) {
         clearSiteData([this](bool ok) {
             if (!ok) {
@@ -379,7 +400,6 @@ void WebView2::onControllerCreated(HRESULT result, ICoreWebView2Controller* cont
 
     navigateInitialUrl();
 }
-
 void WebView2::clearSiteData(std::function<void(bool ok)> on_done)
 {
     Microsoft::WRL::ComPtr<ICoreWebView2_13> webview13;
@@ -700,6 +720,14 @@ void WebView2::SetUserAgent(std::string user_agent)
 {
     if (isOpened()) {
         LogWarn << "WebView2::SetUserAgent: ignored, must be called before Open()" << VAR(user_agent);
+        return;
+    }
+}
+
+void WebView2::SetInitScript(std::string script)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::SetInitScript: ignored, must be called before Open()";
         return;
     }
 }

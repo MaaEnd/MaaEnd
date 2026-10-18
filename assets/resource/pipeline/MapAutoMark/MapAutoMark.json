@@ -1,0 +1,205 @@
+{
+    "MapAutoMarkMain": {
+        "desc": "自动标记主入口：打开森空岛地图悬浮窗，并循环识别游玩中的收集事件",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RealTimeTaskAction",
+                "custom_action_param": {
+                    "nodes": [
+                        "MapAutoMarkChestOpen",
+                        "MapAutoMarkChestGain",
+                        "MapAutoMarkArchiveCard",
+                        "MapAutoMarkEssenceTag",
+                        "MapAutoMarkCrystalTag",
+                        "MapAutoMarkSleep"
+                    ]
+                }
+            }
+        },
+        "attach": {
+            "skland_map_enable": true,
+            "skland_map_opacity": 100
+        },
+        "next": []
+    },
+
+    /*
+     * 循环末端的节流节点。RealTimeTaskAction 的 while 会在每轮 RunTask 返回后立即重跑，
+     * 没有兜底延迟时一轮只剩截图开销，会把识别循环压到很高频。照 RealtimeTask.json 的
+     * RealTimeSleep 给一个 200ms 的收尾，避免空转。
+     */
+    "MapAutoMarkSleep": {
+        "pre_delay": 0,
+        "post_delay": 200
+    },
+
+    /*
+     * 宝箱：交互提示“打开” -> 记录前置状态；随后的“获得” -> 触发标记。
+     * 时间窗与状态机在 auto-mark.js 里（OPEN_TO_GAIN_MS），这里只负责把两个时刻推过去。
+     * ROI [755,330,297,312] 沿用 RealTimeTask/AutoPick.json 的交互提示区域。
+     * rate_limit 是节流的主要手段：同一节点两次识别至少隔 300ms。
+     */
+    "MapAutoMarkChestOpen": {
+        "desc": "识别交互提示「打开」（键鼠 F / 手柄 Y 均只匹配文字）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                "expected": [
+                    "^打开$"
+                ]
+            }
+        },
+        "rate_limit": 300,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SklandMapMarkEvent",
+                "custom_action_param": {
+                    "type": "open"
+                }
+            }
+        },
+        "next": [
+            "MapAutoMarkSleep"
+        ]
+    },
+    "MapAutoMarkChestGain": {
+        "desc": "识别左下角「获得」列表；只在最近出现过「打开」时才被当成开箱",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    4,
+                    348,
+                    200,
+                    70
+                ],
+                "expected": [
+                    "获得"
+                ]
+            }
+        },
+        "rate_limit": 300,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SklandMapMarkEvent",
+                "custom_action_param": {
+                    "type": "gain"
+                }
+            }
+        },
+        "next": [
+            "MapAutoMarkSleep"
+        ]
+    },
+
+    /*
+     * 档案：左侧「已收录」卡片。
+     * ROI 由 1856×1044 截图换算到 720p，待实机校准。
+     */
+    "MapAutoMarkArchiveCard": {
+        "desc": "识别档案收录卡片上的「已收录」",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    10,
+                    336,
+                    300,
+                    61
+                ],
+                "expected": [
+                    "已收录"
+                ]
+            }
+        },
+        "rate_limit": 400,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SklandMapMarkEvent",
+                "custom_action_param": {
+                    "type": "archive"
+                }
+            }
+        },
+        "next": [
+            "MapAutoMarkSleep"
+        ]
+    },
+
+    /*
+     * 醚质 / 塔晶：世界空间悬浮标签，位置随物体投影变化，不能用固定 ROI。
+     * 这里先用上半屏兜底，等实机截图确定标签尺寸后改成 TemplateMatch + OCR 组合。
+     * 全屏 OCR 开销大，rate_limit 放到 800ms。
+     * TODO(capture): 用实机 720p 截图替换 ROI 与 expected，并补标签模板图。
+     */
+    "MapAutoMarkEssenceTag": {
+        "desc": "识别醚质悬浮标签（占位 ROI，待实机校准）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    360
+                ],
+                "expected": [
+                    "醚质"
+                ]
+            }
+        },
+        "rate_limit": 800,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SklandMapMarkEvent",
+                "custom_action_param": {
+                    "type": "essence"
+                }
+            }
+        },
+        "next": [
+            "MapAutoMarkSleep"
+        ]
+    },
+    "MapAutoMarkCrystalTag": {
+        "desc": "识别塔晶悬浮标签（占位 ROI，待实机校准）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    360
+                ],
+                "expected": [
+                    "塔晶"
+                ]
+            }
+        },
+        "rate_limit": 800,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SklandMapMarkEvent",
+                "custom_action_param": {
+                    "type": "crystal"
+                }
+            }
+        },
+        "next": [
+            "MapAutoMarkSleep"
+        ]
+    }
+}
