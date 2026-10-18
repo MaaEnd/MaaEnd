@@ -1026,7 +1026,17 @@
                 ]
             }
         },
-        "action": "Click",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    -15,
+                    -20,
+                    -10
+                ]
+            }
+        },
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingSisPaintingSuccess"
         ]
