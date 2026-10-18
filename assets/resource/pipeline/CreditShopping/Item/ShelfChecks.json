@@ -1,13 +1,13 @@
 {
     "CreditShoppingPriority1Discount": {
-        "desc": "优先购买1折扣。相对买得起框，预写为 75% 及以上",
+        "desc": "优先购买1折扣。相对物品识别框，预写为 75% 及以上",
         "recognition": "OCR",
-        "roi": "CreditShoppingPriority1CanAfford",
+        "roi": "CreditShoppingPriority1Item",
         "roi_offset": [
-            8,
-            -130,
-            -12,
-            2
+            78,
+            -14,
+            -66,
+            -88
         ],
         "expected": [
             "99",
@@ -18,14 +18,14 @@
         "order_by": "Expected"
     },
     "CreditShoppingPriority2Discount": {
-        "desc": "优先购买2折扣。相对买得起框，预写为 75% 及以上",
+        "desc": "优先购买2折扣。相对物品识别框，预写为 75% 及以上",
         "recognition": "OCR",
-        "roi": "CreditShoppingPriority2CanAfford",
+        "roi": "CreditShoppingPriority2Item",
         "roi_offset": [
-            8,
-            -130,
-            -12,
-            2
+            78,
+            -14,
+            -66,
+            -88
         ],
         "expected": [
             "99",
@@ -36,14 +36,14 @@
         "order_by": "Expected"
     },
     "CreditShoppingPriority3Discount": {
-        "desc": "优先购买3折扣。相对买得起框，预写为 75% 及以上",
+        "desc": "优先购买3折扣。相对物品识别框，预写为 75% 及以上",
         "recognition": "OCR",
-        "roi": "CreditShoppingPriority3CanAfford",
+        "roi": "CreditShoppingPriority3Item",
         "roi_offset": [
-            8,
-            -130,
-            -12,
-            2
+            78,
+            -14,
+            -66,
+            -88
         ],
         "expected": [
             "99",
@@ -54,14 +54,14 @@
         "order_by": "Expected"
     },
     "CreditShoppingPriority1DiscountCannotAfford": {
-        "desc": "优先购买1买不起时的折扣。相对买不起框，预写为 75% 及以上",
+        "desc": "优先购买1买不起时的折扣。相对物品识别框，预写为 75% 及以上",
         "recognition": "OCR",
-        "roi": "CreditShoppingPriority1CanNotAfford",
+        "roi": "CreditShoppingPriority1Item",
         "roi_offset": [
-            8,
-            -130,
-            -12,
-            2
+            78,
+            -14,
+            -66,
+            -88
         ],
         "expected": [
             "99",
@@ -72,14 +72,14 @@
         "order_by": "Expected"
     },
     "CreditShoppingPriority2DiscountCannotAfford": {
-        "desc": "优先购买2买不起时的折扣。相对买不起框，预写为 75% 及以上",
+        "desc": "优先购买2买不起时的折扣。相对物品识别框，预写为 75% 及以上",
         "recognition": "OCR",
-        "roi": "CreditShoppingPriority2CanNotAfford",
+        "roi": "CreditShoppingPriority2Item",
         "roi_offset": [
-            8,
-            -130,
-            -12,
-            2
+            78,
+            -14,
+            -66,
+            -88
         ],
         "expected": [
             "99",
@@ -90,14 +90,14 @@
         "order_by": "Expected"
     },
     "CreditShoppingPriority3DiscountCannotAfford": {
-        "desc": "优先购买3买不起时的折扣。相对买不起框，预写为 75% 及以上",
+        "desc": "优先购买3买不起时的折扣。相对物品识别框，预写为 75% 及以上",
         "recognition": "OCR",
-        "roi": "CreditShoppingPriority3CanNotAfford",
+        "roi": "CreditShoppingPriority3Item",
         "roi_offset": [
-            8,
-            -130,
-            -12,
-            2
+            78,
+            -14,
+            -66,
+            -88
         ],
         "expected": [
             "99",
@@ -112,10 +112,10 @@
         "recognition": "ColorMatch",
         "roi": "CreditShoppingPriority1NotSoldOut",
         "roi_offset": [
-            92,
+            95,
             132,
             -92,
-            -142
+            -114
         ],
         "method": 40,
         "lower": [
@@ -135,10 +135,10 @@
         "recognition": "ColorMatch",
         "roi": "CreditShoppingPriority2NotSoldOut",
         "roi_offset": [
-            92,
+            95,
             132,
             -92,
-            -142
+            -114
         ],
         "method": 40,
         "lower": [
@@ -158,10 +158,10 @@
         "recognition": "ColorMatch",
         "roi": "CreditShoppingPriority3NotSoldOut",
         "roi_offset": [
-            92,
+            95,
             132,
             -92,
-            -142
+            -114
         ],
         "method": 40,
         "lower": [
@@ -181,10 +181,10 @@
         "recognition": "ColorMatch",
         "roi": "CreditShoppingPriority1NotSoldOut",
         "roi_offset": [
-            92,
+            95,
             132,
             -92,
-            -142
+            -114
         ],
         "lower": [
             200,
@@ -203,10 +203,10 @@
         "recognition": "ColorMatch",
         "roi": "CreditShoppingPriority2NotSoldOut",
         "roi_offset": [
-            92,
+            95,
             132,
             -92,
-            -142
+            -114
         ],
         "lower": [
             200,
@@ -225,10 +225,10 @@
         "recognition": "ColorMatch",
         "roi": "CreditShoppingPriority3NotSoldOut",
         "roi_offset": [
-            92,
+            95,
             132,
             -92,
-            -142
+            -114
         ],
         "lower": [
             200,
@@ -286,10 +286,10 @@
         "recognition": "ColorMatch",
         "roi": "CreditShoppingShelfAnyNotSoldOut",
         "roi_offset": [
-            92,
+            95,
             132,
             -92,
-            -142
+            -114
         ],
         "method": 40,
         "lower": [

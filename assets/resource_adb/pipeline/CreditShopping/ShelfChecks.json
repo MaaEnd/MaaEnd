@@ -1,10 +1,10 @@
 {
     "CreditShoppingPriority1CanAfford": {
         "roi_offset": [
-            161,
-            172,
-            -168,
-            -186
+            95,
+            150,
+            -60,
+            -120
         ],
         "lower": [
             0,
@@ -19,10 +19,10 @@
     },
     "CreditShoppingPriority2CanAfford": {
         "roi_offset": [
-            161,
-            172,
-            -168,
-            -186
+            95,
+            150,
+            -60,
+            -120
         ],
         "lower": [
             0,
@@ -37,10 +37,10 @@
     },
     "CreditShoppingPriority3CanAfford": {
         "roi_offset": [
-            161,
-            172,
-            -168,
-            -186
+            95,
+            150,
+            -60,
+            -120
         ],
         "lower": [
             0,
@@ -55,10 +55,10 @@
     },
     "CreditShoppingShelfAnyCanAfford": {
         "roi_offset": [
-            161,
-            172,
-            -168,
-            -186
+            95,
+            150,
+            -60,
+            -120
         ],
         "lower": [
             0,
@@ -73,10 +73,10 @@
     },
     "CreditShoppingPriority1CanNotAfford": {
         "roi_offset": [
-            161,
-            172,
-            -168,
-            -186
+            95,
+            150,
+            -60,
+            -120
         ],
         "method": 40,
         "lower": [
@@ -92,10 +92,10 @@
     },
     "CreditShoppingPriority2CanNotAfford": {
         "roi_offset": [
-            161,
-            172,
-            -168,
-            -186
+            95,
+            150,
+            -60,
+            -120
         ],
         "method": 40,
         "lower": [
@@ -111,10 +111,10 @@
     },
     "CreditShoppingPriority3CanNotAfford": {
         "roi_offset": [
-            161,
-            172,
-            -168,
-            -186
+            95,
+            150,
+            -60,
+            -120
         ],
         "method": 40,
         "lower": [
@@ -129,51 +129,57 @@
         ]
     },
     "CreditShoppingPriority1Discount": {
+        "roi": "CreditShoppingPriority1Item",
         "roi_offset": [
-            -38,
-            -167,
-            40,
-            6
+            100,
+            -16,
+            -76,
+            -116
         ]
     },
     "CreditShoppingPriority1DiscountCannotAfford": {
+        "roi": "CreditShoppingPriority1Item",
         "roi_offset": [
-            -38,
-            -167,
-            40,
-            6
+            100,
+            -16,
+            -76,
+            -116
         ]
     },
     "CreditShoppingPriority2Discount": {
+        "roi": "CreditShoppingPriority2Item",
         "roi_offset": [
-            -38,
-            -167,
-            40,
-            6
+            100,
+            -16,
+            -76,
+            -116
         ]
     },
     "CreditShoppingPriority2DiscountCannotAfford": {
+        "roi": "CreditShoppingPriority2Item",
         "roi_offset": [
-            -38,
-            -167,
-            40,
-            6
+            100,
+            -16,
+            -76,
+            -116
         ]
     },
     "CreditShoppingPriority3Discount": {
+        "roi": "CreditShoppingPriority3Item",
         "roi_offset": [
-            -38,
-            -167,
-            40,
-            6
+            100,
+            -16,
+            -76,
+            -116
         ]
     },
     "CreditShoppingPriority3DiscountCannotAfford": {
+        "roi": "CreditShoppingPriority3Item",
         "roi_offset": [
-            -38,
-            -167,
-            40,
-            6
+            100,
+            -16,
+            -76,
+            -116
         ]
     }
 }
