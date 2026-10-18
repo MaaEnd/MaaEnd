@@ -2509,5 +2509,6 @@
     "resource/image/GameLauncher/EndfieldIcon": "ce62dec911997c0b983e33111511061e4df14972c890a15bfe0b7dc2b22f5b7f",
     "resource/image/AutoStockpile/Goods/Wuling/ChubbyLungBlimp.Tier2": "b3df732596bb1835f4d6a728d3e48089e3f3d9c6c426186c28402a77f4f61b07",
     "resource/image/ProtocolSpace/AdvancedProgression6": "71eba8842a0abe1601fb5d19ff46603c675d0e3212edfd5f3bac95541ce887d8",
-    "resource/image/ProtocolSpace/AdvancedProgression6Low": "998eff6973a89e85d8e5c81225ae06f027750ea4f2bed2515a02286f8ddbd551"
+    "resource/image/ProtocolSpace/AdvancedProgression6Low": "998eff6973a89e85d8e5c81225ae06f027750ea4f2bed2515a02286f8ddbd551",
+    "resource/image/GiftOperator/Operators/Si": "b5af798470265fe5c6aa486adaff19dfbc3bb6321d22c8c3cb5f4fc40e447a5a"
 }

@@ -1,7 +1,7 @@
 # 开发手册 - 赠送干员礼物维护文档
 
 本文说明 `GiftOperator` 的文件分布与两条执行路线。  
-该文档更新于 2026 年 10 月 15 日。
+该文档更新于 2026 年 10 月 18 日。
 
 ## 文件路径
 
@@ -19,16 +19,24 @@
 | `assets/resource_adb/image/GiftOperator/` | ADB 识别图片 |
 | `assets/resource_adb/pipeline/GiftOperator/` | ADB Pipeline 镜像 |
 | `tools/gift_operator/fill_gift_operator_green_box.py` | 干员头像 green_mask 格式化 |
+| `tools/pipeline-generate/GiftOperator/generate.mjs` | 从 zmdmap 数据补齐干员配置并调用头像生成 |
+| `tools/gift_operator/build_avatars.py` | 从 CharIcon 原图生成缺失的 PC / ADB 头像模板 |
 | `assets/locales/interface/*.json` | 任务、选项与干员名称文案 |
 
-## 新增干员时需改的路径
+## 新增干员的增量生成
 
-新增一名干员时，至少需同步以下 6 处（`<Name>` 为干员标识，与模板文件名、option case 名保持一致）：
+运行 `pnpm generate:GiftOperator`：先通过现有 zmdmap 下载器更新 `tools/zmdmap/data/sell_product.json`，再读取其中的 `operators`，排除男女管理员，为新增干员补齐下表中的配置与模板。`.github/workflows/sync-zmdmap.yml` 的 Pipeline 数据同步任务也执行这一命令。
+
+已有选项、节点、五语文案和模板均保留，只补缺失项；不会改名、重排或删除旧选项。现有配置就是基线，不另存干员 ID 绑定表。若整份基线文件丢失，先从 Git 恢复，再运行生成器。原始头像按需直接下载，不依赖本地图片缓存。
+
+干员名称来自 `sell_product.operators`，模板原图来自 `https://voice.fz.wiki/assets/beyond/dynamicassets/gameplay/ui/sprites/charicon/icon_<charId>.png@raw`。同一张 152×212 PNG 统一用浅灰底合成透明通道、双线性缩放和固定偏移裁剪：PC 比例 0.55、横移 −1 像素、输出 80×72；ADB 比例 0.6875、横移 −1.25 像素、输出 100×90。两端分别从原图生成，信息图标、礼物图标、右上角状态图标及边框使用固定绿色遮罩，无逐干员调参。
+
+下载、解码或源图尺寸校验失败时，生成器报错且不写入配置；需检查上游图片和裁剪参数后再运行。ADB 固定参数已在一张真实 1280×720 截图上验证：12 名完整可见干员全部正确命中，最低分 0.904，未出现错误干员命中。该图不含祀；祀的 ADB 正例及完整交互流程仍待实机验证。下表中的 `<Name>` 与现有选项命名一致，新干员默认由上游英文名派生。
 
 | # | 路径 | 说明 |
 | --- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 1 | `assets/resource/image/GiftOperator/Operators/<Name>.png` | Win32 干员头像模板；入库前须用 `tools/gift_operator/fill_gift_operator_green_box.py` 处理 |
-| 2 | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png` | ADB 干员头像模板；同上处理 |
+| 1 | `assets/resource/image/GiftOperator/Operators/<Name>.png` | PC 干员头像模板，生成时已包含 green_mask |
+| 2 | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png` | ADB 干员头像模板，生成时已包含 green_mask |
 | 3 | `assets/tasks/GiftOperator.json` → `SelectOperator` | 新增 case，在 UI 提供可选干员，并为「指定干员」路线提供头像模板与名称白名单 |
 | 4 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | 「只收礼物」模式下各干员的头像二次匹配与名称 OCR 白名单 |
 | 5 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | 在「只收礼物」选人节点的 `next` 数组追加 `GiftOperatorSelect_<Name>`，否则该干员节点不会被触发 |
@@ -113,9 +121,11 @@
    干员到场后，同时识别「对话图标」和「干员名称 OCR」，两者都命中才发起交互。  
    这样即使列表里点中了礼物行，也能在对话前再挡一次「叫错人」的情况。
 
-头像模板必须经过 `fill_gift_operator_green_box.py` 处理（绿色描边 + 右上角遮罩），否则 `green_mask` 匹配不稳定。Win32 与 ADB 各有一套图片，需分别处理。
+生成的头像模板已经包含绿色遮罩，无需再运行 `fill_gift_operator_green_box.py`。手动截取的模板仍使用该脚本处理（绿色描边 + 右上角遮罩）；Win32 与 ADB 各有一套图片，需分别处理。
 
-当前屏找不到带礼物的干员时，列表最多滑动 2 次；仍找不到则落入「无可选干员」，在开启「接受全部礼物」时可作为整轮结束条件。
+ADB 的指定干员节点 `GiftOperatorSelectSpecifiedOp` 与收礼节点 `GiftOperatorSelectGiftOp` 均使用 `[520, 130, 690, 390]` 搜索列表，覆盖首排与左右边缘；头像仍用固定生成参数，无需因 ROI 扩大而重新裁剪模板。
+
+当前屏找不到目标干员时，列表最多滑动 4 次，每次滑动返回联络界面识别后再次查找；仍找不到则落入「无可选干员」，在开启「接受全部礼物」时可作为整轮结束条件。
 
 ### 召唤干员后：找不到对话按钮怎么办
 

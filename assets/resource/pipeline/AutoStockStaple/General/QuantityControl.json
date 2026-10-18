@@ -61,7 +61,11 @@
             "AutoStockStapleQuantityControlFowlbeastPaperKite",
             "AutoStockStapleQuantityControlSwingingGentlemanClassicalAlbum",
             "AutoStockStapleQuantityControlMyrkwoodBerryPreserve",
-            "AutoStockStapleQuantityControlMiracleCake"
+            "AutoStockStapleQuantityControlMiracleCake",
+            "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11",
+            "AutoStockStapleQuantityControlItemInkkirin1Hscrane11",
+            "AutoStockStapleQuantityControlItemGiftJinlong12",
+            "AutoStockStapleQuantityControlItemGiftJinlong13"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
@@ -4978,5 +4982,481 @@
             "type": "Click"
         },
         "post_delay": 0
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11": {
+        "desc": "草本清凉饮的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11StockBillInsufficient",
+            "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11Buy",
+            "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11Exclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11RemoveFilter": {
+        "desc": "草本清凉饮移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_inkbiter_1_wgshoal_1_1": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11Buy": {
+        "desc": "草本清凉饮低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11",
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11Validate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "item_inkbiter_1_wgshoal_1_1"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.item_inkbiter_1_wgshoal_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11Exclude": {
+        "desc": "草本清凉饮达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11",
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11ExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemInkbiter1Wgshoal11RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.item_inkbiter_1_wgshoal_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkbiter1Wgshoal11StockBillInsufficient": {
+        "desc": "草本清凉饮调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkbiter1Wgshoal11",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemInkbiter1Wgshoal11RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.item_inkbiter_1_wgshoal_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11": {
+        "desc": "酥麻炸虫蛹的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlItemInkkirin1Hscrane11StockBillInsufficient",
+            "AutoStockStapleQuantityControlItemInkkirin1Hscrane11Buy",
+            "AutoStockStapleQuantityControlItemInkkirin1Hscrane11Exclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11RemoveFilter": {
+        "desc": "酥麻炸虫蛹移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_inkkirin_1_hscrane_1_1": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11Buy": {
+        "desc": "酥麻炸虫蛹低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11",
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11Validate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "item_inkkirin_1_hscrane_1_1"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.item_inkkirin_1_hscrane_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11Exclude": {
+        "desc": "酥麻炸虫蛹达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11",
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11ExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemInkkirin1Hscrane11RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.item_inkkirin_1_hscrane_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemInkkirin1Hscrane11StockBillInsufficient": {
+        "desc": "酥麻炸虫蛹调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemInkkirin1Hscrane11",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemInkkirin1Hscrane11RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.item_inkkirin_1_hscrane_1_1"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12": {
+        "desc": "缘缘庄拼图的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong12"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlItemGiftJinlong12StockBillInsufficient",
+            "AutoStockStapleQuantityControlItemGiftJinlong12Buy",
+            "AutoStockStapleQuantityControlItemGiftJinlong12Exclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12RemoveFilter": {
+        "desc": "缘缘庄拼图移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_gift_jinlong_12": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12Buy": {
+        "desc": "缘缘庄拼图低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong12",
+                    "AutoStockStapleGoodsItemGiftJinlong12Validate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "item_gift_jinlong_12"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.item_gift_jinlong_12"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12Exclude": {
+        "desc": "缘缘庄拼图达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong12",
+                    "AutoStockStapleGoodsItemGiftJinlong12ExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemGiftJinlong12RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.item_gift_jinlong_12"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong12StockBillInsufficient": {
+        "desc": "缘缘庄拼图调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong12",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemGiftJinlong12RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.item_gift_jinlong_12"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13": {
+        "desc": "木雕剑的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong13"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlItemGiftJinlong13StockBillInsufficient",
+            "AutoStockStapleQuantityControlItemGiftJinlong13Buy",
+            "AutoStockStapleQuantityControlItemGiftJinlong13Exclude"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13RemoveFilter": {
+        "desc": "木雕剑移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_gift_jinlong_13": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13Buy": {
+        "desc": "木雕剑低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong13",
+                    "AutoStockStapleGoodsItemGiftJinlong13Validate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "item_gift_jinlong_13"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.item_gift_jinlong_13"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13Exclude": {
+        "desc": "木雕剑达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong13",
+                    "AutoStockStapleGoodsItemGiftJinlong13ExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemGiftJinlong13RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.item_gift_jinlong_13"
+        }
+    },
+    "AutoStockStapleQuantityControlItemGiftJinlong13StockBillInsufficient": {
+        "desc": "木雕剑调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoodsItemGiftJinlong13",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControlItemGiftJinlong13RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.item_gift_jinlong_13"
+        }
     }
 }

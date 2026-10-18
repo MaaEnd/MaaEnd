@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `AutoStockStaple`.  
 It takes **Valley IV** as the main line; the **Wuling** Pipeline structure is completely symmetrical, differing only in the regional suffix and scene recognition.  
-This document was updated on October 15, 2026.
+This document was updated on October 17, 2026.
 
 ## File Paths
 
@@ -120,13 +120,46 @@ Matched when `limit <= current_held_quantity`:
 | After Item Exclusion | `PipelineOverrideAction` + then `AttachToExpectedRegexAction` | Remove attach key and refresh whitelist |
 | Before Confirming Purchase | `AutoStockStapleQuantityControlAction` | Calculate difference and override BetterSliding target quantity |
 
-## Paths to Modify When Adding a New Item
+## Data Source and Incremental Updates
 
-1. `Goods.json`, `GoodsCountValidate.json` and `QuantityControl.json` under `assets/resource/pipeline/AutoStockStaple/General/` (popup item OCR, limit comparison expressions, quantity control branches; there is no generator, edit them directly)
-2. `assets/tasks/AutoStockStaple.json` (checkbox case + limit override)
-3. `assets/locales/interface/*.json` (options and the `quantity_control.buy.*` / `reached.*` / `stock_bill_insufficient.*` focus text)
+`tools/zmdmap/datasets/stock_staple.py` builds the product roster, categories, prices, and names in five languages from raw TableCfg. The consumer maintains no fixed product binding table. The data relationships are:
 
-For what to change in each file, see [Adding a New Item](#adding-a-new-item) below.
+```text
+DomainDataTable → ShopGroupTable → ShopTable → ShopGoodsTable
+                                           ├ RewardTable → ItemTable → five I18nTextTable languages
+                                           ├ ShopGoodsTagTable → localized category names
+                                           └ ShopChannelDevelopmentTable → supply by channel level
+                  ↓
+stock_staple.json → AutoStockStaple/generate.mjs
+                  ├ assets/tasks/AutoStockStaple.json
+                  ├ General/{Goods,GoodsCountValidate,QuantityControl}.json
+                  └ task text in assets/locales/interface/*.json
+```
+
+Only recurring goods (`limitCountRefreshType` other than `None/0`) in regular regional shops (`shopRefreshType=None/0`) are selected; one-time goods and fluctuating shops are excluded. `goods` preserves prices, discounts, currencies, reward quantities, refresh types, unlock conditions, and channel supply records by goods ID. Task options are then deduplicated by `item_id`, preserving different price tiers of the same item.
+
+Existing task, Pipeline, and locale files form the baseline. The generator identifies registered items from their task option's `resource/image/UI/Item/<item_id>.png` path and adds only new upstream items, without a separate binding table. Existing keys, names, OCR adjustments, ROIs, node order, and quantity policies stay unchanged. Upstream renames, category changes, and removals do not automatically rewrite or delete existing configurations, so saved selections remain valid.
+
+`tools/pipeline-generate/AutoStockStaple/pipeline-template.json` contains only the node template for new items; `messages.json` contains event text patterns in five languages. New option names remove apostrophes from the upstream English name and convert it to PascalCase. Attach keys and messages use game `item_id` values; node suffixes use their PascalCase form. Previously generated items only receive missing nodes and messages; existing values are preserved. When there are no additions, no files are written.
+
+Download the published upstream data and incrementally extend the task configuration:
+
+```shell
+pnpm generate:AutoStockStaple
+```
+
+With local raw tables, data rebuilding and the same incremental update work offline. They only need the eight business tables above and `I18nTextTable_{CN,TC,EN,JP,KR}.json`, without JsonData, navmesh, other compact datasets, or website query APIs:
+
+```shell
+uv run zmdmap generate --only stock_staple --table-cfg-dir /path/to/TableCfg
+node tools/pipeline-generate/AutoStockStaple/generate.mjs
+```
+
+Restore missing or corrupt baseline files from Git before running the incremental update. Upstream item tables do not contain historical OCR adjustments and cannot reconstruct those handwritten configurations. The generator writes only after all inputs parse and all additions build successfully, preserving JSONC comments and other tasks' locale content. The existing icon publishing workflow continues to maintain UI icons.
+
+`.github/workflows/sync-zmdmap.yml` runs the same command in the existing synchronization job. Like other datasets, `stock_staple` is automatically discovered, built, and included in the manifest by zmdmap, then downloaded and materialized through the existing `fetch` command. Valid caches can rebuild missing, corrupt, or stale materialized copies; changed manifest hashes trigger downloads even within the same version.
+
+Static prices preserve complete sales data. Runtime purchasing still recognizes actual discounts, held quantities, and stock bills through the existing flow rather than calculating the current transaction from configured prices.
 
 ## Paths to Modify When Adding a New Region
 
@@ -292,15 +325,11 @@ This task involves several types of runtime overrides; do not confuse them durin
 
 ## Adding a New Item
 
-When adding a new staple demand supply item, the following typically need to be modified in sync:
+After upstream tables add a product, republish `stock_staple.json` and run `pnpm generate:AutoStockStaple`. Product cases, name OCR, quantity comparison nodes, three purchase branches, and localized messages are generated together. Do not manually add product names, binding tables, or legacy aliases.
 
-1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**: Add `AutoStockStapleGoods{Item}` OCR node and multilingual `expected`.
-2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**: Add `{Item}Validate` / `{Item}ExcludeValidate` expression nodes.
-3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**: Append `{Item}` control node in `AutoStockStapleQuantityControl.next`, and complete sub-nodes like Buy / Exclude / StockBillInsufficient / RemoveFilter (refer to existing items in the same region for examples).
-4. **`assets/tasks/AutoStockStaple.json`**: Add a case in the `{Category}Items` multiple-choice box nested under the corresponding region's category switch, writing `AutoStockInStapleItemName.attach.{slug}`. The quantity limit override is not in the case but in a `{Category}…Limit` input option under the same category switch (e.g. `AutoStockBuyDailyGoodsValleyIVFoodAndBuffLimit`; one option can cover several items): add the limit expressions for `AutoStockStapleGoods{Item}Validate` / `AutoStockStapleGoods{Item}ExcludeValidate` to its `pipeline_override`.
-5. **`assets/locales/interface/*.json`**: Add `option.CreditShoppingItems.cases.{Item}.label` and focus text (e.g., `quantity_control.buy.*`).
+Existing quantity grouping remains task policy: the engraving-permit ID family in household goods uses the engraving-permit limit, while other household goods use the food/buff limit; the equipment-enhancement material ID family in industrial goods uses the artificing-catalyst limit, while the rest use the detector limit; cultural goods use the gift limit. New categories or regions requiring navigation fail explicitly until their task options and flows are adapted. If screenshots show that a product needs an OCR adjustment, edit its node directly; incremental updates preserve these adjustments.
 
-During maintenance, directly edit the above Pipeline and task configuration; **do not** rely on code generators to overwrite outputs.
+Maintain existing flows in their task and Pipeline files. The per-item template only defines future additions and does not overwrite existing nodes.
 
 ## Adding a New Region (Referencing Valley IV)
 
@@ -314,7 +343,7 @@ If a third region for staple goods purchase is added in the future, a set of nod
 2. Add `[JumpBack]AutoStockStaple{Region}` sub-task and SceneManager jump in `Main.json`.
 3. Add scene OCR in `StockStaple.json` or the regional InScene file.
 4. Add `AutoStockInStapleItemDiscounts{Region}` in `Item.json` (even with the same layout, since `AutoStockMinDiscount{Region}` overrides this node per region), and add its `roi_offset` to the `resource_adb` `Item.json`.
-5. Add region switch and option group in `assets/tasks/AutoStockStaple.json`.
+5. Add regional switches and empty item option groups in `assets/tasks/AutoStockStaple.json`, connect the region ID to its navigation suffix in the generator, and run the incremental update.
 
 The existing Wuling implementation is a mirror of Valley IV; you can directly diff `ValleyIV.json` and `Wuling.json` to see the differences.
 

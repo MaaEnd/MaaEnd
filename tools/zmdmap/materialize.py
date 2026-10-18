@@ -109,7 +109,11 @@ def _copy(raw_dir: Path, data_dir: Path, file_names: Sequence[str], *, force: bo
             raise _missing_raw(source_path)
         text = source_path.read_text(encoding="utf-8")
         output_path = data_dir / file_name
-        if not force and output_path.exists() and output_path.read_text(encoding="utf-8") == text:
+        try:
+            unchanged = not force and output_path.read_text(encoding="utf-8") == text
+        except (OSError, UnicodeError):
+            unchanged = False
+        if unchanged:
             click.echo(f"[materialize] {file_name} 未变化，跳过写入")
             continue
         output_path.write_text(text, encoding="utf-8", newline="\n")

@@ -1,0 +1,160 @@
+{
+    "AutoStockStapleGoods${NodeId}": {
+        "desc": "${Name}",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    418,
+                    122,
+                    269,
+                    147
+                ],
+                "expected": []
+            }
+        }
+    },
+    "AutoStockStapleGoods${NodeId}Validate": {
+        "desc": "${Name}数量验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 > {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleGoods${NodeId}ExcludeValidate": {
+        "desc": "${Name}数量排除验证",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "20 <= {AutoStockStapleGoodsCountValidate}"
+                }
+            }
+        }
+    },
+    "AutoStockStapleQuantityControl${NodeId}": {
+        "desc": "${Name}的数量控制",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoods${NodeId}"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControl${NodeId}StockBillInsufficient",
+            "AutoStockStapleQuantityControl${NodeId}Buy",
+            "AutoStockStapleQuantityControl${NodeId}Exclude"
+        ]
+    },
+    "AutoStockStapleQuantityControl${NodeId}RemoveFilter": {
+        "desc": "${Name}移除筛选",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "${ItemId}": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleQuantityControlResetRecognitionParams"
+        ]
+    },
+    "AutoStockStapleQuantityControl${NodeId}Buy": {
+        "desc": "${Name}低于阈值时购买指定数量",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoods${NodeId}",
+                    "AutoStockStapleGoods${NodeId}Validate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoStockStapleQuantityControlAction",
+                "custom_action_param": {
+                    "item_name": "${ItemId}"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleCheckSliding",
+            "AutoStockStapleBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.buy.${ItemId}"
+        }
+    },
+    "AutoStockStapleQuantityControl${NodeId}Exclude": {
+        "desc": "${Name}达到阈值后退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoods${NodeId}",
+                    "AutoStockStapleGoods${NodeId}ExcludeValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControl${NodeId}RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.reached.${ItemId}"
+        }
+    },
+    "AutoStockStapleQuantityControl${NodeId}StockBillInsufficient": {
+        "desc": "${Name}调度券不足时退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleGoods${NodeId}",
+                    "AutoStockStapleGoodsStockBillInsufficientValidate"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoStockStapleQuantityControl${NodeId}RemoveFilter",
+            "AutoStockStapleQuantityControlCloseBuyWindow"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoStockStaple.focus.quantity_control.stock_bill_insufficient.${ItemId}"
+        }
+    }
+}
