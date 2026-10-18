@@ -37,7 +37,7 @@
                 "item_gold"
             ],
             "order_by": "natural",
-            "deduplicate": true
+            "deduplicate": false
         },
         "roi": [
             70,
@@ -72,7 +72,7 @@
                 "item_gold"
             ],
             "order_by": "natural",
-            "deduplicate": true
+            "deduplicate": false
         },
         "roi": [
             70,
