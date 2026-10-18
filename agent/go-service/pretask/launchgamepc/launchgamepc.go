@@ -33,12 +33,15 @@ const (
 
 	gameProcessName = "Endfield.exe"
 	launcherExeName = "Launcher.exe"
+	// 安装目录下的 Launcher.exe 只负责拉起 <版本号>\Games.exe 后退出，启动器窗口属于 Games.exe
+	launcherProcessName = "Games.exe"
 
 	pipelineEntry = "GameLauncherMain"
 
 	launcherWindowTimeout = 60 * time.Second
 	gameWindowTimeout     = 120 * time.Second
 	pollInterval          = 5 * time.Second
+	launcherRelaunchWait  = 5 * time.Second
 )
 
 // 与 interface.json 中 Win32-Front 的窗口匹配规则保持一致，供 MXU 后续连接。
@@ -162,6 +165,19 @@ func Run(args []string) bool {
 			Msg("game setting is disabled, skip applying")
 	}
 
+	// 查找启动器窗口依赖 MaaFramework，需在启动启动器之前初始化
+	if err := initMaa(); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", component).
+			Msg("failed to initialize MAA framework")
+		return false
+	}
+	defer maa.Release()
+	log.Info().
+		Str("component", component).
+		Msg("MAA framework initialized")
+
 	if info.launchURL != "" {
 		if err := openLaunchURL(info.launchURL); err != nil {
 			log.Error().
@@ -174,18 +190,6 @@ func Run(args []string) bool {
 	} else if !startLauncherFromInstallDir(opts, info) {
 		return false
 	}
-
-	if err := initMaa(); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", component).
-			Msg("failed to initialize MAA framework")
-		return false
-	}
-	defer maa.Release()
-	log.Info().
-		Str("component", component).
-		Msg("MAA framework initialized")
 
 	if info.windowRegex != nil && !runLauncher(info.windowRegex) {
 		return false
@@ -248,7 +252,18 @@ func runLauncher(windowRegex *regexp.Regexp) bool {
 }
 
 // startLauncherFromInstallDir 按任务设置或注册表找到安装目录并运行 Launcher.exe。
+// 启动器窗口已存在时直接复用，不再运行 Launcher.exe，避免启动器窗口进入异常状态。
 func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bool {
+	if info.windowRegex != nil {
+		if _, ok := findWindow(launcherClassRegex, info.windowRegex); ok {
+			log.Info().
+				Str("component", component).
+				Str("title", info.windowRegex.String()).
+				Msg("launcher window already exists, reuse it")
+			return true
+		}
+	}
+
 	var installDir string
 	if opts.LauncherPath == "Manual" {
 		launcherPath := filepath.Clean(strings.Trim(strings.TrimSpace(opts.LauncherExe.LauncherExe), `"`))
@@ -283,7 +298,8 @@ func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bo
 		Str("install_dir", installDir).
 		Msg("launcher install directory found")
 
-	// 启动器最小化到托盘时进程仍在但窗口不可见，因此无论进程是否存在都执行一次以唤出窗口。
+	// 启动器最小化到托盘时进程仍在但窗口不可见，需要再执行一次 Launcher.exe 唤出窗口。
+	launcherRunning := isProcessRunning(launcherProcessName, installDir)
 	if err := startLauncher(installDir); err != nil {
 		log.Error().
 			Err(err).
@@ -291,6 +307,14 @@ func startLauncherFromInstallDir(opts launchGamePCOptions, info launcherInfo) bo
 			Str("install_dir", installDir).
 			Msg("failed to start launcher")
 		return false
+	}
+	if launcherRunning {
+		log.Info().
+			Str("component", component).
+			Dur("wait", launcherRelaunchWait).
+			Msg("launcher process was already running, waiting before connecting")
+		// 启动器进程已在运行时再次执行 Launcher.exe，等待一段时间再继续，避免maa过早连接出现异常画面 https://github.com/MaaEnd/MaaEnd/issues/6585
+		time.Sleep(launcherRelaunchWait)
 	}
 	return true
 }
