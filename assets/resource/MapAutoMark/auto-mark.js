@@ -96,6 +96,7 @@
         queue: [],          // 待确认项
         log: [],            // 事件日志，便于离线复盘
         autoMarked: 0,
+        busy: false,        // 标记请求进行中，期间丢弃新事件避免并发写
     };
 
     // ---------- 位置：hook 页面自己的 WebSocket ----------
@@ -210,6 +211,9 @@
         if (!state.loc) {
             return { error: '没有位置数据，确认地图右下角【位置同步】已打开' };
         }
+        if (state.loc.isOnline === false) {
+            return { error: '游戏不在线，位置帧已失效' };
+        }
         const infos = buildTemplateIndex(mi);
         const level = state.loc.levelId;
         const out = [];
@@ -289,13 +293,16 @@
     }
 
     async function handleEvent(type) {
+        // 标记请求进行中，丢弃新事件，避免并发写同一个点位。
+        if (state.busy) {
+            return;
+        }
         const t = now();
         const last = state.lastTypeAt[type] || 0;
         if (t - last < DEBOUNCE_MS) {
             return;
         }
         state.lastTypeAt[type] = t;
-
         // “打开”只记录时刻，等随后的“获得”
         if (type === 'open') {
             state.openAt = t;
@@ -329,18 +336,24 @@
         const ambiguous = second && second.d3 - top.d3 < got.rule.ambiguityGap;
 
         if (ambiguous) {
-            // 歧义：不自动标，进待确认
+            // 歧义：不自动标，进待确认（同类型同候选不重复入队）
+            if (state.queue.some((q) => q.type === resolved && q.top.id === top.id)) {
+                return;
+            }
             state.queue.push({ at: t, type: resolved, top, second, loc: state.loc, reason: 'ambiguous' });
             refreshTitle();
             state.log.push({ at: t, type: resolved, result: 'queued', top: top.id, topDist: top.d3, secondDist: second.d3 });
             return;
         }
 
+        state.busy = true;
         try {
             const r = await markPoint(top.id);
             state.log.push({ at: t, type: resolved, result: 'marked', id: top.id, name: top.name, dist: top.d3, code: r && r.code });
         } catch (e) {
             state.log.push({ at: t, type: resolved, result: 'error', error: String(e) });
+        } finally {
+            state.busy = false;
         }
     }
 

@@ -727,7 +727,7 @@ void WebView2::SetUserAgent(std::string user_agent)
 void WebView2::SetInitScript(std::string script)
 {
     if (isOpened()) {
-        LogWarn << "WebView2::SetInitScript: ignored, must be called before Open()";
+        LogWarn << "WebView2::SetInitScript: ignored, must be called before Open()" << VAR(script.size());
         return;
     }
 }

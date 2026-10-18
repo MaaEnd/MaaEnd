@@ -19,6 +19,7 @@
 
 #include "Common/GameRegion.h"
 #include "Common/WebView2.h"
+#include "Common/output_paths.h"
 #include "SklandMapMarkEvent.h"
 
 namespace realtimetask
@@ -182,8 +183,8 @@ std::string LoadAutoMarkScript()
     namespace fs = std::filesystem;
 
     const fs::path candidates[] = {
-        fs::path("assets/resource/MapAutoMark/auto-mark.js"),
-        fs::path("resource/MapAutoMark/auto-mark.js"),
+        common::OutputPath(fs::path("assets/resource/MapAutoMark/auto-mark.js")),
+        common::OutputPath(fs::path("resource/MapAutoMark/auto-mark.js")),
     };
 
     for (const auto& path : candidates) {
