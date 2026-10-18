@@ -591,10 +591,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 			Int("yProjSum", totalYProj).
 			Msg("Block count consistency check failed, possible clipped or phantom puzzle blocks")
 		maafocus.Print(ctx, i18n.T("task.PuzzleSolver.focus.recognition_failed"))
-		return &maa.CustomRecognitionResult{
-			Box:    arg.Roi,
-			Detail: `{}`,
-		}, false
+		return nil, false
 	}
 
 	// 7. Construct board description

@@ -148,13 +148,17 @@
         "desc": "回调：解谜成功后触发，识别并点击「点击任意处继续」提示以关闭拼图界面",
         "recognition": "OCR",
         "roi": [
-            531,
+            461,
             532,
-            216,
+            356,
             100
         ],
         "expected": [
-            "点击任意处继续"
+            "点击任意处继续",
+            "按下任意處繼續",
+            "Click anywhere",
+            "Tap anywhere",
+            "anywhere to continue"
         ],
         "action": "Click",
         "next": [
