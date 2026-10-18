@@ -33,8 +33,7 @@
                         "CloseGamePCGameSettingGraphicsQuality",
                         "CloseGamePCGameSettingFrameRate",
                         "CloseGamePCAutoHDR",
-                        "CloseGamePCWinePrefix",
-                        "CloseGamePCGameSettingWineBin"
+                        "CloseGamePCWineConfig"
                     ],
                     "pipeline_override": {
                         "CloseGamePC": {
@@ -57,48 +56,33 @@
             ],
             "default_case": "No"
         },
-        "CloseGamePCWinePrefix": {
+        "CloseGamePCWineConfig": {
             "type": "input",
             "controller": [
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots"
             ],
-            "label": "$option.CloseGamePCWinePrefix.label",
+            "label": "$option.CloseGamePCWineConfig.label",
             "inputs": [
                 {
                     "name": "CloseGamePCWinePrefix",
-                    "label": "$option.CloseGamePCWinePrefix.label",
-                    "default": ""
-                }
-            ],
-            "pipeline_override": {
-                "CloseGamePC": {
-                    "attach": {
-                        "GameSettingWinePrefix": "{CloseGamePCWinePrefix}"
-                    }
-                }
-            }
-        },
-        "CloseGamePCGameSettingWineBin": {
-            "type": "input",
-            "controller": [
-                "Linux-Gamescope",
-                "Linux-ScreenCast",
-                "Linux-Wlroots"
-            ],
-            "label": "$option.CloseGamePCGameSettingWineBin.label",
-            "inputs": [
+                    "label": "$option.CloseGamePCWineConfig.inputs.WinePrefix.label",
+                    "default": "",
+                    "pipeline_type": "string"
+                },
                 {
-                    "name": "CloseGamePCGameSettingWineBin",
-                    "label": "$option.CloseGamePCGameSettingWineBin.label",
-                    "default": ""
+                    "name": "CloseGamePCWineBin",
+                    "label": "$option.CloseGamePCWineConfig.inputs.WineBin.label",
+                    "default": "",
+                    "pipeline_type": "string"
                 }
             ],
             "pipeline_override": {
                 "CloseGamePC": {
                     "attach": {
-                        "GameSettingWineBin": "{CloseGamePCGameSettingWineBin}"
+                        "GameSettingWinePrefix": "{CloseGamePCWinePrefix}",
+                        "GameSettingWineBin": "{CloseGamePCWineBin}"
                     }
                 }
             }
