@@ -493,6 +493,9 @@
         },
         "CloseGamePCAutoHDR": {
             "type": "select",
+            "controller": [
+                "Win32-Front"
+            ],
             "label": "$option.CloseGamePCAutoHDR.label",
             "description": "$option.GameSettingAutoHDR.description",
             "cases": [
