@@ -1564,7 +1564,7 @@
     "option.GameSettingLanguage.cases.Unchanged.label": "Do not change",
     "option.GameSettingLanguage.label": "Game Language",
     "option.GameSettingRegion.cases.CN.label": "CN Server/Bilibili Server/TapTap",
-    "option.GameSettingRegion.cases.Global.label": "Global Server/Steam",
+    "option.GameSettingRegion.cases.Global.label": "Global Server/Steam/Epic",
     "option.GameSettingRegion.label": "Region",
     "option.GiftCount.description": "Number of gifts to send per task run.",
     "option.GiftCount.inputs.Count.description": "Number of gifts to send. Must be a positive integer.",

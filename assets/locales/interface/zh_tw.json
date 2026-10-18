@@ -1564,7 +1564,7 @@
     "option.GameSettingLanguage.cases.Unchanged.label": "不修改",
     "option.GameSettingLanguage.label": "遊戲語言",
     "option.GameSettingRegion.cases.CN.label": "國服/B服/TapTap",
-    "option.GameSettingRegion.cases.Global.label": "國際服/Steam",
+    "option.GameSettingRegion.cases.Global.label": "國際服/Steam/Epic",
     "option.GameSettingRegion.label": "區服",
     "option.GiftCount.description": "單次任務贈送禮物的數量。",
     "option.GiftCount.inputs.Count.description": "送出禮物的個數，須為 1 以上的整數。",

@@ -1564,7 +1564,7 @@
     "option.GameSettingLanguage.cases.Unchanged.label": "변경 안 함",
     "option.GameSettingLanguage.label": "게임 언어",
     "option.GameSettingRegion.cases.CN.label": "중국 서버/bilibili 서버/TapTap",
-    "option.GameSettingRegion.cases.Global.label": "글로벌 서버/Steam",
+    "option.GameSettingRegion.cases.Global.label": "글로벌 서버/Steam/Epic",
     "option.GameSettingRegion.label": "서버",
     "option.GiftCount.description": "작업 1회당 선물할 개수입니다.",
     "option.GiftCount.inputs.Count.description": "보낼 선물의 개수. 1 이상의 정수입니다.",

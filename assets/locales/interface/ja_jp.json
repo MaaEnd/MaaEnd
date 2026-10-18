@@ -1564,7 +1564,7 @@
     "option.GameSettingLanguage.cases.Unchanged.label": "変更しない",
     "option.GameSettingLanguage.label": "ゲーム言語",
     "option.GameSettingRegion.cases.CN.label": "中国サーバー/bilibiliサーバー/TapTap",
-    "option.GameSettingRegion.cases.Global.label": "グローバルサーバー/Steam",
+    "option.GameSettingRegion.cases.Global.label": "グローバルサーバー/Steam/Epic",
     "option.GameSettingRegion.label": "サーバー",
     "option.GiftCount.description": "1 回のタスクで贈るプレゼントの数。",
     "option.GiftCount.inputs.Count.description": "贈るプレゼントの個数。1 以上の整数。",
