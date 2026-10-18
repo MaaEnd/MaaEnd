@@ -2546,7 +2546,7 @@
     "task.SeizeDeliveryJobsRepeatCount.description": "Maximum number of deliveries performed in a single task run",
     "task.SeizeDeliveryJobsRepeatCount.label": "Delivery Count",
     "task.SeizeDeliveryJobsReward.description": "(unit: 10k)",
-    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "Price",
+    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "Price (10k)",
     "task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg": "Please enter a number from 0 to the price ceiling",
     "task.SeizeDeliveryJobsReward.label": "Accept reward no less than:",
     "task.SeizeDeliveryJobsSpecifyDeliveryPoint.label": "Specify Delivery Point",

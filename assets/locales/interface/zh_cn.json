@@ -2546,7 +2546,7 @@
     "task.SeizeDeliveryJobsRepeatCount.description": "全自动送货的最大循环次数",
     "task.SeizeDeliveryJobsRepeatCount.label": "送货次数",
     "task.SeizeDeliveryJobsReward.description": "（单位：万）",
-    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "价格",
+    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "价格（万）",
     "task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg": "请输入0至单价上限的数字",
     "task.SeizeDeliveryJobsReward.label": "接取价格不低于：",
     "task.SeizeDeliveryJobsSpecifyDeliveryPoint.label": "指定送货点",

@@ -2546,7 +2546,7 @@
     "task.SeizeDeliveryJobsRepeatCount.description": "완전 자동 배달의 최대 반복 횟수",
     "task.SeizeDeliveryJobsRepeatCount.label": "배송 횟수",
     "task.SeizeDeliveryJobsReward.description": "(단위: 만)",
-    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "가격",
+    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "가격 (만)",
     "task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg": "0부터 단가 상한까지의 숫자를 입력하세요",
     "task.SeizeDeliveryJobsReward.label": "수주가(최소):",
     "task.SeizeDeliveryJobsSpecifyDeliveryPoint.label": "배달 지점 지정",

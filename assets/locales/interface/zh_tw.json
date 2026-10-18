@@ -2546,7 +2546,7 @@
     "task.SeizeDeliveryJobsRepeatCount.description": "全自動送貨的最大循環次數",
     "task.SeizeDeliveryJobsRepeatCount.label": "送貨次數",
     "task.SeizeDeliveryJobsReward.description": "（單位：萬）",
-    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "價格",
+    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "價格（萬）",
     "task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg": "請輸入0至單價上限的數字",
     "task.SeizeDeliveryJobsReward.label": "接取價格不低於：",
     "task.SeizeDeliveryJobsSpecifyDeliveryPoint.label": "指定送貨點",

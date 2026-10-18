@@ -2546,7 +2546,7 @@
     "task.SeizeDeliveryJobsRepeatCount.description": "全自動配送の最大ループ回数",
     "task.SeizeDeliveryJobsRepeatCount.label": "配送回数",
     "task.SeizeDeliveryJobsReward.description": "（単位：万）",
-    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "価格",
+    "task.SeizeDeliveryJobsReward.inputs.Reward.label": "価格（万）",
     "task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg": "0から単価上限までの数字を入力してください",
     "task.SeizeDeliveryJobsReward.label": "受注額（下限）：",
     "task.SeizeDeliveryJobsSpecifyDeliveryPoint.label": "配達先指定",
