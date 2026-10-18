@@ -9,6 +9,7 @@
     },
     "GameLauncherSelectEndfield": {
         "desc": "点击左侧栏的终末地图标",
+        "max_hit": 3,
         "recognition": "TemplateMatch",
         "roi": [
             20,
@@ -18,7 +19,22 @@
         ],
         "template": "GameLauncher/EndfieldIcon.png",
         "green_mask": true,
+        "pre_wait_freezes": 100,
         "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "GameLauncherEndfieldSelected",
+            "GameLauncherSelectEndfield"
+        ]
+    },
+    "GameLauncherEndfieldSelected": {
+        "desc": "右下角出现黄色开始游戏按钮，确认已切换到终末地页面",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "GameLauncherClickStartGame"
         ]
@@ -32,6 +48,7 @@
             "GameLauncherStartGameText"
         ],
         "box_index": 1,
+        "pre_wait_freezes": 100,
         "action": "Click",
         "post_delay": 3000, // 这里暂时不调用RepeatUntilAction，先保持纯pipeline
         "next": [
