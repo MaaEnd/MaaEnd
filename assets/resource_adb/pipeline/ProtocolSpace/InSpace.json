@@ -1,4 +1,21 @@
 {
+    "ProtocolSpaceRewardClaimSuccessFinish": {
+        "desc": "协议空间奖励界面，点击「离开」结束任务（移动端按钮无白色取消按钮样式，改用 OCR）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    720,
+                    570,
+                    260,
+                    60
+                ],
+                "expected": [
+                    "离开"
+                ]
+            }
+        }
+    },
     "ProtocolSpaceTouchExitMoveToTarget": {
         "custom_action_param": {
             "align_threshold": 120,

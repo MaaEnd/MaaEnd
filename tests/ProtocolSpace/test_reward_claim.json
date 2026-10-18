@@ -1,0 +1,29 @@
+{
+    "configs": {
+        "name": "(ADB-官服)协议空间奖励界面，测试离开按钮",
+        "resource": "官服",
+        "controller": "ADB"
+    },
+    "cases": [
+        {
+            "name": "获得奖励：点击离开结束任务",
+            "image": "协议空间_获得奖励.png",
+            "hits": [
+                {
+                    "node": "ProtocolSpaceRewardClaimSuccessFinish",
+                    "box": [
+                        860,
+                        570,
+                        120,
+                        50
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "负例：选择领取方式弹窗不应命中",
+            "image": "协议空间_选择领取方式.png",
+            "hits": []
+        }
+    ]
+}
