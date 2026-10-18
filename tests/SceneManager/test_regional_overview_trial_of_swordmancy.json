@@ -10,7 +10,8 @@
             "image": "武陵事务总览_选剑演武展开.png",
             "hits": [
                 "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
-                "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded"
+                "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded",
+                "__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
             ]
         },
         {
@@ -26,7 +27,8 @@
             "image": "武陵事务总览_选剑演武未激活展开.png",
             "hits": [
                 "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
-                "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded"
+                "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded",
+                "__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
             ]
         }
     ]
