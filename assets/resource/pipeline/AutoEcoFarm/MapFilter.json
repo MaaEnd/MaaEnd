@@ -168,6 +168,9 @@
             "__AutoEcoFarmFilterScan"
         ]
     },
+    // Win32：农牧相关与装饰物品图标相同，roi 仅覆盖左列，排除右列的装饰物品。
+    // 农牧图标尚未完整进入 roi 时不命中，由现有扫描流程继续滑动，避免提前误勾右列。
+    // 此处仍依赖当前左列布局；若未来换列，需重新适配 roi 或增加完整类别文字识别。
     "__AutoEcoFarmFilterSelectFarming": {
         "desc": "按农牧类别图标勾选",
         "recognition": {
@@ -176,7 +179,7 @@
                 "roi": [
                     20,
                     65,
-                    330,
+                    160,
                     570
                 ],
                 "template": [
@@ -217,7 +220,6 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                // 以本轮农牧图标的识别框定位同一行复选框，并预留边距；不扫描其他行的勾选标记。
                 "roi": "__AutoEcoFarmFilterSelectFarming",
                 "roi_offset": [
                     104,

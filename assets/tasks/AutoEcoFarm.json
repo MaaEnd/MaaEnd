@@ -9,9 +9,12 @@
                 "open_world"
             ],
             "controller": [
+                "ADB",
+                "CloudADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
+                "PlayCover",
                 "Win32-Front"
             ],
             "option": [

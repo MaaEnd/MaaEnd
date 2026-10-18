@@ -220,7 +220,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmRanchRewardConfirm",
+            "__AutoEcoFarmFinishRewardConfirm",
             "__AutoEcoFarmFinishFacility"
         ]
     },
@@ -245,8 +245,8 @@
             "__AutoEcoFarmStoreRanch"
         ]
     },
-    "__AutoEcoFarmRanchRewardConfirm": {
-        "desc": "牧场存仓后处理奖励页，完成后关闭面板",
+    "__AutoEcoFarmFinishRewardConfirm": {
+        "desc": "通过公共奖励子任务处理收尾奖励页，完成后关闭面板或确认已回地图",
         "recognition": "And",
         "all_of": [
             "SceneNoticeRewardsConfirm"
@@ -266,7 +266,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__AutoEcoFarmFinishFacility"
+            "__AutoEcoFarmFinishFacility",
+            "__AutoEcoFarmFacilityClosed"
         ]
     },
     "__AutoEcoFarmEnterWulingCityMap": {
@@ -490,6 +491,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__AutoEcoFarmFinishRewardConfirm",
             "__AutoEcoFarmFacilityClosed"
         ]
     },

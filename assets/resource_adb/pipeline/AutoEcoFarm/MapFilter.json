@@ -1,0 +1,55 @@
+{
+    // ADB：仅覆盖左列“农牧相关”词条。若未来版本修改了此选项位置，需重新测量roi、或补充OCR识别。
+    // “农牧相关”与“装饰物品”图标相同，为减少维护难度，使用 roi 仅覆盖左列“农牧相关”词条，避免误触“装饰物品”。
+    "__AutoEcoFarmFilterSelectFarming": {
+        "roi": [
+            42,
+            60,
+            200,
+            555
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    142,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "__AutoEcoFarmFilterFarmingSelected": {
+        "roi_offset": [
+            130,
+            -11,
+            23,
+            23
+        ]
+    },
+    "__AutoEcoFarmFilterScrollDown": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    120,
+                    598
+                ],
+                "end": [
+                    120,
+                    72
+                ],
+                "duration": 400
+            }
+        }
+    },
+    "__AutoEcoFarmFilterNoProgress": {
+        "roi": [
+            42,
+            56,
+            388,
+            554
+        ]
+    }
+}
