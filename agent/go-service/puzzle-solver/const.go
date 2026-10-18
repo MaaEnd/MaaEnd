@@ -23,7 +23,7 @@ var (
 	PUZZLE_W                   = 0.048 * float64(WORK_W)
 	PUZZLE_H                   = 0.084 * float64(WORK_H)
 	PUZZLE_PREVIEW_MV_CENTER_X = 0.800 * float64(WORK_W)
-	PUZZLE_PREVIEW_MV_CENTER_Y = 0.755*float64(WORK_H) - 10
+	PUZZLE_PREVIEW_MV_CENTER_Y = 0.755 * float64(WORK_H)
 	PUZZLE_COLOR_VAR_GRT       = 25.0
 	PUZZLE_COLOR_SAT_GRT       = 0.50
 	PUZZLE_COLOR_VAL_GRT       = 0.60
