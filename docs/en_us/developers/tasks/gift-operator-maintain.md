@@ -1,7 +1,7 @@
 # Development Manual - Gift to Operator Maintenance Documentation
 
 This document explains the file distribution and two execution routes of `GiftOperator`.  
-This documentation was last updated on October 17, 2026.
+This documentation was last updated on October 18, 2026.
 
 ## File Paths
 
@@ -31,7 +31,7 @@ Existing options, nodes, translations, and templates are preserved; only missing
 
 Names come from `sell_product.operators`; source images come from `https://voice.fz.wiki/assets/beyond/dynamicassets/gameplay/ui/sprites/charicon/icon_<charId>.png@raw`. Each 152×212 PNG is alpha-composited onto a light gray background, bilinearly scaled, and cropped with a fixed offset: PC uses scale 0.55, horizontal offset −1 pixel, and output 80×72; ADB uses scale 0.6875, horizontal offset −1.25 pixels, and output 100×90. Both templates are generated directly from the source. Fixed green masks cover the information icon, gift icon, upper-right status icon, and borders, with no per-operator tuning.
 
-Download, decoding, or source dimension failures stop generation before configuration is written; check the upstream image and crop parameters before rerunning. ADB parameters have been checked against existing templates and simulated dimensions, but still need validation with actual Android screenshots. In the table below, `<Name>` follows the existing option naming convention; new names default to a value derived from the upstream English name.
+Download, decoding, or source dimension failures stop generation before configuration is written; check the upstream image and crop parameters before rerunning. The fixed ADB parameters have been verified on one real 1280×720 screenshot: all 12 fully visible operators matched correctly, with a minimum score of 0.904 and no incorrect operator hits. Si is absent from that image; a positive ADB sample for Si and the complete interaction flow still need device validation. In the table below, `<Name>` follows the existing option naming convention; new names default to a value derived from the upstream English name.
 
 | # | Path | Description |
 | --- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -123,7 +123,9 @@ Receive mode cannot rely on OCR of operator names to directly click the list. In
 
 Generated avatar templates already include green masks and do not need `fill_gift_operator_green_box.py`. Manually captured templates still use that script (green border + upper-right mask); Win32 and ADB each have their own set of images and must be processed separately.
 
-If no operator with a gift is found on the current screen, the list scrolls up to 2 times; if still not found, it falls into "no selectable operator", which can serve as a round-end condition when "Accept all gifts" is enabled.
+On ADB, both the specific-operator node `GiftOperatorSelectSpecifiedOp` and the gift-receiving node `GiftOperatorSelectGiftOp` search the list within `[520, 130, 690, 390]`, covering the first row and both edges. Avatars retain the fixed generation parameters; enlarging the ROI does not require recropping templates.
+
+If the target operator is not found on the current screen, the list scrolls up to 4 times, returning to contact-screen recognition and another search after each swipe. If still not found, it falls into "no selectable operator", which can serve as a round-end condition when "Accept all gifts" is enabled.
 
 ### After Calling Operator: What to Do If Dialogue Button Not Found
 
