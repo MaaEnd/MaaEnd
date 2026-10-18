@@ -28,6 +28,8 @@ type closeGameSettingParam struct {
 	GraphicsQuality        int             `json:"GraphicsQuality"`
 	FrameRate              int             `json:"FrameRate"`
 	AutoHDR                string          `json:"AutoHDR,omitempty"`
+	GameSettingLauncherDir string          `json:"GameSettingLauncherDir,omitempty"`
+	GameSettingWineBin     string          `json:"GameSettingWineBin,omitempty"`
 }
 
 func parseUint32FromRaw(raw json.RawMessage) (uint32, bool) {
@@ -100,6 +102,12 @@ func loadAttach(ctx *maa.Context, nodeName string) closeGameSettingParam {
 	if wrapper.Attach.AutoHDR != "" {
 		params.AutoHDR = wrapper.Attach.AutoHDR
 	}
+	if wrapper.Attach.GameSettingLauncherDir != "" {
+		params.GameSettingLauncherDir = wrapper.Attach.GameSettingLauncherDir
+	}
+	if wrapper.Attach.GameSettingWineBin != "" {
+		params.GameSettingWineBin = wrapper.Attach.GameSettingWineBin
+	}
 	return params
 }
 
@@ -163,9 +171,29 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return true
 	}
 
-	if runtime.GOOS != "windows" {
-		log.Info().Msg("CloseGameAction: game settings are only supported on windows, skipped")
-		return true
+	if runtime.GOOS == "linux" {
+		if params.GameSettingWineBin == "" {
+			log.Error().Msg("CloseGameAction: wine path not provided, fill the wine binary of the prefix environment (lutris runner / proton), not the system wine")
+			return false
+		}
+		if err := gamesetting.SetWineBin(params.GameSettingWineBin); err != nil {
+			log.Error().
+				Err(err).
+				Str("wine_bin", params.GameSettingWineBin).
+				Msg("CloseGameAction: invalid wine path")
+			return false
+		}
+		if params.GameSettingLauncherDir == "" {
+			log.Error().Msg("CloseGameAction: launcher dir not provided")
+			return false
+		}
+		if err := gamesetting.SetLauncherDir(params.GameSettingLauncherDir); err != nil {
+			log.Error().
+				Err(err).
+				Str("launcher_dir", params.GameSettingLauncherDir).
+				Msg("CloseGameAction: invalid launcher dir")
+			return false
+		}
 	}
 
 	if err := gamesetting.SetRegion(params.GameSettingRegion); err != nil {
