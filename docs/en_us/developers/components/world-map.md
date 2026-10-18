@@ -226,7 +226,7 @@ Four entries exist today:
 
 ## Wiring up teleport points
 
-Regular teleport anchors are generated from the camp data by `pnpm generate:SceneTeleport`: the `MapFind` nodes go to `assets/resource/pipeline/SceneManager/SceneTeleportAnchor.json` and the entry nodes to `Interface/SceneTeleportAnchor.json`. Coordinates and descs come from the camp data; sub-areas and indices are registered in `anchors.json` under [`tools/pipeline-generate/SceneTeleport`](../../../../tools/pipeline-generate/SceneTeleport/README.md). Other icons such as base teleports are still hand-written in `SceneManager/SceneTeleport<Zone>.json` and `Interface/Scene<Zone>.json`, wired the same way.
+Regular teleport anchors are generated from the camp data by `pnpm generate:SceneTeleport`: the `MapFind` nodes go to `assets/resource/pipeline/SceneManager/SceneTeleportAnchor.json` and the entry nodes to `Interface/SceneTeleportAnchor.json`. Coordinates and descs come from the camp data; sub-areas and entry names are registered in `anchors.json` under [`tools/pipeline-generate/SceneTeleport`](../../../../tools/pipeline-generate/SceneTeleport/README.md). Other icons such as base teleports are still hand-written in `SceneManager/SceneTeleport<Zone>.json` and `Interface/Scene<Zone>.json`, wired the same way.
 
 Teleport nodes fill the `__ScenePrivateMapTeleportPickAnchor` slot; entry nodes bind that slot and route through `__ScenePrivateMap<SubArea>EnterWorldAnchorWithPick`, which switches the map to its main layer, uses `all_of` to confirm that this really is that sub-area's map screen, and gives the zoom a head start on the way.
 

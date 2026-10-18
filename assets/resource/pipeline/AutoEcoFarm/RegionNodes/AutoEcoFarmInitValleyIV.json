@@ -34,7 +34,7 @@
         "desc": "[ValleyIV版]万能跳转到农场附近",
         "max_hit": 1,
         "next": [
-            "SceneEnterWorldValleyIVOriginiumSciencePark2"
+            "SceneEnterWorldValleyIVOriginiumScienceParkMountainPathSlope"
         ]
     },
     //智能导航（NAVMESH语义寻路，只需填终点坐标）

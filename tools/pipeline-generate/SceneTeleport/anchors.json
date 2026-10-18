@@ -16,32 +16,32 @@
             "region": "ValleyIV",
             "sub_region": "TheHub",
             "anchors": {
-                "1": "2100000031",
-                "2": "2100000086",
-                "3": "2100000322",
-                "4": "2100000073",
-                "5": "2100000093",
-                "6": "2100000284",
-                "7": "2100010282"
+                "HubBasePowerPlant": "2100000031",
+                "RockhillPassage": "2100000086",
+                "SouthernMeadows": "2100000322",
+                "WorkerDorms": "2100000073",
+                "OriginiumByproductProcessingCenter": "2100000093",
+                "HubBase": "2100000284",
+                "LogisticsPlatform": "2100010282"
             }
         },
         "map01_lv002": {
             "region": "ValleyIV",
             "sub_region": "ValleyPass",
             "anchors": {
-                "0": "200001240",
-                "1": "200001237",
-                "2": "200001239"
+                "ValleyFort": "200001240",
+                "PassageEntrance": "200001237",
+                "TemporaryShelter": "200001239"
             }
         },
         "map01_lv003": {
             "region": "ValleyIV",
             "sub_region": "AburreyQuarry",
             "anchors": {
-                "0": "300001865",
-                "1": "300001874",
-                "2": "300002538",
-                "3": "300002665"
+                "QuarryEntrance": "300001865",
+                "StockpileArea": "300001874",
+                "DeepManagementPost": "300002538",
+                "QuarrySite": "300002665"
             }
         },
         "map01_lv005": {
@@ -49,174 +49,174 @@
             "sub_region": "OriginiumSciencePark",
             "anchors": {},
             "manual": {
-                "0": "3400010189",
-                "1": "3400020747",
-                "2": "3400020743",
-                "3": "3400020746",
-                "4": "3400021048"
+                "CliffsideTrail": "3400010189",
+                "OriginiumSciencePark": "3400020747",
+                "MountainPathSlope": "3400020743",
+                "Route5": "3400020746",
+                "KohlPlant": "3400021048"
             }
         },
         "map01_lv006": {
             "region": "ValleyIV",
             "sub_region": "OriginLodespring",
             "anchors": {
-                "3": "3500031060"
+                "MiningAreaClinic": "3500031060"
             },
             "manual": {
-                "0": "3500031058",
-                "1": "3500031059",
-                "2": "3500031061",
-                "4": "3500031199"
+                "OriginiumPassage": "3500031058",
+                "LogisticsArea": "3500031059",
+                "OldMines": "3500031061",
+                "LandbreakerCamp": "3500031199"
             }
         },
         "map01_lv007": {
             "region": "ValleyIV",
             "sub_region": "PowerPlateau",
             "anchors": {
-                "3": "2800001519"
+                "EvacuationZone": "2800001519"
             },
             "manual": {
-                "0": "2800001292",
-                "1": "2800001509",
-                "2": "2800001338"
+                "PowerPlantCommStation": "2800001292",
+                "PlateauTrunkway": "2800001509",
+                "UnitedParkingLot": "2800001338"
             }
         },
         "map02_lv001": {
             "region": "Wuling",
             "sub_region": "JingyuValley",
             "anchors": {
-                "0": "10100030027",
-                "1": "10100030018",
-                "2": "10100030017",
-                "3": "10100030048",
-                "4": "10100030179",
-                "5": "10100030146",
-                "6": "10100020646",
-                "7": "10100020350",
-                "8": "10100020314",
-                "9": "10100020319",
-                "10": "10100020315"
+                "EcologicalResearchStation": "10100030027",
+                "Treadway": "10100030018",
+                "TreasureGrottoNorth": "10100030017",
+                "SkyKingFlatsNorth": "10100030048",
+                "TreasureGrottoSouth": "10100030179",
+                "SkyKingFlatsSouth": "10100030146",
+                "BurdosnoutHill": "10100020646",
+                "ZhailingIslet": "10100020350",
+                "SwordQuenchingMarsh": "10100020314",
+                "SouthHill": "10100020319",
+                "EverwaterBrook": "10100020315"
             }
         },
         "map02_lv002": {
             "region": "Wuling",
             "sub_region": "WulingCity",
             "anchors": {
-                "0": "22800060089",
-                "1": "22800030004",
-                "2": "22800030009",
-                "3": "22800030005",
-                "4": "22800030007",
-                "5": "22800030016",
-                "6": "22800060090",
-                "7": "22800030008",
-                "8": "22800031002",
-                "9": "22801120001",
-                "10": "22801140001",
-                "11": "22801140002",
-                "12": "22801140057"
+                "MonitoringCenter": "22800060089",
+                "MarkerStoneFlats": "22800030004",
+                "MaintenanceZone": "22800030009",
+                "FangxingAvenue": "22800030005",
+                "TianshiBureauAcademy": "22800030007",
+                "TianjingCourtyard": "22800030016",
+                "FieldLogisticsDepotWest": "22800060090",
+                "GuhouMarsh": "22800030008",
+                "FieldLogisticsDepotEast": "22800031002",
+                "QijianDaisWest": "22801120001",
+                "QijianDaisEast": "22801140001",
+                "LingshuiWay": "22801140002",
+                "BureauOfAppliedTechnologies": "22801140057"
             }
         },
         "map02_lv003": {
             "region": "Wuling",
             "sub_region": "QingboStockade",
             "anchors": {
-                "0": "23300000098",
-                "1": "23300000097",
-                "2": "23300000096",
-                "3": "23300000102",
-                "4": "23300000095"
+                "SkyholdRidge": "23300000098",
+                "CausewayTrailWest": "23300000097",
+                "CausewayTrailEast": "23300000096",
+                "AncestralSpring": "23300000102",
+                "MainFort": "23300000095"
             }
         },
         "map02_lv004": {
             "region": "Wuling",
             "sub_region": "MarkerStone",
             "anchors": {
-                "1": "23400083018",
-                "2": "23400083248",
-                "3": "23400083106",
-                "4": "23400083315"
+                "WatchtowerReservoirStation": "23400083018",
+                "LakeIslet": "23400083248",
+                "RestrictedArea": "23400083106",
+                "CloudrestGrotto": "23400083315"
             }
         },
         "map02_lv005": {
             "region": "Wuling",
             "sub_region": "TestArea",
             "anchors": {
-                "1": "23200013265",
-                "2": "23200013375",
-                "3": "23200010005",
-                "4": "23200013087",
-                "5": "23200013376"
+                "IntegratedRDArea": "23200013265",
+                "TestingZone": "23200013375",
+                "WaterTreatmentSector": "23200010005",
+                "MeridianGridArea": "23200013087",
+                "TestAreaPeripheries": "23200013376"
             }
         },
         "map02_lv006": {
             "region": "Wuling",
             "sub_region": "SwordVaultDale",
             "anchors": {
-                "1": "25000000345",
-                "2": "25000000462",
-                "3": "25000000461",
-                "4": "25000000343"
+                "GorgeOverhangNorth": "25000000345",
+                "GorgeOverhangSouth": "25000000462",
+                "DeepGorgeVault": "25000000461",
+                "SouthGorgeRampart": "25000000343"
             }
         },
         "map02_lv007": {
             "region": "Wuling",
             "sub_region": "YinglungPass",
             "anchors": {
-                "0": "10200030160",
-                "1": "10200030168",
-                "2": "10200030169",
-                "3": "10200030153",
-                "4": "10200030255",
-                "5": "10200030151"
+                "PassSideCanal": "10200030160",
+                "StonepondCliffNorth": "10200030168",
+                "YSTFMainCamp": "10200030169",
+                "StonepondCliffSouth": "10200030153",
+                "DevicePavilion": "10200030255",
+                "YSTFFilingRoom": "10200030151"
             }
         },
         "map02_lv008": {
             "region": "Wuling",
             "sub_region": "NorthWulingExclusionZone",
             "anchors": {
-                "0": "23100010219",
-                "1": "23100010670",
-                "2": "23100010220",
-                "3": "23100010640",
-                "4": "23100031243",
-                "5": "23100031242",
-                "6": "23100010221",
-                "7": "23100010223",
-                "8": "23100010733",
-                "9": "23100010671",
-                "10": "23100010222",
-                "11": "23100010740"
+                "SentryBase": "23100010219",
+                "WaterworksHub": "23100010670",
+                "DesignatedUrbanArea": "23100010220",
+                "TanjianHall": "23100010640",
+                "QuelltideLeveeSouth": "23100031243",
+                "QuelltideLeveeNorth": "23100031242",
+                "XiraniteResearchLabs": "23100010221",
+                "RDCenterRooftopWest": "23100010223",
+                "GhostMesaTestSite": "23100010733",
+                "RDCenterRooftopEast": "23100010671",
+                "CelestialColumn": "23100010222",
+                "WulingVLRUpperArea": "23100010740"
             }
         },
         "map02_lv009": {
             "region": "Wuling",
             "sub_region": "SnowyForest",
             "anchors": {
-                "0": "36100010006",
-                "1": "36100010460",
-                "2": "36100010007",
-                "3": "36100010365",
-                "4": "36100010458",
-                "5": "36100010474",
-                "6": "36100010467"
+                "SnowyTrail": "36100010006",
+                "Forest": "36100010460",
+                "SnowpriestessCabinWest": "36100010007",
+                "RitualShrine": "36100010365",
+                "HoarfrostDaleWest": "36100010458",
+                "SnowpriestessCabinEast": "36100010474",
+                "HoarfrostDaleEast": "36100010467"
             }
         },
         "map02_lv010": {
             "region": "Wuling",
             "sub_region": "SisPainting",
             "anchors": {
-                "0": "37900000002",
-                "1": "37900000003",
-                "2": "37900000004",
-                "3": "37900000005",
-                "4": "37900000006",
-                "5": "37900000007",
-                "6": "37900000013",
-                "7": "37900000014",
-                "8": "37900000015",
-                "9": "37900000291",
-                "10": "37900000296"
+                "PinesmokeBasin": "37900000002",
+                "YuanyuanManor": "37900000003",
+                "PearlveiledBrook": "37900000004",
+                "RaintapGrottoBF": "37900000005",
+                "PavilionOfParting": "37900000006",
+                "RaintapGrottoNorth": "37900000007",
+                "InkrisePeak": "37900000013",
+                "XiaoheManor": "37900000014",
+                "FlyingWhitePeak": "37900000015",
+                "MeanderingHike": "37900000291",
+                "RaintapGrottoSouth": "37900000296"
             }
         }
     }

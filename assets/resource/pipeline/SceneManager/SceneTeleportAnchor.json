@@ -1,5 +1,5 @@
 {
-    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub1": {
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubHubBasePowerPlant": {
         "desc": "在地图界面找锚点 (枢纽区-枢纽基地电站)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -33,7 +33,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub2": {
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubRockhillPassage": {
         "desc": "在地图界面找锚点 (枢纽区-岩丘通道)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -67,7 +67,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub3": {
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubSouthernMeadows": {
         "desc": "在地图界面找锚点 (枢纽区-南部草甸)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -101,7 +101,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub4": {
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubWorkerDorms": {
         "desc": "在地图界面找锚点 (枢纽区-工人之家)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -135,7 +135,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub5": {
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubOriginiumByproductProcessingCenter": {
         "desc": "在地图界面找锚点 (枢纽区-源石副产物中心)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -169,7 +169,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub6": {
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubHubBase": {
         "desc": "在地图界面找锚点 (枢纽区-枢纽基地区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -203,7 +203,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHub7": {
+    "__ScenePrivateMapValleyIVTheHubEnterWorldValleyIVTheHubLogisticsPlatform": {
         "desc": "在地图界面找锚点 (枢纽区-货运平台)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -237,7 +237,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVValleyPassEnterWorldValleyIVValleyPass0": {
+    "__ScenePrivateMapValleyIVValleyPassEnterWorldValleyIVValleyPassValleyFort": {
         "desc": "在地图界面找锚点 (谷地通道-谷地要塞)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -271,7 +271,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVValleyPassEnterWorldValleyIVValleyPass1": {
+    "__ScenePrivateMapValleyIVValleyPassEnterWorldValleyIVValleyPassPassageEntrance": {
         "desc": "在地图界面找锚点 (谷地通道-通道入口)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -305,7 +305,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVValleyPassEnterWorldValleyIVValleyPass2": {
+    "__ScenePrivateMapValleyIVValleyPassEnterWorldValleyIVValleyPassTemporaryShelter": {
         "desc": "在地图界面找锚点 (谷地通道-临时避难所)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -339,7 +339,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarry0": {
+    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarryQuarryEntrance": {
         "desc": "在地图界面找锚点 (阿伯莉采石场-采石场入口)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -373,7 +373,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarry1": {
+    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarryStockpileArea": {
         "desc": "在地图界面找锚点 (阿伯莉采石场-存料处)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -407,7 +407,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarry2": {
+    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarryDeepManagementPost": {
         "desc": "在地图界面找锚点 (阿伯莉采石场-深层管理区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -441,7 +441,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarry3": {
+    "__ScenePrivateMapValleyIVAburreyQuarryEnterWorldValleyIVAburreyQuarryQuarrySite": {
         "desc": "在地图界面找锚点 (阿伯莉采石场-采石作业区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -475,7 +475,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVOriginLodespringEnterWorldValleyIVOriginLodespring3": {
+    "__ScenePrivateMapValleyIVOriginLodespringEnterWorldValleyIVOriginLodespringMiningAreaClinic": {
         "desc": "在地图界面找锚点 (矿脉源区-矿区医疗站)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -509,7 +509,7 @@
             }
         }
     },
-    "__ScenePrivateMapValleyIVPowerPlateauEnterWorldValleyIVPowerPlateau3": {
+    "__ScenePrivateMapValleyIVPowerPlateauEnterWorldValleyIVPowerPlateauEvacuationZone": {
         "desc": "在地图界面找锚点 (供能高地-疏散区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -543,7 +543,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley0": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyEcologicalResearchStation": {
         "desc": "在地图界面找锚点 (景玉谷-生态实验站)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -577,7 +577,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley1": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyTreadway": {
         "desc": "在地图界面找锚点 (景玉谷-踩道)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -611,7 +611,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley2": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyTreasureGrottoNorth": {
         "desc": "在地图界面找锚点 (景玉谷-聚宝窟北侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -645,7 +645,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley3": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleySkyKingFlatsNorth": {
         "desc": "在地图界面找锚点 (景玉谷-天王坪北侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -679,7 +679,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley4": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyTreasureGrottoSouth": {
         "desc": "在地图界面找锚点 (景玉谷-聚宝窟南侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -713,7 +713,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley5": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleySkyKingFlatsSouth": {
         "desc": "在地图界面找锚点 (景玉谷-天王坪南侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -747,7 +747,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley6": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyBurdosnoutHill": {
         "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -781,7 +781,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley7": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyZhailingIslet": {
         "desc": "在地图界面找锚点 (景玉谷-摘菱屿)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -815,7 +815,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley8": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleySwordQuenchingMarsh": {
         "desc": "在地图界面找锚点 (景玉谷-淬剑荡)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -849,7 +849,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley9": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleySouthHill": {
         "desc": "在地图界面找锚点 (景玉谷-南山)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -883,7 +883,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley10": {
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValleyEverwaterBrook": {
         "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -917,7 +917,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity0": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityMonitoringCenter": {
         "desc": "在地图界面找锚点 (武陵城-观测站)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -951,7 +951,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity1": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityMarkerStoneFlats": {
         "desc": "在地图界面找锚点 (武陵城-界石坪)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -985,7 +985,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity2": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityMaintenanceZone": {
         "desc": "在地图界面找锚点 (武陵城-待修缮区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1019,7 +1019,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity3": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityFangxingAvenue": {
         "desc": "在地图界面找锚点 (武陵城-方兴衢)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1053,7 +1053,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity4": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityTianshiBureauAcademy": {
         "desc": "在地图界面找锚点 (武陵城-天师府学院)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1087,7 +1087,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity5": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityTianjingCourtyard": {
         "desc": "在地图界面找锚点 (武陵城-天井院)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1121,7 +1121,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity6": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityFieldLogisticsDepotWest": {
         "desc": "在地图界面找锚点 (武陵城-储备站西侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1155,7 +1155,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity7": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityGuhouMarsh": {
         "desc": "在地图界面找锚点 (武陵城-孤喉泽)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1189,7 +1189,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity8": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityFieldLogisticsDepotEast": {
         "desc": "在地图界面找锚点 (武陵城-储备站东侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1223,7 +1223,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity9": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityQijianDaisWest": {
         "desc": "在地图界面找锚点 (武陵城-弃剑台西侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1257,7 +1257,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity10": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityQijianDaisEast": {
         "desc": "在地图界面找锚点 (武陵城-弃剑台东侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1291,7 +1291,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity11": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityLingshuiWay": {
         "desc": "在地图界面找锚点 (武陵城-陵水道)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1325,7 +1325,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity12": {
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityBureauOfAppliedTechnologies": {
         "desc": "在地图界面找锚点 (武陵城-技术开发局)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1359,7 +1359,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade0": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeSkyholdRidge": {
         "desc": "在地图界面找锚点 (清波寨-顶天梁)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1393,7 +1393,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade1": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeCausewayTrailWest": {
         "desc": "在地图界面找锚点 (清波寨-栈桥道西侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1427,7 +1427,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade2": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeCausewayTrailEast": {
         "desc": "在地图界面找锚点 (清波寨-栈桥道东侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1461,7 +1461,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade3": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeAncestralSpring": {
         "desc": "在地图界面找锚点 (清波寨-祖泉)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1495,7 +1495,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade4": {
+    "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockadeMainFort": {
         "desc": "在地图界面找锚点 (清波寨-主寨)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1529,7 +1529,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone1": {
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneWatchtowerReservoirStation": {
         "desc": "在地图界面找锚点 (首墩-望楼蓄水站)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1563,7 +1563,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone2": {
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneLakeIslet": {
         "desc": "在地图界面找锚点 (首墩-湖心岛)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1597,7 +1597,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone3": {
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneRestrictedArea": {
         "desc": "在地图界面找锚点 (首墩-控制区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1631,7 +1631,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone4": {
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCloudrestGrotto": {
         "desc": "在地图界面找锚点 (首墩-栖云窟)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1665,7 +1665,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea1": {
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaIntegratedRDArea": {
         "desc": "在地图界面找锚点 (试验园区-综合科研区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1699,7 +1699,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea2": {
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaTestingZone": {
         "desc": "在地图界面找锚点 (试验园区-测试区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1733,7 +1733,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea3": {
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaWaterTreatmentSector": {
         "desc": "在地图界面找锚点 (试验园区-污水处理区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1767,7 +1767,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea4": {
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaMeridianGridArea": {
         "desc": "在地图界面找锚点 (试验园区-经纬田区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1801,7 +1801,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea5": {
+    "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestAreaTestAreaPeripheries": {
         "desc": "在地图界面找锚点 (试验园区-园区外围)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1835,7 +1835,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale1": {
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDaleGorgeOverhangNorth": {
         "desc": "在地图界面找锚点 (藏剑谷-悬谷台北侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1869,7 +1869,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale2": {
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDaleGorgeOverhangSouth": {
         "desc": "在地图界面找锚点 (藏剑谷-悬谷台南侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1903,7 +1903,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale3": {
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDaleDeepGorgeVault": {
         "desc": "在地图界面找锚点 (藏剑谷-谷底秘库)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1937,7 +1937,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale4": {
+    "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDaleSouthGorgeRampart": {
         "desc": "在地图界面找锚点 (藏剑谷-南谷旧垣)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -1971,7 +1971,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass0": {
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassPassSideCanal": {
         "desc": "在地图界面找锚点 (应龙关-临关渠)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2005,7 +2005,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass1": {
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassStonepondCliffNorth": {
         "desc": "在地图界面找锚点 (应龙关-石涧崖北侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2039,7 +2039,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass2": {
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassYSTFMainCamp": {
         "desc": "在地图界面找锚点 (应龙关-应龙主营)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2073,7 +2073,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass3": {
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassStonepondCliffSouth": {
         "desc": "在地图界面找锚点 (应龙关-石涧崖南侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2107,7 +2107,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass4": {
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassDevicePavilion": {
         "desc": "在地图界面找锚点 (应龙关-置器阁)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2141,7 +2141,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass5": {
+    "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPassYSTFFilingRoom": {
         "desc": "在地图界面找锚点 (应龙关-应龙档案室)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2175,7 +2175,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone0": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneSentryBase": {
         "desc": "在地图界面找锚点 (北部禁区-前哨基地)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2209,7 +2209,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone1": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneWaterworksHub": {
         "desc": "在地图界面找锚点 (北部禁区-水利枢纽)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2243,7 +2243,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone2": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneDesignatedUrbanArea": {
         "desc": "在地图界面找锚点 (北部禁区-城建区)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2277,7 +2277,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone3": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneTanjianHall": {
         "desc": "在地图界面找锚点 (北部禁区-谈剑堂)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2311,7 +2311,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone4": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneQuelltideLeveeSouth": {
         "desc": "在地图界面找锚点 (北部禁区-平波堤南侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2345,7 +2345,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone5": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneQuelltideLeveeNorth": {
         "desc": "在地图界面找锚点 (北部禁区-平波堤北侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2379,7 +2379,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone6": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneXiraniteResearchLabs": {
         "desc": "在地图界面找锚点 (北部禁区-息壤研究所)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2413,7 +2413,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone7": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneRDCenterRooftopWest": {
         "desc": "在地图界面找锚点 (北部禁区-研发中心顶层西侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2447,7 +2447,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone8": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneGhostMesaTestSite": {
         "desc": "在地图界面找锚点 (北部禁区-幽台试验场)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2481,7 +2481,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone9": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneRDCenterRooftopEast": {
         "desc": "在地图界面找锚点 (北部禁区-研发中心顶层东侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2515,7 +2515,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone10": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneCelestialColumn": {
         "desc": "在地图界面找锚点 (北部禁区-天柱)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2549,7 +2549,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone11": {
+    "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZoneWulingVLRUpperArea": {
         "desc": "在地图界面找锚点 (北部禁区-武陵甚大裂隙上层)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2583,7 +2583,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest0": {
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestSnowyTrail": {
         "desc": "在地图界面找锚点 (雪松林-落雪山道)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2617,7 +2617,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest1": {
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestForest": {
         "desc": "在地图界面找锚点 (雪松林-林地)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2651,7 +2651,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest2": {
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestSnowpriestessCabinWest": {
         "desc": "在地图界面找锚点 (雪松林-雪祀木屋西侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2685,7 +2685,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest3": {
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestRitualShrine": {
         "desc": "在地图界面找锚点 (雪松林-仪式祭坛)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2719,7 +2719,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest4": {
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestHoarfrostDaleWest": {
         "desc": "在地图界面找锚点 (雪松林-雾凇山谷西侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2753,7 +2753,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest5": {
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestSnowpriestessCabinEast": {
         "desc": "在地图界面找锚点 (雪松林-雪祀木屋东侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2787,7 +2787,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest6": {
+    "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForestHoarfrostDaleEast": {
         "desc": "在地图界面找锚点 (雪松林-雾凇山谷东侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2821,7 +2821,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting0": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingPinesmokeBasin": {
         "desc": "在地图界面找锚点 (祀的画-松烟湖)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2855,7 +2855,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting1": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingYuanyuanManor": {
         "desc": "在地图界面找锚点 (祀的画-缘缘庄)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2889,7 +2889,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting2": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingPearlveiledBrook": {
         "desc": "在地图界面找锚点 (祀的画-珠帘涧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2923,7 +2923,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting3": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingRaintapGrottoBF": {
         "desc": "在地图界面找锚点 (祀的画-听雨窟下层)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2957,7 +2957,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting4": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingPavilionOfParting": {
         "desc": "在地图界面找锚点 (祀的画-舍得亭)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -2991,7 +2991,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting5": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingRaintapGrottoNorth": {
         "desc": "在地图界面找锚点 (祀的画-听雨窟北侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -3025,7 +3025,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting6": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingInkrisePeak": {
         "desc": "在地图界面找锚点 (祀的画-涨墨峰)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -3059,7 +3059,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting7": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingXiaoheManor": {
         "desc": "在地图界面找锚点 (祀的画-小禾庄)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -3093,7 +3093,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting8": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingFlyingWhitePeak": {
         "desc": "在地图界面找锚点 (祀的画-飞白峰)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -3127,7 +3127,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting9": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingMeanderingHike": {
         "desc": "在地图界面找锚点 (祀的画-盘山径)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
@@ -3161,7 +3161,7 @@
             }
         }
     },
-    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPainting10": {
+    "__ScenePrivateMapWulingSisPaintingEnterWorldWulingSisPaintingRaintapGrottoSouth": {
         "desc": "在地图界面找锚点 (祀的画-听雨窟南侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",

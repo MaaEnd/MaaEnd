@@ -24,7 +24,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVOriginiumSciencePark1"
+                "SceneEnterWorldValleyIVOriginiumScienceParkOriginiumSciencePark"
             ]
         },
         "post_delay": 0,

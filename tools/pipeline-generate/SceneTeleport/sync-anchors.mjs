@@ -1,5 +1,5 @@
 import {writeFileSync} from "node:fs";
-import {ANCHORS_CONFIG_PATH, readAnchorsConfig, readTeleportAnchors, usedIndices} from "./model.mjs";
+import {ANCHORS_CONFIG_PATH, englishNames, readAnchorsConfig, readTeleportAnchors} from "./model.mjs";
 
 const data = readTeleportAnchors();
 const config = readAnchorsConfig();
@@ -7,22 +7,31 @@ const regionMaps = new Set(Object.values(config.regions).map((region) => region.
 
 const added = [];
 const unbound = new Map();
-for (const anchor of [...data.anchors].sort((a, b) => Number(a.id) - Number(b.id))) {
-    if (!regionMaps.has(anchor.map)) {
-        continue;
-    }
-    const levelConfig = config.levels[anchor.level];
+for (const [levelId, levelAnchors] of Map.groupBy(
+    data.anchors.filter((anchor) => regionMaps.has(anchor.map)),
+    (anchor) => anchor.level,
+)) {
+    const levelConfig = config.levels[levelId];
     if (!levelConfig) {
-        unbound.set(anchor.level, (unbound.get(anchor.level) ?? 0) + 1);
+        unbound.set(levelId, levelAnchors.length);
         continue;
     }
-    const known = [...Object.values(levelConfig.anchors), ...Object.values(levelConfig.manual ?? {})];
-    if (known.includes(anchor.id)) {
-        continue;
+    const known = {...levelConfig.anchors, ...levelConfig.manual};
+    const knownIds = new Set(Object.values(known));
+    const names = englishNames(levelAnchors);
+    for (const anchor of [...levelAnchors].sort((a, b) => Number(a.id) - Number(b.id))) {
+        if (knownIds.has(anchor.id)) {
+            continue;
+        }
+        const base = names.get(anchor.id);
+        let name = base;
+        for (let ordinal = 2; name in known; ordinal++) {
+            name = `${base}${ordinal}`;
+        }
+        levelConfig.anchors[name] = anchor.id;
+        known[name] = anchor.id;
+        added.push(`${levelId} ${levelConfig.sub_region}${name} <- ${anchor.id}`);
     }
-    const index = Math.max(-1, ...usedIndices(levelConfig)) + 1;
-    levelConfig.anchors[index] = anchor.id;
-    added.push(`${anchor.level} ${levelConfig.sub_region}${index} <- ${anchor.id}`);
 }
 
 for (const [levelId, count] of unbound) {

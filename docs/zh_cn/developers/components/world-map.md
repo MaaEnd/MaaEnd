@@ -226,7 +226,7 @@ WorldMap 属于识别层，只负责在已经打开的大地图上把坐标解�
 
 ## 传送点接线
 
-普通传送锚点由 `pnpm generate:SceneTeleport` 按营地数据生成：`MapFind` 节点在 `assets/resource/pipeline/SceneManager/SceneTeleportAnchor.json`，入口节点在 `Interface/SceneTeleportAnchor.json`，坐标与 desc 都取自营地数据，子区域与序号登记在 [`tools/pipeline-generate/SceneTeleport`](../../../../tools/pipeline-generate/SceneTeleport/README.md) 的 `anchors.json`。基建传送点等其它图标仍手写在 `SceneManager/SceneTeleport<区域>.json` 与 `Interface/Scene<区域>.json`，接法相同。
+普通传送锚点由 `pnpm generate:SceneTeleport` 按营地数据生成：`MapFind` 节点在 `assets/resource/pipeline/SceneManager/SceneTeleportAnchor.json`，入口节点在 `Interface/SceneTeleportAnchor.json`，坐标与 desc 都取自营地数据，子区域与入口名登记在 [`tools/pipeline-generate/SceneTeleport`](../../../../tools/pipeline-generate/SceneTeleport/README.md) 的 `anchors.json`。基建传送点等其它图标仍手写在 `SceneManager/SceneTeleport<区域>.json` 与 `Interface/Scene<区域>.json`，接法相同。
 
 传送点节点填进 `__ScenePrivateMapTeleportPickAnchor` 槽位；入口节点绑定该槽位并经由 `__ScenePrivateMap<子区域>EnterWorldAnchorWithPick` 进入——后者负责把地图切到主图层，并用 `all_of` 确认当前确实在该子区域的地图界面，顺带先往最小缩一把。
 

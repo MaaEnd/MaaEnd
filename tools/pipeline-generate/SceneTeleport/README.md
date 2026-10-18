@@ -5,7 +5,7 @@
 | 文件 | 内容 |
 | --- | --- |
 | `assets/resource/pipeline/SceneManager/SceneTeleportAnchor.json` | 在大地图上确认锚点并点击的 `MapFind` 节点 |
-| `assets/resource/pipeline/Interface/SceneTeleportAnchor.json` | 对外入口 `SceneEnterWorld<大区><子区域><序号>` |
+| `assets/resource/pipeline/Interface/SceneTeleportAnchor.json` | 对外入口 `SceneEnterWorld<大区><子区域><地名>` |
 
 两份文件每次整份重写，不要手改。基建传送点等其它图标的节点仍手写在 `SceneTeleport<大区>.json` 与 `Interface/Scene<大区>.json`。
 
@@ -21,9 +21,10 @@ pnpm generate:SceneTeleport
 ## `anchors.json`
 
 - `regions`：大区 → 底图（`map`）、`MapFind` 用的区域名（`zone`）、desc 里的大区名（`name`）。
-- `levels`：关卡 → 所属大区（`region`）、子区域名（`sub_region`，拼进节点名）、`anchors`（序号 → 营地 ID）。
-  序号就是入口节点名末尾的数字，其它任务按名字引用入口，已有序号不要改；新营地由同步脚本接在最大序号之后。
-- `manual`：仍由手写节点处理的营地（四号谷地的模板匹配节点），只占序号、不生成。
+- `levels`：关卡 → 所属大区（`region`）、子区域名（`sub_region`，拼进节点名）、`anchors`（地名 → 营地 ID）。
+  地名就是入口节点名末尾那段，其它任务按名字引用入口，已登记的地名不要改。新营地由同步脚本按所在区域的英文名起名，
+  同一子区域里重名的按相对方位加 `North` / `South` / `East` / `West`，仍撞名再接数字；登记后游戏改译名也不跟着变。
+- `manual`：仍由手写节点处理的营地（四号谷地的模板匹配节点），只占名字、不生成。
 
 ## desc
 

@@ -1,7 +1,7 @@
 ---
 name: autocollect-add-route
 description: 新增或改写 MaaEnd 的 AutoCollect 自动采集路线说明。默认包含路线文件创建、AutoCollect 主入口接线、任务选项注册和多语言文案补充。适用于“参考现有 AutoCollect 路线新建一条采集线”“给定传送点与路径点位生成 AutoCollectRouteX.json 并注册到任务中”“用户已经写好路线文件，只需要补注册接口”等场景。注意：本 skill 仅适用于参考 `assets/resource/pipeline/AutoCollect/AutoCollectRoute6.json` 的单段 `MapNavigateAction` 路线，不再处理多段 `GotoFindN` 路线；定位节点必须使用 `MapLocateAssertLocation`。
-argument-hint: 如果是新建路线，推荐直接提供任务名（如“路线6：四号谷地-轻红柱状菌”）、第一个传送点（如 `SceneEnterWorldValleyIVTheHub2`）、断言点和完整 path 点列，以及“点击采集”或“挖掘类路线”。如果用户已经有路线文件、只需要注册接口，则只提供任务名即可。
+argument-hint: 如果是新建路线，推荐直接提供任务名（如“路线6：四号谷地-轻红柱状菌”）、第一个传送点（如 `SceneEnterWorldValleyIVTheHubRockhillPassage`）、断言点和完整 path 点列，以及“点击采集”或“挖掘类路线”。如果用户已经有路线文件、只需要注册接口，则只提供任务名即可。
 ---
 
 # AutoCollect 新增路线
@@ -125,7 +125,7 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 
 ### 2. 第一个传送点
 
-- 示例：`SceneEnterWorldValleyIVTheHub2`
+- 示例：`SceneEnterWorldValleyIVTheHubRockhillPassage`
 - 它决定 `Start.next` 中的 `[JumpBack]SceneEnterWorldXxx`
 - 仅在“新建路线文件”场景需要
 
@@ -164,7 +164,7 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 推荐追问方式尽量简短，例如：
 
 - “还缺任务名，请给我类似 `路线6：四号谷地-轻红柱状菌` 的名称。”
-- “还缺第一个传送点，请给我类似 `SceneEnterWorldValleyIVTheHub2` 的入口名。”
+- “还缺第一个传送点，请给我类似 `SceneEnterWorldValleyIVTheHubRockhillPassage` 的入口名。”
 - “还缺断言点，请给我传送后用于定位的坐标。”
 - “还缺完整 path 点列，请把整条单段路线的点位发我。”
 - “还缺采集类型，请确认是点击采集还是挖掘路线。”
@@ -270,7 +270,7 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 | `RouteId` | 从 `TaskLabel` 解析出的编号，例如 `6` |
 | `RouteFile` | 目标文件名，例如 `AutoCollectRoute6.json` |
 | `TemplateRoute` | 参考路线，例如 `Route6` |
-| `EnterWorldNode` | 第一个传送点，例如 `SceneEnterWorldValleyIVTheHub2` |
+| `EnterWorldNode` | 第一个传送点，例如 `SceneEnterWorldValleyIVTheHubRockhillPassage` |
 | `AssertTarget` | 断言框坐标；若断言点为 `[x, y]`，默认换算为 `[x-10, y-10, 20, 20]` |
 | `ZoneId` | 通常来自 `path` 第一项 `{"action":"ZONE","zone_id":"..."}` |
 | `ActionType` | 固定为 `MapNavigateAction` |

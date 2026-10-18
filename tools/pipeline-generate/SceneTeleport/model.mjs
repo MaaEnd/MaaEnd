@@ -8,6 +8,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export const TELEPORT_ANCHORS_PATH = resolve(dataDir, "teleport_anchors.json");
 export const ANCHORS_CONFIG_PATH = resolve(__dirname, "anchors.json");
 
+const ZH_DIRECTIONS = {east: "东侧", west: "西侧", south: "南侧", north: "北侧"};
+const EN_DIRECTIONS = {east: "East", west: "West", south: "South", north: "North"};
+
 export function readTeleportAnchors() {
     let data;
     try {
@@ -25,24 +28,29 @@ export function readAnchorsConfig() {
     return readJsonc(ANCHORS_CONFIG_PATH);
 }
 
-export function usedIndices(levelConfig) {
-    return [...Object.keys(levelConfig.anchors), ...Object.keys(levelConfig.manual ?? {})].map(Number);
+export function toPascalCase(text) {
+    return text
+        .replace(/['’]s\b/g, "")
+        .split(/[^A-Za-z0-9]+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join("");
 }
 
 function directionFrom(center, anchor) {
     const dx = anchor.u - center.u;
     const dy = anchor.v - center.v;
     if (Math.abs(dx) >= Math.abs(dy)) {
-        return dx >= 0 ? "东侧" : "西侧";
+        return dx >= 0 ? "east" : "west";
     }
-    return dy >= 0 ? "南侧" : "北侧";
+    return dy >= 0 ? "south" : "north";
 }
 
-/** 同一关卡里区域名相同的营地，按各自相对这几个点中心的方位加后缀；方位还撞就再按营地 ID 编号。 */
-function disambiguatedAreaNames(levelAnchors) {
+/** 同一关卡里名字相同的营地，按各自相对这几个点中心的方位加后缀；方位还撞就再按营地 ID 编号。 */
+export function disambiguatedNames(levelAnchors, nameOf, directions) {
     const groups = new Map();
     for (const anchor of levelAnchors) {
-        const name = anchor.area_names.zh_cn;
+        const name = nameOf(anchor);
         groups.set(name, [...(groups.get(name) ?? []), anchor]);
     }
 
@@ -63,11 +71,15 @@ function disambiguatedAreaNames(levelAnchors) {
         }
         for (const [direction, members] of byDirection) {
             members.forEach((anchor, offset) => {
-                names.set(anchor.id, `${name}${direction}${members.length > 1 ? offset + 1 : ""}`);
+                names.set(anchor.id, `${name}${directions[direction]}${members.length > 1 ? offset + 1 : ""}`);
             });
         }
     }
     return names;
+}
+
+export function englishNames(levelAnchors) {
+    return disambiguatedNames(levelAnchors, (anchor) => toPascalCase(anchor.area_names.en_us), EN_DIRECTIONS);
 }
 
 const round1 = (value) => Math.round(value * 10) / 10;
@@ -85,19 +97,19 @@ export function buildTeleportAnchors() {
         if (missingArea) {
             throw new Error(`[SceneTeleport] 营地 ${missingArea.id}（${levelId}）没有区域名`);
         }
-        const areaNames = disambiguatedAreaNames(levelAnchors);
+        const areaNames = disambiguatedNames(levelAnchors, (anchor) => anchor.area_names.zh_cn, ZH_DIRECTIONS);
         const levelName = data.levels[levelId].names.zh_cn;
         const prefix = `${levelConfig.region}${levelConfig.sub_region}`;
 
-        for (const [index, id] of Object.entries(levelConfig.anchors)) {
+        for (const [name, id] of Object.entries(levelConfig.anchors)) {
             const anchor = anchorsById.get(id);
             if (!anchor) {
                 throw new Error(`[SceneTeleport] 营地 ${id}（${levelId}）已不在数据里，请从 anchors.json 移除并处理引用它的节点`);
             }
             const areaName = areaNames.get(id);
             entries.push({
-                Node: `__ScenePrivateMap${prefix}EnterWorld${prefix}${index}`,
-                Entry: `SceneEnterWorld${prefix}${index}`,
+                Node: `__ScenePrivateMap${prefix}EnterWorld${prefix}${name}`,
+                Entry: `SceneEnterWorld${prefix}${name}`,
                 EnterMap: `SceneEnterMap${prefix}`,
                 PickAnchor: `__ScenePrivateMap${prefix}EnterWorldAnchorWithPick`,
                 Zone: region.zone,
