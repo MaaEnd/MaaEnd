@@ -14,6 +14,11 @@ import (
 	"github.com/shirou/gopsutil/v4/process"
 )
 
+const gameProcessName = "Endfield.exe"
+
+// launcherProcessNames 列出各区服启动器的进程名；关闭游戏前逐个结束。
+var launcherProcessNames = []string{"Launcher.exe", "Games.exe"}
+
 type CloseGameAction struct{}
 
 var _ maa.CustomActionRunner = &CloseGameAction{}
@@ -129,33 +134,18 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	procs, err := process.Processes()
-	if err != nil {
-		log.Error().Err(err).Msg("CloseGameAction failed to enumerate processes")
+	// 先关启动器，再关游戏：启动器若仍在运行可能会重新拉起游戏进程。
+	for _, name := range launcherProcessNames {
+		if !killByName(name) {
+			return false
+		}
+	}
+
+	if !killByName(gameProcessName) {
 		return false
 	}
-
-	killedAny := false
-	for _, p := range procs {
-		name, err := p.Name()
-		if err != nil || !strings.EqualFold(name, "Endfield.exe") {
-			continue
-		}
-
-		killedAny = true
-		if err := p.Kill(); err != nil {
-			log.Error().Err(err).Msg("CloseGameAction failed to kill Endfield.exe")
-			return false
-		}
-	}
-
-	if killedAny {
-		log.Info().Msg("CloseGameAction: Endfield.exe killed")
-		if !waitEndfieldExit(ctx, 5*time.Second) {
-			return false
-		}
-	} else {
-		log.Info().Msg("CloseGameAction: Endfield.exe not running")
+	if !waitEndfieldExit(ctx, 5*time.Second) {
+		return false
 	}
 
 	if !params.ApplyGameSetting {
@@ -272,9 +262,40 @@ func isEndfieldRunning() (bool, error) {
 		if err != nil {
 			continue
 		}
-		if strings.EqualFold(name, "Endfield.exe") {
+		if strings.EqualFold(name, gameProcessName) {
 			return true, nil
 		}
 	}
 	return false, nil
+}
+
+// killByName 结束所有匹配进程名的进程；未找到视为成功。
+// 枚举或 Kill 失败返回 false，由调用方终止整个 Action。
+func killByName(name string) bool {
+	procs, err := process.Processes()
+	if err != nil {
+		log.Error().Err(err).Str("process", name).Msg("CloseGameAction failed to enumerate processes")
+		return false
+	}
+
+	killedAny := false
+	for _, p := range procs {
+		procName, err := p.Name()
+		if err != nil || !strings.EqualFold(procName, name) {
+			continue
+		}
+
+		killedAny = true
+		if err := p.Kill(); err != nil {
+			log.Error().Err(err).Str("process", name).Msg("CloseGameAction failed to kill process")
+			return false
+		}
+	}
+
+	if killedAny {
+		log.Info().Str("process", name).Msg("CloseGameAction: process killed")
+	} else {
+		log.Info().Str("process", name).Msg("CloseGameAction: process not running")
+	}
+	return true
 }
