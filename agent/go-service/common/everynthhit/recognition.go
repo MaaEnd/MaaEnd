@@ -16,16 +16,19 @@ type recognitionParam struct {
 	Every json.RawMessage `json:"every"`
 }
 
-// EveryNthHit hits once every N calls that share the same key, where N is the
-// every parameter. A hit clears the counter of the key so the next cycle
-// restarts at one; EveryNthHitReset and the task-end fallback sink also clear
-// counters.
+// EveryNthHit hits once every N counted calls that share the same key, where N
+// is the every parameter. A hit clears the counter of the key, so the next
+// cycle needs N more counted calls, and the call right after a hit is not
+// counted. EveryNthHitReset clears the counter of the key and likewise leaves
+// the next call uncounted; the task-end fallback sink clears every counter
+// together with those pending uncounted calls.
 type EveryNthHit struct{}
 
 var _ maa.CustomRecognitionRunner = &EveryNthHit{}
 
-// Run reports a hit when the call count of the key reaches every, and a miss
-// otherwise. Invalid parameters never panic and never hit.
+// Run reports a hit when the counted calls of the key reach every, and a miss
+// otherwise. The call right after a hit or a reset is not counted. Invalid
+// parameters never panic and never hit.
 func (*EveryNthHit) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil {
 		log.Error().Str("component", recognitionName).Msg("custom recognition arg is nil")
