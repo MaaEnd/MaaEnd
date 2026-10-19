@@ -40,6 +40,14 @@ constexpr int kZoomFineSteps = 20;
 // 缩放中心与实际不动点之间留的余量，单位屏幕像素
 constexpr int kZoomCenterSlack = 4;
 
+// 量平移时从拖动前那帧取的一块，比量倍率那块小，给拖过去的位移留出落脚处
+constexpr double kShiftPatchHalfX = 0.12;
+constexpr double kShiftPatchHalfY = 0.16;
+// 实际位移落在零到发出位移的这么多倍之间：顶到地图边界就少走，松手后还会多滑一点
+constexpr double kShiftOvershoot = 1.15;
+// 搜索范围四周再放宽的余量，单位屏幕像素
+constexpr int kShiftSlack = 24;
+
 // 图标表与它认的那些模板同目录，一起走资源层次：某一端的图标画得不一样时，
 // 那一层放自己的模板和自己的阈值即可
 constexpr const char* kIconTableName = "MapIcons.json";
@@ -825,6 +833,48 @@ std::optional<ZoomMeasure>
         return std::nullopt;
     }
     return best;
+}
+
+std::optional<ShiftMeasure>
+    WorldMapSolver::MeasureShift(const cv::Mat& before, const cv::Mat& after, const cv::Point2d& center, const cv::Point2d& issued)
+{
+    if (before.empty() || after.empty() || before.size() != after.size()) {
+        return std::nullopt;
+    }
+
+    const cv::Mat beforeGray = ToGray(before);
+    const cv::Mat afterGray = ToGray(after);
+    const cv::Rect frame(0, 0, after.cols, after.rows);
+    const cv::Size half(
+        static_cast<int>(std::lround(after.cols * kShiftPatchHalfX)),
+        static_cast<int>(std::lround(after.rows * kShiftPatchHalfY)));
+
+    // 取块退回半程，拖前拖后都落在中心附近，躲开四角浮层
+    const cv::Point from(
+        static_cast<int>(std::lround(center.x - issued.x / 2.0)),
+        static_cast<int>(std::lround(center.y - issued.y / 2.0)));
+    const cv::Rect patch = cv::Rect(from.x - half.width, from.y - half.height, half.width * 2, half.height * 2) & frame;
+    if (patch.width < kMinTemplateSide || patch.height < kMinTemplateSide) {
+        return std::nullopt;
+    }
+
+    const cv::Point farthest(
+        static_cast<int>(std::lround(issued.x * kShiftOvershoot)),
+        static_cast<int>(std::lround(issued.y * kShiftOvershoot)));
+    const cv::Rect reach = patch | (patch + farthest);
+    const cv::Rect region =
+        cv::Rect(reach.x - kShiftSlack, reach.y - kShiftSlack, reach.width + kShiftSlack * 2, reach.height + kShiftSlack * 2) & frame;
+    if (region.width < patch.width || region.height < patch.height) {
+        return std::nullopt;
+    }
+
+    cv::Mat result;
+    cv::matchTemplate(afterGray(region), beforeGray(patch), result, cv::TM_CCOEFF_NORMED);
+    cv::patchNaNs(result, -1.0);
+    double score = -1.0;
+    cv::Point loc;
+    cv::minMaxLoc(result, nullptr, &score, nullptr, &loc);
+    return ShiftMeasure { .shift = cv::Point2d(region.x + loc.x - patch.x, region.y + loc.y - patch.y), .score = score };
 }
 
 std::optional<PlayerMarkerHit>

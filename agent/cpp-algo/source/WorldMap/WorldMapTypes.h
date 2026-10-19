@@ -147,6 +147,14 @@ struct Viewport
         out.baseOrigin = { pinned.x - (center.x - roiOrigin.x) * out.scale, pinned.y - (center.y - roiOrigin.y) * out.scale };
         return out;
     }
+
+    // 地图在屏幕上整体挪了 shift 之后的视口，尺度不变
+    Viewport shiftedBy(const cv::Point2d& shift) const
+    {
+        Viewport out = *this;
+        out.baseOrigin = { baseOrigin.x - shift.x * scale, baseOrigin.y - shift.y * scale };
+        return out;
+    }
 };
 
 struct SpotHit
@@ -175,6 +183,13 @@ struct SpotHit
 struct ZoomMeasure
 {
     double factor = 1.0;
+    double score = -1.0;
+};
+
+// 拖动前后两帧量出来的平移，score 是对上那一处的归一化相关
+struct ShiftMeasure
+{
+    cv::Point2d shift { 0.0, 0.0 };
     double score = -1.0;
 };
 

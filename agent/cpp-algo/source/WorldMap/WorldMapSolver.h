@@ -33,6 +33,10 @@ public:
     // 绕屏幕上的 center 放大之后，after 比 before 放大了多少倍，在 [1, maxFactor] 里找。两帧尺寸不一时不给
     static std::optional<ZoomMeasure> MeasureZoom(const cv::Mat& before, const cv::Mat& after, const cv::Point2d& center, double maxFactor);
 
+    // 往 issued 方向拖过一次之后，地图在屏幕上实际挪了多少。两帧尺寸不一时不给
+    static std::optional<ShiftMeasure>
+        MeasureShift(const cv::Mat& before, const cv::Mat& after, const cv::Point2d& center, const cv::Point2d& issued);
+
     bool HasZone(const std::string& zone);
 
     // 图标名 -> 认它的那套参数。表里没有这个名字就不给，调用方据此报错

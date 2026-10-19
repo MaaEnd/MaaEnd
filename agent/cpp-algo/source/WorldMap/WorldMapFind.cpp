@@ -137,9 +137,11 @@ constexpr double kZoomStepMinFactor = 1.03;
 // 量倍率那一下的相关分下限。相邻两档实测 0.73 到 0.99，图标与地名密的地方偏低；
 // 画面换成了别的东西时实测 -0.15 到 0.28
 constexpr double kZoomMatchMinScore = 0.50;
-// 目标离缩放中心这么近才放大，单位屏幕像素。它也是对中时最短的一拖：拖得太短、起手又压在图标上，
+// 放大前把图标拖到离缩放中心这么近，单位屏幕像素。它也是对中时最短的一拖：拖得太短、起手又压在图标上，
 // 会被当成点击把图标详情点开
 constexpr double kZoomCenterTolerance = 16.0;
+// 每档放大前对中最多拖几次。放大后的地图拖多少走多少（Win32 实测多走不到一成），再拖不到就是顶到了边界
+constexpr int kZoomRecenterTries = 3;
 // 放大后在推算位置开的确认窗半径。窗口得比图标宽出一个身位，才看得见旁边有没有同类图标
 constexpr int kZoomConfirmRadius = 60;
 // 放大后命中离推算位置的偏差上限，单位屏幕像素：放大后的尺度是推出来的，折回底图像素没有依据
@@ -470,18 +472,75 @@ struct ZoomedSpot
     double factor = 1.0;
 };
 
-// 图标已经认在缩放中心上，按档放大后到推算位置重新认一次。交出去的位置只来自这次重认，
-// 推算出来的视口只决定去哪开窗。任何一步对不上就不给，地图停在放大后的样子，由调用方缩回去
+// 放大一档会把图标离中心的距离按倍率拉长。按倍率上限外推仍落在安全区里，这一档才放得下它
+bool ZoomKeepsInView(const cv::Rect& safe, const cv::Point2d& center, const cv::Point2d& at)
+{
+    const cv::Point2d reach = center + (at - center) * kZoomStepFactorMax;
+    return cv::Rect2d(safe).contains(reach);
+}
+
+// 把底图点 base 拖回缩放中心，按两帧实测的平移更新视口。顶到边界拖不动就留在原处，由放大前的出界判断收场。
+// 两帧对不上是画面被换掉了（拖动被当成点击点开了别的东西），不给
+bool RecenterBeforeZoom(
+    FindSession& session,
+    const cv::Rect& safe,
+    const cv::Point2d& center,
+    const cv::Point2d& base,
+    cv::Mat* previous,
+    Viewport* viewport)
+{
+    MapView& view = session.view;
+    for (int i = 0; i < kZoomRecenterTries; ++i) {
+        const cv::Point2d need = CenterDelta(center, viewport->toScreen(base));
+        if (std::hypot(need.x, need.y) < 1.0) {
+            return true;
+        }
+        // 不乘最小档记下的增益：那份兑现率可能是顶着边界量出来的，放大后照乘只会拖过头
+        const cv::Point2d issued = DragMap(session.controller, safe, need);
+        if (!CaptureScreen(session.controller, &view.buffer, &view.screen)) {
+            return false;
+        }
+        const ShiftMeasure moved = WorldMapSolver::MeasureShift(*previous, view.screen, center, issued).value_or(ShiftMeasure {});
+        if (moved.score < kZoomMatchMinScore) {
+            LogWarn << "WorldMap: the map was replaced while centering" << VAR(i) << VAR(moved.score);
+            return false;
+        }
+        *viewport = viewport->shiftedBy(moved.shift);
+        *previous = view.screen.clone();
+        LogInfo << "WorldMap: centered again before zooming" << VAR(need.x) << VAR(need.y) << VAR(issued.x) << VAR(issued.y)
+                << VAR(moved.shift.x) << VAR(moved.shift.y) << VAR(moved.score);
+        if (std::hypot(moved.shift.x, moved.shift.y) < kPinMoved) {
+            return true;
+        }
+    }
+    return true;
+}
+
+// 图标认到之后按档放大，到推算位置重新认一次。交出去的位置只来自这次重认，推算出来的视口只决定去哪开窗。
+// 最小档整张区域图铺满屏幕，几乎没有平移余量，图标常常拖不到中心；放大后余量才出来，所以每档放大前都再对一次中。
+// 顶在地图边界上、再放一档图标就出画面的，停在这一档。任何一步对不上就不给，地图停在放大后的样子，由调用方缩回去
 std::optional<ZoomedSpot> ZoomOntoSpot(FindSession& session, const Viewport& before, const SpotHit& spot, bool wantUnlocked)
 {
     MapView& view = session.view;
     const int steps = session.param->zoom_in;
     const cv::Point2d center = ZoomCenter(view.screen.size());
+    const cv::Rect safe = WorldMapSolver::SafeArea(view.screen.size(), kIconArea, kIconMargin);
+    const cv::Point2d base = before.toBase(spot.center);
 
     ZoomedSpot out;
+    out.viewport = before;
     // view.screen 是截图缓冲的视图，下一次截图就覆盖掉，要比对得先拷一份
     cv::Mat previous = view.screen.clone();
     for (int step = 0; step < steps; ++step) {
+        // 第一档之前调用方已经在最小档对过中
+        if (step > 0 && !RecenterBeforeZoom(session, safe, center, base, &previous, &out.viewport)) {
+            return std::nullopt;
+        }
+        if (!ZoomKeepsInView(safe, center, out.viewport.toScreen(base))) {
+            LogInfo << "WorldMap: one more step would push the icon out of view, zooming stops here" << VAR(step) << VAR(steps)
+                    << VAR(out.factor);
+            break;
+        }
         if (MaaContextRunTask(session.context, kZoomInNode, "{}") == MaaInvalidId) {
             LogWarn << "WorldMap: zoom-in subtask failed to dispatch" << VAR(kZoomInNode) << VAR(step);
             return std::nullopt;
@@ -502,12 +561,12 @@ std::optional<ZoomedSpot> ZoomOntoSpot(FindSession& session, const Viewport& bef
         }
         ++out.steps;
         out.factor *= measured.factor;
+        out.viewport = out.viewport.zoomedAbout(center, measured.factor);
         LogInfo << "WorldMap: zoomed one step" << VAR(step) << VAR(measured.factor) << VAR(measured.score) << VAR(out.factor);
         previous = view.screen.clone();
     }
 
-    out.viewport = before.zoomedAbout(center, out.factor);
-    out.predicted = out.viewport.toScreen(before.toBase(spot.center));
+    out.predicted = out.viewport.toScreen(base);
 
     // 浮动图标在最小档已经认到了实际落点，放大后同样只在推算位置附近开定点小窗
     SpotConfig cfg = session.spec->spot;
@@ -560,7 +619,9 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
     int pans = 0;
     int nudges = 0;
 
-    // 对不到缩放中心就不放大，交最小档的结果：目标离中心远时位置误差随倍率误差一起放大
+    // 最小档拖到边界还对不到缩放中心，就不在这一档硬拖了，认到图标后边放大边对中
+    bool centerPinned = false;
+    // 放大一档图标就出画面，只能交最小档的结果
     bool zoomSkipped = false;
     // 图标实际落点减去视口推算位置。对中要对的是图标本身，推算位置能差出一个判定圈
     cv::Point2d iconBias { 0.0, 0.0 };
@@ -637,7 +698,7 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
 
         const Viewport& viewport = *view.viewport;
         const cv::Point2d expected = viewport.toScreen(target.at);
-        const bool centering = wantZoom && !zoomSkipped;
+        const bool centering = wantZoom && !zoomSkipped && !centerPinned;
         const cv::Point2d need = centering ? CenterDelta(ZoomCenter(view.screen.size()), expected + iconBias) : PanDelta(safe, expected);
         if (std::hypot(need.x, need.y) >= 1.0) {
             // 换了几条路径还是纹丝不动，才认这根轴真到边了；只零一拍多半是触控被压在起手点上的控件吃了
@@ -648,10 +709,10 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
                 centering ? ((pinnedX && std::abs(need.x) > kZoomCenterTolerance) || (pinnedY && std::abs(need.y) > kZoomCenterTolerance))
                           : ((std::abs(need.x) < 1.0 || pinnedX) && (std::abs(need.y) < 1.0 || pinnedY));
             if (centering && (pans >= kMaxPans || stuck)) {
-                // 这一拍的画面与视口仍然有效，下一圈按不放大的那套接着认
-                LogInfo << "WorldMap: cannot bring the target to the zoom center, keeping minimum zoom" << VAR(index) << VAR(pans)
+                // 这一拍的画面与视口仍然有效，下一圈按不对中的那套接着认
+                LogInfo << "WorldMap: the map pans no further at minimum zoom, centering again while zooming in" << VAR(index) << VAR(pans)
                         << VAR(need.x) << VAR(need.y) << VAR(view.stallX) << VAR(view.stallY);
-                zoomSkipped = true;
+                centerPinned = true;
                 continue;
             }
             if (pans >= kMaxPans || stuck) {
@@ -718,12 +779,18 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
         if (icon && wantZoom && !zoomSkipped) {
             // 认到的图标还在容差圈外：按它的实际落点再对一次中，这一趟不算识别失败
             const cv::Point2d center = ZoomCenter(view.screen.size());
-            if (std::hypot(icon->center.x - center.x, icon->center.y - center.y) > kZoomCenterTolerance) {
+            if (!centerPinned && std::hypot(icon->center.x - center.x, icon->center.y - center.y) > kZoomCenterTolerance) {
                 iconBias = icon->center - expected;
                 --attempt;
                 continue;
             }
-
+            zoomSkipped = !ZoomKeepsInView(safe, center, icon->center);
+            if (zoomSkipped) {
+                LogInfo << "WorldMap: cannot bring the target to the zoom center, keeping minimum zoom" << VAR(index) << VAR(icon->center.x)
+                        << VAR(icon->center.y);
+            }
+        }
+        if (icon && wantZoom && !zoomSkipped) {
             const auto zoomed = ZoomOntoSpot(session, viewport, *icon, wantUnlocked);
             if (!zoomed) {
                 LogWarn << "WorldMap: zoomed confirmation failed, back to minimum zoom" << VAR(attempt) << VAR(index);
