@@ -1,7 +1,5 @@
 """统一运行 MaaEnd Sentry 分析报告。"""
 
-from __future__ import annotations
-
 import argparse
 import sys
 from collections.abc import Callable, Sequence

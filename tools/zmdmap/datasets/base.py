@@ -9,8 +9,6 @@
 关卡索引（:meth:`Dataset.level_index`），以及组装错误 :class:`DatasetError`；取数逻辑留在各自模块里。
 """
 
-from __future__ import annotations
-
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path

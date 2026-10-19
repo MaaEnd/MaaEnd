@@ -1,7 +1,5 @@
 """独立运行连通性规划：按用例文件中的起点与终点调用 Agent 寻路，不依赖测试截图或定位测试。"""
 
-from __future__ import annotations
-
 import argparse
 import json
 import os

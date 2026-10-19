@@ -29,8 +29,6 @@ MaaFramework 预编译包。MaaFramework 自身通过其 source/MaaUtils submodu
     python tools/check_maautils_sync.py --resolve-latest
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import os
@@ -214,6 +212,17 @@ def emit_outputs(mapping: dict[str, str]) -> None:
             f.write("\n".join(lines) + "\n")
 
 
+class _SafeArgumentParser(argparse.ArgumentParser):
+    """把用法错误转为异常而非直接退出。
+
+    argparse 默认在参数错误时以 exit 2 终止，会与 EXIT_DIVERGED 撞码，
+    导致调用方误判为"分叉"。这里改为抛异常，由入口统一归类为 unknown。
+    """
+
+    def error(self, message: str) -> None:
+        raise InfrastructureError(f"argument error: {message}")
+
+
 def _build_parser() -> _SafeArgumentParser:
     parser = _SafeArgumentParser(description=__doc__.splitlines()[1])
     group = parser.add_mutually_exclusive_group(required=True)
@@ -226,16 +235,6 @@ def _build_parser() -> _SafeArgumentParser:
     parser.add_argument("--attempts", type=int, default=4, help="Retry attempts for network operations")
     parser.add_argument("--base-delay", type=float, default=2.0, help="Base delay in seconds for exponential backoff")
     return parser
-
-class _SafeArgumentParser(argparse.ArgumentParser):
-    """把用法错误转为异常而非直接退出。
-
-    argparse 默认在参数错误时以 exit 2 终止，会与 EXIT_DIVERGED 撞码，
-    导致调用方误判为"分叉"。这里改为抛异常，由入口统一归类为 unknown。
-    """
-
-    def error(self, message: str) -> None:
-        raise InfrastructureError(f"argument error: {message}")
 
 
 def main() -> int:

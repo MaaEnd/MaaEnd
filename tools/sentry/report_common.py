@@ -1,7 +1,5 @@
 """Sentry 报告脚本共用的查询和终端输出工具。"""
 
-from __future__ import annotations
-
 import json
 import os
 import re

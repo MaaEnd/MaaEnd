@@ -31,8 +31,6 @@
 可在 expected 内部添加注释标记 @i18n-skip，脚本会跳过该节点。
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import math

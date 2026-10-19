@@ -8,8 +8,6 @@
 - 输出：每个 location 含 name、level_id、slot2_ids/slot3_ids（当前 skill_pools 的 id）、slot2/slot3（完整条目）。
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import sys

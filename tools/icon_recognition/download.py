@@ -7,8 +7,6 @@ i18n 包（每份约 950 KB）。图标仍然只能从站点下载。
 图标走 httpx 的共享连接池并发下载：几百个图标共用一个 TLS 会话池，比每个文件重新握手快得多。
 """
 
-from __future__ import annotations
-
 import argparse
 from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence

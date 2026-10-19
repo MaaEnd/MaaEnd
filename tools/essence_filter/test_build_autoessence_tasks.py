@@ -1,7 +1,5 @@
 """Tests for tools/essence_filter/build_autoessence_tasks.py."""
 
-from __future__ import annotations
-
 import json
 import sys
 import unittest

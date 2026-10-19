@@ -13,8 +13,6 @@
 字段：消费端没有读它们。
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Any
 

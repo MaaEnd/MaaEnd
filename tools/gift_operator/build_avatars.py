@@ -1,7 +1,5 @@
 """由 zmdmap CharIcon 原图生成缺失的赠礼头像；任务生成器通过 stdin 传入增量。"""
 
-from __future__ import annotations
-
 import json
 import sys
 from io import BytesIO

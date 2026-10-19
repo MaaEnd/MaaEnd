@@ -4,8 +4,6 @@
 session_modes.MODES。提权本身由 serve.py 的 ElevatedWorkerBridge 负责, 子进程侧不碰。
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import socket

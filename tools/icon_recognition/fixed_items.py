@@ -1,7 +1,5 @@
 """加载上游物品表未收录的固定物品。"""
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Any
 

@@ -7,8 +7,6 @@
 最后一次的异常，调用方按 ``httpx.TransportError`` / ``httpx.HTTPStatusError`` 接。
 """
 
-from __future__ import annotations
-
 import time
 from collections.abc import Mapping
 

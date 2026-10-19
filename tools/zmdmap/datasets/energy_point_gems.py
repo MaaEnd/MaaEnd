@@ -14,8 +14,6 @@
 挂在 ``gems`` 下；消费端用 :func:`tools.zmdmap.read_payload` 读，不必自己跳过元数据。
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Any
 

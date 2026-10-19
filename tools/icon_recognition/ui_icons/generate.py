@@ -1,7 +1,5 @@
 """根据已发布 IconRecognition catalog 和图片生成 UI 图标。"""
 
-from __future__ import annotations
-
 import argparse
 import json
 import re

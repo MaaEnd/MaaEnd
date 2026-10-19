@@ -13,8 +13,6 @@
 （``520.0`` 而不是 ``520``），解析出来的值与键顺序不受影响。
 """
 
-from __future__ import annotations
-
 import hashlib
 import json
 from pathlib import Path

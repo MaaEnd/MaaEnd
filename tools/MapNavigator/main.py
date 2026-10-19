@@ -22,8 +22,6 @@ web/serve.py 保持一致。
 serve.py 负责，端口被占用时只有绑定方知道最终端口，这里不能提前猜测。
 """
 
-from __future__ import annotations
-
 import argparse
 import os
 import runpy

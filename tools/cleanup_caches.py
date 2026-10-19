@@ -12,8 +12,6 @@
 环境变量: GITHUB_TOKEN 或 GH_TOKEN (需 actions: write)。
 """
 
-from __future__ import annotations
-
 import argparse
 import calendar
 import json

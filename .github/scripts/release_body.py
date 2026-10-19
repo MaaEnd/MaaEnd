@@ -4,8 +4,6 @@ The table is generated from the files that are actually about to be uploaded,
 so a link can never point at an asset that does not exist.
 """
 
-from __future__ import annotations
-
 import argparse
 import re
 import sys

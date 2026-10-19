@@ -1,7 +1,5 @@
 """独立运行自动采集定位截图正例，不依赖 maa-tools 或其测试加载器。"""
 
-from __future__ import annotations
-
 import argparse
 import json
 import os

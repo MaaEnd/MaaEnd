@@ -18,8 +18,6 @@
     uv run zmdmap fetch --only delivery_jobs       # 只下、只入库这一份
 """
 
-from __future__ import annotations
-
 import click
 
 from .fetch import fetch_command

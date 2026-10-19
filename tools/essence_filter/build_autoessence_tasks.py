@@ -6,8 +6,6 @@
 地区来自 locations.json，level_id 到节点 key 的对照读取 locations.go。
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import re

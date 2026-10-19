@@ -10,8 +10,6 @@
 完成全部校验，避免中文源文案不完整时写出错误的多语言文案。
 """
 
-from __future__ import annotations
-
 import argparse
 import difflib
 import json

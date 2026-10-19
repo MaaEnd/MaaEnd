@@ -9,8 +9,6 @@
   新增技能在该 slot 内分配「当前最大 id + 1」，保证同一技能 id 不随新增/删除其他技能而变化。
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import sys

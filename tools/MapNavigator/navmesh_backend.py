@@ -4,8 +4,6 @@
 查询节点不看画面也不发输入, 所以控制器是个空壳, 三项延迟一并归零。
 """
 
-from __future__ import annotations
-
 import json
 import tempfile
 import threading

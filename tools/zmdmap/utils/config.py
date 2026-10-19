@@ -21,8 +21,6 @@
 海外节点，GitHub runner 不必再绕回国内 CDN（那边每个文件都要重新握手，几秒起步、偶发超时）。
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 
 # ── 路径与仓库布局 ──────────────────────────────────────────────────────────

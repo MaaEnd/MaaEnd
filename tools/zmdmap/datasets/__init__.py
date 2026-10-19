@@ -25,8 +25,6 @@ zone 表投影，其余原样复制。要加一份新数据，就在 ``datasets/
 在 ``base.py`` 的 ``Dataset`` 上。
 """
 
-from __future__ import annotations
-
 import importlib
 import pkgutil
 from collections.abc import Iterable, Sequence

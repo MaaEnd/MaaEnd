@@ -10,8 +10,6 @@
 要不要投影由 ``datasets/`` 里那份数据的 ``needs_projection`` 与 ``projection_containers`` 说了算。
 """
 
-from __future__ import annotations
-
 import math
 from typing import Any
 

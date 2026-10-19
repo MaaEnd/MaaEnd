@@ -9,8 +9,6 @@ nav 数据默认读 ``assets/resource/model`` 子模块里的 ``map/navmesh/base
 :mod:`tools.zmdmap.utils.http` —— 与数据下载同一套 UA / 超时 / 重试，反复加长前缀时也复用同一条连接。
 """
 
-from __future__ import annotations
-
 import math
 import re
 import struct

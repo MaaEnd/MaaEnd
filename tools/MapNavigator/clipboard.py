@@ -4,8 +4,6 @@
 serve.py 与提权会话子进程 session_worker.py 共用本模块。
 """
 
-from __future__ import annotations
-
 import subprocess
 import sys
 from typing import Callable

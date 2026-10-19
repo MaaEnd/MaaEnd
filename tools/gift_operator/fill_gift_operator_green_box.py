@@ -4,7 +4,6 @@
 - 上、左、右三边各 2px 绿色描边
 - 右上角绿色遮罩，尺寸为左侧靠上礼物图标参考区域的 1.5 倍
 """
-from __future__ import annotations
 
 from argparse import ArgumentParser
 from pathlib import Path

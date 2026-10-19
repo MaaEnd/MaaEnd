@@ -1,7 +1,5 @@
 """文本清洗和资源标识校验。"""
 
-from __future__ import annotations
-
 import re
 
 

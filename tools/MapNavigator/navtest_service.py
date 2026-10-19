@@ -5,8 +5,6 @@
 相同。连上游戏即跑首轮, 会话随后常驻, 改完按 F3 就能重跑, 不必重连。
 """
 
-from __future__ import annotations
-
 import json
 import re
 import threading

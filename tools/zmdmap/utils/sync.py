@@ -10,8 +10,6 @@
 这一层由 ``uv run zmdmap generate --sync`` 触发。
 """
 
-from __future__ import annotations
-
 import json
 import re
 import subprocess

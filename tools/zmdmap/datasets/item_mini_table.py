@@ -17,8 +17,6 @@
 没有名字，两类都不收。
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Any
 

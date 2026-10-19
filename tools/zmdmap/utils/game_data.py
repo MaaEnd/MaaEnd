@@ -22,8 +22,6 @@
 数据文件里不放字段说明，说明写在 ``datasets/`` 的模块与文档里。
 """
 
-from __future__ import annotations
-
 import json
 import sys
 from functools import lru_cache

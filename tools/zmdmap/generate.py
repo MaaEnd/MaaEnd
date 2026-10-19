@@ -7,8 +7,6 @@ BaseNav 的 zone 表补上底图像素，不需要投影的原样复制；``--ra
 提交标题）或 ``--version``，写到每份原始数据的最前面；入库与 ``fetch`` 都只沿用，不改它。
 """
 
-from __future__ import annotations
-
 import json
 import time
 from collections.abc import Sequence

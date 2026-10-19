@@ -6,8 +6,6 @@
 观察点、同一 trace 中的同类重复 span 只计数一次，总失败按三类失败 trace 的并集统计。
 """
 
-from __future__ import annotations
-
 import argparse
 import csv
 import json

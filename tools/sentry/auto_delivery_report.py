@@ -6,8 +6,6 @@ SeizeDeliveryJobs。报告分别展示导航阶段失败率、失败节点分布
 重试恢复，因此不等同于整次自动送货任务失败。
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import math
