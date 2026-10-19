@@ -1864,6 +1864,7 @@
     "task.AutoCollect.description": "自动采集野外资源\n 注意，作物没有完全生长齐的时候作物会随机生长，会导致收集不齐的情况。\n <span style=\"color: green;\"> 矿石任务建议使用远程角色</span>",
     "task.AutoCollect.focus.inventory_fallback": "仓库库存同步失败，已忽略目标库存并按勾选路线继续",
     "task.AutoCollect.focus.inventory_ready": "仓库库存同步完成，开始按目标库存筛选采集路线",
+    "task.AutoCollect.focus.mid_sweep_stash": "已达中途存放间隔，开始存放背包",
     "task.AutoCollect.label": "🧺自动采集",
     "task.AutoCollect.option.AutoCollectMidSweepStash.label": "采集中途存放背包",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.label": "存放间隔（路线数）",

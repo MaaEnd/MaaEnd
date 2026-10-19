@@ -1864,6 +1864,7 @@
     "task.AutoCollect.description": "Automatically collect wild resources (the game must stay in the foreground; do not move the mouse).\nNote: if crops have not fully grown, they may grow randomly, which can lead to incomplete collection.\nDue to recognition accuracy limits, even when fully grown some may not be collected.",
     "task.AutoCollect.focus.inventory_fallback": "Depot inventory sync failed; target inventory was ignored and selected routes will continue",
     "task.AutoCollect.focus.inventory_ready": "Depot inventory synced; filtering collection routes by target inventory",
+    "task.AutoCollect.focus.mid_sweep_stash": "Stash interval reached; stashing backpack",
     "task.AutoCollect.label": "🧺 Auto Collect",
     "task.AutoCollect.option.AutoCollectMidSweepStash.label": "Stash backpack between routes",
     "task.AutoCollect.option.AutoCollectMidSweepStashEvery.label": "Stash interval (routes)",
