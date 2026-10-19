@@ -1,0 +1,27 @@
+{
+    "configs": {
+        "name": "(CloudADB-官服)选剑演武，测试挑战目标与战斗结算",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "挑战目标",
+            "image": "武陵_选剑演武_挑战目标.png",
+            "hits": [
+                "TrialOfSwordmancyChallengeBackground",
+                "TrialOfSwordmancyCloseChallengeTarget"
+            ]
+        },
+        {
+            "name": "获得奖励",
+            "image": "武陵_选剑演武_获得奖励.png",
+            "hits": [
+                "TrialOfSwordmancyFightFinishButton",
+                "TrialOfSwordmancyFightSuccess",
+                "TrialOfSwordmancyFightSuccessContinue",
+                "TrialOfSwordmancyFightSuccessLeave"
+            ]
+        }
+    ]
+}

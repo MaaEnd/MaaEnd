@@ -1,0 +1,28 @@
+{
+    "configs": {
+        "name": "(CloudADB-官服)选剑演武，测试放弃确认弹窗",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "放弃确认",
+            "image": "武陵_选剑演武_演算_放弃确认.png",
+            "hits": [
+                "GrayCancelButton",
+                "YellowConfirmButtonType1",
+                "TrialOfSwordmancyAbandonPopupCancel"
+            ]
+        },
+        {
+            "name": "放弃次数耗尽",
+            "image": "武陵_选剑演武_演算_放弃确认_放弃次数耗尽.png",
+            "hits": [
+                "GrayCancelButton",
+                "YellowConfirmButtonType1",
+                "TrialOfSwordmancyAbandonPopupCancel",
+                "TrialOfSwordmancyAbandonPopupExhausted"
+            ]
+        }
+    ]
+}
