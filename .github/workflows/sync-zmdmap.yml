@@ -37,11 +37,11 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
-      # setup-uv 一并负责 Python：python-version 会设成 UV_PYTHON，不必再挂 actions/setup-python。
+      # setup-uv 一并负责 Python：uv 按 requires-python 自动准备解释器，不必再挂 actions/setup-python。
       - uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: "3.12"
           enable-cache: true
+          cache-python: true
 
       - name: Install dependencies
         run: |
@@ -126,8 +126,8 @@ jobs:
 
       - uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: "3.12"
           enable-cache: true
+          cache-python: true
 
       - name: Install dependencies
         run: |
@@ -189,11 +189,11 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ github.event.repository.default_branch }}
 
-      # setup-uv 一并负责 Python：python-version 会设成 UV_PYTHON，不必再挂 actions/setup-python。
+      # setup-uv 一并负责 Python：uv 按 requires-python 自动准备解释器，不必再挂 actions/setup-python。
       - uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: "3.12"
           enable-cache: true
+          cache-python: true
 
       - name: Fetch zmdmap data
         run: uv run --frozen --no-default-groups zmdmap fetch --only weapons --only energy_point_gems
@@ -249,11 +249,11 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ github.event.repository.default_branch }}
 
-      # setup-uv 一并负责 Python：python-version 会设成 UV_PYTHON，不必再挂 actions/setup-python。
+      # setup-uv 一并负责 Python：uv 按 requires-python 自动准备解释器，不必再挂 actions/setup-python。
       - uses: astral-sh/setup-uv@v10.3.0
         with:
-          python-version: "3.12"
           enable-cache: true
+          cache-python: true
 
       - name: Fetch zmdmap data
         run: uv run --frozen --no-default-groups zmdmap fetch --only item_mini_table --only weapons
