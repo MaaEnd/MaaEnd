@@ -31,6 +31,24 @@ constexpr const char* kIconDir = "SceneManager";
 constexpr double kVoteBlockMinStdDev = 1.0;
 constexpr size_t kVoteMinBlocks = 4;
 
+// 未探索区域的迷雾：近灰白、够亮、大尺度上平滑、成片。像素量按 720p 截图标定。
+// 色度用三通道最大减最小：HSV 饱和度是比值，暗像素分母小，随便就到 0.5 以上
+constexpr int kFogSmooth = 7;
+constexpr int kFogChromaMax = 14;
+constexpr int kFogGrayMin = 100;
+// 平滑度把迷雾和白灰色建筑分开：迷雾内部梯度能量中位 8、九成分位 15，白灰建筑中位 30 到 49
+constexpr double kFogEdgeSigma = 2.0;
+constexpr int kFogEdgeSmooth = 15;
+constexpr double kFogEdgeMax = 20.0;
+constexpr int kFogCloseRadius = 4;
+constexpr int kFogMinArea = 1200;
+// 迷雾的软边不够白也不够平，判不进来，整团往外长这么多像素把它盖住
+constexpr int kFogGrowRadius = 9;
+// 掩迷雾重解的两道门槛。迷雾占 ROI 不到 kFogRetryMinRatio 就不值得再解一次；
+// 剩下的像素不到 kFogRetryMinValid 时错误位置的分数会被抬高——掩掉近九成的画面在错的底图上能到 0.69
+constexpr double kFogRetryMinRatio = 0.03;
+constexpr double kFogRetryMinValid = 0.50;
+
 // 图标表与它认的那些模板同目录，一起走资源层次：某一端的图标画得不一样时，
 // 那一层放自己的模板和自己的阈值即可
 constexpr const char* kIconTableName = "MapIcons.json";
@@ -362,8 +380,88 @@ std::optional<ScanHit> ScanScales(
     return best;
 }
 
+cv::Mat Ellipse(int radius)
+{
+    return cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(radius * 2 + 1, radius * 2 + 1));
+}
+
+// 整帧判迷雾，255 为迷雾。成片与否、软边往外长多少都得看整团，只看 ROI 里那一截判不准
+cv::Mat FogMask(const cv::Mat& screen)
+{
+    cv::Mat bgr = screen;
+    if (screen.channels() == 4) {
+        cv::cvtColor(screen, bgr, cv::COLOR_BGRA2BGR);
+    }
+    if (bgr.channels() != 3) {
+        return cv::Mat::zeros(screen.size(), CV_8UC1);
+    }
+
+    std::vector<cv::Mat> planes;
+    cv::split(bgr, planes);
+    cv::Mat high;
+    cv::Mat low;
+    cv::max(planes[0], planes[1], high);
+    cv::max(high, planes[2], high);
+    cv::min(planes[0], planes[1], low);
+    cv::min(low, planes[2], low);
+    cv::Mat chroma = high - low;
+    cv::blur(chroma, chroma, cv::Size(kFogSmooth, kFogSmooth));
+
+    cv::Mat gray;
+    cv::cvtColor(bgr, gray, cv::COLOR_BGR2GRAY);
+    cv::Mat brightness;
+    cv::blur(gray, brightness, cv::Size(kFogSmooth, kFogSmooth));
+
+    cv::Mat soft;
+    cv::GaussianBlur(gray, soft, cv::Size(0, 0), kFogEdgeSigma);
+    cv::Mat gradX;
+    cv::Mat gradY;
+    cv::Mat energy;
+    cv::Sobel(soft, gradX, CV_32F, 1, 0);
+    cv::Sobel(soft, gradY, CV_32F, 0, 1);
+    cv::magnitude(gradX, gradY, energy);
+    cv::blur(energy, energy, cv::Size(kFogEdgeSmooth, kFogEdgeSmooth));
+
+    cv::Mat fog = (chroma <= kFogChromaMax) & (brightness >= kFogGrayMin) & (energy <= kFogEdgeMax);
+    cv::morphologyEx(fog, fog, cv::MORPH_CLOSE, Ellipse(kFogCloseRadius));
+
+    cv::Mat labels;
+    cv::Mat stats;
+    cv::Mat centroids;
+    const int count = cv::connectedComponentsWithStats(fog, labels, stats, centroids, 8, CV_32S);
+    std::vector<uchar> keep(static_cast<size_t>(count), 0);
+    for (int i = 1; i < count; ++i) {
+        keep[static_cast<size_t>(i)] = stats.at<int>(i, cv::CC_STAT_AREA) >= kFogMinArea ? 255 : 0;
+    }
+    cv::Mat kept(fog.size(), CV_8UC1);
+    for (int y = 0; y < labels.rows; ++y) {
+        const int* src = labels.ptr<int>(y);
+        uchar* dst = kept.ptr<uchar>(y);
+        for (int x = 0; x < labels.cols; ++x) {
+            dst[x] = keep[static_cast<size_t>(src[x])];
+        }
+    }
+
+    // 迷雾上压着的图标与文字会在块里留洞，洞底下同样是没探索的地方，按外轮廓整块填上
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(kept, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+    cv::Mat filled = cv::Mat::zeros(fog.size(), CV_8UC1);
+    cv::drawContours(filled, contours, -1, cv::Scalar(255), cv::FILLED);
+    cv::dilate(filled, filled, Ellipse(kFogGrowRadius));
+    return filled;
+}
+
+// 求视口时参与相关的像素，255 为参与。两张都空表示整窗全算
+struct ScanMask
+{
+    cv::Mat full;
+    cv::Mat small;
+    double fogRatio = 0.0;
+};
+
 // 粗解在降采样图上定位置，细解回到原尺度定尺度，再拿粗解各档判这个解唯不唯一。
-// voteGrid 为 1 走整窗匹配，大于 1 则两级都改用分块投票
+// voteGrid 为 1 走整窗匹配，大于 1 则两级都改用分块投票。mask 只对整窗匹配生效，
+// 粗细两级用同一份掩膜，判唯一性的对手档也就在同一口径下算出来
 std::optional<Viewport> ScanViewport(
     const cv::Mat& base,
     const cv::Mat& baseSmall,
@@ -372,7 +470,8 @@ std::optional<Viewport> ScanViewport(
     const cv::Rect& roiRect,
     const ViewportConfig& cfg,
     int voteGrid,
-    const std::string& zone)
+    const std::string& zone,
+    const ScanMask& mask)
 {
     const int down = std::max(1, cfg.coarseDownscale);
 
@@ -386,7 +485,7 @@ std::optional<Viewport> ScanViewport(
     const auto coarse = ScanScales(
         baseSmall,
         roiSmall,
-        cv::Mat(),
+        mask.small,
         coarseLadder,
         kMinTemplateSide,
         std::max(1, static_cast<int>(std::lround(cfg.scanSlack / static_cast<double>(down)))),
@@ -426,7 +525,7 @@ std::optional<Viewport> ScanViewport(
     const auto fine = ScanScales(
         base(window),
         roi,
-        cv::Mat(),
+        mask.full,
         fineLadder,
         kMinTemplateSide,
         0,
@@ -450,7 +549,7 @@ std::optional<Viewport> ScanViewport(
 
     if (fine->score < cfg.minScore || delta < cfg.minDelta) {
         LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(fine->score) << VAR(delta) << VAR(fine->psr) << VAR(fine->scale)
-                << VAR(cfg.minScore) << VAR(cfg.minDelta) << VAR(voteGrid);
+                << VAR(cfg.minScore) << VAR(cfg.minDelta) << VAR(voteGrid) << VAR(mask.fogRatio);
         return std::nullopt;
     }
 
@@ -463,9 +562,10 @@ std::optional<Viewport> ScanViewport(
     vp.delta = delta;
     vp.psr = fine->psr;
     vp.voteGrid = voteGrid;
+    vp.fogRatio = mask.fogRatio;
 
     LogInfo << "WorldMap: viewport solved" << VAR(zone) << VAR(vp.scale) << VAR(vp.baseOrigin.x) << VAR(vp.baseOrigin.y) << VAR(vp.score)
-            << VAR(vp.delta) << VAR(vp.psr) << VAR(vp.voteGrid);
+            << VAR(vp.delta) << VAR(vp.psr) << VAR(vp.voteGrid) << VAR(vp.fogRatio);
     return vp;
 }
 
@@ -863,18 +963,37 @@ std::optional<Viewport> WorldMapSolver::SolveViewport(const cv::Mat& screen, con
     cv::resize(*base, baseSmall, cv::Size(base->cols / down, base->rows / down), 0.0, 0.0, cv::INTER_AREA);
     cv::resize(roi, roiSmall, cv::Size(roi.cols / down, roi.rows / down), 0.0, 0.0, cv::INTER_AREA);
 
-    if (auto vp = ScanViewport(*base, baseSmall, roi, roiSmall, roiRect, cfg, 1, zone)) {
+    if (auto vp = ScanViewport(*base, baseSmall, roi, roiSmall, roiRect, cfg, 1, zone, ScanMask {})) {
         return vp;
+    }
+
+    // 迷雾比地形亮、又成片，进了相关就是最强的信号，会把解拖到错的尺度上。掩掉它，只用剩下的像素再解一次。
+    // 只在整窗已判失败后才走：解得出来的画面到不了这里，迷雾判错了也碰不到它们。
+    // 掩膜只删像素不添证据，剩下的部分仍得在同一口径下唯一匹配才过得了闸
+    const cv::Mat fog = FogMask(screen)(roiRect);
+    const double fogRatio = cv::countNonZero(fog) / static_cast<double>(fog.total());
+    if (fogRatio >= kFogRetryMinRatio && 1.0 - fogRatio >= kFogRetryMinValid) {
+        ScanMask mask;
+        mask.full = fog == 0;
+        // 降采样的格子里混进一点迷雾就整格丢掉
+        cv::Mat shrunk;
+        cv::resize(mask.full, shrunk, roiSmall.size(), 0.0, 0.0, cv::INTER_AREA);
+        mask.small = shrunk == 255;
+        mask.fogRatio = fogRatio;
+        LogInfo << "WorldMap: retrying the viewport with fog masked out" << VAR(zone) << VAR(fogRatio);
+        if (auto vp = ScanViewport(*base, baseSmall, roi, roiSmall, roiRect, cfg, 1, zone, mask)) {
+            return vp;
+        }
     }
 
     if (cfg.voteGrid <= 1) {
         return std::nullopt;
     }
 
-    // 整窗匹配只出一个数，搜索窗里进了未探索迷雾这类局部遮挡就整帧塌掉。分块投票能把
-    // 被污染的块变成少数票，代价是多跑一遍，所以只在整窗已经判失败时才付这笔钱
-    LogInfo << "WorldMap: retrying the viewport with block voting" << VAR(zone) << VAR(cfg.voteGrid);
-    return ScanViewport(*base, baseSmall, roi, roiSmall, roiRect, cfg, cfg.voteGrid, zone);
+    // 整窗匹配只出一个数，搜索窗里进了局部遮挡就整帧塌掉。分块投票能把被污染的块变成少数票，
+    // 代价是多跑一遍，所以只在前面都判失败时才付这笔钱
+    LogInfo << "WorldMap: retrying the viewport with block voting" << VAR(zone) << VAR(cfg.voteGrid) << VAR(fogRatio);
+    return ScanViewport(*base, baseSmall, roi, roiSmall, roiRect, cfg, cfg.voteGrid, zone, ScanMask {});
 }
 
 WorldMapSolver& GetSolver(std::string_view controller_type)
