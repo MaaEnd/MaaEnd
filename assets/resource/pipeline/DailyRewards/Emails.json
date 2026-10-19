@@ -40,8 +40,7 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Click"
         },
         "repeat": 2,
         "repeat_wait_freezes": 1000,
@@ -154,8 +153,7 @@
         },
         "pre_wait_freezes": 200,
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Click"
         },
         "focus": {
             "Node.Recognition.Succeeded": "获取邮件奖励"
@@ -181,8 +179,7 @@
         },
         "pre_wait_freezes": 200,
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Click"
         }
     },
     "DailyEmailExistTSA": {
@@ -195,8 +192,7 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Click"
         },
         "next": [
             "DailyEmailReceiveTSACannotClaim",
@@ -339,12 +335,54 @@
         },
         "pre_wait_freezes": 200,
         "action": {
-            "type": "Click",
-            "param": {}
+            "type": "Click"
         },
         "next": [
+            "DailyEmailTSAStorageFull",
             "DailyEmailConfirmTSA"
         ]
     },
-    "DailyEmailFinish": {}
+    "DailyEmailFinish": {},
+    "DailyEmailTSAStorageFull": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    503,
+                    112,
+                    267,
+                    23
+                ],
+                "expected": [
+                    "因仓储空间已满，部分物品未能完全领取",
+                    "因倉儲空間已滿，部分物品未能完全領取",
+                    "Depot is full. Not every item could be claimed.",
+                    "空きがないため、一部のアイテムは受け取れませんでした",
+                    "저장고 공간이 최대치 도달했습니다. 일부 아이템이 받지 못했습니다."
+                ]
+            }
+        },
+        "next": [
+            "DailyEmailExitTSA"
+        ]
+    },
+    "DailyEmailExitTSA": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1074,
+                    204,
+                    32,
+                    29
+                ],
+                "template": [
+                    "CheckEmail/TSAExitIcon.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    }
 }
