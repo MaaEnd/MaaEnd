@@ -30,8 +30,7 @@
 /assets/resource*/image/EnvironmentMonitoring/                    @he0119
 /tools/pipeline-generate/EnvironmentMonitoring/                   @he0119
 /tests/EnvironmentMonitoring/                                     @he0119
-/docs/zh_cn/developers/tasks/environment-monitoring-maintain.md   @he0119
-/docs/en_us/developers/tasks/environment-monitoring-maintain.md   @he0119
+/docs/*/developers/tasks/environment-monitoring-maintain.md       @he0119
 
 # ---------------------------------------------------------------------------
 # 送货：转交委托（DeliveryJobs） / 自动送货（AutoDelivery）            @he0119
@@ -49,10 +48,8 @@
 /tools/pipeline-generate/AutoDelivery/                            @he0119
 /tests/DeliveryJobs/                                              @he0119
 /tests/AutoDelivery/                                              @he0119
-/docs/zh_cn/developers/tasks/delivery-jobs-maintain.md            @he0119
-/docs/en_us/developers/tasks/delivery-jobs-maintain.md            @he0119
-/docs/zh_cn/developers/components/auto-delivery.md                @he0119
-/docs/en_us/developers/components/auto-delivery.md                @he0119
+/docs/*/developers/tasks/delivery-jobs-maintain.md                @he0119
+/docs/*/developers/components/auto-delivery.md                    @he0119
 
 # ---------------------------------------------------------------------------
 # 据点交易（OutpostTrading）                                          @he0119
@@ -65,8 +62,7 @@
 /agent/go-service/outposttrading/                                 @he0119
 /tools/pipeline-generate/OutpostTrading/                          @he0119
 /tests/OutpostTrading/                                            @he0119
-/docs/zh_cn/developers/tasks/outpost-trading-maintain.md          @he0119
-/docs/en_us/developers/tasks/outpost-trading-maintain.md          @he0119
+/docs/*/developers/tasks/outpost-trading-maintain.md              @he0119
 
 # ---------------------------------------------------------------------------
 # 基建（DijiangRewards） / 信用点（CreditShopping）                    @overflow65537
@@ -78,31 +74,27 @@
 /assets/resource*/image/ClaimDijiangRewards/                      @overflow65537
 /assets/locales/go-service/HTML/dijiangrewards-*.html             @overflow65537
 /agent/go-service/dijiangrewards/                                 @overflow65537
-/docs/zh_cn/developers/tasks/dijiang-rewards-maintain.md          @overflow65537
-/docs/en_us/developers/tasks/dijiang-rewards-maintain.md          @overflow65537
+/docs/*/developers/tasks/dijiang-rewards-maintain.md              @overflow65537
 
 /assets/resource*/pipeline/CreditShopping/                        @overflow65537
 /assets/tasks/CreditShopping.json                                 @overflow65537
 /assets/resource*/image/CreditShopping/                           @overflow65537
 /agent/go-service/creditshopping/                                 @overflow65537
-/docs/zh_cn/developers/tasks/credit-shopping-maintain.md          @overflow65537
-/docs/en_us/developers/tasks/credit-shopping-maintain.md          @overflow65537
+/docs/*/developers/tasks/credit-shopping-maintain.md              @overflow65537
 
 /assets/resource*/pipeline/GiftOperator/                          @overflow65537
 /assets/tasks/GiftOperator.json                                   @overflow65537
 /assets/resource*/image/GiftOperator/                             @overflow65537
 /tools/pipeline-generate/GiftOperator/                            @overflow65537
 /tools/gift_operator/                                             @overflow65537
-/docs/zh_cn/developers/tasks/gift-operator-maintain.md            @overflow65537
-/docs/en_us/developers/tasks/gift-operator-maintain.md            @overflow65537
+/docs/*/developers/tasks/gift-operator-maintain.md                @overflow65537
 
 /assets/resource*/pipeline/AutoStockStaple/                       @overflow65537
 /assets/tasks/AutoStockStaple.json                                @overflow65537
 /agent/go-service/autostockstaple/                                @overflow65537
 /tools/pipeline-generate/AutoStockStaple/                         @overflow65537
 /tests/AutoStockStaple/                                           @overflow65537
-/docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md         @overflow65537
-/docs/en_us/developers/tasks/auto-stockstaple-maintain.md         @overflow65537
+/docs/*/developers/tasks/auto-stockstaple-maintain.md             @overflow65537
 
 # ---------------------------------------------------------------------------
 # pkg 公共包（被多个任务调用）                                        @overflow65537
@@ -112,8 +104,7 @@
 /agent/go-service/ims/                                            @overflow65537
 /assets/resource*/pipeline/IMS/                                   @overflow65537
 /assets/locales/go-service/HTML/ims-*.html                        @overflow65537
-/docs/zh_cn/developers/components/ims.md                          @overflow65537
-/docs/en_us/developers/components/ims.md                          @overflow65537
+/docs/*/developers/components/ims.md                              @overflow65537
 
 # ---------------------------------------------------------------------------
 # 工具与脚本                                                          @he0119
