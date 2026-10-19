@@ -567,6 +567,15 @@
         "next": [
             "AutoEssenceFindAttributeSelection"
         ],
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                1083,
+                514,
+                197,
+                93
+            ]
+        },
         "focus": {
             "Node.Action.Starting": "⚙️正在调整预刻写条件"
         }
