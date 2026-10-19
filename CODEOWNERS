@@ -31,23 +31,27 @@
 /docs/*/developers/tasks/environment-monitoring-maintain.md       @he0119
 
 # ---------------------------------------------------------------------------
-# 送货：转交委托（DeliveryJobs） / 自动送货（AutoDelivery）                      @he0119
+# 送货：转交委托（DeliveryJobs）                                           @he0119
 # ---------------------------------------------------------------------------
-# 自动送货是「转交委托」任务里的一个动作选项（assets/tasks/DeliveryJobs.json），两者同属一个任务。
 /assets/resource*/pipeline/DeliveryJobs/                          @he0119
 /assets/resource*/pipeline/DeliveryJobs.json                      @he0119
-/assets/resource*/pipeline/AutoDelivery/                          @he0119
 /assets/tasks/DeliveryJobs.json                                   @he0119
 /assets/resource*/image/DeliveryJobs/                             @he0119
+/agent/go-service/deliveryjobs/                                   @he0119
+/tools/pipeline-generate/DeliveryJobs/                            @he0119
+/tests/DeliveryJobs/                                              @he0119
+/docs/*/developers/tasks/delivery-jobs-maintain.md                @he0119
+
+# ---------------------------------------------------------------------------
+# 自动送货（AutoDelivery）                                              @he0119
+# ---------------------------------------------------------------------------
+# 独立组件，由「转交委托」任务的 DepotAction 选项调用；有自己的 Pipeline、Go 包、生成器、测试与文档。
+/assets/resource*/pipeline/AutoDelivery/                          @he0119
 /assets/resource*/image/AutoDelivery/                             @he0119
 /assets/data/AutoDelivery/                                        @he0119
-/agent/go-service/deliveryjobs/                                   @he0119
 /agent/go-service/autodelivery/                                   @he0119
-/tools/pipeline-generate/DeliveryJobs/                            @he0119
 /tools/pipeline-generate/AutoDelivery/                            @he0119
-/tests/DeliveryJobs/                                              @he0119
 /tests/AutoDelivery/                                              @he0119
-/docs/*/developers/tasks/delivery-jobs-maintain.md                @he0119
 /docs/*/developers/components/auto-delivery.md                    @he0119
 
 # ---------------------------------------------------------------------------
