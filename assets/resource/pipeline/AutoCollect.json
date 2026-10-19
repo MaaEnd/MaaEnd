@@ -459,7 +459,7 @@
         "next": [
             "AutoCollectStashProbeWuling",
             "AutoCollectStashProbeValleyIV",
-            "AutoCollectStashCapacity"
+            "EmptyNode"
         ]
     },
     "AutoCollectStashProbeWuling": {
@@ -472,7 +472,11 @@
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStashProbeValleyIV",
+            "AutoCollectStashCapacity"
+        ]
     },
     "AutoCollectStashProbeValleyIV": {
         "desc": "仅记录本次存放时仓库面板停在谷地地区",
@@ -484,7 +488,10 @@
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectStashCapacity"
+        ]
     },
     "AutoCollectStashCapacity": {
         "desc": "存放后背包容量读数，仅记录不参与判定",
@@ -562,7 +569,6 @@
         "next": [
             "AutoCollectStashProbeWuling",
             "AutoCollectStashProbeValleyIV",
-            "AutoCollectStashCapacity",
             "AutoCollectEnd"
         ]
     },
