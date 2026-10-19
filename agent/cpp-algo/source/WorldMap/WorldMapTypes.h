@@ -127,6 +127,9 @@ struct Viewport
     // 这个解是哪条路径给的：1 是整窗匹配，大于 1 是分块投票用的网格边长
     int voteGrid = 1;
 
+    // 掩掉迷雾重解出来时 ROI 里被掩掉的比例，其余路径为 0
+    double fogRatio = 0.0;
+
     cv::Point2d toBase(const cv::Point2d& screen) const
     {
         return { (screen.x - roiOrigin.x) * scale + baseOrigin.x, (screen.y - roiOrigin.y) * scale + baseOrigin.y };
