@@ -1,0 +1,68 @@
+# MaaEnd CODEOWNERS
+#
+# 位置说明：
+#   - GitHub 读取顺序：.github/CODEOWNERS -> CODEOWNERS -> docs/CODEOWNERS（取第一个找到的）
+#   - Gitea  读取顺序：CODEOWNERS -> docs/CODEOWNERS -> .gitea/CODEOWNERS
+#   - 放在仓库根目录可同时被 GitHub 与 Gitea 读取。
+#
+# 作用：
+#   - PR 修改匹配路径时，自动请求对应 owner review。
+#   - 不会阻止有写权限的人直接 push；要强制审批，请在分支保护/规则集中开启
+#     "Require review from Code Owners"（Gitea 对应 "Approve changes from code owners"）。
+#
+# 本文件当前只声明 @he0119 主维护的模块（环境监测 / 送货 / 据点交易 / 相关工具）。
+# 其他模块的 owner 可以按同样格式继续补充。
+
+# ---------------------------------------------------------------------------
+# 环境监测（EnvironmentMonitoring）
+# ---------------------------------------------------------------------------
+/assets/resource/pipeline/EnvironmentMonitoring/                  @he0119
+/assets/resource/pipeline/EnvironmentMonitoring.json              @he0119
+/assets/tasks/EnvironmentMonitoring.json                          @he0119
+/assets/resource/image/EnvironmentMonitoring/                     @he0119
+/tools/pipeline-generate/EnvironmentMonitoring/                   @he0119
+/tests/EnvironmentMonitoring/                                     @he0119
+/docs/zh_cn/developers/tasks/environment-monitoring-maintain.md   @he0119
+/docs/en_us/developers/tasks/environment-monitoring-maintain.md   @he0119
+
+# ---------------------------------------------------------------------------
+# 送货：转交委托（DeliveryJobs） / 自动送货（AutoDelivery）
+# ---------------------------------------------------------------------------
+/assets/resource/pipeline/DeliveryJobs/                           @he0119
+/assets/resource/pipeline/DeliveryJobs.json                       @he0119
+/assets/resource/pipeline/AutoDelivery/                           @he0119
+/assets/tasks/DeliveryJobs.json                                   @he0119
+/assets/resource/image/DeliveryJobs/                              @he0119
+/assets/resource/image/AutoDelivery/                              @he0119
+/assets/data/AutoDelivery/                                        @he0119
+/agent/go-service/deliveryjobs/                                   @he0119
+/agent/go-service/autodelivery/                                   @he0119
+/tools/pipeline-generate/DeliveryJobs/                            @he0119
+/tools/pipeline-generate/AutoDelivery/                            @he0119
+/tests/DeliveryJobs/                                              @he0119
+/tests/AutoDelivery/                                              @he0119
+/docs/zh_cn/developers/tasks/delivery-jobs-maintain.md            @he0119
+/docs/en_us/developers/tasks/delivery-jobs-maintain.md            @he0119
+/docs/zh_cn/developers/components/auto-delivery.md                @he0119
+/docs/en_us/developers/components/auto-delivery.md                @he0119
+
+# ---------------------------------------------------------------------------
+# 据点交易（OutpostTrading）
+# ---------------------------------------------------------------------------
+/assets/resource/pipeline/OutpostTrading/                         @he0119
+/assets/resource/pipeline/OutpostTrading.json                     @he0119
+/assets/tasks/OutpostTrading.json                                 @he0119
+/assets/resource/image/OutpostTrading/                            @he0119
+/agent/go-service/outposttrading/                                 @he0119
+/tools/pipeline-generate/OutpostTrading/                          @he0119
+/tests/OutpostTrading/                                            @he0119
+/docs/zh_cn/developers/tasks/outpost-trading-maintain.md          @he0119
+/docs/en_us/developers/tasks/outpost-trading-maintain.md          @he0119
+
+# ---------------------------------------------------------------------------
+# 工具与脚本
+# ---------------------------------------------------------------------------
+/tools/zmdmap/                                                    @he0119
+/tools/sentry/                                                    @he0119
+/tools/pipeline-generate/run-all.mjs                              @he0119
+/tools/pipeline-generate/utils/                                   @he0119
