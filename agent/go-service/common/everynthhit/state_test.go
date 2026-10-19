@@ -8,8 +8,8 @@ func TestAdvance(t *testing.T) {
 		every int
 		want  []bool
 	}{
-		{name: "hits every call when every is one", every: 1, want: []bool{true, true, true}},
-		{name: "hits every third call", every: 3, want: []bool{false, false, true, false, false, true}},
+		{name: "hits every other call when every is one", every: 1, want: []bool{true, false, true, false}},
+		{name: "hits every third counted call", every: 3, want: []bool{false, false, true, false, false, false, true}},
 		{name: "never hits when every is zero", every: 0, want: []bool{false, false, false}},
 		{name: "never hits when every is negative", every: -2, want: []bool{false, false, false}},
 	}
@@ -17,7 +17,7 @@ func TestAdvance(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			key := tt.name
-			t.Cleanup(func() { Reset(key) })
+			t.Cleanup(func() { ResetAll() })
 
 			for i, want := range tt.want {
 				if got := Advance(key, tt.every); got != want {
@@ -28,7 +28,18 @@ func TestAdvance(t *testing.T) {
 	}
 }
 
-func TestAdvanceResetRestartsCycle(t *testing.T) {
+func TestAdvanceSkipsCallAfterHit(t *testing.T) {
+	const key = "after-hit"
+	t.Cleanup(func() { ResetAll() })
+
+	for i, want := range []bool{false, false, true, false} {
+		if got := Advance(key, 3); got != want {
+			t.Fatalf("call %d: Advance() = %v, want %v", i+1, got, want)
+		}
+	}
+}
+
+func TestAdvanceResetSkipsFirstCall(t *testing.T) {
 	const key = "restart"
 	t.Cleanup(func() { ResetAll() })
 
@@ -38,9 +49,37 @@ func TestAdvanceResetRestartsCycle(t *testing.T) {
 
 	Reset(key)
 
-	for i, want := range []bool{false, true} {
+	for i, want := range []bool{false, false, true} {
 		if got := Advance(key, 2); got != want {
 			t.Fatalf("call %d after reset: Advance() = %v, want %v", i+1, got, want)
+		}
+	}
+}
+
+func TestAdvanceLoopRhythmHitsEverySecondRoute(t *testing.T) {
+	const key = "loop"
+	t.Cleanup(func() { ResetAll() })
+
+	Reset(key)
+
+	steps := []struct {
+		stage string
+		want  bool
+	}{
+		{stage: "task start scan", want: false},
+		{stage: "route 1 scan", want: false},
+		{stage: "route 2 scan", want: true},
+		{stage: "stash jump back scan", want: false},
+		{stage: "route 3 scan", want: false},
+		{stage: "route 4 scan", want: true},
+		{stage: "stash jump back scan", want: false},
+		{stage: "route 5 scan", want: false},
+		{stage: "route 6 scan", want: true},
+	}
+
+	for i, step := range steps {
+		if got := Advance(key, 2); got != step.want {
+			t.Fatalf("step %d (%s): Advance() = %v, want %v", i+1, step.stage, got, step.want)
 		}
 	}
 }
@@ -55,7 +94,9 @@ func TestAdvanceKeysAreIndependent(t *testing.T) {
 		{key: "first", want: false},
 		{key: "second", want: false},
 		{key: "first", want: true},
+		{key: "first", want: false},
 		{key: "second", want: true},
+		{key: "second", want: false},
 	}
 
 	for i, call := range calls {
@@ -65,22 +106,48 @@ func TestAdvanceKeysAreIndependent(t *testing.T) {
 	}
 }
 
-func TestResetAllClearsEveryKey(t *testing.T) {
+func TestResetAllClearsCountsAndSkips(t *testing.T) {
+	const key = "reset-all"
 	t.Cleanup(func() { ResetAll() })
 
-	if Advance("restart", 2) {
+	if Advance(key, 2) {
 		t.Fatal("first call should miss")
 	}
-	if Advance("other", 3) {
-		t.Fatal("first call should miss")
+	if !Advance(key, 2) {
+		t.Fatal("second call should hit")
 	}
 
 	ResetAll()
 
-	for _, key := range []string{"restart", "other"} {
-		if got := Advance(key, 2); got {
-			t.Fatalf("key %q should restart counting after ResetAll", key)
+	if got := Advance(key, 2); got {
+		t.Fatal("call after ResetAll should miss because the counter restarts")
+	}
+	if !Advance(key, 2) {
+		t.Fatal("second call after ResetAll should hit")
+	}
+
+	ResetAll()
+
+	if got := Advance(key, 1); !got {
+		t.Fatal("call after ResetAll should hit because the skip marker is cleared")
+	}
+}
+
+func TestAdvanceDisabledEveryDoesNotAccumulate(t *testing.T) {
+	const key = "disabled"
+	t.Cleanup(func() { ResetAll() })
+
+	for i := 0; i < 5; i++ {
+		if Advance(key, 0) {
+			t.Fatalf("call %d: Advance(0) should never hit", i+1)
 		}
+	}
+
+	if got := Advance(key, 2); got {
+		t.Fatal("calls with every <= 0 should not be counted")
+	}
+	if !Advance(key, 2) {
+		t.Fatal("second counted call should hit")
 	}
 }
 

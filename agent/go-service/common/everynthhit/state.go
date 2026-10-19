@@ -9,11 +9,16 @@ import (
 var states = struct {
 	sync.Mutex
 	counts map[string]int
-}{counts: make(map[string]int)}
+	skips  map[string]struct{}
+}{
+	counts: make(map[string]int),
+	skips:  make(map[string]struct{}),
+}
 
-// Advance increases the counter of key by one and reports whether this call is
-// the every-th hit. A hit clears the counter, so the next cycle starts from
-// one. every <= 0 never counts and never hits.
+// Advance reports whether this call is the every-th hit of key. The call right
+// after a hit or a reset is not counted, because the loop re-enters the
+// recognition once without a completed route in between. every <= 0 never
+// counts and never hits.
 func Advance(key string, every int) bool {
 	if every <= 0 {
 		return false
@@ -21,25 +26,35 @@ func Advance(key string, every int) bool {
 
 	states.Lock()
 	defer states.Unlock()
+
+	if _, ok := states.skips[key]; ok {
+		delete(states.skips, key)
+		return false
+	}
+
 	states.counts[key]++
 	if states.counts[key] < every {
 		return false
 	}
 	delete(states.counts, key)
+	states.skips[key] = struct{}{}
 	return true
 }
 
-// Reset clears the counter of key.
+// Reset clears the counter of key and leaves the next call uncounted, so the
+// first loop scan after a task start is not treated as a completed route.
 func Reset(key string) {
 	states.Lock()
 	delete(states.counts, key)
+	states.skips[key] = struct{}{}
 	states.Unlock()
 }
 
-// ResetAll clears every counter.
+// ResetAll clears every counter together with its pending uncounted call.
 func ResetAll() {
 	states.Lock()
 	clear(states.counts)
+	clear(states.skips)
 	states.Unlock()
 }
 
