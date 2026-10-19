@@ -47,7 +47,10 @@
         },
         "next": [
             "AutoCollectDigEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "执行挖掘攻击"
+        }
     },
     //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
     "AutoCollectDigEnd": {
