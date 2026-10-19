@@ -245,6 +245,16 @@
             "__ScenePrivateNextTrue"
         ]
     },
+    "SceneMapZoomInStepWithoutReco": {
+        "desc": "在地图界面放大一档（供 MapFind 等子任务调用），已到最大档时不动作，需确保在地图界面",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapZoomInStep",
+            "__ScenePrivateNextTrue"
+        ]
+    },
     "SceneMapZoomOut": {
         "desc": "在地图界面缩小地图",
         "recognition": "And",

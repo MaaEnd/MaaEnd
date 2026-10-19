@@ -31,6 +31,15 @@ constexpr const char* kIconDir = "SceneManager";
 constexpr double kVoteBlockMinStdDev = 1.0;
 constexpr size_t kVoteMinBlocks = 4;
 
+// 量放大倍率时取放大后那帧中央的一块，半宽半高按屏幕比例。要躲开四角浮层：它们不随地图缩放
+constexpr double kZoomPatchHalfX = 0.18;
+constexpr double kZoomPatchHalfY = 0.24;
+// 倍率先按等比阶梯粗扫，再在胜出档两侧线性细扫
+constexpr double kZoomCoarseRatio = 1.01;
+constexpr int kZoomFineSteps = 20;
+// 缩放中心与实际不动点之间留的余量，单位屏幕像素
+constexpr int kZoomCenterSlack = 4;
+
 // 图标表与它认的那些模板同目录，一起走资源层次：某一端的图标画得不一样时，
 // 那一层放自己的模板和自己的阈值即可
 constexpr const char* kIconTableName = "MapIcons.json";
@@ -469,6 +478,86 @@ std::optional<Viewport> ScanViewport(
     return vp;
 }
 
+// 命中的那张模板按命中尺度在窗口上再扫一遍，挖掉与命中位置重叠的落位后取最高分。
+// 插值与掩膜的处理与 ScanScales 一致，两边的分数才可比。掩膜匹配在平坦处会吐非有限值，一律按最低分算
+double RivalScore(
+    const cv::Mat& patch,
+    const cv::Mat& needle,
+    const cv::Mat& needleMask,
+    double scale,
+    const cv::Size& size,
+    const cv::Point2d& loc)
+{
+    if (size.width <= 0 || size.height <= 0 || patch.cols < size.width || patch.rows < size.height) {
+        return -1.0;
+    }
+
+    cv::Mat scaled;
+    cv::resize(needle, scaled, size, 0.0, 0.0, scale < 1.0 ? cv::INTER_AREA : cv::INTER_LINEAR);
+    cv::Mat mask(size, CV_8UC1, cv::Scalar(255));
+    if (!needleMask.empty()) {
+        cv::resize(needleMask, mask, size, 0.0, 0.0, cv::INTER_NEAREST);
+    }
+
+    cv::Mat result;
+    cv::matchTemplate(patch, scaled, result, cv::TM_CCOEFF_NORMED, mask);
+    cv::patchNaNs(result, -1.0);
+    for (int y = 0; y < result.rows; ++y) {
+        float* row = result.ptr<float>(y);
+        for (int x = 0; x < result.cols; ++x) {
+            if (!std::isfinite(row[x])) {
+                row[x] = -1.0f;
+            }
+        }
+    }
+
+    const cv::Point peak(static_cast<int>(std::lround(loc.x)), static_cast<int>(std::lround(loc.y)));
+    cv::Rect hole(peak.x - size.width + 1, peak.y - size.height + 1, size.width * 2 - 1, size.height * 2 - 1);
+    hole &= cv::Rect(0, 0, result.cols, result.rows);
+    result(hole).setTo(-1.0f);
+
+    double rival = -1.0;
+    cv::minMaxLoc(result, nullptr, &rival);
+    return rival;
+}
+
+// 放大后那帧中央一块按 1/factor 缩回放大前的尺度，在放大前那帧的同一中心处比归一化相关。
+// 缩放中心已知，只剩倍率一个未知量。图标按固定屏幕尺寸绘制、不随缩放变，在这里是少数离群像素
+double CenterZoomScore(const cv::Mat& beforeGray, const cv::Mat& afterGray, const cv::Point2d& center, const cv::Size& half, double factor)
+{
+    const cv::Rect frame(0, 0, afterGray.cols, afterGray.rows);
+    const cv::Rect patch = cv::Rect(
+                               static_cast<int>(std::lround(center.x)) - half.width,
+                               static_cast<int>(std::lround(center.y)) - half.height,
+                               half.width * 2,
+                               half.height * 2)
+                           & frame;
+    const cv::Size shrunk(static_cast<int>(std::lround(patch.width / factor)), static_cast<int>(std::lround(patch.height / factor)));
+    if (shrunk.width < kMinTemplateSide || shrunk.height < kMinTemplateSide) {
+        return -1.0;
+    }
+
+    const cv::Rect region = cv::Rect(
+                                static_cast<int>(std::lround(center.x - shrunk.width / 2.0)) - kZoomCenterSlack,
+                                static_cast<int>(std::lround(center.y - shrunk.height / 2.0)) - kZoomCenterSlack,
+                                shrunk.width + kZoomCenterSlack * 2,
+                                shrunk.height + kZoomCenterSlack * 2)
+                            & frame;
+    if (region.width < shrunk.width || region.height < shrunk.height) {
+        return -1.0;
+    }
+
+    cv::Mat templ;
+    cv::resize(afterGray(patch), templ, shrunk, 0.0, 0.0, cv::INTER_AREA);
+    cv::Mat result;
+    cv::matchTemplate(beforeGray(region), templ, result, cv::TM_CCOEFF_NORMED);
+    cv::patchNaNs(result, -1.0);
+
+    double score = -1.0;
+    cv::minMaxLoc(result, nullptr, &score);
+    return std::isfinite(score) ? score : -1.0;
+}
+
 // 模板哪些像素是金的，就到实拍的同一批像素上看还金不金。没解锁的整块褪成灰，比例会塌下去
 double GoldRatio(const cv::Mat& screen, const cv::Mat& templSat, const cv::Mat& templMask, const cv::Rect& live, int satFloor)
 {
@@ -654,6 +743,7 @@ std::optional<SpotHit>
         found.hit.score = best->score;
         found.hit.matchScale = best->scale;
         found.hit.offsetBase = std::hypot(found.hit.center.x - expected.x, found.hit.center.y - expected.y) * viewportScale;
+        found.hit.rivalScore = RivalScore(patch, pick->gray, pick->mask, best->scale, best->size, best->loc);
         return found;
     };
 
@@ -695,9 +785,46 @@ std::optional<SpotHit>
     }
 
     LogInfo << "WorldMap: icon confirmed" << VAR(out.templateName) << VAR(out.center.x) << VAR(out.center.y) << VAR(out.hotspot.x)
-            << VAR(out.hotspot.y) << VAR(out.score) << VAR(out.matchScale) << VAR(out.offsetBase) << VAR(out.goldRatio)
-            << VAR(out.unlocked);
+            << VAR(out.hotspot.y) << VAR(out.score) << VAR(out.rivalScore) << VAR(out.matchScale) << VAR(out.offsetBase)
+            << VAR(out.goldRatio) << VAR(out.unlocked);
     return out;
+}
+
+std::optional<ZoomMeasure>
+    WorldMapSolver::MeasureZoom(const cv::Mat& before, const cv::Mat& after, const cv::Point2d& center, double maxFactor)
+{
+    if (before.empty() || after.empty() || before.size() != after.size() || maxFactor <= 1.0) {
+        return std::nullopt;
+    }
+
+    const cv::Mat beforeGray = ToGray(before);
+    const cv::Mat afterGray = ToGray(after);
+    const cv::Size half(
+        static_cast<int>(std::lround(after.cols * kZoomPatchHalfX)),
+        static_cast<int>(std::lround(after.rows * kZoomPatchHalfY)));
+
+    ZoomMeasure best;
+    auto consider = [&](double factor) {
+        const double score = CenterZoomScore(beforeGray, afterGray, center, half, factor);
+        if (score > best.score) {
+            best = ZoomMeasure { .factor = factor, .score = score };
+        }
+    };
+
+    for (double factor = 1.0; factor <= maxFactor * (1.0 + 1e-6); factor *= kZoomCoarseRatio) {
+        consider(factor);
+    }
+    // 粗档两侧各一格里线性细扫
+    const double lo = std::max(1.0, best.factor / kZoomCoarseRatio);
+    const double hi = best.factor * kZoomCoarseRatio;
+    for (int i = 0; i <= kZoomFineSteps; ++i) {
+        consider(lo + (hi - lo) * i / kZoomFineSteps);
+    }
+
+    if (best.score < 0.0) {
+        return std::nullopt;
+    }
+    return best;
 }
 
 std::optional<PlayerMarkerHit>

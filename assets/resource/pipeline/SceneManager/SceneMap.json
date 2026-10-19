@@ -385,6 +385,26 @@
             ]
         }
     },
+    "__ScenePrivateMapZoomInStep": {
+        "desc": "在地图界面，点一下加号放大一档，等地图停稳",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMapZoomInWhite"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        // 盯地图中央那块，与 MapFind 视口求解用的是同一块。PlayCover 实测点击返回后约 300ms 停稳
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                333,
+                86,
+                486,
+                504
+            ]
+        },
+        "post_delay": 0
+    },
     "__ScenePrivateMapFilterClear": {
         "desc": "在地图界面，清除筛选条件",
         "recognition": "TemplateMatch",

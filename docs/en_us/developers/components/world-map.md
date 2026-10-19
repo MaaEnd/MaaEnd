@@ -9,6 +9,7 @@ It shares its template matching core and its base map images with [MapLocator](.
         - [Node parameters](#node-parameters)
         - [Judging a set of candidates in one call](#judging-a-set-of-candidates-in-one-call)
             - [Turning one candidate off](#turning-one-candidate-off)
+        - [Zooming in before handing back](#zooming-in-before-handing-back)
         - [Success and failure](#success-and-failure)
         - [Examples](#examples)
     - [Icon table](#icon-table)
@@ -47,6 +48,7 @@ Optional (`custom_recognition_param`):
 | `state` | `"unlocked"` | Which unlock state counts as a hit. Requires an icon carrying `gold_ratio` in the table, since nothing else tells the two states apart |
 | `max_attempts` | `4` | Recognition attempts. Panning the map is not charged against it |
 | `vote_grid` | `3` | When matching the whole window at once cannot solve the viewport, solve again with [block voting](#block-voting) at this grid size. Set to `1` to turn the fallback off |
+| `zoom_in` | `0` | At most how many steps to zoom in once the icon is confirmed, stopping early at maximum zoom; the icon confirmed again after zooming is what comes back. See [Zooming in before handing back](#zooming-in-before-handing-back). Requires an `icon` |
 
 Thresholds, templates and calibrated scales never appear in the node: they belong to the icon and live in the icon table. A new kind of icon is one table entry, not a fistful of node parameters.
 
@@ -92,12 +94,27 @@ The switch has to sit ahead of recognition, and that part matters: candidates st
 
 `candidates` requires an `icon`: coordinates alone cannot tell candidates apart, so without one every candidate would confirm and the first one would always come back. They also have to be far enough apart — the confirmation gate is the icon table's `gate` (10 base map pixels by default), and two candidates closer than that can confirm each other's icon.
 
+### Zooming in before handing back
+
+When icons crowd together at minimum zoom and clicks land unreliably, set `zoom_in` to have the node zoom in a few steps after it confirms the icon. Once zoomed in, the center of the screen covers only a few dozen base map pixels and the viewport can no longer be solved, so the order is reversed: solve and confirm at minimum zoom as usual, then zoom in. The zoomed viewport is derived from the one before by the zoom factor, with no second match against the base map.
+
+The derived viewport only decides where to look. **The position handed back still comes from a confirmed icon and nothing else**:
+
+1. Before zooming, the target is panned to the zoom center. The zoom center stays put while zooming, so a target placed there barely moves whatever error the zoom factor carries, while nearby icons of the same kind are pushed outward by the factor.
+2. "+" is clicked step by step, and each step measures how far it actually zoomed from the frames before and after it. "+" zooms for as long as it is held, so one click zooms by a different amount depending on how long the press lasts; the factor is measured, never derived from the step count. A step with no measurable zoom (the map is already at maximum zoom) ends the zooming at that step; frames that no longer match (something replaced the map) are a failure.
+3. The same icon is confirmed again in a small window at the derived position. The offset gate is measured in screen pixels, and a second icon of the same kind above the threshold in that window is a failure.
+4. When the map hits its edge and the target cannot reach the zoom center, the node does not zoom and hands back the minimum zoom result. Any other failure zooms the map back out to minimum, costs one attempt, and starts over.
+
+`zoom_in` requires an `icon`: without one there is nothing to hand back. The player marker branch (see [Success and failure](#success-and-failure)) does not zoom and hands back the expected position at minimum zoom. `zoom_steps` in the recognition detail is the number of steps actually zoomed, and `0` means the result is the minimum zoom one.
+
+A zoom step runs the Pipeline's `SceneMapZoomInStepWithoutReco`. The "+" button follows the resource layers, so the node itself carries no coordinates. `zoom_factor` in the recognition detail is the measured total factor.
+
 ### Success and failure
 
 | Result | When |
 | ------ | ------------------------------------------------------------------------------------ |
 | Hit | The icon is confirmed and `box` is where it sits; or the player marker covers it (below) |
-| Miss | The viewport cannot be solved, the icon cannot be confirmed, the map hits its edge while still out of reach, or the unlock state does not match |
+| Miss | The viewport cannot be solved, the icon cannot be confirmed, the map hits its edge while still out of reach, the unlock state does not match, or `zoom_in` is set and the icon never confirms again after zooming |
 
 With `candidates` this table applies per candidate: any candidate hitting makes the node hit, and the node misses only when the whole set misses.
 

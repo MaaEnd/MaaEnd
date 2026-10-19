@@ -51,7 +51,18 @@ struct FindParam
     // 单个点位要是被它坑了可以就地关掉，不必等下一版
     int vote_grid = ViewportConfig {}.voteGrid;
 
-    MEO_JSONIZATION(zone, MEO_OPT at, MEO_OPT candidates, MEO_OPT icon, MEO_OPT state, MEO_OPT max_attempts, MEO_OPT vote_grid);
+    // 认到之后再放大几档，交出去的是放大后重新认到的那个图标。0 不放大
+    int zoom_in = 0;
+
+    MEO_JSONIZATION(
+        zone,
+        MEO_OPT at,
+        MEO_OPT candidates,
+        MEO_OPT icon,
+        MEO_OPT state,
+        MEO_OPT max_attempts,
+        MEO_OPT vote_grid,
+        MEO_OPT zoom_in);
 };
 
 // 解析后的统一形态：单点写法归一成一个不带 next 的候选，往下只认这一种
@@ -112,6 +123,30 @@ constexpr double kNudgeRatio = 0.35;
 // 交给 pipeline 的 SceneMapZoomOutWithoutReco 处理，cpp 只触发一次子任务
 constexpr const char* kZoomOutNode = "SceneMapZoomOutWithoutReco";
 
+// 放大一档同样交给 pipeline：「+」按钮坐标跟着资源层走。已到最大档时它什么都不点
+constexpr const char* kZoomInNode = "SceneMapZoomInStepWithoutReco";
+
+// 「+」放大时屏幕上不动的那一点，按屏幕尺寸的比例。PlayCover 实测八档都落在 (640.6, 359.8) 附近 3 像素内
+constexpr double kZoomCenterX = 0.5;
+constexpr double kZoomCenterY = 0.5;
+// 「+」是按住持续放大，点一下放大多少随按压时长变：PlayCover 同样单击实测 1.07 到 1.60 倍。
+// 所以每档都拿前后两帧现量倍率，不按档数推。上限只框住搜索范围
+constexpr double kZoomStepFactorMax = 2.0;
+// 量出来不到这个倍率就是这一档没放大。PlayCover 实测最大档约为最小档的 4.75 倍
+constexpr double kZoomStepMinFactor = 1.03;
+// 量倍率那一下的相关分下限。相邻两档实测 0.73 到 0.99，图标与地名密的地方偏低；
+// 画面换成了别的东西时实测 -0.15 到 0.28
+constexpr double kZoomMatchMinScore = 0.50;
+// 目标离缩放中心这么近才放大，单位屏幕像素。它也是对中时最短的一拖：拖得太短、起手又压在图标上，
+// 会被当成点击把图标详情点开
+constexpr double kZoomCenterTolerance = 16.0;
+// 放大后在推算位置开的确认窗半径。窗口得比图标宽出一个身位，才看得见旁边有没有同类图标
+constexpr int kZoomConfirmRadius = 60;
+// 放大后命中离推算位置的偏差上限，单位屏幕像素：放大后的尺度是推出来的，折回底图像素没有依据
+constexpr double kZoomGateScreen = 12.0;
+// 窗口里次高分至少比命中低这么多，才认窗口里只有这一个图标。传送锚点实测命中 0.94、次高 0.32 到 0.34
+constexpr double kZoomRivalMargin = 0.10;
+
 bool ParseParam(const char* raw, FindParam* out)
 {
     if (raw == nullptr || std::strlen(raw) == 0) {
@@ -163,6 +198,15 @@ bool ParseParam(const char* raw, FindParam* out)
     }
     if (value.max_attempts < 1) {
         value.max_attempts = 1;
+    }
+    if (value.zoom_in < 0) {
+        LogError << "WorldMap: 'zoom_in' must not be negative" << VAR(value.zoom_in);
+        return false;
+    }
+    // 放大后交出去的位置只来自重新认到的图标，不认图标就没有东西可交
+    if (value.zoom_in > 0 && value.icon.empty()) {
+        LogError << "WorldMap: 'zoom_in' needs an 'icon' to confirm after zooming" << VAR(value.zoom_in);
+        return false;
     }
 
     *out = std::move(value);
@@ -219,6 +263,20 @@ void ZoomMapOut(MaaContext* context)
     if (MaaContextRunTask(context, kZoomOutNode, "{}") == MaaInvalidId) {
         LogWarn << "WorldMap: zoom-out subtask failed to dispatch" << VAR(kZoomOutNode);
     }
+}
+
+cv::Point2d ZoomCenter(const cv::Size& screenSize)
+{
+    return { screenSize.width * kZoomCenterX, screenSize.height * kZoomCenterY };
+}
+
+// 把 aim 挪到缩放中心要拖的位移，已在容差圈里就不拖。两根轴都要挪，和只救出界那根轴的 PanDelta 不同
+cv::Point2d CenterDelta(const cv::Point2d& center, const cv::Point2d& aim)
+{
+    if (std::hypot(aim.x - center.x, aim.y - center.y) <= kZoomCenterTolerance) {
+        return { 0.0, 0.0 };
+    }
+    return center - aim;
 }
 
 double RandomIn(double lo, double hi)
@@ -394,6 +452,7 @@ struct MapView
 // 一次调用里所有候选共用的东西
 struct FindSession
 {
+    MaaContext* context = nullptr;
     MaaController* controller = nullptr;
     WorldMapSolver* solver = nullptr;
     ViewportConfig viewportCfg {};
@@ -402,16 +461,109 @@ struct FindSession
     MapView view;
 };
 
+struct ZoomedSpot
+{
+    SpotHit hit;
+    Viewport viewport;
+    cv::Point2d predicted { 0.0, 0.0 };
+    int steps = 0;
+    double factor = 1.0;
+};
+
+// 图标已经认在缩放中心上，按档放大后到推算位置重新认一次。交出去的位置只来自这次重认，
+// 推算出来的视口只决定去哪开窗。任何一步对不上就不给，地图停在放大后的样子，由调用方缩回去
+std::optional<ZoomedSpot> ZoomOntoSpot(FindSession& session, const Viewport& before, const SpotHit& spot, bool wantUnlocked)
+{
+    MapView& view = session.view;
+    const int steps = session.param->zoom_in;
+    const cv::Point2d center = ZoomCenter(view.screen.size());
+
+    ZoomedSpot out;
+    // view.screen 是截图缓冲的视图，下一次截图就覆盖掉，要比对得先拷一份
+    cv::Mat previous = view.screen.clone();
+    for (int step = 0; step < steps; ++step) {
+        if (MaaContextRunTask(session.context, kZoomInNode, "{}") == MaaInvalidId) {
+            LogWarn << "WorldMap: zoom-in subtask failed to dispatch" << VAR(kZoomInNode) << VAR(step);
+            return std::nullopt;
+        }
+        if (!CaptureScreen(session.controller, &view.buffer, &view.screen)) {
+            return std::nullopt;
+        }
+        const ZoomMeasure measured =
+            WorldMapSolver::MeasureZoom(previous, view.screen, center, kZoomStepFactorMax).value_or(ZoomMeasure {});
+        if (measured.score < kZoomMatchMinScore) {
+            LogWarn << "WorldMap: the map was replaced while zooming" << VAR(step) << VAR(measured.factor) << VAR(measured.score);
+            return std::nullopt;
+        }
+        // 到了最大档「+」变灰不再点，点击被吞也是这副样子，两种都按放大到此为止，接着在这一档重认
+        if (measured.factor < kZoomStepMinFactor) {
+            LogInfo << "WorldMap: the map stopped zooming in" << VAR(step) << VAR(steps) << VAR(out.factor);
+            break;
+        }
+        ++out.steps;
+        out.factor *= measured.factor;
+        LogInfo << "WorldMap: zoomed one step" << VAR(step) << VAR(measured.factor) << VAR(measured.score) << VAR(out.factor);
+        previous = view.screen.clone();
+    }
+
+    out.viewport = before.zoomedAbout(center, out.factor);
+    out.predicted = out.viewport.toScreen(before.toBase(spot.center));
+
+    // 浮动图标在最小档已经认到了实际落点，放大后同样只在推算位置附近开定点小窗
+    SpotConfig cfg = session.spec->spot;
+    cfg.radiusBase = 0.0;
+    cfg.radiusScreen = kZoomConfirmRadius;
+    cfg.gateBase = kZoomGateScreen;
+    // 尺度传 1：偏差闸与收窄重扫都按屏幕像素算
+    const auto hit = session.solver->ConfirmSpot(view.screen, out.predicted, 1.0, cfg);
+    if (!hit) {
+        LogWarn << "WorldMap: icon not confirmed after zooming" << VAR(out.predicted.x) << VAR(out.predicted.y) << VAR(out.factor);
+        return std::nullopt;
+    }
+    // 放大把同类图标彼此推开，窗口里还剩第二个过线的，就说不清认到的是哪一个
+    if (hit->rivalScore >= cfg.minScore || hit->score - hit->rivalScore < kZoomRivalMargin) {
+        LogWarn << "WorldMap: another icon of the same kind shares the zoomed window" << VAR(hit->score) << VAR(hit->rivalScore)
+                << VAR(cfg.minScore) << VAR(kZoomRivalMargin);
+        return std::nullopt;
+    }
+    if (hit->unlocked != wantUnlocked) {
+        LogWarn << "WorldMap: the icon reads in another state after zooming" << VAR(hit->unlocked) << VAR(hit->goldRatio)
+                << VAR(wantUnlocked);
+        return std::nullopt;
+    }
+
+    out.hit = *hit;
+    LogInfo << "WorldMap: icon confirmed after zooming" << VAR(out.steps) << VAR(out.factor) << VAR(out.predicted.x) << VAR(out.predicted.y)
+            << VAR(out.hit.center.x) << VAR(out.hit.center.y) << VAR(out.hit.score) << VAR(out.hit.rivalScore) << VAR(out.viewport.scale);
+    return out;
+}
+
+// 视口求解与钉尺度都以最小档为前提，放大没成就缩回去，画面与视口全部作废重来
+void RestoreMinimumZoom(FindSession& session)
+{
+    ZoomMapOut(session.context);
+    session.view.screen.release();
+    session.view.viewport.reset();
+    session.view.previous.reset();
+    session.view.issued = { 0.0, 0.0 };
+}
+
 // 把一个候选认到底。重试、平移、放弃都只影响这一个候选，画面与视口留给下一个接着用
 Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index, MaaRect* out_box, MaaStringBuffer* out_detail)
 {
     const FindParam& param = *session.param;
     MapView& view = session.view;
     const bool wantUnlocked = param.state != "locked";
+    const bool wantZoom = param.zoom_in > 0;
 
     int attempt = 0;
     int pans = 0;
     int nudges = 0;
+
+    // 对不到缩放中心就不放大，交最小档的结果：目标离中心远时位置误差随倍率误差一起放大
+    bool zoomSkipped = false;
+    // 图标实际落点减去视口推算位置。对中要对的是图标本身，推算位置能差出一个判定圈
+    cv::Point2d iconBias { 0.0, 0.0 };
 
     while (attempt < param.max_attempts) {
         if (view.screen.empty()) {
@@ -485,12 +637,23 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
 
         const Viewport& viewport = *view.viewport;
         const cv::Point2d expected = viewport.toScreen(target.at);
-        const cv::Point2d need = PanDelta(safe, expected);
+        const bool centering = wantZoom && !zoomSkipped;
+        const cv::Point2d need = centering ? CenterDelta(ZoomCenter(view.screen.size()), expected + iconBias) : PanDelta(safe, expected);
         if (std::hypot(need.x, need.y) >= 1.0) {
             // 换了几条路径还是纹丝不动，才认这根轴真到边了；只零一拍多半是触控被压在起手点上的控件吃了
             const bool pinnedX = view.stallX >= kPinStreak;
             const bool pinnedY = view.stallY >= kPinStreak;
-            const bool stuck = (std::abs(need.x) < 1.0 || pinnedX) && (std::abs(need.y) < 1.0 || pinnedY);
+            // 对中要两根轴都到位：钉死的那根轴上还差出容差，另一根轴怎么拖都对不上
+            const bool stuck =
+                centering ? ((pinnedX && std::abs(need.x) > kZoomCenterTolerance) || (pinnedY && std::abs(need.y) > kZoomCenterTolerance))
+                          : ((std::abs(need.x) < 1.0 || pinnedX) && (std::abs(need.y) < 1.0 || pinnedY));
+            if (centering && (pans >= kMaxPans || stuck)) {
+                // 这一拍的画面与视口仍然有效，下一圈按不放大的那套接着认
+                LogInfo << "WorldMap: cannot bring the target to the zoom center, keeping minimum zoom" << VAR(index) << VAR(pans)
+                        << VAR(need.x) << VAR(need.y) << VAR(view.stallX) << VAR(view.stallY);
+                zoomSkipped = true;
+                continue;
+            }
             if (pans >= kMaxPans || stuck) {
                 // 挪不动了也别空手回去。出了安全区不等于出了能点的地方——那圈边距是留给识别的余量，
                 // 目标只要还落在可用区里就照常认、照常点
@@ -506,8 +669,8 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             }
             else {
                 ++pans;
-                LogInfo << "WorldMap: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x) << VAR(need.y)
-                        << VAR(view.gain);
+                LogInfo << (centering ? "WorldMap: bringing the target to the zoom center" : "WorldMap: target outside safe area, panning")
+                        << VAR(expected.x) << VAR(expected.y) << VAR(need.x) << VAR(need.y) << VAR(view.gain);
                 view.screen.release();
                 view.issued = DragMap(session.controller, safe, need * view.gain);
                 if (std::hypot(view.issued.x, view.issued.y) < 1.0) {
@@ -531,6 +694,9 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
         if (!target.next.empty()) {
             detail.emplace("next", target.next);
         }
+        if (wantZoom) {
+            detail.emplace("zoom_steps", 0);
+        }
 
         // 图标名没给就只把坐标解出来，认不认得出图标由调用方自己接着判
         if (!session.spec) {
@@ -548,6 +714,39 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             LogWarn << "WorldMap: the icon is here but not in the requested state" << VAR(param.zone) << VAR(param.icon)
                     << VAR(icon->unlocked) << VAR(wantUnlocked) << VAR(icon->goldRatio);
             return Probe::Miss;
+        }
+        if (icon && wantZoom && !zoomSkipped) {
+            // 认到的图标还在容差圈外：按它的实际落点再对一次中，这一趟不算识别失败
+            const cv::Point2d center = ZoomCenter(view.screen.size());
+            if (std::hypot(icon->center.x - center.x, icon->center.y - center.y) > kZoomCenterTolerance) {
+                iconBias = icon->center - expected;
+                --attempt;
+                continue;
+            }
+
+            const auto zoomed = ZoomOntoSpot(session, viewport, *icon, wantUnlocked);
+            if (!zoomed) {
+                LogWarn << "WorldMap: zoomed confirmation failed, back to minimum zoom" << VAR(attempt) << VAR(index);
+                RestoreMinimumZoom(session);
+                continue;
+            }
+
+            const cv::Point2d landed = zoomed->viewport.toScreen(target.at);
+            detail["screen"] = json::array { landed.x, landed.y };
+            detail["viewport_scale"] = zoomed->viewport.scale;
+            detail["zoom_steps"] = zoomed->steps;
+            detail.emplace("zoom_factor", zoomed->factor);
+            detail.emplace("icon", param.icon);
+            detail.emplace("template", zoomed->hit.templateName);
+            detail.emplace("score", zoomed->hit.score);
+            detail.emplace("rival", zoomed->hit.rivalScore);
+            detail.emplace("unlocked", zoomed->hit.unlocked);
+            detail.emplace("click", json::array { zoomed->hit.hotspot.x, zoomed->hit.hotspot.y });
+            WriteDetail(out_detail, detail);
+            if (out_box != nullptr) {
+                *out_box = SpotBox(zoomed->hit);
+            }
+            return Probe::Hit;
         }
         if (icon) {
             detail.emplace("icon", param.icon);
@@ -643,11 +842,13 @@ MaaBool MAA_CALL MapFindRun(
     }
 
     const std::vector<Target> targets = BuildTargets(param);
-    LogInfo << "WorldMap: find" << VAR(param.zone) << VAR(targets.size()) << VAR(param.icon) << VAR(param.state) << VAR(param.max_attempts);
+    LogInfo << "WorldMap: find" << VAR(param.zone) << VAR(targets.size()) << VAR(param.icon) << VAR(param.state) << VAR(param.max_attempts)
+            << VAR(param.zoom_in);
 
     ZoomMapOut(context);
 
     FindSession session;
+    session.context = context;
     session.controller = controller;
     session.solver = &solver;
     session.viewportCfg = viewportCfg;

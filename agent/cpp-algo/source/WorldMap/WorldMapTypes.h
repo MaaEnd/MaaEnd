@@ -136,6 +136,17 @@ struct Viewport
     {
         return { (base.x - baseOrigin.x) / scale + roiOrigin.x, (base.y - baseOrigin.y) / scale + roiOrigin.y };
     }
+
+    // 绕屏幕上的 center 放大 factor 倍之后的视口：center 底下那个底图点不动，尺度按倍率收窄。
+    // 匹配分数沿用放大前的，这个解没有重新匹配过
+    Viewport zoomedAbout(const cv::Point2d& center, double factor) const
+    {
+        Viewport out = *this;
+        out.scale = scale / factor;
+        const cv::Point2d pinned = toBase(center);
+        out.baseOrigin = { pinned.x - (center.x - roiOrigin.x) * out.scale, pinned.y - (center.y - roiOrigin.y) * out.scale };
+        return out;
+    }
 };
 
 struct SpotHit
@@ -151,9 +162,20 @@ struct SpotHit
     double matchScale = 0.0;
     double offsetBase = 0.0;
 
+    // 同一张模板同一尺度在窗口里的次高分，与命中位置重叠的落位不算。
+    // 窗口里只有这一个图标时它落在背景水平；窗口太小、挖掉命中位置后没有落位可比时为 -1
+    double rivalScore = -1.0;
+
     // 只在配了解锁判据时有意义，否则恒为 0 与 true
     double goldRatio = 0.0;
     bool unlocked = true;
+};
+
+// 放大前后两帧量出来的倍率，score 是那个倍率下两帧中央的归一化相关
+struct ZoomMeasure
+{
+    double factor = 1.0;
+    double score = -1.0;
 };
 
 struct PlayerMarkerHit

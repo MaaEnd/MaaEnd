@@ -27,6 +27,13 @@
                 {
                     "if": { "required": [ "candidates" ] },
                     "then": { "required": [ "icon" ] }
+                },
+                {
+                    "if": {
+                        "required": [ "zoom_in" ],
+                        "properties": { "zoom_in": { "minimum": 1 } }
+                    },
+                    "then": { "required": [ "icon" ] }
                 }
             ],
             "properties": {
@@ -90,6 +97,13 @@
                     "type": "integer",
                     "minimum": 1,
                     "default": 3
+                },
+                "zoom_in": {
+                    "title": "Zoom In",
+                    "description": "At most how many steps to zoom in once the icon is confirmed at minimum zoom; zooming stops early at maximum zoom. The target is first panned to the zoom center, the map is zoomed in step by step with each step's factor measured from the frames before and after it, and the icon is confirmed again in a small window where it should now be; the box handed back comes from that second confirmation, never from the computed position. A window holding a second icon of the same kind counts as a miss. When the map cannot pan the target to the zoom center, the node keeps minimum zoom and hands back the minimum zoom result; any other failure zooms back out and costs one attempt. Requires an icon. Optional, defaults to 0 (no zoom).",
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0
                 }
             }
         }
