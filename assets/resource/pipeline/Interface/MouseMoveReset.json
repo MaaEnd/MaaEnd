@@ -1,7 +1,7 @@
 {
     "MouseMoveReset": {
         "desc": "重置鼠标",
-        "pre_delay": 0,
+        "pre_delay": 200, // 上一步点击后立刻移动鼠标会导致点击失效
         "action": "TouchMove",
         "target": [
             0,
