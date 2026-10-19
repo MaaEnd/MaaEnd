@@ -51,6 +51,63 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "__ScenePrivateMenuRegionalOverviewAnyListComplete": {
+        "desc": "在事务总览界面，列表滚动已至尽头",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "roi": [
+            160,
+            69,
+            953,
+            651
+        ],
+        "custom_action_param": {
+            "threshold": 0.95
+        },
+        "next": [
+            "FailedNode"
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewAnyResetListComplete": {
+        "desc": "重置 ListComplete 识别的 ready 状态",
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "__ScenePrivateMenuRegionalOverviewAnyListComplete": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        }
+    },
+    "__ScenePrivateMenuRegionalOverviewAnyListScroll": {
+        "desc": "在事务总览界面，向下滚动",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalOverview"
+        ],
+        "action": "Scroll",
+        "target": [
+            -120,
+            -120,
+            60,
+            60
+        ],
+        "dx": 0,
+        "dy": -240,
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                160,
+                69,
+                953,
+                651
+            ],
+            "threshold": 0.95
+        }
+    },
     "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation": {
         "desc": "在事务总览界面，展开资源回收站",
         "recognition": "And",
