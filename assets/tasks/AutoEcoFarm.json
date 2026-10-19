@@ -9,43 +9,30 @@
                 "open_world"
             ],
             "controller": [
+                "ADB",
+                "CloudADB",
                 "Linux-Gamescope",
                 "Linux-ScreenCast",
                 "Linux-Wlroots",
+                "PlayCover",
                 "Win32-Front"
             ],
             "option": [
-                "SelectFarm",
-                "StashBackpackSubTask"
+                "CollectWulingCityFarm",
+                "CollectSisPaintingFarm",
+                "CollectRanch"
             ]
         }
     ],
     "option": {
-        "SelectFarm": {
+        "CollectWulingCityFarm": {
             "type": "switch",
-            "label": "$task.AutoEcoFarm.option.SelectFarm.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "GotoValleyIV",
-                        "GotoWulin"
-                    ]
-                },
-                {
-                    "name": "No"
-                }
-            ],
-            "default_case": "Yes"
-        },
-        "GotoValleyIV": {
-            "type": "switch",
-            "label": "$task.AutoEcoFarm.option.GotoValleyIV.label",
+            "label": "$task.AutoEcoFarm.option.CollectWulingCityFarm.label",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "_AutoEcoFarmInitStartValleyIV": {
+                        "__AutoEcoFarmWulingCityFarmStart": {
                             "enabled": true
                         }
                     }
@@ -53,7 +40,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "_AutoEcoFarmInitStartValleyIV": {
+                        "__AutoEcoFarmWulingCityFarmStart": {
                             "enabled": false
                         }
                     }
@@ -61,14 +48,14 @@
             ],
             "default_case": "Yes"
         },
-        "GotoWulin": {
+        "CollectSisPaintingFarm": {
             "type": "switch",
-            "label": "$task.AutoEcoFarm.option.GotoWulin.label",
+            "label": "$task.AutoEcoFarm.option.CollectSisPaintingFarm.label",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "_AutoEcoFarmInitStartWulin": {
+                        "__AutoEcoFarmSisPaintingFarmStart": {
                             "enabled": true
                         }
                     }
@@ -76,7 +63,30 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "_AutoEcoFarmInitStartWulin": {
+                        "__AutoEcoFarmSisPaintingFarmStart": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "CollectRanch": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.CollectRanch.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__AutoEcoFarmRanchStart": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__AutoEcoFarmRanchStart": {
                             "enabled": false
                         }
                     }

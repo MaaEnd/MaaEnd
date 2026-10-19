@@ -1,7 +1,11 @@
 {
     // 装箱货物的流程如下：
-    // 选择装箱货物类型->下一步->装满货物->下一步->货物竞价->调度申请->下一步->提示尽快送达单击屏幕->回到大世界界面
+    // 选择装箱货物类型->下一步->装满货物->下一步->货物竞价->调度申请->(见下)
     // 每次单击下一步前都需要确认页面稳定，否则会因为按钮错位导致单击失败
+    // 调度申请界面按本仓储节点的处理方式分两条路：
+    // ・「接取并转交」走 DeliveryJobsQuickTransfer：快速转交->确认->获得奖励->我转交的委托->点回本地仓储节点；
+    // ・「仅接取委托」「全自动送货」「按报价处理」走 DeliveryJobsRedistributionBidNextStep：
+    //   确认接取任务->尽快送达单击屏幕->回到大世界->由 anchor 决定接取后去向。
     "DeliveryJobsPackCargo": {
         "desc": "装箱货物",
         "pre_delay": 0,
@@ -448,10 +452,33 @@
         ]
     },
     "DeliveryJobsRedistributionBidNextStep": {
-        "desc": "确认接取任务后，根据当前仓储节点模式处理首次任务详情",
+        "desc": "确认接取任务后，处理接取提示并等回到大世界，再由 [Anchor]DeliveryJobsGoToDepot 决定接取后去向",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType2",
+            "YellowConfirmButtonType1",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        // 只有「仅接取委托」「全自动送货」「按报价处理」走这里；
+        // 「接取并转交」改走 DeliveryJobsQuickTransfer，不再接取任务，因此不必再读 DeliveryJobsAfterAcceptJob。
+        "next": [
+            "DeliveryJobsDeliverQuickly",
+            "DeliveryJobsBackToDepot"
+        ]
+    },
+    // 调度申请界面上的「快速转交」把本次委托立刻转交出去，是「接取并转交」专用的捷径：
+    // 单击后弹确认框，确认直接落在获得奖励界面，关掉奖励停在我转交的委托页，再点回本地仓储节点标签页。
+    // 「仅接取委托」「全自动送货」「按报价处理」不能转交，仍走 DeliveryJobsRedistributionBidNextStep 接取。
+    "DeliveryJobsQuickTransfer": {
+        "desc": "调度申请界面单击「快速转交」，把本次委托立刻转交出去",
+        "recognition": "And",
+        "all_of": [
+            // 「快速转交」与「开始运送」同形状、图标同为圆环，只差底色：
+            // 这里认白底的 WhiteConfirmButtonType1，开始运送是黄底的 YellowConfirmButtonType1。
+            "WhiteConfirmButtonType1",
             "DeliveryJobsInCargoRedistributionBid"
         ],
         "pre_delay": 0,
@@ -459,20 +486,112 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsBackToDepot",
-            "[Anchor]DeliveryJobsAfterAcceptJob"
+            "DeliveryJobsQuickTransferConfirm"
         ]
     },
-    "DeliveryJobsBidPriceRecognitionFailed": {
-        "desc": "无法识别当前选中报价时停在报价页",
-        "recognition": "DirectHit",
+    "DeliveryJobsQuickTransferConfirm": {
+        "desc": "确认快速转交",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "DeliveryJobsCheckQuickTransferConfirmText"
+        ],
         "pre_delay": 0,
-        "action": "StopTask",
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DeliveryJobs.BidPriceRecognitionFailed"
-        }
+        "next": [
+            "DeliveryJobsQuickTransferReward"
+        ]
+    },
+    "DeliveryJobsCheckQuickTransferConfirmText": {
+        "desc": "检查「快速转交」确认弹窗文本：立刻获得定金，并将运送任务委托他人派送",
+        "recognition": "OCR",
+        "roi": [
+            241,
+            223,
+            863,
+            140
+        ],
+        "expected": [
+            // 弹窗原文（%s 为调度券图标、%d 为定金数字，游戏内会渲染成图标加数字，OCR 无法稳定跨过这一段）：
+            // "将立刻获得定金%s%d, 并将运送任务委托他人派送, 是否确认?"
+            // "將立刻獲得訂金%s%d，並將運送任務委託他人運送，是否確定委託？"
+            // "Get %s%d deposit right now and transfer delivery job to another courier?"
+            // "すぐに手付取引券%s%dを獲得し、配達任務を外部に依頼します。続行しますか？"
+            // "%s%d의 계약금만 받고 운송 의뢰를 다른 사람에게 바로 위탁하시겠습니까?"
+            // @i18n-skip
+            "并将运送任务委托他人派送",
+            "並將運送任務委託他人運送",
+            "(?i)transfer\\s*delivery\\s*job\\s*to\\s*another\\s*courier",
+            "配達任務を外部に依頼",
+            "운송 의뢰를 다른 사람에게 바로 위탁"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsCheckRewardHeader": {
+        "desc": "转交完成后的获得物品界面页头",
+        "recognition": "TemplateMatch",
+        "roi": [
+            577,
+            10,
+            138,
+            479
+        ],
+        "template": [
+            "DeliveryJobs/RewardHeader.png"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsQuickTransferReward": {
+        "desc": "关闭「快速转交」的获得奖励界面",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckRewardHeader"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "DeliveryJobsCheckRewardHeader",
+            "repeat_count": 10,
+            "interval_ms": 500
+        },
+        "target": [
+            19,
+            69,
+            21,
+            22
+        ],
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsQuickTransferBackToLocalDepotNode"
+        ]
+    },
+    "DeliveryJobsQuickTransferBackToLocalDepotNode": {
+        "desc": "关掉奖励后停在我转交的委托页，点回「本地仓储节点」标签页",
+        "recognition": "And",
+        "all_of": [
+            "InClaimDeliveryJobsNode",
+            // 复用公共文字节点，「本地仓储节点」标签页与主界面标题在同一位置，不需要另建一份
+            "CheckLocalDepotNodeText"
+        ],
+        // box_index 1：用「本地仓储节点」文字框作为点击目标，点回标签页
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InLocalDepotNode"
+        ]
     },
     "DeliveryJobsDeliverQuickly": {
         "desc": "提示尽快送达，单击一下，会直接回到大世界界面。跳出循环",
@@ -523,6 +642,17 @@
         "next": [
             "DeliveryJobsBackToDepot"
         ]
+    },
+    "DeliveryJobsBidPriceRecognitionFailed": {
+        "desc": "无法识别当前选中报价时停在报价页",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.BidPriceRecognitionFailed"
+        }
     },
     "DeliveryJobsOngoingDelivery": {
         "desc": "识别已有待运送的货物，转去任务详情解析它属于哪个仓储节点",

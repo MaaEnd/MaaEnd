@@ -22,8 +22,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        912.255,
-                        263.96
+                        910.862,
+                        264.149
                     ],
                     "target_deck_y": 74.57
                 }
@@ -65,8 +65,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        912.255,
-                        263.96
+                        910.862,
+                        264.149
                     ],
                     "target_deck_y": 74.57
                 }
@@ -108,8 +108,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        912.255,
-                        263.96
+                        910.862,
+                        264.149
                     ],
                     "target_deck_y": 74.57
                 }
@@ -141,15 +141,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -217,7 +217,25 @@
                         1132.593,
                         471.222
                     ],
-                    "target_deck_y": 39.315
+                    "target_deck_y": 39.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.593,
+                        471.222
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "马泰奥",
+                        "馬泰奧",
+                        "(?i)Matteo",
+                        "マッテオ",
+                        "마테오"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -248,15 +266,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -324,7 +342,25 @@
                         1132.593,
                         471.222
                     ],
-                    "target_deck_y": 39.315
+                    "target_deck_y": 39.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.593,
+                        471.222
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "马泰奥",
+                        "馬泰奧",
+                        "(?i)Matteo",
+                        "マッテオ",
+                        "마테오"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -367,7 +403,25 @@
                         1132.593,
                         471.222
                     ],
-                    "target_deck_y": 39.315
+                    "target_deck_y": 39.315,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.593,
+                        471.222
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "马泰奥",
+                        "馬泰奧",
+                        "(?i)Matteo",
+                        "マッテオ",
+                        "마테오"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -397,15 +451,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -473,7 +527,25 @@
                         1192.373,
                         433.958
                     ],
-                    "target_deck_y": 34.228
+                    "target_deck_y": 34.228,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1192.373,
+                        433.958
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "陆言",
+                        "陸言",
+                        "(?i)Lu\\s*Yan",
+                        "ルー・イェン",
+                        "육언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -504,15 +576,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -580,7 +652,25 @@
                         1192.373,
                         433.958
                     ],
-                    "target_deck_y": 34.228
+                    "target_deck_y": 34.228,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1192.373,
+                        433.958
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "陆言",
+                        "陸言",
+                        "(?i)Lu\\s*Yan",
+                        "ルー・イェン",
+                        "육언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -623,7 +713,25 @@
                         1192.373,
                         433.958
                     ],
-                    "target_deck_y": 34.228
+                    "target_deck_y": 34.228,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1192.373,
+                        433.958
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "陆言",
+                        "陸言",
+                        "(?i)Lu\\s*Yan",
+                        "ルー・イェン",
+                        "육언"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -653,15 +761,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -760,15 +868,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -909,15 +1017,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -982,8 +1090,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.773,
-                        424.598
+                        1044.373,
+                        425.198
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -991,10 +1099,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1047.416,
-                        428.884
+                        1047.105,
+                        428.412
                     ],
-                    "target_deck_y": 41.441
+                    "target_deck_y": 41.441,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1047.105,
+                        428.412
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -1025,15 +1147,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -1098,8 +1220,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.773,
-                        424.598
+                        1044.373,
+                        425.198
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -1107,10 +1229,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1047.416,
-                        428.884
+                        1047.105,
+                        428.412
                     ],
-                    "target_deck_y": 41.441
+                    "target_deck_y": 41.441,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1047.105,
+                        428.412
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -1141,8 +1277,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1043.773,
-                        424.598
+                        1044.373,
+                        425.198
                     ],
                     "target_deck_y": 41.441,
                     "required": true
@@ -1150,10 +1286,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1047.416,
-                        428.884
+                        1047.105,
+                        428.412
                     ],
-                    "target_deck_y": 41.441
+                    "target_deck_y": 41.441,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1047.105,
+                        428.412
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -1183,15 +1333,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -1265,10 +1415,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1078.905,
-                        504.33
+                        1077.548,
+                        503.962
                     ],
-                    "target_deck_y": 36.255
+                    "target_deck_y": 36.255,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1077.548,
+                        503.962
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -1299,15 +1463,15 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.4,
+                        302
                     ]
                 },
                 {
-                    "action": "TRANSFER",
+                    "action": "JUMP_PAD",
                     "target": [
-                        1002.89,
-                        304.52
+                        1001.89,
+                        305.68
                     ]
                 },
                 [
@@ -1381,10 +1545,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1078.905,
-                        504.33
+                        1077.548,
+                        503.962
                     ],
-                    "target_deck_y": 36.255
+                    "target_deck_y": 36.255,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1077.548,
+                        503.962
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -1424,10 +1602,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1078.905,
-                        504.33
+                        1077.548,
+                        503.962
                     ],
-                    "target_deck_y": 36.255
+                    "target_deck_y": 36.255,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1077.548,
+                        503.962
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"

@@ -540,7 +540,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
         return TickNavigate();
     case NaviPhase::WaitTransfer:
     case NaviPhase::WaitZipline:
-    case NaviPhase::WaitFind: {
+    case NaviPhase::WaitFind:
+    case NaviPhase::WaitJumpPad: {
         // 顶墙计数和设备命中只在 Navigate 里攒, 语义动作做完人可能已换了地方
         runtime_state_.flow.motionless_hold_ticks = 0;
         runtime_state_.flow.futile_forward_reasserts = 0;
@@ -2535,7 +2536,7 @@ void NavigationStateMachine::UpdatePromptSprintSuppression()
 void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
 {
     // FIND 的接近段一律走路: 移动连续、修正只跟着每拍的框来, 跑起来容易冲过头
-    if (phase == NaviPhase::WaitFind) {
+    if (phase == NaviPhase::WaitFind || phase == NaviPhase::WaitJumpPad) {
         walk_mode_.Request(true);
         return;
     }

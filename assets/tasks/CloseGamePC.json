@@ -90,7 +90,6 @@
         "CloseGamePCGameSettingLanguage": {
             "type": "select",
             "label": "$option.GameSettingLanguage.label",
-            "description": "$option.CloseGamePCGameSettingLanguage.description",
             "cases": [
                 {
                     "name": "Unchanged",

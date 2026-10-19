@@ -20,7 +20,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone3"
+                "SceneEnterWorldWulingMarkerStoneRestrictedArea"
             ]
         },
         "next": [

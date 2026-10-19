@@ -1,0 +1,8 @@
+{
+    "template": "anchor-template.json",
+    "data": "data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/SceneManager",
+    "outputFile": "SceneTeleportAnchor.json",
+    "format": true,
+    "merged": true
+}

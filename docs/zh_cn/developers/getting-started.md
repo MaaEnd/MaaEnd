@@ -97,11 +97,45 @@ pnpm install
 | `ai` | AI 协作相关：skill（`.agents/skills/`）、`AGENTS.md`、AI 相关工作流等 | 🤖 人工智能 |
 | `revert` | 撤销之前的提交 | ◀️ 撤销 |
 
-- 拼错或大小写不对的类型（如 `pref`、`doc`、`CI`）不会报错，但不会归入本应的分组：git-cliff 会直接用类型名当分组名，在更新日志末尾多出「Pref」这样的分组（见 v2.23.0）。`cliff.toml` 还兼容 `rft`、`styles` 两种旧写法，新提交请用上表的写法。
-- 标题或正文中含有 `[skip changelog]` 的提交不会出现在更新日志里，一般只有 bot 的自动格式化、同步等提交使用。
-- PR 一般以 squash 方式合并：PR 标题成为提交标题，PR 描述成为提交正文。所以 PR 标题也要按上面的格式写，PR 描述里不要出现 `[skip changelog]` 字样。
+- 拼错或大小写不对的类型（如 `pref`、`doc`、`CI`）不会报错，但不会归入正确的分组：git-cliff 会直接用类型名当分组名，在更新日志末尾多出类似「Pref」这样的分组（见 v2.23.0）。`cliff.toml` 还兼容 `rft`、`styles` 两种旧写法，但新提交请尽可能用上表的新写法。
+- PR 一般以 squash 方式合并：PR 标题成为提交标题，PR 描述成为提交正文。所以 PR 标题也要按上面的格式写。
 
 > **示例**：`feat(OutpostTrading): 新增地区建设自动售卖 Pipeline`
+
+#### 特殊标记
+
+下面两个标记写在 commit message 里会产生额外效果，存在关键词就生效。
+
+- 虽然写在标题还是正文都会生效，但请写在正文里，避免标题将标记带入 changelog。
+- 由于 PR 一般以 squash 方式合并，PR 描述会成为提交正文，只是提到标记时（例如修改相关文档或 CI），不要写出带方括号的完整标记，否则该 PR 也会意外触发标记。CodeRabbit 生成的摘要同样会写进 PR 描述，合并前请检查最终的 squash commit message。
+
+`[skip changelog]`
+
+标题或正文中含有该标记的提交不会出现在更新日志里，一般只有 bot 的自动格式化、同步等提交使用。
+
+`[blame ignore]`
+
+仓库根目录的 `.git-blame-ignore-revs` 列出了 `git blame` 时要跳过的提交，GitHub 网页的 Blame 视图会自动读取它，避免格式化提交覆盖真正的更改。如果你的 PR 只做全量格式化、批量排序等**不改变代码含义**的机械改动，请在 **PR 描述**里加上该标记：
+
+- 如上所述，squash 合并后 PR 描述就是提交正文，标记随之进入 commit message。[`blame-ignore.yml`](../../../.github/workflows/blame-ignore.yml) 每天扫描 commit message，把带标记的提交追加到 `.git-blame-ignore-revs`，若非必要请勿手动编辑该文件。
+- 带标记的 PR 必须只放纯格式化改动。由于整个 squash commit 都会被 blame 跳过，夹带的逻辑修改将无法通过 blame 追溯。
+- [`format.yml`](../../../.github/workflows/format.yml) 的自动格式化提交已自带该标记，无需额外处理。
+
+本地使用 `git blame` 时，执行以下命令即可同样跳过这些提交（Git 2.52 及以上）：
+
+```bash
+git config blame.ignoreRevsFile ":(optional).git-blame-ignore-revs"
+```
+
+`:(optional)` 表示文件不存在时跳过这项配置，这样签出没有该文件的版本（例如 `archive/v1` 分支，或添加该文件之前的提交）时，`git blame` 也能照常使用。
+
+Git 2.52 之前不支持此前缀，会把它当成文件名的一部分，导致 `git blame` 报错，请改用：
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+这样配置后，在没有该文件的版本里执行 `git blame` 会报错 `could not open object name list`，加上 `--no-ignore-revs-file` 即可临时跳过这项配置。
 
 ### 关于子模块 (Submodule) 更新
 
@@ -214,7 +248,7 @@ Pipeline 的核心逻辑是类似**有限状态机（FSM）/决策树（Decision
 
 编码规范：不推荐使用 `pre_delay` 或 `post_delay` 这类硬延迟，因为不同设备的性能差距很大。10 帧和 60 帧在过动画时要等待的时间完全不同，硬延迟会掩盖很多问题，开发环境能跑不代表用户环境能跑。
 
-只在必须等画面稳定时才使用 `pre_wait_freezes` 或 `post_wait_freezes`，其他时候应该尽量避免延迟。例如上文中 `"post_wait_freezes": 100` 表示在 `roi` 区域 `[400, 200, 480, 320]` 内像素变化结束后，再等待 100 ms。
+只在必须等画面稳定时才使用 `pre_wait_freezes` 或 `post_wait_freezes`，其他时候应该尽量避免延迟。例如上文中 `"post_wait_freezes": 100` 表示点击后，等识别命中的那块区域（不是整个 `roi`）连续 100 ms 没有明显变化，再去识别 `next`。
 
 下一步 `OutpostTradingLoop` 里应继续用识别节点确认已进入地区建设界面，而不是假设点击一定成功。FSM 最重要的是：先识别、确认当前状态，然后再进行操作。
 
@@ -242,7 +276,7 @@ Pipeline 的核心逻辑是类似**有限状态机（FSM）/决策树（Decision
 
 > **💡 进阶提示：组合识别 (And / Or)**
 >
-> 除了传统的 `TemplateMatch` (模板匹配)、`Color` (颜色匹配) 等基础方法外，Pipeline 还支持使用逻辑条件 **`And` (与)** 和 **`Or` (或)** 来组合多个识别节点。这在处理复杂或多变的 UI 状态时非常有用。
+> 除了传统的 `TemplateMatch` (模板匹配)、`ColorMatch` (颜色匹配) 等基础方法外，Pipeline 还支持使用逻辑条件 **`And` (与)** 和 **`Or` (或)** 来组合多个识别节点。这在处理复杂或多变的 UI 状态时非常有用。
 >
 > 关于组合识别的具体语法和高级用法，请参阅 [MaaFramework 官方文档 - Pipeline 协议](https://maafw.com/docs/3.1-PipelineProtocol#and)。
 
@@ -354,7 +388,7 @@ Pipeline 跑通后，补齐配套：
                 "WulingSell"
             ],
             "group": [
-                "daily"
+                "regional_development"
             ]
         }
     ]

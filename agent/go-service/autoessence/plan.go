@@ -195,7 +195,7 @@ func SelectBestPlan(engine *matchapi.Engine, missingIDs []string) (*FarmPlan, er
 
 	var best *FarmPlan
 	for _, loc := range engine.Locations() {
-		key, ok := LocationKeyByName(loc.Name)
+		key, ok := LocationKeyByLevel(loc.LevelID)
 		if !ok {
 			continue
 		}

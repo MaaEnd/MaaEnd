@@ -101,7 +101,7 @@ func parseBetterSlidingParam(customActionParam string) (betterSlidingParam, erro
 	return params, nil
 }
 
-func (a *BetterSlidingAction) loadActionParams(ctx *maa.Context, customActionParam string) bool {
+func (a *BetterSlidingAction) loadActionParams(ctx *maa.Context, ctrl *maa.Controller, customActionParam string) bool {
 	params, err := parseBetterSlidingParam(customActionParam)
 	if err != nil {
 		a.logger.Error().
@@ -111,7 +111,7 @@ func (a *BetterSlidingAction) loadActionParams(ctx *maa.Context, customActionPar
 		return false
 	}
 
-	parsed, ok := a.normalizeActionParams(ctx, params)
+	parsed, ok := a.normalizeActionParams(ctx, ctrl, params)
 	if !ok {
 		return false
 	}
@@ -123,10 +123,11 @@ func (a *BetterSlidingAction) loadActionParams(ctx *maa.Context, customActionPar
 
 func (a *BetterSlidingAction) normalizeActionParams(
 	ctx *maa.Context,
+	ctrl *maa.Controller,
 	params betterSlidingParam,
 ) (parsedBetterSlidingParams, bool) {
 	// CenterPointOffset 的默认值随控制器变化；调用方显式传入时不受影响。
-	controllerType := resolveControlType(ctx)
+	controllerType := resolveControlType(ctrl)
 	centerPointOffsetDefault := defaultCenterPointOffset(controllerType)
 
 	parsed := parsedBetterSlidingParams{

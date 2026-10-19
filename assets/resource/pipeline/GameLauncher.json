@@ -1,0 +1,133 @@
+{
+    "GameLauncherMain": {
+        "desc": "在鹰角启动器中启动终末地",
+        "next": [
+            "GameLauncherSelectEndfield"
+        ]
+    },
+    "GameLauncherSelectEndfield": {
+        "desc": "点击左侧栏的终末地图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            60,
+            100,
+            600
+        ],
+        "template": "GameLauncher/EndfieldIcon.png",
+        "green_mask": true,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "GameLauncherEndfieldSelected"
+        ]
+    },
+    "GameLauncherEndfieldSelected": {
+        "desc": "右下角出现黄色开始游戏按钮，确认已切换到终末地页面",
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GameLauncherClickStartGame"
+        ]
+    },
+    "GameLauncherClickStartGame": {
+        "desc": "已选中终末地，点击右下角开始游戏",
+        "max_hit": 3,
+        "recognition": "And",
+        "all_of": [
+            "GameLauncherStartGameYellow",
+            "GameLauncherStartGameText"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "post_delay": 3000, // 这里暂时不调用RepeatUntilAction，先保持纯pipeline
+        "next": [
+            "GameLauncherInGame",
+            "GameLauncherDriverTipIgnore",
+            "GameLauncherClickStartGame"
+        ]
+    },
+    "GameLauncherDriverTipIgnore": {
+        "desc": "点击开始游戏后弹出显卡驱动更新提示，点击忽略并继续",
+        "recognition": "OCR",
+        "roi": [
+            360,
+            405,
+            320,
+            95
+        ],
+        "expected": [
+            // @i18n-skip
+            "忽略并继续",
+            "忽略並繼續"
+        ],
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "GameLauncherInGame"
+        ]
+    },
+    "GameLauncherInGame": {
+        "desc": "右下角按钮显示游戏中，启动成功",
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "游戏中",
+            "遊戲中",
+            "(?i)\\bRunning\\b"
+        ]
+    },
+    "GameLauncherExit": {
+        "desc": "不写这个节点 CI 会报错"
+    },
+    "GameLauncherStartGameYellow": {
+        "desc": "右下角开始游戏按钮的黄色底",
+        "recognition": "ColorMatch",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "lower": [
+            240,
+            240,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            100
+        ],
+        "connected": true,
+        "count": 4000
+    },
+    "GameLauncherStartGameText": {
+        "desc": "右下角开始游戏按钮",
+        "recognition": "OCR",
+        "roi": [
+            -320,
+            -140,
+            320,
+            140
+        ],
+        "expected": [
+            // @i18n-skip
+            "开始游戏",
+            "開始遊戲",
+            "(?i)\\bPlay\\b"
+        ]
+    }
+}

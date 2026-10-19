@@ -76,7 +76,7 @@
 - 格子级记录候选模板、分数、稀有度缩减、是否使用禁用后备，以及候选为何没有进入公开结果；
 - 性能诊断记录各阶段耗时与模板数量。
 
-正常执行到结果汇总阶段时会收集网格级和格子级诊断；提前返回的 `invalid_image` 或 `exception` 可能不包含诊断。这些诊断供内部实现、debug 文件和人工测试使用；性能诊断以及 Custom 入口的 debug 文件由 debug 开关控制。添加诊断字段时，需要同步人工测试输出；除非公开契约确实需要，否则不要修改 `RecognitionResult::to_json()`。
+正常执行到结果汇总阶段时会收集网格级和格子级诊断；提前返回的 `invalid_image`、`invalid_argument`、`grid_detection_failed` 或 `exception` 可能不包含诊断。这些诊断供内部实现、debug 文件和人工测试使用；性能诊断以及 Custom 入口的 debug 文件由 debug 开关控制。添加诊断字段时，需要同步人工测试输出；除非公开契约确实需要，否则不要修改 `RecognitionResult::to_json()`。
 
 ## 维护约束
 

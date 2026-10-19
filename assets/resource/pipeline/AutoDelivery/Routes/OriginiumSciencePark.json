@@ -23,7 +23,7 @@
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
-                        804.72
+                        803.314
                     ],
                     "target_deck_y": 93.098
                 }
@@ -66,7 +66,7 @@
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
-                        804.72
+                        803.314
                     ],
                     "target_deck_y": 93.098
                 }
@@ -109,7 +109,7 @@
                     "action": "NAVMESH",
                     "target": [
                         1043.463,
-                        804.72
+                        803.314
                     ],
                     "target_deck_y": 93.098
                 }
@@ -144,7 +144,24 @@
                         1132.831,
                         900.497
                     ],
-                    "target_deck_y": 90.519
+                    "target_deck_y": 90.519,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.831,
+                        900.497
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "英格",
+                        "(?i)Ingol",
+                        "インゴル",
+                        "잉골"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -178,7 +195,24 @@
                         1132.831,
                         900.497
                     ],
-                    "target_deck_y": 90.519
+                    "target_deck_y": 90.519,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.831,
+                        900.497
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "英格",
+                        "(?i)Ingol",
+                        "インゴル",
+                        "잉골"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -221,7 +255,24 @@
                         1132.831,
                         900.497
                     ],
-                    "target_deck_y": 90.519
+                    "target_deck_y": 90.519,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1132.831,
+                        900.497
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "英格",
+                        "(?i)Ingol",
+                        "インゴル",
+                        "잉골"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -270,7 +321,24 @@
                         1161.84,
                         826.06
                     ],
-                    "target_deck_y": 87.27
+                    "target_deck_y": 87.27,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1161.84,
+                        826.06
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "基特",
+                        "(?i)Kitt",
+                        "キット",
+                        "킷"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -301,19 +369,10 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1150.97,
-                        768.59
-                    ],
-                    "required": true
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
                         1144.79,
                         818.27
                     ],
-                    "target_deck_y": 96.97,
-                    "required": true
+                    "target_deck_y": 96.97
                 },
                 {
                     "action": "INTERACT",
@@ -321,8 +380,7 @@
                         1148.13,
                         820.42
                     ],
-                    "interact_text": "G层",
-                    "required": true
+                    "interact_text": "G层"
                 },
                 {
                     "action": "NAVMESH",
@@ -330,7 +388,24 @@
                         1161.84,
                         826.06
                     ],
-                    "target_deck_y": 87.27
+                    "target_deck_y": 87.27,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1161.84,
+                        826.06
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "基特",
+                        "(?i)Kitt",
+                        "キット",
+                        "킷"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -373,7 +448,24 @@
                         1161.842,
                         826.062
                     ],
-                    "target_deck_y": 87.394
+                    "target_deck_y": 87.394,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1161.842,
+                        826.062
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "基特",
+                        "(?i)Kitt",
+                        "キット",
+                        "킷"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -406,7 +498,24 @@
                         968.209,
                         824.369
                     ],
-                    "target_deck_y": 95.898
+                    "target_deck_y": 95.898,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        968.209,
+                        824.369
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "嘉娜",
+                        "(?i)Jana",
+                        "ヤナ",
+                        "야나"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -440,7 +549,24 @@
                         968.209,
                         824.369
                     ],
-                    "target_deck_y": 95.898
+                    "target_deck_y": 95.898,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        968.209,
+                        824.369
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "嘉娜",
+                        "(?i)Jana",
+                        "ヤナ",
+                        "야나"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -483,7 +609,24 @@
                         968.209,
                         824.369
                     ],
-                    "target_deck_y": 95.898
+                    "target_deck_y": 95.898,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        968.209,
+                        824.369
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "嘉娜",
+                        "(?i)Jana",
+                        "ヤナ",
+                        "야나"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -522,10 +665,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        905.299,
+                        906.705,
                         764.145
                     ],
-                    "target_deck_y": 87.331
+                    "target_deck_y": 87.331,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        906.705,
+                        764.145
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -565,10 +722,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        905.299,
+                        906.705,
                         764.145
                     ],
-                    "target_deck_y": 87.331
+                    "target_deck_y": 87.331,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        906.705,
+                        764.145
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -608,10 +779,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        905.299,
+                        906.705,
                         764.145
                     ],
-                    "target_deck_y": 87.331
+                    "target_deck_y": 87.331,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        906.705,
+                        764.145
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -650,10 +835,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1183.458,
-                        817.116
+                        1182.464,
+                        816.122
                     ],
-                    "target_deck_y": 96.809
+                    "target_deck_y": 96.809,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1182.464,
+                        816.122
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -693,10 +892,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1183.458,
-                        817.116
+                        1182.464,
+                        816.122
                     ],
-                    "target_deck_y": 96.809
+                    "target_deck_y": 96.809,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1182.464,
+                        816.122
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -736,10 +949,24 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1183.458,
-                        817.116
+                        1182.464,
+                        816.122
                     ],
-                    "target_deck_y": 96.809
+                    "target_deck_y": 96.809,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1182.464,
+                        816.122
+                    ],
+                    "required": true,
+                    "interact_text": {
+                        "node": "AutoDeliverySubmitGoodsInteractText"
+                    },
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"

@@ -86,19 +86,22 @@ struct BaseNavZoneAlias
     std::array<std::string_view, 2> prefixes;
 };
 
-constexpr std::array<BaseNavZoneAlias, 6> kBaseNavZoneAliases { {
+constexpr std::array<BaseNavZoneAlias, 7> kBaseNavZoneAliases { {
     { "map01base", { "map01", "ValleyIV" } },
     { "map02base", { "map02", "Wuling" } },
     { "base01", { "base01", "OMVBase" } },
     { "dung01", { "dung01", "Dung" } },
     { "indie_dg005", { "indie_dg005", "IndieDg005" } },
     { "indie_dg007", { "indie_dg007", "IndieDg007" } },
+    { "indie_dg016", { "indie_dg016", "IndieDg016" } },
 } };
 
 // Blind-target fallback: navmesh omits water, so a target a human can reach is reported unreachable.
 // Route as close as the mesh allows, then walk the residual gap blind toward the exact target.
 constexpr double kBlindTargetFallbackSnapRadius = 12.0;
 constexpr double kBlindTargetProbeStep = 2.0;
+// 动作点与上一个作者点算同一坐标的距离, 只吸收坐标往返的浮点误差。
+constexpr double kSameRoutePointWu = 0.01;
 // 探针扫描的墙钟上限。能命中的探针在头几个就返回(近处目标单次规划几十毫秒),耗满预算即目标与
 // 起点不连通,余下探针是同一个失败。远距离目标单次规划本身就要吃掉扩窗预算,这里只容一个来回。
 constexpr int64_t kBlindTargetProbeBudgetMs = 8000;
@@ -1237,6 +1240,23 @@ bool AppendGlobalRouteGroup(
     if (!projected_endpoint) {
         RecordWaypointFailure("unknown_target_tier", " 的坐标层级不存在", authored_target, target_index - 1, state);
         return false;
+    }
+
+    // 这一组只有一个动作点, 且和上一个作者点同坐标、同一张面(先 NAVMESH 走到、再原地交互): 上一段已经停在这里,
+    // 没有路可规划。照常规划只会拿到空路径, 被当成走不通后还会去找滑索绕路。动作点另声明了一张面就照常规划。
+    const Waypoint* previous = begin > 0 ? &path[begin - 1] : nullptr;
+    const bool same_deck = !authored_endpoint.target_deck_y
+                           || (previous != nullptr && previous->target_deck_y
+                               && std::abs(*previous->target_deck_y - *authored_endpoint.target_deck_y) <= 1e-6);
+    if (endpoint_is_hard && begin + 1 == end && previous != nullptr && previous->HasPosition()
+        && previous->target_tier == authored_endpoint.target_tier && authored_endpoint.action != ActionType::NAVMESH
+        && authored_endpoint.action != ActionType::RUN && same_deck
+        && std::hypot(authored_endpoint.x - previous->x, authored_endpoint.y - previous->y) <= kSameRoutePointWu) {
+        out_path.push_back(*projected_endpoint);
+        UpdateStateFromRegularWaypoint(*projected_endpoint, state);
+        LogInfo << "Action point sits where the previous leg ended; appended without planning." << VAR(projected_endpoint->x)
+                << VAR(projected_endpoint->y) << VAR(static_cast<int>(authored_endpoint.action));
+        return true;
     }
 
     Waypoint global_target(projected_endpoint->x, projected_endpoint->y, ActionType::NAVMESH);

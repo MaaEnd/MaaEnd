@@ -10,7 +10,7 @@ Use the `Custom` recognition type with the fixed registration name `IconRecognit
 
 ### Find an item by ID
 
-Use a top-level key from [`assets/data/IconRecognition/recognition_items.json`](/assets/data/IconRecognition/recognition_items.json) as the item ID:
+`item_ids` takes top-level keys from [`assets/data/IconRecognition/recognition_items.json`](/assets/data/IconRecognition/recognition_items.json):
 
 ```json
 {
@@ -69,7 +69,7 @@ Omit `item_ids`. The component locates the selected screen's item grid inside th
 }
 ```
 
-`transfer` (inventory and storage) and `port_storager` (portable storage) accept either a full two-sided ROI or a one-sided ROI. A full ROI recognizes both sides, while a one-sided ROI recognizes only that side. Workflows commonly pass the two sides separately according to the current operation.
+`transfer` (backpack and depot) and `port_storager` (Easy Stash) accept either a full two-sided ROI or a one-sided ROI. A full ROI recognizes both sides, while a one-sided ROI recognizes only that side. Workflows commonly pass the two sides separately according to the current operation.
 
 ### Recognize one square ROI
 
@@ -123,9 +123,9 @@ The native ROI uses 1280x720 `[x,y,width,height]` coordinates. Width and height 
 | Runtime `type` | Capture requirement | Grid profile |
 | --- | --- | --- |
 | Win32, Linux, MacOS | 1280x720 | Standard 720p UI |
-| Adb, PlayCover | 1280x720 at 240 dpi | Enlarged ADB UI |
+| Adb, PlayCover, native_android | 1280x720 at 240 dpi | Enlarged ADB UI |
 
-The Custom entry point reads the runtime `type` from `MaaContext` and selects a profile. CloudADB reports `Adb` as its runtime type. The compatibility mappings outside Win32/Adb do not yet have dedicated screenshot data validation and may be adjusted as real samples become available. Other controllers, direct C++ calls, or unavailable context fall back to image evidence inside the request ROI. Insufficient evidence returns `exception`; callers cannot specify a scale. The detector temporarily normalizes the image in memory for grid localization and maps cell coordinates back before returning. Item templates are still generated at the final source-cell size and matched on the original image, so `cell_box` and `item_box` always use source-image coordinates. `single_roi` does not run grid detection and never resizes the input image.
+The Custom entry point reads the runtime `type` from `MaaContext` and selects a profile. CloudADB reports `Adb` as its runtime type. The compatibility mappings outside Win32/Adb do not yet have dedicated screenshot data validation and may be adjusted as real samples become available. Other controllers, direct C++ calls, or unavailable context fall back to image evidence inside the request ROI. Insufficient evidence returns `grid_detection_failed`; callers cannot specify a scale. The detector temporarily normalizes the image in memory for grid localization and maps cell coordinates back before returning. Item templates are still generated at the final source-cell size and matched on the original image, so `cell_box` and `item_box` always use source-image coordinates. `single_roi` does not run grid detection and never resizes the input image.
 
 The component does not infer, move, or expand the request ROI from the selected controller profile. The caller remains responsible for a native ROI that is fully inside the image and completely covers every target cell. Image-based fallback reads only pixels inside that ROI. Rewards callers should keep passing one large ROI that covers the whole reward group; neither controller type nor item count should be used by callers to rewrite that ROI.
 
@@ -139,35 +139,35 @@ The component does not infer, move, or expand the request ROI from the selected 
 | `additional_item_filters` | string[] | No | `[]` | Appends these categories after intersecting the base filters with `item_ids` |
 | `excluded_item_ids` | string[] | No | `[]` | Removes the specified item IDs from the candidate set |
 | `item_recheck_filters` | string[] | No | `[]` | Active when both this field and `item_ids` are non-empty; uses the same format as `item_filters`; performs a single-cell recheck on matched candidate cells |
-| `recognize_region_unavailable` | boolean | No | `false` | Applies only to backpack/warehouse (`transfer`) and storage-station (`port_storager`) scenes. When enabled, if normal recognition does not match a cell, the component also tries items unavailable due to current-region restrictions. Items on the Dijiang do not appear in this state, so the option is not needed there |
+| `recognize_region_unavailable` | boolean | No | `false` | Applies only to backpack/depot (`transfer`) and Easy Stash (`port_storager`) scenes. When enabled, if normal recognition does not match a cell, the component also tries items unavailable due to current-region restrictions. Items on the Dijiang do not appear in this state, so the option is not needed there |
 | `threshold` | number | No | `0.85` | Minimum final match score, enforced uniformly for every grid type |
 | `subpixel_threshold` | number | No | `0.60` | Tries finer position offsets when the base score reaches this value but remains below `threshold` |
 | `deduplicate` | boolean | No | `false` | Keeps only the highest-scoring cell for each `item_id` |
-| `debug` | boolean | No | `false` | Grid and cell diagnostics are collected when recognition reaches the result-assembly stage; early `invalid_image` or `exception` returns may lack them. `debug` controls performance timing and Custom debug-file writing |
+| `debug` | boolean | No | `false` | Grid and cell diagnostics are collected when recognition reaches the result-assembly stage; early `invalid_image`, `invalid_argument`, `grid_detection_failed`, or `exception` returns may lack them. `debug` controls performance timing and Custom debug-file writing |
 
-- **`threshold` and `subpixel_threshold`**: Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it passes the low-texture check. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask, but they do not bypass the uniform threshold. Check the ROI, frame stability, and candidate filters before lowering thresholds.
-- **Candidate-set order**: The final set is `(((item_filters or grid defaults) ∩ item_ids) ∪ additional_item_filters) - excluded_item_ids`; omit the intersection when `item_ids` is absent. `excluded_item_ids` is applied as the final candidate-set operation, so listed items never participate in recognition. Duplicate values in candidate arrays are treated as one. Unknown IDs in `item_ids` or `excluded_item_ids`, malformed or catalog-unmatched filters, and an empty final set return `invalid_argument`.
+- **`threshold` and `subpixel_threshold`**: Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it passes the low-texture check. Shipment quantity bars and Valuables Vault portrait regions are excluded from the template-matching mask, but they do not bypass the uniform threshold. Check the ROI, frame stability, and candidate filters before adjusting thresholds.
+- **Candidate-set order**: The final set is `(((item_filters or grid defaults) ∩ item_ids) ∪ additional_item_filters) - excluded_item_ids`; omit the intersection when `item_ids` is absent. `excluded_item_ids` is applied as the final candidate-set operation, so listed items are never returned as candidates; the `item_recheck_filters` recheck template set does not apply this exclusion. Duplicate values in candidate arrays are treated as one. Unknown IDs in `item_ids` or `excluded_item_ids`, malformed or catalog-unmatched filters, and an empty final set return `invalid_argument`.
 - **Shared icons and representatives**: After filtering, candidates are deduplicated by `(iconId, fluidIconId)`, so each visual identity is scored once. The alias scope is only `(item_filters or grid defaults) ∪ additional_item_filters`, followed by `excluded_item_ids`; aliases are never pulled from the complete catalog. Without an exact request, the representative follows descending catalog order by `sortId1`, `sortId2`, and `item_id`, with records lacking both sort fields placed last. When one ID in a shared-icon group is requested exactly, that ID takes priority as the representative: requesting `a` returns `a` with `b` in `aliases`, while requesting `b` returns `b` with `a` in `aliases`, provided both remain in the alias scope and are not excluded. If one request contains multiple IDs from the same group, catalog order chooses the representative.
 - **`item_recheck_filters`**: When `item_ids` is used to find specific items, visually similar items outside that set may be mistaken for a target item. `item_recheck_filters` rechecks only matches from the original `item_ids`; it does not recheck items appended by `additional_item_filters`. Compared with omitting `item_ids` and using only `item_filters` to recognize the entire grid, this approach rechecks only matched cells and is usually faster. Set `deduplicate: true` as well to avoid repeated rechecks of the same item.
 
-For template composition, masking, and fallback matching details, see [Recognition algorithm](/agent/cpp-algo/source/IconRecognition/docs/algorithm.md#候选选择与图标匹配).
+For template composition, masking, and fallback matching of items unavailable in the current region, see [Recognition algorithm](/agent/cpp-algo/source/IconRecognition/docs/algorithm.md#候选选择与图标匹配).
 
 ### grid_type, default candidates, and reference ROIs
 
 | `grid_type` | C++ `GridType` | Screen | Default `item_filters` | Win32 reference ROI | ADB reference ROI |
 | --------------- | ------------------------ | ------------------------ | ---------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `trade` | `GridType::Trade` | Settlement trade | `Normal:Product`, `Normal:Usable` | `[170,165,935,385]` | `[32,46,1216,549]` |
-| `transfer` | `GridType::Transfer` | Inventory and storage | `Normal:*` | Full `[154,202,983,291]`; left `[154,202,585,291]`; right `[739,202,398,291]` | Full `[30,160,1220,370]`; left `[30,160,710,370]`; right `[780,160,470,370]` |
-| `port_storager` | `GridType::PortStorager` | Portable storage | `Normal:*` | Full `[190,250,880,350]`; left `[190,250,318,350]`; right `[570,250,500,350]` | Full `[78,228,1150,410]`; left `[78,228,368,410]`; right `[562,326,620,293]` |
-| `valuables` | `GridType::Valuables` | Valuable depot | `ValuableDepot:*` | `[24,76,950,570]` | `[100,85,790,540]` |
+| `trade` | `GridType::Trade` | Outpost Trading | `Normal:Product`, `Normal:Usable` | `[170,165,935,385]` | `[32,46,1216,549]` |
+| `transfer` | `GridType::Transfer` | Backpack and depot | `Normal:*` | Full `[154,202,983,291]`; left `[154,202,585,291]`; right `[739,202,398,291]` | Full `[30,160,1220,370]`; left `[30,160,710,370]`; right `[780,160,470,370]` |
+| `port_storager` | `GridType::PortStorager` | Easy Stash | `Normal:*` | Full `[190,250,880,350]`; left `[190,250,318,350]`; right `[570,250,500,350]` | Full `[78,228,1150,410]`; left `[78,228,368,410]`; right `[562,326,620,293]` |
+| `valuables` | `GridType::Valuables` | Valuables Vault | `ValuableDepot:*` | `[24,76,950,570]` | `[100,85,790,540]` |
 | `shipment` | `GridType::Shipment` | Shipment screen | `Normal:*` | `[34,132,386,474]` | `[43,169,480,408]` |
-| `credit_trade` | `GridType::CreditTrade` | Credit trade | `ValuableDepot:SpecialItem`, `Isolate:*` | `[70,95,1140,415]` | `[10,120,1250,510]` |
+| `credit_trade` | `GridType::CreditTrade` | Credit Exchange | `ValuableDepot:SpecialItem`, `Isolate:*` | `[70,95,1140,415]` | `[10,120,1250,510]` |
 | `rewards` | `GridType::Rewards` | Rewards screen | `Isolate:*`, `ValuableDepot:*` | `[39,82,1205,511]` | `[178,140,935,440]` |
 | `single_roi` | `GridType::SingleRoi` | One caller-selected cell | `Normal:*` | Any square inside the image; example `[1177,450,54,54]` | Any square inside the image; example `[1151,393,66,66]` |
 
 Reference ROIs are absolute 1280x720 screen coordinates, not coordinates relative to another ROI. Each value applies only to the listed screen, and the caller must keep every target cell fully covered. One-sided storage ROIs still use absolute screen coordinates.
 
-`rewards` locates white reward cards and requires the whole group to be approximately centered. A single row uses its actual item count. Wrapped layouts infer the column count from the first observed row, reuse its left boundary for later rows, and allow only the last row to be partial. Multiple game features reuse this screen type and may show different item categories. When `item_filters` is omitted or empty, the default candidate set is `Isolate:*`, `ValuableDepot:*`; a non-empty `item_filters` replaces that default set completely.
+`rewards` locates white reward cards and requires the whole group to be approximately centered. A single row computes its width from the actual item count. Wrapped layouts infer the column count from the first observed row, reuse its left boundary for later rows, and allow only the last row to be partial. Multiple game features reuse this screen type and may show different item categories. When `item_filters` is omitted or empty, the default candidate set is `Isolate:*`, `ValuableDepot:*`; a non-empty `item_filters` replaces that default set completely.
 
 ### Item IDs
 
@@ -176,17 +176,20 @@ An item ID is a top-level key from [`recognition_items.json`](/assets/data/IconR
 ```json
 {
     "item_copper_ore": {
-        "name": "铜矿",
+        "name": "赤铜矿",
         "category": "矿物",
         "storageKind": "Normal",
         "categoryType": "Ore",
         "rarity": 1,
-        "iconId": "item_copper_ore"
+        "iconId": "item_copper_ore",
+        "fluidIconId": "",
+        "sortId1": -80,
+        "sortId2": 4
     }
 }
 ```
 
-Pass `item_copper_ore`, not `iconId`, a locale key, or a display name. `iconId` is used only to locate the published icon asset. The catalog `name` is the downloaded Chinese name for readability only; runtime `matches[].name` still derives a locale key from `item_id`. Only restricted items additionally export `regionRestricted: true`; ordinary items omit the field.
+Pass `item_copper_ore`, not `iconId`, a locale key, or a display name. `iconId` is used only to locate the published icon asset and, together with `fluidIconId`, to identify shared icons. The catalog `name` is the downloaded Chinese name for readability only; runtime `matches[].name` still derives a locale key from `item_id`. Only region-restricted items additionally export `regionRestricted: true`; ordinary items omit the field.
 
 ### `item_filters` categories
 
@@ -197,7 +200,7 @@ Valid `storageKind` values:
 | `storageKind` | Meaning |
 | --------------- | -------------------- |
 | `Normal` | Normal items |
-| `ValuableDepot` | Valuable depot items |
+| `ValuableDepot` | Valuables Vault items |
 | `Isolate` | Standalone resources |
 
 Valid `categoryType` values by storage kind:
@@ -215,9 +218,14 @@ Valid `categoryType` values by storage kind:
 | `ValuableDepot` | `Weapon` | Weapons |
 | `ValuableDepot` | `CommercialItem` | Commercial valuables |
 | `ValuableDepot` | `SpecialItem` | Upgrade materials |
-| `Isolate` | `Gold` | Oroberyl vouchers |
-| `Isolate` | `Diamond` | Origeometry |
-| `Isolate` | `WeaponGold` | Arsenal quota |
+| `Isolate` | `Gold` | T-Creds |
+| `Isolate` | `Diamond` | Oroberyl |
+| `Isolate` | `WeaponGold` | Arsenal Ticket |
+| `Isolate` | `DomainGold` | Stock Bills (Wuling / Valley) |
+| `Isolate` | `Originium` | Origeometry |
+| `Isolate` | `SpaceshipGold` | Credits |
+| `Isolate` | `AdventureExp` | Operational EXP |
+| `Isolate` | `BPExp` | Pass EXP |
 
 Wildcard forms include `Normal:*`, `ValuableDepot:*`, and `Isolate:*`. The wildcard is supported only for `categoryType`; `*:Ore` is not valid.
 
@@ -228,11 +236,11 @@ Wildcard forms include `Normal:*`, `ValuableDepot:*`, and `Isolate:*`. The wildc
 | Field | Type | Description |
 | ---------------- | ------- | --------------------------------------------------------------------------------- |
 | `detail_version` | integer | Detail contract version; currently `3` |
-| `matched` | boolean | Whether at least one result was accepted |
+| `matched` | boolean | Whether at least one item reached the threshold and passed the screen rule checks |
 | `grid_type` | string | Requested grid type. It may be absent when parsing fails before the type is known |
 | `roi` | integer[4] | Request ROI as `[x,y,width,height]` |
-| `matches` | array | Accepted results ordered by score and position |
-| `error` | object | Present on failure, with a stable `code` and a readable `message` |
+| `matches` | array | Items actually returned to the caller, ordered by score and position |
+| `error` | object | Present on a miss (`no_match`) or a failure, with a stable `code` and a readable `message` |
 
 Fields in `matches[]`:
 
@@ -240,7 +248,7 @@ Fields in `matches[]`:
 | -------------------------------- | ------- | ----------------------------------------------------------- |
 | `item_id` | string | Top-level catalog item ID |
 | `name` | string | Locale key, such as `iconRecognition.name.item_copper_ore` |
-| `category` | string | Catalog category label |
+| `category` | string | Chinese category label from the catalog |
 | `storage_kind` / `category_type` | string | Classification fields for later filtering or business rules |
 | `rarity` | integer | Catalog rarity |
 | `aliases` | object[] | Optional; other filtered items sharing the representative's `(iconId, fluidIconId)`. Each entry contains `item_id` and the locale key `name`; omitted when empty |
@@ -252,19 +260,21 @@ Fields in `matches[]`:
 
 Results are sorted by descending `score`, then by `cell_box.y`, `cell_box.x`, and `item_id`. With `deduplicate=true`, only the first sorted result for each `item_id` remains.
 
-Custom returns `MAA_TRUE` when at least one result is accepted. The Pipeline recognition box `out_box` equals `matches[0].cell_box`. With no accepted result, Custom returns `MAA_FALSE`. MaaFramework wraps callback detail in `all/filtered/best`: the complete component payload for a hit is in `best.detail`; on a miss, `best` is `null` and the component payload remains in `all[0].detail`.
+Custom returns `MAA_TRUE` when `matches` is non-empty. The Pipeline recognition box `out_box` equals `matches[0].cell_box`. When `matches` is empty, Custom returns `MAA_FALSE`. MaaFramework wraps callback detail in `all/filtered/best`: the complete component payload for a hit is in `best.detail`; on a miss, `best` is `null` and the component payload remains in `all[0].detail`.
 
 ### `error.code`
 
 | `code` | Trigger | Caller handling |
 | --------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | `invalid_image` | The input image is empty | Check the capture or direct-call input; normal recognition did not run |
-| `exception` | Parameter validation, resource loading, grid detection, or matching failed | Log `message` for diagnosis, but do not branch on its text |
+| `invalid_argument` | Parameter validation failed: malformed parameters or attach, invalid `grid_type` / ROI / thresholds, unknown IDs or filters, an empty final candidate set, etc. | Fix the node parameters, attach, or direct-call input; do not handle it as “item not found” |
+| `grid_detection_failed` | Grid detection produced no formal cells, including when no controller profile can be selected from the ROI | Check that the current screen and ROI match the `grid_type`; per-cell matching did not run |
+| `exception` | Resource loading, grid detection, or matching failed | Log `message` for diagnosis, but do not branch on its text |
 | `no_match` | Recognition completed normally, but no sufficiently reliable item was found | Handle it as “item not found this time,” not as a component failure |
 
-All three cases return `MAA_FALSE`, but they do not mean the same thing. `invalid_image` and `exception` mean the request did not complete normally. `no_match` means image handling, parameter parsing, grid detection, and per-cell matching completed without an exception, but every candidate in the located cells scored too low or was rejected by the low-texture check. If grid detection cannot produce a formal cell, the result is `exception`, not `no_match`. For `no_match`, `matched=false` and `matches=[]`; callers should normally continue as if the target item is currently absent instead of reporting a component failure.
+All five cases return `MAA_FALSE`, but they do not mean the same thing. `invalid_image`, `invalid_argument`, `grid_detection_failed`, and `exception` mean the request did not complete normally. `no_match` means image handling, parameter parsing, grid detection, and per-cell matching completed without an exception, but every candidate in the located cells scored too low, was rejected by the low-texture check, or failed the `item_recheck_filters` recheck. If grid detection cannot produce a formal cell, the result is `grid_detection_failed`, not `no_match`. For `no_match`, `matched=false` and `matches=[]`; callers should normally continue as if the target item is currently absent instead of reporting a component failure.
 
-`no_match` preserves the parsed `grid_type` and `roi`. An `exception` raised during parsing may not contain every request field.
+`no_match` preserves the parsed `grid_type` and `roi`. An `invalid_argument` or `exception` raised during parsing may not contain every request field.
 
 ## Reference screens
 
@@ -272,28 +282,28 @@ All three cases return `MAA_FALSE`, but they do not mean the same thing. `invali
 > The screenshots and highlighted ROIs below come from the Win32 controller and do not apply to ADB. Use the ADB reference ROIs from the table above.
 
 <details>
-<summary>Settlement trade</summary>
+<summary>Outpost Trading</summary>
 
 ![settlement-trade](https://github.com/user-attachments/assets/7e8623ad-61be-4415-add8-c1c2abf95390)
 
 </details>
 
 <details>
-<summary>Inventory and storage</summary>
+<summary>Backpack and depot</summary>
 
 ![inventory-transfer](https://github.com/user-attachments/assets/bc1bbea5-5aa4-4421-9ccb-b3de8314688e)
 
 </details>
 
 <details>
-<summary>Portable storage</summary>
+<summary>Easy Stash</summary>
 
 ![port-storager](https://github.com/user-attachments/assets/f0fab5de-186d-40df-b212-7b8ae6714103)
 
 </details>
 
 <details>
-<summary>Valuable depot</summary>
+<summary>Valuables Vault</summary>
 
 ![valuables](https://github.com/user-attachments/assets/4121c648-94b8-4032-8afd-3436cf31f99b)
 
@@ -307,7 +317,7 @@ All three cases return `MAA_FALSE`, but they do not mean the same thing. `invali
 </details>
 
 <details>
-<summary>Credit trade</summary>
+<summary>Credit Exchange</summary>
 
 ![credit-trade](https://github.com/user-attachments/assets/c4415a7c-56d0-4aa2-bf2e-230bae21211d)
 
@@ -353,7 +363,7 @@ Supported arrays are item_ids, item_filters, additional_item_filters, excluded_i
             "cases": [
                 {
                     "name": "CopperOre",
-                    "label": "Copper ore",
+                    "label": "Cuprium Ore",
                     "pipeline_override": {
                         "ScanBackpackOre": {
                             "attach": {
@@ -364,7 +374,7 @@ Supported arrays are item_ids, item_filters, additional_item_filters, excluded_i
                 },
                 {
                     "name": "IronOre",
-                    "label": "Iron ore",
+                    "label": "Ferrium Ore",
                     "pipeline_override": {
                         "ScanBackpackOre": {
                             "attach": {
@@ -469,7 +479,7 @@ request.candidates.excluded_item_ids = { "item_carbon_mtl" };
 request.recognize_region_unavailable = true;
 request.deduplicate = true;
 
-// Optional warm-up before concurrent recognition.
+// Optional warm-up before concurrent recognition; without it, templates are prepared on demand during recognition.
 if (!recognizer.preload({ request })) {
     return;
 }
@@ -481,17 +491,17 @@ The ID and filter fields in `request.candidates` correspond to the same-named Pi
 
 ## Debug output
 
-With `debug=true`, the Custom entry point writes the recognition under `exe_dir/../debug/vision/IconRecognition`:
+With `debug=true`, the Custom entry point writes the recognition under `debug/vision/IconRecognition` in the startup working directory:
 
 - `raw/<stem>.png`: input image;
 - `annotated/<stem>.png`: ROI, cells, candidate boxes, and scores;
 - `detail/<stem>.json`: public result plus internal diagnostics.
 
-The three files with one stem form a group. Older groups are cleaned automatically. When recognition reaches the result-assembly stage, core C++ results retain grid and cell diagnostics; early `invalid_image` or `exception` returns may lack them. With `debug=true`, performance diagnostics are recorded too. Public Custom detail omits these internal fields; only debug files and manual test output include them.
+The three files with one stem form a group. Older groups are cleaned automatically. When recognition reaches the result-assembly stage, core C++ results retain grid and cell diagnostics; early `invalid_image`, `invalid_argument`, `grid_detection_failed`, or `exception` returns may lack them. With `debug=true`, performance diagnostics are recorded too. Public Custom detail omits these internal fields; only debug files and manual test output include them.
 
 ## Tests and internals
 
-- [Tests and manual review output](/agent/cpp-algo/source/IconRecognition/docs/testing.md)
+- [Test screenshots, run commands, and manual review images](/agent/cpp-algo/source/IconRecognition/docs/testing.md)
 - [Internal architecture and maintenance boundaries](/agent/cpp-algo/source/IconRecognition/docs/architecture.md)
 - [Recognition algorithm](/agent/cpp-algo/source/IconRecognition/docs/algorithm.md)
 - [Grid configuration maintenance](/agent/cpp-algo/source/IconRecognition/docs/grid-profiles.md)

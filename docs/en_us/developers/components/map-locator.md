@@ -14,9 +14,9 @@ MapLocator belongs to the Recognition layer and is only responsible for coordina
 
 ## MapLocateRecognition
 
-Retrieves the zone name (ZoneID) where the character is currently located, along with exact coordinates and rotation.
+Retrieves the zone name (ZoneID) where the character is currently located, along with global pixel coordinates and rotation.
 
-Each call processes a single frame. The locator keeps its tracking state across calls: a regular call only searches locally near the previous position, and tracking is declared lost after `max_lost_frames` consecutive frames without a valid result, falling back to a global search. For continuous tracking, invoke this node repeatedly at a high frequency through the Pipeline's loop mechanism (e.g., linking `next` back to itself).
+Each call processes a single frame. The locator keeps its tracking state across calls: a regular call only searches locally near the previous position, and tracking is declared lost once more than `max_lost_frames` consecutive frames have no valid result, falling back to a global search. For continuous tracking, invoke this node repeatedly at a high frequency through the Pipeline's loop mechanism (e.g., linking `next` back to itself).
 
 ### Node Parameters
 
@@ -24,10 +24,10 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 
 | Parameter | Default | Description |
 | --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `loc_threshold` | `0.55` | Lower bound of the template matching score. Lower it appropriately (e.g., `0.45`) when heavy interference causes frequent localization loss |
-| `yolo_threshold` | `0.70` | Minimum confidence for YOLO to accept a minimap area. Setting it too low may misidentify other disc-shaped UIs as the minimap |
+| `loc_threshold` | `0.55` | Validation score for global-search results (local tracking does not use it). Below it the second strategy runs first; if nothing clears it, the best raw peak is still delivered (its score must be above 0, otherwise the status is `TrackingLost`; it is still subject to the far-jump and cold-start consensus checks), so it is not a hard floor on the hit score |
+| `yolo_threshold` | `0.70` | YOLO confidence threshold. The current implementation stores it but never compares against it: YOLO always takes the top-scoring class, so changing it has no effect |
 | `force_global_search` | `false` | Set to `true` after cross-region teleports, respawns, or long screen switches to abandon tracking and re-lock via a full-map search |
-| `max_lost_frames` | `3` | Consecutive frames without a valid result before tracking is declared lost. Raising it tolerates brief occlusion but also lengthens how long an incorrect state persists |
+| `max_lost_frames` | `3` | Number of consecutive frames without a valid result that tracking tolerates; beyond it tracking is declared lost (fixed at 10 for `OMVBase` zones). Raising it tolerates brief occlusion but also lengthens how long an incorrect state persists |
 | `expected_zone_id` | Empty | When non-empty, only localization results in this zone are accepted. Useful when the character's area is already known |
 
 ### Return Value (out_detail)
@@ -36,7 +36,7 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 | ----------- | ------------------------------------------------------------------ |
 | `status` | Status code, see the table below |
 | `message` | Failure reason or debug information |
-| `mapName` | (On success) The localized zone name, e.g., `map01_lv001` |
+| `mapName` | (On success) The localized zone name, e.g., `Wuling_Base` or `ValleyIV_L6_109` |
 | `x` / `y` | (On success) Global pixel coordinates |
 | `rot` | Character orientation recognized in the current frame, in `[0°, 360°)`, north as zero; omitted when unavailable and may be present even when localization fails |
 | `camRot` | Camera orientation, 0°–360°, north as zero; carried only by frames with a successful localization (see [How Localization Works](#how-localization-works)). Unrelated to `rot` (the character orientation) |
@@ -51,10 +51,10 @@ Successful localization does not guarantee an available orientation. Callers mus
 | Value | Enum | Meaning |
 | ----- | --------------- | ---------------------------------------------------------------------------------------------------- |
 | `0` | `Success` | Localization succeeded |
-| `1` | `TrackingLost` | Tracking lost; falling back to a global search still produced no match |
-| `2` | `ScreenBlocked` | The frame is occluded over a large area; no valid features can be extracted |
-| `3` | `Teleported` | Displacement between two frames exceeds the normal movement speed limit, judged as a forced teleport |
-| `4` | `YoloFailed` | YOLO pre-filtering determined that the current frame contains no minimap area |
+| `1` | `TrackingLost` | Tracking lost, and the global search produced no acceptable result (including cold-start frames still collecting consensus, rejected far jumps, and YOLO classifying the frame as `None`) |
+| `2` | `ScreenBlocked` | The character arrow at the minimap centre is not visible (e.g., covered by a banner), so the frame is rejected; after 5 s of continuous occlusion frames are no longer rejected |
+| `3` | `Teleported` | Reserved; the current implementation never returns it: an over-speed jump only invalidates the tracking result and falls back to a global search |
+| `4` | `YoloFailed` | YOLO produced no zone, or its zone failed validation against `expected_zone_id` / the tile ROI |
 
 ### Examples
 
@@ -146,7 +146,7 @@ There are no optional parameters. The assertion always forces a global search an
 
 > [!TIP]
 >
-> This node works well as an entry guard before `MapNavigateAction`: confirm the character is in the expected area first, then start the navigation. The companion tool's `Assert Mode` can export this node by dragging a rectangle directly; see [MapNavigator](./map-navigator.md).
+> This node works well as an entry guard before `MapNavigateAction`: confirm the character is in the expected area first, then start the navigation. The companion tool's `断言` (Assert) mode can export this node by dragging a rectangle directly; see [MapNavigator](./map-navigator.md).
 
 ---
 
@@ -155,10 +155,10 @@ There are no optional parameters. The assertion always forces a global search an
 This section is for readers who want to understand the internals; it is not required for everyday use.
 
 1. **Native C++ image pipeline**: integrated into the Pipeline as an independent `cpp-algo` process. Image processing is built on C++ / OpenCV and optimized for memory copying, keeping latency at millisecond level even with YOLO inference included.
-2. **YOLO pre-filtering**: judges by confidence whether a valid minimap area exists in the current frame, filtering out abnormal frames such as full-screen menus and effect occlusion.
-3. **Gradient-domain ZNCC matching**: gradient features are extracted for semi-transparent UI stacking scenarios, paired with ZNCC (Zero-mean Normalized Cross-Correlation) template matching. Matching relies mainly on edge and contour features, staying stable when skill effects flash or the UI changes.
+2. **YOLO pre-filtering**: judges from the classification result whether a valid minimap area exists in the current frame (localization is skipped when it classifies the frame as `None`), filtering out abnormal frames such as full-screen menus and effect occlusion.
+3. **Masked grayscale ZNCC matching**: a mask first excludes UI and other interfering areas on the minimap, then ZNCC (Zero-mean Normalized Cross-Correlation) template matching runs on the grayscale image; when the primary strategy is not trustworthy, a road-color heatmap serves as a second strategy for cross-checking.
 4. **MotionTracker motion prediction**: infers the search range for the current frame from historical movement speed instead of searching globally every frame, which improves speed and avoids matching distant areas that look similar but are not actually reachable.
-5. **Camera-orientation artifact**: `camRot` / `camRotConf` are produced by the two-graph artifact delivered together under `assets/resource/model/map/cameraorientation/`. `preprocess.onnx` is the single implementation of preprocessing: it takes the 118×120 observation ROI (BGR), the zone map asset (BGRA, dynamic size) and the localized `(x, y, scale)`, and outputs the observation strip and the reference strip; polar geometry, reference sampling and strip-domain composition, and the sampling and rounding conventions are all encapsulated in the graph, with the reference BGR composited over a white backdrop at transparent asset pixels and out-of-bounds reads returning 0, while the reference alpha keeps the raw asset values. `polar_with_ref.onnx` consumes the 7-channel `[obs.BGR, ref.BGR, ref.A]` reference pair and outputs a 360-bin azimuth probability distribution. A missing reference (cropped out of bounds or transparent, `ref.A` == 0) is expressed explicitly inside the pair and handled by the model, so MapLocator neither routes nor falls back: when the zone asset is missing or not BGRA it feeds a fully transparent placeholder asset, making the reference strip entirely missing, and the gap fraction only goes to the diagnostic log. The reference pair needs the localization result `(x, y, zone)`, so only frames with a successful localization and a zone other than `None` carry `camRot`; a model that is not loaded or fails inference yields none.
+5. **Camera-orientation artifact**: `camRot` / `camRotConf` are produced by C++ preprocessing and `assets/resource/model/map/cameraorientation/polar_with_ref.onnx`. Preprocessing is performed by `CameraOrientationPreprocess.cpp`: it takes the 118×120 observation ROI (BGR), the zone map asset (BGRA, dynamic size) and the localized `(x, y, scale)`, and outputs the observation strip and the reference strip; the reference BGR is composited over a white backdrop at transparent asset pixels and out-of-bounds reads return 0, while the reference alpha keeps the raw asset values. `polar_with_ref.onnx` consumes the 7-channel `[obs.BGR, ref.BGR, ref.A]` reference pair and outputs a 360-bin azimuth probability distribution. A missing reference (cropped out of bounds or transparent, `ref.A` == 0) is expressed explicitly inside the pair and handled by the model, so MapLocator neither routes nor falls back: when the zone asset is missing or not BGRA it feeds a fully transparent placeholder asset, making the reference strip entirely missing, and the gap fraction only goes to the diagnostic log. The reference pair needs the localization result `(x, y, zone)`, so only frames with a successful localization and a zone other than `None` carry `camRot`; a model that is not loaded or fails inference yields none.
 
 Camera-orientation decoding takes the highest peak by default and computes a probability-weighted circular mean within 5 bins of the peak centre. The locator may also be handed a camera-heading prior (`camera_heading_prior`, north at `0°`): disambiguation is enabled only when an independent secondary peak exists (peak-top height at least `max(0.005, primary peak height × 0.05)`), and if no qualifying peak lies within 5 bins of the prior direction the prior is ignored rather than falling back to the nearest distant peak. Both height gates exist only to keep noise out of the candidates; they do not demand a tall secondary peak — in a correct recognition every non-primary bin reads below `0.001`, while a genuine double peak can have an extreme height gap. With typical primary peak heights of `[0.1, 0.2)` the 5% relative gate lands at `0.005`–`0.01`: a second mode below 5% of the primary (e.g. `0.006` under a `0.15` primary) does not qualify, and the prior stays unused on such frames. The gates test peak tops, so the signal at the prior angle itself may sit below `0.005`. A candidate peak must be a local maximum separated from the primary's refinement window, so a shoulder of the same peak is not counted as a second one; the spacing between peaks is not guaranteed, so no antipodal precondition is imposed. Once disambiguation fires, decoding takes the qualifying peak nearest to the prior direction inside that window, and confidence becomes the normalized resultant magnitude inside the selected peak's window, so the other peak cannot cancel it and make the execution side reject the direction.
 

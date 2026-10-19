@@ -2516,8 +2516,12 @@ GridLayout BuildTransferLayout(
                          << VAR(local_y.size());
                 return {};
             }
+            // 列容量必须由面板宽度恢复：rarity 列只覆盖有物品的列，空列会被截掉。
             local_x = final_phase->x_starts;
-            local_y = final_phase->y_starts;
+            // 未选用 trusted 时，可靠 rarity 行相位已排除提示条干扰；二维结构竞争会被提示条边缘拉回错误行相位。
+            if (!reliable_rarity_fit || trusted_selected) {
+                local_y = final_phase->y_starts;
+            }
         }
     }
 

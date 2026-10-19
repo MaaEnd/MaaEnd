@@ -1,6 +1,6 @@
 # AutoDelivery 路线生成器
 
-`tools/pipeline-generate/data/delivery_destinations.json` 是 zmdmap 数据 CI 生成并由 `fetch:zmdmap` 下载的仓储/终点目录；本目录的 `routes.json` 参考 EnvironmentMonitoring 的 metadata-only 维护方式，自动同步全部仓储和终点的检索元数据，并仅在需要覆盖自动 `NAVMESH` 目标时保存实测路线。`tools/schema/auto_delivery_routes.schema.json` 为其提供 IDE 校验。两者共同生成：
+`tools/zmdmap/data/delivery_destinations.json` 是 zmdmap 数据 CI 生成并由 `fetch:zmdmap` 下载的仓储/终点目录；本目录的 `routes.json` 参考 EnvironmentMonitoring 的 metadata-only 维护方式，自动同步全部仓储和终点的检索元数据，并仅在需要覆盖自动 `NAVMESH` 目标时保存实测路线。`tools/schema/auto_delivery_routes.schema.json` 为其提供 IDE 校验。两者共同生成：
 
 - `assets/resource/pipeline/AutoDelivery/Routes/{RouteFileId}.json`：按仓储节点分组保存可直接试跑的 `AutoDeliveryRoute...` 节点，并为主路线生成允许滑索的变体；文件名取自仓储英文名（如 `OriginLodespring.json`），终点路线的 `desc` 会注明起点仓储节点；
 - `assets/resource/pipeline/AutoDelivery/RecycleBinAreas.json`：按区域生成资源回收站任务的二次判定入口；`AutoDeliveryRecognizeDestination` 发现同一地图的同一区域存在多个回收站后开始追踪或打开任务地图，并依次检查该区域的全部候选节点；
@@ -29,4 +29,4 @@ pnpm generate:AutoDelivery
 
 所有生成路线的首点都会由生成器统一插入 `ZONE` 区域声明（`ValleyIV_Base` / `Wuling_Base`，取自仓储所在 map 的 BaseNav 地区），把仓储/终点所在区域作为定位器起步时的期望区域，避免冷启动定位落到别的区域图上导致目标点不可达。因此 `path` / `retry_path` / `departure_path` **不需要也不应该**再书写首点 `ZONE`：写了同区域声明会被丢弃后重新生成，声明了其他区域则直接报错。跨区路线在路径中段保留的 `ZONE` 不受影响。
 
-修改 `routes.json` 时只使用 MapNavigator 工具实测得到的路径。普通可达目标仅保留同步出的元数据：仓储节点和资源回收站会在终点的 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往原始坐标，保证从交互正面接近；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 点。这里的 yaw 取自数据源，朝向不合适时用条目上的 `yaw` 覆盖，而不是复制整条接近路线。自动生成的 `NAVMESH` 点一律带 `target_deck_y`，取值是数据源中该实体的世界高度，接近点与终点同层、共用这个高度，用于在上下重叠的可走面里选中目标层。跨层、断网格、交互或需要站位修正的路线才填写对应的路径覆盖，人工 `path` 不会自动插入接近点，层声明按实测结果原样保留。不要为了补齐字段而复制默认坐标。
+修改 `routes.json` 时只使用 MapNavigator 工具实测得到的路径。普通可达目标仅保留同步出的元数据：仓储节点和资源回收站会在终点的 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往实体正面 2 米处的交互范围中心，保证从交互正面接近；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 点。交货路线末尾由生成器接一个 `INTERACT` 交互点（仓储路线与开了 `verify_name` 的终点不接，规则见 `docs/zh_cn/developers/components/auto-delivery.md`），人工 `path` 的末点也由生成器处理，覆盖里不需要手写。这里的 yaw 取自数据源，朝向不合适时用条目上的 `yaw` 覆盖，而不是复制整条接近路线。自动生成的 `NAVMESH` 点一律带 `target_deck_y`，取值是数据源中该实体的世界高度，接近点与终点同层、共用这个高度，用于在上下重叠的可走面里选中目标层。跨层、断网格、交互或需要站位修正的路线才填写对应的路径覆盖，人工 `path` 不会自动插入接近点，层声明按实测结果原样保留。不要为了补齐字段而复制默认坐标。

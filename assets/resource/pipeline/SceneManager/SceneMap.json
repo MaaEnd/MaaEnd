@@ -11,7 +11,7 @@
                     160
                 ],
                 "expected": [
-                    "[Oo].?[Mm].?[Vv]"
+                    "[Oo0].?[Mm].?[Vv]"
                 ]
             }
         },
@@ -139,6 +139,8 @@
         },
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]__ScenePrivateMapTeleportTutorialConfirm",
+            "[JumpBack]__ScenePrivateMapTeleportTutorialNext",
             "__ScenePrivateMapTeleportSuccess"
         ]
     },
@@ -164,8 +166,46 @@
         },
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]__ScenePrivateMapTeleportTutorialConfirm",
+            "[JumpBack]__ScenePrivateMapTeleportTutorialNext",
             "__ScenePrivateMapTeleportSuccess"
         ]
+    },
+    // 传送到帝江号后可能弹出新功能说明（如 1.6「班组轮换」），需翻到最后一页点击确认才能继续。
+    // 最后一页翻页箭头仍在，因此确认需排在翻页之前。
+    "__ScenePrivateMapTeleportTutorialConfirm": {
+        "desc": "传送后的功能说明：最后一页点击底部确认",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "__ScenePrivateMapTeleportTutorialNext": {
+        "desc": "传送后的功能说明：点击右侧箭头翻页",
+        "max_hit": 10,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    880,
+                    220,
+                    400,
+                    260
+                ],
+                "template": "SceneManager/NewTipsNext.png",
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "__ScenePrivateMapTeleportSuccess": {
         "desc": "进入大世界，传送成功",
@@ -279,6 +319,7 @@
                 "threshold": 0.9
             }
         },
+        "pre_wait_freezes": 300,
         "pre_delay": 0,
         "post_delay": 0
     },

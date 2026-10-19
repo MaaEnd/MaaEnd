@@ -42,9 +42,11 @@ except ImportError:
     )
 
 
+# 送货目录来自 zmdmap：入库后的数据在 tools/zmdmap/data/ 下（不再是 tools/pipeline-generate/data/）。
 DEFAULT_CATALOG_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "pipeline-generate"
+    Path(__file__).resolve().parents[2]
+    / "tools"
+    / "zmdmap"
     / "data"
     / "delivery_destinations.json"
 )

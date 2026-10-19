@@ -101,7 +101,7 @@
     "essencefilter.focus.warn.language_detect_failed": "未能從介面辨識遊戲語言，已回退為簡體中文；請確認在基質庫存頁或戰利品介面",
     "essencefilter.inventory.failed": "本次基質庫存未更新，既有檔案保持不變。請查看日誌了解失敗原因。",
     "essencefilter.inventory.saved": "基質庫存已匯出至 %s，共 %d 組、%d 份基質。",
-    "essencefilter.inventory.started": "開始盤點無暇基質：已鎖定的照常掃描，已標記棄置的直接跳過；匹配全部四至六星武器，不修改標記。",
+    "essencefilter.inventory.started": "開始盤點無瑕基質：已鎖定的照常掃描，已標記棄置的直接跳過；匹配全部四至六星武器，不修改標記。",
     "essencefilter.loot_summary.lock_count_col": "鎖定數量",
     "essencefilter.loot_summary.skill_combo_col": "技能組合",
     "essencefilter.loot_summary.title": "戰利品摘要：",

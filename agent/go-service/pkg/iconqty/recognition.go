@@ -48,13 +48,15 @@ type Request struct {
 	TolerateEmptyGrid bool
 }
 
-func isADBController() bool {
-	return strings.EqualFold(strings.TrimSpace(pienv.ControllerType()), "Adb")
+// isADBController 判断当前控制器是否走触控 + 移动端 UI（ADB / PlayCover / Android 原生）。
+// ctrl 由调用方传入；PI_CONTROLLER 缺失时用它兜底，否则移动端会误用桌面 ROI。
+func isADBController(ctrl *maa.Controller) bool {
+	return pienv.IsAdbLikeControllerType(pienv.ResolveControllerKind(ctrl))
 }
 
-// DefaultROI returns the reference ROI for gridType on the current controller.
-func DefaultROI(gridType string) []int {
-	adb := isADBController()
+// defaultROI returns the reference ROI for gridType on the current controller.
+func defaultROI(ctrl *maa.Controller, gridType string) []int {
+	adb := isADBController(ctrl)
 	switch strings.TrimSpace(gridType) {
 	case GridValuables:
 		if adb {
@@ -109,9 +111,9 @@ func NormalizeStringList(values []string, label string) ([]string, error) {
 	return out, nil
 }
 
-func normalizeROI(roi []int, gridType string) ([]int, error) {
+func normalizeROI(ctrl *maa.Controller, roi []int, gridType string) ([]int, error) {
 	if len(roi) == 0 {
-		roi = DefaultROI(gridType)
+		roi = defaultROI(ctrl, gridType)
 	}
 	if len(roi) != 4 {
 		return nil, fmt.Errorf("roi must have 4 ints [x,y,w,h]")
@@ -124,12 +126,12 @@ func normalizeROI(roi []int, gridType string) ([]int, error) {
 	return out, nil
 }
 
-func recognizeIcons(ctx *maa.Context, img image.Image, req Request) ([]iconrecognition.Match, error) {
+func recognizeIcons(ctx *maa.Context, ctrl *maa.Controller, img image.Image, req Request) ([]iconrecognition.Match, error) {
 	gridType := strings.TrimSpace(req.GridType)
 	if gridType == "" {
 		return nil, fmt.Errorf("grid_type is required")
 	}
-	roi, err := normalizeROI(req.ROI, gridType)
+	roi, err := normalizeROI(ctrl, req.ROI, gridType)
 	if err != nil {
 		return nil, err
 	}

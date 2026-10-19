@@ -672,7 +672,7 @@
                 "roi": [
                     950,
                     150,
-                    270,
+                    297,
                     180
                 ],
                 "template": "Common/Button/CloseButtonType4.png"

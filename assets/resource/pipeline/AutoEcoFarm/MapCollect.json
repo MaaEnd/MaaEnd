@@ -1,0 +1,512 @@
+{
+    "__AutoEcoFarmWulingCityFarmStart": {
+        "desc": "开始处理武陵城自动农植机",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "anchor": {
+            "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindWulingCityFarm",
+            "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreWulingCityFarm"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmEnterWulingCityMap"
+        ]
+    },
+    "__AutoEcoFarmFindWulingCityFarm": {
+        "desc": "在地图上定位并点击武陵城自动农植机",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "FarmTerminal",
+                    "at": [
+                        699.101,
+                        1251.929
+                    ]
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -500,
+                350,
+                400,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmCollectPanel",
+            "__AutoEcoFarmChooseFarmTerminal"
+        ]
+    },
+    "__AutoEcoFarmStoreWulingCityFarm": {
+        "desc": "武陵城自动农植机存仓",
+        "max_hit": 5,
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmFacilityPanel",
+            "__AutoEcoFarmStoreButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                940,
+                240,
+                320,
+                360
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRewardConfirm",
+            "__AutoEcoFarmCollectPanel"
+        ]
+    },
+    "__AutoEcoFarmSisPaintingFarmStart": {
+        "desc": "开始处理祀的画自动农植机",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "anchor": {
+            "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindSisPaintingFarm",
+            "__AutoEcoFarmStoreFacilityAnchor": "__AutoEcoFarmStoreSisPaintingFarm"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmEnterSisPaintingMap"
+        ]
+    },
+    "__AutoEcoFarmFindSisPaintingFarm": {
+        "desc": "在地图上定位并点击祀的画自动农植机",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "FarmTerminal",
+                    "at": [
+                        2159.866,
+                        400.073
+                    ]
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -500,
+                350,
+                400,
+                300
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmCollectPanel",
+            "__AutoEcoFarmChooseFarmTerminal"
+        ]
+    },
+    "__AutoEcoFarmStoreSisPaintingFarm": {
+        "desc": "祀的画自动农植机存仓",
+        "max_hit": 5,
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmFacilityPanel",
+            "__AutoEcoFarmStoreButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                940,
+                240,
+                320,
+                360
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRewardConfirm",
+            "__AutoEcoFarmCollectPanel"
+        ]
+    },
+    "__AutoEcoFarmRanchStart": {
+        "desc": "开始处理祀的画牧场",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "anchor": {
+            "__AutoEcoFarmFindFacilityAnchor": "__AutoEcoFarmFindRanch"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmEnterSisPaintingMap"
+        ]
+    },
+    "__AutoEcoFarmFindRanch": {
+        "desc": "在地图上定位并点击祀的画牧场",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapFind",
+                "custom_recognition_param": {
+                    "zone": "Wuling",
+                    "icon": "Ranch",
+                    "at": [
+                        2150.75,
+                        425.5
+                    ]
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRanchPanelReady"
+        ]
+    },
+    "__AutoEcoFarmStoreRanch": {
+        "desc": "祀的画牧场存仓",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmRanchPanel",
+            "__AutoEcoFarmStoreButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                940,
+                240,
+                320,
+                360
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFinishRewardConfirm",
+            "__AutoEcoFarmFinishFacility"
+        ]
+    },
+    "__AutoEcoFarmRanchPanelReady": {
+        "desc": "确认牧场面板已打开并等待画面稳定",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmRanchPanel"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                940,
+                45,
+                320,
+                555
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmStoreRanch"
+        ]
+    },
+    "__AutoEcoFarmFinishRewardConfirm": {
+        "desc": "通过公共奖励子任务处理收尾奖励页，完成后关闭面板或确认已回地图",
+        "recognition": "And",
+        "all_of": [
+            "SceneNoticeRewardsConfirm"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneNoticeRewardsConfirm"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFinishFacility",
+            "__AutoEcoFarmFacilityClosed"
+        ]
+    },
+    "__AutoEcoFarmEnterWulingCityMap": {
+        "desc": "打开目标装置所属子区域地图",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmWulingCityMapReady",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
+        ]
+    },
+    "__AutoEcoFarmWulingCityMapReady": {
+        "desc": "确认目标子区域地图已经打开",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterStart"
+        ]
+    },
+    "__AutoEcoFarmEnterSisPaintingMap": {
+        "desc": "通过公共Scene子任务进入祀的画地图",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneEnterMapWulingSisPainting"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterStart"
+        ]
+    },
+    "__AutoEcoFarmChooseFarmTerminal": {
+        "desc": "地图标记重叠时，在候选列表中选择自动农植机",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -500,
+                    350,
+                    400,
+                    300
+                ],
+                "template": [
+                    "AutoEcoFarm/FarmTerminalPanel.png"
+                ],
+                "threshold": 0.85
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmCollectPanel"
+        ]
+    },
+    "__AutoEcoFarmFarmTerminalPanel": {
+        "desc": "识别自动农植机面板图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    945,
+                    45,
+                    65,
+                    45
+                ],
+                "template": [
+                    "AutoEcoFarm/FarmTerminalPanel.png"
+                ],
+                "threshold": 0.85
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoEcoFarmRanchPanel": {
+        "desc": "识别牧场面板图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    945,
+                    45,
+                    65,
+                    45
+                ],
+                "template": [
+                    "AutoEcoFarm/RanchPanel.png"
+                ],
+                "threshold": 0.85
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoEcoFarmFacilityPanel": {
+        "desc": "确认已打开农植机或牧场面板",
+        "recognition": "Or",
+        "any_of": [
+            "__AutoEcoFarmFarmTerminalPanel",
+            "__AutoEcoFarmRanchPanel"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoEcoFarmStoreButton": {
+        "desc": "按完整文字识别存仓按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    460,
+                    380,
+                    180
+                ],
+                "expected": [
+                    "存至武陵仓库",
+                    "存放至武陵倉庫",
+                    "(?i)Store\\s*in\\s*Wuling\\s*Depot",
+                    "武陵倉庫へ保存",
+                    "무릉 창고에 보관하기"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__AutoEcoFarmCollectPanel": {
+        "desc": "确认装置面板稳定后继续尝试存仓",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmFacilityPanel"
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                940,
+                45,
+                320,
+                555
+            ],
+            "threshold": 0.99
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmRewardConfirm",
+            "[Anchor]__AutoEcoFarmStoreFacilityAnchor",
+            "__AutoEcoFarmFinishFacility"
+        ]
+    },
+    "__AutoEcoFarmRewardConfirm": {
+        "desc": "通过公共奖励子任务处理奖励页，完成后检查同一装置的新产出",
+        "recognition": "And",
+        "all_of": [
+            "SceneNoticeRewardsConfirm"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SceneNoticeRewardsConfirm"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmCollectPanel"
+        ]
+    },
+    "__AutoEcoFarmFinishFacility": {
+        "desc": "关闭当前装置面板",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmFacilityPanel",
+            "__AutoEcoFarmStoreButton",
+            "CloseButtonType1"
+        ],
+        "box_index": 2,
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                940,
+                45,
+                320,
+                555
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFinishRewardConfirm",
+            "__AutoEcoFarmFacilityClosed"
+        ]
+    },
+    "__AutoEcoFarmFacilityClosed": {
+        "desc": "通过公共地图界面识别确认装置面板已关闭",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEcoFarmMain"
+        ]
+    }
+}

@@ -22,7 +22,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVValleyPass0"
+                "SceneEnterWorldValleyIVValleyPassValleyFort"
             ]
         },
         "post_delay": 0,

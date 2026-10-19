@@ -83,8 +83,8 @@
                     1747.11
                 ],
                 [
-                    1253.02,
-                    1752.33
+                    1252.425,
+                    1751.423
                 ]
             ],
             "zip": false,
@@ -185,8 +185,8 @@
                     1747.11
                 ],
                 [
-                    1253.02,
-                    1752.33
+                    1252.425,
+                    1751.423
                 ]
             ],
             "zip": true,
@@ -227,7 +227,7 @@
                     "action": "NAVMESH",
                     "target": [
                         1252.425,
-                        1752.923
+                        1751.423
                     ],
                     "target_deck_y": 267.26
                 }
@@ -270,7 +270,25 @@
                         1383.764,
                         1633.923
                     ],
-                    "target_deck_y": 253.642
+                    "target_deck_y": 253.642,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1383.764,
+                        1633.923
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "赵昭",
+                        "趙昭",
+                        "(?i)Zhao\\s*Zhao",
+                        "ジャオ・ジャオ",
+                        "조조"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -312,7 +330,25 @@
                         1383.764,
                         1633.923
                     ],
-                    "target_deck_y": 253.642
+                    "target_deck_y": 253.642,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1383.764,
+                        1633.923
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "赵昭",
+                        "趙昭",
+                        "(?i)Zhao\\s*Zhao",
+                        "ジャオ・ジャオ",
+                        "조조"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -355,7 +391,25 @@
                         1383.764,
                         1633.923
                     ],
-                    "target_deck_y": 253.642
+                    "target_deck_y": 253.642,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1383.764,
+                        1633.923
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "赵昭",
+                        "趙昭",
+                        "(?i)Zhao\\s*Zhao",
+                        "ジャオ・ジャオ",
+                        "조조"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -396,7 +450,24 @@
                         1083.307,
                         1455.27
                     ],
-                    "target_deck_y": 244.758
+                    "target_deck_y": 244.758,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1083.307,
+                        1455.27
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "裴令容",
+                        "(?i)Pei\\s*Lingrong",
+                        "ペイ・リンロン",
+                        "배령용"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -438,7 +509,24 @@
                         1083.307,
                         1455.27
                     ],
-                    "target_deck_y": 244.758
+                    "target_deck_y": 244.758,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1083.307,
+                        1455.27
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "裴令容",
+                        "(?i)Pei\\s*Lingrong",
+                        "ペイ・リンロン",
+                        "배령용"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -481,7 +569,24 @@
                         1083.307,
                         1455.27
                     ],
-                    "target_deck_y": 244.758
+                    "target_deck_y": 244.758,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1083.307,
+                        1455.27
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "裴令容",
+                        "(?i)Pei\\s*Lingrong",
+                        "ペイ・リンロン",
+                        "배령용"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"
@@ -522,7 +627,24 @@
                         1369.873,
                         1533.922
                     ],
-                    "target_deck_y": 259.142
+                    "target_deck_y": 259.142,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1369.873,
+                        1533.922
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "阿禾",
+                        "(?i)Ah\\s*He",
+                        "フウ",
+                        "수이"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": false,
@@ -564,7 +686,24 @@
                         1369.873,
                         1533.922
                     ],
-                    "target_deck_y": 259.142
+                    "target_deck_y": 259.142,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1369.873,
+                        1533.922
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "阿禾",
+                        "(?i)Ah\\s*He",
+                        "フウ",
+                        "수이"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "zip": true,
@@ -607,7 +746,24 @@
                         1369.873,
                         1533.922
                     ],
-                    "target_deck_y": 259.142
+                    "target_deck_y": 259.142,
+                    "required": true
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1369.873,
+                        1533.922
+                    ],
+                    "required": true,
+                    "interact_text": [
+                        "阿禾",
+                        "(?i)Ah\\s*He",
+                        "フウ",
+                        "수이"
+                    ],
+                    "interact_scan": "AutoDeliverySubmitGoodsInteractScan",
+                    "interact_rec": true
                 }
             ],
             "heading_source": "camera"

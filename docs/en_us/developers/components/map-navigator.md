@@ -1,23 +1,29 @@
 # Development Manual - MapNavigator Path Navigation System
 
-## Introduction
+MapNavigator is MaaEnd's pathfinding component: given a target position, it plans a route automatically and drives the character there.
 
-This document explains how to use the **MapNavigator** related nodes and how to leverage the built-in GUI tool in the repository to record, edit, and export navigation paths that can be directly used in a Pipeline.
+Path coordinates are obtained by clicking on the map in the companion tool `/tools/MapNavigator`; writing them by hand is not recommended.
 
-**MapNavigator** is MaaEnd's current high-precision automatic navigation Action module. It relies on the underlying MapLocator's continuous localization to obtain the character's current area, global coordinates, and orientation. Then, it drives the character to move to the target location, executing actions like sprinting, jumping, interaction, and map transition at key points.
+- [Quick Start](#quick-start)
+- [Companion Tool](#companion-tool)
+- [Target-Based Pathfinding: `NAVMESH`](#target-based-pathfinding-navmesh)
+- [Recording a Full `path`](#recording-a-full-path)
+- [`path` Data Format](#path-data-format)
+- [Node Parameters](#node-parameters)
+- [How `NAVMESH` Pathfinding Works](#how-navmesh-pathfinding-works)
+- [Collecting and Digging `COLLECT` / `DIG`](#collecting-and-digging-collect--dig)
+- [Async Interaction `INTERACT`](#async-interaction-interact)
+- [Practical Tips](#practical-tips)
 
-### Two Workflows
+## Quick Start
 
-MapNavigator offers two ways to specify "where to go". **Determining which one your scenario belongs to first can save a great deal of work**:
+Getting the character to a given position takes five steps:
 
-| Workflow | What you need to provide | Applicable scenario |
-| ---------------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Target-based pathfinding** | A single target coordinate | The target point is inherently walkable, with no special mechanisms along the way |
-| **Recorded path** | The full waypoint sequence | The route involves interactions, map transitions, jump platforms, external teleports, and similar semantics |
-
-#### Target-based: `NAVMESH`
-
-As long as the target point is inherently reachable without interactions, map transitions, or special mechanisms, **filling in a single `target` is enough**:
+1. **Start the tool**: run `uv run map-navigator` from the project root. The browser opens automatically and enters `路径编辑` (Path Editing) mode by default.
+2. **Select the tier**: click the button showing the current basemap / tier at the right end of the map's top toolbar, and in `选择底图与层级` (Select Basemap and Tier) choose the basemap / tier where the target is.
+3. **Mark the target**: choose `添加/选择` (Add/Select) and click the target position on the map. Manually added waypoints default to `NAVMESH`; only points produced by recording a live trajectory default to `RUN`.
+4. **Copy**: click `复制路径` (Copy Path).
+5. **Paste**: paste it into the Pipeline node.
 
 ```json
 {
@@ -40,226 +46,80 @@ As long as the target point is inherently reachable without interactions, map tr
 }
 ```
 
-No pre-recording of the route, no intermediate points, and no `zone_id` are needed — at runtime the area is inferred from the current localization, and an executable path is planned on the BaseNav triangle graph. When the target point is on a layered map, just add one more [`target_tier`](#tier-coordinate-frame-target_tier) field.
+The node needs no start point, intermediate points, or `zone_id`; at runtime the route is planned automatically from the current localization. When the target is on a layered basemap, the tool also exports the `target_tier` field.
 
-This form is already used in production routes such as Auto Collect and Environment Monitoring.
-
-In the GUI's A\* tab, paste a JSON coordinate pair such as `[724.98, 1596.8]` into either the X or Y field to fill both values automatically, then click **Mark Point** to show the target preview.
-
-#### Recorded: `path`
-
-When the route itself contains semantics the navigator cannot infer on its own — interacting at a certain point, passing through a map transition point, using a jump platform, or waiting for an external teleport — you need a recorded path. The accompanying GUI tool `/tools/MapNavigator` lets you walk the route once in-game to record it automatically, then fine-tune it, add actions, and copy it with one click.
-
-The two forms can be mixed within the same `path` array: use `NAVMESH` to cover long stretches of plain travel, and coordinate points to handle the local segments that need precise semantics.
-
-> [!NOTE]
->
-> The GUI's A\* preview and the runtime pathfinder read the same `base.nav.gz` and follow the same planning logic, so the route previewed in the GUI matches the route the runtime plans, and you can judge from the preview whether a target point can be reached. Note that this refers to the **planning result** being consistent; actual execution is still affected by localization, terrain, and in-game conditions, so the outer Pipeline still needs failure fallback.
-
-### Boundary Description
-
-MapNavigator is responsible for "**stably leading the person there once the target is given**", belonging to the Action layer.
-
-- It **does not** handle business process orchestration. Decisions like when to start walking, what constitutes success upon arrival, or how to handle unexpected situations en route should still be determined by the outer Pipeline.
-- It **does not** infer business semantics. Plain-travel paths can be planned automatically by `NAVMESH`, but semantics like interaction, map transition, jump platforms, and external teleports must be explicitly annotated by the developer in `path`.
-- It **does not** make judgments like "should this path be taken this time". For such entry condition judgments, it is recommended to first confirm using recognition or scene nodes before entering the navigation action.
-
-### Relationship Between MapNavigator and Recording Tool
-
-A dedicated GUI tool is provided within the repository: `/tools/MapNavigator`.
-
-Its design goal is very direct:
-
-1. Start the game and open the tool.
-2. Click to start recording directly.
-3. Walk through the actual path in the game.
-4. After stopping the recording, fine-tune, delete points, and add actions in the GUI.
-5. Click to copy, and paste the exported `path` into the Pipeline's `custom_action_param.path`.
-
-This means that **recording a route does not require manually writing coordinates**: walk it once, fine-tune, and paste. What mainly needs recording are routes containing interactions, map transitions, and mechanisms; for stretches of plain travel, giving `NAVMESH` a target coordinate skips recording entirely (see [Two Workflows](#two-workflows)).
+Exception: when the route contains mechanisms such as interactions, map transitions, or jump platforms, `NAVMESH` cannot infer these semantics; use a [recorded path](#recording-a-full-path) instead.
 
 ---
 
-## Node Description
+## Companion Tool
 
-Below is a detailed introduction to the node usage provided by MapNavigator. The current interface is based on MAA `Custom` Action: `MapNavigateAction`.
+The tool produces the coordinates, and MapNavigator moves according to them. The tool is a local FastAPI backend (listening only on `127.0.0.1`) plus a browser frontend, and opens the page automatically on startup; see [`tools/MapNavigator/README.md`](../../../../tools/MapNavigator/README.md) for details.
 
-### custom_action: MapNavigateAction
+To start it:
 
-Controls the character to move automatically along a given path and execute additional actions at waypoints.
-
-#### Node Parameters
-
-**Required Parameters (at least provide `path` recommended)**:
-
-- `path`: List of path points. MapNavigator will consume these nodes sequentially and navigate continuously until the path ends or fails midway.
-
-**Common Optional Parameters (`custom_action_param`)**:
-
-- `map_name`: String, empty by default. Used as the initial area context. If the `path` already contains a `ZONE` declaration node, this usually does not need to be filled additionally.
-- `arrival_timeout`: Positive integer, `60000` by default. Maximum allowed time in milliseconds for a single target point to remain unreached before being considered failed.
-- `sprint_threshold`: Positive real number, `25.0` by default. The "length of continuously runnable segment ahead" threshold used for automatic sprint judgment, rather than just looking at the straight-line distance to the current point.
-- `interact_text`: String or array of strings, empty by default. Route-wide default for the interact prompt text, see [Async Interaction](#async-interaction-interact). The field also supports camelCase `interactText`; text written on a waypoint wins, and the route-wide value only fills in the `INTERACT` points that carry none of their own. An empty string or an empty array is rejected outright (the whole parameter parse fails) rather than treated as absent, because empty text matches anything on the recognition side.
-- `interact_scan`: String, empty by default. Route-wide default for the walking pre-filter node, see [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter). The field also supports camelCase `interactScan`; a node named on a waypoint wins, and an empty string counts as absent (falling back to the shipped one).
-- `interact_rec`: Boolean, `false` by default. Whether this route's `INTERACT` points recognize the prompt without pressing anything, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode). The field also supports camelCase `interactRec`. Unlike the two above it does not follow "the waypoint wins": writing `true` here turns the whole route's `INTERACT` points on, and a waypoint cannot turn itself back off — a boolean cannot tell "written `false`" from "not written", so this field only ever switches points on. Leave it off the route root when some points should still press.
-- `find_target`: String, empty by default. Route-wide default for the `FIND` target recognition node, see [Finding and Approaching a Target](#finding-and-approaching-a-target-find). Camel case `findTarget` is accepted too; a value written on the point wins. The target source is filled as one group: a `FIND` point carrying either `find_target` or `find_text` receives neither route-wide field; only a point carrying neither receives both. If the route sets both `find_target` and `find_text` while containing a `FIND` point, parsing fails.
-- `find_text`: String or array of strings, empty by default. Route-wide default for the `FIND` inline OCR text table, camel case `findText` accepted. It is the other way of saying what to look for, so a point may carry either this or `find_target`, never both; the two fields form a single route-wide fallback, applied only to points that carry neither.
-- `find_stop`: String, empty by default. Route-wide default for the node whose hit means the `FIND` point is done, camel case `findStop` accepted. Unlike the `interact_*` fields there is no "fall back to the plain semantic" here: a `FIND` point without a target or without a completion criterion fails the whole parameter parse.
-- `find_arrive`: `[x, y]`, empty by default. Route-wide default for the coordinate that also completes a `FIND` point, camel case `findArrive` accepted. A point carrying it reads the locator once per step — x/y for the distance test only, never for steering — while points without it stay off the map entirely.
-- `enable_bootstrap_navmesh`: Boolean, `true` by default. Whether the run may plan a navmesh route at startup to join the recorded path. Set it to `false` to skip that planning and walk the recorded points directly — the escape hatch for stacked terrain (platforms, catwalks, rooftops) where the startup plan detours badly.
-- Other unknown top-level fields: Currently ignored silently without causing errors.
-
-#### `path` Data Structure
-
-`path` is essentially an array where each element represents a "path node". Typically, you don't need to manually write this content; using the accompanying GUI tool `/tools/MapNavigator` for orchestration is more recommended. Common usage is as follows.
-
-##### **1. Most Common Coordinate Point**
-
-```json
-[
-    688,
-    350
-]
+```powershell
+uv run map-navigator
 ```
 
-Represents an ordinary movement point, meaning proceeding to the next point upon reaching this coordinate.
+Use `--port PORT` to select the preferred port and `--no-browser` to suppress opening the browser:
 
-##### **2. Coordinate Point with Action**
-
-```json
-[
-    720,
-    350,
-    "SPRINT"
-]
+```powershell
+uv run map-navigator --port 9000 --no-browser
 ```
 
-Indicates that a `SPRINT` action should be executed upon reaching this point. Current common actions include:
+The service always listens only on `127.0.0.1`. Run `uv run map-navigator --help` for the complete startup options.
 
-When a coordinate was authored directly on a tier basemap, use the object form to declare that point's coordinate frame explicitly:
+Tabs at the top of the workspace card in the left column switch between four workspaces: `路径编辑` (Path Editing), `断言` (Assert), the read-only `日志分析` (Log Analysis), and `禁区` (No-Go Zones):
 
-```json
-{
-    "action": "RUN",
-    "target": [
-        243.49,
-        177.53
-    ],
-    "target_tier": "Wuling_L4_328"
-}
-```
+| Workspace | Operation | Exported Content |
+| ---------- | ------------------------------------------ | ------------------------------------------------ |
+| `路径编辑` (Path Editing) | Add `NAVMESH` targets by hand, or connect to the game to record a `RUN` trajectory; edit actions and plan the current segment with runtime semantics | Copies the full `path` by default; in zipline mode, copies the full `custom_action_param` |
+| `断言` (Assert) | Drag out a rectangular area, then move and resize it with the box and its edge and corner handles | Copies a `MapLocateAssertLocation` node, or only the Environment Monitoring `NavAssert` coordinates |
+| `日志分析` (Log Analysis) | Import `cpp-algo/debug/maafw*.log` or a MaaEnd `-partNN.zip` locally and replay walking/zipline decisions on the matching basemap | No export; shows cost calculations, raw reasons, zipline snapshots, and actual landing records |
+| `禁区` (No-Go Zones) | Use `圈禁区` (Draw No-Go Zone) to outline polygonal areas on the map that the planner must not enter | Nothing to copy; `保存并重载` (Save and Reload) writes them back to `assets/data/MapNavigator/nogo_zones.json` |
 
-`target_tier` only describes the coordinate frame of this node. It does not switch zones, update following nodes, or replace the `ZONE` / `PORTAL` semantics required for an actual area transition. Existing arrays and object points without `target_tier` retain their previous behavior.
+The connection settings and live test runs sit in the live card at the top of the left column, shown in every workspace except `日志分析` (Log Analysis); recording is only available in `路径编辑` (Path Editing), and a test run in `断言` (Assert) only checks the current assert box once with `MapLocateAssertLocation`. `日志分析` does not connect to the game: entering that workspace hides the live card and the live position and pauses connection status probing. Switching workspaces keeps the author route, but leaving `断言` clears the current assert box. All four modes share the `图层` (Layers) panel in the map's top toolbar: the `底图` (Basemap), `NAVMESH 网格` (NAVMESH Mesh), and `滑索架` (Zipline Pylons) toggles persist across modes and are saved in the browser, while the log-specific path, trajectory, and zipline decision annotations appear as an extra group in the same panel only in log mode.
 
-The object form is also how an `INTERACT` point declares the prompt text it came for (and, when needed, `interact_scan`). The array form `[x, y, "INTERACT"]` has no slot for these fields, so async interaction requires the object form:
+`路径编辑` (Path Editing) covers both ways of using MapNavigator: clicking by hand produces `NAVMESH` targets that the runtime pathfinds to, and live recording produces `RUN` points that are executed along the trajectory. The two can be mixed within the same `path` array — use `NAVMESH` for long-distance movement, and recorded points and action points for the local segments that need precise semantics.
 
-```json
-{
-    "action": "INTERACT",
-    "target": [
-        331,
-        1578
-    ],
-    "interact_text": "登记"
-}
-```
+The `断言` (Assert) mode produces [MapLocator](./map-locator.md) area-check nodes, used to confirm that the character is at the expected position before navigating. Drag on empty space to redraw the rectangle, drag the existing box to move it, and drag the handles on its four edges or four corners to resize it.
 
-Only `INTERACT` points can take these fields — on any other action they are ignored, with one `carries interact fields without an INTERACT action` line in the log.
+`日志分析` (Log Analysis) extracts every `MapNavigateAction` call and distinguishes the author's path hints, the walking plan actually adopted, the walking baseline that lost to ziplines, and the zipline hops that were actually launched and confirmed to have landed. When a run fails, the page directly shows the termination reason, error description, and key values recorded by the runtime, and lists the most recent zipline abandonment record as a preceding recovery event; unknown reasons keep their raw identifier instead of being guessed by the frontend. The page also extracts the successful MapLocator coordinates (`status=0`) from the `PositionProvider` logs to draw the measured ground trajectory; zipline flights and localization gaps break the polyline instead of being filled with predicted positions. When all ZIP parts of the same log bundle are selected directly, the page decompresses the cpp-algo logs one by one and reads the `record/Ziplines.json` of the same group: zipline pylons that this run's logs can locate are shown as numbered dots, while same-map zipline pylons from the snapshot appear as purple diamonds with a dark outline as the candidate background. By default, clicking a point on the map shows the details of an author point, planned point, measured point, or zipline pylon; the floating detail card appears at the top right of the map only after something is hit. To measure distances, first click `滑索架测距` (Zipline Pylon Distance) in the map's top toolbar (it stays disabled until `滑索架` (Zipline Pylons) is checked in `图层` (Layers)); once the measuring card appears, select the two zipline pylons A / B in turn. Point details and measurement results are independent of each other, and dragging the map still pans; leaving the measuring tool only hides the result card and does not clear the existing A / B. Skland records a corner-cell anchor that changes with orientation, so the map and the floating card use the same `footprint` algorithm as the runtime to show the range of 3D world spans between the possible centers, the raw anchor distance, the horizontal distance range, the height difference, and the basemap pixel distance. The height difference is used as-is, without applying the footprint offset; when the two are of the same type, share the same `level_id`, and the lower bound of the range does not exceed `max_span`, the page marks them as geometrically connectable. This check does not cover power supply, reachability, disabled edges, or cost planning; the actual choice is still determined by the run log. The log does not record the full planned polylines for approaching the boarding point and leaving the last zipline of a zipline combination, so the page still uses clearly labeled dashed lines for the estimated endpoint connections and never passes them off as planned or measured trajectories. Files are read only locally in the browser; log mode cannot modify routes or start live test runs.
 
-- `RUN`: Ordinary movement point.
-- `SPRINT`: Perform a sprint once upon arrival.
-- `JUMP`: Jump upon arrival.
-- `FIGHT`: Attack once upon arrival.
-- `INTERACT`: Interact upon arrival. With `interact_text` it becomes an async interaction instead, see [Async Interaction](#async-interaction-interact).
-- `TRANSFER`: Stop upon arrival, wait for external force to move the character to the next path segment, then continue navigation from subsequent points.
-- `PORTAL`: Cross-area transition point, upon triggering, enter blind walk to wait for area switch.
-- `HEADING`: Adjust the camera to a specified orientation, then press `W` once.
-- `COLLECT`: Collection point, upon precise arrival, synchronously trigger AutoCollect OCR + click, without exiting NaviController. See [Collection Semantics](#collection-semantics-collect--dig).
-- `DIG`: Digging point, same as `COLLECT`, but triggers a digging subtask. See [Collection Semantics](#collection-semantics-collect--dig).
-- `FIND`: Look for a target that exists only as a recognition box and walk up to it — turning the camera to search, stepping toward the box, done as soon as `find_stop` hits or the position reaches `find_arrive`. See [Finding and Approaching a Target](#finding-and-approaching-a-target-find).
-- `TRIGGER`: Route end point. The navigator recognizes `trigger_node` while walking and succeeds on the first hit, or when the character reaches `target`. See [Ending on a Recognition Hit](#ending-on-a-recognition-hit-trigger).
+`禁区` (No-Go Zones) is for outlining virtual no-go zones that the planner must not enter: choose `圈禁区` (Draw No-Go Zone), click on the map to place the vertices one by one, and double-click or press `Enter` to close the ring; once an existing zone is selected, drag its vertices, edges, or interior to adjust its shape and position, and press `Delete` to delete the selected vertex or zone. A zone drawn on the base map applies to every layer; to block a single layer only, switch to that tier first and then draw. `保存并重载` (Save and Reload) writes them back to `assets/data/MapNavigator/nogo_zones.json` and reloads the navmesh used by the tool's preview, with the reload result shown in the status bar; previews already on screen were planned with the old table, so back in `路径编辑` (Path Editing) the route is re-planned automatically if `自动展开` (Auto Expand) is checked, otherwise click `重新展开` (Re-expand). The runtime `MapNavigateAction` reads the same table, but each agent process reads it only once, when it first loads a map's navmesh, and never re-reads it: a running MaaEnd needs a restart; during a test run, `F4` only stops the current round, and pressing `结束会话 (F4)` (End Session) while idle ends the session, after which a new test run picks up the change. The planner treats a zone as a wall, and when the start or the end lies inside a zone, planning fails outright instead of handing over to fallbacks such as blind walking.
 
-##### **3. Strict Arrival Point**
+Both `路径编辑` (Path Editing) and `断言` (Assert) can connect to the game directly and mark the current position as a reference point. In `路径编辑` the marker is read-only and does not add an author waypoint; when the existing path and the localization result are on different basemaps, the current segment is not forcibly switched. After recording starts in `路径编辑`, the bottom of the page keeps refreshing the coordinates, the area, and the orientation measured by MapLocator (`0°` is north, `90°` is east).
 
-```json
-[
-    700,
-    350,
-    "INTERACT",
-    true
-]
-```
+In map interaction, `Esc` always means "cancel the current operation or selection" and never deletes author content; when the `图层` (Layers) panel is open, it closes the panel first. The behavior in each view:
 
-The trailing `true` enables strict arrival for this point. For certain interactions, jumps, teleports, or map transitions that genuinely require strict arrival at key points, it is recommended to use strict arrival or directly use the corresponding action point. This is because the underlying system already processes these critical actions with stricter arrival semantics (slower arrival, stricter confirmation of arrival radius threshold).
+| View | `Esc` |
+| --- | --- |
+| `路径编辑` (Path Editing) 2D | Clears the quick test first; otherwise cancels the author waypoint or planning start selection, the temporary point-picking tool, zipline details, or the measurement selection |
+| `路径编辑` 3D | Releases the pointer first when spectator mode has captured it; otherwise cancels the current 3D point selection |
+| `断言` (Assert) | While dragging, reverts the current move, resize, or redraw; after dragging, deselects the assert box and hides its handles while keeping the rectangle; zipline details or measurements are also cleared, returning to the assert editing tool |
+| `日志分析` (Log Analysis) | Cancels point details or zipline measurement, keeping the imported log data |
+| `禁区` (No-Go Zones) | While drawing, discards the zone being drawn; otherwise cancels the vertex selection first, then the zone selection |
 
-##### **4. Zone Declaration Node**
+Only `Delete` deletes the selected author waypoint, planning start, or assert box; `清除断言` (Clear Assert) in the sidebar clears the rectangle directly without selecting it first. After the assert box is deselected, click the box to select it again and continue adjusting.
 
-```json
-{
-    "action": "ZONE",
-    "zone_id": "Wuling_Base"
-}
-```
+---
 
-This is a **non-coordinate control node** used to declare "which area the subsequent path should be in". It itself does not execute displacement but only provides area **verification** context for subsequent path points.
+## Target-Based Pathfinding: `NAVMESH`
 
-##### **5. Orientation Control Node `HEADING`**
+This is the node from [Quick Start](#quick-start): its point is placed by hand in the path editor and exported with `复制路径` (Copy Path).
 
-```json
-{
-    "action": "HEADING",
-    "angle": 90
-}
-```
+Only one `target` is needed: no start point, intermediate points, or `zone_id`. At runtime, the character's area and position are determined from the current localization, and a feasible route is planned on the map's triangle-face data (BaseNav).
 
-Or:
+The character's position and orientation all come from [MapLocator](./map-locator.md)'s per-frame recognition; MapNavigator is only responsible for reaching the target.
 
-```json
-{
-    "action": "HEADING",
-    "target": [
-        688,
-        350
-    ]
-}
-```
+The tool preview and the runtime read the same data and use the same algorithm, so in regular scenarios the previewed route matches the runtime planning result, and you can judge from the preview whether the target is reachable (for how the preview can still differ from actual execution, see [How `NAVMESH` Pathfinding Works](#how-navmesh-pathfinding-works)). This form is already used in production routes such as Auto Collect and Environment Monitoring.
 
-Non-coordinate node. During execution, after adjusting the camera orientation, lightly press `W` once to advance and make the orientation take effect. `angle` specifies the orientation angle directly; `target` calculates the orientation based on "current position -> target coordinates" and then reuses the same `HEADING` action flow.
+### Tier Coordinate Frame: `target_tier`
 
-##### **6. BaseNav Semantic Node `NAVMESH`**
+For `NAVMESH`, omitting `target_tier` means that `target` is interpreted in **base-map coordinates**, i.e. the default behavior described above. For ordinary coordinate waypoints, omitting it preserves the historical coordinate interpretation without adding a conversion.
 
-```json
-{
-    "action": "NAVMESH",
-    "target": [
-        720,
-        630
-    ]
-}
-```
-
-This is a **BaseNav semantic pathfinding node**. It does not carry `zone_id`, `navmesh_zone`, or `path`; it only provides the target point `target`. The remaining information is automatically inferred at runtime based on current localization.
-
-The operational flow of `NAVMESH` is:
-
-1. At runtime, prioritize loading `assets/resource/model/map/navmesh/base.nav.gz`; fall back to `base.nav` if it doesn't exist.
-2. Infer the BaseNav zone based on the current localization area.
-3. When ziplines are enabled, read the pseudonymous account identity captured during this run's initialization and load only that account's zipline records; if the identity is unavailable, fall back to walking. Legacy records without an account field are claimed by the current account while that account still has no records of its own (see "multi-account ziplines" above) and then take part in filtering exactly like account-scoped records.
-4. Snap the landing point according to the current floor height, then execute A\* on the `.nav` triangle graph, only traversing BaseNav's own edges.
-5. Expand the planning result into ordinary `RUN` waypoints, which are then handed over to the movement execution chain.
-
-Step 3's floor snapping is worth calling out separately: on multi-floor maps, triangle faces from several floors are stacked at the same planar coordinate. Without distinguishing height, the start or end point may be snapped to the wrong floor, which shows up as the character clipping through walls or the path being unreachable. BaseNav bakes the floor height for each zone into the data pack and filters candidate faces by height band during planning, so the landing point in multi-floor areas is deterministic.
-
-In the GUI, clicking `Load BaseNav` makes the tool enter the same BaseNav preview logic; clicking `Copy NAVMESH` copies this type of node to the clipboard.
-`NAVMESH` is suitable for scenarios that require "automatically finding a triangle graph path from the current position to the target point" without needing to manually record an entire path segment beforehand.
-
-**As long as the original path is inherently reachable without interactions, map transitions, or special mechanisms, `NAVMESH` only needs a `target` to directly lead the character to the target location**. No pre-recording of the entire route is needed, nor is there a need to add intermediate points, adjust coordinates, or manually splice the path for this target point. In the GUI, simply click out the target, and at runtime, an executable path will be planned directly based on the BaseNav triangle graph.
-
-###### Tier Coordinate Frame: `target_tier`
-
-For `NAVMESH`, omitting `target_tier` means that `target` is already in **base-map coordinates**. For ordinary coordinate waypoints, omitting it preserves the historical coordinate interpretation without adding a conversion.
-
-When the target point is on a specific **tier (layered map)**, each tier is a **mutually independent coordinate system**: the same numbers `[123, 456]` on the base and on a tier are completely different physical locations. In this case, simply add a `target_tier` field to the node, declaring which layer's coordinate system the `target` is filled according to:
+In a layered basemap (tier), each layer is an independent coordinate system: the same `[123, 456]` on the base and on a tier are two different locations. In this case, add a `target_tier` field to the node to declare which layer the `target` belongs to:
 
 ```json
 {
@@ -272,16 +132,30 @@ When the target point is on a specific **tier (layered map)**, each tier is a **
 }
 ```
 
-- `target`: The coordinate **directly clicked out in the GUI after switching to that tier's base map**, without needing to manually convert it to base coordinates.
-- `target_tier`: The **area name** of that layer, i.e., the name part after `:` in the `id:name` of the tier dropdown in the GUI.
-- At runtime, the affine transformation baked into the `.nav` for that tier is used to automatically project `target` back to the base coordinate system (using the same mirroring logic as automatic normalization of the starting point localization), and snap the landing point according to that tier's floor height.
-- This is the only thing needed to go to a tier: **a single node with `target` + `target_tier` is enough**. No additional `ZONE` node is needed, no intermediate points need to be added, and no manual coordinate adjustment is required.
-- Positioned ordinary actions (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER`) and target-based `HEADING` accept the same `target` + `target_tier` object form. Unlike `NAVMESH`, this declaration does not imply navigation or a zone transition; it only projects that one coordinate before execution.
-- The field also supports camelCase `targetTier`. An unknown tier on `NAVMESH` keeps the compatibility behavior of logging a warning and treating the target as base coordinates. An explicitly tagged ordinary point fails instead of silently moving toward the wrong location.
+- `target`: the coordinate clicked directly in the tool after switching to that tier's basemap, without manually converting it to base coordinates.
+- `target_tier`: the area name of that layer, i.e. the name after the colon in `id:name` in the tool's tier selection.
+- At runtime, the affine transformation baked into the `.nav` projects it back to the base coordinate system, and the landing point is snapped according to that layer's floor height.
 
-###### Overlapping Deck Target: `target_deck_y`
+Ordinary coordinate actions can use the same object form to declare that point's coordinate frame directly:
 
-The game is three-dimensional, the map is not: a walkway, a bridge and a rooftop can all sit on the same `target`. Without `target_deck_y` the planner treats **every** walkable surface in the target cell as a goal and stops at whichever it reaches first. Stacked surfaces usually belong to the same connected component so nothing fails, and the two-dimensional arrival check passes either way — which makes landing on the wrong deck completely silent.
+```json
+{
+    "action": "RUN",
+    "target": [
+        243.49,
+        177.53
+    ],
+    "target_tier": "Wuling_L4_328"
+}
+```
+
+This form applies to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER`, as well as `HEADING` with a `target`. `target_tier` **only interprets the coordinate of the current node**: it does not switch zones, does not change the context of following nodes, and cannot replace the `ZONE` / `PORTAL` required for an actual area transition.
+
+The field also supports camelCase `targetTier`. An unknown tier on `NAVMESH` keeps the compatibility behavior of logging a warning and treating the target as base coordinates. An ordinary coordinate point that explicitly declares a nonexistent tier fails outright instead of silently moving toward the wrong location.
+
+### Overlapping Deck Target: `target_deck_y`
+
+The game is three-dimensional, the map is not: a walkway, a bridge and a rooftop can all sit on the same `target`. Without `target_deck_y` the planner treats every walkable surface in the target cell as a goal and **stops at whichever it reaches first**. Stacked surfaces usually belong to the same connected component so nothing fails, and the two-dimensional arrival check passes either way — which makes landing on the wrong deck completely silent.
 
 `target_deck_y` declares which walkable surface the `target` sits on. The value is that surface's **world height**:
 
@@ -296,25 +170,337 @@ The game is three-dimensional, the map is not: a walkway, a bridge and a rooftop
 }
 ```
 
-- Read the number from the MapNavigator GUI: click the target and the sidebar lists the overlapping decks; selecting one highlights that deck on the canvas, and the "Select" button writes the value into the field. Do not estimate it by hand.
-- A deck matches when it is the nearest surface and within 2px (measured spacing between adjacent decks is 8–9px). When nothing matches, the route fails with "target deck unreachable" — it does not fall back to the cell-level search and is not absorbed by the blind-walk fallback. Failing loudly beats silently walking onto another deck.
+- Read the number from the MapNavigator GUI: click the target and the `选中对象` (Selected Object) card in the top-right corner of the map lists the overlapping decks; selecting one highlights that deck on the canvas, and the `选择` (Select) button writes the value into the field. Do not estimate it by hand.
+- A deck matches when it is the nearest surface and within 2px (measured spacing between adjacent decks is 8–9px). When nothing matches, the route fails with `目标面不可达` (target deck unreachable) — it does not fall back to the cell-level search and is not absorbed by the blind-walk fallback. Failing loudly beats silently walking onto another deck.
 - Points with a single surface do not need it; the GUI hides the list when there is no overlap.
 - The field also supports camelCase writing `targetDeckY`, and can be combined with `target_tier`.
 
-A declaration applies to its own waypoint only: **it pins which deck that leg stops on, while which deck the start stands on is worked out by the planner from the start's own height**. A leg can therefore go from a rooftop down to a walkway or the other way round with no declaration on the start side — and re-planning starts from the live two-dimensional localization, which has no deck to begin with.
+A declaration applies to its own waypoint only: **it pins which deck that leg stops on, while which deck the start stands on is worked out by the planner from the start's own height**. A leg can therefore go from a rooftop down to a walkway or the other way round with no declaration on the start side — and re-planning starts from the live localization, which has no deck to begin with.
 
-#### Return Behavior
+### Applicability
 
-`MapNavigateAction` is an Action node; it does not have a stable structured recognition output like Recognition. Its results are mainly reflected as:
+`NAVMESH` only handles movement and does not infer business semantics. When the route contains interactions, map transitions, jump platforms, or external teleports, they must be annotated explicitly in `path`; in that case, use the recording method in the next section.
 
-- If navigation successfully completes the entire path, the current Action returns success.
-- If a quick failure condition is triggered during the process (continuous lack of progress timeout / continuous deviation timeout), the current Action returns failure.
+---
 
-Therefore, in a Pipeline, it is generally regarded as an atomic action that either **completes the entire path or the entire node fails**.
+## Recording a Full `path`
 
-#### Example Usage
+### Recording Preparation
 
-Below is the most common usage pattern; simply paste the `path` copied from the recording tool:
+1. The project development environment has been configured, especially that `install/agent/cpp-algo.exe` and `install/maafw` are usable.
+2. uv is installed; from the project root, `uv run map-navigator` prepares Python and dependencies automatically from `pyproject.toml`.
+3. **Windows** requires **running as administrator**; otherwise, the `G` / `X` hotkeys cannot be received when the game (an administrator process) is in the foreground. `main.py` will automatically detect this and prompt a UAC elevation request at startup.
+4. **macOS**: On the first run, authorize the current terminal or the uv-managed Python interpreter in **System Settings → Privacy & Security → Input Monitoring**; otherwise, global hotkeys will not work.
+5. If using `Win32` connection, the game is already started and the window is **not minimized**; if using `ADB` connection, `adb` is available and the device appears in the list after `检测并刷新设备` (Detect and Refresh Devices).
+6. The current character is standing near the starting point of the route you want to record.
+
+### Recording
+
+In `路径编辑` (Path Editing) mode, choose the connection method, wait until the connection status shows success, then click `开始录制` (Start Recording), switch back to the game, and walk through once the way you want the route to be executed automatically. While the connection probe has not succeeded, the `开始录制`, `开始试跑 (F3)` (Start Test Run), and `标记当前位置` (Mark Current Position) buttons stay disabled.
+
+There are two hotkeys during recording:
+
+| Hotkey | Function |
+| ---- | -------------------------------------------------------------- |
+| `G` | Copies the current coordinates to the clipboard as `[x, y]`; does not affect the recorded data and can be pressed anytime |
+| `X` | Forcibly inserts a **strict arrival point** at the current position |
+
+`X` is used to mark key locations (interaction points, jump platform landing points, etc.) to ensure that the coordinate is recorded and marked as strict arrival. It only affects arrival precision and does not make the node required automatically; when the node really must not be skipped, also check `路径必经` (Required Waypoint) in the editor.
+
+Points with stronger business semantics such as `FIGHT`, `TRANSFER`, and `HEADING` **are not determined automatically during recording**; change them manually on the page after stopping the recording.
+
+After you click `停止录制` (Stop Recording), the tool organizes the raw trajectory: it normalizes it into the canonical format, marks the points on both sides of a cross-area boundary as `PORTAL`, and displays it segmented by area.
+
+### Editing Path Points
+
+- View: scroll to zoom, and drag the view with the `平移` (Pan) tool (or hold `Alt`).
+- Mesh and reference point: the page shows the navmesh mesh for the current basemap / tier; you can connect to the game to mark the current position as a read-only reference point, which does not insert a waypoint. The basemap and mesh can be shown or hidden in the shared `图层` (Layers) panel in the map's top toolbar; the same state also applies to `断言` (Assert) and `日志分析` (Log Analysis).
+- 2D / 3D view: switch views in the map's top toolbar. 2D is the authoritative view for route editing and planning preview; 3D shows the current mesh read-only at the real heights from the NMSH and follows the `NAVMESH 网格` (NAVMESH Mesh) toggle in `图层` (Layers). After switching to 3D, choose `3D 视角导航` (3D View Navigation) in the left sidebar: the default `观察者漫游` (Spectator Roam) mimics Minecraft's spectator mode — click the canvas to capture the pointer, after which the mouse turns the view directly, `W` / `A` / `S` / `D` move along the horizontal projection of the line of sight, `Space` rises and `Shift` descends, the scroll wheel adjusts the roaming speed in sync with the `漫游速度` (Roam Speed) slider on the left, a click reads the `[u, v]` and height under the crosshair, and `Esc` releases the pointer; a hint at the bottom of the canvas always shows the operations currently available, and keys have no effect while the pointer is not captured. `轨道环绕` (Orbit) rotates around the mesh point straight ahead of the line of sight with a left-button drag, pans with a right- or middle-button drag, zooms with the scroll wheel, and reads the coordinate and height with a left click; WASD and the rise/descend keys only take effect after spectator mode has captured the pointer. Both modes can fit the view. In 3D, trajectories from live test runs and real-time localization are lifted onto navmesh walkable surfaces: when several walkable surfaces lie under the starting point, the canvas pops up a height choice; after that, each point takes a surface from the connected neighborhood of the previous point's surface, takes the surface closest in height when none is connected, and keeps the previous point's height when off the mesh. 3D does not modify the author route; with `最终计划路径` (Final Planned Path) checked it also draws the planned path, using the per-point heights from the planning result and the mesh surface height where a point has none; leaving `路径编辑` (Path Editing) switches back to 2D automatically.
+- Path points: first select the path's basemap and tier; `添加/选择` (Add/Select, key `1`) adds `NAVMESH` targets by hand and is also used to select and drag points; `框选` (Box Select, key `2`) selects multiple points with a box. Click `取消选择` (Deselect) in the details at the top right, press `Esc`, or click empty map space in box-select mode to clear the selection; only `Delete` deletes the selected objects. Trajectory points from live recording stay `RUN`.
+- Properties: after selecting a point, set its `动作类型` (Action Type), `严格模式` (Strict Mode), and `路径必经` (Required Waypoint), then click `应用属性` (Apply Properties) to apply them.
+- Coordinate tier: when a point's coordinate comes from a tier basemap, click `坐标层级` (Coordinate Tier) and choose that tier in the `选择路点坐标层级` (Select Waypoint Coordinate Tier) picker that opens; keeping `使用旧坐标` (Use Legacy Coordinates) keeps the legacy coordinate semantics.
+- Overlapping decks: when a single `NAVMESH` waypoint is selected and its coordinate sits over several walkable surfaces, the `选中对象` (Selected Object) card in the top-right corner of the map lists each layer; click a height to preview that layer, and click `选择` (Select) to write `target_deck_y`. Moving the point, switching its coordinate tier, or changing it to another action clears the old value, so the floor declaration of the old position is not carried over to the new target.
+- Cross-area routes are displayed segmented by area, making it easy to check whether the points before and after a map transition are reasonable.
+- Route planning: `两点测线` (Two-Point Test) in the map's top toolbar (the quick test) verifies any two points directly. The first click sets a temporary `S`, the second sets a temporary `G` and plans automatically with runtime semantics, and a third click starts over from a new `S`; `Esc`, `Delete`, or `清除线路` (Clear Route) clears the temporary points and the result. An end point on a layered basemap automatically carries the current `target_tier`. The temporary S/G never enter the author `path`, the undo stack, the copied result, or live test runs. The author path preview starts from the first author waypoint of the current segment by default. To test the character starting from another position and then continuing through the author waypoints, click `地图点选` (Pick on Map) in the `NavMesh起点` (NavMesh Start) row of the sidebar and pick a point on the map in the same zone; once the point is picked, the previous editing tool is restored automatically. The cyan `S` serves only as the planning start of the current segment and is never written to or exported into the author `path`, so a single author waypoint can also be used to test "start to target" planning directly. With the `添加/选择` (Add/Select) or `框选` (Box Select) tool, `S` can be selected and dragged, and it can be removed with `Delete` or the toolbar's `删除` (Delete) button. Clicking an author waypoint or the planning start shows its action, coordinates, tier, target deck, and other details in the top-right corner of the map. With `自动展开` (Auto Expand) checked (the default), the current segment is planned automatically whenever a waypoint or the start changes, and `重新展开` (Re-expand) plans it immediately; in the result, the pink polyline shows the walking legs expanded by the runtime, and cyan directed edges show the selected zipline hops; expand `寻路诊断` (Pathfinding Diagnostics) in the `图层` (Layers) panel to show the `拓扑逐格路径` (Topology Cell Path), `几何紧绷折线` (Geometric Taut Polyline), `取直后折线` (Straightened Polyline), and `端点拼接与去冗` (Endpoint Splicing and Redundancy Removal) stages separately, while `最终计划路径` (Final Planned Path) in the same panel controls the final route. The diagnostics only cover the walking legs of the fully expanded, finally adopted plan, not failed global direct attempts or unselected walking baselines. On failure, the status bar names the failing author waypoint and shows the raw runtime reason, such as the start or end being off the mesh, the endpoints not being connected, the specified target deck being unreachable, or navmesh loading failing; if the start and end fall in two disconnected reachable regions, the map focuses automatically and connects the nearest boundary points on the two sides with a red dashed line, labeling the gap distance. Only when a precise gap cannot be obtained does it fall back to marking the whole failing leg; off-mesh endpoints still keep their amber distance markers.
+- Quick test cleanup: actively switching to another editing tool, or to `断言` (Assert) / `日志分析` (Log Analysis), clears the temporary S/G and the planning result; switching to `禁区` (No-Go Zones) keeps both, and they show again back in `路径编辑` (Path Editing); holding `Alt` to pan temporarily does not count as leaving, and releasing it returns to the quick test.
+- Live trajectory: during a test run, `实时实际路径` (Live Actual Path) keeps drawing MapLocator's real localization and the current position; a new test run clears the previous run's trajectory, and localization gaps are not filled with predicted points.
+- Zipline toggle: after checking `滑索规划` (Zipline Planning) in the sidebar, preview, copy, and live test runs all carry the route-level `zip: true`. When there is no zipline data or the zipline cost has no advantage, it falls back to walking according to the runtime rules.
+- Zipline pylon layer: `路径编辑` (Path Editing), `断言` (Assert), and `日志分析` (Log Analysis) share the `滑索架` (Zipline Pylons) toggle in `图层` (Layers). `路径编辑` and `断言` show the records of the current installation directory, while `日志分析` shows the zipline pylons in the current selection and in the ZIP snapshot of the same group; in all three 2D modes you can click a zipline pylon to see its basemap / world coordinates, navigation height, template, and Level, and they share the A / B selection, the possible-center span, and the geometric connectivity check. The layer is independent of the route-level zipline toggle and does not change preview parameters, copied content, or live test runs; recorded candidates may be unpowered or already excluded by the runtime, and being geometrically connectable does not mean being actually usable.
+- Multi-account ziplines: official-map imports derive a pseudonymous account identity from the `/map/mark/list` `roleId`; game runs derive the same identity from the UID captured once during scene initialization. Runtime planning filters by account before map. Legacy records without an account field are not attributed at import time: when zipline navigation runs, the current account claims them — if that account has no records of its own yet, the legacy coordinates are attributed to it wholesale and persisted in place, so nothing has to be imported again after an upgrade; if the account already has records of its own, nothing is claimed, so two sets of coordinates never mix and then silently go wrong after an account switch. A successful claim is announced to the user; see `ZiplineStore::claimLegacyRecords`. Offline route preview cannot read the in-game UID, so you can choose an imported pseudonymous account in the account drop-down next to `滑索规划` (Zipline Planning); it defaults to the most recently imported one and the choice is remembered in the browser. The choice also filters the current installation's zipline pylon layer, but is never copied into route parameters and never overrides the account detected during a live run. `日志分析` (Log Analysis) still filters snapshots by the account identity recorded in the matching run. Windows imports run in the cpp-algo embedded browser; on Linux, `agent/go-service/ziplineimport` captures the same endpoint through a local restricted MITM proxy, derives the account identity from the request URL's `roleId`, and stores records under `(account_id, map_id)` as well; an import that sees more than one `roleId` is rejected as a whole. Windows always clears the embedded browser site session before each import; Linux uses a throwaway Firefox profile on every import, so the session is never kept either.
+
+Usually, the only fine-tuning you really need to do is:
+
+1. Change key interaction points to `INTERACT`; for interactions that must be triggered, also check `路径必经` (Required Waypoint). When the prompt text has to be confirmed before pressing, add `interact_text` to that point after exporting — see [Async Interaction](#async-interaction-interact).
+2. Change points that require jumping, sprinting, waiting for a teleport, or map transitions to the corresponding action.
+3. Check whether the two points before and after an area transition fall in reasonable locations.
+
+### Exporting
+
+By default, what `复制路径` (Copy Path) copies to the clipboard is **only the `path` body**, not the complete node JSON, so it can be pasted directly into `custom_action_param.path`:
+
+```json
+"custom_action_param": {
+    "path": [
+        ...
+    ]
+}
+```
+
+The exported content is already in the canonical format that MapNavigator can directly consume; it is recommended to finish all changes on the page before copying.
+
+With zipline planning enabled, the button changes to `复制完整参数` (Copy Full Parameters), and the copied result is `{ "path": [...], "zip": true }`, which can be used directly as `MapNavigateAction.custom_action_param`. The approach points, dismount points, walking points, and `ZIPLINE` points generated by the runtime are only for preview and are never mixed into the author configuration.
+
+### Importing Project Nodes
+
+Both `路径编辑` (Path Editing) and `断言` (Assert) use `选择项目节点` (Select Project Node) as their primary import entry. The tool scans the JSON / JSONC under the current project's `assets` and shows only the nodes that apply to the current mode:
+
+- `路径编辑` (Path Editing): select a `MapNavigateAction` with a valid `custom_action_param.path` to load the full path for further editing; if the node already has `zip: true`, the zipline toggle is checked as well;
+- `断言` (Assert): selects `MapLocateAssertLocation` by default and loads its `zone_id` and `target` directly; after switching to `参考路线` (Reference Route), you can also select a `MapNavigateAction` to show its real path points on the assert basemap.
+
+The selector searches by resource path, node name, or zone and shows each node's type, point count, and zone summary, so the wrong node is not picked automatically when a file contains several. When a navigation path lacks zone information, you still need to assign zones to its segments on the page; imports validate action semantics strictly — **an unknown action is rejected outright** and never silently downgraded.
+
+Both modes provide a direct `读取剪贴板` (Read Clipboard) button. The tool automatically recognizes a complete Pipeline, a single `MapNavigateAction` / `MapLocateAssertLocation` node, a `{"path": [...]}` object, or a bare `path` array; when a navigation path lacks zone information, it still asks you to assign zones to its segments. Clipboard reading must be triggered by a button click, and the browser may ask for read permission the first time.
+
+---
+
+## `path` Data Format
+
+This format is usually exported by the tool and does not need to be written by hand; refer to this section when you need to adjust it manually.
+
+`path` is an array whose elements are listed in the order the author intends them to be executed. Whether intermediate points may be skipped is covered in [Execution Order and `required`](#execution-order-and-required).
+
+**Coordinates only**: continue to the next point upon arrival:
+
+```json
+[
+    688,
+    350
+]
+```
+
+**Coordinates plus action**: perform that action once upon arrival:
+
+```json
+[
+    720,
+    350,
+    "SPRINT"
+]
+```
+
+**Explicitly declaring the coordinate tier** uses the object form instead; legacy arrays without a declaration are unaffected:
+
+```json
+{
+    "action": "RUN",
+    "target": [
+        243.49,
+        177.53
+    ],
+    "target_tier": "Wuling_L4_328"
+}
+```
+
+`target_tier` and `ZONE` mean different things: the former only states which basemap the current `target` was clicked on, while the latter declares the context for route execution and area verification. Filling in `target_tier` on an ordinary point does not trigger a tier switch.
+
+**An `INTERACT` point declaring its interact prompt text** likewise uses the object form; `interact_text` is the prompt text that point has to recognize:
+
+```json
+{
+    "action": "INTERACT",
+    "target": [
+        331,
+        1578
+    ],
+    "interact_text": "登记"
+}
+```
+
+The array form `[x, y, "INTERACT"]` has no slot for these fields, so async interaction requires the object form; an `INTERACT` without `interact_text` keeps its original meaning (press the interact key once upon arrival). See [Async Interaction](#async-interaction-interact).
+
+Only `INTERACT` points can take these fields — on any other action they are ignored, with one `carries interact fields without an INTERACT action` line in the log.
+
+`NAVMESH` is an exception: it is a semantic pathfinding node and must use an object with `target`; it cannot be written as `[x, y, "NAVMESH"]`:
+
+```json
+{
+    "action": "NAVMESH",
+    "target": [
+        1242.04,
+        773.41
+    ]
+}
+```
+
+### Available Actions
+
+| Action | Behavior on Arrival |
+| ---------- | --------------------------------------------------------------------------------- |
+| `RUN` | No extra action; continues to the next point. The default when the action is omitted |
+| `SPRINT` | Sprints once |
+| `JUMP` | Jumps once |
+| `FIGHT` | Attacks once |
+| `INTERACT` | Interacts once; with `interact_text` it becomes an async interaction instead, see [Async Interaction](#async-interaction-interact) |
+| `COLLECT` | Collect: stops moving, triggers OCR recognition and clicks to collect, see [Collecting and Digging](#collecting-and-digging-collect--dig) |
+| `DIG` | Dig: stops moving and triggers the digging subtask, see [Collecting and Digging](#collecting-and-digging-collect--dig) |
+| `FIND` | Finds and approaches a target that exists only as a recognition box: turns the camera to search and walks toward the box; done once `find_stop` hits or the character gets near `find_arrive`, see [Finding and Approaching a Target](#finding-and-approaching-a-target-find) |
+| `TRIGGER` | Route end point: recognizes `trigger_node` while walking; navigation succeeds on a hit or on reaching `target`, see [Ending on a Recognition Hit](#ending-on-a-recognition-hit-trigger) |
+| `NAVMESH` | Plans a route automatically from the current localization and moves to `target`; must use the object form above |
+| `TRANSFER` | Waits in place for an external force (story, teleport, etc.) to move the character to the next segment, then continues from the following points |
+| `JUMP_PAD` | Jump pad: stands on the pad center, jumps when needed, steps and retries if it did not launch, then continues from the following points after landing; see [Jump Pads](#jump-pads-jump_pad) |
+| `PORTAL` | Map transition point: after triggering, walks blind for a short distance and waits for the area switch |
+| `HEADING` | Turns the camera to the specified orientation, then presses `W` once to make the orientation take effect |
+
+### Execution Order and `required`
+
+Without ziplines enabled, the navigator executes strictly in `path` order. Ordinary points and actions are all kept, and `NAVMESH` is expanded point by point too.
+
+Only with ziplines enabled does the navigator try to skip intermediate points, planning directly from the start of the current interval to its end. When the direct plan succeeds, the intermediate movement and reachability fallback points are skipped; when it fails, the author path is still executed point by point. Such optional points include `NAVMESH`, `RUN`, `SPRINT`, `JUMP`, `FIGHT`, `TRANSFER`, `JUMP_PAD`, `PORTAL`, and `INTERACT`.
+
+The following nodes are always kept and need no `required`:
+
+- `ZONE`: declares the area context;
+- `HEADING`: adjusts the orientation;
+- `COLLECT`, `DIG`: perform the collection or digging task.
+- `FIND`: finds and approaches the target in a recognition box.
+- `TRIGGER`: route end point; navigation ends on a trigger node hit or on reaching `target`.
+
+With ziplines enabled, if another node must also be reached and executed, add `"required": true`. That node ends the current optimization interval, and the rest of the route starts again from there. The array form has no slot for this field, so required points must use the object form.
+
+For example, when the route must go over a particular jump pad, write:
+
+```json
+{
+    "action": "JUMP_PAD",
+    "target": [
+        1001.89,
+        305.68
+    ],
+    "required": true
+}
+```
+
+The position of the route's last point is always the final goal. When the last point carries an ordinary action that must be executed, it also needs `required`. Without ziplines enabled, all nodes are executed in order anyway, and `required` does not change the result.
+
+### Strict Arrival
+
+Adding `true` at the end of the array means the point must be reached strictly:
+
+```json
+[
+    700,
+    350,
+    "INTERACT",
+    true
+]
+```
+
+By default, the arrival check keeps a certain radius; once marked strict, the radius is smaller and arrival is slower, but the landing point is more precise. Actions such as interactions, jump platforms, teleports, and map transitions already use stricter arrival semantics on their own.
+
+Strict arrival only controls arrival precision and does not make a point required. With ziplines enabled, global planning can still skip strict arrival points; use `required` when a point must be executed.
+
+### Zone Declaration: `ZONE`
+
+Use `ZONE` to specify the map area of the following points:
+
+```json
+{
+    "action": "ZONE",
+    "zone_id": "Wuling_Base"
+}
+```
+
+This node produces no movement and only provides area **verification** context for the following path points. A `path` exported from a recording usually contains it already.
+
+### Adjusting Orientation: `HEADING`
+
+Use `HEADING` to adjust the orientation on its own, without moving:
+
+```json
+{
+    "action": "HEADING",
+    "angle": 90
+}
+```
+
+`HEADING` is always kept and does not need `required`. When a movement target precedes it, the navigator first reaches that target and then adjusts the orientation.
+
+You can also give a coordinate to turn in the direction "current position → that coordinate":
+
+```json
+{
+    "action": "HEADING",
+    "target": [
+        688,
+        350
+    ]
+}
+```
+
+> [!NOTE]
+>
+> Point editing on the page covers path points with coordinates (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / JUMP_PAD / COLLECT / DIG / FIND / TRIGGER / NAVMESH`): it can edit `required` and `target_tier` per point, choose `target_deck_y` for a single `NAVMESH` target, and derive `ZONE` declarations from area information. `HEADING` is a non-coordinate control node outside this editing model; it is recommended to add and maintain it manually after exporting the `path`. Likewise, the `find_target` / `find_text` / `find_stop` / `find_arrive` fields of `FIND` and the `trigger_node` of `TRIGGER` are written by hand after exporting — the tool only preserves them as they are.
+
+---
+
+## Node Parameters
+
+The interface is an Action based on MAA `Custom`: `MapNavigateAction`.
+
+`path` is the only required parameter; the other optional parameters go in `custom_action_param`:
+
+| Parameter | Default | Description |
+| ------------------ | ------- | -------------------------------------------------------------------- |
+| `map_name` | Empty | Initial area context. Usually unnecessary when `path` already contains a `ZONE` declaration |
+| `heading_source` | `"character"` | Heading source for navigation and zipline pylon aiming throughout the call: `"character"` uses the character heading, `"camera"` uses the camera heading; neither falls back to the other |
+| `arrival_timeout` | `60000` | Maximum time allowed to reach a single point, in milliseconds; exceeding it counts as failure |
+| `sprint_threshold` | `16.0` | Threshold for automatic sprinting, based on **the length of the continuously runnable segment ahead** rather than the straight-line distance to the current point |
+| `interact_text` | Empty | Route-wide default for the interact prompt text, see [Async Interaction](#async-interaction-interact) |
+| `interact_scan` | Empty | Route-wide default for the walking pre-filter node, see [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter) |
+| `interact_rec` | `false` | Whether the route's `INTERACT` points recognize the prompt without pressing anything, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode) |
+| `find_target` | Empty | Route-wide default for the `FIND` target recognition node, see [Finding and Approaching a Target](#finding-and-approaching-a-target-find) |
+| `find_text` | Empty | Route-wide default for the `FIND` inline OCR text table; use either this or `find_target`, not both |
+| `find_stop` | Empty | Route-wide default for the `FIND` prompt criterion; a hit counts as arrived |
+| `find_arrive` | Empty | Route-wide default for the `FIND` arrival coordinate; getting near it counts as arrived |
+| `enable_bootstrap_navmesh` | `true` | Whether to plan a navmesh leg at startup to join the route first. Set it to `false` to skip this step and walk the points recorded in `path` directly — the fallback for stacked terrain (platforms/catwalks/rooftops) where the startup plan detours badly |
+
+Unknown top-level fields are silently ignored without errors.
+
+Navigation requires both the position and the selected heading to be available; an unavailable heading is treated as a localization failure. Character-heading mode keeps the locator's occlusion protection: when the character arrow is not visible, the frame is rejected before position matching and the tracking state update, and localization is let through only after the occlusion has lasted 5000ms in a row. Camera-heading mode skips this arrow-occlusion gate but still validates the localization result, the camera heading, and the confidence. `MapLocateRecognition` and `MapLocateAssertLocation` keep the default occlusion protection.
+
+In camera-heading mode, navigation hands the camera azimuth actually recognized on the previous tick to the locator as a **prior**, used for disambiguation when the model output has two peaks (for decoding details and the secondary-peak criteria, see [MapLocator](map-locator.md)). The prior is an observation, not a command, and is passed only when all of the following hold: the navigator is in the `Navigate` phase, this is not a global re-localization, and **no camera-turn command has been issued since the last successful position fix**. This is tracked with a monotonic **heading epoch**: any yaw command (steering, semantic `HEADING`, camera alignment, unstick turns, turning around after falling into water) and any phase switch increments the epoch, and a successful position fix records the epoch at that moment; only when the recorded epoch still equals the current epoch is that tick's heading used as the prior. Therefore the startup fix, global re-localization, the first tick after a phase switch, and ticks while turning carry no prior; the prior is also never derived from the target angle or from a turn amount that has not landed yet, and the value takes no part in position matching. It is not exposed to the Pipeline: passing it to `MapLocateRecognition` has no effect.
+
+`interact_text` accepts a string or an array of strings, or `{ "node": "SomeOcrNode" }` to take the text table from that node (see [Sharing One Text Table Across Routes](#sharing-one-text-table-across-routes)); camelCase `interactText` is accepted as well. `interact_scan` accepts a string, camelCase `interactScan`. For both, the value written on a waypoint wins, and the route-wide value only fills in the `INTERACT` points that carry none of their own.
+
+`interact_rec` is a boolean, camelCase `interactRec`, and it does not follow "the waypoint wins": writing `true` at the route level turns on all of the route's `INTERACT` points at once, and writing `false` on a point cannot turn it back off — a boolean cannot tell "written `false`" from "not written", so this field only ever switches points on. To keep a few points pressing as usual, leave it off the route level and write it point by point.
+
+The interaction points of one route usually belong to the same business, in which case writing the value at the route level saves repeating it on every point:
+
+```json
+"custom_action_param": {
+    "interact_text": ["登记", "接取委托"],
+    "path": [
+        ...
+    ]
+}
+```
+
+An empty string or an empty array for `interact_text` is rejected outright (the whole node parameter parse fails) rather than treated as absent: on the recognition side, empty text means "match anything", so the key would be pressed at any prompt. An empty string for `interact_scan` counts as absent and falls back to the shipped one.
+
+`find_target` / `find_text` / `find_stop` / `find_arrive` accept camelCase (`findTarget` / `findText` / `findStop` / `findArrive`), and fields written on the point win. Route-wide defaults are filled by group: the **target source** (`find_target` / `find_text`) is filled as a whole — if a point sets either field, neither route-wide field applies to it; only when neither is set are both filled in. The **completion condition** (`find_stop` / `find_arrive`) is filled field by field, supplying only the fields the point does not set. Parameter parsing fails outright when a `FIND` point lacks a target source or a completion condition, or when the route level sets both `find_target` and `find_text` while the route contains a `FIND` point.
+
+### Execution Result
+
+`MapNavigateAction` is an Action node; it has no structured output like a Recognition, and there are only two results:
+
+- The whole route is completed → success.
+- Continuous lack of progress midway, or continuous deviation from the route until timeout → failure.
+
+In a Pipeline, orchestrate it as an atomic action: **either the whole route is completed, or the node fails**.
+
+### Complete Example
+
+Paste the `path` exported by the recording tool into it and you have a complete node:
 
 ```json
 {
@@ -323,6 +509,7 @@ Below is the most common usage pattern; simply paste the `path` copied from the 
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
+            "arrival_timeout": 45000,
             "path": [
                 {
                     "action": "ZONE",
@@ -344,34 +531,6 @@ Below is the most common usage pattern; simply paste the `path` copied from the 
                 [
                     331,
                     1578,
-                    true
-                ]
-            ]
-        }
-    }
-}
-```
-
-```json
-{
-    "MyNavigateNode": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "arrival_timeout": 45000,
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                [
-                    405,
-                    1592
-                ],
-                [
-                    331,
-                    1578,
                     "INTERACT",
                     true
                 ]
@@ -383,223 +542,43 @@ Below is the most common usage pattern; simply paste the `path` copied from the 
 
 > [!TIP]
 >
-> In actual development, it is recommended to use `MapNavigateAction` after a node that has confirmed the entry state. First confirm that the character is indeed in the expected scene, area, and near the expected orientation before starting the entire navigation, which will significantly increase the success rate.
+> `MapNavigateAction` should come after a node that has confirmed the entry state: first confirm that the character is in the expected scene, area, and near the expected orientation, then start the whole navigation, which noticeably increases the success rate. The `MapLocateAssertLocation` node exported by the `断言` (Assert) mode is well suited as this entry check.
 
 > [!WARNING]
 >
-> Path points should preferably satisfy the requirement of "being able to move coherently to the next point". Do not expect the navigator to pass through models, circumvent particularly complex obstacles, or automatically understand business mechanisms. Special segments like map transitions, jump platforms, falls, and ascent mechanisms should be explicitly split into `PORTAL` / `TRANSFER` / business node combinations for handling.
+> Adjacent path points should be reachable from one another in one continuous walk. The navigator cannot pass through models or understand business mechanisms; jump pads use `JUMP_PAD`, and segments such as map transitions, falls, and ascent mechanisms can be split into `PORTAL` / `TRANSFER` / business nodes as an author-path fallback. With ziplines enabled, nodes that must be passed or executed should be marked `required`.
 
 ---
 
-## Tool Description
+## How `NAVMESH` Pathfinding Works
 
-We provide a dedicated GUI tool for MapNavigator, located at `/tools/MapNavigator`, with the entry point being `main.py`.
+This section is for readers who need to understand the internal implementation; it can be skipped for everyday use.
 
-It supports:
+1. Prioritize loading `assets/resource/model/map/navmesh/base.nav.gz`; fall back to `base.nav` if it doesn't exist.
+2. Infer the BaseNav zone based on the current localization area.
+3. When ziplines are enabled, read the pseudonymous account identity captured during this run's initialization and load only that account's zipline records; if the identity is unavailable, fall back to walking. Legacy records without an account field are claimed by the current account while that account still has no records of its own (see "Multi-account ziplines" above) and then take part in filtering exactly like account-scoped records.
+4. Snap the landing point according to the current floor height, rasterize the triangle faces within the window into cells with height intervals, execute A\* on the cell graph, and then straighten the result under clearance constraints.
+5. Expand the planning result into ordinary `RUN` waypoints, which are then handed over to the movement execution chain. When the target is unreachable, a separate blind-walk fallback takes over, and the route it walks does not come from the planner.
 
-1. Direct connection to the current game window to record actual movement trajectories.
-2. Automatic addition of `ZONE` / `PORTAL` semantics based on area transitions.
-3. Deleting points, dragging points, changing coordinate point actions, modifying strict arrival, and declaring an optional per-point coordinate tier in the GUI.
-4. Selecting existing project Pipeline nodes from `assets`, or reading JSON from the current clipboard under `More`.
-5. One-click copying of canonical `path` that can be directly pasted into `custom_action_param.path`.
-6. Through an independent `Assert mode` to manually select the base map and frame rectangular areas, exporting `MapLocateAssertLocation` nodes.
-7. Entering BaseNav A\* mode, loading `.nav.gz` / `.nav`, previewing paths on the red triangle face overlay, and copying `NAVMESH` nodes.
+Without ziplines enabled, `NAVMESH` is expanded point by point in author order. With ziplines enabled, the expansion first splits the path into intervals at the [path boundaries](#execution-order-and-required), then compares the pure-walking and zipline routes of each interval; when no direct route is possible, it falls back to executing the author path point by point.
 
-Official-map imports derive a pseudonymous account identity from the `/map/mark/list` `roleId`; game runs derive the same identity from the UID captured once during scene initialization. Runtime planning filters by account before map. Legacy records without an account field are not attributed at import time: when zipline navigation runs, the current account claims them — if that account has no records of its own yet, the legacy coordinates are attributed to it wholesale and persisted in place, so nothing has to be imported again after an upgrade; if the account already has records of its own, nothing is claimed, so two sets of coordinates never mix and then silently go wrong after an account switch. A successful claim is announced to the user; see `ZiplineStore::claimLegacyRecords`. Offline route preview cannot read the in-game UID, so the planning account selector lists imported pseudonymous identities, defaults to the most recently imported one, and remembers the browser choice. The choice also filters the current installation's zipline tower layer, but is never copied into route parameters and never overrides the account detected during a live run. Log analysis still filters snapshots by the account identity recorded in the matching run. Windows imports run in the cpp-algo embedded browser; on Linux, `agent/go-service/ziplineimport` captures the same endpoint through a local restricted MITM proxy, derives the account identity from the request URL's `roleId`, and stores records under `(account_id, map_id)` as well; an import that sees more than one `roleId` is rejected as a whole. Windows always clears the embedded browser site session before each import; Linux uses a throwaway Firefox profile on every import, so the session is never kept either.
+When pure walking is not connected, the whole interval is not judged unreachable right away: with ziplines enabled, the planner keeps looking for a bridging route of "walk to the boarding point → several consecutive zipline hops → walk from the dismount point to the end". As long as the boarding and dismount ends connect to the walkable surfaces of the start and the end respectively, this continuous chain takes priority over blind walking and falling back to author hints; when pure walking is itself possible, the comparison still uses the total cost and the `min_gain` threshold, so the planner never detours unconditionally just to ride a few more ziplines.
 
-An additional note is that the current GUI editor round-trips coordinate path points, their optional `target_tier`, and `ZONE` declarations derived from area information. Untagged points keep the legacy array export, while tagged points use the `target` object form.
-Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like `NAVMESH` are not regular point editing objects in the GUI. It is recommended to manually add back or maintain `HEADING` after exporting the `path`, while `NAVMESH` can be directly generated using `Copy NAVMESH`. A `FIND` point can be placed like an ordinary coordinate point, but its `find_target` / `find_text` / `find_stop` / `find_arrive` fields are written by hand after exporting — the editor only preserves them. The same holds for the `trigger_node` of a `TRIGGER` point.
+When one hop of the continuous chain fails, the runtime discards the remaining hops of that chain, waits for localization to stabilize again and snap back onto the navmesh, then rejoins at the first actually reachable point of the remaining route. If there is no reachable point to rejoin at, this navigation fails explicitly instead of continuing with the old post-dismount path generated from the expected dismount point.
 
-### Running Method
+When landing at the end of the chain (walking follows this hop), before dismounting the navigator first aligns the heading with the first planned walking point of the dismount leg, that is, the direction to walk next. The dismount itself carries momentum along the heading at the moment of the key press: however far the heading is off, the momentum is off by the same amount. A tangential deviation (about 90 degrees) is the worst case — all of that momentum is sideways to the walking direction, carrying the character sideways off the line it has to walk; a deviation along the walking direction (including 180 degrees, moving entirely backwards) only adds or removes a straight stretch, which the walking itself corrects. This step only affects the heading — if the turn fails, localization cannot be read, or it times out, the dismount proceeds as usual and the route is not interrupted.
 
-```powershell
-uv run map-navigator
-```
+Floor snapping is worth calling out separately: on multi-floor maps, triangle faces from several floors are stacked at the same planar coordinate. Without distinguishing height, the start or end point may be snapped to the wrong floor, which shows up as the character clipping through walls or the path being unreachable. BaseNav bakes the floor height for each zone into the data pack and filters candidate faces by height band during planning, so the landing point in multi-floor areas is deterministic.
 
-Use `--port PORT` to select the preferred port and `--no-browser` to suppress opening the browser:
-
-```powershell
-uv run map-navigator --port 9000 --no-browser
-```
-
-The service always listens on `127.0.0.1`. Run `uv run map-navigator --help` for the complete startup options.
-
-### Pre-run Preparation
-
-Before starting to record, please confirm:
-
-1. The project development environment has been configured according to the development manual, especially that `install/agent/cpp-algo.exe` and `install/maafw` are usable.
-2. uv is installed; from the project root, `uv run map-navigator` prepares Python and dependencies automatically from `pyproject.toml`.
-3. **Windows**: The tool needs to be run with **administrator privileges**; otherwise, the G/X hotkeys may not be captured by the system when the game (an administrator process) is in the foreground. `main.py` will automatically detect this and prompt a UAC elevation request at startup.
-4. **macOS**: On the first run, authorize the current terminal or the uv-managed Python interpreter in **System Settings → Privacy & Security → Input Monitoring**; otherwise, global hotkeys will not work.
-5. If using `Win32` connection, the game is already started, and the window is **not minimized**.
-6. If using `ADB` connection, `adb` is available, and the target emulator/device appears in the device list.
-7. The current character is standing near the starting point of the route you want to record.
-
-### Recommended Workflow
-
-The following flow is the complete usage for recorded paths. If the target point is reachable by plain travel alone, giving `NAVMESH` a coordinate is enough and you do not need this flow (see [Two Workflows](#two-workflows)).
-
-#### Step 1: Open the Tool and Start Recording
-
-After running `uv run map-navigator`, first select the controller to be used for this recording in the top `Connection` area, then click **`Start Recording`** in the upper-left corner of the GUI.
-
-- When recording the PC version, select `Win32 Window`, modifying the window title if necessary.
-- When recording an emulator/real device, select `ADB Device`, configure the `adb` path, refresh the device list, and select the target.
-
-The tool will automatically:
-
-1. Launch the local Agent.
-2. Establish a controller based on the selected connection method.
-3. Call the underlying localization recognition to continuously read the current coordinates and area.
-4. Sample your actual walked route into a raw trajectory.
-
-If the current environment is incomplete, the Win32 window is not found, or the ADB device is not connected, the tool will report an error directly without generating an invalid trajectory.
-
-#### Step 2: Switch Back to the Game and Walk Through Manually
-
-After recording starts, switch back to the game and simply **walk through once as you wish the character to automatically execute in the future**.
-
-During recording, you can use the following shortcut keys:
-
-| Shortcut Key | Function |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| `G` | 📋 **Copy the current coordinates to the clipboard** in `[x, y]` format (does not affect recorded data, can be pressed anytime) |
-| `X` | 📌 **Force insert a strict arrival (strict) path point** at the current precise location into the recorded data |
-
-> [!TIP]
+> [!NOTE]
 >
-> The `G` key is used to quickly record coordinates of interest without interrupting the recording process. The `X` key is used to mark key locations (interaction points, map transition points, etc.) to ensure that the coordinate is definitely recorded and marked as a strict arrival point.
-
-It should be noted that points with stronger business semantics like `FIGHT`, `TRANSFER`, `HEADING` **will not be automatically determined during the recording phase**. The usual practice is to manually change the corresponding point to the target action in the GUI after stopping the recording.
-
-Therefore, the simplest usage is:
-
-1. Click start recording.
-2. Go run the map normally in the game.
-3. Press `X` at key locations to force mark points (e.g., interaction trigger points, jump platform landing points).
-4. Come back and click stop after finishing.
-
-#### Step 3: Stop Recording and Observe the Automatically Organized Results
-
-After clicking **`Stop Recording`**, the tool will perform a round of organization on the raw trajectory, including:
-
-- Unifying the canonical format of coordinates, actions, `strict`, and `zone`.
-- Automatically adding `PORTAL` semantics at cross-area boundaries.
-- Splitting the view by current area for browsing.
-
-What you see is a navigation route that has been normalized and can be further edited and exported.
-
-#### Step 4: Orchestrate the Path in the GUI
-
-Next, directly handle the details in the GUI.
-
-**View Operations:**
-
-- Mouse wheel: Zoom in/out.
-- Right mouse button drag: Pan the view.
-- Left mouse button click on empty space: Insert a new point.
-- Left mouse button click on an existing point: Select that point.
-- Left mouse button drag on an existing point: Fine-tune coordinates.
-
-**Area Switching:**
-
-- The top `◀ / ▶` buttons are used to switch between different areas for viewing.
-- If the route crosses areas, the tool will display each area separately for easy inspection of whether the area transitions are reasonable.
-
-**Point Property Editing:**
-
-- The top action dropdown can set the action for the current point.
-- `Set Single`: Change the current point's action to the selected action in the dropdown.
-- `Append`: Append an action semantic after the current point.
-- `Undo One`: Remove the last action in the current point's action chain.
-- `Strict`: Mark the current point as a strict arrival point.
-- `Coordinate Tier`: Declare which tier basemap the selected point's coordinate was authored on. Leaving it empty keeps the legacy coordinate behavior; it does not modify `ZONE`.
-- `🗑`: Delete the currently selected point.
-
-The current action dropdown targets coordinate point actions, commonly edited to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / FIND / TRIGGER`.
-Non-coordinate control nodes like `HEADING` are not part of this GUI action chain.
-
-**Undo/Redo:**
-
-- `Ctrl+Z`: Undo.
-- `Ctrl+Y`: Redo.
-- `C`: Copy the coordinates of the currently selected point to the clipboard (format is `[x, y]`, supports copying multiple selected points line by line).
-
-Usually, the only fine-tuning you really need to do is:
-
-1. Change key interaction points to `INTERACT` and check `Strict` (points recorded with the X key are already strict arrival by default). When the prompt text has to be confirmed before pressing, add `interact_text` to that point after exporting — see [Async Interaction](#async-interaction-interact).
-2. Change points that require jumping, sprinting, external teleportation, or map transitions to the corresponding action (e.g., `JUMP` / `SPRINT` / `TRANSFER` / `PORTAL`).
-3. Check whether the two points before and after an area transition fall in reasonable locations.
-
-#### Step 5: Copy `path` and Paste into Pipeline
-
-After confirming the route is correct, click **`Copy Path`**.
-
-What the tool copies to the clipboard is **only the `path` body**, not the complete node JSON. That is, you can directly paste it into:
-
-```json
-"custom_action_param": {
-    "path": [
-        ...
-    ]
-}
-```
-
-This is also why it is recommended to finish all orchestration in the GUI before copying, because the exported content is already in the canonical format that MapNavigator can directly consume.
-
-### Importing Project Nodes
-
-All three route-making modes use **`Select Project Node`** as their primary import entry. The path editor loads `MapNavigateAction` nodes for continued editing. A\* keeps coordinates on the same basemap as ordered targets. Whether one or several targets are imported, click the map once to add a manual start; the tool then plans `manual start -> imported point 1 -> imported point 2 -> ...` automatically. A lone target remains directly copyable before a start is added. Assert mode lists `MapLocateAssertLocation` nodes by default and can switch to reference routes. The selector searches by resource path, node name, or zone, so files containing several Pipeline nodes are not imported ambiguously. Path imports validate action semantics strictly: an unknown action rejects the import and is never silently downgraded.
-
-Each mode provides a direct **`Read Clipboard`** button. The generic recursive importer recognizes a complete Pipeline, a single `MapNavigateAction` / `MapLocateAssertLocation` node, a `{"path": [...]}` object, or a bare `path` array. If path data lacks zone information, the GUI prompts for a zone assignment before loading it. Clipboard access is initiated by the button click, and the browser may request permission the first time.
-
-This is very suitable for the following scenarios:
-
-- Migrating old paths to the new navigation module.
-- Reusing existing routes in multi-person collaboration.
-- Modifying previous routes.
-
-### Assert Mode
-
-When you need not to "record a path" but to "determine whether the character currently falls within a certain rectangular area", you can directly use the `Assert Mode` at the top of the tool.
-
-Usage:
-
-1. Check `Assert Mode`.
-2. Select the target `zone` from the dropdown.
-3. Drag out a rectangle on the base map.
-4. Click `Copy Assert` to copy the complete `MapLocateAssertLocation` node to the clipboard.
-
-This mode does not modify the current path data; it merely borrows the same map rendering capabilities to quickly generate area determination nodes.
+> The path editor's planning preview directly calls the C++ route expansion logic used by `MapNavigateAction` and reads the same `base.nav.gz`. The preview does not implement a separate routing algorithm in JavaScript; actual execution is still affected by localization, terrain, and in-game conditions, so the outer Pipeline still needs failure fallback.
 
 ---
 
-## Actual Development Suggestions
+## Collecting and Digging `COLLECT` / `DIG`
 
-1. Record whenever possible; try not to manually craft the entire path. Walking through once in reality is usually more accurate than filling coordinates by feeling. If the precision of points hit by running and sprinting feels insufficient, try walking slowly.
-2. Starting point stability. Before recording, tidy up the character's position and viewpoint to reduce the cost of subsequent point correction.
-3. Special action points should be fewer but more precise; do not indiscriminately scatter them along the path. Especially for points like `INTERACT`, `TRANSFER`, `PORTAL`, `HEADING`, they should only be placed where they genuinely need to be triggered. `HEADING` also requires attention as a control node; it is usually more stable to manually maintain it after GUI export.
-4. For cross-area routes, always check the map transition points. Automatic addition of `PORTAL` is only for semantic supplementation, meaning not all cross-area boundaries are inherently reasonable.
-5. The outer Pipeline should still perform entry verification and failure fallback. Navigation is not the business flow itself; do not place all exception handling on a single `MapNavigateAction`.
-
----
-
-## Collection Semantics COLLECT / DIG
-
-### Concept
-
-`COLLECT` and `DIG` are MapNavigator's **native collection/digging semantic points**. The path author only needs to write the collection coordinates as `[x, y, "COLLECT"]` or `[x, y, "DIG"]` in the `path` array. After the navigator arrives precisely, it will automatically stop, synchronously trigger the corresponding pipeline subtask to complete collection/digging, and then continue to the next path segment, **without exiting NaviController throughout**.
-
-This improvement over the old `anchor` chain writing method includes:
-
-- No re-establishment of connection, re-bootstrapping, or resetting of sprint start grace period for each collection.
-- The entire segment near collection points automatically prohibits sprinting, preventing overshooting the target.
-- Multiple collection points are merged in a single Pipeline node, without needing to split them into multiple `GotoFindN` nodes.
-
-### Writing Method
-
-In `custom_action_param.path`, change the third element of the target coordinates that need collection/digging to the corresponding action string:
+`COLLECT` and `DIG` are MapNavigator's built-in collection/digging semantic points. In `path`, write the corresponding action as the third element of the collection coordinate; after arriving precisely, the navigator automatically stops, synchronously triggers the corresponding Pipeline subtask, and continues to the next segment once it finishes, **without exiting NaviController throughout**:
 
 ```json
 "path": [
@@ -617,14 +596,18 @@ In `custom_action_param.path`, change the third element of the target coordinate
 - Any number of `COLLECT` and `DIG` points can be mixed within the same `MapNavigateAction` node.
 - **No need** to write `anchor` on the node or point `next` to `AutoCollectClickStart`.
 
-### Files Path Authors Need to Care About
+In the tool: walk up to the collectible normally while recording, then change that point's action to `COLLECT` or `DIG` after stopping the recording.
+
+Compared with the old `anchor` chain-splitting form, this approach needs no re-establishing of the connection, re-bootstrapping, or resetting of the sprint start grace period for each collection; the entire segment near collection points automatically disables sprinting, preventing overshooting the target; and multiple collection points are merged into a single Pipeline node, without needing to split them into multiple `GotoFindN` nodes.
+
+### Related Files
 
 | File | Responsibility | When Changes Are Needed |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | `assets/resource/pipeline/AutoCollect/AutoCollectRoute*.json` | Path definitions, containing `MapNavigateAction` nodes and collection coordinates | Add new routes, adjust coordinates, add/remove collection points |
 | `assets/resource/pipeline/AutoCollect/AutoCollectClick.json` | OCR and click subtask triggered by `COLLECT`, entry point is `AutoCollectClickStart` | Add or delete OCR-recognized collection object names |
 | `assets/resource/pipeline/AutoCollect/AutoCollectDig.json` | Digging subtask triggered by `DIG`, entry point is `AutoCollectDigStart` | When digging interaction logic changes |
-| `assets/resource/pipeline/AutoCollect.json` | Route iteration, failure collection, and backpack storage before/after collection | Add route entries or adjust the overall flow |
+| `assets/resource/pipeline/AutoCollect.json` | Route iteration, failure collection, and backpack storage before/after the task | Add route entries or adjust the overall flow |
 
 **In most cases, path authors only need to modify `AutoCollectRoute*.json`.**
 
@@ -638,39 +621,33 @@ The following files are maintained by cpp-algo developers; path authors do not n
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`: Subtask entry names, `pipeline_override`, wait time after collection, and other constants.
 - `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: Execution logic after arriving at the collection point.
 
-### Boundary Description
+### Notes
 
-**Old Writing Method Deprecated**
+**The old writing method is deprecated.** The old `anchor: { "AutoCollectClickAfter": "..." }` + `next: ["AutoCollectClickStart"]` chain-splitting writing method should no longer appear in new routes.
 
-The old `anchor: { "AutoCollectClickAfter": "..." }` + `next: ["AutoCollectClickStart"]` chain-splitting writing method is deprecated and should no longer appear in new routes.
+**`AutoCollectClickEnd`'s `next` must not be changed.** It points to `[Anchor]AutoCollectClickAfter` to maintain compatibility with old anchor chain calls. When called from a `MaaContextRunTask` subtask, cpp-algo temporarily nullifies this `next` via `pipeline_override`, allowing the subtask to exit cleanly. Changing it affects other routes still using the old writing method.
 
-**`AutoCollectClickEnd`'s `next` Cannot Be Changed**
+**Sprint control is runtime-managed.** For the entire segment before every `COLLECT`, `DIG`, and strict arrival point, automatic sprinting is hard-disabled by cpp-algo at the `NavigationStateMachine` level; path authors cannot and do not need to control it.
 
-The `next` in `AutoCollectClickEnd` within `AutoCollectClick.json` points to `[Anchor]AutoCollectClickAfter` to maintain compatibility with old anchor chain calls. When called from a `MaaContextRunTask` subtask, the cpp-algo layer temporarily nullifies this `next` via `pipeline_override`, allowing the subtask to exit cleanly. Path authors **should not modify** this field, as it may affect other routes still using the old writing method.
-
-**Sprint Control is Runtime-Managed**
-
-For all `COLLECT`, `DIG`, and strict arrival points, the sprint on the entire preceding segment is hard-disabled by cpp-algo at the `NavigationStateMachine` level. Path authors cannot and do not need to control this behavior in the path JSON.
-
-### Complete Steps for Adding a New Collection Route
+### Adding a Collection Route
 
 1. Create a new `AutoCollectRouteN.json` under `assets/resource/pipeline/AutoCollect/`, referencing existing routes to write the basic skeleton of four nodes: `Start` → `AssertLocation` → `Goto` → `End`.
-2. Use the MapNavigator tool to record the path. In the GUI, change the action of the collection target points to `Collect` or `Dig`, copy the `path`, and paste it into the `custom_action_param.path` of the `Goto` node.
+2. Record the path with the tool, change the action of the collection target points to `COLLECT` or `DIG`, copy the `path`, and paste it into the `custom_action_param.path` of the `Goto` node.
 3. Register the new route entry in `interface.json` / the task entry JSON.
 4. No changes are needed to `AutoCollectClick.json`, `AutoCollectDig.json`, or any cpp-algo source files.
 
 ---
 
-## Async Interaction INTERACT
+## Async Interaction `INTERACT`
 
 ### Concept
 
 `INTERACT` carries two meanings, decided by whether the waypoint has `interact_text`:
 
-- **Without it**: press the interact key once upon arrival. This is the historical behavior; existing routes are unaffected.
-- **With it**: the point becomes an **async interaction**. On the last stretch toward that point, a background pre-filter watches for the interact prompt; when the prompt shows up the navigator stops and hands over to a Pipeline subtask, which OCRs the prompt and presses the interact key only when the text matches `interact_text`. The prompt showing up is the game's own confirmation that the character is in range, so that press completes the point — the little distance left is not walked.
+- **Without it**: when the point is selected for execution, press the interact key once upon arrival. This is the original point-action meaning.
+- **With it**: when the point is selected for execution, it becomes an **async interaction**. On the last stretch toward that point, a background pre-filter watches for the interact prompt; when the prompt shows up the navigator stops and hands over to a Pipeline subtask, which OCRs the prompt and presses the interact key only when the text matches `interact_text`. The prompt showing up is the game's own confirmation that the character is in range, so that press completes the point — the little distance left is not walked.
 
-The reason the route has to supply the text: there are far too many kinds of interactable, and the prompt wording differs per business, so no single shared table can enumerate them. Collectible names *are* a shared table, which is why `COLLECT` keeps its text in the Pipeline node; interact text has to be injected by whichever route uses it.
+The reason the route has to supply the text: there are far too many kinds of interactable, and the prompt wording differs per business, so no single shared table can enumerate them. Collectible names are a shared table, which is why `COLLECT` keeps its text in the Pipeline node; interact text has to be injected by whichever route uses it.
 
 What a route may customize is those two recognitions — when to stop, and whether this is the one — plus whether a match presses anything:
 
@@ -684,22 +661,24 @@ What gets pressed is not customizable — it is always the interact key (F on Wi
 
 ### Writing Method
 
-Write the interaction point in the object form and add `interact_text`:
+In `path`, write the interaction point in the object form and add `interact_text`:
 
 ```json
 "path": [
     { "action": "ZONE", "zone_id": "Wuling_Base" },
     [405, 1592],
-    { "action": "INTERACT", "target": [331, 1578], "interact_text": "登记" }
+    { "action": "INTERACT", "target": [331, 1578], "interact_text": "登记", "required": true }
 ]
 ```
 
 - `interact_text` accepts a string or an array of strings; any one of them matching is enough to press.
+- When several routes recognize the same set of text, write `interact_text` as `{ "node": "..." }` to name an OCR node instead, see [Sharing One Text Table Across Routes](#sharing-one-text-table-across-routes).
 - The text is matched against the OCR result as a **regular expression**, the same semantics as Pipeline's `expected`. Copy the in-game wording as-is; escape regex metacharacters yourself if the wording contains any.
 - When a whole route belongs to one business, put `interact_text` at the top level of `custom_action_param` as the default, see [Node Parameters](#node-parameters).
 - When navigation should only walk there and recognize the prompt, leaving the press to the outer Pipeline, add `interact_rec`, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode).
 - A single route may mix interaction points from several businesses, and mix them with `COLLECT` / `DIG`, in any number.
 - **No trailing `true` is needed**: `INTERACT` is already handled with strict arrival semantics.
+- This example requires the interaction to happen, hence `required: true`; if the interaction only serves as a route fallback after zipline planning fails, it can be omitted. See [Execution Order and `required`](#execution-order-and-required).
 
 In the GUI: walk up to the interactable normally while recording, change that point's action to `INTERACT` after stopping, then add `interact_text` to it by hand after exporting the `path` (the editor does not emit this field yet).
 
@@ -722,7 +701,7 @@ OCR is not always reliable, which is why this field is **a set of** regular expr
 
 Rules of thumb:
 
-- **Anchor first.** Matching is "contains", not whole-string equality, so for a short verb prompt like 登记 write `^登记$`; an unanchored `登记` matches any text in the same ROI that contains those characters.
+- **Anchor first.** Matching is "contains", not whole-string equality, so for a short verb prompt like `登记` (Register) write `^登记$`; an unanchored `登记` matches any text in the same ROI that contains those characters.
 - **Prefer too narrow over too wide.** A miss only wastes one visit to the point (navigation does not fail, see below), whereas a false match presses the key at the wrong thing.
 - **List variants one per line instead of expecting one pattern to cover every language.** Write simplified, traditional, English and Japanese separately; the syntax is Perl-flavoured, so inline flags such as `(?i)` are available. Remember that a backslash is doubled in JSON.
 - **Leading and trailing spaces need no handling** — the recognized text is trimmed before matching; `\\s*` is only for spaces split into the middle of the text.
@@ -730,7 +709,50 @@ Rules of thumb:
 - **A malformed regex does not fail silently.** The injected text is validity-checked first, and an invalid pattern makes the whole subtask refuse to dispatch, logging `regex invalid`, `failed to override_pipeline` and `Prompt subtask failed to dispatch` in sequence; the point simply does not press, and navigation still does not fail.
 - A ready-made model is `AutoPickInteractive` in `assets/resource/pipeline/RealTimeTask/AutoPick.json`: it mixes item names with verbs like `^采集$` and `^打开$` in one table, and records why a few lines are left out.
 
-Reuse boundary: within one route a shared table goes at the top level of `custom_action_param` (see [Node Parameters](#node-parameters)); reuse across routes currently means writing the table once per route JSON.
+Reuse boundary: within one route a shared table goes at the top level of `custom_action_param` (see [Node Parameters](#node-parameters)); to share a table across routes, put it in an OCR node, see the next section.
+
+### Sharing One Text Table Across Routes
+
+When several routes recognize the same set of prompt text (most commonly one business spread over several areas), write `interact_text` as an object naming an OCR node, and the table only has to live in that one place:
+
+```json
+"path": [
+    { "action": "INTERACT", "target": [331, 1578], "interact_text": { "node": "MyBusinessInteractText" }, "required": true }
+]
+```
+
+When the whole route shares it, it can likewise go at the top level:
+
+```json
+"custom_action_param": {
+    "interact_text": { "node": "MyBusinessInteractText" },
+    "path": [
+        ...
+    ]
+}
+```
+
+The named node is just an ordinary OCR node, with the text written in its `expected`; such a node often exists already (the recognition node of the button to be clicked after stopping), in which case no new node is needed at all:
+
+```json
+"MyBusinessInteractText": {
+    "recognition": {
+        "type": "OCR",
+        "param": {
+            "roi": "MyBusinessInteractButton",
+            "expected": ["^登记$", "^登記$", "(?i)^Register$"]
+        }
+    }
+}
+```
+
+Some boundaries:
+
+- **Only `expected` is read; the node itself is never dispatched.** Its `roi` and other fields belong to whoever actually runs it; navigation neither reads nor changes them.
+- **It must be an OCR node, and `expected` must be a non-empty array without empty strings.** Otherwise the log carries one `Interact text node must recognize by OCR` or `has no usable expected list` line, the point falls back to the plain meaning (press the interact key once upon arrival), and **the route still runs**.
+- **A malformed object is a hard error.** A misspelled key, or a `node` that is not a string or is an empty string, makes the whole node parameter parse fail — the same failure as an empty `interact_text` string.
+- **A value written on the point overrides the top level**, the same rule as for literal text; text and a node never coexist on one point, because they are the same field.
+- **The node is read before the run starts**; on success the log carries one `Interact text resolved from node` line.
 
 ### Replacing the Icon Pre-filter
 
@@ -756,12 +778,13 @@ The shipped one is an ordinary Pipeline node, `MapNavigatorInteractScan`, with i
     "action": "INTERACT",
     "target": [331, 1578],
     "interact_text": "登记",
-    "interact_scan": "MyBusinessInteractScan"
+    "interact_scan": "MyBusinessInteractScan",
+    "required": true
 }
 ```
 
 - This node is **never dispatched**; MapNavigator only reads those three parameters out of it. It therefore needs no `action`, no `next`, and does not have to hang off any chain.
-- `recognition.type` must be `TemplateMatch`. `template` may list one or more images, and any one matching stops the walk; when one prompt changes its icon with state (an essence point's "Activate" versus "Claim / Abandon"), list them all. A single `threshold` applies to every image, or give one per image (defaulting to `0.75`). `roi` must be absolute coordinates in the 1280×720 base frame — the offset-from-previous-node form is not supported, since the pre-filter runs independently per frame and has no "previous node".
+- `recognition.type` must be `TemplateMatch`. `template` may list one or more images, and any one matching stops the walk; when one prompt changes its icon with state (an Energy Alluvium's "Activate" versus "Claim / Abandon"), list them all. A single `threshold` applies to every image, or give one per image (defaulting to `0.75`). `roi` must be absolute coordinates in the 1280×720 base frame — the offset-from-previous-node form is not supported, since the pre-filter runs independently per frame and has no "previous node".
 - `template` resolves as a path under `image/`, the same as anywhere else in the Pipeline, and a platform overlay's same-named image wins as usual — so swapping the image for touch backends only means adding one under `resource_adb`.
 - If any of the above does not hold, the log carries one `Prompt scan node ...` line and **the points naming it fall back to "recognize once upon precise arrival"**. It does not take the route down with it and it does not silently press the wrong thing.
 - At most 4 pre-filters are armed per route (one background thread each). One node named by several points counts once. Anything beyond that reports `Prompt scan node dropped at the cap`, and those points fall back to arrival recognition too.
@@ -772,14 +795,15 @@ The shipped one is an ordinary Pipeline node, `MapNavigatorInteractScan`, with i
 
 An `INTERACT` point carrying `"interact_rec": true` keeps the whole sequence — the pre-filter while walking, the stop when the prompt appears, the OCR confirmation once stopped — and **drops only the final key press**. The arrival radius stays tightened to the async-interaction value, and a prompt hit still completes the point.
 
-When this is what you want: the prompt is up but *which* entry to take is the business's decision, while the interact key can only ever take the default one. The typical shape is one interactable carrying several rows (claim / discard and the like) — the key always takes the first row, so the business's own "which row" switch never gets to matter. Let navigation just get there and recognize the prompt, hand the choice back to the outer Pipeline, and that switch is in charge again.
+When this is what you want: the prompt is up but which entry to take is the business's decision, while the interact key can only ever take the default one. The typical shape is one interactable carrying several rows (Claim / Abandon and the like) — the key always takes the first row, so the business's own "which row" switch never gets to matter. Let navigation just get there and recognize the prompt, hand the choice back to the outer Pipeline, and that switch is in charge again.
 
 ```json
 {
     "action": "INTERACT",
     "target": [331, 1578],
     "interact_text": "领取",
-    "interact_rec": true
+    "interact_rec": true,
+    "required": true
 }
 ```
 
@@ -803,11 +827,11 @@ The pre-filter only runs **while that point is the one being walked to and the l
 - If the prompt never shows up on the way, **the authoritative recognition still runs once upon precise arrival** — a missed pre-filter does not skip the point. Every async interaction point therefore gets exactly one authoritative recognition: a hit on the way completes it, and otherwise arrival makes it up.
 - **Async interaction never fails navigation.** The key press only happens when OCR matches the injected text, and never at all in rec mode; navigation itself does not verify that the interaction actually took place, and does not error out because no prompt was recognized. Whether the interaction succeeded has to be validated by the outer Pipeline (for example, the UI that should appear afterwards).
 
-When the interaction opens a UI (a registration desk, a commission board), **make that point the last one of the route**: once the UI is up the character stops moving and the minimap is covered, so later points cannot be walked. This is the same author-side discipline as plain `INTERACT` without `interact_text` — async or not makes no difference here.
+When the interaction opens a UI (a registration desk, a commission board), **make that point the last one of the route and mark it `required: true`**: once the UI is up the character stops moving and the minimap is covered, so later points cannot be walked. This is the same author-side discipline as plain `INTERACT` without `interact_text` — async or not makes no difference here.
 
 The `MapNavigatorInteract` node ships with a placeholder text that can never match, so a route that injects no `interact_text` recognizes nothing there and cannot press by mistake.
 
-### Files Path Authors Need to Care About
+### Related Files
 
 | File | Responsibility | When Changes Are Needed |
 | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
@@ -824,10 +848,12 @@ The `MapNavigatorInteract` node ships with a placeholder text that can never mat
 The following files are maintained by cpp-algo developers; path authors do not need to modify them:
 
 - `agent/cpp-algo/source/MapNavigator/async_prompt_action.h` / `.cpp`: the shared implementation of prompt-driven actions, used by both `COLLECT` and async `INTERACT`.
-- `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters out of a Pipeline node, and the validation chain around it.
+- `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters and the interact text table out of a Pipeline node, and the validation chain around it.
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`: subtask node names, pre-filter cadence and last-resort constants, arrival values and others.
-- `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`: parsing of `interact_text` / `interact_scan` / `interact_rec` and propagation of the route-wide defaults.
+- `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`: parsing of `interact_text` / `interact_scan` / `interact_rec` and propagation of the route-wide defaults, plus reading a named OCR node into a text table before the run starts.
 - `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: the fallback execution logic upon arrival.
+
+---
 
 ## Finding and Approaching a Target `FIND`
 
@@ -847,7 +873,7 @@ Each `FIND` point is configured with two parameter groups: a **target source** (
 Additional rules:
 
 - All four fields accept camel case (`findTarget`, `findText`, `findStop`, `findArrive`).
-- Route-wide defaults are filled by group: for the target source (`find_target` / `find_text`), a point carrying either field receives neither route-wide value, and only a point carrying neither receives both; for the completion condition (`find_stop` / `find_arrive`), each field is filled individually.
+- Node-level fields win; route-wide defaults are filled by group: the **target source** (`find_target` / `find_text`) is filled as a whole — a point carrying either field receives neither route-wide value, and only a point carrying neither receives both. The **completion condition** (`find_stop` / `find_arrive`) is filled field by field, supplying only the fields the point does not set.
 - When both `find_stop` and `find_arrive` are configured, whichever is satisfied first completes the point.
 - The following configurations fail during parameter parsing and never reach runtime: on a `FIND` point, both or neither of `find_target` / `find_text`; neither of `find_stop` / `find_arrive`; a `find_arrive` that is not an array of exactly two numbers; a route that sets both `find_target` and `find_text` while containing a `FIND` point.
 
@@ -912,11 +938,11 @@ Control node (search starts as soon as the point is reached):
 }
 ```
 
-### Files Path Authors Need to Care About
+### Related Files
 
 | File | Responsibility | When Changes Are Needed |
 | -------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------ |
-| The business's own route JSON | The `MapNavigateAction` path, the `FIND` point and its `find_*` fields | Add a search point, change the target |
+| The business's own route JSON | The `MapNavigateAction` `path`, the `FIND` point and its `find_*` fields | Add a search point, change the target |
 | The business's own recognition nodes | The nodes named by `find_target` / `find_stop` | The ROI or the text of the target or prompt changes |
 | `assets/resource/pipeline/MapNavigator/Find.json` | The built-in OCR node `MapNavigatorFind` used for inline text; called per frame by the navigator and never dispatched on its own | The default ROI for inline text |
 | `agent/cpp-algo/source/MapNavigator/find_action.cpp` | The search and approach implementation and the bookkeeping it clears on the way out | Maintained by cpp-algo developers, tuned against a live client |
@@ -976,6 +1002,82 @@ The hit screen often covers the minimap. The navigator loses its position then, 
 
 | File | Responsibility | When Changes Are Needed |
 | ----------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------- |
-| The business's own route JSON | The `MapNavigateAction` path, the `TRIGGER` point and its `trigger_node` | Add a trigger end point, change the node |
+| The business's own route JSON | The `MapNavigateAction` `path`, the `TRIGGER` point and its `trigger_node` | Add a trigger end point, change the node |
 | The business's own recognition nodes | The node named by `trigger_node` | The ROI or the text of the hit screen changes |
 | `agent/cpp-algo/source/MapNavigator/trigger_action.cpp` | Recognition on the way and completion on arrival | Maintained by cpp-algo developers |
+
+---
+
+## Jump Pads `JUMP_PAD`
+
+There are two kinds of jump pads: ones that launch the character as soon as it steps on, and ones that need a jump while standing on them. Both are written as the same point, with `target` at the pad center; the navigator decides whether to jump:
+
+```json
+[
+    {
+        "action": "NAVMESH",
+        "target": [
+            1001.4,
+            302.0
+        ]
+    },
+    {
+        "action": "JUMP_PAD",
+        "target": [
+            1001.89,
+            305.68
+        ]
+    },
+    [
+        995.79,
+        320.78
+    ],
+    {
+        "action": "NAVMESH",
+        "target": [
+            1021.31,
+            368.82
+        ]
+    }
+]
+```
+
+### Runtime Behavior
+
+1. Walks in and stops once inside the arrival band;
+2. Waits until the character stands still. If it is more than 0.5 from the center, turns the camera toward the center and holds forward for a short step until it is within that range; a pad that launches on contact launches during such a step;
+3. Still on the pad once within range, it jumps. If the character is still on the pad 1.2 seconds after the jump, that jump did not launch: the range tightens to 0.25, it steps again and jumps again;
+4. Moving more than 3 from the center counts as launched; two consecutive unchanged fixes after that count as landed, and the route continues with the following points from the landing spot. The landing spot is set by the pad and does not depend on the facing at the jump.
+
+### Writing Tips
+
+- `target` must be the pad center. A pad that needs a jump only reacts within about 0.8 of its center; off-center, the jump is just a regular jump in place.
+- Stop the previous point 3–4 away from the pad on the walkable side. Pads often sit at cliff edges, so never place the approach point over the drop.
+- Follow `JUMP_PAD` directly with the landing spot as a plain point, then continue with `NAVMESH` as usual. Each leg is planned from the point before it; without the landing point, the next leg would start from the pad side.
+
+### Failure
+
+`MapNavigateAction` returns false when:
+
+| Reason | Meaning |
+| -------------------------- | ------------------------------------------------------------ |
+| `jump_pad_not_reached` | The step budget ran out before the character stood within range |
+| `jump_pad_not_launched` | Three jumps did not launch, or no launch within 20 seconds of reaching the pad |
+| `jump_pad_landing_timeout` | Did not stand still within 15 seconds after launch |
+
+### Related Files
+
+| File | Responsibility | When Changes Are Needed |
+| ------------------------------------------------------ | -------------------------------------------- | --------------------------------- |
+| The business's own route JSON | The `JUMP_PAD` point, its approach point and landing point | Add or adjust a jump pad segment |
+| `agent/cpp-algo/source/MapNavigator/jump_pad_action.cpp` | Standing, jumping, launch and landing detection | Maintained by cpp-algo developers |
+
+---
+
+## Practical Tips
+
+1. **Prefer `NAVMESH`; record only when semantics are needed.** For plain-movement routes, place the points by hand in the path editor, confirm them with planning, and copy; adjust a target the preview cannot reach on the spot instead of waiting for it to fail at runtime. Only routes with semantics such as interactions and map transitions need recording.
+2. **Record rather than hand-write.** Walking through once in reality is usually more accurate than filling coordinates by feeling; if the precision of the recorded points is insufficient, move more slowly.
+3. **Keep the starting state stable.** Before recording, tidy up the character's position and viewpoint, which significantly reduces later point correction.
+4. **Keep special action points few and precise.** Add `INTERACT`, `JUMP_PAD`, `TRANSFER`, and `PORTAL` only where an interaction, a jump pad, or an area switch is needed; with ziplines enabled, points that must be executed should be marked `required`. `HEADING`, `COLLECT`, `DIG`, `FIND`, and `TRIGGER` are always kept.
+5. **Always check map transition points on cross-area routes.** Automatic addition of `PORTAL` is only a semantic annotation and does not mean every cross-area boundary is inherently reasonable.

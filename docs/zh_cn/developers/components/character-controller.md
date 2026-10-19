@@ -8,8 +8,8 @@
 
 > [!IMPORTANT]
 >
-> 视角类节点（Yaw / Pitch / MoveToTarget 等）依赖键盘/鼠标输入，**必须在前台模式（Seize）下运行**，否则输入事件无法正确传递至游戏。  
-> 轴向移动节点（`CharacterControllerForwardAxisAction`、`CharacterSearchAction` 所用的 `__CharacterControllerAxisLongPress*Action`）在 **ADB** 下由 [`resource_adb/.../CharacterController/Action.json`](../../../assets/resource_adb/pipeline/Common/Private/CharacterController/Action.json) 映射为虚拟摇杆 `LongPress`，无需 Seize。
+> 视角类节点（Yaw / Pitch / MoveToTarget 等）在 Win32 下依赖键盘/鼠标输入，**必须在前台模式（Seize）下运行**，否则输入事件无法正确传递至游戏。  
+> 在 **ADB** 下，[`resource_adb/.../CharacterController/Action.json`](../../../../assets/resource_adb/pipeline/Common/Private/CharacterController/Action.json) 把轴向移动节点（`CharacterControllerForwardAxisAction`、`CharacterSearchAction` 所用的 `__CharacterControllerAxisLongPress*Action`）映射为虚拟摇杆 `LongPress`，视角拖动映射为触摸滑动、Shift 冲刺映射为冲刺按钮点击，均无需 Seize。
 
 ## 节点说明
 
@@ -62,7 +62,7 @@
 可选参数：
 
 - `align_threshold`：正整数，默认 `120`。水平对中的像素容忍范围。当目标中心与屏幕中心的水平偏移量小于此值时，认为已对齐，转为前进/后退操作。
-- `far_target_width`：正整数。识别框宽度小于此值时，认为目标距离过远，直接向前移动，跳过旋转与对齐逻辑。未设置时不启用此判断。
+- `far_target_width`：正整数。识别框宽度小于此值时，认为目标距离过远，直接向前移动（前进 200ms 后再冲刺 3 次），跳过旋转与对齐逻辑。未设置时不启用此判断。
 
 #### 行为说明
 
@@ -70,7 +70,7 @@
 
 | 条件 | 执行动作 |
 | -------------------------------------------------------------- | ------------ |
-| 识别框宽度 < `far_target_width`（且已设置 `far_target_width`） | 向前进 |
+| 识别框宽度 < `far_target_width`（且已设置 `far_target_width`） | 向前进并冲刺 3 次 |
 | 目标在屏幕中心左侧（超出 `align_threshold`） | 向左旋转视角 |
 | 目标在屏幕中心右侧（超出 `align_threshold`） | 向右旋转视角 |
 | 目标已对齐，但 Y 坐标 > 480（目标在屏幕下半部，已过） | 向后退 |

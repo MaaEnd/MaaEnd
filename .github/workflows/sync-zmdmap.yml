@@ -10,6 +10,9 @@ permissions:
 jobs:
   sync-pipeline-generate:
     runs-on: ubuntu-latest
+    env:
+      # 下载与生成的进度实时进日志，不要等进程退出才刷出来。
+      PYTHONUNBUFFERED: "1"
     steps:
       - name: Generate MaaEndBot GitHub App token
         id: app-token
@@ -34,21 +37,32 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
+      # setup-uv 一并负责 Python：python-version 会设成 UV_PYTHON，不必再挂 actions/setup-python。
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
       - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile
 
+      # 不必先整包下载：下面的 generate 脚本各自只 fetch 自己用得到的那几份数据。
+      # generate:DeliveryJobs 的第一条就是 generate:AutoDelivery，不必再单独跑一遍。
       - name: Generate pipeline data
         run: |
-          pnpm generate:AutoDelivery
           pnpm generate:DeliveryJobs
           pnpm generate:EnvironmentMonitoring
           pnpm generate:OutpostTrading
+          pnpm generate:AutoStockStaple
+          pnpm generate:GiftOperator
+          pnpm generate:SceneTeleport
 
       - name: Get version info
         id: version
         run: |
-          echo "version=$(cat tools/pipeline-generate/data/version.txt)" >> "$GITHUB_OUTPUT"
+          # 版本写在每份数据的最前面（version 字段），不再有单独的 version.txt。
+          echo "version=$(jq -r .version tools/zmdmap/data/delivery_destinations.json)" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -57,6 +71,7 @@ jobs:
           committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           add-paths: |
+            tools/zmdmap
             tools/pipeline-generate
             assets
           commit-message: "chore: sync zmdmap pipeline data ${{ steps.version.outputs.version }}"
@@ -74,12 +89,17 @@ jobs:
             - DeliveryJobs
             - EnvironmentMonitoring
             - OutpostTrading
+            - AutoStockStaple
+            - GiftOperator
+            - SceneTeleport
 
             **Version Information:**
             - Version: ${{ steps.version.outputs.version }}
 
-  sync-essence-filter:
+  sync-seize-delivery-jobs:
     runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
     steps:
       - name: Generate MaaEndBot GitHub App token
         id: app-token
@@ -96,56 +116,179 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ github.event.repository.default_branch }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
+      - uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.12"
+          enable-cache: true
 
       - name: Install dependencies
-        run: python3 -m pip install json5
-
-      - name: Sync EssenceFilter source data
-        id: sync
-        run: python3 -u tools/essence_filter/sync_zmdmap.py
-
-      - name: Generate EssenceFilter data
-        if: steps.sync.outputs.updated == 'true'
-        env:
-          DATA_VERSION: ${{ steps.sync.outputs.data_version }}
         run: |
-          python3 -u tools/essence_filter/extract_skill_pools.py
-          python3 -u tools/essence_filter/build_locations.py --data-version "$DATA_VERSION"
-          python3 -u tools/essence_filter/build_autoessence_tasks.py
+          pnpm install --frozen-lockfile
+
+      # 这个任务生成器复用 AutoDelivery 的模型与文案，脚本自己只 fetch delivery_destinations 那一份数据。
+      - name: Generate pipeline data
+        run: |
+          pnpm generate:SeizeDeliveryJobs
+
+      - name: Get version info
+        id: version
+        run: |
+          echo "version=$(jq -r .version tools/zmdmap/data/delivery_destinations.json)" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
-        if: steps.sync.outputs.updated == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}
           committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
           add-paths: |
-            assets/data/EssenceFilter/energy_point_gems.json
-            assets/data/EssenceFilter/weapons_output.json
-            assets/data/EssenceFilter/skill_pools.json
-            assets/data/EssenceFilter/locations.json
-            assets/data/EssenceFilter/matcher_config.json
-            assets/tasks/AutoEssence/AutoEssence.json
-            assets/tasks/AutoEssence/Location/
-            assets/tasks/AutoEssence/Target/Target.json
+            tools/zmdmap
+            tools/pipeline-generate
+            assets
+          commit-message: "chore: sync zmdmap seize delivery jobs data ${{ steps.version.outputs.version }}"
+          branch: chore/sync-zmdmap-seize-delivery-jobs
+          title: "chore: sync zmdmap seize delivery jobs data ${{ steps.version.outputs.version }}"
+          body: |
+            ## Summary
+
+            This PR automatically synchronized zmdmap data used by the SeizeDeliveryJobs generator and regenerated its pipeline and task artifacts.
+
+            Please review the changes before merging it.
+
+            **Generated Tasks:**
+            - SeizeDeliveryJobs
+
+            **Version Information:**
+            - Version: ${{ steps.version.outputs.version }}
+
+  sync-essence-filter:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.event.repository.default_branch }}
+
+      # setup-uv 一并负责 Python：python-version 会设成 UV_PYTHON，不必再挂 actions/setup-python。
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Fetch zmdmap data
+        run: uv run --frozen --no-default-groups zmdmap fetch --only weapons --only energy_point_gems
+
+      # 依赖就地声明：uv 按 uv.lock 建环境，再叠加这里点名的包，不必单独装 python 或 pip install。
+      - name: Generate EssenceFilter data
+        run: |
+          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/sync_zmdmap.py
+          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/extract_skill_pools.py
+          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/build_locations.py --data-version "$(jq -r '.version // "unknown"' tools/zmdmap/data/energy_point_gems.json)"
+          uv run --frozen --no-default-groups --with json5 python -u tools/essence_filter/build_autoessence_tasks.py
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          add-paths: |
+            tools/zmdmap
+            assets/data/EssenceFilter
+            assets/tasks/AutoEssence
             assets/interface.json
-            assets/resource/pipeline/AutoEssence/CommonNodes/AutoEssence.json
-            assets/locales/interface/zh_cn.json
-            assets/locales/interface/zh_tw.json
-            assets/locales/interface/en_us.json
-            assets/locales/interface/ja_jp.json
-            assets/locales/interface/ko_kr.json
+            assets/resource/pipeline/AutoEssence
+            assets/locales/interface
           commit-message: "chore(essencefilter): sync zmdmap data"
           branch: chore/sync-zmdmap-essence-filter-data
           title: "chore(essencefilter): sync zmdmap data"
           body: |
             ## Summary
 
-            This PR synchronized the latest valid EssenceFilter data from zmdmap and regenerated dependent data files and AutoEssence task options.
+            This PR synchronized the latest EssenceFilter compact game data from zmdmap and regenerated dependent data files and AutoEssence task options.
 
             Please review the changes before merging it.
+
+  sync-icon-recognition:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.event.repository.default_branch }}
+
+      # setup-uv 一并负责 Python：python-version 会设成 UV_PYTHON，不必再挂 actions/setup-python。
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Fetch zmdmap data
+        run: uv run --frozen --no-default-groups zmdmap fetch --only item_mini_table --only weapons
+
+      # 图标脚本要 json5（读物品表）与 pillow（合成 UI 图标），httpx 已经是核心依赖。
+      - name: Download icon resources
+        run: uv run --frozen --no-default-groups --with json5 --with pillow python tools/icon_recognition/download.py --workers 16
+
+      - name: Publish icon resources
+        run: uv run --frozen --no-default-groups --with json5 --with pillow python tools/icon_recognition/publish.py
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          add-paths: |
+            tools/zmdmap
+            assets/data/IconRecognition
+            assets/resource/image/IconRecognition
+            assets/resource/image/UI/Item
+            assets/locales/interface
+          commit-message: "chore(iconrecognition): sync zmdmap icon resources"
+          branch: chore/sync-zmdmap-icon-recognition
+          title: "chore(iconrecognition): sync zmdmap icon resources"
+          body: |
+            ## Summary
+
+            This PR automatically downloaded the latest IconRecognition icons from zmdmap and regenerated the recognition catalog, item images, and localized item names.
+
+            Please review the changes before merging it.
+
+            **Generated Artifacts:**
+            - `assets/data/IconRecognition/recognition_items.json`
+            - `assets/resource/image/IconRecognition/`
+            - `assets/resource/image/UI/Item/`
+            - `assets/locales/interface/` item names

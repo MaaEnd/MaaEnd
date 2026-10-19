@@ -1,0 +1,2011 @@
+{
+    "version": "1.6.3",
+    "sha256": "b00eb551d3dcfad4cc013b3cd1b79bad87ab5785897bef41c9d2ff43dd918ebf",
+    "levels": {
+        "base01_lv001": {
+            "names": {
+                "zh_cn": "O.M.V.帝江号",
+                "zh_tw": "O.M.V.帝江號",
+                "en_us": "OMV Dijiang",
+                "ja_jp": "O.M.V.帝江号",
+                "ko_kr": "O.M.V.제강호"
+            }
+        },
+        "indie_dg005": {
+            "names": {
+                "zh_cn": "总桩办公室",
+                "zh_tw": "總樁辦公室",
+                "en_us": "Main Pillar Office",
+                "ja_jp": "総杭執務室",
+                "ko_kr": "주 기둥 사무실"
+            }
+        },
+        "indie_dg007": {
+            "names": {
+                "zh_cn": "首墩内部",
+                "zh_tw": "首墩內部",
+                "en_us": "Marker Stone Interiors",
+                "ja_jp": "首礎内部",
+                "ko_kr": "수돈 내부"
+            }
+        },
+        "indie_dg016": {
+            "names": {
+                "zh_cn": "遂明",
+                "zh_tw": "遂明",
+                "en_us": "Suiming",
+                "ja_jp": "遂明",
+                "ko_kr": "수명"
+            }
+        },
+        "map01_lv001": {
+            "names": {
+                "zh_cn": "枢纽区",
+                "zh_tw": "樞紐區",
+                "en_us": "The Hub",
+                "ja_jp": "中枢エリア",
+                "ko_kr": "거점 지역"
+            }
+        },
+        "map01_lv002": {
+            "names": {
+                "zh_cn": "谷地通道",
+                "zh_tw": "谷地通道",
+                "en_us": "Valley Pass",
+                "ja_jp": "谷地通路",
+                "ko_kr": "협곡길"
+            }
+        },
+        "map01_lv003": {
+            "names": {
+                "zh_cn": "阿伯莉采石场",
+                "zh_tw": "阿伯莉採石場",
+                "en_us": "Aburrey Quarry",
+                "ja_jp": "アブリー採石場",
+                "ko_kr": "아부레이 채석장"
+            }
+        },
+        "map01_lv005": {
+            "names": {
+                "zh_cn": "源石研究园",
+                "zh_tw": "源石研究園",
+                "en_us": "Originium Science Park",
+                "ja_jp": "源石研究パーク",
+                "ko_kr": "오리지늄 연구 구역"
+            }
+        },
+        "map01_lv006": {
+            "names": {
+                "zh_cn": "矿脉源区",
+                "zh_tw": "礦脈源區",
+                "en_us": "Origin Lodespring",
+                "ja_jp": "鉱山エリア",
+                "ko_kr": "광맥 구역"
+            }
+        },
+        "map01_lv007": {
+            "names": {
+                "zh_cn": "供能高地",
+                "zh_tw": "供能高地",
+                "en_us": "Power Plateau",
+                "ja_jp": "エネルギー高地",
+                "ko_kr": "에너지 공급 고지"
+            }
+        },
+        "map02_lv001": {
+            "names": {
+                "zh_cn": "景玉谷",
+                "zh_tw": "景玉谷",
+                "en_us": "Jingyu Valley",
+                "ja_jp": "景玉谷",
+                "ko_kr": "경옥 골짜기"
+            }
+        },
+        "map02_lv002": {
+            "names": {
+                "zh_cn": "武陵城",
+                "zh_tw": "武陵城",
+                "en_us": "Wuling City",
+                "ja_jp": "武陵城",
+                "ko_kr": "무릉성"
+            }
+        },
+        "map02_lv003": {
+            "names": {
+                "zh_cn": "清波寨",
+                "zh_tw": "清波寨",
+                "en_us": "Qingbo Stockade",
+                "ja_jp": "清波砦",
+                "ko_kr": "청파채"
+            }
+        },
+        "map02_lv004": {
+            "names": {
+                "zh_cn": "首墩",
+                "zh_tw": "首墩",
+                "en_us": "Marker Stone",
+                "ja_jp": "首礎",
+                "ko_kr": "수돈"
+            }
+        },
+        "map02_lv005": {
+            "names": {
+                "zh_cn": "试验园区",
+                "zh_tw": "實驗園區",
+                "en_us": "Test Area",
+                "ja_jp": "実験区域",
+                "ko_kr": "실험 구역"
+            }
+        },
+        "map02_lv006": {
+            "names": {
+                "zh_cn": "藏剑谷",
+                "zh_tw": "藏劍谷",
+                "en_us": "Sword Vault Dale",
+                "ja_jp": "蔵剣谷",
+                "ko_kr": "장검 골짜기"
+            }
+        },
+        "map02_lv007": {
+            "names": {
+                "zh_cn": "应龙关",
+                "zh_tw": "應龍關",
+                "en_us": "Yinglung Pass",
+                "ja_jp": "応龍関",
+                "ko_kr": "응룡 관문"
+            }
+        },
+        "map02_lv008": {
+            "names": {
+                "zh_cn": "北部禁区",
+                "zh_tw": "北部禁區",
+                "en_us": "North Wuling Exclusion Zone",
+                "ja_jp": "北部封鎖区域",
+                "ko_kr": "북쪽 금지 구역"
+            }
+        },
+        "map02_lv009": {
+            "names": {
+                "zh_cn": "雪松林",
+                "zh_tw": "雪松林",
+                "en_us": "Snowy Forest",
+                "ja_jp": "雪松林",
+                "ko_kr": "눈 덮인 소나무 숲"
+            }
+        },
+        "map02_lv010": {
+            "names": {
+                "zh_cn": "祀的画",
+                "zh_tw": "祀的畫",
+                "en_us": "Si's Painting",
+                "ja_jp": "スーの絵",
+                "ko_kr": "사의 그림"
+            }
+        }
+    },
+    "anchors": [
+        {
+            "id": "200001237",
+            "teleport_id": "TpForMap_ent_200001237",
+            "map": "map01",
+            "level": "map01_lv002",
+            "u": 249.117,
+            "v": 684.359,
+            "area_names": {
+                "zh_cn": "通道入口",
+                "zh_tw": "通道入口",
+                "en_us": "Passage Entrance",
+                "ja_jp": "通路入口",
+                "ko_kr": "통로 입구"
+            }
+        },
+        {
+            "id": "200001239",
+            "teleport_id": "TpForMap_ent_200001239",
+            "map": "map01",
+            "level": "map01_lv002",
+            "u": 161.67,
+            "v": 545.688,
+            "area_names": {
+                "zh_cn": "临时避难所",
+                "zh_tw": "臨時避難所",
+                "en_us": "Temporary Shelter",
+                "ja_jp": "臨時避難所",
+                "ko_kr": "임시 대피소"
+            }
+        },
+        {
+            "id": "200001240",
+            "teleport_id": "TpForMap_ent_200001240",
+            "map": "map01",
+            "level": "map01_lv002",
+            "u": 129.6,
+            "v": 542.784,
+            "area_names": {
+                "zh_cn": "谷地要塞",
+                "zh_tw": "谷地要塞",
+                "en_us": "Valley Fort",
+                "ja_jp": "谷地要塞",
+                "ko_kr": "협곡 요새"
+            }
+        },
+        {
+            "id": "300001865",
+            "teleport_id": "TpForMap_ent_300001865",
+            "map": "map01",
+            "level": "map01_lv003",
+            "u": 886.191,
+            "v": 1031.984,
+            "area_names": {
+                "zh_cn": "采石场入口",
+                "zh_tw": "採石場入口",
+                "en_us": "Quarry Entrance",
+                "ja_jp": "採石場入口",
+                "ko_kr": "채석장 입구"
+            }
+        },
+        {
+            "id": "300001874",
+            "teleport_id": "TpForMap_ent_300001874",
+            "map": "map01",
+            "level": "map01_lv003",
+            "u": 965.96,
+            "v": 1113.884,
+            "area_names": {
+                "zh_cn": "存料处",
+                "zh_tw": "存料處",
+                "en_us": "Stockpile Area",
+                "ja_jp": "資材保管所",
+                "ko_kr": "재료 보관소"
+            }
+        },
+        {
+            "id": "300002538",
+            "teleport_id": "TpForMap_ent_300002538",
+            "map": "map01",
+            "level": "map01_lv003",
+            "u": 1001.566,
+            "v": 1067.224,
+            "area_names": {
+                "zh_cn": "深层管理区",
+                "zh_tw": "深層管理區",
+                "en_us": "Deep Management Post",
+                "ja_jp": "深層管理エリア",
+                "ko_kr": "심층 관리 구역"
+            }
+        },
+        {
+            "id": "300002665",
+            "teleport_id": "TpForMap_ent_300002665",
+            "map": "map01",
+            "level": "map01_lv003",
+            "u": 958.746,
+            "v": 1217.714,
+            "area_names": {
+                "zh_cn": "采石作业区",
+                "zh_tw": "採石作業區",
+                "en_us": "Quarry Site",
+                "ja_jp": "採掘現場",
+                "ko_kr": "채석 작업 구역"
+            }
+        },
+        {
+            "id": "2100000031",
+            "teleport_id": "TpForMap_ent_2100000031",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 452.381,
+            "v": 910.308,
+            "area_names": {
+                "zh_cn": "枢纽基地电站",
+                "zh_tw": "樞紐基地電站",
+                "en_us": "Hub Base Power Plant",
+                "ja_jp": "中枢基地発電所",
+                "ko_kr": "거점 기지 발전소"
+            }
+        },
+        {
+            "id": "2100000073",
+            "teleport_id": "TpForMap_ent_2100000073",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 713.228,
+            "v": 965.647,
+            "area_names": {
+                "zh_cn": "工人之家",
+                "zh_tw": "工人之家",
+                "en_us": "Worker Dorms",
+                "ja_jp": "従業員寮",
+                "ko_kr": "직원 숙소 구역"
+            }
+        },
+        {
+            "id": "2100000086",
+            "teleport_id": "TpForMap_ent_2100000086",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 527.991,
+            "v": 695.115,
+            "area_names": {
+                "zh_cn": "岩丘通道",
+                "zh_tw": "岩丘通道",
+                "en_us": "Rockhill Passage",
+                "ja_jp": "岩丘の道",
+                "ko_kr": "바위 언덕 통로"
+            }
+        },
+        {
+            "id": "2100000093",
+            "teleport_id": "TpForMap_ent_2100000093",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 373.486,
+            "v": 984.635,
+            "area_names": {
+                "zh_cn": "源石副产物中心",
+                "zh_tw": "源石副產物中心",
+                "en_us": "Originium Byproduct Processing Center",
+                "ja_jp": "源石副産物センター",
+                "ko_kr": "오리지늄 부산물 센터"
+            }
+        },
+        {
+            "id": "2100000284",
+            "teleport_id": "TpForMap_ent_2100000284",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 635.713,
+            "v": 900.137,
+            "area_names": {
+                "zh_cn": "枢纽基地区",
+                "zh_tw": "樞紐基地區",
+                "en_us": "Hub Base",
+                "ja_jp": "中枢基地",
+                "ko_kr": "거점 기지 구역"
+            }
+        },
+        {
+            "id": "2100000322",
+            "teleport_id": "TpForMap_ent_2100000322",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 612.78,
+            "v": 968.098,
+            "area_names": {
+                "zh_cn": "南部草甸",
+                "zh_tw": "南部草甸",
+                "en_us": "Southern Meadows",
+                "ja_jp": "南芝原",
+                "ko_kr": "남쪽 초원"
+            }
+        },
+        {
+            "id": "2100010282",
+            "teleport_id": "TpForMap_ent_2100010282",
+            "map": "map01",
+            "level": "map01_lv001",
+            "u": 591.116,
+            "v": 660.79,
+            "area_names": {
+                "zh_cn": "货运平台",
+                "zh_tw": "貨運平台",
+                "en_us": "Logistics Platform",
+                "ja_jp": "物流基地",
+                "ko_kr": "화물 플랫폼"
+            }
+        },
+        {
+            "id": "2800001292",
+            "teleport_id": "TpForMap_ent_2800001292",
+            "map": "map01",
+            "level": "map01_lv007",
+            "u": 772.966,
+            "v": 148.338,
+            "area_names": {
+                "zh_cn": "电站通信站",
+                "zh_tw": "電站通訊站",
+                "en_us": "Power Plant Comm Station",
+                "ja_jp": "発電所通信局",
+                "ko_kr": "발전소 통신소"
+            }
+        },
+        {
+            "id": "2800001338",
+            "teleport_id": "TpForMap_ent_2800001338",
+            "map": "map01",
+            "level": "map01_lv007",
+            "u": 561.804,
+            "v": 287.951,
+            "area_names": {
+                "zh_cn": "联盟停车场",
+                "zh_tw": "聯盟停車場",
+                "en_us": "United Parking Lot",
+                "ja_jp": "工業団駐車場",
+                "ko_kr": "연맹 주차장"
+            }
+        },
+        {
+            "id": "2800001509",
+            "teleport_id": "TpForMap_ent_2800001509",
+            "map": "map01",
+            "level": "map01_lv007",
+            "u": 677.039,
+            "v": 225.534,
+            "area_names": {
+                "zh_cn": "高地主路",
+                "zh_tw": "高地主路",
+                "en_us": "Plateau Trunkway",
+                "ja_jp": "高地大通り",
+                "ko_kr": "고지대 큰길"
+            }
+        },
+        {
+            "id": "2800001519",
+            "teleport_id": "TpForMap_ent_2800001519",
+            "map": "map01",
+            "level": "map01_lv007",
+            "u": 649.772,
+            "v": 382.092,
+            "area_names": {
+                "zh_cn": "疏散区",
+                "zh_tw": "疏散區",
+                "en_us": "Evacuation Zone",
+                "ja_jp": "避難場所",
+                "ko_kr": "대피 구역"
+            }
+        },
+        {
+            "id": "3400010189",
+            "teleport_id": "TpForMap_ent_3400010189",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 1223.379,
+            "v": 667.185,
+            "area_names": {
+                "zh_cn": "崖边山道",
+                "zh_tw": "崖邊山道",
+                "en_us": "Cliffside Trail",
+                "ja_jp": "崖の山道",
+                "ko_kr": "절벽 산길"
+            }
+        },
+        {
+            "id": "3400020743",
+            "teleport_id": "TpForMap_ent_3400020743",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 1296.45,
+            "v": 764.747,
+            "area_names": {
+                "zh_cn": "山道缓坡",
+                "zh_tw": "山道緩坡",
+                "en_us": "Mountain Path Slope",
+                "ja_jp": "山の坂道",
+                "ko_kr": "완만한 산길"
+            }
+        },
+        {
+            "id": "3400020746",
+            "teleport_id": "TpForMap_ent_3400020746",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 959.178,
+            "v": 830.325,
+            "area_names": {
+                "zh_cn": "五号公路",
+                "zh_tw": "五號公路",
+                "en_us": "Route 5",
+                "ja_jp": "五号道路",
+                "ko_kr": "5번 국도"
+            }
+        },
+        {
+            "id": "3400020747",
+            "teleport_id": "TpForMap_ent_3400020747",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 1147.859,
+            "v": 737.663,
+            "area_names": {
+                "zh_cn": "源石实验园区",
+                "zh_tw": "源石實驗園區",
+                "en_us": "Originium Science Park",
+                "ja_jp": "源石実験エリア",
+                "ko_kr": "오리지늄 실험 구역"
+            }
+        },
+        {
+            "id": "3400021048",
+            "teleport_id": "TpForMap_ent_3400021048",
+            "map": "map01",
+            "level": "map01_lv005",
+            "u": 1156.711,
+            "v": 869.337,
+            "area_names": {
+                "zh_cn": "醇化合物工厂",
+                "zh_tw": "醇化合物工廠",
+                "en_us": "Kohl Plant",
+                "ja_jp": "合成コール工場",
+                "ko_kr": "콜 화합물 공장"
+            }
+        },
+        {
+            "id": "3500031058",
+            "teleport_id": "TpForMap_ent_3500031058",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 882.059,
+            "v": 162.424,
+            "area_names": {
+                "zh_cn": "源石隧道",
+                "zh_tw": "源石隧道",
+                "en_us": "Originium Passage",
+                "ja_jp": "源石トンネル",
+                "ko_kr": "오리지늄 터널"
+            }
+        },
+        {
+            "id": "3500031059",
+            "teleport_id": "TpForMap_ent_3500031059",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 926.965,
+            "v": 289.294,
+            "area_names": {
+                "zh_cn": "运输区",
+                "zh_tw": "運輸區",
+                "en_us": "Logistics Area",
+                "ja_jp": "物流区",
+                "ko_kr": "운송 구역"
+            }
+        },
+        {
+            "id": "3500031060",
+            "teleport_id": "TpForMap_ent_3500031060",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 1100.637,
+            "v": 457.249,
+            "area_names": {
+                "zh_cn": "矿区医疗站",
+                "zh_tw": "礦區醫療站",
+                "en_us": "Mining Area Clinic",
+                "ja_jp": "鉱区診療所",
+                "ko_kr": "광산 지역 의료소"
+            }
+        },
+        {
+            "id": "3500031061",
+            "teleport_id": "TpForMap_ent_3500031061",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 1170.239,
+            "v": 320.231,
+            "area_names": {
+                "zh_cn": "旧矿区",
+                "zh_tw": "舊礦區",
+                "en_us": "Old Mines",
+                "ja_jp": "旧鉱区",
+                "ko_kr": "옛 광산 지역"
+            }
+        },
+        {
+            "id": "3500031199",
+            "teleport_id": "TpForMap_ent_3500031199",
+            "map": "map01",
+            "level": "map01_lv006",
+            "u": 1226.595,
+            "v": 562.809,
+            "area_names": {
+                "zh_cn": "裂地者营地",
+                "zh_tw": "裂地者營地",
+                "en_us": "Landbreaker Camp",
+                "ja_jp": "無法者野営地",
+                "ko_kr": "랜드브레이커 캠프"
+            }
+        },
+        {
+            "id": "9800000001",
+            "teleport_id": "TpForMap_ent_9800000001",
+            "map": "base01",
+            "level": "base01_lv001",
+            "u": 192.0,
+            "v": 229.5,
+            "area_names": {
+                "zh_cn": "舰桥",
+                "zh_tw": "艦橋",
+                "en_us": "Bridge",
+                "ja_jp": "ブリッジ",
+                "ko_kr": "갑판"
+            }
+        },
+        {
+            "id": "9800000002",
+            "teleport_id": "TpForMap_ent_9800000002",
+            "map": "base01",
+            "level": "base01_lv001",
+            "u": 192.0,
+            "v": 149.147,
+            "area_names": {
+                "zh_cn": "生活区",
+                "zh_tw": "生活區",
+                "en_us": "Living Sector",
+                "ja_jp": "生活区画",
+                "ko_kr": "생활 구역"
+            }
+        },
+        {
+            "id": "10100020314",
+            "teleport_id": "TpForMap_ent_10100020314",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 690.21,
+            "v": 2653.943,
+            "area_names": {
+                "zh_cn": "淬剑荡",
+                "zh_tw": "淬劍蕩",
+                "en_us": "Sword Quenching Marsh",
+                "ja_jp": "淬剣湖",
+                "ko_kr": "쉬검 호수"
+            }
+        },
+        {
+            "id": "10100020315",
+            "teleport_id": "TpForMap_ent_10100020315",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 603.327,
+            "v": 2828.06,
+            "area_names": {
+                "zh_cn": "水泽涧",
+                "zh_tw": "水澤澗",
+                "en_us": "Everwater Brook",
+                "ja_jp": "水沢谷",
+                "ko_kr": "수택 계곡"
+            }
+        },
+        {
+            "id": "10100020319",
+            "teleport_id": "TpForMap_ent_10100020319",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 814.35,
+            "v": 2772.983,
+            "area_names": {
+                "zh_cn": "南山",
+                "zh_tw": "南山",
+                "en_us": "South Hill",
+                "ja_jp": "南山",
+                "ko_kr": "남산"
+            }
+        },
+        {
+            "id": "10100020350",
+            "teleport_id": "TpForMap_ent_10100020350",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 753.893,
+            "v": 2595.405,
+            "area_names": {
+                "zh_cn": "摘菱屿",
+                "zh_tw": "摘菱嶼",
+                "en_us": "Zhailing Islet",
+                "ja_jp": "菱摘島",
+                "ko_kr": "적릉서"
+            }
+        },
+        {
+            "id": "10100020646",
+            "teleport_id": "TpForMap_ent_10100020646",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 976.92,
+            "v": 2502.0,
+            "area_names": {
+                "zh_cn": "驮鼻山",
+                "zh_tw": "馱鼻山",
+                "en_us": "Burdosnout Hill",
+                "ja_jp": "駄鼻山",
+                "ko_kr": "태비산"
+            }
+        },
+        {
+            "id": "10100030017",
+            "teleport_id": "TpForMap_ent_10100030017",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 791.835,
+            "v": 2324.505,
+            "area_names": {
+                "zh_cn": "聚宝窟",
+                "zh_tw": "聚寶窟",
+                "en_us": "Treasure Grotto",
+                "ja_jp": "集宝洞",
+                "ko_kr": "보물의 심장부"
+            }
+        },
+        {
+            "id": "10100030018",
+            "teleport_id": "TpForMap_ent_10100030018",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 972.371,
+            "v": 2197.521,
+            "area_names": {
+                "zh_cn": "踩道",
+                "zh_tw": "踩道",
+                "en_us": "Treadway",
+                "ja_jp": "ぬかるんだ道",
+                "ko_kr": "오솔길"
+            }
+        },
+        {
+            "id": "10100030027",
+            "teleport_id": "TpForMap_ent_10100030027",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 814.583,
+            "v": 2138.903,
+            "area_names": {
+                "zh_cn": "生态实验站",
+                "zh_tw": "生態實驗站",
+                "en_us": "Ecological Research Station",
+                "ja_jp": "生態研究所",
+                "ko_kr": "생태 실험실"
+            }
+        },
+        {
+            "id": "10100030048",
+            "teleport_id": "TpForMap_ent_10100030048",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 984.555,
+            "v": 2355.682,
+            "area_names": {
+                "zh_cn": "天王坪",
+                "zh_tw": "天王坪",
+                "en_us": "Sky King Flats",
+                "ja_jp": "天王原",
+                "ko_kr": "천왕 평지"
+            }
+        },
+        {
+            "id": "10100030146",
+            "teleport_id": "TpForMap_ent_10100030146",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 963.86,
+            "v": 2424.951,
+            "area_names": {
+                "zh_cn": "天王坪",
+                "zh_tw": "天王坪",
+                "en_us": "Sky King Flats",
+                "ja_jp": "天王原",
+                "ko_kr": "천왕 평지"
+            }
+        },
+        {
+            "id": "10100030179",
+            "teleport_id": "TpForMap_ent_10100030179",
+            "map": "map02",
+            "level": "map02_lv001",
+            "u": 741.87,
+            "v": 2411.812,
+            "area_names": {
+                "zh_cn": "聚宝窟",
+                "zh_tw": "聚寶窟",
+                "en_us": "Treasure Grotto",
+                "ja_jp": "集宝洞",
+                "ko_kr": "보물의 심장부"
+            }
+        },
+        {
+            "id": "10200030151",
+            "teleport_id": "TpForMap_ent_10200030151",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1212.142,
+            "v": 910.14,
+            "area_names": {
+                "zh_cn": "应龙档案室",
+                "zh_tw": "應龍檔案室",
+                "en_us": "YSTF Filing Room",
+                "ja_jp": "応龍資料室",
+                "ko_kr": "응룡 자료실"
+            }
+        },
+        {
+            "id": "10200030153",
+            "teleport_id": "TpForMap_ent_10200030153",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1168.057,
+            "v": 1036.837,
+            "area_names": {
+                "zh_cn": "石涧崖",
+                "zh_tw": "石澗崖",
+                "en_us": "Stonepond Cliff",
+                "ja_jp": "石谷崖",
+                "ko_kr": "석간 절벽"
+            }
+        },
+        {
+            "id": "10200030160",
+            "teleport_id": "TpForMap_ent_10200030160",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 881.835,
+            "v": 874.507,
+            "area_names": {
+                "zh_cn": "临关渠",
+                "zh_tw": "臨關渠",
+                "en_us": "Pass-Side Canal",
+                "ja_jp": "臨関水路",
+                "ko_kr": "관문 근처 수로"
+            }
+        },
+        {
+            "id": "10200030168",
+            "teleport_id": "TpForMap_ent_10200030168",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1112.551,
+            "v": 980.07,
+            "area_names": {
+                "zh_cn": "石涧崖",
+                "zh_tw": "石澗崖",
+                "en_us": "Stonepond Cliff",
+                "ja_jp": "石谷崖",
+                "ko_kr": "석간 절벽"
+            }
+        },
+        {
+            "id": "10200030169",
+            "teleport_id": "TpForMap_ent_10200030169",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1133.303,
+            "v": 798.832,
+            "area_names": {
+                "zh_cn": "应龙主营",
+                "zh_tw": "應龍主營",
+                "en_us": "YSTF Main Camp",
+                "ja_jp": "応龍本陣",
+                "ko_kr": "응룡 주 영지"
+            }
+        },
+        {
+            "id": "10200030255",
+            "teleport_id": "TpForMap_ent_10200030255",
+            "map": "map02",
+            "level": "map02_lv007",
+            "u": 1210.425,
+            "v": 773.82,
+            "area_names": {
+                "zh_cn": "置器阁",
+                "zh_tw": "置器閣",
+                "en_us": "Device Pavilion",
+                "ja_jp": "納器館",
+                "ko_kr": "무기각"
+            }
+        },
+        {
+            "id": "22800030004",
+            "teleport_id": "TpForMap_ent_22800030004",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 497.435,
+            "v": 1563.724,
+            "area_names": {
+                "zh_cn": "界石坪",
+                "zh_tw": "界石坪",
+                "en_us": "Marker Stone Flats",
+                "ja_jp": "界石広場",
+                "ko_kr": "경계석 평원"
+            }
+        },
+        {
+            "id": "22800030005",
+            "teleport_id": "TpForMap_ent_22800030005",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 705.128,
+            "v": 1622.955,
+            "area_names": {
+                "zh_cn": "方兴衢",
+                "zh_tw": "方興衢",
+                "en_us": "Fangxing Avenue",
+                "ja_jp": "方興街",
+                "ko_kr": "방흥거리"
+            }
+        },
+        {
+            "id": "22800030007",
+            "teleport_id": "TpForMap_ent_22800030007",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 529.253,
+            "v": 1743.233,
+            "area_names": {
+                "zh_cn": "天师府学院",
+                "zh_tw": "天師府學院",
+                "en_us": "Tianshi Bureau Academy",
+                "ja_jp": "天師府学院",
+                "ko_kr": "천사부 학원"
+            }
+        },
+        {
+            "id": "22800030008",
+            "teleport_id": "TpForMap_ent_22800030008",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 704.033,
+            "v": 1891.979,
+            "area_names": {
+                "zh_cn": "孤喉泽",
+                "zh_tw": "孤喉澤",
+                "en_us": "Guhou Marsh",
+                "ja_jp": "孤喉沢",
+                "ko_kr": "고후 늪지"
+            }
+        },
+        {
+            "id": "22800030009",
+            "teleport_id": "TpForMap_ent_22800030009",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 914.332,
+            "v": 1586.58,
+            "area_names": {
+                "zh_cn": "待修缮区",
+                "zh_tw": "待修繕區",
+                "en_us": "Maintenance Zone",
+                "ja_jp": "修繕工事区",
+                "ko_kr": "보수 예정 구역"
+            }
+        },
+        {
+            "id": "22800030016",
+            "teleport_id": "TpForMap_ent_22800030016",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 942.689,
+            "v": 1781.185,
+            "area_names": {
+                "zh_cn": "天井院",
+                "zh_tw": "天井院",
+                "en_us": "Tianjing Courtyard",
+                "ja_jp": "観天院",
+                "ko_kr": "천정원"
+            }
+        },
+        {
+            "id": "22800031002",
+            "teleport_id": "TpForMap_ent_22800031002",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 973.162,
+            "v": 1959.338,
+            "area_names": {
+                "zh_cn": "储备站",
+                "zh_tw": "儲備站",
+                "en_us": "Field Logistics Depot",
+                "ja_jp": "備蓄施設",
+                "ko_kr": "보급소"
+            }
+        },
+        {
+            "id": "22800060089",
+            "teleport_id": "TpForMap_ent_22800060089",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 921.743,
+            "v": 1309.733,
+            "area_names": {
+                "zh_cn": "观测站",
+                "zh_tw": "觀測站",
+                "en_us": "Monitoring Center",
+                "ja_jp": "観測所",
+                "ko_kr": "관측소"
+            }
+        },
+        {
+            "id": "22800060090",
+            "teleport_id": "TpForMap_ent_22800060090",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 866.085,
+            "v": 1868.82,
+            "area_names": {
+                "zh_cn": "储备站",
+                "zh_tw": "儲備站",
+                "en_us": "Field Logistics Depot",
+                "ja_jp": "備蓄施設",
+                "ko_kr": "보급소"
+            }
+        },
+        {
+            "id": "22801120001",
+            "teleport_id": "TpForMap_ent_22801120001",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 908.34,
+            "v": 1182.825,
+            "area_names": {
+                "zh_cn": "弃剑台",
+                "zh_tw": "棄劍台",
+                "en_us": "Qijian Dais",
+                "ja_jp": "放剣台",
+                "ko_kr": "폐검대"
+            }
+        },
+        {
+            "id": "22801140001",
+            "teleport_id": "TpForMap_ent_22801140001",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 1050.24,
+            "v": 1271.078,
+            "area_names": {
+                "zh_cn": "弃剑台",
+                "zh_tw": "棄劍台",
+                "en_us": "Qijian Dais",
+                "ja_jp": "放剣台",
+                "ko_kr": "폐검대"
+            }
+        },
+        {
+            "id": "22801140002",
+            "teleport_id": "TpForMap_ent_22801140002",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 508.935,
+            "v": 1967.062,
+            "area_names": {
+                "zh_cn": "陵水道",
+                "zh_tw": "陵水道",
+                "en_us": "Lingshui Way",
+                "ja_jp": "陵水道",
+                "ko_kr": "능수길"
+            }
+        },
+        {
+            "id": "22801140057",
+            "teleport_id": "TpForMap_ent_22801140057",
+            "map": "map02",
+            "level": "map02_lv002",
+            "u": 425.026,
+            "v": 1375.818,
+            "area_names": {
+                "zh_cn": "技术开发局",
+                "zh_tw": "技術開發局",
+                "en_us": "Bureau of Applied Technologies",
+                "ja_jp": "技術開発局",
+                "ko_kr": "기술 개발국"
+            }
+        },
+        {
+            "id": "23100010219",
+            "teleport_id": "TpForMap_ent_23100010219",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1121.077,
+            "v": 597.96,
+            "area_names": {
+                "zh_cn": "前哨基地",
+                "zh_tw": "前哨基地",
+                "en_us": "Sentry Base",
+                "ja_jp": "前進拠点",
+                "ko_kr": "전초기지"
+            }
+        },
+        {
+            "id": "23100010220",
+            "teleport_id": "TpForMap_ent_23100010220",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1202.048,
+            "v": 432.652,
+            "area_names": {
+                "zh_cn": "城建区",
+                "zh_tw": "城建區",
+                "en_us": "Designated Urban Area",
+                "ja_jp": "都市建設エリア",
+                "ko_kr": "도시 건설 구역"
+            }
+        },
+        {
+            "id": "23100010221",
+            "teleport_id": "TpForMap_ent_23100010221",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1395.007,
+            "v": 320.88,
+            "area_names": {
+                "zh_cn": "息壤研究所",
+                "zh_tw": "息壤研究所",
+                "en_us": "Xiranite Research Labs",
+                "ja_jp": "息壌研究所",
+                "ko_kr": "식양 연구소"
+            }
+        },
+        {
+            "id": "23100010222",
+            "teleport_id": "TpForMap_ent_23100010222",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1586.91,
+            "v": 380.58,
+            "area_names": {
+                "zh_cn": "天柱",
+                "zh_tw": "天柱",
+                "en_us": "Celestial Column",
+                "ja_jp": "天柱",
+                "ko_kr": "천주"
+            }
+        },
+        {
+            "id": "23100010223",
+            "teleport_id": "TpForMap_ent_23100010223",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1454.408,
+            "v": 529.762,
+            "area_names": {
+                "zh_cn": "研发中心顶层",
+                "zh_tw": "研發中心頂層",
+                "en_us": "R&D Center Rooftop",
+                "ja_jp": "研究本部最上階",
+                "ko_kr": "연구 개발 센터 최상층"
+            }
+        },
+        {
+            "id": "23100010640",
+            "teleport_id": "TpForMap_ent_23100010640",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1280.213,
+            "v": 325.605,
+            "area_names": {
+                "zh_cn": "谈剑堂",
+                "zh_tw": "談劍堂",
+                "en_us": "Tanjian Hall",
+                "ja_jp": "談剣堂",
+                "ko_kr": "담검당"
+            }
+        },
+        {
+            "id": "23100010670",
+            "teleport_id": "TpForMap_ent_23100010670",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1167.187,
+            "v": 316.244,
+            "area_names": {
+                "zh_cn": "水利枢纽",
+                "zh_tw": "水利樞紐",
+                "en_us": "Waterworks Hub",
+                "ja_jp": "水管理施設",
+                "ko_kr": "수자원 관리 거점"
+            }
+        },
+        {
+            "id": "23100010671",
+            "teleport_id": "TpForMap_ent_23100010671",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1582.89,
+            "v": 443.01,
+            "area_names": {
+                "zh_cn": "研发中心顶层",
+                "zh_tw": "研發中心頂層",
+                "en_us": "R&D Center Rooftop",
+                "ja_jp": "研究本部最上階",
+                "ko_kr": "연구 개발 센터 최상층"
+            }
+        },
+        {
+            "id": "23100010733",
+            "teleport_id": "TpForMap_ent_23100010733",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1545.165,
+            "v": 323.287,
+            "area_names": {
+                "zh_cn": "幽台试验场",
+                "zh_tw": "幽台實驗場",
+                "en_us": "Ghost Mesa Test Site",
+                "ja_jp": "幽台実験場",
+                "ko_kr": "유대 실험장"
+            }
+        },
+        {
+            "id": "23100010740",
+            "teleport_id": "TpForMap_ent_23100010740",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1590.27,
+            "v": 465.3,
+            "area_names": {
+                "zh_cn": "武陵甚大裂隙上层",
+                "zh_tw": "武陵甚大裂隙上層",
+                "en_us": "Wuling VLR, Upper Area",
+                "ja_jp": "巨大な裂け目上層",
+                "ko_kr": "무릉 대균열 상층"
+            }
+        },
+        {
+            "id": "23100031242",
+            "teleport_id": "TpForMap_ent_23100031242",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1393.005,
+            "v": 502.523,
+            "area_names": {
+                "zh_cn": "平波堤",
+                "zh_tw": "平波堤",
+                "en_us": "Quelltide Levee",
+                "ja_jp": "平波堤",
+                "ko_kr": "평파 제방"
+            }
+        },
+        {
+            "id": "23100031243",
+            "teleport_id": "TpForMap_ent_23100031243",
+            "map": "map02",
+            "level": "map02_lv008",
+            "u": 1292.618,
+            "v": 611.28,
+            "area_names": {
+                "zh_cn": "平波堤",
+                "zh_tw": "平波堤",
+                "en_us": "Quelltide Levee",
+                "ja_jp": "平波堤",
+                "ko_kr": "평파 제방"
+            }
+        },
+        {
+            "id": "23200010005",
+            "teleport_id": "TpForMap_ent_23200010005",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1120.5,
+            "v": 1564.65,
+            "area_names": {
+                "zh_cn": "污水处理区",
+                "zh_tw": "汙水處理區",
+                "en_us": "Water Treatment Sector",
+                "ja_jp": "汚水処理エリア",
+                "ko_kr": "오염수 처리 구역"
+            }
+        },
+        {
+            "id": "23200013087",
+            "teleport_id": "TpForMap_ent_23200013087",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1344.661,
+            "v": 1634.012,
+            "area_names": {
+                "zh_cn": "经纬田区",
+                "zh_tw": "經緯田區",
+                "en_us": "Meridian Grid Area",
+                "ja_jp": "格子田エリア",
+                "ko_kr": "경위 논밭 구역"
+            }
+        },
+        {
+            "id": "23200013265",
+            "teleport_id": "TpForMap_ent_23200013265",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1291.129,
+            "v": 1757.67,
+            "area_names": {
+                "zh_cn": "综合科研区",
+                "zh_tw": "綜合科研區",
+                "en_us": "Integrated R&D Area",
+                "ja_jp": "総合研究エリア",
+                "ko_kr": "종합 과학 연구 구역"
+            }
+        },
+        {
+            "id": "23200013375",
+            "teleport_id": "TpForMap_ent_23200013375",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1345.598,
+            "v": 1700.903,
+            "area_names": {
+                "zh_cn": "测试区",
+                "zh_tw": "測試區",
+                "en_us": "Testing Zone",
+                "ja_jp": "テストエリア",
+                "ko_kr": "테스트 구역"
+            }
+        },
+        {
+            "id": "23200013376",
+            "teleport_id": "TpForMap_ent_23200013376",
+            "map": "map02",
+            "level": "map02_lv005",
+            "u": 1300.455,
+            "v": 1517.797,
+            "area_names": {
+                "zh_cn": "园区外围",
+                "zh_tw": "園區外圍",
+                "en_us": "Test Area Peripheries",
+                "ja_jp": "実験区域・外縁",
+                "ko_kr": "실험 구역 외곽"
+            }
+        },
+        {
+            "id": "23300000095",
+            "teleport_id": "TpForMap_ent_23300000095",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1398.997,
+            "v": 2440.98,
+            "area_names": {
+                "zh_cn": "主寨",
+                "zh_tw": "主寨",
+                "en_us": "Main Fort",
+                "ja_jp": "主郭",
+                "ko_kr": "주채"
+            }
+        },
+        {
+            "id": "23300000096",
+            "teleport_id": "TpForMap_ent_23300000096",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1257.195,
+            "v": 2359.267,
+            "area_names": {
+                "zh_cn": "栈桥道",
+                "zh_tw": "棧橋道",
+                "en_us": "Causeway Trail",
+                "ja_jp": "陸橋道",
+                "ko_kr": "잔교길"
+            }
+        },
+        {
+            "id": "23300000097",
+            "teleport_id": "TpForMap_ent_23300000097",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1172.092,
+            "v": 2283.338,
+            "area_names": {
+                "zh_cn": "栈桥道",
+                "zh_tw": "棧橋道",
+                "en_us": "Causeway Trail",
+                "ja_jp": "陸橋道",
+                "ko_kr": "잔교길"
+            }
+        },
+        {
+            "id": "23300000098",
+            "teleport_id": "TpForMap_ent_23300000098",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1134.87,
+            "v": 2137.298,
+            "area_names": {
+                "zh_cn": "顶天梁",
+                "zh_tw": "頂天梁",
+                "en_us": "Skyhold Ridge",
+                "ja_jp": "頂天梁",
+                "ko_kr": "정천 다리"
+            }
+        },
+        {
+            "id": "23300000102",
+            "teleport_id": "TpForMap_ent_23300000102",
+            "map": "map02",
+            "level": "map02_lv003",
+            "u": 1363.05,
+            "v": 2187.052,
+            "area_names": {
+                "zh_cn": "祖泉",
+                "zh_tw": "祖泉",
+                "en_us": "Ancestral Spring",
+                "ja_jp": "祖泉",
+                "ko_kr": "선조의 샘"
+            }
+        },
+        {
+            "id": "23400083018",
+            "teleport_id": "TpForMap_ent_23400083018",
+            "map": "map02",
+            "level": "map02_lv004",
+            "u": 491.28,
+            "v": 2116.791,
+            "area_names": {
+                "zh_cn": "望楼蓄水站",
+                "zh_tw": "望樓蓄水站",
+                "en_us": "Watchtower Reservoir Station",
+                "ja_jp": "貯水施設",
+                "ko_kr": "망루 저수 시설"
+            }
+        },
+        {
+            "id": "23400083106",
+            "teleport_id": "TpForMap_ent_23400083106",
+            "map": "map02",
+            "level": "map02_lv004",
+            "u": 591.361,
+            "v": 2243.69,
+            "area_names": {
+                "zh_cn": "控制区",
+                "zh_tw": "控制區",
+                "en_us": "Restricted Area",
+                "ja_jp": "制御区",
+                "ko_kr": "제어 구역"
+            }
+        },
+        {
+            "id": "23400083248",
+            "teleport_id": "TpForMap_ent_23400083248",
+            "map": "map02",
+            "level": "map02_lv004",
+            "u": 412.584,
+            "v": 2232.165,
+            "area_names": {
+                "zh_cn": "湖心岛",
+                "zh_tw": "湖心島",
+                "en_us": "Lake Islet",
+                "ja_jp": "河岸台",
+                "ko_kr": "호심도"
+            }
+        },
+        {
+            "id": "23400083315",
+            "teleport_id": "TpForMap_ent_23400083315",
+            "map": "map02",
+            "level": "map02_lv004",
+            "u": 504.281,
+            "v": 2582.465,
+            "area_names": {
+                "zh_cn": "栖云窟",
+                "zh_tw": "棲雲窟",
+                "en_us": "Cloudrest Grotto",
+                "ja_jp": "栖雲洞",
+                "ko_kr": "서운 굴"
+            }
+        },
+        {
+            "id": "25000000343",
+            "teleport_id": "TpForMap_ent_25000000343",
+            "map": "map02",
+            "level": "map02_lv006",
+            "u": 1582.275,
+            "v": 2718.113,
+            "area_names": {
+                "zh_cn": "南谷旧垣",
+                "zh_tw": "南谷舊垣",
+                "en_us": "South Gorge Rampart",
+                "ja_jp": "谷南の旧跡",
+                "ko_kr": "남쪽 골짜기 옛 방벽"
+            }
+        },
+        {
+            "id": "25000000345",
+            "teleport_id": "TpForMap_ent_25000000345",
+            "map": "map02",
+            "level": "map02_lv006",
+            "u": 1817.662,
+            "v": 2777.314,
+            "area_names": {
+                "zh_cn": "悬谷台",
+                "zh_tw": "懸谷台",
+                "en_us": "Gorge Overhang",
+                "ja_jp": "懸谷台",
+                "ko_kr": "현곡대"
+            }
+        },
+        {
+            "id": "25000000461",
+            "teleport_id": "TpForMap_ent_25000000461",
+            "map": "map02",
+            "level": "map02_lv006",
+            "u": 1598.37,
+            "v": 2692.673,
+            "area_names": {
+                "zh_cn": "谷底秘库",
+                "zh_tw": "谷底秘庫",
+                "en_us": "Deep Gorge Vault",
+                "ja_jp": "谷底の秘庫",
+                "ko_kr": "골짜기 하부 비밀 창고"
+            }
+        },
+        {
+            "id": "25000000462",
+            "teleport_id": "TpForMap_ent_25000000462",
+            "map": "map02",
+            "level": "map02_lv006",
+            "u": 1840.425,
+            "v": 2871.952,
+            "area_names": {
+                "zh_cn": "悬谷台",
+                "zh_tw": "懸谷台",
+                "en_us": "Gorge Overhang",
+                "ja_jp": "懸谷台",
+                "ko_kr": "현곡대"
+            }
+        },
+        {
+            "id": "25600040000",
+            "teleport_id": "TpForMap_ent_25600040000",
+            "map": "indie_dg005",
+            "level": "indie_dg005",
+            "u": 96.521,
+            "v": 146.748,
+            "area_names": {}
+        },
+        {
+            "id": "26200000061",
+            "teleport_id": "TpForMap_ent_26200000061",
+            "map": "indie_dg007",
+            "level": "indie_dg007",
+            "u": 458.012,
+            "v": 375.765,
+            "area_names": {
+                "zh_cn": "首墩中层主区",
+                "zh_tw": "首墩中層主區",
+                "en_us": "Marker Stone Middle Floor, Main Section",
+                "ja_jp": "首礎中層・メイン",
+                "ko_kr": "수돈 중층 주요 구역"
+            }
+        },
+        {
+            "id": "26200000062",
+            "teleport_id": "TpForMap_ent_26200000062",
+            "map": "indie_dg007",
+            "level": "indie_dg007",
+            "u": 364.837,
+            "v": 409.515,
+            "area_names": {
+                "zh_cn": "首墩中层副区",
+                "zh_tw": "首墩中層副區",
+                "en_us": "Marker Stone Middle Floor, Secondary Section",
+                "ja_jp": "首礎中層・サイド",
+                "ko_kr": "수돈 중층 보조 구역"
+            }
+        },
+        {
+            "id": "26200000130",
+            "teleport_id": "TpForMap_ent_26200000130",
+            "map": "indie_dg007",
+            "level": "indie_dg007",
+            "u": 435.92,
+            "v": 377.535,
+            "area_names": {
+                "zh_cn": "首墩下层",
+                "zh_tw": "首墩下層",
+                "en_us": "Marker Stone Lower Floor",
+                "ja_jp": "首礎下層",
+                "ko_kr": "수돈 하층"
+            }
+        },
+        {
+            "id": "26200000193",
+            "teleport_id": "TpForMap_ent_26200000193",
+            "map": "indie_dg007",
+            "level": "indie_dg007",
+            "u": 348.495,
+            "v": 329.733,
+            "area_names": {
+                "zh_cn": "首墩中层主区",
+                "zh_tw": "首墩中層主區",
+                "en_us": "Marker Stone Middle Floor, Main Section",
+                "ja_jp": "首礎中層・メイン",
+                "ko_kr": "수돈 중층 주요 구역"
+            }
+        },
+        {
+            "id": "26200000204",
+            "teleport_id": "TpForMap_ent_26200000204",
+            "map": "indie_dg007",
+            "level": "indie_dg007",
+            "u": 353.775,
+            "v": 441.577,
+            "area_names": {
+                "zh_cn": "首墩中层主区",
+                "zh_tw": "首墩中層主區",
+                "en_us": "Marker Stone Middle Floor, Main Section",
+                "ja_jp": "首礎中層・メイン",
+                "ko_kr": "수돈 중층 주요 구역"
+            }
+        },
+        {
+            "id": "36100010006",
+            "teleport_id": "TpForMap_ent_36100010006",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1365.487,
+            "v": 987.712,
+            "area_names": {
+                "zh_cn": "落雪山道",
+                "zh_tw": "落雪山道",
+                "en_us": "Snowy Trail",
+                "ja_jp": "雪見山道",
+                "ko_kr": "눈 내리는 산길"
+            }
+        },
+        {
+            "id": "36100010007",
+            "teleport_id": "TpForMap_ent_36100010007",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1509.78,
+            "v": 990.57,
+            "area_names": {
+                "zh_cn": "雪祀木屋",
+                "zh_tw": "雪祀木屋",
+                "en_us": "Snowpriestess's Cabin",
+                "ja_jp": "雪祭司の小屋",
+                "ko_kr": "제사장의 오두막"
+            }
+        },
+        {
+            "id": "36100010365",
+            "teleport_id": "TpForMap_ent_36100010365",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1593.098,
+            "v": 934.53,
+            "area_names": {
+                "zh_cn": "仪式祭坛",
+                "zh_tw": "儀式祭壇",
+                "en_us": "Ritual Shrine",
+                "ja_jp": "儀式祭壇",
+                "ko_kr": "의식 제단"
+            }
+        },
+        {
+            "id": "36100010458",
+            "teleport_id": "TpForMap_ent_36100010458",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1595.925,
+            "v": 1075.5,
+            "area_names": {
+                "zh_cn": "雾凇山谷",
+                "zh_tw": "霧淞山谷",
+                "en_us": "Hoarfrost Dale",
+                "ja_jp": "樹氷谷",
+                "ko_kr": "서리꽃 골짜기"
+            }
+        },
+        {
+            "id": "36100010460",
+            "teleport_id": "TpForMap_ent_36100010460",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1413.0,
+            "v": 993.54,
+            "area_names": {
+                "zh_cn": "林地",
+                "zh_tw": "林地",
+                "en_us": "Forest",
+                "ja_jp": "森",
+                "ko_kr": "숲지대"
+            }
+        },
+        {
+            "id": "36100010467",
+            "teleport_id": "TpForMap_ent_36100010467",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1720.483,
+            "v": 994.983,
+            "area_names": {
+                "zh_cn": "雾凇山谷",
+                "zh_tw": "霧淞山谷",
+                "en_us": "Hoarfrost Dale",
+                "ja_jp": "樹氷谷",
+                "ko_kr": "서리꽃 골짜기"
+            }
+        },
+        {
+            "id": "36100010474",
+            "teleport_id": "TpForMap_ent_36100010474",
+            "map": "map02",
+            "level": "map02_lv009",
+            "u": 1598.535,
+            "v": 993.795,
+            "area_names": {
+                "zh_cn": "雪祀木屋",
+                "zh_tw": "雪祀木屋",
+                "en_us": "Snowpriestess's Cabin",
+                "ja_jp": "雪祭司の小屋",
+                "ko_kr": "제사장의 오두막"
+            }
+        },
+        {
+            "id": "37900000002",
+            "teleport_id": "TpForMap_ent_37900000002",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 1814.078,
+            "v": 484.102,
+            "area_names": {
+                "zh_cn": "松烟湖",
+                "zh_tw": "松煙湖",
+                "en_us": "Pinesmoke Basin",
+                "ja_jp": "松煙湖",
+                "ko_kr": "송연 호수"
+            }
+        },
+        {
+            "id": "37900000003",
+            "teleport_id": "TpForMap_ent_37900000003",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2201.1,
+            "v": 512.97,
+            "area_names": {
+                "zh_cn": "缘缘庄",
+                "zh_tw": "緣緣莊",
+                "en_us": "Yuanyuan Manor",
+                "ja_jp": "縁縁荘",
+                "ko_kr": "인연 마을"
+            }
+        },
+        {
+            "id": "37900000004",
+            "teleport_id": "TpForMap_ent_37900000004",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2300.835,
+            "v": 527.97,
+            "area_names": {
+                "zh_cn": "珠帘涧",
+                "zh_tw": "珠簾澗",
+                "en_us": "Pearlveiled Brook",
+                "ja_jp": "垂玉峡",
+                "ko_kr": "주염 계곡"
+            }
+        },
+        {
+            "id": "37900000005",
+            "teleport_id": "TpForMap_ent_37900000005",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2361.488,
+            "v": 527.025,
+            "area_names": {
+                "zh_cn": "听雨窟下层",
+                "zh_tw": "聽雨窟下層",
+                "en_us": "Raintap Grotto, BF",
+                "ja_jp": "雨音洞下層",
+                "ko_kr": "청우 동굴 하층"
+            }
+        },
+        {
+            "id": "37900000006",
+            "teleport_id": "TpForMap_ent_37900000006",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2384.37,
+            "v": 760.29,
+            "area_names": {
+                "zh_cn": "舍得亭",
+                "zh_tw": "捨得亭",
+                "en_us": "Pavilion of Parting",
+                "ja_jp": "断捨亭",
+                "ko_kr": "사덕정"
+            }
+        },
+        {
+            "id": "37900000007",
+            "teleport_id": "TpForMap_ent_37900000007",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2433.615,
+            "v": 460.162,
+            "area_names": {
+                "zh_cn": "听雨窟",
+                "zh_tw": "聽雨窟",
+                "en_us": "Raintap Grotto",
+                "ja_jp": "雨音洞",
+                "ko_kr": "청우 동굴"
+            }
+        },
+        {
+            "id": "37900000013",
+            "teleport_id": "TpForMap_ent_37900000013",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2458.665,
+            "v": 420.173,
+            "area_names": {
+                "zh_cn": "涨墨峰",
+                "zh_tw": "漲墨峰",
+                "en_us": "Inkrise Peak",
+                "ja_jp": "潤筆峰",
+                "ko_kr": "창묵 봉우리"
+            }
+        },
+        {
+            "id": "37900000014",
+            "teleport_id": "TpForMap_ent_37900000014",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2385.576,
+            "v": 267.003,
+            "area_names": {
+                "zh_cn": "小禾庄",
+                "zh_tw": "小禾莊",
+                "en_us": "Xiaohe Manor",
+                "ja_jp": "小稲村",
+                "ko_kr": "소화 마을"
+            }
+        },
+        {
+            "id": "37900000015",
+            "teleport_id": "TpForMap_ent_37900000015",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2667.128,
+            "v": 534.622,
+            "area_names": {
+                "zh_cn": "飞白峰",
+                "zh_tw": "飛白峰",
+                "en_us": "Flying White Peak",
+                "ja_jp": "飛白峰",
+                "ko_kr": "비백 봉우리"
+            }
+        },
+        {
+            "id": "37900000291",
+            "teleport_id": "TpForMap_ent_37900000291",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2321.43,
+            "v": 717.832,
+            "area_names": {
+                "zh_cn": "盘山径",
+                "zh_tw": "盤山徑",
+                "en_us": "Meandering Hike",
+                "ja_jp": "盤山道",
+                "ko_kr": "반산길"
+            }
+        },
+        {
+            "id": "37900000296",
+            "teleport_id": "TpForMap_ent_37900000296",
+            "map": "map02",
+            "level": "map02_lv010",
+            "u": 2394.96,
+            "v": 594.825,
+            "area_names": {
+                "zh_cn": "听雨窟",
+                "zh_tw": "聽雨窟",
+                "en_us": "Raintap Grotto",
+                "ja_jp": "雨音洞",
+                "ko_kr": "청우 동굴"
+            }
+        },
+        {
+            "id": "46300000019",
+            "teleport_id": "TpForMap_ent_46300000019",
+            "map": "indie_dg016",
+            "level": "indie_dg016",
+            "u": 290.1,
+            "v": 372.233,
+            "area_names": {
+                "zh_cn": "遂明城中心",
+                "zh_tw": "遂明城中心",
+                "en_us": "Suiming City Center",
+                "ja_jp": "遂明城中心部",
+                "ko_kr": "수명성 중심"
+            }
+        },
+        {
+            "id": "46300000135",
+            "teleport_id": "TpForMap_ent_46300000135",
+            "map": "indie_dg016",
+            "level": "indie_dg016",
+            "u": 222.063,
+            "v": 293.811,
+            "area_names": {
+                "zh_cn": "侵蚀监控区",
+                "zh_tw": "侵蝕監控區",
+                "en_us": "Blight Monitoring Zone",
+                "ja_jp": "侵蝕監視区域",
+                "ko_kr": "침식 관제 구역"
+            }
+        },
+        {
+            "id": "46300000166",
+            "teleport_id": "TpForMap_ent_46300000166",
+            "map": "indie_dg016",
+            "level": "indie_dg016",
+            "u": 161.28,
+            "v": 380.438,
+            "area_names": {
+                "zh_cn": "遂明城郊外",
+                "zh_tw": "遂明城郊外",
+                "en_us": "Suiming City Suburbs",
+                "ja_jp": "遂明城郊外",
+                "ko_kr": "수명성 교외"
+            }
+        }
+    ],
+    "maps": {
+        "base01": {
+            "zone": "base01",
+            "zone_id": 3,
+            "size": [
+                384,
+                384
+            ],
+            "sx": 0.75,
+            "tx": 192.0,
+            "sy": 0.75,
+            "ty": 192.0
+        },
+        "indie_dg005": {
+            "zone": "indie_dg005",
+            "zone_id": 5,
+            "size": [
+                288,
+                288
+            ],
+            "sx": 0.75,
+            "tx": 1344.0,
+            "sy": 0.75,
+            "ty": -96.0
+        },
+        "indie_dg007": {
+            "zone": "indie_dg007",
+            "zone_id": 6,
+            "size": [
+                768,
+                768
+            ],
+            "sx": 0.75,
+            "tx": 384.0,
+            "sy": 0.75,
+            "ty": 384.0
+        },
+        "indie_dg016": {
+            "zone": "indie_dg016",
+            "zone_id": 7,
+            "size": [
+                576,
+                576
+            ],
+            "sx": 0.75,
+            "tx": 288.0,
+            "sy": 0.75,
+            "ty": 288.0
+        },
+        "map01": {
+            "zone": "map01base",
+            "zone_id": 1,
+            "size": [
+                1440,
+                1350
+            ],
+            "sx": 0.703125,
+            "tx": 720.0,
+            "sy": 0.703125,
+            "ty": 630.0
+        },
+        "map02": {
+            "zone": "map02base",
+            "zone_id": 2,
+            "size": [
+                2880,
+                2976
+            ],
+            "sx": 0.75,
+            "tx": 1536.0,
+            "sy": 0.75,
+            "ty": 1344.0
+        }
+    }
+}

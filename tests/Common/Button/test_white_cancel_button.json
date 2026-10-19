@@ -1,0 +1,34 @@
+{
+    "configs": {
+        "name": "(CloudADB-官服)通用按钮，测试云终末地白色按钮",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "协议空间获得奖励：离开 / 重新挑战",
+            "image": "协议空间_获得奖励.png",
+            "hits": [
+                {
+                    "node": "WhiteCancelButton",
+                    "box": [
+                        920,
+                        570,
+                        55,
+                        50
+                    ]
+                },
+                {
+                    "node": "WhiteConfirmButtonType1",
+                    "box": [
+                        505,
+                        570,
+                        55,
+                        50
+                    ]
+                },
+                "ProtocolSpaceRewardClaimSuccessFinish"
+            ]
+        }
+    ]
+}

@@ -269,6 +269,7 @@ void ZiplineRideMachine::Reset()
     miss_streak_ = 0;
     settle_hits_ = 0;
     riding_entered_ = false;
+    minimap_back_at_.reset();
     unknown_deadline_.reset();
     ResetStableHeading();
     yaw_response_ratio_.reset();
@@ -621,6 +622,7 @@ StageResult ZiplineRideMachine::TickAiming(const ZiplineObservation& obs, IZipli
     miss_streak_ = 0;
     settle_hits_ = 0;
     riding_entered_ = false;
+    minimap_back_at_.reset();
     unknown_deadline_.reset();
     LogInfo << "zipline/fired" << VAR(returning_) << VAR(pitch_tier_) << VAR(heading) << VAR(target_heading) << VAR(bias)
             << VAR(pitch_target) << VAR(record_.launches.size());
@@ -673,6 +675,15 @@ StageResult ZiplineRideMachine::TickFired(const ZiplineObservation& obs, IZiplin
 StageResult ZiplineRideMachine::TickRiding(const ZiplineObservation& obs, IZiplineObserver& observer, IZiplineActuator& actuator)
 {
     const auto now = obs.at;
+    if (obs.fix && !minimap_back_at_) {
+        minimap_back_at_ = now;
+        LogInfo << "zipline/riding/minimap_back" << VAR(obs.fix->x) << VAR(obs.fix->y) << VAR(StageElapsedMs(now));
+    }
+    if (minimap_back_at_ && ElapsedMs(*minimap_back_at_, now) < kZiplineLandingSettleMs) {
+        // 定位器会把冷却期内的位置记成跟踪锚点
+        observer.ResetTracking();
+        return {};
+    }
     if (obs.fix) {
         last_fix_ = obs.fix;
         settle_hits_ = 0;

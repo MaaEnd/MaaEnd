@@ -37,16 +37,10 @@ const AUTO_DELIVERY_NAVIGATE_NODES = [
     "AutoDeliveryNavigateDestination",
 ];
 
-function buildCargoAnchor(
-    depot,
-    bidAction,
-    goToDepot = depot.DepotScene,
-    afterAcceptJob = "DeliveryJobsDeliverQuickly",
-) {
+function buildCargoAnchor(depot, bidAction, goToDepot = depot.DepotScene) {
     return {
         DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
         DeliveryJobsRedistributionBidAction: bidAction,
-        DeliveryJobsAfterAcceptJob: afterAcceptJob,
         DeliveryJobsGoToDepot: goToDepot,
         DeliveryJobsReturnToDepotNode: depot.DepotScene,
     };
@@ -92,7 +86,8 @@ function buildDepotOption(depot) {
                     deliveryEnabled: true,
                     cargoEnabled: true,
                     cargoExpected: ALL_CARGO_EXPECTED,
-                    bidAction: "DeliveryJobsRedistributionBidNextStep",
+                    // 「接取并转交」用调度申请界面的「快速转交」把委托立刻交出去，不再走接取任务后的转交流程
+                    bidAction: "DeliveryJobsQuickTransfer",
                     ongoingDeliveryAction: "DeliveryJobsTransferOngoingJob",
                 }),
             },
@@ -215,10 +210,11 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
     const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
     // 是否接取由 next 表达，接取后的去向只由 DeliveryJobsGoToDepot 表达；
     // 「不处理」直接关闭调度申请界面，不经过 DeliveryJobsBackToDepot。
-    const acceptThen = (goToDepot) => ({
+    // 只有「接取并转交」能用「快速转交」，其余动作仍走接取任务的节点。
+    const acceptThen = (goToDepot, bidAction = "DeliveryJobsRedistributionBidNextStep") => ({
         [comparisonNode]: {
             next: [
-                "DeliveryJobsRedistributionBidNextStep",
+                bidAction,
             ],
             anchor: {
                 DeliveryJobsGoToDepot: goToDepot,
@@ -233,7 +229,7 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
             {
                 name: "Transfer",
                 label: "$task.DeliveryJobs.QuoteAction.Transfer",
-                pipeline_override: acceptThen(`DeliveryJobsReturnAndTransfer${depot.Id}`),
+                pipeline_override: acceptThen(`DeliveryJobsReturnAndTransfer${depot.Id}`, "DeliveryJobsQuickTransfer"),
             },
             ...(depot.AutoDeliverySupported
                 ? [

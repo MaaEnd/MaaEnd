@@ -158,8 +158,8 @@
                 "minLength": 1,
                 "description": "传送入口 Pipeline 节点名，不限制名称前缀或字符组合。该节点必须已存在于 assets/resource/pipeline/，并能作为 SubTask 完整执行后正常返回。暂无合适入口时，直接不要在 routes.json 中补路线字段，让生成器走未适配分支。",
                 "examples": [
-                    "SceneEnterWorldWulingJingyuValley7",
-                    "SceneEnterWorldWulingMarkerStone3"
+                    "SceneEnterWorldWulingJingyuValleyZhailingIslet",
+                    "SceneEnterWorldWulingMarkerStoneRestrictedArea"
                 ]
             },
             "NavZoneId": {

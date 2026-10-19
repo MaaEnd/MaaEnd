@@ -6,7 +6,9 @@ let loadedSettlementData;
 try {
     loadedSettlementData = JSON.parse(readFileSync(resolve(dataDir, "sell_product.json"), "utf8"));
 } catch {
-    console.error("[OutpostTrading] 数据文件缺失，请先运行 pnpm fetch:zmdmap 或 pnpm generate:OutpostTrading");
+    console.error(
+        "[OutpostTrading] 数据文件缺失，请先运行 pnpm fetch:zmdmap --only sell_product 或 pnpm generate:OutpostTrading",
+    );
     process.exit(1);
 }
 

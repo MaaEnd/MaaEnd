@@ -1,0 +1,12 @@
+{
+    "SeizeDeliveryJobsPressEscAfterMatch": {
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SeizeDeliveryJobsPressEscAfterNotMatch": {
+        "action": {
+            "type": "Click"
+        }
+    }
+}

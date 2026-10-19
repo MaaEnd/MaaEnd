@@ -6,7 +6,6 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
@@ -53,6 +52,9 @@ type screenFrame struct {
 
 type ScreenAnalyzer struct {
 	frames []screenFrame
+	// mobileLayout 由回调入口经 RefreshLayout 刷新：移动端与桌面端的识别区域、
+	// 终结技 label 不同，必须成套使用（见 characterRegion / endSkillRegion）。
+	mobileLayout bool
 }
 
 // FrameCount prunes expired frames (older than 30s) and returns the current count.
@@ -358,24 +360,27 @@ var adbEndSkillRegions = [4]maa.Rect{
 	{1003, 362, 57, 106},
 }
 
-func mobileFightLayout() bool {
-	switch strings.ToLower(strings.TrimSpace(pienv.ControllerType())) {
-	case "adb", "native_android", "playcover":
-		return true
-	default:
-		return false
+// RefreshLayout 在回调入口刷新控制器布局（移动端 / 桌面）。
+// PI_CONTROLLER 缺失时用入口取到的 controller 兜底，否则移动端会误用桌面区域与 label；
+// 这里只解析出布尔值、不保存 controller，因此不影响回调后续各自取用句柄。
+func (sa *ScreenAnalyzer) RefreshLayout(ctx *maa.Context) {
+	var ctrl *maa.Controller
+	if pienv.ControllerKind() == pienv.ControllerKindUnknown && ctx != nil && ctx.GetTasker() != nil {
+		// 仅 PI 不可用时才取一次 controller，避免无谓地触碰句柄。
+		ctrl = ctx.GetTasker().GetController()
 	}
+	sa.mobileLayout = pienv.IsAdbLikeControllerType(pienv.ResolveControllerKind(ctrl))
 }
 
 func characterRegion(idx int) maa.Rect {
-	if mobileFightLayout() {
+	if screenAnalyzer.mobileLayout {
 		return adbCharacterRegions[idx]
 	}
 	return winCharacterRegions[idx]
 }
 
 func endSkillRegion(idx int) maa.Rect {
-	if mobileFightLayout() {
+	if screenAnalyzer.mobileLayout {
 		return adbEndSkillRegions[idx]
 	}
 	return winEndSkillRegions[idx]
@@ -385,7 +390,7 @@ func endSkillRegion(idx int) maa.Rect {
 // 移动端与 PC 端的终结技图标不同，模型分成 EndSkillFullADB / EndSkillFull 两个类别，
 // 识别区域与 label 必须成套使用，否则就绪状态会识别不到或无法标记为已消费。
 func endSkillFullLabel() string {
-	if mobileFightLayout() {
+	if screenAnalyzer.mobileLayout {
 		return LabelEndSkillFullADB
 	}
 	return LabelEndSkillFull

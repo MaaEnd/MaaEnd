@@ -1,0 +1,457 @@
+# Since version 2.23 (released in August 2019), git-blame has a feature
+# to ignore or bypass certain commits.
+#
+# This file contains a list of commits that are not likely what you
+# are looking for in a blame, such as mass reformatting or renaming.
+# You can set this file as a default ignore file for blame by running
+# the following command (Git 2.52 or later; with older versions, drop
+# the ":(optional)" prefix).
+#
+# $ git config blame.ignoreRevsFile ":(optional).git-blame-ignore-revs"
+
+# Historical commits on v2 in which every change is formatting: whitespace /
+# EOL, line wrapping, key / import / include order, number normalization and
+# other formatter-driven rewrites (prettier + maafw-sort including its
+# doc -> desc key migration, markdownlint, gofmt, clang-format).
+# Commits with any other change stay out even if most of the diff is
+# formatting (workflow / formatter config / dependency changes, text fixes).
+# Auto-format runs that mis-formatted Markdown (formatter bugs that changed
+# its text, rendering or source structure) stay out too, and so do the
+# commits that fixed the damage: breaking a line and fixing it are both
+# real changes. The audit behind this list is recorded in the PR that
+# added it.
+
+# 2026-01
+# 2026-01-28 styles: format all
+b6501ff952204603a2f53777df7b28cae78456f1
+
+# 2026-02
+# 2026-02-08 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/21794326522 [skip changelog]
+8829701bb1be0ccc72188683e52a0a1a413b68e5
+# 2026-02-08 styles: 格式化 main.go 日志链式调用
+2fddb54af87dd3f44b54decb54c5e75c667abf71
+# 2026-02-08 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/21806493427 [skip changelog]
+b1ee88eafc7c77431a42c21d1227aee87339af71
+# 2026-02-08 chore: update interface_config pipeline schema files from MaaFramework
+8cb055be0a4927b916f66018ba25db601e19f8d3
+# 2026-02-11 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/21915824962 [skip changelog]
+be89d17191a6bb73f91d8c9ced26faf390296350
+# 2026-02-11 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/21925521926 [skip changelog]
+f145e836bfdb842c50dc85b518da76e4a8cee09d
+# 2026-02-11 chore: update interface_config pipeline schema files from MaaFramework
+ed23ea4d56de613b8fa81f22c7e6e87d194275d4
+# 2026-02-12 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/21966756822 [skip changelog]
+17cd6372a21ad0b72702300cb83e90696d733d12
+# 2026-02-12 chore: update interface_config pipeline schema files from MaaFramework
+e161e1f67bf9c751c882345cec8c4f98e89422bb
+# 2026-02-13 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22005082732 [skip changelog]
+2b09ae8e3621e320de1ab8c444cba16372606cbe
+# 2026-02-13 chore: update interface_config pipeline schema files from MaaFramework
+7fc5e146fc4251ec4427036f58255cb1916a17c9
+# 2026-02-14 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22025221300 [skip changelog]
+8c4696243856bb1925ff97ffc48f357eb905a177
+# 2026-02-14 chore: update interface_config pipeline schema files from MaaFramework
+d914ec088209667195ee47f17094570ad421b147
+# 2026-02-15 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22044150069 [skip changelog]
+da347b8417ede6a94db04391d07ca1358ae78f22
+# 2026-02-15 chore: update interface_config pipeline schema files from MaaFramework
+67634d5ddf28a343b90386bae916917e85b55efe
+# 2026-02-16 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22079264821 [skip changelog]
+8412c426abae234ceadb22da8380d716a78ea52f
+# 2026-02-18 chore: format
+883c21bf72b839eb3c92fa3cbd1b145d1fb187c9
+# 2026-02-18 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22160271031 [skip changelog]
+c92f4d0d6f35702007eaccf8c8e77f32a2a2ec97
+# 2026-02-19 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22202781523 [skip changelog]
+5fdd1f98a095f71fb198faab495ee7ce5fadcc2e
+# 2026-02-20 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22243517976 [skip changelog]
+2508d9439cea9c545681559216620c7d28da193d
+# 2026-02-21 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22265465966 [skip changelog]
+7e462ebe4f92245820e160da4f5383b9d94c118e
+# 2026-02-22 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22286598637 [skip changelog]
+ccb586ec8f5532d8fab261bb1bb32e552a1a3a2a
+# 2026-02-23 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22327826154 [skip changelog]
+1aee7a7de3c6aca70095bc7501fcfeac91f22141
+# 2026-02-24 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22372897048 [skip changelog]
+730ef31208ba6658048de538789e95b67bb1032c
+# 2026-02-26 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22464017413 [skip changelog]
+e5d6ff6a556e1cecdb317f846af2a29b59ce6052
+# 2026-02-27 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22506066283 [skip changelog]
+eed162a2426b28ef2cecb9f344ab73fc2fe8a1ba
+
+# 2026-03
+# 2026-03-01 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22554148234 [skip changelog]
+33742a555d7d55e54cb481f1f24f306375d709da
+# 2026-03-02 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22598515666 [skip changelog]
+46f45ff8cbebe570fa278e75cbf355670de76923
+# 2026-03-03 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22632673889 [skip changelog]
+30ab5f3a237d63eb70cc2498a8b313f244fa3959
+# 2026-03-04 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22692408786 [skip changelog]
+fb99ca6fc2b1739848db1e684e1eee649ada1923
+# 2026-03-05 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22739806217 [skip changelog]
+b6a0774e88d799318c1d64fa69f7396ae7c1e600
+# 2026-03-06 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22784518504 [skip changelog]
+95c1f2f8cab25d24085be6226dd978e99f1b391b
+# 2026-03-07 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22808448365 [skip changelog]
+e189806260f2b2b67954c0ed3288dd507ffa3378
+# 2026-03-09 Merge branch 'main' of https://github.com/MaaEnd/MaaEnd
+0915663c1a9f79f3c868002da29beb31b6e2d26e
+# 2026-03-09 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22877627193 [skip changelog]
+c101ca1f29a66598080e9eb3a99689f0a0c95cff
+# 2026-03-10 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/22927091772 [skip changelog]
+e099300b494a9127afb6fa62863cd165755d5a14
+# 2026-03-12 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23026738309 [skip changelog]
+86de1e23db97479b9a1fe1ad73f9823a1bf72bb6
+# 2026-03-13 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23072955991 [skip changelog]
+fefbf147b506630954a2ba3d69a6b95730a508e6
+# 2026-03-14 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23097615568 [skip changelog]
+5ea2d8f55dbae88cc31260973d9b8855ebffb7ef
+# 2026-03-15 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23120739927 [skip changelog]
+33b89c667eadab44e647d2a1d354dc83a3798a34
+# 2026-03-16 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23168962746 [skip changelog]
+59ff878d3bba11021e818d145dde8355e832c1f8
+# 2026-03-17 styles: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23219440707 [skip changelog]
+bdfd1af0ea3b4520363b665b3f09ef8e8eca1aa2
+# 2026-03-18 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23270221841 [skip changelog]
+f86d4af68a904c30679e200d6d2f7d93a7d67ad0
+# 2026-03-19 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23303668622 [skip changelog]
+107cd2b94aaebc558de3a7eaf037fb23601aeaf9
+# 2026-03-20 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23365060405 [skip changelog]
+05e0c9e6613d509ccaa3d2b4c0bbed44c91a3809
+# 2026-03-21 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23390077739 [skip changelog]
+8c8ade224e1340cf7a5c86df8e8b32b0fd705a93
+# 2026-03-22 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23413924785 [skip changelog]
+96ac5b1b003c46ecf0d1b8d8d1da7524365f5084
+# 2026-03-23 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23463322622 [skip changelog]
+4ef5393bc768798663184cfa4537e3c73233b621
+# 2026-03-24 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23515283568 [skip changelog]
+0f6b85f077be897781807605d7680aed56466191
+# 2026-03-27 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23653206070 [skip changelog]
+f1b3a6ae37c96cdd9ce26c9f18db3efa90cb00aa
+# 2026-03-28 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23695704551 [skip changelog]
+1eb8430879c4309706173bbbfd32017b7d165e84
+# 2026-03-29 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23720585074 [skip changelog]
+10b22ef4bdad288ff19760374ec7ba65ac5625d5
+# 2026-03-30 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23770965075 [skip changelog]
+17467b9cb127cf3475234753ca1449ce78f2e163
+
+# 2026-04
+# 2026-04-02 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23912450483 [skip changelog]
+7b3c24357aec0417f5fc9cac2eb34eac87fa0e84
+# 2026-04-03 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23953389071 [skip changelog]
+e3298b5e176216eec02b717423044026ba96206a
+# 2026-04-04 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/23983453630 [skip changelog]
+6ddc9e979df1186bc4875e5503c2cb772712c43d
+# 2026-04-05 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24005217012 [skip changelog]
+d3a03642a0989d749b36464b5d703ec2af6aca98
+# 2026-04-06 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24054530812 [skip changelog]
+783d304b4b1cd6b0377f9dc34493ed8e7a39500c
+# 2026-04-07 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24091769994 [skip changelog]
+dbfad9156e311b904bea65da37735b3f775db07e
+# 2026-04-08 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24145702143 [skip changelog]
+b345c9994df52752595de81eba0a7cc7ae123739
+# 2026-04-09 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24201240123 [skip changelog]
+4a39d388df8d260c965688df27752b4ebb8980c3
+# 2026-04-10 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24254013911 [skip changelog]
+e517672bff6ed7e3f594e90904bf8d8129b80ba1
+# 2026-04-11 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24286808065 [skip changelog]
+ca996cc4b6b4e170c3b7bb1d3989e3485d1c9e56
+# 2026-04-12 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24310486638 [skip changelog]
+0cff138c3ad85e76731cc5b0c9da1624fba1bcec
+# 2026-04-12 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24311364456 [skip changelog]
+aad8168856ea0e61cb30b746f86bb838ab48b878
+# 2026-04-13 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24356161026 [skip changelog]
+b2efd2d5cdc0a347bf72cce1c92fda8d6a31bca6
+# 2026-04-14 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24412463524 [skip changelog]
+b694138c8802b8a1c917caf20876c054f270829b
+# 2026-04-14 chore: update interface_config schema files from MaaFramework
+c4cd10d013f7a442940c4ceb000611c4d20a95c9
+# 2026-04-15 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24465461431 [skip changelog]
+75b43bdd014518d71158395ef082062edbe0486c
+# 2026-04-16 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24520538665 [skip changelog]
+b12e6f806eb2e0069d41e58c06be37e079d375d4
+# 2026-04-19 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24633359437 [skip changelog]
+7fede9462bbe9be65bb049ad68d03eaf107cf463
+# 2026-04-19 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24640803358 [skip changelog]
+d91002a980bf5e6c3d037740aaa04eba59d2d3d1
+# 2026-04-20 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24679603739 [skip changelog]
+088ec36e3a8581a50b26ef03967be2b986913c79
+# 2026-04-20 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24694104908 [skip changelog]
+b5a7d4ff36880e7124e3b4d299bbedeca893eee1
+# 2026-04-21 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24735539038 [skip changelog]
+431fa1e9e670a6e74be10216b028aeab09104e09
+# 2026-04-22 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24791458593 [skip changelog]
+5b94f4f802eb2518a45da29941bccd0c2d43b0d0
+# 2026-04-23 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24848863214 [skip changelog]
+7814c5e33fa7926e5e27aaba77686fc3021e374d
+# 2026-04-25 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24935589683 [skip changelog]
+94666a83d4033e5e21ace7788e97dc19d3e2f25e
+# 2026-04-26 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/24961730693 [skip changelog]
+75613f3ace632be3f1b61d25bb6ba7205ff98cbf
+# 2026-04-27 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25009465009 [skip changelog]
+25a399197e5ad6cf0f0104df117259904db9b704
+# 2026-04-28 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25068700079 [skip changelog]
+03221ce7a0f5e697761d22cbca815acdfc47a053
+# 2026-04-29 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25123802740 [skip changelog]
+f4abba47f8d44cf8b33606346c2c71a857692303
+# 2026-04-30 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25179362452 [skip changelog]
+68f960d2c3f39397bb97fc73ea765d630f1a14bf
+
+# 2026-05
+# 2026-05-02 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25263675887 [skip changelog]
+abe1c905efac7b4fe331648070a9d06c94b137f0
+# 2026-05-03 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25292890807 [skip changelog]
+ea8f6099a84b58cf07d29c8fd386c7ad756fa6cf
+# 2026-05-05 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25391522888 [skip changelog]
+ca87c087e7b8707a940fb5fc0791aff8b25d96f2
+# 2026-05-07 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25512529624 [skip changelog]
+781a9333ca9f8c63374fed8d7d8e811fb97ddf4c
+# 2026-05-08 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25569171060 [skip changelog]
+eaf3bb01d121fc5c1301beaefd287060f1bc99bc
+# 2026-05-10 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25634416409 [skip changelog]
+f835fc178f62c9b1089ac7c351bd36d2a067240b
+# 2026-05-11 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25687490041 [skip changelog]
+9780e8d2843d206b49562ccae4ea9217ea37ec78
+# 2026-05-12 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25752559444 [skip changelog]
+b83b5a6b294e736c7b5daec05f1ef3676978256b
+# 2026-05-17 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/25997011455 [skip changelog]
+838cbd6736b6cb52264e71bb352ba8af02b98830
+# 2026-05-20 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26181301016 [skip changelog]
+e6bb49e6f05f14bd806794f0a687fbe97d1ffddc
+# 2026-05-21 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26243697734 [skip changelog]
+cea1ebe22e69a1a82e7a50caab27e060eaa4be26
+# 2026-05-24 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26367323052 [skip changelog]
+b1d51aec7f6b89e158ae9f616b4a38b19ff53478
+# 2026-05-25 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26412860746 [skip changelog]
+14f578d5f3b4f6af6ebb2a4423c14acf5107bb86
+# 2026-05-25 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26423138404 [skip changelog]
+8d6d94f33ddacd90ef19291b5b50e2a2130de978
+# 2026-05-26 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26467078685 [skip changelog]
+21ab3cd323d7bec26b1b8e37e9cad528db0ef1d3
+# 2026-05-27 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26530519136 [skip changelog]
+5be0b00c6474b25acdf42e06b8b43a6c2b5aa62a
+# 2026-05-28 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26594546255 [skip changelog]
+96bb83234bf9a13b268f61d902e37834dc62e772
+# 2026-05-29 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26655064851 [skip changelog]
+7c01e69e1ddf25de7ef10a6454ce355d87645a6a
+# 2026-05-30 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26689753912 [skip changelog]
+8a3a590902d93f54786d50c5950faefa18174e04
+# 2026-05-31 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26718930866 [skip changelog]
+a2340fa4be2bf4d9776e4a09679f73bcaa97a4ea
+
+# 2026-06
+# 2026-06-01 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26779488020 [skip changelog]
+ecd15b6798ed65ba1a04dd439df537d9e5a12a6a
+# 2026-06-03 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26908983163 [skip changelog]
+5bc876101ff345b50cebdf64914a8141d9138b45
+# 2026-06-04 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/26970689715 [skip changelog]
+6004377df0e1783ce024a40fb0d66640a9e50f86
+# 2026-06-05 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27031151166 [skip changelog]
+a989d7d65872ec69f18b41ded56f35bf49c85744
+# 2026-06-06 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27068700917 [skip changelog]
+bfab3c00c9c12b59f2f510304f76d4e53125e9b7
+# 2026-06-07 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27099354923 [skip changelog]
+777f84ffe83275dbae4d512d8f1bb8276cf330ab
+# 2026-06-08 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27158274034 [skip changelog]
+75ffe813d97c87522e3cd07c4787721ea49f8bab
+# 2026-06-10 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27297445328 [skip changelog]
+215656676aef289568c7ee36e8aa19b9a2cfd012
+# 2026-06-11 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27369665904 [skip changelog]
+1736402371c7e03cf7790d8c8c6808506a027a49
+# 2026-06-12 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27433899718 [skip changelog]
+896a4f928edbafaf06bfe4e67ec173f6b4a58ff9
+# 2026-06-13 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27473694963 [skip changelog]
+b60e45ac1ad5ec8ebf24ff53c356b02ea5272f77
+# 2026-06-13 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27481756567 [skip changelog]
+f4ba264811d12e33e692480b1daf40ab88b2b390
+# 2026-06-17 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27710123220 [skip changelog]
+48ed01984d402f8f26323080283fe9401cdf35de
+# 2026-06-18 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27772289657 [skip changelog]
+42af2ab6bd0748272f00cc27209560b7f4f73792
+# 2026-06-19 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27840985923 [skip changelog]
+49957a8f713a1863c9e3cb82fb17f63c55e5e3bd
+# 2026-06-21 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27911976906 [skip changelog]
+79921fa7f27bba04bb447f72eead7e83f0c70ffd
+# 2026-06-22 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/27978226225 [skip changelog]
+acf9977398b4083bbd81c7942bbb30bd6d513b31
+# 2026-06-27 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/28296021634 [skip changelog]
+62f43ef6640301d034a3d2343f261548eb90a80d
+# 2026-06-28 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/28329759561 [skip changelog]
+dd90db17ee5c75c591afde8771d9a2ee49216b99
+
+# 2026-07
+# 2026-07-09 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29038698675 [skip changelog]
+4b5f673808c28ef03aeb422132370222f7b332ff
+# 2026-07-11 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29160708563 [skip changelog]
+dc0c57d7374de9f625154a1f40321e9180effa9e
+# 2026-07-13 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29272229837 [skip changelog]
+e279a802c65b06c63f0b04357dc2c2b14f9cace3
+# 2026-07-14 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29374556880 [skip changelog]
+f1dce78f117b057ccf9a5bfc4de294b2c1005818
+# 2026-07-16 feat(map): sync map image 1.4.4 (#4235)
+f8437a67643d0f6057a80e8f6bd873c422b98e87
+# 2026-07-17 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29589502108 [skip changelog]
+195b4b2ea4208a8d3563f9c9db2d43b9355539af
+# 2026-07-18 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29652950072 [skip changelog]
+ed17aca884967cfeecac55b09c5a9536f4af3aec
+# 2026-07-19 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29695849158 [skip changelog]
+b0bc6fdd9d20c38f5608bb288be17b13e5732f36
+# 2026-07-20 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29765944202 [skip changelog]
+755eac93df22eee0ae7a94105800c13247dd8256
+# 2026-07-21 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29852322414 [skip changelog]
+0b8f1b8dee05d03550673708dffd5310af47b34a
+# 2026-07-22 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/29941698111 [skip changelog]
+a323a4f92b96dd84d680d83dcb833a98a7ecc2dd
+# 2026-07-23 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30029066543 [skip changelog]
+6b3f9a7bb03a76e54249825744db63ad40d9de07
+# 2026-07-24 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30113634749 [skip changelog]
+ed7b94a071468036cfd2c433430bfc385b3219fc
+# 2026-07-25 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30166586868 [skip changelog]
+5304d4811173dfcb12ce54a6783b9c35d30f5cc9
+# 2026-07-26 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30211601127 [skip changelog]
+21d175bf38eabd03de7c6ee2a67bd8332a656c16
+# 2026-07-27 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30290316341 [skip changelog]
+1f79c7b8e034907de7793e3376731641894639fa
+# 2026-07-28 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30382785561 [skip changelog]
+0c7221a1554b3a03e12965284413f7df3550dbab
+# 2026-07-29 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30474284658 [skip changelog]
+1fb86bd3553648d402caf12b5d2db2add8c4363e
+# 2026-07-30 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30565892139 [skip changelog]
+0eeea3d8d9c99c7ceeae0712e9d53ddbe53738e5
+# 2026-07-31 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30651225488 [skip changelog]
+099455661f37e7a43e7ea1418ce22dc964b1f1c8
+
+# 2026-08
+# 2026-08-01 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30709282324 [skip changelog]
+276e9f2f86714b797456dc221b91a8ab5e90b583
+# 2026-08-04 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/30935501929 [skip changelog]
+09cbd73d7e569dac6fd00ed17a4a1f6ddf24cb84
+# 2026-08-07 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/31224200891 [skip changelog]
+3a3957cf43c4225b8c231a59d90de51b02c703b6
+# 2026-08-09 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/31324060405 [skip changelog]
+da0e14949b0ff404176002802c29d73f91ef1a4e
+# 2026-08-10 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/31411165601 [skip changelog]
+aa23043a01b99367002dd20f0fff8a8889d7df82
+# 2026-08-11 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/31514957093 [skip changelog]
+54d7c829dac4d8a5564be89a83292d76559d1955
+# 2026-08-12 chore: generate MacOS keymap Triggered by e75c787e91cb633b87449d2bd376f2ba82fb58f0 [skip changelog]
+e3fc740bdca003b27e77f194647cfd221e9bc809
+# 2026-08-12 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/31620023740 [skip changelog]
+8346d58257f03a9ec15fc5ea913bcd1ae2888830
+# 2026-08-14 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/31821180880 [skip changelog]
+1e84e4ad161e2ff94ad09976c9b51b1fa0573f58
+# 2026-08-15 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/31895276272 [skip changelog]
+d37d8e7ae47b3b187f957f55682c5aa24b5e948f
+# 2026-08-15 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/31911811290 [skip changelog]
+b99d6085d86837a56a7c9112f5b4737697f06ebf
+# 2026-08-16 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/31958381983 [skip changelog]
+c090e08fe6e6e7034b630ea99ebae879bacb4688
+# 2026-08-17 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32045468276 [skip changelog]
+a424275217fe6decfdfa2e19c1510e6c73f0f8d9
+# 2026-08-18 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32160530498 [skip changelog]
+340baa21a653e223311dc329a3e835d818c2e2dc
+# 2026-08-19 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32276167670 [skip changelog]
+b5e320220d31921b8b8f4270c615de9415c43a31
+# 2026-08-20 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32392606452 [skip changelog]
+6d6ef6c17226e3f828a25a7f2694b4a505b0872a
+# 2026-08-21 chore: generate MacOS keymap Triggered by 39c5bb7513f52485c4d9bec45b47d97e4ce8bc73 [skip changelog]
+c2d8d2d6c3d2d178823fa7feb2a15e708c2d3821
+# 2026-08-22 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32602107561 [skip changelog]
+652b1080407aa77732d5c270135c7cdf954d943c
+# 2026-08-23 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32651458306 [skip changelog]
+c34f786c1dac3115d1926120fedd9a4fdfcaf620
+# 2026-08-23 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32670217106 [skip changelog]
+471b2bc384d21eebfdcd123d5924d507d8b3b221
+# 2026-08-24 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32751649415 [skip changelog]
+4dd98e63b4249c6492297b97b269cfdf3ecb36e5
+# 2026-08-25 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32872805744 [skip changelog]
+9d14d610e411ce1653d1ec308c728f2491a1a719
+# 2026-08-26 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/32990309397 [skip changelog]
+9d9a7f76ba78f5dfd2aa4ef773d173751482f8e1
+# 2026-08-28 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/33130692466 [skip changelog]
+53acab62a863676f7dffba91a0c19c7207a359cf
+# 2026-08-28 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/33206346296 [skip changelog]
+ee486a20bc0b56a0d9dd5044c367e3fbf9f1d1f1
+# 2026-08-29 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/33277854774 [skip changelog]
+0e2a692d7c2cf745ea12448a59074e16daa19d88
+# 2026-08-30 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/33321695288 [skip changelog]
+93cc500d8612c11ba4bd04bc692a26069d89908b
+
+# 2026-09
+# 2026-09-01 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/33532398457 [skip changelog]
+aedef8a58b35e687f36430291d1b568a6d936f4f
+# 2026-09-02 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/33653521243 [skip changelog]
+cd1fb2a91130e6ac027b5f64c53878fadb0a022d
+# 2026-09-03 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/33777204695 [skip changelog]
+881460c8de5f7ec004c6e29f4ad27e13a4827d07
+# 2026-09-04 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/33893754444 [skip changelog]
+2fa119ec6b7c8647ac6e1557c0688775fd3ec527
+# 2026-09-05 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/33977005810 [skip changelog]
+90464999efb23b781a5ea17ff6d560e92894d492
+# 2026-09-06 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/34044599700 [skip changelog]
+cc3b79c9cbc156ee30cf9ea6e3dbb594551750db
+# 2026-09-08 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/34249678532 [skip changelog]
+d06bbb28b74c1dd5970d37ab0952d09cada729a9
+# 2026-09-09 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/34410711856 [skip changelog]
+35278b3cc012f864229ee765efe4a763e73a9a2f
+# 2026-09-10 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/34535958601 [skip changelog]
+7c7274d435600522acdce597fcd677da7cd19189
+# 2026-09-11 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/34620585224 [skip changelog]
+e630b3579e7c4800fd1729ae8777c7157228f6f9
+# 2026-09-12 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/34721928615 [skip changelog]
+f8bfd84f81f6cd9ba2f6518af0b2f91b6106e8d8
+# 2026-09-15 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/34993438430 [skip changelog]
+437921814285e534095fdd3fba0bbaf00fdf58f0
+# 2026-09-16 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/35156261992 [skip changelog]
+35193d924636f8712545f83e80fc1601c5f12ffd
+# 2026-09-19 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/35454081605 [skip changelog]
+cfaa7c66b92c6432d8335c5daaed0afb0d08fb8c
+# 2026-09-20 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/35521880396 [skip changelog]
+5674be64e48d971d0d60d0b6b4a0f0b6cbdd266c
+# 2026-09-21 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/35624094361 [skip changelog]
+33179cac319f0cc574917e7e0dfe8e0c1460c357
+# 2026-09-23 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/35887200833 [skip changelog]
+69b7d6460d1de3dd6d95584c0df2a5efef4975a7
+# 2026-09-24 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/36065916446 [skip changelog]
+be2088574aec5a6bc1ef6e0adb2fbc012abe73cf
+# 2026-09-26 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/36254558488 [skip changelog]
+ae43a184c02408410061c858a46205cf90606a26
+# 2026-09-28 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/36449486005 [skip changelog]
+d6de814531d9594523e532329e8419ef76147065
+# 2026-09-29 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/36596117585 [skip changelog]
+d95235acd85582e2713389d0d44be1d952b3a9f4
+
+# 2026-10
+# 2026-10-01 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/36890225849 [skip changelog]
+a7b094f34721ccb8d3ffd99b5b67375f3ce596ce
+# 2026-10-03 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/37160132087 [skip changelog]
+dc536a5edb5e42205e37c0891685f6da2e6a914e
+# 2026-10-04 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/37220619600 [skip changelog]
+15415e8c741523721e00c7fccf0fc455bd5c5610
+# 2026-10-05 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/37339144207 [skip changelog]
+817e02ade2a58f83c2d5d4691e56bd698b7d5682
+# 2026-10-07 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/37650331599 [skip changelog]
+f47207bd5ebfe0ffd6c77356788ae531e51e1579
+# 2026-10-08 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/37851864204 [skip changelog]
+43eb28a12c12b47ef69eea9022782bfb11b9cdfd
+# 2026-10-09 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/37997818632 [skip changelog]
+a23dd244a955ab328e6a9ac740e8f9e5c37b5a64
+# 2026-10-10 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/38066685505 [skip changelog]
+33a5db98744bc2c87c64adc5a7f299f2b332652f
+# 2026-10-12 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/38275777292 [skip changelog]
+bb626dbf634b86d639506232399c879fa4482381
+# 2026-10-13 style: auto format code https://github.com/MaaEnd/MaaEnd/actions/runs/38428707345 [skip changelog]
+7626af5ac5b911deb008c5a20b67bf40a0cdbc5d
+
+# usage: add "[blame ignore]" to the commit message
+#        (PRs are squash-merged, so put it in the PR description)
+#        see docs/zh_cn/developers/getting-started.md
+# This file is managed by an automated workflow
+# Do not add, remove or modify lines below this comment
+# unless necessary as they are automatically appended
+# --------------------------------------------------- #
+9ced006c6acbe0d91ecdb64c35870c5a679db7ff
+e45fa9af187ab72949a02dfc328301bd8e439922
+f30772c45bc59a74a1d60e01fe383c349f3846fc
+f5459b018374ad0379f01a094ad43678022bdad6
+665c635a312df938a148c10e16d7592873baac75

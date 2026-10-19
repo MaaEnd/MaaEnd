@@ -1,0 +1,42 @@
+{
+    "SeizeDeliveryJobsEndpointRegionWulingCity": {
+        "roi": [
+            40,
+            18,
+            280,
+            40
+        ]
+    },
+    "SeizeDeliveryJobsEndpointRegionTestArea": {
+        "roi": [
+            40,
+            18,
+            280,
+            40
+        ]
+    },
+    "SeizeDeliveryJobsEndpointRegionOriginiumSciencePark": {
+        "roi": [
+            40,
+            18,
+            280,
+            40
+        ]
+    },
+    "SeizeDeliveryJobsEndpointRegionOriginLodespring": {
+        "roi": [
+            40,
+            18,
+            280,
+            40
+        ]
+    },
+    "SeizeDeliveryJobsEndpointRegionPowerPlateau": {
+        "roi": [
+            40,
+            18,
+            280,
+            40
+        ]
+    }
+}

@@ -84,6 +84,38 @@
         "threshold": 0.9,
         "order_by": "Score"
     },
+    "AutoDeliverySubmitGoodsInteractScan": {
+        "desc": "走向送货目标时边走边认的交货图标预筛，只给寻路读取 roi/template",
+        "recognition": "TemplateMatch",
+        "roi": [
+            760,
+            350,
+            200,
+            270
+        ],
+        "template": [
+            "AutoDelivery/SubmitGoods.png", // NPC 交货图标
+            "AutoDelivery/SubmitGoods2.png" // 非 NPC 交货图标
+        ],
+        "threshold": 0.8
+    },
+    "AutoDeliverySubmitGoodsInteractText": {
+        "desc": "资源回收站交互提示中的交货选项文字，只给寻路读取 expected",
+        "recognition": "OCR",
+        "roi": [
+            760,
+            350,
+            200,
+            270
+        ],
+        "expected": [
+            "交货",
+            "交貨",
+            "(?i)Deliver",
+            "引き渡す",
+            "화물 제출"
+        ]
+    },
     "AutoDeliveryCheckSubmitGoodsName": {
         "desc": "[运行时覆盖] 识别送货目标交互提示中的文本",
         "recognition": "OCR",

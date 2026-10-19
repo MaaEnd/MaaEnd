@@ -20,7 +20,6 @@
                 "Win32-Front"
             ],
             "option": [
-                "VisitFriendsLimitVisits",
                 "VisitFriendsRemark",
                 "VisitFriendsPriorityRemarkEnable",
                 "ProductionAssistControl"
@@ -28,40 +27,6 @@
         }
     ],
     "option": {
-        "VisitFriendsLimitVisits": {
-            "type": "switch",
-            "label": "$option.VisitFriendsLimitVisits.label",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "VisitFriendsMaxVisits"
-                    ]
-                },
-                {
-                    "name": "No"
-                }
-            ],
-            "default_case": "No"
-        },
-        "VisitFriendsMaxVisits": {
-            "type": "input",
-            "label": "$option.VisitFriendsMaxVisits.label",
-            "inputs": [
-                {
-                    "name": "MaxVisits",
-                    "label": "$option.VisitFriendsMaxVisits.inputs.MaxVisits.label",
-                    "default": "99",
-                    "pipeline_type": "int",
-                    "verify": "^[1-9]\\d{0,2}$"
-                }
-            ],
-            "pipeline_override": {
-                "VisitFriendsEnterShipBudget": {
-                    "max_hit": "{MaxVisits}"
-                }
-            }
-        },
         "VisitFriendsRemark": {
             "type": "switch",
             "label": "$option.VisitFriendsRemark.label",
@@ -244,7 +209,8 @@
                 "ProductionAssistControlNexus",
                 "ProductionAssistMFGCabin",
                 "ProductionAssistGrowthChamber"
-            ]
+            ],
+            "min_count": 1
         },
         "BtwAutoStockpileElasticGoodsEnable": {
             "type": "switch",

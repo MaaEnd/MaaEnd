@@ -106,7 +106,7 @@ Thanks to [zmdmap](https://zmdmap.com/) for providing information support to Maa
 
 Come hang out and chat with everyone:
 
-- 💬 **User QQ Group**: [1082597011](https://qm.qq.com/q/F4FjKxkCRy)  
+- 💬 **User QQ Group**: [315101779](https://qm.qq.com/q/eXVfrZsbmg)  
   For usage questions, feature requests, and casual chatting.
 - 👨‍💻 **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   Dedicated to development discussion. (For general usage questions, please go to the user group above.)

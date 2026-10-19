@@ -26,7 +26,7 @@
             "PuzzleSolverOnMiss"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "💡 检测到拼图准备界面"
+            "Node.Recognition.Succeeded": "$task.PuzzleSolver.focus.scene_prepare_detected"
         }
     },
     "PuzzleSolverFindStartButton": {
@@ -80,7 +80,7 @@
             "PuzzleSolverOnPass"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "❌ 检测到未满足拼图所需条件（请先去获取新元件）"
+            "Node.Recognition.Succeeded": "$task.PuzzleSolver.focus.unavailable_tip"
         }
     },
     "PuzzleSolverFindCompleteTip": {
@@ -122,12 +122,12 @@
             "PuzzleSolverOnSuccess"
         ],
         "focus": {
-            "Node.Recognition.Starting": "👀 开始识别拼图题目",
-            "Node.Recognition.Succeeded": "🧐 成功识别拼图题目，我寻思可以拼...",
-            "Node.Recognition.Failed": "❌ 未能识别拼图题目",
-            "Node.Action.Starting": "🫳 开始执行拼图操作",
-            "Node.Action.Succeeded": "⭐ 结束执行拼图操作，哼哼，拼完了~",
-            "Node.Action.Failed": "❌ 未能执行拼图操作"
+            "Node.Recognition.Starting": "$task.PuzzleSolver.focus.recognition_starting",
+            "Node.Recognition.Succeeded": "$task.PuzzleSolver.focus.recognition_succeeded",
+            "Node.Recognition.Failed": "$task.PuzzleSolver.focus.recognition_failed",
+            "Node.Action.Starting": "$task.PuzzleSolver.focus.action_starting",
+            "Node.Action.Succeeded": "$task.PuzzleSolver.focus.action_succeeded",
+            "Node.Action.Failed": "$task.PuzzleSolver.focus.action_failed"
         }
     },
     // 下面是一些回调节点的定义
@@ -141,25 +141,31 @@
             // 默认情况下不会自循环
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "❓ 未能按预期识别到拼图界面的UI元素"
+            "Node.Recognition.Succeeded": "$task.PuzzleSolver.focus.scene_unexpected"
         }
     },
     "PuzzleSolverOnSuccess": {
-        "desc": "回调：解谜成功后触发，关闭拼图界面",
-        "recognition": "DirectHit",
-        "pre_wait_freezes": 500, // 等待结算动画结束
-        "action": "LongPress",
-        "target": [
-            640,
-            620
+        "desc": "回调：解谜成功后触发，识别并点击「点击任意处继续」提示以关闭拼图界面",
+        "recognition": "OCR",
+        "roi": [
+            461,
+            532,
+            356,
+            100
         ],
-        "duration": 250,
-        "post_delay": 2000,
+        "expected": [
+            "点击任意处继续",
+            "按下任意處繼續",
+            "Click anywhere",
+            "Tap anywhere",
+            "anywhere to continue"
+        ],
+        "action": "Click",
         "next": [
             // 默认情况下，任务到这里就结束了
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "👌 已完成一轮拼图任务"
+            "Node.Recognition.Succeeded": "$task.PuzzleSolver.focus.round_completed"
         }
     },
     "PuzzleSolverOnMiss": {
@@ -169,7 +175,7 @@
             // 默认情况下，任务到这里就结束了
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "❓ 未能按预期识别到拼图界面的UI元素"
+            "Node.Recognition.Succeeded": "$task.PuzzleSolver.focus.scene_unexpected"
         }
     },
     "PuzzleSolverOnPass": {
@@ -179,7 +185,7 @@
             // 默认情况下，任务到这里就结束了
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "❔ 未检测到需要操作的拼图界面"
+            "Node.Recognition.Succeeded": "$task.PuzzleSolver.focus.scene_not_found"
         }
     },
     "PuzzleSolverOnFail": {
@@ -189,7 +195,7 @@
             // 默认情况下，任务到这里就结束了
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "❌ 未能处理拼图题目\n- 如果当前处于拼图界面，则表明拼图识别算法存在问题，请向我们提交反馈；\n- 如果当前没有处于拼图界面，则这是一次误识别，可以忽略。"
+            "Node.Recognition.Succeeded": "$task.PuzzleSolver.focus.unsolved"
         }
     }
 }

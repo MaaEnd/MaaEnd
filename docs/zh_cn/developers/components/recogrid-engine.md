@@ -84,10 +84,10 @@ gridtracker::Result observe(
 | 状态 | 含义 | EssenceGrid 路由 |
 | --- | --- | --- |
 | `Initial` | 首个有效帧 | 处理新格子；无候选则滑动 |
-| `Advanced` | 正向推进，或形状变化后刷新基准 | 处理新格子；无候选则滑动 |
+| `Advanced` | 正向推进，或零偏移但不构成完整重复（如行数变化）时刷新基准 | 处理新格子；无候选则滑动 |
 | `ConfirmingEnd` | 第一次完整重复 | 再滑一次确认 |
 | `Repeated` | 连续第二次完整重复 | 完成任务 |
-| `Rejected` | 空帧、列数变化或低置信对齐 | 返回识别失败，让 Maa 同屏重试 |
+| `Rejected` | 空帧、列数变化、低置信对齐，或零偏移完整重复但匹配比例低于 `repeat_match_ratio` | 返回识别失败，让 Maa 同屏重试 |
 
 ### 对齐与去重
 
@@ -138,7 +138,7 @@ MaaFramework 会先把基础资源、任务选项和控制器资源字典合并�
 
 EssenceGrid 只处理 Tracker 的 `new_cells`：
 
-1. 采样格子底部颜色判断无暇/高纯。
+1. 采样格子底部颜色判断无瑕/高纯。
 2. 在格子左下区域匹配锁定/废弃缩略图。
 3. 应用品质与跳过选项。
 4. 把通过的格子加入队列。
@@ -148,11 +148,11 @@ EssenceGrid 只处理 Tracker 的 `new_cells`：
 
 Pipeline 点击格子后，三个技能和等级由 OCR 节点读取。Go 的 `runUnifiedSkillDecision` 只决定分支：
 
-- 命中目标：进入 `LockItem`；
-- 未命中且开启废弃：进入 `DiscardItem`；
+- 命中目标：进入 `EssenceFilterLockItem`；
+- 未命中且开启废弃：进入 `EssenceFilterDiscardItem`；
 - 其他情况：回到 `EssenceGridAdvance`。
 
-实际按钮识别、点击和 `CheckLocked` / `CheckDiscarded` 确认都属于 Pipeline。Go 不能直接跳到确认节点，否则会跳过动作。
+实际按钮识别、点击和 `EssenceFilterCheckLocked` / `EssenceFilterCheckDiscarded` 确认都属于 Pipeline。Go 不能直接跳到确认节点，否则会跳过动作。
 
 ## 控制器差异
 

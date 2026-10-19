@@ -2,7 +2,7 @@
 
 本文说明 `AutoStockStaple` 的文件分布与执行流程。  
 以 **四号谷地** 为主线；**武陵** Pipeline 结构完全对称，仅地区后缀与场景识别不同。  
-该文档更新于 2026 年 6 月 6 日。
+该文档更新于 2026 年 10 月 17 日。
 
 ## 文件路径
 
@@ -22,7 +22,6 @@
 | `assets/resource_adb/pipeline/AutoStockStaple/` | ADB ROI 偏移镜像（需与 Win32 同步检查） |
 | `agent/go-service/autostockstaple/action.go` | 计算购买数量并驱动 BetterSliding |
 | `agent/go-service/common/attachregex/action.go` | attach 关键词合并为 OCR 白名单正则 |
-| `tools/pipeline-generate/AutoStockStaple/General/` | 批量生成 Goods / CountValidate / QuantityControl |
 | `assets/locales/interface/*.json` | 任务、选项与 focus 文案 |
 
 ## 执行流程
@@ -68,18 +67,18 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 
 ### 商品识别链
 
-实现位于 `General/Item.json` + 地区 JSON 中的折扣节点。思路与[信用点商店](./credit-shopping-maintain.md)类似：**先找锚点，再偏移识别后续字段**，但锚点是商品卡片左上角的**剩余刷新时间框**（青绿色 ColorMatch），不是信用点图标。
+实现位于 `General/Item.json`（按地区拆分的折扣节点 `AutoStockInStapleItemDiscounts{Region}` 也在这里）+ 地区 JSON 中的 `AutoStockBuyItem{Region}Task`。思路与[信用点商店](./credit-shopping-maintain.md)类似：**先找锚点，再偏移识别后续字段**，但锚点是商品卡片左上角的**剩余刷新时间框**（青绿 / 黄 / 红三组颜色的 ColorMatch），不是信用点图标。
 
 ```text
-剩余时间锚点 → 商品名（颜色 + OCR 白名单） → 折扣（OCR 提取） → 折扣阈值比较（ExpressionRecognition）
+剩余时间锚点 → 商品名（颜色 + OCR 白名单） → 折扣（OCR 匹配所选档位的折扣值）
 ```
 
 1. **锚点**：定位列表中每个商品卡片的时间区域，作为后续偏移基准。
-2. **商品名**：锚点 → 名称标签色 → 文字底色 → OCR；仅命中用户勾选的白名单商品。
-3. **折扣**：从名称区域偏移到折扣位，OCR 以正则 `-?\d{1,2}` 提取折扣徽标数值（负号缺失时回退为正数，由比较节点 fail-safe，漏买而非错买）。
-4. **折扣比较**：`AutoStockDiscountCompare{Region}`（`ExpressionRecognition`）判断折扣是否不低于所选档位阈值；无折扣徽标的物资 OCR 无文本、不命中，除「任意」档外都不会购买。
+2. **商品名**：锚点 → 名称标签色 → 名称文字色 → OCR；仅命中用户勾选的白名单商品。
+3. **折扣**：从名称区域偏移到折扣位，OCR 的 `expected` 只列所选档位及更大的折扣值（如 `-90%` 档为 `-99` / `-95` / `-90`，`order_by: Expected`）；负号漏识的读数不会命中，漏买而非错买。
+4. **折扣档位**：`AutoStockMinDiscount{Region}` 的数值档直接改写该 OCR 节点的 `expected`，没有单独的比较节点；无折扣徽标的物资 OCR 无文本、不命中，除「任意」档外都不会购买。
 
-四者同时命中才点击商品，进入数量控制。
+锚点、商品名、折扣三者同时命中才点击商品，进入数量控制。
 
 ### 数量控制三分支
 
@@ -117,25 +116,50 @@ Exclude 分支（物品已达标或券不足被剔除）也会触发重新初始
 | 时机 | 动作 | 作用 |
 | ------------ | ------------------------------------------------------------- | ---------------------------------------- |
 | 任务入口 | `AttachToExpectedRegexAction` | 合并 attach → 商品名 OCR 正则 |
-| 任务入口 | 类目 switch / 折扣比例 select 的 `pipeline_override` | 类目关闭时不收集该类 override；折扣档改写比较表达式，「任意」档替换折扣识别节点并回退 `all_of` |
+| 任务入口 | 类目 switch / 折扣比例 select 的 `pipeline_override` | 类目关闭时不收集该类 override；数值档改写折扣 OCR 的 `expected`，「任意」档把折扣识别节点替换为恒定命中的 `ColorMatch` |
 | 物品被排除后 | `PipelineOverrideAction` + 再次 `AttachToExpectedRegexAction` | 剔除 attach 键并刷新白名单 |
 | 确认购买前 | `AutoStockStapleQuantityControlAction` | 算差值并 override BetterSliding 目标数量 |
 
-## 新增物品时需改的路径
+## 数据来源与增量更新
 
-1. `tools/pipeline-generate/AutoStockStaple/General/data.mjs`（`id`、`slug`、多语言 `expected`）
-2. 重新生成（仓库根目录）：
+商品名单、分类、价格与五语名称由 `tools/zmdmap/datasets/stock_staple.py` 从原始 TableCfg 生成，消费端不维护固定商品绑定表。数据关系如下：
 
-```bash
-pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-config.json
-pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/goods-count-validate-config.json
-pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple/General/quantity-control-config.json
+```text
+DomainDataTable → ShopGroupTable → ShopTable → ShopGoodsTable
+                                           ├ RewardTable → ItemTable → 五语 I18nTextTable
+                                           ├ ShopGoodsTagTable → 五语分类名称
+                                           └ ShopChannelDevelopmentTable → 渠道等级供货量
+                  ↓
+stock_staple.json → AutoStockStaple/generate.mjs
+                  ├ assets/tasks/AutoStockStaple.json
+                  ├ General/{Goods,GoodsCountValidate,QuantityControl}.json
+                  └ assets/locales/interface/*.json 中的任务文本
 ```
 
-1. `assets/tasks/AutoStockStaple.json`（勾选 case + 上限 override）
-2. `assets/locales/interface/*.json`（选项与 `quantity_control.buy.*` focus 文案）
+只选择地区常规商店（`shopRefreshType=None/0`）中定期补货（`limitCountRefreshType` 非 `None/0`）的商品；一次性商品与弹性商店不纳入。`goods` 按售卖配置 ID 保留价格、折扣、币种、奖励数量、刷新类型、解锁条件和渠道供货记录；任务选项再按 `item_id` 去重，因此同物品的不同价格档不会丢失。
 
-生成规则见 [`tools/pipeline-generate/AutoStockStaple/General/README.md`](../../../../tools/pipeline-generate/AutoStockStaple/General/README.md)。
+现有任务、Pipeline 与语言文件作为基线。生成器从任务选项的 `resource/image/UI/Item/<item_id>.png` 路径识别已收录物品，只补上游新增项，不另外维护商品绑定表。已有商品的 key、名称、OCR 特例、ROI、节点顺序与数量策略原样保留；上游改名、分类变化或移除商品不会自动改写或删除已有配置，因此原来的勾选不会失效。
+
+`tools/pipeline-generate/AutoStockStaple/pipeline-template.json` 只保存新增商品的节点模板，`messages.json` 保存五语提示句式。新增选项名由上游英文名称去掉撇号后转成 PascalCase；attach 和提示使用游戏 `item_id`，节点后缀使用其 PascalCase。已有生成项只补缺失节点和文案，不覆盖现存值；没有增量时不写文件。
+
+下载上游发布数据并增量补充任务配置：
+
+```shell
+pnpm generate:AutoStockStaple
+```
+
+有本地原表时，可离线重建数据并完成同样的增量更新；只需要上图的八张业务表及 `I18nTextTable_{CN,TC,EN,JP,KR}.json`，不需要 JsonData、navmesh、其他精简表或网站查询接口：
+
+```shell
+uv run zmdmap generate --only stock_staple --table-cfg-dir /path/to/TableCfg
+node tools/pipeline-generate/AutoStockStaple/generate.mjs
+```
+
+基线文件整份缺失或损坏时，先从 Git 恢复，再运行增量更新；上游商品表不保存历史 OCR 修正，不能用于还原这些手写配置。生成器在所有输入可解析、所有新增项构建成功后才写入，保留 JSONC 注释和其他任务的语言内容。UI 图标继续由仓库既有图标发布链维护。
+
+`.github/workflows/sync-zmdmap.yml` 在现有数据同步任务中运行同一命令。`stock_staple` 与其他数据集一样，由 zmdmap 自动发现、生成并纳入发布清单，再通过现有 `fetch` 下载入库。有效缓存可重建缺失、损坏或残旧的入库副本；清单指纹变化会重新下载，即使版本号未变。
+
+静态价格用于保留完整售卖数据；运行时购买仍按原流程识别实际折扣、持有量和调度券，不用配置价格推算当次成交结果。
 
 ## 新增地区时需改的路径
 
@@ -145,13 +169,12 @@ pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple
 锚点 AutoStockInStapleItem
   -> 商品名 AutoStockInStapleItemName_Expected
   -> 折扣 AutoStockInStapleItemDiscountsValleyIV
-  -> 折扣比较 AutoStockDiscountCompareValleyIV
   -> 点击并进入数量控制
 ```
 
 ### 1. 锚点：剩余刷新时间框
 
-`AutoStockInStapleItem` 使用 `ColorMatch` 识别商品卡片左上角的剩余时间区域（青绿色连通域，`order_by: Vertical`），作为后续所有偏移识别的基准 box。
+`AutoStockInStapleItem` 使用 `ColorMatch` 识别商品卡片左上角的剩余时间区域（青绿 / 黄 / 红三组 HSV 范围取并集的连通域，`order_by: Vertical`），作为后续所有偏移识别的基准 box。
 
 ### 2. 偏移识别商品名
 
@@ -172,12 +195,12 @@ pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple
 
 ### 3. 偏移识别折扣
 
-`AutoStockInStapleItemDiscountsValleyIV` 以 `AutoStockInStapleItemName` 的 box 为基准，`roi_offset` 偏移到折扣区域，OCR 用正则 `-?\d{1,2}` 提取任意折扣徽标数值（如 `-50`）。
+`AutoStockInStapleItemDiscountsValleyIV` 以 `AutoStockInStapleItemName` 的 box 为基准，`roi_offset` 偏移到折扣区域，OCR 的 `expected` 默认列出 `-99` 到 `-50` 的全部折扣值（`order_by: Expected`）。
 
 折扣阈值由 `AutoStockMinDiscountValleyIV`（select）控制，与信用点商店共用 `option.DiscountValue.*` 文案键族：
 
-- **数值档**（`-95%` … `-50%`）：改写 `AutoStockDiscountCompareValleyIV`（`ExpressionRecognition`）的 expression 为 `{AutoStockInStapleItemDiscountsValleyIV} <= -{档位数值}`，折扣 OCR 数值与阈值比较，满足才命中。
-- **任意**（`Any`）：将折扣 OCR 节点整体替换为 `ColorMatch`（全范围阈值 `[0,0,0]`–`[255,255,255]` 且 `count` 默认 1，非空 ROI 恒定通过，折扣色块是否存在不影响结果），并把 `AutoStockBuyItemValleyIVTask` 的 `all_of` 回退为 3 成员——行为等同于购买所有勾选物资，折扣比较被跳过。
+- **数值档**（`-95%` … `-50%`）：把 `AutoStockInStapleItemDiscountsValleyIV` 的 `expected` 改写为该档及更大的折扣值（如 `-90%` → `-99`、`-95`、`-90`），OCR 命中其一才算满足。
+- **任意**（`Any`）：将折扣 OCR 节点整体替换为 `ColorMatch`（全范围阈值 `[0,0,0]`–`[255,255,255]` 且 `count` 默认 1，非空 ROI 恒定通过，折扣色块是否存在不影响结果）——行为等同于购买所有勾选物资，不再检查折扣。
 
 档位只列稳定物资实际出现的折扣（`-95/-90/-85/-80/-75/-70/-65/-50`），默认 `-50%`。无折扣徽标的物资在任何数值档下 OCR 都无文本、不命中，需选「任意」才会购买。
 
@@ -194,10 +217,9 @@ pnpm exec maa-pipeline-generate --config tools/pipeline-generate/AutoStockStaple
 
 - `AutoStockInStapleItem`
 - `AutoStockInStapleItemName_Expected`
-- `AutoStockInStapleItemDiscountsValleyIV`
-- `AutoStockDiscountCompareValleyIV`（折扣阈值比较；`box_index: 2` 仍指向折扣 OCR 节点）
+- `AutoStockInStapleItemDiscountsValleyIV`（折扣 OCR；`box_index: 2` 指向该节点）
 
-四者同时命中后，点击商品卡片（`target_offset: [-45, 85, -30, 0]`），`next` 进入 `AutoStockStapleQuantityControl`。
+三者同时命中后，点击商品卡片（`target_offset: [-45, 85, -30, 0]`），`next` 进入 `AutoStockStapleQuantityControl`。
 
 > [!IMPORTANT]
 > `AutoStockBuyItemValleyIVTask` 只表示“识别到候选商品并进入购买判定”，**不等于** 已完成购买。是否真正下单，要看数量控制分支是否走到 `AutoStockStapleQuantityControlConfirmBuy`。
@@ -223,7 +245,7 @@ AutoStockStapleQuantityControlValleyEngravingPermitStockBillInsufficient
 
 弹窗右上角持有数量由 `AutoStockStapleGoodsCountValidate` 识别：
 
-- `AutoStockStapleGoodsCountValidateColor`：数量区域颜色锚点。
+- `AutoStockStapleGoodsCountValidateArea` → `AutoStockStapleGoodsCountValidateColor`：先在固定 ROI 内找灰色数量底框，再取框内亮色数字区域。
 - `AutoStockStapleGoodsCountValidateText`：OCR 读取 `\d+`。
 
 各物品的 Buy / Exclude 分支通过 `ExpressionRecognition` 与用户配置的上限比较，例如：
@@ -256,7 +278,7 @@ Exclude: {ValleyEngravingPermitLimit} <= {AutoStockStapleGoodsCountValidate}
 1. 读取对应 `AutoStockStapleGoods{Item}Validate` 节点表达式，解析 **目标上限** 与 **数量 OCR 节点名**。
 2. 对当前截图运行数量 OCR，得到 **当前持有数量**。
 3. 计算 `target = 目标上限 - 当前持有数量`。
-4. 若 `target <= 0`，跳过滑动（禁用 `AutoStockStapleBetterSliding`）。
+4. 若 `target <= 0`，只记日志并返回成功，不做 override（`AutoStockStapleBetterSliding` 保持原状态）。
 5. 否则通过 `OverridePipeline` 启用 `AutoStockStapleBetterSliding`，并将 `target` 写入其 `attach.TargetQuantity`。
 
 Go **不再** `RunTask` 执行滑动；数量调节由低代码分支完成：
@@ -264,8 +286,7 @@ Go **不再** `RunTask` 执行滑动；数量调节由低代码分支完成：
 ```text
 {Item}Buy (Go: 计算 target + OverridePipeline)
   ├ AutoStockStapleCheckSliding              （滑条隐藏且默认数量为 1 时跳过滑动）
-  ├ AutoStockStapleBetterSliding             （Go 启用后执行 BetterSliding）
-  └ AutoStockStapleQuantityControlRelayConfirm （target<=0 等 fallback）
+  └ AutoStockStapleBetterSliding             （Go 启用后执行 BetterSliding）
   → AutoStockStapleQuantityControlConfirmBuy
 ```
 
@@ -291,7 +312,7 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 
 | 动作 | 触发位置 | 作用 |
 | -------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
-| 选项的 `pipeline_override`（`interface.json` 声明） | 任务选项收集（MXU 渲染阶段） | 类目关闭时不收集该类 override；数值档注入折扣比较表达式；「任意」档替换折扣识别节点并回退 `all_of` |
+| 选项的 `pipeline_override`（`interface.json` 声明） | 任务选项收集（MXU 渲染阶段） | 类目关闭时不收集该类 override；数值档改写折扣 OCR 的 `expected`；「任意」档把折扣识别节点替换为 `ColorMatch` |
 | `AttachToExpectedRegexAction` | `AutoStockStapleMain` 入口；Exclude 后 Reset 节点 | 合并 attach 关键词 → OCR 白名单正则 |
 | `PipelineOverrideAction` | 各物品 `{Item}RemoveFilter` | 将指定 attach 键设为 `false`，排除该物品 |
 | `AutoStockStapleQuantityControlAction` | 各物品 `{Item}Buy` | 计算差值并 override BetterSliding 的 `TargetQuantity` / `enabled` |
@@ -304,29 +325,25 @@ Exclude 分支 **不会** 购买，仅把“已达标”的物品从本轮扫描
 
 ## 新增物品
 
-新增一种稳定需求物资时，通常需要同步修改：
+上游原表新增商品后，重新发布 `stock_staple.json`，再运行 `pnpm generate:AutoStockStaple`；商品 case、名称 OCR、数量比较节点、三路购买分支和五语文案会一起生成。不再手工添加商品名、绑定表或旧别名。
 
-1. **`assets/resource/pipeline/AutoStockStaple/General/Goods.json`**：新增 `AutoStockStapleGoods{Item}` OCR 节点及多语言 `expected`。
-2. **`assets/resource/pipeline/AutoStockStaple/General/GoodsCountValidate.json`**：新增 `{Item}Validate` / `{Item}ExcludeValidate` 表达式节点。
-3. **`assets/resource/pipeline/AutoStockStaple/General/QuantityControl.json`**：在 `AutoStockStapleQuantityControl.next` 中追加 `{Item}` 控制节点，并补齐 Buy / Exclude / StockBillInsufficient / RemoveFilter 等子节点（可参考同地区已有物品的写法）。
-4. **`assets/tasks/AutoStockStaple.json`**：在对应地区类目 switch 下的 `{类目}Items` 多选框中增加 case，写入 `AutoStockInStapleItemName.attach.{slug}` 与数量上限 override。
-5. **`assets/locales/interface/*.json`**：补充 `option.CreditShoppingItems.cases.{Item}.label` 与 focus 文案（如 `quantity_control.buy.*`）。
+现有数量分组沿用任务策略：生活用品中的刻写券 ID 家族使用刻写券上限，其余使用食物增益上限；工业用品中的装备强化材料 ID 家族使用强化催化剂上限，其余使用探测器上限；文化用品使用礼物上限。新增类目或需要新导航的地区会明确报错，应先适配任务选项与流程。若有截图证明某件商品需要 OCR 修正，直接修改该商品节点；增量更新会保留这些修正。
 
-维护时请直接编辑上述 Pipeline 与任务配置，**不要**依赖代码生成器覆盖产物。
+已有流程仍在任务与 Pipeline 文件中维护；单商品模板只决定以后新增的节点，不会覆盖已有节点。
 
 ## 新增地区（参考四号谷地）
 
 若将来增加第三个地区的稳定物资购买，可对照四号谷地复制一套节点：
 
 1. 新建 `assets/resource/pipeline/AutoStockStaple/{Region}.json`：
-    - `{Region}InStaple` 扫描循环（`next` 四分支结构不变）。
+    - `AutoStockInStaple{Region}` 扫描循环（`next` 五分支结构不变，含滑动用尽后结束本地区的 `AutoStockNoMoreTarget{Region}`）。
     - `AutoStockTargetCompare{Region}` / `AutoStockTargetCanNotBuy{Region}`。
     - `AutoStockBuyItem{Region}Task`（替换折扣节点名）。
     - `AutoStockSwipe{Region}`。
 2. 在 `Main.json` 增加 `[JumpBack]AutoStockStaple{Region}` 子任务与 SceneManager 跳转。
 3. 在 `StockStaple.json` 或地区 InScene 文件中补充场景 OCR。
-4. 在 `Item.json` 增加 `AutoStockInStapleItemDiscounts{Region}`（若 UI 布局与现有地区不同）。
-5. 在 `assets/tasks/AutoStockStaple.json` 增加地区 switch 及选项组。
+4. 在 `Item.json` 增加 `AutoStockInStapleItemDiscounts{Region}`（布局相同也要单独建，`AutoStockMinDiscount{Region}` 按地区改写该节点），并在 `resource_adb` 的 `Item.json` 补它的 `roi_offset`。
+5. 在 `assets/tasks/AutoStockStaple.json` 增加地区 switch 及空物品选项组，在生成器中接入地区 ID 与导航后缀，再运行增量更新。
 
 武陵现有实现即为四号谷地的镜像，可直接 diff `ValleyIV.json` 与 `Wuling.json` 查看差异点。
 

@@ -7,7 +7,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -234,31 +234,36 @@ func resolveButtonTarget(ctx *maa.Context, fieldName string, raw any) (buttonTar
 	return buttonTarget{patch: patch}, nil
 }
 
-// resolveControlType 返回归一化后的控制器类型（见 pkg/control），取不到时返回空串。
-// 归一化后 ADB、CloudADB、原生安卓与 PlayCover 都是 "adb"，与 resource_adb 的挂载范围一致。
-func resolveControlType(ctx *maa.Context) string {
+// fallbackController 仅在 PI_CONTROLLER 不可用时取一次 controller，供控制器类别兜底；
+// PI 正常时返回 nil，避免无谓地触碰 controller 句柄（见编码规范「回调里的句柄怎么用」）。
+func fallbackController(ctx *maa.Context) *maa.Controller {
+	if pienv.ControllerKind() != pienv.ControllerKindUnknown {
+		return nil
+	}
 	if ctx == nil || ctx.GetTasker() == nil {
-		return ""
+		return nil
 	}
+	return ctx.GetTasker().GetController()
+}
 
-	ctrl := ctx.GetTasker().GetController()
-	if ctrl == nil {
+// resolveControlType 返回控制器的资源挂载范围类别（见 pkg/pienv），取不到时返回空串。
+// 归一化后 ADB、CloudADB、原生安卓与 PlayCover 都是 "adb"，与 resource_adb 的挂载范围一致。
+// ctrl 由回调入口传入；PI_CONTROLLER 缺失时用它兜底，否则移动端会误用桌面默认点击偏移。
+func resolveControlType(ctrl *maa.Controller) string {
+	kind := pienv.ResolveControllerKind(ctrl)
+	if kind == pienv.ControllerKindUnknown {
 		return ""
 	}
-
-	controlType, err := control.ResolveControlType(ctrl)
-	if err != nil {
-		// 解析失败不阻断流程，按桌面端默认值继续。
-		log.Debug().Err(err).Msg("failed to resolve control type")
-		return ""
+	if pienv.IsAdbLikeControllerType(kind) {
+		return pienv.ControllerKindAdb
 	}
-	return controlType
+	return kind
 }
 
 // defaultCenterPointOffset 返回当前控制器的默认点击偏移。
 // 移动端控制器通过触控坐标缩放上报点位，按识别框中心直接点击会落到滑块右侧，实测需再左移 15px。
 func defaultCenterPointOffset(controlType string) [2]int {
-	if controlType == control.CONTROL_TYPE_ADB {
+	if controlType == pienv.ControllerKindAdb {
 		return defaultCenterPointOffsetMobile
 	}
 	return defaultCenterPointOffsetDesktop

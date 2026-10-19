@@ -5,7 +5,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldValleyIVTheHub2"
+                "SceneEnterWorldValleyIVTheHubRockhillPassage"
             ]
         },
         "next": [

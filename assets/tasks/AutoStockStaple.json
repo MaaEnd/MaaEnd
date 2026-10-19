@@ -1341,6 +1341,42 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "HerbalTisane",
+                    "label": "$task.AutoStockStaple.item.item_inkbiter_1_wgshoal_1_1",
+                    "icon": "resource/image/UI/Item/item_inkbiter_1_wgshoal_1_1.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_inkbiter_1_wgshoal_1_1": [
+                                    "草本清凉饮",
+                                    "草本清涼飲",
+                                    "Herbal Tisane",
+                                    "薬草清涼飲料",
+                                    "약초 청량 음료"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "NumbingCrispyPupae",
+                    "label": "$task.AutoStockStaple.item.item_inkkirin_1_hscrane_1_1",
+                    "icon": "resource/image/UI/Item/item_inkkirin_1_hscrane_1_1.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_inkkirin_1_hscrane_1_1": [
+                                    "酥麻炸虫蛹",
+                                    "酥麻炸蟲蛹",
+                                    "Numbing Crispy Pupae",
+                                    "シビカリさなぎフライ",
+                                    "바삭한 번데기 튀김"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -1532,6 +1568,42 @@
                     }
                 },
                 "AutoStockStapleGoodsSearToastedLiverExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemInkbiter1Wgshoal11Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemInkbiter1Wgshoal11ExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemInkkirin1Hscrane11Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemInkkirin1Hscrane11ExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
@@ -1981,6 +2053,42 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "YuanyuanManorJigsaw",
+                    "label": "$task.AutoStockStaple.item.item_gift_jinlong_12",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_12.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_gift_jinlong_12": [
+                                    "缘缘庄拼图",
+                                    "緣緣莊拼圖",
+                                    "Yuanyuan Manor Jigsaw",
+                                    "縁縁荘のパズル",
+                                    "인연 마을 퍼즐"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "WoodenSword",
+                    "label": "$task.AutoStockStaple.item.item_gift_jinlong_13",
+                    "icon": "resource/image/UI/Item/item_gift_jinlong_13.png",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "item_gift_jinlong_13": [
+                                    "木雕剑",
+                                    "木雕劍",
+                                    "Wooden Sword",
+                                    "木彫りの剣",
+                                    "장식용 목검"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -2190,6 +2298,42 @@
                     }
                 },
                 "AutoStockStapleGoodsMiracleCakeExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong12Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong12ExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong13Validate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsItemGiftJinlong13ExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
