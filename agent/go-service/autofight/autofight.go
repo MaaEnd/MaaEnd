@@ -528,7 +528,6 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 				firstNoLockIteration = false
 				// 5秒内没有闪避/冲刺则向前冲刺一次，防止怪跑远
 				if time.Since(lastDodgeAt) >= 5*time.Second {
-					maafocus.Print(ctx, i18n.T("autofight.approach_enemy"))
 					enqueueAction(fightAction{
 						executeAt: time.Now().Add(time.Millisecond),
 						action:    ActionMoveForward,
@@ -731,12 +730,15 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 							timeline.PopFrontAction()
 						}
 					case "skill":
-						if energyLevel >= 1 && hasEnemyTarget {
+						// 不消耗技力的动作（如取消架势）不检查能量，也不标记能量已用
+						if (energyLevel >= 1 || action.NoEnergyCost) && hasEnemyTarget {
 							enqueueAction(fightAction{
 								executeAt: time.Now(),
 								action:    skillAction(op),
 							})
-							screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
+							if !action.NoEnergyCost {
+								screenAnalyzer.MarkLabelUsed(LabelEnergyLevelFull)
+							}
 							timeline.PopFrontAction()
 						}
 					}
