@@ -14,13 +14,14 @@
 #     以 `/` 结尾表示该目录及其下全部内容；同一路径命中多条规则时，本文件里最后一条生效。
 #   - 不支持 `!` 取反、`[]` 字符区间、`{}` 花括号。
 #
-# 分组方式：按任务（模块）分组，一个任务一段，段头写明该任务的 owner。
-# 「pkg 公共包」和「仓库级工具」不属于任何单个任务，各自单独一段。
-# `/assets/resource*/` 里的 `*` 只匹配资源包名这一段（不跨 `/`），一条规则同时覆盖
-# resource、resource_adb、resource_cloud_adb、resource_playcover，新增控制器资源包不必再改本文件。
+# 分组方式：按任务（模块）分组，一个任务一段，段头写明该任务的 owner；公共包与仓库级工具单独成段。
+# 多个任务共用的路径（pipeline 的 Common / Interface / SceneManager、pkg 其余包、tools 其余脚本、
+# assets/interface.json、assets/locales 等）尚未指定 owner，因此暂不列入本文件。
 # ---------------------------------------------------------------------------
 # 环境监测（EnvironmentMonitoring）                                     @he0119
 # ---------------------------------------------------------------------------
+# `/assets/resource*/` 里的 `*` 只匹配资源包名这一段（不跨 `/`），一条规则同时覆盖
+# resource、resource_adb、resource_cloud_adb、resource_playcover，新增控制器资源包不必再改本文件。
 /assets/resource*/pipeline/EnvironmentMonitoring/                 @he0119
 /assets/resource*/pipeline/EnvironmentMonitoring.json             @he0119
 /assets/tasks/EnvironmentMonitoring.json                          @he0119
@@ -28,6 +29,7 @@
 /tools/pipeline-generate/EnvironmentMonitoring/                   @he0119
 /tests/EnvironmentMonitoring/                                     @he0119
 /docs/*/developers/tasks/environment-monitoring-maintain.md       @he0119
+
 # ---------------------------------------------------------------------------
 # 送货：转交委托（DeliveryJobs） / 自动送货（AutoDelivery）                      @he0119
 # ---------------------------------------------------------------------------
@@ -47,6 +49,7 @@
 /tests/AutoDelivery/                                              @he0119
 /docs/*/developers/tasks/delivery-jobs-maintain.md                @he0119
 /docs/*/developers/components/auto-delivery.md                    @he0119
+
 # ---------------------------------------------------------------------------
 # 据点交易（OutpostTrading）                                            @he0119
 # ---------------------------------------------------------------------------
@@ -59,6 +62,7 @@
 /tools/pipeline-generate/OutpostTrading/                          @he0119
 /tests/OutpostTrading/                                            @he0119
 /docs/*/developers/tasks/outpost-trading-maintain.md              @he0119
+
 # ---------------------------------------------------------------------------
 # 基建（DijiangRewards）                                              @overflow65537
 # ---------------------------------------------------------------------------
@@ -69,6 +73,7 @@
 /assets/locales/go-service/HTML/dijiangrewards-*.html             @overflow65537
 /agent/go-service/dijiangrewards/                                 @overflow65537
 /docs/*/developers/tasks/dijiang-rewards-maintain.md              @overflow65537
+
 # ---------------------------------------------------------------------------
 # 信用点（CreditShopping）                                             @overflow65537
 # ---------------------------------------------------------------------------
@@ -77,6 +82,7 @@
 /assets/resource*/image/CreditShopping/                           @overflow65537
 /agent/go-service/creditshopping/                                 @overflow65537
 /docs/*/developers/tasks/credit-shopping-maintain.md              @overflow65537
+
 # ---------------------------------------------------------------------------
 # 赠送礼物（GiftOperator）                                              @overflow65537
 # ---------------------------------------------------------------------------
@@ -86,6 +92,7 @@
 /tools/pipeline-generate/GiftOperator/                            @overflow65537
 /tools/gift_operator/                                             @overflow65537
 /docs/*/developers/tasks/gift-operator-maintain.md                @overflow65537
+
 # ---------------------------------------------------------------------------
 # 稳定物资（AutoStockStaple）                                           @overflow65537
 # ---------------------------------------------------------------------------
@@ -95,6 +102,7 @@
 /tools/pipeline-generate/AutoStockStaple/                         @overflow65537
 /tests/AutoStockStaple/                                           @overflow65537
 /docs/*/developers/tasks/auto-stockstaple-maintain.md             @overflow65537
+
 # ---------------------------------------------------------------------------
 # pkg 公共包（被多个任务调用）                                                @overflow65537
 # ---------------------------------------------------------------------------
@@ -104,6 +112,7 @@
 /assets/resource*/pipeline/IMS/                                   @overflow65537
 /assets/locales/go-service/HTML/ims-*.html                        @overflow65537
 /docs/*/developers/components/ims.md                              @overflow65537
+
 # ---------------------------------------------------------------------------
 # 仓库级工具与脚本                                                        @he0119
 # ---------------------------------------------------------------------------
