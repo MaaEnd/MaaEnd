@@ -190,6 +190,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
+                                "key": "AutoCollect",
                                 "every": "{AutoCollectMidSweepStashEvery}"
                             }
                         }
