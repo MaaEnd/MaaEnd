@@ -1,0 +1,263 @@
+{
+    "TrialOfSwordmancyTrialTrigger": {
+        "roi": [
+            720,
+            370,
+            60,
+            60
+        ]
+    },
+    "TrialOfSwordmancyChallengeBackground": {
+        "roi": [
+            340,
+            160,
+            600,
+            90
+        ]
+    },
+    "TrialOfSwordmancyFightFinishButton": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ]
+            }
+        }
+    },
+    "TrialOfSwordmancyViewPositionButton": {
+        "roi_offset": [
+            961,
+            108,
+            -21,
+            -19
+        ],
+        // 触屏 Click 前识别普通态；显式覆盖，避免继承桌面的反色 Hover 模板。
+        "template": "SceneManager/RegionalOverview/ViewPositionButton.png"
+    },
+    "TrialOfSwordmancyDrawCardButton": {
+        // 移动端文字会挤占骰子图标的显示空间
+        "recognition": "OCR",
+        "roi": [
+            1067,
+            454,
+            181,
+            82
+        ],
+        "expected": [
+            "抽取铭牌",
+            "抽取銘牌",
+            "Draw",
+            "カードを引く",
+            "플레이트 뽑기"
+        ]
+    },
+    "TrialOfSwordmancyInRewardMode": {
+        "roi": [
+            170,
+            480,
+            100,
+            60
+        ]
+    },
+    "TrialOfSwordmancyRemainCalcText": {
+        "roi": [
+            520,
+            60,
+            260,
+            34
+        ]
+    },
+    "TrialOfSwordmancyRemainDoubleText": {
+        "roi": [
+            520,
+            598,
+            130,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDoubleRewardButton": {
+        "roi": [
+            778,
+            594,
+            36,
+            47
+        ]
+    },
+    "TrialOfSwordmancyIsDoubled": {
+        "roi": [
+            778,
+            594,
+            36,
+            47
+        ]
+    },
+    "TrialOfSwordmancyAbandonButton": {
+        "roi": [
+            40,
+            590,
+            80,
+            60
+        ]
+    },
+    "TrialOfSwordmancyStartTrialButton": {
+        "roi": [
+            900,
+            590,
+            45,
+            58
+        ]
+    },
+    "TrialOfSwordmancyAbandonPopupText": {
+        "roi": [
+            200,
+            325,
+            880,
+            58
+        ]
+    },
+    "TrialOfSwordmancyAbandonPopupExhausted": {
+        "roi": [
+            240,
+            335,
+            630,
+            35
+        ]
+    },
+    "TrialOfSwordmancyBattlePts0": {
+        "roi": [
+            137,
+            445,
+            101,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts1": {
+        "roi": [
+            215,
+            445,
+            106,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts2": {
+        "roi": [
+            296,
+            445,
+            103,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts3": {
+        "roi": [
+            374,
+            445,
+            102,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts4": {
+        "roi": [
+            452,
+            445,
+            107,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts5": {
+        "roi": [
+            533,
+            445,
+            103,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts6": {
+        "roi": [
+            611,
+            445,
+            100,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts7": {
+        "roi": [
+            689,
+            445,
+            100,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts8": {
+        "roi": [
+            767,
+            445,
+            102,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts9": {
+        "roi": [
+            847,
+            445,
+            105,
+            60
+        ]
+    },
+    "TrialOfSwordmancyBattlePts10": {
+        "roi": [
+            926,
+            445,
+            105,
+            60
+        ]
+    },
+    "TrialOfSwordmancyDeck": {
+        "roi": [
+            1195,
+            140,
+            60,
+            290
+        ]
+    },
+    "TrialOfSwordmancyDeckCount1": {
+        "roi": [
+            1200,
+            144,
+            44,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDeckCount2": {
+        "roi": [
+            1200,
+            205,
+            44,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDeckCount3": {
+        "roi": [
+            1200,
+            267,
+            44,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDeckCount4": {
+        "roi": [
+            1200,
+            329,
+            44,
+            40
+        ]
+    },
+    "TrialOfSwordmancyDeckCount5": {
+        "roi": [
+            1200,
+            390,
+            44,
+            40
+        ]
+    }
+}
