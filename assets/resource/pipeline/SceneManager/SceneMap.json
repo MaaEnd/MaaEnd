@@ -324,7 +324,7 @@
         "post_delay": 0
     },
     "__ScenePrivateMapZoomInWhite": {
-        "desc": "地图加号按钮为白色（未到最大缩放，可继续放大）",
+        "desc": "地图加号按钮可用（白底，或鼠标悬停时的白十字；到最大缩放时变暗）",
         "recognition": "ColorMatch",
         "roi": [
             1225,
@@ -343,7 +343,8 @@
             255
         ],
         "connected": true,
-        "count": 150
+        // Win32 实测白像素：白底约 185，点完光标停在按钮上变灰底白十字约 44，到顶变暗为 0
+        "count": 30
     },
     "__ScenePrivateMapZoomOutWhite": {
         "desc": "地图减号按钮为白色（未到最小缩放，可继续缩小）",
