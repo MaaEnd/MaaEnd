@@ -2,14 +2,10 @@
     "SceneMenuRegionalOverviewWulingTrialOfSwordmancy": {
         "all_of": [
             "InRegionalOverviewWuling",
+            "__ScenePrivateMenuRegionalOverviewUpperIconRegion",
             {
                 "recognition": "TemplateMatch",
-                "roi": [
-                    70,
-                    69,
-                    60,
-                    651
-                ],
+                "roi": "__ScenePrivateMenuRegionalOverviewUpperIconRegion",
                 "template": [
                     "AdbOnly/SceneManager/RegionalOverview/TrialOfSwordmancyInactive.png",
                     "AdbOnly/SceneManager/RegionalOverview/TrialOfSwordmancyWuling.png"
