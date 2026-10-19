@@ -83,10 +83,10 @@
         "desc": "在事务总览界面，列表滚动已至尽头",
         "recognition": "Custom",
         "custom_recognition": "ListCompleteRecognition",
-        "roi": "__ScenePrivateMenuRegionalOverviewFullRegion",
-        "custom_action_param": {
+        "custom_recognition_param": {
             "threshold": 0.95
         },
+        "roi": "__ScenePrivateMenuRegionalOverviewFullRegion",
         "next": [
             "FailedNode"
         ]
