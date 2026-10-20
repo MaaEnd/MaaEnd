@@ -83,10 +83,12 @@ def create_directory_link(src: Path, dst: Path) -> bool:
     dst.parent.mkdir(parents=True, exist_ok=True)
 
     if platform.system() == "Windows":
+        # cmd /u 固定以 UTF-16LE 输出，避免依赖控制台代码页或 Python 的默认编码。
         result = subprocess.run(
-            ["cmd", "/c", "mklink", "/J", str(dst), str(src)],
+            ["cmd", "/u", "/c", "mklink", "/J", str(dst), str(src)],
             capture_output=True,
             text=True,
+            encoding="utf-16-le",
         )
         if result.returncode != 0:
             print(
@@ -107,16 +109,19 @@ def create_file_link(src: Path, dst: Path) -> bool:
     dst.parent.mkdir(parents=True, exist_ok=True)
 
     if platform.system() == "Windows":
+        # 硬链接与符号链接都使用 cmd /u，统一按 UTF-16LE 读取输出。
         result = subprocess.run(
-            ["cmd", "/c", "mklink", "/H", str(dst), str(src)],
+            ["cmd", "/u", "/c", "mklink", "/H", str(dst), str(src)],
             capture_output=True,
             text=True,
+            encoding="utf-16-le",
         )
         if result.returncode != 0:
             result = subprocess.run(
-                ["cmd", "/c", "mklink", str(dst), str(src)],
+                ["cmd", "/u", "/c", "mklink", str(dst), str(src)],
                 capture_output=True,
                 text=True,
+                encoding="utf-16-le",
             )
             if result.returncode != 0:
                 print(

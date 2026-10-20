@@ -24,6 +24,8 @@ const (
 	autoHDRDisabledValue      = "2096"
 	autoHDREnabledValue       = "2097"
 	autoHDRGlobalEnabledValue = "1"
+	autoHDRUserOverrideFlag   = 0x1000
+	autoHDREnabledFlag        = 0x1
 )
 
 var registryPath = registryPathCN
@@ -528,7 +530,8 @@ func parseResolution(resolution string) (uint32, uint32, error) {
 }
 
 // IsAutoHDREnabled 判断终末地是否会实际开启自动 HDR。
-// 按应用 *Endfield.exe 的 AutoHDREnable 优先；未显式配置时回退到 DirectXUserGlobalSettings。
+// 按应用 *Endfield.exe 的 AutoHDREnable 带用户覆盖位时以按应用为准；
+// 否则跟随 DirectXUserGlobalSettings（按应用覆盖全局，见 DirectX 博客「Navigating the redesigned Graphics settings page」）。
 func IsAutoHDREnabled() (bool, error) {
 	k, err := registry.OpenKey(registry.CURRENT_USER, userGpuPreferencesPath, registry.QUERY_VALUE)
 	if err != nil {
@@ -545,10 +548,11 @@ func IsAutoHDREnabled() (bool, error) {
 	}
 
 	var (
-		globalValue string
-		hasGlobal   bool
-		perAppSeen  bool
-		perAppOn    bool
+		globalRaw      string
+		globalValue    string
+		perAppSeen     bool
+		perAppOverride bool
+		perAppOn       bool
 	)
 
 	for _, name := range names {
@@ -572,30 +576,53 @@ func IsAutoHDREnabled() (bool, error) {
 		}
 
 		if isGlobal {
-			if v, ok := parseAutoHDRValue(raw); ok {
-				globalValue = v
-				hasGlobal = true
-			}
+			globalRaw = raw
+			globalValue, _ = parseAutoHDRValue(raw)
 			continue
 		}
 
-		v, ok := parseAutoHDRValue(raw)
-		if !ok {
+		v, _ := parseAutoHDRValue(raw)
+		log.Debug().
+			Str("component", "gamesetting").
+			Str("exe_path", name).
+			Str("raw", raw).
+			Str("auto_hdr", v).
+			Msg("found Endfield.exe in UserGpuPreferences")
+		if v == "" {
 			continue
 		}
 		perAppSeen = true
-		if isAutoHDREnabledValue(v, true) {
-			perAppOn = true
+		override, on := parsePerAppAutoHDRFlags(v)
+		if override {
+			perAppOverride = true
+			if on {
+				perAppOn = true
+			}
 		}
 	}
 
-	if perAppSeen {
-		return perAppOn, nil
+	var (
+		result bool
+		reason string
+	)
+	if perAppOverride {
+		result = perAppOn
+		reason = "per_app_override"
+	} else {
+		result = globalValue == autoHDRGlobalEnabledValue
+		reason = "follow_global"
 	}
-	if hasGlobal {
-		return isAutoHDREnabledValue(globalValue, false), nil
-	}
-	return false, nil
+	log.Debug().
+		Str("component", "gamesetting").
+		Str("global_raw", globalRaw).
+		Str("global_value", globalValue).
+		Bool("per_app_seen", perAppSeen).
+		Bool("per_app_override", perAppOverride).
+		Bool("per_app_on", perAppOn).
+		Bool("result", result).
+		Str("reason", reason).
+		Msg("Endfield Auto HDR registry check")
+	return result, nil
 }
 
 // ApplyAutoHDR 按 mode 写入按应用自动 HDR：Unchanged 不改；Disable=2096；Enable=2097。
@@ -702,17 +729,15 @@ func parseAutoHDRValue(raw string) (string, bool) {
 	return "", false
 }
 
-// isAutoHDREnabledValue 判断 AutoHDREnable 取值是否表示开启。
-// perApp=true 时兼容按应用取值（2097/1/4147）；false 时仅全局 1 为开启。
-func isAutoHDREnabledValue(value string, perApp bool) bool {
-	switch strings.TrimSpace(value) {
-	case autoHDRGlobalEnabledValue:
-		return true
-	case autoHDREnabledValue, "4147":
-		return perApp
-	default:
-		return false
+// parsePerAppAutoHDRFlags 解析按应用 AutoHDREnable 位标志：
+// 0x1000 表示用户在该应用上手动设置过（覆盖全局），0x1 表示开启。
+// 如 2097(0x0831) 跟随全局，6193(0x1831) 手动开启；无法解析时视为跟随全局。
+func parsePerAppAutoHDRFlags(value string) (override, on bool) {
+	n, err := strconv.ParseUint(strings.TrimSpace(value), 10, 32)
+	if err != nil {
+		return false, false
 	}
+	return n&autoHDRUserOverrideFlag != 0, n&autoHDREnabledFlag != 0
 }
 
 const launcherUninstallPath = `SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\`

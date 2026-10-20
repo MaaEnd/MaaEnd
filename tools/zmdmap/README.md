@@ -64,11 +64,14 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 | `datasets/environment_monitoring.py` | `environment_monitoring.json` | 复制 |
 | `datasets/item_mini_table.py` | `item_mini_table.json`（图标识别的物品表，带多语言名字） | 复制 |
 | `datasets/sell_product.py` | `sell_product.json` | 复制 |
+| `datasets/stock_staple.py` | `stock_staple.json`（稳定需求物资的名单、分类、价格档与五语名称） | 复制 |
 | `datasets/weapons.py` | `weapons.json`（基质筛选与图标识别共用的武器表） | 复制 |
 
 要加一份新数据，就在 `datasets/` 加一个同名模块、定义 `Dataset` 子类并实现 `build`，再声明要不要投影（需要投影的用 `projection_containers` 列出条目数组所在的键）。
 
 各份数据共用的手法收在 `Dataset` 上，不用各抄一份：`localized_names`（表里的文本引用 → 五语字典，五语缺一即报错）、`level_index`（读 `LevelBasicInfoTable` 建 `idNum -> levelId`），组装错误统一用 `DatasetError`（cli 会补上数据集名）。取数逻辑在各份数据的模块里。
+
+只读 TableCfg 的数据集可声明 `requires_json_data = False`，单独生成时不要求无关的 JsonData 目录。`stock_staple` 从地区商店、商品、奖励、物品、分类与渠道供货表生成，不依赖其他精简数据或人工商品绑定表；消费链见[稳定需求物资维护文档](../../docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md#数据来源与增量更新)。
 
 ### 共用件（`utils/`）
 
@@ -89,6 +92,8 @@ uv run zmdmap fetch --no-download                 # 不下载，只用现有 dat
 清单本身每次都**带一个时间戳**去取（它只有几百字节，回源不心疼）：它决定了后面下哪几份，被远端缓存住就等于拿旧索引判断，整批都得跟着错。实测这个 CDN 只看 URL —— 请求头带 `Cache-Control: no-cache` 也照样命中缓存（`Age` 不变），换个带时间戳的 URL 才真的回源。数据文件不需要靠它区分新老：它们的 URL 自带清单给的内容指纹，内容一变就是新 URL。
 
 所以本地与 CI 是同一套判断：先取清单，清单里的指纹变了才下，且只下变了的那些；一致的那几份连入库都不跑（入库数据本来就在，原始形态目录空着也无所谓），所以本地已是最新时 `fetch` 只剩一次清单请求：零数据下载、零改动。`--force` 是唯一的手动手段：不看清单直接重下这几份，并把请求 URL 上的指纹换成时间戳，把「不走远端缓存」贯彻到底。上游只换了版本号、内容没变时本地不会有任何变化：`fetch` 与入库都不改文件里的 `version` / `sha256`（版本只给人看，不参与比较）。
+
+离线重建可使用有效的原始缓存运行 `fetch --no-download`，或从本地游戏数据运行 `generate`。这两条链路都会重新入库，覆盖缺失、损坏或残旧的入库副本。
 
 ## `generate` 的开关
 

@@ -1,0 +1,37 @@
+{
+    "SwitchTeamChooseNeed": {
+        "all_of": [
+            "SwitchTeamChooseTextRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "SwitchTeamChooseTextRecognition",
+                "roi_offset": [
+                    -30,
+                    0,
+                    10,
+                    0
+                ],
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    45,
+                    45,
+                    45
+                ],
+                "connected": false,
+                "count": 150
+            }
+        ]
+    },
+    "SwitchTeamChooseTextRecognition": {
+        "roi": [
+            0,
+            -70,
+            660,
+            45
+        ]
+    }
+}

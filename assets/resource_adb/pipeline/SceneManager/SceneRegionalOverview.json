@@ -1,0 +1,115 @@
+{
+    "__ScenePrivateMenuRegionalOverviewFullRegion": {
+        "roi": [
+            40,
+            69,
+            1176,
+            651
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewIconRegion": {
+        "roi": [
+            70,
+            69,
+            60,
+            651
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewUpperIconRegion": {
+        "roi": [
+            70,
+            69,
+            60,
+            495
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewButtonRegion": {
+        "roi": [
+            1156,
+            69,
+            34,
+            651
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewAnyCollapseAny": {
+        "all_of": [
+            "InRegionalOverview",
+            "__ScenePrivateMenuRegionalOverviewFullRegion",
+            "__ScenePrivateMenuRegionalOverviewButtonRegion",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "__ScenePrivateMenuRegionalOverviewButtonRegion",
+                "template": "AdbOnly/SceneManager/RegionalOverview/CollapseButton.png",
+                "threshold": 0.85,
+                "order_by": "Vertical"
+            }
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewAnyListScroll": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    600
+                ],
+                "end": [
+                    640,
+                    360
+                ],
+                "end_hold": 200,
+                "duration": 500
+            }
+        }
+    },
+    "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancy": {
+        "all_of": [
+            "InRegionalOverviewWuling",
+            "__ScenePrivateMenuRegionalOverviewIconRegion",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "__ScenePrivateMenuRegionalOverviewIconRegion",
+                "template": [
+                    "AdbOnly/SceneManager/RegionalOverview/TrialOfSwordmancyInactive.png",
+                    "AdbOnly/SceneManager/RegionalOverview/TrialOfSwordmancyWuling.png"
+                ],
+                "threshold": 0.85
+            }
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewWulingExpandTrialOfSwordmancy": {
+        "all_of": [
+            "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancy",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "roi_offset": [
+                    1083,
+                    10,
+                    -19,
+                    -18
+                ],
+                "template": "AdbOnly/SceneManager/RegionalOverview/ExpandButton.png",
+                "threshold": 0.85
+            }
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded": {
+        "all_of": [
+            "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancy",
+            "__ScenePrivateMenuRegionalOverviewFullRegion",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "roi_offset": [
+                    1083,
+                    10,
+                    -19,
+                    -18
+                ],
+                "template": "AdbOnly/SceneManager/RegionalOverview/CollapseButton.png",
+                "threshold": 0.85
+            }
+        ]
+    }
+}

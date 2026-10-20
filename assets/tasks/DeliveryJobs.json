@@ -112,7 +112,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
@@ -177,7 +177,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
@@ -455,7 +455,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
@@ -520,7 +520,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
@@ -798,7 +798,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
@@ -863,7 +863,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
@@ -1168,7 +1168,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
@@ -1233,7 +1233,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
@@ -1511,7 +1511,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
@@ -1576,7 +1576,7 @@
                             "enabled": true,
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsQuickTransfer",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode",
                                 "DeliveryJobsReturnToDepotNode": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }

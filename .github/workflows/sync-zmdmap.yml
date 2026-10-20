@@ -54,6 +54,9 @@ jobs:
           pnpm generate:DeliveryJobs
           pnpm generate:EnvironmentMonitoring
           pnpm generate:OutpostTrading
+          pnpm generate:AutoStockStaple
+          pnpm generate:GiftOperator
+          pnpm generate:SceneTeleport
 
       - name: Get version info
         id: version
@@ -86,6 +89,9 @@ jobs:
             - DeliveryJobs
             - EnvironmentMonitoring
             - OutpostTrading
+            - AutoStockStaple
+            - GiftOperator
+            - SceneTeleport
 
             **Version Information:**
             - Version: ${{ steps.version.outputs.version }}

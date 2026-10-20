@@ -1,0 +1,25 @@
+{
+    "configs": {
+        "name": "(CloudADB-官服)切换编队，测试队伍编号识别",
+        "resource": "官服",
+        "controller": "CloudADB"
+    },
+    "cases": [
+        {
+            "name": "编队界面：02 已出战，01 未选中，需要切换",
+            "image": "编队_02已出战.png",
+            "hits": [
+                "SwitchTeamChooseTextRecognition",
+                "SwitchTeamChooseNeed"
+            ]
+        },
+        {
+            "name": "编队界面：01 已出战，不需要切换",
+            "image": "编队_01已出战.png",
+            "hits": [
+                "SwitchTeamChooseTextRecognition",
+                "SwitchTeamChooseNotNeed"
+            ]
+        }
+    ]
+}

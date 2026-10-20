@@ -133,9 +133,15 @@
             18
         ],
         "expected": [
-            "V",
-            "v"
-        ], // 勿加裸数字：战斗 HUD 条带易被 OCR 成 8/9 导致误退；勿加单独 L：切人后易单读出 L 导致误退
+            // LV.90
+            // @i18n-skip
+            "LV",
+            "Lv",
+            "lV",
+            "lv",
+            "1V",
+            "1v"
+        ], // 勿加裸数字：战斗 HUD 条带易被 OCR 成 8/9 导致误退；勿加单独 L / V：切人后、战斗中易单读出 L / V 导致误退
         "only_rec": true
     },
     "__AutoFightRecognitionComboCooldown1": {

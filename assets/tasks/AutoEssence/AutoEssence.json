@@ -7,13 +7,6 @@
             "group": [
                 "sanity_sink"
             ],
-            "controller": [
-                "Linux-Gamescope",
-                "Linux-ScreenCast",
-                "Linux-Wlroots",
-                "PlayCover",
-                "Win32-Front"
-            ],
             "option": [
                 "AutoEssenceSchedule",
                 "AutoEssenceMenu",

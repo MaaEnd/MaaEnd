@@ -1,0 +1,8 @@
+{
+    "template": "entry-template.json",
+    "data": "data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/Interface",
+    "outputFile": "SceneTeleportAnchor.json",
+    "format": true,
+    "merged": true
+}

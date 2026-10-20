@@ -1,0 +1,303 @@
+{
+    "__AutoEcoFarmFilterStart": {
+        "desc": "展开地图筛选，清空后仅勾选农牧相关",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "__AutoEcoFarmFilterNoProgress": {
+                            "attach": {
+                                "ready": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterClearAll",
+            "__AutoEcoFarmFilterOpen"
+        ]
+    },
+    "__AutoEcoFarmFilterOpen": {
+        "desc": "打开收起的标记显示管理面板",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    600,
+                    380,
+                    120
+                ],
+                "expected": [
+                    "标记显示管理",
+                    "標記顯示管理",
+                    "(?i)Marker\\s*Tags",
+                    "フィルタ",
+                    "표식 관리"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterClearAll"
+        ]
+    },
+    "__AutoEcoFarmFilterClearAll": {
+        "desc": "清空选中标记显示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    580,
+                    380,
+                    140
+                ],
+                "expected": [
+                    "清空选中",
+                    "清除選取",
+                    "(?i)Clear\\s*All",
+                    "一括解除",
+                    "선택 초기화"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                365,
+                690
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterScan"
+        ]
+    },
+    "__AutoEcoFarmFilterScan": {
+        "desc": "先查找农牧图标；未找到时检查列表有无进展，再决定是否继续向下查找",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmFilterClearAll"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterSelectFarming",
+            "__AutoEcoFarmFilterNoProgress",
+            "__AutoEcoFarmFilterScrollDown"
+        ]
+    },
+    "__AutoEcoFarmFilterNoProgress": {
+        "desc": "尚未找到农牧图标且滑动后列表已无明显变化时报告失败，不继续原地盲滑",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ListCompleteRecognition",
+                "roi": [
+                    20,
+                    65,
+                    330,
+                    570
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FailedNode"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "__AutoEcoFarmFilterScrollDown": {
+        "desc": "农牧图标未显示时，在左侧筛选列表内向上滑动以显示下方分类",
+        "recognition": "And",
+        "all_of": [
+            "__AutoEcoFarmFilterClearAll"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    190,
+                    580
+                ],
+                "end": [
+                    190,
+                    150
+                ],
+                "duration": 350
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                20,
+                65,
+                330,
+                570
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterScan"
+        ]
+    },
+    // Win32：农牧相关与装饰物品图标相同，roi 仅覆盖左列，排除右列的装饰物品。
+    // 农牧图标尚未完整进入 roi 时不命中，由现有扫描流程继续滑动，避免提前误勾右列。
+    // 此处仍依赖当前左列布局；若未来换列，需重新适配 roi 或增加完整类别文字识别。
+    "__AutoEcoFarmFilterSelectFarming": {
+        "desc": "按农牧类别图标勾选",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    20,
+                    65,
+                    160,
+                    570
+                ],
+                "template": [
+                    "AutoEcoFarm/FarmingFilter.png"
+                ],
+                "threshold": 0.85
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    114,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                20,
+                65,
+                330,
+                570
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterFarmingSelected"
+        ]
+    },
+    "__AutoEcoFarmFilterFarmingSelected": {
+        "desc": "确认农牧相关复选框已选中",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "__AutoEcoFarmFilterSelectFarming",
+                "roi_offset": [
+                    104,
+                    -10,
+                    24,
+                    20
+                ],
+                "template": [
+                    "AutoEcoFarm/FarmingFilterSelected.png"
+                ],
+                "threshold": 0.85
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterClose"
+        ]
+    },
+    "__AutoEcoFarmFilterClose": {
+        "desc": "识别筛选面板标题后点击外侧收起面板",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    380,
+                    120
+                ],
+                "expected": [
+                    "标记显示管理",
+                    "標記顯示管理",
+                    "(?i)Marker\\s*Tags",
+                    "フィルタ",
+                    "표식 관리"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    500,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                365,
+                690
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoEcoFarmFilterClosed"
+        ]
+    },
+    "__AutoEcoFarmFilterClosed": {
+        "desc": "确认筛选面板收起后查找当前装置",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__AutoEcoFarmFindFacilityAnchor"
+        ]
+    }
+}

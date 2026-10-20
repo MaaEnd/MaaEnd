@@ -672,7 +672,7 @@
                 "roi": [
                     950,
                     150,
-                    270,
+                    297,
                     180
                 ],
                 "template": "Common/Button/CloseButtonType4.png"
@@ -766,7 +766,11 @@
                 "custom_action": "SceneManagerMenuListClickItemAction"
             }
         },
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "__ScenePrivateMenuEventOpenedClose",
             "__ScenePrivateAnyEnterMenuEventWaitOpened"
         ]
@@ -820,7 +824,8 @@
                 ],
                 "expected": [
                     "活动已开启",
-                    "新内容已开放"
+                    "新内容已开放",
+                    "即将开启"
                 ]
             },
             "CloseButtonType1"

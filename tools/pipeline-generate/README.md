@@ -6,7 +6,7 @@ MaaEnd 使用由 zmdmap 数据 CI 生成并发布的精简游戏数据，落在 
 - `delivery_destinations.json`：仓储和送货终点的多语言文本、底图像素 `u` / `v`、世界高度 `y` 与归属关系；
 - `environment_monitoring.json`：监测终端、观察点与各语言名称；
 - `sell_product.json`：据点、可售物品、据点特性与匹配干员；
-- `teleport_anchors.json`：营地（地图传送锚点）的底图像素 `u` / `v` 与传送 ID；
+- `teleport_anchors.json`：营地（地图传送锚点）的底图像素 `u` / `v`、传送 ID，以及所在区域与关卡的各语言名称；
 - `collect_points.json`：可交互采集物的底图像素 `u` / `v`。
 
 这些文件都是按任务需要裁剪出的游戏数据，不是完整的上游数据快照：除了最前面的两个元数据字段（`version`：这份数据来自哪一版游戏数据；`sha256`：这份数据**原始形态**（只带世界坐标的那一份）的内容指纹，入库投影后照抄、不重算），不放别的来源元数据，字段说明也不放进 JSON（字段含义见 [`tools/zmdmap`](../zmdmap/README.md) 与各数据集模块）。
@@ -49,6 +49,7 @@ pnpm generate:DeliveryJobs
 pnpm generate:EnvironmentMonitoring
 pnpm generate:OutpostTrading
 pnpm generate:SeizeDeliveryJobs
+pnpm generate:SceneTeleport
 ```
 
 ## 投影

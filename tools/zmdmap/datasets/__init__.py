@@ -15,6 +15,7 @@
 | ``environment_monitoring`` | ``environment_monitoring.json`` | 复制 |
 | ``item_mini_table`` | ``item_mini_table.json`` | 复制 |
 | ``sell_product`` | ``sell_product.json`` | 复制 |
+| ``stock_staple`` | ``stock_staple.json`` | 复制 |
 | ``weapons`` | ``weapons.json`` | 复制 |
 
 每份数据先出原始形态（只带游戏世界坐标）进 ``raw/``，再由入库步骤进 ``data/``：需要投影的按 BaseNav 的

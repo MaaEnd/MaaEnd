@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, ClassVar
@@ -20,6 +21,9 @@ from ..utils.game_data import build_level_index, localized_text, read_gameplay_c
 
 #: 数据集名（= 模块名）-> :class:`Dataset` 子类；子类定义时自动登记。
 REGISTRY: dict[str, type[Dataset]] = {}
+
+# 富文本标签（如 <@qu.key>…</>、日文注音 <p="…">…</p>）
+RICH_TEXT_TAG = re.compile(r"<[^<>]*>")
 
 
 class DatasetError(ValueError):
@@ -34,6 +38,8 @@ class Dataset(ABC):
 
     #: 入库时是否需要投影：需要投影的按 BaseNav 的 zone 表把世界坐标换成底图像素，其余原样复制。
     needs_projection: ClassVar[bool] = False
+    #: 只消费 TableCfg 的数据集可关闭 JsonData 目录预检。
+    requires_json_data: ClassVar[bool] = True
     #: 需要投影时，条目数组在数据里的键（按投影顺序）。
     projection_containers: ClassVar[tuple[str, ...]] = ()
 
@@ -82,6 +88,17 @@ class Dataset(ABC):
                 raise DatasetError(f"{label} 在 {locale} 中缺少文本 {text_id}")
             names[locale] = text
         return names
+
+    @staticmethod
+    def plain_names(names: dict[str, str], label: str) -> dict[str, str]:
+        """剥掉每个语言的富文本标签，剥完后为空则报错。"""
+        stripped: dict[str, str] = {}
+        for locale, text in names.items():
+            value = RICH_TEXT_TAG.sub("", text).strip()
+            if not value:
+                raise DatasetError(f"{label} 在 {locale} 中为空")
+            stripped[locale] = value
+        return stripped
 
     @staticmethod
     def level_index(json_data_dir: Path) -> dict[int, str]:

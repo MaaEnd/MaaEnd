@@ -93,6 +93,7 @@
                             "next": [] // 仅演示时，主入口不循环
                         },
                         "PuzzleSolverOnSuccess": {
+                            "recognition": "DirectHit", // 仅演示时不会出现结算提示，直接结束
                             "action": "DoNothing",
                             "next": [] // 仅演示时，成功一次之后不循环
                         },

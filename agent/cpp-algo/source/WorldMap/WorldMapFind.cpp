@@ -527,6 +527,7 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
             { "screen", json::array { expected.x, expected.y } },
             { "viewport_scale", viewport.scale },
             { "viewport_vote", viewport.voteGrid },
+            { "viewport_fog", viewport.fogRatio },
         };
         if (!target.next.empty()) {
             detail.emplace("next", target.next);
@@ -586,7 +587,7 @@ Probe ProbeTarget(FindSession& session, const Target& target, std::size_t index,
         }
 
         LogWarn << "WorldMap: icon not confirmed at expected position" << VAR(attempt) << VAR(index) << VAR(expected.x) << VAR(expected.y)
-                << VAR(viewport.voteGrid);
+                << VAR(viewport.voteGrid) << VAR(viewport.fogRatio);
         view.screen.release();
         std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
     }

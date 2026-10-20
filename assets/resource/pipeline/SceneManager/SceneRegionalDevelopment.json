@@ -613,16 +613,12 @@
         "desc": "在四号谷地地区建设界面，进入事务总览界面成功",
         "recognition": "And",
         "all_of": [
-            "InRegionalOverviewValleyIV"
+            "InRegionalOverviewValleyIV",
+            "__ScenePrivateMenuRegionalOverviewFullRegion"
         ],
         "pre_wait_freezes": {
             "time": 80,
-            "target": [
-                160,
-                69,
-                953,
-                651
-            ]
+            "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
         },
         "pre_delay": 0,
         "post_delay": 0,
@@ -647,16 +643,12 @@
         "desc": "在武陵地区建设界面，进入事务总览界面成功",
         "recognition": "And",
         "all_of": [
-            "InRegionalOverviewWuling"
+            "InRegionalOverviewWuling",
+            "__ScenePrivateMenuRegionalOverviewFullRegion"
         ],
         "pre_wait_freezes": {
             "time": 80,
-            "target": [
-                160,
-                69,
-                953,
-                651
-            ]
+            "target": "__ScenePrivateMenuRegionalOverviewFullRegion"
         },
         "pre_delay": 0,
         "post_delay": 0,

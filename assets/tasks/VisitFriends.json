@@ -209,7 +209,8 @@
                 "ProductionAssistControlNexus",
                 "ProductionAssistMFGCabin",
                 "ProductionAssistGrowthChamber"
-            ]
+            ],
+            "min_count": 1
         },
         "BtwAutoStockpileElasticGoodsEnable": {
             "type": "switch",
