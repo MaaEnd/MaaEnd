@@ -1,4 +1,4 @@
-"""Generate only native prototype resources; no device or SRC imports."""
+"""Generate the Cultivation task resources; no device or SRC imports."""
 import json
 import re
 from pathlib import Path
@@ -36,7 +36,7 @@ LIST_FREEZE = {'time': 300, 'target': OPERATOR_LIST, 'threshold': 0.98}
 
 # 培养期望 sets the target levels, so the material gap differs per level; the
 # chosen level is applied before reading. Rows of the selection panel, top to bottom.
-EXPECTATIONS = {'Basic': ['基础', '基礎'], 'Advanced': ['进阶', '進階'], 'Proficient': ['精通'], 'Excellent': ['卓越']}
+EXPECTATIONS = {'Basic': ['培养期望：基础'], 'Advanced': ['培养期望：进阶'], 'Proficient': ['培养期望：精通'], 'Excellent': ['培养期望：卓越']}
 EXPECTATION_HEADER = [990, 110, 180, 40]
 EXPECTATION_PANEL = [860, 265, 340, 195]
 EXPECTATION_NEXT = ['CultivationExpectationReady', 'CultivationExpectationOpen']
@@ -51,7 +51,7 @@ def expectation_nodes():
         'CultivationExpectationReady': node('DoNothing', ['CultivationBegin'], {
             'type': 'OCR', 'param': {'roi': EXPECTATION_HEADER, 'expected': level}}),
         'CultivationExpectationOpen': node({'type': 'Click', 'param': {}}, ['CultivationExpectationPick', 'CultivationExpectationMissing'], {
-            'type': 'OCR', 'param': {'roi': EXPECTATION_HEADER, 'expected': ['培养期望', '培養期望']}}, post_wait_freezes=freeze),
+            'type': 'OCR', 'param': {'roi': EXPECTATION_HEADER, 'expected': [text for level in EXPECTATIONS.values() for text in level]}}, post_wait_freezes=freeze),
         'CultivationExpectationPick': node({'type': 'Click', 'param': {}}, ['CultivationExpectationReady', 'CultivationExpectationMissing'], {
             'type': 'OCR', 'param': {'roi': EXPECTATION_PANEL, 'expected': level}}, post_wait_freezes=freeze),
         'CultivationExpectationMissing': node(action('expectation_missing')),
@@ -105,7 +105,7 @@ def operator_nodes():
 def overview_nodes():
     """Reach 培养总览 from any screen: the upstream operator scene, then the
     培养总览 button at the top right of the operator page."""
-    title = ['培养总览', '培養總覽']
+    title = ['培养总览']
     return {
         'CultivationScan': node('DoNothing', ['CultivationInOverview', 'CultivationOpenOverview',
                                               '[JumpBack]SceneEnterMenuOperator']),
@@ -141,8 +141,11 @@ def build():
                 'begin': [1215, 380], 'end': [1215, 620], 'duration': 500, 'end_hold': 200}},
                 [prefix+'Top'], guard(tab), post_wait_freezes=freeze)
             pipeline[prefix+'Read'] = node(action('read', **phase), [prefix+'DownSwipe'], guard(tab))
+            # The list scrolls about 1.6x the finger distance on CloudADB (a 240 px
+            # swipe moved it 381 px, more than the ~280 px read band, so rows fell
+            # between pages). 120 px keeps consecutive pages overlapping.
             pipeline[prefix+'DownSwipe'] = node({'type': 'Swipe', 'param': {
-                'begin': [1215, 620], 'end': [1215, 380], 'duration': 500, 'end_hold': 200}},
+                'begin': [1215, 620], 'end': [1215, 500], 'duration': 500, 'end_hold': 200}},
                 [prefix+'Bottom'], guard(tab), post_wait_freezes=freeze)
             pipeline[prefix+'Bottom'] = node(action('bottom', **phase, again=prefix+'Read', done=after),
                                              [prefix+'Read', after], guard(tab))
@@ -177,25 +180,20 @@ def build():
         steps = {'CultivationFinish': 'finish', 'CultivationPreview': 'preview', 'CultivationExport': 'export', 'CultivationFarm': 'farm'}
         cases.append({'name': case, 'label': f'$option.CultivationWeapon.cases.{case}.label', 'pipeline_override': {
             node: {'action': action(step, weapon=index)} for node, step in steps.items()}})
-    options = {'CultivationWeapon': {'type': 'select', 'label': '$option.CultivationWeapon.label',
-                                     'description': '$option.CultivationWeapon.description', 'cases': cases},
-               'CultivationFarmClaim': {'type': 'select', 'label': '$option.CultivationFarmClaim.label',
-                                        'description': '$option.CultivationFarmClaim.description', 'default_case': 'ObtainScaling1', 'cases': [
+    options = {'CultivationWeapon': {'type': 'select', 'label': '$option.CultivationWeapon.label', 'cases': cases},
+               'CultivationFarmClaim': {'type': 'select', 'label': '$option.CultivationFarmClaim.label', 'default_case': 'ObtainScaling1', 'cases': [
                    {'name': case, 'label': f'$option.CultivationFarmClaim.cases.{case}.label',
                     'pipeline_override': {'CultivationFarm': {'attach': {'claim': case}}}} for case in ['ObtainScaling1', 'ObtainScaling2']]},
-               'CultivationFarmMedication': {'type': 'select', 'label': '$option.CultivationFarmMedication.label',
-                                             'description': '$option.CultivationFarmMedication.description', 'default_case': 'EndTask', 'cases': [
+               'CultivationFarmMedication': {'type': 'select', 'label': '$option.CultivationFarmMedication.label', 'default_case': 'EndTask', 'cases': [
                    {'name': case, 'label': f'$option.CultivationFarmMedication.cases.{case}.label',
                     'pipeline_override': {'CultivationFarm': {'attach': {'medication': case}}}} for case in ['EndTask', 'UseMedication']]},
                'CultivationExpectation': {'type': 'select', 'label': '$option.CultivationExpectation.label',
-                                          'description': '$option.CultivationExpectation.description',
                                           'default_case': 'Excellent', 'cases': [
                    {'name': case, 'label': f'$option.CultivationExpectation.cases.{case}.label', 'pipeline_override': {
                        name: {'recognition': {'type': 'OCR', 'param': {'roi': roi, 'expected': level}}}
                        for name, roi in [('CultivationExpectationReady', EXPECTATION_HEADER), ('CultivationExpectationPick', EXPECTATION_PANEL)]}}
                    for case, level in EXPECTATIONS.items()]},
                'CultivationOperator': {'type': 'select', 'label': '$option.CultivationOperator.label',
-                                       'description': '$option.CultivationOperator.description',
                                        'cases': operator_cases()}}
     write('assets/tasks/Cultivation.json', {'task': tasks, 'option': options})
     path = ROOT/'assets/interface.json'
@@ -204,26 +202,26 @@ def build():
         text = text.replace('"tasks/PullCountCalculator.json",', '"tasks/PullCountCalculator.json",\n        "tasks/Cultivation.json",')
         path.write_text(text, encoding='utf-8', newline='\n')
     translations = {
-        'zh_cn': ['读取培养需求（原生试作）', '预览培养需求', '生成刷取目标预览', '清空培养需求',
+        'zh_cn': ['读取培养需求', '预览培养需求', '生成刷取目标预览', '清空培养需求',
                   '培养读取失败；保留原计划，请核对当前页面和日志。', '已清空培养需求。',
                   '培养计划：%s / %s；人工材料 %d 类。已有 / 需要（缺口）：',
-                  '已生成 CultivationSupplyPlan.preview.json。此试作只预览目标，不启动刷取。'],
-        'zh_tw': ['讀取培養需求（原生試作）', '預覽培養需求', '產生刷取目標預覽', '清空培養需求',
+                  '已生成 CultivationSupplyPlan.preview.json。导出只预览目标；刷取请运行「按培养计划刷协议空间」。'],
+        'zh_tw': ['讀取培養需求', '預覽培養需求', '產生刷取目標預覽', '清空培養需求',
                   '培養讀取失敗；保留原計畫，請核對目前頁面和日誌。', '已清空培養需求。',
                   '培養計畫：%s / %s；人工材料 %d 類。擁有 / 需要（缺口）：',
-                  '已產生 CultivationSupplyPlan.preview.json。此試作僅預覽目標，不啟動刷取。'],
-        'en_us': ['Read cultivation needs (native prototype)', 'Preview cultivation needs', 'Export farming goal preview', 'Clear cultivation needs',
+                  '已產生 CultivationSupplyPlan.preview.json。匯出僅預覽目標；刷取請執行「依培養計畫刷協議空間」。'],
+        'en_us': ['Read cultivation needs', 'Preview cultivation needs', 'Export farming goal preview', 'Clear cultivation needs',
                   'Cultivation read failed; previous plan retained. Check the page and logs.', 'Cultivation plan cleared.',
                   'Cultivation plan: %s / %s; %d manual material types. Owned / required (gap):',
-                  'CultivationSupplyPlan.preview.json exported. This prototype previews goals without starting farming.'],
-        'ja_jp': ['育成素材を読み取る（試作）', '育成素材を確認', '周回目標のプレビューを出力', '育成計画を消去',
+                  'CultivationSupplyPlan.preview.json exported. The export only previews goals; run "Farm Protocol Space for the cultivation plan" to farm.'],
+        'ja_jp': ['育成素材を読み取る', '育成素材を確認', '周回目標のプレビューを出力', '育成計画を消去',
                   '読み取り失敗。以前の計画を保持しました。画面とログを確認してください。', '育成計画を消去しました。',
                   '育成計画：%s / %s。手動素材 %d 種。所持 / 必要（不足）：',
-                  'CultivationSupplyPlan.preview.json を出力しました。この試作版は周回を開始しません。'],
-        'ko_kr': ['육성 재료 읽기 (시험판)', '육성 재료 미리 보기', '파밍 목표 미리 보기 내보내기', '육성 계획 지우기',
+                  'CultivationSupplyPlan.preview.json を出力しました。出力は目標のプレビューのみです。周回は「育成計画に沿って協議空間を周回」を実行してください。'],
+        'ko_kr': ['육성 재료 읽기', '육성 재료 미리 보기', '파밍 목표 미리 보기 내보내기', '육성 계획 지우기',
                   '읽기에 실패했습니다. 이전 계획을 유지합니다. 화면과 로그를 확인하세요.', '육성 계획을 지웠습니다.',
                   '육성 계획: %s / %s. 수동 재료 %d종. 보유 / 필요 (부족):',
-                  'CultivationSupplyPlan.preview.json을 내보냈습니다. 이 시험판은 파밍을 시작하지 않습니다.'],
+                  'CultivationSupplyPlan.preview.json을 내보냈습니다. 내보내기는 목표 미리 보기만 합니다. 파밍은 "육성 계획대로 프로토콜 공간 파밍"을 실행하세요.'],
     }
     for lang, values in translations.items():
         path = ROOT/f'assets/locales/interface/{lang}.json'
@@ -339,6 +337,8 @@ def build():
             data['option.CultivationOperator.cases.Current.label'] = operator_texts
         for case, label in zip(['Keep', 'None', 'First', 'Second', 'Third', 'Fourth'], weapon_texts[2:]):
             data[f'option.CultivationWeapon.cases.{case}.label'] = label
+        for key in [key for key in data if key.startswith('option.Cultivation') and key.endswith('.description')]:
+            del data[key]
         write(str(path.relative_to(ROOT)), data)
     # CultivationNextCard takes no parameters: register the name only, no schema.
     path = ROOT/'tools/schema/custom.recognition.schema.json'

@@ -99,7 +99,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return finishOrFail(ctx, preview(ctx, p.Step == "export", p.Weapon), "")
 	}
 	if pienv.ControllerName() != "CloudADB" {
-		return fail(ctx, errors.New("CloudADB controller required for prototype"))
+		return fail(ctx, errors.New("the cultivation scan supports CloudADB only"))
 	}
 	tasker := ctx.GetTasker()
 	if tasker == nil {
@@ -251,7 +251,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		scan.Previous = img
 		scan.Empty = scan.Empty || empty
 		scan.Pages++
-		if scan.Pages > 16 {
+		if scan.Pages > 32 {
 			return fail(ctx, errors.New("list end not confirmed within measured traversal bound"))
 		}
 		return true
@@ -380,7 +380,7 @@ func readEssenceStep(ctx *maa.Context, img image.Image, p stepParam, catalog map
 	// statement stands for a confirmed list.
 	scan.Empty = scan.Empty || len(lines) > 0 || core.NothingNeeded(texts)
 	scan.Pages++
-	if scan.Pages > 16 {
+	if scan.Pages > 32 {
 		return fail(ctx, errors.New("list end not confirmed within measured traversal bound"))
 	}
 	return true

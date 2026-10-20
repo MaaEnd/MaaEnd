@@ -87,7 +87,6 @@
         "CultivationWeapon": {
             "type": "select",
             "label": "$option.CultivationWeapon.label",
-            "description": "$option.CultivationWeapon.description",
             "cases": [
                 {
                     "name": "Keep",
@@ -368,7 +367,6 @@
         "CultivationFarmClaim": {
             "type": "select",
             "label": "$option.CultivationFarmClaim.label",
-            "description": "$option.CultivationFarmClaim.description",
             "cases": [
                 {
                     "name": "ObtainScaling1",
@@ -398,7 +396,6 @@
         "CultivationFarmMedication": {
             "type": "select",
             "label": "$option.CultivationFarmMedication.label",
-            "description": "$option.CultivationFarmMedication.description",
             "cases": [
                 {
                     "name": "EndTask",
@@ -428,7 +425,6 @@
         "CultivationExpectation": {
             "type": "select",
             "label": "$option.CultivationExpectation.label",
-            "description": "$option.CultivationExpectation.description",
             "cases": [
                 {
                     "name": "Basic",
@@ -445,8 +441,7 @@
                                         40
                                     ],
                                     "expected": [
-                                        "基础",
-                                        "基礎"
+                                        "培养期望：基础"
                                     ]
                                 }
                             }
@@ -462,8 +457,7 @@
                                         195
                                     ],
                                     "expected": [
-                                        "基础",
-                                        "基礎"
+                                        "培养期望：基础"
                                     ]
                                 }
                             }
@@ -485,8 +479,7 @@
                                         40
                                     ],
                                     "expected": [
-                                        "进阶",
-                                        "進階"
+                                        "培养期望：进阶"
                                     ]
                                 }
                             }
@@ -502,8 +495,7 @@
                                         195
                                     ],
                                     "expected": [
-                                        "进阶",
-                                        "進階"
+                                        "培养期望：进阶"
                                     ]
                                 }
                             }
@@ -525,7 +517,7 @@
                                         40
                                     ],
                                     "expected": [
-                                        "精通"
+                                        "培养期望：精通"
                                     ]
                                 }
                             }
@@ -541,7 +533,7 @@
                                         195
                                     ],
                                     "expected": [
-                                        "精通"
+                                        "培养期望：精通"
                                     ]
                                 }
                             }
@@ -563,7 +555,7 @@
                                         40
                                     ],
                                     "expected": [
-                                        "卓越"
+                                        "培养期望：卓越"
                                     ]
                                 }
                             }
@@ -579,7 +571,7 @@
                                         195
                                     ],
                                     "expected": [
-                                        "卓越"
+                                        "培养期望：卓越"
                                     ]
                                 }
                             }
@@ -592,7 +584,6 @@
         "CultivationOperator": {
             "type": "select",
             "label": "$option.CultivationOperator.label",
-            "description": "$option.CultivationOperator.description",
             "cases": [
                 {
                     "name": "Current",

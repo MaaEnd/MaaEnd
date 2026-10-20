@@ -52,7 +52,7 @@ func ocrTexts(ctx *maa.Context, img image.Image, roi [4]int) ([]core.Text, error
 
 func header(ctx *maa.Context, img image.Image) (core.Header, error) {
 	if img == nil || img.Bounds().Dx() != 1280 || img.Bounds().Dy() != 720 {
-		return core.Header{}, errors.New("prototype requires 1280x720")
+		return core.Header{}, errors.New("the cultivation scan requires 1280x720")
 	}
 	// Avoid account currency/UID areas while retaining the overview title and identity.
 	title, err := ocrTexts(ctx, img, [4]int{35, 20, 165, 42})
