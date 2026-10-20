@@ -42,11 +42,11 @@ def build():
             pipeline[prefix+'Top'] = node(action('top', **phase, again=prefix+'TopSwipe', done=prefix+'Read'),
                                           [prefix+'TopSwipe', prefix+'Read'], guard(tab))
             pipeline[prefix+'TopSwipe'] = node({'type': 'Swipe', 'param': {
-                'begin': [640, 380], 'end': [640, 620], 'duration': 900}},
+                'begin': [1215, 380], 'end': [1215, 620], 'duration': 500, 'end_hold': 200}},
                 [prefix+'Top'], guard(tab), post_wait_freezes=freeze)
             pipeline[prefix+'Read'] = node(action('read', **phase), [prefix+'DownSwipe'], guard(tab))
             pipeline[prefix+'DownSwipe'] = node({'type': 'Swipe', 'param': {
-                'begin': [640, 620], 'end': [640, 380], 'duration': 900}},
+                'begin': [1215, 620], 'end': [1215, 380], 'duration': 500, 'end_hold': 200}},
                 [prefix+'Bottom'], guard(tab), post_wait_freezes=freeze)
             pipeline[prefix+'Bottom'] = node(action('bottom', **phase, again=prefix+'Read', done=after),
                                              [prefix+'Read', after], guard(tab))

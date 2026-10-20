@@ -99,3 +99,40 @@ func IconHash(img image.Image, cell image.Rectangle) uint64 {
 	}
 	return hash
 }
+
+// AlignCellX snaps an estimated square icon cell to the bright card edges within
+// ±reach pixels. The owned-count label is not centred under every card, so an
+// estimate from it can be several pixels off, enough to fail icon matching.
+func AlignCellX(img image.Image, cell image.Rectangle, reach int) image.Rectangle {
+	b := img.Bounds()
+	column := func(x int) float64 {
+		if x < b.Min.X || x >= b.Max.X {
+			return 0
+		}
+		var sum float64
+		n := 0
+		for y := cell.Min.Y + cell.Dy()/10; y < cell.Min.Y+cell.Dy()*6/10; y += 2 {
+			r, g, bl, _ := img.At(x, y).RGBA()
+			sum += float64(r+g+bl) / (3 * 257)
+			n++
+		}
+		return sum / float64(n)
+	}
+	edge := func(x int) float64 {
+		// Inside minus outside brightness across the left and right card borders.
+		left := column(x) + column(x+1) - column(x-2) - column(x-3)
+		right := column(x+cell.Dx()-1) + column(x+cell.Dx()-2) - column(x+cell.Dx()+1) - column(x+cell.Dx()+2)
+		return left + right
+	}
+	best, bestScore := cell.Min.X, edge(cell.Min.X)
+	for dx := -reach; dx <= reach; dx++ {
+		if score := edge(cell.Min.X + dx); score > bestScore {
+			best, bestScore = cell.Min.X+dx, score
+		}
+	}
+	// Without a clear border contrast keep the estimate.
+	if bestScore < 120 {
+		return cell
+	}
+	return cell.Add(image.Pt(best-cell.Min.X, 0))
+}

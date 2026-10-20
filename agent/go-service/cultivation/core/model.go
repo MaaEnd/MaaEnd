@@ -140,6 +140,38 @@ func ReadHeader(texts []Text) (Header, error) {
 	return h, nil
 }
 
+// SplitOwned splits OCR results that merged neighbouring "拥有N" labels, such as
+// "拥有2.73万 拥有4173", into one text per label. Each part gets a box estimated
+// from its character offset; callers snap the icon cell to the card afterwards.
+func SplitOwned(texts []Text) []Text {
+	var out []Text
+	for _, t := range texts {
+		runes := []rune(t.Text)
+		var starts []int
+		for i := 0; i+1 < len(runes); i++ {
+			if runes[i] == '拥' && runes[i+1] == '有' {
+				starts = append(starts, i)
+			}
+		}
+		if len(starts) < 2 {
+			out = append(out, t)
+			continue
+		}
+		width := float64(t.Box[2]) / float64(len(runes))
+		for k, start := range starts {
+			end := len(runes)
+			if k+1 < len(starts) {
+				end = starts[k+1]
+			}
+			part := strings.TrimSpace(string(runes[start:end]))
+			x := t.Box[0] + int(float64(start)*width)
+			w := int(float64(len([]rune(part))) * width)
+			out = append(out, Text{Text: part, Box: [4]int{x, t.Box[1], w, t.Box[3]}, Score: t.Score})
+		}
+	}
+	return out
+}
+
 // OwnedRows returns stable row/column order, excluding other screen text.
 func OwnedRows(texts []Text) []Text {
 	var rows []Text

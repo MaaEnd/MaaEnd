@@ -71,22 +71,23 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 	if err != nil {
 		return nil, false, err
 	}
+	texts = core.SplitOwned(texts)
 	for _, text := range texts {
 		label := strings.ReplaceAll(text.Text, " ", "")
 		if strings.HasPrefix(label, "拥有") {
 			if _, err := core.Amount(strings.TrimPrefix(label, "拥有")); err != nil || text.Score < .6 {
-				return nil, false, errors.New("unreadable owned-material slot")
+				return nil, false, fmt.Errorf("unreadable owned-material slot %q at %v (score %.2f)", text.Text, text.Box, text.Score)
 			}
 		}
 	}
 	var rows []core.Material
 	for _, owned := range core.OwnedRows(texts) {
-		x := owned.Box[0] + owned.Box[2]/2 - 40
-		y := owned.Box[1] - 83
-		roi := maa.Rect{x, y, 80, 80}
-		if x < 0 || y < 0 || x+80 > 1280 || y+80 > 720 {
+		estimate := image.Rect(owned.Box[0]+owned.Box[2]/2-40, owned.Box[1]-83, owned.Box[0]+owned.Box[2]/2+40, owned.Box[1]-3)
+		cell := core.AlignCellX(img, estimate, 12)
+		if !cell.In(image.Rect(0, 0, 1280, 720)) {
 			return nil, false, errors.New("invalid icon ROI")
 		}
+		roi := maa.Rect{cell.Min.X, cell.Min.Y, 80, 80}
 		// Reuse upstream single_roi rather than importing SRC's icon matcher/runtime.
 		filters := iconrecognition.StorageFilter()
 		params := iconrecognition.NewParams(iconrecognition.WithGridType(iconrecognition.GridTypeSingleROI), iconrecognition.WithItemFilters(filters.ValuableDepot.Any, filters.Normal.Any, filters.Isolate.Gold))
@@ -102,7 +103,8 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 		if strings.Contains(item.Name, "箱") {
 			continue
 		}
-		numbers, err := ocrTexts(ctx, img, [4]int{owned.Box[0] - 5, owned.Box[1] - 32, 95, 32})
+		// The required amount is printed on the bottom strip of the card itself.
+		numbers, err := ocrTexts(ctx, img, [4]int{cell.Min.X, cell.Min.Y + 52, 80, 28})
 		if err != nil {
 			return nil, false, err
 		}

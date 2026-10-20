@@ -149,14 +149,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     380
                 ],
                 "end": [
-                    640,
+                    1215,
                     620
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -230,14 +231,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     620
                 ],
                 "end": [
-                    640,
+                    1215,
                     380
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -425,14 +427,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     380
                 ],
                 "end": [
-                    640,
+                    1215,
                     620
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -506,14 +509,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     620
                 ],
                 "end": [
-                    640,
+                    1215,
                     380
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -701,14 +705,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     380
                 ],
                 "end": [
-                    640,
+                    1215,
                     620
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -782,14 +787,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     620
                 ],
                 "end": [
-                    640,
+                    1215,
                     380
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -977,14 +983,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     380
                 ],
                 "end": [
-                    640,
+                    1215,
                     620
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -1058,14 +1065,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     620
                 ],
                 "end": [
-                    640,
+                    1215,
                     380
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -1253,14 +1261,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     380
                 ],
                 "end": [
-                    640,
+                    1215,
                     620
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -1334,14 +1343,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     620
                 ],
                 "end": [
-                    640,
+                    1215,
                     380
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -1529,14 +1539,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     380
                 ],
                 "end": [
-                    640,
+                    1215,
                     620
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -1610,14 +1621,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     620
                 ],
                 "end": [
-                    640,
+                    1215,
                     380
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -1805,14 +1817,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     380
                 ],
                 "end": [
-                    640,
+                    1215,
                     620
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -1886,14 +1899,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     620
                 ],
                 "end": [
-                    640,
+                    1215,
                     380
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -2081,14 +2095,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     380
                 ],
                 "end": [
-                    640,
+                    1215,
                     620
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {
@@ -2162,14 +2177,15 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    640,
+                    1215,
                     620
                 ],
                 "end": [
-                    640,
+                    1215,
                     380
                 ],
-                "duration": 900
+                "duration": 500,
+                "end_hold": 200
             }
         },
         "post_wait_freezes": {

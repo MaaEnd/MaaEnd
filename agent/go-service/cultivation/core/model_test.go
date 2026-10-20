@@ -112,3 +112,13 @@ func TestUnknownMaterialStaysManual(t *testing.T) {
 		t.Fatalf("goals=%v manual=%v err=%v", goals, manual, err)
 	}
 }
+
+func TestSplitOwnedMergedLabels(t *testing.T) {
+	got := SplitOwned([]Text{{Text: "拥有2.73万 拥有4173", Box: [4]int{823, 359, 164, 17}, Score: .97}, {Text: "拥有251", Box: [4]int{835, 489, 60, 17}, Score: .9}})
+	if len(got) != 3 || got[0].Text != "拥有2.73万" || got[1].Text != "拥有4173" || got[2].Text != "拥有251" {
+		t.Fatalf("split = %+v", got)
+	}
+	if c := got[1].Box[0] + got[1].Box[2]/2; c < 940 || c > 965 {
+		t.Fatalf("second label centre %d", c)
+	}
+}

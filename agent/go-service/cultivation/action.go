@@ -182,6 +182,8 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if scan.PreviousRows != nil && slices.Equal(scan.PreviousRows, rows) && !core.Stationary(img, scan.Previous) {
 			return fail(ctx, errors.New("repeated material sequence on a changed viewport"))
 		}
+		log.Info().Str("component", "Cultivation").Int("tab", p.Tab).Int("pass", p.Pass).Int("page", scan.Pages).
+			Interface("rows", rows).Bool("empty", empty).Msg("cultivation page read")
 		scan.Rows = core.MergePage(scan.Rows, rows)
 		scan.PreviousRows = rows
 		scan.Previous = img
