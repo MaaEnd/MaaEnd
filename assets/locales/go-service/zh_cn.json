@@ -67,6 +67,8 @@
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
     "batchaddfriends.strangers_progress": "添加好友进度 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：已发送好友申请（%d/%d）",
+    "cultivation.unknown_item": "未识别物品 %s",
+    "cultivation.unknown_notice": "有 %d 种材料不在 MaaEnd 物品图标库中（可能是新版本物品），已按「人工补充」列出，不会自动刷取。图标已保存到 debug/cultivation/，更新 MaaEnd 后重新读取培养需求即可识别。",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 该送货任务属于（%s）",
     "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 未能确定未完成的送货任务属于哪个仓储节点，详见运行日志",
     "dijiangrewards.wait_exchange_countdown.message": "正在等待情报交流结束",

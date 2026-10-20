@@ -38,8 +38,8 @@ func TestHeaderRejectsChangedOrAmbiguousTarget(t *testing.T) {
 }
 
 func TestViewportOverlapAndRepeatedSkillCosts(t *testing.T) {
-	a := Material{"item_gold", "折金票", 40, 30}
-	b := Material{"item_char_skill_level_1_6", "协议棱柱", 80, 20}
+	a := Material{ID: "item_gold", Name: "折金票", Need: 40, Owned: 30}
+	b := Material{ID: "item_char_skill_level_1_6", Name: "协议棱柱", Need: 80, Owned: 20}
 	rows := MergePage([]Material{a}, []Material{a, b})
 	if len(rows) != 2 {
 		t.Fatal(rows)
@@ -64,7 +64,7 @@ func plan(rows ...Material) Plan {
 }
 
 func TestSupplyGoalsUseTotalAndWeightedExperience(t *testing.T) {
-	p := plan(Material{"item_char_skill_level_1_6", "协议棱柱", 40, 30}, Material{"item_char_skill_level_1_6", "协议棱柱", 40, 30}, Material{"item_expcard_stage1_high", "高级作战记录", 2, 7}, Material{"item_expcard_stage1_low", "基础作战记录", 3, 8}, Material{"plant_manual", "地图植物", 4, 1})
+	p := plan(Material{ID: "item_char_skill_level_1_6", Name: "协议棱柱", Need: 40, Owned: 30}, Material{ID: "item_char_skill_level_1_6", Name: "协议棱柱", Need: 40, Owned: 30}, Material{ID: "item_expcard_stage1_high", Name: "高级作战记录", Need: 2, Owned: 7}, Material{ID: "item_expcard_stage1_low", Name: "基础作战记录", Need: 3, Owned: 8}, Material{ID: "plant_manual", Name: "地图植物", Need: 4, Owned: 1})
 	goals, manual, err := BuildTargets(p)
 	if err != nil {
 		t.Fatal(err)
@@ -76,11 +76,11 @@ func TestSupplyGoalsUseTotalAndWeightedExperience(t *testing.T) {
 
 func TestTwoCompletePassesRequired(t *testing.T) {
 	h := Header{"管理员", "卓越"}
-	a := []Material{{"item_gold", "折金票", 40, 30}}
+	a := []Material{{ID: "item_gold", Name: "折金票", Need: 40, Owned: 30}}
 	if _, err := Confirm(h, a, a, 5, time.Now()); err != nil {
 		t.Fatal(err)
 	}
-	b := []Material{{"item_gold", "折金票", 41, 30}}
+	b := []Material{{ID: "item_gold", Name: "折金票", Need: 41, Owned: 30}}
 	if _, err := Confirm(h, a, b, 5, time.Now()); err == nil {
 		t.Fatal("accepted inconsistent passes")
 	}
@@ -90,7 +90,7 @@ func TestTwoCompletePassesRequired(t *testing.T) {
 }
 
 func TestRenderRequiresAllGoalsAndRetainsItemPlaceholders(t *testing.T) {
-	goals, _, _ := BuildTargets(plan(Material{"item_gold", "折金票", 80, 30}))
+	goals, _, _ := BuildTargets(plan(Material{ID: "item_gold", Name: "折金票", Need: 80, Owned: 30}))
 	patch, err := RenderOverrides([]byte(`{"Check":{"expression":"{item_gold}<{SupplyPlanLimit_T_CREDS}"}}`), goals)
 	if err != nil {
 		t.Fatal(err)
@@ -102,5 +102,13 @@ func TestRenderRequiresAllGoalsAndRetainsItemPlaceholders(t *testing.T) {
 	delete(goals, "WEAPON_EXP")
 	if _, err = RenderOverrides([]byte(`{}`), goals); err == nil {
 		t.Fatal("accepted partial goals")
+	}
+}
+
+func TestUnknownMaterialStaysManual(t *testing.T) {
+	unknown := Material{ID: UnknownID(0x1234), Need: 5, Owned: 1, Unknown: true}
+	goals, manual, err := BuildTargets(plan(Material{ID: "item_gold", Name: "折金票", Need: 40, Owned: 30}, unknown))
+	if err != nil || goals["T_CREDS"] != 40 || len(manual) != 1 || manual[0].ID != unknown.ID || !manual[0].Unknown {
+		t.Fatalf("goals=%v manual=%v err=%v", goals, manual, err)
 	}
 }

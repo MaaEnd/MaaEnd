@@ -85,6 +85,8 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctrl == nil {
 		return fail(ctx, errors.New("missing controller"))
 	}
+	// DirectHit entry nodes do not capture, so always take a fresh frame
+	ctrl.PostScreencap().Wait()
 	img, err := ctrl.CacheImage()
 	if err != nil {
 		return fail(ctx, err)

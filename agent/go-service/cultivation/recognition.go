@@ -1,17 +1,23 @@
 package cultivation
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"image"
+	"image/png"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation/core"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
 func ocrTexts(ctx *maa.Context, img image.Image, roi [4]int) ([]core.Text, error) {
@@ -89,13 +95,9 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 		if err != nil {
 			return nil, false, err
 		}
-		icons, _, err := iconrecognition.ParseRecognitionDetail(detail)
-		if err != nil || !icons.Matched || len(icons.Matches) != 1 {
-			return nil, false, fmt.Errorf("unconfirmed material icon at %v", owned.Box)
-		}
-		item := icons.Matches[0]
-		if len(item.Aliases) > 0 {
-			return nil, false, fmt.Errorf("shared icon identity requires manual verification: %s", item.ItemID)
+		item, err := identifyIcon(img, roi, detail)
+		if err != nil {
+			return nil, false, err
 		}
 		if strings.Contains(item.Name, "箱") {
 			continue
@@ -113,7 +115,7 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 			}
 		}
 		if len(values) != 1 {
-			return nil, false, fmt.Errorf("ambiguous material quantity: %s", item.ItemID)
+			return nil, false, fmt.Errorf("ambiguous material quantity: %s", item.ID)
 		}
 		var need int64
 		for n := range values {
@@ -123,7 +125,7 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 		if err != nil {
 			return nil, false, err
 		}
-		rows = append(rows, core.Material{ID: item.ItemID, Name: item.Name, Need: need, Owned: have})
+		rows = append(rows, core.Material{ID: item.ID, Name: item.Name, Need: need, Owned: have, Unknown: item.Unknown})
 	}
 	empty := false
 	for _, text := range texts {
@@ -180,4 +182,52 @@ func readWeapon(ctx *maa.Context, img image.Image) (core.Weapon, error) {
 		return weapon, nil
 	}
 	return core.Weapon{}, errors.New("weapon missing")
+}
+
+// identifyIcon maps one IconRecognition result to a material identity. An icon
+// absent from the catalog (no_match) becomes an unknown material so a new game
+// item does not abort the whole scan; any other failure still aborts it.
+func identifyIcon(img image.Image, roi maa.Rect, detail *maa.RecognitionDetail) (core.Material, error) {
+	icons, _, err := iconrecognition.ParseRecognitionDetail(detail)
+	if err != nil {
+		return core.Material{}, err
+	}
+	if icons.Matched && len(icons.Matches) == 1 {
+		item := icons.Matches[0]
+		if len(item.Aliases) > 0 {
+			return core.Material{}, fmt.Errorf("shared icon identity requires manual verification: %s", item.ItemID)
+		}
+		return core.Material{ID: item.ItemID, Name: item.Name}, nil
+	}
+	if icons.Matched || (icons.Error != nil && icons.Error.Code != iconrecognition.ErrorCodeNoMatch) {
+		return core.Material{}, fmt.Errorf("material icon recognition failed at %v: %+v", roi, icons.Error)
+	}
+	cell := image.Rect(roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3])
+	id := core.UnknownID(core.IconHash(img, cell))
+	saveUnknownIcon(img, cell, id)
+	log.Warn().Str("component", "Cultivation").Str("id", id).Ints("roi", roi[:]).
+		Msg("material icon missing from IconRecognition catalog")
+	return core.Material{ID: id, Unknown: true}, nil
+}
+
+// saveUnknownIcon keeps the crop under debug/ so the item can be reported upstream.
+func saveUnknownIcon(img image.Image, cell image.Rectangle, id string) {
+	sub, ok := img.(interface {
+		SubImage(image.Rectangle) image.Image
+	})
+	if !ok {
+		return
+	}
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, sub.SubImage(cell)); err != nil {
+		return
+	}
+	path := fsutil.OutputPath("debug", "cultivation", id+".png")
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		log.Warn().Err(err).Str("component", "Cultivation").Str("path", path).Msg("failed to create unknown icon directory")
+		return
+	}
+	if err := fsutil.WriteFileAtomic(path, buf.Bytes(), 0644); err != nil {
+		log.Warn().Err(err).Str("component", "Cultivation").Str("path", path).Msg("failed to save unknown icon")
+	}
 }

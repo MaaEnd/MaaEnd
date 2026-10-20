@@ -30,9 +30,9 @@ func upstreamDocuments(t *testing.T) [4]TaskDocument {
 func exampleModulePlan() Plan {
 	return Plan{Version: 1, Source: SourceVersion, Revision: 7, ReadAt: time.Date(2026, 10, 20, 0, 0, 0, 0, time.UTC),
 		Header: Header{"管理员", "卓越"}, Materials: []Material{
-			{"item_char_skill_level_1_6", "协议棱柱", 80, 30},
-			{"item_plant_crylplant_2_1", "采集材料", 6, 1},
-			{"unmapped", "人工材料", 2, 0},
+			{ID: "item_char_skill_level_1_6", Name: "协议棱柱", Need: 80, Owned: 30},
+			{ID: "item_plant_crylplant_2_1", Name: "采集材料", Need: 6, Owned: 1},
+			{ID: "unmapped", Name: "人工材料", Need: 2, Owned: 0},
 		}, Weapon: &Weapon{Name: "宏愿", CandidateIDs: []string{"wpn_sword_0021", "wpn_sword_0021_ink"}}}
 }
 
@@ -97,7 +97,7 @@ func TestModuleAdaptersAgainstUpstream(t *testing.T) {
 func TestMaterialsReadyDoesNotCompleteCultivation(t *testing.T) {
 	docs := upstreamDocuments(t)
 	plan := exampleModulePlan()
-	plan.Materials = []Material{{"item_expcard_stage1_high", "高级作战记录", 2, 3}, {"item_expcard_stage1_low", "基础作战记录", 5, 0}}
+	plan.Materials = []Material{{ID: "item_expcard_stage1_high", Name: "高级作战记录", Need: 2, Owned: 3}, {ID: "item_expcard_stage1_low", Name: "基础作战记录", Need: 5, Owned: 0}}
 	plan.Weapon.ID = "wpn_sword_0021"
 	plan.Weapon.CandidateIDs = []string{plan.Weapon.ID}
 	got, err := BuildModules(plan, docs[0], docs[1], docs[2], docs[3])
@@ -122,7 +122,7 @@ func TestMaterialsReadyDoesNotCompleteCultivation(t *testing.T) {
 func TestSharedCollectionRouteStopsOnlyWhenAllSelectedItemsReady(t *testing.T) {
 	docs := upstreamDocuments(t)
 	plan := exampleModulePlan()
-	plan.Materials = []Material{{"item_plant_mushroom_2_1", "血菌", 10, 10}, {"item_plant_spcstone_2_2", "武陵石", 20, 0}}
+	plan.Materials = []Material{{ID: "item_plant_mushroom_2_1", Name: "血菌", Need: 10, Owned: 10}, {ID: "item_plant_spcstone_2_2", Name: "武陵石", Need: 20, Owned: 0}}
 	got, err := BuildModules(plan, docs[0], docs[1], docs[2], docs[3])
 	if err != nil {
 		t.Fatal(err)

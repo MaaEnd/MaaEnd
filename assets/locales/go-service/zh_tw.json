@@ -66,6 +66,8 @@
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
     "batchaddfriends.strangers_progress": "添加好友進度 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：已發送好友申請（%d/%d）",
+    "cultivation.unknown_item": "未識別物品 %s",
+    "cultivation.unknown_notice": "有 %d 種材料不在 MaaEnd 物品圖示庫中（可能是新版本物品），已列為「人工補充」，不會自動刷取。圖示已儲存到 debug/cultivation/，更新 MaaEnd 後重新讀取培養需求即可識別。",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 該送貨任務屬於（%s）",
     "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 未能確定未完成的送貨任務屬於哪個倉儲節點，詳見執行日誌",
     "dijiangrewards.wait_exchange_countdown.message": "正在等待情報交流結束",

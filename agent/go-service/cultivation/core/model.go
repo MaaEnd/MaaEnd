@@ -35,6 +35,17 @@ type Material struct {
 	Name  string `json:"name"`
 	Need  int64  `json:"need"`
 	Owned int64  `json:"owned"`
+	// Unknown marks an icon missing from the IconRecognition catalog; it is kept for
+	// display and never mapped to a farming module.
+	Unknown bool `json:"unknown,omitempty"`
+}
+
+// UnknownIDPrefix starts the synthetic ID of an icon missing from the catalog.
+const UnknownIDPrefix = "unknown_"
+
+// UnknownID names an uncatalogued icon by its icon hash, stable across passes and pages.
+func UnknownID(hash uint64) string {
+	return fmt.Sprintf("%s%016x", UnknownIDPrefix, hash)
 }
 
 // Plan is a complete two-pass read of one operator; the prototype replaces it.
@@ -169,7 +180,7 @@ func MergePage(seen, page []Material) []Material {
 func Merge(rows []Material) ([]Material, error) {
 	byID := map[string]Material{}
 	for _, r := range rows {
-		if r.ID == "" || r.Name == "" || r.Need < 0 || r.Owned < 0 {
+		if r.ID == "" || (r.Name == "" && !r.Unknown) || r.Need < 0 || r.Owned < 0 {
 			return nil, errors.New("invalid material identity or amount")
 		}
 		if old, ok := byID[r.ID]; ok {

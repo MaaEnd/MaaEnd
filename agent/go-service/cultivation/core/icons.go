@@ -63,3 +63,39 @@ func TabSelected(img image.Image, x, y int) bool {
 	}
 	return float64(count)/(24*130) > .45
 }
+
+// IconHash is a difference hash of the icon artwork inside cell, skipping the
+// bottom quantity band so the same item hashes alike on every row and pass.
+func IconHash(img image.Image, cell image.Rectangle) uint64 {
+	art := image.Rect(cell.Min.X, cell.Min.Y, cell.Max.X, cell.Min.Y+cell.Dy()*7/10)
+	var gray [8][9]float64
+	for gy := range 8 {
+		for gx := range 9 {
+			x0 := art.Min.X + gx*art.Dx()/9
+			x1 := art.Min.X + (gx+1)*art.Dx()/9
+			y0 := art.Min.Y + gy*art.Dy()/8
+			y1 := art.Min.Y + (gy+1)*art.Dy()/8
+			var sum, n float64
+			for y := y0; y < y1; y++ {
+				for x := x0; x < x1; x++ {
+					r, g, b, _ := img.At(x, y).RGBA()
+					sum += 0.299*float64(r) + 0.587*float64(g) + 0.114*float64(b)
+					n++
+				}
+			}
+			if n > 0 {
+				gray[gy][gx] = sum / n
+			}
+		}
+	}
+	var hash uint64
+	for gy := range 8 {
+		for gx := range 8 {
+			hash <<= 1
+			if gray[gy][gx] > gray[gy][gx+1] {
+				hash |= 1
+			}
+		}
+	}
+	return hash
+}

@@ -67,6 +67,8 @@
     "autostockpile.warning_skip.text": "⚠️%s (%s)",
     "batchaddfriends.strangers_progress": "Add friends progress [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s: Friend request sent (%d/%d)",
+    "cultivation.unknown_item": "Unrecognized item %s",
+    "cultivation.unknown_notice": "%d material(s) are not in the MaaEnd item icon catalog (possibly new items). They are listed as Manual and will not be farmed automatically. Icons were saved to debug/cultivation/; update MaaEnd and read cultivation needs again.",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 The delivery job belongs to %s",
     "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 Could not determine which depot node the unfinished delivery job belongs to. See the run log for details.",
     "dijiangrewards.wait_exchange_countdown.message": "Waiting for clue exchange to end",

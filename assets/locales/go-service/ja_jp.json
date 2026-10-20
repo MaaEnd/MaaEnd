@@ -66,6 +66,8 @@
     "autostockpile.warning_skip.text": "⚠️%s（%s）",
     "batchaddfriends.strangers_progress": "フレンド追加の進捗 [%d/%d]",
     "batchaddfriends.uid_sent": "UID %s：フレンド申請を送信しました（%d/%d）",
+    "cultivation.unknown_item": "未識別アイテム %s",
+    "cultivation.unknown_notice": "%d 種の素材が MaaEnd のアイテムアイコン一覧にありません（新規アイテムの可能性）。「手動」として表示し、自動周回の対象にはしません。アイコンは debug/cultivation/ に保存しました。MaaEnd を更新後、育成素材を再度読み取ってください。",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 この配達任務の所属は（%s）",
     "deliveryjobs.focus.ongoing_depot_unresolved": "🚚 未完了の配達任務がどの倉庫拠点に属するか判定できませんでした。詳細は実行ログをご確認ください。",
     "dijiangrewards.wait_exchange_countdown.message": "情報交流の終了を待機中",

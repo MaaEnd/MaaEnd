@@ -6,6 +6,7 @@ import (
 	"image/draw"
 	"image/png"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -50,7 +51,7 @@ func TestPreservedDeviceTabLayout(t *testing.T) {
 }
 
 func TestWeaponMetadataDoesNotBecomeMaterialGoal(t *testing.T) {
-	p := plan(Material{"item_gold", "折金票", 40, 30})
+	p := plan(Material{ID: "item_gold", Name: "折金票", Need: 40, Owned: 30})
 	p.Weapon = &Weapon{Name: "宏愿", CandidateIDs: []string{"wpn_sword_0021", "wpn_sword_0021_ink"}, EssenceStatus: "unverified_manual"}
 	goals, manual, err := BuildTargets(p)
 	if err != nil || len(goals) != 16 || len(manual) != 0 || goals["T_CREDS"] != 40 {
@@ -60,5 +61,29 @@ func TestWeaponMetadataDoesNotBecomeMaterialGoal(t *testing.T) {
 		if _, exists := goals[key]; exists {
 			t.Fatal("weapon became farming material")
 		}
+	}
+}
+
+func TestIconHashIgnoresQuantityBand(t *testing.T) {
+	a := image.NewRGBA(image.Rect(0, 0, 100, 100))
+	for y := range 100 {
+		for x := range 100 {
+			a.Set(x, y, color.RGBA{uint8(x * 2), uint8(y), 80, 255})
+		}
+	}
+	b := image.NewRGBA(a.Bounds())
+	copy(b.Pix, a.Pix)
+	// Different quantity text drawn in the bottom band
+	for y := 80; y < 100; y++ {
+		for x := range 100 {
+			b.Set(x, y, color.RGBA{255, 255, 255, 255})
+		}
+	}
+	cell := image.Rect(10, 10, 90, 90)
+	if IconHash(a, cell) != IconHash(b, cell) {
+		t.Fatal("quantity band changed the icon hash")
+	}
+	if !strings.HasPrefix(UnknownID(IconHash(a, cell)), UnknownIDPrefix) {
+		t.Fatal("unknown ID prefix")
 	}
 }

@@ -42,6 +42,9 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 			for _, material := range plan.Materials {
 				if material.ID == row.Key {
 					name = material.Name
+					if material.Unknown {
+						name = i18n.T("cultivation.unknown_item", strings.TrimPrefix(material.ID, core.UnknownIDPrefix)[:6])
+					}
 					break
 				}
 			}
@@ -59,6 +62,15 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 		i18n.T(state)+"\n"+strings.Join(lines, "\n"))
 	if preview.Completion == nil {
 		maafocus.Print(ctx, i18n.T("cultivation.modules_pending"))
+	}
+	unknown := 0
+	for _, material := range plan.Materials {
+		if material.Unknown {
+			unknown++
+		}
+	}
+	if unknown > 0 {
+		maafocus.Print(ctx, i18n.T("cultivation.unknown_notice", unknown))
 	}
 	if plan.Weapon != nil {
 		maafocus.Print(ctx, i18n.T("cultivation.weapon", plan.Weapon.Name))
