@@ -66,10 +66,50 @@ func header(ctx *maa.Context, img image.Image) (core.Header, error) {
 	return core.ReadHeader(append(title, identity...))
 }
 
+// identifyCell recognizes one icon cell. Overlapping pages show the same cells
+// again, so known identities are reused within a pass by icon hash; each pass
+// keeps its own cache so the second pass still verifies the first.
+func identifyCell(ctx *maa.Context, img image.Image, roi maa.Rect, cell image.Rectangle, cache map[uint64]iconIdentity) (core.Material, bool, error) {
+	hash := core.IconHash(img, cell)
+	if known, ok := cache[hash]; ok {
+		return known.Material, known.Box, nil
+	}
+	// Reuse upstream single_roi rather than importing SRC's icon matcher/runtime.
+	filters := iconrecognition.StorageFilter()
+	// Cultivation materials are all 培养素材 or 折金票; boxes are kept so they can be
+	// skipped. A narrow candidate set is far faster than all storage items.
+	// Plant icons on this page score 0.81-0.90 for the right item (quantity and
+	// rarity bar overlap the art) while the best wrong candidate reached 0.61 on
+	// CloudADB, so 0.75 keeps a clear margin where the default 0.85 misses.
+	params := iconrecognition.NewParams(iconrecognition.WithGridType(iconrecognition.GridTypeSingleROI), iconrecognition.WithItemFilters(
+		filters.ValuableDepot.SpecialItem, filters.Normal.Nurturance, filters.Isolate.Gold, filters.ValuableDepot.CommercialItem),
+		iconrecognition.WithThreshold(0.75))
+	patch := map[string]any{"CultivationIcon": map[string]any{"recognition": map[string]any{"type": "Custom", "param": map[string]any{"custom_recognition": iconrecognition.CustomRecognitionName, "custom_recognition_param": params, "roi": roi}}}}
+	detail, err := ctx.RunRecognition("CultivationIcon", img, patch)
+	if err != nil {
+		return core.Material{}, false, err
+	}
+	item, box, err := identifyIcon(img, roi, detail)
+	if err != nil {
+		return core.Material{}, false, err
+	}
+	// Unknown results are never cached: they must be confirmed on a fresh frame.
+	if !item.Unknown && cache != nil {
+		cache[hash] = iconIdentity{Material: item, Box: box}
+	}
+	return item, box, nil
+}
+
+// iconIdentity is a cached icon recognition result within one pass.
+type iconIdentity struct {
+	Material core.Material
+	Box      bool
+}
+
 // readMaterialPage reads one viewport. section is the weapon section continuing
 // from the previous page ("" for the operator); it returns the section in effect
 // at the page bottom and the weapon headers seen.
-func readMaterialPage(ctx *maa.Context, img image.Image, section string, catalog map[string][]string) ([]core.Material, bool, string, []string, error) {
+func readMaterialPage(ctx *maa.Context, img image.Image, section string, catalog map[string][]string, cache map[uint64]iconIdentity) ([]core.Material, bool, string, []string, error) {
 	texts, err := ocrTexts(ctx, img, [4]int{420, 245, 820, 420})
 	if err != nil {
 		return nil, false, "", nil, err
@@ -105,15 +145,7 @@ func readMaterialPage(ctx *maa.Context, img image.Image, section string, catalog
 			return nil, false, "", nil, errors.New("invalid icon ROI")
 		}
 		roi := maa.Rect{cell.Min.X, cell.Min.Y, 80, 80}
-		// Reuse upstream single_roi rather than importing SRC's icon matcher/runtime.
-		filters := iconrecognition.StorageFilter()
-		params := iconrecognition.NewParams(iconrecognition.WithGridType(iconrecognition.GridTypeSingleROI), iconrecognition.WithItemFilters(filters.ValuableDepot.Any, filters.Normal.Any, filters.Isolate.Gold))
-		patch := map[string]any{"CultivationIcon": map[string]any{"recognition": map[string]any{"type": "Custom", "param": map[string]any{"custom_recognition": iconrecognition.CustomRecognitionName, "custom_recognition_param": params, "roi": roi}}}}
-		detail, err := ctx.RunRecognition("CultivationIcon", img, patch)
-		if err != nil {
-			return nil, false, "", nil, err
-		}
-		item, box, err := identifyIcon(img, roi, detail)
+		item, box, err := identifyCell(ctx, img, roi, cell, cache)
 		if err != nil {
 			return nil, false, "", nil, err
 		}

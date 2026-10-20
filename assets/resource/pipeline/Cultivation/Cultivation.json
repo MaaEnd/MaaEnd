@@ -2359,9 +2359,10 @@
                 "custom_recognition_param": {
                     "grid_type": "single_roi",
                     "item_filters": [
-                        "ValuableDepot:*",
-                        "Normal:*",
-                        "Isolate:Gold"
+                        "ValuableDepot:SpecialItem",
+                        "Normal:Nurturance",
+                        "Isolate:Gold",
+                        "ValuableDepot:CommercialItem"
                     ]
                 },
                 "roi": [

@@ -49,6 +49,7 @@ type session struct {
 	Section      string
 	WeaponNames  [2][]string
 	Essence      [2]map[string]core.Essence
+	Icons        [2]map[uint64]iconIdentity
 }
 
 var scanMu sync.Mutex
@@ -198,7 +199,10 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if p.Tab == 3 {
 			return readEssenceStep(ctx, img, p, catalog)
 		}
-		rows, empty, section, names, err := readMaterialPage(ctx, img, scan.Section, catalog)
+		if scan.Icons[p.Pass] == nil {
+			scan.Icons[p.Pass] = map[uint64]iconIdentity{}
+		}
+		rows, empty, section, names, err := readMaterialPage(ctx, img, scan.Section, catalog, scan.Icons[p.Pass])
 		if err != nil {
 			return fail(ctx, err)
 		}
@@ -209,7 +213,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			if img, err = ctrl.CacheImage(); err != nil {
 				return fail(ctx, err)
 			}
-			if rows, empty, section, names, err = readMaterialPage(ctx, img, scan.Section, catalog); err != nil {
+			if rows, empty, section, names, err = readMaterialPage(ctx, img, scan.Section, catalog, scan.Icons[p.Pass]); err != nil {
 				return fail(ctx, err)
 			}
 		}

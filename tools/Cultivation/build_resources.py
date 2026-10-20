@@ -58,7 +58,7 @@ def build():
     pipeline['CultivationIcon'] = node('DoNothing', recognition={
         'type': 'Custom', 'param': {'custom_recognition': 'IconRecognition',
         'custom_recognition_param': {'grid_type': 'single_roi',
-                                   'item_filters': ['ValuableDepot:*', 'Normal:*', 'Isolate:Gold']},
+                                   'item_filters': ['ValuableDepot:SpecialItem', 'Normal:Nurturance', 'Isolate:Gold', 'ValuableDepot:CommercialItem']},
         'roi': [910, 386, 80, 80]}})
     write('assets/resource/pipeline/Cultivation/Cultivation.json', pipeline)
     tasks = []
