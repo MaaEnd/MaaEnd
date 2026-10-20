@@ -227,9 +227,8 @@ jobs:
       # 临时：PI 的预设不能按控制器区分，桌面预设带不了只支持移动端的 AndroidOpenGame，
       # 只在打 Android 包时把它插到这三个预设的第一个
       - name: Prepend AndroidOpenGame to presets
-        shell: bash
+        shell: python
         run: |
-          uv run - <<'PY'
           import json
           from pathlib import Path
 
@@ -242,7 +241,6 @@ jobs:
                       tasks.insert(0, {"name": "AndroidOpenGame"})
                   print(f"{path}: {preset['name']} -> {[t['name'] for t in tasks[:3]]}")
               path.write_text(json.dumps(data, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
-          PY
 
       - uses: actions/setup-java@v5
         with:
