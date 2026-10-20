@@ -96,11 +96,12 @@ func readMaterialPage(ctx *maa.Context, img image.Image) ([]core.Material, bool,
 		if err != nil {
 			return nil, false, err
 		}
-		item, err := identifyIcon(img, roi, detail)
+		item, box, err := identifyIcon(img, roi, detail)
 		if err != nil {
 			return nil, false, err
 		}
-		if strings.Contains(item.Name, "箱") {
+		if box {
+			// Boxes listed beside a material are optional substitutes, not a need.
 			continue
 		}
 		// The required amount is printed on the bottom strip of the card itself.
@@ -186,30 +187,33 @@ func readWeapon(ctx *maa.Context, img image.Image) (core.Weapon, error) {
 	return core.Weapon{}, errors.New("weapon missing")
 }
 
+// boxCategory is the IconRecognition category of every selectable/random box.
+const boxCategory = "CommercialItem"
+
 // identifyIcon maps one IconRecognition result to a material identity. An icon
 // absent from the catalog (no_match) becomes an unknown material so a new game
 // item does not abort the whole scan; any other failure still aborts it.
-func identifyIcon(img image.Image, roi maa.Rect, detail *maa.RecognitionDetail) (core.Material, error) {
+func identifyIcon(img image.Image, roi maa.Rect, detail *maa.RecognitionDetail) (core.Material, bool, error) {
 	icons, _, err := iconrecognition.ParseRecognitionDetail(detail)
 	if err != nil {
-		return core.Material{}, err
+		return core.Material{}, false, err
 	}
 	if icons.Matched && len(icons.Matches) == 1 {
 		item := icons.Matches[0]
 		if len(item.Aliases) > 0 {
-			return core.Material{}, fmt.Errorf("shared icon identity requires manual verification: %s", item.ItemID)
+			return core.Material{}, false, fmt.Errorf("shared icon identity requires manual verification: %s", item.ItemID)
 		}
-		return core.Material{ID: item.ItemID, Name: item.Name}, nil
+		return core.Material{ID: item.ItemID, Name: item.Name}, item.CategoryType == boxCategory, nil
 	}
 	if icons.Matched || (icons.Error != nil && icons.Error.Code != iconrecognition.ErrorCodeNoMatch) {
-		return core.Material{}, fmt.Errorf("material icon recognition failed at %v: %+v", roi, icons.Error)
+		return core.Material{}, false, fmt.Errorf("material icon recognition failed at %v: %+v", roi, icons.Error)
 	}
 	cell := image.Rect(roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3])
 	id := core.UnknownID(core.IconHash(img, cell))
 	saveUnknownIcon(img, cell, id)
 	log.Warn().Str("component", "Cultivation").Str("id", id).Ints("roi", roi[:]).
 		Msg("material icon missing from IconRecognition catalog")
-	return core.Material{ID: id, Unknown: true}, nil
+	return core.Material{ID: id, Unknown: true}, false, nil
 }
 
 // saveUnknownIcon keeps the crop under debug/ so the item can be reported upstream.

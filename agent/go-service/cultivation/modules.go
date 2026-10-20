@@ -8,6 +8,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation/core"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -41,7 +42,7 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 		} else {
 			for _, material := range plan.Materials {
 				if material.ID == row.Key {
-					name = material.Name
+					name = iconqty.ItemDisplayName(material.ID)
 					if material.Unknown {
 						name = i18n.T("cultivation.unknown_item", strings.TrimPrefix(material.ID, core.UnknownIDPrefix)[:6])
 					}
