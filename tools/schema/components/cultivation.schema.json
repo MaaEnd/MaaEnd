@@ -18,7 +18,8 @@
                         "finish",
                         "preview",
                         "export",
-                        "clear"
+                        "clear",
+                        "confirm"
                     ]
                 },
                 "tab": {

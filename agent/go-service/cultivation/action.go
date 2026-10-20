@@ -3,7 +3,6 @@ package cultivation
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"image"
 	"slices"
 	"strings"
@@ -11,11 +10,9 @@ import (
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation/core"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -65,6 +62,14 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if p.Step == "clear" {
 		scan = nil
 		return finishOrFail(ctx, clearPlan(), "cultivation.cleared")
+	}
+	if p.Step == "confirm" {
+		// Invalidate an in-flight scan through the storage revision as well.
+		scan = nil
+		if err := confirmPlan(); err != nil {
+			return fail(ctx, err)
+		}
+		return finishOrFail(ctx, preview(ctx, false), "")
 	}
 	if p.Step == "preview" || p.Step == "export" {
 		return finishOrFail(ctx, preview(ctx, p.Step == "export"), "")
@@ -239,44 +244,5 @@ func preview(ctx *maa.Context, export bool) error {
 	if stored.Plan == nil {
 		return errors.New("no complete cultivation plan")
 	}
-	goals, manual, err := core.BuildTargets(*stored.Plan)
-	if err != nil {
-		return err
-	}
-	var lines []string
-	for _, m := range stored.Plan.Materials {
-		lines = append(lines, fmt.Sprintf("%s: %d / %d (-%d)", m.Name, m.Owned, m.Need, max(m.Need-m.Owned, 0)))
-	}
-	maafocus.Print(ctx, i18n.T("cultivation.preview", stored.Plan.Header.Operator, stored.Plan.Header.Expectation, len(manual))+"\n"+strings.Join(lines, "\n"))
-	if stored.Plan.Weapon != nil {
-		maafocus.Print(ctx, i18n.T("cultivation.weapon", stored.Plan.Weapon.Name))
-	}
-	if !export {
-		return nil
-	}
-	var source struct {
-		Option map[string]struct {
-			PipelineOverride json.RawMessage `json:"pipeline_override"`
-		} `json:"option"`
-	}
-	if err = resource.ReadJsonResource("tasks/ProtocolSpace.json", &source); err != nil {
-		return err
-	}
-	template := source.Option["SupplyPlanLimits"].PipelineOverride
-	if len(template) == 0 {
-		return errors.New("missing SupplyPlan option template")
-	}
-	patch, err := core.RenderOverrides(template, goals)
-	if err != nil {
-		return err
-	}
-	data, err := json.MarshalIndent(map[string]any{"source": core.SourceVersion, "revision": stored.Revision, "executable": false, "goals": goals, "manual": manual, "pipeline_override": patch}, "", "  ")
-	if err != nil {
-		return err
-	}
-	if err = fsutil.WriteFileAtomic(fsutil.OutputPath("debug", "record", "CultivationSupplyPlan.preview.json"), data, 0600); err != nil {
-		return err
-	}
-	maafocus.Print(ctx, i18n.T("cultivation.exported"))
-	return nil
+	return showModules(ctx, *stored.Plan, export)
 }

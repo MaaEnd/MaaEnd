@@ -1,42 +1,39 @@
 # Native cultivation prototype
 
-Updated: 2026-10-20.
+Updated: 2026-10-20. Prototype.2 targets `v2.35.0-beta.1` and has no SRC, Python or PyWebIO runtime dependency.
 
-This prototype adds native MaaEnd tasks for reading cultivation needs, previewing them, exporting goal previews, and clearing the plan. It targets `v2.35.0-beta.1` and has no runtime dependency on SRC, Python, or PyWebIO. Compilation, offline rules, and resource validation passed; device acceptance on the new version is pending.
+## User workflow
 
-## What this version provides
+1. Prepare an isolated official Windows x86-64 beta copy and apply the matching overlay, including the full Agent. Preserve the production installation.
+2. Open the cultivation overview in game, select an operator and expectation, and keep the conversion display setting consistent with the samples.
+3. Run only the native cultivation read task. It scans four tabs twice and retains the previous plan on failure. It does not obtain resources, upgrade, open boxes or claim rewards.
+4. Open cultivation task progress for required/owned/missing quantities, assigned module, scan time and revision. One operator plan is retained; a new scan replaces it.
+5. Export the module integration preview to `debug/record/CultivationModules.preview.json`.
+6. After personally completing development in game, run the dedicated manual confirmation task separately. Do not put that task into an automatic routine.
+7. A new scan clears the old completion confirmation. Clearing the plan also invalidates pending writes.
 
-- Reads the selected operator and expectation across four tabs, twice, in Simplified Chinese at 1280×720 through CloudADB.
-- Confirms the selected tab, list boundaries, material IDs, and quantities; replaces the plan only after consistent complete passes, preserving the previous plan on failure.
-- Shows required, owned, and missing amounts; converts farmable items into all 16 SupplyPlan total-stock goals and exports a parameter preview.
-- Records the weapon name and candidate internal IDs; essence requirements remain separate from protocol-space material goals.
-- Clears the plan and invalidates writes from an older scan.
+**This version converts and displays plans; it does not dispatch farming or persist existing MXU task forms.** Module previews retain `executable=false` and explicit blockers. Removing that flag does not authorize execution. Dispatch, consumption contracts, device acceptance and formal review remain pending.
 
-## User steps
+## Progress and completion
 
-1. Launch an isolated trial copy of MaaEnd, select the cloud ADB controller, and connect to a device already inside the game. Keep the prototype separate from the existing installation.
-2. Open `培养总览` (Cultivation Overview) in the game, select an operator, and set `培养期望` (Cultivation Expectation). Keep `显示换算结果` (Show Conversion Results) consistent with the preserved material-page samples.
-3. Run only `读取培养需求（原生试作）` (Read cultivation needs, native prototype). The tool switches tabs and scrolls; it does not click acquisition, upgrade, box-opening, or reward controls.
-4. Inspect the result, or run `预览培养需求` (Preview cultivation needs). This version stores one operator plan; a successful new scan replaces it.
-5. Run `生成刷取目标预览` (Export farming goal preview). The file is `debug/record/CultivationSupplyPlan.preview.json`. Its `goals` are total stock targets and its `pipeline_override` uses the upstream option template. A required amount of 80 with 30 owned means a target of 80 and a deficit of 50.
-6. Run `清空培养需求` (Clear cultivation needs) to remove the plan.
+The view distinguishes missing materials, materials ready at the recorded scan time, and user-confirmed completion. User confirmation includes its source, operator, expectation, revision and timestamp. Automatic verification of actual upgrades, promotions, skills and equipment is not implemented. Module success, termination or reward claiming never supplies that evidence. Experience denominations are pooled into equivalent experience.
 
-**This prototype ends at goal preview. It neither starts farming nor updates and persists MXU's existing ProtocolSpace form.** The export carries `executable=false`. Actual farming requires device validation of the native scan, execution-contract review, and reconciliation of the existing consumption state. Removing the marker does not make the preview executable.
+Quantities are historical observations. Recheck after running modules. Old IMS caches without account and freshness guarantees cannot automatically turn progress green. After manual confirmation, material counts remain historical references.
 
-## Weapons and essences
+## Module adapters
 
-The upstream catalogue can assign multiple internal IDs to one displayed weapon name. When the name alone cannot distinguish them, the plan retains `candidate_ids` rather than selecting an identity.
+Protocol Space uses the upstream 16 total-stock goals, with unrequested goals explicitly zero. A requirement of80 with30 owned still produces a goal of80. The preview adds a positive inventory check to completion.
 
-The latest beta still restricts AutoEssence controllers. After that beta was published, upstream merged [#6449](https://github.com/MaaEnd/MaaEnd/pull/6449) to expose the task, while explicitly leaving actual ADB recognition and operation adaptation for later changes. Recording a weapon does not prove its essence meets the cultivation target; skills, quantity, and quality criteria require separate confirmation.
+Collection maps25 existing routes to26 items, including a shared two-item route. Unneeded routes are disabled explicitly: upstream zero means unlimited. The cultivation preview stops on warehouse sync failure instead of falling back to unconditional collection. Upstream runs each selected route once; route completion does not prove enough materials were gathered.
 
-## Failures and limitations
+Essence uses existing weapon target mode. Ambiguous weapon IDs remain unselected. The upstream target checks for at least one matching trait combination, ignoring trait levels and equipment. Cloud adaptation and quality requirements need separate validation.
 
-An unexpected screen, ambiguous item, inconsistent inventory, disagreeing passes, or unconfirmed list end fails the task while retaining the previous plan. An older preview after failure is not a successful new observation.
+CloudADB is excluded from Collection target-stock mode and Essence in the fixed beta. Upstream [PR#6449](https://github.com/MaaEnd/MaaEnd/pull/6449) opens the Essence entry after that beta, but does not prove cloud operation. Exporting parameters does not solve these restrictions.
 
-Coordinates were ported from preserved screenshots; the new beta's single-ROI icon-recognition path requires device validation. Unrecognized materials are not treated as zero or complete. Existing logs and state remain separate; SRC account and runtime state are not imported.
+The eventual execution workflow is read, review, run supported modules, recheck shortages, develop in game, then manually confirm or automatically verify results. This prototype is not that full execution release.
 
-## Trial bundle
+## Boundaries
 
-The delivered `overlay` contains replacement files, not a full MaaEnd distribution. Extract the official Windows x86-64 `v2.35.0-beta.1` release into a new directory, close that trial client, and copy the overlay contents there. Do not mix versions. This work did not install, launch, or connect the trial copy on the user's behalf.
+Keep the overlay paired with the exact official version. The Agent and resources must be updated together. Updates may overwrite prototype files. Only Simplified Chinese, one account and CloudADB are in scope; clear and rescan after switching accounts.
 
-`go-service.exe` is the rebuilt complete native Agent. JSON files alone do not register the new components, and this Agent must not be substituted into another version. An automatic update may overwrite prototype files; recheck the version and manifest before further use.
+Luna's simulator evidence binds to the actually tested prototype.1 package. Prototype.2 integration previews, manual confirmation and the consumption chain require separate acceptance. Compilation and offline tests do not establish device or formal acceptance.

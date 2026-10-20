@@ -2301,6 +2301,22 @@
         "rate_limit": 0,
         "next": []
     },
+    "CultivationConfirm": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "confirm"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
     "CultivationOCR": {
         "recognition": {
             "type": "OCR",

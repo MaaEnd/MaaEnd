@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation/core"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
@@ -42,6 +43,9 @@ func loadPlan() (storedPlan, error) {
 		return storedPlan{}, errors.New("missing or unsupported cultivation record version")
 	}
 	if stored.Plan != nil {
+		if stored.Plan.Revision != stored.Revision {
+			return storedPlan{}, errors.New("plan/envelope revision mismatch")
+		}
 		if _, _, err = core.BuildTargets(*stored.Plan); err != nil {
 			return storedPlan{}, err
 		}
@@ -89,5 +93,23 @@ func clearPlan() error {
 	}
 	stored.Revision++
 	stored.Plan = nil
+	return writePlan(stored)
+}
+
+// confirmPlan records the user's dedicated confirmation-task selection.
+// It changes no game state and cannot authorize any farming execution.
+func confirmPlan() error {
+	planMu.Lock()
+	defer planMu.Unlock()
+	stored, err := loadPlan()
+	if err != nil {
+		return err
+	}
+	if stored.Plan == nil {
+		return errors.New("no cultivation plan to confirm")
+	}
+	stored.Revision++
+	stored.Plan.Revision = stored.Revision
+	stored.Plan.Completion = &core.Completion{Method: "user_confirmed", Revision: stored.Revision, Header: stored.Plan.Header, At: time.Now().UTC()}
 	return writePlan(stored)
 }

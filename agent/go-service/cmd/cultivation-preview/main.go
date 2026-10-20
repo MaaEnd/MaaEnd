@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation/core"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
@@ -33,29 +34,21 @@ func run(planFile, protocolFile string) error {
 	if err = json.Unmarshal(raw, &plan); err != nil {
 		return err
 	}
-	goals, manual, err := core.BuildTargets(plan)
+	paths := []string{protocolFile, filepath.Join(filepath.Dir(protocolFile), "AutoCollect.json"),
+		filepath.Join(filepath.Dir(protocolFile), "AutoEssence/AutoEssence.json"), filepath.Join(filepath.Dir(protocolFile), "AutoEssence/Target/Target.json")}
+	var docs [4]core.TaskDocument
+	for index, path := range paths {
+		raw, err = os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		if err = json.Unmarshal(jsonclean.Clean(raw), &docs[index]); err != nil {
+			return err
+		}
+	}
+	preview, err := core.BuildModules(plan, docs[0], docs[1], docs[2], docs[3])
 	if err != nil {
 		return err
 	}
-	raw, err = os.ReadFile(protocolFile)
-	if err != nil {
-		return err
-	}
-	var source struct {
-		Option map[string]struct {
-			PipelineOverride json.RawMessage `json:"pipeline_override"`
-		} `json:"option"`
-	}
-	if err = json.Unmarshal(jsonclean.Clean(raw), &source); err != nil {
-		return err
-	}
-	template := source.Option["SupplyPlanLimits"].PipelineOverride
-	if len(template) == 0 {
-		return fmt.Errorf("missing SupplyPlanLimits")
-	}
-	patch, err := core.RenderOverrides(template, goals)
-	if err != nil {
-		return err
-	}
-	return json.NewEncoder(os.Stdout).Encode(map[string]any{"executable": false, "goals": goals, "manual": manual, "weapon": plan.Weapon, "pipeline_override": patch})
+	return json.NewEncoder(os.Stdout).Encode(preview)
 }

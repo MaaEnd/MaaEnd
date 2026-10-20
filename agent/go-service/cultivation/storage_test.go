@@ -87,3 +87,36 @@ func TestReplaceCompletePlanAndRejectLostUpdate(t *testing.T) {
 		t.Fatalf("%+v %v", stored, err)
 	}
 }
+
+func TestManualConfirmationBindsRevisionAndRescanClearsIt(t *testing.T) {
+	isolatedPlan(t)
+	if err := confirmPlan(); err == nil {
+		t.Fatal("confirmed missing plan")
+	}
+	if err := savePlan(validPlan(), 0); err != nil {
+		t.Fatal(err)
+	}
+	if err := confirmPlan(); err != nil {
+		t.Fatal(err)
+	}
+	stored, err := loadPlan()
+	if err != nil || stored.Plan.Completion == nil || stored.Plan.Completion.Method != "user_confirmed" || stored.Plan.Completion.Revision != stored.Revision {
+		t.Fatalf("invalid confirmation: %+v %v", stored, err)
+	}
+	if err = savePlan(validPlan(), 1); err == nil {
+		t.Fatal("in-flight scan erased newer user confirmation")
+	}
+	if err = savePlan(validPlan(), stored.Revision); err != nil {
+		t.Fatal(err)
+	}
+	stored, err = loadPlan()
+	if err != nil || stored.Plan.Completion != nil {
+		t.Fatal("new scan inherited old completion")
+	}
+	if err = clearPlan(); err != nil {
+		t.Fatal(err)
+	}
+	if err = confirmPlan(); err == nil {
+		t.Fatal("confirmation resurrected cleared plan")
+	}
+}

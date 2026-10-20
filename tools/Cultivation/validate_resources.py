@@ -32,13 +32,13 @@ def main():
         assert node.get('pre_delay')==0 and node.get('post_delay')==0 and node.get('rate_limit')==0
         assert 'focus' not in node
     tasks = json.loads((ROOT/'assets/tasks/Cultivation.json').read_text(encoding='utf-8'))['task']
-    assert len(tasks)==4
+    assert len(tasks)==5
     for task in tasks:
         assert task['entry'] in pipeline
         for path in (ROOT/'assets/locales/interface').glob('*.json'):
             locale = json.loads(path.read_text(encoding='utf-8'))
             assert task['label'][1:] in locale, (path,task['label'])
-    print(f'PASS: {len(pipeline)} Pipeline nodes/schema/references; 4 task entries and 5 locales; no device calls.')
+    print(f'PASS: {len(pipeline)} Pipeline nodes/schema/references; 5 task entries and 5 locales; no device calls.')
     return 0
 
 

@@ -39,13 +39,22 @@ type Material struct {
 
 // Plan is a complete two-pass read of one operator; the prototype replaces it.
 type Plan struct {
-	Version   int        `json:"version"`
-	Source    string     `json:"source"`
-	Revision  uint64     `json:"revision"`
-	Header    Header     `json:"header"`
-	ReadAt    time.Time  `json:"read_at"`
-	Materials []Material `json:"materials"`
-	Weapon    *Weapon    `json:"weapon,omitempty"`
+	Version    int         `json:"version"`
+	Source     string      `json:"source"`
+	Revision   uint64      `json:"revision"`
+	Header     Header      `json:"header"`
+	ReadAt     time.Time   `json:"read_at"`
+	Materials  []Material  `json:"materials"`
+	Weapon     *Weapon     `json:"weapon,omitempty"`
+	Completion *Completion `json:"completion,omitempty"`
+}
+
+// Completion records explicit user attestation, never inferred module success.
+type Completion struct {
+	Method   string    `json:"method"`
+	Revision uint64    `json:"revision"`
+	Header   Header    `json:"header"`
+	At       time.Time `json:"at"`
 }
 
 // Weapon is a recognized weapon identity; it never implies essence readiness.
@@ -224,6 +233,9 @@ var ItemTargets = map[string]TargetSpec{
 func BuildTargets(plan Plan) (map[string]int64, []Material, error) {
 	if plan.Version != 1 || plan.Source != SourceVersion || plan.Header.Operator == "" || plan.Header.Expectation == "" || plan.ReadAt.IsZero() || len(plan.Materials) == 0 {
 		return nil, nil, errors.New("invalid/version-mismatched plan")
+	}
+	if done := plan.Completion; done != nil && (done.Method != "user_confirmed" || done.Revision != plan.Revision || done.Header != plan.Header || done.At.Before(plan.ReadAt)) {
+		return nil, nil, errors.New("completion evidence does not bind to this plan")
 	}
 	rows, err := Merge(plan.Materials)
 	if err != nil {

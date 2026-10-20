@@ -51,7 +51,7 @@ def build():
             pipeline[prefix+'Bottom'] = node(action('bottom', **phase, again=prefix+'Read', done=after),
                                              [prefix+'Read', after], guard(tab))
     pipeline['CultivationFinish'] = node(action('finish'), recognition=guard())
-    for name, step in [('Preview', 'preview'), ('Export', 'export'), ('Clear', 'clear')]:
+    for name, step in [('Preview', 'preview'), ('Export', 'export'), ('Clear', 'clear'), ('Confirm', 'confirm')]:
         pipeline['Cultivation'+name] = node(action(step))
     pipeline['CultivationOCR'] = node('DoNothing', recognition={
         'type': 'OCR', 'param': {'roi': [420, 75, 810, 590]}})
@@ -62,7 +62,7 @@ def build():
         'roi': [910, 386, 80, 80]}})
     write('assets/resource/pipeline/Cultivation/Cultivation.json', pipeline)
     tasks = []
-    for name in ['Scan', 'Preview', 'Export', 'Clear']:
+    for name in ['Scan', 'Preview', 'Export', 'Clear', 'Confirm']:
         tasks.append({'name': 'Cultivation'+name, 'label': '$task.Cultivation'+name+'.label',
                       'entry': 'Cultivation'+name, 'group': ['other_menu'], 'controller': ['CloudADB']})
     write('assets/tasks/Cultivation.json', {'task': tasks})
@@ -107,6 +107,55 @@ def build():
             'ja_jp': '武器：%s。基質の状態は未確認です。素材周回の対象には含めず、手動確認として保持します。',
             'ko_kr': '무기: %s. 기질 상태는 미확인입니다. 재료 파밍 목표와 분리하여 수동 확인 항목으로 유지합니다.'
         }[lang]
+        module_texts = {
+            'zh_cn': ['培养任务进度', '生成模块接入预览',
+                      '培养任务：%s / %s；材料已备齐 %d / %d 类。扫描时间：%s；计划修订：%d。',
+                      '材料待补齐。以下是上次完整扫描的库存，运行模块后需重新核验。',
+                      '上次扫描时材料已备齐；实际升级、突破、技能和武器培养结果待确认。',
+                      '协议空间：目标已转换，待执行验收；采集：CloudADB目标库存待适配；基质：云端流程/武器词条待验证。尚未开始执行，不显示培养完成。',
+                      '已导出 CultivationModules.preview.json，包含协议空间、采集、基质三模块的数据。此预览不会启动刷取或更新现有任务表单。',
+                      '协议空间', '采集', '人工补充'],
+            'zh_tw': ['培養任務進度', '產生模組接入預覽',
+                      '培養任務：%s / %s；材料已備齊 %d / %d 類。掃描時間：%s；計畫修訂：%d。',
+                      '材料待補齊。以下為上次完整掃描庫存，執行模組後需重新核驗。',
+                      '上次掃描時材料已備齊；實際升級、突破、技能及武器培養結果待確認。',
+                      '協議空間：目標已轉換，待執行驗收；採集：CloudADB目標庫存待適配；基質：雲端流程/武器詞條待驗證。尚未執行，不顯示培養完成。',
+                      '已匯出 CultivationModules.preview.json，含協議空間、採集、基質三模組資料。預覽不啟動刷取或更新現有任務表單。',
+                      '協議空間', '採集', '人工補充'],
+            'en_us': ['Cultivation task progress', 'Export module integration preview',
+                      'Cultivation: %s / %s; materials ready: %d / %d types. Scanned: %s; plan revision: %d.',
+                      'Materials missing. Quantities are from the last complete scan; verify again after running modules.',
+                      'Materials were ready at the last scan; actual upgrades, promotions, skills and weapon development remain unverified.',
+                      'Protocol Space: goals converted, execution validation pending. Collection: CloudADB stock mode needs adaptation. Essence: cloud flow and weapon traits unverified. Execution has not started; cultivation is not complete.',
+                      'CultivationModules.preview.json exported with Protocol Space, Collection and Essence data. This preview neither starts farming nor updates existing task forms.',
+                      'Protocol Space', 'Collection', 'Manual'],
+            'ja_jp': ['育成タスクの進捗', 'モジュール連携プレビューを出力',
+                      '育成：%s / %s。素材準備済み %d / %d 種。読取日時：%s。計画版：%d。',
+                      '素材が不足しています。数量は前回の全読取時点です。実行後は再確認が必要です。',
+                      '前回読取時点で素材準備済み。レベル、昇進、スキル、武器の育成結果は未確認です。',
+                      '協約空間：目標変換済み、実行検証待ち。採集：CloudADB在庫モードの対応待ち。基質：クラウド操作と武器特性は未確認。まだ実行しておらず、育成完了とは表示しません。',
+                      'CultivationModules.preview.json に3モジュールのデータを出力しました。周回の開始や既存タスク設定の変更は行いません。',
+                      '協約空間', '採集', '手動'],
+            'ko_kr': ['육성 작업 진행 상황', '모듈 연결 미리 보기 내보내기',
+                      '육성: %s / %s. 재료 준비 %d / %d종. 스캔: %s. 계획 버전: %d.',
+                      '재료가 부족합니다. 수량은 마지막 전체 스캔 기준이며 실행 후 다시 확인해야 합니다.',
+                      '마지막 스캔에서 재료가 준비되었습니다. 실제 레벨, 돌파, 스킬 및 무기 육성 결과는 미확인입니다.',
+                      '프로토콜 공간: 목표 변환 완료, 실행 검증 대기. 채집: CloudADB 재고 모드 대응 필요. 기질: 클라우드 동작과 무기 특성 미확인. 아직 실행하지 않았으며 육성 완료로 표시하지 않습니다.',
+                      '3개 모듈의 데이터를 CultivationModules.preview.json으로 내보냈습니다. 파밍을 시작하거나 기존 작업 설정을 변경하지 않습니다.',
+                      '프로토콜 공간', '채집', '수동']
+        }[lang]
+        keys = ['task.CultivationPreview.label', 'task.CultivationExport.label',
+                'cultivation.progress', 'cultivation.materials_missing', 'cultivation.materials_ready',
+                'cultivation.modules_pending', 'cultivation.modules_exported',
+                'cultivation.module.ProtocolSpace', 'cultivation.module.AutoCollect', 'cultivation.module.manual']
+        data.update(zip(keys, module_texts))
+        data['task.CultivationConfirm.label'], data['cultivation.user_confirmed'] = {
+            'zh_cn': ['我已在游戏中完成培养（手动确认）', '培养任务已由用户确认完成：%s；确认时间：%s。尚无自动结果核验；以下材料为历史扫描。'],
+            'zh_tw': ['我已在遊戲中完成培養（手動確認）', '培養任務已由使用者確認完成：%s；確認時間：%s。尚無自動結果核驗；以下為歷史掃描。'],
+            'en_us': ['I completed cultivation in game (manual confirmation)', 'User confirmed cultivation complete: %s, at %s. Actual results have not been automatically verified; material counts below are historical.'],
+            'ja_jp': ['ゲーム内の育成を完了した（手動確認）', 'ユーザーが育成完了を確認：%s。確認日時：%s。結果の自動検証はありません。以下は過去の素材読取です。'],
+            'ko_kr': ['게임 내 육성을 완료했습니다 (수동 확인)', '사용자가 육성 완료 확인: %s, %s. 결과를 자동 검증하지 않았습니다. 아래 재료 수량은 과거 스캔 기준입니다.']
+        }[lang]
         write(str(path.relative_to(ROOT)), data)
     for kind, name, ref in [('action', 'CultivationAction', 'Action'), ('recognition', 'CultivationGuard', 'Guard')]:
         path = ROOT/f'tools/schema/custom.{kind}.schema.json'
@@ -127,13 +176,13 @@ def build():
         path.write_text(original, encoding='utf-8')
     write('tools/schema/components/cultivation.schema.json', {'$schema': 'https://json-schema.org/draft/2020-12/schema', '$defs': {
         'Action': {'type': 'object', 'required': ['step'], 'additionalProperties': False, 'properties': {
-            'step': {'enum': ['begin', 'reset', 'top', 'read', 'bottom', 'finish', 'preview', 'export', 'clear']},
+            'step': {'enum': ['begin', 'reset', 'top', 'read', 'bottom', 'finish', 'preview', 'export', 'clear', 'confirm']},
             'tab': {'type': 'integer', 'minimum': 0, 'maximum': 3},
             'pass': {'type': 'integer', 'minimum': 0, 'maximum': 1},
             'again': {'type': 'string', 'pattern': '^Cultivation'}, 'done': {'type': 'string', 'pattern': '^Cultivation'}}},
         'Guard': {'type': 'object', 'additionalProperties': False,
                   'properties': {'tab': {'type': 'integer', 'minimum': 0, 'maximum': 3}}}}})
-    print(f'Generated {len(pipeline)} native nodes, four tasks, five locale entries, and Custom schemas.')
+    print(f'Generated {len(pipeline)} native nodes, five tasks, five locale entries, and Custom schemas.')
 
 
 if __name__ == '__main__':

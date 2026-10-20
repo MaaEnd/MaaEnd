@@ -43,6 +43,17 @@
             "controller": [
                 "CloudADB"
             ]
+        },
+        {
+            "name": "CultivationConfirm",
+            "label": "$task.CultivationConfirm.label",
+            "entry": "CultivationConfirm",
+            "group": [
+                "other_menu"
+            ],
+            "controller": [
+                "CloudADB"
+            ]
         }
     ]
 }
