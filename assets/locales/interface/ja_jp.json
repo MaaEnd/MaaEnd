@@ -1537,7 +1537,7 @@
     "option.CrisisDrills.AdvancedProgression6.label": "高階培養Ⅵ（遷移スラリー塗抹標本）",
     "option.CrisisDrills.label": "危境予演",
     "option.CultivationOperator.cases.Current.label": "現在の選択",
-    "option.CultivationOperator.description": "育成一覧でこのオペレーターを選択してから読み取ります。「現在の選択」はゲーム内で選択中のオペレーターを読み取ります。先に育成一覧を開いてください。",
+    "option.CultivationOperator.description": "育成一覧を開いてこのオペレーターを選択してから読み取ります。「現在の選択」は育成一覧で選択中のオペレーターを読み取ります。",
     "option.CultivationOperator.label": "オペレーター",
     "option.CultivationWeapon.cases.First.label": "1番目",
     "option.CultivationWeapon.cases.Fourth.label": "4番目",

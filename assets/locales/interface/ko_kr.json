@@ -1537,7 +1537,7 @@
     "option.CrisisDrills.AdvancedProgression6.label": "고급 양성 Ⅵ (도약 교질 도말 표본)",
     "option.CrisisDrills.label": "위경 예연",
     "option.CultivationOperator.cases.Current.label": "현재 선택",
-    "option.CultivationOperator.description": "육성 개요에서 이 오퍼레이터를 선택한 뒤 읽습니다. \"현재 선택\"은 게임에서 이미 선택한 오퍼레이터를 읽습니다. 먼저 육성 개요를 여세요.",
+    "option.CultivationOperator.description": "육성 개요를 열고 이 오퍼레이터를 선택한 뒤 읽습니다. \"현재 선택\"은 육성 개요에서 이미 선택한 오퍼레이터를 읽습니다.",
     "option.CultivationOperator.label": "오퍼레이터",
     "option.CultivationWeapon.cases.First.label": "1번째",
     "option.CultivationWeapon.cases.Fourth.label": "4번째",

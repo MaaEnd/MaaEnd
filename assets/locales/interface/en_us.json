@@ -1537,7 +1537,7 @@
     "option.CrisisDrills.AdvancedProgression6.label": "Advanced Progression Ⅵ (Warp Plasma-Coated Slide)",
     "option.CrisisDrills.label": "Peril Drills",
     "option.CultivationOperator.cases.Current.label": "Current",
-    "option.CultivationOperator.description": "Selects this operator in the cultivation overview before reading; \"Current\" reads the operator already selected in game. Open the cultivation overview first.",
+    "option.CultivationOperator.description": "Opens the cultivation overview and selects this operator before reading; \"Current\" reads the operator already selected there.",
     "option.CultivationOperator.label": "Operator",
     "option.CultivationWeapon.cases.First.label": "Weapon 1",
     "option.CultivationWeapon.cases.Fourth.label": "Weapon 4",

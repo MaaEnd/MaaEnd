@@ -168,3 +168,18 @@ func TestReadEssencePanelsAcrossPages(t *testing.T) {
 		t.Fatalf("lines = %+v", lines)
 	}
 }
+
+func TestReadEssencePanelsLeadingIconDigit(t *testing.T) {
+	// Real OCR at the top of the tab: the dot icon before 无瑕基质 was read as "0".
+	texts := []Text{
+		{Text: "基质适配", Box: [4]int{436, 268, 76, 21}, Score: 1},
+		{Text: "落草", Box: [4]int{498, 300, 41, 23}, Score: 1},
+		{Text: "暂无适配基质", Box: [4]int{567, 428, 123, 21}, Score: 1},
+		{Text: "0 无瑕基质0", Box: [4]int{573, 453, 125, 21}, Score: .84},
+		{Text: "高纯基质", Box: [4]int{700, 456, 108, 17}, Score: 1},
+	}
+	lines, _, err := ReadEssencePanels(texts, []Text{texts[1]}, "")
+	if err != nil || len(lines) != 1 || lines[0].Weapon != "落草" || lines[0].Y != 453 {
+		t.Fatalf("lines=%+v err=%v", lines, err)
+	}
+}

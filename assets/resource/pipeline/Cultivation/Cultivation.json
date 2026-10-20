@@ -6,7 +6,87 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "CultivationInOverview",
+            "CultivationOpenOverview",
+            "[JumpBack]SceneEnterMenuOperator"
+        ]
+    },
+    "CultivationInOverview": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    35,
+                    20,
+                    200,
+                    42
+                ],
+                "expected": [
+                    "培养总览",
+                    "培養總覽"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "CultivationBegin"
+        ]
+    },
+    "CultivationOverviewButton": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1020,
+                    15,
+                    180,
+                    45
+                ],
+                "expected": [
+                    "培养总览",
+                    "培養總覽"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "CultivationOpenOverview": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InOperator",
+                    "CultivationOverviewButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationInOverview"
         ]
     },
     "CultivationBegin": {

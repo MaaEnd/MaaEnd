@@ -1537,7 +1537,7 @@
     "option.CrisisDrills.AdvancedProgression6.label": "高階培養Ⅵ（躍遷漿體塗片）",
     "option.CrisisDrills.label": "危境預演",
     "option.CultivationOperator.cases.Current.label": "目前已選",
-    "option.CultivationOperator.description": "在培養總覽中自動選中該幹員後讀取；「目前已選」讀取遊戲中已選中的幹員。需先開啟培養總覽。",
+    "option.CultivationOperator.description": "自動進入培養總覽並選中該幹員後讀取；「目前已選」讀取培養總覽中已選中的幹員。",
     "option.CultivationOperator.label": "幹員",
     "option.CultivationWeapon.cases.First.label": "第 1 把",
     "option.CultivationWeapon.cases.Fourth.label": "第 4 把",

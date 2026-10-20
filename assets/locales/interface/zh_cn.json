@@ -1537,7 +1537,7 @@
     "option.CrisisDrills.AdvancedProgression6.label": "高阶培养Ⅵ（跃迁浆体涂片）",
     "option.CrisisDrills.label": "危境预演",
     "option.CultivationOperator.cases.Current.label": "当前已选",
-    "option.CultivationOperator.description": "在培养总览中自动选中该干员后读取；「当前已选」读取游戏里已经选中的干员。需先打开培养总览。",
+    "option.CultivationOperator.description": "自动进入培养总览并选中该干员后读取；「当前已选」读取培养总览里已经选中的干员。",
     "option.CultivationOperator.label": "干员",
     "option.CultivationWeapon.cases.First.label": "第 1 把",
     "option.CultivationWeapon.cases.Fourth.label": "第 4 把",

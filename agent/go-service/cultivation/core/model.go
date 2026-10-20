@@ -397,8 +397,9 @@ func ReadEssencePanels(texts []Text, headers []Text, section string) ([]EssenceL
 	}
 	var lines []EssenceLine
 	for _, t := range texts {
-		// OCR may merge the line, e.g. "无瑕基质0高纯基质".
-		if !strings.HasPrefix(strings.ReplaceAll(t.Text, " ", ""), "无瑕基质") {
+		// OCR may merge the line ("无瑕基质0高纯基质") or read the leading dot
+		// icon as a digit ("0 无瑕基质0").
+		if !strings.Contains(strings.ReplaceAll(t.Text, " ", ""), "无瑕基质") {
 			continue
 		}
 		name := sectionAt(t.Box[1])

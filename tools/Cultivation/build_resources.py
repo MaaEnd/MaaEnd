@@ -60,10 +60,27 @@ def operator_nodes():
     }
 
 
+def overview_nodes():
+    """Reach 培养总览 from any screen: the upstream operator scene, then the
+    培养总览 button at the top right of the operator page."""
+    title = ['培养总览', '培養總覽']
+    return {
+        'CultivationScan': node('DoNothing', ['CultivationInOverview', 'CultivationOpenOverview',
+                                              '[JumpBack]SceneEnterMenuOperator']),
+        # Default (current operator): read whoever is selected in the overview.
+        'CultivationInOverview': node('DoNothing', ['CultivationBegin'], {
+            'type': 'OCR', 'param': {'roi': [35, 20, 200, 42], 'expected': title}}),
+        'CultivationOverviewButton': node('DoNothing', recognition={
+            'type': 'OCR', 'param': {'roi': [1020, 15, 180, 45], 'expected': title}}),
+        'CultivationOpenOverview': node({'type': 'Click', 'param': {}}, ['CultivationInOverview'], {
+            'type': 'And', 'param': {'all_of': ['InOperator', 'CultivationOverviewButton'], 'box_index': 1}},
+            post_wait_freezes={'time': 500, 'target': [0, 0, 1280, 720], 'threshold': 0.98}),
+    }
+
+
 def build():
-    # Default (current operator): read whoever is selected in the overview.
-    pipeline = {'CultivationScan': node('DoNothing', ['CultivationBegin']),
-                'CultivationBegin': node(action('begin'), ['CultivationP0T0Select'])}
+    pipeline = overview_nodes()
+    pipeline['CultivationBegin'] = node(action('begin'), ['CultivationP0T0Select'])
     pipeline.update(operator_nodes())
     for p in range(2):
         for tab, x in enumerate([568, 750, 952, 1143]):
@@ -223,11 +240,11 @@ def build():
         }[lang]
         data['option.CultivationWeapon.label'], data['option.CultivationWeapon.description'] = weapon_texts[:2]
         operator_texts = {
-            'zh_cn': ['干员', '在培养总览中自动选中该干员后读取；「当前已选」读取游戏里已经选中的干员。需先打开培养总览。', '当前已选'],
-            'zh_tw': ['幹員', '在培養總覽中自動選中該幹員後讀取；「目前已選」讀取遊戲中已選中的幹員。需先開啟培養總覽。', '目前已選'],
-            'en_us': ['Operator', 'Selects this operator in the cultivation overview before reading; "Current" reads the operator already selected in game. Open the cultivation overview first.', 'Current'],
-            'ja_jp': ['オペレーター', '育成一覧でこのオペレーターを選択してから読み取ります。「現在の選択」はゲーム内で選択中のオペレーターを読み取ります。先に育成一覧を開いてください。', '現在の選択'],
-            'ko_kr': ['오퍼레이터', '육성 개요에서 이 오퍼레이터를 선택한 뒤 읽습니다. "현재 선택"은 게임에서 이미 선택한 오퍼레이터를 읽습니다. 먼저 육성 개요를 여세요.', '현재 선택'],
+            'zh_cn': ['干员', '自动进入培养总览并选中该干员后读取；「当前已选」读取培养总览里已经选中的干员。', '当前已选'],
+            'zh_tw': ['幹員', '自動進入培養總覽並選中該幹員後讀取；「目前已選」讀取培養總覽中已選中的幹員。', '目前已選'],
+            'en_us': ['Operator', 'Opens the cultivation overview and selects this operator before reading; "Current" reads the operator already selected there.', 'Current'],
+            'ja_jp': ['オペレーター', '育成一覧を開いてこのオペレーターを選択してから読み取ります。「現在の選択」は育成一覧で選択中のオペレーターを読み取ります。', '現在の選択'],
+            'ko_kr': ['오퍼레이터', '육성 개요를 열고 이 오퍼레이터를 선택한 뒤 읽습니다. "현재 선택"은 육성 개요에서 이미 선택한 오퍼레이터를 읽습니다.', '현재 선택'],
         }[lang]
         data['option.CultivationOperator.label'], data['option.CultivationOperator.description'], \
             data['option.CultivationOperator.cases.Current.label'] = operator_texts
@@ -285,7 +302,7 @@ def operator_cases():
     cases = [{'name': 'Current', 'label': '$option.CultivationOperator.cases.Current.label'}]
     for key, entry in grouped.items():
         cases.append({'name': key[len('operator.'):], 'label': '$' + key, 'pipeline_override': {
-            'CultivationScan': {'action': {'type': 'Custom', 'param': {
+            'CultivationInOverview': {'action': {'type': 'Custom', 'param': {
                 'custom_action': 'PipelineOverrideAction', 'custom_action_param': {'patch': {
                     'CultivationOperatorTop': {'attach': {'ready': False}},
                     'CultivationOperatorEnd': {'attach': {'ready': False}}}}}},
