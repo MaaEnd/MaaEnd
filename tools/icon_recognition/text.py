@@ -2,7 +2,6 @@
 
 import re
 
-
 _CONTROL_RE = re.compile(r"[\x00-\x1f\x7f]")
 _SPACE_RE = re.compile(r"\s+")
 

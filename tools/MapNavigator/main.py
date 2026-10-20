@@ -25,8 +25,8 @@ serve.py 负责，端口被占用时只有绑定方知道最终端口，这里�
 import argparse
 import os
 import runpy
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 SERVE_PY = Path(__file__).resolve().parent / "web" / "serve.py"
 

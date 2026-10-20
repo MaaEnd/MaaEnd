@@ -5,7 +5,6 @@ from pathlib import Path
 
 from connection_models import ConnectionKind
 
-
 SETTINGS_DIR = Path.home() / ".maaend"
 SETTINGS_PATH = SETTINGS_DIR / "mapnavigator.json"
 

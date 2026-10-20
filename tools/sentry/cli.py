@@ -6,7 +6,6 @@ from collections.abc import Callable, Sequence
 
 from . import auto_delivery_report, environment_monitoring_report
 
-
 ReportMain = Callable[[Sequence[str] | None, str | None], int]
 
 

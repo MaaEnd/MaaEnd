@@ -65,10 +65,7 @@ def collect(artifacts: Path, tag: str):
         match = pattern.match(path.name)
         platform = match["platform"] if match else None
         arch = match["arch"] if match else None
-        if platform == "android":
-            known = arch in android_archs
-        else:
-            known = platform in platforms and arch in rows
+        known = arch in android_archs if platform == "android" else platform in platforms and arch in rows
         if known:
             found[(platform, arch)] = path.name
         else:

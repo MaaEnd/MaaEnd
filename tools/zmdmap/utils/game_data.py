@@ -24,7 +24,7 @@
 
 import json
 import sys
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 from typing import Any, cast
 
@@ -97,13 +97,13 @@ def _as_record(data: Any, label: str) -> Record:
     return data
 
 
-@lru_cache(maxsize=None)
+@cache
 def read_table_cfg(table_cfg_dir: Path, name: str) -> Record:
     """``<table_cfg_dir>/<name>.json``。"""
     return _as_record(wrap(_read_json(table_cfg_dir / f"{name}.json", "TableCfg")), "TableCfg")
 
 
-@lru_cache(maxsize=None)
+@cache
 def read_gameplay_config(json_data_dir: Path, name: str) -> Record:
     """``<json_data_dir>/GameplayConfig/<name>.json``。"""
     data = _as_record(
@@ -115,7 +115,7 @@ def read_gameplay_config(json_data_dir: Path, name: str) -> Record:
     return data
 
 
-@lru_cache(maxsize=None)
+@cache
 def read_level_map_config(json_data_dir: Path, level_id: str) -> Record:
     """``<json_data_dir>/UILevelMapLoadConfig/<level_id>.json``。"""
     return _as_record(
@@ -143,7 +143,7 @@ def _fill_world_entity_defaults(data: Record) -> None:
                 entity.setdefault(field, wrap(default))
 
 
-@lru_cache(maxsize=None)
+@cache
 def _text_table(table_cfg_dir: Path, lang: str) -> dict[str, Any]:
     suffix = I18N_TABLE_SUFFIXES.get(lang)
     if suffix is None:
@@ -178,7 +178,7 @@ def as_text(value: Any) -> str:
 def texts_of(table_cfg_dir: Path, text_id: int, inline: str = "") -> dict[str, str]:
     """多语言文本：内联 ``text`` 优先，否则查该语言的文本表；key 是语言后缀（CN/TC/...）。"""
     if inline:
-        return {suffix: inline for suffix in I18N_TABLE_SUFFIXES.values()}
+        return dict.fromkeys(I18N_TABLE_SUFFIXES.values(), inline)
     return {
         suffix: localized_text(table_cfg_dir, text_id, lang)
         for lang, suffix in I18N_TABLE_SUFFIXES.items()

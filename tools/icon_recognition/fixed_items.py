@@ -5,7 +5,6 @@ from typing import Any
 
 import json5
 
-
 FIXED_ITEMS_PATH = Path(__file__).with_name("fixed_items.json")
 #: 固定物品必须自带的多语言名字（key 与物品表 ``names`` 一致）。
 NAME_LANGUAGES = ("CN", "TC", "EN", "JP", "KR")

@@ -7,10 +7,10 @@ import shutil
 import subprocess
 import sys
 import unicodedata
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Any, Sequence, TextIO
+from typing import Any, TextIO
 from urllib.parse import quote
-
 
 EXPLORE_LIMIT = 1_000
 DEFAULT_SENTRY_TIMEOUT_SECONDS = 120.0

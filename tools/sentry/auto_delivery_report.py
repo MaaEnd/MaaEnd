@@ -12,9 +12,10 @@ import math
 import re
 import sys
 from collections import defaultdict
+from collections.abc import Iterable, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Iterable, Sequence, TextIO
+from typing import Any, TextIO
 
 try:
     from .report_common import (

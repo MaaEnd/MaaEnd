@@ -8,7 +8,6 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-
 LOCAL_SUFFIX = re.compile(r"\.local\d+(?=\.png$)", re.IGNORECASE)
 NATURAL_SORT_PART = re.compile(r"(\d+)")
 

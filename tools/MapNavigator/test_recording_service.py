@@ -4,7 +4,6 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import recording_service
-
 from connection_models import RecordingSessionConfig
 from recording_service import RecordingService, parse_live_position
 from runtime import RESOURCE_DIR

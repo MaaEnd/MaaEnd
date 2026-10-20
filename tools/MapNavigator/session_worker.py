@@ -20,6 +20,5 @@ if str(_TOOL_DIR) not in sys.path:
 
 from worker_runner import worker_main  # noqa: E402
 
-
 if __name__ == "__main__":
     sys.exit(worker_main())

@@ -74,7 +74,7 @@ def github_token() -> str:
     return os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
 
 
-def request_json(url: str, attempts: int, base_delay: float) -> "dict | list":
+def request_json(url: str, attempts: int, base_delay: float) -> dict | list:
     """从 GitHub API GET 一个 JSON 文档，带重试与指数退避。"""
     headers = {
         "Accept": "application/vnd.github+json",
@@ -305,7 +305,7 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         rc = main()
-    except Exception as e:  # noqa: BLE001 - 入口兜底：未捕获异常的默认退出码会撞 EXIT_BEHIND，必须归类为 unknown
+    except Exception as e:
         log(f"[warn] unexpected internal error: {e!r}")
         rc = EXIT_UNKNOWN
     sys.exit(rc)

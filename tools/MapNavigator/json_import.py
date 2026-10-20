@@ -23,7 +23,6 @@ from model import (
     try_parse_action_type,
 )
 
-
 ZONE_HINT_KEYS = ("map_name", "mapName", "zone", "zone_id", "zoneId")
 ACTION_KEYS = ("action", "action_type", "actionType", "type")
 STRICT_KEYS = ("strict", "strict_arrival", "strictArrival")

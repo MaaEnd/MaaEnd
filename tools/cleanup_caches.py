@@ -61,7 +61,7 @@ def _headers(extra: dict | None = None) -> dict:
     return h
 
 
-def request_json(url: str) -> "dict | list":
+def request_json(url: str) -> dict | list:
     # 5 次指数退避重试 (5xx/429/网络瞬态)
     import random
     import time as _time

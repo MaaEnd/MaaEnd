@@ -8,28 +8,26 @@ i18n 包（每份约 950 KB）。图标仍然只能从站点下载。
 """
 
 import argparse
+import hashlib
+import json
+import struct
+import sys
+import time
 from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from functools import lru_cache
-import hashlib
-import json
 from pathlib import Path
-import struct
-import sys
-import time
 from typing import Any
 from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 
 import httpx
 import json5
-
 from fixed_items import FIXED_ITEMS
 from text import clean_text, validate_identifier
 
 from tools.zmdmap import read_payload
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 #: zmdmap 的数据目录：物品表与武器表的来源。
@@ -443,7 +441,7 @@ def prepare_item_map(
         # 按名字的文本 id 分组（上游是拿名字哈希去重的，哈希即文本 id 的函数）；
         # 没有 nameId 的旧数据退回用名字本身。
         duplicate_groups[(payload.get("nameId", payload["name"]), payload["iconId"])].append(item_id)
-    for (name, icon_id), member_ids in duplicate_groups.items():
+    for (_name, icon_id), member_ids in duplicate_groups.items():
         if len(member_ids) < 2:
             continue
         ordered_ids = sorted(member_ids, key=lambda item_id: (len(item_id), item_id))

@@ -6,6 +6,7 @@ from typing import Any
 from ..utils.game_data import logger, read_table_cfg
 from .base import Dataset, DatasetError
 
+
 class DeliveryJobs(Dataset):
     """地区、仓储节点及其可装箱物品（``delivery_jobs.json``）。"""
 

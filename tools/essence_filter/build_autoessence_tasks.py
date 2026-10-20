@@ -89,7 +89,7 @@ def parse_location_keys(source: str) -> dict[str, str]:
     if start < 0:
         raise ValueError("locations.go 里没有 locationLevelToKey")
     body = source[start : source.find("}", start)]
-    keys = {level_id: key for level_id, key in LOCATION_KEY_RE.findall(body)}
+    keys = dict(LOCATION_KEY_RE.findall(body))
     if not keys:
         raise ValueError("locationLevelToKey 为空")
     return keys

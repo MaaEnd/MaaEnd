@@ -16,8 +16,8 @@ from typing import Any
 import click
 
 from .utils import datafile
-from .utils.navmesh import load_nav_zones
 from .utils.config import REPO_ROOT, ZMDMAP_DATA_DIR
+from .utils.navmesh import load_nav_zones
 from .utils.project import project_dataset
 from .utils.sync import changed_data_files
 

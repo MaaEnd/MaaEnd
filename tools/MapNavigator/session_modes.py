@@ -5,9 +5,9 @@
 跑在哪一侧。
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
-
+from typing import Any
 
 Emit = Callable[[dict], None]
 Log = Callable[[str], None]
@@ -15,9 +15,9 @@ Log = Callable[[str], None]
 
 def _build_record(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
     # 延迟导入: 纯编辑用户不开会话, 不该为此拉起 maafw 相关模块。
-    from clipboard import copy_to_clipboard  # noqa: PLC0415
-    from connection_models import session_config_from_payload  # noqa: PLC0415
-    from recording_service import LivePosition, RecordingService  # noqa: PLC0415
+    from clipboard import copy_to_clipboard
+    from connection_models import session_config_from_payload
+    from recording_service import LivePosition, RecordingService
 
     def on_clipboard(coord: str, status: str) -> None:
         # 游戏持有焦点, 由跑录制的这个进程直接写系统剪贴板。
@@ -53,8 +53,8 @@ def _build_record(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
 
 
 def _build_navtest(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
-    from connection_models import session_config_from_payload  # noqa: PLC0415
-    from navtest_service import NavTestService  # noqa: PLC0415
+    from connection_models import session_config_from_payload
+    from navtest_service import NavTestService
 
     service = NavTestService(
         runtime=runtime,

@@ -158,6 +158,7 @@ By default you only need to format; there is no need to run the full checks loca
 pnpm format        # JSON/YAML formatting
 pnpm format:go     # Go formatting (when agent/go-service/ is changed)
 pnpm format:md     # Markdown formatting (when Markdown docs are changed)
+pnpm lint:py       # Python static checks (when .py files are changed)
 ```
 
 Run `pnpm check` and `pnpm test` **as needed**:
@@ -171,7 +172,7 @@ pnpm test          # Node testing
 - Other changes (Pipeline, Go, Cpp, docs, etc.) → no need to run these two commands locally; follow the relevant CI after opening a PR (Go is checked by `go-check.yml`; docs-only changes trigger no PR CI).
 - When you want to check something locally (for example, debugging the hit rate of a recognition node or confirming the scope of a change), you can run either command on its own at any time.
 
-How CI maps to these commands: `pnpm check` + `uv run tools/validate_schema.py` ([`check.yml`](../../../.github/workflows/check.yml)), `pnpm test` ([`test.yml`](../../../.github/workflows/test.yml), triggered when a PR to or a push on `v2` changes `assets/**`, `tests/**` or `agent/cpp-algo/**`), `pnpm format:all` ([`format.yml`](../../../.github/workflows/format.yml), scheduled full formatting with automatic commits).
+How CI maps to these commands: `pnpm check` + `uv run tools/validate_schema.py` ([`check.yml`](../../../.github/workflows/check.yml)), `pnpm test` ([`test.yml`](../../../.github/workflows/test.yml), triggered when a PR to or a push on `v2` changes `assets/**`, `tests/**` or `agent/cpp-algo/**`), `pnpm lint:py` ([`lint.yml`](../../../.github/workflows/lint.yml), triggered when `**/*.py`, `pyproject.toml` or `uv.lock` changes), `pnpm format:all` ([`format.yml`](../../../.github/workflows/format.yml), scheduled full formatting with automatic commits).
 
 ## Supporting Files
 

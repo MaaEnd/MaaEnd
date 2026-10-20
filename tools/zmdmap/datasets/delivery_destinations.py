@@ -43,7 +43,7 @@ def _build_mark_index(
     """LevelMapMark（{level: [mark...]}）-> {markInstId: basicData}。"""
     index: dict[str, Record] = {}
     for level_key in sorted(level_map_mark):
-        for offset, mark in enumerate(level_map_mark[level_key]):
+        for _offset, mark in enumerate(level_map_mark[level_key]):
             basic = mark.basicData
             mark_inst_id = basic.markInstId
             if not mark_inst_id:

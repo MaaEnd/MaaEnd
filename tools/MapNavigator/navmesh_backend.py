@@ -4,6 +4,7 @@
 查询节点不看画面也不发输入, 所以控制器是个空壳, 三项延迟一并归零。
 """
 
+import contextlib
 import json
 import tempfile
 import threading
@@ -117,7 +118,7 @@ class NavmeshBackend:
             if not probe.get("ok"):
                 raise RuntimeError(probe.get("error") or "navmesh 查询失败")
             geom_of = {int(z["zone_id"]): int(z["geometry_zone_id"]) for z in probe["zones"]}
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             error = str(exc)
         finally:
             with self._start_lock:
@@ -340,9 +341,7 @@ class NavmeshBackend:
         """后台把某区的规划网格建起来, 免得首条路线冷吃这份开销。"""
 
         def _run() -> None:
-            try:
+            with contextlib.suppress(Exception):
                 self.query("warm", zone_id=zone_id)
-            except Exception:  # noqa: BLE001 —— 预热失败不影响后续查询
-                pass
 
         threading.Thread(target=_run, name="navmesh-warm", daemon=True).start()

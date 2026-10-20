@@ -45,6 +45,39 @@ optimize-templates = [
     "pillow>=13.0.0",
     "tqdm>=4.70.1",
 ]
+dev = ["ruff>=0.17"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+extend-exclude = [
+    "Android",
+    "agent/cpp-algo/MaaUtils",
+    "deps",
+    "install",
+    "tests/MaaEndTestset",
+]
+
+[tool.ruff.lint]
+select = [
+    "B",
+    "C4",
+    "E4",
+    "E7",
+    "E9",
+    "F",
+    "I",
+    "RUF",
+    "SIM",
+    "UP",
+    "W",
+]
+# 中文注释和文案里大量使用全角标点，RUF001/002/003 会把它们当成“易混淆字符”报错。
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI 的 Body(...) 必须写在参数默认值里，B008 在这里是误报。
+extend-immutable-calls = ["fastapi.Body"]
 
 [tool.uv]
 default-groups = ["scripts"]

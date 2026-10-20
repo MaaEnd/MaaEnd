@@ -6,6 +6,7 @@ from typing import Any
 from ..utils.game_data import logger, read_table_cfg
 from .base import Dataset, DatasetError
 
+
 class EnvironmentMonitoring(Dataset):
     """监测终端、观察点与五语言名称（``environment_monitoring.json``）。"""
 

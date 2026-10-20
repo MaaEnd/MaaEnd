@@ -383,7 +383,7 @@ def fetch_command(
             raise click.ClickException(str(error)) from error
     else:
         click.echo("── 下载：跳过（--no-download），直接用现有 data/raw/")
-        pending = set((*pipeline_files, *plain_files))
+        pending = {*pipeline_files, *plain_files}
 
     if raw_only:
         click.echo("入库：未执行（--raw-only）")

@@ -52,10 +52,11 @@ import sys
 import threading
 import time
 import traceback
-from contextlib import asynccontextmanager
+from collections.abc import Callable, Sequence
+from contextlib import asynccontextmanager, suppress
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Callable, Sequence
+from typing import Any
 
 # --- 让被复用的父目录模块 (bare-name import) 可被解析 --------------------------------
 # 这些模块 (navmesh_backend / model / runtime / recording_service / ...) 位于
@@ -75,11 +76,15 @@ from connectors import (  # noqa: E402
     list_gamescope_instances,
     resolve_adb_path,
 )
-from model import normalize_zone_id, resolve_zone_image  # noqa: E402
+from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect  # noqa: E402
+from fastapi.concurrency import run_in_threadpool  # noqa: E402
+from fastapi.responses import FileResponse, JSONResponse, Response  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
 from local_server import NoStoreMiddleware, preferred_port, serve_local  # noqa: E402
+from model import normalize_zone_id, resolve_zone_image  # noqa: E402
 from navmesh_backend import NOGO_JSON, NavmeshBackend, default_pack_path  # noqa: E402
+from pydantic import BaseModel  # noqa: E402
 from recording_service import parse_live_position  # noqa: E402
-from session_modes import MODES, SessionMode  # noqa: E402
 from runtime import (  # noqa: E402
     INSTALL_DIR,
     MAP_IMAGE_DIR,
@@ -88,6 +93,7 @@ from runtime import (  # noqa: E402
     load_maa_runtime,
     map_image_file,
 )
+from session_modes import MODES, SessionMode  # noqa: E402
 from settings_store import (  # noqa: E402
     CONNECTION_KINDS,
     MapNavigatorSettings,
@@ -95,13 +101,6 @@ from settings_store import (  # noqa: E402
     default_connection_kind,
     supported_connection_kinds,
 )
-
-from fastapi import Body, FastAPI, HTTPException, WebSocket, WebSocketDisconnect  # noqa: E402
-from fastapi.concurrency import run_in_threadpool  # noqa: E402
-from fastapi.responses import FileResponse, JSONResponse, Response  # noqa: E402
-from fastapi.staticfiles import StaticFiles  # noqa: E402
-from pydantic import BaseModel  # noqa: E402
-
 
 # --- 常量 -----------------------------------------------------------------------------
 ZIPLINE_FRAMES = RESOURCE_DIR.parent / "data" / "MapNavigator" / "zipline_frames.json"
@@ -135,7 +134,7 @@ def get_runtime() -> Any:
         if not _runtime_loaded:
             try:
                 _runtime_cache = load_maa_runtime()
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 _log(f"load_maa_runtime 失败: {exc}")
                 _runtime_cache = None
             _runtime_loaded = True
@@ -192,7 +191,7 @@ class ElevatedWorkerBridge:
             try:
                 line = await asyncio.wait_for(reader.readline(), timeout=WORKER_CONNECT_TIMEOUT_SECONDS)
                 hello = json.loads(line.decode("utf-8"))
-            except Exception:  # noqa: BLE001
+            except Exception:
                 writer.close()
                 return
             token = hello.get("token") if isinstance(hello, dict) else None
@@ -220,7 +219,7 @@ class ElevatedWorkerBridge:
             self._reader, self._writer = await asyncio.wait_for(
                 self._connected, timeout=WORKER_CONNECT_TIMEOUT_SECONDS
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return (
                 f"提权子进程 {WORKER_CONNECT_TIMEOUT_SECONDS:.0f}s 内没有回连 "
                 "(可能被安全软件拦截, 或 maafw 依赖加载失败)。"
@@ -238,7 +237,7 @@ class ElevatedWorkerBridge:
         if not self._elevate:
             try:
                 subprocess.Popen([sys.executable, *argv], cwd=str(_PARENT_DIR))
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 return f"拉起子进程失败: {exc}"
             return None
         try:
@@ -255,7 +254,7 @@ class ElevatedWorkerBridge:
                     0,
                 )
             )
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             return f"拉起提权子进程失败: {exc}"
         if ret == SE_ERR_ACCESSDENIED:
             return "已取消提权。"
@@ -267,10 +266,8 @@ class ElevatedWorkerBridge:
         if self._writer is None:
             return
         self._writer.write((json.dumps(payload, ensure_ascii=False) + "\n").encode("utf-8"))
-        try:
+        with suppress(Exception):
             await self._writer.drain()
-        except Exception:  # noqa: BLE001
-            pass
 
     async def messages(self):
         """逐条产出子进程消息; socket EOF 时结束。"""
@@ -279,7 +276,7 @@ class ElevatedWorkerBridge:
         while True:
             try:
                 line = await self._reader.readline()
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 # 连接被重置等: 必须留痕, 否则和正常 EOF 长得一样, 没法查。
                 _log(f"读取录制子进程失败: {exc!r}")
                 return
@@ -295,16 +292,12 @@ class ElevatedWorkerBridge:
     async def close(self) -> None:
         # 关 socket 即让子进程自杀 —— 本进程完整性级别更低, kill 不掉它。
         if self._writer is not None:
-            try:
+            with suppress(Exception):
                 self._writer.close()
-            except Exception:  # noqa: BLE001
-                pass
         if self._server is not None:
             self._server.close()
-            try:
+            with suppress(Exception):
                 await self._server.wait_closed()
-            except Exception:  # noqa: BLE001
-                pass
 
 
 # --- FastAPI app ----------------------------------------------------------------------
@@ -355,7 +348,7 @@ async def api_zones() -> Any:
             if image is not None:
                 try:
                     image_path = image.resolve().relative_to(MAP_IMAGE_DIR.resolve()).as_posix()
-                except Exception:  # noqa: BLE001
+                except Exception:
                     image_path = None
             # 底图是这边的事 (assets 目录布局), 其余字段原样透传 agent
             zones_out.append({**zone, "has_image": image is not None, "image_path": image_path})
@@ -372,7 +365,7 @@ async def api_mesh(zone_id: int) -> Response:
     try:
         data = await run_in_threadpool(navmesh_backend.mesh_bytes, zone_id)
     except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc))
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     if data is None:
         raise HTTPException(status_code=404, detail="该区无三角面 (tier 叠加区或未知区)")
     navmesh_backend.warm(zone_id)
@@ -535,7 +528,7 @@ async def api_put_nogo(payload: dict[str, Any] = Body(default_factory=dict)) -> 
     try:
         # 冷启要等在途查询让出 _query_lock, 一条规划就是好几秒, 别拿事件循环去等。
         await run_in_threadpool(navmesh_backend.restart)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         reload_error = str(exc)
         _log(f"navmesh 重载失败: {exc}")
     return {
@@ -552,9 +545,9 @@ async def api_basemap(path: str) -> FileResponse:
     try:
         return FileResponse(map_image_file(path))
     except PermissionError:
-        raise HTTPException(status_code=403, detail="非法路径")
+        raise HTTPException(status_code=403, detail="非法路径") from None
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="未找到底图")
+        raise HTTPException(status_code=404, detail="未找到底图") from None
 
 
 @app.get("/basemap-by-zone")
@@ -656,7 +649,7 @@ async def api_put_settings(payload: dict[str, Any] = Body(default_factory=dict))
     )
     try:
         settings_store.save(updated)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return JSONResponse(status_code=500, content={"error": f"保存设置失败: {exc}"})
     return asdict(updated)
 
@@ -681,7 +674,7 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
             win32_title = payload.get("win32_window_title", current.win32_window_title)
             try:
                 hwnd = find_game_window(win32_title)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 return {"connected": False, "message": f"窗口查找异常: {exc}"}
             if hwnd != 0:
                 return {"connected": True, "message": f"Win32 窗口已找到 (hWnd: {hwnd})"}
@@ -698,14 +691,12 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
                     return {"connected": False, "message": "未指定 ADB 设备序列号/IP"}
                 if ":" in address:
                     # 网络设备可能未连接; 先尝试 adb connect (失败不致命, 枚举兜底)。
-                    try:
+                    with suppress(Exception):
                         subprocess.run([resolved_adb, "connect", address], capture_output=True, timeout=2.0)
-                    except Exception:  # noqa: BLE001
-                        pass
                 matched = next(
                     (d for d in list_adb_devices(adb_path) if d.serial == address or d.address == address), None
                 )
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 return {"connected": False, "message": f"ADB 检测异常: {exc}"}
             if matched is None:
                 return {"connected": False, "message": f"未找到设备: {address}"}
@@ -724,7 +715,7 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
                 port = int(port_str) if port_str else 1717
                 with socket.create_connection((host, port), timeout=1.0):
                     pass
-            except Exception:  # noqa: BLE001
+            except Exception:
                 return {"connected": False, "message": f"连接服务失败 (端口未监听): {address}"}
             runtime = get_runtime()
             if runtime is None or getattr(runtime, "PlayCoverController", None) is None:
@@ -775,7 +766,7 @@ async def api_adb_devices(adb_path: str = "") -> dict[str, Any]:
 
     try:
         return await run_in_threadpool(_list)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return {"devices": [], "error": str(exc)}
 
 
@@ -844,7 +835,6 @@ async def api_load_project_node(payload: dict[str, Any] = Body(default_factory=d
 # 仅把 tk 的模态对话框换成前端对话框; 所有判定仍在 Python 内, 与 tk 工具一致。
 def _dominant_zone_of(points: list) -> str:
     """片段主导 zone (app_tk._dominant_zone)。"""
-    from model import normalize_zone_id
 
     counts: dict[str, int] = {}
     for point in points:
@@ -870,7 +860,6 @@ def _segment_summary(points: list, start: int, end: int) -> str:
 
 def _unresolved_zone_ids(points: list) -> list[str]:
     """无法映射到底图的 zone (app_tk._validate_zone_assignments)。"""
-    from model import normalize_zone_id
 
     zone_ids = sorted(
         {normalize_zone_id(p.get("zone", "")) for p in points if normalize_zone_id(p.get("zone", ""))}
@@ -909,10 +898,10 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
             # 先按路线导入, 失败再退回 Assert
             try:
                 route = load_points_from_json_file(tmp)
-            except Exception as route_exc:  # noqa: BLE001 —— tk import_json 捕获全部异常再试 Assert
+            except Exception as route_exc:
                 try:
                     location = load_assert_location_from_json_file(tmp)
-                except Exception:  # noqa: BLE001 —— Assert 也失败 -> 回原始路线错误 (tk 行为)
+                except Exception:
                     return {"ok": False, "error": str(route_exc)}
                 if resolve_zone_image(location.zone_id, MAP_IMAGE_DIR) is None:
                     return {"ok": False, "error": f"Assert zone 无法映射到底图：{location.zone_id}"}
@@ -970,10 +959,8 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                 "zip_enabled": route.zip_enabled,
             }
         finally:
-            try:
+            with suppress(OSError):
                 tmp.unlink()
-            except OSError:
-                pass
 
     return await run_in_threadpool(_run)
 
@@ -1048,7 +1035,7 @@ async def api_export_assert(payload: dict[str, Any] = Body(default_factory=dict)
     try:
         return await run_in_threadpool(_run)
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -1071,7 +1058,7 @@ def _hotkey_worker_mode() -> str:
     try:
         # macOS 的输入监控提示也靠这一调用, 别按平台短路掉。
         privileged = key_listener.ensure_privileges()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _log(f"ensure_privileges 异常(按已有权限处理): {exc}")
         return "inline"
     if sys.platform != "win32":
@@ -1109,7 +1096,7 @@ async def _relay_elevated_worker(
                 msg = await websocket.receive_json()
                 if isinstance(msg, dict) and msg.get("type"):
                     await bridge.send(msg)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return "disconnected"
 
     worker_task = asyncio.create_task(pump_worker())
@@ -1122,10 +1109,9 @@ async def _relay_elevated_worker(
             task.cancel()
         for task in done:
             task.exception()  # 取一下, 免得变成 "exception never retrieved"
-        if worker_task in done and worker_task.exception() is None:
-            if worker_task.result() == "eof":
-                # 子进程没给结果就断了 (崩溃/被安全软件杀), 前端得复位。
-                await websocket.send_json({"type": "error", "message": eof_message})
+        if worker_task in done and worker_task.exception() is None and worker_task.result() == "eof":
+            # 子进程没给结果就断了 (崩溃/被安全软件杀), 前端得复位。
+            await websocket.send_json({"type": "error", "message": eof_message})
     finally:
         worker_task.cancel()
         client_task.cancel()
@@ -1165,20 +1151,16 @@ async def _try_worker_session(
         )
         return True, None
     finally:
-        try:
+        with suppress(Exception):
             await bridge.close()  # 关 socket = 子进程自杀 (提权后 kill 不掉它)
-        except Exception:  # noqa: BLE001
-            pass
 
 
 def _ws_pusher(websocket: WebSocket, loop: asyncio.AbstractEventLoop) -> Callable[[dict[str, Any]], None]:
     """给工作线程/热键线程用的发送口: 把回调 marshal 回事件循环。ws 关闭时静默失败。"""
 
     def push(payload: dict[str, Any]) -> None:
-        try:
+        with suppress(Exception):
             asyncio.run_coroutine_threadsafe(websocket.send_json(payload), loop)
-        except Exception:  # noqa: BLE001
-            pass
 
     return push
 
@@ -1199,16 +1181,12 @@ async def _close_game_session(websocket: WebSocket, service: Any, acquired: bool
     可能撞上还没死透的上一个 Agent。
     """
     if service is not None:
-        try:
+        with suppress(Exception):
             await run_in_threadpool(service.stop)
-        except Exception:  # noqa: BLE001
-            pass
     if acquired:
         _game_session_lock.release()
-    try:
+    with suppress(Exception):
         await websocket.close()
-    except Exception:  # noqa: BLE001
-        pass
 
 
 async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
@@ -1287,7 +1265,7 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
                     # 录制的 stop() 只清标志, 还得等它把带路点的 finished 发出来才算完。
                     service.stop()
                     return
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
             loop.call_soon_threadsafe(closed_event.set)
 
@@ -1298,12 +1276,10 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
             client_task.cancel()
     except WebSocketDisconnect:
         pass
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         _log(f"{mode.label} WS 异常: {exc}")
-        try:
+        with suppress(Exception):
             await websocket.send_json({"type": "error", "message": str(exc)})
-        except Exception:  # noqa: BLE001
-            pass
     finally:
         await _close_game_session(websocket, service, acquired)
 

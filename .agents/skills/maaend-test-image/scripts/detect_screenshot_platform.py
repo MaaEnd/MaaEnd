@@ -33,7 +33,6 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-
 SUPPORTED_CONTROLLERS = {"adb": "ADB", "win32": "Win32"}
 
 # 按平台标定的 UID 固定打码 ROI，格式 x, y, w, h。

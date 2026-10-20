@@ -20,9 +20,9 @@ from pathlib import Path
 from .config import (
     NAVMESH_DIR,
     NAVMESH_FILES,
-    ZMDMAP_DATA_DIR,
     REPO_ROOT,
     WORKSPACE_REPO_NAMES,
+    ZMDMAP_DATA_DIR,
 )
 
 # 状态 -> 单字符标记，打印同步结果时用。标记只用 GBK 能编出来的字符：Windows 中文控制台
