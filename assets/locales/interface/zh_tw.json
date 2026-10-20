@@ -1675,7 +1675,7 @@
     "option.OperatorProgression.SkillUp.label": "技能提升",
     "option.OperatorProgression.TCreds.label": "錢幣收集（折金票）",
     "option.OperatorProgression.label": "幹員養成",
-    "option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label": "完美基質總等級下限",
+    "option.PerfectMinLevelTotal.inputs.PerfectMinLevelTotal.label": "完美基質總等級最低要求",
     "option.PerfectMinLevelTotal.label": "完美基質總等級下限",
     "option.ProductionAssistControl.ProductionAssistControlNexus.label": "助力總控中樞",
     "option.ProductionAssistControl.ProductionAssistGrowthChamber.label": "助力培養艙",
