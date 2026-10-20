@@ -1350,7 +1350,6 @@
     "option.AutoSkipChoose.label": "분기 자동 선택",
     "option.AutoSkipNext.description": "스토리 자동 진행 중 화면을 계속 탭하여 재생을 가속합니다.",
     "option.AutoSkipNext.label": "스토리 재생 가속",
-    "option.AutoStartExchange.description": "기반 시설 임무 진행 중 단서 교환을 자동으로 시작합니다. 이 옵션은 권장하지 않습니다. 고가치 아이템을 얻으려면 크레딧 거래 임무가 단서 교환을 직접 시작할 때까지 기다리는 것이 좋습니다.",
     "option.AutoStartExchange.label": "단서 교환 시작",
     "option.AutoTaskInterval.cases.AutoTaskIntervalFast.label": "빠름",
     "option.AutoTaskInterval.cases.AutoTaskIntervalNormal.label": "보통",

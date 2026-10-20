@@ -30,7 +30,6 @@
         "AutoStartExchange": {
             "type": "switch",
             "label": "$option.AutoStartExchange.label",
-            "description": "$option.AutoStartExchange.description",
             "cases": [
                 {
                     "name": "Yes",

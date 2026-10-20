@@ -1350,7 +1350,6 @@
     "option.AutoSkipChoose.label": "分岐を自動選択",
     "option.AutoSkipNext.description": "ストーリー自動中、画面を連打して再生を高速化します。",
     "option.AutoSkipNext.label": "ストーリー再生を高速化",
-    "option.AutoStartExchange.description": "基地任務中に手がかり交換を自動的に開始します。このオプションの有効化は推奨されません。高価値なアイテムを獲得するためには、手がかり交換任務はクレジット取引任務が主体的に開始するのを待つべきです。",
     "option.AutoStartExchange.label": "手がかり交換を開始",
     "option.AutoTaskInterval.cases.AutoTaskIntervalFast.label": "速い",
     "option.AutoTaskInterval.cases.AutoTaskIntervalNormal.label": "通常",

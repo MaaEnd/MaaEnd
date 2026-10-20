@@ -1350,7 +1350,6 @@
     "option.AutoSkipChoose.label": "自动选择剧情分支",
     "option.AutoSkipNext.description": "在自动剧情过程中，不断点击屏幕以加速剧情播放",
     "option.AutoSkipNext.label": "加速剧情播放",
-    "option.AutoStartExchange.description": "在基建任务过程中，自动开启线索交流，并不推荐开启此选项，线索交流任务应该等待信用点交易任务主动开启来获取高价值物品。",
     "option.AutoStartExchange.label": "开启线索交流",
     "option.AutoTaskInterval.cases.AutoTaskIntervalFast.label": "快",
     "option.AutoTaskInterval.cases.AutoTaskIntervalNormal.label": "普通",

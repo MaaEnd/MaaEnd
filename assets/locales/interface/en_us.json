@@ -1350,7 +1350,6 @@
     "option.AutoSkipChoose.label": "Auto Choose Branch Options",
     "option.AutoSkipNext.description": "During Auto Story, keep tapping to speed up story playback.",
     "option.AutoSkipNext.label": "Speed Up Story Playback",
-    "option.AutoStartExchange.description": "Automatically starts clue exchange during base tasks. It is not recommended to enable this option, as clue exchange tasks should wait for credit point transaction tasks to actively initiate in order to obtain high-value items.",
     "option.AutoStartExchange.label": "Start Clue Exchange",
     "option.AutoTaskInterval.cases.AutoTaskIntervalFast.label": "Fast",
     "option.AutoTaskInterval.cases.AutoTaskIntervalNormal.label": "Normal",
