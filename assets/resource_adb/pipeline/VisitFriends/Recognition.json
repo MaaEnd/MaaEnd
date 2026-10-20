@@ -52,5 +52,13 @@
             110,
             83
         ]
+    },
+    "VisitFriendsQuickVisitNextClue": {
+        "roi_offset": [
+            -20,
+            30,
+            0,
+            0
+        ]
     }
 }
