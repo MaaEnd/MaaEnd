@@ -7,11 +7,13 @@
 参数在云终末地 1280×720 截图上验证：9 张可见卡片中 8 张命中正确干员（0.93–0.97，
 与第二名差距 ≥ 0.29），未发布的「前瞻」干员没有原图，最高 0.50，不会误命中。
 
-运行：uv run python -m tools.Cultivation.build_operator_templates
+运行：uv run python -m tools.Cultivation.build_operator_templates [--rebuild resource]
+--rebuild 在校准（calibrate_operator_scale）改了某端缩放后，重新生成该端全部模板。
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 from io import BytesIO
 from pathlib import Path
@@ -44,7 +46,13 @@ def build_template(source: Image.Image, scale: float) -> Image.Image:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--rebuild", choices=sorted(RESOURCE_SCALES), action="append", default=[])
+    args = parser.parse_args()
     operators = json.loads(OPERATORS.read_text(encoding="utf-8"))["operators"]
+    for resource in args.rebuild:
+        for char_id in operators:
+            template_path(resource, char_id).unlink(missing_ok=True)
     jobs = [
         (char_id, resource)
         for char_id in operators

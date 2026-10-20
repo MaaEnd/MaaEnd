@@ -110,12 +110,12 @@ type Weapon struct {
 }
 
 // Essence is what the 武器基质 tab shows for one weapon: the adapted essence
-// ("" when 暂无适配基质) and the matching essence counts. Traits come from the
-// upstream weapon data, so they are not read here.
+// ("" when 暂无适配基质) and how many owned flawless (gold) essences match its
+// three traits. The purple 高纯基质 count beside it does not matter for
+// cultivation and is not read. Traits come from the upstream weapon data.
 type Essence struct {
 	Adapted  string `json:"adapted,omitempty"`
 	Flawless int64  `json:"flawless"`
-	Pure     int64  `json:"pure"`
 }
 
 // EssenceLine locates one weapon's "无瑕基质 N 高纯基质 M" line on a page.

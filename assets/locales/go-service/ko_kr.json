@@ -70,7 +70,7 @@
     "cultivation.unknown_item": "미확인 아이템 %s",
     "cultivation.unknown_notice": "%d종의 재료가 MaaEnd 아이템 아이콘 목록에 없습니다(신규 아이템일 수 있음). \"수동\"으로 표시하며 자동 파밍하지 않습니다. 아이콘은 debug/cultivation/에 저장했습니다. MaaEnd 업데이트 후 육성 재료를 다시 읽어 주세요.",
     "cultivation.weapon_choice_invalid": "\"육성할 무기\"가 %d번째로 설정되어 있지만 읽은 사용 가능 무기는 %d개입니다. 선택을 변경하지 않았습니다.",
-    "cultivation.weapon_entry": "%d. %s (무결 기질 %d, 고순도 기질 %d)",
+    "cultivation.weapon_entry": "%d. %s (특성: %s; 보유한 일치 무결 기질 %d개)",
     "cultivation.weapon_none": "선택 안 함 (오퍼레이터 재료만)",
     "cultivation.weapons": "사용 가능 무기:\n%s\n육성할 무기: %s. 오퍼레이터는 무기를 하나만 장착합니다. \"육성할 무기\"에서 선택한 뒤 \"육성 작업 진행 상황\"을 실행하세요(다시 읽을 필요 없음).",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 이 배달 임무는 (%s) 소속입니다",

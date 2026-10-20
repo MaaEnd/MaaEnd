@@ -336,20 +336,16 @@ func readEssenceStep(ctx *maa.Context, img image.Image, p stepParam, catalog map
 		if !slices.Contains(scan.WeaponNames[p.Pass], line.Weapon) {
 			return fail(ctx, fmt.Errorf("weapon %s on the essence tab was not listed on the weapon tab", line.Weapon))
 		}
-		// The counts sit at fixed offsets in the panel; single digits are often
-		// missed by full-page OCR, so read each one in its own box.
-		var counts [2]int64
-		for index, x := range []int{672, 815} {
-			value, ok, err := iconqty.RecognizeQuantityInROI(ctx, img, maa.Rect{x, line.Y - 4, 40, 28})
-			if err != nil {
-				return fail(ctx, err)
-			}
-			if !ok {
-				return fail(ctx, fmt.Errorf("unreadable essence count for %s", line.Weapon))
-			}
-			counts[index] = int64(value)
+		// The flawless count sits at a fixed offset in the panel; single digits
+		// are often missed by full-page OCR, so read it in its own box.
+		value, ok, err := iconqty.RecognizeQuantityInROI(ctx, img, maa.Rect{672, line.Y - 4, 40, 28})
+		if err != nil {
+			return fail(ctx, err)
 		}
-		scan.Essence[p.Pass][line.Weapon] = core.Essence{Adapted: line.Adapted, Flawless: counts[0], Pure: counts[1]}
+		if !ok {
+			return fail(ctx, fmt.Errorf("unreadable flawless essence count for %s", line.Weapon))
+		}
+		scan.Essence[p.Pass][line.Weapon] = core.Essence{Adapted: line.Adapted, Flawless: int64(value)}
 	}
 	log.Info().Str("component", "Cultivation").Int("tab", p.Tab).Int("pass", p.Pass).Int("page", scan.Pages).
 		Interface("essence", scan.Essence[p.Pass]).Msg("cultivation essence page read")

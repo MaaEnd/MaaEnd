@@ -71,7 +71,7 @@
     "cultivation.unknown_item": "Unrecognized item %s",
     "cultivation.unknown_notice": "%d material(s) are not in the MaaEnd item icon catalog (possibly new items). They are listed as Manual and will not be farmed automatically. Icons were saved to debug/cultivation/; update MaaEnd and read cultivation needs again.",
     "cultivation.weapon_choice_invalid": "\"Weapon to develop\" is set to #%d, but only %d usable weapon(s) were read. The choice was not changed.",
-    "cultivation.weapon_entry": "%d. %s (flawless essence %d, pure essence %d)",
+    "cultivation.weapon_entry": "%d. %s (traits: %s; matching flawless essences owned: %d)",
     "cultivation.weapon_none": "none (operator materials only)",
     "cultivation.weapons": "Usable weapons:\n%s\nWeapon to develop: %s. An operator equips one weapon; choose it in \"Weapon to develop\", then run \"Cultivation task progress\" (no rescan needed).",
     "deliveryjobs.focus.ongoing_depot_resolved": "🚚 The delivery job belongs to %s",

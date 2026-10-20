@@ -6,12 +6,14 @@ import (
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation/core"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/fsutil"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
 func modulePreview(plan core.Plan) (core.ModulePreview, error) {
@@ -74,11 +76,12 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 		maafocus.Print(ctx, i18n.T("cultivation.unknown_notice", unknown))
 	}
 	if len(plan.Weapons) > 0 {
+		traits := weaponTraits()
 		var names []string
 		for index, weapon := range plan.Weapons {
 			entry := fmt.Sprintf("%d. %s", index+1, weapon.Name)
 			if e := weapon.Essence; e != nil {
-				entry = i18n.T("cultivation.weapon_entry", index+1, weapon.Name, e.Flawless, e.Pure)
+				entry = i18n.T("cultivation.weapon_entry", index+1, weapon.Name, strings.Join(traits[weapon.ID], " | "), e.Flawless)
 			}
 			names = append(names, entry)
 		}
@@ -100,4 +103,19 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 	}
 	maafocus.Print(ctx, i18n.T("cultivation.modules_exported"))
 	return nil
+}
+
+// weaponTraits maps weapon IDs to their three essence traits from the upstream
+// EssenceFilter weapon data; missing data only hides the traits.
+func weaponTraits() map[string][]string {
+	out := map[string][]string{}
+	engine, err := matchapi.NewDefaultEngine()
+	if err != nil {
+		log.Warn().Err(err).Str("component", "Cultivation").Msg("weapon traits unavailable")
+		return out
+	}
+	for _, weapon := range engine.Weapons() {
+		out[weapon.InternalID] = weapon.SkillsChinese
+	}
+	return out
 }
