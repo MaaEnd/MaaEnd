@@ -20,7 +20,8 @@
                         "export",
                         "clear",
                         "confirm",
-                        "operator_missing"
+                        "operator_missing",
+                        "expectation_missing"
                     ]
                 },
                 "tab": {

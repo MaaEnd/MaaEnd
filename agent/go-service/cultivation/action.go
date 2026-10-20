@@ -84,6 +84,12 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		maafocus.Print(ctx, i18n.T("cultivation.operator_missing"))
 		return false
 	}
+	if p.Step == "expectation_missing" {
+		// The 培养期望 panel or the chosen level could not be confirmed; reading
+		// under another level would give the wrong gap.
+		maafocus.Print(ctx, i18n.T("cultivation.expectation_missing"))
+		return false
+	}
 	if p.Step == "preview" || p.Step == "export" {
 		return finishOrFail(ctx, preview(ctx, p.Step == "export", p.Weapon), "")
 	}

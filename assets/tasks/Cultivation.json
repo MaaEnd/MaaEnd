@@ -12,6 +12,7 @@
             ],
             "option": [
                 "CultivationOperator",
+                "CultivationExpectation",
                 "CultivationWeapon"
             ]
         },
@@ -287,6 +288,170 @@
                     }
                 }
             ]
+        },
+        "CultivationExpectation": {
+            "type": "select",
+            "label": "$option.CultivationExpectation.label",
+            "description": "$option.CultivationExpectation.description",
+            "cases": [
+                {
+                    "name": "Basic",
+                    "label": "$option.CultivationExpectation.cases.Basic.label",
+                    "pipeline_override": {
+                        "CultivationExpectationReady": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        990,
+                                        110,
+                                        180,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "基础",
+                                        "基礎"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationExpectationPick": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        860,
+                                        265,
+                                        340,
+                                        195
+                                    ],
+                                    "expected": [
+                                        "基础",
+                                        "基礎"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Advanced",
+                    "label": "$option.CultivationExpectation.cases.Advanced.label",
+                    "pipeline_override": {
+                        "CultivationExpectationReady": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        990,
+                                        110,
+                                        180,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "进阶",
+                                        "進階"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationExpectationPick": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        860,
+                                        265,
+                                        340,
+                                        195
+                                    ],
+                                    "expected": [
+                                        "进阶",
+                                        "進階"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Proficient",
+                    "label": "$option.CultivationExpectation.cases.Proficient.label",
+                    "pipeline_override": {
+                        "CultivationExpectationReady": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        990,
+                                        110,
+                                        180,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "精通"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationExpectationPick": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        860,
+                                        265,
+                                        340,
+                                        195
+                                    ],
+                                    "expected": [
+                                        "精通"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Excellent",
+                    "label": "$option.CultivationExpectation.cases.Excellent.label",
+                    "pipeline_override": {
+                        "CultivationExpectationReady": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        990,
+                                        110,
+                                        180,
+                                        40
+                                    ],
+                                    "expected": [
+                                        "卓越"
+                                    ]
+                                }
+                            }
+                        },
+                        "CultivationExpectationPick": {
+                            "recognition": {
+                                "type": "OCR",
+                                "param": {
+                                    "roi": [
+                                        860,
+                                        265,
+                                        340,
+                                        195
+                                    ],
+                                    "expected": [
+                                        "卓越"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Excellent"
         },
         "CultivationOperator": {
             "type": "select",

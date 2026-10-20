@@ -34,6 +34,30 @@ OPERATOR_FREEZE = {'time': 300, 'target': [420, 75, 810, 160], 'threshold': 0.98
 LIST_FREEZE = {'time': 300, 'target': OPERATOR_LIST, 'threshold': 0.98}
 
 
+# 培养期望 sets the target levels, so the material gap differs per level; the
+# chosen level is applied before reading. Rows of the selection panel, top to bottom.
+EXPECTATIONS = {'Basic': ['基础', '基礎'], 'Advanced': ['进阶', '進階'], 'Proficient': ['精通'], 'Excellent': ['卓越']}
+EXPECTATION_HEADER = [990, 110, 180, 40]
+EXPECTATION_PANEL = [860, 265, 340, 195]
+EXPECTATION_NEXT = ['CultivationExpectationReady', 'CultivationExpectationOpen']
+
+
+def expectation_nodes():
+    """Check the header level; otherwise open the panel, click the level and
+    confirm the header again. Option cases fill the level names."""
+    freeze = {'time': 300, 'target': [420, 75, 810, 400], 'threshold': 0.98}
+    level = EXPECTATIONS['Excellent']
+    return {
+        'CultivationExpectationReady': node('DoNothing', ['CultivationBegin'], {
+            'type': 'OCR', 'param': {'roi': EXPECTATION_HEADER, 'expected': level}}),
+        'CultivationExpectationOpen': node({'type': 'Click', 'param': {}}, ['CultivationExpectationPick', 'CultivationExpectationMissing'], {
+            'type': 'OCR', 'param': {'roi': EXPECTATION_HEADER, 'expected': ['培养期望', '培養期望']}}, post_wait_freezes=freeze),
+        'CultivationExpectationPick': node({'type': 'Click', 'param': {}}, ['CultivationExpectationReady', 'CultivationExpectationMissing'], {
+            'type': 'OCR', 'param': {'roi': EXPECTATION_PANEL, 'expected': level}}, post_wait_freezes=freeze),
+        'CultivationExpectationMissing': node(action('expectation_missing')),
+    }
+
+
 def operator_nodes():
     """Find an operator card by portrait (from the top of the list), click it and
     confirm the header name. Option cases fill the template and names."""
@@ -44,7 +68,7 @@ def operator_nodes():
     list_end = lambda: {'type': 'Custom', 'param': {'custom_recognition': 'ListCompleteRecognition',
                                                     'custom_recognition_param': {'threshold': 0.98}, 'roi': OPERATOR_LIST}}
     return {
-        'CultivationOperatorSelected': node('DoNothing', ['CultivationBegin'], {
+        'CultivationOperatorSelected': node('DoNothing', EXPECTATION_NEXT, {
             'type': 'OCR', 'param': {'roi': OPERATOR_NAME, 'expected': ['(?!)']}}),
         # A portrait click on the wrong operator (e.g. a look-alike skin) falls back to the sweep.
         'CultivationOperatorFind': node({'type': 'Click', 'param': {}}, ['CultivationOperatorSelected'] + sweep_start, {
@@ -86,7 +110,7 @@ def overview_nodes():
         'CultivationScan': node('DoNothing', ['CultivationInOverview', 'CultivationOpenOverview',
                                               '[JumpBack]SceneEnterMenuOperator']),
         # Default (current operator): read whoever is selected in the overview.
-        'CultivationInOverview': node('DoNothing', ['CultivationBegin'], {
+        'CultivationInOverview': node('DoNothing', EXPECTATION_NEXT, {
             'type': 'OCR', 'param': {'roi': [35, 20, 200, 42], 'expected': title}}),
         'CultivationOverviewButton': node('DoNothing', recognition={
             'type': 'OCR', 'param': {'roi': [1020, 15, 180, 45], 'expected': title}}),
@@ -100,6 +124,7 @@ def build():
     pipeline = overview_nodes()
     pipeline['CultivationBegin'] = node(action('begin'), ['CultivationP0T0Select'])
     pipeline.update(operator_nodes())
+    pipeline.update(expectation_nodes())
     for p in range(2):
         for tab, x in enumerate([568, 750, 952, 1143]):
             prefix = f'CultivationP{p}T{tab}'
@@ -137,7 +162,7 @@ def build():
         task = {'name': 'Cultivation'+name, 'label': '$task.Cultivation'+name+'.label',
                 'entry': 'Cultivation'+name, 'group': ['other_menu'], 'controller': ['CloudADB']}
         if name == 'Scan':
-            task['option'] = ['CultivationOperator', 'CultivationWeapon']
+            task['option'] = ['CultivationOperator', 'CultivationExpectation', 'CultivationWeapon']
         elif name in ('Preview', 'Export'):
             task['option'] = ['CultivationWeapon']
         tasks.append(task)
@@ -150,6 +175,13 @@ def build():
             node: {'action': action(step, weapon=index)} for node, step in steps.items()}})
     options = {'CultivationWeapon': {'type': 'select', 'label': '$option.CultivationWeapon.label',
                                      'description': '$option.CultivationWeapon.description', 'cases': cases},
+               'CultivationExpectation': {'type': 'select', 'label': '$option.CultivationExpectation.label',
+                                          'description': '$option.CultivationExpectation.description',
+                                          'default_case': 'Excellent', 'cases': [
+                   {'name': case, 'label': f'$option.CultivationExpectation.cases.{case}.label', 'pipeline_override': {
+                       name: {'recognition': {'type': 'OCR', 'param': {'roi': roi, 'expected': level}}}
+                       for name, roi in [('CultivationExpectationReady', EXPECTATION_HEADER), ('CultivationExpectationPick', EXPECTATION_PANEL)]}}
+                   for case, level in EXPECTATIONS.items()]},
                'CultivationOperator': {'type': 'select', 'label': '$option.CultivationOperator.label',
                                        'description': '$option.CultivationOperator.description',
                                        'cases': operator_cases()}}
@@ -264,6 +296,16 @@ def build():
             'ja_jp': ['オペレーター', '育成一覧を開いてこのオペレーターを選択してから読み取ります。「現在の選択」は育成一覧で選択中のオペレーターを読み取ります。', '現在の選択'],
             'ko_kr': ['오퍼레이터', '육성 개요를 열고 이 오퍼레이터를 선택한 뒤 읽습니다. "현재 선택"은 육성 개요에서 이미 선택한 오퍼레이터를 읽습니다.', '현재 선택'],
         }[lang]
+        expectation_texts = {
+            'zh_cn': ['培养期望', '培养期望决定干员、技能和武器的目标等级，不同期望需要的材料不同。读取前会在游戏里切换到所选期望（只改显示设置，不消耗资源）。', '基础', '进阶', '精通', '卓越'],
+            'zh_tw': ['培養期望', '培養期望決定幹員、技能和武器的目標等級，不同期望需要的材料不同。讀取前會在遊戲中切換到所選期望（只改顯示設定，不消耗資源）。', '基礎', '進階', '精通', '卓越'],
+            'en_us': ['Cultivation goal', 'The goal sets the target levels for the operator, skills and weapon, so each goal needs different materials. Before reading, the game is switched to this goal (a display setting only; nothing is consumed).', 'Basic', 'Advanced', 'Proficient', 'Excellent'],
+            'ja_jp': ['育成目標', '育成目標はオペレーター・スキル・武器の目標レベルを決め、目標ごとに必要な素材が異なります。読み取り前にゲーム内でこの目標に切り替えます（表示設定のみで、消費はありません）。', '基礎', '進階', '精通', '卓越'],
+            'ko_kr': ['육성 목표', '육성 목표는 오퍼레이터·스킬·무기의 목표 레벨을 정하며, 목표마다 필요한 재료가 다릅니다. 읽기 전에 게임에서 이 목표로 전환합니다(표시 설정만 바뀌며 소모는 없습니다).', '기초', '진급', '정통', '탁월'],
+        }[lang]
+        data['option.CultivationExpectation.label'], data['option.CultivationExpectation.description'] = expectation_texts[:2]
+        for case, label in zip(EXPECTATIONS, expectation_texts[2:]):
+            data[f'option.CultivationExpectation.cases.{case}.label'] = label
         data['option.CultivationOperator.label'], data['option.CultivationOperator.description'], \
             data['option.CultivationOperator.cases.Current.label'] = operator_texts
         for case, label in zip(['Keep', 'None', 'First', 'Second', 'Third', 'Fourth'], weapon_texts[2:]):
@@ -295,7 +337,7 @@ def build():
         path.write_text(original, encoding='utf-8', newline='\n')
     write('tools/schema/components/cultivation.schema.json', {'$schema': 'https://json-schema.org/draft/2020-12/schema', '$defs': {
         'Action': {'type': 'object', 'required': ['step'], 'additionalProperties': False, 'properties': {
-            'step': {'enum': ['begin', 'reset', 'top', 'read', 'bottom', 'finish', 'preview', 'export', 'clear', 'confirm', 'operator_missing']},
+            'step': {'enum': ['begin', 'reset', 'top', 'read', 'bottom', 'finish', 'preview', 'export', 'clear', 'confirm', 'operator_missing', 'expectation_missing']},
             'tab': {'type': 'integer', 'minimum': 0, 'maximum': 3},
             'pass': {'type': 'integer', 'minimum': 0, 'maximum': 1},
             'again': {'type': 'string', 'pattern': '^Cultivation'}, 'done': {'type': 'string', 'pattern': '^Cultivation'},

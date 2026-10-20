@@ -32,7 +32,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "CultivationBegin"
+            "CultivationExpectationReady",
+            "CultivationExpectationOpen"
         ]
     },
     "CultivationOverviewButton": {
@@ -127,7 +128,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "CultivationBegin"
+            "CultivationExpectationReady",
+            "CultivationExpectationOpen"
         ]
     },
     "CultivationOperatorFind": {
@@ -472,6 +474,120 @@
             "CultivationOperatorSweepEnd",
             "CultivationOperatorSweepDown"
         ]
+    },
+    "CultivationExpectationReady": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    990,
+                    110,
+                    180,
+                    40
+                ],
+                "expected": [
+                    "卓越"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationBegin"
+        ]
+    },
+    "CultivationExpectationOpen": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    990,
+                    110,
+                    180,
+                    40
+                ],
+                "expected": [
+                    "培养期望",
+                    "培養期望"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                420,
+                75,
+                810,
+                400
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationExpectationPick",
+            "CultivationExpectationMissing"
+        ]
+    },
+    "CultivationExpectationPick": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    860,
+                    265,
+                    340,
+                    195
+                ],
+                "expected": [
+                    "卓越"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                420,
+                75,
+                810,
+                400
+            ],
+            "threshold": 0.98
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CultivationExpectationReady",
+            "CultivationExpectationMissing"
+        ]
+    },
+    "CultivationExpectationMissing": {
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CultivationAction",
+                "custom_action_param": {
+                    "step": "expectation_missing"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
     },
     "CultivationP0T0Select": {
         "recognition": {

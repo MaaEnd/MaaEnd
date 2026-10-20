@@ -68,6 +68,7 @@
     "batchaddfriends.uid_sent": "UID %s：已發送好友申請（%d/%d）",
     "cultivation.essence_missing": "基質：%s 未滿足，庫存中沒有符合詞條的無瑕基質，需要刷取。",
     "cultivation.essence_satisfied": "基質：%s 已滿足（已注入完全適配的基質，或庫存中已有符合詞條的無瑕基質）。",
+    "cultivation.expectation_missing": "未能將培養期望切換到所選等級，未讀取材料。請確認培養總覽右上角的「培養期望」可以點開。",
     "cultivation.nothing_needed": "培養任務：%s / %s；遊戲顯示各項已達上限，沒有需要的材料。",
     "cultivation.operator_missing": "在培養總覽的幹員列表中沒有找到所選幹員，請確認已開啟培養總覽，或改用「目前已選」。",
     "cultivation.unknown_item": "未識別物品 %s",
