@@ -279,6 +279,20 @@ def build():
                 'cultivation.modules_pending', 'cultivation.modules_exported',
                 'cultivation.module.ProtocolSpace', 'cultivation.module.AutoCollect', 'cultivation.module.manual']
         data.update(zip(keys, module_texts))
+        data['cultivation.failed'] = {
+            'zh_cn': '培养步骤失败；请核对当前页面和日志。',
+            'zh_tw': '培養步驟失敗；請核對目前頁面和日誌。',
+            'en_us': 'The cultivation step failed. Check the current page and logs.',
+            'ja_jp': '育成処理に失敗しました。現在の画面とログを確認してください。',
+            'ko_kr': '육성 단계가 실패했습니다. 현재 화면과 로그를 확인하세요.',
+        }[lang]
+        data['cultivation.scan_saved_preview_failed'] = {
+            'zh_cn': '新的培养扫描已保存，但进度预览失败。原计划已替换，请查看日志后重新运行「培养任务进度」。',
+            'zh_tw': '新的培養掃描已儲存，但進度預覽失敗。原計畫已替換，請查看日誌後重新執行「培養任務進度」。',
+            'en_us': 'The new cultivation scan was saved, but the progress preview failed. The previous plan was replaced. Check the logs and run Cultivation task progress again.',
+            'ja_jp': '新しい育成データは保存されましたが、進捗の表示に失敗しました。以前の計画は置き換え済みです。ログを確認して育成タスクの進捗を再実行してください。',
+            'ko_kr': '새 육성 스캔은 저장되었지만 진행 상황 표시에 실패했습니다. 이전 계획은 교체되었습니다. 로그를 확인한 뒤 육성 작업 진행 상황을 다시 실행하세요.',
+        }[lang]
         data['task.CultivationConfirm.label'], data['cultivation.user_confirmed'] = {
             'zh_cn': ['我已在游戏中完成培养（手动确认）', '培养任务已由用户确认完成：%s；确认时间：%s。尚无自动结果核验；以下材料为历史扫描。'],
             'zh_tw': ['我已在遊戲中完成培養（手動確認）', '培養任務已由使用者確認完成：%s；確認時間：%s。尚無自動結果核驗；以下為歷史掃描。'],
@@ -373,7 +387,7 @@ def build():
             'weapon': {'type': 'integer', 'minimum': 0, 'maximum': 4}}},
         'Guard': {'type': 'object', 'additionalProperties': False,
                   'properties': {'tab': {'type': 'integer', 'minimum': 0, 'maximum': 3}}}}})
-    print(f'Generated {len(pipeline)} native nodes, five tasks, five locale entries, and Custom schemas.')
+    print(f'Generated {len(pipeline)} native nodes, six tasks, five locale entries, and Custom schemas.')
 
 
 def operator_cases():

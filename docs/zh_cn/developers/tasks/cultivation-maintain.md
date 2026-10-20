@@ -1,7 +1,7 @@
 # 开发手册 - 干员培养维护文档
 
 本文说明 `Cultivation`（干员培养）的文件分布、读取流程与协议空间接入。  
-该文档更新于 2026 年 10 月 20 日。
+该文档更新于 2026 年 10 月 21 日。
 
 目前只在 CloudADB（云·终末地）官服简中上实机验证；PC 适配见[待补充：PC 适配](#待补充pc-适配)。
 
@@ -17,16 +17,19 @@
 | `agent/go-service/cultivation/` | 页面解析、需求合并、计划存储、协议空间派发 |
 | `agent/go-service/cultivation/core/` | 不依赖 MaaFramework 的纯逻辑与单元测试 |
 | `tools/Cultivation/build_resources.py` | 生成任务、Pipeline、五语文案与 Custom Schema |
+| `assets/locales/go-service/` | 手工维护的五语运行提示 |
 | `tools/Cultivation/build_operator_templates.py` | 从 CharIcon 原图生成两端头像模板 |
 | `tools/Cultivation/calibrate_operator_scale.py` | 用新端截图校准头像缩放 |
 | `tests/Cultivation/test_overview.json` | 培养总览入口与培养期望的节点测试 |
 
-任务、Pipeline 和文案都由 `build_resources.py` 生成，不要手改生成文件；改完生成器后运行：
+任务、Pipeline、界面文案和 Schema 由 `build_resources.py` 生成，不要手改生成文件；附加的 go-service 运行提示在五种语言文件中手工维护。改完生成器后运行：
 
 ```bash
 python tools/Cultivation/build_resources.py
-pnpm format
+pnpm exec prettier --write assets/tasks/Cultivation.json assets/resource/pipeline/Cultivation/Cultivation.json
 ```
+
+生成器会保留共享语言文件的键顺序；不要对整个 `assets/locales/interface/` 跑格式化，以免重排无关上游条目。
 
 ## 任务
 
@@ -47,6 +50,8 @@ pnpm format
     - 头像未命中（皮肤、模板之后上线的干员）时兜底：`CultivationNextCard` 按卡片底部稀有度色条定位卡片，逐张点击并读表头，直到名字吻合或列表到底。兜底较慢（实测约 15 分钟）。
 3. 切换培养期望（选项 `CultivationExpectation`，默认卓越）：表头已是所选期望则直接继续；否则点开面板、点所选等级、再次确认表头。无法确认时报错且不读取。切换会改游戏内该干员的培养期望设置，不消耗资源。
 4. 依次读取「干员等级 / 技能与天赋 / 武器等级 / 武器基质」四个页签，整轮读两遍，两遍结果一致才保存计划；否则保留旧计划。
+
+保存前校验本次明确选择的武器是否在新扫描列表内；越界时保留旧计划。「不培养武器」不会继承旧武器。扫描保存后如进度预览失败，会明确提示新计划已保存，需单独重试预览。更换有效武器选择会清除旧完成确认，相同选择保持确认。空计划也导出当前修订的预览，替换旧文件；没有材料行不代表所选武器的基质已满足。
 
 ### 读取约定
 

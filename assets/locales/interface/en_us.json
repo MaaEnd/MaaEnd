@@ -20,7 +20,7 @@
     "controller.Win32-Window-Background.label": "PC-Background (Deprecated - incompatible with new version)",
     "cultivation.cleared": "Cultivation plan cleared.",
     "cultivation.exported": "CultivationModules.preview.json exported. The export only previews goals; run \"Farm Protocol Space for the cultivation plan\" to farm.",
-    "cultivation.failed": "Cultivation read failed; previous plan retained. Check the page and logs.",
+    "cultivation.failed": "The cultivation step failed. Check the current page and logs.",
     "cultivation.materials_missing": "Materials missing. Quantities are from the last complete scan; verify again after running modules.",
     "cultivation.materials_ready": "Materials were ready at the last scan; actual upgrades, promotions, skills and weapon development remain unverified.",
     "cultivation.module.AutoCollect": "Collection",
@@ -2743,5 +2743,6 @@
     "weapon.wpn_sword_0023": "★5 Dessert Moment",
     "weapon.wpn_sword_0024": "★6 Complexed Industry",
     "weapon.wpn_sword_0025": "★6 Lunar Calling",
-    "weapon.wpn_sword_0026": "★6 Farsight"
+    "weapon.wpn_sword_0026": "★6 Farsight",
+    "cultivation.scan_saved_preview_failed": "The new cultivation scan was saved, but the progress preview failed. The previous plan was replaced. Check the logs and run Cultivation task progress again."
 }

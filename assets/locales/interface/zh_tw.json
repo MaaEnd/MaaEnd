@@ -20,7 +20,7 @@
     "controller.Win32-Window-Background.label": "電腦端-後台棄用(無法適配新版本)",
     "cultivation.cleared": "已清空培養需求。",
     "cultivation.exported": "已產生 CultivationModules.preview.json。匯出僅預覽目標；刷取請執行「依培養計畫刷協議空間」。",
-    "cultivation.failed": "培養讀取失敗；保留原計畫，請核對目前頁面和日誌。",
+    "cultivation.failed": "培養步驟失敗；請核對目前頁面和日誌。",
     "cultivation.materials_missing": "材料待補齊。以下為上次完整掃描庫存，執行模組後需重新核驗。",
     "cultivation.materials_ready": "上次掃描時材料已備齊；實際升級、突破、技能及武器培養結果待確認。",
     "cultivation.module.AutoCollect": "採集",
@@ -2743,5 +2743,6 @@
     "weapon.wpn_sword_0023": "★5 點心時刻",
     "weapon.wpn_sword_0024": "★6 聚合工業",
     "weapon.wpn_sword_0025": "★6 喚月",
-    "weapon.wpn_sword_0026": "★6 遙望"
+    "weapon.wpn_sword_0026": "★6 遙望",
+    "cultivation.scan_saved_preview_failed": "新的培養掃描已儲存，但進度預覽失敗。原計畫已替換，請查看日誌後重新執行「培養任務進度」。"
 }

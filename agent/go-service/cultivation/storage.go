@@ -66,6 +66,12 @@ func writePlan(stored storedPlan) error {
 }
 
 func savePlan(plan core.Plan, expected uint64) error {
+	return savePlanWithWeapon(plan, expected, nil)
+}
+
+// savePlanWithWeapon validates the scan's explicit weapon selection before commit.
+// A nil choice preserves a previous selection only when it is still listed.
+func savePlanWithWeapon(plan core.Plan, expected uint64, choice *int) error {
 	if _, _, err := core.BuildTargets(plan); err != nil {
 		return err
 	}
@@ -79,15 +85,24 @@ func savePlan(plan core.Plan, expected uint64) error {
 		return errors.New("plan cleared or changed during scan")
 	}
 	// A rescan keeps the weapon chosen before if that weapon is still listed.
-	if plan.WeaponChoice == "" && stored.Plan != nil {
+	if choice != nil {
+		plan.WeaponChoice, err = weaponChoiceName(plan, *choice)
+		if err != nil {
+			return err
+		}
+	} else if plan.WeaponChoice == "" && stored.Plan != nil {
 		for _, weapon := range plan.Weapons {
 			if weapon.Name == stored.Plan.WeaponChoice {
 				plan.WeaponChoice = weapon.Name
 			}
 		}
 	}
+	if _, _, err = core.BuildTargets(plan); err != nil {
+		return err
+	}
 	stored.Revision++
 	plan.Revision = stored.Revision
+	plan.Completion = nil
 	stored.Plan = &plan
 	return writePlan(stored)
 }
@@ -105,7 +120,11 @@ func setWeaponChoice(revision uint64, name string) error {
 		return errors.New("plan cleared or changed before the weapon choice was saved")
 	}
 	plan := *stored.Plan
+	if plan.WeaponChoice == name {
+		return nil
+	}
 	plan.WeaponChoice = name
+	plan.Completion = nil
 	if _, _, err = core.BuildTargets(plan); err != nil {
 		return err
 	}

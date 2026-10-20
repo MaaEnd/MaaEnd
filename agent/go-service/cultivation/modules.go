@@ -16,6 +16,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var modulePreviewPath = func() string { return fsutil.OutputPath("debug", "record", "CultivationModules.preview.json") }
+
 func modulePreview(plan core.Plan) (core.ModulePreview, error) {
 	paths := []string{"tasks/ProtocolSpace.json", "tasks/AutoCollect.json", "tasks/AutoEssence/AutoEssence.json", "tasks/AutoEssence/Target/Target.json"}
 	docs := make([]core.TaskDocument, len(paths))
@@ -31,6 +33,16 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 	preview, err := modulePreview(plan)
 	if err != nil {
 		return err
+	}
+	if export {
+		data, err := json.MarshalIndent(preview, "", "  ")
+		if err != nil {
+			return err
+		}
+		if err = fsutil.WriteFileAtomic(modulePreviewPath(), data, 0600); err != nil {
+			return err
+		}
+		maafocus.Print(ctx, i18n.T("cultivation.modules_exported"))
 	}
 	ready := 0
 	var lines []string
@@ -54,7 +66,7 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 		}
 		lines = append(lines, fmt.Sprintf("%s [%s]: %d / %d (-%d)", name, i18n.T("cultivation.module."+row.Module), row.Owned, row.Need, max(row.Need-row.Owned, 0)))
 	}
-	if len(plan.Materials) == 0 {
+	if len(plan.Materials) == 0 && preview.MaterialsReady && plan.ChosenWeapon() == nil {
 		// Every tab said it needs nothing: the target is already reached.
 		maafocus.Print(ctx, i18n.T("cultivation.nothing_needed", plan.Header.Operator, plan.Header.Expectation))
 		return nil
@@ -105,17 +117,6 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 			maafocus.Print(ctx, i18n.T(key, weapon.Name))
 		}
 	}
-	if !export {
-		return nil
-	}
-	data, err := json.MarshalIndent(preview, "", "  ")
-	if err != nil {
-		return err
-	}
-	if err = fsutil.WriteFileAtomic(fsutil.OutputPath("debug", "record", "CultivationModules.preview.json"), data, 0600); err != nil {
-		return err
-	}
-	maafocus.Print(ctx, i18n.T("cultivation.modules_exported"))
 	return nil
 }
 

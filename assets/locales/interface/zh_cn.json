@@ -20,7 +20,7 @@
     "controller.Win32-Window-Background.label": "电脑端-后台弃用(无法适配新版本)",
     "cultivation.cleared": "已清空培养需求。",
     "cultivation.exported": "已生成 CultivationModules.preview.json。导出只预览目标；刷取请运行「按培养计划刷协议空间」。",
-    "cultivation.failed": "培养读取失败；保留原计划，请核对当前页面和日志。",
+    "cultivation.failed": "培养步骤失败；请核对当前页面和日志。",
     "cultivation.materials_missing": "材料待补齐。以下是上次完整扫描的库存，运行模块后需重新核验。",
     "cultivation.materials_ready": "上次扫描时材料已备齐；实际升级、突破、技能和武器培养结果待确认。",
     "cultivation.module.AutoCollect": "采集",
@@ -2743,5 +2743,6 @@
     "weapon.wpn_sword_0023": "★5 点心时刻",
     "weapon.wpn_sword_0024": "★6 聚合工业",
     "weapon.wpn_sword_0025": "★6 唤月",
-    "weapon.wpn_sword_0026": "★6 遥望"
+    "weapon.wpn_sword_0026": "★6 遥望",
+    "cultivation.scan_saved_preview_failed": "新的培养扫描已保存，但进度预览失败。原计划已替换，请查看日志后重新运行「培养任务进度」。"
 }

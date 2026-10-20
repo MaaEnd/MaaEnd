@@ -1,6 +1,7 @@
 package cultivation
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"testing"
@@ -118,5 +119,86 @@ func TestManualConfirmationBindsRevisionAndRescanClearsIt(t *testing.T) {
 	}
 	if err = confirmPlan(); err == nil {
 		t.Fatal("confirmation resurrected cleared plan")
+	}
+}
+
+func TestWeaponChoiceInvalidatesOnlyChangedCompletion(t *testing.T) {
+	for _, tc := range []struct{ name, before, after string }{
+		{"none_to_weapon", "", "武器A"},
+		{"other_weapon", "武器A", "武器B"},
+		{"same_weapon", "武器A", "武器A"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			isolatedPlan(t)
+			plan := validPlan()
+			plan.Weapons = []core.Weapon{{Name: "武器A"}, {Name: "武器B"}}
+			plan.WeaponChoice = tc.before
+			if err := savePlan(plan, 0); err != nil {
+				t.Fatal(err)
+			}
+			if err := confirmPlan(); err != nil {
+				t.Fatal(err)
+			}
+			before, _ := loadPlan()
+			if err := setWeaponChoice(before.Revision, tc.after); err != nil {
+				t.Fatal(err)
+			}
+			after, err := loadPlan()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if (after.Plan.Completion != nil) != (tc.before == tc.after) {
+				t.Fatalf("completion must bind to the selected target: %+v", after.Plan)
+			}
+		})
+	}
+}
+
+func TestScanWeaponChoiceValidatedBeforeReplacingOldPlan(t *testing.T) {
+	path := isolatedPlan(t)
+	old := validPlan()
+	old.Weapons = []core.Weapon{{Name: "武器A"}}
+	old.WeaponChoice = "武器A"
+	if err := savePlan(old, 0); err != nil {
+		t.Fatal(err)
+	}
+	before, _ := os.ReadFile(path)
+	newPlan := validPlan()
+	newPlan.Header.Operator = "新干员"
+	newPlan.Weapons = []core.Weapon{{Name: "武器A"}}
+	invalid := 4
+	if err := savePlanWithWeapon(newPlan, 1, &invalid); err == nil {
+		t.Fatal("accepted a weapon outside the newly scanned list")
+	}
+	after, _ := os.ReadFile(path)
+	if !bytes.Equal(before, after) {
+		t.Fatal("invalid scan weapon selection replaced the previous plan")
+	}
+	none := 0
+	if err := savePlanWithWeapon(newPlan, 1, &none); err != nil {
+		t.Fatal(err)
+	}
+	stored, err := loadPlan()
+	if err != nil || stored.Revision != 2 || stored.Plan.Header.Operator != "新干员" || stored.Plan.WeaponChoice != "" {
+		t.Fatalf("explicit None inherited an old weapon: %+v %v", stored, err)
+	}
+}
+
+func TestApplyWeaponChoiceClearsInMemoryCompletion(t *testing.T) {
+	isolatedPlan(t)
+	p := validPlan()
+	p.Weapons = []core.Weapon{{Name: "武器A"}}
+	if err := savePlan(p, 0); err != nil {
+		t.Fatal(err)
+	}
+	if err := confirmPlan(); err != nil {
+		t.Fatal(err)
+	}
+	stored, _ := loadPlan()
+	if err := applyWeaponChoice(nil, stored.Plan, 1); err != nil {
+		t.Fatal(err)
+	}
+	if stored.Plan.Completion != nil || stored.Plan.WeaponChoice != "武器A" {
+		t.Fatal("current callback can still display the old confirmation")
 	}
 }

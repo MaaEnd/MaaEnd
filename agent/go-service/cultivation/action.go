@@ -161,12 +161,17 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			}
 			plan.Weapons = append(plan.Weapons, weapon)
 		}
-		err = savePlan(plan, scan.Revision)
+		err = savePlanWithWeapon(plan, scan.Revision, p.Weapon)
 		scan = nil
 		if err != nil {
 			return fail(ctx, err)
 		}
-		return finishOrFail(ctx, preview(ctx, false, p.Weapon), "")
+		if err = preview(ctx, false, nil); err != nil {
+			log.Error().Err(err).Str("component", "Cultivation").Msg("scan saved; progress preview failed")
+			maafocus.Print(ctx, i18n.T("cultivation.scan_saved_preview_failed"))
+			return false
+		}
+		return true
 	}
 	if p.Tab < 0 || p.Tab >= 4 || p.Pass < 0 || p.Pass > 1 {
 		return fail(ctx, errors.New("invalid scan phase"))
@@ -308,7 +313,7 @@ func choose(ctx *maa.Context, arg *maa.CustomActionArg, next string) bool {
 }
 
 func fail(ctx *maa.Context, err error) bool {
-	log.Error().Err(err).Str("component", "Cultivation").Msg("cultivation step failed; old plan retained")
+	log.Error().Err(err).Str("component", "Cultivation").Msg("cultivation step failed")
 	maafocus.Print(ctx, i18n.T("cultivation.failed"))
 	return false
 }
@@ -343,21 +348,29 @@ func preview(ctx *maa.Context, export bool, choice *int) error {
 
 // applyWeaponChoice stores the CultivationWeapon option: 0 none, n the n-th usable weapon.
 func applyWeaponChoice(ctx *maa.Context, plan *core.Plan, choice int) error {
-	name := ""
-	if choice > 0 {
-		if choice > len(plan.Weapons) {
-			maafocus.Print(ctx, i18n.T("cultivation.weapon_choice_invalid", choice, len(plan.Weapons)))
-			return fmt.Errorf("weapon choice %d out of %d usable weapons", choice, len(plan.Weapons))
-		}
-		name = plan.Weapons[choice-1].Name
+	name, err := weaponChoiceName(*plan, choice)
+	if err != nil {
+		maafocus.Print(ctx, i18n.T("cultivation.weapon_choice_invalid", choice, len(plan.Weapons)))
+		return err
 	}
 	if name != plan.WeaponChoice {
 		if err := setWeaponChoice(plan.Revision, name); err != nil {
 			return err
 		}
 		plan.WeaponChoice = name
+		plan.Completion = nil
 	}
 	return nil
+}
+
+func weaponChoiceName(plan core.Plan, choice int) (string, error) {
+	if choice < 0 || choice > len(plan.Weapons) {
+		return "", fmt.Errorf("weapon choice %d out of %d usable weapons", choice, len(plan.Weapons))
+	}
+	if choice == 0 {
+		return "", nil
+	}
+	return plan.Weapons[choice-1].Name, nil
 }
 
 // readEssenceStep reads one 武器基质 page: per-weapon essence counts, no

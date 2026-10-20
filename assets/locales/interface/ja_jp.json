@@ -20,7 +20,7 @@
     "controller.Win32-Window-Background.label": "PC-バックグラウンド（非推奨 - 新バージョンに対応不可）",
     "cultivation.cleared": "育成計画を消去しました。",
     "cultivation.exported": "CultivationModules.preview.json を出力しました。出力は目標のプレビューのみです。周回は「育成計画に沿って協議空間を周回」を実行してください。",
-    "cultivation.failed": "読み取り失敗。以前の計画を保持しました。画面とログを確認してください。",
+    "cultivation.failed": "育成処理に失敗しました。現在の画面とログを確認してください。",
     "cultivation.materials_missing": "素材が不足しています。数量は前回の全読取時点です。実行後は再確認が必要です。",
     "cultivation.materials_ready": "前回読取時点で素材準備済み。レベル、昇進、スキル、武器の育成結果は未確認です。",
     "cultivation.module.AutoCollect": "採集",
@@ -2743,5 +2743,6 @@
     "weapon.wpn_sword_0023": "★5 スイーツタイム",
     "weapon.wpn_sword_0024": "★6 複合工業",
     "weapon.wpn_sword_0025": "★6 喚月",
-    "weapon.wpn_sword_0026": "★6 ファーサイト"
+    "weapon.wpn_sword_0026": "★6 ファーサイト",
+    "cultivation.scan_saved_preview_failed": "新しい育成データは保存されましたが、進捗の表示に失敗しました。以前の計画は置き換え済みです。ログを確認して育成タスクの進捗を再実行してください。"
 }
