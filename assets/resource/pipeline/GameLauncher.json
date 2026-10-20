@@ -37,20 +37,17 @@
     },
     "GameLauncherClickStartGame": {
         "desc": "已选中终末地，点击右下角开始游戏",
-        "max_hit": 3,
         "recognition": "And",
         "all_of": [
             "GameLauncherStartGameYellow",
             "GameLauncherStartGameText"
         ],
         "box_index": 1,
-        "pre_wait_freezes": 100,
+        "pre_wait_freezes": 500,
         "action": "Click",
-        "post_delay": 3000, // 这里暂时不调用RepeatUntilAction，先保持纯pipeline
         "next": [
             "GameLauncherInGame",
-            "GameLauncherDriverTipIgnore",
-            "GameLauncherClickStartGame"
+            "GameLauncherDriverTipIgnore"
         ]
     },
     "GameLauncherDriverTipIgnore": {
