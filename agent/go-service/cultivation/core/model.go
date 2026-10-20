@@ -106,6 +106,23 @@ type Weapon struct {
 	Name          string   `json:"name"`
 	CandidateIDs  []string `json:"candidate_ids,omitempty"`
 	EssenceStatus string   `json:"essence_status"`
+	Essence       *Essence `json:"essence,omitempty"`
+}
+
+// Essence is what the 武器基质 tab shows for one weapon: the adapted essence
+// ("" when 暂无适配基质) and the matching essence counts. Traits come from the
+// upstream weapon data, so they are not read here.
+type Essence struct {
+	Adapted  string `json:"adapted,omitempty"`
+	Flawless int64  `json:"flawless"`
+	Pure     int64  `json:"pure"`
+}
+
+// EssenceLine locates one weapon's "无瑕基质 N 高纯基质 M" line on a page.
+type EssenceLine struct {
+	Weapon  string
+	Y       int
+	Adapted string
 }
 
 var amountPattern = regexp.MustCompile(`^(\d+(?:\.\d+)?)([万亿]?)$`)
@@ -363,4 +380,48 @@ func RenderOverrides(template []byte, goals map[string]int64) (map[string]any, e
 		return nil, err
 	}
 	return out, nil
+}
+
+// ReadEssencePanels finds the count line of every essence panel on the 武器基质
+// tab and the weapon section it belongs to. headers are the weapon name texts;
+// section is the weapon continuing from the previous page.
+func ReadEssencePanels(texts []Text, headers []Text, section string) ([]EssenceLine, string, error) {
+	sectionAt := func(y int) string {
+		current := section
+		for _, h := range headers {
+			if h.Box[1] < y {
+				current = h.Text
+			}
+		}
+		return current
+	}
+	var lines []EssenceLine
+	for _, t := range texts {
+		// OCR may merge the line, e.g. "无瑕基质0高纯基质".
+		if !strings.HasPrefix(strings.ReplaceAll(t.Text, " ", ""), "无瑕基质") {
+			continue
+		}
+		name := sectionAt(t.Box[1])
+		if name == "" {
+			return nil, "", errors.New("essence panel outside a weapon section")
+		}
+		line := EssenceLine{Weapon: name, Y: t.Box[1]}
+		// The panel title sits one line above the counts.
+		for _, title := range texts {
+			if dy := t.Box[1] - title.Box[1]; dy > 12 && dy < 45 && title.Box[0] >= 540 && title.Box[0] < 900 {
+				if text := strings.ReplaceAll(title.Text, " ", ""); text != "暂无适配基质" {
+					line.Adapted = text
+				}
+			}
+		}
+		lines = append(lines, line)
+	}
+	return lines, sectionAt(720), nil
+}
+
+func abs(v int) int {
+	if v < 0 {
+		return -v
+	}
+	return v
 }

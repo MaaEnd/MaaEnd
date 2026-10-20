@@ -12,6 +12,7 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/cultivation/core"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -47,6 +48,7 @@ type session struct {
 	Empty        bool
 	Section      string
 	WeaponNames  [2][]string
+	Essence      [2]map[string]core.Essence
 }
 
 var scanMu sync.Mutex
@@ -126,7 +128,12 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			return fail(ctx, err)
 		}
 		for _, name := range scan.WeaponNames[0] {
-			weapon := core.Weapon{Name: name, CandidateIDs: catalog[name], EssenceStatus: "unverified_manual"}
+			first, ok1 := scan.Essence[0][name]
+			second, ok2 := scan.Essence[1][name]
+			if !ok1 || !ok2 || first != second {
+				return fail(ctx, fmt.Errorf("essence panel of %s missing or differs between passes", name))
+			}
+			weapon := core.Weapon{Name: name, CandidateIDs: catalog[name], EssenceStatus: "unverified_manual", Essence: &first}
 			if len(weapon.CandidateIDs) == 1 {
 				weapon.ID = weapon.CandidateIDs[0]
 			}
@@ -187,6 +194,9 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		catalog, err := weaponCatalog()
 		if err != nil {
 			return fail(ctx, err)
+		}
+		if p.Tab == 3 {
+			return readEssenceStep(ctx, img, p, catalog)
 		}
 		rows, empty, section, names, err := readMaterialPage(ctx, img, scan.Section, catalog)
 		if err != nil {
@@ -296,4 +306,51 @@ func preview(ctx *maa.Context, export bool, choice *int) error {
 		}
 	}
 	return showModules(ctx, plan, export)
+}
+
+// readEssenceStep reads one 武器基质 page: per-weapon essence counts, no
+// inventory materials.
+func readEssenceStep(ctx *maa.Context, img image.Image, p stepParam, catalog map[string][]string) bool {
+	texts, err := ocrTexts(ctx, img, [4]int{420, 245, 820, 420})
+	if err != nil {
+		return fail(ctx, err)
+	}
+	headers := weaponHeaders(texts, catalog)
+	lines, section, err := core.ReadEssencePanels(texts, headers, scan.Section)
+	if err != nil {
+		return fail(ctx, err)
+	}
+	if scan.Essence[p.Pass] == nil {
+		scan.Essence[p.Pass] = map[string]core.Essence{}
+	}
+	for _, line := range lines {
+		if !slices.Contains(scan.WeaponNames[p.Pass], line.Weapon) {
+			return fail(ctx, fmt.Errorf("weapon %s on the essence tab was not listed on the weapon tab", line.Weapon))
+		}
+		// The counts sit at fixed offsets in the panel; single digits are often
+		// missed by full-page OCR, so read each one in its own box.
+		var counts [2]int64
+		for index, x := range []int{672, 815} {
+			value, ok, err := iconqty.RecognizeQuantityInROI(ctx, img, maa.Rect{x, line.Y - 4, 40, 28})
+			if err != nil {
+				return fail(ctx, err)
+			}
+			if !ok {
+				return fail(ctx, fmt.Errorf("unreadable essence count for %s", line.Weapon))
+			}
+			counts[index] = int64(value)
+		}
+		scan.Essence[p.Pass][line.Weapon] = core.Essence{Adapted: line.Adapted, Flawless: counts[0], Pure: counts[1]}
+	}
+	log.Info().Str("component", "Cultivation").Int("tab", p.Tab).Int("pass", p.Pass).Int("page", scan.Pages).
+		Interface("essence", scan.Essence[p.Pass]).Msg("cultivation essence page read")
+	scan.Section = section
+	scan.Previous = img
+	// The tab has no material rows; a read panel stands for a confirmed list.
+	scan.Empty = scan.Empty || len(lines) > 0
+	scan.Pages++
+	if scan.Pages > 16 {
+		return fail(ctx, errors.New("list end not confirmed within measured traversal bound"))
+	}
+	return true
 }

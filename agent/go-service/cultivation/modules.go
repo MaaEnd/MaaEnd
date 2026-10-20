@@ -76,13 +76,17 @@ func showModules(ctx *maa.Context, plan core.Plan, export bool) error {
 	if len(plan.Weapons) > 0 {
 		var names []string
 		for index, weapon := range plan.Weapons {
-			names = append(names, fmt.Sprintf("%d. %s", index+1, weapon.Name))
+			entry := fmt.Sprintf("%d. %s", index+1, weapon.Name)
+			if e := weapon.Essence; e != nil {
+				entry = i18n.T("cultivation.weapon_entry", index+1, weapon.Name, e.Flawless, e.Pure)
+			}
+			names = append(names, entry)
 		}
 		chosen := plan.WeaponChoice
 		if chosen == "" {
 			chosen = i18n.T("cultivation.weapon_none")
 		}
-		maafocus.Print(ctx, i18n.T("cultivation.weapons", strings.Join(names, "  "), chosen))
+		maafocus.Print(ctx, i18n.T("cultivation.weapons", strings.Join(names, "\n"), chosen))
 	}
 	if !export {
 		return nil

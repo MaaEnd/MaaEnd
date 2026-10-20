@@ -146,3 +146,25 @@ func TestWeaponChoiceSelectsOneSection(t *testing.T) {
 		t.Fatal("unknown weapon choice accepted")
 	}
 }
+
+func TestReadEssencePanelsAcrossPages(t *testing.T) {
+	// Real OCR of a page: the end of 落草's panel (merged count line), then 望乡.
+	texts := []Text{
+		{Text: "暂无适配基质", Box: [4]int{566, 281, 123, 21}, Score: 1},
+		{Text: "无瑕基质0高纯基质", Box: [4]int{573, 308, 237, 20}, Score: .99},
+		{Text: "0", Box: [4]int{823, 312, 13, 12}, Score: .74},
+		{Text: "基质适配", Box: [4]int{436, 391, 76, 21}, Score: 1},
+		{Text: "望乡", Box: [4]int{500, 424, 37, 20}, Score: 1},
+		{Text: "敏捷提升|寒冷伤害提升|压制", Box: [4]int{500, 451, 233, 21}, Score: .99},
+		{Text: "暂无适配基质", Box: [4]int{565, 549, 125, 27}, Score: 1},
+		{Text: "无瑕基质", Box: [4]int{574, 578, 93, 18}, Score: 1},
+		{Text: "高纯基质", Box: [4]int{716, 579, 93, 18}, Score: 1},
+	}
+	lines, section, err := ReadEssencePanels(texts, []Text{texts[4]}, "落草")
+	if err != nil || section != "望乡" || len(lines) != 2 {
+		t.Fatalf("lines=%+v section=%q err=%v", lines, section, err)
+	}
+	if lines[0].Weapon != "落草" || lines[0].Y != 308 || lines[0].Adapted != "" || lines[1].Weapon != "望乡" || lines[1].Y != 578 {
+		t.Fatalf("lines = %+v", lines)
+	}
+}
