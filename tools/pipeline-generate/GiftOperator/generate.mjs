@@ -191,7 +191,6 @@ if (avatars.length) {
         "uv",
         [
             "run",
-            "python",
             "tools/gift_operator/build_avatars.py",
         ],
         {

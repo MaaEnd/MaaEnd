@@ -260,10 +260,10 @@ jobs:
 
       # json5（读物品表）与 pillow（合成 UI 图标）都在默认组里，httpx 是核心依赖。
       - name: Download icon resources
-        run: uv run python tools/icon_recognition/download.py --workers 16
+        run: uv run tools/icon_recognition/download.py --workers 16
 
       - name: Publish icon resources
-        run: uv run python tools/icon_recognition/publish.py
+        run: uv run tools/icon_recognition/publish.py
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8

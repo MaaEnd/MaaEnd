@@ -13,7 +13,7 @@
         "format:all": "pnpm format && pnpm format:md && pnpm format:go",
         "check": "maa-tools check",
         "test": "maa-tools test",
-        "test:map-locate": "uv run python tests/MapLocateAssertLocation/map_locate.py",
+        "test:map-locate": "uv run tests/MapLocateAssertLocation/map_locate.py",
         "fetch:zmdmap": "uv run --no-default-groups zmdmap fetch",
         "generate:MacOS": "node tools/pipeline-generate/macos-keymap.mjs",
         "generate:BatchUseDetector": "node tools/pipeline-generate/run-all.mjs BatchUseDetector",

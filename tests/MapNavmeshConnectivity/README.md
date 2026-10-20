@@ -56,7 +56,7 @@
 ```powershell
 uv sync
 uv run build-and-install --cpp-algo
-uv run python tests/MapNavmeshConnectivity/navmesh_connectivity.py
+uv run tests/MapNavmeshConnectivity/navmesh_connectivity.py
 ```
 
 运行前确认 `install/agent/cpp-algo` 由当前源码构建，`install/maafw` 与 Agent 版本匹配，`install/resource/model/map/navmesh/` 下存在 `base.nav.gz`（或 `base.nav`）。

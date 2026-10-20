@@ -86,7 +86,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
-        run: uv run python tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION"
+        run: uv run tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION"
 
       - name: Download MaaFramework SDK
         uses: robinraju/release-downloader@v1
@@ -115,7 +115,7 @@ jobs:
         if: steps.maadeps.outputs.cache-hit != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run python tools/maadeps-download.py x64-linux
+        run: uv run tools/maadeps-download.py x64-linux
 
       - name: Restore ccache
         uses: actions/cache/restore@v5

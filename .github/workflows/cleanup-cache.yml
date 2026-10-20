@@ -34,7 +34,7 @@ jobs:
           PR_REF: refs/pull/${{ github.event.pull_request.number }}/merge
         run: |
           echo "Cleaning caches for ${PR_REF}"
-          uv run python tools/cleanup_caches.py --ref "${PR_REF}" --apply
+          uv run tools/cleanup_caches.py --ref "${PR_REF}" --apply
 
   scheduled:
     if: ${{ github.event_name != 'pull_request_target' }}
@@ -51,9 +51,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          uv run python tools/cleanup_caches.py
+          uv run tools/cleanup_caches.py
       - name: Apply cleanup
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          uv run python tools/cleanup_caches.py --apply
+          uv run tools/cleanup_caches.py --apply
