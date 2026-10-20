@@ -13,9 +13,20 @@ from pathlib import Path
 from typing import Any
 
 from agent_session import AgentSession
-from runtime import load_maa_runtime
+from runtime import RESOURCE_DIR, load_maa_runtime
 
 _NODE = "MapNavmeshQuery"
+
+NAVMESH_DIR = RESOURCE_DIR / "model" / "map" / "navmesh"
+NAVMESH_GZ = NAVMESH_DIR / "base.nav.gz"
+NAVMESH_RAW = NAVMESH_DIR / "base.nav"
+# 虚拟禁区表是本仓库的配置, 与 zipline_frames.json 同规矩放 data/MapNavigator/, 与 planner 的解析一致。
+NOGO_JSON = RESOURCE_DIR.parent / "data" / "MapNavigator" / "nogo_zones.json"
+
+
+def default_pack_path() -> Path:
+    """navmesh 包: 优先 base.nav.gz, 缺失时用未压缩的 base.nav。"""
+    return NAVMESH_GZ if NAVMESH_GZ.exists() else NAVMESH_RAW
 
 
 def _make_null_controller() -> Any:
@@ -215,6 +226,29 @@ class NavmeshBackend:
                 raise
         self._await_ready()
         return self._post(op, **params)
+
+    def route_preview(
+        self,
+        position: list[float],
+        position_zone: str,
+        custom_action_param: dict[str, Any],
+        *,
+        floor_y: float | None = None,
+        zipline_account_id: str = "",
+        latest_key: str | None = None,
+    ) -> dict[str, Any]:
+        """按 MapNavigateAction 运行时语义展开一条作者路线; 给 latest_key 时同 key 只跑等待中最新的那次。"""
+        params = {
+            "position": position,
+            "position_zone": position_zone,
+            # agent 侧用空数组表达"这项不填"(meojson 没有 optional)。
+            "floor_y": [] if floor_y is None else [float(floor_y)],
+            "custom_action_param": custom_action_param,
+            "zipline_account_id": zipline_account_id,
+        }
+        if latest_key is not None:
+            return self.query_latest(latest_key, "route_preview", **params)
+        return self.query("route_preview", **params)
 
     def query_latest(self, key: str, op: str, **params: Any) -> dict[str, Any]:
         """同一 key 只执行等待队列里的最新查询；已经进入 Agent 的那次仍正常收尾。"""

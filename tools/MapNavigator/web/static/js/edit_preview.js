@@ -49,3 +49,85 @@ export function buildEditPreviewPlan(points, explicitStart = null) {
     explicit: false,
   };
 }
+
+/**
+ * Normalize a successful runtime response into the overlay's route shape.
+ * @param {Object} result `/api/route-preview` response
+ * @returns {{points:Array, walk_segments:Array, zipline_segments:Array, diagnostics:Array, zipline:Object}}
+ */
+export function routePreviewData(result) {
+  return {
+    points: result.points || [],
+    walk_segments: result.walk_segments || [],
+    zipline_segments: result.zipline_segments || [],
+    diagnostics: result.diagnostics || [],
+    zipline: result.zipline || {},
+  };
+}
+
+/**
+ * User-facing summary shared by every runtime route preview.
+ * @param {ReturnType<typeof routePreviewData>} route
+ * @param {Object} result the raw response (`expanded_waypoints`)
+ * @param {string} subject what was planned, leading the sentence
+ * @returns {[string, string]} status text and color
+ */
+export function routePreviewStatus(route, result, subject) {
+  const hops = route.zipline_segments.length;
+  const expanded = result.expanded_waypoints || route.points.length;
+  if (hops > 0) {
+    return [`${subject}：采用 ${hops} 跳滑索，展开为 ${expanded} 个运行时路点。`, "#10b981"];
+  }
+  if (route.zipline.account_unknown) {
+    return [`${subject}：没有可用于规划的账号记录，已回退为步行路线。`, "#f59e0b"];
+  }
+  if (route.zipline.no_data) {
+    return [`${subject}：当前区域没有可用的滑索记录，已回退为步行路线。`, "#f59e0b"];
+  }
+  if (route.zipline.not_chosen) {
+    return [`${subject}：滑索没有显著优于步行，运行时会采用当前步行路线。`, "#10b981"];
+  }
+  return [`${subject}：展开为 ${expanded} 个运行时路点。`, "#10b981"];
+}
+
+/**
+ * A runtime preview (base px) as the overlay's `editPreview` view model.
+ * @param {?ReturnType<typeof routePreviewData>} route
+ * @param {?Object} failure runtime failure with its segment / gap endpoints
+ * @param {(point:number[]) => number[]} project base px → display frame
+ * @param {{diagnostics?:Array, debugOptions?:Object}} [extras] diagnostics already in the display
+ *   frame, and which diagnostic layers to draw
+ * @returns {?Object} null when there is neither a route nor a failure
+ */
+export function routePreviewForDisplay(route, failure, project, {diagnostics = [], debugOptions = {}} = {}) {
+  if (!route && !failure) return null;
+  const previewRoute = route || {};
+  return {
+    previewPoints: (previewRoute.points || []).map(project),
+    segmentBreaks: [],
+    hasRoute: !!route,
+    waypoints: [],
+    blindWalks: [],
+    diagnostics,
+    debugOptions,
+    showPlannedPath: debugOptions.planned !== false,
+    walkSegments: (previewRoute.walk_segments || []).map((segment) => segment.map(project)),
+    ziplineSegments: (previewRoute.zipline_segments || [])
+      .filter((segment) => Array.isArray(segment?.from) && Array.isArray(segment?.to))
+      .map((segment) => ({
+        ...segment,
+        from: project(segment.from),
+        to: project(segment.to),
+        mount_spots: Array.isArray(segment.mount_spots) ? segment.mount_spots.filter(Array.isArray).map(project) : [],
+      })),
+    failure: failure
+      ? {
+          ...failure,
+          segment_start: failure.segment_start ? project(failure.segment_start) : null,
+          segment_goal: failure.segment_goal ? project(failure.segment_goal) : null,
+          gap_start: failure.gap_start ? project(failure.gap_start) : null,
+          gap_goal: failure.gap_goal ? project(failure.gap_goal) : null,
+        }
+      : null,
+  };
+}

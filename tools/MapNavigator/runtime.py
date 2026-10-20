@@ -19,6 +19,20 @@ RESOURCE_ADB_DIR = PROJECT_ROOT / "assets" / "resource_adb"
 RESOURCE_LINUX_DIR = PROJECT_ROOT / "assets" / "resource_linux"
 
 
+def map_image_file(relative: str) -> Path:
+    """assets/resource/image 下的一个文件。
+
+    越出该目录 (.. 穿越 / 符号链接逃逸) 抛 PermissionError, 文件不存在抛 FileNotFoundError。
+    """
+    root = MAP_IMAGE_DIR.resolve()
+    target = (root / relative).resolve()
+    if target != root and not target.is_relative_to(root):
+        raise PermissionError(relative)
+    if not target.is_file():
+        raise FileNotFoundError(relative)
+    return target
+
+
 def _resolve_cpp_agent_executable() -> Path:
     candidates = [
         AGENT_DIR / "cpp-algo.exe",
