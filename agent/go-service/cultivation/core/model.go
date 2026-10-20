@@ -229,7 +229,8 @@ func SplitOwned(texts []Text) []Text {
 func OwnedRows(texts []Text) []Text {
 	var rows []Text
 	for _, t := range texts {
-		if t.Score < .6 || t.Box[0] < 420 || t.Box[0] > 1240 || t.Box[1] < 335 || t.Box[1] > 635 {
+		// The bottom limit is applied per row below; label boxes jitter by a few pixels.
+		if t.Score < .6 || t.Box[0] < 420 || t.Box[0] > 1240 || t.Box[1] < 335 || t.Box[1] > 635+12 {
 			continue
 		}
 		s := strings.ReplaceAll(t.Text, " ", "")
@@ -240,15 +241,21 @@ func OwnedRows(texts []Text) []Text {
 		}
 	}
 	sort.Slice(rows, func(i, j int) bool { return rows[i].Box[1] < rows[j].Box[1] })
+	var kept []Text
 	for i := 0; i < len(rows); {
 		j := i + 1
 		for j < len(rows) && rows[j].Box[1]-rows[i].Box[1] <= 12 {
 			j++
 		}
-		sort.Slice(rows[i:j], func(a, b int) bool { return rows[i+a].Box[0] < rows[i+b].Box[0] })
+		// Keep or drop a row as a whole, so a row at the viewport edge is never
+		// half read (which breaks page stitching).
+		if rows[i].Box[1] <= 635 {
+			sort.Slice(rows[i:j], func(a, b int) bool { return rows[i+a].Box[0] < rows[i+b].Box[0] })
+			kept = append(kept, rows[i:j]...)
+		}
 		i = j
 	}
-	return rows
+	return kept
 }
 
 // MergePage removes only adjacent viewport overlap, retaining repeated later costs.
