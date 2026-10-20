@@ -150,6 +150,8 @@ jobs:
       # 与定位测试解耦：定位失败时仍执行规划连通性检查。
       - name: Run navmesh connectivity tests
         if: ${{ !cancelled() }}
+        env:
+          MAAFW_VERSION: ${{ steps.maafw.outputs.release }}
         run: uv run --with "maafw==${MAAFW_VERSION#v}" python -u tests/MapNavmeshConnectivity/navmesh_connectivity.py
       - name: Upload logs
         if: always()
